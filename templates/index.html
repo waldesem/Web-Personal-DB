@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="title">{% block title %} Кандидаты {% endblock %}</h1>
+    <hr>
+    <form method="post" action="{{ url_for('search') }}">
+        <p><textarea name="full_name" placeholder="Фамилия Имя Отчество" rows="1" cols="60"></textarea>
+        <textarea name="birthday" placeholder="ГГГГ-ММ-ДД" rows="1" cols="30"></textarea></p>
+        <input type="submit" value="Поиск">
+    </form>
+    <hr>
+<div class="content">
+        {% for candidate, check in results %}
+        <div class="candidate">
+            <table>
+                <thead>
+                    <tr><th>
+                        <form action="{{ url_for('search') }}" method="post">
+                            <a href="javascript:;" onclick="parentNode.submit();">{{ candidate.full_name }}</a>
+                            <input type="hidden" name="full_name" value="{{ candidate.full_name }}">
+                            <input type="hidden" name="birthday" value="{{ candidate.birthday }}">
+                        </form>
+                    </th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Должность</td><td>{{ candidate.staff }}</td></tr>
+                    <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
+                </tbody>
+            </table>
+            <div class="check">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Результат проверки кандидата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
+                        <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="title">{% block title %} Результаты поиска {% endblock %}</h1>
+    <div class="content">
+        {% for candidate, check, inquiry, registr in results %}
+        <div class="candidate">
+            <table>
+                <thead>
+                    <tr><th>#{{ candidate.id }} {{ candidate.full_name }}</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Должность</td><td>{{ candidate.staff }}</td></tr>
+                    <tr><td>Кластер/Блок</td><td>{{ candidate.department }}</td></tr>
+                    <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
+                    <tr><td>Место рождения</td><td>{{ candidate.birth_place }}</td></tr>
+                    <tr><td>Гражданство</td><td>{{ candidate.country }}</td></tr>
+                    <tr><td>Паспорт</td><td>серия {{ candidate.series_passport }}
+                        номер {{ candidate.number_passport }} выдан {{ candidate.date_given }}</td></tr>
+                    <tr><td>СНИЛС</td><td>{{ candidate.snils }}</td></tr>
+                    <tr><td>ИНН</td><td>{{ candidate.inn }}</td></tr>
+                    <tr><td>Адрес регистрации</td><td>{{ candidate.reg_address }}</td></tr>
+                    <tr><td>Адрес проживания</td><td>{{ candidate.live_address }}</td></tr>
+                    <tr><td>Телефон</td><td>{{ candidate.phone }}</td></tr>
+                    <tr><td>e-mail</td><td>{{ candidate.email }}</td></tr>
+                    <tr><td>Образование</td><td>{{ candidate.education }}</td></tr>
+                </tbody>
+            </table>
+            <div class="check">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Результат проверки кандидата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr><td>Проверка по местам работы</td><td>{{ check.check_work_place }}</td></tr>
+                            <tr><td>Проверка паспорта</td><td>{{ check.check_passport }}</td></tr>
+                            <tr><td>Проверка ФССП</td><td>{{ check.check_debt }}</td></tr>
+                            <tr><td>Проверка банкротства</td><td>{{ check.check_bankruptcy }}</td></tr>
+                            <tr><td>Проверка БКИ</td><td>{{ check.check_bki }}</td></tr>
+                            <tr><td>Проверка аффилированности</td><td>{{ check.check_affiliation }}</td></tr>
+                            <tr><td>Проверка в других источниках</td><td>{{ check.check_internet }}</td></tr>
+                            <tr><td>Проверка Кронос</td><td>{{ check.check_cronos }}</td></tr>
+                            <tr><td>Проверка Крос</td><td>{{ check.check_cross }}</td></tr>
+                            <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
+                            <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
+                            <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
+                    </tbody>
+                </table>
+                <div class="inquiry">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Запросы о работнике</th>
+                            </tr>
+                        </thead>
+                            <tbody>
+                                <tr><td>Информация</td><td>{{ inquiry.info }}</td></tr>
+                                <tr><td>Организация</td><td>{{ inquiry.firm }}</td></tr>
+                                <tr><td>Дата запроса</td><td>{{ inquiry.date_inq }}</td></tr>
+                            </tbody>
+                    </table>
+                    <div class="registr">
+                        <table>
+                            <thead>
+                                <tr><th>Инфо из реестра</th></tr>
+                            </thead>
+                                <tbody>
+                                    <tr><td>Отметки</td><td>{{ registr.checks }}</td></tr>
+                                    <tr><td>Рекрутер</td><td>{{ registr.recruiter }}</td></tr>
+                                    <tr><td>Решение</td><td>{{ registr.fin_decision }}</td></tr>
+                                    <tr><td>Дата запроса</td><td>{{ registr.final_date }}</td></tr>
+                                    <tr><td>Гиперссылка</td><td>{{ registr.url }}</td></tr>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <hr>
+    <a href="{{ url_for('edit', cand_id=results[0].Candidate.id) }}"><b>Открыть для изменения</b></a>
+    <hr>
+{% endblock %}
