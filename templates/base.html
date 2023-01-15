@@ -15,33 +15,28 @@
             flex-direction: column;
         }
 
-        .candidate {
+        .person {
             flex: 20%;
             padding: 10px;
             margin: 5px;
-            background-color: #f3f3f3;
+            background-color: #eeeeee;
             inline-size: 100%;
         }
 
-        .check {
-            padding: 10px;
-            margin: 5px;
-            background-color: #ffffff;
-            color: #004835;
+        .table {
+            width: 99%;
+            margin-bottom: 20px;
+            border: 1px solid #dddddd;
+            border-collapse: collapse;
         }
-
-        .inquiry {
-            padding: 10px;
-            margin: 5px;
-            background-color: #ffffff;
-            color: #004835;
+        .table th {
+            font-weight: bold;
+            padding: 5px;
+            background: #efefef;
         }
-
-        .registr {
-            padding: 10px;
-            margin: 5px;
-            background-color: #ffffff;
-            color: #004835;
+        .table td {
+            border: 1px solid #dddddd;
+            padding: 5px;
         }
 
         nav a {
@@ -50,12 +45,14 @@
             margin-left: 50px;
             text-decoration: none;
         }
+
     </style>
 </head>
 <body>
     <nav>
         <a href="{{ url_for('index') }}">Кандидаты</a>
         <a href="{{ url_for('create') }}">Создать</a>
+        <a href="{{ url_for('info') }}">Информация</a>
     </nav>
     <hr>
     <div class="content">

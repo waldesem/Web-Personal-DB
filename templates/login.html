@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+<h1 class="title">{% block title %} Войти в систему {% endblock %}</h1>
+{% block content %}
+<div class="content">
+    <form action="" method="post" class="form-contact">
+        {{ form.hidden_tag() }}
+        {{ form.login.label() }} {{ form.login() }}
+        {{ form.psw.label() }} {{ form.psw() }}
+        {{ form.remember.label() }} {{ form.remember() }}
+        {{ form.submit() }}
+        <hr align="left" width="300px">
+        <a href="{{url_for('register')}}">Регистрация</a>
+    </form>
+    {% endfor %}
+</div>
+{% endblock %}

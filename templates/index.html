@@ -1,46 +1,55 @@
 {% extends 'base.html' %}
 
-{% block content %}
 <h1 class="title">{% block title %} Кандидаты {% endblock %}</h1>
+{% block content %}
+<div class="content">
     <hr>
     <form method="post" action="{{ url_for('search') }}">
-        <p><textarea name="full_name" placeholder="Фамилия Имя Отчество" rows="1" cols="60"></textarea>
-        <textarea name="birthday" placeholder="ГГГГ-ММ-ДД" rows="1" cols="30"></textarea></p>
-        <input type="submit" value="Поиск">
+        <table style="width:60%">
+            <tr>
+                <th style="width:60% text-align: left"><textarea name="full_name" placeholder="Фамилия Имя Отчество" rows="1" cols="60"></textarea></th>
+                <th style="width:20% text-align: left"><textarea name="birthday" placeholder="ГГГГ-ММ-ДД" rows="1" cols="30"></textarea></th>
+                <th style="width:20% text-align: left"><input type="submit" value="Поиск"></th>
+            </tr>
+        </table>
     </form>
     <hr>
-<div class="content">
-        {% for candidate, check in results %}
-        <div class="candidate">
-            <table>
-                <thead>
-                    <tr><th>
-                        <form action="{{ url_for('search') }}" method="post">
-                            <a href="javascript:;" onclick="parentNode.submit();">{{ candidate.full_name }}</a>
-                            <input type="hidden" name="full_name" value="{{ candidate.full_name }}">
-                            <input type="hidden" name="birthday" value="{{ candidate.birthday }}">
-                        </form>
-                    </th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Должность</td><td>{{ candidate.staff }}</td></tr>
-                    <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
-                </tbody>
-            </table>
-            <div class="check">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Результат проверки кандидата</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
-                        <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endfor %}
+    <div class="person">
+        <table style="width:100%">
+            <tr>
+                <th style="width:20%">Должность</th>
+                <th style="width:20%">Фамилия Имя Отчество</th>
+                <th style="width:20%">Дата рождения</th>
+                <th style="width:20%">Результат проверки</th>
+                <th style="width:20%">Дата проверки</th>
+            </tr>
+        </table>
     </div>
+    {% for candidate, check in results %}
+    <div class="person">
+        <table style="width:100%">
+            <tr>
+                <th style="width:20%"></th>
+                <th style="width:20%"></th>
+                <th style="width:20%"></th>
+                <th style="width:20%"></th>
+                <th style="width:20%"></th>
+            </tr>
+            <tr>
+                <td style="text-align: center">{{ candidate.staff }}</td>
+                <td style="text-align: center">
+                    <form action="{{ url_for('search') }}" method="post">
+                        <a href="javascript:;" onclick="parentNode.submit();">{{ candidate.full_name }}</a>
+                        <input type="hidden" name="full_name" value="{{ candidate.full_name }}">
+                        <input type="hidden" name="birthday" value="{{ candidate.birthday }}">
+                    </form>
+                </td>
+                <td style="text-align: center">{{ candidate.birthday }}</td>
+                <td style="text-align: center">{{ check.resume }}</td>
+                <td style="text-align: center">{{ check.date_check }}</td>
+            </tr>
+        </table>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

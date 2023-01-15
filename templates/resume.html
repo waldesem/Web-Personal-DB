@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="title">{% block title %} Изменить анкету кандидата {% endblock %}</h2>
+    <div class="content">
+        <form method="post">
+            <div class="table">
+                {{ form.hidden_tag() }}
+                <table>
+                    <tr><td>{{ form.full_name.label() }}</td><td>{{ form.full_name() }}</td></tr>
+                    <tr><td>{{ form.staff.label() }}</td><td>{{ form.staff() }}</td></tr>
+                    <tr><td>{{ form.department.label() }}</td><td>{{ form.department() }}</td></tr>
+                    <tr><td>{{ form.last_name.label() }}</td><td>{{ form.last_name() }}</td></tr>
+                    <tr><td>{{ form.birthday.label() }}</td><td>{{ form.birthday() }}</td></tr>
+                    <tr><td>{{ form.birth_place.label() }}</td><td>{{ form.birth_place() }}</td></tr>
+                    <tr><td>{{ form.country.label() }}</td><td>{{ form.country() }}</td></tr>
+                    <tr><td>{{ form.series_passport.label() }}</td><td>{{ form.series_passport() }}</td></tr>
+                    <tr><td>{{ form.number_passport.label() }}</td><td>{{ form.number_passport() }}</td></tr>
+                    <tr><td>{{ form.date_given.label() }}</td><td>{{ form.date_given() }}</td></tr>
+                    <tr><td>{{ form.snils.label() }}</td><td>{{ form.snils() }}</td></tr>
+                    <tr><td>{{ form.inn.label() }}</td><td>{{ form.inn() }}</td></tr>
+                    <tr><td>{{ form.reg_address.label() }}</td><td>{{ form.reg_address() }}</td></tr>
+                    <tr><td>{{ form.live_address.label() }}</td><td>{{ form.live_address() }}</td></tr>
+                    <tr><td>{{ form.phone.label() }}</td><td>{{ form.phone() }}</td></tr>
+                    <tr><td>{{ form.email.label() }}</td><td>{{ form.email() }}</td></tr>
+                    <tr><td>{{ form.education.label() }}</td><td>{{ form.education() }}</td></tr>
+                    <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
+                </table>
+            </div>
+        </form>
+    </div>
+{% endblock %}

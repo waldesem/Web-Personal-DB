@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="title">{% block title %} Добавить информацию {% endblock %}</h1>
+    <div class="content">
+        <form method="post">
+            <div class="person">
+                {{ form.hidden_tag() }}
+                <table>
+                    <tr> <td>{{ form.staff.label() }}</td><td>{{ form.staff() }}</td></tr>
+                    <tr><td>{{ form.period.label() }}</td><td>{{ form.period() }}</td></tr>
+                    <tr><td>{{ form.info.label() }}</td><td>{{ form.info() }}</td></tr>
+                    <tr><td>{{ form.firm.label() }}</td><td>{{ form.firm() }}</td>
+                    </tr>
+                </table>
+            </div>
+        <hr>
+        <p>
+            <button type="submit"><b>Применить</b></button>
+        </p>
+        </form>
+    </div>
+{% endblock %}

@@ -1,137 +1,63 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 style="width: 100%">{% block title %} Создать новую запись {% endblock %}</h1>
-    <form method="post">
-        <table>
-            <caption><b>ПЕРСОНАЛЬНЫЕ ДАННЫЕ</b></caption>
-            <tbody>
-                <tr>
-                    <td><label for="full_name">Фамилия Имя Отчество</label></td>
-                    <td><br><textarea name="full_name" placeholder="Фамилия Имя Отчество" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="staff">Должность</label></td>
-                    <td><br><textarea name="staff" placeholder="Должность" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="department">Кластер/Блок</label></td>
-                    <td><br><textarea name="department" placeholder="Кластер/Блок" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="last_name">Предыдущие ФИО</label></td>
-                    <td><br><textarea name="last_name" placeholder="Фамилия Имя Отчество, дата изменения" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="birthday">Дата рождения</label></td>
-                    <td><br><textarea name="birthday" placeholder="ГГГГ-ММ-ДД" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="birth_place">Место рождения</label></td>
-                    <td><br><textarea name="birth_place" placeholder="Место рождения" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="country">Гражданство</label></td>
-                    <td><br><textarea name="country" placeholder="Гражданство (если есть второе - указать какое)" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="series_passport">Серия паспорта</label></td>
-                    <td><br><textarea name="series_passport" placeholder="Серия паспорта" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="number_passport">Номер паспорта</label></td>
-                    <td><br><textarea name="number_passport" placeholder="Номер паспорта" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="date_given">Дата выдачи</label></td>
-                    <td><br><textarea name="date_given" placeholder="ГГГГ-ММ-ДД" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="snils">СНИЛС</label></td>
-                    <td><br><textarea name="snils" placeholder="СНИЛС" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="inn">ИНН</label></td>
-                    <td><br><textarea name="inn" placeholder="ИНН" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="reg_address">Адрес регистрации</label></td>
-                    <td><br><textarea name="reg_address" placeholder="Регион, город, улица, дом, квартира" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="live_address">Адрес проживания</label></td>
-                    <td><br><textarea name="live_address" placeholder="Регион, город, улица, дом, квартира" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="phone">Телефон</label></td>
-                    <td><br><textarea name="phone" placeholder="Телефон" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="email">Эл.почта</label></td>
-                    <td><br><textarea name="email" placeholder="Эл.почта" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="education">Образование</label></td>
-                    <td><br><textarea name="education" placeholder="Год окончания, основное образование, специальность" rows="2" cols="100"></textarea></td>
-                </tr>
-            </tbody>
-        </table>
-        <hr>
-        <table>
-            <caption><b>РЕЗУЛЬТАТЫ ПРОВЕРКИ</b></caption>
-            <tbody>
-                <tr>
-                    <td><label for="check_work_place">Проверка по месту работы</label></td>
-                    <td><br><textarea name="check_work_place" placeholder="Проверка по месту работы (три места или три года)" rows="3" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="check_passport">Проверка паспорта</label></td>
-                    <td><br><textarea name="check_passport" placeholder="Проверка паспорта" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="check_debt">Проверка задолженностей</label></td>
-                    <td><br><textarea name="check_debt" placeholder="Проверка задолженностей" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="check_bankruptcy">Проверка банкротства</label></td>
-                    <td><br><textarea name="check_bankruptcy" placeholder="Проверка банкротства" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr><td><label for="check_bki">Проверка кредитной истории</label></td>
-                    <td><br><textarea name="check_bki" placeholder="Проверка кредитной истории" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="check_affiliation">Проверка аффилированности</label></td>
-                    <td><br><textarea name="check_affiliation" placeholder="Проверка аффилированности" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="check_internet">Проверка по открытым источникам</label></td>
-                    <td><br><textarea name="check_internet" placeholder="Проверка по месту работы" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="check_cronos">Проверка Кронос</label></td>
-                    <td><br><textarea name="check_cronos" placeholder="Проверка Кронос" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="check_cross">Проверка Крос</label></td>
-                    <td><br><textarea name="check_cross" placeholder="Проверка Крос" rows="2" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="resume">Результат проверки</label></td>
-                    <td><br><textarea name="resume" placeholder="Результат проверки" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="date_check">Дата проверки</label></td>
-                    <td><br><textarea name="date_check" placeholder="Дата проверки" rows="1" cols="100"></textarea></td>
-                </tr>
-                <tr>
-                    <td><label for="officer">Сотрудник </label></td>
-                    <td><br><textarea name="officer" placeholder="Фамилия  И.О." rows="1" cols="100"></textarea></td>
-                </tr>
-           </tbody>
-        </table>
-        <hr>
-        <p>
-            <button type="submit"><b>Применить</b></button>
-        </p>
+<h1 class="title">{% block title %}  Создать новую запись {% endblock %}</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message|safe }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <hr>
+    <form method="post" action="{{ url_for('upload', file='name') }}" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <p><input type="submit" value="Загрузить"></p>
     </form>
+    <hr>
+    <div class="content">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <table>
+                <caption ><b>ПЕРСОНАЛЬНЫЕ ДАННЫЕ</b></caption>
+                <tr><td>{{ form.full_name.label() }}</td><td>{{ form.full_name() }}</td></tr>
+                <tr><td>{{ form.staff.label() }}</td><td>{{ form.staff() }}</td></tr>
+                <tr><td>{{ form.department.label() }}</td><td>{{ form.department() }}</td></tr>
+                <tr><td>{{ form.last_name.label() }}</td><td>{{ form.last_name() }}</td></tr>
+                <tr><td>{{ form.birthday.label() }}</td><td>{{ form.birthday() }}</td></tr>
+                <tr><td>{{ form.birth_place.label() }}</td><td>{{ form.birth_place() }}</td></tr>
+                <tr><td>{{ form.country.label() }}</td><td>{{ form.country() }}</td></tr>
+                <tr><td>{{ form.series_passport.label() }}</td><td>{{ form.series_passport() }}</td></tr>
+                <tr><td>{{ form.number_passport.label() }}</td><td>{{ form.number_passport() }}</td></tr>
+                <tr><td>{{ form.date_given.label() }}</td><td>{{ form.date_given() }}</td></tr>
+                <tr><td>{{ form.snils.label() }}</td><td>{{ form.snils() }}</td></tr>
+                <tr><td>{{ form.inn.label() }}</td><td>{{ form.inn() }}</td></tr>
+                <tr><td>{{ form.reg_address.label() }}</td><td>{{ form.reg_address() }}</td></tr>
+                <tr><td>{{ form.live_address.label() }}</td><td>{{ form.live_address() }}</td></tr>
+                <tr><td>{{ form.phone.label() }}</td><td>{{ form.phone() }}</td></tr>
+                <tr><td>{{ form.email.label() }}</td><td>{{ form.email() }}</td></tr>
+                <tr><td>{{ form.education.label() }}</td><td>{{ form.education() }}</td></tr>
+            </table>
+            <hr>
+            <table>
+                <caption><b>РЕЗУЛЬТАТЫ ПРОВЕРКИ</b></caption>
+                <tr><td>{{ form.check_work_place.label() }}</td><td>{{ form.check_work_place() }}</td></tr>
+                <tr><td>{{ form.check_passport.label() }}</td><td>{{ form.check_passport() }}</td></tr>
+                <tr><td>{{ form.check_debt.label() }}</td><td>{{ form.check_debt() }}</td></tr>
+                <tr><td>{{ form.check_bankruptcy.label() }}</td><td>{{ form.check_bankruptcy() }}</td></tr>
+                <tr><td>{{ form.check_bki.label() }}</td><td>{{ form.check_bki() }}</td></tr>
+                <tr><td>{{ form.check_affiliation.label() }}</td><td>{{ form.check_affiliation() }}</td></tr>
+                <tr><td>{{ form.check_internet.label() }}</td><td>{{ form.check_internet() }}</td></tr>
+                <tr><td>{{ form.check_cronos.label() }}</td><td>{{ form.check_cronos() }}</td></tr>
+                <tr><td>{{ form.check_cross.label() }}</td><td>{{ form.check_cross() }}</td></tr>
+                <tr><td>{{ form.resume.label() }}</td><td>{{ form.resume() }}</td></tr>
+                <tr><td>{{ form.officer.label() }}</td><td>{{ form.officer() }}</td></tr>
+                <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
+            </table>
+        </form>
+    </div>
 {% endblock %}

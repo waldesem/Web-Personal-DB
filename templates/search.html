@@ -1,86 +1,76 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="title">{% block title %} Результаты поиска {% endblock %}</h1>
+<h1 class="title">{% block title %} Анкета кандидата {% endblock %}</h1>
     <div class="content">
-        {% for candidate, check, inquiry, registr in results %}
-        <div class="candidate">
+        <div class="person">
             <table>
-                <thead>
-                    <tr><th>#{{ candidate.id }} {{ candidate.full_name }}</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Должность</td><td>{{ candidate.staff }}</td></tr>
-                    <tr><td>Кластер/Блок</td><td>{{ candidate.department }}</td></tr>
-                    <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
-                    <tr><td>Место рождения</td><td>{{ candidate.birth_place }}</td></tr>
-                    <tr><td>Гражданство</td><td>{{ candidate.country }}</td></tr>
-                    <tr><td>Паспорт</td><td>серия {{ candidate.series_passport }}
-                        номер {{ candidate.number_passport }} выдан {{ candidate.date_given }}</td></tr>
-                    <tr><td>СНИЛС</td><td>{{ candidate.snils }}</td></tr>
-                    <tr><td>ИНН</td><td>{{ candidate.inn }}</td></tr>
-                    <tr><td>Адрес регистрации</td><td>{{ candidate.reg_address }}</td></tr>
-                    <tr><td>Адрес проживания</td><td>{{ candidate.live_address }}</td></tr>
-                    <tr><td>Телефон</td><td>{{ candidate.phone }}</td></tr>
-                    <tr><td>e-mail</td><td>{{ candidate.email }}</td></tr>
-                    <tr><td>Образование</td><td>{{ candidate.education }}</td></tr>
-                </tbody>
+                <tr><th><b># {{ results[0].id }} {{ results[0].full_name }}</b></th></tr>
+                <tr><td>Должность</td><td>{{ results[0].staff }}</td></tr>
+                <tr><td>Кластер/Блок</td><td>{{ results[0].department }}</td></tr>
+                <tr><td>Дата рождения</td><td>{{ results[0].birthday }}</td></tr>
+                <tr><td>Место рождения</td><td>{{ results[0].birth_place }}</td></tr>
+                <tr><td>Гражданство</td><td>{{ results[0].country }}</td></tr>
+                <tr><td>Паспорт</td><td>серия {{ results[0].series_passport }}
+                    номер {{ results[0].number_passport }} выдан {{ results[0].date_given }}</td></tr>
+                <tr><td>СНИЛС</td><td>{{ results[0].snils }}</td></tr>
+                <tr><td>ИНН</td><td>{{ results[0].inn }}</td></tr>
+                <tr><td>Адрес регистрации</td><td>{{ results[0].reg_address }}</td></tr>
+                <tr><td>Адрес проживания</td><td>{{ results[0].live_address }}</td></tr>
+                <tr><td>Телефон</td><td>{{ results[0].phone }}</td></tr>
+                <tr><td>e-mail</td><td>{{ results[0].email }}</td></tr>
+                <tr><td>Образование</td><td>{{ results[0].education }}</td></tr>
             </table>
-            <div class="check">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Результат проверки кандидата</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                            <tr><td>Проверка по местам работы</td><td>{{ check.check_work_place }}</td></tr>
-                            <tr><td>Проверка паспорта</td><td>{{ check.check_passport }}</td></tr>
-                            <tr><td>Проверка ФССП</td><td>{{ check.check_debt }}</td></tr>
-                            <tr><td>Проверка банкротства</td><td>{{ check.check_bankruptcy }}</td></tr>
-                            <tr><td>Проверка БКИ</td><td>{{ check.check_bki }}</td></tr>
-                            <tr><td>Проверка аффилированности</td><td>{{ check.check_affiliation }}</td></tr>
-                            <tr><td>Проверка в других источниках</td><td>{{ check.check_internet }}</td></tr>
-                            <tr><td>Проверка Кронос</td><td>{{ check.check_cronos }}</td></tr>
-                            <tr><td>Проверка Крос</td><td>{{ check.check_cross }}</td></tr>
-                            <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
-                            <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
-                            <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
-                    </tbody>
-                </table>
-                <div class="inquiry">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Запросы о работнике</th>
-                            </tr>
-                        </thead>
-                            <tbody>
-                                <tr><td>Информация</td><td>{{ inquiry.info }}</td></tr>
-                                <tr><td>Организация</td><td>{{ inquiry.firm }}</td></tr>
-                                <tr><td>Дата запроса</td><td>{{ inquiry.date_inq }}</td></tr>
-                            </tbody>
-                    </table>
-                    <div class="registr">
-                        <table>
-                            <thead>
-                                <tr><th>Инфо из реестра</th></tr>
-                            </thead>
-                                <tbody>
-                                    <tr><td>Отметки</td><td>{{ registr.checks }}</td></tr>
-                                    <tr><td>Рекрутер</td><td>{{ registr.recruiter }}</td></tr>
-                                    <tr><td>Решение</td><td>{{ registr.fin_decision }}</td></tr>
-                                    <tr><td>Дата запроса</td><td>{{ registr.final_date }}</td></tr>
-                                    <tr><td>Гиперссылка</td><td>{{ registr.url }}</td></tr>
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <hr>
+                <a href="{{ url_for('resume', cand_id=results[0].id) }}"><b>Редактировать анкету</b></a>
         </div>
-        {% endfor %}
+        <div class="person">
+            {% for check in results[1] %}
+            <table>
+                <caption><b>Результат проверки кандидата</b></caption>
+                <tr><td>ID</td><td>{{ check.id }}</td></tr>
+                <tr><td>Проверка по местам работы</td><td>{{ check.check_work_place }}</td></tr>
+                <tr><td>Проверка паспорта</td><td>{{ check.check_passport }}</td></tr>
+                <tr><td>Проверка ФССП</td><td>{{ check.check_debt }}</td></tr>
+                <tr><td>Проверка банкротства</td><td>{{ check.check_bankruptcy }}</td></tr>
+                <tr><td>Проверка БКИ</td><td>{{ check.check_bki }}</td></tr>
+                <tr><td>Проверка аффилированности</td><td>{{ check.check_affiliation }}</td></tr>
+                <tr><td>Проверка в других источниках</td><td>{{ check.check_internet }}</td></tr>
+                <tr><td>Проверка Кронос</td><td>{{ check.check_cronos }}</td></tr>
+                <tr><td>Проверка Крос</td><td>{{ check.check_cross }}</td></tr>
+                <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
+                <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
+                <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
+            </table>
+            <hr>
+            {% endfor %}
+            <a href="{{ url_for('check', cand_id=results[0].id) }}"><b>Добавить проверку</b></a>
+        </div>
+        <div class="person">
+            {% for inquiry in results[2] %}
+            <table>
+                <caption><b>Запросы о работнике</b></caption>
+                <tr><td>ID</td><td>{{ inquiry.id }}</td></tr>
+                <tr><td>Информация</td><td>{{ inquiry.info }}</td></tr>
+                <tr><td>Организация</td><td>{{ inquiry.firm }}</td></tr>
+                <tr><td>Дата запроса</td><td>{{ inquiry.date_inq }}</td></tr>
+            </table>
+            <hr>
+            {% endfor %}
+            <a href="{{ url_for('inquiry', cand_id=results[0].id) }}"><b>Добавить информацию</b></a>
+        </div>
+        <div class="person">
+            {% for registr in results[3] %}
+            <table>
+                <caption><b>Инфо из реестра</b></caption>
+                <tr><td>ID</td><td>{{ registr.id }}</td></tr>
+                <tr><td>Отметки</td><td>{{ registr.checks }}</td></tr>
+                <tr><td>Рекрутер</td><td>{{ registr.recruiter }}</td></tr>
+                <tr><td>Решение</td><td>{{ registr.fin_decision }}</td></tr>
+                <tr><td>Дата решения</td><td>{{ registr.final_date }}</td></tr>
+                <tr><td>Гиперссылка</td><td><a href="{{ registr.url }}">Открыть</a></td></tr>
+            </table>
+            {% endfor %}
+        </div>
     </div>
-    <hr>
-    <a href="{{ url_for('edit', cand_id=results[0].Candidate.id) }}"><b>Открыть для изменения</b></a>
-    <hr>
 {% endblock %}
