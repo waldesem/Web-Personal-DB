@@ -1,23 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="title">{% block title %} Добавить проверку {% endblock %}</h1>
+<h1 class="title">{% block title %} Проверка кандидата {% endblock %}</h1>
     <div class="content">
         <form method="post">
             {{ form.hidden_tag() }}
-            <div class="person">
-                <table>
-                    <tr><td>{{ form.check_work_place.label() }}</td><td>{{ form.check_work_place() }}</td></tr>
-                    <tr><td>{{ form.check_passport.label() }}</td><td>{{ form.check_passport() }}</td></tr>
-                    <tr><td>{{ form.check_debt.label() }}</td><td>{{ form.check_debt() }}</td></tr>
-                    <tr><td>{{ form.check_bankruptcy.label() }}</td><td>{{ form.check_bankruptcy() }}</td></tr>
-                    <tr><td>{{ form.check_bki.label() }}</td><td>{{ form.check_bki() }}</td></tr>
-                    <tr><td>{{ form.check_affiliation.label() }}</td><td>{{ form.check_affiliation() }}</td></tr>
-                    <tr><td>{{ form.check_internet.label() }}</td><td>{{ form.check_internet() }}</td></tr>
-                    <tr><td>{{ form.check_cronos.label() }}</td><td>{{ form.check_cronos() }}</td></tr>
-                    <tr><td>{{ form.check_cross.label() }}</td><td>{{ form.check_cross() }}</td></tr>
+            <div class="table">
+                <table style="width: 99%">
+                    <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
+                    <tr><td>{{ form.check_work_place.label() }}</td><td>{{ form.check_work_place(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_passport.label() }}</td><td>{{ form.check_passport(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_debt.label() }}</td><td>{{ form.check_debt(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_bankruptcy.label() }}</td><td>{{ form.check_bankruptcy(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_bki.label() }}</td><td>{{ form.check_bki(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_affiliation.label() }}</td><td>{{ form.check_affiliation(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_internet.label() }}</td><td>{{ form.check_internet(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_cronos.label() }}</td><td>{{ form.check_cronos(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_cross.label() }}</td><td>{{ form.check_cross(cols="76", rows="3") }}</td></tr>
                     <tr><td>{{ form.resume.label() }}</td><td>{{ form.resume() }}</td></tr>
-                    <tr><td>{{ form.officer.label() }}</td><td>{{ form.officer() }}</td></tr>
+                    <tr><td>{{ form.officer.label() }}</td><td>{{ form.officer(size='100') }}</td></tr>
                     <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
                 </table>
             </div>

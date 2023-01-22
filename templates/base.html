@@ -13,6 +13,7 @@
             width: 100%;
             display: flex;
             flex-direction: column;
+            color: #00001a;
         }
 
         .person {
@@ -23,22 +24,60 @@
             inline-size: 100%;
         }
 
-        .table {
-            width: 99%;
-            margin-bottom: 20px;
-            border: 1px solid #dddddd;
-            border-collapse: collapse;
-        }
-        .table th {
-            font-weight: bold;
-            padding: 5px;
-            background: #efefef;
-        }
-        .table td {
-            border: 1px solid #dddddd;
-            padding: 5px;
+        .search {
+            padding: 10px;
+            margin: 5px;
+            background-color: #ffefef;
         }
 
+        .table {
+            padding: 10px;
+            margin: 5px;
+        }
+
+        .table th {
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        .table td {
+            padding: 10px;
+        }
+
+        .table caption {
+            padding: 10px;
+        }
+
+        .flash {
+            padding: 10px;
+        }
+        
+        .flash.success {
+            border: 1px solid #21DB56;
+            background: #AEFFC5;
+        }
+
+        .flash.error {
+            border: 1px solid #FF4343;
+            background: #FF9C9C;
+        }
+
+        .invalid {
+            display: inline-block;
+            background: #FF9898;
+        }
+
+        .form-contact .invalid-feedback {
+            color: #CC0000;
+        }
+
+        .alert {
+            padding: 20px;
+            margin: 5px;
+            color: #970020;
+            background-color: #ffd5de;
+        }
+        
         nav a {
             color: #d64161;
             font-size: 2em;
@@ -51,8 +90,9 @@
 <body>
     <nav>
         <a href="{{ url_for('index') }}">Кандидаты</a>
-        <a href="{{ url_for('create') }}">Создать</a>
+        <a href="{{ url_for('resume', cand_id=9999999) }}">Создать</a>
         <a href="{{ url_for('info') }}">Информация</a>
+        <a href="{{ url_for('logout') }}">Выйти</a>
     </nav>
     <hr>
     <div class="content">

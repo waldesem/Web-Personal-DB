@@ -1,17 +1,28 @@
 {% extends 'base.html' %}
 
-<h1 class="title">{% block title %} Войти в систему {% endblock %}</h1>
 {% block content %}
+<h1 class="title">{% block title %} Войти в систему {% endblock %}</h1>
+<div class="flash">
+    {% for message in get_flashed_messages() %}
+      {{ message }}
+    {% endfor %}
+</div>
 <div class="content">
     <form action="" method="post" class="form-contact">
-        {{ form.hidden_tag() }}
-        {{ form.login.label() }} {{ form.login() }}
-        {{ form.psw.label() }} {{ form.psw() }}
-        {{ form.remember.label() }} {{ form.remember() }}
-        {{ form.submit() }}
-        <hr align="left" width="300px">
-        <a href="{{url_for('register')}}">Регистрация</a>
+            {{ form.hidden_tag() }}
+        {% for field in form if field.name not in ['csrf_token', 'remember', 'submit'] -%}
+            {% if field.errors %}
+                {{ field(class="invalid") }}
+        <span class="invalid-feedback"></span>
+                    {% for e in field.errors %}
+                    {{ e }}
+                    {% endfor %}
+            {% else %}
+                <p>{{ field.label() }} {{ field() }}</p>
+            {% endif %}
+        {% endfor %}
+        <p>{{ form.remember.label() }} {{ form.remember() }}</p>
+        <p>{{ form.submit() }}</p>
     </form>
-    {% endfor %}
 </div>
 {% endblock %}

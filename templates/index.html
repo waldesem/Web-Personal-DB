@@ -4,17 +4,19 @@
 {% block content %}
 <div class="content">
     <hr>
-    <form method="post" action="{{ url_for('search') }}">
-        <table style="width:60%">
-            <tr>
-                <th style="width:60% text-align: left"><textarea name="full_name" placeholder="Фамилия Имя Отчество" rows="1" cols="60"></textarea></th>
-                <th style="width:20% text-align: left"><textarea name="birthday" placeholder="ГГГГ-ММ-ДД" rows="1" cols="30"></textarea></th>
-                <th style="width:20% text-align: left"><input type="submit" value="Поиск"></th>
-            </tr>
-        </table>
-    </form>
+    <div class="search table">
+        <form method="post" action="{{ url_for('search') }}">
+            <table>
+                <tr>
+                    <td>{{ form.full_name.label}}</td><td>{{ form.full_name(size=60) }}</td>
+                    <td>{{ form.birthday.label() }}</td><td>{{ form.birthday(size=40) }}</td>
+                    <td>{{ form.submit() }}</td><td></td>
+                </tr>
+            </table>
+        </form>
+    </div>
     <hr>
-    <div class="person">
+    <div class="person table">
         <table style="width:100%">
             <tr>
                 <th style="width:20%">Должность</th>
@@ -23,33 +25,20 @@
                 <th style="width:20%">Результат проверки</th>
                 <th style="width:20%">Дата проверки</th>
             </tr>
-        </table>
-    </div>
-    {% for candidate, check in results %}
-    <div class="person">
-        <table style="width:100%">
-            <tr>
-                <th style="width:20%"></th>
-                <th style="width:20%"></th>
-                <th style="width:20%"></th>
-                <th style="width:20%"></th>
-                <th style="width:20%"></th>
-            </tr>
+            {% for candidate, check in results %}
             <tr>
                 <td style="text-align: center">{{ candidate.staff }}</td>
                 <td style="text-align: center">
-                    <form action="{{ url_for('search') }}" method="post">
+                    <form action="{{ url_for('profile', c_id=candidate.id) }}" method="post">
                         <a href="javascript:;" onclick="parentNode.submit();">{{ candidate.full_name }}</a>
-                        <input type="hidden" name="full_name" value="{{ candidate.full_name }}">
-                        <input type="hidden" name="birthday" value="{{ candidate.birthday }}">
                     </form>
                 </td>
                 <td style="text-align: center">{{ candidate.birthday }}</td>
                 <td style="text-align: center">{{ check.resume }}</td>
                 <td style="text-align: center">{{ check.date_check }}</td>
             </tr>
+            {% endfor %}
         </table>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

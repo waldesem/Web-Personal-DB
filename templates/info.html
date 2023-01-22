@@ -2,20 +2,14 @@
 
 {% block content %}
 <h1 class="title">{% block title %} Информация {% endblock %}</h1>
-<div class="content">
-    <table style="width:80%">
-        <thead><tr></tr>Отчет</tr></thead>
+<div class="content table">
+    <table>
+        <tr>
+            <th style="text-align: left">Решение</th>
+            <th style="text-align: left">Итого</th>
+        </tr>
         {% for decision, count in results %}
-        <tbody>
-            <tr>
-                <th style="width:80%">Решение</th>
-                <th style="width:20%">Итого</th>
-            </tr>
-            <tr><td>Согласовано</td><td>{{ decision.count }}</td></tr>
-            <tr><td>С комментарием</td><td>{{ decision.count }}</td></tr>
-            <tr><td>Отказ</td><td>{{ decision.count }}</td></tr>
-            <tr><td>Снят с проверки</td><td>{{ decision.count }}</td></tr>
-        </tbody>
+            <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
         {% endfor %}
     </table>
 </div>

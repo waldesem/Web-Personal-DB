@@ -1,23 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="title">{% block title %} Добавить информацию {% endblock %}</h1>
-    <div class="content">
-        <form method="post">
-            <div class="person">
-                {{ form.hidden_tag() }}
-                <table>
-                    <tr> <td>{{ form.staff.label() }}</td><td>{{ form.staff() }}</td></tr>
-                    <tr><td>{{ form.period.label() }}</td><td>{{ form.period() }}</td></tr>
-                    <tr><td>{{ form.info.label() }}</td><td>{{ form.info() }}</td></tr>
-                    <tr><td>{{ form.firm.label() }}</td><td>{{ form.firm() }}</td>
-                    </tr>
-                </table>
-            </div>
-        <hr>
-        <p>
-            <button type="submit"><b>Применить</b></button>
-        </p>
-        </form>
-    </div>
+<h1 class="title">{% block title %} Дополнительная информация {% endblock %}</h1>
+<div class="content">
+    <form method="post">
+        <div class="table">
+            {{ form.hidden_tag() }}
+            <table style="width: 99%">
+                <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
+                <tr> <td>{{ form.staff.label() }}</td><td>{{ form.staff(size='100') }}</td></tr>
+                <tr><td>{{ form.period.label() }}</td><td>{{ form.period(size='100') }}</td></tr>
+                <tr><td>{{ form.info.label() }}</td><td>{{ form.info(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.firm.label() }}</td><td>{{ form.firm(size='100') }}</td></tr>
+                <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
+            </table>
+        </div>
+    </form>
+</div>
 {% endblock %}
