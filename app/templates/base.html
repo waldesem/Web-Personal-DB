@@ -77,7 +77,28 @@
             color: #970020;
             background-color: #ffd5de;
         }
-        
+
+        details {
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            padding: 0.5em 0.5em 0;
+        }
+
+        summary {
+            font-weight: bold;
+            margin: -0.5em -0.5em 0;
+            padding: 0.5em;
+        }
+
+        details[open] {
+            padding: 0.5em;
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid #aaa;
+            margin-bottom: 0.5em;
+        }
+
         nav a {
             color: #d64161;
             font-size: 2em;
@@ -89,10 +110,11 @@
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('index') }}">Кандидаты</a>
-        <a href="{{ url_for('resume', cand_id=9999999) }}">Создать</a>
-        <a href="{{ url_for('info') }}">Информация</a>
-        <a href="{{ url_for('logout') }}">Выйти</a>
+        <a href="{{ url_for('routes.index', username='') }}">Кандидаты</a>
+        <a href="{{ url_for('routes.index', username=current_user.username) }}">Мой кабинет</a>
+        <a href="{{ url_for('routes.resume', cand_id='create') }}">Создать</a>
+        <a href="{{ url_for('routes.info') }}">Информация</a>
+        <a href="{{ url_for('routes.logout') }}">Выйти</a>
     </nav>
     <hr>
     <div class="content">

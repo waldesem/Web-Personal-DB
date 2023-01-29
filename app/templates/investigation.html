@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="title">{% block title %} Служебная проверка {% endblock %}</h1>
+<div class="content">
+    <form method="post">
+        <div class="table">
+            {{ form.hidden_tag() }}
+            <table style="width: 99%">
+                <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
+                <tr><td>{{ inv.info.label() }}</td><td>{{ inv.info(cols="76", rows="10") }}</td></tr>
+                <tr><td>{{ inv.source.label() }}</td><td>{{ inv.source(size='100') }}</td></tr>
+                <tr><td>{{ inv.date_inv.label() }}</td><td>{{ inv.date_inv(size='100') }}</td></tr>
+                <tr><td>{{ inv.submit.label() }}</td><td>{{ inv.submit() }}</td></tr>
+            </table>
+        </div>
+    </form>
+</div>
+{% endblock %}

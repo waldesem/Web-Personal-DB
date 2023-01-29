@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="title">{% block title %} Проверка кандидата {% endblock %}</h1>
+    <div class="content">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="table">
+                <table style="width: 99%">
+                    <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
+                    <tr><td>{{ form.staff.label() }}</td><td>{{ form.staff(cols="76", rows="2") }}</td></tr>
+                    <tr><td>{{ form.department.label() }}</td><td>{{ form.department(cols="76", rows="2") }}</td></tr>
+                    <tr><td>{{ form.check_work_place.label() }}</td><td>{{ form.check_work_place(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_passport.label() }}</td><td>{{ form.check_passport(cols="76", rows="2") }}</td></tr>
+                    <tr><td>{{ form.check_debt.label() }}</td><td>{{ form.check_debt(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_bankruptcy.label() }}</td><td>{{ form.check_bankruptcy(cols="76", rows="2") }}</td></tr>
+                    <tr><td>{{ form.check_bki.label() }}</td><td>{{ form.check_bki(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_affiliation.label() }}</td><td>{{ form.check_affiliation(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_terrorist.label() }}</td><td>{{ form.check_terrorist(cols="76", rows="2") }}</td></tr>
+                    <tr><td>{{ form.check_internet.label() }}</td><td>{{ form.check_internet(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_cronos.label() }}</td><td>{{ form.check_cronos(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_cross.label() }}</td><td>{{ form.check_cross(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.check_addition.label() }}</td><td>{{ form.check_addition(cols="76", rows="3") }}</td></tr>
+                    <tr><td>{{ form.resume.label() }}</td><td>{{ form.resume() }}</td></tr>
+                    <tr><td>{{ form.officer.label() }}</td><td>{{ form.officer(size=100) }}</td></tr>
+                    <tr><td>{{ form.date_check.label() }}</td><td>{{ form.date_check(size=100) }}</td></tr>
+                    <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
+                </table>
+            </div>
+        </form>
+        <div class="person table">
+            <table>
+                <tr><th><b># {{ candidate.id }} {{ candidate.full_name }}</b></th></tr>
+                <tr><td>Смена фамилии и.о.</td><td>{{ last_name.birthday }}</td></tr>
+                <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
+                <tr><td>Место рождения</td><td>{{ candidate.birth_place }}</td></tr>
+                <tr><td>Гражданство</td><td>{{ candidate.country }}</td></tr>
+                <tr><td>Паспорт</td><td>серия {{ candidate.series_passport }}
+                                        номер {{ candidate.number_passport }}
+                    выдан {{ candidate.agency }} {{ candidate.date_given }}</td></tr>
+                <tr><td>СНИЛС</td><td>{{ candidate.snils }}</td></tr>
+                <tr><td>ИНН</td><td>{{ candidate.inn }}</td></tr>
+                <tr><td>Адрес регистрации</td><td>{{ candidate.reg_address }}</td></tr>
+                <tr><td>Адрес проживания</td><td>{{ candidate.live_address }}</td></tr>
+                <tr><td>Телефон</td><td>{{ candidate.phone }}</td></tr>
+                <tr><td>e-mail</td><td>{{ candidate.email }}</td></tr>
+                <tr><td>Образование</td><td>{{ candidate.education }}</td></tr>
+                <tr><td>Другая информация</td><td>{{ candidate.addition }}</td></tr>
+                <tr><td>Дата обновления</td><td>{{ candidate.update_date }}</td></tr>
+                <tr><td>Статус</td><td>{{ candidate.status }}</td></tr>
+            </table>
+        </div>
+    </div>
+{% endblock %}

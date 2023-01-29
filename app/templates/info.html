@@ -3,6 +3,16 @@
 {% block content %}
 <h1 class="title">{% block title %} Информация {% endblock %}</h1>
 <div class="content table">
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <table>
+            <tr>
+                <td>{{ form.year.label() }}</td><td>{{ form.year() }}</td>
+                <td>{{ form.month.label() }}</td><td>{{ form.month() }}</td>
+                <td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td>
+            </tr>
+        </table>
+    </form>
     <table>
         <tr>
             <th style="text-align: left">Решение</th>
@@ -14,3 +24,4 @@
     </table>
 </div>
 {% endblock %}
+
