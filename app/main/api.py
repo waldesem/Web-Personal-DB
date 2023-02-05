@@ -1,84 +1,83 @@
 import json
 import os
-from datetime import date
-from getpass import getuser
+import shutil
 
-import requests
-from flask import request, abort, jsonify, Markup, flash
+from flask import request, abort, jsonify, Markup, flash, make_response
 
-from app.models.model import *
 from . import bp_api
-
-TODAY = date.today().strftime('%Y-%m-%d')
-STATUS = dict(new='Новый кандидат',
-              active='Проверка начата',
-              robot_start='Автопроверка',
-              robot_end='Автопроверка окончена',
-              finish='Проверка окончена',
-              pfo_start='Назначено ПФО',
-              pfo_end='ПФО проведено',
-              result='Решение принято')     # статусы проверки кандидата
+from app.models.model import *
+from app.pydantic.validate import *
+from ..utils.extensions import send_json, create_folder, STATUS
 
 
-@bp_api.route('/api/v1/get_resume/', methods=('GET', 'POST'))  # получение анкеты в формате JSON
-def get_resume(take_resume):
-    if not request.json or 'title' not in request.json:
+@bp_api.route('/api/v1/get_resume', methods=['POST'])  # получение анкеты в формате JSON
+def get_resume():
+    if not request.json:
         abort(400)
-    else:
-        resume = json.loads(take_resume)
-        result = db.session.query(Candidate).select_from(Candidate).filter_by(full_name=resume['full_name'],
-                                                                              birthday=resume['birthday']).first()
-        if result is not None:  # проверяем есть такой кандидат в БД или нет
-            for k, v in resume.items():     # если да, то перезаписываем анкету
-                setattr(result, k, v)
+    else:  # валидация данных
+        response = request.get_json()
+        resume = json.loads(response)
+        resp = validate_resume(resume)
+        if resp:
+            result = db.session.query(Candidate).filter_by(full_name=resume['full_name'],
+                                                           birthday=resume['birthday']).first()
+            if result is None:  # проверяем есть такой кандидат в БД или нет
+                db.session.add(Candidate(**resume))     # если нет - создаем новую запись
                 db.session.commit()
+            else:
+                for k, v in resume.items():  # если да, то перезаписываем анкету
+                    setattr(result, k, v)
+                    db.session.commit()
+            result = db.session.query(Candidate).filter_by(full_name=resume['full_name'],
+                                                           birthday=resume['birthday']).first()
+            result.status = STATUS['new']  # устанавливаем статус новая анкета
+            db.session.commit()
+            # send_resume(result.id, mark=False)  # mark - флаг что анкета поступила автоматическая
+            return jsonify({'get_status': 'successful'}), 201
         else:
-            value = Candidate(**resume)     # если нет - создаем новую запись
+            return jsonify({'get_status': f'not vallid json data{str(resp)}'}), 406
+
+
+@bp_api.route('/api/v1/get_check', methods=['POST'])  # получение результата проверки в формате JSON
+def get_check():
+    if not request.json:
+        abort(400)
+    else:  # валидация данных
+        response = request.get_json()
+        check = json.loads(response)
+        resp = validate_check(check)
+        if resp:
+            value = Check(**check)  # создаем новую запись
             db.session.add(value)
             db.session.commit()
-        setattr(result, result.status, STATUS['new'])    # устанавливаем статус новая анкета
-        return jsonify({'request': 'successful'}), 201
+            result = db.session.query(Candidate).filter_by(id=check['check_id']).first()
+            result.status = STATUS['robot_end']  # устанавливаем статус Предварительно
+            # folder = create_folder(result.full_name)
+            # for file in os.listdir('/robot/check/path'):
+            #     shutil.copyfile(file, folder)
+            return jsonify('{"get_status": "successful"}'), 201
+        else:
+            return jsonify('{"get_status": "not vallid json data "'f'{resp}''"}'), 406
 
 
-@bp_api.route('/api/v1/get_check/<url>', methods=('GET', 'POST'))     # получение результата в формате JSON
-def get_check(url):
-    if not request.json or 'title' not in request.json:
-        abort(400)
-    else:   # получаем JSON с результатом проверки, берем из него ID
-        check = json.loads(url)
-        result = db.session.query(Candidate).select_from(Candidate).filter_by(full_name=check['full_name'],
-                                                                              birthday=check['birthday']).first()
-        check['check_id'] = result.id
-        check_res = db.session.query(Check).select_from(Check).filter_by(id=check['id']).first()
-        for k, v in check.items():
-            if v is not '':      # записываем данные проверки
-                setattr(check_res, k, v)
-                db.session.commit()
-        setattr(result, result.status, STATUS['robot_end'])    # устанавливаем статус Автопроверка окончена
-        return jsonify({'request': 'successful'}), 201
-
-
-@bp_api.route('/api/v1/send_resume/<int:cand_id>', methods=('GET', 'POST'))
-def send_resume(cand_id):
-    result = db.session.query(Candidate).select_from(Candidate).filter_by(id=cand_id).first()
-    url = "http://localhost:8080"
-    data = jsonify(result)
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    resp = requests.post(url=url, data=data, headers=headers)
-    resp.raise_for_status()
-    if json.loads(resp.json())['request'] == 'successful':
-        message = Markup("Анкета успешно отправлена")
-        flash(message)
-        setattr(result, result.status, STATUS['robot_start'])    # устанавливаем статус Автопроверка
-        url = rf'\\cronosx1\New folder\УВБ\Отдел корпоративной защиты\Персонал\Персонал-2\{result.full_name[0]}\
-                            \{result.id} - {result.full_name}'
-        os.mkdir(os.path.join(url, TODAY))  # создаем папку для хранения анкет и материалов проверки
-        start_check = Check()
-        start_check.officer = getuser()
-        start_check.url = url
-        start_check.date_check = TODAY
-        db.session.add(Check(start_check))
-        db.session.commit()     # формируем черновую запись проверки, записываем в БД путь, дату и сотрудника СБ
+@bp_api.route('/api/v1/send_resume/<int:cand_id>', methods=['GET'])  # отправка анкеты на проверку
+def send_resume(cand_id, mark=True):  # mark - флаг для обозначения автомат отправил анкету или вручную
+    result = db.session.query(Candidate).filter_by(id=cand_id).first()
+    dictret = result.__dict__
+    url = "http://localhost:5000/api/v1/get_resume"  # адрес для отправки анкеты на проверку
+    resp = send_json(url, json.dumps(dictret))  # отправка запроса
+    if resp.json()['request'] == 'successful':
+        if mark:
+            flash(Markup("Анкета успешно отправлена"))
+        else:
+            pass  # отправитьь на почту сообщение об ошибке
+        result.status = STATUS['robot_start']  # устанавливаем статус Автопроверка
+        db.session.commit()
     else:
-        message = Markup("Отправка анкеты не удалась попробуйте ещее раз позднее")
-        flash(message)
+        if mark:
+            flash(Markup("Отправка анкеты не удалась попробуйте еще раз позднее"))
+
+
+@bp_api.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}))

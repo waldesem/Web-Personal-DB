@@ -8,10 +8,9 @@
             {{ form.hidden_tag() }}
             <table style="width: 99%">
                 <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
-                <tr> <td>{{ form.staff.label() }}</td><td>{{ form.staff(size='100') }}</td></tr>
-                <tr><td>{{ form.period.label() }}</td><td>{{ form.period(size='100') }}</td></tr>
                 <tr><td>{{ form.info.label() }}</td><td>{{ form.info(cols="76", rows="3") }}</td></tr>
-                <tr><td>{{ form.firm.label() }}</td><td>{{ form.firm(size='100') }}</td></tr>
+                <tr><td>{{ form.initiator.label() }}</td><td>{{ form.initiator(size='100') }}</td></tr>
+                <tr><td>{{ form.date_inq.label() }}</td><td>{{ form.date_inq() }}</td></tr>
                 <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
             </table>
         </div>

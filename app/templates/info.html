@@ -3,6 +3,16 @@
 {% block content %}
 <h1 class="title">{% block title %} Информация {% endblock %}</h1>
 <div class="content table">
+    <div class="table">
+        <table>
+            <tr>
+                <th style="text-align: left">Решение</th><th style="text-align: left">Итого</th>
+            </tr>
+            {% for decision, count in results %}
+            <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
     <form method="post">
         {{ form.hidden_tag() }}
         <table>
@@ -13,15 +23,6 @@
             </tr>
         </table>
     </form>
-    <table>
-        <tr>
-            <th style="text-align: left">Решение</th>
-            <th style="text-align: left">Итого</th>
-        </tr>
-        {% for decision, count in results %}
-            <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
-        {% endfor %}
-    </table>
 </div>
 {% endblock %}
 

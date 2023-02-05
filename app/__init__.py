@@ -1,6 +1,7 @@
 import datetime
 
 from flask import Flask
+from flask_migrate import Migrate
 
 from config import Config
 from app.models.model import db
@@ -17,4 +18,6 @@ def create_app(config_class=Config):
     from app.main import bp_api as api
     app.register_blueprint(api)
     app.permanent_session_lifetime = datetime.timedelta(days=30)
+    migrate = Migrate()
+    migrate.init_app(app, db, render_as_batch=True)
     return app

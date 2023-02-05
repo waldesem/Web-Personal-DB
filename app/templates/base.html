@@ -110,9 +110,9 @@
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('routes.index', username='') }}">Кандидаты</a>
-        <a href="{{ url_for('routes.index', username=current_user.username) }}">Мой кабинет</a>
-        <a href="{{ url_for('routes.resume', cand_id='create') }}">Создать</a>
+        <a href="{{ url_for('routes.index') }}">Кандидаты</a>
+        <a href = "{{ url_for('routes.officer') }}">Мой кабинет</a>
+        <a href="{{ url_for('routes.resume', cand_id=9999999) }}">Создать</a>
         <a href="{{ url_for('routes.info') }}">Информация</a>
         <a href="{{ url_for('routes.logout') }}">Выйти</a>
     </nav>

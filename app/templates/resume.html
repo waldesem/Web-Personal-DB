@@ -8,17 +8,17 @@
     {% endfor %}
 </div>
 <div class="content">
-    <hr>
-        <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
-            <input type="file" name="file">
-            <p><input type="submit" value="Принять"></p>
-        </form>
-    <hr>
-    <form method="post">
-        <div class="table">
+    <form method="post" action="{{ url_for('routes.upload') }}" enctype="multipart/form-data">
+        {{ file.hidden_tag() }}
+        {{ file.file() }}
+        <input type="submit">
+    </form>
+    <div class="table">
+        <form method="post">
             {{ form.hidden_tag() }}
             <table style="width: 99%">
                 <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
+                <tr><td>{{ form.region.label}}</td><td>{{ form.region() }}</td></tr>
                 <tr><td>{{ form.full_name.label}}</td><td>{{ form.full_name(size=100) }}</td></tr>
                 <tr><td>{{ form.last_name.label() }}</td><td>{{ form.last_name(size=100) }}</td></tr>
                 <tr><td>{{ form.birthday.label() }}</td><td>{{ form.birthday(size=100) }}</td></tr>
@@ -35,11 +35,13 @@
                 <tr><td>{{ form.phone.label() }}</td><td>{{ form.phone(size=100) }}</td></tr>
                 <tr><td>{{ form.email.label() }}</td><td>{{ form.email(size=100) }}</td></tr>
                 <tr><td>{{ form.education.label() }}</td><td>{{ form.education(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.workplace_1.label() }}</td><td>{{ form.workplace_1(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.workplace_2.label() }}</td><td>{{ form.workplace_2(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.workplace_3.label() }}</td><td>{{ form.workplace_3(cols="76", rows="3") }}</td></tr>
                 <tr><td>{{ form.addition.label() }}</td><td>{{ form.addition(cols="76", rows="3") }}</td></tr>
-                <tr><td>{{ form.update_date.label() }}</td><td>{{ form.update_date((size=100) }}</td></tr>
                 <tr><td>{{ form.submit() }}</td><td></td></tr>
             </table>
-        </div>
-    </form>
+        </form>    
+    </div>
 </div>
 {% endblock %}

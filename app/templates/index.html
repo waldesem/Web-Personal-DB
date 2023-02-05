@@ -5,20 +5,20 @@
 <div class="content">
     <div class="search table">
         <form method="post" action="{{ url_for('routes.search') }}">
-            <table>
-                <tr>
-                    <td>{{ form.full_name.label}}</td><td>{{ form.full_name(size=60) }}</td>
-                    <td>{{ form.birthday.label() }}</td><td>{{ form.birthday(size=40) }}</td>
-                    <td>{{ form.submit() }}</td><td></td>
-                </tr>
-            </table>
+        <table>
+            <tr>
+                <td>{{ form.full_name.label}}</td><td>{{ form.full_name(size=60) }}</td>
+                <td>{{ form.birthday.label() }}</td><td>{{ form.birthday(size=40) }}</td>
+                <td>{{ form.submit() }}</td><td></td>
+            </tr>
+        </table>
         </form>
     </div>
     <hr>
     <div class="person table">
         <table style="width:100%">
             <tr>
-                <th style="width:20%">Должность</th>
+                <th style="width:20%">Регион</th>
                 <th style="width:20%">Фамилия Имя Отчество</th>
                 <th style="width:20%">Дата рождения</th>
                 <th style="width:20%">Статус</th>
@@ -26,14 +26,13 @@
             </tr>
             {% for candidate in results %}
             <tr>
-                <td style="text-align: center">{{ candidate.staff }}</td>
+                <td style="text-align: center">{{ candidate.region }}</td>
                 <td style="text-align: center">
                     <form action="{{ url_for('routes.profile', cand_id=candidate.id) }}" method="post">
-                        <a href="javascript:;" onclick="parentNode.submit();">{{ candidate.full_name }}</a>
-                    </form>
-                </td>
+                        <a href="javascript:;" onclick="parentNode.submit();" >{{ candidate.full_name }}</a>
+                    </form></td>
                 <td style="text-align: center">{{ candidate.birthday }}</td>
-                              <td style="text-align: center">{{ candidate.status }}</td>
+                <td style="text-align: center">{{ candidate.status }}</td>
                 <td style="text-align: center">{{ candidate.update_date }}</td>
             </tr>
             {% endfor %}

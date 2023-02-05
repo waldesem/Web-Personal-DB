@@ -8,10 +8,10 @@
             {{ form.hidden_tag() }}
             <table style="width: 99%">
                 <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
-                <tr><td>{{ inv.info.label() }}</td><td>{{ inv.info(cols="76", rows="10") }}</td></tr>
-                <tr><td>{{ inv.source.label() }}</td><td>{{ inv.source(size='100') }}</td></tr>
-                <tr><td>{{ inv.date_inv.label() }}</td><td>{{ inv.date_inv(size='100') }}</td></tr>
-                <tr><td>{{ inv.submit.label() }}</td><td>{{ inv.submit() }}</td></tr>
+                <tr><td>{{ form.theme.label() }}</td><td>{{ form.theme(size='100') }}</td></tr>
+                <tr><td>{{ form.info.label() }}</td><td>{{ form.info(cols="76", rows="10") }}</td></tr>
+                <tr><td>{{ form.date_inv.label() }}</td><td>{{ form.date_inv() }}</td></tr>
+                <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
             </table>
         </div>
     </form>

@@ -1,62 +1,23 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <h1 class="title">{% block title %} Согласование кандидата {% endblock %}</h1>
+<div class="flash">
+    {% for message in get_flashed_messages() %}
+      {{ message }}
+    {% endfor %}
+</div>
 <div class="content">
-    <form method="post">
-        <div class="table">
+    <div class="table">
+        <form method="post">
             {{ form.hidden_tag() }}
             <table style="width: 99%">
                 <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
-                <tr><td>{{ form.supervisor.label() }}</td><td>{{ form.supervisor(size='100') }}</td></tr>
-                <tr><td>{{ form.checks.label() }}</td><td>{{ form.checks(cols="76", rows="3") }}</td></tr>
-                <tr><td>{{ form.resume.label() }}</td><td>{{ form.resume() }}</td></tr>
-                <tr><td>{{ form.date_check.label() }}</td><td>{{ form.final_date(size='100') }}</td></tr>
+                <tr><td>{{ form.marks.label() }}</td><td>{{ form.marks(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.decision.label() }}</td><td>{{ form.decision() }}</td></tr>
                 <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
             </table>
-        </div>
-    </form>
-    <div class="person table">
-        <table>
-            <tr><th><b># {{ candidate.id }} {{ candidate.full_name }}</b></th></tr>
-            <tr><td>Смена фамилии и.о.</td><td>{{ last_name.birthday }}</td></tr>
-            <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
-            <tr><td>Место рождения</td><td>{{ candidate.birth_place }}</td></tr>
-            <tr><td>Гражданство</td><td>{{ candidate.country }}</td></tr>
-            <tr><td>Паспорт</td><td>серия {{ candidate.series_passport }}
-                                    номер {{ candidate.number_passport }}
-                выдан {{ candidate.agency }} {{ candidate.date_given }}</td></tr>
-            <tr><td>СНИЛС</td><td>{{ candidate.snils }}</td></tr>
-            <tr><td>ИНН</td><td>{{ candidate.inn }}</td></tr>
-            <tr><td>Адрес регистрации</td><td>{{ candidate.reg_address }}</td></tr>
-            <tr><td>Адрес проживания</td><td>{{ candidate.live_address }}</td></tr>
-            <tr><td>Телефон</td><td>{{ candidate.phone }}</td></tr>
-            <tr><td>e-mail</td><td>{{ candidate.email }}</td></tr>
-            <tr><td>Образование</td><td>{{ candidate.education }}</td></tr>
-            <tr><td>Другая информация</td><td>{{ candidate.addition }}</td></tr>
-            <tr><td>Дата обновления</td><td>{{ candidate.update_date }}</td></tr>
-            <tr><td>Статус</td><td>{{ candidate.status }}</td></tr>
-        </table>
-        <b>Результат проверки кандидата</b>
-        <table>
-            <tr><td>ID</td><td>{{ checks[-1].id }}</td></tr>
-            <tr><td>Должность</td><td>{{ checks[-1].staff }}</td></tr>
-            <tr><td>Кластер/Блок</td><td>{{ checks[-1].department }}</td></tr>
-            <tr><td>Проверка по местам работы</td><td>{{ checks[-1].checks[-1]_work_place }}</td></tr>
-            <tr><td>Проверка паспорта</td><td>{{ checks[-1].checks[-1]_passport }}</td></tr>
-            <tr><td>Проверка ФССП</td><td>{{ checks[-1].checks[-1]_debt }}</td></tr>
-            <tr><td>Проверка банкротства</td><td>{{ checks[-1].checks[-1]_bankruptcy }}</td></tr>
-            <tr><td>Проверка БКИ</td><td>{{ checks[-1].checks[-1]_bki }}</td></tr>
-            <tr><td>Проверка аффилированности</td><td>{{ checks[-1].checks[-1]_affiliation }}</td></tr>
-            <tr><td>Проверка в списке террористов</td><td>{{ checks[-1].checks[-1]_terrorist }}</td></tr>
-            <tr><td>Проверка в открытых источниках</td><td>{{ checks[-1].checks[-1]_internet }}</td></tr>
-            <tr><td>Проверка Кронос</td><td>{{ checks[-1].checks[-1]_cronos }}</td></tr>
-            <tr><td>Проверка Крос</td><td>{{ checks[-1].checks[-1]_cross }}</td></tr>
-            <tr><td>Другая информация</td><td>{{ checks[-1].checks[-1]_addition }}</td></tr>
-            <tr><td>Результат проверки</td><td>{{ checks[-1].resume }}</td></tr>
-            <tr><td>Дата проверки</td><td>{{ checks[-1].date_checks[-1] }}</td></tr>
-            <tr><td>Сотрудник СБ</td><td>{{ checks[-1].officer }}</td></tr>
-            <tr><td>Материалы проверки</td><td><a href="{{ checks[-1].url }}">Открыть</a></td></tr>
-        </table>
+        </form>
     </div>
 </div>
 {% endblock %}
