@@ -1,78 +1,152 @@
 {% extends 'base.html' %}
-
-{% block content %}
 <h1 class="title">{% block title %} Анкета кандидата {% endblock %}</h1>
-<div class="flash">
-    {% for message in get_flashed_messages() %}
-      {{ message }}
-    {% endfor %}
-</div>
+{% block content %}
 <div class="content">
     <div class="person table">
         <table>
             <tr><td>#{{ candidate.id }}</td><td><b>{{ candidate.full_name }}</b></td></tr>
-            <tr><td>Смена фамилии и.о.</td><td>{{ candidate.last_name }}</td></tr>
+            <p>Смена имени</p>
+            {% for ln in form.ln_form %}
+            <tr><td>Смена фамилии и.о.</td><td>{{ ln.last_name }}</td></tr>
+            <tr><td>Дата изменения</td><td>{{ ln.date_change }}</td></tr>
+            {% endfor %}
             <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
             <tr><td>Место рождения</td><td>{{ candidate.birth_place }}</td></tr>
             <tr><td>Гражданство</td><td>{{ candidate.country }}</td></tr>
-            <tr><td>Паспорт</td><td> {{ candidate.series_passport }} № {{ candidate.number_passport }}
-                                        выдан {{ candidate.agency }} {{ candidate.date_given }}</td></tr>
+            <p>Паспорта</p>
+            {% for pas in form.pass_form %}
+            <tr><td>Серия</td><td>{{ pas.series_passport }}</td></tr>
+            <tr><td>Номер</td><td>{{ pas.number_passport }}</td></tr>
+            <tr><td>Кем выдан</td><td>{{ pas.agency }}</td></tr>
+            <tr><td>Дата</td><td>{{ pas.date_given }}</td></tr>
+            {% endfor %}
             <tr><td>СНИЛС</td><td>{{ candidate.snils }}</td></tr>
             <tr><td>ИНН</td><td>{{ candidate.inn }}</td></tr>
-            <tr><td>Адрес регистрации</td><td>{{ candidate.reg_address }}</td></tr>
-            <tr><td>Адрес проживания</td><td>{{ candidate.live_address }}</td></tr>
-            <tr><td>Телефон</td><td>{{ candidate.phone }}</td></tr>
-            <tr><td>e-mail</td><td>{{ candidate.email }}</td></tr>
+            <p>Адреса</p>
+            {% for addr in form.address_form %}
+            <tr><td>Тип</td><td>{{ addr.type }}</td></tr>
+            <tr><td>Регион</td><td>{{ addr.region }}</td></tr>
+            <tr><td>Город</td><td>{{ addr.city }}</td></tr>
+            <tr><td>Адрес</td><td>{{ addr.address }}</td></tr>
+            {% endfor %}
+            <p>Контакты</p>
+            {% for cont in form.cont_form %}
+            <tr><td>Контакт</td><td>{{ cont.contact }}</td></tr>
+            {% endfor %}
             <tr><td>Образование</td><td>{{ candidate.education }}</td></tr>
-            <tr><td>Место работы 1</td><td>{{ candidate.workplace_1 }}</td></tr>
-            <tr><td>Место работы 2</td><td>{{ candidate.workplace_2 }}</td></tr>
-            <tr><td>Место работы 3</td><td>{{ candidate.workplace_3 }}</td></tr>
+            <p>Работа</p>
+            {% for work in form.workplace_form %}
+            <tr><td>Период</td><td>{{ work.period }}</td></tr>
+            <tr><td>Организация</td><td>{{ work.work_place }}</td></tr>
+            <tr><td>Адрес</td><td>{{ work.address }}</td></tr>
+            <tr><td>Должность</td><td>{{ work.staff }}</td></tr>
+            {% endfor %}
+            <p>Связи</p>
+            {% for rel in form.rel_form %}
+            <tr><td>Связь</td><td>{{ rel.relation }}</td></tr>
+            <tr><td>Имя</td><td>{{ rel.full_name }}</td></tr>
+            <tr><td>Дата рождения</td><td>{{ rel.birthday }}</td></tr>
+            <tr><td>Адрес</td><td>{{ rel.address }}</td></tr>
+            <tr><td>Место работы</td><td>{{ rel.workplace }}</td></tr>
+            <tr><td>Контакты</td><td>{{ rel.contact }}</td></tr>
+            {% endfor %}
             <tr><td>Дополнительная информация</td><td>{{ candidate.addition }}</td></tr>
+            <p>Должности</p>
+            {% for st in form.staff_form %}
+            <tr><td>Должность</td><td>{{ st.staff }}</td></tr>
+            <tr><td>Департамент</td><td>{{ st.department }}</td></tr>
+            <tr><td>Рекрутер</td><td>{{ st.recruiter }}</td></tr>
+            {% endfor %}
+            <tr><td>Статус</td><td>{{ candidate.status }}</td></tr>
             <tr><td>Дата обновления</td><td>{{ candidate.update_date }}</td></tr>
         </table>
-        <hr>
-        <table>
-            <tr><td>
-                <a href="{{ url_for('routes.resume', cand_id=candidate.id) }}"><b>Редактировать анкету</b></a>
-            </td><td>
-                <a href="{{ url_for('api.send_resume', cand_id=candidate.id) }}"><b>Отправить на проверку</b></a>
-            </td><td>
-        </table>
-
+        <form>
+            <table>
+                <tr>
+                    <td><button formaction="{{ url_for('route.resume', cand_id=candidate.id) }}">Редактировать анкету</button></td>
+                    <td><button formaction="{{ url_for('api.send_resume', cand_id=candidate.id) }}">Отправить на проверку</button></td>
+                </tr>
+            </table>
+        </form>
     </div>
-    <hr>
     <div class="person table">
         <details>
-            <summary>Результат проверки кандидата</summary>
-            {% for check in checks %}
-            <table>
-                <tr><th>ID #{{ check.id }}</th></tr>
-                <tr><td>Должность</td><td>{{ check.staff }}</td></tr>
-                <tr><td>Кластер/Блок</td><td>{{ check.department }}</td></tr>
-                <tr><td>Проверка по местам работы</td><td>{{ check.check_work_place }}</td></tr>
-                <tr><td>Проверка паспорта</td><td>{{ check.check_passport }}</td></tr>
-                <tr><td>Проверка ФССП</td><td>{{ check.check_debt }}</td></tr>
-                <tr><td>Проверка банкротства</td><td>{{ check.check_bankruptcy }}</td></tr>
-                <tr><td>Проверка БКИ</td><td>{{ check.check_bki }}</td></tr>
-                <tr><td>Проверка аффилированности</td><td>{{ check.check_affiliation }}</td></tr>
-                <tr><td>Проверка в списке террористов</td><td>{{ check.check_terrorist }}</td></tr>
-                <tr><td>Проверка нахождения в розыске</td><td>{{ check.check_mvd }}</td></tr>
-                <tr><td>Проверка в открытых источниках</td><td>{{ check.check_internet }}</td></tr>
-                <tr><td>Проверка Кронос</td><td>{{ check.check_cronos }}</td></tr>
-                <tr><td>Проверка Крос</td><td>{{ check.check_cross }}</td></tr>
-                <tr><td>Дополнительная информация</td><td>{{ check.check_addition }}</td></tr>
-                <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
-                <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
-                <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
-                <tr><td><a href="{{ check.url }}">Материалы проверки</a></td><td></td></tr>
-            </table>
-            <hr>
+            <summary>Проверка кандидата</summary>
+            {% if checks|length != 0 %} {# если ранее проверялся открываем последнюю проверку #}
+            {% for check in checks.last %} {# загружаем последнюю проверку #}
+                <table>
+                    <tr><td>ID #{{ check.id }}</td><td><a href="{{ check.url }}">Материалы проверки</a></td></tr>
+                    <tr><td>Должность</td><td>{{ check.staff }}</td></tr>
+                    <tr><td>Кластер/Блок</td><td>{{ check.department }}</td></tr>
+                    <tr><td>Бывший работник МТСБ</td><td>{{ check.former_employee }}</td></tr>
+                    <tr><td>Проверка по местам работы</td><td>{{ check.check_work_place }}</td></tr>
+                    <tr><td>Проверка паспорта</td><td>{{ check.check_passport }}</td></tr>
+                    <tr><td>Проверка ИНН</td><td>{{ check.check_inn }}</td></tr>
+                    <tr><td>Проверка ФССП</td><td>{{ check.check_debt }}</td></tr>
+                    <tr><td>Проверка банкротства</td><td>{{ check.check_bankruptcy }}</td></tr>
+                    <tr><td>Проверка БКИ</td><td>{{ check.check_bki }}</td></tr>
+                    <tr><td>Проверка судебных дел</td><td>{{ check.check_court }}</td></tr>
+                    <tr><td>Проверка аффилированности</td><td>{{ check.check_affiliation }}</td></tr>
+                    <tr><td>Проверка в списке террористов</td><td>{{ check.check_terrorist }}</td></tr>
+                    <tr><td>Проверка нахождения в розыске</td><td>{{ check.check_mvd }}</td></tr>
+                    <tr><td>Проверка в открытых источниках</td><td>{{ check.check_internet }}</td></tr>
+                    <tr><td>Проверка Кронос</td><td>{{ check.check_cronos }}</td></tr>
+                    <tr><td>Проверка Крос</td><td>{{ check.check_cross }}</td></tr>
+                    <tr><td>Дополнительная информация</td><td>{{ check.check_addition }}</td></tr>
+                    <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
+                    <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
+                    <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
+                </table>
+                <p><a href="{{ url_for('route.check', cand_id=candidate.id, check_id=checks[0].id) }}" target="_blank"><b>Редактировать проверку</b></a></p>
+                <p><a href="{{ url_for('route.registr', cand_id=candidate.id, check_id=checks[-1].id) }}" target="_blank"><b>Открыть согласование</b></a></p>
             {% endfor %}
-            {% if checks|length > 0 %}
-            <a href="{{ url_for('routes.check', cand_id=candidate.id, check_id=checks[-1].id) }}"><b>Редактировать проверку</b></a>
             {% endif %}
-            &nbsp
-            <a href="{{ url_for('routes.check', cand_id=candidate.id, check_id=0) }}" target="_blank"><b>Добавить проверку</b></a>
+            {% if checks|length > 1 %} {# если кандидат проверялся более 1 раза, создаем список старых проверок #} 
+            <details>
+                <summary>Предыдущие проверки</summary>
+                {% for check in checks[:-1] %} {# загружаем проверки все кроме последней #}
+                <table>
+                    <tr><td>ID #{{ check.id }}</td><td><a href="{{ check.url }}">Материалы проверки</a></td></tr>
+                    <tr><td>Должность</td><td>{{ check.staff }}</td></tr>
+                    <tr><td>Кластер/Блок</td><td>{{ check.department }}</td></tr>
+                    <tr><td>Проверка работы в МТСБ</td><td>{{ check.former_employee }}</td></tr>
+                    <tr><td>Проверка по местам работы</td><td>{{ check.check_work_place }}</td></tr>
+                    <tr><td>Проверка паспорта</td><td>{{ check.check_passport }}</td></tr>
+                    <tr><td>Проверка ИНН</td><td>{{ check.check_inn }}</td></tr>
+                    <tr><td>Проверка ФССП</td><td>{{ check.check_debt }}</td></tr>
+                    <tr><td>Проверка банкротства</td><td>{{ check.check_bankruptcy }}</td></tr>
+                    <tr><td>Проверка БКИ</td><td>{{ check.check_bki }}</td></tr>
+                    <tr><td>Проверка судебных дел</td><td>{{ check.check_court }}</td></tr>
+                    <tr><td>Проверка аффилированности</td><td>{{ check.check_affiliation }}</td></tr>
+                    <tr><td>Проверка в списке террористов</td><td>{{ check.check_terrorist }}</td></tr>
+                    <tr><td>Проверка нахождения в розыске</td><td>{{ check.check_mvd }}</td></tr>
+                    <tr><td>Проверка в открытых источниках</td><td>{{ check.check_internet }}</td></tr>
+                    <tr><td>Проверка Кронос</td><td>{{ check.check_cronos }}</td></tr>
+                    <tr><td>Проверка Крос</td><td>{{ check.check_cross }}</td></tr>
+                    <tr><td>Дополнительная информация</td><td>{{ check.check_addition }}</td></tr>
+                    <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
+                    <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
+                    <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
+                </table>
+                {% endfor %}
+            </details>
+            {% endif %}
+            {% if registries|length > 0 %} {# если кандидат согласовывался ранее, создаем список согласований #} 
+            <details>
+                <summary>Согласования</summary>
+                {% for registr in registries %}
+                <table>
+                    <tr><td>Комментарий</td><td>{{ registr.marks }}</td></tr>
+                    <tr><td>Решение</td><td>{{ registr.decision }}</td></tr>
+                    <tr><td>Дата</td><td>{{ registr.dec_date }}</td></tr>
+                    <tr><td>Руководитель</td><td>{{ registr.supervisor }}</td></tr>
+                </table>
+                {% endfor %}
+            </details>
+            {% endif %}
+            <form>
+                <button formaction="{{ url_for('route.check', cand_id=candidate.id, check_id=0) }}">Добавить проверку</button>
+            </form>
         </details>
     </div>
     <hr>
@@ -88,7 +162,7 @@
                 <tr><td>Дата проверки</td><td>{{ pfo.date_pfo }}</td></tr>
             </table>
             {% endfor %}
-            <a href="{{ url_for('routes.poligraf', cand_id=candidate.id) }}"><b>Добавить проверку</b></a>
+            <input type="button" onclick="location.href='{{ url_for('route.poligraf', cand_id=candidate.id) }}';" value="Добавить проверку" />
         </details>
     </div>
     <hr>
@@ -103,7 +177,7 @@
                 <tr><td>Дата проверки</td><td>{{ inv.date_inv }}</td></tr>
             </table>
             {% endfor %}
-            <a href="{{ url_for('routes.investigation', cand_id=candidate.id) }}"><b>Добавить проверку</b></a>
+            <a href="{{ url_for('route.investigation', cand_id=candidate.id) }}"><b>Добавить проверку</b></a>
         </details>
     </div>
     <hr>
@@ -118,23 +192,7 @@
                 <tr><td>Дата запроса</td><td>{{ inqury.date_inq }}</td></tr>
             </table>
             {% endfor %}
-            <a href="{{ url_for('routes.inquiry', cand_id=candidate.id) }}"><b>Добавить информацию</b></a>
-        </details>
-    </div>
-    <hr>
-    <div class="person table">
-        <details>
-            <summary>Согласование кандидата</summary>
-            {% for registr in registries %}
-            <table>
-                <tr><th>ID #{{ registr.id }}</th></tr>
-                <tr><td>Согласующий</td><td>{{ registr.supervisor }}</td></tr>
-                <tr><td>Комментарий</td><td>{{ registr.marks }}</td></tr>
-                <tr><td>Решение</td><td>{{ registr.decision }}</td></tr>
-                <tr><td>Дата решения</td><td>{{ registr.dec_date }}</td></tr>
-            </table>
-            {% endfor %}
-            <a href="{{ url_for('routes.registr', cand_id=candidate.id) }}" target="_blank"><b>Открыть согласование</b></a>
+            <a href="{{ url_for('route.inquiry', cand_id=candidate.id) }}"><b>Добавить информацию</b></a>
         </details>
     </div>
 </div>

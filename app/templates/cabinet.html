@@ -2,19 +2,6 @@
 {% block content %}
 <meta http-equiv="refresh" content="600">
 <div class="content">
-    <div class="new">
-        <form method="post" action="{{ url_for('route.cabinet') }}">
-            <p>Новых анкет: {{ count }}</p>
-        </form>
-    </div>
-    <div class="search table">
-        <form method="post" action="{{ url_for('route.index') }}">
-        <table>
-            <tr><td>{{ form.full_name.label}}</td><td>{{ form.full_name(size=100) }}</td> <td>{{ form.submit() }}</td></tr>
-        </table>
-        </form>
-    </div>
-    <hr>
     <div class="person table">
         <table style="width:100%">
             <tr>

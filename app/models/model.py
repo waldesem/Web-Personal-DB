@@ -1,5 +1,8 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
+
+ma = Marshmallow()
 
 db = SQLAlchemy()
 
@@ -8,7 +11,7 @@ class Personal(db.Model):  # создаем общий класс модели �
     __abstract__ = True
 
 
-class Users(Personal, UserMixin):   # модель пользователей системы
+class Users(Personal, UserMixin):  # модель пользователей системы
     """ Create model for users"""
 
     __tablename__ = 'users'
@@ -16,8 +19,12 @@ class Users(Personal, UserMixin):   # модель пользователей с
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     username = db.Column(db.Text)
     password = db.Column(db.Text)
+    usergroup = db.Column(db.Text)
     role = db.Column(db.Text)
     region = db.Column(db.Text)
+
+    def repr(self):
+        return f'<Users {self.username}>'
 
 
 class Candidate(Personal):  # модель анкетных данных
@@ -28,33 +35,113 @@ class Candidate(Personal):  # модель анкетных данных
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     region = db.Column(db.Text)
     full_name = db.Column(db.Text, index=True)
-    last_name = db.Column(db.Text)
-    birthday = db.Column(db.Text, index=True)
+    birthday = db.Column(db.Text)
     birth_place = db.Column(db.Text)
     country = db.Column(db.Text)
-    series_passport = db.Column(db.Text)
-    number_passport = db.Column(db.Text)
-    agency = db.Column(db.Text)
-    date_given = db.Column(db.Text)
     snils = db.Column(db.Text)
     inn = db.Column(db.Text)
-    reg_address = db.Column(db.Text)
-    live_address = db.Column(db.Text)
-    phone = db.Column(db.Text)
-    email = db.Column(db.Text)
     education = db.Column(db.Text)
-    workplace_1 = db.Column(db.Text)
-    workplace_2 = db.Column(db.Text)
-    workplace_3 = db.Column(db.Text)
     addition = db.Column(db.Text)
     update_date = db.Column(db.Text)
     status = db.Column(db.Text)
     request_id = db.Column(db.Text)
+    last_names = db.relationship('LastName', backref='candidates')
+    passports = db.relationship('Passport', backref='candidates')
+    addresses = db.relationship('Address', backref='candidates')
+    workplaces = db.relationship('Workplace', backref='candidates')
+    contacts = db.relationship('Contact', backref='candidates')
+    relations = db.relationship('RelationShip', backref='candidates')
+    staffs = db.relationship('Staff', backref='candidates')
     checks = db.relationship('Check', backref='candidates')
-    poligraf = db.relationship('Poligraf', backref='candidates')
+    registries = db.relationship('Registry', backref='candidates')
+    poligrafs = db.relationship('Poligraf', backref='candidates')
     inqueries = db.relationship('Inquery', backref='candidates')
-    registries = db.relationship('Registr', backref='candidates')
     investigations = db.relationship('Investigation', backref='candidates')
+
+
+class LastName(Personal):
+    """ Create model for last names"""
+    __tablename__ = 'last_names'
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    last_name = db.Column(db.Text)
+    year_change = db.Column(db.Text)
+    last_name_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class Passport(Personal):  # модель паспорта
+    """ Create model for passport dates"""
+
+    __tablename__ = 'passports'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    series_passport = db.Column(db.Text)
+    number_passport = db.Column(db.Text)
+    agency = db.Column(db.Text)
+    date_given = db.Column(db.Text)
+    passport_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class Address(Personal):  # создаем общий класс модель адреса
+    """ Create model for addresses"""
+
+    __tablename__ = 'addresses'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    region = db.Column(db.Text)
+    city = db.Column(db.Text)
+    address = db.Column(db.Text)
+    type = db.Column(db.Text)
+    address_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class Workplace(Personal):  # создаем общий класс модель рабочих мест
+    """ Create model for workplaces"""
+
+    __tablename__ = 'workplaces'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    period = db.Column(db.Text)
+    work_place = db.Column(db.Text)
+    address = db.Column(db.Text)
+    staff = db.Column(db.Text)
+    work_place_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class Contact(Personal):  # создаем общий класс телефонного номера
+    """ Create model for phones"""
+
+    __tablename__ = 'contacts'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    contact = db.Column(db.Text)
+    phone_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class RelationShip(Personal):  # создаем общий класс связи
+    """ Create model for relations"""
+
+    __tablename__ = 'relations'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    relation = db.Column(db.Text)
+    full_name = db.Column(db.Text)
+    birthday = db.Column(db.Text)
+    address = db.Column(db.Text)
+    workplace = db.Column(db.Text)
+    contact = db.Column(db.Text)
+    relation_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class Staff(Personal):  # создаем общий класс должности
+    """ Create model for staff"""
+
+    __tablename__ = 'staffs'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    staff = db.Column(db.Text)
+    department = db.Column(db.Text)
+    recruiter = db.Column(db.Text)
+    staff_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
 class Check(Personal):  # модель данных проверки кандидатов
@@ -63,13 +150,14 @@ class Check(Personal):  # модель данных проверки канди�
     __tablename__ = 'checks'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    staff = db.Column(db.Text)
-    department = db.Column(db.Text)
     check_work_place = db.Column(db.Text)
+    former_employee = db.Column(db.Text)
     check_passport = db.Column(db.Text)
+    check_inn = db.Column(db.Text)
     check_debt = db.Column(db.Text)
     check_bankruptcy = db.Column(db.Text)
     check_bki = db.Column(db.Text)
+    check_court = db.Column(db.Text)
     check_affiliation = db.Column(db.Text)
     check_terrorist = db.Column(db.Text)
     check_mvd = db.Column(db.Text)
@@ -84,12 +172,27 @@ class Check(Personal):  # модель данных проверки канди�
     officer = db.Column(db.Text)
     url = db.Column(db.Text)
     check_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    registries = db.relationship('Registry', backref='checks')
 
 
-class Poligraf(Personal):   # модель данных результаты ПФО
+class Registry(Personal):  # модель данных результаты ПФО
     """ Create model for poligraf"""
 
-    __tablename__ = 'poligraf'
+    __tablename__ = 'registries'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    marks = db.Column(db.Text)
+    decision = db.Column(db.Text)
+    dec_date = db.Column(db.Text)
+    supervisor = db.Column(db.Text)
+    registry_check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
+    registry_cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class Poligraf(Personal):  # модель данных результаты ПФО
+    """ Create model for poligraf"""
+
+    __tablename__ = 'poligrafs'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     theme = db.Column(db.Text)
@@ -97,19 +200,6 @@ class Poligraf(Personal):   # модель данных результаты П�
     officer = db.Column(db.Text)
     date_pfo = db.Column(db.Text)
     poligraf_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-
-
-class Registr(Personal):    # модель данных результаты согласования
-    """ Create model for registry of candidates"""
-
-    __tablename__ = 'registries'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    supervisor = db.Column(db.Text)
-    marks = db.Column(db.Text)
-    decision = db.Column(db.Text)
-    dec_date = db.Column(db.Text)
-    registry_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
 class Investigation(Personal):  # модель данных служебных расследований
@@ -123,7 +213,7 @@ class Investigation(Personal):  # модель данных служебных �
     inv_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
-class Inquery(Personal):    # модель данных запросов по работникам
+class Inquery(Personal):  # модель данных запросов по работникам
     """ Create model for candidates inqueries"""
 
     __tablename__ = 'inqueries'
@@ -133,3 +223,12 @@ class Inquery(Personal):    # модель данных запросов по р
     initiator = db.Column(db.Text)
     date_inq = db.Column(db.Text)
     iquery_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+class CandidateSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'full_name', 'birthday', 'birth_place', 'series_passport', 'number_passport',
+                  'agency', 'date_given', 'snils', 'inn', 'reg_address', 'live_address', 'phone', 'email')
+
+
+cand_schema = CandidateSchema()

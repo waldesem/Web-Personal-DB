@@ -10,72 +10,49 @@
 
         .content {
             margin: 5px;
-            width: 100%;
+            width: 99%;
             display: flex;
             flex-direction: column;
-            color: #00001a;
         }
 
         .person {
-            flex: 20%;
-            padding: 10px;
+            padding: 5px;
             margin: 5px;
-            background-color: #eeeeee;
-            inline-size: 100%;
         }
 
         .search {
-            padding: 10px;
+            padding: 5px;
             margin: 5px;
-            background-color: #ffefef;
+        }
+
+        .new {
+            display: flex;
+            justify-content: flex-end;
+            padding: 5px;
+            margin: 5px;
         }
 
         .table {
-            padding: 10px;
+            padding: 5px;
             margin: 5px;
         }
 
         .table th {
             font-weight: bold;
-            padding: 10px;
+            padding:15px;
         }
 
         .table td {
-            padding: 10px;
-        }
-
-        .table caption {
-            padding: 10px;
+            padding: 15px;
         }
 
         .flash {
-            padding: 10px;
-        }
-        
-        .flash.success {
-            border: 1px solid #21DB56;
-            background: #AEFFC5;
-        }
-
-        .flash.error {
-            border: 1px solid #FF4343;
-            background: #FF9C9C;
-        }
-
-        .invalid {
-            display: inline-block;
-            background: #FF9898;
-        }
-
-        .form-contact .invalid-feedback {
-            color: #CC0000;
+            padding: 5px;
         }
 
         .alert {
-            padding: 20px;
+            padding: 5px;
             margin: 5px;
-            color: #970020;
-            background-color: #ffd5de;
         }
 
         details {
@@ -102,7 +79,7 @@
         nav a {
             color: #d64161;
             font-size: 2em;
-            margin-left: 50px;
+            margin-left: 10px;
             text-decoration: none;
         }
 
@@ -110,15 +87,21 @@
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('routes.index') }}">Кандидаты</a>
-        <a href = "{{ url_for('routes.officer') }}">Мой кабинет</a>
-        <a href="{{ url_for('routes.resume', cand_id=9999999) }}">Создать</a>
-        <a href="{{ url_for('routes.info') }}">Информация</a>
-        <a href="{{ url_for('routes.logout') }}">Выйти</a>
+        <a href="{{ url_for('route.index') }}">Кандидаты</a>
+        <a href="{{ url_for('route.cabinet') }}">Мой кабинет</a>
+        <a href="{{ url_for('route.resume', cand_id=88888888) }}" target="_blank">Создать</a>
+        <a href="{{ url_for('route.info') }}">Информация</a>
+        <a href="{{ url_for('route.logout') }}">Выйти</a>
     </nav>
-    <hr>
-    <div class="content">
-        {% block content %} {% endblock %}
-    </div>
+    <div class="flash">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %} 
+                    <div class="alert" role="alert">{{ message }}</div>
+                {% endfor %} 
+            {% endif %} 
+        {% endwith %} 
+    </div>    
+    <div class="content">{% block content %} {% endblock %}</div>
 </body>
 </html>

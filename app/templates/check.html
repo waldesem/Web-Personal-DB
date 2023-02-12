@@ -1,33 +1,35 @@
 {% extends 'base.html' %}
-
-{% block content %}
 <h1 class="title">{% block title %} Проверка кандидата {% endblock %}</h1>
-    <div class="content">
-        <p><a href="{{ check_url }}">Материалы проверки</a></p>
-        <form method="post">
-            <div class="table">
-                {{ form.hidden_tag() }}
-                <table style="width: 99%">
-                    <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
-                    <tr><td>{{ form.staff.label() }}</td><td>{{ form.staff(cols="76", rows="2") }}</td></tr>
-                    <tr><td>{{ form.department.label() }}</td><td>{{ form.department(cols="76", rows="2") }}</td></tr>
-                    <tr><td>{{ form.check_work_place.label() }}</td><td>{{ form.check_work_place(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.check_passport.label() }}</td><td>{{ form.check_passport(cols="76", rows="2") }}</td></tr>
-                    <tr><td>{{ form.check_debt.label() }}</td><td>{{ form.check_debt(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.check_bankruptcy.label() }}</td><td>{{ form.check_bankruptcy(cols="76", rows="2") }}</td></tr>
-                    <tr><td>{{ form.check_bki.label() }}</td><td>{{ form.check_bki(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.check_affiliation.label() }}</td><td>{{ form.check_affiliation(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.check_terrorist.label() }}</td><td>{{ form.check_terrorist(cols="76", rows="2") }}</td></tr>
-                    <tr><td>{{ form.check_mvd.label() }}</td><td>{{ form.check_mvd(cols="76", rows="2") }}</td></tr>
-                    <tr><td>{{ form.check_internet.label() }}</td><td>{{ form.check_internet(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.check_cronos.label() }}</td><td>{{ form.check_cronos(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.check_cross.label() }}</td><td>{{ form.check_cross(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.check_addition.label() }}</td><td>{{ form.check_addition(cols="76", rows="3") }}</td></tr>
-                    <tr><td>{{ form.pfo.label() }}</td><td>{{ form.pfo() }}</td></tr>
-                    <tr><td>{{ form.resume.label() }}</td><td>{{ form.resume() }}</td></tr>
-                    <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
-                </table>
-            </div>
-        </form>
-    </div>
+{% block content %}    
+<div class="content">
+    <p><a href="{{ check_url }}">Материалы проверки</a></p>
+    <form method="post">
+        <div class="table">
+            {{ form.hidden_tag() }}
+            <table style="width: 99%">
+                <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
+                <tr><td>{{ form.staff.label() }}</td><td>{{ form.staff(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.department.label() }}</td><td>{{ form.department(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.former_employee.label() }}</td><td>{{ form.former_employee(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.check_work_place.label() }}</td><td>{{ form.check_work_place(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_passport.label() }}</td><td>{{ form.check_passport(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.check_inn.label() }}</td><td>{{ form.check_inn(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.check_debt.label() }}</td><td>{{ form.check_debt(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_bankruptcy.label() }}</td><td>{{ form.check_bankruptcy(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.check_bki.label() }}</td><td>{{ form.check_bki(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_court.label() }}</td><td>{{ form.check_court(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_affiliation.label() }}</td><td>{{ form.check_affiliation(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_terrorist.label() }}</td><td>{{ form.check_terrorist(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.check_mvd.label() }}</td><td>{{ form.check_mvd(cols="76", rows="2") }}</td></tr>
+                <tr><td>{{ form.check_internet.label() }}</td><td>{{ form.check_internet(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_cronos.label() }}</td><td>{{ form.check_cronos(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_cross.label() }}</td><td>{{ form.check_cross(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.check_addition.label() }}</td><td>{{ form.check_addition(cols="76", rows="3") }}</td></tr>
+                <tr><td>{{ form.pfo.label() }}</td><td>{{ form.pfo() }}</td></tr>
+                <tr><td>{{ form.resume.label() }}</td><td>{{ form.resume() }}</td></tr>
+                <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
+            </table>
+        </div>
+    </form>
+</div>
 {% endblock %}

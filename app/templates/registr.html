@@ -1,11 +1,6 @@
 {% extends 'base.html' %}
-
-{% block content %}
 <h1 class="title">{% block title %} Согласование кандидата {% endblock %}</h1>
-<div class="flash">
-    {% for message in get_flashed_messages() %}
-      {{ message }}
-    {% endfor %}
+{% block content %}
 </div>
 <div class="content">
     <div class="table">

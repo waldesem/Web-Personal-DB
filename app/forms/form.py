@@ -3,8 +3,8 @@ import datetime
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import StringField, TextAreaField, SubmitField, BooleanField, PasswordField, SelectField, DateField, \
-    FileField
-from wtforms.validators import DataRequired, Length, InputRequired, Optional
+    FileField, FieldList, FormField
+from wtforms.validators import DataRequired, InputRequired, Optional
 
 current_year = datetime.date.today().year
 
@@ -13,7 +13,7 @@ class LoginForm(FlaskForm):  # форма для входа в систему
     """ Create form for login page"""
 
     username = StringField("Логин: ", validators=[InputRequired()])
-    password = PasswordField("Пароль: ", validators=[DataRequired(), Length(min=8, max=20)])
+    password = PasswordField("Пароль: ", validators=[DataRequired()])
     remember = BooleanField("Запомнить ", default=False)
     submit = SubmitField("Войти")
 
@@ -21,8 +21,7 @@ class LoginForm(FlaskForm):  # форма для входа в систему
 class SearchForm(FlaskForm):  # форма для поиска на главной странице
     """ Create form for search"""
 
-    full_name = StringField("Полное ФИО: ", validators=[InputRequired()])
-    birthday = DateField("Дата рождения: ", validators=[Optional()])
+    full_name = StringField("Поиск по ФИО ", validators=[DataRequired()])
     submit = SubmitField("Найти")
 
 
@@ -31,43 +30,97 @@ class FileForm(FlaskForm):  # форма для загрузки файла
     file = FileField("Загрузить файл", validators=[FileAllowed(['xlsx', 'xlsm'])])
 
 
+class LastNameForm(FlaskForm):  # форма для редактирования предыдущего имени
+    """ Create form for last name"""
+    last_name = StringField("Предыдущий ФИО", validators=[Optional()])
+    date_change = StringField("Дата изменения", validators=[Optional()])
+
+
+class PassportForm(FlaskForm):  # модель паспорта
+    """ Create model for passport dates"""
+
+    series_passport = StringField("Серия паспорта", validators=[InputRequired()])
+    number_passport = StringField("Номер паспорта", validators=[InputRequired()])
+    agency = StringField("Орган выдавший", validators=[Optional()])
+    date_given = DateField("Дата выдачи", validators=[Optional()])
+
+
+class AddressForm(FlaskForm):  # создаем общий класс адреса
+    """ Create model for addresses"""
+
+    type = SelectField('Тип адреса', choices=['Адрес проживания', 'Адрес регистрации'])
+    region = StringField('Регион', validators=[Optional()])
+    city = StringField("Город", validators=[Optional()])
+    address = StringField("Адрес", validators=[Optional()])
+
+
+class WorkplaceForm(FlaskForm):  # создаем общий класс модель рабочих мест
+    """ Create model for workplaces"""
+
+    period = StringField("Период работы", validators=[Optional()])
+    work_place = StringField("Место работы", validators=[Optional()])
+    address = StringField("Адрес организации", validators=[Optional()])
+    staff = StringField("Должность", validators=[Optional()])
+
+
+class ContactForm(FlaskForm):  # создаем общий класс контактов
+    """ Create model for phones"""
+
+    contact = StringField("Контакт", validators=[Optional()])
+
+
+class StaffForm(FlaskForm):     # создаем общий класс модель рабочих
+    """ Create model for staff"""
+
+    staff = StringField("Должность", validators=[Optional()])
+    department = StringField("Организация", validators=[Optional()])
+    recruiter = StringField("Рекрутер", validators=[Optional()])
+
+
+class RelationshipForm(FlaskForm):
+    """ Create model for relationships"""
+
+    relation = SelectField('Вид связи', choices=['Отец/Мать', 'Брат/Сестра', 'Супруг', 'Дети', 'Другое'])
+    full_name = StringField("Полное ФИО", validators=[Optional()])
+    birthday = StringField("Дата рождения", validators=[Optional()])
+    address = StringField("Адрес", validators=[Optional()])
+    workplace = StringField("Место работы", validators=[Optional()])
+    contact = StringField("Контакт", validators=[Optional()])
+
+
 class ResumeForm(FlaskForm):  # форма для анкетных данных и служебных отметок
     """ Create form for create/edit resume page"""
 
     region = SelectField('Регион', choices=['Главный офис', 'Томск', 'РЦ Запад', 'РЦ Юг', 'РЦ Запад', 'РЦ Урал'])
     full_name = StringField("Фамилия Имя Отчество", validators=[InputRequired()])
-    last_name = StringField("Предыдущие ФИО", validators=[Optional()])
+    lastname = FieldList(FormField(LastNameForm), min_entries=1, max_entries=None)
     birthday = StringField("Дата рождения", validators=[InputRequired()])
     birth_place = StringField("Место рождения", validators=[Optional()])
     country = StringField("Гражданство", validators=[Optional()])
-    series_passport = StringField("Серия паспорта", validators=[Optional()])
-    number_passport = StringField("Номер паспорта", validators=[Optional()])
-    agency = StringField("Орган выдавший", validators=[Optional()])
-    date_given = StringField("Дата выдачи", validators=[Optional()])
+    passport = FieldList(FormField(PassportForm), min_entries=1)
     snils = StringField("СНИЛС", validators=[Optional()])
     inn = StringField("ИНН", validators=[Optional()])
-    reg_address = TextAreaField("Адрес регистрации", validators=[Optional()])
-    live_address = TextAreaField("Адрес проживания", validators=[Optional()])
-    phone = StringField("Телефон", validators=[Optional()])
-    email = StringField("Email: ", validators=[Optional()])
+    address = FieldList(FormField(AddressForm), min_entries=1)
+    contacts = FieldList(FormField(ContactForm), min_entries=1)
     education = TextAreaField("Образование", validators=[Optional()])
-    workplace_1 = TextAreaField("Место работы #1", validators=[Optional()])
-    workplace_2 = TextAreaField("Место работы #2", validators=[Optional()])
-    workplace_3 = TextAreaField("Место работы #3", validators=[Optional()])
+    work_place = FieldList(FormField(WorkplaceForm), min_entries=1)
     addition = TextAreaField("Дополнительная информация", validators=[Optional()])
+    relation = FieldList(FormField(RelationshipForm), min_entries=1)
+    staff = FieldList(FormField(StaffForm), min_entries=1)
     submit = SubmitField("Принять")
 
 
 class CheckForm(FlaskForm):  # форма для проверки
     """ Create form for page adding check """
 
-    staff = StringField("Должность", validators=[Optional()])
-    department = StringField("Кластер/Блок", validators=[Optional()])
+    former_employee = TextAreaField("Проверка паспорта", validators=[Optional()])
     check_work_place = TextAreaField("Проверка по месту работы", validators=[Optional()])
     check_passport = TextAreaField("Проверка паспорта", validators=[Optional()])
+    check_inn = TextAreaField("Проверка паспорта", validators=[Optional()])
     check_debt = TextAreaField("Проверка задолженностей", validators=[Optional()])
     check_bankruptcy = TextAreaField("Проверка банкротства", validators=[Optional()])
     check_bki = TextAreaField("Проверка кредитной истории", validators=[Optional()])
+    check_court = TextAreaField("Проверка паспорта", validators=[Optional()])
     check_affiliation = TextAreaField("Проверка аффилированности", validators=[Optional()])
     check_terrorist = TextAreaField("Проверка списка террористов", validators=[Optional()])
     check_mvd = TextAreaField("Проверка учетам МВД", validators=[Optional()])
