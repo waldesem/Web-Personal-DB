@@ -1,54 +1,33 @@
 {% extends 'base.html' %}
-{% block content %}
-<meta http-equiv="refresh" content="600">
-<div class="content">
-    <div class="new">
-        <form method="post" action="{{ url_for('route.cabinet') }}">
-            <p>Новых анкет: {{ count }}</p>
-        </form>
-    </div>
-    <div class="search table">
-        <form method="post" action="{{ url_for('route.index') }}">
-        <table>
-            <tr><td>{{ form.full_name.label}}</td><td>{{ form.full_name(size=100) }}</td> <td>{{ form.submit() }}</td></tr>
-        </table>
-        </form>
-    </div>
-    <hr>
-    <div class="person table">
-        <table style="width:100%">
-            <tr>
-                <th style="width:20%">Регион</th>
-                <th style="width:20%">Фамилия Имя Отчество</th>
-                <th style="width:20%">Дата рождения</th>
-                <th style="width:20%">Статус</th>
-                <th style="width:20%">Дата обновления</th>
-            </tr>
-            {% for candidate in results.items %}
-                <tr>
-                    <td style="text-align: center">{{ candidate.region }}</td>
-                    <td style="text-align: center"><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.full_name }}</a></td>
-                    <td style="text-align: center">{{ candidate.birthday }}</td>
-                    <td style="text-align: center">{{ candidate.status }}</td>
-                    <td style="text-align: center">{{ candidate.update_date }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <div class="results">
-        {% if results.has_prev %}
-            <span><a class='page-number' href="{{ url_for('index', page=results.prev_num) }}">{{ '<<<' }}</a></span>
-        {% endif %}
-        {% for number in results.iter_pages() %}
-            {% if results.page != number %}
-                <span><a class='page-number' href="{{ url_for('index', page=number) }}">{{ number }}</a></span>
-            {% else %}
-                <span class='current-page-number'>{{ number }}</span>
-            {% endif %}
+{% block title %} Кандидаты {% endblock %}
+{% block app_content %}
+{% if search_form %}
+<div class="container">
+    <form method="post">
+        {% from 'bootstrap5/form.html' import render_field %}
+        {{ search_form.hidden_tag() }}
+        {{ render_field(search_form.full_name, method='post', role='form', placeholder='Фамилия Имя Отчество') }}
+    </form>
+</div>
+{% endif %}
+<div class="container">
+    <table class="table table-hover">
+        <tr>
+            <th>Регион</th><th>Фамилия Имя Отчество</th><th>Дата рождения</th><th>Статус</th><th>Дата обновления</th>
+        </tr>
+        {% for candidate in results.items %}
+        <tr>
+            <td>{{ candidate.region }}</td>
+            <td><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.full_name }}</a></td>
+            <td>{{ candidate.birthday }}</td>
+            <td>{{ candidate.status }}</td>
+            <td>{{ candidate.update_date }}</td>
+        </tr>
         {% endfor %}
-        {% if results.has_next %}
-            <span><a class='page-number' href="{{ url_for('index', page=results.next_num) }}">{{ '>>>' }}</a></span>
-        {% endif %}
-    </div>
+    </table>
+</div>
+<div class="container">
+    {% from 'bootstrap5/pagination.html' import render_pager %}
+    {{ render_pager(results, fragment='', prev='<span aria-hidden="true">&larr;</span> Предыдущий' | safe, next='Следующий <span aria-hidden="true">&rarr;</span>' | safe, align='center') }}
 </div>
 {% endblock %}

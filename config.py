@@ -11,3 +11,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSIN_LIFETIME = datetime.timedelta(days=30)
     TEMPLATES_AUTO_RELOAD = True
+    BOOTSTRAP_BOOTSWATCH_THEME = 'flatly'

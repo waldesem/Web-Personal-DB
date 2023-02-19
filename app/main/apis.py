@@ -8,9 +8,7 @@ import requests
 
 from . import bpa
 from app.models.model import *
-
-STATUS = dict(new='Новый', active='Начато', robot_start='Автопроверка', robot_end='Предварительно',
-              finish='Закончено', pfo_start='ПФО', result='Решение')  # статусы проверки кандидата
+from ..utils.extensions import STATUS
 
 
 @bpa.route('/api/v1/get_resume', methods=['POST'])  # получение анкеты в формате JSON

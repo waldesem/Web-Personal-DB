@@ -1,10 +1,10 @@
 from flask import Flask
 from flask_migrate import Migrate
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap5
 
+from app.auth.login import login_manager
 from config import Config
-from app.models.model import db, ma
-from app.login.userlogin import login_manager
+from app.models.model import db, ma, Users
 
 
 def create_app(config_class=Config):
@@ -15,7 +15,7 @@ def create_app(config_class=Config):
     login_manager.init_app(app)     # инициализация входа пользователей
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)     # инициализация миграций
-    boootstrap = Bootstrap()
+    boootstrap = Bootstrap5()
     boootstrap.init_app(app)    # инициализация Bootstrap
     # импорт и регистрация Blueprints
     from app.main import bpr as route
@@ -27,5 +27,5 @@ def create_app(config_class=Config):
 # for start application in debug mode enter commands in terminal: 
 # export FLASK_APP=app
 # export FLASK_DEBUG=1
-# export SECRET_KEY=123
+# export SECRET_KEY=123987
 # flask run

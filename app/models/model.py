@@ -19,12 +19,7 @@ class Users(Personal, UserMixin):  # модель пользователей с�
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     username = db.Column(db.Text)
     password = db.Column(db.Text)
-    usergroup = db.Column(db.Text)
     role = db.Column(db.Text)
-    region = db.Column(db.Text)
-
-    def repr(self):
-        return f'<Users {self.username}>'
 
 
 class Candidate(Personal):  # модель анкетных данных
@@ -35,6 +30,7 @@ class Candidate(Personal):  # модель анкетных данных
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     region = db.Column(db.Text)
     full_name = db.Column(db.Text, index=True)
+    last_name = db.Column(db.Text)
     birthday = db.Column(db.Text)
     birth_place = db.Column(db.Text)
     country = db.Column(db.Text)
@@ -45,7 +41,6 @@ class Candidate(Personal):  # модель анкетных данных
     update_date = db.Column(db.Text)
     status = db.Column(db.Text)
     request_id = db.Column(db.Text)
-    last_names = db.relationship('LastName', backref='candidates')
     passports = db.relationship('Passport', backref='candidates')
     addresses = db.relationship('Address', backref='candidates')
     workplaces = db.relationship('Workplace', backref='candidates')
@@ -57,15 +52,6 @@ class Candidate(Personal):  # модель анкетных данных
     poligrafs = db.relationship('Poligraf', backref='candidates')
     inqueries = db.relationship('Inquery', backref='candidates')
     investigations = db.relationship('Investigation', backref='candidates')
-
-
-class LastName(Personal):
-    """ Create model for last names"""
-    __tablename__ = 'last_names'
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    last_name = db.Column(db.Text)
-    year_change = db.Column(db.Text)
-    last_name_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
 class Passport(Personal):  # модель паспорта
@@ -88,7 +74,6 @@ class Address(Personal):  # создаем общий класс модель а
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     region = db.Column(db.Text)
-    city = db.Column(db.Text)
     address = db.Column(db.Text)
     type = db.Column(db.Text)
     address_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
@@ -113,8 +98,9 @@ class Contact(Personal):  # создаем общий класс телефон�
     __tablename__ = 'contacts'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    type = db.Column(db.Text)
     contact = db.Column(db.Text)
-    phone_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    contact_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
 class RelationShip(Personal):  # создаем общий класс связи
@@ -140,7 +126,6 @@ class Staff(Personal):  # создаем общий класс должност�
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     staff = db.Column(db.Text)
     department = db.Column(db.Text)
-    recruiter = db.Column(db.Text)
     staff_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 

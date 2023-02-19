@@ -1,27 +1,17 @@
 {% extends 'base.html' %}
-<h1 class="title">{% block title %} Информация {% endblock %}</h1>
+{% block title %} {% endblock %}
 {% block content %}
-<div class="content table">
-    <div class="table">
-        <table>
-            <tr>
-                <th style="text-align: left">Решение</th><th style="text-align: left">Итого</th>
-            </tr>
-            {% for decision, count in results %}
-            <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
-            {% endfor %}
-        </table>
-    </div>
-    <form method="post">
-        {{ form.hidden_tag() }}
-        <table>
-            <tr>
-                <td>{{ form.year.label() }}</td><td>{{ form.year() }}</td>
-                <td>{{ form.month.label() }}</td><td>{{ form.month() }}</td>
-                <td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td>
-            </tr>
-        </table>
-    </form>
+<div class="container">
+    <table class="table table-hover">
+        <tr><th>Решение</th><th>Итого</th></tr>
+        {% for decision, count in results %}
+        <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
+        {% endfor %}
+    </table>
+{% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
+{{ form.hidden_tag() }}
+{{ render_hidden_errors(form) }}
+{{ render_form(form, method='post', role='form', form_type='horizontal', horizontal_columns=('lg', 1 , 10)) }}
 </div>
 {% endblock %}
 

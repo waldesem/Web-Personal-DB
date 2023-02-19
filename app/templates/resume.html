@@ -1,66 +1,12 @@
 {% extends 'base.html' %}
-<h2 class="title">{% block title %} Анкета кандидата {% endblock %}</h2>
-{% block content %}
-<div class="content">
-    <form method="post" action="{{ url_for('route.upload') }}" enctype="multipart/form-data">
-        {{ file.hidden_tag() }} {{ file.file() }}
-        <input type="submit">
-    </form>
-    <div class="table">
-        <form method="post">
-            {{ form.hidden_tag() }}
-            <table style="width: 99%">
-                <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
-                <tr><td>{{ form.region.label}}</td><td>{{ form.region() }}</td></tr>
-                <tr><td>{{ form.full_name.label}}</td><td>{{ form.full_name(size=100) }}</td></tr>
-                {% for ln in form.lastname %}
-                <tr><td>{{ ln.last_name.label() }}</td><td>{{ ln.last_name(size=100) }}</td></tr>
-                <tr><td>{{ ln.date_change.label() }}</td><td>{{ ln.date_change(size=100) }}</td></tr>
-                {% endfor %}
-                <tr><td>{{ form.birthday.label() }}</td><td>{{ form.birthday(size=100) }}</td></tr>
-                <tr><td>{{ form.birth_place.label() }}</td><td>{{ form.birth_place(size=100) }}</td></tr>
-                <tr><td>{{ form.country.label() }}</td><td>{{ form.country(size=100) }}</td></tr>
-                {% for pas in form.pass_form %}
-                <tr><td>pas.series_passport.label()</td><td>{{ pas.series_passport(size=100) }}</td></tr>
-                <tr><td>pas.number_passport.label()</td><td>{{ pas.number_passport(size=100) }}</td></tr>
-                <tr><td>pas.agency.label()</td><td>{{ pas.agency(size=100) }}</td></tr>
-                <tr><td>pas.date_given.label()</td><td>{{ pas.date_given(size=100) }}</td></tr>
-                {% endfor %}
-                <tr><td>{{ form.snils.label() }}</td><td>{{ form.snils(size=100) }}</td></tr>
-                <tr><td>{{ form.inn.label() }}</td><td>{{ form.inn(size=100) }}</td></tr>
-                {% for addr in form.address_form %}
-                <tr><td>addr.type.label()</td><td>{{ addr.type() }}</td></tr>
-                <tr><td>addr.region.label()</td><td>{{ addr.region(size=100) }}</td></tr>
-                <tr><td>addr.city.label()</td><td>{{ addr.city(size=100) }}</td></tr>
-                <tr><td>addr.address.label()</td><td>{{ addr.address(size=100) }}</td></tr>
-                {% endfor %}
-                {% for cont in form.cont_form %}
-                <tr><td>cont.contact.label()</td><td>{{ cont.contact(size=100) }}</td></tr>
-                {% endfor %}
-                <tr><td>{{ form.education.label() }}</td><td>{{ form.education(cols="76", rows="3") }}</td></tr>
-                {% for work in form.workplace_form %}
-                <tr><td>work.period.label()</td><td>{{ work.period(size=100) }}</td></tr>
-                <tr><td>work.work_place.label()</td><td>{{ work.work_place(size=100) }}</td></tr>
-                <tr><td>work.address.label()</td><td>{{ work.address(size=100) }}</td></tr>
-                <tr><td>work.staff.label()</td><td>{{ work.staff(size=100)}}</td></tr>
-                {% endfor %}
-                {% for rel in form.rel_form %}
-                <tr><td>rel.relation.label()</td><td>{{ rel.relation() }}</td></tr>
-                <tr><td>rel.full_name.label()</td><td>{{ rel.full_name(size=100) }}</td></tr>
-                <tr><td>rel.birthday.label()</td><td>{{ rel.birthday(size=100) }}</td></tr>
-                <tr><td>rel.address.label()</td><td>{{ rel.address(size=100) }}</td></tr>
-                <tr><td>rel.workplace.label()</td><td>{{ rel.workplace(size=100) }}</td></tr>
-                <tr><td>rel.contact.label()</td><td>{{ rel.contact(size=100) }}</td></tr>
-                {% endfor %}
-                <tr><td>{{ form.addition.label() }}</td><td>{{ form.addition(cols="76", rows="3") }}</td></tr>
-                {% for st in form.staff_form %}
-                <tr><td>st.staff.label()</td><td>{{ st.staff(size=100) }}</td></tr>
-                <tr><td>st.department.label()</td><td>{{ st.department(size=100) }}</td></tr>
-                <tr><td>st.recruiter.label()</td><td>{{ st.recruiter(size=100) }}</td></tr>
-                {% endfor %}
-                <tr><td>{{ form.submit() }}</td><td></td></tr>
-            </table>
-        </form>    
-    </div>
+{% block title %}Создать/изменить анкету{% endblock %}
+{% block app_content %}
+<div class="container">
+<h2>Создать/Изменить анкету</h2>
+{% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
+{{ render_form(file, method='post', action=url_for('route.upload'), role='form', form_type='basic') }}
+{{ form.hidden_tag() }}
+{{ render_hidden_errors(form) }}
+{{ render_form(form, method='post', role='form', form_type='basic') }}
 </div>
 {% endblock %}

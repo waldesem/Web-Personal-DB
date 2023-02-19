@@ -1,18 +1,14 @@
 {% extends 'base.html' %}
-<h1 class="title">{% block title %} Служебная проверка {% endblock %}</h1>
-{% block content %}
-<div class="content">
-    <form method="post">
-        <div class="table">
+{% block title %} Служебная проверка {% endblock %}
+{% block app_content %}
+{% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
+<div class="container">
+    <div class="form-group">
+        <form method="post">
             {{ form.hidden_tag() }}
-            <table style="width: 99%">
-                <tr><th style="width: 15%"></th><th style="width: 85% "></th></tr>
-                <tr><td>{{ form.theme.label() }}</td><td>{{ form.theme(size='100') }}</td></tr>
-                <tr><td>{{ form.info.label() }}</td><td>{{ form.info(cols="76", rows="10") }}</td></tr>
-                <tr><td>{{ form.date_inv.label() }}</td><td>{{ form.date_inv() }}</td></tr>
-                <tr><td>{{ form.submit.label() }}</td><td>{{ form.submit() }}</td></tr>
-            </table>
-        </div>
-    </form>
+            {{ render_hidden_errors(form) }}
+            {{ render_form(form) }}
+        </form>
+    </div>
 </div>
 {% endblock %}

@@ -1,107 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
+    <title>{% block title %}{% endblock %}</title>
     <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %} - FlaskApp</title>
-    <style>
-        .title {
-            margin: 5px;
-        }
-
-        .content {
-            margin: 5px;
-            width: 99%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .person {
-            padding: 5px;
-            margin: 5px;
-        }
-
-        .search {
-            padding: 5px;
-            margin: 5px;
-        }
-
-        .new {
-            display: flex;
-            justify-content: flex-end;
-            padding: 5px;
-            margin: 5px;
-        }
-
-        .table {
-            padding: 5px;
-            margin: 5px;
-        }
-
-        .table th {
-            font-weight: bold;
-            padding:15px;
-        }
-
-        .table td {
-            padding: 15px;
-        }
-
-        .flash {
-            padding: 5px;
-        }
-
-        .alert {
-            padding: 5px;
-            margin: 5px;
-        }
-
-        details {
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            padding: 0.5em 0.5em 0;
-        }
-
-        summary {
-            font-weight: bold;
-            margin: -0.5em -0.5em 0;
-            padding: 0.5em;
-        }
-
-        details[open] {
-            padding: 0.5em;
-        }
-
-        details[open] summary {
-            border-bottom: 1px solid #aaa;
-            margin-bottom: 0.5em;
-        }
-
-        nav a {
-            color: #d64161;
-            font-size: 2em;
-            margin-left: 10px;
-            text-decoration: none;
-        }
-
-    </style>
+    <meta http-equiv="refresh" content="600">
+    {% block styles %}
+    {% from 'bootstrap5/utils.html' import render_static %}
+    {{ render_static('css', 'css/bootstrap.css') }}
+    {% endblock %}
 </head>
 <body>
-    <nav>
-        <a href="{{ url_for('route.index') }}">Кандидаты</a>
-        <a href="{{ url_for('route.cabinet') }}">Мой кабинет</a>
-        <a href="{{ url_for('route.resume', cand_id=88888888) }}" target="_blank">Создать</a>
-        <a href="{{ url_for('route.info') }}">Информация</a>
-        <a href="{{ url_for('route.logout') }}">Выйти</a>
-    </nav>
-    <div class="flash">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %} 
-                    <div class="alert" role="alert">{{ message }}</div>
-                {% endfor %} 
-            {% endif %} 
-        {% endwith %} 
-    </div>    
-    <div class="content">{% block content %} {% endblock %}</div>
+{% block navbar %}
+{% from 'bootstrap5/nav.html' import render_nav_item %}
+<nav class="navbar navbar-expand-xl bg-light">
+    <div class="container">
+        <div class="navbar-nav mr-auto">
+            {{ render_nav_item('route.index', 'Кандидаты') }}
+            {{ render_nav_item('route.index', 'Мой кабинет', user=user) }}
+            {{ render_nav_item('route.resume', 'Создать', cand_id=88888888) }}
+            {{ render_nav_item('route.info', 'Информация') }}
+            {{ render_nav_item('route.logout', 'Выйти') }}
+        </div>
+    </div>
+</nav>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% from 'bootstrap5/utils.html' import render_messages %}
+        {{ render_messages(messages=None) }}
+    </div>
+    {% block app_content %}
+    {% endblock %}
+    {% block scripts %}
+        {% from 'bootstrap5/utils.html' import render_static %}
+        {{ render_static('js', 'js/bootstrap.js') }}
+    {% endblock %}
+{% endblock %}
 </body>
 </html>

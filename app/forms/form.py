@@ -21,26 +21,21 @@ class LoginForm(FlaskForm):  # форма для входа в систему
 class SearchForm(FlaskForm):  # форма для поиска на главной странице
     """ Create form for search"""
 
-    full_name = StringField("Поиск по ФИО ", validators=[DataRequired()])
+    full_name = StringField("Поиск", validators=[DataRequired()])
     submit = SubmitField("Найти")
 
 
 class FileForm(FlaskForm):  # форма для загрузки файла
     """ Create form for file upload"""
     file = FileField("Загрузить файл", validators=[FileAllowed(['xlsx', 'xlsm'])])
-
-
-class LastNameForm(FlaskForm):  # форма для редактирования предыдущего имени
-    """ Create form for last name"""
-    last_name = StringField("Предыдущий ФИО", validators=[Optional()])
-    date_change = StringField("Дата изменения", validators=[Optional()])
+    upload = SubmitField("Загрузить")
 
 
 class PassportForm(FlaskForm):  # модель паспорта
     """ Create model for passport dates"""
 
-    series_passport = StringField("Серия паспорта", validators=[InputRequired()])
-    number_passport = StringField("Номер паспорта", validators=[InputRequired()])
+    series_passport = StringField("Серия паспорта", validators=[Optional()])
+    number_passport = StringField("Номер паспорта", validators=[Optional()])
     agency = StringField("Орган выдавший", validators=[Optional()])
     date_given = DateField("Дата выдачи", validators=[Optional()])
 
@@ -50,7 +45,6 @@ class AddressForm(FlaskForm):  # создаем общий класс адрес
 
     type = SelectField('Тип адреса', choices=['Адрес проживания', 'Адрес регистрации'])
     region = StringField('Регион', validators=[Optional()])
-    city = StringField("Город", validators=[Optional()])
     address = StringField("Адрес", validators=[Optional()])
 
 
@@ -66,15 +60,15 @@ class WorkplaceForm(FlaskForm):  # создаем общий класс моде
 class ContactForm(FlaskForm):  # создаем общий класс контактов
     """ Create model for phones"""
 
+    type = StringField('Тип контакта', validators=[Optional()])
     contact = StringField("Контакт", validators=[Optional()])
 
 
-class StaffForm(FlaskForm):     # создаем общий класс модель рабочих
+class StaffForm(FlaskForm):  # создаем общий класс модель рабочих
     """ Create model for staff"""
 
     staff = StringField("Должность", validators=[Optional()])
     department = StringField("Организация", validators=[Optional()])
-    recruiter = StringField("Рекрутер", validators=[Optional()])
 
 
 class RelationshipForm(FlaskForm):
@@ -92,21 +86,21 @@ class ResumeForm(FlaskForm):  # форма для анкетных данных 
     """ Create form for create/edit resume page"""
 
     region = SelectField('Регион', choices=['Главный офис', 'Томск', 'РЦ Запад', 'РЦ Юг', 'РЦ Запад', 'РЦ Урал'])
+    staff = FieldList(FormField(StaffForm, label="#"), label="Должности", min_entries=1, validators=[Optional()])
     full_name = StringField("Фамилия Имя Отчество", validators=[InputRequired()])
-    lastname = FieldList(FormField(LastNameForm), min_entries=1, max_entries=None)
+    last_name = StringField("Изменение имени", validators=[Optional()])
     birthday = StringField("Дата рождения", validators=[InputRequired()])
     birth_place = StringField("Место рождения", validators=[Optional()])
     country = StringField("Гражданство", validators=[Optional()])
-    passport = FieldList(FormField(PassportForm), min_entries=1)
+    passport = FieldList(FormField(PassportForm, label="#"), label="Паспорта", min_entries=1, validators=[Optional()])
     snils = StringField("СНИЛС", validators=[Optional()])
     inn = StringField("ИНН", validators=[Optional()])
-    address = FieldList(FormField(AddressForm), min_entries=1)
-    contacts = FieldList(FormField(ContactForm), min_entries=1)
+    address = FieldList(FormField(AddressForm, label="#"), label="Адреса", min_entries=2, validators=[Optional()])
+    contacts = FieldList(FormField(ContactForm, label="#"), label="Контакты", min_entries=2, validators=[Optional()])
     education = TextAreaField("Образование", validators=[Optional()])
-    work_place = FieldList(FormField(WorkplaceForm), min_entries=1)
+    work_place = FieldList(FormField(WorkplaceForm, label="#"), label="Места работы", min_entries=3, validators=[Optional()])
     addition = TextAreaField("Дополнительная информация", validators=[Optional()])
-    relation = FieldList(FormField(RelationshipForm), min_entries=1)
-    staff = FieldList(FormField(StaffForm), min_entries=1)
+    relation = FieldList(FormField(RelationshipForm, label="#"), label="Связи",  min_entries=4, validators=[Optional()])
     submit = SubmitField("Принять")
 
 
