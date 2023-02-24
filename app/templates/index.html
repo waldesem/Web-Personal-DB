@@ -2,22 +2,22 @@
 {% block title %} Кандидаты {% endblock %}
 {% block app_content %}
 {% if search_form %}
-<div class="container">
-    <form method="post">
-        {% from 'bootstrap5/form.html' import render_field %}
-        {{ search_form.hidden_tag() }}
-        {{ render_field(search_form.full_name, method='post', role='form', placeholder='Фамилия Имя Отчество') }}
-    </form>
+<div class="container py-1">
+<form method="post" action="{{ url_for('route.index') }}">
+    {% from 'bootstrap5/form.html' import render_field, render_hidden_errors %}
+    {{ search_form.hidden_tag() }}
+    {{ render_field(search_form.full_name) }}
+</form>
 </div>
 {% endif %}
-<div class="container">
-    <table class="table table-hover">
-        <tr>
-            <th>Регион</th><th>Фамилия Имя Отчество</th><th>Дата рождения</th><th>Статус</th><th>Дата обновления</th>
+<div class="container py-5">
+    <table class="table table-hover table-lg table-responsive">
+        <tr >
+            <th style="width: 10%">Регион</th><th>Фамилия Имя Отчество</th><th style="width: 15%">Дата рождения</th><th style="width: 15%">Статус</th><th style="width: 15%">Дата обновления</th>
         </tr>
         {% for candidate in results.items %}
         <tr>
-            <td>{{ candidate.region }}</td>
+            <td class="center">{{ candidate.region }}</td>
             <td><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.full_name }}</a></td>
             <td>{{ candidate.birthday }}</td>
             <td>{{ candidate.status }}</td>
@@ -26,7 +26,7 @@
         {% endfor %}
     </table>
 </div>
-<div class="container">
+<div class="container py-5">
     {% from 'bootstrap5/pagination.html' import render_pager %}
     {{ render_pager(results, fragment='', prev='<span aria-hidden="true">&larr;</span> Предыдущий' | safe, next='Следующий <span aria-hidden="true">&rarr;</span>' | safe, align='center') }}
 </div>

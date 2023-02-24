@@ -4,7 +4,6 @@ import openpyxl
 
 from app.models.model import *
 
-
 STATUS = dict(new='Новый', active='Начато', robot_start='Автопроверка', robot_end='Предварительно',
               finish='Закончено', pfo_start='ПФО', result='Решение')  # статусы проверки кандидата
 
@@ -28,19 +27,19 @@ class ExcelFile:  # получение анкетной информации и�
                            status=STATUS['new'],
                            update_date=datetime.now().strftime('%Y-%m-%d %H:%M'))
 
-        self.passport = [dict(series_passport=str(self.sheet['P3'].value).strip(),
-                              number_passport=str(self.sheet['Q3'].value).strip(),
-                              date_given=datetime.strftime(datetime.strptime(str(self.sheet['R3'].value).strip(),
-                                                                             '%d.%m.%Y'), '%Y-%m-%d'))]
+        self.passport = dict(series_passport=str(self.sheet['P3'].value).strip(),
+                             number_passport=str(self.sheet['Q3'].value).strip(),
+                             date_given=datetime.strftime(datetime.strptime(str(self.sheet['R3'].value).strip(),
+                                                                            '%d.%m.%Y'), '%Y-%m-%d'))
 
-        self.address = [dict(type=str(self.sheet['N1':'N2'].value).strip(),
+        self.address = [dict(type="Адрес регистрации",
                              address=str(self.sheet['N3'].value).strip()),
-                        dict(type=str(self.sheet['O1':'O2'].value).strip(),
+                        dict(type="Адрес проживания",
                              address=str(self.sheet['O3'].value).strip())]
 
-        self.contact = [dict(type=str(self.sheet['Y1':'Y2'].value).strip(),
+        self.contact = [dict(type=str(self.sheet['Y1'].value).strip(),
                              contact=str(self.sheet['Y3'].value).strip()),
-                        dict(type=str(self.sheet['Z1':'Z2'].value).strip(),
+                        dict(type=str(self.sheet['Z1'].value).strip(),
                              contact=str(self.sheet['Z3'].value).strip())]
 
         self.work = [dict(period=str(self.sheet['AA3'].value).strip(),
@@ -56,52 +55,26 @@ class ExcelFile:  # получение анкетной информации и�
                           address=str(self.sheet['AC5'].value).strip(),
                           staff=self.sheet['AD5'].value.strip())]
 
-        self.staff = [dict(staff=str(self.sheet['C3'].value).strip(),
-                           department=str(self.sheet['D3'].value).strip())]
+        self.staff = dict(staff=str(self.sheet['C3'].value).strip(),
+                          department=str(self.sheet['D3'].value).strip())
 
 
-def resume_data(result, passports, address, works, contact, staffs, relation=None):
-    # загрузка данных из Excel файла в БД кроме основных данных
-
-    for passport in passports:
-        if passport['number_passport']:
-            passport['passport_id'] = result.id
-            passport.pop('csrf_token', None)
-            db.session.add(Passport(**passport))  # добавляем анкету в БД
-            db.session.commit()
-
+def resume_data(cand_id, passport, address, contact, works, staff):  # загрузка вторичных данных из Excel файла в БД
+    if staff['staff']:
+        db.session.add(Staff(**staff | {'staff_id': cand_id}))
+        db.session.commit()
+    if passport['number_passport']:
+        db.session.add(Passport(**passport | {'passport_id': cand_id}))
+        db.session.commit()
     for addr in address:
         if addr['address']:
-            addr['address_id'] = result.id
-            addr.pop('csrf_token', None)
-            db.session.add(Address(**addr))  # добавляем анкету в БД
+            db.session.add(Address(**addr | {'address_id': cand_id}))
             db.session.commit()
-
     for cont in contact:
         if cont['contact']:
-            cont['contact_id'] = result.id
-            cont.pop('csrf_token', None)
-            db.session.add(Contact(**cont))  # добавляем анкету в БД
+            db.session.add(Contact(**cont | {'contact_id': cand_id}))
             db.session.commit()
-
     for place in works:
         if place['work_place']:
-            place['work_place_id'] = result.id
-            place.pop('csrf_token', None)
-            db.session.add(Workplace(**place))  # добавляем анкету в БД
+            db.session.add(Workplace(**place | {'work_place_id': cand_id}))
             db.session.commit()
-
-    for staff in staffs:
-        if staff['staff']:
-            staff['staff_id'] = result.id
-            staff.pop('csrf_token', None)
-            db.session.add(Staff(**staff))  # добавляем анкету в БД
-            db.session.commit()
-
-    if relation is not None:
-        for rel in relation:
-            if rel['full_name']:
-                rel['relation_id'] = result.id
-                rel.pop('csrf_token', None)
-                db.session.add(RelationShip(rel))
-                db.session.commit()

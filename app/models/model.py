@@ -40,7 +40,7 @@ class Candidate(Personal):  # модель анкетных данных
     addition = db.Column(db.Text)
     update_date = db.Column(db.Text)
     status = db.Column(db.Text)
-    request_id = db.Column(db.Text)
+    request_id = db.Column(db.Integer)
     passports = db.relationship('Passport', backref='candidates')
     addresses = db.relationship('Address', backref='candidates')
     workplaces = db.relationship('Workplace', backref='candidates')
@@ -48,7 +48,6 @@ class Candidate(Personal):  # модель анкетных данных
     relations = db.relationship('RelationShip', backref='candidates')
     staffs = db.relationship('Staff', backref='candidates')
     checks = db.relationship('Check', backref='candidates')
-    registries = db.relationship('Registry', backref='candidates')
     poligrafs = db.relationship('Poligraf', backref='candidates')
     inqueries = db.relationship('Inquery', backref='candidates')
     investigations = db.relationship('Investigation', backref='candidates')
@@ -155,7 +154,7 @@ class Check(Personal):  # модель данных проверки канди�
     resume = db.Column(db.Text)
     date_check = db.Column(db.Text)
     officer = db.Column(db.Text)
-    url = db.Column(db.Text)
+    path = db.Column(db.Text)
     check_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
     registries = db.relationship('Registry', backref='checks')
 
@@ -171,7 +170,6 @@ class Registry(Personal):  # модель данных результаты ПФ
     dec_date = db.Column(db.Text)
     supervisor = db.Column(db.Text)
     registry_check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
-    registry_cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
 class Poligraf(Personal):  # модель данных результаты ПФО
@@ -212,8 +210,19 @@ class Inquery(Personal):  # модель данных запросов по ра
 
 class CandidateSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'full_name', 'birthday', 'birth_place', 'series_passport', 'number_passport',
-                  'agency', 'date_given', 'snils', 'inn', 'reg_address', 'live_address', 'phone', 'email')
+        fields = ("full_name", "birthday", "birth_place", "country", "snils", "inn")
+
+
+class PassportSchema(ma.Schema):
+    class Meta:
+        fields = ("series_passport", "number_passport", "agency", "date_given")
+
+
+class AddressSchema(ma.Schema):
+    class Meta:
+        fields = ("type", "address")
 
 
 cand_schema = CandidateSchema()
+passp_schema = PassportSchema()
+addr_schema = AddressSchema()
