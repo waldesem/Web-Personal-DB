@@ -1,5 +1,5 @@
 {
-    "check_id": 5,
+    "id": 5,
     "check_work_place": "",
     "former_employee": "test",
     "check_passport": "test",
@@ -19,8 +19,7 @@
     "comment": "",
     "resume": "",
     "date_check": "",
-    "officer": "",
+    "officer": "semenenko",
     "temp_path": "//cronosx1/",
-    "path": "",
-    "url": "/api/v1/get_check"
+    "path": ""
 }

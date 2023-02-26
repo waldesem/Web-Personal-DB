@@ -1,28 +1,22 @@
 {
-  "id": 122,
-  "officer": "current user",
+  "id": 5,
+  "officer": "current_user",
   "resume": {
-    "full_name": "Семенов Владимир Викторович",
-    "birthday": "09-11-1980",
-    "birth_place": "г. Брянск",
-    "country": "Россия",
-    "snils": "34562345678",
-    "inn": "098765432109"
+    "full_name": "test",
+    "birthday": "test",
+    "birth_place": "test",
+    "country": "test",
+    "snils": "test",
+    "inn": "test"
   },
   "passport": {
-    "series_passport": "4505",
-    "number_passport": "102345",
-    "agency": "ГУВД по г. Москве",
-    "date_given": "2005-11-20"
+    "p_series_passport": "test",
+    "p_number_passport": "test",
+    "p_agency": "test",
+    "p_date_given": "test"
   },
-  "address": [
-    {
-      "type": "Адрес регистрации",
-      "address": "г. Москва, ул. Скрябина, д. 18 кв. 1"
-    },
-    {
-      "type": "Адрес проживания",
-      "address": "г. Москва, ул. Скрябина, д. 18 кв. 1"
-    }
-  ]
+  "address": {
+      "p_type": "Адрес регистрации",
+      "p_address": "test"
+  }
 }

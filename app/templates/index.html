@@ -13,14 +13,14 @@
 <div class="container py-5">
     <table class="table table-hover table-lg table-responsive">
         <tr >
-            <th style="width: 10%">Регион</th><th>Фамилия Имя Отчество</th><th style="width: 15%">Дата рождения</th><th style="width: 15%">Статус</th><th style="width: 15%">Дата обновления</th>
+            <th style="width: 15%">Регион</th><th>Фамилия Имя Отчество</th><th style="width: 15%">Дата рождения</th><th style="width: 15%">Статус</th><th style="width: 15%">Дата обновления</th>
         </tr>
         {% for candidate in results.items %}
         <tr>
             <td class="center">{{ candidate.region }}</td>
             <td><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.full_name }}</a></td>
             <td>{{ candidate.birthday }}</td>
-            <td>{{ candidate.status }}</td>
+            <td>{{ candidate.status[2:] }}</td>
             <td>{{ candidate.update_date }}</td>
         </tr>
         {% endfor %}

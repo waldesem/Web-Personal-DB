@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 {% block title %} {% endblock %}
 {% block content %}
-<div class="container">
+<div class="container py-5">
     <table class="table table-hover">
         <tr><th>Решение</th><th>Итого</th></tr>
         {% for decision, count in results %}
         <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
         {% endfor %}
     </table>
-{% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
-{{ form.hidden_tag() }}
-{{ render_hidden_errors(form) }}
-{{ render_form(form, method='post', role='form', form_type='horizontal', horizontal_columns=('lg', 1 , 10)) }}
+</div>
+<div class="container py-5">
+    {% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
+    {{ form.hidden_tag() }}
+    {{ render_hidden_errors(form) }}
+    {{ render_form(form, method='post', role='form', form_type='horizontal', horizontal_columns=('lg', 1 , 10)) }}
 </div>
 {% endblock %}
 

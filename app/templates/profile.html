@@ -7,6 +7,7 @@
     <ul class="nav nav-tabs" id="myTabEvents">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" type="button" data-bs-target="#profile">Профиль</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#check">Проверки</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#registr">Согласования</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#poligraf">Полиграф</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#investigate">Расследования</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#inquiry">Запросы</button></li>
@@ -18,8 +19,8 @@
                 {% if staffs %}
                     {% for st in staffs%}
                         <tbody class="table-group-divider">
-                            <tr><td>Должность</td><td>{{ st.staff }}</td></tr>
-                            <tr><td>Департамент</td><td>{{ st.department }}</td></tr>
+                            <tr><td>Должность</td><td>{{ st.s_staff }}</td></tr>
+                            <tr><td>Департамент</td><td>{{ st.s_department }}</td></tr>
                         </tbody>
                     {% endfor %}
                 {% else %}
@@ -38,10 +39,10 @@
                 {% if passports %}
                     {% for pas in passports %}
                 <tbody class="table-group-divider">
-                    <tr><td>Серия</td><td>{{ pas.series_passport }}</td></tr>
-                    <tr><td>Номер</td><td>{{ pas.number_passport }}</td></tr>
-                    <tr><td>Кем выдан</td><td>{{ pas.agency }}</td></tr>
-                    <tr><td>Дата</td><td>{{ pas.date_given }}</td></tr>
+                    <tr><td>Серия</td><td>{{ pas.p_series_passport }}</td></tr>
+                    <tr><td>Номер</td><td>{{ pas.p_number_passport }}</td></tr>
+                    <tr><td>Кем выдан</td><td>{{ pas.p_agency }}</td></tr>
+                    <tr><td>Дата</td><td>{{ pas.p_date_given }}</td></tr>
                 </tbody>
                 {% endfor %}
                 {% else %}
@@ -56,10 +57,9 @@
                 {% if addresses %}
                     {% for addr in addresses %}
                         <tbody class="table-group-divider">
-                            <tr><td>Тип</td><td>{{ addr.type }}</td></tr>
-                            <tr><td>Регион</td><td>{{ addr.region }}</td></tr>
-                            <tr><td>Город</td><td>{{ addr.city }}</td></tr>
-                            <tr><td>Адрес</td><td>{{ addr.address }}</td></tr>
+                            <tr><td>Тип</td><td>{{ addr.a_type }}</td></tr>
+                            <tr><td>Регион</td><td>{{ addr.a_region }}</td></tr>
+                            <tr><td>Адрес</td><td>{{ addr.a_address }}</td></tr>
                         </tbody>
                     {% endfor %}
                 {% else %}
@@ -70,8 +70,8 @@
                 {% if contact %}
                     {% for cont in contact %}
                         <tbody class="table-group-divider">
-                            <tr><td>Вид</td><td>{{ cont.type }}</td></tr>
-                            <tr><td>Контакт</td><td>{{ cont.contact }}</td></tr>
+                            <tr><td>Вид</td><td>{{ cont.c_type }}</td></tr>
+                            <tr><td>Контакт</td><td>{{ cont.c_contact }}</td></tr>
                         </tbody>
                     {% endfor %}
                 {% else %}
@@ -85,10 +85,10 @@
                 {% if workplaces %}
                     {% for work in workplaces %}
                         <tbody class="table-group-divider">
-                            <tr><td>Период</td><td>{{ work.period }}</td></tr>
-                            <tr><td>Организация</td><td>{{ work.work_place }}</td></tr>
-                            <tr><td>Адрес</td><td>{{ work.address }}</td></tr>
-                            <tr><td>Должность</td><td>{{ work.staff }}</td></tr>
+                            <tr><td>Период</td><td>{{ work.w_period }}</td></tr>
+                            <tr><td>Организация</td><td>{{ work.w_work_place }}</td></tr>
+                            <tr><td>Адрес</td><td>{{ work.w_address }}</td></tr>
+                            <tr><td>Должность</td><td>{{ work.w_staff }}</td></tr>
                         </tbody>
                     {% endfor %}
                 {% else %}
@@ -99,12 +99,12 @@
                 {% if relations %}
                     {% for rel in relations %}
                         <tbody class="table-group-divider">
-                            <tr><td>Связь</td><td>{{ rel.relation }}</td></tr>
-                            <tr><td>Имя</td><td>{{ rel.full_name }}</td></tr>
-                            <tr><td>Дата рождения</td><td>{{ rel.birthday }}</td></tr>
-                            <tr><td>Адрес</td><td>{{ rel.address }}</td></tr>
-                            <tr><td>Место работы</td><td>{{ rel.workplace }}</td></tr>
-                            <tr><td>Контакты</td><td>{{ rel.contact }}</td></tr>
+                            <tr><td>Связь</td><td>{{ rel.r_relation }}</td></tr>
+                            <tr><td>Имя</td><td>{{ rel.r_full_name }}</td></tr>
+                            <tr><td>Дата рождения</td><td>{{ rel.r_birthday }}</td></tr>
+                            <tr><td>Адрес</td><td>{{ rel.r_address }}</td></tr>
+                            <tr><td>Место работы</td><td>{{ rel.r_workplace }}</td></tr>
+                            <tr><td>Контакты</td><td>{{ rel.r_contact }}</td></tr>
                         </tbody>
                     {% endfor %}
                 {% else %}
@@ -113,22 +113,22 @@
                 <tr><td><a class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#statiсRelation">Добавить связи</a></td><td></td></tr>
                 <tbody class="table-group-divider">
                     <tr><td>Дополнительная информация</td><td>{{ candidate.addition }}</td></tr>
-                    <tr><td>Статус</td><td>{{ candidate.status }}</td></tr>
+                    <tr><td>Статус</td><td>{{ candidate.status[2:] }}</td></tr>
                     <tr><td>Дата обновления</td><td>{{ candidate.update_date }}</td></tr>
                 </tbody>
             </table>
             <form>
                 <a class="btn btn-outline-primary" href="{{ url_for('route.resume_edit', cand_id=candidate.id) }}">Редактировать анкету</a>
-                <a class="btn btn-outline-secondary" href="{{ url_for('api.send_resume', cand_id=candidate.id) }}">Отправить на проверку</a>
+                <a class="btn btn-outline-secondary" href="{{ url_for('route.send_resume', cand_id=candidate.id) }}">Отправить на проверку</a>
             </form>
         </div>
         <div class="tab-pane fade" id="check">
-            <a class="btn btn-outline-primary" href="{{ url_for('route.check', cand_id=candidate.id) }}" target="_blank">Добавить проверку</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('route.check', cand_id=candidate.id, check_id=0) }}" target="_blank">Добавить проверку</a>
             {% if checks|length != 0 %} {# открываем последнюю проверку #}
                 {% for check in checks %}
                 {% if loop.last or checks|length == 1 %}
                     <table class="table table-hover py-1">
-                        <tr><th>ID #{{ check.id }}</th><th><a href="{{ check.url }}">Материалы проверки</a></th></tr>
+                        <tr><th>ID #{{ check.id }}</th><th><a href="{{ check.path }}">Материалы проверки</a></th></tr>
                         <tr><td>Бывший работник МТСБ</td><td>{{ check.former_employee }}</td></tr>
                         <tr><td>Проверка по местам работы</td><td>{{ check.check_work_place }}</td></tr>
                         <tr><td>Проверка паспорта</td><td>{{ check.check_passport }}</td></tr>
@@ -155,7 +155,7 @@
                             <tr><td>Согласующий</td><td>{{ check.registries.supervisor }}</td></tr>
                         </tbody>-->
                     </table>
-                    <a class="btn btn-outline-primary" href="{{ url_for('route.check_edit', cand_id=candidate.id, check_id=checks[0].id) }}" target="_blank">Редактировать проверку</a>
+                    <a class="btn btn-outline-primary" href="{{ url_for('route.check', cand_id=candidate.id, check_id=checks[-1].id) }}" target="_blank">Редактировать проверку</a>
                     <a class="btn btn-outline-secondary" href="{{ url_for('route.registr', cand_id=candidate.id, check_id=checks[-1].id) }}" target="_blank">Открыть согласование</a>
                 {% endif %}
                 {% endfor %}
@@ -165,7 +165,7 @@
                 {% for check in checks[:-1] %} {# загружаем проверки все кроме последней #}
                     <table class="table table-hover">
                         <tr><th colspan="2">Предыдущие проверки</th></tr>
-                        <tr><td>ID #{{ check.id }}</td><td><a href="{{ check.url }}">Материалы проверки</a></td></tr>
+                        <tr><td>ID #{{ check.id }}</td><td><a href="{{ check.path }}">Материалы проверки</a></td></tr>
                         <tr><td>Должность</td><td>{{ check.staff }}</td></tr>
                         <tr><td>Кластер/Блок</td><td>{{ check.department }}</td></tr>
                         <tr><td>Проверка работы в МТСБ</td><td>{{ check.former_employee }}</td></tr>
@@ -186,13 +186,26 @@
                         <tr><td>Результат проверки</td><td>{{ check.resume }}</td></tr>
                         <tr><td>Дата проверки</td><td>{{ check.date_check }}</td></tr>
                         <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
-                        <tbody class="table-group-divider">
+                        <!--<tbody class="table-group-divider">
                             <tr><th>Согласования</th><th></th></tr>
                             <tr><td>Отметки</td><td>{{ check.marks }}</td></tr>
                             <tr><td>Решение</td><td>{{ check.decision }}</td></tr>
                             <tr><td>Дата</td><td>{{ check.dec_date }}</td></tr>
                             <tr><td>Согласующий</td><td>{{ check.supervisor }}</td></tr>
-                        </tbody>
+                        </tbody>-->
+                    </table>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="tab-pane fade" id="registr">
+            {% if registr|length > 0 %}
+                {% for reg in registr %}
+                    <table class="table table-hover py-1">
+                        <tr><th colspan="2">ID #{{ reg.id }}</th></tr>
+                        <tr><td>Комментарий</td><td>{{ reg.marks }}</td></tr>
+                        <tr><td>Решение</td><td>{{ reg.decision }}</td></tr>
+                        <tr><td>Согласующий</td><td>{{ reg.supervisor }}</td></tr>
+                        <tr><td>Дата</td><td>{{ reg.dec_date }}</td></tr>
                     </table>
                 {% endfor %}
             {% endif %}

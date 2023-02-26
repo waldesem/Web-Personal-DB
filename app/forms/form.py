@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired, InputRequired, Optional
 
 from app.utils.extensions import STATUS
 
-current_year = datetime.date.today().year
+current_year = datetime.today().year
 
 
 class LoginForm(FlaskForm):  # форма для входа в систему
@@ -36,57 +36,58 @@ class FileForm(FlaskForm):  # форма для загрузки файла
 class StaffForm(FlaskForm):
     """ Create form for staff"""
 
-    staff = StringField("Должность", validators=[InputRequired()])
-    department = StringField("Организация", validators=[Optional()])
-    submit = SubmitField("Сохранить")
+    s_staff = StringField("Должность", validators=[InputRequired()])
+    s_department = StringField("Деператамент/Кластер", validators=[Optional()])
+    s_submit = SubmitField("Сохранить")
 
 
 class PassportForm(FlaskForm):  # создаем общий класс паспорта
     """ Create form for passports"""
 
-    series_passport = StringField("Серия паспорта", validators=[Optional()])
-    number_passport = StringField("Номер паспорта", validators=[InputRequired()])
-    agency = StringField("Орган выдавший", validators=[Optional()])
-    date_given = DateField("Дата выдачи", validators=[Optional()])
-    submit = SubmitField("Сохранить")
+    p_series_passport = StringField("Серия паспорта", validators=[Optional()])
+    p_number_passport = StringField("Номер паспорта", validators=[InputRequired()])
+    p_agency = StringField("Орган выдавший", validators=[Optional()])
+    p_date_given = StringField("Дата выдачи", validators=[Optional()])
+    p_submit = SubmitField("Сохранить")
 
 
 class AddressForm(FlaskForm):  # создаем общий класс адреса
     """ Create form for address"""
 
-    type = SelectField("Выбрать", choices=['Адрес регистрации', 'Адрес проживания', 'Другое'])
-    address = StringField("Полный", validators=[InputRequired()])
-    submit = SubmitField("Сохранить")
+    a_type = SelectField("Выбрать", choices=['Адрес регистрации', 'Адрес проживания', 'Другое'])
+    a_region = StringField("Регион", validators=[Optional()])
+    a_address = StringField("Полный", validators=[InputRequired()])
+    a_submit = SubmitField("Сохранить")
 
 
 class ContactForm(FlaskForm):  # создаем общий класс контактов
     """ Create form for contact"""
 
-    type = SelectField("Выбрать", choices=['Телефон', 'E-mail', 'Другое'])
-    contact = StringField("Контакт", validators=[InputRequired()])
-    submit = SubmitField("Сохранить")
+    c_type = SelectField("Выбрать", choices=['Телефон', 'E-mail', 'Другое'])
+    c_contact = StringField("Контакт", validators=[InputRequired()])
+    c_submit = SubmitField("Сохранить")
 
 
 class WorkplaceForm(FlaskForm):  # создаем общий класс рабочих мест
     """ Create model for workplaces"""
 
-    period = StringField("Период работы", validators=[Optional()])
-    work_place = StringField("Место работы", validators=[InputRequired()])
-    address = StringField("Адрес организации", validators=[Optional()])
-    staff = StringField("Должность", validators=[Optional()])
-    submit = SubmitField("Сохранить")
+    w_period = StringField("Период работы", validators=[Optional()])
+    w_work_place = StringField("Место работы", validators=[InputRequired()])
+    w_address = StringField("Адрес организации", validators=[Optional()])
+    w_staff = StringField("Должность", validators=[Optional()])
+    w_submit = SubmitField("Сохранить")
 
 
 class RelationshipForm(FlaskForm):
     """ Create model for relationships"""
 
-    relation = SelectField('Вид связи', choices=['Отец/Мать', 'Брат/Сестра', 'Супруг', 'Дети', 'Другое'])
-    full_name = StringField("Полное ФИО", validators=[InputRequired()])
-    birthday = StringField("Дата рождения", validators=[Optional()])
-    address = StringField("Адрес", validators=[Optional()])
-    workplace = StringField("Место работы", validators=[Optional()])
-    contact = StringField("Контакт", validators=[Optional()])
-    submit = SubmitField("Сохранить")
+    r_relation = SelectField('Вид связи', choices=['Отец/Мать', 'Брат/Сестра', 'Супруг', 'Дети', 'Другое'])
+    r_full_name = StringField("Полное ФИО", validators=[InputRequired()])
+    r_birthday = StringField("Дата рождения", validators=[Optional()])
+    r_address = StringField("Адрес", validators=[Optional()])
+    r_workplace = StringField("Место работы", validators=[Optional()])
+    r_contact = StringField("Контакт", validators=[Optional()])
+    r_submit = SubmitField("Сохранить")
 
 
 class ResumeForm(FlaskForm):  # форма для анкетных данных и служебных отметок
@@ -95,7 +96,7 @@ class ResumeForm(FlaskForm):  # форма для анкетных данных 
     region = SelectField('Регион', choices=['Главный офис', 'Томск', 'РЦ Запад', 'РЦ Юг', 'РЦ Запад', 'РЦ Урал'])
     full_name = StringField("Фамилия Имя Отчество", validators=[InputRequired()])
     last_name = StringField("Изменение имени", validators=[Optional()])
-    birthday = StringField("Дата рождения", validators=[InputRequired()])
+    birthday = StringField("Дата рождения", validators=[InputRequired()], render_kw={"placeholder": "ГГГГ-ММ-ДД"})
     birth_place = StringField("Место рождения", validators=[Optional()])
     country = StringField("Гражданство", validators=[Optional()])
     snils = StringField("СНИЛС", validators=[Optional()])
