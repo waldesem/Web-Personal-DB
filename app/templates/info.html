@@ -2,6 +2,7 @@
 {% block title %} {% endblock %}
 {% block content %}
 <div class="container py-5">
+    <h3>{{ title }}</h3>
     <table class="table table-hover">
         <tr><th>Решение</th><th>Итого</th></tr>
         {% for decision, count in results %}
@@ -9,11 +10,11 @@
         {% endfor %}
     </table>
 </div>
-<div class="container py-5">
+<div class="container py-3">
     {% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, method='post', role='form', form_type='horizontal', horizontal_columns=('lg', 1 , 10)) }}
+    {{ render_form(form, method='post', role='form') }}
 </div>
 {% endblock %}
 

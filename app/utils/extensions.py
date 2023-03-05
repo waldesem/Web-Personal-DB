@@ -1,15 +1,11 @@
 from datetime import datetime
-
 import openpyxl
 
 from app.models.model import *
-
-STATUS = dict(new='1-Новый', active='2-Начато', robot_start='3-Автопроверка', robot_end='4-Предварительно',
-              finish='5-Окончено', pfo_start='6-ПФО', result='7-Решение')  # статусы проверки кандидата
+from app.forms.form import *
 
 BASE_PATH = r'\\cronosx1\New folder\УВБ\Отдел корпоративной защиты\Персонал\Персонал-3\\'
-
-TIME_NOW = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+TODAY = datetime.now()
 
 
 class ExcelFile:  # получение анкетной информации из файла Excel
@@ -19,66 +15,62 @@ class ExcelFile:  # получение анкетной информации и�
         self.file = file
         self.wb = openpyxl.load_workbook(self.file, keep_vba=True)
         self.sheet = self.wb.worksheets[0]
-        self.resume = dict(full_name=str(self.sheet['K3'].value).title().strip(),
-                           last_name=str(self.sheet['S3'].value).strip(),
-                           birthday=datetime.strftime(datetime.strptime(str(self.sheet['L3'].value).strip(),
-                                                                        '%d.%m.%Y'), '%Y-%m-%d'),
-                           birth_place=str(self.sheet['M3'].value).strip(),
+        self.resume = dict(fullname=str(self.sheet['K3'].value).title().strip(),
+                           previous=str(self.sheet['S3'].value).strip(),
+                           birthday=datetime.strptime(str(self.sheet['L3'].value).strip(), '%d.%m.%Y').date(),
+                           birthplace=str(self.sheet['M3'].value).strip(),
                            country=str(self.sheet['T3'].value).strip(),
                            snils=str(self.sheet['U3'].value).strip(),
                            inn=str(self.sheet['V3'].value).strip(),
                            education=str(self.sheet['X3'].value).strip(),
                            status=STATUS['new'],
-                           update_date=TIME_NOW)
+                           deadline=TODAY)
+        self.passport = dict(view='Паспорт гражданина России',
+                             series=str(self.sheet['P3'].value).strip(),
+                             number=str(self.sheet['Q3'].value).strip(),
+                             issue=datetime.strptime(str(self.sheet['R3'].value).strip(), '%d.%m.%Y').date())
 
-        self.passport = dict(p_series_passport=str(self.sheet['P3'].value).strip(),
-                             p_number_passport=str(self.sheet['Q3'].value).strip(),
-                             p_date_given=datetime.strftime(datetime.strptime(str(self.sheet['R3'].value).strip(),
-                                                                              '%d.%m.%Y'), '%Y-%m-%d'))
-
-        self.address = [dict(a_type="Адрес регистрации",
-                             a_address=str(self.sheet['N3'].value).strip()),
-                        dict(a_type="Адрес проживания",
-                             a_address=str(self.sheet['O3'].value).strip())]
-
-        self.contact = [dict(c_type=str(self.sheet['Y1'].value).strip(),
-                             c_contact=str(self.sheet['Y3'].value).strip()),
-                        dict(c_type=str(self.sheet['Z1'].value).strip(),
-                             c_contact=str(self.sheet['Z3'].value).strip())]
-
-        self.work = [dict(w_period=str(self.sheet['AA3'].value).strip(),
-                          w_work_place=str(self.sheet['AB3'].value).strip(),
-                          w_address=str(self.sheet['AC3'].value).strip(),
-                          w_staff=self.sheet['AD3'].value.strip()),
-                     dict(w_period=str(self.sheet['AA4'].value).strip(),
-                          w_work_place=str(self.sheet['AB4'].value).strip(),
-                          w_address=str(self.sheet['AC4'].value).strip(),
-                          w_staff=self.sheet['AD4'].value.strip()),
-                     dict(w_period=str(self.sheet['AA5'].value).strip(),
-                          w_work_place=str(self.sheet['AB5'].value).strip(),
-                          w_address=str(self.sheet['AC5'].value).strip(),
-                          w_staff=self.sheet['AD5'].value.strip())]
-
-        self.staff = dict(s_staff=str(self.sheet['C3'].value).strip(),
-                          s_department=str(self.sheet['D3'].value).strip())
+        self.addresses = [dict(view="Адрес регистрации",
+                               address=str(self.sheet['N3'].value).strip()),
+                          dict(view="Адрес проживания",
+                               address=str(self.sheet['O3'].value).strip())]
+        self.contacts = [dict(view=str(self.sheet['Y1'].value).strip(),
+                              contact=str(self.sheet['Y3'].value).strip()),
+                         dict(view=str(self.sheet['Z1'].value).strip(),
+                              contact=str(self.sheet['Z3'].value).strip())]
+        self.workplaces = [dict(period=str(self.sheet['AA3'].value).strip(),
+                                workplace=str(self.sheet['AB3'].value).strip(),
+                                address=str(self.sheet['AC3'].value).strip(),
+                                position=self.sheet['AD3'].value.strip()),
+                           dict(period=str(self.sheet['AA4'].value).strip(),
+                                workplace=str(self.sheet['AB4'].value).strip(),
+                                address=str(self.sheet['AC4'].value).strip(),
+                                position=self.sheet['AD4'].value.strip()),
+                           dict(period=str(self.sheet['AA5'].value).strip(),
+                                workplace=str(self.sheet['AB5'].value).strip(),
+                                address=str(self.sheet['AC5'].value).strip(),
+                                position=self.sheet['AD5'].value.strip())]
+        self.staff = dict(position=str(self.sheet['C3'].value).strip(),
+                          department=str(self.sheet['D3'].value).strip())
 
 
-def resume_data(cand_id, passport, address, contact, works, staff):  # загрузка вторичных данных из Excel файла в БД
-    if staff['s_staff']:
-        db.session.add(Staff(**staff | {'staff_id': cand_id}))
+# загрузка непостоянных данных из Excel и Json  в БД
+def resume_data(cand_id, document, addresses, contacts, workplaces, staff):
+    if staff['position']:
+        db.session.add(Staff(**staff | {'cand_id': cand_id}))
         db.session.commit()
-    if passport['p_number_passport']:
-        db.session.add(Passport(**passport | {'passport_id': cand_id}))
+    if document['number']:
+        db.session.add(Document(**document | {'cand_id': cand_id}))
         db.session.commit()
-    for addr in address:
-        if addr['a_address']:
-            db.session.add(Address(**addr | {'address_id': cand_id}))
+    for address in addresses:
+        if address['address']:
+            db.session.add(Address(**address | {'cand_id': cand_id}))
             db.session.commit()
-    for cont in contact:
-        if cont['c_contact']:
-            db.session.add(Contact(**cont | {'contact_id': cand_id}))
+    for contact in contacts:
+        if contact['contact']:
+            db.session.add(Contact(**contact | {'cand_id': cand_id}))
             db.session.commit()
-    for place in works:
-        if place['w_work_place']:
-            db.session.add(Workplace(**place | {'work_place_id': cand_id}))
+    for work in workplaces:
+        if work['workplace']:
+            db.session.add(Workplace(**work | {'cand_id': cand_id}))
             db.session.commit()

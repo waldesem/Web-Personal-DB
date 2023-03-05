@@ -1,0 +1,55 @@
+{% macro input_form(form, cand_id, flag) -%}
+{# Рендеринг форм для заполнения #}
+<form method="POST" action="{{ url_for('route.add', flag=flag, cand_id=cand_id) }}">
+    {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
+    {{ form.hidden_tag() }}
+    {{ render_hidden_errors(form) }}
+    {{ render_form(form, role='form', form_type='basic') }}
+</form>
+{%- endmacro %}
+
+
+{% macro input_form_reg(form, candid, checkid=0) -%}
+<form method="POST" action="{{ url_for('route.registry', cand_id=candid, check_id=checkid) }}">
+    {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
+    {{ form.hidden_tag() }}
+    {{ render_hidden_errors(form) }}
+    {{ render_form(form, role='form', form_type='basic') }}
+</form>
+{%- endmacro %}
+
+
+{% macro input_resume(form, cand_id) -%}
+<form method="POST" action="{{ url_for('route.resume', cand_id=cand_id) }}">
+    {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
+    {{ form.hidden_tag() }}
+    {{ render_hidden_errors(form) }}
+    {{ render_form(form, role='form', form_type='basic') }}
+</form>
+{%- endmacro %}
+
+
+{% macro render_check(check) -%}
+{# Рендеринг повторяющихся таблиц проверки кандидатов #}
+<table class="table">
+        <tr><th style="width: 30%">ID #{{ check.id }}</th><th style="width: 70%"><a href="{{ check.path }}">Материалы проверки</a></th></tr>
+        <tr><td>Бывший работник МТСБ</td><td>{{ check.employee }}</td></tr>
+        <tr><td>Проверка по местам работы</td><td>{{ check.workplace }}</td></tr>
+        <tr><td>Проверка паспорта</td><td>{{ check.document }}</td></tr>
+        <tr><td>Проверка ИНН</td><td>{{ check.inn }}</td></tr>
+        <tr><td>Проверка ФССП</td><td>{{ check.debt }}</td></tr>
+        <tr><td>Проверка банкротства</td><td>{{ check.bankruptcy }}</td></tr>
+        <tr><td>Проверка БКИ</td><td>{{ check.bki }}</td></tr>
+        <tr><td>Проверка судебных дел</td><td>{{ check.courts }}</td></tr>
+        <tr><td>Проверка аффилированности</td><td>{{ check.affiliation }}</td></tr>
+        <tr><td>Проверка в списке террористов</td><td>{{ check.terrorist }}</td></tr>
+        <tr><td>Проверка нахождения в розыске</td><td>{{ check.mvd }}</td></tr>
+        <tr><td>Проверка в открытых источниках</td><td>{{ check.internet }}</td></tr>
+        <tr><td>Проверка Кронос</td><td>{{ check.cronos }}</td></tr>
+        <tr><td>Проверка Крос</td><td>{{ check.cros }}</td></tr>
+        <tr><td>Дополнительная информация</td><td>{{ check.addition }}</td></tr>
+        <tr><td>Результат проверки</td><td>{{ check.conclusion }}</td></tr>
+        <tr><td>Дата проверки</td><td>{{ check.deadline.strftime("%d.%m.%Y") }}</td></tr>
+        <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
+</table>
+{%- endmacro %}

@@ -6,7 +6,7 @@
 <form method="post" action="{{ url_for('route.index') }}">
     {% from 'bootstrap5/form.html' import render_field, render_hidden_errors %}
     {{ search_form.hidden_tag() }}
-    {{ render_field(search_form.full_name) }}
+    {{ render_field(search_form.search) }}
 </form>
 </div>
 {% endif %}
@@ -17,11 +17,11 @@
         </tr>
         {% for candidate in results.items %}
         <tr>
-            <td class="center">{{ candidate.region }}</td>
-            <td><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.full_name }}</a></td>
+            <td>{{ candidate.region }}</td>
+            <td><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.fullname }}</a></td>
             <td>{{ candidate.birthday }}</td>
             <td>{{ candidate.status[2:] }}</td>
-            <td>{{ candidate.update_date }}</td>
+            <td>{{ candidate.deadline.strftime("%d.%m.%Y") }}</td>
         </tr>
         {% endfor %}
     </table>

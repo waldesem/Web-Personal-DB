@@ -3,12 +3,8 @@
 {% block app_content %}
 <div class="container py-2">
     <h3>{{ title }}</h3>
-    {% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
-    {% if file %}
-        {{ render_form(file, method='post', action=url_for('route.upload'), role='form', form_type='inline', form_group_classes='mb-3') }}
-    {% endif %}
 </div>
-<div class="container py-3">
+<div class="container py-1">
 {{ form.hidden_tag() }}
 {{ render_hidden_errors(form) }}
 {{ render_form(form, method='post', role='form', form_type='basic') }}

@@ -2,21 +2,22 @@
   "id": 5,
   "officer": "current_user",
   "resume": {
-    "full_name": "test",
+    "fullname": "test",
     "birthday": "test",
-    "birth_place": "test",
+    "birthplace": "test",
     "country": "test",
     "snils": "test",
     "inn": "test"
   },
-  "passport": {
-    "p_series_passport": "test",
-    "p_number_passport": "test",
-    "p_agency": "test",
-    "p_date_given": "test"
+  "document": {
+    "series": "test",
+    "number": "test",
+    "agency": "test",
+    "issue": "test"
   },
   "address": {
-      "p_type": "Адрес регистрации",
-      "p_address": "test"
+      "view": "Адрес регистрации",
+      "region": "test",
+      "address": "test"
   }
 }
