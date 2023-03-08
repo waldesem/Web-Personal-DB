@@ -8,12 +8,12 @@
         {% from 'bootstrap5/utils.html' import render_static %}
         {{ render_static('css', 'css/bootstrap.css') }}
         {% endblock %}
-        <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>-->
+        <link rel="stylesheet" type="text/css" href="/templates/print.css" media="print">
     </head>
     <body>
         {% block navbar %}
         {% from 'bootstrap5/nav.html' import render_nav_item %}
-        <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg navbar-light hidden-print">
             <div class="container py-1">
                 <div class="navbar-nav mr-auto">
                     {{ render_nav_item('route.index', 'Кандидаты') }}

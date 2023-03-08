@@ -1,16 +1,14 @@
 //http://localhost:5000/api/v1/anketa
 {
   "id": "123",
-  "resume": {
-    "fullname": "JSON REST API",
-    "previous": "",
-    "birthday": "1980-11-30",
-    "birthplace": "г. Брянск",
-    "country": "Россия",
-    "snils": "34562345678",
-    "inn": "098765432109",
-    "education": "МГУ им Ломоносова, инженер"
-  },
+  "fullname": "JSON REST API",
+  "previous": "",
+  "birthday": "1980-11-30",
+  "birthplace": "г. Брянск",
+  "country": "Россия",
+  "snils": "34562345678",
+  "inn": "098765432109",
+  "education": "МГУ им Ломоносова, инженер",
   "staff": {
     "position": "Начальник отдела",
     "department": "Служба безопасности"

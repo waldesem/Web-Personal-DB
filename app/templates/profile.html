@@ -5,12 +5,7 @@
 {% from 'bootstrap5/form.html' import render_form, render_field, render_hidden_errors %}
 <div class="container py-1">
     <h4>{{ candidate.fullname }}</h4>
-   <div class="text-end">
-        <form action="" method="post">
-            <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('route.profile', forprint=forprint, cand_id=candidate.id) }}">Версия для печати</a>
-        </form>
-    </div>
-    <ul class="nav nav-tabs" id="myTabEvents">
+    <ul class="nav nav-tabs hidden-print" id="myTabEvents">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" type="button" data-bs-target="#profile">Профиль</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#check">Проверки</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#registr">Согласования</button></li>
@@ -25,16 +20,14 @@
                 {% if staffs %}
                     {% for staff in staffs %}
                         <tbody class="table-group-divider">
-                            {% if staff %}
                                 <tr><td>Должность</td><td>{{ staff.position }}</td></tr>
                                 <tr><td>Департамент</td><td>{{ staff.department }}</td></tr>
-                            {% endif %}
                         </tbody>
                     {% endfor %}
                 {% else %}
                     <tr><td></td><td>должности не найдены</td></tr>
                 {% endif %}
-                <tr><td><a class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-whatever="form_staff" data-bs-target="#formModal">Добавить должность</a></td><td></td></tr>
+                <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_staff" data-bs-target="#formModal">Добавить должность</a></td><td></td></tr>
                 {% if previous %}
                     <tr><td>Изменение имени</td><td>{{ candidate.previous }}</td></tr>
                 {% endif %}
@@ -57,7 +50,7 @@
                 {% else %}
                     <tr><td></td><td>паспорта не найдены</td></tr>
                 {% endif %}
-                <tr><td><a class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-whatever="form_document" data-bs-target="#formModal">Добавить паспорт</a></td><td></td></tr>
+                <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_document" data-bs-target="#formModal">Добавить паспорт</a></td><td></td></tr>
                 <tbody class="table-group-divider">
                     <tr><td>СНИЛС</td><td>{{ candidate.snils }}</td></tr>
                     <tr><td>ИНН</td><td>{{ candidate.inn }}</td></tr>
@@ -74,7 +67,7 @@
                 {% else %}
                     <tr><td></td><td>адреса не найдены</td></tr>
                 {% endif %}
-                <tr><td><a class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-whatever="form_address" data-bs-target="#formModal">Добавить адрес</a></td><td></td></tr>
+                <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_address" data-bs-target="#formModal">Добавить адрес</a></td><td></td></tr>
                 <tr><th>Контакты</th><th></th></tr>
                 {% if contacts %}
                     {% for contact in contacts %}
@@ -86,7 +79,7 @@
                 {% else %}
                     <tr><td></td><td>контакты не найдены</td></tr>
                 {% endif %}
-                <tr><td><a class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-whatever="form_contact" data-bs-target="#formModal">Добавить контакт</a></td><td></td></tr>
+                <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_contact" data-bs-target="#formModal">Добавить контакт</a></td><td></td></tr>
                 <tbody class="table-group-divider">
                     <tr><td>Образование</td><td>{{ candidate.education }}</td></tr>
                 </tbody>
@@ -103,7 +96,7 @@
                 {% else %}
                     <tr><td></td><td>места работы не найдены</td></tr>
                 {% endif %}
-                <tr><td><a class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-whatever="form_work" data-bs-target="#formModal">Добавить места работы</a></td><td></td></tr>
+                <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_work" data-bs-target="#formModal">Добавить места работы</a></td><td></td></tr>
                 <tr><th>Связи</th><th></th></tr>
                 {% if relations %}
                     {% for relation in relations %}
@@ -119,26 +112,26 @@
                 {% else %}
                     <tr><td></td><td>связи не найдены</td></tr>
                 {% endif %}
-                <tr><td><a class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-whatever="form_relation" data-bs-target="#formModal">Добавить связи</a></td><td></td></tr>
+                <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_relation" data-bs-target="#formModal">Добавить связи</a></td><td></td></tr>
                 <tbody class="table-group-divider">
                     <tr><td>Дополнительная информация</td><td>{{ candidate.addition }}</td></tr>
                     <tr><td>Статус</td><td>{{ candidate.status[2:] }}</td></tr>
                     <tr><td>Дата обновления</td><td>{{ candidate.deadline.strftime("%d.%m.%Y") }}</td></tr>
                 </tbody>
             </table>
-            <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-whatever="form_resume" data-bs-target="#formModal">Редактировать анкету</a>
-            <a class="btn btn-outline-secondary" href="{{ url_for('route.send_resume', cand_id=candidate.id) }}">Отправить на проверку</a>
+            <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_resume" data-bs-target="#formModal">Редактировать анкету</a>
+            <a class="btn btn-outline-secondary hidden-print" href="{{ url_for('route.send_resume', cand_id=candidate.id) }}">Отправить на проверку</a>
         </div>
         <div class="tab-pane fade" id="check">
-            <a class="btn btn-outline-primary" href="{{ url_for('route.check', cand_id=candidate.id, check_id=0) }}" target="_blank">Добавить проверку</a>
+            <a class="btn btn-outline-primary hidden-print" href="{{ url_for('route.check', cand_id=candidate.id, check_id=0) }}" target="_blank">Добавить проверку</a>
             {% if checks|length != 0 %} {# открываем последнюю проверку #}
                 {% for check in checks[checks|length-1:] %}
                     {{ render_check(check) }}
                     {% if candidate.status == status['active'] or candidate.status == status['robot_end'] or candidate.status == status['pfo'] or candidate.status == status['cancel'] %}
-                        <a class="btn btn-outline-primary" href="{{ url_for('route.check', cand_id=candidate.id, check_id=check.id) }}" target="_blank">Редактировать проверку</a>
+                        <a class="btn btn-outline-primary hidden-print" href="{{ url_for('route.check', cand_id=candidate.id, check_id=check.id) }}" target="_blank">Редактировать проверку</a>
                     {% endif %}
                     {% if candidate.status == status['result'] %}
-                        <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-whatever="form_registry" data-bs-target="#formModal">Открыть согласование</a>
+                        <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_registry" data-bs-target="#formModal">Открыть согласование</a>
                     {% endif %}
                 {% endfor %}
             {% endif %}
@@ -154,7 +147,7 @@
                 {% for reg in registr %}
                     {% if reg %}
                     <table class="table py-1">
-                        <tr><th colspan="2">ID #{{ reg.id }}</th></tr>
+                        <tr><th colspan="2">ID проверки #{{ reg.check_id }}</th></tr>
                         <tr><td style="width: 30%">Комментарий</td><td>{{ reg.comments }}</td></tr>
                         <tr><td>Решение</td><td>{{ reg.decision }}</td></tr>
                         <tr><td>Согласующий</td><td>{{ reg.supervisor }}</td></tr>
@@ -165,7 +158,7 @@
             {% endif %}
         </div>
         <div class="tab-pane fade" id="poligraf">
-            <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-whatever="form_poligraf" data-bs-target="#formModal">Добавить тестирование</a>
+            <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_poligraf" data-bs-target="#formModal">Добавить тестирование</a>
             {% if pfos|length > 0 %}
                 {% for pfo in pfos %}
                     <table class="table py-1">
@@ -179,7 +172,7 @@
             {% endif %}
         </div>
         <div class="tab-pane fade" id="investigate">
-            <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-whatever="form_investigation" data-bs-target="#formModal">Добавить расследование</a>
+            <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_investigation" data-bs-target="#formModal">Добавить расследование</a>
             {% if invs|length > 0 %}
                 {% for inv in invs %}
                     <table class="table py-1">
@@ -192,7 +185,7 @@
             {% endif %}
         </div>
         <div class="tab-pane fade" id="inquiry">
-            <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-whatever="form_inquiry" data-bs-target="#formModal">Добавить информацию</a>
+            <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_inquiry" data-bs-target="#formModal">Добавить информацию</a>
             {% if inquiries|length > 0 %}
                 {% for inquiry in inquiries %}
                     <table class="table table-hover py-1">
@@ -258,12 +251,13 @@
         formModal.querySelector('.modal-body').innerHTML = `{{ input_form(form_poligraf, candidate.id, 'poligraf') }}`
         break;
       case 'form_registry':
-        if (`{% if checks|length != 0 %}
-             {% for check in checks[checks|length-1:] %}`){
-             formModal.querySelector('.modal-body').innerHTML = `{{ input_form_reg(form_registry, candidate.id, checkid=check.id) }}`;
-              };
-            {% endfor %}
-            {% endif %}
+        `{% if checks|length != 0 %}`
+          `{% for check in checks[checks|length-1:] %}`
+            formModal.querySelector('.modal-body').innerHTML = `{{ input_form_reg(form_registry, candidate.id, checkid=check.id) }}`;
+          `{% endfor %}`
+        `{% else %}`
+          formModal.querySelector('.modal-body').innerHTML = `{{ input_form_reg(form_registry, candidate.id, checkid=0) }}`;
+        `{% endif %}`
         break;
       }
   })

@@ -6,6 +6,7 @@ from app.forms.form import *
 
 BASE_PATH = r'\\cronosx1\New folder\УВБ\Отдел корпоративной защиты\Персонал\Персонал-3\\'
 TODAY = datetime.now()
+URL_CHECK = "https://httpbin.org/post"
 
 
 class ExcelFile:  # получение анкетной информации из файла Excel

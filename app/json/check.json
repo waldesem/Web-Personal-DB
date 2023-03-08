@@ -1,6 +1,6 @@
 //url: http://localhost:5000/api/v1/check
 {
-    "id": 2,
+    "id": 1,
     "employee": "test",
     "document": "test",
     "inn": "test",
@@ -13,5 +13,5 @@
     "mvd": "test",
     "internet": "",
     "officer": "semenenko",
-    "temp_path": "//test/test"
+    "path": "//test/test"
 }

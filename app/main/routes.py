@@ -1,19 +1,22 @@
 import os
 import json
-import shutil
 
 import requests
-from sqlalchemy import func
+from sqlalchemy import func, extract
 from flask import Markup, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 
 from . import bpr
-from app.utils.extensions import *
-from app.forms.form import *
+from ..utils.extensions import TODAY, BASE_PATH, ExcelFile, resume_data, URL_CHECK
+from ..models.model import db, User, Candidate, Staff, Document, Address, Contact, Workplace, RelationShip, \
+    Check, Registry, Poligraf, Investigation, Inquiry, resume_schema
+from ..forms.form import STATUS, LoginForm, SearchForm, ResumeForm, StaffForm, DocumentForm, AddressForm, \
+    ContactForm, WorkplaceForm, RelationshipForm, RegistryForm, PoligrafForm, InvestigationForm, InquiryForm, \
+    InfoForm, FileForm, CheckForm
 
 
 @bpr.route("/login", methods=["POST", "GET"])  # вход пользователя в систему
-def login():  # пароль и логин берутся из таблицы Users куда прописываются через интерфейс БД
+def login():  # пароль и логин из таблицы Users прописываются через интерфейс БД
     user_form = LoginForm()
     if current_user.is_authenticated:  # если пользователь уже авторизован, возвращаемся на главную страницу
         return redirect(url_for('route.index'))
@@ -32,14 +35,14 @@ def login():  # пароль и логин берутся из таблицы Us
 
 
 @bpr.route('/logout')
-@login_required
+# @login_required
 def logout():  # выход пользователя из системы
     logout_user()
     return redirect(url_for('route.login'))
 
 
 @bpr.route('/', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def index():  # загрузка стартовой страницы
     form_search = SearchForm()  # загрузка формы поиска
     page = request.args.get('page', 1, type=int)  # разбиваем на страницы по указанному параметру
@@ -57,7 +60,7 @@ def index():  # загрузка стартовой страницы
 
 
 @bpr.route('/officer/', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def officer():  # загрузка страницы пользователя, показываем незавершенных кандидатов в работе у сотрудника
     page = request.args.get('page', 1, type=int)
     results = db.session.query(Candidate).filter(Candidate.status != STATUS['finish'],
@@ -68,7 +71,7 @@ def officer():  # загрузка страницы пользователя, п
 
 
 @bpr.route('/resume/<int:cand_id>', methods=['GET', 'POST'])  # добавляем новую анкету или редактируем
-@login_required
+# @login_required
 def resume(cand_id):
     file = FileForm()  # форма для добавления файла
     candidate = ResumeForm()  # форма для добавления новой анкеты
@@ -99,10 +102,10 @@ def resume(cand_id):
     return render_template('resume.html', file=file, form=candidate, title=title)
 
 
-@bpr.route('/profile/<notforprint>/<int:cand_id>', methods=['GET', 'POST'])  # загрузка профиля для печати
+@bpr.route('/profile/<forprint>/<int:cand_id>', methods=['GET', 'POST'])  # загрузка профиля для печати
 @bpr.route('/profile/<int:cand_id>', methods=['GET', 'POST'])  # загрузка профиля кандидата
-@login_required
-def profile(cand_id, forprint=None):  # полный профиль кандидата/сотрудника
+# @login_required
+def profile(cand_id, forprint=False):  # полный профиль кандидата/сотрудника
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()  # получаем  все данные кандидата из БД
     documents = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all()
     address = db.session.query(Address).filter_by(cand_id=cand_id).order_by(Address.id.asc()).all()
@@ -115,29 +118,34 @@ def profile(cand_id, forprint=None):  # полный профиль кандид
     pfos = db.session.query(Poligraf).filter_by(cand_id=cand_id).order_by(Poligraf.id.asc()).all()
     invs = db.session.query(Investigation).filter_by(cand_id=cand_id).order_by(Investigation.id.asc()).all()
     inquiries = db.session.query(Inquiry).filter_by(cand_id=cand_id).order_by(Inquiry.id.asc()).all()
-    form = ResumeForm(obj=candidate)     # загрузка формы редактирования анкеты
-    form_investigation = InvestigationForm()    # загрузка других форм...
-    form_inquiry = InquiryForm()
-    form_poligraf = PoligrafForm()
-    form_staff = StaffForm()
-    form_document = DocumentForm()
-    form_address = AddressForm()
-    form_work = WorkplaceForm()
-    form_relation = RelationshipForm()
-    form_contact = ContactForm()
-    form_registry = RegistryForm()
-    return render_template('profile.html', candidate=candidate, documents=documents, addresses=address,
-                           relations=relations, staffs=staffs, workplaces=workplaces, contacts=contacts,
-                           checks=checks, registr=registries, inquiries=inquiries, pfos=pfos, invs=invs,
-                           form=form, form_investigation=form_investigation, form_inquiry=form_inquiry,
-                           form_poligraf=form_poligraf, form_staff=form_staff, form_document=form_document,
-                           form_address=form_address, form_work=form_work, form_relation=form_relation,
-                           form_contact=form_contact, form_registry=form_registry, forprint=forprint,
-                           status=STATUS)
+    if not forprint:
+        form = ResumeForm(obj=candidate)  # загрузка формы редактирования анкеты
+        form_investigation = InvestigationForm()  # загрузка других форм...
+        form_inquiry = InquiryForm()
+        form_poligraf = PoligrafForm()
+        form_staff = StaffForm()
+        form_document = DocumentForm()
+        form_address = AddressForm()
+        form_work = WorkplaceForm()
+        form_relation = RelationshipForm()
+        form_contact = ContactForm()
+        form_registry = RegistryForm()
+        return render_template('profile.html', candidate=candidate, documents=documents, addresses=address,
+                               relations=relations, staffs=staffs, workplaces=workplaces, contacts=contacts,
+                               checks=checks, registr=registries, inquiries=inquiries, pfos=pfos, invs=invs,
+                               form=form, form_investigation=form_investigation, form_inquiry=form_inquiry,
+                               form_poligraf=form_poligraf, form_staff=form_staff, form_document=form_document,
+                               form_address=form_address, form_work=form_work, form_relation=form_relation,
+                               form_contact=form_contact, form_registry=form_registry, forprint=forprint,
+                               status=STATUS)
+    else:
+        return render_template('print.html', candidate=candidate, documents=documents, addresses=address,
+                               relations=relations, staffs=staffs, workplaces=workplaces, contacts=contacts,
+                               checks=checks, registr=registries, inquiries=inquiries, pfos=pfos, invs=invs)
 
 
 @bpr.route('/add/<flag>/<int:cand_id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def add(flag, cand_id):
     match flag:
         case "investigation":
@@ -217,7 +225,7 @@ def add(flag, cand_id):
 
 
 @bpr.route('/upload', methods=['GET', 'POST'])  # загрузка анкеты из файла Excel
-@login_required
+# @login_required
 def upload():
     file = request.files['file']  # получаем файл
     if request.method == 'POST':
@@ -245,31 +253,27 @@ def upload():
 @bpr.route('/send_resume/<int:cand_id>', methods=['GET'])  # отправка анкеты на проверку
 def send_resume(cand_id):
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()  # выбираем данные анкеты
-    document = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.desc()).first()
-    address = db.session.query(Address).filter_by(cand_id=cand_id). \
-        filter(Address.type.ilike("%регистрац%")).order_by(Address.address_id.desc()).first()
-    decerial = json.dumps({"resume": cand_schema.dump(candidate)} |
-                          {"document": doc_schema.dump(document)} |
-                          {"address": addr_schema.dump(address)} |
-                          {"officer": current_user.username})  # десериализация результатов запроса, создаем json
-    # url = "https://httpbin.org/post"  # адрес для отправки анкеты на проверку
-    # response = requests.post(url=url, json=decerial)  # отправка анкеты на проверку
-    # response.raise_for_status()
-    # if response.status_code == 200:   # проверка статуса отправки
-    #     flash(Markup("Анкета успешно отправлена"), 'info')
-    #     candidate.status = STATUS['robot_start']  # устанавливаем статус Автопроверка
-    #     db.session.commit()
-    #     return redirect(url_for('route.index'))
-    # else:
-    #     flash(Markup("Отправка анкеты не удалась попробуйте еще раз позднее"))
-    #     return redirect(url_for('route.profile', cand_id=cand_id))
-    print(decerial)
-    flash(Markup("Анкета успешно отправлена"), 'info')
-    return redirect(url_for('route.index'))
+    if candidate.status == STATUS['new']:
+        decerial = json.dumps(resume_schema.dump(candidate) | {'officer': 'current_user.username'})
+        url = URL_CHECK  # адрес для отправки анкеты на проверку
+        response = requests.post(url=url, json=decerial)  # отправка анкеты на проверку
+        response.raise_for_status()
+        if response.status_code == 200:   # проверка статуса отправки
+            flash(Markup("Анкета успешно отправлена"), 'info')
+            candidate.status = STATUS['robot']  # устанавливаем статус Робот
+            db.session.commit()
+            flash(Markup("Анкета успешно отправлена"), 'info')
+            return redirect(url_for('route.index'))
+        else:
+            flash(Markup("Отправка анкеты не удалась попробуйте еще раз позднее"))
+        return redirect(url_for('route.profile', cand_id=cand_id))
+    else:
+        # flash(Markup("Анкета ге может быть отправлена, т.к. проверка уже начата"), 'error')
+        return redirect(url_for('route.index'))
 
 
 @bpr.route('/check/<int:cand_id>/<int:check_id>', methods=['GET', 'POST'])
-@login_required  # форма проверки кандидата
+# @login_required  # форма проверки кандидата
 def check(cand_id, check_id):
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
     result = db.session.query(Check).filter_by(id=check_id).first()  # запрашиваем данные проверки, если есть
@@ -321,7 +325,7 @@ def check(cand_id, check_id):
 
 
 @bpr.route('/registr/<int:cand_id>/<int:check_id>', methods=('GET', 'POST'))  # отправка решения по кандидату
-@login_required
+# @login_required
 def registry(cand_id, check_id):
     if request.method == 'POST':
         form_registry = RegistryForm(request.form)  # загружаем форму согласования
@@ -332,41 +336,40 @@ def registry(cand_id, check_id):
         candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
         candidate.status = STATUS['finish']  # меняем статус в таблице на "Решение"
         db.session.commit()
-        # url = "https://httpbin.org/post"  # адрес для отправки ответа по результам проверки
-        # value = json.dumps(
-        #     {
-        #         "id": candidate.request_id,
-        #         "comments": reg['comments'],
-        #         "decision": reg['decision'],
-        #         "deadline": reg['deadline'],
-        #         "supervisor": reg['supervisor']
-        #     }
-        # )
-        # response = requests.post(url=url, json=value)
-        # response.raise_for_status()
-        # if response.status_code == 200:
-        #     print(response.status_code)
-        #     candidate.status = STATUS['finish']  # меняем статус в таблице на "Решение принято"
-        #     db.session.commit()
-        #     flash(Markup("Решение успешно отправлено"), 'info')
-        #     return redirect(url_for('route.index'))
-        # else:
-        #     flash(Markup("Отправка анкеты не удалась попробуйте еще раз позднее"), 'error')
-        flash(Markup("Решение успешно отправлено"), 'info')
+        url = URL_CHECK  # адрес для отправки ответа по результам проверки
+        value = json.dumps(
+            {
+                "id": candidate.request_id,
+                "comments": reg['comments'],
+                "decision": reg['decision'],
+                "deadline": reg['deadline'],
+                "supervisor": reg['supervisor']
+            }
+        )
+        response = requests.post(url=url, json=value)
+        response.raise_for_status()
+        if response.status_code == 200 or response.status_code == 201:  # проверка статуса отправки
+            print(response.status_code)
+            candidate.status = STATUS['finish']  # меняем статус в таблице на "Решение принято"
+            db.session.commit()
+            flash(Markup("Решение успешно отправлено"), 'info')
+            return redirect(url_for('route.index'))
+        else:
+            flash(Markup("Отправка анкеты не удалась попробуйте еще раз позднее"), 'error')
         return redirect(url_for('route.index'))
 
 
 @bpr.route('/info', methods=('GET', 'POST'))  # create statistic info
-@login_required
+# @login_required
 def info():
     statinfo = InfoForm()
     results = db.session.query(Registry.decision, func.count(Registry.decision)). \
-        group_by(Registry.decision).filter(Registry.decision == TODAY.year).all()
+        group_by(Registry.decision).filter(extract('year', Registry.decision) == TODAY.year).all()
     if request.method == 'POST':
         statinfo = InfoForm(request.form)
         results = db.session.query(Registry.decision, func.count(Registry.decision)). \
             group_by(Registry.decision).filter(
-            Registry.deadline.beteween(statinfo.start.data, statinfo.end.data)).all()
+            Registry.deadline.between(statinfo.start.data, statinfo.end.data)).all()
         return render_template('info.html', form=statinfo, results=results,
                                title=f'Cтатистика за период c {statinfo.start.data} по {statinfo.end.data}')
     return render_template('info.html', form=statinfo, results=results,

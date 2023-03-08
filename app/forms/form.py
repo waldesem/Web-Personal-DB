@@ -1,11 +1,11 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, TextAreaField, SubmitField, BooleanField, PasswordField, SelectField, DateField, \
-    FileField, SearchField
+from wtforms import StringField, TextAreaField, SubmitField, BooleanField, \
+    PasswordField, SelectField, DateField, FileField, SearchField
 from wtforms.validators import InputRequired, Optional, Length
 
-STATUS = dict(new='1-Новый', active='2-Проверка', robot_start='3-Автопроверка', robot_end='4-Автоответ',
-              pfo='5-ПФО', result='6-Согласование', cancel="7-Отменено", finish='8-Окончено')
+STATUS = dict(new='1-Новый', check='2-Проверка', autocheck='3-Автомат', robot='4-Робот', autoend='5-Автоответ',
+              robotend='6-Обработан', pfo='7-ПФО', result='9-Согласование', cancel="9-Отменено", finish='10-Окончено')
 
 
 class LoginForm(FlaskForm):  # форма для входа в систему
@@ -166,7 +166,7 @@ class InquiryForm(FlaskForm):  # форма для запросов из дру�
 
     info = TextAreaField(u"Информация", validators=[InputRequired()])
     initiator = StringField(u"Инициатор", validators=[InputRequired(), Length(max=250)])
-    # source = StringField(u"Источник", validators=[InputRequired(), Length(250)])
+    source = StringField(u"Источник", validators=[InputRequired(), Length(250)])
     deadline = DateField("Дата запроса", format='%Y-%m-%d', validators=[InputRequired()])
     submit = SubmitField("Принять")
 

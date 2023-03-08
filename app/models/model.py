@@ -1,9 +1,11 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from marshmallow import fields
+from marshmallow.fields import List
 
-ma = Marshmallow()
 db = SQLAlchemy()
+ma = Marshmallow()
 
 
 class User(db.Model, UserMixin):  # модель пользователей системы
@@ -24,20 +26,20 @@ class Candidate(db.Model):  # модель анкетных данных
     __tablename__ = 'candidates'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    region = db.Column(db.String)
-    fullname = db.Column(db.String, nullable=False, index=True)
-    previous = db.Column(db.String)
-    birthday = db.Column(db.Date, nullable=False)
-    birthplace = db.Column(db.String)
-    country = db.Column(db.String)
-    snils = db.Column(db.String, unique=True)
-    inn = db.Column(db.String, unique=True)
-    education = db.Column(db.String)
+    region = db.Column(db.String(250))
+    fullname = db.Column(db.String(250), index=True)
+    previous = db.Column(db.String(250))
+    birthday = db.Column(db.Date)
+    birthplace = db.Column(db.String(250))
+    country = db.Column(db.String(250))
+    snils = db.Column(db.String(11))
+    inn = db.Column(db.String(12))
+    education = db.Column(db.String(250))
     addition = db.Column(db.Text)
     deadline = db.Column(db.DateTime)
-    status = db.Column(db.String)
+    status = db.Column(db.String(250))
     request_id = db.Column(db.Integer)
-    Documents = db.relationship('Document', backref='candidates', cascade="all, delete-orphan")
+    documents = db.relationship('Document', backref='candidates', cascade="all, delete-orphan")
     addresses = db.relationship('Address', backref='candidates', cascade="all, delete-orphan")
     workplaces = db.relationship('Workplace', backref='candidates', cascade="all, delete-orphan")
     contacts = db.relationship('Contact', backref='candidates', cascade="all, delete-orphan")
@@ -49,16 +51,27 @@ class Candidate(db.Model):  # модель анкетных данных
     investigations = db.relationship('Investigation', backref='candidates', cascade="all, delete-orphan")
 
 
+class Staff(db.Model):  # создаем общий класс должности
+    """ Create model for staff"""
+
+    __tablename__ = 'staffs'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    position = db.Column(db.String(250))
+    department = db.Column(db.String(250))
+    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
 class Document(db.Model):  # модель паспорта
     """ Create model for Document dates"""
 
     __tablename__ = 'documents'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    view = db.Column(db.String)
-    series = db.Column(db.String)
-    number = db.Column(db.String)
-    agency = db.Column(db.String)
+    view = db.Column(db.String(250))
+    series = db.Column(db.String(25))
+    number = db.Column(db.String(25))
+    agency = db.Column(db.String(250))
     issue = db.Column(db.Date)
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
@@ -69,9 +82,9 @@ class Address(db.Model):  # создаем общий класс модель а
     __tablename__ = 'addresses'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    view = db.Column(db.String)
-    region = db.Column(db.String)
-    address = db.Column(db.String)
+    view = db.Column(db.String(250))
+    region = db.Column(db.String(250))
+    address = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
@@ -81,10 +94,10 @@ class Workplace(db.Model):  # создаем общий класс модель 
     __tablename__ = 'workplaces'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    period = db.Column(db.String)
-    workplace = db.Column(db.String)
-    address = db.Column(db.String)
-    position = db.Column(db.String)
+    period = db.Column(db.String(250))
+    workplace = db.Column(db.String(250))
+    address = db.Column(db.String(250))
+    position = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
@@ -94,8 +107,8 @@ class Contact(db.Model):  # создаем общий класс телефон�
     __tablename__ = 'contacts'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    view = db.Column(db.String)
-    contact = db.Column(db.String)
+    view = db.Column(db.String(250))
+    contact = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
@@ -105,23 +118,12 @@ class RelationShip(db.Model):  # создаем общий класс связи
     __tablename__ = 'relations'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    relation = db.Column(db.String)
-    fullname = db.Column(db.String)
+    relation = db.Column(db.String(250))
+    fullname = db.Column(db.String(250))
     birthday = db.Column(db.Date)
-    address = db.Column(db.String)
-    workplace = db.Column(db.String)
-    contact = db.Column(db.String)
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-
-
-class Staff(db.Model):  # создаем общий класс должности
-    """ Create model for staff"""
-
-    __tablename__ = 'staffs'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    position = db.Column(db.String)
-    department = db.Column(db.String)
+    address = db.Column(db.String(250))
+    workplace = db.Column(db.String(250))
+    contact = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
@@ -146,12 +148,12 @@ class Check(db.Model):  # модель данных проверки канди�
     cronos = db.Column(db.Text)
     cros = db.Column(db.Text)
     addition = db.Column(db.Text)
-    path = db.Column(db.String)
+    path = db.Column(db.String(250))
     pfo = db.Column(db.Boolean)
     comments = db.Column(db.Text)
-    conclusion = db.Column(db.String)
+    conclusion = db.Column(db.String(250))
     deadline = db.Column(db.DateTime)
-    officer = db.Column(db.String)
+    officer = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
     registries = db.relationship('Registry', backref='checks', cascade="all, delete-orphan")
 
@@ -163,9 +165,9 @@ class Registry(db.Model):  # модель данных результаты ПФ
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     comments = db.Column(db.Text)
-    decision = db.Column(db.String)
+    decision = db.Column(db.String(250))
     deadline = db.Column(db.DateTime)
-    supervisor = db.Column(db.String)
+    supervisor = db.Column(db.String(25))
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
 
 
@@ -175,9 +177,9 @@ class Poligraf(db.Model):  # модель данных результаты ПФ
     __tablename__ = 'poligrafs'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    theme = db.Column(db.String)
+    theme = db.Column(db.String(250))
     results = db.Column(db.Text)
-    officer = db.Column(db.String)
+    officer = db.Column(db.String(25))
     deadline = db.Column(db.Date)
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
@@ -188,7 +190,7 @@ class Investigation(db.Model):  # модель данных служебных �
     __tablename__ = 'investigations'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    theme = db.Column(db.String)
+    theme = db.Column(db.String(250))
     info = db.Column(db.Text)
     deadline = db.Column(db.Date)
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
@@ -201,29 +203,60 @@ class Inquiry(db.Model):  # модель данных запросов по ра
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     info = db.Column(db.Text)
-    initiator = db.Column(db.String)
-    # source = db.Column(db.String)
+    initiator = db.Column(db.String(250))
+    source = db.Column(db.String(250))
     deadline = db.Column(db.Date)
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
-class CandidateSchema(ma.Schema):
+class StaffSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        fields = ("id", "fullname", "birthday", "birthplace", "country", "snils", "inn")
+        model = Staff
+        exclude = ("id",)
 
 
-class DocumentSchema(ma.Schema):
+class DocumentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        fields = ("series", "number", "agency", "issue")
+        model = Document
+        exclude = ("id",)
 
 
-class AddressSchema(ma.Schema):
+class AddressSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        fields = ("view", "address")
+        model = Address
+        exclude = ("id",)
 
 
-cand_schema = CandidateSchema()
-doc_schema = DocumentSchema()
-addr_schema = AddressSchema()
+class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Workplace
+        exclude = ("id",)
+
+
+class ContactSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Contact
+        exclude = ("id",)
+
+
+class CandidateSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Candidate
+
+    staffs = fields.Nested(StaffSchema(), many=True)
+    documents = fields.Nested(DocumentSchema(), many=True)
+    addresses = fields.Nested(AddressSchema(), many=True)
+    contacts = fields.Nested(ContactSchema(), many=True)
+    workplaces = fields.Nested(WorkplaceSchema(), many=True)
+
+
+class CheckSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Check
+
+
+# экземпляры классов схем
+resume_schema = CandidateSchema()
+check_schema = CheckSchema()
 
 # db.create_all()
