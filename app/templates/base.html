@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns="http://www.w3.org/1999/html">
     <head>
         <title>{% block title %}{% endblock %}</title>
         <meta charset="UTF-8">
@@ -8,31 +8,49 @@
         {% from 'bootstrap5/utils.html' import render_static %}
         {{ render_static('css', 'css/bootstrap.css') }}
         {% endblock %}
-        <link rel="stylesheet" type="text/css" href="/templates/print.css" media="print">
+        <link rel="stylesheet" type="text/css" href="/templates/css/print.css" media="print">
     </head>
     <body>
         {% block navbar %}
         {% from 'bootstrap5/nav.html' import render_nav_item %}
-        <nav class="navbar navbar-expand-lg navbar-light hidden-print">
-            <div class="container py-1">
-                <div class="navbar-nav mr-auto">
-                    {{ render_nav_item('route.index', 'Кандидаты') }}
-                    {{ render_nav_item('route.resume', 'Создать', cand_id=0) }}
-                    {{ render_nav_item('route.info', 'Информация') }}
-                    {{ render_nav_item('route.logout', 'Выйти') }}
+        <div class="container">
+            <nav class="navbar navbar-expand navbar-default bg-light px-3 hidden-print">
+                <div class="navbar-nav py-2">
+                    <a class="navbar-brand" href="#"><img src="/static/icon.svg" alt="ЦКБ" width="30" height="24"></a>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {{ render_nav_item('route.index', 'Кандидаты', _use_li=True) }}
+                    {{ render_nav_item('route.resume', 'Создать', cand_id=0, _use_li=True) }}
+                    {{ render_nav_item('route.info', 'Информация', _use_li=True) }}
+                    {{ render_nav_item('route.logout', 'Выйти', _use_li=True) }}
                     {% if user %}
-                        {{ render_nav_item('route.officer', user) }}
+                        {{ render_nav_item('route.officer', user, _use_li=True) }}
                     {% else %}
-                        {{ render_nav_item('route.officer', 'Кабинет') }}
+                        {{ render_nav_item('route.officer', 'Кабинет', _use_li=True) }}
                     {% endif %}
+                    </ul>
+                    <form class="d-flex justify-content-end mr-auto" role="search" method="post" action="{{ url_for('route.index') }}">
+                        <input class="form-control me-2" type="search" placeholder="Поиск" name="search"  aria-label="Search">
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Поиск</button>
+                    </form>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
+        <div>
+            <nav class="navbar bg-body-tertiary">
+              <div class="container-fluid">
+                <a class="navbar-brand">Navbar</a>
+                <form class="d-flex" role="search">
+                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                  <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+              </div>
+            </nav>
+        </div>
         {% endblock %}
         {% block content %}
                 <div class="container py-3">
                     {% from 'bootstrap5/utils.html' import render_messages %}
-                    {{ render_messages(messages=None) }}
+                    {{ render_messages(container=True, dismissible=True) }}
                 </div>
             {% block app_content %}{% endblock %}
             {% block scripts %}

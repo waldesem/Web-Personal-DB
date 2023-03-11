@@ -2,7 +2,6 @@ from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
-from marshmallow.fields import List
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -15,6 +14,7 @@ class User(db.Model, UserMixin):  # модель пользователей си
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     fullname = db.Column(db.String)
+    position = db.Column(db.String)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role = db.Column(db.String)
@@ -38,6 +38,7 @@ class Candidate(db.Model):  # модель анкетных данных
     addition = db.Column(db.Text)
     deadline = db.Column(db.DateTime)
     status = db.Column(db.String(250))
+    recruiter = db.Column(db.String(250))
     request_id = db.Column(db.Integer)
     documents = db.relationship('Document', backref='candidates', cascade="all, delete-orphan")
     addresses = db.relationship('Address', backref='candidates', cascade="all, delete-orphan")
@@ -209,10 +210,20 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
-class StaffSchema(ma.SQLAlchemyAutoSchema):
+class ErrorLog(db.Model):  # модель данных логов
+    """ Create model for log"""
+
+    __tablename__ = 'errorlogs'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, autoincrement=True)
+    check_error = db.Column(db.Text)
+    resume_error = db.Column(db.Text)
+    deadline = db.Column(db.Date)
+
+
+class CandidateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Staff
-        exclude = ("id",)
+        model = Candidate
 
 
 class DocumentSchema(ma.SQLAlchemyAutoSchema):
@@ -224,6 +235,12 @@ class DocumentSchema(ma.SQLAlchemyAutoSchema):
 class AddressSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Address
+        exclude = ("id",)
+
+
+class StaffSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Staff
         exclude = ("id",)
 
 
@@ -239,24 +256,41 @@ class ContactSchema(ma.SQLAlchemyAutoSchema):
         exclude = ("id",)
 
 
-class CandidateSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Candidate
-
-    staffs = fields.Nested(StaffSchema(), many=True)
-    documents = fields.Nested(DocumentSchema(), many=True)
-    addresses = fields.Nested(AddressSchema(), many=True)
-    contacts = fields.Nested(ContactSchema(), many=True)
-    workplaces = fields.Nested(WorkplaceSchema(), many=True)
-
-
 class CheckSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Check
 
 
-# экземпляры классов схем
-resume_schema = CandidateSchema()
-check_schema = CheckSchema()
+class SerialResume(ma.SQLAlchemyAutoSchema):
+    resume = fields.Nested(CandidateSchema())
+    document = fields.Nested(DocumentSchema())
+    staff = fields.Nested(StaffSchema())
+    addresses = fields.List(fields.Nested(AddressSchema()))
+    workplaces = fields.List(fields.Nested(WorkplaceSchema()))
+    contacts = fields.List(fields.Nested(ContactSchema()))
+
+
+class DecerialResume:
+    """Класс для десериализации резюме"""
+
+    def __init__(self) -> None:
+        self.send_resume = None
+        self.resume = CandidateSchema(only=('id', 'fullname', 'birthday', 'birthplace', 'snils', 'inn',))
+        self.document = DocumentSchema()
+        self.address = AddressSchema(only=('address',))
+
+    def decer_res(self, new_id, **kwargs):
+        resum = db.session.query(Candidate).filter_by(id=new_id).first()
+        docum = db.session.query(Document).filter_by(cand_id=new_id).order_by(Document.id.desc()).first()
+        addr = db.session.query(Address).filter_by(cand_id=new_id).filter(Address.view.ilike("%регистрац%")). \
+            order_by(Address.id.desc()).first()
+        self.send_resume = self.resume.dump(resum) | self.document.dump(docum) | \
+                           self.address.dump(addr) | dict(kwargs)
+        return self.send_resume
+
+
+decerial_resume = DecerialResume()  # схема для десериализации анкеты для отправки на проверку
+check_schema = CheckSchema()  # схема для десериализации и верификации результата проверки
+candidate_schema = SerialResume()  # схема для сериализации и верификации анкеты присланной по API
 
 # db.create_all()

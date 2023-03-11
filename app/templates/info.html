@@ -10,6 +10,11 @@
         {% endfor %}
     </table>
 </div>
+<div class="container py-5">
+    <h3>Психофизиологическое обследование (ПФО)</h3>
+    {% from 'bootstrap4/table.html' import render_table %}
+    {{ render_table(results, titles=[('decision', 'Решение'), ('count', 'Итого')], table_classes='table-hover') }}
+</div>
 <div class="container py-3">
     {% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
     {{ form.hidden_tag() }}

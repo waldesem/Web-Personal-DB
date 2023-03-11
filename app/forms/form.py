@@ -1,11 +1,21 @@
+from enum import Enum
+from datetime import datetime
+
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import StringField, TextAreaField, SubmitField, BooleanField, \
-    PasswordField, SelectField, DateField, FileField, SearchField
+    PasswordField, SelectField, DateField, FileField
 from wtforms.validators import InputRequired, Optional, Length
 
-STATUS = dict(new='1-Новый', check='2-Проверка', autocheck='3-Автомат', robot='4-Робот', autoend='5-Автоответ',
-              robotend='6-Обработан', pfo='7-ПФО', result='9-Согласование', cancel="9-Отменено", finish='10-Окончено')
+TODAY = datetime.now()
+
+STATUS = dict(new='01-Новый', update='02-Обновлен', check='03-Проверка', autocheck='04-Автомат', robot='05-Робот',
+              autoend='06-Автоответ', pfo='07-ПФО', result='08-Результат', cancel="09-Отменено", finish='10-Окончен')
+
+
+class Status(Enum):
+    pass
+# Color = Enum('Color', ['RED', 'GREEN', 'BLUE'])
 
 
 class LoginForm(FlaskForm):  # форма для входа в систему
@@ -15,16 +25,8 @@ class LoginForm(FlaskForm):  # форма для входа в систему
                            render_kw={"placeholder": "Имя пользователя"})
     password = PasswordField(u"Пароль: ", validators=[InputRequired(), Length(max=25)],
                              render_kw={"placeholder": "Пароль"})
-    remember = BooleanField("Запомнить ", default=False)
+    remember = BooleanField("Запомнить ", default=False, validators=[])
     submit = SubmitField("Войти")
-
-
-class SearchForm(FlaskForm):  # форма для поиска на главной странице
-    """ Create form for search"""
-
-    search = SearchField(u"Поиск", validators=[InputRequired(), Length(max=250)],
-                         render_kw={"placeholder": "Введите Фамилию (Имя Отчество)"})
-    submit = SubmitField("Найти")
 
 
 class FileForm(FlaskForm):  # форма для загрузки файла
@@ -104,7 +106,7 @@ class ResumeForm(FlaskForm):  # форма для анкетных данных 
     inn = StringField(u"ИНН", validators=[Optional(), Length(min=12, max=12)])
     education = StringField(u"Образование", validators=[Optional(), Length(max=250)])
     addition = TextAreaField(u"Дополнительная информация", validators=[Optional()])
-    status = SelectField(u"Статус", choices=[v for _, v in STATUS.items()])
+    recruiter = StringField(u"Рекрутер", validators=[Optional(), Length(max=250)])
     submit = SubmitField("Принять")
 
 
@@ -126,7 +128,7 @@ class CheckForm(FlaskForm):  # форма для проверки
     cronos = TextAreaField(u"Проверка Кронос", validators=[Optional()])
     cros = TextAreaField(u"Проверка Крос", validators=[Optional()])
     addition = TextAreaField(u"Дополнительная информация", validators=[Optional()])
-    pfo = BooleanField(u"Полиграф", default=False)
+    pfo = BooleanField(u"Полиграф", default=False, validators=[])
     conclusion = SelectField(u'Результат', choices=['Без замечаний', 'С комментарием', 'Негатив',
                                                     'Снят с проверки', 'Сохранить'])
     comments = StringField(u"Комментарий", validators=[Optional(), Length(max=250)])
@@ -148,7 +150,7 @@ class PoligrafForm(FlaskForm):  # форма для результатов ПФ�
     theme = SelectField(u"Тема проверки", choices=['Проверка кандидата', 'Служебная проверка',
                                                    'Служебное расследование', 'Другое'])
     results = TextAreaField(u"Информация", validators=[InputRequired()])
-    deadline = DateField("Дата проведения", format='%Y-%m-%d', validators=[InputRequired()])
+    deadline = DateField("Дата проведения", format='%Y-%m-%d', default=TODAY, validators=[InputRequired()])
     submit = SubmitField("Принять")
 
 
@@ -157,7 +159,7 @@ class InvestigationForm(FlaskForm):  # форма для результатов 
 
     theme = StringField(u"Тема проверки", validators=[InputRequired(), Length(max=250)])
     info = TextAreaField(u"Информация", validators=[InputRequired()])
-    deadline = DateField("Дата окончания проверки", format='%Y-%m-%d', validators=[Optional()])
+    deadline = DateField("Дата окончания проверки", format='%Y-%m-%d', default=TODAY, validators=[Optional()])
     submit = SubmitField("Принять")
 
 
@@ -167,7 +169,7 @@ class InquiryForm(FlaskForm):  # форма для запросов из дру�
     info = TextAreaField(u"Информация", validators=[InputRequired()])
     initiator = StringField(u"Инициатор", validators=[InputRequired(), Length(max=250)])
     source = StringField(u"Источник", validators=[InputRequired(), Length(250)])
-    deadline = DateField("Дата запроса", format='%Y-%m-%d', validators=[InputRequired()])
+    deadline = DateField("Дата запроса", format='%Y-%m-%d', default=TODAY, validators=[InputRequired()])
     submit = SubmitField("Принять")
 
 

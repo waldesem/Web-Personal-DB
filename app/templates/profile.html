@@ -120,14 +120,16 @@
                 </tbody>
             </table>
             <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_resume" data-bs-target="#formModal">Редактировать анкету</a>
-            <a class="btn btn-outline-secondary hidden-print" href="{{ url_for('route.send_resume', cand_id=candidate.id) }}">Отправить на проверку</a>
+            {% if candidate.status == status['new'] or candidate.status == status['update'] or candidate.status == status['cancel'] %}
+                <a class="btn btn-outline-secondary hidden-print" href="{{ url_for('route.send_resume', cand_id=candidate.id) }}">Отправить на проверку</a>
+            {% endif %} 
         </div>
         <div class="tab-pane fade" id="check">
             <a class="btn btn-outline-primary hidden-print" href="{{ url_for('route.check', cand_id=candidate.id, check_id=0) }}" target="_blank">Добавить проверку</a>
             {% if checks|length != 0 %} {# открываем последнюю проверку #}
                 {% for check in checks[checks|length-1:] %}
                     {{ render_check(check) }}
-                    {% if candidate.status == status['active'] or candidate.status == status['robot_end'] or candidate.status == status['pfo'] or candidate.status == status['cancel'] %}
+                    {% if candidate.status == status['check'] or candidate.status == status['autoend'] or candidate.status == status['cancel'] %}
                         <a class="btn btn-outline-primary hidden-print" href="{{ url_for('route.check', cand_id=candidate.id, check_id=check.id) }}" target="_blank">Редактировать проверку</a>
                     {% endif %}
                     {% if candidate.status == status['result'] %}
@@ -251,13 +253,13 @@
         formModal.querySelector('.modal-body').innerHTML = `{{ input_form(form_poligraf, candidate.id, 'poligraf') }}`
         break;
       case 'form_registry':
-        `{% if checks|length != 0 %}`
-          `{% for check in checks[checks|length-1:] %}`
+        {% if checks|length != 0 %}
+          {% for check in checks %}
             formModal.querySelector('.modal-body').innerHTML = `{{ input_form_reg(form_registry, candidate.id, checkid=check.id) }}`;
-          `{% endfor %}`
-        `{% else %}`
+          {% endfor %}
+        {% else %}
           formModal.querySelector('.modal-body').innerHTML = `{{ input_form_reg(form_registry, candidate.id, checkid=0) }}`;
-        `{% endif %}`
+        {% endif %}
         break;
       }
   })

@@ -1,27 +1,26 @@
 {% extends 'base.html' %}
 {% block title %} Кандидаты {% endblock %}
 {% block app_content %}
-{% if search_form %}
-<div class="container py-1">
-<form method="post" action="{{ url_for('route.index') }}">
-    {% from 'bootstrap5/form.html' import render_field, render_hidden_errors %}
-    {{ search_form.hidden_tag() }}
-    {{ render_field(search_form.search) }}
-</form>
-</div>
-{% endif %}
 <div class="container py-5">
-    <table class="table table-hover table-lg table-responsive">
-        <tr >
-            <th style="width: 15%">Регион</th><th>Фамилия Имя Отчество</th><th style="width: 15%">Дата рождения</th><th style="width: 15%">Статус</th><th style="width: 15%">Дата обновления</th>
+    <table class="table table-lg table-responsive d-flex justify-content-center">
+        <tr>
+            <th style="width: 5%">#</th>
+            <th style="width: 15%">Регион</th>
+            <th>Фамилия Имя Отчество</th>
+            <th style="width: 15%">Дата рождения</th>
+            <th style="width: 10%">Статус</th>
+            <th style="width: 15%">Обновлено</th>
+            <th style="width: 10%">Действия</th>
         </tr>
         {% for candidate in results.items %}
-        <tr>
+        <tr onclick="document.location = '{{ url_for('route.profile', cand_id=candidate.id) }}';">
+            <td>{{ candidate.id }}</td>
             <td>{{ candidate.region }}</td>
             <td><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.fullname }}</a></td>
-            <td>{{ candidate.birthday }}</td>
+            <td>{{ candidate.birthday.strftime("%d.%m.%Y") }}</td>
             <td>{{ candidate.status[2:] }}</td>
             <td>{{ candidate.deadline.strftime("%d.%m.%Y") }}</td>
+            <td>{#  #}</td>
         </tr>
         {% endfor %}
     </table>

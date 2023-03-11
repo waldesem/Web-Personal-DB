@@ -1,11 +1,9 @@
 from datetime import datetime
 import openpyxl
 
-from app.models.model import *
-from app.forms.form import *
+from app.models.model import db, Staff, Document, Address, Contact, Workplace
 
 BASE_PATH = r'\\cronosx1\New folder\УВБ\Отдел корпоративной защиты\Персонал\Персонал-3\\'
-TODAY = datetime.now()
 URL_CHECK = "https://httpbin.org/post"
 
 
@@ -24,8 +22,7 @@ class ExcelFile:  # получение анкетной информации и�
                            snils=str(self.sheet['U3'].value).strip(),
                            inn=str(self.sheet['V3'].value).strip(),
                            education=str(self.sheet['X3'].value).strip(),
-                           status=STATUS['new'],
-                           deadline=TODAY)
+                           recruiter=str(self.sheet['E3'].value).strip())
         self.passport = dict(view='Паспорт гражданина России',
                              series=str(self.sheet['P3'].value).strip(),
                              number=str(self.sheet['Q3'].value).strip(),
