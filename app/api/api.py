@@ -8,9 +8,9 @@ from marshmallow import ValidationError
 # from flask_httpauth import HTTPBasicAuth
 
 from . import bpa
-from ..utils.extensions import BASE_PATH, TODAY, resume_data, URL_CHECK
-from ..models.model import db, User, Candidate, Check, check_schema, candidate_schema, decerial_resume, ErrorLog
-from ..forms.form import STATUS
+from ..utils.extensions import BASE_PATH, resume_data, URL_CHECK
+from ..models.model import db, User, Candidate, Check, check_schema, candidate_schema, decerial_resume
+from ..forms.form import STATUS, TODAY
 
 # auth = HTTPBasicAuth()
 
@@ -31,7 +31,7 @@ def anketa():
     try:
         resume = candidate_schema.loads(json_data)
         resume['resume']["request_id"] = resume['resume'].pop('id')  # удаляем id из анкеты и сохраняем  как request_id
-        resume['resume']['status'] = STATUS["autocheck"]
+        resume['resume']['status'] = STATUS["auto"]
         resume['resume']['deadline'] = TODAY
         result = db.session.query(Candidate).filter_by(fullname=resume['resume']['fullname'],
                                                        birthday=resume['resume']['birthday']).first()
@@ -55,13 +55,11 @@ def anketa():
             return jsonify({"status": "Automatic processing"})
         else:
             result = db.session.query(Candidate).filter_by(id=new_id).first()  # запрашиваем БД
-            result.status = STATUS['new']   # если отправка на проверку не удалась ставим статус "Новый"
+            result.status = STATUS['newfag']   # если отправка на проверку не удалась ставим статус "Новый"
             db.session.commit()
             return jsonify({"status": "Рartially successful. Manual processing"})
     except ValidationError as error:
-        db.session.add(ErrorLog(**{"resume_error": error, "deadline": TODAY}))
-        db.session.flush()
-        return jsonify({"status": error})
+        return jsonify({"status": f'{error}'})
 
 
 @bpa.route('/api/v1/check', methods=['POST'])  # получение результата проверки в формате JSON
@@ -73,7 +71,7 @@ def check():
     try:
         response = check_schema.loads(json_data)
         result = db.session.query(Candidate).filter_by(id=response['id']).first()
-        result.status = STATUS['autoend']  # устанавливаем статус Автовозврат
+        result.status = STATUS['reply']  # устанавливаем статус Автовозврат
         db.session.commit()
         path = os.path.join(BASE_PATH, result.fullname[0], f"{str(result.id)}-{result.fullname}",
                             TODAY.strftime("%Y-%m-%d"))
@@ -88,6 +86,4 @@ def check():
         db.session.commit()
         return jsonify({"status": "success"})
     except ValidationError as error:
-        db.session.add(ErrorLog(**{"check_error": error, "deadline": TODAY}))
-        db.session.flush()
-        return jsonify({"status": error})
+        return jsonify({"status": f'{error}'})

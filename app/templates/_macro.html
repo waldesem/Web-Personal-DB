@@ -4,7 +4,7 @@
     {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, role='form', form_type='basic') }}
+    {{ render_form(form, role='form', form_type='horizontal') }}
 </form>
 {%- endmacro %}
 
@@ -14,7 +14,7 @@
     {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, role='form', form_type='basic') }}
+    {{ render_form(form, role='form', form_type='horizontal') }}
 </form>
 {%- endmacro %}
 
@@ -24,14 +24,15 @@
     {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, role='form', form_type='basic') }}
+    {{ render_form(form, role='form', form_type='horizontal') }}
 </form>
 {%- endmacro %}
 
 
 {% macro render_check(check) -%}
 {# Рендеринг повторяющихся таблиц проверки кандидатов #}
-<table class="table">
+<div class="container py-1">
+    <table class="table">
         <tr><th style="width: 30%">ID #{{ check.id }}</th><th style="width: 70%"><a href="{{ check.path }}">Материалы проверки</a></th></tr>
         <tr><td>Бывший работник МТСБ</td><td>{{ check.employee }}</td></tr>
         <tr><td>Проверка по местам работы</td><td>{{ check.workplace }}</td></tr>
@@ -52,4 +53,5 @@
         <tr><td>Дата проверки</td><td>{{ check.deadline.strftime("%d.%m.%Y") }}</td></tr>
         <tr><td>Сотрудник СБ</td><td>{{ check.officer }}</td></tr>
     </table>
+</div>
 {%- endmacro %}

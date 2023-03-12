@@ -8,6 +8,6 @@
     {% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, method='post', role='form', form_type='basic') }}
+    {{ render_form(form, method='post', role='form', form_type='horizontal', horizontal_columns=('lg', 2, 10)) }}
 </div>
 {% endblock %}

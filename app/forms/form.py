@@ -1,4 +1,4 @@
-from enum import Enum
+import enum
 from datetime import datetime
 
 from flask_wtf import FlaskForm
@@ -9,13 +9,30 @@ from wtforms.validators import InputRequired, Optional, Length
 
 TODAY = datetime.now()
 
-STATUS = dict(new='01-Новый', update='02-Обновлен', check='03-Проверка', autocheck='04-Автомат', robot='05-Робот',
-              autoend='06-Автоответ', pfo='07-ПФО', result='08-Результат', cancel="09-Отменено", finish='10-Окончен')
+STATUS = dict(newfag='01-Новый',
+              update='02-Обновлен',
+              manual='03-Проверка',
+              auto='04-Автомат',
+              robot='05-Робот',
+              reply='06-Автоответ',
+              poligrafo='07-ПФО',
+              result='08-Результат',
+              cancel="09-Отменено",
+              finish='10-Окончен'
+              )
 
 
-class Status(Enum):
-    pass
-# Color = Enum('Color', ['RED', 'GREEN', 'BLUE'])
+class Status(enum.Enum):
+    NEWFAG = 'Новый'
+    UPDATE = 'Обновлен'
+    MANUAL = 'Проверка'
+    AUTO = 'Автомат'
+    ROBOT = 'Робот'
+    REPLY = 'Автоответ'
+    POLIGRAF = 'ПФО'
+    RESULT = 'Результат'
+    CANCEL = 'Отменено'
+    FINISH = 'Окончен'
 
 
 class LoginForm(FlaskForm):  # форма для входа в систему
@@ -97,7 +114,7 @@ class ResumeForm(FlaskForm):  # форма для анкетных данных 
     """ Create form for create/edit resume page"""
 
     region = SelectField(u'Регион', choices=['Главный офис', 'Томск', 'РЦ Запад', 'РЦ Юг', 'РЦ Запад', 'РЦ Урал'])
-    fullname = StringField(u"Фамилия Имя Отчество", validators=[InputRequired(), Length(max=250)])
+    fullname = StringField(u"Полное ФИО", validators=[InputRequired(), Length(max=250)])
     previous = StringField(u"Изменение имени", validators=[Optional(), Length(max=250)])
     birthday = DateField("Дата рождения", format='%Y-%m-%d', validators=[InputRequired()])
     birthplace = StringField(u"Место рождения", validators=[Optional(), Length(max=250)])
@@ -105,7 +122,7 @@ class ResumeForm(FlaskForm):  # форма для анкетных данных 
     snils = StringField(u"СНИЛС", validators=[Optional(), Length(min=11, max=11)])
     inn = StringField(u"ИНН", validators=[Optional(), Length(min=12, max=12)])
     education = StringField(u"Образование", validators=[Optional(), Length(max=250)])
-    addition = TextAreaField(u"Дополнительная информация", validators=[Optional()])
+    addition = TextAreaField(u"Дополнительно", validators=[Optional()])
     recruiter = StringField(u"Рекрутер", validators=[Optional(), Length(max=250)])
     submit = SubmitField("Принять")
 

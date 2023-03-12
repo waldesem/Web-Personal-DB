@@ -13,10 +13,8 @@ class User(db.Model, UserMixin):  # модель пользователей си
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    fullname = db.Column(db.String)
-    position = db.Column(db.String)
-    username = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, unique=True)
+    password = db.Column(db.String)
     role = db.Column(db.String)
 
 
@@ -208,17 +206,6 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     source = db.Column(db.String(250))
     deadline = db.Column(db.Date)
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-
-
-class ErrorLog(db.Model):  # модель данных логов
-    """ Create model for log"""
-
-    __tablename__ = 'errorlogs'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, autoincrement=True)
-    check_error = db.Column(db.Text)
-    resume_error = db.Column(db.Text)
-    deadline = db.Column(db.Date)
 
 
 class CandidateSchema(ma.SQLAlchemyAutoSchema):

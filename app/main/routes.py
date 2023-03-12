@@ -35,20 +35,22 @@ def login():  # пароль и логин из таблицы Users пропи�
 
 
 @bpr.route('/logout')
-# @login_required
+@login_required
 def logout():  # выход пользователя из системы
     logout_user()
     return redirect(url_for('route.login'))
 
 
 @bpr.route('/', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def index():  # загрузка стартовой страницы
     page = request.args.get('page', 1, type=int)  # разбиваем на страницы по указанному параметру
     results = db.session.query(Candidate).order_by(Candidate.status.asc(),
                                                    Candidate.id.desc()).paginate(page=page, per_page=12)
-    count = db.session.query(Candidate.status, func.count(Candidate.status)).filter_by(status=STATUS['new']).first()[1]
-    flash(Markup(f'Новых анкет: {count}'), 'secondary')  # отображаем количество новых анкет
+    count = db.session.query(Candidate.status, func.count(Candidate.status)).\
+        filter_by(status=STATUS['newfag']).first()[1]
+    if count:
+        flash(Markup(f'Новых анкет: {count}'), 'secondary')  # отображаем количество новых анкет
     if request.method == 'POST':  # загрузка страницы результатов поиска
         search_by = request.form.get('search')
         results = db.session.query(Candidate).filter(Candidate.fullname.ilike(f'%{search_by}%')). \
@@ -58,7 +60,7 @@ def index():  # загрузка стартовой страницы
 
 
 @bpr.route('/officer/', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def officer():  # загрузка страницы пользователя, показываем незавершенных кандидатов в работе у сотрудника
     page = request.args.get('page', 1, type=int)
     results = db.session.query(Candidate).filter(Candidate.status != STATUS['finish'],
@@ -69,7 +71,7 @@ def officer():  # загрузка страницы пользователя, п
 
 
 @bpr.route('/resume/<int:cand_id>', methods=['GET', 'POST'])  # добавляем новую анкету или редактируем
-# @login_required
+@login_required
 def resume(cand_id):
     file = FileForm()  # форма для добавления файла
     candidate = ResumeForm()  # форма для добавления новой анкеты
@@ -84,12 +86,14 @@ def resume(cand_id):
         result = db.session.query(Candidate).filter(Candidate.fullname == resume_dict['fullname'],
                                                     Candidate.birthday == resume_dict['birthday']).first()
         if result:  # проверка существования такой же анкеты, если есть анкета с таким именем, обновляем данные
-            for k, v in resume_dict.items() | {'status': STATUS['update']}:
+            resume_dict.update({'status': STATUS['update']})
+            for k, v in resume_dict.items():
                 setattr(result, k, v)
                 db.session.commit()
             flash(Markup('Такая запись уже существует. Данные обновлены'), 'info')
         else:  # если нет таких анкет, добавляем новую запись
-            value = Candidate(**resume_dict | {'status': STATUS['new'], 'deadline': TODAY})
+            resume_dict.update({'status': STATUS['newfag'], 'deadline': TODAY})
+            value = Candidate(**resume_dict)
             db.session.add(value)
             db.session.flush()
             cand_id = value.id
@@ -100,7 +104,7 @@ def resume(cand_id):
 
 
 @bpr.route('/profile/<int:cand_id>', methods=['GET', 'POST'])  # загрузка профиля кандидата
-# @login_required
+@login_required
 def profile(cand_id):  # полный профиль кандидата/сотрудника
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()  # получаем  все данные кандидата из БД
     documents = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all()
@@ -135,7 +139,7 @@ def profile(cand_id):  # полный профиль кандидата/сотр
 
 
 @bpr.route('/add/<flag>/<int:cand_id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def add(flag, cand_id):
     match flag:
         case "investigation":
@@ -159,10 +163,10 @@ def add(flag, cand_id):
                 form_poligraf = PoligrafForm(request.form)
                 db.session.add(Poligraf(**{k: v for k, v in form_poligraf.data.items() if
                                            k not in ['submit', 'csrf_token']} | {'cand_id': cand_id} |
-                                          {'officer': current_user.username}))
+                                          {'officer': 'current_user.username'}))
                 db.session.commit()
                 candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
-                if candidate.status == STATUS['pfo']:  # проверяем статус анкеты, если указано ПФО, то завершаем
+                if candidate.status == STATUS['poligraf']:  # проверяем статус анкеты, если указано ПФО, то завершаем
                     candidate.status = STATUS['result']
                     db.session.commit()
                 flash(Markup(f"Запись успешно добавлена"), 'success')
@@ -204,7 +208,6 @@ def add(flag, cand_id):
                 return redirect(url_for('route.profile', cand_id=cand_id))
         case "relation":
             if request.method == 'POST':
-                print(flag)
                 form_relation = RelationshipForm(request.form)
                 db.session.add(RelationShip(**{k: v for k, v in form_relation.data.items() if
                                                k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
@@ -215,7 +218,7 @@ def add(flag, cand_id):
 
 
 @bpr.route('/upload', methods=['GET', 'POST'])  # загрузка анкеты из файла Excel
-# @login_required
+@login_required
 def upload():
     file = request.files['file']  # получаем файл
     if request.method == 'POST':
@@ -230,7 +233,7 @@ def upload():
                         excel.workplaces, excel.staff)  # добавляем новые данные в базу данных
             flash(Markup('Такая запись уже существует. Данные обновлены'), 'info')
         else:  # если нет таких анкет, добавляем новую запись
-            result = Candidate(**excel.resume | {'status': STATUS['new'], 'deadline': TODAY})
+            result = Candidate(**excel.resume | {'status': STATUS['newfag'], 'deadline': TODAY})
             db.session.add(result)
             db.session.flush()  # фиксируем id для последующей записи
             resume_data(result.id, excel.passport, excel.addresses, excel.contacts,
@@ -243,12 +246,12 @@ def upload():
 @bpr.route('/send_resume/<int:cand_id>', methods=['GET'])  # отправка анкеты на проверку
 def send_resume(cand_id):
     resum = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if resum.status == STATUS['new']:
+    if resum.status == STATUS['newfag']:
         decerial = decerial_resume.decer_res(cand_id, officer='current_user.username')
         url = URL_CHECK  # отправка анкеты на проверку
         response = requests.post(url=url, json=decerial)
         response.raise_for_status()
-        if response.status_code == 200:   # проверка статуса отправки
+        if response.status_code == 200:  # проверка статуса отправки
             resum.status = STATUS['robot']  # устанавливаем статус Робот
             db.session.commit()
             flash(Markup("Анкета успешно отправлена"), 'success')
@@ -262,7 +265,7 @@ def send_resume(cand_id):
 
 
 @bpr.route('/check/<int:cand_id>/<int:check_id>', methods=['GET', 'POST'])
-# @login_required  # форма проверки кандидата
+@login_required  # форма проверки кандидата
 def check(cand_id, check_id):
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
     result = db.session.query(Check).filter_by(id=check_id).first()  # запрашиваем данные проверки, если есть
@@ -275,11 +278,11 @@ def check(cand_id, check_id):
         # if check_id is False:  # создаем  путь и папку к материалам проверки
         #   os.makedirs(path)  #  создаем папку для материалов проверки
         #   os.startfile(path)  # открываем папку с проверкой
-        if check_id is False and candidate.status not in [STATUS['new'], STATUS['update'],
+        if check_id is False and candidate.status not in [STATUS['newfag'], STATUS['update'],
                                                           STATUS['finish'], STATUS['cancel']]:
             flash(Markup("Анкета взята в работу и еще не закончена"), 'warning')
             return redirect(url_for('route.index'))  # проверка на одновременную работу с анкетой
-        candidate.status = STATUS['check']  # меняем статус анкеты
+        candidate.status = STATUS['manual']  # меняем статус анкеты
         db.session.commit()
     if checks.validate_on_submit() and request.method == 'POST':
         checks = CheckForm(request.form)
@@ -301,7 +304,7 @@ def check(cand_id, check_id):
             flash(Markup("Проверка отменена"), 'info')
         else:
             if check_dict['pfo']:  # если поставлена отметка ПФО меняем статус
-                candidate.status = STATUS['pfo']
+                candidate.status = STATUS['poligraf']
                 db.session.commit()
                 flash(Markup("Проверка завершена. Назначено проведение ПФО"), 'primary')
             else:
@@ -313,7 +316,7 @@ def check(cand_id, check_id):
 
 
 @bpr.route('/registr/<int:cand_id>/<int:check_id>', methods=('GET', 'POST'))  # отправка решения по кандидату
-# @login_required
+@login_required
 def registry(cand_id, check_id):
     if request.method == 'POST':
         form_registry = RegistryForm(request.form)  # загружаем форму согласования
@@ -322,8 +325,6 @@ def registry(cand_id, check_id):
         db.session.add(Registry(**reg))  # получаем данные из формы и записываем в базу данных
         db.session.commit()
         candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
-        candidate.status = STATUS['finish']  # меняем статус в таблице на "Решение"
-        db.session.commit()
         response = requests.post(url=URL_CHECK, json=json.dumps(
             {
                 "id": candidate.request_id,
@@ -331,11 +332,10 @@ def registry(cand_id, check_id):
                 "decision": reg['decision'],
                 "deadline": TODAY,
                 "supervisor": reg['supervisor']
-            }
-        ))
+            },
+            default=str))
         response.raise_for_status()
-        if response.status_code == 200 or response.status_code == 201:  # проверка статуса отправки
-            print(response.status_code)
+        if response.status_code == 200:  # проверка статуса отправки
             candidate.status = STATUS['finish']  # меняем статус в таблице на "Решение принято"
             db.session.commit()
             flash(Markup("Решение успешно отправлено"), 'success')
@@ -346,20 +346,31 @@ def registry(cand_id, check_id):
 
 
 @bpr.route('/info', methods=('GET', 'POST'))  # create statistic info
-# @login_required
+@login_required
 def info():
     statinfo = InfoForm()
-    results = db.session.query(Registry.decision, func.count(Registry.id)). \
+    candidates = db.session.query(Registry.decision, func.count(Registry.id)). \
         group_by(Registry.decision).filter(extract('year', Registry.deadline) == TODAY.year).all()
-    pfo_count = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
+    cand_count = db.session.query(func.count(Registry.id)).\
+        filter(extract('year', Registry.deadline) == TODAY.year).scalar()
+    poligraf = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
         group_by(Poligraf.theme).filter(extract('year', Poligraf.deadline) == TODAY.year).all()
+    pfo_count = db.session.query(func.count(Poligraf.id)). \
+        filter(extract('year', Poligraf.deadline) == TODAY.year).scalar()
     if request.method == 'POST':
         statinfo = InfoForm(request.form)
-        results = db.session.query(Registry.decision, func.count(Registry.id)). \
+        candidates = db.session.query(Registry.decision, func.count(Registry.id)). \
             group_by(Registry.decision).filter(Registry.deadline.between(statinfo.start.data, statinfo.end.data)).all()
-        pfo_count = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
+        cand_count = db.session.query(func.count(Registry.id)). \
+            filter(Registry.deadline.between(statinfo.start.data, statinfo.end.data)).scalar()
+        poligraf = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
             group_by(Poligraf.theme).filter(Poligraf.deadline.between(statinfo.start.data, statinfo.end.data)).all()
-        return render_template('info.html', form=statinfo, results=results, pfo_count=pfo_count,
-                               title=f'Cтатистика за период c {statinfo.start.data} по {statinfo.end.data}')
-    return render_template('info.html', form=statinfo, results=results, pfo_count=pfo_count,
+        pfo_count = db.session.query(func.count(Poligraf.id)). \
+            filter(Poligraf.deadline.between(statinfo.start.data, statinfo.end.data)).scalar()
+        return render_template('info.html', form=statinfo, candidates=candidates, poligraf=poligraf,
+                               cand_count=cand_count, pfo_count=pfo_count,
+                               title=f'Cтатистика за период c {statinfo.start.data.strftime("%d.%m.%Y")} по '
+                                     f'{statinfo.end.data.strftime("%d.%m.%Y")}')
+    return render_template('info.html', form=statinfo, candidates=candidates, poligraf=poligraf,
+                           cand_count=cand_count, pfo_count=pfo_count,
                            title=f'Статистика за {TODAY.year} год')

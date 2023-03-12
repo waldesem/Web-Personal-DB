@@ -2,25 +2,23 @@
 {% block title %} Кандидаты {% endblock %}
 {% block app_content %}
 <div class="container py-5">
-    <table class="table table-lg table-responsive d-flex justify-content-center">
+    <table class="table table-lg table-responsive table-hover">
         <tr>
-            <th style="width: 5%">#</th>
-            <th style="width: 15%">Регион</th>
-            <th>Фамилия Имя Отчество</th>
-            <th style="width: 15%">Дата рождения</th>
-            <th style="width: 10%">Статус</th>
-            <th style="width: 15%">Обновлено</th>
-            <th style="width: 10%">Действия</th>
+            <th style="width: 5% d-flex justify-content-center">#</th>
+            <th style="width: 15% d-flex justify-content-center">Регион</th>
+            <th style="d-flex justify-content-center">Фамилия Имя Отчество</th>
+            <th style="width: 15% d-flex justify-content-center">Дата рождения</th>
+            <th style="width: 10% d-flex justify-content-center">Статус</th>
+            <th style="width: 15% d-flex justify-content-center">Обновлено</th>
         </tr>
         {% for candidate in results.items %}
         <tr onclick="document.location = '{{ url_for('route.profile', cand_id=candidate.id) }}';">
             <td>{{ candidate.id }}</td>
             <td>{{ candidate.region }}</td>
-            <td><a href="{{ url_for('route.profile', cand_id=candidate.id) }}" target="_blank">{{ candidate.fullname }}</a></td>
+            <td>{{ candidate.fullname }}</td>
             <td>{{ candidate.birthday.strftime("%d.%m.%Y") }}</td>
-            <td>{{ candidate.status[2:] }}</td>
+            <td>{{ candidate.status[3:] }}</td>
             <td>{{ candidate.deadline.strftime("%d.%m.%Y") }}</td>
-            <td>{#  #}</td>
         </tr>
         {% endfor %}
     </table>

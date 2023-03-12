@@ -2,24 +2,34 @@
 {% block title %} {% endblock %}
 {% block content %}
 <div class="container py-5">
-    <h3>{{ title }}</h3>
+    <h4>{{ title }}</h4>
     <table class="table table-hover">
-        <tr><th>Решение</th><th>Итого</th></tr>
-        {% for decision, count in results %}
-        <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
-        {% endfor %}
+        <tbody class="table-group-divider">
+            <tr><th>Проверено кандидатов</th><th>Количество</th></tr>
+            {% for decision, count in candidates %}
+                <tr><td>{{ decision }}</td><td>{{ count }}</td></tr>
+            {% endfor %}
+        </tbody>
+        <tr><td>Итого</td><td>{{ cand_count }}</td></tr>
     </table>
 </div>
-<div class="container py-5">
-    <h3>Психофизиологическое обследование (ПФО)</h3>
-    {% from 'bootstrap4/table.html' import render_table %}
-    {{ render_table(results, titles=[('decision', 'Решение'), ('count', 'Итого')], table_classes='table-hover') }}
+<div class="container py-1">
+    <h5>Психофизиологическое обследование (ПФО)</h5>
+    <table class="table table-hover">
+        <tbody class="table-group-divider">
+            <tr><th>Тема</th><th>Количество</th></tr>
+            {% for theme, count in poligraf %}
+                <tr><td>{{ theme }}</td><td>{{ count }}</td></tr>
+            {% endfor %}
+        </tbody>
+        <tr><td>Итого</td><td>{{ pfo_count }}</td></tr>
+    </table>
 </div>
 <div class="container py-3">
     {% from 'bootstrap5/form.html' import render_form , render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, method='post', role='form') }}
+    {{ render_form(form, method='post', role='form', form_type='horizontal', horizontal_columns=('lg', 2, 2)) }}
 </div>
 {% endblock %}
 
