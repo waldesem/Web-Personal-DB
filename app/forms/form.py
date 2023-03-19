@@ -1,5 +1,5 @@
-import enum
 from datetime import datetime
+from enum import Enum
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
@@ -9,30 +9,22 @@ from wtforms.validators import InputRequired, Optional, Length
 
 TODAY = datetime.now()
 
-STATUS = dict(newfag='01-Новый',
-              update='02-Обновлен',
-              manual='03-Проверка',
-              auto='04-Автомат',
-              robot='05-Робот',
-              reply='06-Автоответ',
-              poligrafo='07-ПФО',
-              result='08-Результат',
-              cancel="09-Отменено",
-              finish='10-Окончен'
-              )
 
+class Status(Enum):
+    """Класс статусов"""
 
-class Status(enum.Enum):
     NEWFAG = 'Новый'
     UPDATE = 'Обновлен'
     MANUAL = 'Проверка'
+    SAVE = "Сохранено"
     AUTO = 'Автомат'
     ROBOT = 'Робот'
-    REPLY = 'Автоответ'
+    REPLY = 'Обработано'
     POLIGRAF = 'ПФО'
     RESULT = 'Результат'
-    CANCEL = 'Отменено'
-    FINISH = 'Окончен'
+    FINISH = 'Окончено'
+    CANCEL = 'Отмена'
+    ERROR = 'Ошибка'
 
 
 class LoginForm(FlaskForm):  # форма для входа в систему
@@ -52,6 +44,20 @@ class FileForm(FlaskForm):  # форма для загрузки файла
     submit = SubmitField("Загрузить")
 
 
+class SearchForm(FlaskForm):
+    """ Create form for search page"""
+
+    region = SelectField(u'по региону', choices=['', 'Главный офис', 'Томск', 'РЦ Запад', 'РЦ Юг', 'РЦ Запад', 'РЦ Урал'])
+    fullname = StringField(u"по ФИО", validators=[Optional(), Length(max=250)])
+    birthday = DateField("по дате рождения", format='%Y-%m-%d', validators=[Optional()])
+    position = StringField(u"по должности", validators=[Optional(), Length(max=250)])
+    number = StringField(u"по номеру документа", validators=[Optional(), Length(max=25)])
+    address = StringField(u"по адресу", validators=[Optional(), Length(max=250)])
+    contact = StringField(u"по номеру телефона", validators=[Optional(), Length(max=250)])
+    workplace = StringField(u" по месту работы", validators=[Optional(), Length(max=250)])
+    submit = SubmitField("Найти")
+    
+    
 class StaffForm(FlaskForm):
     """ Create form for staff"""
 
@@ -67,7 +73,7 @@ class DocumentForm(FlaskForm):  # создаем общий класс пасп�
     series = StringField(u"Серия документа", validators=[Optional(), Length(max=25)])
     number = StringField(u"Номер документа", validators=[InputRequired(), Length(max=25)])
     agency = StringField(u"Орган выдавший", validators=[Optional(), Length(max=250)])
-    issue = DateField(u"Дата выдачи", format='%Y-%m-%d', validators=[InputRequired()])
+    issue = DateField(u"Дата выдачи", format='%Y-%m-%d', validators=[Optional()])
     submit = SubmitField("Сохранить")
 
 
@@ -75,7 +81,7 @@ class AddressForm(FlaskForm):  # создаем общий класс адрес
     """ Create form for address"""
 
     view = SelectField(u"Выбрать", choices=['Адрес регистрации', 'Адрес проживания', 'Другое'])
-    region = StringField(u"Регион", validators=[InputRequired(), Length(max=250)])
+    region = StringField(u"Регион", validators=[Optional(), Length(max=250)])
     address = StringField(u"Полный", validators=[InputRequired(), Length(max=250)])
     submit = SubmitField("Сохранить")
 
@@ -94,7 +100,7 @@ class WorkplaceForm(FlaskForm):  # создаем общий класс рабо
     period = StringField(u"Период работы", validators=[Optional(), Length(max=25)])
     workplace = StringField(u"Место работы", validators=[InputRequired(), Length(max=250)])
     address = StringField(u"Адрес организации", validators=[Optional(), Length(max=250)])
-    position = StringField(u"Должность", validators=[InputRequired(), Length(max=250)])
+    position = StringField(u"Должность", validators=[Optional(), Length(max=250)])
     submit = SubmitField("Сохранить")
 
 
@@ -147,8 +153,9 @@ class CheckForm(FlaskForm):  # форма для проверки
     addition = TextAreaField(u"Дополнительная информация", validators=[Optional()])
     pfo = BooleanField(u"Полиграф", default=False, validators=[])
     conclusion = SelectField(u'Результат', choices=['Без замечаний', 'С комментарием', 'Негатив',
-                                                    'Снят с проверки', 'Сохранить'])
+                                                    Status.CANCEL.value, Status.SAVE.value])
     comments = StringField(u"Комментарий", validators=[Optional(), Length(max=250)])
+    deadline = DateField("Дата проверки", format='%Y-%m-%d', default=TODAY, validators=[InputRequired()])
     submit = SubmitField("Принять")
 
 
@@ -156,8 +163,8 @@ class RegistryForm(FlaskForm):  # форма для согласования к�
     """ Create form for page registry"""
 
     comments = TextAreaField(u"Комментарий", validators=[Optional()])
-    decision = SelectField(u'Решение', choices=['СОГЛАСОВАНО', 'СОГЛАСОВАНО С КОММЕНТАРИЕМ',
-                                                'СОГЛАСОВАНО С РИСКОМ', 'ОТКАЗАНО В СОГЛАСОВАНИИ'])
+    decision = SelectField(u'Решение', choices=['СОГЛАСОВАНО', 'СОГЛАСОВАНО С КОММЕНТАРИЕМ', 'СОГЛАСОВАНО С РИСКОМ', 
+                                                'ОТКАЗАНО В СОГЛАСОВАНИИ', Status.CANCEL.value])
     submit = SubmitField("Принять")
 
 

@@ -13,5 +13,6 @@
     "mvd": "test",
     "internet": "",
     "officer": "semenenko",
-    "path": "//test/test"
+    "path": "//test/test",
+    "status": "error"
 }

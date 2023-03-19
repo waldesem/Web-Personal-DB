@@ -1,31 +1,27 @@
-{% macro input_form(form, cand_id, flag) -%}
-{# Рендеринг форм для заполнения #}
+{% macro inner_multiform(form, cand_id, flag) -%}
 <form method="POST" action="{{ url_for('route.add', flag=flag, cand_id=cand_id) }}">
-    {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
+{% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, role='form', form_type='horizontal') }}
-</form>
+    {{ render_form(form, role='form', form_type='horizontal') }}</form>
 {%- endmacro %}
 
 
-{% macro input_form_reg(form, candid, checkid=0) -%}
+{% macro inner_reg(form, candid, checkid=0) -%}
 <form method="POST" action="{{ url_for('route.registry', cand_id=candid, check_id=checkid) }}">
-    {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
+{% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, role='form', form_type='horizontal') }}
-</form>
+    {{ render_form(form, role='form', form_type='horizontal') }}</form>
 {%- endmacro %}
 
 
-{% macro input_resume(form, cand_id) -%}
-<form method="POST" action="{{ url_for('route.resume', cand_id=cand_id) }}">
-    {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
+{% macro inner_resume(form, cand_id) -%}
+<form method="POST" action="{{ url_for('route.actions', action='edit', cand_id=cand_id) }}">
+{% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
     {{ form.hidden_tag() }}
     {{ render_hidden_errors(form) }}
-    {{ render_form(form, role='form', form_type='horizontal') }}
-</form>
+    {{ render_form(form, role='form', form_type='horizontal') }}</form>
 {%- endmacro %}
 
 
@@ -34,6 +30,7 @@
 <div class="container py-1">
     <table class="table">
         <tr><th style="width: 30%">ID #{{ check.id }}</th><th style="width: 70%"><a href="{{ check.path }}">Материалы проверки</a></th></tr>
+        <tr><td>Статус автопроверки</td><td>{{ check.autostatus }}</td></tr>
         <tr><td>Бывший работник МТСБ</td><td>{{ check.employee }}</td></tr>
         <tr><td>Проверка по местам работы</td><td>{{ check.workplace }}</td></tr>
         <tr><td>Проверка паспорта</td><td>{{ check.document }}</td></tr>

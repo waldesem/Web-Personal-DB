@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Кандидаты{% endblock %}
+{% block app_content %}
+{% if form %}
+<div class="container py-2">
+    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample">Расширенный поиск</button>
+    <div class="collapse py-2" id="collapseExample">
+        <div class="card card-body">
+            <form onsubmit="return false;" id="searchForm" novalidate>
+                {% from 'bootstrap5/form.html' import render_field, render_form_row, render_hidden_errors %}
+                {{ form.csrf_token() }}
+                {{ render_form_row([form.fullname], form_group_classes='form-control-sm') }}
+                {{ render_form_row([form.region, form.birthday, form.number], form_group_classes='form-control-sm') }}
+                {{ render_form_row([form.position, form.workplace], form_group_classes='form-control-sm') }}
+                {{ render_form_row([form.address, form.contact], form_group_classes='form-control-sm') }}
+                 <div class="container py-1 px-2">
+                    {{ render_form_row([form.submit], button_style='btn btn-outline-primary btn-sm') }}
+                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="container py-2">
+    <div class="table" id="newTable"></div>
+</div>
+<div class="container py-2">
+    {% from 'bootstrap5/pagination.html' import render_pager %}
+    {{ render_pager(data, fragment='', prev='<span aria-hidden="true">&larr;</span> Предыдущий' | safe, next='Следующий <span aria-hidden="true">&rarr;</span>' | safe, align='center') }}
+</div>
+<script>
+    
+    function createTable (candidates) {
+        let table = document.createElement('table');
+        table.setAttribute("class", "table table-hover table-responsive");
+        let thead = document.createElement('thead');
+        let tbody = document.createElement('tbody');
+        table.appendChild(thead);
+        table.appendChild(tbody);
+
+        let tr = document.createElement('tr');
+
+        for (let title of ["#", "Регион", "Фамилия Имя Отчество", "Дата рождения", "Статус", "Дата"]) {
+            let th = document.createElement('th');
+            th.innerHTML = title;
+            tr.appendChild(th);
+            thead.appendChild(tr);
+        };
+
+        for (candidate of candidates) {
+            let tr = document.createElement('tr');
+            for (val of [candidate['id'], candidate['region'], candidate['fullname'], candidate['birthday'],   
+                        candidate['status'], candidate['deadline']]){
+                let td = document.createElement('td');
+                td.innerHTML = val;
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        };
+        document.getElementById('newTable').innerHTML = table.outerHTML;
+    };
+    
+    let data = `{{ data|tojson }}`
+    let flaskdata = JSON.parse(data);
+    createTable (flaskdata)
+
+    document.getElementById("submit").addEventListener("click", function () {
+        let form = document.getElementById("searchForm");
+        let formData = new FormData(form);
+        let csrf_token = document.getElementById("csrf_token").value
+        formData.append("csrf_token", csrf_token)
+        fetch("{{ url_for('route.index') }}", {
+            method: "post",
+            body: formData
+            })
+        .then(response => response.json())
+        .then(response => {
+            let resp = response["data"];
+            createTable(resp)
+        });
+    });
+</script>
+{% endblock %}

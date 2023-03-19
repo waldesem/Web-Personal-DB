@@ -13,6 +13,8 @@ class User(db.Model, UserMixin):  # модель пользователей си
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    fullname = db.Column(db.String)
+    shortname = db.Column(db.String)
     username = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     role = db.Column(db.String)
@@ -44,7 +46,7 @@ class Candidate(db.Model):  # модель анкетных данных
     contacts = db.relationship('Contact', backref='candidates', cascade="all, delete-orphan")
     relations = db.relationship('RelationShip', backref='candidates', cascade="all, delete-orphan")
     staffs = db.relationship('Staff', backref='candidates', cascade="all, delete-orphan")
-    checks = db.relationship('Check', backref='candidates')
+    checks = db.relationship('Check', backref='candidates', cascade="all, delete-orphan")
     poligrafs = db.relationship('Poligraf', backref='candidates', cascade="all, delete-orphan")
     inquiries = db.relationship('Inquiry', backref='candidates', cascade="all, delete-orphan")
     investigations = db.relationship('Investigation', backref='candidates', cascade="all, delete-orphan")
@@ -132,6 +134,7 @@ class Check(db.Model):  # модель данных проверки канди�
     __tablename__ = 'checks'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    autostatus = db.Column(db.String(250))
     workplace = db.Column(db.Text)
     employee = db.Column(db.Text)
     document = db.Column(db.Text)
@@ -271,13 +274,12 @@ class DecerialResume:
         docum = db.session.query(Document).filter_by(cand_id=new_id).order_by(Document.id.desc()).first()
         addr = db.session.query(Address).filter_by(cand_id=new_id).filter(Address.view.ilike("%регистрац%")). \
             order_by(Address.id.desc()).first()
-        self.send_resume = self.resume.dump(resum) | self.document.dump(docum) | \
-                           self.address.dump(addr) | dict(kwargs)
+        self.send_resume = self.resume.dump(resum) | self.document.dump(docum) | self.address.dump(addr) | dict(kwargs)
         return self.send_resume
 
 
 decerial_resume = DecerialResume()  # схема для десериализации анкеты для отправки на проверку
-check_schema = CheckSchema()  # схема для десериализации и верификации результата проверки
+check_schema = CheckSchema()  # схема для сериализации и верификации результата проверки
 candidate_schema = SerialResume()  # схема для сериализации и верификации анкеты присланной по API
 
 # db.create_all()

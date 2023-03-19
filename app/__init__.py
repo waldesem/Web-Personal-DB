@@ -1,19 +1,18 @@
-import logging
 import os
+import logging
 from logging.handlers import RotatingFileHandler
 
-from flask import Flask
+from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager
 
-from config import DevelopmentConfig
-# from config import ProductionConfig
+from config import DevelopmentConfig, ProductionConfig
 from app.models.model import db, ma, User
 
 
 def create_app():
-    app = Flask(__name__)
+    app = APIFlask(__name__)
     app.config.from_object(DevelopmentConfig)    # загрузка конфигурации
     db.init_app(app)    # инициализация базы данных
     ma.init_app(app)    # инициализация маршаллинга
@@ -25,10 +24,8 @@ def create_app():
     bootstrap = Bootstrap5()
     bootstrap.init_app(app)    # инициализация Bootstrap
     # импорт и регистрация Blueprints
-    from app.main import bpr as route
-    app.register_blueprint(route)
-    from app.api import bpa as api
-    app.register_blueprint(api)
+    from app.routes import bp as route_bp
+    app.register_blueprint(route_bp)
     # logging
     if not os.path.exists('logs'):
         os.mkdir('logs')
@@ -49,6 +46,7 @@ def create_app():
 
 # for start application in debug mode enter commands in terminal: 
 # export FLASK_APP=app
+# export FLASK_DEBUG=1
 # flask run
 
 # for migrate database enter commands in terminal:
