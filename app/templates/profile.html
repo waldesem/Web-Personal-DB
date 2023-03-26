@@ -1,284 +1,161 @@
 {% extends 'base.html' %}
 {% block title %}Профиль кандидата{% endblock %}
 {% block app_content %}
-{% from '_macro.html' import render_check, inner_multiform, inner_reg, inner_resume %}
+{% from '_macro.html' import multiform %}
 {% from 'bootstrap5/form.html' import render_form, render_field, render_hidden_errors %}
 <div class="container py-1">
-  <p class="h4">{{ candidate.fullname }}</p>
-  <ul class="nav nav-tabs hidden-print" id="myTabEvents">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" type="button" data-bs-target="#profile">Профиль</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#check">Проверки</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#registr">Согласования</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#poligraf">Полиграф</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#investigate">Расследования</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#inquiry">Запросы</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#inquiry">Другое</button></li>
-  </ul>
-  <div class="tab-content py-3">
-    <div class="tab-pane fade show active" id="profile">
-      <table class="table py-1">
-        <tr><th style="width: 30%">Должности</th><th></th></tr>
-        {% if staffs %}
-          {% for staff in staffs %}
-            <tr><td>Должность</td><td>{{ staff.position }}</td></tr>
-            <tr><td>Департамент</td><td>{{ staff.department }}</td></tr>
-          {% endfor %}
-        {% endif %}
-        <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_staff" data-bs-target="#formModal">Добавить должность</a></td><td></td></tr>
-        {% if previous %}
-          <tr><td>Изменение имени</td><td>{{ candidate.previous }}</td></tr>
-        {% endif %}
-        <tr><td>Дата рождения</td><td>{{ candidate.birthday }}</td></tr>
-        <tr><td>Место рождения</td><td>{{ candidate.birthplace }}</td></tr>
-        <tr><td>Гражданство</td><td>{{ candidate.country }}</td></tr>
-        <tr><th>Документы</th><th></th></tr>
-        {% if documents %}
-          {% for document in documents %}
-            <tr><td>Вид документа</td><td>{{ document.view }}</td></tr>
-            <tr><td>Серия</td><td>{{ document.series }}</td></tr>
-            <tr><td>Номер</td><td>{{ document.number }}</td></tr>
-            <tr><td>Кем выдан</td><td>{{ document.agency }}</td></tr>
-            <tr><td>Дата</td><td>{{ document.issue }}</td></tr>
-          {% endfor %}
-        {% endif %}
-        <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_document" data-bs-target="#formModal">Добавить документ</a></td><td></td></tr>
-        <tr><td>СНИЛС</td><td>{{ candidate.snils }}</td></tr>
-        <tr><td>ИНН</td><td>{{ candidate.inn }}</td></tr>
-        <tr><th>Адреса</th><th></th></tr>
-        {% if addresses %}
-          {% for address in addresses %}
-            <tr><td>Тип</td><td>{{ address.view }}</td></tr>
-            <tr><td>Регион</td><td>{{ address.region }}</td></tr>
-            <tr><td>Адрес</td><td>{{ address.address }}</td></tr>
-          {% endfor %}
-        {% endif %}
-        <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_address" data-bs-target="#formModal">Добавить адрес</a></td><td></td></tr>
-        <tr><th>Контакты</th><th></th></tr>
-        {% if contacts %}
-          {% for contact in contacts %}
-            <tr><td>Вид</td><td>{{ contact.view }}</td></tr>
-            <tr><td>Контакт</td><td>{{ contact.contact }}</td></tr>
-          {% endfor %}
-        {% endif %}
-        <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_contact" data-bs-target="#formModal">Добавить контакт</a></td><td></td></tr>
-        <tr><td>Образование</td><td>{{ candidate.education }}</td></tr>
-        <tr><th>Работа</th><th></th></tr>
-        {% if workplaces %}
-          {% for work in workplaces %}
-            <tr><td>Период</td><td>{{ work.period }}</td></tr>
-            <tr><td>Организация</td><td>{{ work.workplace }}</td></tr>
-            <tr><td>Адрес</td><td>{{ work.address }}</td></tr>
-            <tr><td>Должность</td><td>{{ work.position }}</td></tr>
-          {% endfor %}
-        {% endif %}
-        <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_work" data-bs-target="#formModal">Добавить места работы</a></td><td></td></tr>
-        <tr><th>Связи</th><th></th></tr>
-        {% if relations %}
-          {% for relation in relations %}
-            <tr><td>Связь</td><td>{{ relation.relation }}</td></tr>
-            <tr><td>Имя</td><td>{{ relation.fullname }}</td></tr>
-            <tr><td>Дата рождения</td><td>{{ relation.birthday }}</td></tr>
-            <tr><td>Адрес</td><td>{{ relation.address }}</td></tr>
-            <tr><td>Место работы</td><td>{{ relation.workplace }}</td></tr>
-            <tr><td>Контакты</td><td>{{ relation.contact }}</td></tr>
-          {% endfor %}
-        {% endif %}
-        <tr><td><a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="form_relation" data-bs-target="#formModal">Добавить связи</a></td><td></td></tr>
-          <tr><td>Дополнительная информация</td><td>{{ candidate.addition }}</td></tr>
-          <tr><td>Статус</td><td>{{ candidate.status }}</td></tr>
-          <tr><td>Дата обновления</td><td>{{ candidate.deadline.strftime("%d.%m.%Y") }}</td></tr>
-      </table>
-      <div class="btn-group" role="group" aria-label="Resume group">
-        <a class="btn btn-outline-secondary hidden-print" href="{{ url_for('route.actions', action='update', cand_id=candidate.id) }}">Обновить статус</a>
-        <button type="button" class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_resume" data-bs-target="#formModal">Редактировать анкету</button>
-        {% if candidate.status == status['NEWFAG'] or candidate.status == status['UPDATE'] %}
-        <a class="btn btn-outline-success hidden-print" href="{{ url_for('route.send_resume', cand_id=candidate.id) }}">Отправить на проверку</a>
-        {% endif %}
-      </div>
-    </div>
-    <div class="tab-pane fade" id="check">
-      {% if candidate.status == status['NEWFAG'] or candidate.status == status['UPDATE'] %}
-        <a class="btn btn-outline-primary hidden-print" href="{{ url_for('route.check', cand_id=candidate.id) }}" target="_blank">Добавить проверку</a>
-      {% endif %}
-      {% if checks|length != 0 %} {# открываем последнюю проверку #}
-        <div class="accordion hidden-print py-2" id="accordionPanel">
-          {% set check = checks[-1] %}
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="headingLast">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLast">
-                  ID #{{ check.id }}
-                </button>
-              </h2>
-              <div id="collapseLast" class="accordion-collapse collapse show" data-bs-parent="#accordionPanel">
-                <div class="accordion-body">
-                  {{ render_check(check) }}
+    <p class="h4 py-1 px-1" id="header"></p>
+    <ul class="nav nav-tabs hidden-print" id="myTabEvents">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" type="button" data-bs-target="#profile">Профиль</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#check">Проверки</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#registr">Согласования</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#poligraf">Полиграф</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#investigate">Расследования</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#inquiry">Запросы</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" type="button" data-bs-target="#inquiry">Другое</button></li>
+    </ul>
+    <div class="tab-content py-3">
+        <div class="tab-pane fade show active" id="profile">
+            <div class="container py-2">
+                <div id="resume"></div>
+            </div>
+            <div class="container py-2">
+                <p class="h5">Должности</p>
+                <div id="staffs"></div>
+                <a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="formStaff" data-bs-target="#formModal">Добавить должность</a>
+            </div>
+            <div class="container py-2">
+                <p class="h5 p">Документы</p>
+                <div id="documents"></div>
+                <a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="formDocument" data-bs-target="#formModal">Добавить документ</a>
+            </div>
+            <div class="container py-2">
+                <p class="h5">Адреса</p>
+                <div id="addresses"></div>
+                <a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="formAddress" data-bs-target="#formModal">Добавить адрес</a>
+            </div>
+            <div class="container py-2">
+                <p class="h5">Контакты</p>
+                <div id="contacts"></div>
+                <a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="formContact" data-bs-target="#formModal">Добавить контакт</a>
+            </div>
+            <div class="container py-2">
+                <p class="h5">Работа</p>
+                <div id="workplaces"></div>
+                <a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="formWork" data-bs-target="#formModal">Добавить места работы</a>
+            </div>
+            <div class="container py-2">
+                <p class="h5">Связи</p>
+                <div id="relations"></div>
+                <a class="btn btn-outline-primary btn-sm hidden-print" data-bs-toggle="modal" data-bs-whatever="formRelation" data-bs-target="#formModal">Добавить связи</a>
+            </div>
+            <div class="container py-2">
+                <div class="btn-group" role="group" aria-label="Resume group">
+                    <a onclick="buttonEvent()" class="btn btn-outline-secondary hidden-print" id="updStatus">Обновить статус</a>
+                    <button type="button" class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="formResume" data-bs-target="#formModal">Редактировать анкету</button>
+                    <a onclick="buttonEvent()" class="btn btn-outline-success hidden-print" id="sendResume">Отправить на проверку</a>
                 </div>
-              </div>
             </div>
-            {% if candidate.status == status['SAVE'] or candidate.status == status['REPLY'] %}
-              <div class="btn-group py-2" role="group" aria-label="Check group">
-                <a class="btn btn-outline-primary hidden-print" href="{{ url_for('route.check', cand_id=candidate.id, check_id=check.id) }}" target="_blank">Редактировать проверку</a>
-                  <a class="btn btn-outline-primary btn-outline-danger dropdown-toggle hidden-print" data-bs-toggle="dropdown">Удалить проверку</a>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{ url_for('route.delete', cand_id=candidate.id, check_id=check.id) }}">Удалить</a></li>
-                  </ul>
-              </div>
-            {% endif %}
-            {% if candidate.status == status['RESULT'] %}
-              <div class="container py-2">
-                <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_registry" data-bs-target="#formModal">Открыть согласование</a>
-              </div>
-            {% endif %}
-      {% endif %}
-      {# если кандидат проверялся более 1 раза, создаем список старых проверок #}
-      {% if checks|length > 1 %}
-        {% for check in checks[:-1] %} {# загружаем проверки все кроме последней #}
-          <div class="accordion-item">
-            <h2 class="accordion-header" id="heading{{ check.id }}">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ check.id }}">
-                  ID #{{ check.id }}
-              </button>
-            </h2>
-            <div id="collapse{{ check.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionPanel">
-              <div class="accordion-body">
-                {{ render_check(check) }}
-              </div>
+        </div>
+
+        <div class="tab-pane fade" id="check">           
+            <a onclick="buttonEvent()" class="btn btn-outline-primary hidden-print" id="addCheck" target="_blank">Добавить проверку</a>
+            <div class="accordion hidden-print py-2" id="accordionPanel">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingLast">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLast">
+                            <div id="lastCheckID"></div>                      
+                        </button>
+                    </h2>
+                    <div id="collapseLast" class="accordion-collapse collapse show" data-bs-parent="#accordionPanel">
+                        <div class="accordion-body">
+                            <div id="lastCheck"></div>                      
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group py-2" role="group" aria-label="Check group" id="delEdit">
+                    <a onclick="buttonEvent()" class="btn btn-outline-primary hidden-print" id="editCheck" target="_blank">Редактировать проверку</a>
+                    <a onclick="buttonEvent()" class="btn btn-outline-primary btn-outline-danger hidden-print">Удалить проверку</a>
+                </div>
+                <div class="container py-2">
+                    <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="formRegistry" data-bs-target="#formModal" id="openRegistry">Открыть согласование</a>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOther">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOther">Другие проверки
+                        </button>
+                    </h2>
+                    <div id="collapseOther" class="accordion-collapse collapse" data-bs-parent="#accordionPanel">
+                        <div class="accordion-body">
+                            <div id="otherChecks"></div>                      
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        {% endfor %}
-      {% endif %}
-      </div>
-    </div>
-    <div class="tab-pane fade" id="registr">
-      {% if registr|length > 0 %}
-        {% for reg in registr %}
-          {% if reg %}
-          <table class="table py-1">
-            <tr><th colspan="2">ID проверки #{{ reg.check_id }}</th></tr>
-            <tr><td style="width: 30%">Комментарий</td><td>{{ reg.comments }}</td></tr>
-            <tr><td>Решение</td><td>{{ reg.decision }}</td></tr>
-            <tr><td>Согласующий</td><td>{{ reg.supervisor }}</td></tr>
-            <tr><td>Дата</td><td>{{ reg.deadline.strftime("%d.%m.%Y") }}</td></tr>
-          </table>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-    </div>
-    <!--
+        </div>
+        
+        <div class="tab-pane fade" id="registr">
+            <div id="registries"></div>
+        </div>
 
-    -->
-    <div class="tab-pane fade" id="poligraf">
-      <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_poligraf" data-bs-target="#formModal">Добавить тестирование</a>
-      {% if pfos|length > 0 %}
-        {% for pfo in pfos %}
-          <table class="table py-1">
-            <tr><th colspan="2">ID #{{ pfo.id }}</th></tr>
-            <tr><td style="width: 30%">Тематика</td><td>{{ pfo.theme }}</td></tr>
-            <tr><td>Результат</td><td>{{ pfo.results }}</td></tr>
-            <tr><td>Полиграфолог</td><td>{{ pfo.officer }}</td></tr>
-            <tr><td>Дата проверки</td><td>{{ pfo.deadline.strftime("%d.%m.%Y") }}</td></tr>
-          </table>
-        {% endfor %}
-      {% endif %}
-    </div>
-    <!--
+        <div class="tab-pane fade" id="poligraf">
+            <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="formPoligraf" data-bs-target="#formModal">Добавить тестирование</a>
+            <div id="poligrafs"></div>
+        </div>
 
-    -->
-    <div class="tab-pane fade" id="investigate">
-      <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_investigation" data-bs-target="#formModal">Добавить расследование</a>
-      {% if invs|length > 0 %}
-        {% for inv in invs %}
-          <table class="table py-1">
-            <tr><th colspan="2">ID #{{ inv.id }}</th></tr>
-            <tr><td style="width: 30%">Тематика</td><td>{{ inv.theme }}</td></tr>
-            <tr><td>Информация</td><td>{{ inv.info }}</td></tr>
-            <tr><td>Дата проверки</td><td>{{ inv.deadline.strftime("%d.%m.%Y") }}</td></tr>
-          </table>
-        {% endfor %}
-      {% endif %}
-    </div>
-    <!--
+        <div class="tab-pane fade" id="investigate">
+            <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="formInvestigation" data-bs-target="#formModal">Добавить расследование</a>
+            <div id="investigations"></div>
+        </div>
 
-    -->
-    <div class="tab-pane fade" id="inquiry">
-      <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="form_inquiry" data-bs-target="#formModal">Добавить информацию</a>
-      {% if inquiries|length > 0 %}
-        {% for inquiry in inquiries %}
-          <table class="table table-borderless py-1">
-            <tr><th colspan="2">ID #{{ inquiry.id }}</th></tr>
-            <tr><td style="width: 30%">запросы</td><td>{{ inquiry.info }}</td></tr>
-            <tr><td>Иннициатор</td><td>{{ inquiry.initiator }}</td></tr>
-            <tr><td>Дата запроса</td><td>{{ inquiry.deadline.strftime("%d.%m.%Y") }}</td></tr>
-          </table>
-        {% endfor %}
-      {% endif %}
+        <div class="tab-pane fade" id="inquiry">
+            <a class="btn btn-outline-primary hidden-print" data-bs-toggle="modal" data-bs-whatever="formInquiry" data-bs-target="#formModal">Добавить запрос</a>
+            <div id="inquiries"></div>
+        </div>
     </div>
-  </div>
 </div>
-<!--
-  
--->
-<div class="container">
-  <div class="modal fade" id="formModal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-      <h4 class="modal-title">Добавить информацию</h4>
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <div class="modal-body">
 
-      </div>
+<div class="container">
+    <div class="modal" id="formModal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Добавить информацию</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+        </div>
     </div>
-    </div>
-  </div>
 </div>
 <script>
-  var formModal = document.getElementById('formModal')
-  formModal.addEventListener('show.bs.modal', function (event) {
-  var button = event.relatedTarget
-  var get_form = button.getAttribute('data-bs-whatever')
-  switch (get_form) {
-    case 'form_resume':
-    formModal.querySelector('.modal-body').innerHTML = `{{ inner_resume(form, candidate.id) }}`
-    break;
-    case 'form_staff':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_staff, candidate.id, 'form_staff') }}`
-      break;
-    case 'form_document':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_document, candidate.id, 'form_document') }}`
-      break;
-    case 'form_address':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_address, candidate.id, 'form_address') }}`
-      break;
-    case 'form_contact':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_contact, candidate.id, 'form_contact') }}`
-      break;
-    case 'form_work':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_work, candidate.id, 'form_work') }}`
-      break;
-    case 'form_relation':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_relation, candidate.id, 'form_relation') }}`
-      break;
-    case 'form_investigation':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_investigation, candidate.id, 'form_investigation') }}`
-      break;
-    case 'form_inquiry':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_inquiry, candidate.id, 'form_inquiry') }}`
-      break;
-    case 'form_poligraf':
-      formModal.querySelector('.modal-body').innerHTML = `{{ inner_multiform(form_poligraf, candidate.id, 'form_poligraf') }}`
-      break;
-    case 'form_registry':
-      `{% if checks|length != 0 %}
-        {% for check in checks[checks|length-1:] %}`
-        formModal.querySelector('.modal-body').innerHTML = `{{ inner_reg(form_registry, candidate.id, checkid=check.id) }}`;
-        `{% endfor %}
-      {% else %}`
-        formModal.querySelector('.modal-body').innerHTML = `{{ inner_reg(form_registry, candidate.id, checkid=0) }}`;
-      `{% endif %}`
-    break;
-    }
-  })
+    const candidate = `{{ candidate|tojson }}`;
+    const staffs = `{{ staffs|tojson }}`;
+    const documents = `{{ documents|tojson }}`;
+    const addresses = `{{ addresses|tojson }}`;
+    const relations = `{{ relations|tojson }}`;
+    const workplaces = `{{ workplaces|tojson }}`;
+    const contacts = `{{ contacts|tojson }}`;
+    const checks = `{{ checks|tojson }}`;
+    const registries = `{{ registries|tojson }}`;
+    const inquiries = `{{ inquiries|tojson }}`;
+    const pfos = `{{ pfos|tojson }}`;
+    const invs = `{{ invs|tojson }}`;
+    const stat = `{{ status|tojson }}`;
+    const formResume = `{{ multiform(form) }}`;
+    const formStaff = `{{ multiform(form_staff) }}`;
+    const formDocument = `{{ multiform(form_document) }}`;
+    const formAddress = `{{ multiform(form_address) }}`;
+    const formContact = `{{ multiform(form_contact) }}`;
+    const formWork = `{{ multiform(form_work) }}`;
+    const formRelation = `{{ multiform(form_relation) }}`;
+    const formInvestigation = `{{ multiform(form_investigation) }}`;
+    const formInquiry = `{{ multiform(form_inquiry) }}`;
+    const formPoligraf = `{{ multiform(form_poligraf) }}`;
+    const formRegistry = `{{ multiform(form_registry) }}`;
+
 </script>
+<script src = "/static/js/usr/profile.js"></script>
 {% endblock %}

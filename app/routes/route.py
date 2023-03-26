@@ -9,23 +9,36 @@ from flask_login import current_user, login_required
 from . import bp
 from ..utils.extensions import BASE_PATH, ExcelFile, resume_data, URL_CHECK
 from ..models.model import User, db, Candidate, Staff, Document, Address, Contact, Workplace, RelationShip, \
-    Check, Registry, Poligraf, Investigation, Inquiry, decerial_resume
+    Check, Registry, Poligraf, Investigation, Inquiry, decerial_resume, resume_schema, investigation_schema, \
+    inquiry_schema, poligraf_schema, relation_schema, staff_schema, document_schema, address_schema, contact_schema, \
+    work_schema, check_schema, registry_schema
 from ..forms.form import ResumeForm, StaffForm, DocumentForm, AddressForm, \
     ContactForm, WorkplaceForm, RelationshipForm, RegistryForm, PoligrafForm, InvestigationForm, InquiryForm, \
     FileForm, CheckForm, SearchForm, InfoForm, TODAY, Status
 
 
+@bp.route('/<int:page>', methods=['GET', 'POST'])  # главная страница
 @bp.route('/', methods=['GET', 'POST'])  # главная страница
 @login_required
-def index():
+def index(page=-1):
+    pagination = 2
     form = SearchForm()  # загрузка формы для поиска
-    page = request.args.get('page', 1, type=int)  # разбиваем на страницы
-    count = db.session.query(func.count(Candidate.status)).filter_by(status=Status.NEWFAG.value).scalar()
-    if count:  # отображаем количество новых анкет
-        flash(Markup(f'Новых анкет: {count}'), 'info')
+    new_items = db.session.query(func.count(Candidate.status)).filter_by(status=Status.NEWFAG.value).scalar()
+    if new_items:  # отображаем количество новых анкет
+        flash(Markup(f'Новых анкет: {new_items}'), 'info')
     results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
                                Candidate.status, Candidate.deadline).order_by(Candidate.id.desc()). \
-        paginate(page=page, per_page=16)
+        offset(page * pagination).limit(pagination)
+    count = db.session.query(func.count(Candidate.id)).scalar()
+    if count % pagination:
+        pages = count // pagination
+    else:
+        pages = count // pagination + 1
+    if page > -1:
+        data = [{"id": result.id, "region": result.region, "fullname": result.fullname,
+                 "birthday": result.birthday.strftime("%d.%m.%Y"), "status": result.status,
+                 "deadline": result.deadline.strftime("%d.%m.%Y")} for result in results]
+        return jsonify(data=data)
     if form.validate_on_submit() and request.method == 'POST':  # получаем данные из формы
         form = SearchForm(request.form)
         form_dict = {k: v for k, v in form.data.items() if k not in ['submit', 'csrf_token']}
@@ -46,36 +59,49 @@ def index():
                                                                            if form_dict["workplace"] != '' else '%')). \
             join(Contact, isouter=True).filter(Contact.contact.ilike(f'%{form_dict["contact"]}%'
                                                                      if form_dict["contact"] != '' else '%')). \
-            paginate(page=page, per_page=16)
-        return render_template('index.html', results=results, form=form)
-    return render_template('index.html', results=results, form=form)
+            offset(page * pagination).limit(pagination)
+        data = [{'id': result.id, 'region': result.region, 'fullname': result.fullname,
+                 'birthday': result.birthday.strftime("%d.%m.%Y"), 'status': result.status,
+                 'deadline': result.deadline.strftime("%d.%m.%Y")} for result in results]
+        return jsonify(data=data)
+    data = [{"id": result.id, "region": result.region, "fullname": result.fullname,
+             "birthday": result.birthday.strftime("%d.%m.%Y"), "status": result.status,
+             "deadline": result.deadline.strftime("%d.%m.%Y")} for result in results]
+    return render_template('index.html', results=data, form=form, pages=pages)
 
 
 @bp.route('/search', methods=['GET', 'POST'])  # главная страница
 @login_required
-def search():
-    form = SearchForm()  # загрузка формы для поиска
-    page = request.args.get('page', 1, type=int)  # разбиваем на страницы
-    if request.args.get('search', None):  # поиск через форму на панели навигации
-        search_by = request.form.get('search')
+def search(page=0):
+    pagination = 2
+    form_search = SearchForm()  # загрузка формы для поиска
+    if request.method == 'POST':
+        search_by = request.form.get('fastSearch')
+        print(search_by)
         results = db.session.query(Candidate).filter(Candidate.fullname.ilike(f'%{search_by}%')). \
-            paginate(page=page, per_page=16)
-        return render_template('index.html', form=form, results=results)
+            offset(page * pagination).limit(pagination)
+        data = [{"id": result.id, "region": result.region, "fullname": result.fullname,
+                 "birthday": result.birthday.strftime("%d.%m.%Y"), "status": result.status,
+                 "deadline": result.deadline.strftime("%d.%m.%Y")} for result in results]
+        return render_template('index.html', form=form_search, results=data)
 
 
+@bp.route('/officer/<int:page>', methods=['GET', 'POST'])  # главная страница
 @bp.route('/officer', methods=['GET', 'POST'])  # страница пользователя
 @login_required
-def officer():
+def officer(page=0):
+    pagination = 2
     results = db.session.query(Candidate).filter(Candidate.status != Status.FINISH.value,
                                                  Candidate.status != Status.CANCEL.value).join(Check, isouter=True). \
-        filter_by(officer=current_user.username).order_by(Candidate.id.asc()).all()
+        filter_by(officer=current_user.username).order_by(Candidate.id.asc()).offset(page * pagination).limit(
+        pagination)
     username = db.session.query(User.fullname).filter_by(username=current_user.username).first()
     count = db.session.query(func.count(Candidate.status)).filter(Candidate.status == Status.SAVE.value,
                                                                   Candidate.status == Status.REPLY.value). \
         join(Check, isouter=True).filter_by(officer=current_user.username).scalar()
     if count:
         flash(Markup(f'Незавершенных анкет: {count}'), 'info')  # отображаем количество новых анкет
-    return render_template('index.html', results=results, user=username)
+    return render_template('officer.html', results=results, user=username)
 
 
 @bp.route('/resume', methods=['GET', 'POST'])  # добавляем новую анкету
@@ -145,35 +171,51 @@ def actions(action, cand_id):
             result.deadline = TODAY
             db.session.commit()
             flash(Markup('Статус обновлен'), 'info')
-            return redirect(url_for('route.profile', cand_id=cand_id))
+            result = db.session.query(Candidate).filter_by(id=cand_id).first()
+            decerial = resume_schema.dump(result, many=True)
+            return jsonify(data={"status": "resume"}.update(decerial))
         else:
             flash(Markup('Анкету с текущим статусом обновить нельзя'), 'warning')
-            return redirect(url_for('route.index'))
+            return jsonify(data={"status": "impossible"})
     if candidate.validate_on_submit() and request.method == 'POST' and action == 'edit':  # получаем данные из формы
         resume_dict = {k: v for k, v in candidate.data.items() if k not in ['submit', 'csrf_token']}
         for k, v in resume_dict.items():
             setattr(result, k, v)
             db.session.commit()
-            flash(Markup('Данные обновлены'), 'info')
-            return redirect(url_for('route.profile', cand_id=cand_id))
+        flash(Markup('Данные обновлены'), 'info')
+        result = db.session.query(Candidate).filter_by(id=cand_id).all()
+        decerial = resume_schema.dump(result, many=True)
+        return jsonify(data=decerial+[{'flag': 'resume'}])
 
 
 @bp.route('/profile/<int:cand_id>', methods=['GET', 'POST'])  # загрузка профиля кандидата
 @login_required
 def profile(cand_id):  # полный профиль кандидата/сотрудника
-    candidate = db.session.query(Candidate).filter_by(id=cand_id).first()  # получаем  все данные кандидата из БД
-    documents = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all()
-    address = db.session.query(Address).filter_by(cand_id=cand_id).order_by(Address.id.asc()).all()
-    contacts = db.session.query(Contact).filter_by(cand_id=cand_id).order_by(Contact.id.asc()).all()
-    workplaces = db.session.query(Workplace).filter_by(cand_id=cand_id).order_by(Workplace.id.asc()).all()
-    relations = db.session.query(RelationShip).filter_by(cand_id=cand_id).order_by(RelationShip.id.asc()).all()
-    staffs = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all()
-    checks = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
-    registries = [db.session.query(Registry).filter(Registry.check_id == i.id).first() for i in checks]
-    pfos = db.session.query(Poligraf).filter_by(cand_id=cand_id).order_by(Poligraf.id.asc()).all()
-    invs = db.session.query(Investigation).filter_by(cand_id=cand_id).order_by(Investigation.id.asc()).all()
-    inquiries = db.session.query(Inquiry).filter_by(cand_id=cand_id).order_by(Inquiry.id.asc()).all()
-    form = ResumeForm(obj=candidate)  # загрузка формы редактирования анкеты
+    cand = db.session.query(Candidate).filter_by(id=cand_id).all()
+    candidate = resume_schema.dump(cand, many=True)
+    doc = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all()
+    documents = document_schema.dump(doc, many=True)
+    addr = db.session.query(Address).filter_by(cand_id=cand_id).order_by(Address.id.asc()).all()
+    address = address_schema.dump(addr, many=True)
+    cont = db.session.query(Contact).filter_by(cand_id=cand_id).order_by(Contact.id.asc()).all()
+    contacts = contact_schema.dump(cont, many=True)
+    work = db.session.query(Workplace).filter_by(cand_id=cand_id).order_by(Workplace.id.asc()).all()
+    workplaces = work_schema.dump(work, many=True)
+    rel = db.session.query(RelationShip).filter_by(cand_id=cand_id).order_by(RelationShip.id.asc()).all()
+    relations = relation_schema.dump(rel, many=True)
+    staf = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all()
+    staffs = staff_schema.dump(staf, many=True)
+    chec = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
+    checks = check_schema.dump(chec, many=True)
+    reg = [db.session.query(Registry).filter(Registry.check_id == i.id).first() for i in chec]
+    registries = registry_schema.dump(reg, many=True)
+    pfo = db.session.query(Poligraf).filter_by(cand_id=cand_id).order_by(Poligraf.id.asc()).all()
+    pfos = poligraf_schema.dump(pfo, many=True)
+    inv = db.session.query(Investigation).filter_by(cand_id=cand_id).order_by(Investigation.id.asc()).all()
+    invs = investigation_schema.dump(inv, many=True)
+    inq = db.session.query(Inquiry).filter_by(cand_id=cand_id).order_by(Inquiry.id.asc()).all()
+    inquiries = inquiry_schema.dump(inq, many=True)
+    form = ResumeForm(obj=cand[0])  # загрузка формы редактирования анкеты
     form_investigation = InvestigationForm()  # загрузка других форм...
     form_inquiry = InquiryForm()
     form_poligraf = PoligrafForm()
@@ -186,7 +228,7 @@ def profile(cand_id):  # полный профиль кандидата/сотр
     form_registry = RegistryForm()
     return render_template('profile.html', candidate=candidate, documents=documents, addresses=address,
                            relations=relations, staffs=staffs, workplaces=workplaces, contacts=contacts,
-                           checks=checks, registr=registries, inquiries=inquiries, pfos=pfos, invs=invs,
+                           checks=checks, registries=registries, inquiries=inquiries, pfos=pfos, invs=invs,
                            form=form, form_investigation=form_investigation, form_inquiry=form_inquiry,
                            form_poligraf=form_poligraf, form_staff=form_staff, form_document=form_document,
                            form_address=form_address, form_work=form_work, form_relation=form_relation,
@@ -206,7 +248,9 @@ def add(flag, cand_id):  # добавление данных через мода
                                                     k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()  # передаем в БД
                     flash(Markup(f"Запись успешно добавлена"), 'success')
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Investigation).filter_by(cand_id=cand_id).all()
+                    decerial = investigation_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'investigation'}])
             case "form_inquiry":
                 form_inquiry = InquiryForm(request.form)
                 if form_inquiry.validate_on_submit():
@@ -214,7 +258,9 @@ def add(flag, cand_id):  # добавление данных через мода
                                               k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()
                     flash(Markup(f"Запись успешно добавлена"), 'success')
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Inquiry).filter_by(cand_id=cand_id).all()
+                    decerial = inquiry_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'inquiry'}])
             case "form_poligraf":
                 form_poligraf = PoligrafForm(request.form)
                 if form_poligraf.validate_on_submit():
@@ -227,51 +273,63 @@ def add(flag, cand_id):  # добавление данных через мода
                         candidate.status = Status.RESULT.value
                         db.session.commit()
                     flash(Markup(f"Запись успешно добавлена"), 'success')
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Poligraf).filter_by(cand_id=cand_id).all()
+                    decerial = poligraf_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'poligraf'}])
             case "form_staff":
                 form_staff = StaffForm(request.form)
                 if form_staff.validate_on_submit():
-                    print(form_staff)
                     db.session.add(Staff(**{k: v for k, v in form_staff.data.items() if
                                             k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()
-                    return jsonify({"status ": "success "})
-                    # return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Staff).filter_by(cand_id=cand_id).all()
+                    decerial = staff_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'staff'}])
             case "form_document":
                 form_document = DocumentForm(request.form)
                 if form_document.validate_on_submit():
                     db.session.add(Document(**{k: v for k, v in form_document.data.items() if
                                                k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Document).filter_by(cand_id=cand_id).all()
+                    decerial = document_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'document'}])
             case "form_address":
                 form_address = AddressForm(request.form)
                 if form_address.validate_on_submit():
                     db.session.add(Address(**{k: v for k, v in form_address.data.items() if
                                               k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Address).filter_by(cand_id=cand_id).all()
+                    decerial = address_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'address'}])
             case "form_contact":
                 form_contact = ContactForm(request.form)
                 if form_contact.validate_on_submit():
                     db.session.add(Contact(**{k: v for k, v in form_contact.data.items() if
                                               k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Contact).filter_by(cand_id=cand_id).all()
+                    decerial = contact_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'contact'}])
             case "form_work":
                 form_work = WorkplaceForm(request.form)
                 if form_work.validate_on_submit():
                     db.session.add(Workplace(**{k: v for k, v in form_work.data.items() if
                                                 k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(Workplace).filter_by(cand_id=cand_id).all()
+                    decerial = work_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'work'}])
             case "form_relation":
                 form_relation = RelationshipForm(request.form)
                 if form_relation.validate_on_submit():
                     db.session.add(RelationShip(**{k: v for k, v in form_relation.data.items() if
                                                    k not in ['submit', 'csrf_token']} | {'cand_id': cand_id}))
                     db.session.commit()
-                    return redirect(url_for('route.profile', cand_id=cand_id))
+                    result = db.session.query(RelationShip).filter_by(cand_id=cand_id).all()
+                    decerial = relation_schema.dump(result, many=True)
+                    return jsonify(data=decerial+[{'flag': 'relation'}])
             case _:
                 flash(Markup(f"Ошибка добавления записи. Неизвестный флаг {flag}"), 'warning')
 
@@ -279,21 +337,25 @@ def add(flag, cand_id):  # добавление данных через мода
 @bp.route('/send_resume/<int:cand_id>', methods=['GET'])  # отправка анкеты на проверку
 def send_resume(cand_id):
     resum = db.session.query(Candidate).filter_by(id=cand_id).first()
+    decerial = resume_schema.dumps(resum, many=True)
     if resum.status == Status.NEWFAG.value or resum.status == Status.UPDATE.value:
-        decerial = decerial_resume.decer_res(cand_id, officer=current_user.username)  # десериализация анкетных данных
-        response = requests.post(url=URL_CHECK, json=decerial)
+        decer = decerial_resume.decer_res(cand_id, officer=current_user.username)  # десериализация анкетных данных
+        response = requests.post(url=URL_CHECK, json=decer, timeout=5)
         response.raise_for_status()
+        decerial = resume_schema.dumps(resum, many=True)
         if response.status_code == 200:  # проверка статуса отправки
             resum.status = Status.ROBOT.value  # устанавливаем статус Робот
             db.session.commit()
+            resum = db.session.query(Candidate).filter_by(id=cand_id).first()
+            decerial = resume_schema.dumps(resum, many=True)
             flash(Markup("Анкета успешно отправлена"), 'success')
-            return redirect(url_for('route.index'))
+            return jsonify(data=decerial+[{'flag': 'resume'}])
         else:
             flash(Markup("Отправка не удалась. Попробуйте позднее"), 'warning')
-        return redirect(url_for('route.profile', cand_id=cand_id))
+            return jsonify(data=decerial+[{'flag': 'resume'}])
     else:
         flash(Markup("Анкета не может быть отправлена. Проверка уже начата"), 'warning')
-        return redirect(url_for('route.index'))
+        return jsonify(data=decerial+[{'flag': 'resume'}])
 
 
 @bp.route('/check/<int:cand_id>', methods=['GET', 'POST'])  # добавить проверку
@@ -312,7 +374,7 @@ def check(cand_id, check_id=0):
                 check_form = CheckForm(request.form, obj=result)  # загружаем  предварительные (старые данные)
             else:
                 flash(Markup("Проверку с текущим статусом нельзя отредактировать"), 'warning')
-                return redirect(url_for('route.index'))
+                return redirect(url_for('route.index')), jsonify(data={"status": "error"})
         else:
             if candidate.status in [Status.NEWFAG.value, Status.UPDATE.value]:
                 pass
@@ -320,7 +382,8 @@ def check(cand_id, check_id=0):
                 # os.startfile(path)  # открываем папку с проверкой
             else:
                 flash(Markup("Анкета взята в работу и еще не закончена"), 'warning')
-                return redirect(url_for('route.index'))  # проверка на одновременную работу с анкетой
+                return redirect(url_for('route.index')), jsonify(
+                    data={"status": "error"})  # проверка на одновременную работу с анкетой
         candidate.status = Status.MANUAL.value  # меняем статус анкеты
         db.session.commit()
     if check_form.validate_on_submit() and request.method == 'POST':
@@ -352,6 +415,8 @@ def check(cand_id, check_id=0):
                 candidate.status = Status.RESULT.value
                 db.session.commit()
                 flash(Markup("Проверка завершена"), 'success')
+        # checks = db.session.query(Check).filter_by(cand_id=cand_id).first()
+        # resp_checks = check_schema.dumps(checks, many=True)
         return redirect(url_for('route.index'))
     return render_template('check.html', form=check_form, title="Проверка кандидата")
 
@@ -364,8 +429,10 @@ def delete(cand_id, check_id):
     db.session.commit()
     Check.query.filter_by(id=check_id).delete()
     db.session.commit()
+    checks = db.session.query(Check).filter_by(check_id=cand_id)
+    decerial = check_schema.dumps(checks, many=True)
     flash(Markup("Проверка успешно удалена"), 'success')
-    return render_template('profile.html', cand_id=cand_id)
+    return jsonify(data=decerial+[{'flag': 'check'}])
 
 
 @bp.route('/registr/<int:cand_id>/<int:check_id>', methods=('GET', 'POST'))  # отправка решения по кандидату
@@ -378,6 +445,8 @@ def registry(cand_id, check_id):
         db.session.add(Registry(**reg))  # получаем данные из формы и записываем в базу данных
         db.session.commit()
         candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
+        registr = db.session.query(Registry).filter_by(cand=cand_id).all()
+        decerial = registry_schema.dumps(registr, many=True)
         response = requests.post(url=URL_CHECK, json=json.dumps(
             {
                 "id": candidate.request_id,
@@ -386,7 +455,7 @@ def registry(cand_id, check_id):
                 "deadline": TODAY,
                 "supervisor": reg['supervisor']
             },
-            default=str))
+            default=str), timeout=5)
         response.raise_for_status()
         if response.status_code == 200:  # проверка статуса отправки
             if reg['decision'] == Status.CANCEL.value:
@@ -396,10 +465,9 @@ def registry(cand_id, check_id):
                 candidate.status = Status.FINISH.value  # меняем статус в таблице на "Решение "
                 db.session.commit()
             flash(Markup("Решение успешно отправлено"), 'success')
-            return redirect(url_for('route.index'))
         else:
             flash(Markup("Отправка анкеты не удалась попробуйте еще раз позднее"), 'warning')
-        return redirect(url_for('route.index'))
+        return jsonify(data=decerial+[{'flag': 'resume'}])
 
 
 @bp.route('/info', methods=('GET', 'POST'))  # create statistic info

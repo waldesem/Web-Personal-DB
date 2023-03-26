@@ -5,11 +5,11 @@
 <div class="container py-2">
     <table class="table table-lg table-responsive table-hover">
         <th style="width: 5% d-flex justify-content-center">#</th>
-            <th style="width: 15% d-flex justify-content-center">Регион</th>
-            <th style="width: 40% d-flex justify-content-center">Фамилия Имя Отчество</th>
-            <th style="width: 15% d-flex justify-content-center">Дата рождения</th>
-            <th style="width: 10% d-flex justify-content-center">Статус</th>
-            <th style="width: 15% d-flex justify-content-center">Дата</th>
+            <td style="width: 15% d-flex justify-content-center">Регион</td>
+            <td style="width: 40% d-flex justify-content-center">Фамилия Имя Отчество</td>
+            <td style="width: 15% d-flex justify-content-center">Дата рождения</td>
+            <td style="width: 10% d-flex justify-content-center">Статус</td>
+            <td style="width: 15% d-flex justify-content-center">Дата</td>
         {% for candidate in results %}
         <tr onclick="document.location='{{ url_for('route.profile', cand_id=candidate.id) }}';">
             <td>{{ candidate.id }}</td>

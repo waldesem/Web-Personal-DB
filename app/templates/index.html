@@ -6,45 +6,36 @@
     <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample">Расширенный поиск</button>
     <div class="collapse py-2" id="collapseExample">
         <div class="card card-body">
-            <form method="POST" action="{#{ url_for('route.search') }#}">
+            <form onsubmit="return false;" id="searchForm" novalidate>
                 {% from 'bootstrap5/form.html' import render_field, render_form_row, render_hidden_errors %}
                 {{ form.csrf_token() }}
                 {{ render_form_row([form.fullname], form_group_classes='form-control-sm') }}
                 {{ render_form_row([form.region, form.birthday, form.number], form_group_classes='form-control-sm') }}
                 {{ render_form_row([form.position, form.workplace], form_group_classes='form-control-sm') }}
                 {{ render_form_row([form.address, form.contact], form_group_classes='form-control-sm') }}
-                 <div class="container py-1 px-2">
-                    {{ render_form_row([form.submit], button_style='btn btn-outline-primary btn-sm') }}
+                 <div class="btn-group py-2 px-2" role="group">
+                    <button class="btn btn-outline-primary btn-sm" type="submit" id="submit">Поиск</button>
+                    <button class="btn btn-outline-secondary btn-sm" type="reset">Очистить форму</button>
                  </div>
             </form>
         </div>
     </div>
 </div>
 {% endif %}
-<div class="container py-2" id="startTable">
-    <table class="table table-lg table-responsive table-hover">
-        <tr>
-            <th style="width: 5% d-flex justify-content-center">#</th>
-            <th style="width: 15% d-flex justify-content-center">Регион</th>
-            <th style="width: 40% d-flex justify-content-center">Фамилия Имя Отчество</th>
-            <th style="width: 15% d-flex justify-content-center">Дата рождения</th>
-            <th style="width: 10% d-flex justify-content-center">Статус</th>
-            <th style="width: 15% d-flex justify-content-center">Дата</th>
-        </tr>
-        {% for candidate in results.items %}
-        <tr onclick="document.location = '{{ url_for('route.profile', cand_id=candidate.id) }}';">
-            <td>{{ candidate.id }}</td>
-            <td>{{ candidate.region }}</td>
-            <td>{{ candidate.fullname }}</td>
-            <td>{{ candidate.birthday.strftime("%d.%m.%Y") }}</td>
-            <td>{{ candidate.status }}</td>
-            <td>{{ candidate.deadline.strftime("%d.%m.%Y") }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+<div class="container py-2">
+    <div class="table" id="newTable"></div>
 </div>
 <div class="container py-2">
-    {% from 'bootstrap5/pagination.html' import render_pager %}
-    {{ render_pager(results, fragment='', prev='<span aria-hidden="true">&larr;</span> Предыдущий' | safe, next='Следующий <span aria-hidden="true">&rarr;</span>' | safe, align='center') }}
+    <nav aria-label="Page navigation" >
+        <ul class="pagination justify-content-center" id="pager">
+          <li class="page-item" id="previous"><a class="page-link" href="#">Предыдущая</a></li>
+          <li class="page-item" id="next"><a class="page-link" href="#">Следующая</a></li>
+        </ul>
+    </nav>
 </div>
+<script>
+    const results = `{{ results|tojson }}`
+    let pages = `{{ pages }}`;
+</script>
+<script src = "/static/js/usr/index.js"></script>
 {% endblock %}

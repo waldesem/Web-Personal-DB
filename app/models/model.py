@@ -251,6 +251,31 @@ class CheckSchema(ma.SQLAlchemyAutoSchema):
         model = Check
 
 
+class InvestigationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Investigation
+
+
+class InquirySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Inquiry
+
+
+class PoligrafSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Poligraf
+
+
+class RegistrySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Registry
+
+
+class RelationShipSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = RelationShip
+
+
 class SerialResume(ma.SQLAlchemyAutoSchema):
     resume = fields.Nested(CandidateSchema())
     document = fields.Nested(DocumentSchema())
@@ -281,5 +306,18 @@ class DecerialResume:
 decerial_resume = DecerialResume()  # схема для десериализации анкеты для отправки на проверку
 check_schema = CheckSchema()  # схема для сериализации и верификации результата проверки
 candidate_schema = SerialResume()  # схема для сериализации и верификации анкеты присланной по API
+# схемы десериализации отдельных таблиц
+resume_schema = CandidateSchema()
+investigation_schema = InvestigationSchema()
+inquiry_schema = InquirySchema()
+poligraf_schema = PoligrafSchema()
+relationship_schema = RelationShipSchema()
+staff_schema = StaffSchema()
+document_schema = DocumentSchema()
+address_schema = AddressSchema()
+contact_schema = ContactSchema()
+work_schema = WorkplaceSchema()
+relation_schema = RelationShipSchema()
+registry_schema = RegistrySchema()
 
 # db.create_all()

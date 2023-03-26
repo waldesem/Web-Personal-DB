@@ -55,7 +55,7 @@ class SearchForm(FlaskForm):
     address = StringField(u"по адресу", validators=[Optional(), Length(max=250)])
     contact = StringField(u"по номеру телефона", validators=[Optional(), Length(max=250)])
     workplace = StringField(u" по месту работы", validators=[Optional(), Length(max=250)])
-    submit = SubmitField("Найти")
+    # submit = SubmitField("Найти")
     
     
 class StaffForm(FlaskForm):
@@ -63,7 +63,7 @@ class StaffForm(FlaskForm):
 
     position = StringField(u"Должность", validators=[InputRequired(), Length(max=250)])
     department = StringField(u"Деператамент/Кластер", validators=[Optional(), Length(max=250)])
-    submit = SubmitField("Сохранить")
+    # submit = SubmitField("Сохранить")
 
 
 class DocumentForm(FlaskForm):  # создаем общий класс паспорта
@@ -74,7 +74,7 @@ class DocumentForm(FlaskForm):  # создаем общий класс пасп�
     number = StringField(u"Номер документа", validators=[InputRequired(), Length(max=25)])
     agency = StringField(u"Орган выдавший", validators=[Optional(), Length(max=250)])
     issue = DateField(u"Дата выдачи", format='%Y-%m-%d', validators=[Optional()])
-    submit = SubmitField("Сохранить")
+    # submit = SubmitField("Сохранить")
 
 
 class AddressForm(FlaskForm):  # создаем общий класс адреса
@@ -83,7 +83,7 @@ class AddressForm(FlaskForm):  # создаем общий класс адрес
     view = SelectField(u"Выбрать", choices=['Адрес регистрации', 'Адрес проживания', 'Другое'])
     region = StringField(u"Регион", validators=[Optional(), Length(max=250)])
     address = StringField(u"Полный", validators=[InputRequired(), Length(max=250)])
-    submit = SubmitField("Сохранить")
+    # submit = SubmitField("Сохранить")
 
 
 class ContactForm(FlaskForm):  # создаем общий класс контактов
@@ -91,7 +91,7 @@ class ContactForm(FlaskForm):  # создаем общий класс конта
 
     view = SelectField(u"Выбрать", choices=['Телефон', 'E-mail', 'Другое'])
     contact = StringField(u"Контакт", validators=[InputRequired(), Length(max=250)])
-    submit = SubmitField("Сохранить")
+    # submit = SubmitField("Сохранить")
 
 
 class WorkplaceForm(FlaskForm):  # создаем общий класс рабочих мест
@@ -101,7 +101,7 @@ class WorkplaceForm(FlaskForm):  # создаем общий класс рабо
     workplace = StringField(u"Место работы", validators=[InputRequired(), Length(max=250)])
     address = StringField(u"Адрес организации", validators=[Optional(), Length(max=250)])
     position = StringField(u"Должность", validators=[Optional(), Length(max=250)])
-    submit = SubmitField("Сохранить")
+    # submit = SubmitField("Сохранить")
 
 
 class RelationshipForm(FlaskForm):
@@ -113,7 +113,7 @@ class RelationshipForm(FlaskForm):
     address = StringField(u"Адрес", validators=[Optional(), Length(max=250)])
     workplace = StringField(u"Место работы", validators=[Optional(), Length(max=250)])
     contact = StringField(u"Контакт", validators=[Optional(), Length(max=250)])
-    submit = SubmitField("Сохранить")
+    # submit = SubmitField("Сохранить")
 
 
 class ResumeForm(FlaskForm):  # форма для анкетных данных и служебных отметок
@@ -130,7 +130,7 @@ class ResumeForm(FlaskForm):  # форма для анкетных данных 
     education = StringField(u"Образование", validators=[Optional(), Length(max=250)])
     addition = TextAreaField(u"Дополнительно", validators=[Optional()])
     recruiter = StringField(u"Рекрутер", validators=[Optional(), Length(max=250)])
-    submit = SubmitField("Принять")
+    # submit = SubmitField("Принять")
 
 
 class CheckForm(FlaskForm):  # форма для проверки
@@ -165,7 +165,7 @@ class RegistryForm(FlaskForm):  # форма для согласования к�
     comments = TextAreaField(u"Комментарий", validators=[Optional()])
     decision = SelectField(u'Решение', choices=['СОГЛАСОВАНО', 'СОГЛАСОВАНО С КОММЕНТАРИЕМ', 'СОГЛАСОВАНО С РИСКОМ', 
                                                 'ОТКАЗАНО В СОГЛАСОВАНИИ', Status.CANCEL.value])
-    submit = SubmitField("Принять")
+    # submit = SubmitField("Принять")
 
 
 class PoligrafForm(FlaskForm):  # форма для результатов ПФО
@@ -175,7 +175,7 @@ class PoligrafForm(FlaskForm):  # форма для результатов ПФ�
                                                    'Служебное расследование', 'Другое'])
     results = TextAreaField(u"Информация", validators=[InputRequired()])
     deadline = DateField("Дата проведения", format='%Y-%m-%d', default=TODAY, validators=[InputRequired()])
-    submit = SubmitField("Принять")
+    # submit = SubmitField("Принять")
 
 
 class InvestigationForm(FlaskForm):  # форма для результатов служебных проверок
@@ -184,7 +184,7 @@ class InvestigationForm(FlaskForm):  # форма для результатов 
     theme = StringField(u"Тема проверки", validators=[InputRequired(), Length(max=250)])
     info = TextAreaField(u"Информация", validators=[InputRequired()])
     deadline = DateField("Дата окончания проверки", format='%Y-%m-%d', default=TODAY, validators=[Optional()])
-    submit = SubmitField("Принять")
+    # submit = SubmitField("Принять")
 
 
 class InquiryForm(FlaskForm):  # форма для запросов из других организаций
@@ -194,7 +194,7 @@ class InquiryForm(FlaskForm):  # форма для запросов из дру�
     initiator = StringField(u"Инициатор", validators=[InputRequired(), Length(max=250)])
     source = StringField(u"Источник", validators=[InputRequired(), Length(250)])
     deadline = DateField("Дата запроса", format='%Y-%m-%d', default=TODAY, validators=[InputRequired()])
-    submit = SubmitField("Принять")
+    # submit = SubmitField("Принять")
 
 
 class InfoForm(FlaskForm):  # форма для формирования статинформации

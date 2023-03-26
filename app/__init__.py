@@ -6,6 +6,7 @@ from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager
+from jinja2 import Environment
 
 from config import DevelopmentConfig, ProductionConfig
 from app.models.model import db, ma, User
@@ -23,6 +24,7 @@ def create_app():
     migrate.init_app(app, db, render_as_batch=True)     # инициализация миграций
     bootstrap = Bootstrap5()
     bootstrap.init_app(app)    # инициализация Bootstrap
+    app.jinja_options['json_dumps_kwargs'] = {'sort_keys': False}
     # импорт и регистрация Blueprints
     from app.routes import bp as route_bp
     app.register_blueprint(route_bp)
