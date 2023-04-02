@@ -4,10 +4,9 @@ import shutil
 import requests
 
 from ..routes import bp
-from ..utils.extensions import BASE_PATH, URL_CHECK, resume_data
+from ..extensions.extension import BASE_PATH, URL_CHECK, resume_data
 from ..models.model import db, User, Candidate, Check, CheckSchema, SerialResume, \
-    decerial_resume
-from ..forms.form import TODAY, Status
+    decerial_resume, TODAY, Status
 
 
 # auth = HTTPBasicAuth()

@@ -1,9 +1,4 @@
-{% macro multiform(form) -%}
-<form onsubmit="return false;" id="addInfo" novalidate>
-    {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
-    {{ form.hidden_tag() }}
-    {{ render_hidden_errors(form) }}
-    {{ render_form(form, role='form', form_type='horizontal') }}
-    <button class="btn btn-primary btn" data-bs-dismiss="modal" type="submit" id="submit">Save</button>
+<form onsubmit="return false;" id="formMultiform" name="formMultiform">
+    
+    <button class="btn btn-primary btn" data-bs-dismiss="modal" type="submit" id="submitMultiform">Принять</button>
 </form>
-{%- endmacro %}
