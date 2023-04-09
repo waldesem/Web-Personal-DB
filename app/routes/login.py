@@ -28,6 +28,5 @@ def login():  # пароль и логин из таблицы Users пропи�
 
 @bp.route('/logout')
 def logout():  # выход пользователя из системы
-    print('logout')
     logout_user()
     return jsonify(data={"user":"None"})
