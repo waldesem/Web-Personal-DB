@@ -1,4 +1,27 @@
-<form onsubmit="return false;" id="formMultiform" name="formMultiform">
-    
-    <button class="btn btn-primary btn" data-bs-dismiss="modal" type="submit" id="submitMultiform">Принять</button>
-</form>
+{% macro multiform(form) -%}
+{% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
+    {{ form.hidden_tag() }}
+    {{ render_hidden_errors(form) }}
+    {{ render_form(form, **kwargs) }}
+{%- endmacro %}
+
+{% macro extsearchform(form) -%}
+<div class="container py-2">
+    <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample">Расширенный поиск</button>
+    <div class="collapse py-2" id="collapseExample">
+        <div class="card card-body">
+            <form method="POST" action="{#{ url_for('route.search') }#}">
+                {% from 'bootstrap5/form.html' import render_field, render_form_row, render_hidden_errors %}
+                {{ form.csrf_token() }}
+                {{ render_form_row([form.fullname], form_group_classes='form-control-sm') }}
+                {{ render_form_row([form.region, form.birthday, form.number], form_group_classes='form-control-sm') }}
+                {{ render_form_row([form.position, form.workplace], form_group_classes='form-control-sm') }}
+                {{ render_form_row([form.address, form.contact], form_group_classes='form-control-sm') }}
+                 <div class="container py-1 px-2">
+                    {{ render_form_row([form.submit], button_style='btn btn-outline-primary btn-sm') }}
+                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+{%- endmacro %}

@@ -4,22 +4,27 @@ from logging.handlers import RotatingFileHandler
 
 from apiflask import APIFlask
 from flask_migrate import Migrate
+from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager
 from flask_cors import CORS 
 
 from config import DevelopmentConfig, ProductionConfig
 from app.models.model import db, ma, User
+from app.admins.admin import admin
 
 
 def create_app():
     app = APIFlask(__name__)
     app.config.from_object(DevelopmentConfig)    # загрузка конфигурации
     CORS(app)
+    admin.init_app(app)
     db.init_app(app)    # инициализация базы данных
     ma.init_app(app)    # инициализация маршаллинга
     login_manager = LoginManager()
     login_manager.login_view = 'route.login'
     login_manager.init_app(app)     # инициализация входа пользователей
+    bootstrap = Bootstrap5()
+    bootstrap.init_app(app)    # инициализация Bootstrap
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)     # инициализация миграций
     # импорт и регистрация Blueprints

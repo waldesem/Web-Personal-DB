@@ -39,6 +39,7 @@ class User(db.Model, UserMixin):  # модель пользователей си
     username = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     role = db.Column(db.String)
+    # log_in = db.Column(db.DateTime)
 
 
 class Candidate(db.Model):  # модель анкетных данных
@@ -235,66 +236,78 @@ class Inquiry(db.Model):  # модель данных запросов по ра
 class CandidateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Candidate
+        ordered = True
 
 
 class DocumentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Document
         exclude = ("id",)
+        ordered = True
 
 
 class AddressSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Address
         exclude = ("id",)
+        ordered = True
 
 
 class StaffSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Staff
         exclude = ("id",)
+        ordered = True
 
 
 class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Workplace
         exclude = ("id",)
+        ordered = True
 
 
 class ContactSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Contact
         exclude = ("id",)
-
-
-class CheckSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Check
-
-
-class InvestigationSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Investigation
-
-
-class InquirySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Inquiry
-
-
-class PoligrafSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Poligraf
-
-
-class RegistrySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Registry
+        ordered = True
 
 
 class RelationShipSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = RelationShip
+        ordered = True
+
+
+class CheckSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Check
+        ordered = True
+
+
+class InvestigationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Investigation
+        ordered = True
+
+
+class InquirySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Inquiry
+        ordered = True
+
+
+class PoligrafSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Poligraf
+        ordered = True
+
+
+class RegistrySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Registry
+        ordered = True
 
 
 class SerialResume(ma.SQLAlchemyAutoSchema):
