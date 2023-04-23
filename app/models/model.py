@@ -221,7 +221,7 @@ class Investigation(db.Model):  # модель данных служебных �
 
 
 class Inquiry(db.Model):  # модель данных запросов по работникам
-    """ Create model for candidates inqueries"""
+    """ Create model for candidates inquiries"""
 
     __tablename__ = 'inquiries'
 
@@ -310,7 +310,9 @@ class RegistrySchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class SerialResume(ma.SQLAlchemyAutoSchema):
+class DeserialResume(ma.SQLAlchemyAutoSchema):
+    """Схема для десериализации и верификации анкеты присланной по API"""
+
     resume = fields.Nested(CandidateSchema())
     document = fields.Nested(DocumentSchema())
     staff = fields.Nested(StaffSchema())
@@ -319,8 +321,8 @@ class SerialResume(ma.SQLAlchemyAutoSchema):
     contacts = fields.List(fields.Nested(ContactSchema()))
 
 
-class DecerialResume:
-    """Класс для десериализации резюме"""
+class SerialResume:
+    """Класс для сериализации анкеты для отправки на проверку"""
 
     def __init__(self) -> None:
         self.send_resume = None
@@ -337,14 +339,10 @@ class DecerialResume:
         return self.send_resume
 
 
-decerial_resume = DecerialResume()  # схема для десериализации анкеты для отправки на проверку
-check_schema = CheckSchema()  # схема для сериализации и верификации результата проверки
-candidate_schema = SerialResume()  # схема для сериализации и верификации анкеты присланной по API
-# схемы десериализации отдельных таблиц
+candidate_schema = DeserialResume()
+serial_resume = SerialResume()
+
 resume_schema = CandidateSchema()
-investigation_schema = InvestigationSchema()
-inquiry_schema = InquirySchema()
-poligraf_schema = PoligrafSchema()
 relationship_schema = RelationShipSchema()
 staff_schema = StaffSchema()
 document_schema = DocumentSchema()
@@ -352,6 +350,5 @@ address_schema = AddressSchema()
 contact_schema = ContactSchema()
 work_schema = WorkplaceSchema()
 relation_schema = RelationShipSchema()
-registry_schema = RegistrySchema()
 
 # db.create_all()

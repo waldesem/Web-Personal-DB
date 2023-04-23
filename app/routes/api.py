@@ -5,8 +5,8 @@ import requests
 
 from ..routes import bp
 from ..extensions.extension import BASE_PATH, URL_CHECK, resume_data
-from ..models.model import db, User, Candidate, Check, CheckSchema, SerialResume, \
-    decerial_resume, TODAY, Status
+from ..models.model import db, User, Candidate, Check, CheckSchema, DeserialResume, \
+    serial_resume, TODAY, Status
 
 
 # auth = HTTPBasicAuth()
@@ -20,7 +20,7 @@ def verify_password(username, password):
 
 
 @bp.post('/api/v1/anketa')  # получение анкеты в формате JSON
-@bp.input(SerialResume)
+@bp.input(DeserialResume)
 def anketa(resume):
     resume['resume']["request_id"] = resume['resume'].pop('id')  # удаляем id из анкеты и сохраняем  как request_id
     resume['resume']['status'] = Status.NEWFAG.value
@@ -40,7 +40,7 @@ def anketa(resume):
         db.session.commit()
     resume_data(new_id, resume['document'], resume['addresses'], resume['contacts'], resume['workplaces'],
                 resume['staff'])  # записываем остальные данные в БД
-    decerial = decerial_resume.decer_res(new_id, officer='API')
+    decerial = serial_resume.decer_res(new_id, officer='API')
     response = requests.post(url=URL_CHECK, json=decerial, timeout=5)  # отправка анкеты на проверку
     response.raise_for_status()
     result = db.session.query(Candidate).filter_by(id=new_id).first()  # запрашиваем БД
@@ -48,12 +48,8 @@ def anketa(resume):
         result.status = Status.AUTO.value  # если отправка на проверку удалась ставим статус "Автомат"
         db.session.commit()
     else:
-        if candidate:
-            result.status = Status.UPDATE.value  # если отправка на проверку не удалась ставим статус "Новый"
-            db.session.commit()
-        else:
-            result.status = Status.NEWFAG.value  # если отправка на проверку не удалась ставим статус "Новый"
-            db.session.commit()
+        result.status = Status.NEWFAG.value  # если отправка на проверку не удалась ставим статус "Новый"
+        db.session.commit()
     return {"message": f'{resume}'}
 
 

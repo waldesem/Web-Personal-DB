@@ -17,6 +17,7 @@ class ProductionConfig(Config):
     BOOTSTRAP_BOOTSWATCH_THEME = 'journal'
     AUTO_200_RESPONSE = False
     JSON_SORT_KEYS = False
+    WTF_CSRF_ENABLED = False
 
 
 class DevelopmentConfig(Config):
@@ -28,3 +29,4 @@ class DevelopmentConfig(Config):
     AUTO_200_RESPONSE = False
     TEMPLATES_AUTO_RELOAD = True
     JSON_SORT_KEYS = False
+    WTF_CSRF_ENABLED = False
