@@ -4,6 +4,7 @@
         <title>StaffSec</title>
         <meta charset="UTF-8">
         <meta content="width=device-width, initial-scale=1">
+        {% from '_macro.html' import multiform, extsearchform %}
         {% from 'bootstrap5/utils.html' import render_static %}
         {{ render_static('css', 'css/bootstrap.css') }}
         {{ bootstrap.load_css() }}
@@ -27,44 +28,22 @@
                                 <a onclick="createInfo();" class="nav-link active" aria-current="page" href="#">Информация</a></li>
                             <li class="nav-item">
                                 <a onclick="mainPage('/index/officer/')" class="nav-link active" aria-current="page" href="#">Кабинет</a></li>
-                            <li class="nav-item">
-                                <a onclick="userLogout()" class="nav-link active" aria-current="page" href="#">Выйти</a></li>
                         </ul>                                
+                    </div>                        
+                    <div class="d-flex">
+                        <a onclick="userLogout()" class="nav-link active" aria-current="page" href="#">Выйти</a>
                     </div>
-                    <form class="d-flex" role="search" id="formFastSearch" onsubmit="return false">
-                        <input class="form-control me-2" type="search" placeholder="Поиск" name="fullname" value>
-                        <button onclick="searchItem('formFastSearch', 'fastsearch')" class="btn btn-sm btn-primary" type="button">Найти</button>
-                    </form>
                 </div>
             </nav>
         </div>
-        <!--Контейнер для сообщений приложения-->
-        <div class="container py-3">
-            <div id="appMessages"></div>
-        </div>
-        <!--Контейнер для заголовков-->
-        <div class="container py-3">
-            <div id="appHeaders"></div>
-        </div>
-        <!--Контейнер для основного содержимого-->
-        <div class="container py-3">
-            {% from '_macro.html' import multiform, extsearchform %}
-            <div id="appContent"></div>
-        </div>
-        <!--Контейнер для боковой панели-->
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="StaffSec">
-            <div class="offcanvas-header">
-              <h5 class="offcanvas-title">Навигация</h5>
-              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body">
-              <div id="offcanvasBody"></div>
-            </div>
-        </div>
-        <!--Контейнер с указанием данных о разработчике)-->
-        <div class="container py-5">
-            <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-                <p class="col-md-4 mb-0 text-muted"><a href="https://github.com/waldesem/Web-Personal-DB">Web-Personal-DB</a></p>
+        <!--Контейнер приложения-->
+            <div id="App"></div>        
+        <!--Контейнер ссылок-->
+        <div class="container py-1">
+            <footer class="d-flex flex-wrap justify-content-around align-items-center py-3 my-4 border-top">
+                <p><a href="/docs">OpenAPI</a></p>
+                <p><a href="/admin">Admin</a></p>
+                <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>
             </footer>
         </div>
         <script>
@@ -124,12 +103,16 @@
             form_type='horizontal', horizontal_columns=('lg', 2, 10), id='inquiryFormId', 
             render_kw={"onsubmit": "return false"}) }}`;
 
+            const formInfo = `{{ multiform(form_info, extra_classes='form-check', role='form', 
+            form_type='horizontal', horizontal_columns=('md', 2, 2), id='infoFormId', 
+            render_kw={"onsubmit": "return false"}) }}`;
+
             const formExtSearch = `{{ extsearchform(form_search) }}`;
 
             const state = `{{ status }}`
         </script>
         <script type="text/javascript" src="static/js/bootstrap.bundle.js"></script>
         <!--script type="text/javascript" src="static/js/plotly-2.20.0.min.js"></script-->
-        <script type="text/javascript" src="static/js/main.js"></script>
+        <script type="text/javascript" src="static/js/app.js"></script>
     </body>
 </html>

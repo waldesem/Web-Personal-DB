@@ -39,7 +39,6 @@ class User(db.Model, UserMixin):  # модель пользователей си
     username = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     role = db.Column(db.String)
-    # log_in = db.Column(db.DateTime)
 
 
 class Candidate(db.Model):  # модель анкетных данных
@@ -58,8 +57,8 @@ class Candidate(db.Model):  # модель анкетных данных
     inn = db.Column(db.String(12))
     education = db.Column(db.String(250))
     addition = db.Column(db.Text)
-    deadline = db.Column(db.DateTime)
     status = db.Column(db.String(250))
+    deadline = db.Column(db.DateTime)
     recruiter = db.Column(db.String(250))
     request_id = db.Column(db.Integer)
     documents = db.relationship('Document', backref='candidates', cascade="all, delete-orphan")
@@ -233,6 +232,14 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        exclude = ("id", "shortname", "fullname", "role")
+        remember = fields.Boolean()
+        ordered = True
+
+
 class CandidateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Candidate
@@ -277,6 +284,7 @@ class ContactSchema(ma.SQLAlchemyAutoSchema):
 class RelationShipSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = RelationShip
+        exclude = ("id",)
         ordered = True
 
 
@@ -343,12 +351,14 @@ candidate_schema = DeserialResume()
 serial_resume = SerialResume()
 
 resume_schema = CandidateSchema()
-relationship_schema = RelationShipSchema()
 staff_schema = StaffSchema()
 document_schema = DocumentSchema()
 address_schema = AddressSchema()
 contact_schema = ContactSchema()
 work_schema = WorkplaceSchema()
 relation_schema = RelationShipSchema()
-
-# db.create_all()
+check_schema = CheckSchema()
+registry_schema = RegistrySchema()
+poligraf_schema = PoligrafSchema()
+investigation_schema = InvestigationSchema()
+inquiry_schema = InquirySchema()

@@ -5,18 +5,8 @@ import requests
 
 from ..routes import bp
 from ..extensions.extension import BASE_PATH, URL_CHECK, resume_data
-from ..models.model import db, User, Candidate, Check, CheckSchema, DeserialResume, \
+from ..models.model import db, Candidate, Check, CheckSchema, DeserialResume, \
     serial_resume, TODAY, Status
-
-
-# auth = HTTPBasicAuth()
-
-
-# @auth.verify_password
-def verify_password(username, password):
-    if db.session.query(User).filter_by(username=username, password=password).first():
-        return username
-    return None
 
 
 @bp.post('/api/v1/anketa')  # получение анкеты в формате JSON

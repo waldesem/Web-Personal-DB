@@ -3,111 +3,106 @@ import os
 from datetime import datetime
 
 import requests
-from sqlalchemy import func, extract
-from flask import render_template, request, jsonify
+from sqlalchemy import func
+from flask import render_template, request
 from flask_login import current_user, login_required
 
 from . import bp
 from ..extensions.extension import ExcelFile, resume_data, BASE_PATH, URL_CHECK
 from ..models.model import Candidate, Staff, Document, Address, Contact, Workplace, RelationShip, \
-    Check, Registry, Poligraf, Investigation, Inquiry, db, serial_resume, resume_schema, \
-    relation_schema, staff_schema, document_schema, address_schema, contact_schema, work_schema, \
-    TODAY, CheckSchema, RegistrySchema, PoligrafSchema, InvestigationSchema, InquirySchema
+    Check, Registry, Poligraf, Investigation, Inquiry, TODAY, db, serial_resume, resume_schema, \
+    staff_schema, document_schema, address_schema, contact_schema, work_schema, relation_schema, \
+    check_schema, poligraf_schema, registry_schema, investigation_schema, inquiry_schema, CandidateSchema
 from ..forms.form import LoginForm, ResumeForm, StaffForm, DocumentForm, AddressForm, WorkplaceForm, SearchForm, \
     RelationshipForm, ContactForm, CheckForm, RegistryForm, FileForm, PoligrafForm, InvestigationForm, InquiryForm, \
-    Status
+    InfoForm, Status
 
-PAGINATION = 9
+
+@bp.errorhandler(404)
+def page_not_found():
+    return "Страница не найдена", 404
 
 
 @bp.get('/')  # стартовый шаблон
-def start():
-    return render_template("index.html",
-                           form_login=LoginForm(),
-                           form_search=SearchForm(),
-                           form_file=FileForm(),
-                           form_resume=ResumeForm(),
-                           form_check=CheckForm(),
-                           form_investigation=InvestigationForm(),
-                           form_inquiry=InquiryForm(),
-                           form_poligraf=PoligrafForm(),
-                           form_staff=StaffForm(),
-                           form_document=DocumentForm(),
-                           form_address=AddressForm(),
-                           form_work=WorkplaceForm(),
-                           form_relation=RelationshipForm(),
-                           form_contact=ContactForm(),
-                           form_registry=RegistryForm(),
-                           status={i.name: i.value for i in Status})
+def main():
+    return render_template("index.html", form_login=LoginForm(), form_search=SearchForm(), form_file=FileForm(),
+                           form_resume=ResumeForm(), form_check=CheckForm(), form_investigation=InvestigationForm(),
+                           form_inquiry=InquiryForm(), form_poligraf=PoligrafForm(), form_staff=StaffForm(),
+                           form_document=DocumentForm(), form_address=AddressForm(), form_work=WorkplaceForm(),
+                           form_relation=RelationshipForm(), form_contact=ContactForm(), form_registry=RegistryForm(),
+                           form_info=InfoForm(), status={i.name: i.value for i in Status})
 
 
-@bp.get('/index/<flag>/<int:page>')  # главная страница
+@bp.post('/index/<flag>/<page>')  # загрузка информации  на главную страницу/пользователя/ановые анкеты
+@bp.doc(hide=True)
 @login_required
 def index(flag, page):
-    items = db.session.query(func.count(Candidate.status)).filter_by(status=Status.NEWFAG.value).scalar() + \
-            db.session.query(func.count(Candidate.status)).filter_by(status=Status.UPDATE.value).scalar()
-    if flag == 'main':
-        results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
-                                   Candidate.status, Candidate.deadline). \
-            order_by(Candidate.id.desc()).offset(page * PAGINATION).limit(PAGINATION + 1).all()
-
-    elif flag == 'new':
-        results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
-                                   Candidate.status, Candidate.deadline). \
-            filter(Candidate.status == Status.NEWFAG.value). \
-            order_by(Candidate.id.desc()).offset(page * PAGINATION).limit(PAGINATION + 1).all()
-    else:
-        results = db.session.query(Candidate).filter(Candidate.status != Status.FINISH.value and
-                                                     Candidate.status != Status.CANCEL.value). \
-            join(Check, isouter=True).filter_by(officer=current_user.username). \
-            order_by(Candidate.id.asc()).offset(page * PAGINATION).limit(PAGINATION).all()
-    count_results = len(results)
-    if count_results <= PAGINATION:
-        datas = resume_schema.dump(results, many=True)
-        pager = 0
-    else:
-        datas = resume_schema.dump(results[:-1], many=True)
-        pager = 1
-    return jsonify(data=[datas] + [{'pager': pager, 'items': items}])
-
-
-@bp.post('/search/<value>/<int:page>')  # запрос результатов поиска
-@login_required
-def searching(value, page=0):
+    pagination = 9
     search_by: dict = request.form.to_dict()
-    if value == "fastsearch":
-        results = db.session.query(Candidate).filter(Candidate.fullname.ilike(f'%{search_by["fullname"]}%')). \
-            order_by(Candidate.id.desc()).offset(page * PAGINATION).limit(PAGINATION + 1).all()
+    items = db.session.query(func.count(Candidate.status)).filter_by(status=Status.NEWFAG.value).scalar()
+    if flag == 'main':
+        title = "Главная страница"
+        results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
+                                   Candidate.status, Candidate.deadline).filter(
+            Candidate.region.ilike(f'%{search_by["region"]}%' if search_by["region"] != '' else '%'),
+            Candidate.fullname.ilike(f'%{search_by["fullname"]}%' if search_by["fullname"] != '' else '%'),
+            Candidate.birthday.ilike(f'%{search_by["birthday"]}%' if search_by["birthday"] != '' else '%'),
+            Candidate.status.ilike(f'%{search_by["status"]}%' if search_by["status"] != '' else '%')). \
+            order_by(Candidate.id.desc()).offset(page * pagination).limit(pagination + 1).all()
+    elif flag == 'new':
+        title = "Новые анкеты"
+        results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
+                                   Candidate.status, Candidate.deadline). \
+            filter(Candidate.status == Status.NEWFAG.value).filter(
+            Candidate.region.ilike(f'%{search_by["region"]}%' if search_by["region"] != '' else '%'),
+            Candidate.fullname.ilike(f'%{search_by["fullname"]}%' if search_by["fullname"] != '' else '%'),
+            Candidate.birthday.ilike(f'%{search_by["birthday"]}%' if search_by["birthday"] is not None else '%'),
+            Candidate.status.ilike(f'%{search_by["status"]}%' if search_by["status"] != '' else '%')). \
+            order_by(Candidate.id.desc()).offset(page * pagination). \
+            limit(pagination + 1).all()
     else:
-        results = db.session.query(Candidate).filter(Candidate.region.ilike(f'%{search_by["region"]}%'
-                                                                            if search_by["region"] != '' else '%'),
-                                                     Candidate.fullname.ilike(f'%{search_by["fullname"]}%'
-                                                                              if search_by["fullname"] != '' else '%'),
-                                                     Candidate.birthday.ilike(f'%{search_by["birthday"]}%'
-                                                                              if search_by["birthday"] is not None
-                                                                              else '%'),
-                                                     Candidate.birthday.ilike(f'%{search_by["status"]}%'
-                                                                              if search_by["status"] != '' else '%')). \
-            order_by(Candidate.id.desc()).offset(page * PAGINATION).limit(PAGINATION + 1).all()
+        title = "Страница пользователя"
+        results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
+                                   Candidate.status, Candidate.deadline). \
+            filter(Candidate.status != Status.FINISH.value and Candidate.status != Status.CANCEL.value). \
+            join(Check, isouter=True).filter_by(officer=current_user.username).filter(
+            Candidate.region.ilike(f'%{search_by["region"]}%' if search_by["region"] != '' else '%'),
+            Candidate.fullname.ilike(f'%{search_by["fullname"]}%' if search_by["fullname"] != '' else '%'),
+            Candidate.birthday.ilike(f'%{search_by["birthday"]}%' if search_by["birthday"] is not None else '%'),
+            Candidate.status.ilike(f'%{search_by["status"]}%' if search_by["status"] != '' else '%')). \
+            order_by(Candidate.id.asc()).offset(page * pagination).limit(pagination).all()
     count_results = len(results)
-    if count_results < PAGINATION:
+    if count_results < pagination:
         datas = resume_schema.dump(results, many=True)
         pager = 0
     else:
         datas = resume_schema.dump(results[:-1], many=True)
         pager = 1
-    return jsonify(data=[datas] + [{'pager': pager}])
+    return [datas, {'pager': pager, 'items': items, 'title': title}]
 
 
-@bp.post('/resume')  # добавляем новую анкету
+@bp.get('/resume/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def resume():
+@bp.output(CandidateSchema)
+@bp.doc(hide=True)
+def get_resume(cand_id):
+    cand = db.session.query(Candidate.fullname, Candidate.previous, Candidate.birthday, Candidate.birthplace,
+                            Candidate.country, Candidate.snils, Candidate.inn, Candidate.education,
+                            Candidate.addition).filter_by(id=cand_id).first()
+    return cand
+
+
+@bp.post('/resume/<int:cand_id>')
+@bp.doc(hide=True)
+@login_required
+def post_anketa():
     resume_dict: dict = request.form.to_dict()
     result = db.session.query(Candidate).filter(Candidate.fullname == resume_dict['fullname'],
                                                 Candidate.birthday == resume_dict['birthday']).first()
     resume_dict['birthday'] = datetime.strptime(resume_dict.pop('birthday'), "%Y-%m-%d")
     if result:  # проверка существования такой же анкеты, если есть анкета с таким именем, обновляем данные
-        resume_dict.update({'status': Status.NEWFAG.value})
+        resume_dict.update({'status': Status.UPDATE.value})
         for k, v in resume_dict.items():
             setattr(result, k, v)
             db.session.commit()
@@ -124,65 +119,42 @@ def resume():
     return {'cand_id': cand_id, 'message': message}
 
 
-@bp.post('/update/staffId/<int:cand_id>')
+@bp.get('/profile/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def add_staff(cand_id):
-    form_staff = request.form.to_dict()
-    db.session.add(Staff(**form_staff | {'cand_id': cand_id}))
-    db.session.commit()
-    return {"message": " Запись успешно добавлена"}
+def get_profile(cand_id):  # полный профиль кандидата/сотрудника
+    cand = db.session.query(Candidate).filter_by(id=cand_id).all()
+    candidate = resume_schema.dump(cand, many=True)
+    doc = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all()
+    documents = document_schema.dump(doc, many=True)
+    addr = db.session.query(Address).filter_by(cand_id=cand_id).order_by(Address.id.asc()).all()
+    address = address_schema.dump(addr, many=True)
+    cont = db.session.query(Contact).filter_by(cand_id=cand_id).order_by(Contact.id.asc()).all()
+    contacts = contact_schema.dump(cont, many=True)
+    work = db.session.query(Workplace).filter_by(cand_id=cand_id).order_by(Workplace.id.asc()).all()
+    workplaces = work_schema.dump(work, many=True)
+    rel = db.session.query(RelationShip).filter_by(cand_id=cand_id).order_by(RelationShip.id.asc()).all()
+    relations = relation_schema.dump(rel, many=True)
+    staf = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all()
+    staffs = staff_schema.dump(staf, many=True)
+    checkin = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
+    checks = check_schema.dump(checkin, many=True)
+    reg = [db.session.query(Registry).filter(Registry.check_id == i.id).first() for i in checkin]
+    registries = registry_schema.dump(reg, many=True)
+    pfo = db.session.query(Poligraf).filter_by(cand_id=cand_id).order_by(Poligraf.id.asc()).all()
+    pfos = poligraf_schema.dump(pfo, many=True)
+    inv = db.session.query(Investigation).filter_by(cand_id=cand_id).order_by(Investigation.id.asc()).all()
+    invs = investigation_schema.dump(inv, many=True)
+    inq = db.session.query(Inquiry).filter_by(cand_id=cand_id).order_by(Inquiry.id.asc()).all()
+    inquiries = inquiry_schema.dump(inq, many=True)
+    return [[candidate, staffs, documents, address, contacts, workplaces, relations], 
+            checks, registries, pfos, invs, inquiries]
 
 
-@bp.post('/update/docId/<int:cand_id>')
+@bp.post('/upload')
+@bp.doc(hide=True)
 @login_required
-def add_document(cand_id):
-    form_document: dict = request.form.to_dict()
-    form_document['issue'] = datetime.strptime(form_document.pop('issue'), "%Y-%m-%d")
-    db.session.add(Document(**form_document | {'cand_id': cand_id}))
-    db.session.commit()
-    return {"message": " Запись успешно добавлена"}
-
-
-@bp.post('/update/addressId/<int:cand_id>')
-@login_required
-def add_address(cand_id):
-    form_address = request.form.to_dict()
-    db.session.add(Address(**form_address | {'cand_id': cand_id}))
-    db.session.commit()
-    return {"message": " Запись успешно добавлена"}
-
-
-@bp.post('/update/contactId/<int:cand_id>')
-@login_required
-def add_contact(cand_id):
-    form_contact = request.form.to_dict()
-    db.session.add(Contact(**form_contact | {'cand_id': cand_id}))
-    db.session.commit()
-    return {"message": " Запись успешно добавлена"}
-
-
-@bp.post('/update/workId/<int:cand_id>')
-@login_required
-def add_work(cand_id):
-    form_work = request.form.to_dict()
-    db.session.add(Workplace(**form_work | {'cand_id': cand_id}))
-    db.session.commit()
-    return {"message": " Запись успешно добавлена"}
-
-
-@bp.post('/update/relationId/<int:cand_id>')
-@login_required
-def add_relation(cand_id):
-    form_relation: dict = request.form.to_dict()
-    form_relation['birthday'] = datetime.strptime(form_relation.pop('birthday'), "%Y-%m-%d")
-    db.session.add(RelationShip(**form_relation | {'cand_id': cand_id}))
-    db.session.commit()
-    return {"message": " Запись успешно добавлена"}
-
-
-@bp.post('/upload')  # загрузка анкеты из файла Excel
-@login_required
-def upload():
+def upload_file():
     file = request.files['file']  # получаем файл
     excel = ExcelFile(file)  # создаем экземпляр класса ExcelFile для разборки файла,
     result = db.session.query(Candidate).filter(Candidate.fullname.ilike(excel.resume['fullname']),
@@ -208,20 +180,38 @@ def upload():
     return {'cand_id': cand_id, 'message': message}
 
 
-@bp.get('/resume/update/<int:cand_id>')  # update status
+@bp.post('/update/<flag>/<cand_id>')
+@bp.doc(hide=True)
 @login_required
-def update_resume(cand_id):
-    result = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if result.status not in [Status.RESULT.value, Status.POLIGRAF.value]:
-        result.status = Status.UPDATE.value
-        result.deadline = TODAY
-        db.session.commit()
-        return {"message": "Статус обновлен"}
-    else:
-        return {"message": "Текущий статус обновить нельзя"}
+def update_profile(flag, cand_id):
+    match flag:
+        case "staff":
+            form_staff = request.form.to_dict()
+            db.session.add(Staff(**form_staff | {'cand_id': cand_id}))
+        case "document":
+            form_document: dict = request.form.to_dict()
+            form_document['issue'] = datetime.strptime(form_document.pop('issue'), "%Y-%m-%d")
+            db.session.add(Document(**form_document | {'cand_id': cand_id}))
+        case "address":
+            form_address = request.form.to_dict()
+            db.session.add(Address(**form_address | {'cand_id': cand_id}))
+        case "contact":
+            form_contact = request.form.to_dict()
+            db.session.add(Contact(**form_contact | {'cand_id': cand_id}))
+        case "workplace":
+            form_work = request.form.to_dict()
+            db.session.add(Workplace(**form_work | {'cand_id': cand_id}))
+        case "relationship":
+            form_relation: dict = request.form.to_dict()
+            form_relation['birthday'] = datetime.strptime(form_relation.pop('birthday'), "%Y-%m-%d")
+            db.session.add(RelationShip(**form_relation | {'cand_id': cand_id}))
+    db.session.commit()
+    return {"message": " Запись успешно добавлена"}
 
 
-@bp.get('/resume/send/<int:cand_id>')  # отправка анкеты на проверку
+@bp.get('/send/<int:cand_id>')  # отправка анкеты на проверку
+@bp.doc(hide=True)
+@login_required
 def send_resume(cand_id):
     resum = db.session.query(Candidate).filter_by(id=cand_id).first()
     if resum.status == Status.NEWFAG.value or resum.status == Status.UPDATE.value:
@@ -238,70 +228,24 @@ def send_resume(cand_id):
         return {'message': "Анкета не может быть отправлена. Проверка уже начата"}
 
 
-@bp.get('/profile/anketa/<int:cand_id>')  # загрузка профиля кандидата
+@bp.get('/patch/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def get_anketa(cand_id):  # полный профиль кандидата/сотрудника
-    cand = db.session.query(Candidate).filter_by(id=cand_id).all()
-    candidate = resume_schema.dump(cand, many=True)
-    doc = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all()
-    documents = document_schema.dump(doc, many=True)
-    addr = db.session.query(Address).filter_by(cand_id=cand_id).order_by(Address.id.asc()).all()
-    address = address_schema.dump(addr, many=True)
-    cont = db.session.query(Contact).filter_by(cand_id=cand_id).order_by(Contact.id.asc()).all()
-    contacts = contact_schema.dump(cont, many=True)
-    work = db.session.query(Workplace).filter_by(cand_id=cand_id).order_by(Workplace.id.asc()).all()
-    workplaces = work_schema.dump(work, many=True)
-    rel = db.session.query(RelationShip).filter_by(cand_id=cand_id).order_by(RelationShip.id.asc()).all()
-    relations = relation_schema.dump(rel, many=True)
-    staf = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all()
-    staffs = staff_schema.dump(staf, many=True)
-    return [candidate, staffs, documents, address, contacts, workplaces, relations]
+def patch_status(cand_id):
+    result = db.session.query(Candidate).filter_by(id=cand_id).first()
+    if result.status not in [Status.RESULT.value, Status.POLIGRAF.value]:
+        result.status = Status.UPDATE.value
+        result.deadline = TODAY
+        db.session.commit()
+        return {"message": "Статус обновлен"}
+    else:
+        return {"message": "Текущий статус обновить нельзя"}
 
 
-@bp.get('/profile/check/<int:cand_id>')  # загрузка профиля кандидата
-@bp.output(CheckSchema(many=True))
+@bp.post('/check/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def get_check(cand_id):  # полный профиль кандидата/сотрудника
-    checkin = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
-    return checkin
-
-
-@bp.get('/profile/registry/<int:cand_id>')  # загрузка профиля кандидата
-@bp.output(RegistrySchema(many=True))
-@login_required
-def get_registry(cand_id):  # полный профиль кандидата/сотрудника
-    checkin = db.session.query(Check.id).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
-    reg = [db.session.query(Registry).filter(Registry.check_id == i.id).first() for i in checkin]
-    return reg
-
-
-@bp.get('/profile/pfo/<int:cand_id>')  # загрузка профиля кандидата
-@bp.output(PoligrafSchema(many=True))
-@login_required
-def get_pfo(cand_id):  # полный профиль кандидата/сотрудника
-    pfo = db.session.query(Poligraf).filter_by(cand_id=cand_id).order_by(Poligraf.id.asc()).all()
-    return pfo
-
-
-@bp.get('/profile/investigation/<int:cand_id>')  # загрузка профиля кандидата
-@bp.output(InvestigationSchema(many=True))
-@login_required
-def get_investigation(cand_id):  # полный профиль кандидата/сотрудника
-    inv = db.session.query(Investigation).filter_by(cand_id=cand_id).order_by(Investigation.id.asc()).all()
-    return inv
-
-
-@bp.get('/profile/inquiry/<int:cand_id>')  # загрузка профиля кандидата
-@bp.output(InquirySchema(many=True))
-@login_required
-def get_inquiry(cand_id):  # полный профиль кандидата/сотрудника
-    inq = db.session.query(Inquiry).filter_by(cand_id=cand_id).order_by(Inquiry.id.asc()).all()
-    return inq
-
-
-@bp.post('/check/<int:cand_id>')  # добавить проверку
-@login_required  # форма проверки кандидата
-def check(cand_id):
+def post_check(cand_id):
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
     if candidate.status not in [Status.NEWFAG.value, Status.UPDATE.value]:
         return {'message': "Анкета взята в работу и еще не закончена"}
@@ -335,18 +279,20 @@ def check(cand_id):
         return {'message': message}
 
 
-@bp.get('/check/delete/<int:cand_id>')  # удалить проверку
-@login_required  # форма проверки кандидата
-def delete(cand_id):  # запрашиваем данные проверки
-    result = db.session.query(Check).filter_by(check_id=cand_id).order_by(Check.id.desc()).first()
+@bp.get('/delete/<int:cand_id>')
+@bp.doc(hide=True)
+@login_required
+def delete_check(cand_id):  # запрашиваем данные проверки
+    result = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
     Check.query.filter_by(id=result.id).delete()
     db.session.commit()
     return {'message': "Проверка успешно удалена"}
 
 
-@bp.post('/registr/<int:cand_id>')  # отправка решения по кандидату
+@bp.post('/registry/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def registry(cand_id):
+def post_registry(cand_id):
     form_registry = request.form.to_dict()  # загружаем форму согласования
     result = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
     reg = form_registry | {'check_id': result.id, 'supervisor': current_user.username, 'deadline': TODAY}
@@ -375,9 +321,10 @@ def registry(cand_id):
         return {'message': 'Отправка не удалась попробуйте еще раз позднее'}
 
 
-@bp.post('/update/poligraf/<int:cand_id>')
+@bp.post('/poligraf/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def add_poligraf(cand_id):
+def post_poligraf(cand_id):
     form_poligraf: dict = request.form.to_dict()
     form_poligraf['deadline'] = datetime.strptime(form_poligraf.pop('deadline'), "%Y-%m-%d")
     db.session.add(Poligraf(**form_poligraf | {'cand_id': cand_id} | {'officer': current_user.username}))
@@ -389,9 +336,10 @@ def add_poligraf(cand_id):
     return {"message": " Запись успешно добавлена"}
 
 
-@bp.post('/update/investigation/<int:cand_id>')
+@bp.post('/investigation/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def add_investigation(cand_id):
+def post_investigation(cand_id):
     form_investigation: dict = request.form.to_dict()  # получаем данные из формы
     form_investigation['deadline'] = datetime.strptime(form_investigation.pop('deadline'), "%Y-%m-%d")
     db.session.add(Investigation(**form_investigation | {'cand_id': cand_id}))
@@ -399,9 +347,10 @@ def add_investigation(cand_id):
     return {"message": " Запись успешно добавлена"}
 
 
-@bp.post('/update/inquiry/<int:cand_id>')
+@bp.post('/inquiry/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def add_inquiry(cand_id):
+def post_inquiry(cand_id):
     form_inquiry: dict = request.form.to_dict()
     form_inquiry['deadline'] = datetime.strptime(form_inquiry.pop('deadline'), "%Y-%m-%d")
     db.session.add(Inquiry(**form_inquiry | {'cand_id': cand_id}))
@@ -409,24 +358,14 @@ def add_inquiry(cand_id):
     return {"message": " Запись успешно добавлена"}
 
 
-@bp.get('/info')  # create statistic info
+@bp.post('/information/<int:cand_id>')
+@bp.doc(hide=True)
 @login_required
-def info():
+def post_information():
+    statistic = request.form.to_dict()
     candidates = db.session.query(Registry.decision, func.count(Registry.id)). \
-        group_by(Registry.decision).filter(extract('year', Registry.deadline) == TODAY.year).all()
-    poligraf = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
-        group_by(Poligraf.theme).filter(extract('year', Poligraf.deadline) == TODAY.year).all()
-    return {"candidates": [dict([cand]) for cand in candidates], "poligraf": [dict([pfo]) for pfo in poligraf],
-            "title": f'Статистика за {TODAY.year} год'}
-
-
-@bp.post('/stat')  # create statistic info
-@login_required
-def stat():
-    statinfo = request.form.to_dict()
-    candidates = db.session.query(Registry.decision, func.count(Registry.id)). \
-        group_by(Registry.decision).filter(Registry.deadline.between(statinfo['start'], statinfo['end'])).all()
-    poligraf = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
-        group_by(Poligraf.theme).filter(Poligraf.deadline.between(statinfo['start'], statinfo['end'])).all()
-    return {"candidates": [dict([cand]) for cand in candidates], "poligraf": [dict([pfo]) for pfo in poligraf],
-            "title": f'Cтатистика за период c {statinfo["start"]} по {statinfo["end"]}'}
+        group_by(Registry.decision).filter(Registry.deadline.between(statistic['start'], statistic['end'])).all()
+    pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
+        group_by(Poligraf.theme).filter(Poligraf.deadline.between(statistic['start'], statistic['end'])).all()
+    return {"candidates": [dict([cand]) for cand in candidates], "poligraf": [dict([test]) for test in pfo],
+            "title": f'Cтатистика за период c {statistic["start"]} по {statistic["end"]}'}

@@ -8,18 +8,18 @@ from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager
 from flask_cors import CORS 
 
-from config import DevelopmentConfig, ProductionConfig
+from config import DevelopmentConfig    # ProductionConfig
 from app.models.model import db, ma, User
 from app.admins.admin import admin
 
 
 def create_app():
-    app = APIFlask(__name__)
+    app = APIFlask(__name__, title="Web-Personal-DB API", version="1.0")
     app.config.from_object(DevelopmentConfig)    # загрузка конфигурации
     CORS(app)
     admin.init_app(app)
     db.init_app(app)    # инициализация базы данных
-    ma.init_app(app)    # инициализация маршаллинга
+    ma.init_app(app)    # инициализация маршалинга
     login_manager = LoginManager()
     login_manager.login_view = 'route.login'
     login_manager.init_app(app)     # инициализация входа пользователей
@@ -52,6 +52,9 @@ def create_app():
 # export FLASK_APP=app
 # export FLASK_DEBUG=1
 # flask run
+
+# for create database enter commands in terminal:
+# db.create_all()
 
 # for migrate database enter commands in terminal:
 # flask db init - only first time if migration folder is not exist

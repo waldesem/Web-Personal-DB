@@ -1,33 +1,34 @@
-from flask import request, jsonify
+from flask import request
 from flask_login import login_user, logout_user, current_user
-
+from apiflask.views import MethodView
 
 from . import bp
 from ..models.model import User, db
 
 
-@bp.route("/login", methods=["POST", "GET"])  # вход пользователя в систему
-def login():  # пароль и логин из таблицы Users прописываются через интерфейс БД
-    if request.method == 'GET':
+class Login(MethodView):
+
+    def get(self):
         if current_user.is_authenticated:  # если пользователь уже авторизован
-            return jsonify(data={"user":current_user.username})
+            return {"user": current_user.username}
         else:
-            return jsonify(data={"user":"None"})
-    if request.method == 'POST':
+            return {"user": "None"}
+
+    def post(self):
         user_form = request.form.to_dict()  # получаем данные из формы
         username = user_form['username']
-        password = user_form['password']
-        rmb = bool(user_form['remember'])
-        print(rmb)
-        user = db.session.query(User).filter_by(username=username).first()  # получаем данные из таблицы Users
-        if db.session.query(User).filter_by(username=username, password=password).first():
-            login_user(user, remember=rmb)  # если пользователь авторизован возвращаемся на главную страницу
-            return jsonify(data={"user": current_user.username})
-        else:  # если авторизация не удалась выводим сообщение об ошибке
-            return jsonify(data={"user": "None"})
+        user = db.session.query(User).filter_by(username=username).first()  # получаем данные из Users
+        if db.session.query(User).filter_by(username=username, password=user_form['password']).first():
+            login_user(user, remember=bool(user_form['remember']))  # если авторизован - переход на главную страницу
+            return {"user": current_user.username}
+        else:
+            return {"user": "None"}  # если авторизация не удалась выводим сообщение
 
 
-@bp.route('/logout')
+@bp.get('/logout')
 def logout():  # выход пользователя из системы
     logout_user()
-    return jsonify(data={"user":"None"})
+    return {"user": "None"}
+
+
+bp.add_url_rule('/login', view_func=Login.as_view('login'))

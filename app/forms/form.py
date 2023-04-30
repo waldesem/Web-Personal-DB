@@ -34,7 +34,7 @@ class LoginForm(FlaskForm):  # форма для входа в систему
                            render_kw={"placeholder": "Имя пользователя"})
     password = PasswordField(u"Пароль: ", validators=[InputRequired(), Length(max=25)],
                              render_kw={"placeholder": "Пароль"})
-    remember = BooleanField("Запомнить ", default=False, validators=[])
+    remember = BooleanField("Запомнить ", default=False, validators=[], false_values=(False, 'false'))
     submit = SubmitField("Войти")
 
 
@@ -49,7 +49,7 @@ class SearchForm(FlaskForm):
                                   ('РЦ Запад', 'РЦ Запад'),
                                   ('РЦ Урал', 'РЦ Урал')])
     status = SelectField(choices=[("", "По статусу")]+[(i.value, i.value) for i in Status])
-    fullname = StringField(validators=[Optional(), Length(max=250)], render_kw={"placeholder": "поиск по ФИО"})
+    fullname = StringField(validators=[Optional(), Length(min=3, max=250)], render_kw={"placeholder": "поиск по ФИО"})
     birthday = DateField(format='%Y-%m-%d', validators=[Optional()], render_kw={"placeholder": "по дате рождения"})
     submit = SubmitField("Найти")
 
@@ -137,8 +137,8 @@ class ResumeForm(FlaskForm):  # форма для анкетных данных 
 class CheckForm(FlaskForm):  # форма для проверки
     """ Create form for page adding check """
 
-    employee = TextAreaField(u"Проверка по кадровому учету", validators=[Optional()])
     workplace = TextAreaField(u"Проверка по месту работы", validators=[Optional()])
+    employee = TextAreaField(u"Проверка по кадровому учету", validators=[Optional()])
     document = TextAreaField(u"Проверка документов", validators=[Optional()])
     inn = TextAreaField(u"Проверка паспорта", validators=[Optional()])
     debt = TextAreaField(u"Проверка задолженностей", validators=[Optional()])
@@ -184,7 +184,7 @@ class InvestigationForm(FlaskForm):  # форма для результатов 
 
     theme = StringField(u"Тема проверки", validators=[InputRequired(), Length(max=250)])
     info = TextAreaField(u"Информация", validators=[InputRequired()])
-    deadline = DateField("Дата окончания проверки", format='%Y-%m-%d', default=TODAY, validators=[Optional()])
+    deadline = DateField("Дата проверки", format='%Y-%m-%d', default=TODAY, validators=[InputRequired()])
     submit = SubmitField("Принять")
 
 
@@ -201,6 +201,7 @@ class InquiryForm(FlaskForm):  # форма для запросов из дру�
 class InfoForm(FlaskForm):  # форма для формирования статинформации
     """ Create form for statistic information"""
 
-    start = DateField("Начало периода", format='%Y-%m-%d', validators=[InputRequired()])
-    end = DateField("Конец периода", format='%Y-%m-%d', validators=[InputRequired()])
+    start = DateField("Начало периода", format='%Y-%m-%d', default=datetime.today().replace(day=1),
+                      validators=[InputRequired()])
+    end = DateField("Конец периода", format='%Y-%m-%d', default=TODAY, validators=[InputRequired()])
     submit = SubmitField("Принять")

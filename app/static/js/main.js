@@ -1,511 +1,300 @@
 'use strict';
-    
-//проверка сессии пользователя, если не авторизован - редирект на страницу логина
-fetch('/login')
-.then(response => response.json())
-.then(response => {
-    let resp = response["data"];
-    if (resp['user'] != "None") {
-        mainPage('/index/main/')
-    } else {
-        userLogin()
-    };
-});
 
-//implementation code for construct html elements
-function constructHtmlElement(attrsArray) {
-    let element = document.createElement(attrsArray[0]); //create element
-    if (!Array.isArray(attrsArray[1])) {
-        element.innerHTML = attrsArray[1]
-    } else {
-        for (let attr of attrsArray[1]) {
-            element.setAttribute(attr[0], attr[1]);
-            if (attrsArray.length > 2) element.innerHTML = attrsArray[2];
+//запуск и структуура приложения
+class mainApplication {
+    appContainer = document.getElementById('App');
+    constructor(){
+        for (let id of ['appMessage', 'appHeader', 'appContent']) {
+            let division = document.createElement("div");
+            division.setAttribute("class", "container py-3");
+            division.setAttribute("id", id);
+            this.appContainer.appendChild(division);
         };
-    };
-    return element
+        //проверка авторизации, если нет, то редирект на страницу логина
+        (async () => {
+            let response = await fetch('/login');
+            let result = await response.json();
+            if (result['user'] != "None") {
+                mainPage('/index/main/')
+            } else {
+                userLogin()
+            };
+        })();
+    }
+    createDivId(arrayDivId, destID){
+        let pageContainer = document.createElement("div");
+        for (let id of arrayDivId){
+            let division = document.createElement("div");
+            division.setAttribute("class", "container py-3");
+            division.setAttribute("id", id);
+            pageContainer.appendChild(division);
+        };
+        document.getElementById(destID).innerHTML = pageContainer.outerHTML;
+    }
+    createMessage(info, text) {
+    	let alert = document.createElement("div");
+        alert.setAttribute("class", info);
+        alert.setAttribute("role", "alert");
+        alert.innerHTML = text;
+    document.getElementById('appMessage').innerHTML = alert.outerHTML;
+    } 
+    createHeader(text) {
+    	let head = document.createElement("h5")
+    	head.innerHTML = text;
+        document.getElementById("appHeader").innerHTML = head.outerHTML;
+    }
 };
 
-//constructor form from jinja template
-function constructForm(jinjaForm, func, label) {
-    let wrapper= document.createElement('div');
-    wrapper.innerHTML= jinjaForm.trim();
-    if (func || label){
-        let submitBtn = constructHtmlElement(["button", [
-           ["class", "btn btn-primary"],
-           ["type", "submit"],
-           ["onclick", func]
-        ], label]);
-        wrapper.appendChild(submitBtn);
-    };
-    return wrapper
-};
+const appMain = new mainApplication();
 
-//check user authentification and login
+//авторизация пользователя
 function userLogin() {
-    const divAlert = constructHtmlElement(["div", [
-        ["class", "alert alert-info"], 
-        ["role", "alert"]
-    ], "Авторизуйтесь чтобы продолжить работу"]);   //создаем сообщение
-    document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
-    //заголовок
-    const loginHead = constructHtmlElement(["h5", "Вход в систему"]);
-    document.getElementById('appHeaders').innerHTML = loginHead.outerHTML;
-    //форма для ввода данных
-    const divLogin = document.createElement('div');
-    divLogin.appendChild(constructForm(formLogin));
-    document.getElementById('appContent').innerHTML = divLogin.outerHTML;
-    const hiddden = constructHtmlElement(["input", [
-        ["class", "form-check-input"], ["type", "hidden"], ["value", ""], ["name", "remember"]
-    ]]);
-    const appendHidden = document.getElementById("loginFormId");
-    appendHidden.appendChild(hiddden);
-    //обработка нажатия кнопки Войти
-    const form = document.getElementById("loginFormId")
-    form.addEventListener('submit', function (event){
-        const form = document.getElementById('loginFormId');
+    appMain.createMessage("alert alert-info", "Авторизуйтесь чтобы продолжить работу");
+    appMain.createHeader("Вход в систему") ;
+    //вставляем форму
+    document.getElementById('appContent').innerHTML = formLogin;
+    //добавляем скрытое поле
+    const hidden = document.createElement("input");
+    hidden.setAttribute("class", "form-check-input");
+    hidden.setAttribute("type", "hidden");
+    hidden.setAttribute("value", "");
+    hidden.setAttribute("name", "remember");
+    document.forms["loginFormId"].appendChild(hidden);
+    //обработка события Войти
+    const form = document.forms["loginFormId"];
+    form.addEventListener('submit', async function submitLogin (event){
         const formData = new FormData(form);
-        fetch('login', {
-            method: "post",
+        let response = await fetch('/login', {
+            method: 'POST',
             body: formData
-        })
-        .then(response => response.json())
-        .then(response => {
-        let resp = response["data"];
-        if (resp['user'] == "None") {
-            let divAlert = constructHtmlElement(["div", [
-                ["class", "alert alert-warning"], 
-                ["role", "alert"]
-            ], "Неверный логин или пароль"]);
-            document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
+            });
+        let result = await response.json();
+        if (result['user'] == "None") {
+            appMain.createMessage("alert alert-warning", "Неверный логин или пароль");
         } else {
-            mainPage('/index/main/', 'alert alert-success', 'Новых анкет: ')
-        };
-        })
-    });
+            mainPage('/index/main/');
+            this.removeEventListener('submit', submitLogin (event))
+        }
+    })
 };
 
 //user logout
 function userLogout() {
-    fetch('logout')
-        .then(response => response.json())
-        .then(response =>{
-            console.log(response["data"])
-        });
+    fetch('logout');
     userLogin()
 };
 
-//upload page of candidates table (main and officer page) 
-function mainPage(path, currentPage=0) {
-    fetch(path + currentPage)
-    .then(response => response.json())
-    .then(data => {
-        let resp = data["data"];
-        const countPages = resp[1].pager;
-        //оповещение и заголовок
-        const divAlert = constructHtmlElement(["div", [
-            ["class", 'alert alert-info'], 
-            ["role", "alert"],
-        ], `<a href="#" onclick=mainPage('/index/new/'); return false>Новых анкет: ${resp[1].items}</a>`]);
-        document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
-        if (path == '/index/main/' || path == '/index/new/') {
-            const mainHead = constructHtmlElement(['h5', "Главная страница"]);
-            document.getElementById('appHeaders').innerHTML = mainHead.outerHTML;
-        } else {
-            const mainHead = constructHtmlElement(['h5', "Cтраница пользователя"]);
-            document.getElementById('appHeaders').innerHTML = mainHead.outerHTML;
-        };
-        //содержимое страницы
-        const division = document.createElement('div');
+async function mainPage(path, currentPage=0){
+    //проверка ранее созданной структуры страницы
+    if (!document.getElementById("divExtSearch")) {
+        appMain.createDivId(["divExtSearch", "divTable", "divPager"], 'appContent');
+        document.getElementById('divExtSearch').innerHTML = formExtSearch;
+        const divPager = document.getElementById('divPager');
+        divPager.innerHTML = createPager().outerHTML;
         //форма расширенного поиска
-        const divForm = document.createElement("div");
-        division.appendChild(divForm)
-        const searchResult = constructForm(formExtSearch);
-        divForm.appendChild(searchResult)
-        //таблица кандидатов либо результатов поиска
-        const tableResult = constructHtmlElement(["div", [
-            ["class", "py-5"], 
-            ["id", "tableResult"]
-        ]]);
-        tableResult.appendChild(constrVertTable(resp[0]));
-        tableResult.appendChild(createPager());
-        division.appendChild(tableResult);
-        document.getElementById('appContent').innerHTML = division.outerHTML;
-        //обработка события кнопки на форме поиска
-        const form = document.getElementById("searchExtFormId")
-        form.addEventListener('submit', function (event){
-            //const form = document.getElementById('loginFormId');
-            searchItem('searchExtFormId', 'extsearch')
+        const form = document.forms["searchExtFormId"]
+        form.addEventListener('submit', function() {
+            mainPage(path)
         });
-        //update pages button state
-        listPages(currentPage, countPages);     
-        //click to the next page
-        document.getElementById("nextPage").addEventListener("click", function () {
-            if (countPages != 0) {
-                mainPage(path, currentPage + 1)
-            } else {
-                mainPage(path, currentPage)
-            };
+        const nextPageEvent = document.getElementById("nextPage")
+        nextPageEvent.addEventListener("click", function() {
+            if (countPages != 0) mainPage(path, currentPage + 1);
         });
-        //click to the previous page
-        document.getElementById("previousPage").addEventListener("click", function () {
-            if (currentPage != 0) {
-                mainPage(path, currentPage - 1)
-            } else {
-                mainPage(path, currentPage)
-            };
+        const prevPageEvent = document.getElementById("prevPage")
+        prevPageEvent.addEventListener("click", function() {
+            if (currentPage != 0) mainPage(path, currentPage - 1)
         });
-    });
-};
-
-//functionality for fast and extended search
-function searchItem(idForm, path, currentPage=0) {
-    const form = document.getElementById(idForm);
-    const formData = new FormData(form);
-    fetch(`/search/${path}/${currentPage}`, {
+    };
+    const form = new FormData(document.forms["searchExtFormId"]);
+    let response = await fetch(path+currentPage, {
         method: "post",
-        body: formData
+        body: form
     })
-    .then(response => response.json())
-    .then(response => {
-        let resp = response["data"];
-        let countPages = resp[1]['pager'];
-        //results of search
-        document.getElementById('appMessages').innerHTML = "";
-        const mainHead = constructHtmlElement(['h5', "Результат поиска"]);
-        document.getElementById('appHeaders').innerHTML = mainHead.outerHTML;
-        const division = document.createElement('div');
-        let divTable = constrVertTable(resp[0]);
-        division.appendChild(divTable);
-        let divPager = createPager()
-        division.appendChild(divPager);
-        if (path != "extsearch"){
-            document.getElementById('appContent').innerHTML = division.outerHTML;
-        } else {
-            document.getElementById('tableResult').innerHTML = division.outerHTML;
-        }
-        //update pages button state
-        listPages(currentPage, countPages);
-        //click to the next page
-        document.getElementById("nextPage").addEventListener("click", function () {
-            if (countPages != 0) {
-                searchItem(idForm, path, currentPage + 1)
-            } else {
-                searchItem(idForm, path, currentPage)
-            };
-        });
-        //click to the previous page
-        document.getElementById("previousPage").addEventListener("click", function () {
-            if (currentPage != 0) {
-                searchItem(idForm, path, currentPage - 1)
-            } else {
-                searchItem(idForm, path, currentPage)
-            };
-        });
-    });
+    const resp = await response.json();
+    //сообщение о количестве новых кандидатов
+    appMain.createMessage('alert alert-info', `<a href="#" onclick=mainPage('/index/new/'); \
+        return false>Новых анкет: ${resp[1].items}</a>`);
+    //заголовок в зависимости от страницы
+    appMain.createHeader(resp[1].title);
+    //таблица
+    const divTable = document.getElementById('divTable');
+    divTable.innerHTML = constrVertTable(resp[0]).outerHTML;
+    //состояние кнопок страниц
+    const countPages = resp[1].pager;
+    const nextItem = document.getElementById("nextPage");
+    if (countPages == 0) nextItem.setAttribute("class", "disabled");
+    const prevItem = document.getElementById("prevPage");
+    if (currentPage == 0) prevItem.setAttribute("class", "disabled");
 };
 
-//create pager element
-function createPager() {
-    const divPager = constructHtmlElement(["div", [
-        ["class", "py-5"],
-        ["id", "divPager"]
-    ]]);
+//переключатель страниц
+function createPager(){
     const navPage = document.createElement('nav');
-    divPager.appendChild(navPage);
-    const pagerUl = constructHtmlElement(["ul", [
-        ["class", "pagination justify-content-center"], 
-        ["id", "pager"]
-    ]]);
+    const pagerUl = document.createElement("ul");
+    pagerUl.setAttribute("class", "pagination justify-content-center");
     navPage.appendChild(pagerUl);
-    let idPagers = ["previousPage", "nextPage"];
-    let namePagers = ["Предыдущая", "Следующая"];
-    for (let i in namePagers) {
-        const pageItem = constructHtmlElement(['li', [
-            ["class", "page-item"], 
-            ["id", idPagers[i]]
-        ]]);
+    const idPagers = ["prevPage", "nextPage"];
+    const namePagers = ["Предыдущая", "Следующая"];
+    for (let i = 0; i < namePagers.length; i++) {
+        let pageItem = document.createElement('li');
+        pageItem.setAttribute("class", "page-item"); 
+        pageItem.setAttribute("id", idPagers[i]);
         pagerUl.appendChild(pageItem);
-        const pageLink = constructHtmlElement(['a', [
-            ["class", "page-link"], 
-            ["href", "#"]
-        ], namePagers[i]]);
+        let pageLink = document.createElement('a')
+        pageLink.setAttribute("class", "page-link");
+        pageLink.setAttribute("href", "#");
+        pageLink.innerHTML = namePagers[i];
         pageItem.appendChild(pageLink);
     };
-    return divPager
+    return navPage
 };
 
-//update pager state 
-function listPages(currentPage, countPages) {
-    let nextItem = document.getElementById('nextPage');
-    let previousItem = document.getElementById('previousPage');
-    if (currentPage == 0) {
-        previousItem.setAttribute("class", "disabled")
-    } else {
-        if (previousItem.hasAttribute("class", "disabled")) {
-            previousItem.removeAttribute("class", "disabled")
-        };
-    };
-    if (countPages == 0) {
-        nextItem.setAttribute("class", "disabled")
-    } else {
-        if (nextItem.hasAttribute("class", "disabled")) {
-            nextItem.removeAttribute("class", "disabled")
-        };
-    };
-}
-
-//create table with candidates list
+//вертикальная таблица со списком кандидатов
 function constrVertTable(candidates) {
-    const divTable = constructHtmlElement(["div", [
-        ["id", "divTable"]
-    ]]);
-    const table = constructHtmlElement(["table", [
-        ["class", "table table-hover table-responsive align-middle py-1"]
-    ]]);
-    divTable.appendChild(table);
+    const table = document.createElement("table");
+    table.setAttribute("class", "table table-hover table-responsive align-middle py-1");
     const thead = document.createElement('thead');
     table.appendChild(thead);
     const tbody = document.createElement('tbody');
     table.appendChild(tbody);
-    let tr = document.createElement('tr');
-    let tableHeader = [
-        "#", "Регион", "Фамилия Имя Отчество", "Дата рождения", "Статус", "Дата"
-    ];
-    let tabbleAttrs = [
-        ["width", "5%"], ["width", "15%"], ["width", "30%"], ["width", "15%"], ["width", "15%"], ["width", "15%"]
-    ];
+    const tr = document.createElement('tr');
+    const tableHeader = ["#", "Регион", "Фамилия Имя Отчество", "Дата рождения", "Статус", "Дата"];
+    let tabbleAttrs = ["5%", "15%", "30%", "15%", "15%", "15%"];
     for (let i = 0; i < tableHeader.length; i++) {
-        let th = constructHtmlElement(['th', [
-            tabbleAttrs[i]
-        ], tableHeader[i]]);
+        let th = document.createElement('th');
+        th.setAttribute("width", tabbleAttrs[i]);
+        th.innerHTML = tableHeader[i];
         tr.appendChild(th);
         thead.appendChild(tr);
     };
     for (let candidate of candidates) {
         let tr = document.createElement('tr');
         tr.setAttribute("height", "50px");
-        let items = [
-            candidate['id'],  candidate['region'],  candidate['fullname'], 
-            candidate['birthday'],  candidate['status'],  candidate['deadline']
-        ];
-        for (let val of items) {
+        //
+        for (let val of Object.values(candidate)) {
             let td = document.createElement('td');
             if (val == candidate['fullname']) {
-                let a = constructHtmlElement(
-                    ["a", [
-                        ["href", "#"], 
-                        ["onclick", `openProfile(${candidate['id']})`]
-                    ], val]);
-                td.appendChild(a);
-            } else {
-                td.innerHTML = val
-            };
-            if (val == candidate['deadline'] || val == candidate['birthday']) {
+                td.innerHTML = `<a href="#" onclick=openProfile(${candidate['id']})>${val}</a>`;
+            } else if (val == candidate['deadline'] || val == candidate['birthday']) {
                 let date = new Date(Date.parse(val));
                 td.innerHTML =  date.toLocaleDateString('ru-RU')
+            } else {
+                td.innerHTML = val
             };
             tr.appendChild(td);
         }
         tbody.appendChild(tr);
     };
-    return divTable
+    return table
 }
 
-//открываем страницу для заполенения/загрузки анкеты
-function createResume(candId=0) {
-    document.getElementById('appMessages').innerHTML = "";
-    const resumeHead = document.createElement('h5');
-    resumeHead.innerHTML = "Создать анкету";
-    document.getElementById('appHeaders').innerHTML = resumeHead.outerHTML;
-    const divResume = constructHtmlElement(["div", [
-        ["class", "py-1"]
-    ]]);
+//страница для заполнения/редактирования анкеты
+async function createResume(candId=null) {
+    appMain.createMessage('alert alert-info',
+        "Заполните обязательные поля, либо загрузите файл");
+    appMain.createHeader("Создать/изменить анкету")
+    const appContent = document.createElement('div');
     const divformUpload = document.createElement('div');
-    divResume.appendChild(divformUpload);
     divformUpload.innerHTML = formUpload;
+    appContent.appendChild(divformUpload);
+    //
     const divformResume = document.createElement('div');
-    divResume.appendChild(divformResume);
-    divformResume.innerHTML = (constructForm(formResume)).outerHTML;
-    if (candId != 0) {
-        fetch("/profile/anketa/" + candId)
-        .then(response => response.json())
-        .then(data => {
-        let resps = data[0][0];
-        delete resps['id'];
-        delete resps['region'];
-        delete resps['status'];
-        delete resps['deadline'];
-        delete resps['request_id'];
-        let resumeId = document.getElementById("resumeFormId");
+    divformResume.innerHTML = formResume;
+    appContent.appendChild(divformResume);
+    document.getElementById('appContent').innerHTML = appContent.outerHTML;
+    //
+    if (candId != null) {
+        let response = await fetch("/profile/resume/" + candId);
+        let resumeId = document.forms["resumeFormId"];
         let tagName = resumeId.getElementsByTagName("input");
-        for (let i = 0; i < tagName.length-1; i++){
+        let resps = await response.json();
+        for (let i = 0; i < tagName.length; i++){
             tagName[i].setAttribute("value", Object.values(resps)[i])
-        };      
-        });
+        }
     };
-    document.getElementById('appContent').innerHTML = divResume.outerHTML;
-    const form = document.getElementById("resumeFormId")
-    form.addEventListener('submit', function (event){
-        submitResume("resumeFormId", "/resume")
+    const form = document.forms["resumeFormId"];
+    form.addEventListener('submit', async function resumeForm(event){
+        updateData(form, `profile/resume/${anketaIds[i]}`, candId, "post", openProfile)
+        this.removeEventListener('submit', resumeForm(event));
     });
 };
 
-function submitResume(formId, url){
-    const form = document.getElementById(formId);
-    const formData = new FormData(form);
-    fetch(url, {
-        method: "post",
-        body: formData
-    })
-    .then(response => response.json())
-    .then(response => {
-        let resp = response;
-        let divAlert = constructHtmlElement(["div", [
-            ["class", "alert alert-primary"], 
-            ["role", "alert"]
-        ], resp['message']]);
-        document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
-        openProfile(resp["cand_id"])
-    });
-};
-
-//сброс статуса анкеты на UPDATE при необходимости
-function updateStatus(candId) {
-    fetch("/resume/update/" + candId)
-    .then(response => response.json())
-    .then(data => {
-        let resp = data;
-        openProfile(candId);
-        let divAlert = constructHtmlElement(["div", [
-            ["class", "alert alert-info"], 
-            ["role", "alert"]
-        ], resp['message']]);
-        document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
-    });
-};
-
-//send resume to the automatic check
-function sendResume(candId) {
-    fetch("/resume/send/" + candId)
-    .then(response => response.json())
-    .then(data => {
-        let resp = data;
-        let divAlert = constructHtmlElement(["div", [
-            ["class", "alert alert-info"], 
-            ["role", "alert"]
-        ], resp['message']]);
-        document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
-        mainPage('/index/main/')
-    });
-};
-
-//добавление данных в акету
+//добавление данных в анкету
 function addToAnketa(candId){
-    const profileHead = constructHtmlElement(["h5", "Добавить информацию в анкету"]);
-    document.getElementById('appHeaders').innerHTML = profileHead.outerHTML;
-    const divContent = constructHtmlElement(["div", [
-        ["class", "py-1"],
-    ]]);    
-    //anketa
-    const resumeSubNames = [
-        'Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'
-    ]
-    const anketaIds = [
-        'staffId', 'docId', 'addressId', 'contactId', 'workId','relationId'
-    ]
-    const anketaForms = [
-        constructForm(formStaff), constructForm(formDocument), constructForm(formAddress), 
-        constructForm(formContact), constructForm(formWorkplace), constructForm(formRelation)
-    ]
-    for (let i = 0; i < resumeSubNames.length; i++) {
-        const divCollapse = constructHtmlElement(["div", [
-            ["class", "py-1"]
-        ]]);
-        const targetHeader = constructHtmlElement(["h6", resumeSubNames[i]]);
-        divCollapse.appendChild(targetHeader);
-        const divColl = constructHtmlElement(["form", [
-            ["onsubmit", "return false"],
-            ["id", `${anketaIds[i]}`]
-        ]]);
-        divCollapse.appendChild(divColl);
-        divContent.appendChild(divCollapse);
-    };
-    document.getElementById("profileContentId").innerHTML = divContent.outerHTML;
-
-    for (let i = 0; i < resumeSubNames.length; i++) {
-        document.getElementById(`${anketaIds[i]}`).innerHTML = anketaForms[i].outerHTML;
-        let addListener = document.getElementById(`${anketaIds[i]}`)
+    appMain.createMessage('alert alert-info', "Заполните обязательные поля в нужной форме");
+    appMain.createHeader("Добавление информацию в анкету");
+    //подзаголовки и структура
+    const resumeSubNames = ['Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'];
+    const anketaIds = ['staffId', 'docId', 'addressId', 'contactId', 'workId','relationId']
+    appMain.createDivId[anketaIds, 'profileContentId']
+    //формы для добавления данных
+    const anketaForms = [formStaff, formDocument, formAddress, formContact, formWorkplace, formRelation];
+    for (let i = 0; i < anketaIds.length; i++) {
+        let anketaIdsDivs = document.getElementById(anketaIds);
+        //вставка форм
+        anketaIdsDivs.innerHTML = anketaForms[i];
+        //вставка подзаголовков
+        let targetHeader = document.createElement("h6");
+        targetHeader.innerHTML = resumeSubNames[i];
+        anketaIdsDivs.insertBefore(targetHeader, anketaIdsDivs.firstElementChild);
+        //вставка обработчиков
+        let addListener = document.forms[i]
         addListener.addEventListener('submit', function (event){
-            updateData(`${anketaIds[i]}`, `update/${anketaIds[i]}`, candId)
+            updateData(document.forms[i]['id'], `profile/update/${anketaIds[i]}`, candId, "put")
         });
     };
 };
 
-//open profile and anketa's page
+//открываем страницу профиля кандидата
 function openProfile(candId) {
-    const profileHead = constructHtmlElement(["h5", "Анкета кандидата/сотрудника"]);
-    document.getElementById('appHeaders').innerHTML = profileHead.outerHTML;
-    const divProfile = constructHtmlElement(["div", [
-        ["class", "py-1"]
-    ]]);
-    const navBtnGroup = constructHtmlElement(["div", [
-        ["class", "btn-group py-2 btn-hidden-print w-100"],
-        ["data-bs-toggle", "button" ],
-        ["role", "group"]
-    ]]);
-    divProfile.appendChild(navBtnGroup)
-    const navBtnAnketa = constructHtmlElement(["button", [
-        ["class", "btn btn-outline-primary"],
-        ["type", "button"],
-        ["onclick", `openProfile(${candId})`]
-    ], "Анкета"]);
-    navBtnGroup.appendChild(navBtnAnketa);
-    const navBtnCheck = constructHtmlElement(["button", [
-        ["class", "btn btn-outline-primary"],
-        ["type", "button"],
-        ["onclick", `openCheck(${candId})`]
-    ], 'Проверка']);
-    navBtnGroup.appendChild(navBtnCheck);
-    const navBtnReg = constructHtmlElement(["button", [
-        ["class", "btn btn-outline-primary"],
-        ["type", "button"],
-        ["onclick", `openRegistry(${candId})`]
-    ], 'Согласование']);
-    navBtnGroup.appendChild(navBtnReg);
-    const navBtnPfo = constructHtmlElement(["button", [
-        ["class", "btn btn-outline-primary"],
-        ["type", "button"],
-        ["onclick", `openPoligraf(${candId})`]
-    ], 'Полиграф']);
-    navBtnGroup.appendChild(navBtnPfo);
-    const navBtnInvs = constructHtmlElement(["button", [
-        ["class", "btn btn-outline-primary"],
-        ["type", "button"],
-        ["onclick", `openInvestigation(${candId})`]
-    ], 'Расследования']);
-    navBtnGroup.appendChild(navBtnInvs);
-    const navBtnInqs = constructHtmlElement(["button", [
-        ["class", "btn btn-outline-primary"],
-        ["type", "button"],
-        ["onclick", `openInquiry(${candId})`]
-    ], 'Запросы']);
-    navBtnGroup.appendChild(navBtnInqs);
-    const divProfileContent = constructHtmlElement(["div", [
-        ["class", "py-1"],
-        ["id", "profileContentId"]
-    ]]);
-    divProfile.appendChild(divProfileContent)
-    
-    //anketa
-    const resumeSubNames = [
-        'Резюме', 'Должности', 'Документы', 'Адреса', 'Контакты', 'Работа','Связи'
-    ]
-    const anketaIds = [
-        'resumeId', 'staffId', 'docId', 'addressId', 'contactId', 'workId','relationId'
-    ]
+    appMain.createHeader("Профиль кандидата/сотрудника");
+    //структура страницы
+    appMain.createDivId(["navDiv", "navContent", "profileContent"], "appContent");
+    //переключатели вкладок
+    const divNav = document.getElementById("navDiv");
+    divNav.setAttribute("class", "nav nav-tabs nav-justified");
+    divNav.setAttribute("role", "tablist");
+    const tabsNames = ['Профиль', 'Проверки', 'Согласования', 'Полиграф', 'Расследования', 'Запросы'];
+    const tabsPanes = ['profileTab', 'checkTab', 'registryTab', 'poligrafTab', 'investigateTab', 'inquiryTab'];
+    const tabsActions = [openAnketa, openCheck, openRegistry, openPoligraf, openInvestigation, openInquiry];
+    for (let i = 0; i < tabsNames.length; i++) {
+        let navBtn = document.createElement("button");
+        navBtn.setAttribute("data-bs-toggle", "tab");
+        navBtn.setAttribute("data-bs-target", "#"+tabsPanes[i]);
+        navBtn.setAttribute("type", "button");
+        navBtn.setAttribute("role", "tab");
+        navBtn.setAttribute("class", "nav-link");
+        if (i == 0) navBtn.setAttribute("class", "nav-link active")
+        navBtn.innerHTML = tabsNames[i];
+        divNav.appendChild(navBtn)
+    };
+    //вкладки и содержание
+    const navContent = document.getElementById("navContent");
+    navContent.setAttribute("class", "tab-content");
+    for (let i = 0; i < tabsPanes.length; i++){
+        let divPane = document.createElement("div");
+        divPane.setAttribute("class", "tab-pane fade show py-1");
+        divPane.setAttribute("role", "tabpanel");
+        divPane.setAttribute("id", tabsPanes[i]);
+        if (i == 0) divPane.setAttribute("class", "tab-pane fade show active py-1");
+        navContent.appendChild(divPane);
+        let contentTab = document.createElement("div");
+        contentTab.setAttribute("id", tabsPanes[i]+"Id");
+        divPane.appendChild(contentTab);
+        tabsActions[i](candId)
+    };
+};
+
+//открыть анкету
+async function openAnketa(candId){
+    let response = await fetch(`/profile/anketa/${candId}`)
+    appMain.createDivId(["anketaId", "buttonGroupId"], "profileTabId");
+    const resumeSubDivNames = ['Резюме', 'Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'];
+    const resumeSubDivIds = ['resumeId', 'staffId', 'docId', 'addressId', 'contactId', 'workId', 'relationId'];
     const labelNames = [
-        ['id', 'Регион', 'Фамилия Имя Отчество', 'Изменение имени', 'Дата рождения', 'Место рождения', 'Гражданство', 'СНИЛС', 'ИНН', 'Образование', 'Дополнительная информация', 'Дата', 'Статус', 'Рекрутер', 'Внешний id'],
+        ['id', 'Регион', 'Фамилия Имя Отчество', 'Изменение имени', 'Дата рождения', 
+        'Место рождения', 'Гражданство', 'СНИЛС', 'ИНН', 'Образование', 
+        'Дополнительная информация', 'Статус', 'Дата', 'Рекрутер', 'Внешний id'],
         ['Должность', 'Департамент'],
         ['Вид документа', 'Серия', 'Номер', 'Кем выдан', 'Дата'],
         ['Тип', 'Регион', 'Адрес'],
@@ -513,85 +302,80 @@ function openProfile(candId) {
         ['Период', 'Организация', 'Адрес', 'Должность'],
         ['Связь', 'Полное ФИО', 'Дата рождения', 'Адрес', 'Место работы', 'Контакты'],
     ];
-    
-    const anketaDiv = document.createElement('div');
-    const divAnketa = constructHtmlElement(["div", [
-        ["class", "py-1"]
-    ]]);
-    for (let i = 0; i < resumeSubNames.length; i++) {
-        const targetHeader = constructHtmlElement(["h6", resumeSubNames[i]]);
-        divAnketa.appendChild(targetHeader);
-        const idNames = constructHtmlElement(["div", [
-            ["id", anketaIds[i]]
-        ]]);
-        divAnketa.appendChild(idNames)
-    };
-    anketaDiv.appendChild(divAnketa)
-    
-    //группа  кнопок Добавить информацию, Обновить статус, Отправить  на проверку
-    const groupBtnResume = constructHtmlElement(["div", [
-        ["class", "btn-group py-2 hidden-print"], 
-        ["role", "group"]
-    ]]);
+    appMain.createDivId(resumeSubDivIds, "anketaId");
+    //группа Изменить анкету, Добавить информацию, Обновить статус, Отправить на проверку
+    const groupBtnResume = document.getElementById("buttonGroupId")
+    groupBtnResume.setAttribute("class", "btn-group py-2 hidden-print");
+    groupBtnResume.setAttribute("role", "group");
     const grpBtnResumeAttr = {
-        'Изменить  анкету': `createResume(${candId})`,
+        'Изменить  анкету': `editResume(${candId})`,
         'Добавить информацию': `addToAnketa(${candId})`,
         'Обновить статус': `updateStatus(${candId})`,
         'Отправить на проверку': `sendResume(${candId})`
     };
     for (let i = 0; i < Object.keys(grpBtnResumeAttr).length; i++){
-        let updBtnResume = constructHtmlElement(["button", [
-            ["class", "btn btn-outline-primary"], 
-            ["onclick", Object.values(grpBtnResumeAttr)[i]]
-        ], Object.keys(grpBtnResumeAttr)[i]]);
+        let updBtnResume = document.createElement("button");
+        updBtnResume.setAttribute("class", "btn btn-outline-primary");
+        updBtnResume.setAttribute("onclick", Object.values(grpBtnResumeAttr)[i])
+        updBtnResume.innerHTML = Object.keys(grpBtnResumeAttr)[i];
         groupBtnResume.appendChild(updBtnResume)
     };
-    anketaDiv.appendChild(groupBtnResume)
-    divProfileContent.appendChild(anketaDiv);
-    document.getElementById('appContent').innerHTML = divProfile.outerHTML;
-    
-    getProfileItem("anketa", candId, labelNames, anketaIds)
+    let resps = await response.json();
+    //создаем таблицы с данными анкеты и вставляем их на таблицу
+    for (let i = 0; i < resps.length; i++) {
+        let subSubdivs = document.getElementById(resumeSubDivIds[i])
+        let targetHeader = document.createElement('h6');
+        targetHeader.innerHTML = resumeSubDivNames[i];
+        subSubdivs.appendChild(targetHeader);
+        let divTable = constrHorizTable(labelNames[i], resps[i]);
+        subSubdivs.appendChild(divTable);
+    };
 };
 
-//open check page
-function openCheck(candId){
-    const profileHead = constructHtmlElement(["h5", "Результаты проверки"]);
-    document.getElementById('appHeaders').innerHTML = profileHead.outerHTML;
-    const checkDiv = constructHtmlElement(["div", [
-        ["class", "py-2"],
-        ["id", "formCheckId"],
-    ]]);
-    //place for checks results
-    const divCheck = constructHtmlElement(["div", [
-        ["class", "py-1"],
-        ["id", "checkId"],
-    ]]);
-    checkDiv.appendChild(divCheck);
-    const groupBtnCheck = constructHtmlElement(["div", [
-            ["class", "btn-group hidden-print"], 
-            ["role", "group"],
-        ]]);
-    const checkBtn = constructHtmlElement(["a", [
-        ["class", "btn btn-outline-info"],
-        ["type", "button"],
-        ["id", "checkBtn"]
-    ], 'Добавить проверку']);
-    groupBtnCheck.appendChild(checkBtn)
-    const editBtn = constructHtmlElement(["a", [
-        ["class", "btn btn-outline-info"],
-        ["type", "button"],
-        ["id", "editBtn"]
-    ], 'Редактировать проверку']);
-    groupBtnCheck.appendChild(editBtn)
-    const delbtn = constructHtmlElement(["a", [
-            ["class", "btn btn-outline-info"],
-            ["type", "button"], 
-            ["onclick", `deleteCheck(${candId})`]
-        ], 'Удалить последнюю проверку']);
-    groupBtnCheck.appendChild(delbtn)
-    checkDiv.appendChild(groupBtnCheck);
-    document.getElementById("profileContentId").innerHTML = checkDiv.outerHTML;
 
+//сброс статуса анкеты на UPDATE при необходимости
+async function updateStatus(candId) {
+    let response = await fetch("/resume/status/" + candId);
+    let resp = await response.json();
+    openProfile(candId);
+    appMain.createMessage("alert alert-info", resp['message']);
+};
+
+//отправка анкеты на автопроверку
+async function sendResume(candId) {
+    let response = await fetch("/resume/send/" + candId);
+    let resp = await response.json();
+    appMain.createMessage("alert alert-info", resp['message']);
+    mainPage('/index/main/')
+};
+
+//открыть проверки
+async function openCheck(candId){
+    let response = await fetch(`/check/${candId}`)
+    const divPage = document.getElementById("checkTabId");
+    //точка для подключения формы проверки
+    const checkDiv = document.createElement("div");
+    checkDiv.setAttribute("id", "formCheckId");
+    divPage.appendChild(checkDiv)
+    //точка для подключения результатов проверки
+    const divCheck = document.createElement("div");
+    divCheck.setAttribute("id", "checkId");
+    checkDiv.appendChild(divCheck);
+    //группа кнопок
+    const groupBtnCheck = document.createElement("div");
+    groupBtnCheck.setAttribute("class", "btn-group hidden-print");
+    groupBtnCheck.setAttribute("role", "group");
+    checkDiv.appendChild(groupBtnCheck);
+    const buttonLabels = ['Добавить проверку', 'Редактировать проверку', 'Удалить последнюю проверку'];
+    const actionButtons = ["checkBtn", "editBtn", 'deleteBtn'];
+    for (let i = 0; i < actionButtons.length; i++){
+        let addBtn = document.createElement("a");
+        addBtn.setAttribute("class", "btn btn-outline-info");
+        addBtn.setAttribute("type", "button");
+        addBtn.setAttribute("id", actionButtons[i]);
+        addBtn.innerHTML = buttonLabels[i];
+        groupBtnCheck.appendChild(addBtn)
+    };
     const labelNames = [
         [
         'ID', 'Статус автопроверки', 'Проверка по местам работы', 'Бывший работник МТСБ', 
@@ -602,222 +386,223 @@ function openCheck(candId){
         'Дата проверки', 'Сотрудник СБ'
         ]
     ];
-    getProfileItem("check", candId, labelNames, ['checkId']);
-    //прослушиваем событие на кнопке 'Добавить запрос'
+    let resps = await response.json();
+    for (let i = 0; i < resps.length; i++) {
+        const divTable = constrHorizTable(labelNames[i], resps[i]);
+        const divId = document.getElementById("checkId");
+        divId.innerHTML = divTable.outerHTML;
+    };
+    //прослушиваем событие на кнопке 'Добавить проверку'
     const addBtnListener = document.getElementById("checkBtn")
     addBtnListener.addEventListener('click', function (event){
-        const formCheckId = constructForm(formCheck);
-        document.getElementById("formCheckId").innerHTML = formCheckId.outerHTML;
+        document.getElementById("formCheckId").innerHTML = formCheck;
+    });
+    //прослушиваем событие на кнопке 'Удалить проверку'
+    const delBtnListener = document.getElementById("deleteBtn")
+    delBtnListener.addEventListener('click', async function (event){
+        if (confirm("Вы действительно хотите удалить проверку?")) {
+            let response = await fetch("/check/delete/"+candId);
+            let resp = await response.json();
+            appMain.createMessage("alert alert-warning", resp['message']);
+            openCheck(candId)
+        };
+    });
+    //прослушиваем событие на кнопке 'Редактировать проверку'
+    const editBtnListener = document.getElementById("editBtn")
+    editBtnListener.addEventListener('click', async function (event){
+        document.getElementById("formCheckId").innerHTML = formCheck;
+        let response = await fetch("/profile/check/" + candId);
+        let resps = await response.json();
+        // удаляем неиспользуемые значения для подстановки в форму
+        for (let key of Object.keys(resps[0])) {
+            if ([
+                'id', 'autostatus', 'path', 'pfo', 'comments', 
+                'conclusion', 'deadline', 'officer', 'cand_id'
+            ].includes(key)){
+                delete resps[0][key];
+            }
+        };  //вставляем значения в текстовые поля
+        let checkId = document.getElementById("checkFormId");
+        let tagName = checkId.getElementsByTagName("textarea");
+        for (let i = 0; i < tagName.length; i++){
+            tagName[i].value = Object.values(resps[0])[i]
+        };
     });
     //прослушиваем событие на кнопке  Принять
-    const submitdBtnListener = document.getElementById("formCheckId")
-    submitdBtnListener.addEventListener('submit', function (event){
-        updateData("checkFormId", "check", candId)
+    const submitdBtnListener = document.getElementById("checkFormId")
+    submitdBtnListener.addEventListener('submit', function formCheck(event){
+        updateData("checkFormId", "check", candId, 'post', openCheck)
+        this.removeEventListener('submit', formCheck(event))
     });
 };
 
-
-//delete last check
-function deleteCheck(candId) {
-    if (confirm("Вы действительно хотите удалить проверку?")) {
-        fetch("/check/delete/"+candId)
-        .then(response => response.json())
-        .then(data => {
-            let resp = data["data"][0];
-            let divAlert = constructHtmlElement(["div", [
-                ["class", "alert alert-warning"], 
-                ["role", "alert"]
-            ], resp['message']]);
-            document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
-            openProfile(candId)
-        });
+//открыть согласование
+async function openRegistry (candId){
+    let response = await fetch(`/registry/${candId}`)
+    const registryDiv = document.getElementById("registryTabId");
+    //
+    const divRegistry = document.createElement("div");
+    divRegistry.setAttribute("id", "registryId");
+    registryDiv.appendChild(divRegistry);
+    //
+    const addBtnReg = document.createElement("a");
+    addBtnReg.setAttribute("class", "btn btn-outline-info hidden-print");
+    addBtnReg.setAttribute("type", "button");
+    addBtnReg.setAttribute("id", "addBtnReg");
+    addBtnReg.innerHTML = 'Открыть согласование';
+    registryDiv.appendChild(addBtnReg)
+    const labelNames = ['ID', 'Комментарий', 'Решение', 'Дата', 'Согласующий'];
+    //прослушиваем событие на кнопке 'Открыть согласование'
+    const addBtnListener = document.getElementById("addBtnReg")
+    addBtnListener.addEventListener('click', function addReg (event){
+        document.getElementById("registryTabId").innerHTML = formRegistry;
+        this.removeEventListener('click', addReg(event));
+    });
+    //прослушиваем событие на кнопке  Принять
+    const submitdBtnListener = document.forms["registryFormId"];
+    submitdBtnListener.addEventListener('submit', function formRegistry(event){
+        updateData("registryFormId", "registr", candId, openRegistry)
+        this.removeEventListener('click', formRegistry(event));
+    });
+    let resps = await response.json();
+    for (let i = 0; i < resps.length; i++) {
+        const divTable = constrHorizTable(labelNames, resps[i]);
+        const divId = document.getElementById('registryId');
+        divId.innerHTML = divTable.outerHTML;
     };
 };
 
-//open registry page
-function openRegistry (candId){
-    const profileHead = constructHtmlElement(["h5", "Согласование кандидата"]);
-    document.getElementById('appHeaders').innerHTML = profileHead.outerHTML;
-    const registryDiv = constructHtmlElement(["div", [
-        ["class", "py-2"],
-        ["id", "formRegistryId"],
-    ]]);
-    const divRegistry = constructHtmlElement(["div", [
-        ["class", "py-1"],
-        ["id", "registryId"],
-    ]]);
-    registryDiv.appendChild(divRegistry);
-    const addBtnReg = constructHtmlElement(["a", [
-        ["class", "btn btn-outline-info hidden-print"],
-        ["type", "button"], 
-        ["id", "addBtnReg"]
-    ], 'Открыть согласование']);
-    registryDiv.appendChild(addBtnReg)
-    const labelNames = [
-        ['ID', 'Комментарий', 'Решение', 'Дата', 'Согласующий']
-    ];
-    document.getElementById("profileContentId").innerHTML = registryDiv.outerHTML;
-    getProfileItem("registry", candId, labelNames, ['registryId']);
-    //прослушиваем событие на кнопке 'Добавить запрос'
+//вкладка полиграфа
+async function openPoligraf(candId) {
+    let response = await fetch(`/poligraf/${candId}`)
+    const poligrafDiv = document.getElementById("poligrafTabId");
+    //
+    const divpoligraf = document.createElement("div");
+    divpoligraf.setAttribute("id", "poligrafId");
+    poligrafDiv.appendChild(divpoligraf);
+    //
+    const addBtnReg = document.createElement("a");
+    addBtnReg.setAttribute("class", "btn btn-outline-info hidden-print");
+    addBtnReg.setAttribute("type", "button");
+    addBtnReg.setAttribute("id", "addBtnReg");
+    addBtnReg.innerHTML = 'Открыть согласование';
+    poligrafDiv.appendChild(addBtnReg)
+    const labelNames = ['ID', 'Тематика', 'Результат', 'Полиграфолог', 'Дата проверки'];
+    //прослушиваем событие на кнопке 'Открыть согласование'
     const addBtnListener = document.getElementById("addBtnReg")
-    addBtnListener.addEventListener('click', function (event){
-        const formRegistryId = constructForm(formRegistry);
-        document.getElementById("formRegistryId").innerHTML = formRegistryId.outerHTML;
+    addBtnListener.addEventListener('click', function addReg (event){
+        document.getElementById("poligrafTabId").innerHTML = formpoligraf;
+        this.removeEventListener('click', addReg(event));
     });
     //прослушиваем событие на кнопке  Принять
-    const submitdBtnListener = document.getElementById("formRegistryId")
-    submitdBtnListener.addEventListener('submit', function (event){
-        updateData("registryFormId", "registr", candId)
+    const submitdBtnListener = document.forms["poligrafFormId"];
+    submitdBtnListener.addEventListener('submit', function formPoligraf(event){
+        updateData("poligrafFormId", "registr", candId, openPoligraf)
+        this.removeEventListener('click', formPoligraf(event));
     });
-};
-
-//open pfo page
-function openPoligraf(candId) {
-    const profileHead = constructHtmlElement(["h5", "Тестирование на полиграфе"]);
-    document.getElementById('appHeaders').innerHTML = profileHead.outerHTML;
-    const pfoDiv = constructHtmlElement(["div", [
-        ["class", "py-2"],
-        ["id", "formPoligrafId"],
-    ]]);
-    const divPfo = constructHtmlElement(["div", [
-        ["class", "py-1"],
-        ["id", "poligrafId"],
-    ]]);
-    pfoDiv.appendChild(divPfo);            
-    const addBtnPfo = constructHtmlElement(["a", [
-        ["class", "btn btn-outline-info hidden-print"],
-        ["type", "button"], 
-        ["id", "addBtnPfo"]
-    ], 'Добавить тестирование']);
-    pfoDiv.appendChild(addBtnPfo)
-    document.getElementById("profileContentId").innerHTML = pfoDiv.outerHTML;
-    
-    const labelNames = [
-        ['ID', 'Тематика', 'Результат', 'Полиграфолог', 'Дата проверки']
-    ];
-    getProfileItem("pfo", candId, labelNames, ['poligrafId']);
-    //прослушиваем событие на кнопке 'Добавить запрос'
-    const addBtnListener = document.getElementById("addBtnPfo")
-    addBtnListener.addEventListener('click', function (event){
-        const formPoligrafId = constructForm(formPoligraf);
-        document.getElementById("formPoligrafId").innerHTML = formPoligrafId.outerHTML;
-    });
-    //прослушиваем событие на кнопке  Принять
-    const submitdBtnListener = document.getElementById("formPoligrafId")
-    submitdBtnListener.addEventListener('submit', function (event){
-        updateData("poligrafFormId", "update/poligraf", candId)
-    });
+    let resps = await response.json();
+    for (let i = 0; i < resps.length; i++) {
+        const divTable = constrHorizTable(labelNames, resps[i]);
+        const divId = document.getElementById('poligrafId');
+        divId.innerHTML = divTable.outerHTML;
+    };
 };
 
 //open investigation page
-function openInvestigation(candId){
-    const profileHead = constructHtmlElement(["h5", "Служебные расследования"]);
-    document.getElementById('appHeaders').innerHTML = profileHead.outerHTML;
-    const investigationDiv = constructHtmlElement(["div", [
-        ["class", "py-2"],
-        ["id", "formInvestigationId"],
-    ]]);
-    const divInvestigation = constructHtmlElement(["div", [
-        ["class", "py-1"],
-        ["id", "investigationId"],
-    ]]);
-    investigationDiv.appendChild(divInvestigation); 
-    const addBtnInvs = constructHtmlElement(["a", [
-        ["class", "btn btn-outline-info hidden-print"],
-        ["type", "button"],
-        ["id", "addBtnInvs"]
-    ], 'Добавить расследование']);
-    investigationDiv.appendChild(addBtnInvs)
-    document.getElementById("profileContentId").innerHTML = investigationDiv.outerHTML;
-    const labelNames = [
-        ['ID', 'Тематика', 'Информация', 'Дата проверки']
-    ];
-    getProfileItem("investigation", candId, labelNames, ['investigationId']);
-    //прослушиваем событие на кнопке 'Добавить запрос'
-    const addBtnListener = document.getElementById("addBtnInvs")
-    addBtnListener.addEventListener('click', function (event){
-        const formInvestigationId = constructForm(formInvestigation);
-        document.getElementById("formInvestigationId").innerHTML = formInvestigationId.outerHTML;
+async function openInvestigation(candId) {
+    let response = await fetch(`/poligraf/${candId}`)
+    const investigationDiv = document.getElementById("investigationTabId");
+    //
+    const divinvestigation = document.createElement("div");
+    divinvestigation.setAttribute("id", "investigationId");
+    investigationDiv.appendChild(divinvestigation);
+    //
+    const addBtnReg = document.createElement("a");
+    addBtnReg.setAttribute("class", "btn btn-outline-info hidden-print");
+    addBtnReg.setAttribute("type", "button");
+    addBtnReg.setAttribute("id", "addBtnReg");
+    addBtnReg.innerHTML = 'Открыть согласование';
+    investigationDiv.appendChild(addBtnReg)
+    const labelNames = ['ID', 'Тематика', 'Информация', 'Дата проверки'];
+    //прослушиваем событие на кнопке 'Открыть согласование'
+    const addBtnListener = document.getElementById("addBtnReg")
+    addBtnListener.addEventListener('click', function addReg (event){
+        document.getElementById("investigationTabId").innerHTML = forminvestigation;
+        this.removeEventListener('click', addReg(event));
     });
     //прослушиваем событие на кнопке  Принять
-    const submitdBtnListener = document.getElementById("formInvestigationId")
-    submitdBtnListener.addEventListener('submit', function (event){
-        updateData("investigationFormId", "update/investigation", candId)
+    const submitdBtnListener = document.forms["investigationFormId"];
+    submitdBtnListener.addEventListener('submit', function formInvestigation(event){
+        updateData("investigationFormId", "registr", candId, openInvestigation)
+        this.removeEventListener('click', formInvestigation(event));
     });
+    let resps = await response.json();
+    for (let i = 0; i < resps.length; i++) {
+        const divTable = constrHorizTable(labelNames, resps[i]);
+        const divId = document.getElementById('investigationId');
+        divId.innerHTML = divTable.outerHTML;
+    };
 };
 
 //открываем страницу для просмотра/добавления запросов
-function openInquiry(candId){
-    const profileHead = constructHtmlElement(["h5", "Запросы по сотруднику"]);
-    document.getElementById('appHeaders').innerHTML = profileHead.outerHTML;
-    const inquiriesDiv = constructHtmlElement(["div", [
-        ["class", "py-2"],
-        ["id", "formInquiriesId"],
-    ]]);
-    const divInquiries = constructHtmlElement(["div", [
-        ["class", "py-1"],
-        ["id", "inquiriesId"],
-    ]]);
-    inquiriesDiv.appendChild(divInquiries);
-    //создаем кнопку добавления запроса
-    const addBtnInquiry = constructHtmlElement(["buton", [
-        ["class", "btn btn-outline-primary hidden-print"],
-        ["type", "button"], 
-        ["id", "addBtnInquiry"]
-    ], 'Добавить запрос']);
-    inquiriesDiv.appendChild(addBtnInquiry);
-    document.getElementById("profileContentId").innerHTML = inquiriesDiv.outerHTML;
-    //выгружаем информацию по прошлым запросам на страницу
-    const labelNames = [
-        ['ID', 'Информация', 'Иннициатор', 'Источник', 'Дата запроса']
-    ];
-    getProfileItem("inquiry", candId, labelNames, ['inquiriesId']);
-    //прослушиваем событие на кнопке 'Добавить запрос'
-    const addBtnListener = document.getElementById("addBtnInquiry")
-    addBtnListener.addEventListener('click', function (event){
-        const inquiryFormId = constructForm(formInquiry);
-        document.getElementById("formInquiriesId").innerHTML = inquiryFormId.outerHTML;
+async function openInquiry(candId) {
+    let response = await fetch(`/poligraf/${candId}`)
+    const inquiryDiv = document.getElementById("inquiryTabId");
+    //
+    const divinquiry = document.createElement("div");
+    divinquiry.setAttribute("id", "inquiryId");
+    inquiryDiv.appendChild(divinquiry);
+    //
+    const addBtnReg = document.createElement("a");
+    addBtnReg.setAttribute("class", "btn btn-outline-info hidden-print");
+    addBtnReg.setAttribute("type", "button");
+    addBtnReg.setAttribute("id", "addBtnReg");
+    addBtnReg.innerHTML = 'Открыть согласование';
+    inquiryDiv.appendChild(addBtnReg)
+    const labelNames = ['ID', 'Информация', 'Иннициатор', 'Источник', 'Дата запроса'];
+    //прослушиваем событие на кнопке 'Открыть согласование'
+    const addBtnListener = document.getElementById("addBtnReg")
+    addBtnListener.addEventListener('click', function addReg (event){
+        document.getElementById("inquiryTabId").innerHTML = forminquiry;
+        this.removeEventListener('click', addReg(event));
     });
-    //прослушиваем событие на кнопке Принять
-    const submitdBtnListener = document.getElementById("formInquiriesId")
-    submitdBtnListener.addEventListener('submit', function (event){
-        updateData("inquiryFormId", "update/inquiry", candId)
+    //прослушиваем событие на кнопке  Принять
+    const submitdBtnListener = document.forms["inquiryFormId"];
+    submitdBtnListener.addEventListener('submit', function formInquiry(event){
+        updateData("inquiryFormId", "registr", candId, openInquiry)
+        this.removeEventListener('click', formInquiry(event));
     });
-};
-
-//отправка GET запросов в БД для получения данных и передача их в конструктор таблиц
-function getProfileItem(flag, candId, labelNames, profileDivs){
-    fetch(`/profile/${flag}/${candId}`)
-    .then(response => response.json())
-    .then(data => {
-        let resps
-        if (flag == 'anketa'){
-            resps = data;
-        } else {
-            resps = [data];
-        }
-        for (let i = 0; i < resps.length; i++) {
-            const divTable = constrHorizTable(labelNames[i], resps[i]);
-            const divId = document.getElementById(profileDivs[i]);
-            divId.innerHTML = divTable.outerHTML;
-        };
-    });
+    let resps = await response.json();
+    for (let i = 0; i < resps.length; i++) {
+        const divTable = constrHorizTable(labelNames, resps[i]);
+        const divId = document.getElementById('inquiryId');
+        divId.innerHTML = divTable.outerHTML;
+    };
 };
 
 //create table with candidate profile
 function constrHorizTable(names, response) {
     if (response.length) {
         let division = document.createElement("div");
+        //
         for (let j = 0; j < response.length; j++) {
             let div = document.createElement("div");
             let tbl = document.createElement("table");
             tbl.setAttribute("class", "table");
             let tblBody = document.createElement("tbody")
+            //
             for (let i = 0; i < names.length; i++) {
-                let cell1 = constructHtmlElement(["td", [
-                    ["width", "25%"]], names[i]]);
+                let cell1 = document.createElement("td");
+                cell1.setAttribute("width", "25%");
+                cell1.innerHTML = names[i];
                 let cell2 = document.createElement("td");
-                cell2.innerHTML = Object.values(response[j])[i];
+                //конвертация даты в локальный формат
+                if (Object.keys(response[j])[i] == 'deadline' || Object.keys(response[j])[i] == 'birthday') {
+                    let date = new Date(Date.parse(Object.values(response[j])[i]));
+                    cell2.innerHTML =  date.toLocaleDateString('ru-RU')
+                } else {
+                cell2.innerHTML = Object.values(response[j])[i]
+                };
                 let row = document.createElement("tr");
                 row.appendChild(cell1)
                 row.appendChild(cell2)
@@ -836,91 +621,77 @@ function constrHorizTable(names, response) {
 }
 
 //отправка POST запросов в БД с данными из форм
-function updateData(formId, url, candId){
+async function updateData(formId, url, candId, rest, action=null){
     const form = document.getElementById(formId)
     const formData = new FormData(form);
-    fetch(`/${url}/${candId}`, {
-        method: "post",
+    let response = await fetch (`/${url}/${candId}`, {
+        method: rest,
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        let resp = data;
-        let divAlert = constructHtmlElement(["div", [
-            ["class", "alert alert-primary"], 
-            ["role", "alert"]
-        ], resp['message']]);
-        document.getElementById('appMessages').innerHTML = divAlert.outerHTML;
-        openProfile(candId)
+    let resp = await response.json();
+    appMain.createMessage("alert alert-primary", resp['message']);
+    if (action != null) action(candId)
+};
+
+//открываем страницу стат информации
+async function createInfo(){
+    //были элементы созданы ранее или нет
+    if (!document.getElementById("infoFormId")) {
+        appMain.createDivId(["divCandTable", "divPfoTable", "divForm"], 'appContent');
+        document.getElementById("divForm").innerHTML = formInfo;
+    }
+    const form = document.forms["infoFormId"];
+    const formData = new FormData(form);
+    const response = await fetch('/info', {
+        method: "post",
+        body: formData
+    });
+    let resps = await response.json();
+    appMain.createHeader(resps['title']);
+    document.getElementById('appMessage').innerHTML = '';
+    //присоединяем стат таблицы и форму к элементам приложения по ID
+    const divCandTable = document.getElementById("divCandTable");
+    divCandTable.innerHTML = createStatData(resps["candidates"], "Статистика по кандидатам").outerHTML;
+    const divPfoTable = document.getElementById("divPfoTable");
+    divPfoTable.innerHTML = createStatData(resps["poligraf"], "Статистика по ПФО").outerHTML;
+    //прослушиваем событие на кнопке Принять
+    form.addEventListener('submit', function submitData (event){
+        createInfo();
+        this.removeEventListener('submit', submitData)
     });
 };
 
-//открываем страницу статинформации
-function createInfo(){
-    fetch("/info")
-    .then(response => response.json())
-    .then(data => {
-    let resps = data;
-    document.getElementById('appMessages').innerHTML = "";
-    const resumeHead = document.createElement('h5');
-    resumeHead.innerHTML = resps['title'];
-    document.getElementById('appHeaders').innerHTML = resumeHead.outerHTML;
-    const divTable = document.createElement("div");
-    const table = constructHtmlElement(["table", [
-        ["class", "table table-hover table-responsive align-middle py-1"],
-        ["id", "divTable"]
-    ]]);
-    divTable.appendChild(table);
+//создаем таблицу со статданными
+function createStatData (stats, caption){
+    const table = document.createElement("table");
+    table.setAttribute("class", "table table-hover table-responsive align-middle");
+    table.createCaption();
+    table.innerHTML = caption;
     const thead = document.createElement('thead');
     table.appendChild(thead);
     const tbody = document.createElement('tbody');
     table.appendChild(tbody);
-    let tr = document.createElement('tr');
-    let tableHeader = ["Решение", "Количество"];
-    for (let i = 0; i < tableHeader.length; i++) {
-        let th = constructHtmlElement(['th', tableHeader[i]]);
+    const tr = document.createElement('tr');
+    for (let headline of ["Решение", "Количество"]) {
+        let th = document.createElement('th');
+        th.innerHTML = headline;
         tr.appendChild(th);
         thead.appendChild(tr);
     };
-    for (let resp of resps["candidates"]) {
+    for (let stat of stats) {
         let tr = document.createElement('tr');
         tr.setAttribute("height", "50px");
-        for (let val of Object.entries(resp)) {
+        for (let val of Object.entries(stat)) {
             let td = document.createElement('td');
+            td.setAttribute("width", "50%")
             td.innerHTML = val[0]
             tr.appendChild(td);
             let td1 = document.createElement('td');
+            td.setAttribute("width", "50%")
             td1.innerHTML = val[1]
             tr.appendChild(td1);
         }
         tbody.appendChild(tr);
     };
-    document.getElementById('appContent').innerHTML = divTable.outerHTML;
-    const statForm = constructHtmlElement(["form", [
-        ["id", "statForm"]
-    ]]);
-    table.appendChild(statForm);
-    });
-};
-
-//получем статинформацию по запросу
-function takeStatinfo(){
-    const form = document.getElementById("formId")
-    const formData = new FormData(form);
-    fetch(`/${url}/${candId}`, {
-        method: "post",
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        let resps = data;
-        document.getElementById('appMessages').innerHTML = "";
-        const resumeHead = document.createElement('h5');
-        resumeHead.innerHTML = "Создать анкету";
-        document.getElementById('appHeaders').innerHTML = resumeHead.outerHTML;
-        const divResume = constructHtmlElement(["div", [
-            ["class", "py-1"]
-        ]]);
-        document.getElementById('appContent').innerHTML = divResume.outerHTML;
-    });
+    return table
 };
