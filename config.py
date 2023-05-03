@@ -20,18 +20,6 @@ class ProductionConfig(Config):
     WTF_CSRF_ENABLED = False
     DESCRIPTION = 'Web-Personal DB API'
     CONTACT = {'email': 'wsemenenko@gmail.com'}
-    LICENSE = [
-        {
-            'name': 'MIT',
-            'url': 'https://opensource.org/licenses/MIT'
-        }
-    ]
-    SERVERS = [
-        {
-            'name': 'Production Server',
-            'url': 'http://api.example.com'
-        },
-    ]
 
 
 class DevelopmentConfig(Config):
@@ -46,13 +34,3 @@ class DevelopmentConfig(Config):
     WTF_CSRF_ENABLED = False
     DESCRIPTION = 'Web-Personal DB API Dev'
     CONTACT = {'email': 'wsemenenko@gmail.com'}
-    LICENSE = {
-        'name': 'MIT',
-        'url': 'https://opensource.org/licenses/MIT'
-    }
-    SERVERS = [
-        {
-            'name': 'Development Server',
-            'url': 'http://localhost:5000'
-        }
-    ]

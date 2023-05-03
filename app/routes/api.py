@@ -3,14 +3,25 @@ import shutil
 
 import requests
 
+from apiflask import HTTPBasicAuth
 from ..routes import bp
 from ..extensions.extension import BASE_PATH, URL_CHECK, resume_data
-from ..models.model import db, Candidate, Check, CheckSchema, DeserialResume, \
+from ..models.model import db, User, Candidate, Check, CheckSchema, DeserialResume, \
     serial_resume, TODAY, Status
+
+auth = HTTPBasicAuth()  # create the auth object
+
+
+@auth.verify_password
+def verify_password(username: str, password: str):
+    if db.session.query(User).filter_by(username=username, password=password).first():
+        return username
+    return None
 
 
 @bp.post('/api/v1/anketa')  # получение анкеты в формате JSON
 @bp.input(DeserialResume)
+@bp.auth_required(auth)
 def anketa(resume):
     resume['resume']["request_id"] = resume['resume'].pop('id')  # удаляем id из анкеты и сохраняем  как request_id
     resume['resume']['status'] = Status.NEWFAG.value
@@ -45,6 +56,7 @@ def anketa(resume):
 
 @bp.post('/api/v1/check')  # получение результата проверки в формате JSON
 @bp.input(CheckSchema)
+@bp.auth_required(auth)
 def checkin(response):
     result = db.session.query(Candidate).filter_by(id=response['id']).first()
     if response['autostatus'] == Status.REPLY.value:
@@ -53,15 +65,15 @@ def checkin(response):
         path = os.path.join(BASE_PATH, result.fullname[0], f"{str(result.id)}-{result.fullname}",
                             TODAY.strftime("%Y-%m-%d"))
         # os.makedirs(path)  #  создаем папку для материалов проверки
-        temp_path = response.pop('path', None)
         try:
-            for file in os.listdir(temp_path):  # переносим файлы в новую папку
+            for file in os.listdir(response['path']):  # переносим файлы в новую папку
                 print(file)
             #     shutil.copyfile(file, path)
         except FileNotFoundError as e:
             response['autostatus'] = f'{e}'
         response["cand_id"] = response.pop('id')  # удаляем id из проверки и заменяем на новый
-        check_dict = response | {"path": path} | {"deadline": TODAY}
+        response["path"] = path  # удаляем path из проверки и заменяем на новый
+        check_dict = response | {"deadline": TODAY}
         db.session.add(Check(**check_dict))  # создаем новую запись
         db.session.commit()
     else:

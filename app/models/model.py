@@ -35,7 +35,6 @@ class User(db.Model, UserMixin):  # модель пользователей си
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     fullname = db.Column(db.String)
-    shortname = db.Column(db.String)
     username = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     role = db.Column(db.String)
@@ -61,16 +60,16 @@ class Candidate(db.Model):  # модель анкетных данных
     deadline = db.Column(db.DateTime)
     recruiter = db.Column(db.String(250))
     request_id = db.Column(db.Integer)
-    documents = db.relationship('Document', backref='candidates', cascade="all, delete-orphan")
-    addresses = db.relationship('Address', backref='candidates', cascade="all, delete-orphan")
-    workplaces = db.relationship('Workplace', backref='candidates', cascade="all, delete-orphan")
-    contacts = db.relationship('Contact', backref='candidates', cascade="all, delete-orphan")
-    relations = db.relationship('RelationShip', backref='candidates', cascade="all, delete-orphan")
-    staffs = db.relationship('Staff', backref='candidates', cascade="all, delete-orphan")
-    checks = db.relationship('Check', backref='candidates', cascade="all, delete-orphan")
-    poligrafs = db.relationship('Poligraf', backref='candidates', cascade="all, delete-orphan")
-    inquiries = db.relationship('Inquiry', backref='candidates', cascade="all, delete-orphan")
-    investigations = db.relationship('Investigation', backref='candidates', cascade="all, delete-orphan")
+    documents = db.relationship('Document', backref='candidates', cascade="all, delete, delete-orphan")
+    addresses = db.relationship('Address', backref='candidates', cascade="all, delete, delete-orphan")
+    workplaces = db.relationship('Workplace', backref='candidates', cascade="all, delete, delete-orphan")
+    contacts = db.relationship('Contact', backref='candidates', cascade="all, delete, delete-orphan")
+    relations = db.relationship('RelationShip', backref='candidates', cascade="all, delete, delete-orphan")
+    staffs = db.relationship('Staff', backref='candidates', cascade="all, delete, delete-orphan")
+    checks = db.relationship('Check', backref='candidates', cascade="all, delete, delete-orphan")
+    poligrafs = db.relationship('Poligraf', backref='candidates', cascade="all, delete, delete-orphan")
+    inquiries = db.relationship('Inquiry', backref='candidates', cascade="all, delete, delete-orphan")
+    investigations = db.relationship('Investigation', backref='candidates', cascade="all, delete, delete-orphan")
 
 
 class Staff(db.Model):  # создаем общий класс должности
@@ -178,7 +177,7 @@ class Check(db.Model):  # модель данных проверки канди�
     deadline = db.Column(db.DateTime)
     officer = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-    registries = db.relationship('Registry', backref='checks', cascade="all, delete-orphan")
+    registries = db.relationship('Registry', backref='checks', cascade="all, delete, delete-orphan")
 
 
 class Registry(db.Model):  # модель данных результаты ПФО
@@ -230,14 +229,6 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     source = db.Column(db.String(250))
     deadline = db.Column(db.Date)
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-
-
-class UserSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = User
-        exclude = ("id", "shortname", "fullname", "role")
-        remember = fields.Boolean()
-        ordered = True
 
 
 class CandidateSchema(ma.SQLAlchemyAutoSchema):
