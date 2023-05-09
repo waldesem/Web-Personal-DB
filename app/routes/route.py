@@ -4,13 +4,14 @@ from datetime import datetime
 
 import requests
 from sqlalchemy import func
+
 from flask import render_template, request
 from flask_login import current_user, login_required
 
 from . import bp
 from ..extensions.extension import ExcelFile, resume_data, BASE_PATH, URL_CHECK
 from ..models.model import Candidate, Staff, Document, Address, Contact, Workplace, RelationShip, \
-    Check, Registry, Poligraf, Investigation, Inquiry, TODAY, db, serial_resume, resume_schema, \
+    Check, Registry, Poligraf, Investigation, Inquiry, TODAY, db, resume_schema, \
     staff_schema, document_schema, address_schema, contact_schema, work_schema, relation_schema, \
     check_schema, poligraf_schema, registry_schema, investigation_schema, inquiry_schema
 from ..forms.form import LoginForm, ResumeForm, StaffForm, DocumentForm, AddressForm, WorkplaceForm, SearchForm, \
@@ -20,11 +21,23 @@ from ..forms.form import LoginForm, ResumeForm, StaffForm, DocumentForm, Address
 
 @bp.errorhandler(404)
 def page_not_found():
+    """
+    Error handler for 404 errors.
+
+    :return: A tuple containing the error message and the HTTP status code 404.
+    """
     return "Страница не найдена", 404
 
 
-@bp.get('/')  # стартовый шаблон
+@bp.get('/')
 def main():
+    """
+    A function that serves the main page of the web application.
+
+    Returns:
+        The HTML page for the index with forms for login, search, file, resume, check, investigation, inquiry, 
+        poligraf, staff, document, address, workplace, relationship, contact, registry, and info.
+    """
     return render_template("index.html", form_login=LoginForm(), form_search=SearchForm(), form_file=FileForm(),
                            form_resume=ResumeForm(), form_check=CheckForm(), form_investigation=InvestigationForm(),
                            form_inquiry=InquiryForm(), form_poligraf=PoligrafForm(), form_staff=StaffForm(),
@@ -33,70 +46,88 @@ def main():
                            form_info=InfoForm())
 
 
-@bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])  # загрузка информации на главную страницу
-@bp.doc(hide=True)
-@login_required
+@bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])  # Flask route decorator
+@bp.doc(hide=True)  # Flask API documentation decorator
+@login_required  # Flask-Login authentication decorator
 def index(flag, page):
-    pagination = 11
-    results = None
-    title = None
-    items = db.session.query(func.count(Candidate.status)).filter_by(status=Status.NEWFAG.value).scalar()
-    if request.method == 'GET':
-        match flag:
-            case 'main':
-                title = "Главная страница"
-                results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
-                                           Candidate.status, Candidate.deadline).order_by(Candidate.id.desc()). \
-                    offset(page * pagination).limit(pagination + 1).all()
-            case 'new':
-                title = "Новые анкеты"
-                results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
-                                           Candidate.status, Candidate.deadline). \
-                    filter(Candidate.status == Status.NEWFAG.value).order_by(Candidate.id.desc()). \
-                    offset(page * pagination).limit(pagination + 1).all()
-            case 'officer':
-                title = "Страница пользователя"
-                results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
-                                           Candidate.status, Candidate.deadline). \
-                    filter(Candidate.status != Status.FINISH.value and Candidate.status != Status.CANCEL.value). \
-                    join(Check, isouter=True).filter_by(officer=current_user.username). \
-                    order_by(Candidate.id.asc()).offset(page * pagination).limit(pagination + 1).all()
-    else:
+    """
+    Renders the index page with a list of candidates based on the selected flag and page number.
+
+    :param flag: A string representing the selected flag ('main', 'new', 'officer', or anything else).
+    :param page: An integer representing the selected page number.
+    :return: A list of candidate data and pagination information wrapped in a dictionary.
+    """
+    pagination = 11  # Number of candidates per page
+    items = db.session.query(func.count(Candidate.status)).filter_by(
+        status=Status.NEWFAG.value).scalar()  # Total number of candidates in the database with status NEWFAG
+
+    if flag == 'main':  # Show all candidates, ordered by ID in descending order
+        title = "Главная страница"
+        query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
+                                 Candidate.status, Candidate.deadline).order_by(Candidate.id.desc()). \
+            paginate(page=page, per_page=pagination, error_out=False)
+    elif flag == 'new':  # Show only candidates with status NEWFAG, ordered by ID in descending order
+        title = "Новые анкеты"
+        query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
+                                 Candidate.status, Candidate.deadline).filter_by(status=Status.NEWFAG.value). \
+            order_by(Candidate.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
+    elif flag == 'officer':  # Show candidates where the current user is the assigned officer, ordered by ID in ascending order
+        title = "Страница пользователя"
+        query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
+                                 Candidate.status, Candidate.deadline).filter(Candidate.status.notin_(
+            [Status.FINISH.value, Status.CANCEL.value])). \
+            join(Check, isouter=True).filter_by(officer=current_user.username).order_by(Candidate.id.asc()). \
+            paginate(page=page, per_page=pagination, error_out=False)
+    else:  # Search for candidates based on submitted form data, ordered by ID in ascending order
         title = "Страница поиска"
-        search_by: dict = request.form.to_dict()
-        results = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
-                                   Candidate.status, Candidate.deadline).filter(
-            Candidate.region.ilike(f'%{search_by["region"]}%' if search_by["region"] != '' else '%'),
-            Candidate.fullname.ilike(f'%{search_by["fullname"]}%' if search_by["fullname"] != '' else '%'),
-            Candidate.birthday.ilike(f'%{search_by["birthday"]}%' if search_by["birthday"] is not None else '%'),
-            Candidate.status.ilike(f'%{search_by["status"]}%' if search_by["status"] != '' else '%')). \
-            order_by(Candidate.id.asc()).offset(page * pagination).limit(pagination + 1).all()
-    count_results = len(results)
-    if count_results <= pagination:
-        datas = resume_schema.dump(results, many=True)
-        pager = 0
-    else:
-        datas = resume_schema.dump(results[:-1], many=True)
-        pager = 1
-    return [datas, {'pager': pager, 'items': items, 'title': title}]
+        query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
+                                 Candidate.status, Candidate.deadline).filter(
+            Candidate.region.ilike('%{}%'.format(request.form.get('region', ''))),
+            Candidate.fullname.ilike('%{}%'.format(request.form.get('fullname', ''))),
+            Candidate.birthday.ilike('%{}%'.format(request.form.get('birthday', ''))),
+            Candidate.status.ilike('%{}%'.format(request.form.get('status', ''))),
+        ).order_by(Candidate.id.asc()).paginate(page=page, per_page=pagination, error_out=False)
+
+    # Serialize candidate data using the ResumeSchema schema
+    datas = resume_schema.dump(query, many=True)
+
+    # Determine if there is a next and/or previous page
+    has_next, has_prev = int(query.has_next), int(query.has_prev)
+
+    # Return serialized candidate data and pagination information wrapped in a dictionary
+    return [datas, {'has_next': has_next, "has_prev": has_prev, 'items': items, 'title': title}]
 
 
 @bp.post('/resume/create')
 @bp.doc(hide=True)
 @login_required
 def post_resume():
+    """
+    Create or update a candidate's resume based on the form data in the request.
+
+    Returns:
+        A dictionary with the candidate's ID and a message indicating if a new record was created or an existing one was updated
+    """
+    # Get the form data as a dictionary
     resume_dict: dict = request.form.to_dict()
-    result = db.session.query(Candidate).filter(Candidate.fullname == resume_dict['fullname'],
-                                                Candidate.birthday == resume_dict['birthday']).first()
+
+    # Query the database for a candidate with the same name and birthday
+    result = db.session.query(Candidate).filter_by(fullname=resume_dict['fullname'],
+                                                   birthday=resume_dict['birthday']).first()
+
+    # Convert the birthday string to a datetime object
     resume_dict['birthday'] = datetime.strptime(resume_dict.pop('birthday'), "%Y-%m-%d")
-    if result:  # проверка существования такой же анкеты, если есть анкета с таким именем, обновляем данные
+
+    if result:
+        # If a candidate with the same name and birthday already exists, update their record
         resume_dict.update({'status': Status.UPDATE.value})
         for k, v in resume_dict.items():
             setattr(result, k, v)
             db.session.commit()
         cand_id = result.id
         message = 'Запись уже существует. Данные обновлены'
-    else:  # если нет таких анкет, добавляем новую запись
+    else:
+        # If no candidate with the same name and birthday exists, create a new record
         resume_dict.update({'status': Status.NEWFAG.value, 'deadline': TODAY})
         value = Candidate(**resume_dict)
         db.session.add(value)
@@ -104,192 +135,356 @@ def post_resume():
         cand_id = value.id
         db.session.commit()
         message = 'Создана новая запись'
+
+    # Return a dictionary with the candidate's ID and a message indicating if a new record was created or an existing
+    # one was updated
     return {'cand_id': cand_id, 'message': message}
 
 
 @bp.get('/profile/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
-def get_profile(cand_id):  # полный профиль кандидата/сотрудника
+def get_profile(cand_id):
+    """
+    Returns the full profile of a candidate/employee based on the candidate ID
+    """
+    # Querying the Candidate table for candidate with the provided ID
     cand = db.session.query(Candidate).filter_by(id=cand_id).all()
+    # Serializing the candidate object(s) to a dictionary
     candidate = resume_schema.dump(cand, many=True)
+
+    # Querying the Document table for all documents belonging to the candidate with the provided ID
     doc = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all()
+    # Serializing the document object(s) to a dictionary
     documents = document_schema.dump(doc, many=True)
+
+    # Querying the Address table for all addresses belonging to the candidate with the provided ID
     addr = db.session.query(Address).filter_by(cand_id=cand_id).order_by(Address.id.asc()).all()
+    # Serializing the address object(s) to a dictionary
     address = address_schema.dump(addr, many=True)
+
+    # Querying the Contact table for all contacts belonging to the candidate with the provided ID
     cont = db.session.query(Contact).filter_by(cand_id=cand_id).order_by(Contact.id.asc()).all()
+    # Serializing the contact object(s) to a dictionary
     contacts = contact_schema.dump(cont, many=True)
+
+    # Querying the Workplace table for all workplaces belonging to the candidate with the provided ID
     work = db.session.query(Workplace).filter_by(cand_id=cand_id).order_by(Workplace.id.asc()).all()
+    # Serializing the workplace object(s) to a dictionary
     workplaces = work_schema.dump(work, many=True)
+
+    # Querying the RelationShip table for all relationships belonging to the candidate with the provided ID
     rel = db.session.query(RelationShip).filter_by(cand_id=cand_id).order_by(RelationShip.id.asc()).all()
+    # Serializing the relationship object(s) to a dictionary
     relations = relation_schema.dump(rel, many=True)
-    staf = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all()
-    staffs = staff_schema.dump(staf, many=True)
-    checkin = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
-    checks = check_schema.dump(checkin, many=True)
-    reg = [db.session.query(Registry).filter(Registry.check_id == i.id).first() for i in checkin]
+
+    # Querying the Staff table for all staff belonging to the candidate with the provided ID
+    staff = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all()
+    # Serializing the staff object(s) to a dictionary
+    staffs = staff_schema.dump(staff, many=True)
+
+    # Querying the Check table for all checks belonging to the candidate with the provided ID
+    check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
+    # Serializing the check object(s) to a dictionary
+    checks = check_schema.dump(check, many=True)
+
+    # Querying the Registry table for all registries belonging to the checks of the candidate with the provided ID
+    reg = [db.session.query(Registry).filter(Registry.check_id == i.id).first() for i in check]
+    # Serializing the registry object(s) to a dictionary
     registries = registry_schema.dump(reg, many=True)
+
+    # Querying the Poligraf table for all poligrafs belonging to the candidate with the provided ID
     pfo = db.session.query(Poligraf).filter_by(cand_id=cand_id).order_by(Poligraf.id.asc()).all()
+    # Serializing the poligraf object(s) to a dictionary
     pfos = poligraf_schema.dump(pfo, many=True)
+
+    # Querying the Investigation table for all investigations belonging to
     inv = db.session.query(Investigation).filter_by(cand_id=cand_id).order_by(Investigation.id.asc()).all()
+    # Serializing the investigation object(s) to a dictionary
     invs = investigation_schema.dump(inv, many=True)
+
+    # Querying the Inquiry table for all inquiries belonging to the candidate with the provided ID
     inq = db.session.query(Inquiry).filter_by(cand_id=cand_id).order_by(Inquiry.id.asc()).all()
+    # Serializing the inquiry object(s) to a dictionary
     inquiries = inquiry_schema.dump(inq, many=True)
+
+    # Return a list of dictionaries containing the candidate's information
     return [[candidate, staffs, documents, address, contacts, workplaces, relations],
             checks, registries, pfos, invs, inquiries, {i.name: i.value for i in Status}]
 
 
-@bp.post('/upload')
+@bp.post('/resume/upload')
 @bp.doc(hide=True)
 @login_required
 def upload_file():
-    file = request.files['file']  # получаем файл
-    excel = ExcelFile(file)  # создаем экземпляр класса ExcelFile для разборки файла,
+    """
+    Uploads a resume file and creates or updates a candidate record in the database
+
+    Returns:
+    A dictionary containing the candidate ID and a message indicating whether a new record was created or an existing
+    record was updated
+    """
+    # Step 1: Retrieve the uploaded file
+    file = request.files['file']
+
+    # Step 2: Parse the Excel file
+    excel = ExcelFile(file)
+
+    # Step 3: Check if a candidate record already exists for the given name and birthday
     result = db.session.query(Candidate).filter(Candidate.fullname.ilike(excel.resume['fullname']),
                                                 Candidate.birthday == (excel.resume['birthday'])).first()
-    if result:  # проверяем, есть анкета с таким именем; если есть, то обновляем основные данные
+
+    if result:  # If a record already exists, update it with the new data
+        # Step 4: Update the candidate's basic information
         resum = excel.resume | {'status': Status.NEWFAG.value, 'deadline': TODAY}
         for k, v in resum.items():
             setattr(result, k, v)
             db.session.commit()
+
+        # Step 5: Add new data to the candidate's record
         resume_data(result.id, excel.passport, excel.addresses, excel.contacts,
-                    excel.workplaces, excel.staff)  # добавляем новые данные в базу данных
-        cand_id = result.id
+                    excel.workplaces, excel.staff)
+
         message = 'Запись уже существует. Данные обновлены'
-    else:  # если нет таких анкет, добавляем новую запись
+    else:  # If no record exists, create a new one
+        # Step 4: Create a new candidate record
         result = Candidate(**excel.resume | {'status': Status.NEWFAG.value, 'deadline': TODAY})
         db.session.add(result)
-        db.session.flush()  # фиксируем id для последующей записи
-        cand_id = result.id
+        db.session.flush()
+
+        # Step 5: Add new data to the candidate's record
         resume_data(result.id, excel.passport, excel.addresses, excel.contacts,
-                    excel.workplaces, excel.staff)  # добавляем новые данные в базу данных
-        db.session.commit()  # окончательно сохраняем в базу данных основные данные
+                    excel.workplaces, excel.staff)
+
+        db.session.commit()
         message = 'Создана новая запись'
-    return {'cand_id': cand_id, 'message': message}
+
+    # Step 6: Return the candidate ID and message
+    return {'cand_id': result.id, 'message': message}
 
 
 @bp.post('/update/<flag>/<cand_id>')
 @bp.doc(hide=True)
 @login_required
 def update_profile(flag, cand_id):
-    match flag:
-        case "staffs":
-            form_staff = request.form.to_dict()
-            db.session.add(Staff(**form_staff | {'cand_id': cand_id}))
-        case "documents":
-            form_document: dict = request.form.to_dict()
-            form_document['issue'] = datetime.strptime(form_document.pop('issue'), "%Y-%m-%d")
-            db.session.add(Document(**form_document | {'cand_id': cand_id}))
-        case "addresses":
-            form_address = request.form.to_dict()
-            db.session.add(Address(**form_address | {'cand_id': cand_id}))
-        case "contacts":
-            form_contact = request.form.to_dict()
-            db.session.add(Contact(**form_contact | {'cand_id': cand_id}))
-        case "workplaces":
-            form_work = request.form.to_dict()
-            db.session.add(Workplace(**form_work | {'cand_id': cand_id}))
-        case "relations":
-            form_relation: dict = request.form.to_dict()
-            form_relation['birthday'] = datetime.strptime(form_relation.pop('birthday'), "%Y-%m-%d")
-            db.session.add(RelationShip(**form_relation | {'cand_id': cand_id}))
-    db.session.commit()
+    """
+    Updates the profile of the candidate with the given ID by adding a new record to the specified table.
+
+    Args:
+        flag: A string indicating the table to update.
+        cand_id: A string representing the ID of the candidate to update.
+
+    Returns:
+        A dictionary containing a success or error message.
+    """
+    model_map = {
+        'staffs': Staff,
+        'documents': Document,
+        'addresses': Address,
+        'contacts': Contact,
+        'workplaces': Workplace,
+        'relations': RelationShip,
+    }
+    model = model_map.get(flag)
+    if not model:
+        return {"message": "Возникла ошибка. Значение {}".format(flag.upper())}
+
+    form_data: dict = request.form.to_dict()
+
+    # If updating documents or relationships, convert the date string to a datetime object
+    if flag == 'documents' or flag == 'relations':
+        form_data['issue' if flag == 'documents' else 'birthday'] = \
+            datetime.strptime(form_data.pop('issue' if flag == 'documents' else 'birthday'), "%Y-%m-%d")
+
+    # Add the new record to the specified table using the SQLAlchemy model
+    db_add_record(model, form_data, cand_id)
+
     return {"message": " Запись {} успешно добавлена".format(flag.upper())}
 
 
-@bp.get('/resume/send/<int:cand_id>')  # отправка анкеты на проверку
+def db_add_record(Model, form_data, cand_id):
+    """
+    Add a new record to the database.
+
+    :param Model: SQLAlchemy model of the table to insert into.
+    :type Model: SQLAlchemy model
+    :param form_data: Data to insert into the new record.
+    :type form_data: dict
+    :param cand_id: ID of the candidate associated with the new record.
+    :type cand_id: int
+    """
+    db.session.add(Model(**form_data | {'cand_id': cand_id}))
+    db.session.commit()
+
+
+@bp.get('/resume/send/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
 def send_resume(cand_id):
-    resume = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if resume.status == Status.NEWFAG.value or resume.status == Status.UPDATE.value:
-        decer = serial_resume.decer_res(cand_id, officer=current_user.username)
-        response = requests.post(url=URL_CHECK, json=decer, timeout=5)
-        response.raise_for_status()
-        if response.status_code == 200:  # проверка статуса отправки
-            resume.status = Status.ROBOT.value  # устанавливаем статус Робот
-            db.session.commit()
-            return {'message': "Анкета успешно отправлена"}
+    """
+    Sends a resume for a candidate with the given ID.
+
+    Args:
+        cand_id: The ID of the candidate to send the resume for.
+
+    Returns:
+        A dictionary containing a message indicating the status of the resume send attempt.
+    """
+    # Get the candidate's resume
+    resume = db.session.query(Candidate).get(cand_id)
+
+    # Check the candidate's resume status to make sure it can be sent
+    if resume.status in [Status.NEWFAG.value, Status.UPDATE.value]:
+        decer = {'cand_id': cand_id, 'officer': current_user.username}
+
+        try:
+            # Send a request to check if the resume can be sent
+            response = requests.post(url=URL_CHECK, json=decer, timeout=5)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            # Handle any exceptions that occur during the request
+            return {'message': f"Отправка не удалась. Попробуйте позднее ({e})"}
         else:
-            return {'message': "Отправка не удалась. Попробуйте позднее"}
+            if response.status_code == 200:
+                # If the resume can be sent, update its status and commit the changes to the database
+                resume.status = Status.ROBOT.value
+                db.session.commit()
+                return {'message': "Анкета успешно отправлена"}
+            else:
+                # If the resume cannot be sent, return an error message
+                return {'message': "Отправка не удалась. Попробуйте позднее"}
     else:
+        # If the resume cannot be sent, return an error message
         return {'message': "Анкета не может быть отправлена. Проверка уже начата"}
 
 
 @bp.get('/resume/status/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
-def patch_status(cand_id):
-    result = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if result.status not in [Status.RESULT.value, Status.POLIGRAF.value]:
+def patch_status(cand_id: int) -> dict:
+    """Updates a Candidate's status to 'UPDATE' and sets the 'deadline' to today's date.
+
+    Args:
+        cand_id (int): The ID of the Candidate to update.
+
+    Returns:
+        dict: A dictionary containing a message indicating whether the update was successful.
+    """
+    # Query the database for the Candidate with the given ID
+    result = db.session.query(Candidate).filter_by(id=cand_id).one_or_none()
+
+    # If the Candidate exists and its status is not a final status (e.g. 'RESULT' or 'POLIGRAF')
+    if result and result.status not in (Status.RESULT.value, Status.POLIGRAF.value):
+        # Update the Candidate's status to 'UPDATE' and set the 'deadline' to today's date
         result.status = Status.UPDATE.value
         result.deadline = TODAY
         db.session.commit()
-        return {"message": "Статус обновлен"}
+        return {"message": "Статус обновлен"}  # Return a success message
     else:
-        return {"message": "Текущий статус обновить нельзя"}
+        return {"message": "Текущий статус обновить нельзя"}  # Return an error message
 
 
 @bp.post('/check/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
 def post_check(cand_id):
-    candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
+    """
+    Perform a post request to check a candidate.
+
+    Args:
+        cand_id (int): The id of the candidate to check.
+
+    Returns:
+        dict: A dictionary containing a message indicating the success of the check.
+
+    """
+    # Get the candidate from the database
+    candidate = db.session.query(Candidate).get(cand_id)
+    # Create a path for the check materials
     path = os.path.join(BASE_PATH, candidate.fullname[0], f"{str(candidate.id)}-{candidate.fullname}",
                         TODAY.strftime("%Y-%m-%d"))
-    # os.makedirs(path)  #  создаем папку для материалов проверки
-    # os.startfile(path)  # открываем папку с проверкой
-    check_form: dict = request.form.to_dict()
-    check_form['deadline'] = datetime.strptime(check_form.pop('deadline'), "%Y-%m-%d")
-    check_form['pfo'] = bool(check_form.pop('pfo'))
+    # Convert the form data to a dictionary and update the path and candidate id
+    check_form = {k: datetime.strptime(v, "%Y-%m-%d") if k == 'deadline' else bool(v) if k == 'pfo' else v
+                  for k, v in request.form.to_dict().items()}
     check_form.update({'path': path, "cand_id": cand_id, 'officer': current_user.username})
+    # Add the check to the database
     db.session.add(Check(**check_form))
     db.session.commit()
-    if check_form['conclusion'] == Status.SAVE.value:
-        candidate.status = Status.SAVE.value  # меняем статус анкеты сохранен
-        db.session.commit()
+    # Determine the conclusion of the check and update the candidate's status
+    conclusion = check_form['conclusion']
+    if conclusion == Status.SAVE.value:
+        candidate.status = Status.SAVE.value
         message = "Проверка успешно сохранена"
-    elif check_form['conclusion'] == Status.CANCEL.value:
+    elif conclusion == Status.CANCEL.value:
         candidate.status = Status.CANCEL.value
-        db.session.commit()
         message = "Проверка отменена"
     else:
-        if check_form['pfo']:  # если поставлена отметка ПФО меняем статус
-            candidate.status = Status.POLIGRAF.value
-            db.session.commit()
-            message = "Проверка завершена. Назначено проведение ПФО"
-        else:
-            candidate.status = Status.RESULT.value
-            db.session.commit()
-            message = "Проверка завершена"
+        candidate.status = Status.POLIGRAF.value if bool(check_form['pfo']) else Status.RESULT.value
+        message = "Проверка завершена. Назначено проведение ПФО" if check_form['pfo'] else "Проверка завершена"
+    db.session.commit()
+    # Return a message indicating the success of the check
     return {'message': message}
 
 
 @bp.get('/check/delete/<int:cand_id>')
-@bp.doc(hide=True)
 @login_required
-def delete_check(cand_id):  # запрашиваем данные проверки
-    candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if candidate.status != Status.FINISH.value:
-        result = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
-        Check.query.filter_by(id=result.id).delete()
+def delete_check(cand_id):
+    """
+    Deletes the latest check for a candidate, given their ID.
+
+    Args:
+        cand_id (int): The ID of the candidate whose check should be deleted.
+
+    Returns:
+        A dictionary with the key 'message' and a message indicating whether the deletion was successful.
+    """
+
+    # Retrieve the candidate and the latest check for this candidate
+    candidate = db.session.query(Candidate).get(cand_id)
+    latest_check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
+
+    # Check if the candidate has a completed status
+    if candidate.status is not None and candidate.status == Status.FINISH.value:
+        # If the candidate has a completed status, return an error message indicating that the check cannot be deleted.
+        return {'message': "Проверка с текущим статусом не может быть удалена"}
+
+    # Delete the latest check for this candidate
+    if latest_check is not None:
+        db.session.delete(latest_check)
         db.session.commit()
+        # If the deletion was successful, return a success message.
         return {'message': "Проверка успешно удалена"}
     else:
-        return {'message': "Проверка с текущим статусом не может быть удалена"}
+        # If the candidate has no checks, return a message indicating this.
+        return {'message': "Кандидат ранее не проверялся"}
 
 
 @bp.get('/check/status/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
 def status_check(cand_id):  # запрашиваем данные проверки
+    """
+    This function retrieves the status of a candidate's application.
+
+    Args:
+        cand_id (int): The ID of the candidate to retrieve the status for.
+
+    Returns:
+        A JSON object containing the status of the candidate's application.
+    """
+    # Retrieve candidate from the database
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if candidate.status == Status.NEWFAG.value or candidate.status == Status.UPDATE.value:
+
+    # Check if the candidate's status is currently being processed
+    if candidate.status != Status.NEWFAG.value and candidate.status != Status.UPDATE.value:
         message = "Анкета взята в работу и еще не закончена"
     else:
+        # If the candidate's status is not being processed, set it to manual and commit changes to the database
         candidate.status = Status.MANUAL.value
         db.session.commit()
         message = "Начата ручная проверка"
+
+    # Return a JSON object containing the message to be displayed to the user
     return {'message': message}
 
 
@@ -297,12 +492,19 @@ def status_check(cand_id):  # запрашиваем данные проверк
 @bp.doc(hide=True)
 @login_required
 def post_registry(cand_id):
-    form_registry = request.form.to_dict()  # загружаем форму согласования
-    result = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
-    reg = form_registry | {'check_id': result.id, 'supervisor': current_user.username, 'deadline': TODAY}
-    db.session.add(Registry(**reg))  # получаем данные из формы и записываем в базу данных
+    """Endpoint for posting a candidate's registry information"""
+    form_registry = request.form.to_dict()  # Load approval form
+    result = db.session.query(Check).filter_by(cand_id=cand_id).order_by(
+        Check.id.desc()).first()  # Get the latest check for the candidate
+    reg = {
+        'check_id': result.id,
+        'supervisor': current_user.username,
+        'deadline': TODAY,
+        **form_registry
+    }
+    db.session.add(Registry(**reg))  # Add registry information to the database
     db.session.commit()
-    candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
+    candidate = db.session.query(Candidate).filter_by(id=cand_id).first()  # Get candidate information
     response = requests.post(url=URL_CHECK, json=json.dumps(
         {
             "id": candidate.request_id,
@@ -313,63 +515,140 @@ def post_registry(cand_id):
         }
     ), timeout=5)
     response.raise_for_status()
-    if response.status_code == 200:  # проверка статуса отправки
-        if reg['decision'] == Status.CANCEL.value:
-            candidate.status = Status.CANCEL.value  # меняем статус в таблице на "Отмена"
-            db.session.commit()
-        else:
-            candidate.status = Status.FINISH.value  # меняем статус в таблице на "Решение "
-            db.session.commit()
-        return {'message': "Решение успешно отправлено"}
+    if response.status_code == 200:  # Check if the response was successfully sent
+        candidate.status = Status.CANCEL.value if reg[
+                                                      'decision'] == Status.CANCEL.value else Status.FINISH.value  # Update candidate status based on decision
+        db.session.commit()
+        return {'message': "Решение успешно отправлено"}  # Return success message
     else:
-        return {'message': 'Отправка не удалась попробуйте еще раз позднее'}
+        return {'message': 'Отправка не удалась попробуйте еще раз позднее'}  # Return failure message
 
 
 @bp.post('/poligraf/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
 def post_poligraf(cand_id):
+    """
+    View function that handles the Poligraf POST request for a candidate.
+
+    Args:
+        cand_id (int): The candidate ID.
+
+    Returns:
+        dict: A dictionary containing the message "Запись успешно добавлена".
+    """
+    # Retrieve the form data and convert the deadline string to a datetime object.
     form_poligraf: dict = request.form.to_dict()
     form_poligraf['deadline'] = datetime.strptime(form_poligraf.pop('deadline'), "%Y-%m-%d")
-    db.session.add(Poligraf(**form_poligraf | {'cand_id': cand_id} | {'officer': current_user.username}))
+
+    # Create a new Poligraf object and add it to the database.
+    poligraf = Poligraf(**form_poligraf, cand_id=cand_id, officer=current_user.username)
+    db.session.add(poligraf)
     db.session.commit()
-    candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if candidate.status == Status.POLIGRAF.value:  # проверяем статус, если указано ПФО, завершаем
+
+    # Update the status of the candidate if necessary.
+    candidate = Candidate.query.get(cand_id)
+    if candidate.status == Status.POLIGRAF.value:
         candidate.status = Status.RESULT.value
         db.session.commit()
-    return {"message": " Запись успешно добавлена"}
+
+    # Return a success message.
+    return {"message": "Запись успешно добавлена"}
 
 
 @bp.post('/investigation/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
 def post_investigation(cand_id):
-    form_investigation: dict = request.form.to_dict()  # получаем данные из формы
+    """
+    Adds a new investigation to the database for a given candidate.
+
+    Args:
+        cand_id (int): The ID of the candidate to add the investigation for.
+
+    Returns:
+        dict: A dictionary containing a success message.
+    """
+    # Get data from the form
+    form_investigation: dict = request.form.to_dict()
+
+    # Convert the deadline string to a datetime object
     form_investigation['deadline'] = datetime.strptime(form_investigation.pop('deadline'), "%Y-%m-%d")
+
+    # Add the investigation to the database
     db.session.add(Investigation(**form_investigation | {'cand_id': cand_id}))
-    db.session.commit()  # передаем в БД
-    return {"message": " Запись успешно добавлена"}
+    db.session.commit()
+
+    # Return a success message
+    return {"message": "Запись успешно добавлена"}
 
 
 @bp.post('/inquiry/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
 def post_inquiry(cand_id):
+    """
+    This function handles a POST request to add an inquiry for a candidate.
+
+    Args:
+        cand_id (int): The ID of the candidate to add the inquiry for.
+
+    Returns:
+        dict: A dictionary containing a success message.
+    """
+
+    # Get the form data as a dictionary
     form_inquiry: dict = request.form.to_dict()
+
+    # Convert the 'deadline' string to a datetime object and update the form data
     form_inquiry['deadline'] = datetime.strptime(form_inquiry.pop('deadline'), "%Y-%m-%d")
+
+    # Create a new Inquiry object with the form data and candidate ID, and add it to the database session
     db.session.add(Inquiry(**form_inquiry | {'cand_id': cand_id}))
+
+    # Commit the changes to the database
     db.session.commit()
-    return {"message": " Запись успешно добавлена"}
+
+    # Return a success message
+    return {"message": "Запись успешно добавлена"}
 
 
 @bp.post('/information')
 @bp.doc(hide=True)
 @login_required
 def post_information():
+    """
+    Retrieve statistics for a given period of time.
+
+    Returns:
+        A dictionary containing candidate and poligraf statistics, as well as a title for the statistics.
+    """
+    # Retrieve data from the form submission
     statistic = request.form.to_dict()
-    candidates = db.session.query(Registry.decision, func.count(Registry.id)). \
-        group_by(Registry.decision).filter(Registry.deadline.between(statistic['start'], statistic['end'])).all()
-    pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
-        group_by(Poligraf.theme).filter(Poligraf.deadline.between(statistic['start'], statistic['end'])).all()
-    return {"candidates": [dict([cand]) for cand in candidates], "poligraf": [dict([test]) for test in pfo],
-            "title": f'Cтатистика за период c {statistic["start"]} по {statistic["end"]}'}
+
+    # Retrieve candidate statistics from the database
+    candidates = db.session.query(
+        Registry.decision,
+        func.count(Registry.id)
+    ).group_by(
+        Registry.decision
+    ).filter(
+        Registry.deadline.between(statistic['start'], statistic['end'])
+    ).all()
+
+    # Retrieve poligraf statistics from the database
+    pfo = db.session.query(
+        Poligraf.theme,
+        func.count(Poligraf.id)
+    ).group_by(
+        Poligraf.theme
+    ).filter(
+        Poligraf.deadline.between(statistic['start'], statistic['end'])
+    ).all()
+
+    # Return a dictionary containing the candidate and poligraf statistics as well as a title for the statistics
+    return {
+        "candidates": [dict([cand]) for cand in candidates],
+        "poligraf": [dict([test]) for test in pfo],
+        "title": f'Cтатистика за период c {statistic["start"]} по {statistic["end"]}'
+    }

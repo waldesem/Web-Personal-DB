@@ -321,19 +321,47 @@ class DeserialResume(ma.SQLAlchemyAutoSchema):
 
 
 class SerialResume:
-    """Класс для сериализации анкеты для отправки на проверку"""
+    """
+    A class representing a candidate.
+    """
 
     def __init__(self) -> None:
+        """
+        Initializes a new instance of the class.
+        """
+        # Set send_resume to None initially.
         self.send_resume = None
+
+        # Initialize a new instance of the CandidateSchema class, including only certain fields.
         self.resume = CandidateSchema(only=('id', 'fullname', 'birthday', 'birthplace', 'snils', 'inn',))
+
+        # Initialize a new instance of the DocumentSchema class.
         self.document = DocumentSchema()
+
+        # Initialize a new instance of the AddressSchema class, including only the address field.
         self.address = AddressSchema(only=('address',))
 
     def decer_res(self, new_id, **kwargs):
-        resum = db.session.query(Candidate).filter_by(id=new_id).first()
+        """
+        This function retrieves a candidate's information from the database and returns it as a dictionary.
+
+        Args:
+            new_id (int): The ID of the candidate whose information is being retrieved.
+            **kwargs (dict): Any additional information to be included in the final dictionary.
+
+        Returns:
+            dict: A dictionary containing the candidate's information and any additional information provided.
+        """
+        # Retrieve the Candidate object with the given ID.
+        resum = db.session.query(Candidate).get(new_id)
+        # Retrieve the most recent Document object associated with the candidate.
         docum = db.session.query(Document).filter_by(cand_id=new_id).order_by(Document.id.desc()).first()
+        # Retrieve the most recent Address object associated with the candidate that contains the word "регистрац" (
+        # registration).
         addr = db.session.query(Address).filter_by(cand_id=new_id).filter(Address.view.ilike("%регистрац%")). \
             order_by(Address.id.desc()).first()
+        # Combine the candidate's information, document information, address information, and any additional
+        # information into a dictionary.
         self.send_resume = self.resume.dump(resum) | self.document.dump(docum) | self.address.dump(addr) | dict(kwargs)
         return self.send_resume
 

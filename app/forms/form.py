@@ -31,10 +31,10 @@ class LoginForm(FlaskForm):  # форма для входа в систему
     """ Create form for login page"""
 
     username = StringField(u"Логин: ", validators=[InputRequired(), Length(max=25)],
-                           render_kw={"placeholder": "Имя пользователя"})
+                           render_kw={"placeholder": "Имя пользователя", "autocomplete": "username"})
     password = PasswordField(u"Пароль: ", validators=[InputRequired(), Length(max=25)],
-                             render_kw={"placeholder": "Пароль"})
-    remember = BooleanField("Запомнить ", default=False, validators=[], false_values=(False, 'false'))
+                             render_kw={"placeholder": "Пароль", "autocomplete": "current-password"})
+    remember = BooleanField("Запомнить ", default=False, validators=[], false_values=(False, 'false', ''))
     submit = SubmitField("Войти")
 
 
@@ -74,7 +74,7 @@ class DocumentForm(FlaskForm):  # создаем общий класс пасп�
     series = StringField(u"Серия документа", validators=[Optional(), Length(max=25)])
     number = StringField(u"Номер документа", validators=[InputRequired(), Length(max=25)])
     agency = StringField(u"Орган выдавший", validators=[Optional(), Length(max=250)])
-    issue = DateField(u"Дата выдачи", format='%Y-%m-%d', validators=[Optional()])
+    issue = DateField(u"Дата выдачи", format='%Y-%m-%d', validators=[InputRequired()])
     submit = SubmitField("Принять")
 
 
@@ -152,7 +152,7 @@ class CheckForm(FlaskForm):  # форма для проверки
     cronos = TextAreaField(u"Проверка Кронос", validators=[Optional()])
     cros = TextAreaField(u"Проверка Крос", validators=[Optional()])
     addition = TextAreaField(u"Дополнительная информация", validators=[Optional()])
-    pfo = BooleanField(u"Полиграф", default=False, validators=[])
+    pfo = BooleanField(u"Полиграф", default=False, validators=[], false_values=(False, 'false', ''))
     conclusion = SelectField(u'Результат', choices=['Без замечаний', 'С комментарием', 'Негатив',
                                                     Status.CANCEL.value, Status.SAVE.value])
     comments = StringField(u"Комментарий", validators=[Optional(), Length(max=250)])
