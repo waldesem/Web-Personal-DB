@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -9,23 +8,6 @@ from marshmallow import fields
 db = SQLAlchemy()
 ma = Marshmallow()
 TODAY = datetime.now()
-
-
-class Status(Enum):
-    """Класс статусов"""
-
-    NEWFAG = 'Новый'
-    UPDATE = 'Обновлен'
-    MANUAL = 'Проверка'
-    SAVE = "Сохранено"
-    AUTO = 'Автомат'
-    ROBOT = 'Робот'
-    REPLY = 'Обработано'
-    POLIGRAF = 'ПФО'
-    RESULT = 'Результат'
-    FINISH = 'Окончено'
-    CANCEL = 'Отмена'
-    ERROR = 'Ошибка'
 
 
 class User(db.Model, UserMixin):  # модель пользователей системы

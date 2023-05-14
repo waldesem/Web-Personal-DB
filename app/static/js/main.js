@@ -5,23 +5,20 @@ class Application {
     Устанавливаемые атрибуты включают класс и идентификатор. */
     constructor() {
         this.appContainer = document.getElementById('App');
-        this.appMessage = document.createElement("div");
-        this.appHeader = document.createElement("div");
-        this.appContent = document.createElement("div");
-        for (let elem of [this.appMessage, this.appHeader, this.appContent]) {
-            this.appContainer.appendChild(elem);
-        }
-        ;
-        this.appMessage.setAttribute("class", "container py-3");
-        this.appMessage.setAttribute("id", "appMessage");
-        this.appHeader.setAttribute("class", "container py-3");
-        this.appHeader.setAttribute("id", "appHeader");
-        this.appContent.setAttribute("class", "container py-3");
-        this.appContent.setAttribute("id", "appContent");
+        this.appContainer.innerHTML = `
+      <div class="container py-3" id="appMessage"></div>
+      <div class="container py-3" id="appHeader"></div>
+      <div class="container py-3" id="appContent"></div>
+    `;
         this.auth();
     }
     ;
-    //проверка авторизации
+    /**
+   * Asynchronously authenticates the user by making a request to the login endpoint and redirects to the main page
+   * if a user is logged in, otherwise displays the login page.
+   *
+   * @return {void}
+   */
     async auth() {
         let response = await fetch('/login');
         let { user } = await response.json();
@@ -41,11 +38,8 @@ class Application {
      */
     createMessage(info, text) {
         // Set the inner HTML of the appMessage element to a message div with the provided info and text.
-        this.appMessage.innerHTML = `
-      <div class="${info}" role="alert">
-      ${text}
-      </div>
-    `;
+        const appMessage = document.getElementById("appMessage");
+        appMessage.innerHTML = `<div class="${info}" role="alert">${text}</div>`;
     }
     ;
     /**
@@ -53,40 +47,53 @@ class Application {
      * @param text - The text to be displayed in the header element.
      */
     createHeader(text) {
-        // Create a new h5 element
-        const head = document.createElement("h5");
-        // Set the innerHTML of the h5 element to the given text
-        head.innerHTML = text;
         // Set the innerHTML of appHeader to the outerHTML of the h5 element
-        this.appHeader.innerHTML = head.outerHTML;
+        const appHeader = document.getElementById("appHeader");
+        appHeader.innerHTML = `<h5>${text}</h5>`;
     }
     ;
 }
 ;
+/**
+ * Logs in the user and displays a login form for them to enter their credentials
+ */
 function userLogin() {
+    // Display an info message to prompt the user to login
     main.createMessage("alert alert-info", "Авторизуйтесь чтобы продолжить работу");
+    // Create a header for the login form
     main.createHeader("Вход в систему");
-    const appContent = document.querySelector('#appContent');
-    appContent.innerHTML = formLogin;
-    const loginForm = document.forms.namedItem("loginFormId");
-    loginForm.addEventListener('submit', async function submitData(event) {
+    // Create the login form and add it to the DOM
+    const container = document.createElement('div');
+    container.innerHTML = formLogin;
+    const fragmentContent = document.createDocumentFragment();
+    fragmentContent.appendChild(container);
+    const appContent = document.getElementById('appContent');
+    appContent.replaceChildren(fragmentContent);
+    // Add an event listener to the form for when it is submitted
+    appContent.addEventListener('submit', async function submitData(event) {
         event.preventDefault();
-        const formData = new FormData(loginForm);
-        let response = await fetch('/login', {
-            method: 'POST',
-            body: formData
-        });
-        let { user } = await response.json();
+        const formData = new FormData(appContent.children[0].children[0]);
+        const response = await fetch('/login', { method: 'POST', body: formData });
+        const { user } = await response.json();
+        // If the login was unsuccessful, display a warning message
         if (user == "None") {
             main.createMessage("alert alert-warning", "Неверный логин или пароль");
         }
         else {
+            // Otherwise, redirect the user to the main page
             mainPage('/index/main/');
-            loginForm.removeEventListener('submit', submitData);
+            appContent.removeEventListener('submit', submitData);
         }
     });
 }
 ;
+/**
+ * Performs a user logout by sending a fetch request to the 'logout' endpoint
+ * and calling the userLogin function. Returns a Promise that resolves when both
+ * operations complete successfully.
+ *
+ * @return {Promise} A Promise that resolves when the user is successfully logged out.
+ */
 function userLogout() {
     Promise.all([
         fetch('logout'),
@@ -94,135 +101,150 @@ function userLogout() {
     ]);
 }
 ;
+/**
+ * Fetches data for the main page and renders it.
+ *
+ * @param path - The URL path to fetch data from.
+ * @param currentPage - The current page of data to fetch. Defaults to 1.
+ */
 async function mainPage(path, currentPage = 1) {
-    let divSearch = document.getElementById("searchExtFormId");
-    if (!divSearch) {
-        let temp = document.createElement("div");
-        divSearch = document.createElement("div");
-        divSearch.setAttribute("class", "py-2");
-        divSearch.innerHTML = formSearch;
-        const divTable = document.createElement("div");
-        divTable.setAttribute("class", "py-2");
-        divTable.setAttribute("id", "divTable");
-        const divPager = document.createElement("div");
-        divPager.setAttribute("class", "py-2");
-        divPager.setAttribute("id", "divPager");
-        [divSearch, divTable, divPager].forEach(function (item) {
-            temp.appendChild(item);
-        });
-        const appContent = document.getElementById("appContent");
-        appContent.innerHTML = temp.outerHTML;
-        const form = document.forms.namedItem("searchExtFormId");
-        form.addEventListener("submit", () => {
-            mainPage("/index/search/");
-        });
-    }
-    ;
-    let response;
-    if (path == '/index/search/') {
-        const searchExtFormId = document.forms.namedItem("searchExtFormId");
-        const form = new FormData(searchExtFormId);
-        response = await fetch(`/index/search/${currentPage}`, {
-            method: "post",
-            body: form
-        });
-    }
-    else {
-        try {
+    try {
+        let response;
+        const searchFormId = document.forms.namedItem("searchFormId");
+        // If the path is for searching, fetch the data using a POST request with the search form data.
+        if (path == '/index/search/') {
+            const form = new FormData(searchFormId);
+            response = await fetch(`/index/search/${currentPage}`, { method: "post", body: form });
+        }
+        else {
+            // Otherwise, fetch the data using a GET request.
             response = await fetch(`${path}${currentPage}`);
-            const [data, metadata] = await response.json();
-            const { items, title, has_next, has_prev } = metadata;
-            main.createMessage("alert alert-info", `<a href="#" onclick="mainPage('/index/new/'); return false;">Новых анкет: ${items}</a>`);
-            main.createHeader(title);
-            createCandidateTable(data);
-            switchPage(has_next, has_prev, currentPage, path);
         }
-        catch (error) {
-            userLogin();
+        ;
+        const [data, metadata] = await response.json();
+        const { items, title, has_next, has_prev } = metadata;
+        // Create a message to display the number of new items.
+        main.createMessage("alert alert-info", 
+        // Link to fetch new items.
+        `<a href="#" onclick="mainPage('/index/new/'); return false;">Новых анкет: ${items}</a>`);
+        // Create the page header.
+        main.createHeader(title);
+        // If the search form doesn't exist, create it and add event listeners.
+        if (!searchFormId) {
+            const template = document.createElement("div");
+            template.innerHTML = `
+        <div class="py-3" id="divSearch">${formSearch}</div>
+        <div class="py-3" id="divTable"></div>
+        <div class="py-3" id="divPager"></div>
+      `;
+            const fragmentContent = document.createDocumentFragment();
+            fragmentContent.appendChild(template);
+            const appContent = document.getElementById("appContent");
+            appContent.replaceChildren(fragmentContent);
+            const form = document.forms[0];
+            form.addEventListener("submit", () => {
+                mainPage("/index/search/");
+            });
         }
+        ;
+        // Render the candidate table and pagination controls.
+        Promise.all([
+            createCandidateTable(data),
+            switchPage(has_next, has_prev, currentPage, path)
+        ]);
     }
-    ;
+    catch (error) {
+        // If an error occurs, redirect the user to the login page.
+        userLogin();
+    }
 }
 ;
+/**
+ * Creates a table displaying candidate information from an array of candidate objects.
+ *
+ * @param {Array<object>} candidates - An array of candidate objects containing properties such as id, region, fullname, birthday, status, and deadline.
+ */
 function createCandidateTable(candidates) {
-    const table = document.createElement("table");
-    table.setAttribute("class", "table table-hover table-responsive align-middle py-1");
-    const thead = document.createElement('thead');
-    table.appendChild(thead);
-    const tr = document.createElement('tr');
-    const candTableHeadlines = ["#", "Регион", "Фамилия Имя Отчество", "Дата рождения", "Статус", "Дата"];
-    let tabbleAttrs = ["5%", "15%", "30%", "15%", "15%", "15%"];
-    for (let i = 0; i < candTableHeadlines.length; i++) {
-        let th = document.createElement('th');
-        th.setAttribute("width", tabbleAttrs[i]);
-        th.textContent = candTableHeadlines[i];
-        tr.appendChild(th);
-    }
-    thead.appendChild(tr);
-    const tbody = document.createElement('tbody');
-    const fragment = document.createDocumentFragment();
-    for (const candidate of candidates) {
-        const tr = document.createElement('tr');
-        tr.setAttribute('height', '50px');
-        for (const [key, value] of Object.entries(candidate)) {
-            const td = document.createElement('td');
-            if (key === 'fullname') {
-                const link = document.createElement('a');
-                link.href = '#';
-                link.onclick = () => openProfile(candidate['id']);
-                link.textContent = value;
-                td.appendChild(link);
-            }
-            else if (key === 'deadline' || key === 'birthday') {
-                const date = new Date(Date.parse(value));
-                td.textContent = date.toLocaleDateString('ru-RU');
-            }
-            else {
-                td.textContent = value;
-            }
-            tr.appendChild(td);
-        }
-        fragment.appendChild(tr);
-    }
-    tbody.appendChild(fragment);
-    table.appendChild(tbody);
+    const container = document.createElement('div');
+    container.innerHTML = `
+    <table class="table table-hover table-responsive align-middle py-1">
+      <thead>
+        <tr>
+          <th width="5%">#</th>
+          <th width="15%">Регион</th>
+          <th width="30%">Фамилия Имя Отчество</th>
+          <th width="15%">Дата рождения</th>
+          <th width="15%">Статус</th>
+          <th width="15%">Дата</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${candidates.map(candidate => `
+          <tr height="50px">
+            <td>${candidate["id"]}</td>
+            <td>${candidate["region"]}</td>
+            <td><a href="#" onclick="openProfile(${candidate['id']})">
+                                                ${candidate["fullname"]}</a></td>
+            <td>${convertDate(candidate["birthday"])}</td>
+            <td>${candidate["status"]}</td>
+            <td>${convertDate(candidate["deadline"])}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+    const fragmentContent = document.createDocumentFragment();
+    fragmentContent.appendChild(container);
     const divTable = document.getElementById('divTable');
-    divTable.innerHTML = '';
-    divTable.appendChild(table);
+    divTable.replaceChildren(fragmentContent);
 }
 ;
+/**
+ * Converts a string date value into a formatted date string.
+ *
+ * @param {string} value - The input date string to be parsed.
+ * @return {string} A formatted date string in the format "DD.MM.YYYY".
+ */
+function convertDate(value) {
+    const date = new Date(Date.parse(value));
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    return `${day}.${month}.${year}`;
+}
+/**
+ * Switches between pages based on the current page and whether there are next and previous pages available.
+ *
+ * @param has_next The number of the next page.
+ * @param has_prev The number of the previous page.
+ * @param currentPage The current page number.
+ * @param path The path to the current page.
+ */
 function switchPage(has_next, has_prev, currentPage, path) {
+    var _a;
+    // Check if the pagination element exists and create it if it does not.
     const paginationElement = document.querySelector(".pagination");
     if (!paginationElement) {
-        const pagerFragment = document.createDocumentFragment();
-        const pagerUl = document.createElement("ul");
-        pagerUl.setAttribute("class", "pagination justify-content-center");
-        pagerFragment.appendChild(pagerUl);
-        const pageItemPrev = document.createElement('li');
-        pageItemPrev.setAttribute("class", "page-item");
-        pageItemPrev.setAttribute("id", "prevPage");
-        pagerUl.appendChild(pageItemPrev);
-        const pageLinkPrev = document.createElement('a');
-        pageLinkPrev.setAttribute("class", "page-link");
-        pageLinkPrev.setAttribute("href", "#");
-        pageLinkPrev.innerHTML = "Предыдущая";
-        pageItemPrev.appendChild(pageLinkPrev);
-        const pageItemNext = document.createElement('li');
-        pageItemNext.setAttribute("class", "page-item");
-        pageItemNext.setAttribute("id", "nextPage");
-        pagerUl.appendChild(pageItemNext);
-        const pageLinkNext = document.createElement('a');
-        pageLinkNext.setAttribute("class", "page-link");
-        pageLinkNext.setAttribute("href", "#");
-        pageLinkNext.innerHTML = "Следующая";
-        pageItemNext.appendChild(pageLinkNext);
-        const navPager = document.createElement('nav');
-        navPager.appendChild(pagerFragment);
+        const container = document.createElement('nav');
+        container.innerHTML = `
+        <ul class="pagination justify-content-center">
+            <li class="page-item" id="prevPage">
+                <a class="page-link" href="#">Предыдущая</a>
+            </li>
+            <li class="page-item" id="nextPage">
+                <a class="page-link" href="#">Следующая</a>
+            </li>
+        </ul>
+    `;
+        const fragmentContent = document.createDocumentFragment();
+        fragmentContent.appendChild(container);
         const divPager = document.getElementById('divPager');
-        divPager.innerHTML = navPager.outerHTML;
+        divPager.replaceChildren(fragmentContent);
     }
-    const divPager = document.getElementById('divPager');
-    divPager.addEventListener('click', function clickPage(event) {
+    ;
+    // Add a click listener to the pagination element to handle page switching.
+    const divPager = (_a = document.getElementById('divPager')) === null || _a === void 0 ? void 0 : _a.children[0];
+    divPager.addEventListener('click', function (event) {
+        event.preventDefault();
         const target = event.target;
         const parentTarget = target.parentElement;
         if (parentTarget.matches('#nextPage') && has_next !== 0) {
@@ -231,11 +253,11 @@ function switchPage(has_next, has_prev, currentPage, path) {
         else if (parentTarget.matches('#prevPage') && has_prev !== 0) {
             mainPage(path, currentPage - 1);
         }
-        else {
-            mainPage(path, currentPage);
-        }
-        divPager.removeEventListener('click', clickPage);
-    });
+        // else {
+        //         mainPage(path, currentPage);
+        //     }
+    }, { once: true });
+    // Check if there is a next page and disable the next page button if there is not.
     const nextPage = document.getElementById('nextPage');
     if (has_next === 0) {
         nextPage.classList.add('disabled');
@@ -243,6 +265,7 @@ function switchPage(has_next, has_prev, currentPage, path) {
     else {
         nextPage.classList.remove('disabled');
     }
+    // Check if there is a previous page and disable the previous page button if there is not.
     const prevPage = document.getElementById('prevPage');
     if (has_prev === 0) {
         prevPage.classList.add('disabled');
@@ -252,413 +275,538 @@ function switchPage(has_next, has_prev, currentPage, path) {
     }
 }
 ;
-// страница для заполнения/редактирования анкеты
-function createResume(resume = null) {
+/**
+ * This function creates a resume form and allows for editing if a candidate ID is provided.
+ * @param {number} candId - Optional candidate ID to edit an existing resume
+ * @returns {Promise<void>}
+ */
+async function createResume(candId = null) {
+    // Fetch user data from server
+    let response = await fetch('/login');
+    let { user } = await response.json();
+    // Redirect to login if the user is not logged in
+    if (user === "None") {
+        return userLogin();
+    }
+    ;
+    // Display message and header for resume form
     main.createMessage('alert alert-info', "Заполните обязательные поля, либо загрузите файл");
     main.createHeader("Создать/изменить анкету");
-    const resumePage = document.createElement('div');
-    const divformUpload = document.createElement("div");
-    divformUpload.setAttribute("class", "py-2");
-    divformUpload.setAttribute("id", "divformUpload");
-    divformUpload.innerHTML = `${formUpload}`;
-    resumePage.appendChild(divformUpload);
-    const divformResume = document.createElement("div");
-    divformResume.setAttribute("class", "py-2");
-    divformResume.setAttribute("id", "divformResume");
-    divformResume.innerHTML = `${formResume}`;
-    resumePage.appendChild(divformResume);
+    // Create container for resume form and upload form
+    const container = document.createElement('div');
+    container.innerHTML = `
+    <div class="py-1" id="divformUpload">${formUpload}</div>
+    <div class="py-1" id="divformUpload">${formResume}</div>
+  `;
+    const fragmentContent = document.createDocumentFragment();
+    fragmentContent.appendChild(container);
+    // Add container to app content and clear previous content
     const appContent = document.getElementById("appContent");
-    appContent.innerHTML = resumePage.outerHTML;
-    if (resume) {
+    appContent.replaceChildren(fragmentContent);
+    // If editing an existing resume, pre-fill form with existing data
+    if (candId) {
+        const response = await fetch(`/profile/${candId}`);
+        const profile = await response.json();
+        const resume = profile[0][0][0];
         const resumeForm = document.forms.namedItem("resumeFormId");
-        const tagName = resumeForm.getElementsByTagName("input");
-        const anketaFiltred = [];
-        for (let i = 0; i < Object.keys(resume).length; i++) {
-            if (!['id', 'region', 'status', 'deadline', 'recruiter', 'addition',
-                'request_id'].includes(Object.keys(resume)[i])) {
-                anketaFiltred.push(Object.values(resume)[i]);
-            }
-        }
-        ;
-        for (const [i, value] of anketaFiltred.entries()) {
-            tagName[i].setAttribute("value", value);
-        }
+        const inputs = Array.from(resumeForm.getElementsByTagName("input"));
+        // Filter out unwanted fields and map values to array
+        const anketaFiltred = Object.entries(resume)
+            .filter(([key]) => !['id', 'region', 'status', 'deadline', 'recruiter', 'addition',
+            'request_id'
+        ].includes(key))
+            .map(([_, value]) => value);
+        // Set input values to filtered values
+        inputs.forEach((input, i) => {
+            input.setAttribute("value", anketaFiltred[i]);
+        });
     }
+    ;
+    // Add event listener to form submit button
     const form = document.forms.namedItem("resumeFormId");
     form.addEventListener('submit', function submitData(event) {
         event.preventDefault();
-        form.removeEventListener('submit', submitData);
         submitResume("resumeFormId", "create");
-    });
+    }, { once: true });
 }
+;
+/**
+ * Submits the resume from a form to a specified URL using a POST request.
+ * @param formId The ID of the form containing the resume.
+ * @param url The URL to submit the resume to.
+ */
 async function submitResume(formId, url) {
+    // Get the form and its data
     const form = document.forms.namedItem(formId);
     const formData = new FormData(form);
-    const response = await fetch(`/resume/${url}`, { method: "POST", body: formData });
+    // Send the resume data as a POST request to the specified URL
+    const response = await fetch(`/resume/create`, { method: "POST", body: formData });
+    // Parse the response JSON to get the message and candidate ID
     const { message, cand_id } = await response.json();
+    // Update the UI with the message and open the candidate's profile
     main.createMessage("alert alert-primary", message);
     openProfile(cand_id);
 }
-function addResumeItem(candId, formDivIds) {
-    main.createMessage('alert alert-info', "Заполните обязательные поля в нужной форме");
-    const resumeElement = document.getElementById("resume");
-    const buttonGroupElement = document.querySelector(".btn-group");
-    resumeElement.remove();
-    buttonGroupElement.remove();
+;
+/**
+ * Adds a resume item for a candidate with the provided ID
+ * @param candId - The ID of the candidate
+ */
+function addResumeItem(candId) {
+    // Define array of target names and corresponding forms
+    const targetNames = ['Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'];
     const forms = [formStaff, formDocument, formAddress, formContact, formWorkplace, formRelation];
-    for (let i = 0; i < formDivIds.length; i++) {
-        const currentDiv = document.getElementById(formDivIds[i]);
-        const formContainer = currentDiv.children[1];
-        formContainer.innerHTML = forms[i];
-    }
-    const anketaId = document.getElementById('anketaId');
-    anketaId.addEventListener('submit', async function clickAdd(event) {
+    // Display message to user
+    main.createMessage('alert alert-info', "Заполните обязательные поля в нужной форме");
+    // Create container array of HTML for each target name and form
+    const container = [];
+    targetNames.forEach(function (targetName, index) {
+        container.push(`<h6>${targetName}</h6>${forms[index]}`);
+    });
+    // Create a temporary div element
+    const temp = document.createElement('div');
+    // Add the container HTML to the temporary div element
+    temp.innerHTML = container.join('');
+    // Create a document fragment and append the temporary div element to it
+    const fragments = document.createDocumentFragment();
+    fragments.append(temp);
+    // Get the resume element by ID and clear its contents
+    const resumeElement = document.getElementById("anketaTabId");
+    resumeElement.innerHTML = '';
+    // Append the document fragment to the resume element
+    resumeElement.appendChild(fragments);
+    // Add a submit event listener to the resume element
+    resumeElement.addEventListener('submit', async function (event) {
         event.preventDefault();
+        // Get the form element that triggered the submit event
         const form = event.target;
-        const parent = form.parentElement;
-        const path = parent.parentElement.getAttribute("id");
+        // Get the path from the form's ID attribute
+        const path = form.getAttribute("id");
+        // Get the form data
         const formData = new FormData(form);
+        // Send a POST request to the server to update the candidate's information
         const response = await fetch(`update/${path}/${candId}`, {
             method: "post",
             body: formData
         });
+        // Get the response message from the server
         const { message } = await response.json();
+        // Display the message to the user
         main.createMessage("alert alert-primary", message);
+        // Scroll to the top of the page
+        window.scrollTo(0, 0);
     });
 }
 ;
-async function createNavbar() {
-    const tabNames = ['Профиль', 'Проверки', 'Согласования', 'Полиграф', 'Расследования', 'Запросы'];
-    const tabPanes = ['profileTab', 'checkTab', 'registryTab', 'poligrafTab', 'investigationTab', 'inquiryTab'];
-    const navDiv = document.createElement("div");
-    navDiv.classList.add("nav", "nav-tabs", "nav-justified");
-    navDiv.setAttribute("role", "tablist");
-    const contentNav = document.createElement("div");
-    contentNav.classList.add("tab-content");
-    for (let i = 0; i < tabNames.length; i++) {
-        const navBtn = document.createElement("button");
-        navBtn.dataset.bsToggle = "tab";
-        navBtn.dataset.bsTarget = "#" + tabPanes[i];
-        navBtn.type = "button";
-        navBtn.role = "tab";
-        navBtn.classList.add("nav-link");
-        if (i === 0)
-            navBtn.classList.add("active");
-        navBtn.innerHTML = tabNames[i];
-        navDiv.appendChild(navBtn);
-        const divPane = document.createElement("div");
-        divPane.classList.add("tab-pane", "fade", "show", "py-1");
-        divPane.role = "tabpanel";
-        divPane.id = tabPanes[i];
-        if (i === 0)
-            divPane.classList.add("active");
-        contentNav.appendChild(divPane);
-        const contentTab = document.createElement("div");
-        contentTab.id = tabPanes[i] + "Id";
-        contentTab.classList.add("py-3");
-        divPane.appendChild(contentTab);
-    }
-    const temp = document.createElement("div");
-    temp.classList.add("py-2");
-    temp.id = "navDiv";
-    temp.appendChild(navDiv);
-    temp.appendChild(contentNav);
-    const appContent = document.getElementById("appContent");
-    appContent.innerHTML = temp.outerHTML;
-}
+/**
+ * Opens the profile of a candidate and populates it with their information.
+ * @param candId The ID of the candidate whose profile to open.
+ */
 async function openProfile(candId) {
-    createNavbar();
+    // Fetch candidate information from server
     const response = await fetch(`/profile/${candId}`);
     const [anketa, check, registry, poligraf, investigation, inquiry, state] = await response.json();
-    //вкладка анкеты
-    antetaTabActions(candId, anketa);
-    //вкладка проверок
-    checkTabActions(candId, check);
-    //вкладка согласования
-    createTab(registry, "registryTabId", "registryId", REGISTRY_LABELES);
-    createTabAction(candId, 'addRegistryBtn', "registryTabId", 'Добавить согласование', formRegistry, 'registryFormId', "registry");
-    //вкладка ПФО
-    createTab(poligraf, "poligrafTabId", "poligrafId", POLIGRAF_LABELES);
-    createTabAction(candId, 'addPoligrafBtn', "poligrafTabId", 'Добавить тестирование', formPoligraf, 'poligrafFormId', "poligraf");
-    //вкладка Расследований
-    createTab(investigation, "investigationTabId", "investigationId", INVESTIGATION_LABELES);
-    createTabAction(candId, 'addInvestigationBtn', "investigationTabId", 'Добавить расследование', formInvestigation, 'investigationFormId', "investigation");
-    //вкладка Запрос
-    createTab(inquiry, "inquiryTabId", "inquiryId", INQUIRY_LABELES);
-    createTabAction(candId, 'addInquiryBtn', "inquiryTabId", 'Добавить запрос', formInquiry, 'inquiryFormId', "inquiry");
-    //stateProfileButtons(anketa[0][0]['status'], state)
+    // Create container element and add profile tabs to it
+    const container = document.createElement('div');
+    container.innerHTML = `
+    <div class="nav nav-tabs nav-justified" role="tablist">
+      <button data-bs-toggle="tab" data-bs-target="#anketaTab" type="button" role="tab" class="nav-link active">Профиль</button>
+      <button data-bs-toggle="tab" data-bs-target="#checkTab" type="button" role="tab" class="nav-link">Проверки</button>
+      <button data-bs-toggle="tab" data-bs-target="#registryTab" type="button" role="tab" class="nav-link">Согласования</button>
+      <button data-bs-toggle="tab" data-bs-target="#poligrafTab" type="button" role="tab" class="nav-link">Полиграф</button>
+      <button data-bs-toggle="tab" data-bs-target="#investigationTab" type="button" role="tab" class="nav-link">Расследования</button>
+      <button data-bs-toggle="tab" data-bs-target="#inquiryTab" type="button" role="tab" class="nav-link">Запросы</button>
+    </div>
+    <div class="tab-content">
+      <!-- Use a loop to create the tab content -->
+      ${['anketa', 'check', 'registry', 'poligraf', 'investigation', 'inquiry'].map(tab => `
+        <div class="tab-pane py-1 ${tab === 'anketa' ? 'active' : ''}" role="tabpanel" id="${tab}Tab">
+          <div id="${tab}TabId" class="py-3">
+            <div id="${tab}Id"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+    const fragmentContent = document.createDocumentFragment();
+    fragmentContent.appendChild(container);
+    const appContent = document.getElementById("appContent");
+    appContent.replaceChildren(fragmentContent);
+    Promise.all([
+        createAnketa(candId, anketa),
+        createCheck(candId, check),
+        createRegistry(candId, registry),
+        createPoligraf(candId, poligraf),
+        createInvestigation(candId, investigation),
+        createInquiry(candId, inquiry)
+    ]);
+    //update button state
+    stateProfileButtons(anketa[0][0]['status'], state);
 }
 ;
-function antetaTabActions(candId, anketa) {
+function createAnketa(candId, anketa) {
+    //resume tab
     const resumeSubDivNames = ['Резюме', 'Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'];
-    const resumeSubDivIds = ['resume', 'staffs', 'documents', 'addresses', 'contacts', 'workplaces', 'relations'];
-    const profileTabId = document.getElementById("profileTabId");
-    const anketaId = document.createElement("div");
-    anketaId.setAttribute("class", "py-2");
-    anketaId.setAttribute("id", "anketaId");
-    profileTabId.appendChild(anketaId);
-    for (let id of resumeSubDivIds) {
-        let division = document.createElement("div");
-        division.setAttribute("class", "py-2");
-        division.setAttribute("id", id);
-        anketaId.appendChild(division);
-    }
-    ;
+    const anketaTabId = document.getElementById("anketaTabId");
     main.createHeader(`<a href="#" onclick=openProfile(${candId})>${anketa[0][0]['fullname']}</a>`);
-    const groupBtnResume = document.createElement("div");
-    groupBtnResume.setAttribute("class", "btn-group py-2 hidden-print");
-    groupBtnResume.setAttribute("role", "group");
-    const grpBtnResumeAttr = {
-        'Изменить  анкету': `createResume(${JSON.stringify(anketa[0][0])})`,
-        'Добавить информацию': `addResumeItem(${candId}, ${JSON.stringify(resumeSubDivIds.slice(1))})`,
-        'Обновить статус': `updateStatus(${candId})`,
-        'Отправить на проверку': `sendResume(${candId})`
-    };
-    for (const [label, action] of Object.entries(grpBtnResumeAttr)) {
-        const updBtnResume = document.createElement('button');
-        updBtnResume.setAttribute('class', 'btn btn-outline-primary');
-        if (label === 'Отправить на проверку')
-            updBtnResume.setAttribute('id', 'sendResume');
-        updBtnResume.setAttribute('onclick', action);
-        updBtnResume.innerHTML = label;
-        groupBtnResume.appendChild(updBtnResume);
-    }
-    profileTabId.appendChild(groupBtnResume);
-    for (let i = 0; i < anketa.length; i++) {
-        let subSubdivs = document.getElementById(resumeSubDivIds[i]);
-        let targetHeader = document.createElement('h6');
-        targetHeader.innerHTML = resumeSubDivNames[i];
-        subSubdivs.appendChild(targetHeader);
-        let divTable = createItemTable(ANKETA_LABELES[i], anketa[i]);
-        subSubdivs.appendChild(divTable);
-    }
-    ;
+    const fragment = document.createDocumentFragment();
+    resumeSubDivNames.forEach((name, i) => {
+        const subHeader = document.createElement('h6');
+        subHeader.innerHTML = name;
+        fragment.appendChild(subHeader);
+        fragment.appendChild(createItemTable(ANKETA_LABELES[i], anketa[i]));
+    });
+    const anketaId = document.getElementById("anketaId");
+    anketaId.replaceChildren(fragment);
+    const resumeBtnGroup = document.createElement('div');
+    resumeBtnGroup.classList.add('btn-group', 'hidden-print');
+    resumeBtnGroup.setAttribute("role", "group");
+    resumeBtnGroup.innerHTML = `
+    <button class="btn btn-outline-primary" onclick="createResume(${candId})">Изменить  анкету</button>
+    <button class="btn btn-outline-primary" onclick="addResumeItem(${candId})">Добавить информацию</button>
+    <button class="btn btn-outline-primary" onclick="updateStatus(${candId})">Обновить статус</button>
+    <button class="btn btn-outline-primary" id="sendResume" onclick="sendResume(${candId})">Отправить на проверку</button>
+  `;
+    anketaId.appendChild(resumeBtnGroup);
 }
 ;
+function createCheck(candId, check) {
+    const checkId = document.getElementById('checkId');
+    checkId.replaceChildren(createItemTable(CHECK_LABELES, check));
+    const checkBtnGroup = document.createElement('div');
+    checkBtnGroup.classList.add('btn-group', 'hidden-print');
+    checkBtnGroup.setAttribute("role", "group");
+    checkBtnGroup.innerHTML = `
+    <button class="btn btn-outline-primary" id="checkBtn" onclick="checkEditNew(${candId}, 'new')">Добавить проверку</button>
+    <button class="btn btn-outline-primary" id="editBtn" onclick="checkEditNew(${candId}, 'edit')">Редактировать проверку</button>
+    <button class="btn btn-outline-primary" id="deleteBtn" onclick="deleteLastCheck(${candId})">Удалить последнюю проверку</button>
+  `;
+    checkId.appendChild(checkBtnGroup);
+}
+;
+function createRegistry(candId, registry) {
+    const registryId = document.getElementById('registryId');
+    registryId.replaceChildren(createItemTable(REGISTRY_LABELES, registry));
+    const addRegistryBtn = document.createElement('div');
+    addRegistryBtn.innerHTML = `<a class="btn btn-outline-info hidden-print" type="button" id="addRegistryBtn">Добавить согласование</a>`;
+    registryId.appendChild(addRegistryBtn);
+    createTabAction(candId, "registryTabId", formRegistry, "registry");
+}
+;
+function createPoligraf(candId, poligraf) {
+    const poligrafId = document.getElementById('poligrafId');
+    poligrafId.replaceChildren(createItemTable(POLIGRAF_LABELES, poligraf));
+    const addPoligrafBtn = document.createElement('div');
+    addPoligrafBtn.innerHTML = `<a class="btn btn-outline-info hidden-print" type="button">Добавить тестирование</a>`;
+    poligrafId.appendChild(addPoligrafBtn);
+    createTabAction(candId, "poligrafTabId", formPoligraf, "poligraf");
+}
+;
+function createInvestigation(candId, investigation) {
+    const investigationId = document.getElementById('investigationId');
+    investigationId.replaceChildren(createItemTable(INVESTIGATION_LABELES, investigation));
+    const addInvestigationBtn = document.createElement('div');
+    addInvestigationBtn.innerHTML = `<a class="btn btn-outline-info hidden-print" type="button">Добавить расследование</a>`;
+    investigationId.appendChild(addInvestigationBtn);
+    createTabAction(candId, "investigationTabId", formInvestigation, "investigation");
+}
+;
+function createInquiry(candId, inquiry) {
+    const inquiryId = document.getElementById('inquiryId');
+    inquiryId.replaceChildren(createItemTable(INQUIRY_LABELES, inquiry));
+    const addInquiryBtn = document.createElement('div');
+    addInquiryBtn.innerHTML = `<a class="btn btn-outline-info hidden-print" type="button">Добавить запрос</a>`;
+    inquiryId.appendChild(addInquiryBtn);
+    createTabAction(candId, "inquiryTabId", formInquiry, "inquiry");
+}
+;
+/**
+ * Updates candidate status and displays a message
+ * @param candId - The candidate ID
+ */
 async function updateStatus(candId) {
+    // Fetch the candidate's status
     const response = await fetch(`/resume/status/${candId}`);
     const { message } = await response.json();
+    // Display an alert message and open the candidate's profile
     main.createMessage("alert alert-info", message);
     openProfile(candId);
+    window.scrollTo(0, 0);
 }
+;
+/**
+ * Sends the resume of a candidate with the given ID.
+ * @param candId - The ID of the candidate to send the resume for.
+ * @returns A Promise that resolves when the resume has been sent.
+ */
 async function sendResume(candId) {
+    // Send a request to the server to send the resume.
     const response = await fetch(`/resume/send/${candId}`);
+    // Extract the message from the response.
     const { message } = await response.json();
-    openProfile(candId);
+    // Create a message and open the candidate's profile once the resume has been sent.
     main.createMessage("alert alert-info", message);
+    openProfile(candId);
+    window.scrollTo(0, 0);
 }
 ;
-function checkTabActions(candId, checks) {
-    createTab(checks, "checkTabId", "checkId", CHECK_LABELES);
-    const divPage = document.getElementById("checkTabId");
-    const groupBtnCheck = document.createElement("div");
-    groupBtnCheck.setAttribute("class", "btn-group hidden-print");
-    groupBtnCheck.setAttribute("role", "group");
-    divPage.appendChild(groupBtnCheck);
-    const buttonLabels = ['Добавить проверку', 'Редактировать проверку', 'Удалить последнюю проверку'];
-    const actionButtons = [`checkEditNew(${candId})`, `checkEditNew(${candId}, 
-    ${JSON.stringify(checks[0])})`, `deleteLastCheck(${candId})`];
-    for (let i = 0; i < actionButtons.length; i++) {
-        let addBtn = document.createElement("a");
-        addBtn.setAttribute("class", "btn btn-outline-info");
-        addBtn.setAttribute("type", "button");
-        addBtn.setAttribute("onclick", actionButtons[i]);
-        addBtn.innerHTML = buttonLabels[i];
-        groupBtnCheck.appendChild(addBtn);
-    }
-}
-;
-async function checkEditNew(candId, check = {}) {
-    let response = await fetch("/check/status/" + candId);
-    let { message } = await response.json();
-    main.createMessage("alert alert-warning", message);
-    if (message == "Анкета взята в работу и еще не закончена") {
-        return openProfile(candId);
-    }
-    ;
-    let checkTabId = document.getElementById("checkTabId");
-    checkTabId.innerHTML = formCheck;
-    const form = document.forms.namedItem("checkFormId");
-    if (check) {
-        const tagName = form.getElementsByTagName("textarea");
-        let checkFiltred = [];
-        for (let i = 0; i < Object.keys(check).length; i++) {
-            if (!['id', 'autostatus', 'path', 'pfo', 'comments', 'conclusion', 'deadline', 'officer',
-                'cand_id'].includes((Object.keys(check)[i]))) {
-                checkFiltred.push(Object.values(check)[i]);
-            }
-            ;
+/**
+ * Checks if a candidate profile needs to be edited or if it's new,
+ * and handles the corresponding actions.
+ * @param candId - the identifier of the candidate profile to check
+ * @param flag - a string indicating whether the profile is being edited or is new
+ */
+async function checkEditNew(candId, flag) {
+    // If the profile is not being edited, check the status of the profile
+    if (flag === "new") {
+        const status = await fetch(`/check/status/${candId}`);
+        const { message } = await status.json();
+        main.createMessage("alert alert-warning", message);
+        // If the profile is already being worked on, return to the profile page
+        if (message === "Анкета взята в работу и еще не закончена") {
+            return openProfile(candId);
         }
         ;
-        checkFiltred.forEach((value, i) => {
-            tagName[i].innerHTML = value;
-        });
     }
     ;
-    form.addEventListener('submit', async function formCheck(event) {
-        const formData = new FormData(form);
-        let response = await fetch(`/check/${candId}`, {
-            method: "post",
-            body: formData
+    // Create a new form element and import the formCheck HTML
+    const form = document.createElement("div");
+    form.innerHTML = formCheck.trim();
+    // If the profile is being edited, prefill the form with the previous data
+    if (flag === "edit") {
+        const response = await fetch(`/profile/${candId}`);
+        const profile = await response.json();
+        const check = profile[1][0];
+        const textareas = Array.from(form.getElementsByTagName("textarea"));
+        const checkFiltred = Object.entries(check)
+            .filter(([key]) => ![
+            "id",
+            "autostatus",
+            "path",
+            "pfo",
+            "comments",
+            "conclusion",
+            "deadline",
+            "officer",
+            "cand_id",
+        ].includes(key))
+            .map(([_, value]) => value);
+        textareas.forEach((textarea, i) => {
+            textarea.innerHTML = checkFiltred[i];
         });
-        let { message } = await response.json();
-        main.createMessage("alert alert-primary", message);
-        this.removeEventListener('submit', formCheck);
-        openProfile(candId);
+    }
+    // Add a submit event listener to the form, to send the data to the server
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const formData = new FormData(form.children[0]);
+        const response = await fetch(`/check/${flag}/${candId}`, {
+            method: "post",
+            body: formData,
+        });
+        const { message } = await response.json();
+        // Show a message and return to the profile page
+        Promise.all([
+            main.createMessage("alert alert-primary", message),
+            openProfile(candId),
+            window.scrollTo(0, 0)
+        ]);
     });
+    // Replace the content of the checkTabId element with the form element
+    const checkTabId = document.getElementById("checkTabId");
+    checkTabId.replaceChildren(form);
 }
-;
+/**
+ * Deletes the last check for a candidate.
+ * @param candId The ID of the candidate to delete the check for.
+ * @returns A Promise that resolves with void when the check has been deleted.
+ */
 async function deleteLastCheck(candId) {
+    // Confirm with the user that they want to delete the check.
     if (confirm("Вы действительно хотите удалить проверку?")) {
+        // Make a fetch request to delete the check for the candidate.
         let response = await fetch(`/check/delete/${candId}`);
+        // Get the message from the response JSON.
         let { message } = await response.json();
+        // Create a warning message and open the candidate's profile.
         main.createMessage("alert alert-warning", message);
         openProfile(candId);
+        window.scrollTo(0, 0);
     }
 }
 ;
-function createTab(resps, tabId, contentID, labeles) {
+/**
+ * Creates an action listener that displays a form in a tab and submits the form data to the server
+ * @param candId - The ID of the candidate
+ * @param tabId - The ID of the tab in which to display the form
+ * @param formHTML - The HTML content of the form to display
+ * @param path - The path to post the form data to on the server
+ */
+function createTabAction(candId, tabId, formHTML, path) {
+    // Get the tab element
     const tabDiv = document.getElementById(tabId);
-    const divTab = document.createElement("div");
-    divTab.setAttribute("id", contentID);
-    tabDiv.appendChild(divTab);
-    const divId = document.getElementById(contentID);
-    divId.innerHTML = createItemTable(labeles, resps).outerHTML;
-}
-;
-function createTabAction(candId, buttonId, tabId, buttonLabel, formHTML, formId, path) {
-    const addButton = document.createElement("a");
-    addButton.classList.add("btn", "btn-outline-info", "hidden-print");
-    addButton.setAttribute("type", "button");
-    addButton.setAttribute("id", buttonId);
-    addButton.textContent = buttonLabel;
-    const tabDiv = document.getElementById(tabId);
-    tabDiv.appendChild(addButton);
-    const addBtnListener = document.getElementById(buttonId);
-    addBtnListener.addEventListener('click', function addForm(event) {
-        tabDiv.innerHTML = formHTML;
-        addBtnListener.removeEventListener('click', addForm);
-        const form = document.forms.namedItem(formId);
-        form.addEventListener('submit', async function formSubmit(event) {
+    // Get the "add" button element
+    const addBtnListener = tabDiv.children[0].children[1].children[0];
+    // Add a click listener to the "add" button
+    addBtnListener.addEventListener('click', function (event) {
+        // Replace the tab content with the form HTML
+        const container = document.createElement('div');
+        container.innerHTML = formHTML;
+        const fragment = document.createDocumentFragment();
+        fragment.appendChild(container);
+        tabDiv.replaceChildren(fragment);
+        // Get the form element
+        const form = tabDiv.children[0].children[0];
+        // Add a submit listener to the form
+        form.addEventListener('submit', async function (event) {
             event.preventDefault(); // Prevent default form submission
+            // Get the form data
             const formData = new FormData(form);
-            const response = await fetch(`/${path}/${candId}`, {
-                method: "post",
-                body: formData
-            });
+            // Post the form data to the server
+            const response = await fetch(`/${path}/${candId}`, { method: "post", body: formData });
+            // Get the response message
             const { message } = await response.json();
-            main.createMessage("alert alert-primary", message);
-            openProfile(candId);
-            form.removeEventListener('submit', formSubmit);
-        });
-    });
+            // Call the openProfile function and create a message
+            Promise.all([
+                main.createMessage("alert alert-primary", message),
+                openProfile(candId),
+                window.scrollTo(0, 0)
+            ]);
+        }, { once: true });
+    }, { once: true });
 }
 ;
-function stateProfileButtons(state, status) {
-    if (state !== status) {
+/**
+ * Sets the appropriate button states based on the current status and state.
+ * @param status - A string representing the current status.
+ * @param state - An object representing the current state.
+ */
+function stateProfileButtons(status, state) {
+    // Disable the send resume and add check buttons if the state is not NEW or UPDATE.
+    if (status != state['NEW'] && status !== state['UPDATE']) {
         const sendResumeButton = document.getElementById('sendResume');
         sendResumeButton.setAttribute("class", "disabled btn btn-outline-success hidden-print");
         const addCheckButton = document.getElementById('checkBtn');
         addCheckButton.setAttribute("class", "disabled btn btn-outline-primary hidden-print");
+    }
+    ;
+    // Disable the edit button if the state is not SAVE or CANSEL.
+    if (status != state['SAVE'] && status !== state['CANSEL']) {
         const editButton = document.getElementById('editBtn');
         editButton.setAttribute("class", "disabled btn btn-outline-info");
+    }
+    ;
+    // Disable the delete button if the status is FINISH.
+    if (status != state['RESULT']) {
         const deleteButton = document.getElementById('deleteBtn');
         deleteButton.setAttribute("class", "disabled btn btn-outline-info");
-        if (state !== status) {
-            const sendRegistryButton = document.getElementById('addRegistryBtn');
-            sendRegistryButton.setAttribute("class", "disabled btn btn-outline-primary hidden-print");
-        }
     }
     ;
+    // Disable the send registry button if the state is not RESULT.
+    if (status != state['RESULT']) {
+        const sendRegistryButton = document.getElementById('addRegistryBtn');
+        sendRegistryButton.setAttribute("class", "disabled btn btn-outline-primary hidden-print");
+    }
 }
 ;
-//create table with candidate profile
+/**
+ * Creates a table with candidate profiles
+ * @param names - an array of strings representing the column names
+ * @param response - an array of objects representing the candidate profiles
+ * @returns a string representing an HTML table with the candidate profiles
+ */
 function createItemTable(names, response) {
-    if (response.length) {
-        let division = document.createElement("div");
-        //
-        for (const item of response) {
-            const div = document.createElement("div");
-            const tbl = document.createElement("table");
-            tbl.setAttribute("class", "table");
-            const tblBody = document.createElement("tbody");
-            for (const name of names) {
-                const cell1 = document.createElement("td");
-                cell1.setAttribute("width", "25%");
-                cell1.innerHTML = name;
-                const cell2 = document.createElement("td");
-                const key = Object.keys(item)[names.indexOf(name)];
-                const value = Object.values(item)[names.indexOf(name)];
-                if (key === 'deadline' || key === 'birthday') {
-                    const date = new Date(Date.parse(value));
-                    cell2.innerHTML = date.toLocaleDateString('ru-RU');
-                }
-                else {
-                    cell2.innerHTML = value;
-                }
-                ;
-                let row = document.createElement("tr");
-                row.appendChild(cell1);
-                row.appendChild(cell2);
-                tblBody.appendChild(row);
-            }
-            ;
-            tbl.appendChild(tblBody);
-            div.appendChild(tbl);
-            division.appendChild(div);
-        }
-        ;
-        return division;
-    }
-    else {
-        let text = document.createElement("p");
-        text.innerHTML = "Данные отсутствуют";
-        return text;
+    // if there are no profiles, return a message indicating so
+    if (!response.length) {
+        const paragraph = document.createElement('p');
+        paragraph.innerHTML = "Данные отсутствуют";
+        const fragment = document.createDocumentFragment();
+        fragment.appendChild(paragraph);
+        return fragment;
     }
     ;
+    // map each profile object to an HTML table row
+    const rows = response.map((item) => {
+        // map each column name to an HTML table cell
+        return names.map((name, i) => {
+            // if the current column is 'deadline' or 'birthday', format the date
+            if (Object.keys(item)[i] === 'deadline' || Object.keys(item)[i] === 'birthday') {
+                const date = new Date(Object.values(item)[i]);
+                return `<tr><td width="25%">${name}</td><td>${date.toLocaleDateString('ru-RU')}</td></tr>`;
+            }
+            // otherwise, just use the value of the current column
+            else {
+                return `<tr><td width="25%">${name}</td><td>${Object.values(item)[i]}</td></tr>`;
+            }
+        }).join('');
+    });
+    // join the HTML table rows together to form the table body
+    const body = `<tbody>${rows.join('')}</tbody>`;
+    // wrap the table body in an HTML table and return it
+    const table = `<table class="table table-responsive">${body}</table>`;
+    const container = document.createElement("div");
+    container.innerHTML = table;
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(container);
+    return fragment;
 }
 ;
-//открываем страницу стат информации
+/**
+ * Opens the page with statistical information.
+ * @returns {Promise<void>}
+ */
 async function statInfo() {
+    // Check if the element with id "infoFormId" exists
     if (!document.getElementById("infoFormId")) {
-        let temp = document.createElement("div");
-        const divCandTable = document.createElement("div");
-        divCandTable.setAttribute("class", "py-2");
-        divCandTable.setAttribute("id", "divCandTable");
-        const divPfoTable = document.createElement("div");
-        divPfoTable.setAttribute("class", "py-2");
-        divPfoTable.setAttribute("id", "divPfoTable");
-        const divForm = document.createElement("div");
-        divForm.setAttribute("class", "py-2");
-        divForm.setAttribute("id", "divForm");
-        divForm.innerHTML = formInfo;
-        [divCandTable, divPfoTable, divForm].forEach(div => {
-            temp.appendChild(div);
-        });
+        // Get the element with id "appContent" and set its innerHTML
+        const container = document.createElement("div");
+        container.innerHTML = `
+      <div class="py-3" id="divCandTable"></div>
+      <div class="py-3" id="divPfoTable"></div>
+      <div class="py-3" id="divForm">${formInfo}</div>
+    `;
+        const fragment = document.createDocumentFragment();
+        fragment.appendChild(container);
         const appContent = document.getElementById("appContent");
-        appContent.innerHTML = temp.outerHTML;
+        appContent.replaceChildren(fragment);
     }
     ;
+    // Get the elements with ids "divCandTable", "divPfoTable", and"appMessage"
+    const [divCandTable, divPfoTable, appMessage] = ["divCandTable", "divPfoTable", "appMessage"].map(id => document.getElementById(id));
+    // Get the form with name "infoFormId" and its data
     const form = document.forms.namedItem("infoFormId");
     const dataForm = new FormData(form);
+    // Send a POST request to the server with the form data
     const response = await fetch('/information', {
         method: "post",
         body: dataForm
     });
-    let resps = await response.json();
-    const [divCandTable, divPfoTable, appMessage] = ["divCandTable", "divPfoTable", "appMessage"].map(id => document.getElementById(id));
-    main.createHeader(resps['title']);
+    // Get the JSON data from the response and destructure it
+    const { title, candidates, poligraf } = await response.json();
+    // Call the createHeader function from the main module
+    main.createHeader(title);
+    // Set the innerHTML of appMessage to an empty string
     appMessage.innerHTML = '';
-    divCandTable.innerHTML = createStatTable(resps["candidates"], "Статистика по кандидатам").outerHTML;
-    divPfoTable.innerHTML = createStatTable(resps["poligraf"], "Статистика по ПФО").outerHTML;
+    // Set the appendChild of divCandTable and divPfoTable fragments to the tables created by the createStatTable function
+    divCandTable.replaceChildren(createStatTable(candidates, "Статистика по кандидатам"));
+    divPfoTable.replaceChildren(createStatTable(poligraf, "Статистика по ПФО"));
+    // Add an event listener to the form that calls statInfo when submitted
     form.addEventListener('submit', (event) => {
         event.preventDefault();
         statInfo();
     }, { once: true });
 }
+/**
+ * Creates a table element with the specified stats and caption
+ * @param stats Array of objects with key-value pairs to be displayed in the table
+ * @param caption Caption for the table
+ * @returns A table element with the specified stats and caption
+ */
 function createStatTable(stats, caption) {
+    // Create the table element
     const table = document.createElement("table");
+    // Add classes to the table element
     table.classList.add("table", "table-hover", "table-responsive", "align-middle");
+    // Set the inner HTML of the table element
     table.innerHTML = `
     <caption>${caption}</caption>
     <thead>
@@ -676,8 +824,12 @@ function createStatTable(stats, caption) {
       `).join('')}
     </tbody>
   `;
-    return table;
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(table);
+    // Return the table fragment
+    return fragment;
 }
+;
 let formLogin;
 let formUpload;
 let formResume;

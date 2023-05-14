@@ -15,6 +15,7 @@ class Login(MethodView):
         if current_user.is_authenticated:  # check if the user is authenticated
             return {"user": current_user.username}
         else:
+            print("None")
             return {"user": "None"}  # if the user is not authenticated, return "None"
 
     def post(self):

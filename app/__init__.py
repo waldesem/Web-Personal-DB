@@ -23,7 +23,7 @@ def create_app():
     app = APIFlask(__name__, title="Web-Personal-DB API", version="1.0")
     
     # Set up app configurations
-    app.config.from_object(DevelopmentConfig)
+    app.config.from_object(ProductionConfig)
     app.json.sort_keys = False
     CORS(app)
     admin.init_app(app)

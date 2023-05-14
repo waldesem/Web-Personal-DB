@@ -1,10 +1,9 @@
 import json
 import os
 from datetime import datetime
-
 import requests
-from sqlalchemy import func
 
+from sqlalchemy import func
 from flask import render_template, request
 from flask_login import current_user, login_required
 
@@ -278,12 +277,12 @@ def update_profile(flag, cand_id):
         A dictionary containing a success or error message.
     """
     model_map = {
-        'staffs': Staff,
-        'documents': Document,
-        'addresses': Address,
-        'contacts': Contact,
-        'workplaces': Workplace,
-        'relations': RelationShip,
+        'staff': Staff,
+        'document': Document,
+        'address': Address,
+        'contact': Contact,
+        'workplace': Workplace,
+        'relation': RelationShip,
     }
     model = model_map.get(flag)
     if not model:
@@ -292,9 +291,9 @@ def update_profile(flag, cand_id):
     form_data: dict = request.form.to_dict()
 
     # If updating documents or relationships, convert the date string to a datetime object
-    if flag == 'documents' or flag == 'relations':
-        form_data['issue' if flag == 'documents' else 'birthday'] = \
-            datetime.strptime(form_data.pop('issue' if flag == 'documents' else 'birthday'), "%Y-%m-%d")
+    if flag == 'document' or flag == 'relation':
+        form_data['issue' if flag == 'document' else 'birthday'] = \
+            datetime.strptime(form_data.pop('issue' if flag == 'document' else 'birthday'), "%Y-%m-%d")
 
     # Add the new record to the specified table using the SQLAlchemy model
     db_add_record(model, form_data, cand_id)
@@ -384,10 +383,10 @@ def patch_status(cand_id: int) -> dict:
         return {"message": "Текущий статус обновить нельзя"}  # Return an error message
 
 
-@bp.post('/check/<int:cand_id>')
+@bp.post('/check/<flag>/<int:cand_id>')
 @bp.doc(hide=True)
 @login_required
-def post_check(cand_id):
+def post_check(flag: str, cand_id: int) -> dict:
     """
     Perform a post request to check a candidate.
 
@@ -398,18 +397,34 @@ def post_check(cand_id):
         dict: A dictionary containing a message indicating the success of the check.
 
     """
+    print(flag)
     # Get the candidate from the database
     candidate = db.session.query(Candidate).get(cand_id)
-    # Create a path for the check materials
-    path = os.path.join(BASE_PATH, candidate.fullname[0], f"{str(candidate.id)}-{candidate.fullname}",
-                        TODAY.strftime("%Y-%m-%d"))
-    # Convert the form data to a dictionary and update the path and candidate id
-    check_form = {k: datetime.strptime(v, "%Y-%m-%d") if k == 'deadline' else bool(v) if k == 'pfo' else v
-                  for k, v in request.form.to_dict().items()}
-    check_form.update({'path': path, "cand_id": cand_id, 'officer': current_user.username})
-    # Add the check to the database
-    db.session.add(Check(**check_form))
-    db.session.commit()
+    # Get the data from the html form
+    check_form = request.form.to_dict()
+    check_form['deadline'] = datetime.strptime(check_form.pop('deadline'), "%Y-%m-%d")
+    check_form['pfo'] = bool(check_form.pop('pfo')) if 'pfo' in check_form else False
+
+    if flag == 'new':
+        # Create a path for the check materials
+        path = os.path.join(BASE_PATH, candidate.fullname[0], f"{str(candidate.id)}-{candidate.fullname}",
+                            TODAY.strftime("%Y-%m-%d"))
+        # Convert the form data to a dictionary and update the path and candidate id
+        check_form.update({'path': path, "cand_id": cand_id, 'officer': current_user.username})
+        
+        # Add the check to the database
+        db.session.add(Check(**check_form))
+        db.session.commit()
+    else:
+        check_form.update({"cand_id": cand_id, 'officer': current_user.username})
+
+        latest_check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
+        print(latest_check)
+        # Add the check to the database
+        for k, v in check_form.items():
+            setattr(latest_check, k, v)
+            db.session.commit()
+    
     # Determine the conclusion of the check and update the candidate's status
     conclusion = check_form['conclusion']
     if conclusion == Status.SAVE.value:
@@ -419,9 +434,10 @@ def post_check(cand_id):
         candidate.status = Status.CANCEL.value
         message = "Проверка отменена"
     else:
-        candidate.status = Status.POLIGRAF.value if bool(check_form['pfo']) else Status.RESULT.value
+        candidate.status = Status.POLIGRAF.value if check_form['pfo'] else Status.RESULT.value
         message = "Проверка завершена. Назначено проведение ПФО" if check_form['pfo'] else "Проверка завершена"
     db.session.commit()
+    
     # Return a message indicating the success of the check
     return {'message': message}
 
@@ -505,23 +521,23 @@ def post_registry(cand_id):
     db.session.add(Registry(**reg))  # Add registry information to the database
     db.session.commit()
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()  # Get candidate information
-    response = requests.post(url=URL_CHECK, json=json.dumps(
-        {
-            "id": candidate.request_id,
-            "comments": reg['comments'],
-            "decision": reg['decision'],
-            "deadline": TODAY.strftime("%Y-%m-d%"),
-            "supervisor": reg['supervisor']
-        }
-    ), timeout=5)
-    response.raise_for_status()
-    if response.status_code == 200:  # Check if the response was successfully sent
-        candidate.status = Status.CANCEL.value if reg[
-                                                      'decision'] == Status.CANCEL.value else Status.FINISH.value  # Update candidate status based on decision
-        db.session.commit()
-        return {'message': "Решение успешно отправлено"}  # Return success message
-    else:
-        return {'message': 'Отправка не удалась попробуйте еще раз позднее'}  # Return failure message
+    # response = requests.post(url=URL_CHECK, json=json.dumps(
+    #     {
+    #         "id": candidate.request_id,
+    #         "comments": reg['comments'],
+    #         "decision": reg['decision'],
+    #         "deadline": TODAY.strftime("%Y-%m-d%"),
+    #         "supervisor": reg['supervisor']
+    #     }
+    # ), timeout=5)
+    # response.raise_for_status()
+    # if response.status_code == 200:  # Check if the response was successfully sent
+    candidate.status = Status.CANCEL.value if reg[
+                                                    'decision'] == Status.CANCEL.value else Status.FINISH.value  # Update candidate status based on decision
+    db.session.commit()
+    return {'message': "Решение успешно отправлено"}  # Return success message
+    # else:
+    #     return {'message': 'Отправка не удалась попробуйте еще раз позднее'}  # Return failure message
 
 
 @bp.post('/poligraf/<int:cand_id>')
@@ -615,7 +631,6 @@ def post_inquiry(cand_id):
 
 @bp.post('/information')
 @bp.doc(hide=True)
-@login_required
 def post_information():
     """
     Retrieve statistics for a given period of time.

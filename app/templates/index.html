@@ -58,7 +58,7 @@
             {%- endmacro %}
             //
             {% macro extsearchform(form) -%}
-            <form id="searchExtFormId" onsubmit="return false">
+            <form id="searchFormId" onsubmit="return false">
                 {% from 'bootstrap5/form.html' import render_form_row, render_hidden_errors %}
                 {{ render_form_row([form.region, form.fullname, form.birthday, form.status, form.submit],
                     form_type='inline', col_map={'region': 'col-md-2', 'fullname': 'col-md-4', 'birthday': 'col-md-2', 'status': 'col-md-2'}) }}
@@ -79,27 +79,27 @@
             render_kw={"onsubmit": 'return false'}) }}`;
             
             formStaff = `{{ multiform(form_staff, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='staffFormId', 
+            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='staff', 
             render_kw={"onsubmit": "return false"}) }}`;
             
             formDocument = `{{ multiform(form_document, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='documentFormId', 
+            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='document', 
             render_kw={"onsubmit": "return false"}) }}`;
 
             formAddress = `{{ multiform(form_address, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='addressFormId', 
+            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='address', 
             render_kw={"onsubmit": "return false"}) }}`;
 
             formContact = `{{ multiform(form_contact, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='contactFormId', 
+            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='contact', 
             render_kw={"onsubmit": "return false"}) }}`;
 
             formWorkplace = `{{ multiform(form_work, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='workplaceFormId', 
+            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='workplace', 
             render_kw={"onsubmit": "return false"}) }}`;
 
             formRelation = `{{ multiform(form_relation, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='relationFormId', 
+            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='relation', 
             render_kw={"onsubmit": "return false"}) }}`;
             
             formCheck = `{{ multiform(form_check, extra_classes='form-check', role='form', 

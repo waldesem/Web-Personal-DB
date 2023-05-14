@@ -10,7 +10,8 @@ from apiflask import HTTPBasicAuth
 from ..routes import bp
 from ..extensions.extension import BASE_PATH, URL_CHECK, resume_data
 from ..models.model import db, User, Candidate, Check, CheckSchema, DeserialResume, \
-    serial_resume, Status
+    serial_resume
+from ..forms.form import Status
 
 auth = HTTPBasicAuth()  # create the auth object
 

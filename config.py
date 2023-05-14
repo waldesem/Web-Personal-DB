@@ -11,7 +11,7 @@ class Config(object):
 
 class ProductionConfig(Config):
     SECRET_KEY = 'my_super_secret_prod_key'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or "postgresql://postgres:password@localhost/personal"
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or "postgresql://username:password@localhost/candidates"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=30)
     BOOTSTRAP_BOOTSWATCH_THEME = 'journal'
