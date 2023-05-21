@@ -37,6 +37,14 @@ For create database enter command in flask shell:
 db.create_all()
 ```
 
+For create admin user enter command in flask shell:
+```
+from app import db, User
+admin = User(fullname='fullname', username='username', password='password', role='admin')
+db.session.add(admin)
+db.session.commit()
+```
+
 For migrate database enter commands in flask shell:
 ```
 flask db init - only first time if migration folder is not exist
