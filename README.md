@@ -20,7 +20,9 @@ pip install -r requirements.txt
 You will also need to have Node.js installed on your machine to build and run the TypeScript code.
 
 After installing Node.js, you can install the required npm packages by running the following command in your terminal:
-npm install
+```
+npm install -g typescript
+```
 
 ### Usage
 To start the web application, run the following command in your terminal:
