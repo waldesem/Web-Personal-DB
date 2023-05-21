@@ -53,7 +53,12 @@ This will compile the TypeScript code and output the JavaScript and CSS files in
 ### Contributing
 If you would like to contribute to this project, please follow these steps:
 
-Основной стек технологий: Python (Flask, APIFlask, SQLAlchemy, Marshmallow, WTForms), JavaScript, Bootstrap5
+- Fork the repo
+- Create a new branch (git checkout -b feature/your-feature-name)
+- Make your changes
+- Commit your changes (git commit -am 'Add some feature')
+- Push to the branch (git push origin feature/your-feature-name)
+- Create a new Pull Request
 
 ### License
 This project is licensed under the MIT License. See the LICENSE file for details.
