@@ -6,43 +6,29 @@ import requests
 from sqlalchemy import func
 from flask import render_template, request
 from flask_login import current_user, login_required
+from werkzeug.exceptions import BadRequest
 
 from . import bp
-from ..extensions.extension import ExcelFile, resume_data, BASE_PATH, URL_CHECK
+from ..extensions.extension import ExcelFile, resume_data, URL_CHECK, BASE_PATH
 from ..models.model import Candidate, Staff, Document, Address, Contact, Workplace, RelationShip, \
-    Check, Registry, Poligraf, Investigation, Inquiry, TODAY, db, resume_schema, \
+    Check, Registry, Poligraf, Investigation, Inquiry, TODAY, Status, db, resume_schema, \
     staff_schema, document_schema, address_schema, contact_schema, work_schema, relation_schema, \
     check_schema, poligraf_schema, registry_schema, investigation_schema, inquiry_schema
-from ..forms.form import LoginForm, ResumeForm, StaffForm, DocumentForm, AddressForm, WorkplaceForm, SearchForm, \
-    RelationshipForm, ContactForm, CheckForm, RegistryForm, FileForm, PoligrafForm, InvestigationForm, InquiryForm, \
-    InfoForm, Status
 
 
-@bp.errorhandler(404)
-def page_not_found():
-    """
-    Error handler for 404 errors.
-
-    :return: A tuple containing the error message and the HTTP status code 404.
-    """
-    return "Страница не найдена", 404
+@bp.errorhandler(BadRequest)
+def handle_bad_request(e):
+    return 'bad request!', 400
 
 
 @bp.get('/')
 def main():
     """
     A function that serves the main page of the web application.
-
     Returns:
-        The HTML page for the index with forms for login, search, file, resume, check, investigation, inquiry, 
-        poligraf, staff, document, address, workplace, relationship, contact, registry, and info.
+        The HTML page for the index.
     """
-    return render_template("index.html", form_login=LoginForm(), form_search=SearchForm(), form_file=FileForm(),
-                           form_resume=ResumeForm(), form_check=CheckForm(), form_investigation=InvestigationForm(),
-                           form_inquiry=InquiryForm(), form_poligraf=PoligrafForm(), form_staff=StaffForm(),
-                           form_document=DocumentForm(), form_address=AddressForm(), form_work=WorkplaceForm(),
-                           form_relation=RelationshipForm(), form_contact=ContactForm(), form_registry=RegistryForm(),
-                           form_info=InfoForm())
+    return render_template("index.html")
 
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])  # Flask route decorator
@@ -51,15 +37,11 @@ def main():
 def index(flag, page):
     """
     Renders the index page with a list of candidates based on the selected flag and page number.
-
     :param flag: A string representing the selected flag ('main', 'new', 'officer', or anything else).
     :param page: An integer representing the selected page number.
     :return: A list of candidate data and pagination information wrapped in a dictionary.
     """
-    pagination = 11  # Number of candidates per page
-    items = db.session.query(func.count(Candidate.status)).filter_by(
-        status=Status.NEWFAG.value).scalar()  # Total number of candidates in the database with status NEWFAG
-
+    pagination = 12  # Number of candidates per page
     if flag == 'main':  # Show all candidates, ordered by ID in descending order
         title = "Главная страница"
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
@@ -70,11 +52,11 @@ def index(flag, page):
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
                                  Candidate.status, Candidate.deadline).filter_by(status=Status.NEWFAG.value). \
             order_by(Candidate.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
-    elif flag == 'officer':  # Show candidates where the current user is the assigned officer, ordered by ID in ascending order
+    elif flag == 'officer':  # Show candidates where the current user is the assigned officer, ordered by ID
         title = "Страница пользователя"
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
                                  Candidate.status, Candidate.deadline).filter(Candidate.status.notin_(
-            [Status.FINISH.value, Status.CANCEL.value])). \
+            [Status.FINISH.value, Status.RESULT.value, Status.CANCEL.value])). \
             join(Check, isouter=True).filter_by(officer=current_user.username).order_by(Candidate.id.asc()). \
             paginate(page=page, per_page=pagination, error_out=False)
     else:  # Search for candidates based on submitted form data, ordered by ID in ascending order
@@ -94,7 +76,25 @@ def index(flag, page):
     has_next, has_prev = int(query.has_next), int(query.has_prev)
 
     # Return serialized candidate data and pagination information wrapped in a dictionary
-    return [datas, {'has_next': has_next, "has_prev": has_prev, 'items': items, 'title': title}]
+    return [datas, {'has_next': has_next, "has_prev": has_prev, 'title': title}]
+
+
+@bp.get('/count')
+@bp.doc(hide=True)  # Flask API documentation decorator
+@login_required  # Flask-Login authentication decorator
+def get_count():
+    """
+    Returns a JSON object containing the total number of candidates in the database with status NEWFAG and the number of 
+    candidates that have not been FINISHed, RESULTed, or CANCELled and have a Check officer that is the current user.
+    :return: A JSON object containing 'news' and 'checks' keys.
+    :rtype: dict
+    """
+    news = db.session.query(func.count(Candidate.status)).filter_by(
+        status=Status.NEWFAG.value).scalar()  # Total number of candidates in the database with status NEWFAG
+    checks = db.session.query(Candidate.id).filter(Candidate.status.notin_([
+        Status.FINISH.value, Status.RESULT.value, Status.CANCEL.value
+        ])).join(Check, isouter=True).filter_by(officer=current_user.username).scalar()
+    return {'news': news, 'checks': checks}
 
 
 @bp.post('/resume/create')
@@ -103,7 +103,6 @@ def index(flag, page):
 def post_resume():
     """
     Create or update a candidate's resume based on the form data in the request.
-
     Returns:
         A dictionary with the candidate's ID and a message indicating if a new record was created or an existing one was updated
     """
@@ -304,7 +303,6 @@ def update_profile(flag, cand_id):
 def db_add_record(Model, form_data, cand_id):
     """
     Add a new record to the database.
-
     :param Model: SQLAlchemy model of the table to insert into.
     :type Model: SQLAlchemy model
     :param form_data: Data to insert into the new record.
@@ -322,10 +320,8 @@ def db_add_record(Model, form_data, cand_id):
 def send_resume(cand_id):
     """
     Sends a resume for a candidate with the given ID.
-
     Args:
         cand_id: The ID of the candidate to send the resume for.
-
     Returns:
         A dictionary containing a message indicating the status of the resume send attempt.
     """
@@ -362,10 +358,8 @@ def send_resume(cand_id):
 @login_required
 def patch_status(cand_id: int) -> dict:
     """Updates a Candidate's status to 'UPDATE' and sets the 'deadline' to today's date.
-
     Args:
         cand_id (int): The ID of the Candidate to update.
-
     Returns:
         dict: A dictionary containing a message indicating whether the update was successful.
     """
@@ -389,19 +383,17 @@ def patch_status(cand_id: int) -> dict:
 def post_check(flag: str, cand_id: int) -> dict:
     """
     Perform a post request to check a candidate.
-
     Args:
         cand_id (int): The id of the candidate to check.
-
     Returns:
         dict: A dictionary containing a message indicating the success of the check.
-
+        :param cand_id:
+        :param flag:
     """
-    print(flag)
     # Get the candidate from the database
     candidate = db.session.query(Candidate).get(cand_id)
     # Get the data from the html form
-    check_form = request.form.to_dict()
+    check_form: dict = request.form.to_dict()
     check_form['deadline'] = datetime.strptime(check_form.pop('deadline'), "%Y-%m-%d")
     check_form['pfo'] = bool(check_form.pop('pfo')) if 'pfo' in check_form else False
 
@@ -419,7 +411,6 @@ def post_check(flag: str, cand_id: int) -> dict:
         check_form.update({"cand_id": cand_id, 'officer': current_user.username})
 
         latest_check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
-        print(latest_check)
         # Add the check to the database
         for k, v in check_form.items():
             setattr(latest_check, k, v)
@@ -447,14 +438,11 @@ def post_check(flag: str, cand_id: int) -> dict:
 def delete_check(cand_id):
     """
     Deletes the latest check for a candidate, given their ID.
-
     Args:
         cand_id (int): The ID of the candidate whose check should be deleted.
-
     Returns:
         A dictionary with the key 'message' and a message indicating whether the deletion was successful.
     """
-
     # Retrieve the candidate and the latest check for this candidate
     candidate = db.session.query(Candidate).get(cand_id)
     latest_check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
@@ -481,10 +469,8 @@ def delete_check(cand_id):
 def status_check(cand_id):  # запрашиваем данные проверки
     """
     This function retrieves the status of a candidate's application.
-
     Args:
         cand_id (int): The ID of the candidate to retrieve the status for.
-
     Returns:
         A JSON object containing the status of the candidate's application.
     """
@@ -532,8 +518,8 @@ def post_registry(cand_id):
     # ), timeout=5)
     # response.raise_for_status()
     # if response.status_code == 200:  # Check if the response was successfully sent
-    candidate.status = Status.CANCEL.value if reg[
-                                                    'decision'] == Status.CANCEL.value else Status.FINISH.value  # Update candidate status based on decision
+    candidate.status = Status.CANCEL.value if reg['decision'] == Status.CANCEL.value else Status.FINISH.value
+    # Update candidate status based on decision
     db.session.commit()
     return {'message': "Решение успешно отправлено"}  # Return success message
     # else:
@@ -546,10 +532,8 @@ def post_registry(cand_id):
 def post_poligraf(cand_id):
     """
     View function that handles the Poligraf POST request for a candidate.
-
     Args:
         cand_id (int): The candidate ID.
-
     Returns:
         dict: A dictionary containing the message "Запись успешно добавлена".
     """
@@ -578,10 +562,8 @@ def post_poligraf(cand_id):
 def post_investigation(cand_id):
     """
     Adds a new investigation to the database for a given candidate.
-
     Args:
         cand_id (int): The ID of the candidate to add the investigation for.
-
     Returns:
         dict: A dictionary containing a success message.
     """
@@ -605,14 +587,11 @@ def post_investigation(cand_id):
 def post_inquiry(cand_id):
     """
     This function handles a POST request to add an inquiry for a candidate.
-
     Args:
         cand_id (int): The ID of the candidate to add the inquiry for.
-
     Returns:
         dict: A dictionary containing a success message.
     """
-
     # Get the form data as a dictionary
     form_inquiry: dict = request.form.to_dict()
 
@@ -634,7 +613,6 @@ def post_inquiry(cand_id):
 def post_information():
     """
     Retrieve statistics for a given period of time.
-
     Returns:
         A dictionary containing candidate and poligraf statistics, as well as a title for the statistics.
     """

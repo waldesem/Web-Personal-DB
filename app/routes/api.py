@@ -10,8 +10,7 @@ from apiflask import HTTPBasicAuth
 from ..routes import bp
 from ..extensions.extension import BASE_PATH, URL_CHECK, resume_data
 from ..models.model import db, User, Candidate, Check, CheckSchema, DeserialResume, \
-    serial_resume
-from ..forms.form import Status
+    Status, serial_resume
 
 auth = HTTPBasicAuth()  # create the auth object
 
@@ -20,11 +19,9 @@ auth = HTTPBasicAuth()  # create the auth object
 def verify_password(username: str, password: str):
     """
     Verify the user's password.
-
     Args:
         username (str): The user's username.
         password (str): The user's password.
-
     Returns:
         str: The user's username if successful, otherwise None.
     """

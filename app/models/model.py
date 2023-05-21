@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +11,23 @@ ma = Marshmallow()
 TODAY = datetime.now()
 
 
+class Status(Enum):
+    """Класс статусов"""
+
+    NEWFAG = 'Новый'
+    UPDATE = 'Обновлен'
+    MANUAL = 'Проверка'
+    SAVE = "Сохранено"
+    AUTO = 'Автомат'
+    ROBOT = 'Робот'
+    REPLY = 'Обработано'
+    POLIGRAF = 'ПФО'
+    RESULT = 'Результат'
+    FINISH = 'Окончено'
+    CANCEL = 'Отмена'
+    ERROR = 'Ошибка'
+
+    
 class User(db.Model, UserMixin):  # модель пользователей системы
     """ Create model for users"""
 
@@ -52,6 +70,7 @@ class Candidate(db.Model):  # модель анкетных данных
     poligrafs = db.relationship('Poligraf', backref='candidates', cascade="all, delete, delete-orphan")
     inquiries = db.relationship('Inquiry', backref='candidates', cascade="all, delete, delete-orphan")
     investigations = db.relationship('Investigation', backref='candidates', cascade="all, delete, delete-orphan")
+    # informations = db.relationship('Information', backref='candidates', cascade="all, delete, delete-orphan")
 
 
 class Staff(db.Model):  # создаем общий класс должности
@@ -211,6 +230,18 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     source = db.Column(db.String(250))
     deadline = db.Column(db.Date)
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+
+
+# class Information(db.Model):  # модель данных запросов по работникам
+#     """ Create model for candidates Information"""
+
+#     __tablename__ = 'informations'
+
+#     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+#     info = db.Column(db.Text)
+#     source = db.Column(db.String(250))
+#     deadline = db.Column(db.Date)
+#     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
 class CandidateSchema(ma.SQLAlchemyAutoSchema):

@@ -4,9 +4,7 @@
         <meta charset="UTF-8">
         <title>StaffSec</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>{% from 'bootstrap5/utils.html' import render_static %}
-        {{ render_static('css', 'css/bootstrap.css') }}
-        {{ bootstrap.load_css() }}
+        <link rel="stylesheet" type="text/css" href="static/css/bootstrap.css">
         <link rel="stylesheet" type="text/css" href="static/css/print.css" media="print">
         <link rel="stylesheet" type="text/css" href="static/css/user.css">
         <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
@@ -16,17 +14,21 @@
         <div class="container-fluid">
             <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary hidden-print">
                 <div class="container">
-                    <a class="navbar-brand" href="#StaffSec">StaffSec</a>
+                    <a class="navbar-brand" onclick="mainPage('/index/main/');" href="#StaffSec">StaffSec</a>
                     <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a onclick="mainPage('/index/main/');" class="nav-link active" aria-current="page" href="#">Кандидаты</a></li>
+                                <a onclick="mainPage('/index/new/');" class="nav-link active" aria-current="page" href="#">Кандидаты<span class="position-absolute translate-middle badge rounded-pill text-bg-success"></span></a>
+                            </li>
                             <li class="nav-item">
-                                <a onclick="createResume();" class="nav-link active" aria-current="page" href="#">Создать</a></li>
+                                <a onclick="createResume();" class="nav-link active" aria-current="page" href="#">Создать</a>
+                            </li>
                             <li class="nav-item">
-                                <a onclick="mainPage('/index/officer/')" class="nav-link active" aria-current="page" href="#">Кабинет</a></li>
+                                <a onclick="mainPage('/index/officer/')" class="nav-link active" aria-current="page" href="#">Кабинет<span class="position-absolute translate-middle badge rounded-pill text-bg-info"></span></a>
+                            </li>
                             <li class="nav-item">
-                                <a onclick="statInfo();" class="nav-link active" aria-current="page" href="#">Информация</a></li>
+                                <a onclick="statInfo();" class="nav-link active" aria-current="page" href="#">Информация</a>
+                            </li>
                         </ul>                                
                     </div>                        
                     <div class="d-flex px-2">
@@ -35,6 +37,10 @@
                 </div>
             </nav>
         </div>
+        <!--div class="offcanvas offcanvas-start" tabindex="-1" id="StaffSec">
+            <div class="offcanvas-header"></div>
+            <div class="offcanvas-body"></div>
+        </div-->
         <!--Контейнер приложения-->
             <div id="App"></div>        
         <!--Контейнер ссылок-->
@@ -45,89 +51,7 @@
                 <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>
             </footer>
         </div>
-        <script type="text/javascript" src="static/js/bootstrap.bundle.js"></script>
-        <script type="text/javascript" src="static/js/main.js"></script>
-        <script>
-
-            //jinja 2 and flask bootstrap scripts
-            {% macro multiform(form) -%}
-            {% from 'bootstrap5/form.html' import render_form, render_hidden_errors %}
-                {{ form.hidden_tag() }}
-                {{ render_hidden_errors(form) }}
-                {{ render_form(form, **kwargs) }}
-            {%- endmacro %}
-            //
-            {% macro extsearchform(form) -%}
-            <form id="searchFormId" onsubmit="return false">
-                {% from 'bootstrap5/form.html' import render_form_row, render_hidden_errors %}
-                {{ render_form_row([form.region, form.fullname, form.birthday, form.status, form.submit],
-                    form_type='inline', col_map={'region': 'col-md-2', 'fullname': 'col-md-4', 'birthday': 'col-md-2', 'status': 'col-md-2'}) }}
-            </form>
-            {%- endmacro %}
-            
-            //forms
-            formLogin = `{{ multiform(form_login, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 1, 4), id='loginFormId', 
-            render_kw={"onsubmit": "return false"}) }}`;          
-            
-            formUpload  = `{{ multiform(form_file, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='formFileId',
-            render_kw={'onchange': 'submitResume("formFileId", "upload")'}) }}`;
-            
-            formResume = `{{ multiform(form_resume, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='resumeFormId', 
-            render_kw={"onsubmit": 'return false'}) }}`;
-            
-            formStaff = `{{ multiform(form_staff, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='staff', 
-            render_kw={"onsubmit": "return false"}) }}`;
-            
-            formDocument = `{{ multiform(form_document, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='document', 
-            render_kw={"onsubmit": "return false"}) }}`;
-
-            formAddress = `{{ multiform(form_address, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='address', 
-            render_kw={"onsubmit": "return false"}) }}`;
-
-            formContact = `{{ multiform(form_contact, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='contact', 
-            render_kw={"onsubmit": "return false"}) }}`;
-
-            formWorkplace = `{{ multiform(form_work, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='workplace', 
-            render_kw={"onsubmit": "return false"}) }}`;
-
-            formRelation = `{{ multiform(form_relation, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='relation', 
-            render_kw={"onsubmit": "return false"}) }}`;
-            
-            formCheck = `{{ multiform(form_check, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='checkFormId', 
-            render_kw={"onsubmit": "return false"}) }}`;
-            
-            formRegistry = `{{ multiform(form_registry, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='registryFormId', 
-            render_kw={"onsubmit": "return false"}) }}`;
-            
-            formPoligraf = `{{ multiform(form_poligraf, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='poligrafFormId', 
-            render_kw={"onsubmit": "return false"}) }}`;
-            
-            formInvestigation = `{{ multiform(form_investigation, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='investigationFormId', 
-            render_kw={"onsubmit": "return false"}) }}`;
-            
-            formInquiry = `{{ multiform(form_inquiry, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('lg', 2, 10), id='inquiryFormId', 
-            render_kw={"onsubmit": "return false"}) }}`;
-
-            formInfo = `{{ multiform(form_info, extra_classes='form-check', role='form', 
-            form_type='horizontal', horizontal_columns=('md', 2, 2), id='infoFormId', 
-            render_kw={"onsubmit": "return false"}) }}`;
-
-            formSearch = `{{ extsearchform(form_search) }}`;
-
-        </script>
+        <script src="static/js/bootstrap.bundle.js"></script>
+        <script src="static/js/app.js"></script>
     </body>
 </html>

@@ -4,9 +4,8 @@ from logging.handlers import RotatingFileHandler
 
 from apiflask import APIFlask
 from flask_migrate import Migrate
-from flask_bootstrap import Bootstrap5
 from flask_login import LoginManager
-from flask_cors import CORS 
+from flask_cors import CORS
 
 from config import DevelopmentConfig, ProductionConfig
 from app.models.model import db, ma, User
@@ -32,8 +31,6 @@ def create_app():
     login_manager = LoginManager()
     login_manager.login_view = 'route.login'
     login_manager.init_app(app)
-    bootstrap = Bootstrap5()
-    bootstrap.init_app(app)
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
     
@@ -57,10 +54,8 @@ def create_app():
     def load_user(user_id):
         """
         Loads a user object from the database based on the given user ID.
-
         Args:
             user_id (int): The ID of the user to load.
-
         Returns:
             user (User): A User object representing the loaded user.
         """
