@@ -94,7 +94,7 @@ def get_count():
     checks = db.session.query(Candidate.id).filter(Candidate.status.notin_([
         Status.FINISH.value, Status.RESULT.value, Status.CANCEL.value
         ])).join(Check, isouter=True).filter_by(officer=current_user.username).scalar()
-    return {'news': news, 'checks': checks}
+    return {'news': news, 'checks': checks if checks != None else 0}
 
 
 @bp.post('/resume/create')

@@ -211,6 +211,7 @@ async function mainPage(path) {
  * @returns {string} - A string representing the HTML table.
  */
 function createCandidateTable(candidates) {
+    countItems();
     // Map over the array of candidates to create an array of table rows.
     const rows = candidates.map(candidate => {
         // Create a table row with the candidate's information.
@@ -265,6 +266,7 @@ function convertDate(value) {
  * @returns {Promise<void>}
  */
 async function createResume(resume = null) {
+    countItems();
     // Fetch user data from server
     let response = await fetch('/login');
     let { user } = await response.json();
@@ -342,6 +344,7 @@ async function submitResume(formId, url) {
  * @param candId The ID of the candidate whose profile to open.
  */
 async function openProfile(candId) {
+    countItems();
     // Fetch candidate information from server
     const response = await fetch(`/profile/${candId}`);
     const [anketa, check, registry, poligraf, investigation, inquiry, state] = await response.json();
@@ -406,73 +409,33 @@ async function openProfile(candId) {
  * @param anketa - data to use to create the anketa
  */
 function createAnketa(candId, anketa, state, anketaId) {
-    //resume tab
+    const editResume = document.createElement('button');
+    editResume.setAttribute("type", "button");
+    editResume.classList.add("btn", "btn-outline-primary");
+    editResume.onclick = function () { createResume(anketa[0][0]); };
+    editResume.textContent = "Изменить  анкету";
+    //resume labeles and correspondinf forms
     const resumeSubDivNames = ['Резюме', 'Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'];
+    const forms = [editResume, formStaff, formDocument, formAddress, formContact, formWorkplace, formRelation
+    ];
     // Create header with candidate name as a link to their profile
     const header = document.createElement("h5");
     header.innerHTML = `<a href="#" onclick=openProfile(${candId})>${anketa[0][0]['fullname']}</a>`;
     appHeader.replaceChildren(header);
+    // Create table with labels and data
     const fragment = document.createDocumentFragment();
     resumeSubDivNames.forEach((name, i) => {
-        const subHeader = document.createElement('h6');
-        subHeader.innerHTML = name; // Create sub header with name
-        fragment.appendChild(subHeader);
-        fragment.appendChild(createItemTable(ANKETA_LABELES[i], anketa[i])); // Create table with labels and data
+        const details = document.createElement('details');
+        const summary = document.createElement('summary');
+        summary.innerHTML = `<b>${name}</b>`; // Create sub header with name
+        details.appendChild(summary);
+        const formDiv = document.createElement('div');
+        formDiv.classList.add('card', 'card-body', 'py-3');
+        i === 0 ? formDiv.replaceChildren(forms[0]) : formDiv.innerHTML = forms[i];
+        details.appendChild(formDiv);
+        fragment.appendChild(details);
+        fragment.appendChild(createItemTable(ANKETA_LABELES[i], anketa[i]));
     });
-    // Create div for buttons with appropriate classes
-    const resumeBtnGroup = document.createElement('div');
-    resumeBtnGroup.classList.add('btn-group', 'hidden-print');
-    resumeBtnGroup.setAttribute("role", "group");
-    const editResume = document.createElement('button');
-    editResume.classList.add("btn", "btn-outline-primary");
-    editResume.onclick = function () { createResume(anketa[0][0]); };
-    editResume.textContent = "Изменить  анкету";
-    const addItem = document.createElement('button');
-    addItem.classList.add("btn", "btn-outline-primary");
-    addItem.onclick = function () { addResumeItem(candId, anketaId); };
-    addItem.textContent = "Добавить информацию";
-    const resetStatus = document.createElement('button');
-    resetStatus.classList.add("btn", "btn-outline-primary");
-    resetStatus.onclick = function () { updateStatus(candId); };
-    resetStatus.textContent = "Обновить статус";
-    const dispatchResume = document.createElement('button');
-    dispatchResume.classList.add("btn", "btn-outline-primary");
-    dispatchResume.onclick = function () { sendResume(candId); };
-    dispatchResume.textContent = "Отправить на проверку";
-    [editResume, addItem, resetStatus, dispatchResume].forEach((button) => {
-        resumeBtnGroup.appendChild(button);
-    });
-    fragment.appendChild(resumeBtnGroup); // Add button div to anketa
-    anketaId.replaceChildren(fragment); // Replace anketa content with tables and sub headers
-    // Disable the send resume button if the state is not NEW or UPDATE.
-    if (anketa[0][0]["status"] != state['NEW'] &&
-        anketa[0][0]["status"] !== state['UPDATE']) {
-        dispatchResume.setAttribute("class", "disabled btn btn-outline-success hidden-print");
-    }
-    ;
-}
-;
-/**
- * Adds a resume item for a candidate with the provided ID
- * @param candId - The ID of the candidate
- */
-function addResumeItem(candId, anketaId) {
-    // Define array of target names and corresponding forms
-    const targetNames = ['Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'];
-    const forms = [formStaff, formDocument, formAddress, formContact, formWorkplace, formRelation];
-    // Create container array of HTML for each target name and form
-    const container = targetNames.map((targetName, index) => {
-        return `<div class="py-2"><h6>${targetName}</h6>${forms[index]}</div>`;
-    });
-    // Create a temporary div element. Add the container HTML to the temporary div element
-    const temp = document.createElement('div');
-    temp.innerHTML = container.join('');
-    // Create a document fragment and append the temporary div element to it
-    const fragments = document.createDocumentFragment();
-    fragments.append(temp);
-    // Append the document fragment to the resume element
-    anketaId.replaceChildren(fragments);
-    window.scrollTo(0, 0);
     anketaId.addEventListener('submit', async function (event) {
         event.preventDefault();
         // Get the form element that triggered the submit event
@@ -485,9 +448,30 @@ function addResumeItem(candId, anketaId) {
         const { message } = await response.json();
         // Display the message to the user
         createMessage("alert-success", message);
-        // Scroll to the top of the page
-        window.scrollTo(0, 0);
+        openProfile(candId);
     });
+    // Create div for buttons with appropriate classes
+    const resumeBtnGroup = document.createElement('div');
+    resumeBtnGroup.classList.add('btn-group', 'hidden-print');
+    resumeBtnGroup.setAttribute("role", "group");
+    const resetStatus = document.createElement('button');
+    resetStatus.classList.add("btn", "btn-outline-primary");
+    resetStatus.onclick = function () { updateStatus(candId); };
+    resetStatus.textContent = "Обновить статус";
+    resumeBtnGroup.appendChild(resetStatus);
+    const dispatchResume = document.createElement('button');
+    dispatchResume.classList.add("btn", "btn-outline-primary");
+    dispatchResume.onclick = function () { sendResume(candId); };
+    dispatchResume.textContent = "Отправить на проверку";
+    resumeBtnGroup.appendChild(dispatchResume);
+    fragment.appendChild(resumeBtnGroup); // Add button div to anketa
+    anketaId.replaceChildren(fragment); // Replace anketa content with tables and sub headers
+    // Disable the send resume button if the state is not NEW or UPDATE.
+    if (anketa[0][0]["status"] != state['NEW'] &&
+        anketa[0][0]["status"] !== state['UPDATE']) {
+        dispatchResume.setAttribute("class", "disabled btn btn-outline-success hidden-print");
+    }
+    ;
 }
 ;
 /**
@@ -553,7 +537,7 @@ function createCheck(candId, check, state, status, checkId) {
     }
     ;
     // Disable the delete button if the status is FINISH.
-    if (status !== state['RESULT']) {
+    if (status !== state['FINISH']) {
         deleteBtn.setAttribute("class", "disabled btn btn-outline-primary");
     }
     ;
@@ -775,7 +759,10 @@ function createItemTable(names, response) {
                 // if the current column is 'id' create subheaders
             }
             else if (Object.keys(item)[i] === 'id') {
-                return `<tr><th width="25%">${name}</th><th>${Object.values(item)[i]}</th></tr>`;
+                return `<tr height="50px"><th colspan="2">${name} #${Object.values(item)[i]}</th></tr>`;
+            }
+            else if (Object.keys(item)[i] === 'path') {
+                return `<tr><td width="25%">${name}</td><td><a href="${Object.values(item)[i]}">Открыть</a></td></tr>`;
                 // else create row
             }
             else {
@@ -797,6 +784,7 @@ function createItemTable(names, response) {
  * @returns {Promise<void>}
  */
 async function statInfo(flag = false) {
+    countItems();
     // Check if new page opened or reload and create form Info
     if (!flag) {
         const fragment = document.createDocumentFragment();
