@@ -4,10 +4,10 @@ Web-Personal-DB is a web interface for managing a candidate database. It include
 
 ### The main technology stack used in this project includes:
 
-Python (Flask, APIFlask, SQLAlchemy, Marshmallow, WTForms)
+- Python (Flask, APIFlask, SQLAlchemy, Marshmallow)
 - TypeScript
 - JavaScript
-- Bootstrap 5
+- Bootstrap 5 (journal theme)
 
 ### Installation
 To use this project, you will need to have Python 3.7 or higher installed on your local machine. You can follow the instructions here to install Python if you don't have it already.
@@ -17,43 +17,60 @@ Once you have Python installed, you can install the required Python packages by 
 pip install -r requirements.txt
 ```
 
-You will also need to have Node.js installed on your machine to build and run the TypeScript code.
-
-After installing Node.js, you can install the required npm packages by running the following command in your terminal:
+To Use a PostgreSQL Database in a Flask Application install PostgreSQL (Ubuntu example)
 ```
-npm install -g typescript
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql.service
+```
+Creating the PostgreSQL Database and User
+```
+sudo -iu postgres psql
+CREATE DATABASE personal;
+CREATE USER flask WITH PASSWORD 'flask';
+GRANT ALL PRIVILEGES ON DATABASE personal TO sammy;
+\q
 ```
 
 ### Usage
-To start the web application, run the following command in your terminal:
-```
-export FLASK_APP=app
-export FLASK_DEBUG=1
-flask run
-```
-
-This will start the Flask server and serve the application at http://localhost:5000/.
-
 For create database enter command in flask shell:
 ```
+flask shell
 db.create_all()
 ```
 
 For create admin user enter command in flask shell:
 ```
 from app import db, User
-admin = User(fullname='fullname', username='username', password='password', role='admin')
+admin = User(fullname='fullname', username='username', password='password')
+role = Role(name='admin')
+roles_users = (user_id=1, role_id=1)
 db.session.add(admin)
+db.session.add(role)
+db.session.add(roles_users)
 db.session.commit()
 ```
 
-For migrate database enter commands in flask shell:
+To start the web application, run the following command in your terminal:
 ```
-flask db init - only first time if migration folder is not exist
+export FLASK_APP=app
+export FLASK_DEBUG=1        # for debug mode
+flask run
+```
+
+This will start the Flask server and serve the application at http://localhost:5000/.
+
+For migrate database enter commands:
+```
+flask db init       # only first time if migration folder is not exist
 flask db migrate
 flask db upgrade
 ```
 
+You will also need to have Node.js installed on your machine to build and run the TypeScript code.
+After installing Node.js, you can install the required npm packages by running the following command in your terminal:
+```
+npm install -g typescript
+```
 To build the TypeScript code, run the following command in your terminal:
 ```
 npm run build

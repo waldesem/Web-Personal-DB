@@ -1,60 +1,78 @@
 'use strict';
-const appContainer = document.getElementById('App');
-const appMessage = document.createElement('div');
-const appHeader = document.createElement('div');
-const appContent = document.createElement('div');
-[appMessage, appHeader, appContent].forEach((container) => {
-    container.classList.add("container", "py-3");
-    appContainer.appendChild(container);
-});
-/**
- * Asynchronously authenticates the user by making a request to the login endpoint and redirects to the main page
- * if a user is logged in, otherwise displays the login page.
- *
- * @return {void}
- */
-(async () => {
-    let response = await fetch('/login');
-    let { user } = await response.json();
-    if (user != "None") {
-        mainPage('/index/main/');
+class MainApp {
+    constructor() {
+        this.appContainer = document.getElementById('App');
+        this.appMessage = document.createElement('div');
+        this.appHeader = document.createElement('div');
+        this.appContent = document.createElement('div');
+        this.appFooter = document.createElement('div');
+        [this.appMessage, this.appHeader, this.appContent, this.appFooter].forEach((container) => {
+            container.classList.add("container", "py-3");
+            this.appContainer.appendChild(container);
+        });
+        this.appFooter.innerHTML = `
+      <footer class="d-flex flex-wrap justify-content-around align-items-center py-3 my-4 border-top">
+          <p><a href="/docs">OpenAPI</a></p>
+          <p><a href="/admin">Admin</a></p>
+          <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>
+      </footer>
+    `;
+        (async () => {
+            let response = await fetch('/login');
+            let { user } = await response.json();
+            if (user != "None") {
+                this.countItems();
+                mainPage('/index/new/');
+                //Execute countItems() on start 
+            }
+            else {
+                userLogin();
+            }
+        })();
     }
-    else {
-        userLogin();
+    async countItems() {
+        const { news, checks } = await fetch('/count').then(response => response.json());
+        const badges = document.querySelectorAll('.badge');
+        badges[0].innerHTML = news;
+        badges[1].innerHTML = checks;
     }
-})();
-/**
- * Creates a message with the given styling and text and replaces the existing message in appMessage.
- *
- * @param {string} styling - the class name of the styling for the message
- * @param {string} text - the text to be displayed in the message
- */
-function createMessage(styling, text) {
-    const alert = document.createElement('div');
-    alert.classList.add("alert", styling, "alert-dismissible");
-    alert.setAttribute("role", "info");
-    alert.innerHTML = text;
-    const button = document.createElement('button');
-    button.classList.add("btn-close");
-    button.setAttribute("type", "button");
-    button.setAttribute("data-bs-dismiss", "alert");
-    alert.appendChild(button);
-    appMessage.replaceChildren(alert);
+    ;
+    /**
+     * Creates a message with the given styling and text and replaces the existing message in appMessage.
+     *
+     * @param {string} styling - the class name of the styling for the message
+     * @param {string} text - the text to be displayed in the message
+     */
+    createMessage(styling, text) {
+        const alert = document.createElement('div');
+        alert.classList.add("alert", styling, "alert-dismissible");
+        alert.setAttribute("role", "info");
+        alert.innerHTML = text;
+        const button = document.createElement('button');
+        button.classList.add("btn-close");
+        button.setAttribute("type", "button");
+        button.setAttribute("data-bs-dismiss", "alert");
+        alert.appendChild(button);
+        this.appMessage.replaceChildren(alert);
+    }
+    ;
+    /**
+     * Creates a header element with the provided text and replaces any existing
+     * header element in the appHeader container with the newly created one.
+     *
+     * @param {string} text - The text to display in the header element.
+     * @return {void} This function does not return anything.
+     */
+    createHeader(text) {
+        const header = document.createElement("h5");
+        header.textContent = text;
+        this.appHeader.replaceChildren(header);
+    }
+    ;
 }
 ;
-/**
- * Creates a header element with the provided text and replaces any existing
- * header element in the appHeader container with the newly created one.
- *
- * @param {string} text - The text to display in the header element.
- * @return {void} This function does not return anything.
- */
-function createHeader(text) {
-    const header = document.createElement("h5");
-    header.textContent = text;
-    appHeader.replaceChildren(header);
-}
-;
+const appMain = new MainApp();
+setInterval(appMain.countItems, 10 * 60 * 1000);
 /**
  * Logs in the user and displays a login form for them to enter their credentials
  *
@@ -62,16 +80,15 @@ function createHeader(text) {
  * @param {string} text - The text to display to the user
  */
 function userLogin(alert = "alert-info", text = "Авторизуйтесь чтобы продолжить работу") {
-    // Display an info message to prompt the user to login
-    createMessage(alert, text);
-    // Create a header for the login form
-    createHeader("Вход в систему");
+    // Display an info message to prompt the user to login and create a header for the login form
+    appMain.createMessage(alert, text);
+    appMain.createHeader("Вход в систему");
     // Create the login form and add it to the DOM
     const login = document.createElement('div');
     login.classList.add("py-2");
     login.innerHTML = formLogin;
     // Replace the current content with the login form
-    appContent.replaceChildren(login);
+    appMain.appContent.replaceChildren(login);
     // Add an event listener to the form for when it is submitted
     login.addEventListener('submit', async function submitData(event) {
         event.preventDefault();
@@ -84,14 +101,14 @@ function userLogin(alert = "alert-info", text = "Авторизуйтесь чт
         const { user } = await response.json();
         // If the login was unsuccessful, display a warning message
         if (user == "None") {
-            createMessage("alert-danger", "Неверный логин или пароль");
+            appMain.createMessage("alert-danger", "Неверный логин или пароль");
         }
         else {
             // Otherwise, redirect the user to the main page
-            mainPage('/index/main/');
-            login.removeEventListener('submit', submitData);
+            appMain.countItems();
+            mainPage('/index/new/');
         }
-    });
+    }, { once: true });
 }
 ;
 /**
@@ -122,7 +139,6 @@ async function mainPage(path) {
         return userLogin("alert-danger", "Для просмотра нужно войти в систему");
     }
     ;
-    countItems();
     // Create the search bar HTML and add a submit event listener to it
     const search = document.createElement("div");
     search.classList.add("py-3");
@@ -142,7 +158,7 @@ async function mainPage(path) {
         fragment.appendChild(element);
     });
     // Replace the appContent element with the document fragment
-    appContent.replaceChildren(fragment);
+    appMain.appContent.replaceChildren(fragment);
     /**
      * Fetches and displays a table view of data from a given path and page number.
      *
@@ -161,8 +177,8 @@ async function mainPage(path) {
         const [data, metadata] = await response.json();
         const { title, has_next, has_prev } = metadata;
         // Create the page header and message to display the number of new items.
-        createHeader(title);
-        appMessage.textContent = '';
+        appMain.createHeader(title);
+        appMain.appMessage.textContent = '';
         // Create the pagination navigation.
         const nav = document.createElement('nav');
         const ul = document.createElement('ul');
@@ -211,7 +227,6 @@ async function mainPage(path) {
  * @returns {string} - A string representing the HTML table.
  */
 function createCandidateTable(candidates) {
-    countItems();
     // Map over the array of candidates to create an array of table rows.
     const rows = candidates.map(candidate => {
         // Create a table row with the candidate's information.
@@ -239,14 +254,6 @@ function createCandidateTable(candidates) {
           </table>`;
 }
 ;
-async function countItems() {
-    const { news, checks } = await fetch('/count').then(response => response.json());
-    const badges = document.querySelectorAll('.badge');
-    badges[0].innerHTML = news;
-    badges[1].innerHTML = checks;
-}
-;
-setInterval(countItems, 10 * 60 * 1000); // Execute countItems() every 10 minutes (10 * 60 * 1000 milliseconds)
 /**
  * Converts a string date value into a formatted date string.
  *
@@ -266,7 +273,6 @@ function convertDate(value) {
  * @returns {Promise<void>}
  */
 async function createResume(resume = null) {
-    countItems();
     // Fetch user data from server
     let response = await fetch('/login');
     let { user } = await response.json();
@@ -278,7 +284,7 @@ async function createResume(resume = null) {
     // Create container for resume/upload form
     const fragment = document.createDocumentFragment();
     // Display message and header for resume form
-    createMessage("alert-info", "Заполните обязательные поля, либо загрузите файл");
+    appMain.createMessage("alert-info", "Заполните обязательные поля, либо загрузите файл");
     const header = document.createElement("h5");
     if (!resume) {
         header.textContent = "Создать анкету";
@@ -291,14 +297,14 @@ async function createResume(resume = null) {
         header.textContent = "Изменить анкету";
     }
     ;
-    appHeader.replaceChildren(header);
+    appMain.appHeader.replaceChildren(header);
     const divformResume = document.createElement('div');
     divformResume.classList.add("py-1");
     divformResume.innerHTML = formResume;
     const resumeForm = divformResume.children[0];
     fragment.appendChild(divformResume);
     // Add container to app content and clear previous content
-    appContent.replaceChildren(fragment);
+    appMain.appContent.replaceChildren(fragment);
     // If editing an existing resume, pre-fill form with existing data
     if (resume) {
         window.scrollTo(0, 0);
@@ -335,7 +341,7 @@ async function submitResume(formId, url) {
     const response = await fetch(`/resume/${url}`, { method: "POST", body: formData });
     const { message, cand_id } = await response.json();
     // Update the UI with the message and open the candidate's profile
-    createMessage("alert-success", message);
+    appMain.createMessage("alert-success", message);
     openProfile(cand_id);
 }
 ;
@@ -344,7 +350,6 @@ async function submitResume(formId, url) {
  * @param candId The ID of the candidate whose profile to open.
  */
 async function openProfile(candId) {
-    countItems();
     // Fetch candidate information from server
     const response = await fetch(`/profile/${candId}`);
     const [anketa, check, registry, poligraf, investigation, inquiry, state] = await response.json();
@@ -391,7 +396,7 @@ async function openProfile(candId) {
     fragment.appendChild(tablist);
     fragment.appendChild(tabContent);
     // Replace the content of the app with the updated fragment
-    appContent.replaceChildren(fragment);
+    appMain.appContent.replaceChildren(fragment);
     // Create the profile components asynchronously
     Promise.all([
         createAnketa(candId, anketa, state, anketaId),
@@ -415,13 +420,12 @@ function createAnketa(candId, anketa, state, anketaId) {
     editResume.onclick = function () { createResume(anketa[0][0]); };
     editResume.textContent = "Изменить  анкету";
     //resume labeles and correspondinf forms
-    const resumeSubDivNames = ['Резюме', 'Должности', 'Документы', 'Адреса', 'Контакты', 'Работа', 'Связи'];
-    const forms = [editResume, formStaff, formDocument, formAddress, formContact, formWorkplace, formRelation
-    ];
+    const resumeSubDivNames = ['Резюме', 'Должности', 'Документы', 'Адреса', 'Контакты', 'Работа'];
+    const forms = [editResume, formStaff, formDocument, formAddress, formContact, formWorkplace];
     // Create header with candidate name as a link to their profile
     const header = document.createElement("h5");
     header.innerHTML = `<a href="#" onclick=openProfile(${candId})>${anketa[0][0]['fullname']}</a>`;
-    appHeader.replaceChildren(header);
+    appMain.appHeader.replaceChildren(header);
     // Create table with labels and data
     const fragment = document.createDocumentFragment();
     resumeSubDivNames.forEach((name, i) => {
@@ -447,7 +451,7 @@ function createAnketa(candId, anketa, state, anketaId) {
         const response = await fetch(`update/${path}/${candId}`, { method: "post", body: formData });
         const { message } = await response.json();
         // Display the message to the user
-        createMessage("alert-success", message);
+        appMain.createMessage("alert-success", message);
         openProfile(candId);
     });
     // Create div for buttons with appropriate classes
@@ -483,7 +487,7 @@ async function updateStatus(candId) {
     const response = await fetch(`/resume/status/${candId}`);
     const { message } = await response.json();
     // Display an alert message and open the candidate's profile
-    createMessage("alert-info", message);
+    appMain.createMessage("alert-info", message);
     openProfile(candId);
     window.scrollTo(0, 0);
 }
@@ -498,7 +502,7 @@ async function sendResume(candId) {
     const response = await fetch(`/resume/send/${candId}`);
     const { message } = await response.json();
     // Create a message and open the candidate's profile once the resume has been sent.
-    createMessage("alert-info", message);
+    appMain.createMessage("alert-info", message);
     openProfile(candId);
     window.scrollTo(0, 0);
 }
@@ -559,7 +563,7 @@ async function checkEditNew(candId, flag, checkId, check = null) {
     if (flag === "new") {
         const status = await fetch(`/check/status/${candId}`);
         const { message } = await status.json();
-        createMessage("alert-warning", message);
+        appMain.createMessage("alert-warning", message);
         // If the profile is already being worked on, return to the profile page
         if (message === "Анкета взята в работу и еще не закончена") {
             return openProfile(candId);
@@ -593,7 +597,7 @@ async function checkEditNew(candId, flag, checkId, check = null) {
         const { message } = await response.json();
         // Show a message and return to the profile page
         Promise.all([
-            createMessage("alert-primary", message),
+            appMain.createMessage("alert-primary", message),
             openProfile(candId),
             window.scrollTo(0, 0)
         ]);
@@ -615,7 +619,7 @@ async function deleteLastCheck(candId) {
         // Get the message from the response JSON.
         let { message } = await response.json();
         // Create a warning message and open the candidate's profile.
-        createMessage("alert-warning", message);
+        appMain.createMessage("alert-warning", message);
         openProfile(candId);
         window.scrollTo(0, 0);
     }
@@ -727,7 +731,7 @@ function createTabAction(candId, parentDiv, formHTML, path) {
             const response = await fetch(`/${path}/${candId}`, { method: "post", body: formData });
             const { message } = await response.json();
             // Call the openProfile function and create a message
-            createMessage("alert-primary", message),
+            appMain.createMessage("alert-primary", message),
                 openProfile(candId),
                 window.scrollTo(0, 0);
         }, { once: true });
@@ -784,39 +788,38 @@ function createItemTable(names, response) {
  * @returns {Promise<void>}
  */
 async function statInfo(flag = false) {
-    countItems();
     // Check if new page opened or reload and create form Info
     if (!flag) {
         const fragment = document.createDocumentFragment();
-        for (let i = 0; i < 3; i++) {
-            const div = document.createElement("div");
-            div.classList.add("py-3");
-            if (i == 2) {
-                div.innerHTML = formInfo;
-            }
-            ;
-            fragment.appendChild(div);
-        }
-        ;
-        appContent.replaceChildren(fragment);
+        const candStat = document.createElement("div");
+        const pfoStat = document.createElement("div");
+        const formStat = document.createElement("div");
+        [candStat, pfoStat, formStat].forEach((stat, i) => {
+            stat.classList.add("py-3");
+            if (i == 2)
+                stat.innerHTML = formInfo;
+            fragment.appendChild(stat);
+        });
+        appMain.appContent.replaceChildren(fragment);
     }
     ;
     // Get the form and its data. Send a POST.
-    const form = appContent.children[2].children[0];
+    const form = appMain.appContent.children[2].children[0];
     const dataForm = new FormData(form);
     const response = await fetch('/information', {
-        method: "post", body: dataForm
+        method: "post",
+        body: dataForm
     });
     const { title, candidates, poligraf } = await response.json();
     // Create Header
     const header = document.createElement('h5');
     header.textContent = title;
-    appHeader.replaceChildren(header);
+    appMain.appHeader.replaceChildren(header);
     // Set the innerHTML of appMessage to an empty string
-    appMessage.innerHTML = '';
+    appMain.appMessage.innerHTML = '';
     // Set the appendChild of divCandTable and divPfoTable fragments to the tables
-    appContent.children[0].replaceChildren(createStatTable(candidates, "Статистика по кандидатам"));
-    appContent.children[1].replaceChildren(createStatTable(poligraf, "Статистика по ПФО"));
+    appMain.appContent.children[0].replaceChildren(createStatTable(candidates, "Статистика по кандидатам"));
+    appMain.appContent.children[1].replaceChildren(createStatTable(poligraf, "Статистика по ПФО"));
     // Add an event listener to the form that calls statInfo when submitted
     form.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -839,9 +842,7 @@ function createStatTable(stats, caption) {
     <thead><tr><th>Решение</th><th>Количество</th></tr></thead>
     <tbody>
       ${stats.map(stat => `
-        <tr height="50px">
-          <td>${Object.keys(stat)}</td><td>${Object.values(stat)}</td>
-        </tr>
+        <tr height="50px"><td>${Object.keys(stat)}</td><td>${Object.values(stat)}</td></tr>
       `).join('')}
     </tbody>
   `;
@@ -876,13 +877,7 @@ const formSearch = `
           <div class="col-md-2">
               <div class="mb-3">
                   <label class="visually-hidden" for="region">Region</label>
-                  <select class="form-select mb-2 mr-sm-2 mb-sm-0" id="region" name="region">
-                      <option value="">По региону</option>
-                      <option value="Главный офис">Главный офис</option>
-                      <option value="Томск">Томск</option><option value="РЦ Запад">РЦ Запад</option>
-                      <option value="РЦ Юг">РЦ Юг</option><option value="РЦ Запад">РЦ Запад</option>
-                      <option value="РЦ Урал">РЦ Урал</option>
-                  </select>
+                  <input autocomplete="on" class="form-control mb-2 mr-sm-2 mb-sm-0" id="region" maxlength="25" minlength="2" name="region" placeholder="поиск по региону" type="text" value="">
               </div>
           </div>
           <div class="col-md-4">
@@ -917,7 +912,7 @@ const formSearch = `
                   </select>
               </div>
           </div>
-          <div class="col">
+          <div class="col-md-2"">
               <input class="btn btn-primary btn-md" id="submit" name="submit" type="submit" value="Найти">
           </div>
       </div>
@@ -927,13 +922,13 @@ const formLogin = `
       <div class="mb-3 row required">
           <label class="col-form-label col-lg-1" for="username">Логин: </label>
           <div class="col-lg-4">
-              <input autocomplete="username" class="form-control" id="username" maxlength="25" name="username" placeholder="Имя пользователя" required="" type="text" value="">
+              <input autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" placeholder="Имя пользователя" required type="text" value="" pattern="[0-9a-zA-Z]+">
           </div>
       </div>
       <div class="mb-3 row required">
           <label class="col-form-label col-lg-1" for="password">Пароль: </label>
               <div class="col-lg-4">
-                  <input autocomplete="current-password" class="form-control" id="password" maxlength="25" name="password" placeholder="Пароль" required="" type="password" value="">
+                  <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" name="password" placeholder="Пароль" required type="password" value="" pattern="[0-9a-zA-Z]+">
               </div>
           </div>
       <div class=" row">
@@ -945,7 +940,7 @@ const formLogin = `
       </div>
       <div class=" row">
           <div class="offset-lg-1 col-lg-4">
-              <input class="btn btn-primary btn-md" id="submit" name="submit" type="submit" value="Войти">
+              <input class="btn btn-primary btn-md" name="submit" type="submit" value="Войти">
           </div>
       </div>
   </form>`;
@@ -1412,56 +1407,6 @@ const formWorkplace = `
         </div>
     </div>
   </form>`;
-const formRelation = `
-  <form action="" id="relation" method="post" class="form form-check" role="form" onsubmit="return false">
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="relation">Вид связи</label>
-        <div class="col-lg-10">
-            <select class="form-select" id="relation" name="relation">
-                <option value="Отец/Мать">Отец/Мать</option>
-                <option value="Брат/Сестра">Брат/Сестра</option>
-                <option value="Супруг">Супруг</option>
-                <option value="Дети">Дети</option>
-                <option value="Другое">Другое</option>
-            </select>
-        </div>
-    </div>
-    <div class="mb-3 row required">
-        <label class="col-form-label col-lg-2" for="fullname">Полное ФИО</label>
-        <div class="col-lg-10">
-            <input class="form-control" id="fullname" maxlength="250" name="fullname" required="" type="text" value="">
-        </div>
-    </div>
-    <div class="mb-3 row required">
-        <label class="col-form-label col-lg-2" for="birthday">Дата рождения</label>
-        <div class="col-lg-10">
-            <input class="form-control" id="birthday" name="birthday" required="" type="date" value="">
-        </div>
-    </div>
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="address">Адрес</label>
-        <div class="col-lg-10">
-            <input class="form-control" id="address" maxlength="250" name="address" type="text" value="">
-        </div>
-    </div>
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="workplace">Место работы</label>
-        <div class="col-lg-10">
-            <input class="form-control" id="workplace" maxlength="250" name="workplace" type="text" value="">
-        </div>
-    </div>
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="contact">Контакт</label>
-        <div class="col-lg-10">
-            <input class="form-control" id="contact" maxlength="250" name="contact" type="text" value="">
-        </div>
-    </div>
-    <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-            <input class="btn btn-primary btn-md" id="submit" name="submit" type="submit" value="Принять">
-        </div>
-    </div>
-</form>`;
 const formInfo = `
   <form action="" id="infoForm" method="post" class="form form-check" role="form" onsubmit="return false">
       <div class="mb-3 row required">

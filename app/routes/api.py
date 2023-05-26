@@ -48,7 +48,6 @@ def anketa(resume):
     """
     # Rename 'id' key to 'request_id' and update status and deadline
     resume['resume']["request_id"] = resume['resume'].pop('id')
-    resume['resume']['status'] = Status.NEWFAG.value
     resume['resume']['deadline'] = date.today()
 
     # Check if the same resume already exists in the database
@@ -58,10 +57,12 @@ def anketa(resume):
     ).first()
 
     if candidate:  # If the resume already exists, update it
+        resume['resume']['status'] = Status.UPDATE.value
         for k, v in resume['resume'].items():
             setattr(candidate, k, v)
         new_id = candidate.id
     else:  # If the resume does not exist, create a new record
+        resume['resume']['status'] = Status.NEWFAG.value
         value = Candidate(**resume['resume'])
         db.session.add(value)
         db.session.flush()
@@ -84,7 +85,7 @@ def anketa(resume):
         db.session.commit()
         return {'status': 201}
     else:
-        result.status = Status.NEWFAG.value
+        result.status = Status.ERROR.value
         db.session.commit()
         return {'status': 202}
 

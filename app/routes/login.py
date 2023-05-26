@@ -1,10 +1,13 @@
 from flask import request
 from flask_login import login_user, logout_user, current_user
 from apiflask.views import MethodView
+from flask_login import LoginManager
 
 from . import bp
 from ..models.model import User, db
 
+lm = LoginManager()
+lm.login_view = 'route.login'  
 
 class Login(MethodView):
 
@@ -15,7 +18,6 @@ class Login(MethodView):
         if current_user.is_authenticated:  # check if the user is authenticated
             return {"user": current_user.username}
         else:
-            print("None")
             return {"user": "None"}  # if the user is not authenticated, return "None"
 
     def post(self):

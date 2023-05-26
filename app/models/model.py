@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
+from flask_security import RoleMixin
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -8,7 +9,9 @@ from marshmallow import fields
 
 db = SQLAlchemy()
 ma = Marshmallow()
+
 TODAY = datetime.now()
+
 
 
 class Status(Enum):
@@ -27,7 +30,21 @@ class Status(Enum):
     CANCEL = 'Отмена'
     ERROR = 'Ошибка'
 
-    
+
+roles_users = db.Table(
+    'roles_users',
+    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
+    db.Column('role_id', db.Integer(), db.ForeignKey('roles.id'))
+)
+
+
+class Role(db.Model, RoleMixin):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
+
+
 class User(db.Model, UserMixin):  # модель пользователей системы
     """ Create model for users"""
 
@@ -37,8 +54,13 @@ class User(db.Model, UserMixin):  # модель пользователей си
     fullname = db.Column(db.String)
     username = db.Column(db.String, unique=True)
     password = db.Column(db.String)
-    role = db.Column(db.String)
+    active = db.Column(db.Boolean())
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
+    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
 
+    def has_role(self, *args):
+        return set(args).issubset({role.name for role in self.roles})
+    
 
 class Candidate(db.Model):  # модель анкетных данных
     """ Create model for candidates dates"""
@@ -64,13 +86,11 @@ class Candidate(db.Model):  # модель анкетных данных
     addresses = db.relationship('Address', backref='candidates', cascade="all, delete, delete-orphan")
     workplaces = db.relationship('Workplace', backref='candidates', cascade="all, delete, delete-orphan")
     contacts = db.relationship('Contact', backref='candidates', cascade="all, delete, delete-orphan")
-    relations = db.relationship('RelationShip', backref='candidates', cascade="all, delete, delete-orphan")
     staffs = db.relationship('Staff', backref='candidates', cascade="all, delete, delete-orphan")
     checks = db.relationship('Check', backref='candidates', cascade="all, delete, delete-orphan")
     poligrafs = db.relationship('Poligraf', backref='candidates', cascade="all, delete, delete-orphan")
     inquiries = db.relationship('Inquiry', backref='candidates', cascade="all, delete, delete-orphan")
     investigations = db.relationship('Investigation', backref='candidates', cascade="all, delete, delete-orphan")
-    # informations = db.relationship('Information', backref='candidates', cascade="all, delete, delete-orphan")
 
 
 class Staff(db.Model):  # создаем общий класс должности
@@ -130,21 +150,6 @@ class Contact(db.Model):  # создаем общий класс телефон�
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     view = db.Column(db.String(250))
-    contact = db.Column(db.String(250))
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-
-
-class RelationShip(db.Model):  # создаем общий класс связи
-    """ Create model for relations"""
-
-    __tablename__ = 'relations'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    relation = db.Column(db.String(250))
-    fullname = db.Column(db.String(250))
-    birthday = db.Column(db.Date)
-    address = db.Column(db.String(250))
-    workplace = db.Column(db.String(250))
     contact = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
@@ -232,18 +237,6 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
-# class Information(db.Model):  # модель данных запросов по работникам
-#     """ Create model for candidates Information"""
-
-#     __tablename__ = 'informations'
-
-#     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-#     info = db.Column(db.Text)
-#     source = db.Column(db.String(250))
-#     deadline = db.Column(db.Date)
-#     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-
-
 class CandidateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Candidate
@@ -281,13 +274,6 @@ class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
 class ContactSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Contact
-        exclude = ("id",)
-        ordered = True
-
-
-class RelationShipSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = RelationShip
         exclude = ("id",)
         ordered = True
 
@@ -357,11 +343,9 @@ class SerialResume:
     def decer_res(self, new_id, **kwargs):
         """
         This function retrieves a candidate's information from the database and returns it as a dictionary.
-
         Args:
             new_id (int): The ID of the candidate whose information is being retrieved.
             **kwargs (dict): Any additional information to be included in the final dictionary.
-
         Returns:
             dict: A dictionary containing the candidate's information and any additional information provided.
         """
@@ -388,7 +372,6 @@ document_schema = DocumentSchema()
 address_schema = AddressSchema()
 contact_schema = ContactSchema()
 work_schema = WorkplaceSchema()
-relation_schema = RelationShipSchema()
 check_schema = CheckSchema()
 registry_schema = RegistrySchema()
 poligraf_schema = PoligrafSchema()

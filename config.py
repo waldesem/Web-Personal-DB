@@ -5,7 +5,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config(object):
-    DEBUG = False
     DATABASE_URI = 'sqlite:///:memory:'
 
 
@@ -14,7 +13,11 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or "postgresql://flask:flask@localhost/personal"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=365)
+    # JSON_SORT_KEYS = False
+    DEBUG = False
     AUTO_200_RESPONSE = False
+    TEMPLATES_AUTO_RELOAD = True
+    SECURITY_URL_PREFIX = "/admin"
     DESCRIPTION = 'Web-Personal DB API'
     CONTACT = {'email': 'wsemenenko@gmail.com'}
 
@@ -24,7 +27,10 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'tmp', 'personal.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=30)
+    DEBUG = True
+    # JSON_SORT_KEYS = False
     AUTO_200_RESPONSE = False
     TEMPLATES_AUTO_RELOAD = True
+    SECURITY_URL_PREFIX = "/admin"
     DESCRIPTION = 'Web-Personal DB API Dev'
     CONTACT = {'email': 'wsemenenko@gmail.com'}

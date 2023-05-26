@@ -5,15 +5,15 @@ import requests
 
 from sqlalchemy import func
 from flask import render_template, request
-from flask_login import current_user, login_required
+from flask_login import login_required, current_user
 from werkzeug.exceptions import BadRequest
 
 from . import bp
-from ..extensions.extension import ExcelFile, resume_data, URL_CHECK, BASE_PATH
-from ..models.model import Candidate, Staff, Document, Address, Contact, Workplace, RelationShip, \
-    Check, Registry, Poligraf, Investigation, Inquiry, TODAY, Status, db, resume_schema, \
-    staff_schema, document_schema, address_schema, contact_schema, work_schema, relation_schema, \
-    check_schema, poligraf_schema, registry_schema, investigation_schema, inquiry_schema
+from ..extensions.extension import ExcelFile, URL_CHECK, BASE_PATH, resume_data
+from ..models.model import Candidate, Staff, Document, Address, Contact, Workplace, \
+    Check, Registry, Poligraf, Investigation, Inquiry, Status, User, db, TODAY, resume_schema, \
+    staff_schema, document_schema, address_schema, contact_schema, work_schema, check_schema, \
+    poligraf_schema, registry_schema, investigation_schema, inquiry_schema
 
 
 @bp.errorhandler(BadRequest)
@@ -21,7 +21,16 @@ def handle_bad_request(e):
     return 'bad request!', 400
 
 
+@bp.get('/analytics')
+@bp.doc(hide=True)
+def analytics():
+    all = db.session.query(func.count(Candidate.id)).scalar()
+    users = db.session.query(func.count(User.id)).scalar()
+    return {'all': all, 'users': users}
+
+
 @bp.get('/')
+@bp.doc(hide=True)  # Flask API documentation decorator
 def main():
     """
     A function that serves the main page of the web application.
@@ -42,16 +51,20 @@ def index(flag, page):
     :return: A list of candidate data and pagination information wrapped in a dictionary.
     """
     pagination = 12  # Number of candidates per page
+    
     if flag == 'main':  # Show all candidates, ordered by ID in descending order
         title = "Главная страница"
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
                                  Candidate.status, Candidate.deadline).order_by(Candidate.id.desc()). \
             paginate(page=page, per_page=pagination, error_out=False)
+    
     elif flag == 'new':  # Show only candidates with status NEWFAG, ordered by ID in descending order
         title = "Новые анкеты"
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
-                                 Candidate.status, Candidate.deadline).filter_by(status=Status.NEWFAG.value). \
+                                 Candidate.status, Candidate.deadline).filter(Candidate.status.in_([Status.NEWFAG.value,
+                                                                              Status.UPDATE.value])). \
             order_by(Candidate.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
+    
     elif flag == 'officer':  # Show candidates where the current user is the assigned officer, ordered by ID
         title = "Страница пользователя"
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
@@ -59,6 +72,7 @@ def index(flag, page):
             [Status.FINISH.value, Status.RESULT.value, Status.CANCEL.value])). \
             join(Check, isouter=True).filter_by(officer=current_user.username).order_by(Candidate.id.asc()). \
             paginate(page=page, per_page=pagination, error_out=False)
+    
     else:  # Search for candidates based on submitted form data, ordered by ID in ascending order
         title = "Страница поиска"
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
@@ -89,12 +103,12 @@ def get_count():
     :return: A JSON object containing 'news' and 'checks' keys.
     :rtype: dict
     """
-    news = db.session.query(func.count(Candidate.status)).filter_by(
-        status=Status.NEWFAG.value).scalar()  # Total number of candidates in the database with status NEWFAG
-    checks = db.session.query(Candidate.id).filter(Candidate.status.notin_([
+    news = db.session.query(func.count(Candidate.status)).filter(Candidate.status.in_([Status.NEWFAG.value,
+                                                                Status.UPDATE.value])).scalar()
+    checks = db.session.query(func.count(Candidate.id)).filter(Candidate.status.notin_([
         Status.FINISH.value, Status.RESULT.value, Status.CANCEL.value
         ])).join(Check, isouter=True).filter_by(officer=current_user.username).scalar()
-    return {'news': news, 'checks': checks if checks != None else 0}
+    return {'news': news if news is not None else 0, 'checks': checks if checks is not None else 0}
 
 
 @bp.post('/resume/create')
@@ -171,11 +185,6 @@ def get_profile(cand_id):
     # Serializing the workplace object(s) to a dictionary
     workplaces = work_schema.dump(work, many=True)
 
-    # Querying the RelationShip table for all relationships belonging to the candidate with the provided ID
-    rel = db.session.query(RelationShip).filter_by(cand_id=cand_id).order_by(RelationShip.id.asc()).all()
-    # Serializing the relationship object(s) to a dictionary
-    relations = relation_schema.dump(rel, many=True)
-
     # Querying the Staff table for all staff belonging to the candidate with the provided ID
     staff = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all()
     # Serializing the staff object(s) to a dictionary
@@ -207,7 +216,7 @@ def get_profile(cand_id):
     inquiries = inquiry_schema.dump(inq, many=True)
 
     # Return a list of dictionaries containing the candidate's information
-    return [[candidate, staffs, documents, address, contacts, workplaces, relations],
+    return [[candidate, staffs, documents, address, contacts, workplaces],
             checks, registries, pfos, invs, inquiries, {i.name: i.value for i in Status}]
 
 
@@ -281,18 +290,16 @@ def update_profile(flag, cand_id):
         'address': Address,
         'contact': Contact,
         'workplace': Workplace,
-        'relation': RelationShip,
-    }
+   }
     model = model_map.get(flag)
     if not model:
         return {"message": "Возникла ошибка. Значение {}".format(flag.upper())}
 
     form_data: dict = request.form.to_dict()
 
-    # If updating documents or relationships, convert the date string to a datetime object
-    if flag == 'document' or flag == 'relation':
-        form_data['issue' if flag == 'document' else 'birthday'] = \
-            datetime.strptime(form_data.pop('issue' if flag == 'document' else 'birthday'), "%Y-%m-%d")
+    # If updating documents convert the date string to a datetime object
+    if flag == 'document':
+        form_data['issue'] = datetime.strptime(form_data.pop('issue' ), "%Y-%m-%d")
 
     # Add the new record to the specified table using the SQLAlchemy model
     db_add_record(model, form_data, cand_id)

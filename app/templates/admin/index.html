@@ -1,0 +1,15 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+  <div id="admin"></div>
+  <script>
+    let adminContainer = document.getElementById('admin');
+    (async () => {
+      let response = await fetch('/analytics');
+      let { all, users} = await response.json();
+      let item = `
+        <h4>Всего кандидатов: ${all}</h4>
+        <h4>Всего пользователей: ${users}</h4>`;
+      adminContainer.innerHTML = item;
+    })();
+  </script>
+{% endblock body %}
