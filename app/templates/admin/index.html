@@ -1,15 +1,49 @@
 {% extends 'admin/master.html' %}
 {% block body %}
-  <div id="admin"></div>
-  <script>
-    let adminContainer = document.getElementById('admin');
-    (async () => {
-      let response = await fetch('/analytics');
-      let { all, users} = await response.json();
-      let item = `
-        <h4>Всего кандидатов: ${all}</h4>
-        <h4>Всего пользователей: ${users}</h4>`;
-      adminContainer.innerHTML = item;
-    })();
-  </script>
+
+<div class="container">
+  <div id="message">
+  </div>
+  <h3>Создать нового пользователя</h3>
+  <form id="loginForm" method="post" class="form form-check" role="form">
+      <div class="mb-3 row required">
+          <label class="col-form-label col-lg-2" for="fullname">Имя пользователя: </label>
+          <div class="col-lg-4">
+              <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" placeholder="Имя пользователя" required type="text" value="" pattern="[0-9a-zA-Z]+">
+          </div>
+      </div>
+      <div class="mb-3 row required">
+          <label class="col-form-label col-lg-2" for="username">Учетная запись: </label>
+              <div class="col-lg-4">
+                  <input autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" placeholder="Учетная запись без пробелов на латинице" required type="text" value="" pattern="[0-9a-zA-Z]+">
+              </div>
+          </div>
+      <div class=" row">
+          <div class="offset-lg-2 col-lg-4">
+              <input class="btn btn-primary btn-md" name="submit" type="submit" value="Создать">
+          </div>
+      </div>
+  </form>
+</div>
+
+<script>
+
+  const message = document.getElementById('message')
+  const form = document.forms[0];
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const resp = await fetch('/registration', {
+      method: 'POST', 
+      body: new FormData(form)
+    });
+    const { response } = await resp.json();
+    if (response == "Error") {
+      message.innerHTML = '<div class="alert alert-danger" role="info">Пользователь уже существует</div>'
+    } else {
+      message.innerHTML = '<div class="alert alert-success" role="info">Пользователь успешно создан</div>'
+    }
+  });
+
+</script>
+
 {% endblock body %}

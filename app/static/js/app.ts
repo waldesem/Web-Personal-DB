@@ -27,7 +27,7 @@ class MainApp {
         this.countItems();
         mainPage('/index/new/')
       } else {
-        userLogin()
+        userLogin("/login")
       }
       })();
   }
@@ -85,44 +85,88 @@ setInterval(appMain.countItems, 10 * 60 * 1000);
  * @param {string} text - The text to display to the user
  */
 function userLogin(
-  alert: string="alert-info", 
-  text: string="Авторизуйтесь чтобы продолжить работу"
+  path: string,
+  alert: string = "alert-info", 
+  text: string = "Авторизуйтесь чтобы продолжить работу"
   ) {
   // Display an info message to prompt the user to login and create a header for the login form
 
   appMain.createMessage(alert, text);
-  appMain.createHeader("Вход в систему");
-
+  if (path === "/login") {
+    appMain.createHeader("Вход в систему")
+  } else {
+    appMain.createHeader("Изменение пароля")
+  };
   // Create the login form and add it to the DOM
   const login = document.createElement('div');
   login.classList.add("py-2");
   login.innerHTML = formLogin;
-
+  
+  if (path === "/login") {
+    const anchorDiv = document.createElement('div');
+    anchorDiv.classList.add("py-1");
+    const anchor = document.createElement('a');
+    anchor.setAttribute("href", "#");
+    anchor.textContent = 'Изменить пароль'
+    anchor.onclick = function () {userLogin(
+      '/password',
+      "alert-primary", 
+      "Введите данные в форму"
+      )};
+    anchorDiv.appendChild(anchor);
+    login.children[0].children[1].children[1].children[0].insertAdjacentElement('afterend', anchorDiv);
+  } else {
+    const innerDiv = document.createElement('div');
+    const innerElement = `
+      <div class="mb-3 row required">
+        <label class="col-form-label col-lg-1" for="new_pswd">Новый: </label>
+          <div class="col-lg-4">
+              <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
+              name="new_pswd" placeholder="Новый пароль" required type="password" value="" pattern="[0-9a-zA-Z]+">
+          </div>
+      </div>
+      <div class="mb-3 row required">
+        <label class="col-form-label col-lg-1" for="conf_pswd">Повтор: </label>
+          <div class="col-lg-4">
+              <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
+              name="conf_pswd" placeholder="Подтверждение пароля" required type="password" value="" pattern="[0-9a-zA-Z]+">
+          </div>
+      </div>
+    `
+    innerDiv.innerHTML = innerElement;
+    login.children[0].children[1].insertAdjacentElement('afterend', innerDiv)
+  };
   // Replace the current content with the login form
   appMain.appContent.replaceChildren(login);
-
+  
   // Add an event listener to the form for when it is submitted
-  login.addEventListener('submit', async function submitData (event: any){
+  login.addEventListener('submit', async function submitForm (event: any) {
     event.preventDefault();
 
     // Send a POST request to the server with the form data
-    const response = await fetch('/login', {
+    const response = await fetch(path, {
       method: 'POST', 
       body: new FormData(login.children[0] as HTMLFormElement)
     });
 
     // Parse the response JSON
     const { user } = await response.json();
-
-    // If the login was unsuccessful, display a warning message
     if (user == "None") {
       appMain.createMessage("alert-danger", "Неверный логин или пароль");
+    } else if (user == "Overdue") {
+      appMain.createMessage("alert-danger", "Пароль просрочен. Измените пароль");
+    } else if (user == "Denied") {
+        appMain.createMessage("alert-danger", "Пользователь не авторизован");
+    } else if (user == "Not_match") {
+      appMain.createMessage("alert-danger", "Введенные пароли не совпадают");
+    } else if (user == "Success") {
+      // Otherwise, redirect the user to the login page
+      userLogin('/login', 'alert-success', "Пароль установлен. Войдите с новым паролем");
     } else {
       // Otherwise, redirect the user to the main page
-      appMain.countItems();
-      mainPage('/index/new/');
+      mainPage('/index/new/')
     }
-  }, {once: true});
+  });
 };
 
 
@@ -136,7 +180,7 @@ function userLogin(
 function userLogout() {
 	Promise.all([
 		fetch('logout'),
-		userLogin()
+		userLogin("/login")
 	])
 };
 
@@ -147,14 +191,15 @@ function userLogout() {
  * @param path The path to fetch data from.
  */
 async function mainPage(path: string) {
-
+  
+  appMain.countItems();
   // Fetch user data from server
   const auth = await fetch('/login');
   const { user } = await auth.json();
 
   // Redirect to login if the user is not logged in
   if (user === "None") {
-    return userLogin("alert-danger", "Для просмотра нужно войти в систему")
+    return userLogin("/login", "alert-danger", "Для просмотра нужно войти в систему")
   };
 
   // Create the search bar HTML and add a submit event listener to it
@@ -319,7 +364,7 @@ async function createResume(resume: unknown = null): Promise<void> {
   let { user } = await response.json();
   // Redirect to login if the user is not logged in
   if (user === "None") {
-    return userLogin("alert-danger", "Для просмотра нужно войти в систему")
+    return userLogin("/login", "alert-danger", "Для просмотра нужно войти в систему")
   };
 
   // Create container for resume/upload form
@@ -545,7 +590,7 @@ function createAnketa(
   anketaId.replaceChildren(fragment); // Replace anketa content with tables and sub headers
 
 	// Disable the send resume button if the state is not NEW or UPDATE.
-  if (anketa[0][0]["status" as keyof typeof anketa[0][0]] != state['NEW' as keyof typeof state] && 
+  if (anketa[0][0]["status" as keyof typeof anketa[0][0]] != state['NEWFAG' as keyof typeof state] && 
 			anketa[0][0]["status" as keyof typeof anketa[0][0]] !== state['UPDATE' as keyof typeof state]) {
     dispatchResume.setAttribute("class", "disabled btn btn-outline-success hidden-print");
 	};
@@ -1092,7 +1137,7 @@ const formLogin: string= `
       </div>
       <div class=" row">
           <div class="offset-lg-1 col-lg-4">
-              <input class="btn btn-primary btn-md" name="submit" type="submit" value="Войти">
+              <input class="btn btn-primary btn-md" name="submit" type="submit" value="Принять">
           </div>
       </div>
   </form>`;

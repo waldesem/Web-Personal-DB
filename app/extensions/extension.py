@@ -49,7 +49,7 @@ class ExcelFile:  # получение анкетной информации и�
                 'period': str(self.sheet[f'AA{i}'].value).strip(),
                 'workplace': str(self.sheet[f'AB{i}'].value).strip(),
                 'address': str(self.sheet[f'AC{i}'].value).strip(),
-                'position': self.sheet[f'AD{i}'].value.strip()
+                'position': str(self.sheet[f'AD{i}'].value).strip()
             }
             for i in range(3, 6)
         ]

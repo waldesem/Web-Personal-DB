@@ -10,7 +10,7 @@ Web-Personal-DB is a web interface for managing a candidate database. It include
 - Bootstrap 5 (journal theme)
 
 ### Installation
-To use this project, you will need to have Python 3.7 or higher installed on your local machine. You can follow the instructions here to install Python if you don't have it already.
+To use this project, you will need to have Python 3.8 or higher installed on your local machine. You can follow the instructions here to install Python if you don't have it already.
 
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
@@ -27,7 +27,7 @@ Creating the PostgreSQL Database and User
 sudo -iu postgres psql
 CREATE DATABASE personal;
 CREATE USER flask WITH PASSWORD 'flask';
-GRANT ALL PRIVILEGES ON DATABASE personal TO sammy;
+GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
 
@@ -38,17 +38,8 @@ flask shell
 db.create_all()
 ```
 
-For create admin user enter command in flask shell:
-```
-from app import db, User
-admin = User(fullname='fullname', username='username', password='password')
-role = Role(name='admin')
-roles_users = (user_id=1, role_id=1)
-db.session.add(admin)
-db.session.add(role)
-db.session.add(roles_users)
-db.session.commit()
-```
+SQLite database and admin user creates automatically with name = admin and password=admin.
+You must change it in first login to application
 
 To start the web application, run the following command in your terminal:
 ```

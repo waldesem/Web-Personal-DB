@@ -13,7 +13,6 @@ ma = Marshmallow()
 TODAY = datetime.now()
 
 
-
 class Status(Enum):
     """Класс статусов"""
 
@@ -51,11 +50,14 @@ class User(db.Model, UserMixin):  # модель пользователей си
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    fullname = db.Column(db.String)
-    username = db.Column(db.String, unique=True)
-    password = db.Column(db.String)
+    fullname = db.Column(db.String(250))
+    username = db.Column(db.String(250), unique=True)
+    # password = db.Column(db.String(250))
+    password = db.Column(db.LargeBinary)
+    pswd_create = db.Column(db.Date)
+    pswd_change = db.Column(db.Date)
+    last_login = db.Column(db.DateTime)
     active = db.Column(db.Boolean())
-    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
 
     def has_role(self, *args):

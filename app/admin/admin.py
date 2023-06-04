@@ -7,7 +7,7 @@ from flask_admin.menu import MenuLink
 from app.models.model import db, User, Role, Candidate
 
 
-admin = Admin(template_mode='bootstrap3')
+admin = Admin(template_mode='bootstrap4')
 
 
 class AdminModelView(ModelView):

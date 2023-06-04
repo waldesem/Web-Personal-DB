@@ -9,11 +9,10 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    SECRET_KEY = 'my_super_secret_prod_key'
+    SECRET_KEY = 'AtK5Jcsngu7ewjoHZk1tweTLl6lM83vuL3aEMcsrKLvGUccEOg'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or "postgresql://flask:flask@localhost/personal"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=365)
-    # JSON_SORT_KEYS = False
     DEBUG = False
     AUTO_200_RESPONSE = False
     TEMPLATES_AUTO_RELOAD = True
@@ -23,12 +22,11 @@ class ProductionConfig(Config):
 
 
 class DevelopmentConfig(Config):
-    SECRET_KEY = 'my_super_secret_dev_key'
+    SECRET_KEY = 'XBSn6VoOJQaQvENTooCHkb2y2YtbI82FgybeVUGIRSkcJf0E5u'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'tmp', 'personal.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=30)
     DEBUG = True
-    # JSON_SORT_KEYS = False
     AUTO_200_RESPONSE = False
     TEMPLATES_AUTO_RELOAD = True
     SECURITY_URL_PREFIX = "/admin"

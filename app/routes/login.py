@@ -1,3 +1,6 @@
+import datetime
+
+import bcrypt
 from flask import request
 from flask_login import login_user, logout_user, current_user
 from apiflask.views import MethodView
@@ -8,6 +11,7 @@ from ..models.model import User, db
 
 lm = LoginManager()
 lm.login_view = 'route.login'  
+
 
 class Login(MethodView):
 
@@ -29,13 +33,19 @@ class Login(MethodView):
         username = user_form.get('username')
         password = user_form.get('password')
         remember = bool(user_form.get('remember'))
-        # Query the database for a user with the provided credentials
-        user = db.session.query(User).filter_by(username=username, password=password).first()
 
-        # If a user with the provided credentials exists, log them in and return their username
+        # Query the database for a user with the provided credentials
+        user = db.session.query(User).filter_by(username=username).first()
         if user:
-            login_user(user, remember=remember)
-            return {"user": current_user.username}
+            if bcrypt.checkpw(password.encode('utf-8'), user.password):
+                delta_change = datetime.date.today()- user.pswd_create
+                if user.pswd_change and delta_change.days < 365:
+                    login_user(user, remember=remember)
+                    return {"user": current_user.username}
+                else:
+                    return {"user": "Overdue"}
+            else:
+                return {"user": "None"}
         # Otherwise, return "None"
         else:
             return {"user": "None"}
@@ -57,3 +67,58 @@ def logout():
 
     # Return a dictionary with a "user" key and a value of "None".
     return {"user": "None"}
+
+
+@bp.post('/registration')
+def registration():
+
+    # Get user data from the form
+    user_form = request.form.to_dict()
+    fullname = user_form.get('fullname')
+    username = user_form.get('username')
+
+    # Query the database for a user with the provided credentials
+    user = db.session.query(User).filter_by(username=username).first()
+
+    if user:
+        return {"response": "Error"}
+    else:
+        new_user = User(
+            fullname=fullname,
+            username=username, 
+            
+            pswd_create = datetime.date.today()
+            )       
+        db.session.add(new_user)
+        db.session.commit()
+        setattr(new_user, 'password', bcrypt.hashpw(username.encode('utf-8'), bcrypt.gensalt()))
+        db.session.commit()
+        return {"response": username}
+
+
+@bp.post('/password')
+def change_password():
+
+    # Get user data from the form
+    user_form = request.form.to_dict()
+    username = user_form.get('username')
+    password = user_form.get('password')
+    new_pswd = user_form.get('new_pswd')
+    conf_pswd = user_form.get('conf_pswd')
+    
+    if conf_pswd != new_pswd:
+        return {"user": "Not_match"}
+
+    # Query the database for a user with the provided credentials
+    user = db.session.query(User).filter_by(username=username).first()
+    if user:
+        if bcrypt.checkpw(password.encode('utf-8'), user.password):
+            setattr(user, 'password', bcrypt.hashpw(new_pswd.encode('utf-8'), bcrypt.gensalt()))
+            setattr(user, "pswd_change", datetime.date.today())
+            db.session.commit()
+            return {"user": "Success"}
+        else:
+            return {"user": "Denied"}
+    else:
+        return {"user": "Denied"}
+        

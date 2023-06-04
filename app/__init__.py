@@ -1,5 +1,7 @@
+import datetime
 import os
 import logging
+import bcrypt
 from logging.handlers import RotatingFileHandler
 
 from apiflask import APIFlask
@@ -7,11 +9,11 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 
 from config import DevelopmentConfig, ProductionConfig
-from app.models.model import db, ma, User
+from app.models.model import User, Role, db, ma
 from app.admin.admin import admin
 from app.routes.login import lm
 
- 
+
 def create_app():
     """
     Initializes and returns a Flask app object with various extensions and configurations.
@@ -19,7 +21,6 @@ def create_app():
         app (Flask): A Flask app object.
     """
     app = APIFlask(__name__, title="Web-Personal-DB API", version="1.0")
-    
     # Set up app configurations
     app.config.from_object(DevelopmentConfig)
     app.json.sort_keys = False
@@ -46,6 +47,21 @@ def create_app():
     app.logger.setLevel(logging.WARNING)
     app.logger.info('This is a warning message')
 
+    # check admin user
+    with app.app_context():
+        db.create_all()
+        admin_user = db.session.query(User).filter_by(username='admin').first()
+        if not admin_user:
+            new_admin = User(
+                username='admin', 
+                password=bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt()), 
+                pswd_create = datetime.date.today()
+                )
+            role = Role(name='admin')
+            new_admin.roles.append(role)
+            db.session.add(new_admin)
+            db.session.commit()
+    
     @lm.user_loader
     def load_user(user_id):
         """
@@ -55,6 +71,6 @@ def create_app():
         Returns:
             user (User): A User object representing the loaded user.
         """
-        return User.query.get(user_id)
-    
+        return User.query.get(user_id)        
+
     return app
