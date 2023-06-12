@@ -648,7 +648,7 @@ def post_information():
 
     # Return a dictionary containing the candidate and poligraf statistics as well as a title for the statistics
     return {
-        "candidates": [dict([cand]) for cand in candidates],
-        "poligraf": [dict([test]) for test in pfo],
+        "candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
+        "poligraf": dict(map(lambda x: (x[1], x[0]), pfo)),
         "title": f'Cтатистика за период c {statistic["start"]} по {statistic["end"]}'
     }

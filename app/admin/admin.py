@@ -23,8 +23,3 @@ admin.add_view(AdminModelView(User, db.session))
 admin.add_view(AdminModelView(Role, db.session))
 admin.add_view(AdminModelView(Candidate, db.session))
 admin.add_link(MenuLink(name='Return', url='/'))
-
-
-    
-
-

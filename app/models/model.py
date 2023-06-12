@@ -52,7 +52,6 @@ class User(db.Model, UserMixin):  # модель пользователей си
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     fullname = db.Column(db.String(250))
     username = db.Column(db.String(250), unique=True)
-    # password = db.Column(db.String(250))
     password = db.Column(db.LargeBinary)
     pswd_create = db.Column(db.Date)
     pswd_change = db.Column(db.Date)

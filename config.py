@@ -14,8 +14,6 @@ class ProductionConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=365)
     DEBUG = False
-    AUTO_200_RESPONSE = False
-    TEMPLATES_AUTO_RELOAD = True
     SECURITY_URL_PREFIX = "/admin"
     DESCRIPTION = 'Web-Personal DB API'
     CONTACT = {'email': 'wsemenenko@gmail.com'}
@@ -23,7 +21,7 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     SECRET_KEY = 'XBSn6VoOJQaQvENTooCHkb2y2YtbI82FgybeVUGIRSkcJf0E5u'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'tmp', 'personal.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'sqlite:///' + os.path.join(basedir, 'personal.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=30)
     DEBUG = True
