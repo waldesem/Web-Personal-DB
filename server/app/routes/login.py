@@ -3,7 +3,7 @@ import datetime
 import bcrypt
 from flask import jsonify, request
 from apiflask.views import MethodView
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, unset_jwt_cookies, verify_jwt_in_request
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, set_access_cookies, unset_jwt_cookies, verify_jwt_in_request
 
 from . import bp
 from ..models.model import User, db
@@ -35,16 +35,15 @@ class Login(MethodView):
         user_form = request.form.to_dict()
         username = user_form.get('username')
         password = user_form.get('password')
-        remember = bool(user_form.get('remember'))
         # Query the database for a user with the provided credentials
-        user = db.session.query(User).filter_by(username=username, password=password).first()
+        user = db.session.query(User).filter_by(username=username).first()
 
         # If a user with the provided credentials exists, log them in and return their username
         if user:
             if bcrypt.checkpw(password.encode('utf-8'), user.password):
-                delta_change = datetime.date.today()- user.pswd_create
+                delta_change = datetime.date.today() - user.pswd_create
                 if user.pswd_change and delta_change.days < 365:
-                    access_token = create_access_token(identity=username, remember=remember)
+                    access_token = create_access_token(identity=username)
                     return {'user': 'Authorized', 'access_token': access_token}
                 else:
                     return {"user": "Overdue"}
