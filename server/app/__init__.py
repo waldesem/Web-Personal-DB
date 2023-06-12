@@ -1,7 +1,8 @@
-import datetime
 import os
 import logging
 import bcrypt
+import datetime
+
 from logging.handlers import RotatingFileHandler
 
 from apiflask import APIFlask
@@ -11,9 +12,9 @@ from flask_cors import CORS
 from config import DevelopmentConfig, ProductionConfig
 from app.models.model import User, Role, db, ma
 from app.admin.admin import admin
-from app.routes.login import lm
+from app.routes.login import jwt
 
-
+ 
 def create_app():
     """
     Initializes and returns a Flask app object with various extensions and configurations.
@@ -21,14 +22,15 @@ def create_app():
         app (Flask): A Flask app object.
     """
     app = APIFlask(__name__, title="Web-Personal-DB API", version="1.0")
+    
     # Set up app configurations
     app.config.from_object(DevelopmentConfig)
     app.json.sort_keys = False
-    CORS(app)
+    CORS(app, supports_credentials=True)
     admin.init_app(app)
     db.init_app(app)
     ma.init_app(app)
-    lm.init_app(app)
+    jwt.init_app(app)
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
     
@@ -61,16 +63,5 @@ def create_app():
             new_admin.roles.append(role)
             db.session.add(new_admin)
             db.session.commit()
-    
-    @lm.user_loader
-    def load_user(user_id):
-        """
-        Loads a user object from the database based on the given user ID.
-        Args:
-            user_id (int): The ID of the user to load.
-        Returns:
-            user (User): A User object representing the loaded user.
-        """
-        return User.query.get(user_id)        
 
     return app

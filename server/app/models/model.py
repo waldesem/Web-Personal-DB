@@ -29,7 +29,6 @@ class Status(Enum):
     CANCEL = 'Отмена'
     ERROR = 'Ошибка'
 
-
 roles_users = db.Table(
     'roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),

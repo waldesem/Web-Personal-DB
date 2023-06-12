@@ -1,8 +1,6 @@
 import os
 import shutil
 
-import requests
-
 from datetime import date, datetime
 import requests
 
