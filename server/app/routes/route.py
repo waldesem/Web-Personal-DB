@@ -5,7 +5,7 @@ import requests
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from sqlalchemy import func
-from flask import render_template, request
+from flask import send_from_directory, request
 from werkzeug.exceptions import BadRequest
 
 from . import bp
@@ -16,17 +16,7 @@ from ..models.model import Candidate, Staff, Document, Address, Contact, Workpla
     poligraf_schema, registry_schema, investigation_schema, inquiry_schema
 
 
-@bp.errorhandler(BadRequest)
-def handle_bad_request(e):
-    return 'bad request!', 400
-
-
-@bp.get('/analytics')
-@bp.doc(hide=True)
-def analytics():
-    all = db.session.query(func.count(Candidate.id)).scalar()
-    users = db.session.query(func.count(User.id)).scalar()
-    return {'all': all, 'users': users}
+bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dist'))
 
 
 @bp.get('/')
@@ -37,7 +27,13 @@ def main():
     Returns:
         The HTML page for the index.
     """
-    return render_template("index.html")
+    return bp.send_static_file('index.html')  
+
+
+@bp.route('/<path:path>')
+@bp.doc(hide=True)
+def serve_static(path):
+    return send_from_directory(bp.static_folder, path)
 
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])  # Flask route decorator
@@ -123,7 +119,7 @@ def post_resume():
         A dictionary with the candidate's ID and a message indicating if a new record was created or an existing one was updated
     """
     # Get the form data as a dictionary
-    resume_dict = request.get_json()
+    resume_dict = request.form.to_dict()
 
     # Query the database for a candidate with the same name and birthday
     result = db.session.query(Candidate).filter_by(fullname=resume_dict['fullname'],
@@ -264,7 +260,6 @@ def upload_file():
                     excel.workplaces, excel.staff)
         db.session.commit()
         message = 'Создана новая запись'
-
     return {'cand_id': result.id, 'message': message}
 
 
@@ -400,7 +395,7 @@ def post_check(flag: str, cand_id: int) -> dict:
     # Get the candidate from the database
     candidate = db.session.query(Candidate).get(cand_id)
     # Get the data from the html form
-    check_form: dict = request.get_json()
+    check_form: dict = request.form.to_dict()
     check_form['deadline'] = datetime.strptime(check_form.pop('deadline'), "%Y-%m-%d")
     check_form['pfo'] = bool(check_form.pop('pfo')) if 'pfo' in check_form else False
 
@@ -441,6 +436,7 @@ def post_check(flag: str, cand_id: int) -> dict:
 
 
 @bp.get('/check/delete/<int:cand_id>')
+@bp.doc(hide=True)
 @jwt_required()
 def delete_check(cand_id):
     """
@@ -645,3 +641,16 @@ def post_information():
         "poligraf": dict(map(lambda x: (x[1], x[0]), pfo)),
         "title": f'Cтатистика за период c {statistic["start"]} по {statistic["end"]}'
     }
+
+
+@bp.get('/analytics')
+@bp.doc(hide=True)
+def analytics():
+    all = db.session.query(func.count(Candidate.id)).scalar()
+    users = db.session.query(func.count(User.id)).scalar()
+    return {'all': all, 'users': users}
+
+
+@bp.errorhandler(BadRequest)
+def handle_bad_request(e):
+    return 'bad request!', 400

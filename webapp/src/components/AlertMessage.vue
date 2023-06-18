@@ -6,12 +6,15 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AlertMessage',
-  props: {
-    attr: String,
-    text: String
-  }
-};
+<script setup lang="ts">
+
+import { defineProps, toRefs } from "vue";
+
+const props = defineProps({
+  attr: String,
+  text: String
+});
+
+const { attr, text } = toRefs(props);
+
 </script>

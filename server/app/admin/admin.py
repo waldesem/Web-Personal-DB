@@ -1,6 +1,6 @@
 from flask_admin import Admin
 from flask import abort
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 
@@ -12,6 +12,7 @@ admin = Admin(template_mode='bootstrap4')
 
 class AdminModelView(ModelView):
 
+    @jwt_required
     def is_accessible(self):
         current_user = get_jwt_identity()
         if current_user.has_role('admin'):

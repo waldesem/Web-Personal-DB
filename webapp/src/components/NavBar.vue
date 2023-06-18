@@ -7,14 +7,14 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <router-link :to="{ name: 'index', params: {flag: 'new'} }" class="nav-link active">Кандидаты
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{news}}</span></router-link>
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{now}}</span></router-link>
             </li>
             <li class="nav-item">
-              <router-link :to="{ name: 'resume' }" class="nav-link active">Создать</router-link>
+              <router-link :to="{ name: 'profile', params: {id: '0'}}" class="nav-link active">Создать</router-link>
             </li>
             <li class="nav-item">
               <router-link :to="{ name: 'index', params: {flag: 'officer'} }" class="nav-link active">Кабинет
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{checks}}</span></router-link>
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{usr}}</span></router-link>
             </li>
             <li class="nav-item">
               <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
@@ -29,25 +29,25 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'NavbarView',
-  
-  data() {
-  return {
-    news: '',
-    checks: ''
-    }
-  },
+<script setup lang="ts">
 
-  async created () {
-    const response = await fetch('http://localhost:5000/count', {headers: {
-      'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-      'Content-Type': 'application/json'
-      }});
-    const { news, checks } = await response.json();
-    this.news = news;
-    this.checks = checks
+import axios from 'axios';
+import { ref } from 'vue';
+
+const now = ref('');
+const usr = ref('');
+
+(async (): Promise<void> => {
+  try {
+    const response = await axios.get('http://localhost:5000/count', {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+    }});
+    const { news, checks } = response.data;
+    now.value = news;
+    usr.value = checks
+  } catch (error) {
+    console.log(error);
   }
-}
+})();
+
 </script>

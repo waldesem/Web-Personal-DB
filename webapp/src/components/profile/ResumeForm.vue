@@ -1,8 +1,7 @@
 <template>
-  <div class="py-3">
     <form @submit.prevent="submitData" class="form form-check" role="form">
       <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="region">Регион</label>
+      <label class="col-form-label col-lg-2" for="region">Регион</label>
         <div class="col-lg-10">
           <select class="form-select" v-model="region" name="region">
             <option value="ГО">ГО</option>
@@ -79,89 +78,71 @@
           <div class="btn-group" role="group">
             <button class="btn btn-outline-primary" type="submit">Принять</button>
             <button class="btn btn-outline-primary" type="reset">Очистить</button>
-            <button class="btn btn-outline-primary" type="button" @click="url = ''">Отмена</button>
+            <button class="btn btn-outline-primary" type="button" @click="$emit('cancelEdit')">Отмена</button>
           </div>
         </div>
       </div>
     </form>
-  </div>
 </template>
 
-<script>
-export default {
-  name: 'BriefView',
-  
-  props: {
-    resume: Object
-  },
+<script setup lang="ts">
 
-  emits: ['updateMessage', 'updateItem'],
+import { ref, toRefs, defineProps, defineEmits } from 'vue'
+import axios from 'axios';
 
-  data() {
-    return {
-      region: '',
-      fullname: '',
-      previous: '',
-      birthday: '',
-      birthplace: '',
-      country: '',
-      snils: '',
-      inn: '',
-      education: '',
-      addition: '',
-      recruiter: ''
-    };
-  },
+const emit = defineEmits (['updateMessage', 'updateItem', 'cancelEdit']);
 
-  methods: {
+const props = defineProps({
+  resume: Object
+});
 
-    async submitData() {
-      const response = await fetch(`http://localhost:5000/resume/create`, {
-      method: 'POST',
-      body: JSON.stringify({
-        region: this.region,
-        fullname: this.fullname,
-        previous: this.previous,
-        birthday: this.birthday,
-        birthplace: this.birthplace,
-        country: this.country,
-        snils: this.snils,
-        inn: this.inn,
-        education: this.education,
-        addition: this.addition,
-        recruiter: this.recruiter
-      }),
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-        'Content-Type': 'application/json'
-        }
-      });
-      const { message, cand_id } = await response.json();
-      this.$emit('updateMessage', {
-        attr: "alert-success",
-        text: message
-      });
-      console.log(cand_id);
-      this.$emit('updateItem')
-    }
-  },
+const resume  = toRefs(props).resume;
 
-  created () {
-    if (this.resume) {
-      this.title = 'Создать новую анкету';
-      this.region = this.resume.region;
-      this.fullname = this.resume.fullname;
-      this.previous = this.resume.previous;
-      this.birthday = this.resume.birthday;
-      this.birthplace = this.resume.birthplace;
-      this.country = this.resume.country;
-      this.snils = this.resume.snils;
-      this.inn = this.resume.inn;
-      this.education = this.resume.education;
-      this.addition = this.resume.addition;
-      this.recruiter = this.resume.recruiter;
-		}
-	}
+let region: string;
+let fullname: string;
+let previous: string;
+let birthday: string;
+let birthplace: string;
+let country: string;
+let snils: string;
+let inn: string;
+let education: string;
+let addition: string;
+let recruiter: string;
+
+if (resume) {
+  const resumeValue = resume.value;
+  if (resumeValue) {
+    region = ref(resumeValue.region);
+    fullname = ref(resumeValue.fullname);
+    previous = ref(resumeValue.previous);
+    birthday = ref(resumeValue.birthday);
+    birthplace = ref(resumeValue.birthplace);
+    country = ref(resumeValue.country);
+    snils = ref(resumeValue.snils);
+    inn = ref(resumeValue.inn);
+    education = ref(resumeValue.education);
+    addition = ref(resumeValue.addition);
+    recruiter = ref(resumeValue.recruiter)
+  }
 }
+
+async function submitData(event: Event) {
+  try {
+    const formData = new FormData(event.target as HTMLFormElement);
+    const response = await axios.post(`http://localhost:5000/resume/create`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { message, cand_id } = response.data;
+    emit('updateMessage', {
+      attr: "alert-success",
+      text: message
+    });
+    emit('updateItem', {candId: cand_id});
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 </script>
 

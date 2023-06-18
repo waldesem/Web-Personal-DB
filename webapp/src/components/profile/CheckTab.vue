@@ -119,7 +119,7 @@
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="deadline">Дата проверки</label>
         <div class="col-lg-10">
-          <input class="form-control" id="deadline" v-model="deadline" required="" type="date">
+          <input class="form-control" id="deadline" v-model="deadline" required type="date">
         </div>
       </div>
       <div class=" row">
@@ -136,144 +136,126 @@
   <template v-else>
     <div v-html="table" class="py-3"></div>
     <div class="btn-group" role="group">
-      <a @click="deleteCheck" class="btn btn-outline-primary">Удалить проверку</a>
-      <a @click="addCheck" class="btn btn-outline-primary" type="button">Добавить проверку</a>
-      <a @click="editCheck" class="btn btn-outline-primary" type="button">Изменить проверку</a>
+      <a @click="deleteCheck" :disabled="status === 'Окончено'" class="btn btn-outline-primary">Удалить проверку</a>
+      <a @click="addCheck" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary" type="button">Добавить проверку</a>
+      <a @click="editCheck" :disabled="state && (status !== state['SAVE'] && status !== state['CANCEL'])"  class="btn btn-outline-primary" type="button">Изменить проверку</a>
     </div>
   </template>
 </template>
 
-<script>
+<script setup lang="ts">
 
-export default {
-  name: 'CheckView',
+import axios from 'axios';
+import { ref, toRefs, defineProps, defineEmits } from 'vue';
+
+
+const props = defineProps({
+  table: String,
+  item: Object,
+  candId: String,
+  state: Object,
+  status: String
+});
+
+const { table, item, candId, state, status } = toRefs(props);
+
+const emit = defineEmits(['updateMessage', 'updateItem'])
   
-  props: {
-    table: String,
-    item: Object,
-    candId: String,
-    state: Object,
-    status: String
-  },
+const url = ref('');
+const workplace = ref('');
+const employee = ref('');
+const document = ref('');
+const inn = ref('');
+const debt = ref('');
+const bankruptcy = ref('');
+const bki = ref('');
+const courts = ref('');
+const affiliation = ref('');
+const terrorist = ref('');
+const mvd = ref('');
+const internet = ref('');
+const cronos = ref('');
+const cros = ref('');
+const addition = ref('');
+const pfo = ref('');
+const conclusion = ref('');
+const comments = ref('');
+const deadline = ref('');
 
-  emits: ['updateMessage', 'updateItem'],
-  
-  data() {
-    return {
-      url: '',
-      workplace: '',
-      employee: '',
-      document: '',
-      inn: '',
-      debt: '',
-      bankruptcy: '',
-      bki: '',
-      courts: '',
-      affiliation: '',
-      terrorist: '',
-      mvd: '',
-      internet: '',
-      cronos: '',
-      cros: '',
-      addition: '',
-      pfo: '',
-      conclusion: '',
-      comments: '',
-      deadline: ''
-    }
-  },
-
-  methods: {
+async function submitData(event: Event){
+  try {
+    const formData = new FormData(event.target as HTMLFormElement);
+    const response = await axios.post(`http://localhost:5000/check/new/${candId?.value}`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { message } = response.data;
+    emit('updateMessage', {
+      attr: "alert-warning",
+      text: message
+    });
+    emit('updateItem', candId)
+    url.value = ''
+  } catch (error) {
+    console.log(error);
+  }
+}
     
-    async submitData(){
-      const response = await fetch(`http://localhost:5000/check/${this.url}/${this.candId}`, {
-        method: "post",
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          workplace: this.workplace,
-          employee: this.employee,
-          document: this.document,
-          inn: this.inn,
-          debt: this.debt,
-          bankruptcy: this.bankruptcy,
-          bki: this.bki,
-          courts: this.courts,
-          affiliation: this.affiliation,
-          terrorist: this.terrorist,
-          mvd: this.mvd,
-          internet: this.internet,
-          cronos: this.cronos,
-          cros: this.cros,
-          addition: this.addition,
-          pfo: this.pfo,
-          conclusion: this.conclusion,
-          comments: this.comments,
-          deadline: this.deadline
-        })
-      });
-      const { message } = await response.json();
-      this.$emit('updateMessage', {
+async function deleteCheck() {
+  if (confirm("Вы действительно хотите удалить проверку?")) {
+    try {
+      const response = await axios.get(`http://localhost:5000/check/delete/${candId?.value}`, {headers: {
+        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+      }});
+      const { message } = response.data;
+      emit('updateMessage', {
         attr: "alert-warning",
         text: message
       });
-      this.$emit('updateItem')
-      this.url = ''
-    },
-    
-    async deleteCheck() {
-      if (confirm("Вы действительно хотите удалить проверку?")) {
-        const response = await fetch(`http://localhost:5000/check/delete/${this.candId}`, {headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-        }});
-        const { message } = await response.json();
-        this.$emit('updateMessage', {
-          attr: "alert-warning",
-          text: message
-        });
-        this.$emit('updateItem')
-      }
-    },
-
-    async addCheck() {
-      this.url = 'new';
-      const status = await fetch(`http://localhost:5000/check/status/${this.candId}`, {headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-        'Content-Type': 'application/json'
-      }});
-      const { message } = await status.json();
-      this.$emit('updateMessage', {
-        attr: "alert-info",
-        text: message
-      });
-    },
-
-    async editCheck() {
-      if (this.item){
-        this.url = 'edit';
-        this.workplace = this.item.workplace;
-        this.employee = this.item.employee;
-        this.document = this.item.document;
-        this.inn = this.item.inn;
-        this.debt = this.item.debt;
-        this.bankruptcy = this.item.bankruptcy;
-        this.bki = this.item.bki;
-        this.courts = this.item.courts;
-        this.affiliation = this.item.affiliation;
-        this.terrorist = this.item.terrorist;
-        this.mvd = this.item.mvd;
-        this.internet = this.item.internet;
-        this.cronos = this.item.cronos;
-        this.cros = this.item.cros;
-        this.addition = this.item.addition;
-        this.pfo = this.item.pfo;
-        this.conclusion = this.item.conclusion;
-        this.comments = this.item.comments;
-        this.deadline = this.item.deadline;
-      }
+      emit('updateItem')
+    } catch (error) {
+    console.error(error);
     }
   }
 }
+
+async function addCheck() {
+  url.value = 'new';
+  const response = await axios.get(`http://localhost:5000/check/status/${candId?.value}`, {headers: {
+    'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+  }});
+  const { message } = response.data;
+  emit('updateMessage', {
+    attr: "alert-warning",
+    text: message
+  });
+}
+
+async function editCheck() {
+  if (item){
+    const checkValue = item.value;
+    if (checkValue) {
+      url.value = 'edit';
+      workplace.value = ref(checkValue.workplace);
+      employee.value = ref(checkValue.employee);
+      document.value = ref(checkValue.document);
+      inn.value = ref(checkValue.inn);
+      debt.value = ref(checkValue.debt);
+      bankruptcy.value = ref(checkValue.bankruptcy);
+      bki.value = ref(checkValue.bki);
+      courts.value = ref(checkValue.courts);
+      affiliation.value = ref(checkValue.affiliation);
+      terrorist.value = ref(checkValue.terrorist);
+      mvd.value = ref(checkValue.mvd);
+      internet.value = ref(checkValue.internet);
+      cronos.value = ref(checkValue.cronos);
+      cros.value = ref(checkValue.cros);
+      addition.value = ref(checkValue.addition);
+      pfo.value = ref(checkValue.pfo);
+      conclusion.value = ref(checkValue.conclusion);
+      comments.value = ref(checkValue.comments);
+      deadline.value = ref(checkValue.deadline)
+    }
+  }
+}
+
 </script>

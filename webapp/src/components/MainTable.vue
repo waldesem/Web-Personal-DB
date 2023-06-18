@@ -1,5 +1,5 @@
 <template>
-  <NavbarView />
+  <NavBar />
   <div class="container py-5">
     <div class="py-5"><h3>{{ head }}</h3></div>
     <div class="py-1">
@@ -60,13 +60,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="candidate in candidates" :key="candidate.id">
-            <td>{{ candidate.id }}</td>
-            <td>{{ candidate.region }}</td>
-            <td><router-link :to="{ name: 'profile', params: {id: candidate.id} }">{{ candidate.fullname }}</router-link></td>
-            <td>{{ this.convertDate(candidate.birthday) }}</td>
-            <td>{{ candidate.status }}</td>
-            <td>{{ this.convertDate(candidate.deadline) }}</td>
+          <tr height="50px" v-for="candidate in candidates" :key="candidate">
+            <td>{{ candidate["id" as keyof typeof candidate] }}</td>
+            <td>{{ candidate["region" as keyof typeof candidate] }}</td>
+            <td>
+              <router-link :to="{ name: 'profile', params: {
+                id: candidate['id' as keyof typeof candidate]
+                } }">{{ candidate["fullname" as keyof typeof candidate] }}
+              </router-link>
+            </td>
+            <td>{{ convertDate(candidate["birthday" as keyof typeof candidate]) }}</td>
+            <td>{{ candidate["status" as keyof typeof candidate] }}</td>
+            <td>{{ convertDate(candidate["deadline" as keyof typeof candidate]) }}</td>
           </tr>
         </tbody>
       </table>
@@ -84,114 +89,107 @@
       </nav>
     </div>
   </div>
+  <div>
+    <footer class="d-flex flex-wrap justify-content-around align-items-center py-3 my-4 border-top">
+      <p><a href="/docs">OpenAPI</a></p>
+      <p><a href="/admin">Admin</a></p>
+      <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>
+    </footer>
+  </div>
 </template>
 
-<script>
-import NavbarView from './Navbar.vue';
+<script setup lang="ts">
 
-export default {
-  name: 'MainApp',
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router' 
+import axios from 'axios';
+import NavBar from './NavBar.vue';
 
-  components: {
-    NavbarView
-  },
+const route = useRoute();
+const head = ref('Новые кандидаты');
+const path = ref(String(route.params.flag));
+const region = ref('');
+const fullname = ref('');
+const birthday = ref('');
+const status = ref('');
+const candidates = ref([]);
+const currentPage = ref(1);
+const currentPath = ref('');
+const hasPagination = ref(false);
+const hasPrev = ref(false);
+const hasNext = ref(false);
 
-  data() {
-    return {
-      head: "Новые кандидаты",
-      domen: "http://localhost:5000/",
-      path: '',
-      region: '',
-      fullname: '',
-      birthday: '',
-      status: '',
-      candidates: [],
-      currentPage: '',
-      currentPath: '',
-      hasPagination: false,
-      hasPrev: false,
-      hasNext: false
-    };
-  },
-  
-  methods: {
-    async getCandidates(path, page=1) {
-      this.currentPage = page;
-      this.currentPath = path;
-      switch (path) {     
-        case 'search':
-          this.head = "Результаты поиска";
-          break;
-        case 'officer':
-          this.head = "Страница пользователя";
-          break;
-        case 'main':
-          this.head = "Главная страница"
-          break;
-        default:
-          this.head = "Новые кандидаты";
-      }
-      let response
-      if (path !== 'search') {
-        response = await fetch(`${this.domen}/index/${path}/${this.currentPage}`, {headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-          'Content-Type': 'application/json'
-          }})
-      } else {
-        response = await fetch(`${this.domen}/index/${path}/${this.currentPage}`, {
-          method: "POST",
-          headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-          'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            "region": this.region, 
-            "fullname": this.fullname, 
-            "birthday": this.birthday, 
-            "status": this.status
-          }),
-        })
-      }
-      const [ data, metadata ] = await response.json();
-      this.candidates = data;
-      this.hasPagination = this.hasNext || this.hasPrev;
-      this.hasPrev = metadata.has_prev;
-      this.hasNext = metadata.has_next;
-    },
-
-    convertDate(value) {
-      const date = new Date(Date.parse(value));
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear().toString();
-      return `${day}.${month}.${year}`;
-    },
-
-    async prevPage() {
-      if (this.hasPrev) {
-        this.currentPage -= 1;
-        await this.getCandidates(this.currentPath, this.currentPage);
-      }
-    },
-
-    async nextPage() {
-      if (this.hasNext) {
-        this.currentPage += 1;
-        await this.getCandidates(this.currentPath, this.currentPage);
-      }
-    }
-  },
-
-  watch: {
-    '$route.params.flag'(newVal) {
-      this.path = newVal
-      this.getCandidates(this.path)
-    }
-  },
-
-  created() {
-    this.path = this.$route.params.flag
-    this.getCandidates(this.path)
+getCandidates(path.value);
+    
+async function getCandidates(url: string, page=1) {
+  currentPage.value = page;
+  currentPath.value = url;
+  const header = {
+    'search': "Результаты поиска", 
+    'officer': "Страница пользователя", 
+    'main': "Главная страница",
+    'new': "Новые кандидаты"
   }
-};
+  head.value = header[url as keyof typeof header]
+  let response
+  try {
+    if (url !== 'search') {
+      response = await axios.get(`http://localhost:5000/index/${url}/${page}`, {
+        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      })
+    } else {
+      response = await axios.post(`http://localhost:5000/index/${url}/${page}`, 
+      {
+        "region": region.value, 
+        "fullname": fullname.value, 
+        "birthday": birthday.value, 
+        "status": status.value
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+    }
+    const [ data, metadata ] = response.data;
+    candidates.value = data;
+    hasPagination.value = hasNext.value || hasPrev.value;
+    hasPrev.value = metadata.has_prev;
+    hasNext.value = metadata.has_next;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function convertDate(value: string): string {
+  const date = new Date(Date.parse(value));
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear().toString();
+  return `${day}.${month}.${year}`;
+}
+
+async function prevPage() {
+  if (hasPrev.value) {
+    currentPage.value -= 1;
+    await getCandidates(currentPath.value, currentPage.value);
+  }
+}
+
+async function nextPage() {
+  if (hasNext.value) {
+    currentPage.value += 1;
+    await getCandidates(currentPath.value, currentPage.value);
+  }
+}
+
+watch(
+  () => route.params.flag,
+  (newVal) => {
+    path.value = String(newVal);
+    getCandidates(path.value);
+  }
+);
+
+
 </script>

@@ -32,48 +32,43 @@
 </div>
 
   <template v-else>
-    <div v-html="table" class="py-1"></div>
+    <div v-html="table" class="py-3"></div>
     <a @click="url = 'registry'" class="btn btn-outline-primary" type="button">Добавить запись</a>
   </template>
 </template>
 
-<script>
+<script setup lang="ts">
 
-export default {
-  name: 'RegistryView',
+import axios from 'axios';
+import { ref, toRefs, defineProps, defineEmits } from 'vue';
   
-  props: {
-    table: String,
-    candId: String
-  },
+const props = defineProps({
+  table: String,
+  candId: String
+});
 
-  emits: ['updateMessage', 'updateItem'],
+const {table, candId} = toRefs(props);
 
-  data() {
-    return {
-      url: ''
-    }
-  },
+const emit = defineEmits(['updateItem','updateMessage']);
 
-  methods: {
+const url = ref('');
 
-    async submitData(event) {
-      const response = await fetch(`http://localhost:5000/${this.url}/${this.candId}`, {
-        method: "POST", 
-        body: new FormData(event.target),
-				headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-          'Content-Type': 'application/json'
-          }
-      });
-      const { message } = await response.json();
-      this.$emit('updateMessage', {
-        attr: "alert-success",
-        text: message
-      });
-      this.url = '';
-      this.$emit('updateItem');
-    }
+async function submitData(event: Event) {
+  try {
+    const formData = new FormData(event.target as HTMLFormElement);
+    const response = await axios.post(`http://localhost:5000/registry/${candId?.value}`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+      }
+    });
+    const { message } = response.data;
+    emit('updateMessage', {
+      attr: "alert-success",
+      text: message
+    });
+    url.value = '';
+    emit('updateItem', candId?.value);
+  } catch (error) {
+    console.error(error);
   }
 }
 

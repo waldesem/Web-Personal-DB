@@ -28,15 +28,17 @@
 
 <script>
 
-  const message = document.getElementById('message')
   const form = document.forms[0];
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const resp = await fetch('/registration', {
       method: 'POST', 
       body: new FormData(form)
+    }, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const { response } = await resp.json();
+    const message = document.getElementById('message')
     if (response == "Error") {
       message.innerHTML = '<div class="alert alert-danger" role="info">Пользователь уже существует</div>'
     } else {

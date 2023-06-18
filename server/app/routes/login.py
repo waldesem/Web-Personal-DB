@@ -14,6 +14,7 @@ jwt = JWTManager()
 class Login(MethodView):
 
     @jwt_required()
+    @bp.doc(hide=True)
     def get(self):
         """
         Returns the current user's username if the user is authenticated, otherwise returns "None".
@@ -25,7 +26,8 @@ class Login(MethodView):
             return {"user": "Authorized"}
         else:
             return {"user": "None"}  # if the user is not authenticated, return "None"
-    
+
+    @bp.doc(hide=True)
     def post(self):
         """
         Logs in a user and returns their username if the credentials provided are correct.
@@ -57,8 +59,8 @@ class Login(MethodView):
 bp.add_url_rule('/login', view_func=Login.as_view('login'))
 
 
-@jwt_required()
 @bp.get('/logout')
+@bp.doc(hide=True)
 def logout():
     unset_jwt_cookies(jsonify({"user": "None"}))
     # Return a dictionary with a "user" key and a value of "None".
@@ -66,6 +68,7 @@ def logout():
 
 
 @bp.post('/registration')
+@bp.doc(hide=True)
 def registration():
 
     # Get user data from the form
@@ -92,6 +95,7 @@ def registration():
 
 
 @bp.post('/password')
+@bp.doc(hide=True)
 def change_password():
 
     # Get user data from the form

@@ -21,7 +21,7 @@ def create_app():
     Returns:
         app (Flask): A Flask app object.
     """
-    app = APIFlask(__name__, title="Web-Personal-DB API", version="1.0")
+    app = APIFlask(__name__, static_folder='dist', title="Web-Personal-DB", version="1.0")
     
     # Set up app configurations
     app.config.from_object(DevelopmentConfig)

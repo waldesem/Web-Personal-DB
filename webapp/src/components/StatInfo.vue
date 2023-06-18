@@ -1,15 +1,15 @@
 <template>
-  <NavbarView />
+  <NavBar />
   <div class="container">
     <div class="py-5">
-      <h5>{{title}}</h5>
+      <h5>{{header}}</h5>
     </div>
     <div class="py-1">
       <table class="table table-hover align-middle">
         <caption>Статистика по кандидатам</caption>
         <thead><tr><th>Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in candidates" :key="index">
+          <tr height="50px" v-for="(value, name, index) in checks" :key="index">
             <td >{{value}}</td><td>{{name}}</td>
           </tr>
         </tbody>
@@ -20,7 +20,7 @@
         <caption>Статистика по ПФО</caption>
         <thead><tr><th>Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in poligraf" :key="index">
+          <tr height="50px" v-for="(value, name, index) in pfo" :key="index">
             <td >{{value}}</td><td>{{name}}</td>
           </tr>
         </tbody>
@@ -50,45 +50,34 @@
   </div>
 </template>
 
-<script>
-import NavbarView from './Navbar.vue';
 
-export default {
-  name: 'StatApp',
-  
-  components: {
-    NavbarView
-  },
+<script setup lang="ts">
 
-  data() {
-    return {
-      start: '',
-      end: '',
-      title: '',
-      candidates: [],
-      poligraf: [],
-    };
-  },
+import axios from 'axios';
+import { ref } from 'vue';
+import NavBar from '@/components/NavBar.vue';
 
-  methods: {
-    async submitData(event) {
-      const response = await fetch(`http://localhost:5000/information`, {
-        method: 'POST',
-        body: new FormData(event.target)
-      });
-      const { candidates, poligraf, title } = await response.json();
-      this.candidates = candidates;
-      this.poligraf = poligraf;
-      this.title = title;
-    }
-  },
+const header = ref('');
+const checks = ref([]);
+const pfo = ref([]);
 
-  async created () {
-    const response = await fetch(`http://localhost:5000/information`);
-    const { candidates, poligraf, title } = await response.json();
-    this.candidates = candidates;
-    this.poligraf = poligraf;
-    this.title = title;
-  }
-};
+async function submitData(event: any) {
+  const response = await axios.post(`http://localhost:5000/information`, {
+    method: 'POST',
+    body: new FormData(event.target)
+  });
+  const { candidates, poligraf, title } = response.data;
+  checks.value = candidates;
+  pfo.value = poligraf;
+  header.value = title;
+}
+
+(async (): Promise<void> => {
+  const response = await axios.get(`http://localhost:5000/information`);
+  const { candidates, poligraf, title } = response.data;
+  checks.value = candidates;
+  pfo.value = poligraf;
+  header.value = title;
+})();
+
 </script>

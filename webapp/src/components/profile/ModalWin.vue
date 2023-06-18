@@ -12,7 +12,7 @@
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="position">Должность</label>
               <div class="col-lg-10">
-                <input class="form-control" id="position" maxlength="250" name="position" required="" type="text" value="">
+                <input class="form-control" id="position" maxlength="250" name="position" required type="text" value="">
               </div>
             </div>
             <div class="mb-3 row">
@@ -44,7 +44,7 @@
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="number">Номер документа</label>
               <div class="col-lg-10">
-                <input class="form-control" id="number" maxlength="25" name="number" required="" type="text" value="">
+                <input class="form-control" id="number" maxlength="25" name="number" required type="text" value="">
               </div>
             </div>
             <div class="mb-3 row">
@@ -56,7 +56,7 @@
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="issue">Дата выдачи</label>
               <div class="col-lg-10">
-                <input class="form-control" id="issue" name="issue" required="" type="date" value="">
+                <input class="form-control" id="issue" name="issue" required type="date" value="">
               </div>
             </div>
             <div class=" row">
@@ -86,7 +86,7 @@
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="address">Полный</label>
               <div class="col-lg-10">
-                <input class="form-control" id="address" maxlength="250" name="address" required="" type="text" value="">
+                <input class="form-control" id="address" maxlength="250" name="address" required type="text" value="">
               </div>
             </div>
             <div class=" row">
@@ -110,7 +110,7 @@
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="contact">Контакт</label>
               <div class="col-lg-10">
-                <input class="form-control" id="contact" maxlength="250" name="contact" required="" type="text" value="">
+                <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" value="">
               </div>
             </div>
             <div class=" row">
@@ -130,7 +130,7 @@
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="workplace">Место работы</label>
               <div class="col-lg-10">
-                <input class="form-control" id="workplace" maxlength="250" name="workplace" required="" type="text" value="">
+                <input class="form-control" id="workplace" maxlength="250" name="workplace" required type="text" value="">
               </div>
             </div>
             <div class="mb-3 row">
@@ -158,28 +158,36 @@
   </div>
 </template>
   
-<script>
-export default {
-  name: 'ModalView',
+<script setup lang="ts">
 
-  props: {
-      candId: String,
-      path: String
-  },
+import axios from 'axios';
+import { defineProps, defineEmits, toRefs } from 'vue';
 
-  methods: {
+const props = defineProps({
+    candId: String,
+    path: String
+});
 
-    async submitData(event) {
-      const response = await fetch(`http://localhost:5000/update/${this.path}/${this.candId}`, {
-        method: "POST", 
-        body: new FormData(event.target),
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-          }
-      });
-      const { message } = await response.json();
-      console.log(message);
-    }
+const { path, candId } = toRefs(props);
+  
+const emit = defineEmits(['updateMessage', 'updateItem']);
+
+async function submitData(event: Event) {
+  try {
+    const formData = new FormData(event.target as HTMLFormElement);
+    const response = await axios.post(`http://localhost:5000/update/${path}/${candId?.value}`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+      }
+    });
+    const { message } = response.data;
+    emit('updateMessage', {
+      attr: "alert-success",
+      text: message
+    });
+    emit('updateItem', {candId: candId?.value});
+  } catch (error) {
+    console.error(error);
   }
 }
+
 </script>

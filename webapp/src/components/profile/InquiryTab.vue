@@ -4,25 +4,25 @@
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="info">Информация</label>
         <div class="col-lg-10">
-          <textarea class="form-control" id="info" name="info" required=""></textarea>
+          <textarea class="form-control" id="info" name="info" required></textarea>
         </div>
       </div>
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="initiator">Инициатор</label>
         <div class="col-lg-10">
-          <input class="form-control" id="initiator" maxlength="250" name="initiator" required="" type="text" value="">
+          <input class="form-control" id="initiator" maxlength="250" name="initiator" required type="text" value="">
         </div>
       </div>
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="source">Источник</label>
         <div class="col-lg-10">
-          <input class="form-control" id="source" maxlength="250" name="source" required="" type="text" value="">
+          <input class="form-control" id="source" maxlength="250" name="source" required type="text" value="">
         </div>
       </div>
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="deadline">Дата запроса</label>
         <div class="col-lg-10">
-          <input class="form-control" id="deadline" name="deadline" required="" type="date" value="2023-05-16">
+          <input class="form-control" id="deadline" name="deadline" required type="date" value="2023-05-16">
         </div>
       </div>
       <div class=" row">
@@ -43,40 +43,38 @@
   </template>
 </template>
 
-<script>
+<script setup lang="ts">
 
-export default {
-  name: 'InquiryView',
+import axios from 'axios';
+import { toRefs, ref, defineProps, defineEmits } from 'vue';
+
+const props = defineProps({
+  table: String,
+  candId: String
+});
+
+const { table, candId } = toRefs(props);
   
-  props: {
-    table: String,
-    candId: String
-  },
-  
-  emits: ['updateMessage', 'updateItem'],
+const emit = defineEmits(['updateMessage', 'updateItem']);
 
-  data() {
-    return {
-      url: ''
-    }
-  },
+const url = ref('');
 
-  methods: {
-
-    async submitData(event) {
-      const response = await fetch(`http://localhost:5000/${this.url}/${this.candId}`, {
-        method: "POST", 
-        body: new FormData(event.target),
-				headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-      });
-      const { message } = await response.json();
-      this.$emit('updateMessage', {
-        attr: "alert-primary",
-        text: message
-      });
-      this.$emit('updateItem')
-      this.url = ''
-    }
+async function submitData(event: Event) {
+  try {
+    const formData = new FormData(event.target as HTMLFormElement);
+    const response = await axios.post(`http://localhost:5000/${url.value}/${candId?.value}`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+      }
+    });
+    const { message } = response.data;
+    emit('updateMessage', {
+      attr: "alert-primary",
+      text: message
+    });
+    emit('updateItem', candId?.value);
+    url.value = ''
+  } catch (error) {
+    console.error(error);
   }
 }
 
