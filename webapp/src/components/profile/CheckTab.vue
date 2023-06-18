@@ -146,8 +146,8 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { ref, toRefs, defineProps, defineEmits } from 'vue';
-
+import { ref, toRefs } from 'vue';
+import appUrl from '@/main';
 
 const props = defineProps({
   table: String,
@@ -160,7 +160,7 @@ const props = defineProps({
 const { table, item, candId, state, status } = toRefs(props);
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
-  
+
 const url = ref('');
 const workplace = ref('');
 const employee = ref('');
@@ -185,7 +185,7 @@ const deadline = ref('');
 async function submitData(event: Event){
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`http://localhost:5000/check/new/${candId?.value}`, formData, {
+    const response = await axios.post(`${appUrl}/check/new/${candId?.value}`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const { message } = response.data;
@@ -203,7 +203,7 @@ async function submitData(event: Event){
 async function deleteCheck() {
   if (confirm("Вы действительно хотите удалить проверку?")) {
     try {
-      const response = await axios.get(`http://localhost:5000/check/delete/${candId?.value}`, {headers: {
+      const response = await axios.get(`${appUrl}/check/delete/${candId?.value}`, {headers: {
         'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
       }});
       const { message } = response.data;
@@ -220,7 +220,7 @@ async function deleteCheck() {
 
 async function addCheck() {
   url.value = 'new';
-  const response = await axios.get(`http://localhost:5000/check/status/${candId?.value}`, {headers: {
+  const response = await axios.get(`${appUrl}/check/status/${candId?.value}`, {headers: {
     'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
   }});
   const { message } = response.data;

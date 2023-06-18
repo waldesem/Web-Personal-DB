@@ -87,8 +87,9 @@
 
 <script setup lang="ts">
 
-import { ref, toRefs, defineProps, defineEmits } from 'vue'
+import { ref, toRefs } from 'vue'
 import axios from 'axios';
+import appUrl from '@/main';
 
 const emit = defineEmits (['updateMessage', 'updateItem', 'cancelEdit']);
 
@@ -130,7 +131,7 @@ if (resume) {
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`http://localhost:5000/resume/create`, formData, {
+    const response = await axios.post(`${appUrl}/resume/create`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const { message, cand_id } = response.data;

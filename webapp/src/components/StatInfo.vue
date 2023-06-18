@@ -2,14 +2,14 @@
   <NavBar />
   <div class="container">
     <div class="py-5">
-      <h5>{{header}}</h5>
+      <h5>{{data.header}}</h5>
     </div>
     <div class="py-1">
       <table class="table table-hover align-middle">
         <caption>Статистика по кандидатам</caption>
         <thead><tr><th>Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in checks" :key="index">
+          <tr height="50px" v-for="(value, name, index) in data.checks" :key="index">
             <td >{{value}}</td><td>{{name}}</td>
           </tr>
         </tbody>
@@ -20,7 +20,7 @@
         <caption>Статистика по ПФО</caption>
         <thead><tr><th>Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in pfo" :key="index">
+          <tr height="50px" v-for="(value, name, index) in data.pfo" :key="index">
             <td >{{value}}</td><td>{{name}}</td>
           </tr>
         </tbody>
@@ -55,29 +55,26 @@
 
 import axios from 'axios';
 import { ref } from 'vue';
+import appUrl from '../main.js';
 import NavBar from '@/components/NavBar.vue';
 
-const header = ref('');
-const checks = ref([]);
-const pfo = ref([]);
+const data = ref({header: '', checks: [], pfo: []});
 
 async function submitData(event: any) {
-  const response = await axios.post(`http://localhost:5000/information`, {
-    method: 'POST',
-    body: new FormData(event.target)
-  });
+  const formData = new FormData(event.target);
+  const response = await axios.post(`${appUrl}/information`, formData, {headers: {
+    'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+  }});
   const { candidates, poligraf, title } = response.data;
-  checks.value = candidates;
-  pfo.value = poligraf;
-  header.value = title;
+  Object.assign(data.value, { checks: candidates, pfo: poligraf, header: title });
 }
 
 (async (): Promise<void> => {
-  const response = await axios.get(`http://localhost:5000/information`);
+  const response = await axios.get(`${appUrl}/information`, {headers: {
+    'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+  }});
   const { candidates, poligraf, title } = response.data;
-  checks.value = candidates;
-  pfo.value = poligraf;
-  header.value = title;
+  Object.assign(data.value, { checks: candidates, pfo: poligraf, header: title });
 })();
 
 </script>

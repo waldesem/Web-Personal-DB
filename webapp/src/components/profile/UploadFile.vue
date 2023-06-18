@@ -12,8 +12,9 @@
 
 <script setup lang="ts">
 
-import { defineEmits, ref } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
+import appUrl from '@/main';
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
 const file = ref(null);
@@ -26,7 +27,7 @@ async function submitFile(event: Event) {
     formData.append('file', fileInput.files[0]);
   }
   try {
-    const response = await axios.post(`http://localhost:5000/resume/upload`, formData, {
+    const response = await axios.post(`${appUrl}/resume/upload`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const { message, cand_id } = response.data;
@@ -34,7 +35,6 @@ async function submitFile(event: Event) {
       attr: "alert-success",
       text: message
     });
-    console.log(cand_id);
     emit('updateItem', {candId: cand_id})
   } catch (error) {
     console.error(error);

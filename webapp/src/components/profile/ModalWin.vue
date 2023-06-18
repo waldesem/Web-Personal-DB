@@ -161,7 +161,8 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { defineProps, defineEmits, toRefs } from 'vue';
+import { toRefs } from 'vue';
+import appUrl from '@/main';
 
 const props = defineProps({
     candId: String,
@@ -175,7 +176,7 @@ const emit = defineEmits(['updateMessage', 'updateItem']);
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`http://localhost:5000/update/${path}/${candId?.value}`, formData, {
+    const response = await axios.post(`${appUrl}/update/${path?.value}/${candId?.value}`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
       }
     });

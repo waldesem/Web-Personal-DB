@@ -40,7 +40,8 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { ref, toRefs, defineProps, defineEmits } from 'vue';
+import { ref, toRefs } from 'vue';
+import appUrl from '@/main';
   
 const props = defineProps({
   table: String,
@@ -56,7 +57,7 @@ const url = ref('');
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`http://localhost:5000/registry/${candId?.value}`, formData, {
+    const response = await axios.post(`${appUrl}/registry/${candId?.value}`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
       }
     });

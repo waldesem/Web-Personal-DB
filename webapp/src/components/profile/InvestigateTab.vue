@@ -16,7 +16,7 @@
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="deadline">Дата проверки</label>
         <div class="col-lg-10">
-          <input class="form-control" id="deadline" name="deadline" required type="date" value="2023-05-16">
+          <input class="form-control" id="deadline" name="deadline" required type="date" value="">
         </div>
       </div>
       <div class=" row">
@@ -40,7 +40,8 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { toRefs, ref, defineProps, defineEmits } from 'vue';
+import { toRefs, ref } from 'vue';
+import appUrl from '@/main';
 
 const props = defineProps({
   table: String,
@@ -56,7 +57,7 @@ const url = ref('');
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`http://localhost:5000/${url.value}/${candId?.value}`, formData, {
+    const response = await axios.post(`${appUrl}/${url.value}/${candId?.value}`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
       }
     });

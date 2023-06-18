@@ -1,9 +1,9 @@
 <template>
   <NavBar />
   <div class="container py-5">
-    <AlertMessage v-if="attr" :attr="attr" :text="text" />
+    <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
     <div class="py-3">
-      <h5>{{ fullname }}</h5>
+      <h5>{{ data.fullname }}</h5>
     </div>  
     <div class="nav nav-tabs nav-justified" role="tablist">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" type="button" role="tab">Анкета</button>
@@ -15,22 +15,22 @@
     </div>
     <div class="tab-content">
       <div class="tab-pane active py-1" role="tabpanel" id="anketaTab">
-        <AnketaTab :table="questionary" :candId="candId" :resume="resume" :status="status" :state="condition" @updateMessage="updateMessage" @updateItem="getProfile"/>
+        <AnketaTab :table="data.questionary" :candId="data.candId" :resume="data.resume" :status="data.status" :state="data.condition" @updateMessage="updateMessage" @updateItem="getProfile"/>
       </div>
         <div class="tab-pane py-1" role="tabpanel" id="checkTab">
-          <CheckTab :table="verification" :candId="candId" :item="lastCheck" :status="status" :state="condition" @updateMessage="updateMessage" @updateItem="getProfile" />
+          <CheckTab :table="data.verification" :candId="data.candId" :item="data.lastCheck" :status="data.status" :state="data.condition" @updateMessage="updateMessage" @updateItem="getProfile" />
         </div>
         <div class="tab-pane py-1" role="tabpanel" id="registryTab">
-          <RegistryTab :table="register" :candId="candId" @updateMessage="updateMessage" @updateItem="getProfile" />
+          <RegistryTab :table="data.register" :candId="data.candId" @updateMessage="updateMessage" @updateItem="getProfile" />
         </div>
         <div class="tab-pane py-1" role="tabpanel" id="poligrafTab">
-          <PoligrafTab :table="pfo" :candId="candId" @updateMessage="updateMessage" @updateItem="getProfile" />
+          <PoligrafTab :table="data.pfo" :candId="data.candId" @updateMessage="updateMessage" @updateItem="getProfile" />
         </div>
         <div class="tab-pane py-1" role="tabpanel" id="investigateTab">
-          <InvestigateTab :table="inquisition" :candId="candId" @updateMessage="updateMessage" @updateItem="getProfile" />
+          <InvestigateTab :table="data.inquisition" :candId="data.candId" @updateMessage="updateMessage" @updateItem="getProfile" />
         </div>
         <div class="tab-pane py-1" role="tabpanel" id="inquiryTab">
-          <InquiryTab :table="needs" :candId="candId" @updateMessage="updateMessage" @updateItem="getProfile" />
+          <InquiryTab :table="data.needs" :candId="data.candId" @updateMessage="updateMessage" @updateItem="getProfile" />
         </div>
     </div>
   </div>
@@ -42,6 +42,7 @@
 import axios from 'axios';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
+import appUrl from '@/main';
 import NavBar from './NavBar.vue';
 import AlertMessage from './AlertMessage.vue';
 import AnketaTab from './profile/AnketaTab.vue';
@@ -52,20 +53,23 @@ import InvestigateTab from './profile/InvestigateTab.vue';
 import InquiryTab from './profile/InquiryTab.vue';
 
 const route = useRoute();
-const attr = ref('');
-const text = ref('');
-const candId = ref(String(route.params.id));
-const questionary = ref(['']);
-const resume = ref({});
-const verification = ref('');
-const lastCheck = ref({});
-const register = ref('');
-const pfo = ref('');
-const inquisition = ref('');
-const needs = ref('');
-const status = ref('');
-const condition = ref({});
-const fullname = ref('');
+const data = ref({
+  attr: '', 
+  text: '', 
+  candId: String(route.params.id), 
+  questionary: [], 
+  resume: {}, 
+  verification: '', 
+  lastCheck: {}, 
+  register: '', 
+  pfo: '', 
+  inquisition: '', 
+  needs: '', 
+  status: '', 
+  condition: {}, 
+  fullname: ''
+});
+
 const anketa_labels = [
   ['id', 'Регион', 'Фамилия Имя Отчество', 'Изменение имени', 'Дата рождения', 'Место рождения', 'Гражданство', 
   'СНИЛС', 'ИНН', 'Образование', 'Дополнительная информация', 'Статус', 'Дата', 'Рекрутер', 'Внешний id'],
@@ -88,43 +92,51 @@ const poligraf_labels = ['ID', 'Тематика', 'Результат', 'Пол
 const investigation_labels = ['ID', 'Тематика', 'Информация', 'Дата проверки'];
 const inquiry_labels = ['ID', 'Информация', 'Иннициатор', 'Источник', 'Дата запроса'];
 
-getProfile(candId.value);
+getProfile(data.value.candId);
 
 function updateMessage (data: any){
-  attr.value = data["attr"];
-  text.value = data["text"];
+  Object.assign(data.value, {
+    attr: data["attr"],
+    text: data["text"]
+  })
 }
 
 async function getProfile(id: string) {
-  candId.value = id;
+  data.value.candId = id;
   if (id === '0') {
-    fullname.value = "Новая анкета";
-    attr.value = 'alert-info';
-    text.value = 'Заполните форму'
+    Object.assign(data.value, {
+      attr: 'alert-info',
+      text: 'Заполните форму',
+      fullname: 'Новая анкета'
+    })
+    return;
+
   } else {
-    const response = await axios.get(`http://localhost:5000/profile/${id}`, {
+    const response = await axios.get(`${appUrl}/profile/${id}`, {
     headers: {Authorization: `Bearer ${localStorage.getItem("jwt_token")}`}
     });
     const [anketa, check, registry, poligraf, investigation, inquiry, state] = response.data;
-    questionary.value = anketa_labels.map((labels: string[], i: number) => `
-      <div>${createItemTable(labels, anketa[i])}</div>
-    `);
-    fullname.value = anketa[0][0]['fullname'];
-    status.value = anketa[0][0]['status'];
-    condition.value = state;
-    resume.value = anketa[0][0];
-    lastCheck.value = check[0];
-    verification.value = createItemTable(check_labels, check);
-    register.value = createItemTable(registry_labels, registry);
-    pfo.value = createItemTable(poligraf_labels, poligraf);
-    inquisition.value = createItemTable(investigation_labels, investigation);
-    needs.value = createItemTable(inquiry_labels, inquiry)
+    Object.assign(data.value, {
+      questionary: anketa_labels.map((labels: string[], i: number) => `
+        <div>${createItemTable(labels, anketa[i])}</div>
+      `),
+      fullname: anketa[0][0]['fullname'],
+      status: anketa[0][0]['status'],
+      condition: state,
+      resume: anketa[0][0],
+      lastCheck: check[0],
+      verification: createItemTable(check_labels, check),
+      register: createItemTable(registry_labels, registry),
+      pfo: createItemTable(poligraf_labels, poligraf),
+      inquisition: createItemTable(investigation_labels, investigation),
+      needs: createItemTable(inquiry_labels, inquiry)
+    })
   }
 }
 
 function createItemTable(names: string[], response: Array<Array<Object>>) {
   if (!response.length) {
-    return `<p>Данные отсутствуют</p>`
+    return `<p>Данные отсутствуют</p>`;
   }
   const rows = response.map((item) => {
     return names.map((name, i) => {
