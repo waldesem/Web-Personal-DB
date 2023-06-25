@@ -1,8 +1,9 @@
 <template>
   <NavBar />
   <div class="container py-5">
-    <div class="py-5"><h3>{{ data.head }}</h3></div>
-    <div class="py-1">
+    <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
+    <div class="py-5"><h4>{{ data.head }}</h4></div>
+    <div v-if="data.currentPath != 'officer'">
       <form @submit.prevent="getCandidates('search')" class="form form-check" role="form">
         <div class="row">
           <div class="col-md-2">
@@ -26,7 +27,7 @@
           <div class="col-md-2">
             <div class="mb-3">
               <label class="visually-hidden" for="status">Status</label>
-              <select class="form-select mb-2 mr-sm-2 mb-sm-0" v-model="data.status" name="status">
+              <select class="form-select mb-2 mr-sm-2 mb-sm-0" v-model="data.status" id="status" name="status">
                 <option value="">По региону</option>
                 <option value="Новый">Новый</option>
                 <option value="Обновлен">Обновлен</option>
@@ -41,8 +42,11 @@
               </select>
             </div>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-1">
             <button class="btn btn-primary btn-md" type="submit">Найти</button>
+          </div>
+          <div class="col-md-1">
+            <button class="btn btn-outline-primary btn-md" type="reset">Очистить</button>
           </div>
         </div>
       </form>
@@ -89,22 +93,18 @@
       </nav>
     </div>
   </div>
-  <div>
-    <footer class="d-flex flex-wrap justify-content-around align-items-center py-3 my-4 border-top">
-      <p><a href="/docs">OpenAPI</a></p>
-      <p><a href="/admin">Admin</a></p>
-      <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>
-    </footer>
-  </div>
+  <FooterDiv />
 </template>
 
 <script setup lang="ts">
 
-import { ref, watch } from 'vue'
+import { ref, onBeforeMount, watch } from 'vue'
 import { useRoute } from 'vue-router' 
 import axios from 'axios';
-import appUrl from '@/main';
+import appUrl from '@/config';
+import AlertMessage from './AlertMessage.vue';
 import NavBar from './NavBar.vue';
+import FooterDiv from './FooterDiv.vue';
 
 const route = useRoute();
 
@@ -120,11 +120,11 @@ const data = ref({
   currentPath: '',
   hasPagination: false,
   hasPrev: false,
-  hasNext: false
+  hasNext: false,
+  attr: '',
+  text: ''
 });
 
-const dataValuePath = getCandidates(data.value.path);
-    
 async function getCandidates(url: string, page=1) {
   data.value.currentPage = page;
   data.value.currentPath = url;
@@ -142,7 +142,7 @@ async function getCandidates(url: string, page=1) {
         headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
       })
     } else {
-      response = await axios.post(`${appUrl}/index/${url}/${page}`, 
+      response = await axios.post(`${appUrl}/index/search/${page}`, 
       {
         "region": data.value.region, 
         "fullname": data.value.fullname, 
@@ -156,12 +156,12 @@ async function getCandidates(url: string, page=1) {
       })
     }
     const [ datas, metadata ] = response.data;
-    Object.assign(data, { 
+    Object.assign(data.value, {
       candidates: datas,
       hasPagination: metadata.hasNext || metadata.hasPrev,
       hasPrev: metadata.has_prev,
       hasNext: metadata.has_next
-    });
+    })
   } catch (error) {
     console.error(error);
   }
@@ -189,11 +189,15 @@ async function nextPage() {
   }
 }
 
+onBeforeMount(async () => {
+  getCandidates(data.value.path)
+});
+    
 watch(
   () => route.params.flag,
   (newVal) => {
     data.value.path = String(newVal);
-    dataValuePath;
+    getCandidates(data.value.path)
   }
 );
 

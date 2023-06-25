@@ -2,21 +2,26 @@ import json
 import os
 from datetime import datetime
 import requests
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import current_user, jwt_required
 
 from sqlalchemy import func
 from flask import send_from_directory, request
 from werkzeug.exceptions import BadRequest
 
 from . import bp
-from ..extensions.extension import ExcelFile, URL_CHECK, BASE_PATH, resume_data
-from ..models.model import Candidate, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Status, User, db, TODAY, resume_schema, \
-    staff_schema, document_schema, address_schema, contact_schema, work_schema, check_schema, \
-    poligraf_schema, registry_schema, investigation_schema, inquiry_schema
 
+from ..utils.check import task_queue
+from ..utils.excel import ExcelFile, BASE_PATH, resume_data
+from ..models.model import Candidate, Staff, Document, Address, Contact, Workplace, \
+    Check, Registry, Poligraf, Investigation, Inquiry, Status, User, Message, db, resume_schema, \
+    staff_schema, document_schema, address_schema, contact_schema, work_schema, check_schema, \
+    poligraf_schema, registry_schema, investigation_schema, inquiry_schema, serial_resume
 
 bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dist'))
+
+TODAY = datetime.now()
+URL_REG = 'URL_REG'
+URL_CHECK = 'URL_CHECK'
 
 
 @bp.get('/')
@@ -40,7 +45,7 @@ def serve_static(path):
 @bp.doc(hide=True)  # Flask API documentation decorator
 @jwt_required()
 def index(flag, page):
-    current_user = get_jwt_identity()
+
     """
     Renders the index page with a list of candidates based on the selected flag and page number.
     :param flag: A string representing the selected flag ('main', 'new', 'officer', or anything else).
@@ -67,7 +72,7 @@ def index(flag, page):
         query = db.session.query(Candidate.id, Candidate.region, Candidate.fullname, Candidate.birthday,
                                  Candidate.status, Candidate.deadline).filter(Candidate.status.notin_(
             [Status.FINISH.value, Status.RESULT.value, Status.CANCEL.value])). \
-            join(Check, isouter=True).filter_by(officer=current_user).order_by(Candidate.id.asc()). \
+            join(Check, isouter=True).filter_by(officer=current_user.username).order_by(Candidate.id.asc()). \
             paginate(page=page, per_page=pagination, error_out=False)
     
     else:  # Search for candidates based on submitted form data, ordered by ID in ascending order
@@ -92,7 +97,7 @@ def index(flag, page):
 
 
 @bp.get('/count')
-@bp.doc(hide=True)  # Flask API documentation decorator
+@bp.doc(hide=True)  # APIFlask documentation decorator
 @jwt_required()
 def get_count():
     """
@@ -102,11 +107,33 @@ def get_count():
     :rtype: dict
     """
     news = db.session.query(func.count(Candidate.status)).filter(Candidate.status.in_([Status.NEWFAG.value,
-                                                                Status.UPDATE.value])).scalar()
-    checks = db.session.query(func.count(Candidate.id)).filter(Candidate.status.notin_([
-        Status.FINISH.value, Status.RESULT.value, Status.CANCEL.value
-        ])).join(Check, isouter=True).filter_by(officer=get_jwt_identity()).scalar()
-    return {'news': news if news is not None else 0, 'checks': checks if checks is not None else 0}
+                                                                                       Status.UPDATE.value])).scalar()
+    messages = db.session.query(Message.message).filter(Message.status == Status.NEWFAG.value, 
+                                                                        Message.user_id == current_user.id).all()
+    return {'news': news if news is not None else 0, 
+            'counts': len(messages) if messages is not None else 0,
+            'messages': [message[0] for message in messages] if messages is not None else []}
+
+
+@bp.get('/reset')
+@bp.doc(hide=True)  # APIFlask documentation decorator
+@jwt_required()
+def reset_count():
+    """
+    Returns a JSON object containing the total number of candidates in the database with status NEWFAG and the number of 
+    candidates that have not been FINISHed, RESULTed, or CANCELled and have a Check officer that is the current user.
+    :return: A JSON object containing 'news' and 'checks' keys.
+    :rtype: dict
+    """
+    response = db.session.query(Message).filter(Message.status == Status.NEWFAG.value, 
+                                                       Message.user_id == current_user.id).all()
+    for resp in response:
+        setattr(resp, 'status', Status.REPLY.value)
+        db.session.commit()
+    messages = db.session.query(Message.message).filter(Message.status == Status.NEWFAG.value, 
+                                                                        Message.user_id == current_user.id).all()
+    return {'counts': len(messages) if messages is not None else 0,
+            'messages': [message[0] for message in messages] if messages is not None else []}
 
 
 @bp.post('/resume/create')
@@ -325,22 +352,15 @@ def send_resume(cand_id):
     Returns:
         A dictionary containing a message indicating the status of the resume send attempt.
     """
-    current_user = get_jwt_identity()
     # Get the candidate's resume
     resume = db.session.query(Candidate).get(cand_id)
-
     # Check the candidate's resume status to make sure it can be sent
     if resume.status in [Status.NEWFAG.value, Status.UPDATE.value]:
-        decer = {'cand_id': cand_id, 'officer': current_user}
-
+        serialize = serial_resume.decer_res(cand_id, officer=current_user.username)
         try:
             # Send a request to check if the resume can be sent
-            response = requests.post(url=URL_CHECK, json=decer, timeout=5)
+            response = requests.post(url='URL_CHECK', json=serialize, timeout=5)
             response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            # Handle any exceptions that occur during the request
-            return {'message': f"Отправка не удалась. Попробуйте позднее ({e})"}
-        else:
             if response.status_code == 200:
                 # If the resume can be sent, update its status and commit the changes to the database
                 resume.status = Status.ROBOT.value
@@ -349,6 +369,40 @@ def send_resume(cand_id):
             else:
                 # If the resume cannot be sent, return an error message
                 return {'message': "Отправка не удалась. Попробуйте позднее"}
+        except requests.exceptions.RequestException as e:
+            # Handle any exceptions that occur during the request
+            return {'message': f"Отправка не удалась. Попробуйте позднее ({e})"}
+            
+    else:
+        # If the resume cannot be sent, return an error message
+        return {'message': "Анкета не может быть отправлена. Проверка уже начата"}
+
+
+@bp.get('/resume/check/<int:cand_id>')
+@bp.doc(hide=True)
+@jwt_required()
+def check_resume(cand_id):
+    """
+    Sends a resume for a candidate with the given ID.
+    Args:
+        cand_id: The ID of the candidate to send the resume for.
+    Returns:
+        A dictionary containing a message indicating the status of the resume send attempt.
+    """
+    # Get the candidate's resume
+    resume = db.session.query(Candidate).get(cand_id)
+
+    # Check the candidate's resume status to make sure it can be sent
+    if resume.status in [Status.NEWFAG.value, Status.UPDATE.value]:
+        result = task_queue(serial_resume.decer_res(cand_id, officer=current_user.username))
+        if result == "OK":
+            db.session.add(Message(message=f'Проверка кандидата {resume.fullname} окончена', 
+                                   create=TODAY, user_id=current_user.id))
+            db.session.commit()
+        else:
+            db.session.add(Message(message=f'Проверка кандидата {resume.fullname} не выполнена из-за ошибки', 
+                                   create=TODAY, user_id=current_user.id))
+            db.session.commit()
     else:
         # If the resume cannot be sent, return an error message
         return {'message': "Анкета не может быть отправлена. Проверка уже начата"}
@@ -391,7 +445,6 @@ def post_check(flag: str, cand_id: int) -> dict:
         :param cand_id:
         :param flag:
     """
-    current_user = get_jwt_identity()
     # Get the candidate from the database
     candidate = db.session.query(Candidate).get(cand_id)
     # Get the data from the html form
@@ -404,13 +457,13 @@ def post_check(flag: str, cand_id: int) -> dict:
         path = os.path.join(BASE_PATH, candidate.fullname[0], f"{str(candidate.id)}-{candidate.fullname}",
                             TODAY.strftime("%Y-%m-%d"))
         # Convert the form data to a dictionary and update the path and candidate id
-        check_form.update({'path': path, "cand_id": cand_id, 'officer': current_user})
+        check_form.update({'path': path, "cand_id": cand_id, 'officer': current_user.username})
         
         # Add the check to the database
         db.session.add(Check(**check_form))
         db.session.commit()
     else:
-        check_form.update({"cand_id": cand_id, 'officer': current_user})
+        check_form.update({"cand_id": cand_id, 'officer': current_user.username})
 
         latest_check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
         # Add the check to the database
@@ -482,52 +535,54 @@ def status_check(cand_id):  # запрашиваем данные проверк
 
     # Check if the candidate's status is currently being processed
     if candidate.status != Status.NEWFAG.value and candidate.status != Status.UPDATE.value:
+        alert = "alert-danger"
         message = "Анкета взята в работу и еще не закончена"
     else:
         # If the candidate's status is not being processed, set it to manual and commit changes to the database
         candidate.status = Status.MANUAL.value
         db.session.commit()
+        alert = "alert-info"
         message = "Начата ручная проверка"
 
     # Return a JSON object containing the message to be displayed to the user
-    return {'message': message}
+    return {'message': message, 'alert': alert}
 
 
 @bp.post('/registry/<int:cand_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def post_registry(cand_id):
-    current_user = get_jwt_identity()
+
     """Endpoint for posting a candidate's registry information"""
     form_registry = request.form.to_dict()  # Load approval form
     result = db.session.query(Check).filter_by(cand_id=cand_id).order_by(
         Check.id.desc()).first()  # Get the latest check for the candidate
     reg = {
         'check_id': result.id,
-        'supervisor': current_user,
+        'supervisor': current_user.username,
         'deadline': TODAY,
         **form_registry
     }
     db.session.add(Registry(**reg))  # Add registry information to the database
     db.session.commit()
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()  # Get candidate information
-    # response = requests.post(url=URL_CHECK, json=json.dumps(
-    #     {
-    #         "id": candidate.request_id,
-    #         "comments": reg['comments'],
-    #         "decision": reg['decision'],
-    #         "deadline": TODAY.strftime("%Y-%m-d%"),
-    #         "supervisor": reg['supervisor']
-    #     }
-    # ), timeout=5)
-    # response.raise_for_status()
-    # if response.status_code == 200:  # Check if the response was successfully sent
-    candidate.status = Status.CANCEL.value if reg['decision'] == Status.CANCEL.value else Status.FINISH.value
-    # Update candidate status based on decision
-    db.session.commit()
-    return {'message': "Решение успешно отправлено"}  # Return success message
-    # else:
-    #     return {'message': 'Отправка не удалась попробуйте еще раз позднее'}  # Return failure message
+    response = requests.post(url='URL_REG', json=json.dumps(
+        {
+            "id": candidate.request_id,
+            "comments": reg['comments'],
+            "decision": reg['decision'],
+            "deadline": TODAY.strftime("%Y-%m-d%"),
+            "supervisor": reg['supervisor']
+        }
+    ), timeout=5)
+    response.raise_for_status()
+    if response.status_code == 200:  # Check if the response was successfully sent
+        candidate.status = Status.CANCEL.value if reg['decision'] == Status.CANCEL.value else Status.FINISH.value
+        # Update candidate status based on decision
+        db.session.commit()
+        return {'message': "Решение успешно отправлено"}  # Return success message
+    else:
+        return {'message': 'Отправка не удалась попробуйте еще раз позднее'}  # Return failure message
 
 
 @bp.post('/poligraf/<int:cand_id>')
@@ -541,13 +596,13 @@ def post_poligraf(cand_id):
     Returns:
         dict: A dictionary containing the message "Запись успешно добавлена".
     """
-    current_user = get_jwt_identity()
+
     # Retrieve the form data and convert the deadline string to a datetime object.
     form_poligraf: dict = request.form.to_dict()
     form_poligraf['deadline'] = datetime.strptime(form_poligraf.pop('deadline'), "%Y-%m-%d")
 
     # Create a new Poligraf object and add it to the database.
-    poligraf = Poligraf(**form_poligraf, cand_id=cand_id, officer=current_user)
+    poligraf = Poligraf(**form_poligraf, cand_id=cand_id, officer=current_user.username)
     db.session.add(poligraf)
     db.session.commit()
 
@@ -614,6 +669,7 @@ def post_inquiry(cand_id):
 
 @bp.route('/information', methods=['GET', 'POST'])
 @bp.doc(hide=True)
+@jwt_required()
 def post_information():
     """
     Retrieve statistics for a given period of time.
@@ -631,11 +687,12 @@ def post_information():
     # Retrieve candidate statistics from the database
     candidates = db.session.query(Registry.decision, func.count(Registry.id)).group_by(Registry.decision).\
         filter(Registry.deadline.between(statistic['start'], statistic['end'])).all()
-
+    print(statistic)
     # Retrieve poligraf statistics from the database
     pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme).\
         filter(Poligraf.deadline.between(statistic['start'], statistic['end'])).all()
     # Return a dictionary containing the candidate and poligraf statistics as well as a title for the statistics
+    
     return {
         "candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
         "poligraf": dict(map(lambda x: (x[1], x[0]), pfo)),

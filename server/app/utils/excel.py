@@ -7,7 +7,7 @@ BASE_PATH = r'\\cronosx1\New folder\УВБ\Отдел корпоративной
 URL_CHECK = "https://httpbin.org/post"
 
 
-class ExcelFile:  # получение анкетной информации из файла Excel
+class ExcelFile:
     """ Create class for import data from excel files"""
 
     def __init__(self, file) -> None:
@@ -61,21 +61,22 @@ class ExcelFile:  # получение анкетной информации и�
 
 
 
-# загрузка непостоянных данных из Excel и Json  в БД
 def resume_data(cand_id, document, addresses, contacts, workplaces, staff):
-    objects_to_add = []
-    if staff['position']:
-        objects_to_add.append(Staff(**staff | {'cand_id': cand_id}))
-    if document['number']:
-        objects_to_add.append(Document(**document | {'cand_id': cand_id}))
-    for address in addresses:
-        if address['address']:
-            objects_to_add.append(Address(**address | {'cand_id': cand_id}))
-    for contact in contacts:
-        if contact['contact']:
-            objects_to_add.append(Contact(**contact | {'cand_id': cand_id}))
-    for work in workplaces:
-        if work['workplace']:
-            objects_to_add.append(Workplace(**work | {'cand_id': cand_id}))
-    db.session.add_all(objects_to_add)
+    objects_to_add = [
+        Staff(**staff | {'cand_id': cand_id}) 
+        for key, value in staff.items() if value
+    ] + [
+        Document(**document | {'cand_id': cand_id})
+        for key, value in document.items() if value
+    ] + [
+        Address(**address | {'cand_id': cand_id})
+        for address in addresses if address['address']
+    ] + [
+        Contact(**contact | {'cand_id': cand_id})
+        for contact in contacts if contact['contact']
+    ] + [
+        Workplace(**work | {'cand_id': cand_id})
+        for work in workplaces if work['workplace']
+    ]
+    db.session.bulk_save_objects(objects_to_add)
     db.session.commit()

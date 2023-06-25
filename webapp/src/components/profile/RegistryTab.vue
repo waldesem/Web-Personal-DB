@@ -41,7 +41,7 @@
 
 import axios from 'axios';
 import { ref, toRefs } from 'vue';
-import appUrl from '@/main';
+import appUrl from '@/config';
   
 const props = defineProps({
   table: String,

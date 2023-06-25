@@ -1,13 +1,11 @@
-import os
-import shutil
-
-from datetime import date, datetime
+from datetime import date
 import requests
 
 from apiflask import HTTPBasicAuth
 from ..routes import bp
-from ..extensions.extension import BASE_PATH, URL_CHECK, resume_data
-from ..models.model import db, User, Candidate, Check, CheckSchema, DeserialResume, \
+from ..utils.check import check_result
+from ..utils.excel import resume_data
+from ..models.model import db, User, Candidate, CheckSchema, DeserialResume, \
     Status, serial_resume
 
 auth = HTTPBasicAuth()  # create the auth object
@@ -37,10 +35,8 @@ def verify_password(username: str, password: str):
 def anketa(resume):
     """
     Receives a resume in JSON format and stores it in the database. Returns the stored resume.
-
     Parameters:
         resume (Dict[str, Any]): The resume to be stored.
-
     Returns:
         Dict[str, Any]: The stored resume.
     """
@@ -72,7 +68,7 @@ def anketa(resume):
 
     # Serialize the resume and send it for checking
     serialize = serial_resume.decer_res(new_id, officer='API')
-    response = requests.post(url=URL_CHECK, json=serialize, timeout=5)
+    response = requests.post(url='URL_CHECK', json=serialize, timeout=5)
     response.raise_for_status()
 
     # Update the resume status based on the response from the checking service
@@ -94,40 +90,12 @@ def anketa(resume):
 def checkin(response):
     """
     Receives a JSON payload containing information about a candidate check,
-    including the candidate ID and status. If the status is REPLY, it copies
-    files from a source directory to a destination directory, sets the
-    candidate's status to REPLY, and creates a new check record. If the status
-    is not REPLY, it sets the candidate's status to ERROR.
-
+    including the candidate ID and status.
     :param response: A dictionary containing the following keys: id (int),
         autostatus (str), path (str), and any other keys required by the
         CheckSchema.
     :return: A dictionary containing a message string.
     """
-    result = db.session.get(Candidate, response['id'])
-    if response['autostatus'] == Status.REPLY.value:
-        # Set the candidate's status to REPLY.
-        result.status = Status.REPLY.value
-        # Create a path for the candidate's files.
-        path = os.path.join(
-            BASE_PATH, result.fullname[0], f"{str(result.id)}-{result.fullname}",
-            datetime.now().strftime("%Y-%m-%d"))
-        # Copy files from the source directory to the destination directory.
-        try:
-            for file in os.listdir(response['path']):
-                print(file)
-                shutil.copyfile(file, path)
-        except FileNotFoundError as e:
-            response['autostatus'] = f'{e}'
-        # Update the response dictionary with the candidate ID and path.
-        response["cand_id"] = response.pop('id')
-        response["path"] = path
-        # Create a new check record.
-        check_dict = response | {"deadline": datetime.now()}
-        db.session.add(Check(**check_dict))
-    else:
-        # Set the candidate's status to ERROR.
-        result.status = Status.ERROR.value
-    db.session.commit()
+    check_result(response)
     # Return a message confirming the response was received.
     return {'status': 201}

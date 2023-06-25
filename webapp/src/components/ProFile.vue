@@ -2,9 +2,7 @@
   <NavBar />
   <div class="container py-5">
     <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
-    <div class="py-3">
-      <h5>{{ data.fullname }}</h5>
-    </div>  
+    <div class="py-5"><h4>{{data.fullname}}</h4></div>  
     <div class="nav nav-tabs nav-justified" role="tablist">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" type="button" role="tab">Анкета</button>
       <button class="nav-link" data-bs-toggle="tab" data-bs-target="#checkTab" type="button" role="tab">Проверки</button>
@@ -40,9 +38,9 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import appUrl from '@/main';
+import appUrl from '@/config';
 import NavBar from './NavBar.vue';
 import AlertMessage from './AlertMessage.vue';
 import AnketaTab from './profile/AnketaTab.vue';
@@ -92,12 +90,14 @@ const poligraf_labels = ['ID', 'Тематика', 'Результат', 'Пол
 const investigation_labels = ['ID', 'Тематика', 'Информация', 'Дата проверки'];
 const inquiry_labels = ['ID', 'Информация', 'Иннициатор', 'Источник', 'Дата запроса'];
 
-getProfile(data.value.candId);
+onBeforeMount(() => {
+  getProfile(data.value.candId)
+});
 
-function updateMessage (data: any){
+function updateMessage (value: any){
   Object.assign(data.value, {
-    attr: data["attr"],
-    text: data["text"]
+    attr: value["attr"],
+    text: value["text"]
   })
 }
 
@@ -113,7 +113,7 @@ async function getProfile(id: string) {
 
   } else {
     const response = await axios.get(`${appUrl}/profile/${id}`, {
-    headers: {Authorization: `Bearer ${localStorage.getItem("jwt_token")}`}
+      headers: {Authorization: `Bearer ${localStorage.getItem("jwt_token")}`}
     });
     const [anketa, check, registry, poligraf, investigation, inquiry, state] = response.data;
     Object.assign(data.value, {

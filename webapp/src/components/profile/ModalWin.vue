@@ -162,7 +162,7 @@
 
 import axios from 'axios';
 import { toRefs } from 'vue';
-import appUrl from '@/main';
+import appUrl from '@/config';
 
 const props = defineProps({
     candId: String,

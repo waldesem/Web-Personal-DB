@@ -5,8 +5,7 @@ Web-Personal-DB is a web interface for managing a candidate database. It include
 ### The main technology stack used in this project includes:
 
 - Python (Flask, APIFlask, SQLAlchemy, Marshmallow)
-- TypeScript
-- JavaScript
+- Vue3;
 - Bootstrap 5 (journal theme)
 
 ### Installation

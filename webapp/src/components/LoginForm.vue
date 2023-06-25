@@ -10,13 +10,13 @@
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="username">Логин: </label>
               <div class="col-lg-4">
-                <input autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" placeholder="Латинские буквы 8-25 символов" required type="text" value="" pattern="[a-zA-Z]+">
+                <input autocomplete="username" class="form-control" minlength="3" maxlength="25" id="username" name="username" placeholder="Латинские буквы 8-25 символов" required type="text" value="" pattern="[a-zA-Z]+">
               </div>
           </div>
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="password">Пароль: </label>
                   <div class="col-lg-4">
-                    <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" name="password" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" value="" pattern="[0-9a-zA-Z]+">
+                    <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" id="password" name="password" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" value="" pattern="[0-9a-zA-Z]+">
                     <div v-if="data.path ==='/login'" class="py-2"><a @click="changePswd" href="#">Изменить пароль</a></div>
                   </div>
               </div>
@@ -25,14 +25,14 @@
               <label class="col-form-label col-lg-1" for="new_pswd">Новый: </label>
                 <div class="col-lg-4">
                     <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
-                    name="new_pswd" placeholder="Новый пароль" required type="password" value="" pattern="[0-9a-zA-Z]+">
+                    name="new_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required  type="password" value="" pattern="[0-9a-zA-Z]+">
                 </div>
             </div>
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="conf_pswd">Повтор: </label>
                 <div class="col-lg-4">
                     <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
-                    name="conf_pswd" placeholder="Подтверждение пароля" required type="password" value="" pattern="[0-9a-zA-Z]+">
+                    name="conf_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" value="" pattern="[0-9a-zA-Z]+">
                 </div>
             </div>
           </div>
@@ -49,11 +49,17 @@
 
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import axios from 'axios';
-import appUrl from '@/main';
-import router from '../router';
+import appUrl from '@/config';
+import router from '@/router';
 import AlertMessage from './AlertMessage.vue';
+
+onBeforeMount(async () => {
+  localStorage.removeItem('jwt_token');
+  const response = await axios.get(`${appUrl}/logout`)
+  console.log(response.data)
+});
 
 const data = ref({
   attr: 'alert-info',
@@ -62,9 +68,6 @@ const data = ref({
   path: '/login',
   value: 'Войти'
 });
-
-fetch(`${appUrl}/logout`);
-localStorage.removeItem('jwt_token');
     
 function changePswd() {
   Object.assign(data.value, {
@@ -103,7 +106,7 @@ async function submitData(event: Event) {
       localStorage.setItem('jwt_token', access_token);
       router.push({ name: 'index', params: { flag: 'new' } });
     } else {
-      console.log(user);
+      console.error(user);
     }
   } catch (error) {
     console.log(error);

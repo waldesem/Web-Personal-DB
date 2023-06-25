@@ -3,7 +3,7 @@
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
       <div class="col-lg-10">
-        <input class="form-control" type="file" ref="file">
+        <input class="form-control" id="file" type="file" ref="file">
       </div>
     </div>
   </form>
@@ -14,7 +14,7 @@
 
 import { ref } from 'vue';
 import axios from 'axios';
-import appUrl from '@/main';
+import appUrl from '@/config';
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
 const file = ref(null);

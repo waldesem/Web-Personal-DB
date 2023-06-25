@@ -2,8 +2,9 @@ import datetime
 
 import bcrypt
 from flask import jsonify, request
-from apiflask.views import MethodView
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, set_access_cookies, unset_jwt_cookies, verify_jwt_in_request
+from flask_jwt_extended import JWTManager, \
+    create_access_token, get_jwt_identity, \
+        jwt_required, unset_jwt_cookies, current_user
 
 from . import bp
 from ..models.model import User, db
@@ -11,52 +12,65 @@ from ..models.model import User, db
 jwt = JWTManager()
 
 
-class Login(MethodView):
+# Register a callback function that takes whatever object is passed in as the
+# identity when creating JWTs and converts it to a JSON serializable format.
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user
 
-    @jwt_required()
-    @bp.doc(hide=True)
-    def get(self):
-        """
-        Returns the current user's username if the user is authenticated, otherwise returns "None".
-        """
-        #verify_jwt_in_request(optional=True)        
-        current_user = get_jwt_identity()
 
-        if current_user:
-            return {"user": "Authorized"}
-        else:
-            return {"user": "None"}  # if the user is not authenticated, return "None"
+# Register a callback function that loads a user from your database whenever
+# a protected route is accessed. This should return any python object on a
+# successful lookup, or None if the lookup failed for any reason (for example
+# if the user has been deleted from the database).
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(username=identity).one_or_none()
 
-    @bp.doc(hide=True)
-    def post(self):
-        """
-        Logs in a user and returns their username if the credentials provided are correct.
-        """
-        verify_jwt_in_request(optional=True)        
-        # Get user data from the form
-        user_form = request.form.to_dict()
-        username = user_form.get('username')
-        password = user_form.get('password')
-        # Query the database for a user with the provided credentials
-        user = db.session.query(User).filter_by(username=username).first()
 
-        # If a user with the provided credentials exists, log them in and return their username
-        if user:
-            if bcrypt.checkpw(password.encode('utf-8'), user.password):
-                delta_change = datetime.date.today() - user.pswd_create
-                if user.pswd_change and delta_change.days < 365:
-                    access_token = create_access_token(identity=username)
-                    return {'user': 'Authorized', 'access_token': access_token}
-                else:
-                    return {"user": "Overdue"}
+@bp.get('/auth')
+@bp.doc(hide=True)
+@jwt_required()
+def auth():
+    """
+    Returns the current user's username if the user is authenticated, otherwise returns "None".
+    """
+    #verify_jwt_in_request(optional=True)        
+    user = get_jwt_identity()
+    if  current_user.username == user:
+        userlogin = db.session.query(User).filter_by(username=user).first()
+        userlogin.last_login = datetime.datetime.now()
+        db.session.commit()
+        return {"user": "Authorized"}
+    else:
+        return {"user": "None"}  # if the user is not authenticated, return "None"
+
+@bp.post('/login')
+@bp.doc(hide=True)
+def login():
+    """
+    Logs in a user and returns their username if the credentials provided are correct.
+    """
+    # Get user data from the form
+    user_form = request.form.to_dict()
+    username = user_form.get('username')
+    password = user_form.get('password')
+    # Query the database for a user with the provided credentials
+    user = db.session.query(User).filter_by(username=username).first()
+
+    # If a user with the provided credentials exists, log them in and return their username
+    if user:
+        if bcrypt.checkpw(password.encode('utf-8'), user.password):
+            delta_change = datetime.date.today() - user.pswd_create
+            if user.pswd_change and delta_change.days < 365:
+                access_token = create_access_token(identity=username)
+                user.last_login = datetime.datetime.now()
+                db.session.commit()
+                return {'user': 'Authorized', 'access_token': access_token}
             else:
-                return {"user": "None", 'access_token': "None"}
-        # Otherwise, return "None"
-        else:
-            return {"user": "None", 'access_token': "None"}
-
-
-bp.add_url_rule('/login', view_func=Login.as_view('login'))
+                return {"user": "Overdue"}
+    return {"user": "None", 'access_token': "None"}
 
 
 @bp.get('/logout')
@@ -120,4 +134,3 @@ def change_password():
             return {"user": "Denied"}
     else:
         return {"user": "Denied"}
-        

@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import Enum
 
 from flask_security import RoleMixin
@@ -9,8 +8,6 @@ from marshmallow import fields
 
 db = SQLAlchemy()
 ma = Marshmallow()
-
-TODAY = datetime.now()
 
 
 class Status(Enum):
@@ -57,10 +54,23 @@ class User(db.Model, UserMixin):  # модель пользователей си
     last_login = db.Column(db.DateTime)
     active = db.Column(db.Boolean())
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+    messages = db.relationship('Message', backref='messages', cascade="all, delete, delete-orphan")
 
     def has_role(self, *args):
         return set(args).issubset({role.name for role in self.roles})
-    
+
+
+class Message(db.Model):
+    """ Create model for message"""
+
+    __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    message = db.Column(db.String(250))
+    status = db.Column(db.String(250))
+    create = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
 
 class Candidate(db.Model):  # модель анкетных данных
     """ Create model for candidates dates"""

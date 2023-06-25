@@ -1,6 +1,6 @@
 <template>
   <ModalWin :candId="candId" :path="urlId.url" @updateItem="updateItem"/>
-  <div v-if="candId==='0'" class="py-3">
+  <div v-if="urlId.id==='0'" class="py-3">
     <UploadFile @updateMessage="updateMessage" @updateItem="updateItem"/>
     <ResumeForm :resume="resume" @cancelEdit="cancelEdit" @updateMessage="updateMessage" @updateItem="updateItem"/>
   </div>
@@ -18,20 +18,23 @@
     <button @click="urlId.url = 'workplace'" type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#modalWin">Работа</button>
     <div v-html="table ? table[5] : ''"></div>
     <div class="btn-group" role="group">
-      <button @click="urlId.id='0'" class="btn btn-outline-primary">Изменить анкету</button>
+      <button @click="updateItem({candId: '0'})" class="btn btn-outline-primary">Изменить анкету</button>
       <button @click="updateStatus" class="btn btn-outline-primary">Обновить статус</button>
       <button @click="sendResume" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Отправить на проверку</button>
+      <button @click="checkResume" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Начать проверку</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+
 import axios from 'axios';
-import { ref, toRefs, watch } from 'vue';
+import { ref, toRefs } from 'vue';
 import ResumeForm from './ResumeForm.vue';
 import UploadFile from './UploadFile.vue';
 import ModalWin from './ModalWin.vue';
-import appUrl from '@/main';
+import appUrl from '@/config';
+import router from '@/router';
 
 const props = defineProps({
   table: Array,
@@ -40,14 +43,14 @@ const props = defineProps({
   state: Object,
   status: String
 });
-
 const {table, candId, resume, state, status} = toRefs(props);
+console.log(state)
 
 const emit = defineEmits(['updateMessage', 'updateItem']);
 
 const urlId = ref({
   url: '',
-  id: ''
+  id: candId?.value
 });
 
 function updateMessage(data: Object) {
@@ -56,12 +59,13 @@ function updateMessage(data: Object) {
 
 function updateItem(data: Object) {
   urlId.value.id = String(data['candId' as keyof typeof data]);
-  console.log(urlId.value.id)
   emit('updateItem', urlId.value.id);
 }
 
 function cancelEdit() {
-  urlId.value.id = String(candId);
+  String(candId?.value) !== '0' 
+  ? urlId.value.id = String(candId) 
+  : router.push({ name: 'index', params: { flag: 'new' } })
 }
 
 async function updateStatus() {
@@ -88,10 +92,24 @@ async function sendResume() {
   window.scrollTo(0,0)
 }
 
-watch(
-  () => urlId.value.url,
-  (newId) => {
-    updateItem({candId: newId});
+async function checkResume() {
+  const response = await axios.get(`${appUrl}/resume/check/${candId?.value}`, {
+    headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  });
+  const status = response.status;
+  if (status === 200) {
+    emit('updateMessage', {
+      attr: "alert-info",
+      text: "Отправлено на проверку"
+    });
+  } else {
+    emit('updateMessage', {
+      attr: "alert-info",
+      text: "Ошибка отправки, попробуйте позднее"
+    });
   }
-);
+  window.scrollTo(0,0)
+
+}
+
 </script>
