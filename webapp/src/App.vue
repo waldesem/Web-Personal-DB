@@ -11,10 +11,6 @@ import appUrl from '@/config';
 
 onBeforeMount(async () => {
   const token = localStorage.getItem('jwt_token');
-  if (!token) {
-    router.push({ name: 'login' });
-    return
-  } 
   try {
     const response = await axios.get(`${appUrl}/auth`, {
       headers: {'Authorization': `Bearer ${token}`}

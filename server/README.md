@@ -4,7 +4,7 @@ Web-Personal-DB is a web interface for managing a candidate database. It include
 
 ### The main technology stack used in this project includes:
 
-- Python (Flask, APIFlask, SQLAlchemy, Marshmallow)
+- Python (Flask, APIFlask, SQLAlchemy, Marshmallow, APScheduler, Melodramatiq)
 - Vue3;
 - Bootstrap 5 (journal theme)
 
@@ -31,11 +31,6 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 ```
 
 ### Usage
-For create database enter command in flask shell:
-```
-flask shell
-db.create_all()
-```
 
 SQLite database and admin user creates automatically with name = admin and password=admin.
 You must change it in first login to application

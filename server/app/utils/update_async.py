@@ -3,9 +3,10 @@ import sqlite3
 import os
 import csv
 import codecs
-from datetime import datetime
 
 import requests
+import aiosqlite
+import asyncio
 from bs4 import BeautifulSoup as bs
 from flask_apscheduler import APScheduler
 
@@ -60,16 +61,20 @@ def passport():
             columns = ','.join(','.join(column).split(','))
             sqlite_upd("DROP TABLE IF EXISTS passport")
             sqlite_upd(f"CREATE TABLE passport ({columns})")
-            query = 'INSERT INTO passport({0}) values ({1})'.format(columns, ('?, ?'))
-            start = datetime.now()     
-            with sqlite3.connect(DB) as con:
-                cursor = con.cursor()                   
-                chunk = []
+            query = 'INSERT INTO passport({0}) values ({1})'.format(columns, ('?, ?'))            
+            async with aiosqlite.connect(DB) as con:
+                cursor = await con.cursor()                   
+                chunk = [] 
                 for index, data in enumerate(reader):
                     chunk.append(','.join(data).split(','))
                     if index % 500 == 0:
-                        cursor.executemany(query, chunk)
+                        start = datetime.now()
+                        await cursor.executemany(query, chunk)
                         chunk.clear()
-                cursor.executemany(query, chunk)
-                con.commit()
-            print(datetime.now() - start)
+                        print(datetime.now() - start)
+                    elif index == 5000:
+                        break
+                await cursor.executemany(query, chunk)	
+                await con.commit()
+
+passport()

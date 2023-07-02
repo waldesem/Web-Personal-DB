@@ -1,32 +1,34 @@
-from datetime import date
+from datetime import date, datetime
 import sqlite3
 import os
-import datetime
 import shutil
 import requests
 
 import dramatiq
 from flask_melodramatiq import RabbitmqBroker
-import aiohttp
-import asyncio
 
-from app.utils.update import DB
-from ..utils.excel import BASE_PATH
 from ..models.model import db, Candidate, Status
+from .update import DB
 
 broker = RabbitmqBroker()
 dramatiq.set_broker(broker)
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+BASE_PATH = r'\\cronosx1\New folder\УВБ\Отдел корпоративной защиты\Персонал\Персонал-3\\'
 
 
 @dramatiq.actor
 def task_queue(anketa):
+    """
+    A function that represents a task queue.
+    Parameters:
+    - anketa: The input data for the task queue.
+    Returns:
+    - 'OK' if the result of the task queue is True, otherwise 'None'.
+    """
     check = Check(anketa)
-    result = check.main()
-    if result:
-        check_result(result)
-        return 'OK'
-    else:
-        return 'None'
+    result = check_result(check.main())
+    return 'OK' if result else 'None'
 
 
 def check_result(response):
@@ -40,32 +42,33 @@ def check_result(response):
         autostatus (str), path (str), and any other keys required by the
         CheckSchema.
     """
-    print(response)
-    # result = db.session.get(Candidate, response['id'])
-    # if response['autostatus'] == Status.REPLY.value:
-    #     # Set the candidate's status to REPLY.
-    #     result.status = Status.REPLY.value
-    #     # Create a path for the candidate's files.
-    #     path = os.path.join(
-    #         BASE_PATH, result.fullname[0], f"{str(result.id)}-{result.fullname}",
-    #         datetime.now().strftime("%Y-%m-%d"))
-    #     # Copy files from the source directory to the destination directory.
-    #     if response['path']:
-    #         try:
-    #             for file in os.listdir(response['path']):
-    #                 shutil.copyfile(file, path)
-    #         except FileNotFoundError as e:
-    #             response['autostatus'] = f'{e}'
-    #     # Update the response dictionary with the candidate ID and path.
-    #     response["cand_id"] = response.pop('id')
-    #     response["path"] = path
-    #     # Create a new check record.
-    #     check_dict = response | {"deadline": datetime.now()}
-    #     db.session.add(Check(**check_dict))
-    # else:
-    #     # Set the candidate's status to ERROR.
-    #     result.status = Status.ERROR.value
-    # db.session.commit()
+    result = db.session.get(Candidate, response['id'])
+    if response['autostatus'] == Status.REPLY.value:
+        # Set the candidate's status to REPLY.
+        result.status = Status.REPLY.value
+        # Create a path for the candidate's files.
+        path = os.path.join(
+            BASE_PATH, result.fullname[0], f"{str(result.id)}-{result.fullname}",
+            datetime.now().strftime("%Y-%m-%d"))
+        # Copy files from the source directory to the destination directory.
+        if response['path']:
+            try:
+                for file in os.listdir(response['path']):
+                    shutil.copyfile(file, path)
+            except FileNotFoundError as e:
+                response['autostatus'] = f'{e}'
+        # Update the response dictionary with the candidate ID and path.
+        response["cand_id"] = response.pop('id')
+        response["path"] = path
+        # Create a new check record.
+        check_dict = response | {"deadline": datetime.now()}
+        db.session.add(Check(**check_dict))
+    else:
+        # Set the candidate's status to ERROR.
+        result.status = Status.ERROR.value
+    db.session.commit()
+    return 'OK' if response['autostatus'] == Status.REPLY.value else None
+    
 
 
 class Check:
@@ -75,24 +78,27 @@ class Check:
     
     def main(self):
         inn = self.check_inn(self.anketa)
-        taxpayer = self.taxpayer_status(self.anketa)
-        disqual = self.sqlite_resp("SELECT G2, G3 FROM dusqual WHERE G2={} and G3={}"
-                                   .format(self.anketa['fullname'], self.anketa['birthday']))
-        passport = self.sqlite_resp("SELECT PASSP_SERIES, PASSP_NUMBER FROM passport WHERE PASSP_SERIES={} and PASSP_NUMBER={}"
-                                    .format(self.anketa['document']['series'], self.anketa['document']['number']))
+        taxpayer = self.taxpayer_status(inn)
+        disqual = self.sqlite_resp("SELECT G2, G3 FROM disqual WHERE G2='{}' and G3='{}'"
+                                    .format(self.anketa['fullname'], self.anketa['birthday']))
+        start = datetime.now()
+        passport = self.sqlite_resp("SELECT PASSP_SERIES, PASSP_NUMBER FROM passport WHERE PASSP_SERIES='{}' and PASSP_NUMBER='{}'"
+                                     .format(self.anketa['document']['series'], self.anketa['document']['number']))
+        print(datetime.now() - start)
         return {'cand_id': self.anketa['id'], 
                 'passport': passport,
-                'taxpayer': taxpayer,
-                'disqual': disqual,
-                'inn': inn, 
                 'autostatus': Status.REPLY.value,
-                'path': None}
+                'path': None,
+                'disqual': disqual,
+                'taxpayer': taxpayer,
+                'inn': inn}
         
     @classmethod
     def sqlite_resp(self, query):
         try:
             with sqlite3.connect(DB) as con:
                 cur = con.cursor()
+                print(query)
                 cur.execute(query)
                 record = cur.fetchall()
                 return record
@@ -109,10 +115,10 @@ class Check:
             "bdate": anketa["birthday"],
             "bplace": "",
             "doctype": '21',
-            "docno": f'{anketa["passport"]["series"][:2]} \
-                {anketa["passport"]["series"][2:4]} \
-                    {anketa["passport"]["number"]}',
-            "docdt": anketa.issue,
+            "docno": f'{anketa["document"]["series"][:2]} \
+                {anketa["document"]["series"][2:4]} \
+                    {anketa["document"]["number"]}',
+            "docdt": anketa["document"]['issue'],
             "c": "innMy",
             "captcha": "",
             "captchaToken": "",
@@ -126,12 +132,12 @@ class Check:
         return response
 
     # проверка самозанятого
-    def taxpayer_status(self, anketa):
+    def taxpayer_status(self, inn):
         url_npd = "https://statusnpd.nalog.ru/api/v1/tracker/taxpayer_status"
         data_npd = {
-        "inn": anketa["inn"], 
-        "requestDate": date.today().isoformat(),
-        }
+            "inn": inn, 
+            "requestDate": date.today().isoformat(),
+            }
         try:
             npd_resp = requests.post(url=url_npd, json=data_npd)
             npd_resp.raise_for_status()

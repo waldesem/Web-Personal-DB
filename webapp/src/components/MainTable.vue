@@ -6,13 +6,13 @@
     <div v-if="data.currentPath != 'officer'">
       <form @submit.prevent="getCandidates('search')" class="form form-check" role="form">
         <div class="row">
-          <div class="col-md-2">
+          <div class="col-md-3">
             <div class="mb-3">
               <label class="visually-hidden" for="region">Region</label>
               <input autocomplete="on" class="form-control mb-2 mr-sm-2 mb-sm-0" id="region" maxlength="25" minlength="2" v-model="data.region" name="region" placeholder="поиск по региону" type="text">
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-5">
             <div class="mb-3">
               <label class="visually-hidden" for="fullname">Fullname</label>
               <input class="form-control mb-2 mr-sm-2 mb-sm-0" id="fullname" maxlength="250" minlength="3" v-model="data.fullname" name="fullname" placeholder="поиск по ФИО" type="text">
@@ -24,29 +24,11 @@
               <input class="form-control mb-2 mr-sm-2 mb-sm-0" id="birthday" v-model="data.birthday" name="birthday" placeholder="по дате рождения" type="date">
             </div>
           </div>
-          <div class="col-md-2">
-            <div class="mb-3">
-              <label class="visually-hidden" for="status">Status</label>
-              <select class="form-select mb-2 mr-sm-2 mb-sm-0" v-model="data.status" id="status" name="status">
-                <option value="">По региону</option>
-                <option value="Новый">Новый</option>
-                <option value="Обновлен">Обновлен</option>
-                <option value="Проверка">Проверка</option>
-                <option value="Сохранено">Сохранено</option>
-                <option value="Автомат">Автомат</option>
-                <option value="Робот">Робот</option>
-                <option value="Обработано">Обработано</option>
-                <option value="ПФО">ПФО</option>
-                <option value="Результат">Результат</option>
-                <option value="Ошибка">Ошибка</option>
-              </select>
-            </div>
+          <div class="col-md-1">
+            <button class="btn btn-outline-primary btn-md" type="submit">Найти</button>
           </div>
           <div class="col-md-1">
-            <button class="btn btn-primary btn-md" type="submit">Найти</button>
-          </div>
-          <div class="col-md-1">
-            <button class="btn btn-outline-primary btn-md" type="reset">Очистить</button>
+            <button @click="getCandidates('main')" class="btn btn-outline-primary btn-md" data-bs-toggle="tooltip" data-bs-placement="top" title="Очистить поиск"><i class="bi bi-trash"></i></button>
           </div>
         </div>
       </form>
@@ -75,7 +57,7 @@
             </td>
             <td>{{ convertDate(candidate["birthday" as keyof typeof candidate]) }}</td>
             <td>{{ candidate["status" as keyof typeof candidate] }}</td>
-            <td>{{ convertDate(candidate["deadline" as keyof typeof candidate]) }}</td>
+            <td>{{ convertDate(candidate["create" as keyof typeof candidate]) }}</td>
           </tr>
         </tbody>
       </table>
@@ -114,7 +96,6 @@ const data = ref({
   region: '',
   fullname: '',
   birthday: '',
-  status: '',
   candidates: [],
   currentPage: 1,
   currentPath: '',
@@ -138,6 +119,11 @@ async function getCandidates(url: string, page=1) {
   let response
   try {
     if (url !== 'search') {
+      Object.assign(data.value, {
+        region: '',
+        fullname: '',
+        birthday: ''
+      })
       response = await axios.get(`${appUrl}/index/${url}/${page}`, {
         headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
       })
@@ -146,8 +132,7 @@ async function getCandidates(url: string, page=1) {
       {
         "region": data.value.region, 
         "fullname": data.value.fullname, 
-        "birthday": data.value.birthday, 
-        "status": data.value.status
+        "birthday": data.value.birthday
       }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,

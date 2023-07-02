@@ -89,7 +89,8 @@ class Candidate(db.Model):  # модель анкетных данных
     education = db.Column(db.String(250))
     addition = db.Column(db.Text)
     status = db.Column(db.String(250))
-    deadline = db.Column(db.DateTime)
+    create  = db.Column(db.DateTime)
+    update  = db.Column(db.DateTime)
     recruiter = db.Column(db.String(250))
     request_id = db.Column(db.Integer)
     documents = db.relationship('Document', backref='candidates', cascade="all, delete, delete-orphan")
@@ -253,6 +254,13 @@ class CandidateSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class MessageSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Message 
+        exclude = ("id", "status", "user_id")
+        ordered = True
+
+
 class DocumentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Document
@@ -387,3 +395,4 @@ registry_schema = RegistrySchema()
 poligraf_schema = PoligrafSchema()
 investigation_schema = InvestigationSchema()
 inquiry_schema = InquirySchema()
+message_schema = MessageSchema()

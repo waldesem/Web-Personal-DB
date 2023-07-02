@@ -90,6 +90,7 @@
 import { toRefs } from 'vue'
 import axios from 'axios';
 import appUrl from '@/config';
+import { onBeforeRouteLeave } from 'vue-router';
 
 const emit = defineEmits (['updateMessage', 'updateItem', 'cancelEdit']);
 
@@ -118,5 +119,10 @@ async function submitData(event: Event) {
     console.error(error);
   }
 }
+
+onBeforeRouteLeave((to, from) => {
+  const answer = window.confirm('Вы действительно хотите покинуть страницу?');
+  if (!answer) return false
+})
 
 </script>

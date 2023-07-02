@@ -70,7 +70,7 @@ const data = ref({
 
 const anketa_labels = [
   ['id', 'Регион', 'Фамилия Имя Отчество', 'Изменение имени', 'Дата рождения', 'Место рождения', 'Гражданство', 
-  'СНИЛС', 'ИНН', 'Образование', 'Дополнительная информация', 'Статус', 'Дата', 'Рекрутер', 'Внешний id'],
+  'СНИЛС', 'ИНН', 'Образование', 'Дополнительная информация', 'Статус', 'Создан', 'Обновлен', 'Рекрутер', 'Внешний id'],
   ['Должность', 'Департамент'],
   ['Вид документа', 'Серия', 'Номер', 'Кем выдан', 'Дата'],
   ['Тип', 'Регион', 'Адрес'],
@@ -140,13 +140,17 @@ function createItemTable(names: string[], response: Array<Array<Object>>) {
   }
   const rows = response.map((item) => {
     return names.map((name, i) => {
-      if (Object.keys(item)[i] === 'deadline' || Object.keys(item)[i] === 'birthday') {
-        const date = new Date(String(Object.values(item)[i]));
-        return `<tr><td width="25%">${name}</td><td>${date.toLocaleDateString('ru-RU')}</td></tr>`;
+      if (Object.keys(item)[i] === 'create' || Object.keys(item)[i] === 'update' || Object.keys(item)[i] === 'birthday') {
+        if (Object.values(item)[i] != null) {
+          const date = new Date(String(Object.values(item)[i]));
+          return `<tr><td width="25%">${name}</td><td>${date.toLocaleDateString('ru-RU')}</td></tr>`;
+        }
       } else if (Object.keys(item)[i] === 'id' ) {
         return `<tr height="50px"><th colspan="2">${name} #${Object.values(item)[i]}</th></tr>`;
       } else if (Object.keys(item)[i] === 'path' ) {
         return `<tr><td width="25%">${name}</td><td><a href="${Object.values(item)[i]}">Открыть</a></td></tr>`;
+      } else if (Object.values(item)[i] === null) {
+        return `<tr><td width="25%">${name}</td><td>${''}</td></tr>`;
       } else {
         return `<tr><td width="25%">${name}</td><td>${Object.values(item)[i]}</td></tr>`;
       }

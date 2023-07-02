@@ -1,14 +1,17 @@
-from datetime import date
-import requests
+from datetime import date, datetime
 
+import requests
 from apiflask import HTTPBasicAuth
+from flask_jwt_extended import current_user
+
 from ..routes import bp
 from ..utils.check import check_result
 from ..utils.excel import resume_data
-from ..models.model import db, User, Candidate, CheckSchema, DeserialResume, \
+from ..models.model import db, User, Candidate, Message, CheckSchema, DeserialResume, \
     Status, serial_resume
 
 auth = HTTPBasicAuth()  # create the auth object
+TODAY = datetime.now()
 
 
 @auth.verify_password
@@ -22,11 +25,7 @@ def verify_password(username: str, password: str):
         str: The user's username if successful, otherwise None.
     """
     # Check if the user exists in the database
-    if db.session.query(User).filter_by(username=username, password=password).first():
-        # Return the user's username if successful
-        return username
-    # Return None if authentication fails
-    return None
+    return db.session.query(User.fullname).filter_by(username=username, password=password).one_or_none()
 
 
 @bp.post('/api/v1/anketa')
@@ -42,7 +41,6 @@ def anketa(resume):
     """
     # Rename 'id' key to 'request_id' and update status and deadline
     resume['resume']["request_id"] = resume['resume'].pop('id')
-    resume['resume']['deadline'] = date.today()
 
     # Check if the same resume already exists in the database
     candidate = db.session.query(Candidate).filter(
@@ -52,11 +50,13 @@ def anketa(resume):
 
     if candidate:  # If the resume already exists, update it
         resume['resume']['status'] = Status.UPDATE.value
+        resume['resume']['update'] = date.today()
         for k, v in resume['resume'].items():
             setattr(candidate, k, v)
         new_id = candidate.id
     else:  # If the resume does not exist, create a new record
         resume['resume']['status'] = Status.NEWFAG.value
+        resume['resume']['create'] = date.today()
         value = Candidate(**resume['resume'])
         db.session.add(value)
         db.session.flush()
@@ -96,6 +96,15 @@ def checkin(response):
         CheckSchema.
     :return: A dictionary containing a message string.
     """
-    check_result(response)
+    result = check_result(response)
+    resume = db.session.get(Candidate, response['id'])
+    if result == "OK":
+        db.session.add(Message(message=f'Проверка кандидата {resume.fullname} окончена', 
+                            create=TODAY, user_id=current_user.id))
+        db.session.commit()
+    else:
+        db.session.add(Message(message=f'Проверка кандидата {resume.fullname} не выполнена', 
+                            create=TODAY, user_id=current_user.id))
+        db.session.commit()
     # Return a message confirming the response was received.
     return {'status': 201}

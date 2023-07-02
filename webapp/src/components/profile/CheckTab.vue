@@ -128,7 +128,7 @@
           <div class="btn-group" role="group">
             <button class="btn btn-outline-primary" type="submit">Принять</button>
             <button class="btn btn-outline-primary" type="reset">Очистить</button>
-            <button class="btn btn-outline-primary" type="button" @click="updateStatus">Отмена</button>
+            <button class="btn btn-outline-primary" type="button" @click="cancelCheck">Отмена</button>
           </div>
         </div>
       </div>
@@ -159,8 +159,8 @@ const props = defineProps({
   state: Object,
   status: String
 });
-const { table, item, candId, state, status } = toRefs(props);
 
+const { table, item, candId, state, status } = toRefs(props);
 
 let check: any = {};
 if (item?.value) {
@@ -222,9 +222,9 @@ async function addCheck() {
   }
 }
 
-async function updateStatus() {
+async function cancelCheck() {
   url.value = '';
-  const response = await axios.get(`${appUrl}/resume/status/${candId?.value}`, {
+  const response = await axios.get(`${appUrl}/resume/status/${status?.value}/${candId?.value}`, {
     headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
   });
   const { message } = response.data;

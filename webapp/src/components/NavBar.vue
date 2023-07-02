@@ -19,7 +19,7 @@
               <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
             </li>
             <li v-if="data.count !== 0" class="nav-item dropdown">
-              <a class="nav-link active dropdown-toggle dropdown-toggle-split" role="button" data-bs-toggle="dropdown" href="#">Сообщения
+              <a class="nav-link active dropdown-toggle dropdown-toggle-split" role="button" data-bs-toggle="dropdown" href="#"><i class="bi bi-envelope-check-fill"></i>
                 <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{data.count}}</span></a>
                 <ul class="dropdown-menu" v-for="(message) in data.message">
                   <h6 class="dropdown-header">Непрочитанные сообщения</h6>
@@ -28,11 +28,11 @@
                   <li><a class="dropdown-item" href="#" @click="updateMessage()">Очистить</a></li>
                 </ul>
             </li>
-            <li v-else class="nav-item"><a class="nav-link" href="#">Сообщения</a></li>
+            <li v-else class="nav-item"><a class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Сообщения" href="#"><i class="bi bi-envelope-fill"></i></a></li>
           </ul>                                
         </div>
         <div class="d-flex px-2">
-          <router-link :to="{name: 'login'}" class="nav-link active">Выход</router-link>
+          <router-link :to="{name: 'login'}" class="nav-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Выход"><i class="bi bi-box-arrow-in-right"></i></router-link>
         </div>
       </div>
     </nav>
@@ -46,7 +46,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import appUrl from '@/config';
 
-const data = ref({new: '', count: 0, message: ''});
+const data = ref({new: '', count: 0, message: []});
 
 async function updateMessage() {
   try{

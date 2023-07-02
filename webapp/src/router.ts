@@ -43,4 +43,11 @@ const router = createRouter({
   history: createWebHistory()
 })
 
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem('jwt_token');
+  if (to.name !== 'login' && !token) next({ name: 'login' });
+  else next();
+});
+
+
 export default router;

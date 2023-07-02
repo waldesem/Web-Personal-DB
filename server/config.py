@@ -8,6 +8,7 @@ class Config(object):
     SECRET_KEY = 'AtK5Jcsngu7ewjoHZk1tweTLl6lM83vuL3aEMcsrKLvGUccEOg'
     JWT_SECRET_KEY = '35fc4376a65fabf019998606af3a4108f08f1c3df41c7b264c'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TEMPLATES_AUTO_RELOAD = True
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=24)
     SECURITY_URL_PREFIX = "/admin"
     SCHEDULER_API_ENABLED: True

@@ -20,8 +20,8 @@
     <div class="btn-group" role="group">
       <button @click="updateItem({candId: '0'})" class="btn btn-outline-primary">Изменить анкету</button>
       <button @click="updateStatus" class="btn btn-outline-primary">Обновить статус</button>
-      <button @click="sendResume" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Отправить на проверку</button>
-      <button @click="checkResume" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Начать проверку</button>
+      <button @click="sendResume('send')" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Отправить на проверку</button>
+      <button @click="sendResume('check')" disabled class="btn btn-outline-primary">Начать проверку</button>
     </div>
   </div>
 </template>
@@ -44,7 +44,6 @@ const props = defineProps({
   status: String
 });
 const {table, candId, resume, state, status} = toRefs(props);
-console.log(state)
 
 const emit = defineEmits(['updateMessage', 'updateItem']);
 
@@ -69,7 +68,7 @@ function cancelEdit() {
 }
 
 async function updateStatus() {
-  const response = await axios.get(`${appUrl}/resume/status/${candId?.value}`, {
+  const response = await axios.get(`${appUrl}/resume/status/${status?.value}/${candId?.value}`, {
     headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
   });
   const { message } = response.data;
@@ -80,8 +79,8 @@ async function updateStatus() {
   window.scrollTo(0,0)
 }
 
-async function sendResume() {
-  const response = await axios.get(`${appUrl}/resume/send/${candId?.value}`, {
+async function sendResume(flag: string) {
+  const response = await axios.get(`${appUrl}/resume/${flag}/${candId?.value}`, {
     headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
   });
   const { message } = response.data;
@@ -90,26 +89,6 @@ async function sendResume() {
     text: message
   });
   window.scrollTo(0,0)
-}
-
-async function checkResume() {
-  const response = await axios.get(`${appUrl}/resume/check/${candId?.value}`, {
-    headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-  });
-  const status = response.status;
-  if (status === 200) {
-    emit('updateMessage', {
-      attr: "alert-info",
-      text: "Отправлено на проверку"
-    });
-  } else {
-    emit('updateMessage', {
-      attr: "alert-info",
-      text: "Ошибка отправки, попробуйте позднее"
-    });
-  }
-  window.scrollTo(0,0)
-
 }
 
 </script>
