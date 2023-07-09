@@ -40,7 +40,7 @@
 import axios from 'axios';
 import { ref, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
-import appUrl from '@/config';
+import config from '@/config';
 import NavBar from './NavBar.vue';
 import AlertMessage from './AlertMessage.vue';
 import AnketaTab from './profile/AnketaTab.vue';
@@ -112,8 +112,8 @@ async function getProfile(id: string) {
     return;
 
   } else {
-    const response = await axios.get(`${appUrl}/profile/${id}`, {
-      headers: {Authorization: `Bearer ${localStorage.getItem("jwt_token")}`}
+    const response = await axios.get(`${config.appUrl}/profile/${id}`, {
+      headers: {Authorization: `Bearer ${config.token}`},
     });
     const [anketa, check, registry, poligraf, investigation, inquiry, state] = response.data;
     Object.assign(data.value, {

@@ -89,7 +89,7 @@
 
 import { toRefs } from 'vue'
 import axios from 'axios';
-import appUrl from '@/config';
+import config from '@/config';
 import { onBeforeRouteLeave } from 'vue-router';
 
 const emit = defineEmits (['updateMessage', 'updateItem', 'cancelEdit']);
@@ -98,16 +98,12 @@ const props = defineProps({
   resume: Object
 });
 
-const brief = toRefs(props).resume?.value;
-
-let resume: Object;
-if (brief) resume = brief;
+const resume = toRefs(props).resume?.value ?? {};
 
 async function submitData(event: Event) {
   try {
-    const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${appUrl}/resume/create`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    const response = await axios.post(`${config.appUrl}/resume/create`, resume, {
+      headers: {'Authorization': `Bearer ${config.token}`}
     });
     const { message, cand_id } = response.data;
     emit('updateMessage', {

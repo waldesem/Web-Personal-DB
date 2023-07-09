@@ -3,6 +3,7 @@ import openpyxl
 
 from app.models.model import db, Staff, Document, Address, Contact, Workplace
 
+BASE_PATH = r'\\cronosx1\New folder\УВБ\Отдел корпоративной защиты\Персонал\Персонал-3\\'
 
 class ExcelFile:
     """ Create class for import data from excel files"""
@@ -57,23 +58,22 @@ class ExcelFile:
         }
 
 
-
 def resume_data(cand_id, document, addresses, contacts, workplaces, staff):
     objects_to_add = [
-        Staff(**staff | {'cand_id': cand_id}) 
-        for key, value in staff.items() if value
-    ] + [
-        Document(**document | {'cand_id': cand_id})
-        for key, value in document.items() if value
-    ] + [
-        Address(**address | {'cand_id': cand_id})
-        for address in addresses if address['address']
-    ] + [
-        Contact(**contact | {'cand_id': cand_id})
-        for contact in contacts if contact['contact']
-    ] + [
-        Workplace(**work | {'cand_id': cand_id})
-        for work in workplaces if work['workplace']
-    ]
+                         Staff(**staff | {'cand_id': cand_id})
+                         for key, value in staff.items() if value
+                     ] + [
+                         Document(**document | {'cand_id': cand_id})
+                         for key, value in document.items() if value
+                     ] + [
+                         Address(**address | {'cand_id': cand_id})
+                         for address in addresses if address['address']
+                     ] + [
+                         Contact(**contact | {'cand_id': cand_id})
+                         for contact in contacts if contact['contact']
+                     ] + [
+                         Workplace(**work | {'cand_id': cand_id})
+                         for work in workplaces if work['workplace']
+                     ]
     db.session.bulk_save_objects(objects_to_add)
     db.session.commit()

@@ -1,14 +1,14 @@
 from datetime import date, datetime
+import shutil
+import os
 
-import requests
+
 from apiflask import HTTPBasicAuth
 from flask_jwt_extended import current_user
 
 from ..routes import bp
-from ..utils.check import check_result
-from ..utils.excel import resume_data
-from ..models.model import db, User, Candidate, Message, CheckSchema, DeserialResume, \
-    Status, serial_resume
+from ..utils.excel import resume_data, BASE_PATH
+from ..models.model import db, User, Candidate, Check, Message, CheckSchema, DeserialResume, Status
 
 auth = HTTPBasicAuth()  # create the auth object
 TODAY = datetime.now()
@@ -66,45 +66,41 @@ def anketa(resume):
     resume_data(new_id, resume['document'], resume['addresses'], resume['contacts'], resume['workplaces'],
                 resume['staff'])
 
-    # Serialize the resume and send it for checking
-    serialize = serial_resume.decer_res(new_id, officer='API')
-    response = requests.post(url='URL_CHECK', json=serialize, timeout=5)
-    response.raise_for_status()
-
-    # Update the resume status based on the response from the checking service
-    # Commit changes to the database and return the stored resume
-    result = db.session.query(Candidate).filter_by(id=new_id).first()
-    if response.status_code == 200:
-        result.status = Status.AUTO.value
-        db.session.commit()
-        return {'status': 201}
-    else:
-        result.status = Status.ERROR.value
-        db.session.commit()
-        return {'status': 202}
-
 
 @bp.post('/api/v1/check')
 @bp.input(CheckSchema)
 @bp.auth_required(auth)
-def checkin(response):
-    """
-    Receives a JSON payload containing information about a candidate check,
-    including the candidate ID and status.
-    :param response: A dictionary containing the following keys: id (int),
-        autostatus (str), path (str), and any other keys required by the
-        CheckSchema.
-    :return: A dictionary containing a message string.
-    """
-    result = check_result(response)
-    resume = db.session.get(Candidate, response['id'])
-    if result == "OK":
-        db.session.add(Message(message=f'Проверка кандидата {resume.fullname} окончена', 
-                            create=TODAY, user_id=current_user.id))
-        db.session.commit()
+def check_in(response):
+    result = db.session.get(Candidate, response['id'])
+    if response['autostatus'] == Status.REPLY.value:
+        # Set the candidate's status to REPLY.
+        result.status = Status.REPLY.value
+        # Create a path for the candidate's files.
+        path = os.path.join(
+            BASE_PATH, result.fullname[0], f"{str(result.id)}-{result.fullname}",
+            datetime.now().strftime("%Y-%m-%d"))
+        # Copy files from the source directory to the destination directory.
+        if response['path']:
+            try:
+                for file in os.listdir(response['path']):
+                    shutil.copyfile(file, path)
+            except FileNotFoundError as e:
+                result.status = Status.ERROR.value
+                response['autostatus'] = f'{e}'
+                db.session.add(Message(message=result,
+                               create=TODAY, user_id=current_user.id))
+        # Update the response dictionary with the candidate ID and path.
+        response["cand_id"] = response.pop('id')
+        response["path"] = path
+        # Create a new check record.
+        check_dict = response | {"deadline": datetime.now()}
+        db.session.add(Check(**check_dict))
+        db.session.add(Message(message=f'Проверка кандидата {result.fullname} окончена', create=TODAY, user_id=current_user.id))
     else:
-        db.session.add(Message(message=f'Проверка кандидата {resume.fullname} не выполнена', 
-                            create=TODAY, user_id=current_user.id))
-        db.session.commit()
+        # Set the candidate's status to ERROR.
+        result.status = Status.ERROR.value
+        db.session.add(Message(message=f'Проверка кандидата {result.fullname} не выполнена',
+                               create=TODAY, user_id=current_user.id))
+    db.session.commit()
     # Return a message confirming the response was received.
-    return {'status': 201}
+    return '', 201

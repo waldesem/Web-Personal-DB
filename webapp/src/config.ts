@@ -1,4 +1,9 @@
-
 const appUrl = 'http://localhost:5000';
+const token = localStorage.getItem('jwt_token');
 
-export default appUrl;
+const config = {
+  appUrl: appUrl,
+  token: token
+};
+
+export default config;

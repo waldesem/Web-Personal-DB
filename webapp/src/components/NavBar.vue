@@ -44,14 +44,14 @@
 import { ref, onMounted } from 'vue';
 
 import axios from 'axios';
-import appUrl from '@/config';
+import config from '@/config';
 
 const data = ref({new: '', count: 0, message: []});
 
 async function updateMessage() {
   try{
-  const response = await axios.get(`${appUrl}/reset`, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  const response = await axios.get(`${config.appUrl}/reset`, {
+    headers: {'Authorization': `Bearer ${config.token}`}
   });
   const { counts, messages } = response.data;
   Object.assign(data.value, {count: counts, message: messages});
@@ -62,8 +62,8 @@ async function updateMessage() {
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`${appUrl}/count`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+    const response = await axios.get(`${config.appUrl}/count`, {
+      headers: {'Authorization': `Bearer ${config.token}`
     }});
     const { news, counts, messages } = response.data;
     Object.assign(data.value, {new: news, count: counts, message: messages});

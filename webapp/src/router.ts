@@ -5,6 +5,7 @@ import LoginForm from './components/LoginForm.vue'
 import MainTable from './components/MainTable.vue';
 import ProFile from './components/ProFile.vue';
 import StatInfo from './components/StatInfo.vue';
+import AdminPage from './components/AdminPage.vue';
 import NotFound from './components/NotFound.vue';
 
 const router = createRouter({
@@ -33,6 +34,11 @@ const router = createRouter({
       path: '/information',
       name: 'information',
       component: StatInfo
+    },
+    {
+      path: '/admin/index',
+      name: 'admin',
+      component: AdminPage
     },
     {
       path: '/:pathMatch(.*)*',  

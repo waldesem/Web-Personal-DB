@@ -1,7 +1,5 @@
 from enum import Enum
 
-from flask_security import RoleMixin
-from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
@@ -26,21 +24,8 @@ class Status(Enum):
     CANCEL = 'Отмена'
     ERROR = 'Ошибка'
 
-roles_users = db.Table(
-    'roles_users',
-    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
-    db.Column('role_id', db.Integer(), db.ForeignKey('roles.id'))
-)
 
-
-class Role(db.Model, RoleMixin):
-    __tablename__ = 'roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255))
-
-
-class User(db.Model, UserMixin):  # модель пользователей системы
+class User(db.Model):
     """ Create model for users"""
 
     __tablename__ = 'users'
@@ -49,15 +34,12 @@ class User(db.Model, UserMixin):  # модель пользователей си
     fullname = db.Column(db.String(250))
     username = db.Column(db.String(250), unique=True)
     password = db.Column(db.LargeBinary)
-    pswd_create = db.Column(db.Date)
-    pswd_change = db.Column(db.Date)
+    pswd_create = db.Column(db.DateTime)
+    pswd_change = db.Column(db.DateTime)
     last_login = db.Column(db.DateTime)
-    active = db.Column(db.Boolean())
-    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+    blocked = db.Column(db.Boolean(), default=False)
+    role = db.Column(db.String(250))
     messages = db.relationship('Message', backref='messages', cascade="all, delete, delete-orphan")
-
-    def has_role(self, *args):
-        return set(args).issubset({role.name for role in self.roles})
 
 
 class Message(db.Model):
@@ -81,7 +63,7 @@ class Candidate(db.Model):  # модель анкетных данных
     region = db.Column(db.String(250))
     fullname = db.Column(db.String(250), index=True)
     previous = db.Column(db.String(250))
-    birthday = db.Column(db.Date)
+    birthday = db.Column(db.Date, index=True)
     birthplace = db.Column(db.String(250))
     country = db.Column(db.String(250))
     snils = db.Column(db.String(11))
@@ -89,8 +71,8 @@ class Candidate(db.Model):  # модель анкетных данных
     education = db.Column(db.String(250))
     addition = db.Column(db.Text)
     status = db.Column(db.String(250))
-    create  = db.Column(db.DateTime)
-    update  = db.Column(db.DateTime)
+    create = db.Column(db.DateTime)
+    update = db.Column(db.DateTime)
     recruiter = db.Column(db.String(250))
     request_id = db.Column(db.Integer)
     documents = db.relationship('Document', backref='candidates', cascade="all, delete, delete-orphan")
@@ -248,16 +230,48 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
-class CandidateSchema(ma.SQLAlchemyAutoSchema):
+class Log(db.Model):
+    
+    __tablename__ = 'logs'
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    timestamp = db.Column(db.DateTime)
+    level = db.Column(db.String)
+    message = db.Column(db.String)
+    pathname = db.Column(db.String)
+    lineno = db.Column(db.Integer)
+    status = db.Column(db.String, default=Status.NEWFAG)
+
+    def __init__(self, timestamp, level, message, pathname, lineno):
+            self.timestamp = timestamp
+            self.level = level
+            self.message = message
+            self.pathname = pathname
+            self.lineno = lineno
+
+
+class LogSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Candidate
+        model = Log
+        exclude = ("status",)
         ordered = True
 
 
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        ordered = True
+ 
+
 class MessageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Message 
-        exclude = ("id", "status", "user_id")
+        model = Message
+        exclude = ("user_id", 'status',)
+        ordered = True
+
+
+class CandidateSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Candidate
         ordered = True
 
 
@@ -335,64 +349,3 @@ class DeserialResume(ma.SQLAlchemyAutoSchema):
     addresses = fields.List(fields.Nested(AddressSchema()))
     workplaces = fields.List(fields.Nested(WorkplaceSchema()))
     contacts = fields.List(fields.Nested(ContactSchema()))
-
-
-class SerialResume:
-    """
-    A class representing a candidate.
-    """
-
-    def __init__(self) -> None:
-        """
-        Initializes a new instance of the class.
-        """
-        # Set send_resume to None initially.
-        self.send_resume = None
-
-        # Initialize a new instance of the CandidateSchema class, including only certain fields.
-        self.resume = CandidateSchema(only=('id', 'fullname', 'birthday', 'birthplace', 'snils', 'inn',))
-
-        # Initialize a new instance of the DocumentSchema class.
-        self.document = DocumentSchema()
-
-        # Initialize a new instance of the AddressSchema class, including only the address field.
-        self.address = AddressSchema(only=('address',))
-
-    def decer_res(self, new_id, **kwargs):
-        """
-        This function retrieves a candidate's information from the database and returns it as a dictionary.
-        Args:
-            new_id (int): The ID of the candidate whose information is being retrieved.
-            **kwargs (dict): Any additional information to be included in the final dictionary.
-        Returns:
-            dict: A dictionary containing the candidate's information and any additional information provided.
-        """
-        # Retrieve the Candidate object with the given ID.
-        resum = db.session.query(Candidate).get(new_id)
-        # Retrieve the most recent Document object associated with the candidate.
-        docum = db.session.query(Document).filter_by(cand_id=new_id).order_by(Document.id.desc()).first()
-        # Retrieve the most recent Address object associated with the candidate that contains the word "регистрац" (
-        # registration).
-        addr = db.session.query(Address).filter_by(cand_id=new_id).filter(Address.view.ilike("%регистрац%")). \
-            order_by(Address.id.desc()).first()
-        # Combine the candidate's information, document information, address information, and any additional
-        # information into a dictionary.
-        self.send_resume = self.resume.dump(resum) | self.document.dump(docum) | self.address.dump(addr) | dict(kwargs)
-        return self.send_resume
-
-
-candidate_schema = DeserialResume()
-serial_resume = SerialResume()
-
-resume_schema = CandidateSchema()
-staff_schema = StaffSchema()
-document_schema = DocumentSchema()
-address_schema = AddressSchema()
-contact_schema = ContactSchema()
-work_schema = WorkplaceSchema()
-check_schema = CheckSchema()
-registry_schema = RegistrySchema()
-poligraf_schema = PoligrafSchema()
-investigation_schema = InvestigationSchema()
-inquiry_schema = InquirySchema()
-message_schema = MessageSchema()

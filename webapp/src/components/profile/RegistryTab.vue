@@ -41,7 +41,7 @@
 
 import axios from 'axios';
 import { ref, toRefs } from 'vue';
-import appUrl from '@/config';
+import config from '@/config';
   
 const props = defineProps({
   table: String,
@@ -57,8 +57,8 @@ const url = ref('');
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${appUrl}/registry/${candId?.value}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+    const response = await axios.post(`${config.appUrl}/registry/${candId?.value}`, formData, {
+      headers: {'Authorization': `Bearer ${config.token}`
       }
     });
     const { message } = response.data;

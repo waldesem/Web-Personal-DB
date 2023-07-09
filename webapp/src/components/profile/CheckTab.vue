@@ -148,7 +148,7 @@
 
 import axios from 'axios';
 import { ref, toRefs } from 'vue';
-import appUrl from '@/config';
+import config from '@/config';
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
 
@@ -161,19 +161,35 @@ const props = defineProps({
 });
 
 const { table, item, candId, state, status } = toRefs(props);
-
-let check: any = {};
-if (item?.value) {
-  check = item.value;
-}
-
 const url = ref('');
+
+const check = item?.value ? ref(item.value) : ref({
+  workplace: '',
+  employee: '',
+  document: '',
+  inn: '',
+  debt: '',
+  bankruptcy: '',
+  bki: '',
+  courts: '',
+  affiliation: '',
+  terrorist: '',
+  mvd: '',
+  internet: '',
+  cronos: '',
+  cros: '',
+  addition: '',
+  pfo: false,
+  conclusion: '',
+  comments: '',
+  deadline: ''
+});
+
 
 async function submitData(event: Event){
   try {
-    const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${appUrl}/check/${url.value}/${candId?.value}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    const response = await axios.post(`${config.appUrl}/check/${url.value}/${candId?.value}`, check?.value, {
+      headers: {'Authorization': `Bearer ${config.token}`}
     });
     const { message } = response.data;
     emit('updateMessage', {
@@ -190,8 +206,8 @@ async function submitData(event: Event){
 async function deleteCheck() {
   if (confirm("Вы действительно хотите удалить проверку?")) {
     try {
-      const response = await axios.get(`${appUrl}/check/delete/${candId?.value}`, {headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+      const response = await axios.get(`${config.appUrl}/check/delete/${candId?.value}`, {headers: {
+        'Authorization': `Bearer ${config.token}`
       }});
       const { message } = response.data;
       emit('updateMessage', {
@@ -208,8 +224,8 @@ async function deleteCheck() {
 
 async function addCheck() {
   try {
-    const response = await axios.get(`${appUrl}/check/status/${candId?.value}`, {headers: {
-      'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
+    const response = await axios.get(`${config.appUrl}/check/status/${candId?.value}`, {headers: {
+      'Authorization': `Bearer ${config.token}`
     }});
     const { message, alert } = response.data;
     alert == "alert-danger" ? url.value = '' : url.value = 'new';
@@ -224,8 +240,8 @@ async function addCheck() {
 
 async function cancelCheck() {
   url.value = '';
-  const response = await axios.get(`${appUrl}/resume/status/${status?.value}/${candId?.value}`, {
-    headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  const response = await axios.get(`${config.appUrl}/resume/status/${status?.value}/${candId?.value}`, {
+    headers : {'Authorization': `Bearer ${config.token}`}
   });
   const { message } = response.data;
   emit('updateMessage', {

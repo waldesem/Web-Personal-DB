@@ -83,7 +83,7 @@
 import { ref, onBeforeMount, watch } from 'vue'
 import { useRoute } from 'vue-router' 
 import axios from 'axios';
-import appUrl from '@/config';
+import config from '@/config';
 import AlertMessage from './AlertMessage.vue';
 import NavBar from './NavBar.vue';
 import FooterDiv from './FooterDiv.vue';
@@ -124,18 +124,18 @@ async function getCandidates(url: string, page=1) {
         fullname: '',
         birthday: ''
       })
-      response = await axios.get(`${appUrl}/index/${url}/${page}`, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      response = await axios.get(`${config.appUrl}/index/${url}/${page}`, {
+        headers: {'Authorization': `Bearer ${config.token}`}
       })
     } else {
-      response = await axios.post(`${appUrl}/index/search/${page}`, 
+      response = await axios.post(`${config.appUrl}/index/search/${page}`, 
       {
         "region": data.value.region, 
         "fullname": data.value.fullname, 
         "birthday": data.value.birthday
       }, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
+          'Authorization': `Bearer ${config.token}`,
           'Content-Type': 'application/json'
         }
       })

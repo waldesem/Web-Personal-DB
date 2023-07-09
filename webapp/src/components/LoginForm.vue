@@ -5,18 +5,17 @@
       <AlertMessage :attr="data.attr" :text="data.text" />
       <h5>{{data.title}}</h5>
       <div class ="py-3">
-        <form 
-            @submit.prevent="submitData" class="form form-check" role="form">
+        <form @submit.prevent="submitData" class="form form-check" role="form">
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="username">Логин: </label>
               <div class="col-lg-4">
-                <input autocomplete="username" class="form-control" minlength="3" maxlength="25" id="username" name="username" placeholder="Латинские буквы 8-25 символов" required type="text" value="" pattern="[a-zA-Z]+">
+                <input autocomplete="username" class="form-control" minlength="5" maxlength="25" v-model=login.username id="username" name="username" placeholder="Латинские буквы 8-25 символов" required type="text" pattern="[a-zA-Z]+">
               </div>
           </div>
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="password">Пароль: </label>
                   <div class="col-lg-4">
-                    <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" id="password" name="password" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" value="" pattern="[0-9a-zA-Z]+">
+                    <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" v-model=login.password id="password" name="password" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" pattern="[0-9a-zA-Z]+">
                     <div v-if="data.path ==='/login'" class="py-2"><a @click="changePswd" href="#">Изменить пароль</a></div>
                   </div>
               </div>
@@ -25,14 +24,14 @@
               <label class="col-form-label col-lg-1" for="new_pswd">Новый: </label>
                 <div class="col-lg-4">
                     <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
-                    name="new_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required  type="password" value="" pattern="[0-9a-zA-Z]+">
+                    v-model=login.new_pswd name="new_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required  type="password" pattern="[0-9a-zA-Z]+">
                 </div>
             </div>
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="conf_pswd">Повтор: </label>
                 <div class="col-lg-4">
                     <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
-                    name="conf_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" value="" pattern="[0-9a-zA-Z]+">
+                    v-model=login.conf_pswd name="conf_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" pattern="[0-9a-zA-Z]+">
                 </div>
             </div>
           </div>
@@ -51,14 +50,21 @@
 
 import { ref, onBeforeMount } from 'vue';
 import axios from 'axios';
-import appUrl from '@/config';
+import config from '@/config';
 import router from '@/router';
 import AlertMessage from './AlertMessage.vue';
 
 onBeforeMount(async () => {
   localStorage.removeItem('jwt_token');
-  const response = await axios.get(`${appUrl}/logout`)
+  const response = await axios.get(`${config.appUrl}/logout`)
   console.log(response.data)
+});
+
+const login = ref({
+  username: '',
+  password: '',
+  new_pswd: '',
+  conf_pswd: ''
 });
 
 const data = ref({
@@ -81,8 +87,7 @@ function changePswd() {
 
 async function submitData(event: Event) {
   try {
-    const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${appUrl}/${data.value.path}`, formData);        
+    const response = await axios.post(`${config.appUrl}/${data.value.path}`, login.value);     
     const { user, access_token } = response.data;
     const alerts: Record<string, any> = {
       'None': ['alert-danger', 'Неверный логин или пароль'],

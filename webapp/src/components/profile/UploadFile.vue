@@ -14,7 +14,7 @@
 
 import { ref } from 'vue';
 import axios from 'axios';
-import appUrl from '@/config';
+import config from '@/config';
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
 const file = ref(null);
@@ -27,8 +27,8 @@ async function submitFile(event: Event) {
     formData.append('file', fileInput.files[0]);
   }
   try {
-    const response = await axios.post(`${appUrl}/resume/upload`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    const response = await axios.post(`${config.appUrl}/resume/upload`, formData, {
+      headers: {'Authorization': `Bearer ${config.token}`}
     });
     const { message, cand_id } = response.data;
     emit('updateMessage', {

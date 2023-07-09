@@ -20,8 +20,7 @@
     <div class="btn-group" role="group">
       <button @click="updateItem({candId: '0'})" class="btn btn-outline-primary">Изменить анкету</button>
       <button @click="updateStatus" class="btn btn-outline-primary">Обновить статус</button>
-      <button @click="sendResume('send')" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Отправить на проверку</button>
-      <button @click="sendResume('check')" disabled class="btn btn-outline-primary">Начать проверку</button>
+      <button @click="sendResume" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Отправить на проверку</button>
     </div>
   </div>
 </template>
@@ -33,7 +32,7 @@ import { ref, toRefs } from 'vue';
 import ResumeForm from './ResumeForm.vue';
 import UploadFile from './UploadFile.vue';
 import ModalWin from './ModalWin.vue';
-import appUrl from '@/config';
+import config from '@/config';
 import router from '@/router';
 
 const props = defineProps({
@@ -68,8 +67,8 @@ function cancelEdit() {
 }
 
 async function updateStatus() {
-  const response = await axios.get(`${appUrl}/resume/status/${status?.value}/${candId?.value}`, {
-    headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  const response = await axios.get(`${config.appUrl}/resume/status/${candId?.value}`, {
+    headers : {'Authorization': `Bearer ${config.token}`}
   });
   const { message } = response.data;
   emit('updateMessage', {
@@ -79,9 +78,9 @@ async function updateStatus() {
   window.scrollTo(0,0)
 }
 
-async function sendResume(flag: string) {
-  const response = await axios.get(`${appUrl}/resume/${flag}/${candId?.value}`, {
-    headers : {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+async function sendResume() {
+  const response = await axios.get(`${config.appUrl}/resume/send/${candId?.value}`, {
+    headers : {'Authorization': `Bearer ${config.token}`}
   });
   const { message } = response.data;
   emit('updateMessage', {

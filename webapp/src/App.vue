@@ -7,13 +7,12 @@
 import { onBeforeMount } from 'vue';
 import axios from 'axios';
 import router from '@/router';
-import appUrl from '@/config';
+import config from '@/config';
 
 onBeforeMount(async () => {
-  const token = localStorage.getItem('jwt_token');
   try {
-    const response = await axios.get(`${appUrl}/auth`, {
-      headers: {'Authorization': `Bearer ${token}`}
+    const response = await axios.get(`${config.appUrl}/auth`, {
+      headers: {'Authorization': `Bearer ${config.token}`}
     });
     const { user } = response.data;
     user === "Authorized" 
