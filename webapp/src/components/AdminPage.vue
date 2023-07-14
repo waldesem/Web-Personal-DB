@@ -35,10 +35,10 @@
           <tr height="50px">
             <th width="5%">#</th>
             <th>Имя пользователя</th>
-            <th width="15%">Логин</th>
+            <th width="20%">Логин</th>
             <th width="15%">Создан</th>
             <th width="15%">Вход</th>
-            <th width="15%">Роль</th>
+            <th width="20%">Роль</th>
           </tr>
         </thead>
         <tbody>
@@ -71,10 +71,8 @@
           <div class="mb-3 row required">
             <label class="col-form-label col-lg-2" for="role">Роль: </label>
               <div class="col-lg-4">
-                <select class="form-select" id="role" name="role" v-model="data.role" >
-                  <option value="user">Пользователь</option>
-                  <option value="superuser">Суперпользователь</option>
-                  <option value="admin">Администратор</option>                 
+                <select v-for="(value, name) in config.roles" class="form-select" id="role" name="role" v-model="data.role" required>
+                  <option value={{value}}>{{name}}</option>                
                 </select>
               </div>
           </div>
@@ -90,7 +88,7 @@
     </div>
     <!--Open user profile-->
     <div v-if="data.actions === 'profile'">
-      <div v-html="data.profile ? data.profile : ''"></div>
+      <div v-html="data.profile ? data.profile : ''"></div>      
       <button @click="blockUser" class="btn btn-outline-primary">{{data.blocked ? "Разблокировать" : 'Заблокировать' }}</button>
     </div>
     <!--Logs table-->
@@ -99,13 +97,17 @@
         <thead>
           <tr height="50px">
             <th width="5%">#</th>
-            <th>Сообщение</th>
-            <th width="15%">Дата</th>
+            <th width="15%">Время</th>
+            <th width="15%">Уровень</th>
+            <th >Сообщение</th>
+            <th width="15%">Путь</th>
+            <th width="15%">Строка</th>
           </tr>
         </thead>
         <tbody>
           <tr height="50px" v-for="log in data.logs" :key="log">
-            <td>{{ log["timestamp" as keyof typeof log] as Date }}</td>
+            <td>{{ log["id" as keyof typeof log] }}</td>
+            <td>{{ new Date(log["timestamp" as keyof typeof log]).toLocaleString('ru-RU') }}</td>
             <td>{{ log["level" as keyof typeof log] }}</td>
             <td>{{ log["message" as keyof typeof log] }}</td>
             <td>{{ log["pathname" as keyof typeof log] }}</td>
@@ -113,7 +115,7 @@
           </tr>
         </tbody>
       </table>
-      <button @click="openLog('clear')" class="btn btn-outline-primary" type="button">Отметить прочитанными</button>
+      <button @click="openLog('read')" class="btn btn-outline-primary" type="button">Отметить прочитанными</button>
     </div>
   </div>
 
@@ -124,32 +126,34 @@
 import { ref, computed, onBeforeMount } from 'vue'
 import axios from 'axios';
 import config from '@/config';
-import AlertMessage from './AlertMessage.vue';
+import AlertMessage from './AlertMessage'
 
 const user_labels = [
   '#', 'Имя пользователя', 'Логин', 'Хэш пароля', 'Создан', 'Изменен', 'Вход', 'Блокировка', 'Роль'
-]
+];
 
 const data = ref({
   actions: '',
-  count: 0,
   logs: [],
   users: [],
-  profile: {},
+  profile: '',
   user_id: '',
   blocked: '',
   attr: '',
-  text: '',
+  text: ''
+});
+
+const userForm = ref({
   fullname: '',
   username: '',
   role: ''
-});
+})
 
 async function getUsers(){
   try {
     const response = await axios.get(`${config.appUrl}/admin/index`, {
-      headers: {'Authorization': `Bearer ${config.token}`}
-    })
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
     const datas = response.data;
     Object.assign(data.value, {
       users: datas,
@@ -163,21 +167,16 @@ async function getUsers(){
 };
 
 async function submitData(event: Event){
-  const formData = {
-      'fullname': data.value.fullname, 
-      'username': data.value.username, 
-      'role': data.value.role
-    }
   try {  
-    const response = await axios.post(`${config.appUrl}/user/registration`, formData, {
-      headers: {'Authorization': `Bearer ${config.token}`}
+    const response = await axios.post(`${config.appUrl}/user/registration`, data.value.userForm, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const  {attr, text } = response.data;
+    const  { user } = response.data;
     Object.assign(data.value, {
-      actions: 'create',
-      attr: attr,
-      text: text
-    })
+      actions: user ? 'create' : 'users',
+      attr: user ? 'alert-danger' : 'alert-success',
+      text: user ? 'Пользователь уже существует' : 'Пользователь успешно создан'
+    });
     getUsers()
   } catch (error) {
     console.error(error);
@@ -187,8 +186,8 @@ async function submitData(event: Event){
 async function viewUser(id: string){
   try {
     const response = await axios.get(`${config.appUrl}/user/${id}`, {
-      headers: {'Authorization': `Bearer ${config.token}`}
-    })
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
     const datas = response.data;
     Object.assign(data.value, {
       profile: createItemTable(user_labels, datas),
@@ -219,12 +218,12 @@ function createItemTable(names: string[], response: Object) {
 async function blockUser() {
   try {
     const response = await axios.get(`${config.appUrl}/user/block/${data.value.user_id}`, {
-      headers : {'Authorization': `Bearer ${config.token}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const  {attr, text, blocked} = response.data;
+    const { blocked } = response.data;
     Object.assign(data.value, {
-      attr: attr,
-      text: text,
+      attr: 'alert-success',
+      text: blocked ? 'Пользователь заблокирован' : 'Пользователь разблокирован',
       blocked: blocked
     })
     viewUser(data.value.user_id)
@@ -236,13 +235,9 @@ async function blockUser() {
 async function openLog(flag: string) {
   try {
     const response = await axios.get(`${config.appUrl}/admin/log/${flag}`, {
-      headers : {'Authorization': `Bearer ${config.token}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const  {counts, messages} = response.data;
-    Object.assign(data.value, {
-      count: counts,
-      logs: messages
-    })
+    data.value.logs = response.data;
   } catch (error) {
     console.error(error);
   }
@@ -256,11 +251,15 @@ const header = computed(() => {
   'logs': "Системные сообщения"
   }
   return actionHeader[data.value.actions as keyof typeof actionHeader]
-})
+});
+
+const count = computed(() => {
+  return data.value.logs ? data.value.logs.length : 0
+});
 
 onBeforeMount(async () => {
-  getUsers()
-  openLog('unread')
+  getUsers();
+  openLog('new')
 });
 
 </script>

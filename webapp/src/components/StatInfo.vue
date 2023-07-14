@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 
-import { ref,  onBeforeMount } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import axios from 'axios';
 import config from '@/config';
 import NavBar from '@/components/NavBar.vue';
@@ -60,29 +60,19 @@ const date = new Date();
 const data = ref({
   checks: [], 
   pfo: [],
-  start: convertDate(new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString()),
-  end: convertDate(date.toLocaleDateString())
+  start: new Date(date.getFullYear(), date.getMonth(), 1).toISOString().slice(0,10),
+  end: new Date().toISOString().slice(0,10)
 });
 
 async function submitData() {
   const formData = {'start': data.value.start, 'end': data.value.end};
   const response = await axios.post(`${config.appUrl}/information`, formData, {
-    headers: {'Authorization': `Bearer ${config.token}`}
+    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
   });
-  const { candidates, poligraf, title } = response.data;
-  Object.assign(data.value, {
-    checks: candidates, 
-    pfo: poligraf
-  })
-}
-
-function convertDate(value: string): string {
-  const date = new Date(Date.parse(value));
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString();
-  return `${year}-${month}-${day}`;
-}
+  const { candidates, poligraf } = response.data;
+  data.value.checks = candidates;
+  data.value.pfo = poligraf
+};
 
 onBeforeMount(async () => {
   submitData()

@@ -3,7 +3,7 @@
       <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="region">Регион</label>
         <div class="col-lg-10">
-          <select class="form-select" v-model="resume.region" id="region" name="region">
+          <select class="form-select" required v-model="resume.region" id="region" name="region">
             <option value="ГО">ГО</option>
             <option value="Томск">Томск</option>
             <option value="РЦ Запад">РЦ Запад</option>
@@ -103,14 +103,14 @@ const resume = toRefs(props).resume?.value ?? {};
 async function submitData(event: Event) {
   try {
     const response = await axios.post(`${config.appUrl}/resume/create`, resume, {
-      headers: {'Authorization': `Bearer ${config.token}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const { message, cand_id } = response.data;
+    const { result, cand_id } = response.data;
     emit('updateMessage', {
-      attr: "alert-success",
-      text: message
+      attr: result ? "alert-info" : "alert-success",
+      text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
     });
-    emit('updateItem', {candId: cand_id});
+    emit('updateItem', cand_id);
   } catch (error) {
     console.error(error);
   }

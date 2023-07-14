@@ -1,43 +1,46 @@
 <template>
-  <router-view></router-view>
   <div class="container px-5 py-5">
     <div class="border border-primary px-5 py-5">
       <AlertMessage :attr="data.attr" :text="data.text" />
-      <h5>{{data.title}}</h5>
+      <h5>{{data.path === 'login' ? 'Вход в систему' : 'Изменить пароль'}}</h5>
       <div class ="py-3">
         <form @submit.prevent="submitData" class="form form-check" role="form">
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="username">Логин: </label>
               <div class="col-lg-4">
-                <input autocomplete="username" class="form-control" minlength="5" maxlength="25" v-model=login.username id="username" name="username" placeholder="Латинские буквы 8-25 символов" required type="text" pattern="[a-zA-Z]+">
+                <input autocomplete="username" class="form-control" required id="username" name="username"  type="text"
+                ref="login.username" minlength="5" maxlength="25" placeholder="Латинские буквы 8-25 символов" pattern="[a-zA-Z]+">
               </div>
           </div>
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="password">Пароль: </label>
                   <div class="col-lg-4">
-                    <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" v-model=login.password id="password" name="password" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" pattern="[0-9a-zA-Z]+">
-                    <div v-if="data.path ==='/login'" class="py-2"><a @click="changePswd" href="#">Изменить пароль</a></div>
+                    <input autocomplete="current-password" class="form-control" required id="password" name="password" type="password" 
+                    ref="login.password" minlength="4" maxlength="25" placeholder="Латинские буквы и цифры 8-25 символов" pattern="[0-9a-zA-Z]+">
+                    <div v-if="data.path ==='/login'" class="py-2">
+                      <a @click="data.flag = 'Change'; data.path = 'password'" href="#">Изменить пароль</a>
+                    </div>
                   </div>
               </div>
           <div v-if="data.path === '/password'">
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="new_pswd">Новый: </label>
                 <div class="col-lg-4">
-                    <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
-                    v-model=login.new_pswd name="new_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required  type="password" pattern="[0-9a-zA-Z]+">
+                    <input autocomplete="current-password" class="form-control" required name="new_pswd" type="password" 
+                    ref="login.new_pswd" minlength="5" maxlength="25" placeholder="Латинские буквы и цифры 8-25 символов" pattern="[0-9a-zA-Z]+">
                 </div>
             </div>
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-1" for="conf_pswd">Повтор: </label>
                 <div class="col-lg-4">
-                    <input autocomplete="current-password" class="form-control" minlength="3" maxlength="25" 
-                    v-model=login.conf_pswd name="conf_pswd" placeholder="Латинские буквы и цифры 8-25 символов" required type="password" pattern="[0-9a-zA-Z]+">
+                    <input autocomplete="current-password" class="form-control" required name="conf_pswd" type="password" 
+                    ref="login.conf_pswd" minlength="5" maxlength="25" placeholder="Латинские буквы и цифры 8-25 символов" pattern="[0-9a-zA-Z]+">
                 </div>
             </div>
           </div>
           <div class=" row">
               <div class="offset-lg-1 col-lg-4">
-                  <button class="btn btn-primary btn-md" name="submit" type="submit">{{ data.value }}</button>
+                  <button class="btn btn-primary btn-md" name="submit" type="submit">{{data.path === 'login' ? 'Войти' : 'Изменить'}}</button>
               </div>
           </div>
         </form>
@@ -48,74 +51,75 @@
 
 <script setup lang="ts">
 
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, computed } from 'vue';
 import axios from 'axios';
 import config from '@/config';
 import router from '@/router';
 import AlertMessage from './AlertMessage.vue';
 
+const login = ref({});
+// username: ''
+// password: ''
+// new_pswd: ''
+// conf_pswd: ''
+
+const data = ref({
+  flag: '',
+  path: ''
+});
+
+async function submitData(event: Event) {
+  console.log(login.value)
+  if (data.value.new_pswd === data.value.new_pswd) {
+    data.value.flag = 'Match'
+  } else if (data.value.password === data.value.new_pswd) { 
+    data.value.flag = 'NoMatch';
+  } else {
+    try {
+      const response = await axios.post(`${config.appUrl}/${data.value.path}`, login.value);     
+      const { access, access_token } = response.data;
+      data.value.alert = access;
+      switch (access){
+        case "Success":
+          data.value.flag = 'Logout';
+          data.value.path = 'login';
+          break;
+        case "Authorized":
+          localStorage.setItem('jwt_token', access_token);
+          router.push({ name: 'index', params: { flag: 'new' } });
+          break;
+        case "Overdue":
+          data.value.flag = 'Change';
+          data.value.path = 'password';
+          break;
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+}
+
+const { attr, text } = computed(() => {
+  const alerts = {
+    Authorized: ['', ''],
+    Change: ['alert-info', 'Заполните обязательные поля'],
+    None: ['alert-danger', 'Неверный логин или пароль'],
+    Overdue: ['alert-warning', 'Пароль просрочен. Измените пароль'],
+    Denied: ['alert-danger', 'Пользователь не авторизован'],
+    Success: ['alert-success', 'Пароль установлен. Войдите с новым паролем'],
+    Default: ['alert-info', 'Авторизуйтесь для входа в систему'],
+    NoMatch: ['alert-warning', 'Новый пароль и подтверждение не совпадают'],
+    Match: ['alert-warning', 'Старый и новый пароли совпадают'],
+  };
+  return alerts[data.value.flag as keyof typeof alerts]
+});
+
 onBeforeMount(async () => {
   localStorage.removeItem('jwt_token');
   const response = await axios.get(`${config.appUrl}/logout`)
-  console.log(response.data)
+  console.log(response)
+  data.value.flag = 'Logout';
+  data.value.path = 'login';
 });
 
-const login = ref({
-  username: '',
-  password: '',
-  new_pswd: '',
-  conf_pswd: ''
-});
-
-const data = ref({
-  attr: 'alert-info',
-  text: 'Авторизуйтесь для входа в систему',
-  title: 'Вход в систему',
-  path: '/login',
-  value: 'Войти'
-});
-    
-function changePswd() {
-  Object.assign(data.value, {
-    attr: 'alert-info',
-    text: 'Заполните обязательные поля',
-    title: 'Изменение пароля',
-    path: '/password',
-    value: 'Изменить'
-  })
-}
-
-async function submitData(event: Event) {
-  try {
-    const response = await axios.post(`${config.appUrl}/${data.value.path}`, login.value);     
-    const { user, access_token } = response.data;
-    const alerts: Record<string, any> = {
-      'None': ['alert-danger', 'Неверный логин или пароль'],
-      'Overdue': ['alert-warning', 'Пароль просрочен. Измените пароль'],
-      'Denied': ['alert-danger', 'Пользователь не авторизован'],
-      'Not_match': ['alert-warning', 'Введенные пароли не совпадают'],
-      'Success': ['alert-success', 'Пароль установлен. Войдите с новым паролем'],
-      'Authorized': ['alert-success', 'Вы успешно авторизованы']
-    };
-    Object.assign(data.value, {
-      attr: alerts[user][0],
-      text: alerts[user][1],
-    })
-    if (user === "Success"){
-      Object.assign(data.value, {
-        path: '/login',
-        title: 'Вход в систему',
-        value: 'Войти'
-      })
-    } else if (user === "Authorized"){
-      localStorage.setItem('jwt_token', access_token);
-      router.push({ name: 'index', params: { flag: 'new' } });
-    } else {
-      console.error(user);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-    
 </script>

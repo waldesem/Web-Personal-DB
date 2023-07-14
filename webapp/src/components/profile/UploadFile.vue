@@ -17,25 +17,24 @@ import axios from 'axios';
 import config from '@/config';
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
+
 const file = ref(null);
     
 async function submitFile(event: Event) {
   event.preventDefault();
   const formData = new FormData();
   const fileInput = file.value as HTMLInputElement | null;
-  if (fileInput && fileInput.files) {
-    formData.append('file', fileInput.files[0]);
-  }
+  if (fileInput && fileInput.files) formData.append('file', fileInput.files[0]);
   try {
     const response = await axios.post(`${config.appUrl}/resume/upload`, formData, {
-      headers: {'Authorization': `Bearer ${config.token}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const { message, cand_id } = response.data;
+    const { result, cand_id } = response.data;
     emit('updateMessage', {
-      attr: "alert-success",
-      text: message
+      attr: result ? "alert-info" : "alert-success",
+      text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
     });
-    emit('updateItem', {candId: cand_id})
+    emit('updateItem', cand_id)
   } catch (error) {
     console.error(error);
   }

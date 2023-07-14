@@ -1,28 +1,32 @@
+from datetime import datetime
 from enum import Enum
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
-from marshmallow import fields
 
 db = SQLAlchemy()
-ma = Marshmallow()
+
+
+class Roles(Enum):
+
+    admin = 'admin'
+    superuser = 'superuser'
+    user = 'user'
+    api = 'api'
 
 
 class Status(Enum):
-    """Класс статусов"""
 
-    NEWFAG = 'Новый'
-    UPDATE = 'Обновлен'
-    MANUAL = 'Проверка'
-    SAVE = "Сохранено"
-    AUTO = 'Автомат'
-    ROBOT = 'Робот'
-    REPLY = 'Обработано'
-    POLIGRAF = 'ПФО'
-    RESULT = 'Результат'
-    FINISH = 'Окончено'
-    CANCEL = 'Отмена'
-    ERROR = 'Ошибка'
+    new = 'Новый'
+    update = 'Обновлен'
+    manual = 'Проверка'
+    save = "Сохранен"
+    robot = 'Робот'
+    reply = 'Обработан'
+    poligraf = 'ПФО'
+    result = 'Результат'
+    finish = 'Окончено'
+    cancel = 'Отмена'
+    error = 'Ошибка'
 
 
 class User(db.Model):
@@ -34,11 +38,11 @@ class User(db.Model):
     fullname = db.Column(db.String(250))
     username = db.Column(db.String(250), unique=True)
     password = db.Column(db.LargeBinary)
-    pswd_create = db.Column(db.DateTime)
+    pswd_create = db.Column(db.DateTime, default=datetime.now())
     pswd_change = db.Column(db.DateTime)
     last_login = db.Column(db.DateTime)
-    blocked = db.Column(db.Boolean(), default=False)
     role = db.Column(db.String(250))
+    blocked = db.Column(db.Boolean(), default=False)
     messages = db.relationship('Message', backref='messages', cascade="all, delete, delete-orphan")
 
 
@@ -48,9 +52,9 @@ class Message(db.Model):
     __tablename__ = 'messages'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    message = db.Column(db.String(250))
-    status = db.Column(db.String(250))
-    create = db.Column(db.DateTime)
+    message = db.Column(db.Text)
+    status = db.Column(db.String(250), default=Status.new.value)
+    create = db.Column(db.DateTime, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
@@ -66,12 +70,12 @@ class Candidate(db.Model):  # модель анкетных данных
     birthday = db.Column(db.Date, index=True)
     birthplace = db.Column(db.String(250))
     country = db.Column(db.String(250))
-    snils = db.Column(db.String(11))
-    inn = db.Column(db.String(12))
+    snils = db.Column(db.String(250))
+    inn = db.Column(db.String(250))
     education = db.Column(db.String(250))
     addition = db.Column(db.Text)
-    status = db.Column(db.String(250))
-    create = db.Column(db.DateTime)
+    status = db.Column(db.String(250), default=Status.new.value)
+    create = db.Column(db.DateTime, default=datetime.now())
     update = db.Column(db.DateTime)
     recruiter = db.Column(db.String(250))
     request_id = db.Column(db.Integer)
@@ -153,7 +157,6 @@ class Check(db.Model):  # модель данных проверки канди�
     __tablename__ = 'checks'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    autostatus = db.Column(db.String(250))
     workplace = db.Column(db.Text)
     employee = db.Column(db.Text)
     document = db.Column(db.Text)
@@ -170,10 +173,10 @@ class Check(db.Model):  # модель данных проверки канди�
     cros = db.Column(db.Text)
     addition = db.Column(db.Text)
     path = db.Column(db.String(250))
-    pfo = db.Column(db.Boolean)
+    pfo = db.Column(db.Boolean, default=False)
     comments = db.Column(db.Text)
-    conclusion = db.Column(db.String(250))
-    deadline = db.Column(db.DateTime)
+    conclusion = db.Column(db.String(250), default=Status.save.value)
+    deadline = db.Column(db.DateTime, default=datetime.now())
     officer = db.Column(db.String(250))
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
     registries = db.relationship('Registry', backref='checks', cascade="all, delete, delete-orphan")
@@ -187,7 +190,7 @@ class Registry(db.Model):  # модель данных результаты ПФ
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     comments = db.Column(db.Text)
     decision = db.Column(db.String(250))
-    deadline = db.Column(db.DateTime)
+    deadline = db.Column(db.DateTime, default=datetime.now())
     supervisor = db.Column(db.String(25))
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
 
@@ -201,7 +204,7 @@ class Poligraf(db.Model):  # модель данных результаты ПФ
     theme = db.Column(db.String(250))
     results = db.Column(db.Text)
     officer = db.Column(db.String(25))
-    deadline = db.Column(db.Date)
+    deadline = db.Column(db.Date, default=datetime.now())
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
@@ -213,7 +216,7 @@ class Investigation(db.Model):  # модель данных служебных �
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     theme = db.Column(db.String(250))
     info = db.Column(db.Text)
-    deadline = db.Column(db.Date)
+    deadline = db.Column(db.Date, default=datetime.now())
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
 
 
@@ -226,20 +229,21 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     info = db.Column(db.Text)
     initiator = db.Column(db.String(250))
     source = db.Column(db.String(250))
-    deadline = db.Column(db.Date)
+    deadline = db.Column(db.Date, default=datetime.now())
     cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
-
+    
 
 class Log(db.Model):
+    """ Create model for logs"""
     
     __tablename__ = 'logs'
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     timestamp = db.Column(db.DateTime)
-    level = db.Column(db.String)
-    message = db.Column(db.String)
-    pathname = db.Column(db.String)
+    level = db.Column(db.String(250))
+    message = db.Column(db.Text)
+    pathname = db.Column(db.String(250))
     lineno = db.Column(db.Integer)
-    status = db.Column(db.String, default=Status.NEWFAG)
+    status = db.Column(db.String, default=Status.new)
 
     def __init__(self, timestamp, level, message, pathname, lineno):
             self.timestamp = timestamp
@@ -247,105 +251,3 @@ class Log(db.Model):
             self.message = message
             self.pathname = pathname
             self.lineno = lineno
-
-
-class LogSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Log
-        exclude = ("status",)
-        ordered = True
-
-
-class UserSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = User
-        ordered = True
- 
-
-class MessageSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Message
-        exclude = ("user_id", 'status',)
-        ordered = True
-
-
-class CandidateSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Candidate
-        ordered = True
-
-
-class DocumentSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Document
-        exclude = ("id",)
-        ordered = True
-
-
-class AddressSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Address
-        exclude = ("id",)
-        ordered = True
-
-
-class StaffSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Staff
-        exclude = ("id",)
-        ordered = True
-
-
-class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Workplace
-        exclude = ("id",)
-        ordered = True
-
-
-class ContactSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Contact
-        exclude = ("id",)
-        ordered = True
-
-
-class CheckSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Check
-        ordered = True
-
-
-class InvestigationSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Investigation
-        ordered = True
-
-
-class InquirySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Inquiry
-        ordered = True
-
-
-class PoligrafSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Poligraf
-        ordered = True
-
-
-class RegistrySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Registry
-        ordered = True
-
-
-class DeserialResume(ma.SQLAlchemyAutoSchema):
-    """Схема для десериализации и верификации анкеты присланной по API"""
-
-    resume = fields.Nested(CandidateSchema())
-    document = fields.Nested(DocumentSchema())
-    staff = fields.Nested(StaffSchema())
-    addresses = fields.List(fields.Nested(AddressSchema()))
-    workplaces = fields.List(fields.Nested(WorkplaceSchema()))
-    contacts = fields.List(fields.Nested(ContactSchema()))

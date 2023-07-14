@@ -9,10 +9,7 @@ JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=24)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 TEMPLATES_AUTO_RELOAD = True
 SCHEDULER_API_ENABLED = True
-# Default database URI for production
 SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://username:password@localhost/personal'
 
-# Check if environment is set to testing
 if os.environ.get('FLASK_ENV') == 'testing':
-    # Database URI for testing (replace with your testing database settings)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.pardir, 'personal.db')

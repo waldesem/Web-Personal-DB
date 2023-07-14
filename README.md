@@ -4,9 +4,8 @@ Web-Personal-DB is a web interface for managing a candidate database. It include
 
 ### The main technology stack used in this project includes:
 
-- Python (Flask, APIFlask, SQLAlchemy, Marshmallow)
-- TypeScript
-- JavaScript
+- Python (Flask, APIFlask, SQLAlchemy, Marshmallow, APScheduler, Melodramatiq)
+- Vue3;
 - Bootstrap 5 (journal theme)
 
 ### Installation
@@ -32,23 +31,25 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 ```
 
 ### Usage
-For create database enter command in flask shell:
-```
-flask shell
-db.create_all()
-```
 
-SQLite database and admin user creates automatically with name = admin and password=admin.
-You must change it in first login to application
-
-To start the web application, run the following command in your terminal:
+To start the application in test mode, run the following command in your terminal:
 ```
 export FLASK_APP=app
-export FLASK_DEBUG=1        # for debug mode
+export FLASK_ENV=testing
 flask run
 ```
-
 This will start the Flask server and serve the application at http://localhost:5000/.
+
+If you need to run the server with specific host and port:
+```
+flask run --host=0.0.0.0 --port=5000
+```
+Start the app with Gunicorn:
+```
+gunicorn -b 0.0.0.0:5000 app:app
+'''
+SQLite database and admin user creates automatically with name = admin and password=admin.
+You must change it in first login to application
 
 For migrate database enter commands:
 ```
@@ -56,17 +57,32 @@ flask db init       # only first time if migration folder is not exist
 flask db migrate
 flask db upgrade
 ```
-
 You will also need to have Node.js installed on your machine to build and run the TypeScript code.
-After installing Node.js, you can install the required npm packages by running the following command in your terminal:
+After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
 ```
-npm install -g typescript
+npm i
+```
+To start development node server, run the following command in your terminal:
+```
+npm run serve
 ```
 To build the TypeScript code, run the following command in your terminal:
 ```
 npm run build
 ```
-This will compile the TypeScript code and output the JavaScript and CSS files in the static directory.
+This will compile the TypeScript code and output the JavaScript and CSS files in the static directory named "dist".
+
+### Docker
+To build the Docker image, open a terminal or command prompt in the directory containing the Dockerfile and run the following command:
+```
+docker build -t staff_security_api .
+docker run -p 5000:5000 staff_security_api
+```
+or for testing configuration run the following command:
+```
+docker build -t staff_security_api_testing --build-arg FLASK_ENV=testing .
+docker run -p 5000:5000 -e FLASK_ENV=testing staff_security_api_testing
+'''
 
 ### Contributing
 If you would like to contribute to this project, please follow these steps:

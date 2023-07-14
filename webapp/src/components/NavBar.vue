@@ -25,7 +25,7 @@
                   <h6 class="dropdown-header">Непрочитанные сообщения</h6>
                   <li><a class="dropdown-item" href="#">{{ message }}</a></li>
                   <div class="dropdown-divider"></div>
-                  <li><a class="dropdown-item" href="#" @click="updateMessage()">Очистить</a></li>
+                  <li><a class="dropdown-item" href="#" @click="updateMessage(data.statuses['REPLY'])">Очистить</a></li>
                 </ul>
             </li>
             <li v-else class="nav-item"><a class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Сообщения" href="#"><i class="bi bi-envelope-fill"></i></a></li>
@@ -41,35 +41,42 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 import axios from 'axios';
 import config from '@/config';
 
-const data = ref({new: '', count: 0, message: []});
+const data = ref({
+  new: '', 
+  message: []
+});
 
-async function updateMessage() {
+async function updateMessage(flag: string = data.value.statuses['NEWFAG']) {
   try{
-  const response = await axios.get(`${config.appUrl}/reset`, {
-    headers: {'Authorization': `Bearer ${config.token}`}
-  });
-  const { counts, messages } = response.data;
-  Object.assign(data.value, {count: counts, message: messages});
-} catch (error) {
-  console.error(error);
+    const response = await axios.get(`${config.appUrl}/${flag}`, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    data.value.message = response.data;
+  } catch (error) {
+    console.error(error);
+  }
 }
-}
+
+const count = computed(() => {
+  return data.value.message ? data.value.message.length : 0
+});
 
 onMounted(async () => {
   try {
     const response = await axios.get(`${config.appUrl}/count`, {
-      headers: {'Authorization': `Bearer ${config.token}`
-    }});
-    const { news, counts, messages } = response.data;
-    Object.assign(data.value, {new: news, count: counts, message: messages});
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { news } = response.data;
+    data.value.new = news;
   } catch (error) {
     console.error(error);
   }
+  updateMessage()
 });
 
 </script>

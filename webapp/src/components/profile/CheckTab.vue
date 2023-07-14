@@ -1,147 +1,143 @@
 <template>
-  <div v-if="url" class="py-3">
-    <form @submit.prevent="submitData" class="form form-check" role="form">
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="workplace">Проверка по месту работы</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="workplace" name="workplace" v-model="check.workplace"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="employee">Проверка по кадровому учету</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="employee" name="employee" v-model="check.employee"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="document">Проверка документов</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="document" name="document" v-model="check.document"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="inn">Проверка ИНН</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="inn" name="inn" v-model="check.inn"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="debt">Проверка задолженностей</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="debt" name="debt" v-model="check.debt"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="bankruptcy">Проверка банкротства</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="bankruptcy" name="bankruptcy" v-model="check.bankruptcy"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="bki">Проверка кредитной истории</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="bki" name="bki" v-model="check.bki"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="courts">Проверка по решениям судов</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="courts" name="courts" v-model="check.courts"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="affiliation">Проверка аффилированности</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="affiliation" name="affiliation" v-model="check.affiliation"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="terrorist">Проверка списка террористов</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="terrorist" name="terrorist" v-model="check.terrorist"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="mvd">Проверка учетам МВД</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="mvd" name="mvd" v-model="check.mvd"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="internet">Проверка по открытым источникам</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="internet" name="internet" v-model="check.internet"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="cronos">Проверка Кронос</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="cronos" name="cronos" v-model="check.cronos"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="cros">Проверка Крос</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="cros" name="cros" v-model="check.cros"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="addition">Дополнительная информация</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="addition" name="addition" v-model="check.addition"></textarea>
-        </div>
-      </div>
-      <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-          <div class="mb-3 form-check">
-            <input class="form-check-input" id="pfo" name="pfo" v-model="check.pfo" type="checkbox" value="y">
-            <label class="form-check-label" for="pfo">Полиграф</label>
+  <div class="py-3">
+    <template v-if="url">
+      <form @submit.prevent="submitData" class="form form-check" role="form">
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="workplace">Проверка по месту работы</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="workplace" name="workplace" v-model="check.workplace"></textarea>
           </div>
         </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="conclusion">Результат</label>
-        <div class="col-lg-10">
-          <select class="form-select" id="conclusion" name="conclusion" v-model="check.conclusion">
-            <option value="Без замечаний">Без замечаний</option>
-            <option value="С комментарием">С комментарием</option>
-            <option value="Негатив">Негатив</option>
-            <option value="Отмена">Отмена</option>
-            <option value="Сохранено">Сохранено</option>
-          </select>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
-        <div class="col-lg-10">
-          <input class="form-control" id="comments" name="comments" maxlength="250" v-model="check.comments" type="text">
-        </div>
-      </div>
-      <div class="mb-3 row required">
-        <label class="col-form-label col-lg-2" for="deadline">Дата проверки</label>
-        <div class="col-lg-10">
-          <input class="form-control" id="deadline" name="deadline" v-model="check.deadline" required type="date">
-        </div>
-      </div>
-      <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-          <div class="btn-group" role="group">
-            <button class="btn btn-outline-primary" type="submit">Принять</button>
-            <button class="btn btn-outline-primary" type="reset">Очистить</button>
-            <button class="btn btn-outline-primary" type="button" @click="cancelCheck">Отмена</button>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="employee">Проверка по кадровому учету</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="employee" name="employee" v-model="check.employee"></textarea>
           </div>
         </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="document">Проверка документов</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="document" name="document" v-model="check.document"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="inn">Проверка ИНН</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="inn" name="inn" v-model="check.inn"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="debt">Проверка задолженностей</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="debt" name="debt" v-model="check.debt"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="bankruptcy">Проверка банкротства</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="bankruptcy" name="bankruptcy" v-model="check.bankruptcy"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="bki">Проверка кредитной истории</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="bki" name="bki" v-model="check.bki"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="courts">Проверка по решениям судов</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="courts" name="courts" v-model="check.courts"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="affiliation">Проверка аффилированности</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="affiliation" name="affiliation" v-model="check.affiliation"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="terrorist">Проверка списка террористов</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="terrorist" name="terrorist" v-model="check.terrorist"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="mvd">Проверка учетам МВД</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="mvd" name="mvd" v-model="check.mvd"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="internet">Проверка по открытым источникам</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="internet" name="internet" v-model="check.internet"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="cronos">Проверка Кронос</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="cronos" name="cronos" v-model="check.cronos"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="cros">Проверка Крос</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="cros" name="cros" v-model="check.cros"></textarea>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="addition">Дополнительная информация</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="addition" name="addition" v-model="check.addition"></textarea>
+          </div>
+        </div>
+        <div class=" row">
+          <div class="offset-lg-2 col-lg-10">
+            <div class="mb-3 form-check">
+              <input class="form-check-input" id="pfo" name="pfo" v-model="check.pfo" type="checkbox" value="y">
+              <label class="form-check-label" for="pfo">Полиграф</label>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="conclusion">Результат</label>
+          <div class="col-lg-10">
+            <select class="form-select" id="conclusion" name="conclusion" v-model="check.conclusion">
+              <option value="Без замечаний">Без замечаний</option>
+              <option value="С комментарием">С комментарием</option>
+              <option value="Негатив">Негатив</option>
+              <option value="Отмена">Отмена</option>
+              <option value="Сохранено">Сохранено</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
+          <div class="col-lg-10">
+            <input class="form-control" id="comments" name="comments" maxlength="250" v-model="check.comments" type="text">
+          </div>
+        </div>
+        <div class=" row">
+          <div class="offset-lg-2 col-lg-10">
+            <div class="btn-group" role="group">
+              <button class="btn btn-outline-primary" type="submit">Принять</button>
+              <button class="btn btn-outline-primary" type="reset">Очистить</button>
+              <button class="btn btn-outline-primary" type="button" @click="cancelCheck">Отмена</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </template>
+    <template v-else>
+      <div v-html="table"></div>
+      <div class="btn-group" role="group">
+        <button @click="deleteCheck" :disabled="config.status && (status === config.status['finish'])" class="btn btn-outline-primary">Удалить проверку</button>
+        <button @click="addCheck" :disabled="config.status && (status !== config.status['new'] && status !== config.status['update'])" class="btn btn-outline-primary">Добавить проверку</button>
+        <button @click="url='edit'" :disabled="config.status && (status !== config.status['save'] && status !== config.status['cancel'])"  class="btn btn-outline-primary">Изменить проверку</button>
       </div>
-    </form>
+    </template>
   </div>
-  <template v-else>
-    <div v-html="table" class="py-3"></div>
-    <div class="btn-group" role="group">
-      <button @click="deleteCheck" :disabled="state && (status === state['FINISH'])" class="btn btn-outline-primary">Удалить проверку</button>
-      <button @click="addCheck" :disabled="state && (status !== state['NEWFAG'] && status !== state['UPDATE'])" class="btn btn-outline-primary">Добавить проверку</button>
-      <button @click="url='edit'" :disabled="state && (status !== state['SAVE'] && status !== state['CANCEL'])"  class="btn btn-outline-primary">Изменить проверку</button>
-    </div>
-  </template>
 </template>
 
 <script setup lang="ts">
@@ -156,97 +152,80 @@ const props = defineProps({
   table: String,
   item: Object,
   candId: String,
-  state: Object,
   status: String
 });
 
-const { table, item, candId, state, status } = toRefs(props);
+const check = toRefs(props).item?.value ?? {};
+
 const url = ref('');
-
-const check = item?.value ? ref(item.value) : ref({
-  workplace: '',
-  employee: '',
-  document: '',
-  inn: '',
-  debt: '',
-  bankruptcy: '',
-  bki: '',
-  courts: '',
-  affiliation: '',
-  terrorist: '',
-  mvd: '',
-  internet: '',
-  cronos: '',
-  cros: '',
-  addition: '',
-  pfo: false,
-  conclusion: '',
-  comments: '',
-  deadline: ''
-});
-
 
 async function submitData(event: Event){
   try {
-    const response = await axios.post(`${config.appUrl}/check/${url.value}/${candId?.value}`, check?.value, {
-      headers: {'Authorization': `Bearer ${config.token}`}
-    });
+    const response = await axios.post(`${config.appUrl}/check/${url.value}/${props.candId}`, check?.value, {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  });
     const { message } = response.data;
+    const alert = {
+      'save': ['alert-info', 'Проверка сохранена'],
+      'cancel': ['alert-warning', 'Проверка отменена'],
+      'poligraf': ['alert-info', 'Назначено проведение ПФО'],
+      'result': ['alert-success', 'Проверка окончена']
+    }
     emit('updateMessage', {
-      attr: "alert-warning",
-      text: message
+      attr: alert[message as keyof typeof alert][0],
+      text: alert[message as keyof typeof alert][1]
     });
-    emit('updateItem', candId?.value)
+    emit('updateItem', props.candId)
     url.value = ''
   } catch (error) {
     console.log(error);
   }
-}
+};
     
 async function deleteCheck() {
   if (confirm("Вы действительно хотите удалить проверку?")) {
     try {
-      const response = await axios.get(`${config.appUrl}/check/delete/${candId?.value}`, {headers: {
-        'Authorization': `Bearer ${config.token}`
-      }});
+      const response = await axios.get(`${config.appUrl}/check/delete/${props.candId}`, {
+        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      });
       const { message } = response.data;
       emit('updateMessage', {
-        attr: "alert-warning",
-        text: message
+        attr: message === "reply" ? 'alert-success' : 'alert-warning',
+        text: message === "reply" ? 'Проверка удалена' : 'Проверку с текущим статусом удалить нельзя'
       });
-      emit('updateItem', candId?.value)
+      emit('updateItem', props.candId)
       window.scrollTo(0,0)
     } catch (error) {
     console.error(error);
     }
   }
-}
+};
 
 async function addCheck() {
   try {
-    const response = await axios.get(`${config.appUrl}/check/status/${candId?.value}`, {headers: {
-      'Authorization': `Bearer ${config.token}`
-    }});
-    const { message, alert } = response.data;
-    alert == "alert-danger" ? url.value = '' : url.value = 'new';
+    const response = await axios.get(`${config.appUrl}/check/status/${props.candId}`, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { message } = response.data;
+    message === "manual" ? url.value = '' : url.value = 'new';
     emit('updateMessage', {
-      attr: alert,
-      text: message
+      attr: message === "manual" ? 'alert-info' : 'alert-warning',
+      text: message === "manual" ? 'Начата ручная проверка' : 'Проверка кандидата уже начата'
     });
   } catch (error) {
     console.error(error)
   }
-}
+};
 
 async function cancelCheck() {
   url.value = '';
-  const response = await axios.get(`${config.appUrl}/resume/status/${status?.value}/${candId?.value}`, {
-    headers : {'Authorization': `Bearer ${config.token}`}
+  const response = await axios.get(`${config.appUrl}/resume/status/${props.candId}`, {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
   });
   const { message } = response.data;
   emit('updateMessage', {
-    attr: "",
-    text: message
+    attr: message == 'update' ? "alert-success" : "alert-warning",
+    text: message == 'update' ? "Статус обновлен" : "Текущий статус обновить нельзя",
   });
   window.scrollTo(0,0)
 }

@@ -2,7 +2,7 @@
   <NavBar />
   <div class="container py-5">
     <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
-    <div class="py-5"><h4>{{data.fullname}}</h4></div>  
+    <div class="py-5"><h4>{{data.header}}</h4></div>  
     <div class="nav nav-tabs nav-justified" role="tablist">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" type="button" role="tab">Анкета</button>
       <button class="nav-link" data-bs-toggle="tab" data-bs-target="#checkTab" type="button" role="tab">Проверки</button>
@@ -13,10 +13,12 @@
     </div>
     <div class="tab-content">
       <div class="tab-pane active py-1" role="tabpanel" id="anketaTab">
-        <AnketaTab :table="data.questionary" :candId="data.candId" :resume="data.resume" :status="data.status" :state="data.condition" @updateMessage="updateMessage" @updateItem="getProfile"/>
+        <AnketaTab :table="data.questionary" :candId="data.candId" :resume="data.resume" :status="data.status"
+        @updateMessage="updateMessage" @updateItem="getProfile"/>
       </div>
         <div class="tab-pane py-1" role="tabpanel" id="checkTab">
-          <CheckTab :table="data.verification" :candId="data.candId" :item="data.lastCheck" :status="data.status" :state="data.condition" @updateMessage="updateMessage" @updateItem="getProfile" />
+          <CheckTab :table="data.verification" :candId="data.candId" :item="data.lastCheck" :status="data.status"
+          @updateMessage="updateMessage" @updateItem="getProfile" />
         </div>
         <div class="tab-pane py-1" role="tabpanel" id="registryTab">
           <RegistryTab :table="data.register" :candId="data.candId" @updateMessage="updateMessage" @updateItem="getProfile" />
@@ -51,21 +53,21 @@ import InvestigateTab from './profile/InvestigateTab.vue';
 import InquiryTab from './profile/InquiryTab.vue';
 
 const route = useRoute();
+
 const data = ref({
+  candId: String(route.params.id), 
   attr: '', 
   text: '', 
-  candId: String(route.params.id), 
   questionary: [], 
-  resume: {}, 
   verification: '', 
-  lastCheck: {}, 
   register: '', 
   pfo: '', 
   inquisition: '', 
   needs: '', 
   status: '', 
-  condition: {}, 
-  fullname: ''
+  header: '',
+  resume: {}, 
+  lastCheck: {}, 
 });
 
 const anketa_labels = [
@@ -90,46 +92,34 @@ const poligraf_labels = ['ID', 'Тематика', 'Результат', 'Пол
 const investigation_labels = ['ID', 'Тематика', 'Информация', 'Дата проверки'];
 const inquiry_labels = ['ID', 'Информация', 'Иннициатор', 'Источник', 'Дата запроса'];
 
-onBeforeMount(() => {
-  getProfile(data.value.candId)
-});
+function updateMessage (alert: any){
+  data.value.attr = alert["attr"];
+  data.value.attr = alert["text"]
+};
 
-function updateMessage (value: any){
-  Object.assign(data.value, {
-    attr: value["attr"],
-    text: value["text"]
-  })
-}
-
-async function getProfile(id: string) {
-  data.value.candId = id;
+async function getProfile(id=data.value.candId) {
   if (id === '0') {
-    Object.assign(data.value, {
-      attr: 'alert-info',
-      text: 'Заполните форму',
-      fullname: 'Новая анкета'
-    })
-    return;
-
+    data.value.candId = id;
+    updateMessage({attr: 'alert-info', text: 'Заполните форму'})
+    data.value.header = 'Новая анкета'
   } else {
     const response = await axios.get(`${config.appUrl}/profile/${id}`, {
-      headers: {Authorization: `Bearer ${config.token}`},
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const [anketa, check, registry, poligraf, investigation, inquiry, state] = response.data;
+    const {resume, documents, addresses, contacts, workplaces, checks, registries, pfos, invs, inquiries} = response.data;
     Object.assign(data.value, {
       questionary: anketa_labels.map((labels: string[], i: number) => `
-        <div>${createItemTable(labels, anketa[i])}</div>
+        <div>${createItemTable(labels, [resume[i], documents[i], addresses[i], contacts[i], workplaces[i]])}</div>
       `),
-      fullname: anketa[0][0]['fullname'],
-      status: anketa[0][0]['status'],
-      condition: state,
-      resume: anketa[0][0],
-      lastCheck: check[0],
-      verification: createItemTable(check_labels, check),
-      register: createItemTable(registry_labels, registry),
-      pfo: createItemTable(poligraf_labels, poligraf),
-      inquisition: createItemTable(investigation_labels, investigation),
-      needs: createItemTable(inquiry_labels, inquiry)
+      verification: createItemTable(check_labels, checks),
+      register: createItemTable(registry_labels, registries),
+      pfo: createItemTable(poligraf_labels, pfos),
+      inquisition: createItemTable(investigation_labels, invs),
+      needs: createItemTable(inquiry_labels, inquiries),
+      header: resume[0]['fullname'],
+      status: resume[0]['status'],
+      resume: resume[0],
+      lastCheck: checks[0]
     })
   }
 }
@@ -159,5 +149,9 @@ function createItemTable(names: string[], response: Array<Array<Object>>) {
   const body = `<tbody>${rows.join('')}</tbody>`;
   return `<table class="table table-responsive">${body}</table>`
 }
+
+onBeforeMount(() => {
+  getProfile(data.value.candId)
+});
 
 </script>

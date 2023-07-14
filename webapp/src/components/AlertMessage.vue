@@ -6,13 +6,9 @@
 
 <script setup lang="ts">
 
-import { toRefs } from "vue";
-
 const props = defineProps({
   attr: String,
   text: String
 });
-
-const { attr, text } = toRefs(props);
 
 </script>

@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="modalWinLabel">Добавить запись</h1>
+          <h1 class="modal-title fs-5" id="modalWinLabel">Добавить {{name}}</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -161,34 +161,42 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { toRefs } from 'vue';
+import { toRefs, computed } from 'vue';
 import config from '@/config';
 
 const props = defineProps({
     candId: String,
     path: String
 });
-
-const { path, candId } = toRefs(props);
   
 const emit = defineEmits(['updateMessage', 'updateItem']);
 
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${config.appUrl}/update/${path?.value}/${candId?.value}`, formData, {
-      headers: {'Authorization': `Bearer ${config.token}`
-      }
+    const response = await axios.post(`${config.appUrl}/update/${path?.value}/${candId}`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const { message } = response.data;
+    const message = response.status;
     emit('updateMessage', {
-      attr: "alert-success",
-      text: message
+      attr: message === 200 ? "alert-success" : "alert-error",
+      text: message === 200 ? 'Запись успешно добавлена' : 'Ошибка записи'
     });
-    emit('updateItem', {candId: candId?.value});
+    emit('updateItem', candId);
   } catch (error) {
     console.error(error);
   }
 }
+
+const name = computed(() => {
+  const actionHeader = {
+  'staff': 'должность',
+  'document': 'документ',
+  'address': 'адрес',
+  'contact': "контакт",
+  'workplace': "место работы"
+  }
+  return actionHeader[path as keyof typeof actionHeader]
+});
 
 </script>

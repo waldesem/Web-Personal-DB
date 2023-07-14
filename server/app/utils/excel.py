@@ -24,24 +24,20 @@ class ExcelFile:
             'education': str(self.sheet['X3'].value).strip(),
             'recruiter': str(self.sheet['E3'].value).strip()
         }
-
         self.passport = {
             'view': 'Паспорт гражданина России',
             'series': str(self.sheet['P3'].value).strip(),
             'number': str(self.sheet['Q3'].value).strip(),
             'issue': datetime.strptime(str(self.sheet['R3'].value).strip(), '%d.%m.%Y').date()
         }
-
         self.addresses = [
             {'view': "Адрес регистрации", 'address': str(self.sheet['N3'].value).strip()},
             {'view': "Адрес проживания", 'address': str(self.sheet['O3'].value).strip()}
         ]
-
         self.contacts = [
             {'view': str(self.sheet['Y1'].value).strip(), 'contact': str(self.sheet['Y3'].value).strip()},
             {'view': str(self.sheet['Z1'].value).strip(), 'contact': str(self.sheet['Z3'].value).strip()}
         ]
-
         self.workplaces = [
             {
                 'period': str(self.sheet[f'AA{i}'].value).strip(),
@@ -51,7 +47,6 @@ class ExcelFile:
             }
             for i in range(3, 6)
         ]
-
         self.staff = {
             'position': str(self.sheet['C3'].value).strip(),
             'department': str(self.sheet['D3'].value).strip()
@@ -61,10 +56,10 @@ class ExcelFile:
 def resume_data(cand_id, document, addresses, contacts, workplaces, staff):
     objects_to_add = [
                          Staff(**staff | {'cand_id': cand_id})
-                         for key, value in staff.items() if value
+                         for _, value in staff.items() if value
                      ] + [
                          Document(**document | {'cand_id': cand_id})
-                         for key, value in document.items() if value
+                         for _, value in document.items() if value
                      ] + [
                          Address(**address | {'cand_id': cand_id})
                          for address in addresses if address['address']
