@@ -47,7 +47,7 @@ flask run --host=0.0.0.0 --port=5000
 Start the app with Gunicorn:
 ```
 gunicorn -b 0.0.0.0:5000 app:app
-'''
+```
 SQLite database and admin user creates automatically with name = admin and password=admin.
 You must change it in first login to application
 
@@ -82,7 +82,7 @@ or for testing configuration run the following command:
 ```
 docker build -t staff_security_api_testing --build-arg FLASK_ENV=testing .
 docker run -p 5000:5000 -e FLASK_ENV=testing staff_security_api_testing
-'''
+```
 
 ### Contributing
 If you would like to contribute to this project, please follow these steps:
