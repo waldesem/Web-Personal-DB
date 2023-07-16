@@ -1,11 +1,11 @@
 <template>
-  <ModalWin :candId="candId" :path="data.flag" @updateItem="updateItem"/>
   <div class="py-3">
-    <template v-if="data.id==='0'" >
+    <template v-if="props.candId==='0'" >
       <UploadFile @updateMessage="updateMessage" @updateItem="updateItem"/>
       <ResumeForm :resume="resume" @cancelEdit="cancelEdit" @updateMessage="updateMessage" @updateItem="updateItem"/>
     </template>
     <template v-else >
+      <ModalWin :candId="props.candId" :path="data.flag" @updateItem="updateItem"/>
       <h6>Резюме</h6>
       <div v-html="table ? table[0] : ''"></div>
       <button @click="data.flag = 'staff'" type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#modalWin">Должность</button>
@@ -21,7 +21,7 @@
       <div class="btn-group" role="group">
         <button @click="updateItem('0')" class="btn btn-outline-primary">Изменить анкету</button>
         <button @click="updateStatus" class="btn btn-outline-primary">Обновить статус</button>
-        <button @click="sendResume" :disabled="config.status && (status !== config.status['newfag'] && status !== config.status['update'])" 
+        <button @click="sendResume" :disabled="config.status && (status !== config.status['new'] && status !== config.status['update'])" 
           class="btn btn-outline-primary">Отправить на проверку</button>
       </div>
     </template>
@@ -45,7 +45,7 @@ const props = defineProps({
   status: String
 });
 
-const emit = defineEmits(['updateMessage', 'updateItem']);
+const emit = defineEmits(['updateMessage', 'updateItem']);  
 
 const data = ref({flag: ''});
 
@@ -59,7 +59,7 @@ function updateItem(resp_id: string) {
 
 function cancelEdit() {
   props.candId !== '0' 
-  ? updateItem(props.candId)
+  ? updateItem(String(props.candId))
   : router.push({ name: 'index', params: { flag: 'new' } })
 };
 

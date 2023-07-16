@@ -155,20 +155,21 @@ const props = defineProps({
   status: String
 });
 
-const check = toRefs(props).item?.value ?? {};
+const { item } = toRefs(props);
+const check = item?.value ?? {};
 
 const url = ref('');
 
 async function submitData(event: Event){
   try {
-    const response = await axios.post(`${config.appUrl}/check/${url.value}/${props.candId}`, check?.value, {
+    const response = await axios.post(`${config.appUrl}/check/${url.value}/${props.candId}`, check, {
     headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
   });
     const { message } = response.data;
     const alert = {
       'save': ['alert-info', 'Проверка сохранена'],
       'cancel': ['alert-warning', 'Проверка отменена'],
-      'poligraf': ['alert-info', 'Назначено проведение ПФО'],
+      'poligraf': ['alert-info', 'Окончено. Назначено проведение ПФО'],
       'result': ['alert-success', 'Проверка окончена']
     }
     emit('updateMessage', {
@@ -207,7 +208,7 @@ async function addCheck() {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const { message } = response.data;
-    message === "manual" ? url.value = '' : url.value = 'new';
+    message === "manual" ? url.value = 'new' : url.value = '';
     emit('updateMessage', {
       attr: message === "manual" ? 'alert-info' : 'alert-warning',
       text: message === "manual" ? 'Начата ручная проверка' : 'Проверка кандидата уже начата'

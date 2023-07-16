@@ -41,10 +41,13 @@ class User(db.Model):
     pswd_create = db.Column(db.DateTime, default=datetime.now())
     pswd_change = db.Column(db.DateTime)
     last_login = db.Column(db.DateTime)
-    role = db.Column(db.String(250))
     blocked = db.Column(db.Boolean(), default=False)
+    role = db.Column(db.String(250))
     messages = db.relationship('Message', backref='messages', cascade="all, delete, delete-orphan")
 
+    def has_role(self, role):
+        return self.role == role
+    
 
 class Message(db.Model):
     """ Create model for message"""

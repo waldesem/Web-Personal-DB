@@ -2,7 +2,7 @@ from functools import wraps
 import bcrypt
 
 from flask import request, abort
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, current_user
 
 from . import bp
 from app.models.model import db, User, Log, Status
@@ -13,8 +13,9 @@ def admin_required(func):
     @wraps(func)
     @jwt_required()
     def wrapper(*args, **kwargs):
-        if db.session.query(User).filter(User.username == get_jwt_identity(), 
-                                         User.role == 'admin' ).one_or_none():
+        admin = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+        print(admin.has_role)
+        if admin.has_role('admin'):
             return func(*args, **kwargs)
         else:
             abort(403)
@@ -75,9 +76,11 @@ def get_user(user_id):
 @admin_required
 def block_user(user_id):
     user = db.session.query(User).filter_by(id=user_id).one_or_none()
-    setattr(user, 'blocked', False) if user.blocked else setattr(user, 'blocked', True)
-    db.session.commit()
-    return {'blocked': not user.blocked}
+    if user.username != current_user.username:
+        setattr(user, 'blocked', False) if user.blocked else setattr(user, 'blocked', True)
+        db.session.commit()
+        return {'blocked': user.blocked}
+    return ''
 
 
 @bp.get('/status')

@@ -18,7 +18,7 @@
     <div class="py-1">
       <table class="table table-hover align-middle">
         <caption>Статистика по ПФО</caption>
-        <thead><tr><th>Решение</th><th>Количество</th></tr></thead>
+        <thead><tr><th>Тема</th><th>Количество</th></tr></thead>
         <tbody>
           <tr height="50px" v-for="(value, name, index) in data.pfo" :key="index">
             <td >{{value}}</td><td>{{name}}</td>

@@ -148,8 +148,8 @@ const header = computed(() => {
 });
 
 watch(() => route.params.flag,
-  (pathURL: string) => {
-    getCandidates(pathURL)
+  (pathURL) => {
+    getCandidates(String(pathURL))
   }
 );
 

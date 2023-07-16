@@ -1,3 +1,4 @@
+from apiflask import Schema
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
@@ -17,13 +18,29 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         ordered = True
+
+
+class LoginSchema(Schema):
+    """ Create model for login"""
+
+    username = fields.String()
+    password = fields.String()
+    new_pswd = fields.String()
+    conf_pswd = fields.String()
  
 
 class MessageSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for message"""
     class Meta:
         model = Message
         ordered = True
-        many = True 
+
+
+class MessagesSchema(ma.SQLAlchemySchema):
+    """ Create model for messages list"""
+    
+    messages = fields.Nested(MessageSchema, many=True)
+
 
 class CandidateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -92,33 +109,36 @@ class RegistrySchema(ma.SQLAlchemyAutoSchema):
 
 
 class AnketaSchema(ma.SQLAlchemySchema):
-    class Meta:
-        resume = CandidateSchema()
-        document = DocumentSchema()
-        address = AddressSchema()
+    """ Create model for sending anketa on check"""
+
+    resume = CandidateSchema()
+    document = DocumentSchema()
+    address = AddressSchema()
 
 
 class ResumeSchema(ma.SQLAlchemySchema):
-    class Meta:
-        resume = fields.Nested(CandidateSchema())
-        document = fields.Nested(DocumentSchema())
-        staff = fields.Nested(StaffSchema())
-        addresses = fields.List(fields.Nested(AddressSchema()))
-        workplaces = fields.List(fields.Nested(WorkplaceSchema()))
-        contacts = fields.List(fields.Nested(ContactSchema()))
+    """ Create model for getting resume from API"""
+
+    resume = fields.Nested(CandidateSchema())
+    document = fields.Nested(DocumentSchema())
+    staff = fields.Nested(StaffSchema())
+    addresses = fields.List(fields.Nested(AddressSchema()))
+    workplaces = fields.List(fields.Nested(WorkplaceSchema()))
+    contacts = fields.List(fields.Nested(ContactSchema()))
 
 
 class ProfileSchema(ma.SQLAlchemySchema):
-    class Meta:
-        resume = fields.List(fields.Nested(CandidateSchema))
-        documents = fields.List(fields.Nested(DocumentSchema))
-        addresses = fields.List(fields.Nested(AddressSchema))
-        contacts = fields.List(fields.Nested(ContactSchema))
-        workplaces = fields.List(fields.Nested(WorkplaceSchema))
-        staffs = fields.List(fields.Nested(StaffSchema))
-        checks = fields.List(fields.Nested(CheckSchema))
-        registries = fields.List(fields.Nested(RegistrySchema))
-        pfos = fields.List(fields.Nested(PoligrafSchema))
-        invs = fields.List(fields.Nested(InvestigationSchema))
-        inquiries = fields.List(fields.Nested(InquirySchema))
+    """ Create model for rendering profile"""
+
+    resume = fields.Nested(CandidateSchema, many=True)
+    documents = fields.Nested(DocumentSchema, many=True)
+    addresses = fields.Nested(AddressSchema, many=True)
+    contacts = fields.Nested(ContactSchema, many=True)
+    workplaces = fields.Nested(WorkplaceSchema, many=True)
+    staffs = fields.Nested(StaffSchema, many=True)
+    checks = fields.Nested(CheckSchema, many=True)
+    registries = fields.Nested(RegistrySchema, many=True)
+    pfos = fields.Nested(PoligrafSchema, many=True)
+    invs = fields.Nested(InvestigationSchema, many=True)
+    inquiries = fields.Nested(InquirySchema, many=True)
         

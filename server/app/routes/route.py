@@ -5,28 +5,41 @@ import requests
 from flask_jwt_extended import current_user, jwt_required
 
 from sqlalchemy import func, or_
-from flask import request, send_from_directory
+from flask import request, send_from_directory, render_template
 from werkzeug.exceptions import BadRequest
 
 from . import bp
 
 from ..utils.excel import ExcelFile, resume_data, BASE_PATH
-from ..models.model import Roles, User, db, Candidate, Staff, Document, Address, Contact, Workplace, \
+from ..models.model import User, db, Candidate, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Status, Message
-from ..models.schema import MessageSchema, StaffSchema, AddressSchema, \
+from ..models.schema import MessagesSchema, StaffSchema, AddressSchema, \
         CandidateSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
             InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
 
 bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dist'))
 
 
+@bp.route('/redoc')
+def my_redoc():
+    return render_template('/redoc.html')
+
+
 @bp.get('/', defaults={'path': ''})
 @bp.get('/<string:path>')
 @bp.get('/<path:path>')
-@bp.get('/information')
-@bp.get('/profile/<string:cand_id>')
 @bp.doc(hide=True)
 def main(path=''):
+    """
+    An API endpoint that serves static files from the bp.static_folder directory.
+
+    Parameters:
+    - path: A string that represents the file path within the bp.static_folder directory. Defaults to an empty string.
+
+    Returns:
+    - If the file path exists, returns the file from the bp.static_folder directory.
+    - If the file path does not exist, returns the 'index.html' file from the bp.static_folder directory.
+    """
     if path and os.path.exists(os.path.join(bp.static_folder, path)):
         return send_from_directory(bp.static_folder, path)
     else:
@@ -74,17 +87,17 @@ def get_counts():
 
 @bp.get('/messages/<string:flag>')
 @bp.doc(hide=True)
-@bp.output(MessageSchema)
+@bp.output(MessagesSchema)
 @jwt_required()
 def get_messages(flag):
     messages = db.session.query(Message).filter(Message.status == Status.new.value,
                                                 Message.user_id == current_user.id).all()
-    if flag == 'read':
+    if flag == 'reply':
         for resp in messages:
             setattr(resp, 'status', Status.reply.value)
         db.session.commit()
-        messages = None
-    return messages
+        messages = []
+    return dict(messages=messages)
 
 
 @bp.get('/profile/<int:cand_id>')
@@ -92,7 +105,7 @@ def get_messages(flag):
 @bp.output(ProfileSchema)
 @jwt_required()
 def get_profile(cand_id):
-    check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all(),
+    checks_list = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.asc()).all()
     return dict(
         resume = db.session.query(Candidate).filter_by(id=cand_id).all(),
         documents = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.cand_id.asc()).all(),
@@ -100,8 +113,8 @@ def get_profile(cand_id):
         contacts = db.session.query(Contact).filter_by(cand_id=cand_id).order_by(Contact.id.asc()).all(),
         workplaces = db.session.query(Workplace).filter_by(cand_id=cand_id).order_by(Workplace.id.asc()).all(),
         staffs = db.session.query(Staff).filter_by(cand_id=cand_id).order_by(Staff.id.asc()).all(),
-        checks = check,
-        registries = [db.session.query(Registry).filter(Registry.check_id == i.id).first() for i in check],
+        checks = checks_list,
+        registries = [db.session.query(Registry).filter_by(check_id=check.id).first() for check in checks_list],
         pfos = db.session.query(Poligraf).filter_by(cand_id=cand_id).order_by(Poligraf.id.asc()).all(),
         invs = db.session.query(Investigation).filter_by(cand_id=cand_id).order_by(Investigation.id.asc()).all(),
         inquiries = db.session.query(Inquiry).filter_by(cand_id=cand_id).order_by(Inquiry.id.asc()).all()
@@ -129,8 +142,8 @@ def upload_file():
 
 
 def add_resume(resume):
-    result = db.session.query(Candidate).filter_by(Candidate.fullname.ilike(resume['fullname']),
-                                                    birthday=resume['birthday']).one_or_none()
+    result = db.session.query(Candidate).filter(Candidate.fullname.ilike(resume['fullname']),
+                                                Candidate.birthday==resume['birthday']).one_or_none()
     if result:
         resume.update({'status': Status.update.value, 'update': datetime.now()})
         for k, v in resume.items():
@@ -146,53 +159,52 @@ def add_resume(resume):
 
 
 @bp.post('/update/staff/<cand_id>')
-@bp.input(StaffSchema)
+@bp.input(StaffSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def update_staff(cand_id, response):
     db.session.add(Staff(**response | {'cand_id': cand_id}))
     db.session.commit()
-    return {'result', "200"}
-
+    return ''
 
 @bp.post('/update/document/<cand_id>')
-@bp.input(DocumentSchema)
+@bp.input(DocumentSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def update_document(cand_id, resonse):
     db.session.add(Document(**resonse | {'cand_id': cand_id}))
     db.session.commit()
-    return '', 200
+    return ''
 
 
 @bp.post('/update/contact/<cand_id>')
-@bp.input(ContactSchema)
+@bp.input(ContactSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def update_contact(cand_id, response):
     db.session.add(Contact(**response | {'cand_id': cand_id}))
     db.session.commit()
-    return '', 200
+    return ''
 
 
 @bp.post('/update/workplace/<cand_id>')
-@bp.input(WorkplaceSchema)
+@bp.input(WorkplaceSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def update_workplace(cand_id, response):
     db.session.add(Workplace(**response | {'cand_id': cand_id}))
     db.session.commit()
-    return '', 200
+    return ''
 
 
 @bp.post('/update/address/<cand_id>')
-@bp.input(AddressSchema)
+@bp.input(AddressSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def update_address(cand_id, response):
     db.session.add(Address(**response | {'cand_id': cand_id}))
     db.session.commit()
-    return '', 200
+    return ''
 
 
 @bp.get('/resume/send/<int:cand_id>')
@@ -201,17 +213,23 @@ def update_address(cand_id, response):
 def send_resume(cand_id):
     resume = db.session.query(Candidate).get(cand_id)
     if resume.status in [Status.new.value, Status.update.value]:
-        serial = AnketaSchema(dict(
-            resume = resume,
-            document = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.id.desc()).first(),
-            address = db.session.query(Address).filter_by(cand_id=cand_id).filter(Address.view.ilike("%регистрац%")). \
+        anketa_schema = AnketaSchema()
+        serial = anketa_schema.dump(dict(
+            resume = resume, 
+            document = db.session.query(Document).filter_by(cand_id=cand_id).order_by(Document.id.desc()).first(), 
+            address = db.session.query(Address).filter_by(cand_id=cand_id).filter(Address.view.ilike("%регистрац%")).\
                 order_by(Address.id.desc()).first()))
         try:
             response = requests.post(url='https://httpbin.org/post', json=serial, timeout=5)
             response.raise_for_status()
             if response.status_code == 200:
                 resume.status = Status.robot.value
-                db.session.add(Check(**{}))
+                db.session.add(Check(officer=current_user.username, 
+                                     path = os.path.join(BASE_PATH, 
+                                                         resume.fullname[0], 
+                                                         f"{str(resume.id)}-{resume.fullname}",
+                                                         datetime.now().strftime("%Y-%m-%d")),
+                                     cand_id=cand_id))
                 db.session.commit()
                 return {'message': Status.robot.name}
             return {'message': Status.error.name}
@@ -239,7 +257,7 @@ def patch_status(cand_id: int):
 @jwt_required()
 def status_check(cand_id):
     candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
-    if candidate.status == Status.new.value and candidate.status != Status.update.value:
+    if candidate.status == Status.new.value or candidate.status == Status.update.value:
         candidate.status = Status.manual.value
         db.session.commit()
         return {'message': Status.manual.name}
@@ -253,7 +271,6 @@ def status_check(cand_id):
 def post_check(flag: str, cand_id: int, response):
     candidate = db.session.query(Candidate).get(cand_id)
     response['pfo'] = bool(response.pop('pfo')) if 'pfo' in response else False
-    response = {k: (v if v else "Значимая информация не найдена") for k, v in response.items()}
     if flag == 'new':
         path = os.path.join(BASE_PATH, candidate.fullname[0], f"{str(candidate.id)}-{candidate.fullname}",
                             datetime.now().strftime("%Y-%m-%d"))
@@ -264,18 +281,19 @@ def post_check(flag: str, cand_id: int, response):
         latest_check = db.session.query(Check).filter_by(cand_id=cand_id).order_by(Check.id.desc()).first()
         for k, v in response.items():
             setattr(latest_check, k, v)
-    match response['conclusion']:
-        case Status.save.value:
-            candidate.status = Status.save.value
-            message = Status.save.name
-        case Status.cancel.value:
-            candidate.status = Status.cancel.value
-            message = Status.cancel.name
-        case Status.result.value:
-            candidate.status = Status.poligraf.value if response['pfo'] else Status.result.value
-            message = Status.poligraf.name if response['pfo'] else Status.result.name
     db.session.commit()
-    return {'message', message}
+    if response['conclusion'] == 'Сохранено':
+        candidate.status = Status.save.value
+        db.session.commit()
+        return {'message': Status.save.name}
+    elif response['conclusion'] == "Отмена":
+        candidate.status = Status.cancel.value
+        db.session.commit()
+        return {'message': Status.cancel.name}
+    else:
+        candidate.status = Status.poligraf.value if response['pfo'] else Status.result.value
+        db.session.commit()
+        return {'message': Status.poligraf.name if response['pfo'] else Status.result.name}
 
 
 @bp.get('/check/delete/<int:cand_id>')
@@ -293,11 +311,12 @@ def delete_check(cand_id):
 
 
 @bp.post('/registry/<int:cand_id>')
-@bp.input(RegistrySchema)
+@bp.input(RegistrySchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def post_registry(cand_id, resp):
-    if Roles.superuser.value == db.session.query(User.role).filter_by(username=current_user.username).one_or_none():
+    user = db.session.query(User.role).filter_by(username=current_user.username).one_or_none()
+    if user.has_role('superuser'):
         check_id = db.session.query(Check.id).filter_by(cand_id=cand_id).order_by(Check.id.desc()).one_or_none()
         reg = {'check_id': check_id, 'supervisor': current_user.username} | resp
         candidate = db.session.query(Candidate).filter_by(id=cand_id).first()
@@ -321,7 +340,7 @@ def post_registry(cand_id, resp):
 
 
 @bp.post('/poligraf/<int:cand_id>')
-@bp.input(PoligrafSchema)
+@bp.input(PoligrafSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def post_poligraf(cand_id, response):
@@ -331,11 +350,11 @@ def post_poligraf(cand_id, response):
     if candidate.status == Status.poligraf.value:
         candidate.status = Status.result.value
     db.session.commit()
-    return {'message': Status.reply.name}
+    return {'message': cand_id}
 
 
 @bp.post('/investigation/<int:cand_id>')
-@bp.input(InvestigationSchema)
+@bp.input(InvestigationSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def post_investigation(cand_id, response):
@@ -345,7 +364,7 @@ def post_investigation(cand_id, response):
 
 
 @bp.post('/inquiry/<int:cand_id>')
-@bp.input(InquirySchema)
+@bp.input(InquirySchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def post_inquiry(cand_id, response):

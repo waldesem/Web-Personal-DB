@@ -13,9 +13,10 @@
     </div>
     <div class="tab-content">
       <div class="tab-pane active py-1" role="tabpanel" id="anketaTab">
-        <AnketaTab :table="data.questionary" :candId="data.candId" :resume="data.resume" :status="data.status"
+        <AnketaTab :table="[data.resums, data.staffs, data.docums, data.addrs, data.conts, data.works]" :candId="data.candId" :resume="data.resume" :status="data.status"
         @updateMessage="updateMessage" @updateItem="getProfile"/>
       </div>
+      <template v-if="data.candId !== '0'">
         <div class="tab-pane py-1" role="tabpanel" id="checkTab">
           <CheckTab :table="data.verification" :candId="data.candId" :item="data.lastCheck" :status="data.status"
           @updateMessage="updateMessage" @updateItem="getProfile" />
@@ -32,6 +33,7 @@
         <div class="tab-pane py-1" role="tabpanel" id="inquiryTab">
           <InquiryTab :table="data.needs" :candId="data.candId" @updateMessage="updateMessage" @updateItem="getProfile" />
         </div>
+      </template>
     </div>
   </div>
 </template>
@@ -57,8 +59,13 @@ const route = useRoute();
 const data = ref({
   candId: String(route.params.id), 
   attr: '', 
-  text: '', 
-  questionary: [], 
+  text: '',
+  resums: '',
+  docums: '',
+  addrs: '',
+  conts: '',
+  works: '',
+  staffs: '',
   verification: '', 
   register: '', 
   pfo: '', 
@@ -70,47 +77,49 @@ const data = ref({
   lastCheck: {}, 
 });
 
-const anketa_labels = [
-  ['id', 'Регион', 'Фамилия Имя Отчество', 'Изменение имени', 'Дата рождения', 'Место рождения', 'Гражданство', 
-  'СНИЛС', 'ИНН', 'Образование', 'Дополнительная информация', 'Статус', 'Создан', 'Обновлен', 'Рекрутер', 'Внешний id'],
-  ['Должность', 'Департамент'],
-  ['Вид документа', 'Серия', 'Номер', 'Кем выдан', 'Дата'],
-  ['Тип', 'Регион', 'Адрес'],
-  ['Вид', 'Контакт'],
-  ['Период', 'Организация', 'Адрес', 'Должность']
+const resume_labels = [
+  'id', 'Регион', 'Фамилия Имя Отчество', 'Изменение имени', 'Дата рождения', 'Место рождения', 'Гражданство', 
+  'СНИЛС', 'ИНН', 'Образование', 'Дополнительная информация', 'Статус', 'Создан', 'Обновлен', 'Рекрутер', 'Внешний id'
 ];
+const staff_labels =  ['id', 'Должность', 'Департамент'];
+const docs_labels = ['id', 'Вид документа', 'Серия', 'Номер', 'Кем выдан', 'Дата'];
+const addr_labels = ['id', 'Тип', 'Регион', 'Адрес'];
+const cont_labels = ['id', 'Вид', 'Контакт'];
+const work_labels = ['id', 'Период', 'Организация', 'Адрес', 'Должность'];
 const check_labels = [
-  'ID', 'Статус автопроверки', 'Проверка по местам работы', 'Бывший работник МТСБ', 
-  'Проверка паспорта', 'Проверка ИНН', 'Проверка ФССП', 'Проверка банкротства', 'Проверка БКИ', 
-  'Проверка судебных дел', 'Проверка аффилированности', 'Проверка в списке террористов', 
-  'Проверка нахождения в розыске', 'Проверка в открытых источниках', 'Проверка Кронос', 'Проверка Крос', 
-  'Дополнительная информация', 'Материалы проверки', 'ПФО', 'Комментарии', 'Результат проверки', 
-  'Дата проверки', 'Сотрудник СБ'
+  'id', 'Проверка по местам работы', 'Бывший работник МТСБ', 'Проверка паспорта', 'Проверка ИНН', 
+  'Проверка ФССП', 'Проверка банкротства', 'Проверка БКИ', 'Проверка судебных дел', 
+  'Проверка аффилированности', 'Проверка в списке террористов', 'Проверка нахождения в розыске', 
+  'Проверка в открытых источниках', 'Проверка Кронос', 'Проверка Крос', 'Дополнительная информация', 
+  'Материалы проверки', 'ПФО', 'Комментарии', 'Результат проверки', 'Дата проверки', 'Сотрудник СБ'
 ];
-const registry_labels = ['ID', 'Комментарий', 'Решение', 'Дата', 'Согласующий'];
-const poligraf_labels = ['ID', 'Тематика', 'Результат', 'Полиграфолог', 'Дата проверки'];
-const investigation_labels = ['ID', 'Тематика', 'Информация', 'Дата проверки'];
-const inquiry_labels = ['ID', 'Информация', 'Иннициатор', 'Источник', 'Дата запроса'];
+const registry_labels = ['id', 'Комментарий', 'Решение', 'Дата', 'Согласующий'];
+const poligraf_labels = ['id', 'Тематика', 'Результат', 'Полиграфолог', 'Дата проверки'];
+const investigation_labels = ['id', 'Тема', 'Информация', 'Дата проверки'];
+const inquiry_labels = ['id', 'Информация', 'Иннициатор', 'Источник', 'Дата запроса'];
 
-function updateMessage (alert: any){
-  data.value.attr = alert["attr"];
-  data.value.attr = alert["text"]
-};
+function updateMessage(alert: Object) {
+  data.value.attr = (alert as { attr: string })["attr"];
+  data.value.text = (alert as { text: string })["text"];
+}
 
 async function getProfile(id=data.value.candId) {
+  data.value.candId = id;
   if (id === '0') {
-    data.value.candId = id;
     updateMessage({attr: 'alert-info', text: 'Заполните форму'})
     data.value.header = 'Новая анкета'
   } else {
     const response = await axios.get(`${config.appUrl}/profile/${id}`, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const {resume, documents, addresses, contacts, workplaces, checks, registries, pfos, invs, inquiries} = response.data;
+    const {resume, documents, addresses, contacts, workplaces, staffs, checks, registries, pfos, invs, inquiries} = response.data;
     Object.assign(data.value, {
-      questionary: anketa_labels.map((labels: string[], i: number) => `
-        <div>${createItemTable(labels, [resume[i], documents[i], addresses[i], contacts[i], workplaces[i]])}</div>
-      `),
+      resums: createItemTable(resume_labels, resume),
+      docums: createItemTable(docs_labels, documents),
+      addrs: createItemTable(addr_labels, addresses),
+      conts: createItemTable(cont_labels, contacts),
+      works: createItemTable(work_labels, workplaces),
+      staffs: createItemTable(staff_labels, staffs),
       verification: createItemTable(check_labels, checks),
       register: createItemTable(registry_labels, registries),
       pfo: createItemTable(poligraf_labels, pfos),
@@ -124,13 +133,13 @@ async function getProfile(id=data.value.candId) {
   }
 }
 
-function createItemTable(names: string[], response: Array<Array<Object>>) {
+function createItemTable(names: string[], response: Array<Object>) {
   if (!response.length) {
     return `<p>Данные отсутствуют</p>`;
   }
   const rows = response.map((item) => {
     return names.map((name, i) => {
-      if (Object.keys(item)[i] === 'create' || Object.keys(item)[i] === 'update' || Object.keys(item)[i] === 'birthday') {
+      if (Object.keys(item)[i] === 'create' || Object.keys(item)[i] === 'update' || Object.keys(item)[i] === 'birthday' || Object.keys(item)[i] === 'deadline') {
         if (Object.values(item)[i] != null) {
           const date = new Date(String(Object.values(item)[i]));
           return `<tr><td width="25%">${name}</td><td>${date.toLocaleDateString('ru-RU')}</td></tr>`;

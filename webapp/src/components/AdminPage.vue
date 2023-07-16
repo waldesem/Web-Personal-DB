@@ -13,7 +13,7 @@
             </li>
             <li class="nav-item">
               <a @click="data.actions='logs'" class="nav-link active" href="#">Уведомления
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{data.count}}</span>
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{count}}</span>
               </a>
             </li>
           </ul>                                
@@ -59,20 +59,20 @@
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="fullname">Имя пользователя: </label>
               <div class="col-lg-4">
-                  <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" placeholder="Имя пользователя" required type="text" v-model="data.fullname" pattern="[a-zA-Z]+">
+                  <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" placeholder="Имя пользователя" required type="text" v-model="userForm.fullname" pattern="[a-zA-Z]+">
               </div>
           </div>
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="username">Учетная запись: </label>
                   <div class="col-lg-4">
-                      <input autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" placeholder="Учетная запись без пробелов на латинице" required type="text" v-model="data.username" pattern="[a-zA-Z]+">
+                      <input autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" placeholder="Учетная запись без пробелов на латинице" required type="text" v-model="userForm.username" pattern="[a-zA-Z]+">
                   </div>
               </div>
           <div class="mb-3 row required">
             <label class="col-form-label col-lg-2" for="role">Роль: </label>
               <div class="col-lg-4">
-                <select v-for="(value, name) in config.roles" class="form-select" id="role" name="role" v-model="data.role" required>
-                  <option value={{value}}>{{name}}</option>                
+                <select class="form-select" id="role" name="role" v-model="userForm.role" required>
+                  <option v-for="(value, name) in config.roles" :value=value :key="name" >{{name}}</option>                
                 </select>
               </div>
           </div>
@@ -126,7 +126,7 @@
 import { ref, computed, onBeforeMount } from 'vue'
 import axios from 'axios';
 import config from '@/config';
-import AlertMessage from './AlertMessage'
+import AlertMessage from './AlertMessage.vue';
 
 const user_labels = [
   '#', 'Имя пользователя', 'Логин', 'Хэш пароля', 'Создан', 'Изменен', 'Вход', 'Блокировка', 'Роль'
@@ -168,15 +168,13 @@ async function getUsers(){
 
 async function submitData(event: Event){
   try {  
-    const response = await axios.post(`${config.appUrl}/user/registration`, data.value.userForm, {
+    const response = await axios.post(`${config.appUrl}/user/registration`, userForm.value, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const  { user } = response.data;
-    Object.assign(data.value, {
-      actions: user ? 'create' : 'users',
-      attr: user ? 'alert-danger' : 'alert-success',
-      text: user ? 'Пользователь уже существует' : 'Пользователь успешно создан'
-    });
+    data.value.actions =  user ? 'create' : 'users';
+    data.value.attr = user ? 'alert-danger' : 'alert-success';
+    data.value.text = user ? 'Пользователь уже существует' : 'Пользователь успешно создан';
     getUsers()
   } catch (error) {
     console.error(error);
@@ -193,9 +191,7 @@ async function viewUser(id: string){
       profile: createItemTable(user_labels, datas),
       actions: 'profile',
       user_id: datas['id'],
-      blocked: datas['blocked'],
-      attr: '',
-      text: ''
+      blocked: datas['blocked']
     })
   } catch (error) {
     console.error(error);
@@ -221,11 +217,9 @@ async function blockUser() {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const { blocked } = response.data;
-    Object.assign(data.value, {
-      attr: 'alert-success',
-      text: blocked ? 'Пользователь заблокирован' : 'Пользователь разблокирован',
-      blocked: blocked
-    })
+    data.value.attr = 'alert-success';
+    data.value.text = blocked ? 'Пользователь заблокирован' : 'Пользователь разблокирован';
+    data.value.blocked = blocked;
     viewUser(data.value.user_id)
   } catch (error) {
     console.error(error);

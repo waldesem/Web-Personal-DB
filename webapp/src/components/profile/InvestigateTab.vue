@@ -14,12 +14,6 @@
             <textarea class="form-control" id="info" name="info" required></textarea>
           </div>
         </div>
-        <div class="mb-3 row required">
-          <label class="col-form-label col-lg-2" for="deadline">Дата проверки</label>
-          <div class="col-lg-10">
-            <input class="form-control" id="deadline" name="deadline" required type="date" value="">
-          </div>
-        </div>
         <div class=" row">
           <div class="offset-lg-2 col-lg-10">
             <div class="btn-group" role="group">
@@ -33,7 +27,7 @@
     </template>
 
     <template v-else>
-      <div v-html="table" class="py-3"></div>
+      <div v-html="table"></div>
       <a @click="url = 'investigation'" class="btn btn-outline-primary" type="button">Добавить запись</a>
     </template>
   </div>

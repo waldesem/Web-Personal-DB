@@ -161,7 +161,7 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { toRefs, computed } from 'vue';
+import { computed } from 'vue';
 import config from '@/config';
 
 const props = defineProps({
@@ -174,15 +174,15 @@ const emit = defineEmits(['updateMessage', 'updateItem']);
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${config.appUrl}/update/${path?.value}/${candId}`, formData, {
+    const response = await axios.post(`${config.appUrl}/update/${props.path}/${props.candId}`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const message = response.status;
     emit('updateMessage', {
       attr: message === 200 ? "alert-success" : "alert-error",
-      text: message === 200 ? 'Запись успешно добавлена' : 'Ошибка записи'
+      text: message === 200 ? 'Запись успешно добавлена' : 'Ошибка'
     });
-    emit('updateItem', candId);
+    emit('updateItem', props.candId);
   } catch (error) {
     console.error(error);
   }
@@ -196,7 +196,7 @@ const name = computed(() => {
   'contact': "контакт",
   'workplace': "место работы"
   }
-  return actionHeader[path as keyof typeof actionHeader]
+  return actionHeader[props.path as keyof typeof actionHeader]
 });
 
 </script>

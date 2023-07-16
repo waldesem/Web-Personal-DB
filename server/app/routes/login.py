@@ -7,7 +7,7 @@ from flask_jwt_extended import JWTManager, current_user, \
 
 from . import bp
 from ..models.model import User, db
-from ..models.schema import UserSchema
+from ..models.schema import LoginSchema
 
 jwt = JWTManager()
 
@@ -36,7 +36,7 @@ def auth():
 
 
 @bp.post('/login')
-@bp.input(UserSchema)
+@bp.input(LoginSchema)
 @bp.doc(hide=True)
 def login(response):
     user = db.session.query(User).filter_by(username=response['username']).one_or_none()
@@ -54,14 +54,13 @@ def login(response):
 
 @bp.get('/logout')
 @bp.doc(hide=True)
-@bp.output({}, status_code=200)
 def logout():
     unset_jwt_cookies(jsonify({"user": "None"}))
-    return {'access': 'Logout'}
+    return {'access': 'Default'}
 
 
 @bp.post('/password')
-@bp.input(UserSchema)
+@bp.input(LoginSchema)
 @bp.doc(hide=True)
 def change_password(response):
     user = db.session.query(User).filter_by(username=response['username']).one_or_none()
@@ -70,5 +69,5 @@ def change_password(response):
             setattr(user, 'password', bcrypt.hashpw(response['new_pswd'].encode('utf-8'), bcrypt.gensalt()))
             setattr(user, "pswd_change", datetime.now())
             db.session.commit()
-            return {"access": "Logout", 'access_token': None}
-    return {"access": "Denied", 'access_token': None}
+            return {"access": "Success", 'access_token': None}
+    return {"access": "None", 'access_token': None}

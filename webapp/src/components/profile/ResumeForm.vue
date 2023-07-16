@@ -110,7 +110,7 @@ async function submitData(event: Event) {
       attr: result ? "alert-info" : "alert-success",
       text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
     });
-    emit('updateItem', cand_id);
+    emit('updateItem', String(cand_id));
   } catch (error) {
     console.error(error);
   }

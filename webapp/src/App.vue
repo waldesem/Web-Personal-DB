@@ -11,7 +11,6 @@ onBeforeMount(async () => {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
     const { user } = response.data;
-    console.log(user)
     user 
     ? router.push({ name: 'index', params: { flag: 'new' } }) 
     : router.push({ name: 'login' });
@@ -23,5 +22,5 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <router-view ></router-view>
+  <router-view></router-view>
 </template>
