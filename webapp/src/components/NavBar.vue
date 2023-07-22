@@ -1,3 +1,42 @@
+<script setup lang="ts">
+
+import { ref, onMounted } from 'vue';
+
+import axios from 'axios';
+import config from '@/config';
+
+const data = ref({
+  new: '', 
+  message: []
+});
+
+async function updateMessage(flag = 'new') {
+  try{
+    const response = await axios.get(`${config.appUrl}/messages/${flag}`, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { messages } = response.data;
+    data.value.message = messages;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+onMounted(async () => {
+  try {
+    const response = await axios.get(`${config.appUrl}/persons/new`, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { news } = response.data;
+    data.value.new = news;
+  } catch (error) {
+    console.error(error);
+  }
+  updateMessage()
+});
+
+</script>
+
 <template>
   <div class="container-fluid">
     <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary">
@@ -18,12 +57,14 @@
             <li class="nav-item">
               <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
             </li>
-            <li v-if="data.count !== 0" class="nav-item dropdown">
+            <li v-if="data.message.length" class="nav-item dropdown">
               <a class="nav-link active dropdown-toggle dropdown-toggle-split" role="button" data-bs-toggle="dropdown" href="#"><i class="bi bi-envelope-check-fill"></i>
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{data.count}}</span></a>
-                <ul class="dropdown-menu" v-for="(message) in data.message">
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{data.message ? data.message.length : 0}}</span></a>
+                <ul class="dropdown-menu">
                   <h6 class="dropdown-header">Непрочитанные сообщения</h6>
-                  <li><a class="dropdown-item" href="#">{{ `${new Date(message['create']).toLocaleString('ru-RU')}: ${message['message']}` }}</a></li>
+                  <li v-for="message in data.message" :key="message['id']">
+                    <a class="dropdown-item">{{ `${new Date(message['create']).toLocaleString('ru-RU')}: ${message['message']}` }}</a>
+                  </li>
                   <div class="dropdown-divider"></div>
                   <li><a class="dropdown-item" href="#" @click="updateMessage('reply')">Очистить</a></li>
                 </ul>
@@ -38,46 +79,3 @@
     </nav>
   </div>
 </template>
-
-<script setup lang="ts">
-
-import { ref, onMounted } from 'vue';
-
-import axios from 'axios';
-import config from '@/config';
-
-const data = ref({
-  new: '', 
-  message: [],
-  count: 0,
-});
-
-async function updateMessage(flag = 'new') {
-  try{
-    const response = await axios.get(`${config.appUrl}/messages/${flag}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
-    const { messages } = response.data;
-    data.value.message = messages;
-    data.value.count = messages ? messages.length : 0;
-    console.log(data.value.count)
-    console.log(data.value.message)
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-onMounted(async () => {
-  try {
-    const response = await axios.get(`${config.appUrl}/candidates/new`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
-    const { news } = response.data;
-    data.value.new = news;
-  } catch (error) {
-    console.error(error);
-  }
-  updateMessage()
-});
-
-</script>

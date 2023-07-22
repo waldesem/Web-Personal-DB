@@ -2,7 +2,7 @@ from apiflask import Schema
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
-from ..models.model import User, Candidate, Staff, Document, Address, Contact, Workplace, \
+from ..models.model import Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Message, Log
 
 ma = Marshmallow()
@@ -42,9 +42,15 @@ class MessagesSchema(ma.SQLAlchemySchema):
     messages = fields.Nested(MessageSchema, many=True)
 
 
-class CandidateSchema(ma.SQLAlchemyAutoSchema):
+class PersonSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = Candidate
+        model = Person
+        ordered = True
+
+
+class RelationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Relation
         ordered = True
 
 
@@ -111,7 +117,7 @@ class RegistrySchema(ma.SQLAlchemyAutoSchema):
 class AnketaSchema(ma.SQLAlchemySchema):
     """ Create model for sending anketa on check"""
 
-    resume = CandidateSchema()
+    resume = PersonSchema()
     document = DocumentSchema()
     address = AddressSchema()
 
@@ -119,7 +125,7 @@ class AnketaSchema(ma.SQLAlchemySchema):
 class ResumeSchema(ma.SQLAlchemySchema):
     """ Create model for getting resume from API"""
 
-    resume = fields.Nested(CandidateSchema())
+    resume = fields.Nested(PersonSchema())
     document = fields.Nested(DocumentSchema())
     staff = fields.Nested(StaffSchema())
     addresses = fields.List(fields.Nested(AddressSchema()))
@@ -130,12 +136,13 @@ class ResumeSchema(ma.SQLAlchemySchema):
 class ProfileSchema(ma.SQLAlchemySchema):
     """ Create model for rendering profile"""
 
-    resume = fields.Nested(CandidateSchema, many=True)
+    resume = fields.Nested(PersonSchema, many=True)
     documents = fields.Nested(DocumentSchema, many=True)
     addresses = fields.Nested(AddressSchema, many=True)
     contacts = fields.Nested(ContactSchema, many=True)
     workplaces = fields.Nested(WorkplaceSchema, many=True)
     staffs = fields.Nested(StaffSchema, many=True)
+    relations = fields.Nested(RelationSchema, many=True)
     checks = fields.Nested(CheckSchema, many=True)
     registries = fields.Nested(RegistrySchema, many=True)
     pfos = fields.Nested(PoligrafSchema, many=True)

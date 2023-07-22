@@ -1,3 +1,46 @@
+<script setup lang="ts">
+
+import axios from 'axios';
+import { computed } from 'vue';
+import config from '@/config';
+
+const props = defineProps({
+    candId: String,
+    path: String
+});
+  
+const emit = defineEmits(['updateMessage', 'updateItem']);
+
+async function submitData(event: Event) {
+  try {
+    const formData = new FormData(event.target as HTMLFormElement);
+    const response = await axios.post(`${config.appUrl}/update/${props.path}/${props.candId}`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const message = response.status;
+    emit('updateMessage', {
+      attr: message === 200 ? "alert-success" : "alert-error",
+      text: message === 200 ? 'Запись успешно добавлена' : 'Ошибка'
+    });
+    emit('updateItem', props.candId);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const name = computed(() => {
+  const actionHeader = {
+  'staff': 'должность',
+  'document': 'документ',
+  'address': 'адрес',
+  'contact': "контакт",
+  'workplace': "место работы"
+  }
+  return actionHeader[props.path as keyof typeof actionHeader]
+});
+
+</script>
+
 <template>
   <div class="modal fade" id="modalWin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalWinLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -152,51 +195,28 @@
             </div>
           </form>
 
+          <form v-else-if="path == 'relation'" @submit.prevent="submitData" class="form form-check" role="form">
+            <div class="mb-3 row">
+              <label class="col-form-label col-lg-2" for="relation">Тип связи</label>
+              <div class="col-lg-10">
+                <input class="form-control" id="relation" maxlength="250" name="relation" type="text" value="">
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-form-label col-lg-2" for="relation_id">ID связи</label>
+              <div class="col-lg-10">
+                <input class="form-control" id="relation_id" maxlength="25" name="relation_id" type="text" value="">
+              </div>
+            </div>
+            <div class=" row">
+              <div class="offset-lg-2 col-lg-10">
+                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Принять">
+              </div>
+            </div>
+          </form>
+
         </div>
       </div>
     </div>
   </div>
 </template>
-  
-<script setup lang="ts">
-
-import axios from 'axios';
-import { computed } from 'vue';
-import config from '@/config';
-
-const props = defineProps({
-    candId: String,
-    path: String
-});
-  
-const emit = defineEmits(['updateMessage', 'updateItem']);
-
-async function submitData(event: Event) {
-  try {
-    const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${config.appUrl}/update/${props.path}/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
-    const message = response.status;
-    emit('updateMessage', {
-      attr: message === 200 ? "alert-success" : "alert-error",
-      text: message === 200 ? 'Запись успешно добавлена' : 'Ошибка'
-    });
-    emit('updateItem', props.candId);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-const name = computed(() => {
-  const actionHeader = {
-  'staff': 'должность',
-  'document': 'документ',
-  'address': 'адрес',
-  'contact': "контакт",
-  'workplace': "место работы"
-  }
-  return actionHeader[props.path as keyof typeof actionHeader]
-});
-
-</script>

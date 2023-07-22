@@ -6,8 +6,8 @@ import bcrypt
 from apiflask import HTTPBasicAuth
 
 from ..routes import bp
-from ..utils.excel import resume_data, BASE_PATH
-from ..models.model import db, User, Candidate, Check, Message, Status
+from ..utils.excel import resume_data
+from ..models.model import db, User, Person, Check, Message, Status
 from ..models.schema import CheckSchema, ResumeSchema
 
 auth = HTTPBasicAuth()
@@ -51,9 +51,9 @@ def anketa(resume: dict):
         - An empty string.
     """
     resume['resume']["request_id"] = resume['resume'].pop('id')
-    candidate = db.session.query(Candidate).filter(
-        Candidate.fullname.ilike(f"{resume['resume']['fullname']}"),
-        Candidate.birthday == resume['resume']['birthday']
+    candidate = db.session.query(Person).filter(
+        Person.fullname.ilike(f"{resume['resume']['fullname']}"),
+        Person.birthday == resume['resume']['birthday']
     ).one_or_none()
 
     if candidate:
@@ -63,10 +63,16 @@ def anketa(resume: dict):
             setattr(candidate, k, v)
         new_id = candidate.id
     else:
-        value = Candidate(**resume['resume'])
+        value = Person(**resume['resume'])
         db.session.add(value)
         db.session.flush()
         new_id = value.id
+    users = db.session.query(User).filter(User.role.in_(
+        ['superuser', 'user']
+        )).all()
+    for user in users:
+        db.session.add(Message(message=f'Поступила анкета {resume["resume"]["fullname"]}', 
+                               user_id=user.id))
     db.session.commit()
 
     resume_data(new_id, resume['document'], resume['addresses'], 
@@ -87,9 +93,9 @@ def check_in(response):
     Returns:
         str: An empty string.
     """
-    candidate = db.session.query(Candidate).get(response['id'])
+    candidate = db.session.query(Person).get(response['id'])
     del response['id']
-    latest_check = db.session.query(Check).filter_by(cand_id=candidate.id).order_by(Check.id.desc()).first()
+    latest_check = db.session.query(Check).filter_by(person_id=candidate.id).order_by(Check.id.desc()).first()
     officer_id = db.session.query(User.id).filter_by(username=latest_check.officer).one_or_none()[0]
     for k, v in response.items():
         setattr(latest_check, k, v)

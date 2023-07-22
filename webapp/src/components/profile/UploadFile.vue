@@ -1,15 +1,3 @@
-<template>
-  <form class="form form-check" enctype="multipart/form-data" role="form" @change="submitFile">
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
-      <div class="col-lg-10">
-        <input class="form-control" id="file" type="file" ref="file">
-      </div>
-    </div>
-  </form>
-</template>
-
-
 <script setup lang="ts">
 
 import { ref } from 'vue';
@@ -29,16 +17,27 @@ async function submitFile(event: Event) {
     const response = await axios.post(`${config.appUrl}/resume/upload`, formData, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const { result, cand_id } = response.data;
+    const { result, person_id } = response.data;
     emit('updateMessage', {
       attr: result ? "alert-info" : "alert-success",
       text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
     });
-    emit('updateItem', cand_id)
+    emit('updateItem', person_id)
   } catch (error) {
     console.error(error);
   }
 }
 
 </script>
+
+<template>
+  <form class="form form-check" enctype="multipart/form-data" role="form" @change="submitFile">
+    <div class="mb-3 row">
+      <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
+      <div class="col-lg-10">
+        <input class="form-control" id="file" type="file" ref="file">
+      </div>
+    </div>
+  </form>
+</template>
 

@@ -1,3 +1,118 @@
+<script setup lang="ts">
+
+import axios from 'axios';
+import { ref, toRefs } from 'vue';
+import config from '@/config';
+
+const emit = defineEmits(['updateMessage', 'updateItem'])
+
+const props = defineProps({
+  table: String,
+  item: Object,
+  candId: String,
+  status: String
+});
+
+const { item } = toRefs(props);
+const check = item?.value ?? {};
+
+const url = ref('');
+
+async function submitData(event: Event){
+  try {
+    const response = await axios.post(`${config.appUrl}/check/${url.value}/${props.candId}`, check, {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  });
+    const { message } = response.data;
+    const alert = {
+      'save': ['alert-info', 'Проверка сохранена'],
+      'cancel': ['alert-warning', 'Проверка отменена'],
+      'poligraf': ['alert-info', 'Окончено. Назначено проведение ПФО'],
+      'result': ['alert-success', 'Проверка окончена']
+    }
+    emit('updateMessage', {
+      attr: alert[message as keyof typeof alert][0],
+      text: alert[message as keyof typeof alert][1]
+    });
+    emit('updateItem', props.candId)
+    url.value = ''
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+async function addCheck() {
+  if (props.status === config.status.save || 
+    props.status === config.status.manual ||
+    props.status === config.status.robot) {
+    emit('updateMessage', {
+      attr: 'alert-warning',
+      text: 'Нельзя добавить проверку к текущему статусу'
+    })
+  } else {
+    try {
+      const response = await axios.get(`${config.appUrl}/check/status/${props.candId}`, {
+        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      });
+      const { message } = response.data;
+      message === "manual" ? url.value = 'new' : url.value = '';
+      emit('updateMessage', {
+        attr: message === "manual" ? 'alert-info' : 'alert-warning',
+        text: message === "manual" ? 'Начата ручная проверка' : 'Проверка кандидата уже начата'
+      });
+    } catch (error) {
+      console.error(error)
+    }
+  }
+};
+
+    
+function deleteCheck() {
+  if (props.status === config.status.robot) {
+  emit('updateMessage', {
+      attr: 'alert-warning',
+      text: 'Нельзя удалить проверку с текущим статусом'
+    })
+  } else {
+    if (confirm("Вы действительно хотите удалить проверку?")) {
+      checkDelete();
+    }
+  }
+};
+
+async function checkDelete() {
+  try {
+    const response = await axios.get(`${config.appUrl}/check/delete/${props.candId}`, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { message } = response.data;
+    emit('updateMessage', {
+      attr: message === "reply" ? 'alert-success' : 'alert-warning',
+      text: message === "reply" ? 'Проверка удалена' : 'Проверку с текущим статусом удалить нельзя'
+    });
+    emit('updateItem', props.candId)
+    window.scrollTo(0,0)
+  } catch (error) {
+  console.error(error);
+  }
+};
+
+async function cancelCheck() {
+  checkDelete();
+  url.value = '';
+  const response = await axios.get(`${config.appUrl}/resume/status/${props.candId}`, {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  });
+  const { message } = response.data;
+  emit('updateMessage', {
+    attr: message == 'update' ? "alert-success" : "alert-warning",
+    text: message == 'update' ? "Статус обновлен" : "Текущий статус обновить нельзя",
+  });
+  window.scrollTo(0,0)
+}
+
+</script>
+
 <template>
   <div class="py-3">
     <template v-if="url">
@@ -134,101 +249,8 @@
       <div class="btn-group" role="group">
         <button @click="deleteCheck" :disabled="config.status && (status === config.status['finish'])" class="btn btn-outline-primary">Удалить проверку</button>
         <button @click="addCheck" :disabled="config.status && (status !== config.status['new'] && status !== config.status['update'])" class="btn btn-outline-primary">Добавить проверку</button>
-        <button @click="url='edit'" :disabled="config.status && (status !== config.status['save'] && status !== config.status['cancel'])"  class="btn btn-outline-primary">Изменить проверку</button>
+        <button @click="url='edit'" :disabled="config.status && (status !== config.status['save'] && status !== config.status['cancel'] && status !== config.status['manual'])"  class="btn btn-outline-primary">Изменить проверку</button>
       </div>
     </template>
   </div>
 </template>
-
-<script setup lang="ts">
-
-import axios from 'axios';
-import { ref, toRefs } from 'vue';
-import config from '@/config';
-
-const emit = defineEmits(['updateMessage', 'updateItem'])
-
-const props = defineProps({
-  table: String,
-  item: Object,
-  candId: String,
-  status: String
-});
-
-const { item } = toRefs(props);
-const check = item?.value ?? {};
-
-const url = ref('');
-
-async function submitData(event: Event){
-  try {
-    const response = await axios.post(`${config.appUrl}/check/${url.value}/${props.candId}`, check, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-  });
-    const { message } = response.data;
-    const alert = {
-      'save': ['alert-info', 'Проверка сохранена'],
-      'cancel': ['alert-warning', 'Проверка отменена'],
-      'poligraf': ['alert-info', 'Окончено. Назначено проведение ПФО'],
-      'result': ['alert-success', 'Проверка окончена']
-    }
-    emit('updateMessage', {
-      attr: alert[message as keyof typeof alert][0],
-      text: alert[message as keyof typeof alert][1]
-    });
-    emit('updateItem', props.candId)
-    url.value = ''
-  } catch (error) {
-    console.log(error);
-  }
-};
-    
-async function deleteCheck() {
-  if (confirm("Вы действительно хотите удалить проверку?")) {
-    try {
-      const response = await axios.get(`${config.appUrl}/check/delete/${props.candId}`, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-      });
-      const { message } = response.data;
-      emit('updateMessage', {
-        attr: message === "reply" ? 'alert-success' : 'alert-warning',
-        text: message === "reply" ? 'Проверка удалена' : 'Проверку с текущим статусом удалить нельзя'
-      });
-      emit('updateItem', props.candId)
-      window.scrollTo(0,0)
-    } catch (error) {
-    console.error(error);
-    }
-  }
-};
-
-async function addCheck() {
-  try {
-    const response = await axios.get(`${config.appUrl}/check/status/${props.candId}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
-    const { message } = response.data;
-    message === "manual" ? url.value = 'new' : url.value = '';
-    emit('updateMessage', {
-      attr: message === "manual" ? 'alert-info' : 'alert-warning',
-      text: message === "manual" ? 'Начата ручная проверка' : 'Проверка кандидата уже начата'
-    });
-  } catch (error) {
-    console.error(error)
-  }
-};
-
-async function cancelCheck() {
-  url.value = '';
-  const response = await axios.get(`${config.appUrl}/resume/status/${props.candId}`, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-  });
-  const { message } = response.data;
-  emit('updateMessage', {
-    attr: message == 'update' ? "alert-success" : "alert-warning",
-    text: message == 'update' ? "Статус обновлен" : "Текущий статус обновить нельзя",
-  });
-  window.scrollTo(0,0)
-}
-
-</script>

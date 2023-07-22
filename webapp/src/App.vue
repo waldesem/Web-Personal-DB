@@ -8,13 +8,15 @@ import config from '@/config';
 onBeforeMount(async () => {
   try {
     const response = await axios.get(`${config.appUrl}/auth`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {Authorization: `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const { user } = response.data;
-    user 
-    ? router.push({ name: 'index', params: { flag: 'new' } }) 
+    const { access_token } = response.data;
+    localStorage.setItem('jwt_token', access_token);
+    access_token 
+    ? router.push({ name: 'index', params: {flag: 'new'} }) 
     : router.push({ name: 'login' });
-  } catch {
+  } catch (error) {
+    console.error(error)
     router.push({ name: 'login' })
   }
 });
@@ -22,5 +24,5 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <router-view></router-view>
+  <router-view/>
 </template>

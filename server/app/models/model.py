@@ -1,9 +1,15 @@
 from datetime import datetime
 from enum import Enum
+import logging
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import SQLAlchemyError
+
 
 db = SQLAlchemy()
+
+def default_time():
+    return datetime.now()
 
 
 class Roles(Enum):
@@ -29,6 +35,19 @@ class Status(Enum):
     error = 'Ошибка'
 
 
+class Decisions(Enum):
+    AGREED = 'СОГЛАСОВАНО'
+    WITH_COMMENT = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
+    DENIED = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
+    CANCELED = 'ОТМЕНЕНО'
+    
+
+class Category(Enum):
+
+    candidate = 'Кандидат'
+    other = 'Проверяемый'
+
+
 class User(db.Model):
     """ Create model for users"""
 
@@ -38,7 +57,7 @@ class User(db.Model):
     fullname = db.Column(db.String(250))
     username = db.Column(db.String(250), unique=True)
     password = db.Column(db.LargeBinary)
-    pswd_create = db.Column(db.DateTime, default=datetime.now())
+    pswd_create = db.Column(db.DateTime, default=default_time)
     pswd_change = db.Column(db.DateTime)
     last_login = db.Column(db.DateTime)
     blocked = db.Column(db.Boolean(), default=False)
@@ -48,7 +67,9 @@ class User(db.Model):
     def has_role(self, role):
         return self.role == role
     
-
+    def has_blocked(self):
+        return self.blocked
+    
 class Message(db.Model):
     """ Create model for message"""
 
@@ -57,43 +78,55 @@ class Message(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     message = db.Column(db.Text)
     status = db.Column(db.String(250), default=Status.new.value)
-    create = db.Column(db.DateTime, default=datetime.now())
+    create = db.Column(db.DateTime, default=default_time)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
-class Candidate(db.Model):  # модель анкетных данных
-    """ Create model for candidates dates"""
+class Person(db.Model):
+    """ Create model for persons dates"""
 
-    __tablename__ = 'candidates'
+    __tablename__ = 'persons'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    category = db.Column(db.String(250), default=Category.candidate.value)
     region = db.Column(db.String(250))
-    fullname = db.Column(db.String(250), index=True)
+    fullname = db.Column(db.String(250), nullable=False, index=True)
     previous = db.Column(db.String(250))
-    birthday = db.Column(db.Date, index=True)
+    birthday = db.Column(db.Date, nullable=False, index=True)
     birthplace = db.Column(db.String(250))
     country = db.Column(db.String(250))
     snils = db.Column(db.String(250))
-    inn = db.Column(db.String(250))
+    inn = db.Column(db.String(12))
     education = db.Column(db.String(250))
     addition = db.Column(db.Text)
     status = db.Column(db.String(250), default=Status.new.value)
-    create = db.Column(db.DateTime, default=datetime.now())
-    update = db.Column(db.DateTime)
-    recruiter = db.Column(db.String(250))
-    request_id = db.Column(db.Integer)
-    documents = db.relationship('Document', backref='candidates', cascade="all, delete, delete-orphan")
-    addresses = db.relationship('Address', backref='candidates', cascade="all, delete, delete-orphan")
-    workplaces = db.relationship('Workplace', backref='candidates', cascade="all, delete, delete-orphan")
-    contacts = db.relationship('Contact', backref='candidates', cascade="all, delete, delete-orphan")
-    staffs = db.relationship('Staff', backref='candidates', cascade="all, delete, delete-orphan")
-    checks = db.relationship('Check', backref='candidates', cascade="all, delete, delete-orphan")
-    poligrafs = db.relationship('Poligraf', backref='candidates', cascade="all, delete, delete-orphan")
-    inquiries = db.relationship('Inquiry', backref='candidates', cascade="all, delete, delete-orphan")
-    investigations = db.relationship('Investigation', backref='candidates', cascade="all, delete, delete-orphan")
+    create = db.Column(db.DateTime, default=default_time)
+    update = db.Column(db.DateTime, default=default_time, onupdate=default_time)
+    request_id = db.Column(db.Integer, default=0)
+    documents = db.relationship('Document', backref='persons', cascade="all, delete, delete-orphan")
+    addresses = db.relationship('Address', backref='persons', cascade="all, delete, delete-orphan")
+    workplaces = db.relationship('Workplace', backref='persons', cascade="all, delete, delete-orphan")
+    contacts = db.relationship('Contact', backref='persons', cascade="all, delete, delete-orphan")
+    staffs = db.relationship('Staff', backref='persons', cascade="all, delete, delete-orphan")
+    checks = db.relationship('Check', backref='persons', cascade="all, delete, delete-orphan")
+    poligrafs = db.relationship('Poligraf', backref='persons', cascade="all, delete, delete-orphan")
+    inquiries = db.relationship('Inquiry', backref='persons', cascade="all, delete, delete-orphan")
+    investigations = db.relationship('Investigation', backref='persons', cascade="all, delete, delete-orphan")
+    relations= db.relationship('Relation', backref='persons', cascade="all, delete, delete-orphan")
+    
 
+class Relation(db.Model):
+    """ Create model for relations"""
 
-class Staff(db.Model):  # создаем общий класс должности
+    __tablename__ = 'relations'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    relation = db.Column(db.String(250))
+    relation_id = db.Column(db.Integer)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+    
+
+class Staff(db.Model):
     """ Create model for staff"""
 
     __tablename__ = 'staffs'
@@ -101,10 +134,10 @@ class Staff(db.Model):  # создаем общий класс должност�
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     position = db.Column(db.String(250))
     department = db.Column(db.String(250))
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Document(db.Model):  # модель паспорта
+class Document(db.Model):
     """ Create model for Document dates"""
 
     __tablename__ = 'documents'
@@ -115,10 +148,10 @@ class Document(db.Model):  # модель паспорта
     number = db.Column(db.String(25))
     agency = db.Column(db.String(250))
     issue = db.Column(db.Date)
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Address(db.Model):  # создаем общий класс модель адреса
+class Address(db.Model): 
     """ Create model for addresses"""
 
     __tablename__ = 'addresses'
@@ -126,11 +159,11 @@ class Address(db.Model):  # создаем общий класс модель а
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     view = db.Column(db.String(250))
     region = db.Column(db.String(250))
-    address = db.Column(db.String(250))
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    address = db.Column(db.Text)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Workplace(db.Model):  # создаем общий класс модель рабочих мест
+class Workplace(db.Model):
     """ Create model for workplaces"""
 
     __tablename__ = 'workplaces'
@@ -140,7 +173,7 @@ class Workplace(db.Model):  # создаем общий класс модель 
     workplace = db.Column(db.String(250))
     address = db.Column(db.String(250))
     position = db.Column(db.String(250))
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
 class Contact(db.Model):  # создаем общий класс телефонного номера
@@ -151,11 +184,11 @@ class Contact(db.Model):  # создаем общий класс телефон�
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     view = db.Column(db.String(250))
     contact = db.Column(db.String(250))
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
 class Check(db.Model):  # модель данных проверки кандидатов
-    """ Create model for candidates checks"""
+    """ Create model for persons checks"""
 
     __tablename__ = 'checks'
 
@@ -179,9 +212,9 @@ class Check(db.Model):  # модель данных проверки канди�
     pfo = db.Column(db.Boolean, default=False)
     comments = db.Column(db.Text)
     conclusion = db.Column(db.String(250), default=Status.save.value)
-    deadline = db.Column(db.DateTime, default=datetime.now())
+    deadline = db.Column(db.DateTime, default=default_time, onupdate=default_time)
     officer = db.Column(db.String(250))
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     registries = db.relationship('Registry', backref='checks', cascade="all, delete, delete-orphan")
 
 
@@ -192,7 +225,7 @@ class Registry(db.Model):  # модель данных результаты ПФ
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     comments = db.Column(db.Text)
-    decision = db.Column(db.String(250))
+    decision = db.Column(db.String(250), default=Decisions.AGREED.value)
     deadline = db.Column(db.DateTime, default=datetime.now())
     supervisor = db.Column(db.String(25))
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
@@ -207,8 +240,8 @@ class Poligraf(db.Model):  # модель данных результаты ПФ
     theme = db.Column(db.String(250))
     results = db.Column(db.Text)
     officer = db.Column(db.String(25))
-    deadline = db.Column(db.Date, default=datetime.now())
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    deadline = db.Column(db.Date, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
 class Investigation(db.Model):  # модель данных служебных расследований
@@ -219,12 +252,12 @@ class Investigation(db.Model):  # модель данных служебных �
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     theme = db.Column(db.String(250))
     info = db.Column(db.Text)
-    deadline = db.Column(db.Date, default=datetime.now())
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    deadline = db.Column(db.Date, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
 class Inquiry(db.Model):  # модель данных запросов по работникам
-    """ Create model for candidates inquiries"""
+    """ Create model for persons inquiries"""
 
     __tablename__ = 'inquiries'
 
@@ -232,9 +265,16 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     info = db.Column(db.Text)
     initiator = db.Column(db.String(250))
     source = db.Column(db.String(250))
-    deadline = db.Column(db.Date, default=datetime.now())
-    cand_id = db.Column(db.Integer, db.ForeignKey('candidates.id'))
+    deadline = db.Column(db.Date, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
+
+class TokenBlocklist(db.Model):
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    jti = db.Column(db.String(36), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
+
 
 class Log(db.Model):
     """ Create model for logs"""
@@ -249,8 +289,8 @@ class Log(db.Model):
     status = db.Column(db.String, default=Status.new)
 
     def __init__(self, timestamp, level, message, pathname, lineno):
-            self.timestamp = timestamp
-            self.level = level
-            self.message = message
-            self.pathname = pathname
-            self.lineno = lineno
+        self.timestamp = timestamp
+        self.level = level
+        self.message = message
+        self.pathname = pathname
+        self.lineno = lineno

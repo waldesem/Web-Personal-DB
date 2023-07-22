@@ -21,8 +21,7 @@ class ExcelFile:
             'country': str(self.sheet['T3'].value).strip(),
             'snils': str(self.sheet['U3'].value).strip(),
             'inn': str(self.sheet['V3'].value).strip(),
-            'education': str(self.sheet['X3'].value).strip(),
-            'recruiter': str(self.sheet['E3'].value).strip()
+            'education': str(self.sheet['X3'].value).strip()
         }
         self.passport = {
             'view': 'Паспорт гражданина России',
@@ -53,21 +52,21 @@ class ExcelFile:
         }
 
 
-def resume_data(cand_id, document, addresses, contacts, workplaces, staff):
+def resume_data(person_id, document, addresses, contacts, workplaces, staff):
     objects_to_add = [
-                         Staff(**staff | {'cand_id': cand_id})
+                         Staff(**staff | {'person_id': person_id})
                          for _, value in staff.items() if value
                      ] + [
-                         Document(**document | {'cand_id': cand_id})
+                         Document(**document | {'person_id': person_id})
                          for _, value in document.items() if value
                      ] + [
-                         Address(**address | {'cand_id': cand_id})
+                         Address(**address | {'person_id': person_id})
                          for address in addresses if address['address']
                      ] + [
-                         Contact(**contact | {'cand_id': cand_id})
+                         Contact(**contact | {'person_id': person_id})
                          for contact in contacts if contact['contact']
                      ] + [
-                         Workplace(**work | {'cand_id': cand_id})
+                         Workplace(**work | {'person_id': person_id})
                          for work in workplaces if work['workplace']
                      ]
     db.session.bulk_save_objects(objects_to_add)

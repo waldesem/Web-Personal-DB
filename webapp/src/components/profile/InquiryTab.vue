@@ -1,3 +1,38 @@
+<script setup lang="ts">
+
+import axios from 'axios';
+import { ref } from 'vue';
+import config from '@/config';
+
+const props = defineProps({
+  table: String,
+  candId: String
+});
+
+const emit = defineEmits(['updateMessage', 'updateItem']);
+
+const url = ref('');
+
+async function submitData(event: Event) {
+  try {
+    const formData = new FormData(event.target as HTMLFormElement);
+    const response = await axios.post(`${config.appUrl}/${url.value}/${props.candId}`, formData, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    });
+    const { message } = response.data;
+    emit('updateMessage', {
+      attr: 'alert-success',
+      text: `Запись добавлена для ID ${message}`
+    });
+    emit('updateItem', props.candId);
+    url.value = ''
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+</script>
+
 <template>
   <div class="py-3">
     <template v-if="url">
@@ -38,38 +73,3 @@
     </template>
   </div>
 </template>
-
-<script setup lang="ts">
-
-import axios from 'axios';
-import { ref } from 'vue';
-import config from '@/config';
-
-const props = defineProps({
-  table: String,
-  candId: String
-});
-
-const emit = defineEmits(['updateMessage', 'updateItem']);
-
-const url = ref('');
-
-async function submitData(event: Event) {
-  try {
-    const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${config.appUrl}/${url.value}/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
-    const { message } = response.data;
-    emit('updateMessage', {
-      attr: 'alert-success',
-      text: `Запись добавлена для ID ${message}`
-    });
-    emit('updateItem', props.candId);
-    url.value = ''
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-</script>

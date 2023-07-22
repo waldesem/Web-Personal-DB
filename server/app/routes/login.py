@@ -1,15 +1,22 @@
 from datetime import datetime
 
 import bcrypt
-from flask import jsonify
 from flask_jwt_extended import JWTManager, current_user, \
-    create_access_token, jwt_required, unset_jwt_cookies
+    create_access_token, get_jwt, jwt_required
 
 from . import bp
-from ..models.model import User, db
+from ..models.model import TokenBlocklist, User, db
 from ..models.schema import LoginSchema
 
 jwt = JWTManager()
+
+
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+    jti = jwt_payload["jti"]
+    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+
+    return token is not None
 
 
 @jwt.user_identity_loader
@@ -24,15 +31,16 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
 
 @bp.get('/auth')
-@bp.doc(hide=True)
 @jwt_required()
-def auth():
+@bp.doc(hide=True)
+def auth(): 
     user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-    if user and not user.blocked:
+    if user and not user.has_blocked():
         user.last_login = datetime.now()
         db.session.commit()
-        return {"user": user.username}
-    return {"user": user}
+        access_token = create_access_token(identity=user.username)
+        return {'access_token': access_token}
+    return {access_token: None}
 
 
 @bp.post('/login')
@@ -44,18 +52,23 @@ def login(response):
         if bcrypt.checkpw(response['password'].encode('utf-8'), user.password):
             delta_change = datetime.now() - user.pswd_create
             if user.pswd_change and delta_change.days < 365:
-                access_token = create_access_token(identity=response['username'])
                 user.last_login = datetime.now()
                 db.session.commit()
-                return {'access': 'Authorized', 'access_token': access_token}
-            return {"access": "Overdue", 'access_token': None}
-    return {"access": "None", 'access_token': None}
+                access_token = create_access_token(identity=user.username)
+                return {'access': 'Authorized', 
+                        'access_token': access_token}
+            return {"access": "Overdue", 
+                    'access_token': None}
+    return {"access": "Denied", 
+            'access_token': None}
 
 
-@bp.get('/logout')
+@bp.delete('/logout')
 @bp.doc(hide=True)
 def logout():
-    unset_jwt_cookies(jsonify({"user": "None"}))
+    jti = get_jwt()["jti"]
+    db.session.add(TokenBlocklist(jti=jti, created_at=datetime.now()))
+    db.session.commit()
     return {'access': 'Default'}
 
 
@@ -69,5 +82,7 @@ def change_password(response):
             setattr(user, 'password', bcrypt.hashpw(response['new_pswd'].encode('utf-8'), bcrypt.gensalt()))
             setattr(user, "pswd_change", datetime.now())
             db.session.commit()
-            return {"access": "Success", 'access_token': None}
-    return {"access": "None", 'access_token': None}
+            return {"access": "Success", 
+                    'access_token': None}
+    return {"access": "Denied", 
+            'access_token': None}

@@ -13,7 +13,7 @@ from app.routes.login import jwt
 
  
 def create_app():
-    app = APIFlask(__name__, title="Web-Personal-DB", version="1.0")
+    app = APIFlask(__name__, title="Web-Personal-DB", version="1.0", docs_ui="redoc")
     app.config.from_pyfile('env.py')
     app.json.sort_keys = False
     CORS(app, supports_credentials=True)
@@ -34,11 +34,11 @@ def create_app():
         if not db.session.query(User).filter_by(username='admin').one_or_none():
             new_admin = User(fullname='Administrator',
                              username='admin',
-                             password=bcrypt.hashpw(b'admin'.encode('utf-8'), bcrypt.gensalt()),
+                             password=bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt()),
                              role = Roles.admin.value)            
             db.session.add(new_admin)
             db.session.commit()
-
+            
     def log_to_database(record):
         log_entry = Log(
             timestamp=record.created,

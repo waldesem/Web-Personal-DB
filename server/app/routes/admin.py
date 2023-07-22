@@ -14,7 +14,6 @@ def admin_required(func):
     @jwt_required()
     def wrapper(*args, **kwargs):
         admin = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
-        print(admin.has_role)
         if admin.has_role('admin'):
             return func(*args, **kwargs)
         else:
@@ -32,6 +31,14 @@ def get_Users():
     return datas
 
 
+@bp.get('/user/profile/<int:user_id>')
+@bp.output(UserSchema)
+@bp.doc(hide=True)
+@admin_required
+def get_user(user_id):
+    return db.session.query(User).get(user_id)
+
+
 @bp.get('/admin/log/<flag>')
 @bp.output(LogSchema)
 @bp.doc(hide=True)
@@ -46,43 +53,47 @@ def log_actions(flag):
     return logs
 
 
-@bp.post('/user/registration')
-@bp.output(UserSchema)
+@bp.post('/user/actions/<action>/<int:user_id>')
 @bp.doc(hide=True)
 @admin_required
-def registration():
+def add_user_info(action, user_id):
     response = request.get_json()
     user = db.session.query(User).filter_by(username=response['username']).one_or_none()
-    if not user:
+    if not user and action == "create":
         new_user = User(fullname=response['fullname'],
                         username=response['username'],
                         password=bcrypt.hashpw(response['username'].encode('utf-8'), bcrypt.gensalt()),
                         role=response['role'])
         db.session.add(new_user)
         db.session.commit()
-    return {'user': bool(user)}
-
-
-@bp.get('/user/<int:user_id>')
-@bp.output(UserSchema)
-@bp.doc(hide=True)
-@admin_required
-def get_user(user_id):
-    return db.session.query(User).filter_by(id=user_id).one_or_none()
-
-
-@bp.get('/user/block/<int:user_id>')
-@bp.doc(hide=True)
-@admin_required
-def block_user(user_id):
-    user = db.session.query(User).filter_by(id=user_id).one_or_none()
-    if user.username != current_user.username:
-        setattr(user, 'blocked', False) if user.blocked else setattr(user, 'blocked', True)
+        return {'user': action}
+    elif action == "edit":
+        user = db.session.query(User).get(user_id)
+        for k, v in response.items():
+            setattr(user, k, v)
         db.session.commit()
-        return {'blocked': user.blocked}
-    return ''
+        return {'user': action}
+    else:
+        return {'user': 'none'}
 
 
+@bp.get('/user/actions/<action>/<int:user_id>')
+@bp.doc(hide=True)
+@admin_required
+def edit_user_info(action, user_id):
+    user = db.session.query(User).get(user_id)
+    if user.username != current_user.username:
+        if action == 'block':
+            setattr(user, 'blocked', False) if user.blocked else setattr(user, 'blocked', True)
+            db.session.commit()
+            return {'user': str(user.blocked)}
+        else:
+            db.session.delete(user)
+            db.session.commit()
+            return {'user': action}
+    return {'user': 'None'}
+    
+    
 @bp.get('/status')
 @bp.doc(hide=True)
 def get_status():
