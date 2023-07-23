@@ -1,15 +1,23 @@
-# Web-Personal-DB
+# StaffSec
 
-Web-Personal-DB is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
+StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 
 ### The main technology stack used in this project includes:
 
-- Python (Flask, APIFlask, SQLAlchemy, Marshmallow, APScheduler, Melodramatiq)
-- Vue3;
-- Bootstrap 5 (journal theme)
+- Python;
+- Flask (APIFlask) as the web server;:
+- Flask-JWT-Extended for authorization;, 
+- Flask-SQLAlchemy (SQLAlchemy) as ORM technique;
+- Flask-Marshmallow (Marshmallow) as validation and serialization techniques;
+- Vue3 as the frontend;
+- Bootstrap 5 as the UI framework.
 
 ### Installation
-To use this project, you will need to have Python 3.8 or higher installed on your local machine. You can follow the instructions here to install Python if you don't have it already.
+To use this project, you will need to have Python 3.10 or higher installed on your local machine. You must install Python if you don't have it already.
+Check your Python version with the following command:
+```
+python3 --version
+```
 
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
@@ -68,9 +76,9 @@ To start development node server, run the following command in your terminal:
 ```
 npm run serve
 ```
-To build the TypeScript code, run the following command in your terminal:
+To build the TypeScript code in the static directory, run the following command in your terminal:
 ```
-npm run build
+npm run build -- --dest ../server/app/static
 ```
 This will compile the TypeScript code and output the JavaScript and CSS files in the static directory named "dist".
 
