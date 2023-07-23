@@ -5,10 +5,10 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 ### The main technology stack used in this project includes:
 
 - Python;
-- Flask (APIFlask) as the web server;:
-- Flask-JWT-Extended for authorization;, 
-- Flask-SQLAlchemy (SQLAlchemy) as ORM technique;
-- Flask-Marshmallow (Marshmallow) as validation and serialization techniques;
+- Flask (APIFlask) as the web server;
+- Flask-JWT-Extended for authorization;,
+- Flask-SQLAlchemy (SQLAlchemy) as ORM and database;
+- Flask-Marshmallow (Marshmallow) as validation and serialization of data;
 - Vue3 as the frontend;
 - Bootstrap 5 as the UI framework.
 
