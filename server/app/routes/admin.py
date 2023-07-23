@@ -5,8 +5,9 @@ from flask import request, abort
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user
 
 from . import bp
-from app.models.model import db, User, Log, Status
-from app.models.schema import LogSchema, UserSchema
+from ..models.model import db, User, Log, Status
+from ..models.schema import LogSchema, UserSchema
+from ..models.classify import Roles
 
 
 def admin_required(func):
@@ -14,7 +15,7 @@ def admin_required(func):
     @jwt_required()
     def wrapper(*args, **kwargs):
         admin = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
-        if admin.has_role('admin'):
+        if admin.has_role(Roles.admin.value):
             return func(*args, **kwargs)
         else:
             abort(403)
@@ -44,12 +45,16 @@ def get_user(user_id):
 @bp.doc(hide=True)
 @admin_required
 def log_actions(flag):
-    logs = db.session.query(Log).filter_by(status=Status.new.value).all()
-    if flag == 'read':
+    logs = db.session.query(Log).filter_by(status=Status.new.value).limit(100).all()
+    if flag == 'reply':
         for log in logs:
             setattr(log, 'status', Status.reply.value)
         db.session.commit()
-        logs = db.session.query(Log).filter_by(status=Status.new.value).all()
+        logs = db.session.query(Log).filter_by(status=Status.new.value).limit(100).all()
+    elif flag == 'delete':
+        db.session.delete(logs)
+        db.session.commit()
+        logs = db.session.query(Log).filter_by(status=Status.new.value).limit(100).all()
     return logs
 
 
@@ -62,6 +67,7 @@ def add_user_info(action, user_id):
     if not user and action == "create":
         new_user = User(fullname=response['fullname'],
                         username=response['username'],
+                        location = response['location'],
                         password=bcrypt.hashpw(response['username'].encode('utf-8'), bcrypt.gensalt()),
                         role=response['role'])
         db.session.add(new_user)
@@ -93,8 +99,3 @@ def edit_user_info(action, user_id):
             return {'user': action}
     return {'user': 'None'}
     
-    
-@bp.get('/status')
-@bp.doc(hide=True)
-def get_status():
-    return {i.name: i.value for i in Status}

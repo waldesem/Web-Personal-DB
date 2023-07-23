@@ -11,11 +11,12 @@ from werkzeug.exceptions import BadRequest
 from . import bp
 
 from ..utils.excel import ExcelFile, resume_data, BASE_PATH
-from ..models.model import Roles, User, db, Person, Staff, Document, Address, Contact, Workplace, \
+from ..models.model import User, db, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Message, Category
 from ..models.schema import MessagesSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
             InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
+from ..models.classify import Roles, Status, Conclusions, Decisions, Category, Location
 
 bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
@@ -40,20 +41,36 @@ def main(path=''):
     else:
         return bp.send_static_file('index.html')
 
+    
+@bp.get('/classify')
+@bp.doc(hide=True)
+def get_classify():
+    clasify = [{i.name: i.value for i in Status}, 
+            {i.name: i.value for i in Roles}, 
+            {i.name: i.value for i in Location}, 
+            {i.name: i.value for i in Conclusions}, 
+            {i.name: i.value for i in Decisions}, 
+            {i.name: i.value for i in Category}]
+    return clasify
+
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
 @bp.doc(hide=True)
 @jwt_required()
 def index(flag, page):
     pagination = 12
+    locate = db.session.query(User.location).filter_by(username=current_user.username).one_or_none()
     match flag:
         case 'main':
-            query = db.session.query(Person).order_by(Person.id.desc()). \
-                paginate(page=page, per_page=pagination, error_out=False)
+            if locate == Location.main.value:
+                query = db.session.query(Person).order_by(Person.id.desc()). \
+                    paginate(page=page, per_page=pagination, error_out=False)
+            else:
+                query = db.session.query(Person).filter_by(region=locate).order_by(Person.id.desc()). \
+                    paginate(page=page, per_page=pagination, error_out=False)
         case 'new':
-            query = db.session.query(Person).filter(Person.status.in_(
-                [Status.new.value, Status.update.value]
-                ), Person.category == Category.candidate.value).\
+            query = db.session.query(Person).filter(Person.status.in_([Status.new.value, Status.update.value]), 
+                                                    Person.region == locate).\
                     order_by(Person.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
         case 'officer': 
             query = db.session.query(Person).filter(Person.status.notin_(
@@ -62,23 +79,34 @@ def index(flag, page):
                         paginate(page=page, per_page=pagination, error_out=False)
         case 'search':
             search = request.get_json()
-            query = db.session.query(Person).filter(
+            if locate == Location.main.value:
+                query = db.session.query(Person).filter(
+                    or_(Person.fullname.ilike('%{}%'.format(search['fullname'])), search['fullname'] == ''),
+                    or_(Person.birthday.ilike('%{}%'.format(search['birthday'])), search['birthday'] == ''),
+                    ).order_by(Person.id.asc()).\
+                        paginate(page=page, per_page=pagination, error_out=False)
+            else:
+                query = db.session.query(Person).filter(
                 or_(Person.fullname.ilike('%{}%'.format(search['fullname'])), search['fullname'] == ''),
-                or_(Person.birthday.ilike('%{}%'.format(search['birthday'])), search['birthday'] == '')
-                ).order_by(Person.id.asc()).paginate(page=page, per_page=pagination, error_out=False)
+                or_(Person.birthday.ilike('%{}%'.format(search['birthday'])), search['birthday'] == ''),
+                Person.region == locate).order_by(Person.id.asc()).\
+                    paginate(page=page, per_page=pagination, error_out=False)
+    
     resume_schema = PersonSchema()
     datas = resume_schema.dump(query, many=True)
     has_next, has_prev = int(query.has_next), int(query.has_prev)
-    return [datas, {'has_next': has_next, "has_prev": has_prev}], 200
+    
+    return [datas, {'has_next': has_next, "has_prev": has_prev}]
 
 
 @bp.get('/persons/new')
 @bp.doc(hide=True)
 @jwt_required()
 def get_counts():
+    locate = db.session.query(User.location).filter_by(username=current_user.username).one_or_none()
     news = db.session.query(func.count(Person.id)).filter(Person.status.in_(
         [Status.new.value, Status.update.value]
-        ), Person.category == Category.candidate.value).scalar()
+        ), Person.category == Category.candidate.value, Person.location == locate).scalar()
     return {'news': news if news else 0}
 
 
@@ -88,13 +116,12 @@ def get_counts():
 @jwt_required()
 def get_messages(flag):
     messages = db.session.query(Message).filter(Message.status == Status.new.value,
-                                                Message.user_id == current_user.id).all()
+                                                Message.user_id == current_user.id).limit(12).all()
     if flag == 'reply':
-        for resp in messages:
-            setattr(resp, 'status', Status.reply.value)
+        db.session.delete(messages)
         db.session.commit()
         messages = []
-    return dict(messages=messages)
+    return messages
 
 
 @bp.get('/profile/<int:person_id>')
@@ -102,21 +129,26 @@ def get_messages(flag):
 @bp.output(ProfileSchema)
 @jwt_required()
 def get_profile(person_id):
-    checks_list = db.session.query(Check).filter_by(person_id=person_id).order_by(Check.id.asc()).all()
-    return dict(
+    locate = db.session.query(User.location).filter_by(username=current_user.username).one_or_none()
+    if locate == Location.main.value:
         resume = db.session.query(Person).filter_by(id=person_id).all(),
-        documents = db.session.query(Document).filter_by(person_id=person_id).order_by(Document.person_id.asc()).all(),
-        addresses = db.session.query(Address).filter_by(person_id=person_id).order_by(Address.id.asc()).all(),
-        contacts = db.session.query(Contact).filter_by(person_id=person_id).order_by(Contact.id.asc()).all(),
-        workplaces = db.session.query(Workplace).filter_by(person_id=person_id).order_by(Workplace.id.asc()).all(),
-        staffs = db.session.query(Staff).filter_by(person_id=person_id).order_by(Staff.id.asc()).all(),
-        relations = db.session.query(Relation).filter_by(person_id=person_id).order_by(Relation.id.asc()).all(),
-        checks = checks_list,
-        registries = [db.session.query(Registry).filter_by(check_id=check.id).first() for check in checks_list],
-        pfos = db.session.query(Poligraf).filter_by(person_id=person_id).order_by(Poligraf.id.asc()).all(),
-        invs = db.session.query(Investigation).filter_by(person_id=person_id).order_by(Investigation.id.asc()).all(),
-        inquiries = db.session.query(Inquiry).filter_by(person_id=person_id).order_by(Inquiry.id.asc()).all(),
-    )
+    else:
+        resume = db.session.query(Person).filter(Person.id == person_id, Person.region == locate).all(),
+    documents = db.session.query(Document).filter_by(person_id=person_id).order_by(Document.person_id.asc()).all(),
+    addresses = db.session.query(Address).filter_by(person_id=person_id).order_by(Address.id.asc()).all(),
+    contacts = db.session.query(Contact).filter_by(person_id=person_id).order_by(Contact.id.asc()).all(),
+    workplaces = db.session.query(Workplace).filter_by(person_id=person_id).order_by(Workplace.id.asc()).all(),
+    staffs = db.session.query(Staff).filter_by(person_id=person_id).order_by(Staff.id.asc()).all(),
+    relations = db.session.query(Relation).filter_by(person_id=person_id).order_by(Relation.id.asc()).all(),
+    checks = db.session.query(Check).filter_by(person_id=person_id).order_by(Check.id.asc()).all(),
+    registries = [db.session.query(Registry).filter_by(check_id=check.id).first() for check in checks],
+    pfos = db.session.query(Poligraf).filter_by(person_id=person_id).order_by(Poligraf.id.asc()).all(),
+    invs = db.session.query(Investigation).filter_by(person_id=person_id).order_by(Investigation.id.asc()).all(),
+    inquiries = db.session.query(Inquiry).filter_by(person_id=person_id).order_by(Inquiry.id.asc()).all(),
+
+    return {'resume': resume, 'documents': documents, 'addresses': addresses, 'contacts': contacts, 
+            'workplaces': workplaces, 'staffs': staffs, 'relations': relations, 'checks': checks, 
+            'registries': registries, 'pfos': pfos, 'invs': invs, 'inquiries': inquiries}
 
 
 @bp.post('/resume/create')
@@ -219,6 +251,19 @@ def create_relation(person_id, response):
     return ''
 
 
+@bp.get('/resume/status/<int:person_id>')
+@bp.doc(hide=True)
+@jwt_required()
+def patch_status(person_id: int):
+    person = Person.query.get(person_id)
+    if person and person.status not in [Status.result.value, Status.poligraf.value]:
+        person.status = Status.update.value
+        db.session.commit()
+        return {"message": Status.update.name}
+    else:
+        return {"message": Status.error.name}
+
+
 @bp.get('/resume/send/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
@@ -251,23 +296,10 @@ def send_resume(person_id):
     return {'message': Status.cancel.name}
 
 
-@bp.get('/resume/status/<int:person_id>')
-@bp.doc(hide=True)
-@jwt_required()
-def patch_status(person_id: int):
-    person = Person.query.get(person_id)
-    if person and person.status not in [Status.result.value, Status.poligraf.value]:
-        person.status = Status.update.value
-        db.session.commit()
-        return {"message": Status.update.name}
-    else:
-        return {"message": Status.error.name}
-
-
 @bp.get('/check/status/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
-def status_check(person_id):
+def add_check(person_id):
     person = Person.query.get(person_id)
     if person.status == Status.new.value or person.status == Status.update.value:
         person.status = Status.manual.value
@@ -329,7 +361,7 @@ def delete_check(person_id):
 @jwt_required()
 def post_registry(person_id, resp):
     user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-    if not user.has_role(Roles.superuser.value):
+    if user.has_role(Roles.superuser.value):
         check_id = db.session.query(Check.id).filter_by(person_id=person_id).order_by(Check.id.desc()).one_or_none()
         reg = {'check_id': check_id, 'supervisor': current_user.username} | resp
         person = Person.query.get(person_id)
@@ -391,14 +423,18 @@ def post_inquiry(person_id, response):
 @jwt_required()
 def post_information():
     period = request.get_json()
+    locate = db.session.query(User.location).filter_by(username=current_user.username).one_or_none()
+
     candidates = db.session.query(Registry.decision, func.count(Registry.id)).group_by(Registry.decision). \
-        filter(Registry.deadline.between(period['start'], period['end'])).all()
+        filter(Registry.deadline.between(period['start'], period['end'])).\
+            join(Person.region).filter(Person.region == locate).all()
+    
     pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme). \
-        filter(Poligraf.deadline.between(period['start'], period['end'])).all()
-    return {
-        "candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
-        "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))
-        }
+        filter(Poligraf.deadline.between(period['start'], period['end'])).\
+            join(Person.region).filter(Person.region == locate).all()
+    
+    return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
+            "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))}
 
 
 @bp.errorhandler(BadRequest)

@@ -1,9 +1,8 @@
 from datetime import datetime
-from enum import Enum
-import logging
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import SQLAlchemyError
+
+from .classify import Category, Decisions, Location, Status
 
 
 db = SQLAlchemy()
@@ -12,48 +11,13 @@ def default_time():
     return datetime.now()
 
 
-class Roles(Enum):
-
-    admin = 'admin'
-    superuser = 'superuser'
-    user = 'user'
-    api = 'api'
-
-
-class Status(Enum):
-
-    new = 'Новый'
-    update = 'Обновлен'
-    manual = 'Проверка'
-    save = "Сохранен"
-    robot = 'Робот'
-    reply = 'Обработан'
-    poligraf = 'ПФО'
-    result = 'Результат'
-    finish = 'Окончено'
-    cancel = 'Отмена'
-    error = 'Ошибка'
-
-
-class Decisions(Enum):
-    AGREED = 'СОГЛАСОВАНО'
-    WITH_COMMENT = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
-    DENIED = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
-    CANCELED = 'ОТМЕНЕНО'
-    
-
-class Category(Enum):
-
-    candidate = 'Кандидат'
-    other = 'Проверяемый'
-
-
 class User(db.Model):
     """ Create model for users"""
 
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    location = db.Column(db.Enum(Location))
     fullname = db.Column(db.String(250))
     username = db.Column(db.String(250), unique=True)
     password = db.Column(db.LargeBinary)
@@ -69,7 +33,8 @@ class User(db.Model):
     
     def has_blocked(self):
         return self.blocked
-    
+
+
 class Message(db.Model):
     """ Create model for message"""
 
@@ -89,7 +54,7 @@ class Person(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     category = db.Column(db.String(250), default=Category.candidate.value)
-    region = db.Column(db.String(250))
+    region = db.Column(db.Enum(Location), nullable=False)
     fullname = db.Column(db.String(250), nullable=False, index=True)
     previous = db.Column(db.String(250))
     birthday = db.Column(db.Date, nullable=False, index=True)
@@ -113,7 +78,8 @@ class Person(db.Model):
     inquiries = db.relationship('Inquiry', backref='persons', cascade="all, delete, delete-orphan")
     investigations = db.relationship('Investigation', backref='persons', cascade="all, delete, delete-orphan")
     relations= db.relationship('Relation', backref='persons', cascade="all, delete, delete-orphan")
-    
+    additions = db.relationship('Addition', backref='persons', cascade="all, delete, delete-orphan")
+
 
 class Relation(db.Model):
     """ Create model for relations"""
@@ -225,7 +191,7 @@ class Registry(db.Model):  # модель данных результаты ПФ
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     comments = db.Column(db.Text)
-    decision = db.Column(db.String(250), default=Decisions.AGREED.value)
+    decision = db.Column(db.String(250), default=Decisions.agreed.value)
     deadline = db.Column(db.DateTime, default=datetime.now())
     supervisor = db.Column(db.String(25))
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
@@ -244,7 +210,7 @@ class Poligraf(db.Model):  # модель данных результаты ПФ
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Investigation(db.Model):  # модель данных служебных расследований
+class Investigation(db.Model):
     """ Create model for ivestigation"""
 
     __tablename__ = 'investigations'
@@ -256,7 +222,7 @@ class Investigation(db.Model):  # модель данных служебных �
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Inquiry(db.Model):  # модель данных запросов по работникам
+class Inquiry(db.Model):
     """ Create model for persons inquiries"""
 
     __tablename__ = 'inquiries'
@@ -268,6 +234,17 @@ class Inquiry(db.Model):  # модель данных запросов по ра
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
+
+class Addition(db.Model):
+    """ Create model for persons additions"""
+
+    __tablename__ = 'additions'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    info = db.Column(db.Text)
+    deadline = db.Column(db.Date, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+
 
 class TokenBlocklist(db.Model):
 

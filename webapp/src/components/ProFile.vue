@@ -73,6 +73,7 @@ async function getProfile(id=data.value.candId) {
   if (id === '0') {
     updateMessage({attr: 'alert-info', text: 'Заполните форму'})
     data.value.header = 'Новая анкета'
+    return
   } else {
     const response = await axios.get(`${config.appUrl}/profile/${id}`, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}

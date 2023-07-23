@@ -23,21 +23,20 @@ async function getCandidates(url: string, page=1) {
   data.value.currentPage = page;
   data.value.currentPath = url;
   let response
+  const headers = {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+  }
   try {
     if (url !== 'search') {
       data.value.fullname = '';
       data.value.birthday = '';
-      response = await axios.get(`${config.appUrl}/index/${url}/${page}`, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-      });
+      response = await axios.get(`${config.appUrl}/index/${url}/${page}`, headers);
     } else {
       response = await axios.post(`${config.appUrl}/index/search/${page}`, 
       {
         "fullname": data.value.fullname, 
         "birthday": data.value.birthday
-      }, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-      })
+      }, headers)
     }
     const [ datas, metadata ] = response.data;
     Object.assign(data.value, {

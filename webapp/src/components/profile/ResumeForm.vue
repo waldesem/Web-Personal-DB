@@ -46,19 +46,14 @@ onBeforeRouteLeave((to, from) => {
         </select>
       </div>
     </div>
-    <div class="mb-3 row">
+    <!--div class="mb-3 row">
     <label class="col-form-label col-lg-2" for="region">Регион</label>
       <div class="col-lg-10">
-        <select class="form-select" required v-model="resume.region" id="region" name="region">
-          <option value="ГО">ГО</option>
-          <option value="Томск">Томск</option>
-          <option value="РЦ Запад">РЦ Запад</option>
-          <option value="РЦ Юг">РЦ Юг</option>
-          <option value="РЦ Запад">РЦ Запад</option>
-          <option value="РЦ Урал">РЦ Урал</option>
+        <select v-for="(name, value) in config.locations" :key="name" class="form-select" required v-model="resume.region" id="region" name="region">
+          <option :value="value">{{value}}</option>
         </select>
       </div>
-    </div>
+    </div-->
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="fullname">Полное ФИО</label>
       <div class="col-lg-10">

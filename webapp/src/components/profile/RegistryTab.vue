@@ -51,11 +51,8 @@ async function submitData(event: Event) {
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="decision">Решение</label>
           <div class="col-lg-10">
-            <select class="form-select" id="decision" name="decision">
-              <option value="СОГЛАСОВАНО">СОГЛАСОВАНО</option>
-              <option value="СОГЛАСОВАНО С КОММЕНТАРИЕМ">СОГЛАСОВАНО С КОММЕНТАРИЕМ</option>
-              <option value="ОТКАЗАНО В СОГЛАСОВАНИИ">ОТКАЗАНО В СОГЛАСОВАНИИ</option>
-              <option value="ОТМЕНЕНО">ОТМЕНЕНО</option>
+            <select v-for="(name, value) in config.decisions" :key="name" class="form-select" id="decision" name="decision">
+              <option :value="value">{{ value }}</option>
             </select>
           </div>
         </div>

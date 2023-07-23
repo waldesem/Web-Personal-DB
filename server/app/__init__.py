@@ -5,8 +5,9 @@ import bcrypt
 from flask_migrate import Migrate
 from flask_cors import CORS
 
-from app.models.model import User, Log, Roles, db
-from app.models.schema import ma
+from .models.model import User, Log, db
+from .models.classify import Roles
+from .models.schema import ma
 from app.routes.login import jwt
 # from app.scheduler.schedule import scheduler
 # from app.tasks.tasker import broker
@@ -33,25 +34,28 @@ def create_app():
         db.create_all()
         if not db.session.query(User).filter_by(username='admin').one_or_none():
             new_admin = User(fullname='Administrator',
-                             username='admin',
+                             username=Roles.admin.name,
                              password=bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt()),
                              role = Roles.admin.value)            
             db.session.add(new_admin)
             db.session.commit()
-            
-    def log_to_database(record):
-        log_entry = Log(
-            timestamp=record.created,
-            level=record.levelname,
-            message=record.msg,
-            pathname=record.pathname,
-            lineno=record.lineno
-        )
-        db.session.add(log_entry)
-        db.session.commit()
+    
+    class LogFilter(logging.Filter):
+        def filter(self, record):
+            log_entry = Log(
+                timestamp=record.created,
+                level=record.levelname,
+                message=record.msg,
+                pathname=record.pathname,
+                lineno=record.lineno
+            )
+            db.session.add(log_entry)
+            db.session.commit()
+            return True
 
+    log_filter = LogFilter()
+    app.logger.addFilter(log_filter)
     app.logger.addHandler(logging.StreamHandler())
     app.logger.setLevel(logging.WARNING)
-    app.logger.addFilter(log_to_database)
 
     return app

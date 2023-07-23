@@ -56,7 +56,7 @@ onBeforeMount(async () => {
             <label class="col-form-label col-md-1" for="start">Период:</label>
             <div class="col-md-2">
                 <input class="form-control" id="start" name="start" required type="date" v-model="data.start">
-            </div> _
+            </div>
             <div class="col-md-2">
                 <input class="form-control" name="end" required type="date" v-model=data.end>
             </div>

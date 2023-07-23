@@ -218,12 +218,8 @@ async function cancelCheck() {
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="conclusion">Результат</label>
           <div class="col-lg-10">
-            <select class="form-select" id="conclusion" name="conclusion" v-model="check.conclusion">
-              <option value="Без замечаний">Без замечаний</option>
-              <option value="С комментарием">С комментарием</option>
-              <option value="Негатив">Негатив</option>
-              <option value="Отмена">Отмена</option>
-              <option value="Сохранено">Сохранено</option>
+            <select v-for="(name, value) in config.conclusions" :key="name" class="form-select" id="conclusion" name="conclusion" v-model="check.conclusion">
+              <option :value="value">{{ value }}</option>
             </select>
           </div>
         </div>
@@ -248,8 +244,11 @@ async function cancelCheck() {
       <div v-html="table"></div>
       <div class="btn-group" role="group">
         <button @click="deleteCheck" :disabled="config.status && (status === config.status['finish'])" class="btn btn-outline-primary">Удалить проверку</button>
-        <button @click="addCheck" :disabled="config.status && (status !== config.status['new'] && status !== config.status['update'])" class="btn btn-outline-primary">Добавить проверку</button>
-        <button @click="url='edit'" :disabled="config.status && (status !== config.status['save'] && status !== config.status['cancel'] && status !== config.status['manual'])"  class="btn btn-outline-primary">Изменить проверку</button>
+        <button @click="addCheck" :disabled="config.status && (status !== config.status['new'] && 
+                                                               status !== config.status['update'])" class="btn btn-outline-primary">Добавить проверку</button>
+        <button @click="url='edit'" :disabled="config.status && (status !== config.status['save'] && 
+                                                                 status !== config.status['cancel'] && 
+                                                                 status !== config.status['manual'])"  class="btn btn-outline-primary">Изменить проверку</button>
       </div>
     </template>
   </div>

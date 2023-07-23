@@ -13,6 +13,7 @@ const data = ref({
   profile: {
     id: '',
     fullname: '',
+    location: '',
     username: '',
     pswd_create: '',
     pswd_change: '',
@@ -45,7 +46,8 @@ async function submitData(action: String){
   try {  
     const response = await axios.post(`${config.appUrl}/user/actions/${action}/${data.value.user_id}`, {
       'fullname': data.value.profile['fullname'], 
-      'username': data.value.profile['username'], 
+      'username': data.value.profile['username'],
+      'location': data.value.profile['location'],
       'role': data.value.profile['role']
       }, {headers: {
       'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
@@ -106,7 +108,7 @@ async function editUserInfo(action: String) {
   }
 }
 
-async function openLog(flag: string) {
+async function logAction(flag: string) {
   try {
     const response = await axios.get(`${config.appUrl}/admin/log/${flag}`, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
@@ -134,7 +136,7 @@ const count = computed(() => {
 onBeforeMount(async () => {
   try {
     getUsers();
-    openLog('new')
+    logAction('new')
   } catch (error) {
     console.error(error)
     router.push({ name: 'login' })
@@ -157,7 +159,7 @@ onBeforeMount(async () => {
               <a @click="data.actions='create'; data.user_id='0'" class="nav-link active" href="#" >Создать</a>
             </li>
             <li class="nav-item">
-              <a @click="data.actions='logs'" class="nav-link active" href="#">Уведомления
+              <a @click="data.actions='logs'" class="nav-link active" href="#">Сообщения
                 <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{count}}</span>
               </a>
             </li>
@@ -173,6 +175,7 @@ onBeforeMount(async () => {
   <div class="container py-5">
     <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
     <div class="py-5"><h4>{{ header }}</h4></div>
+    
     <!--Users table-->
     <div v-if="data.actions === 'users'">
       <table class="table table-hover table-responsive align-middle">
@@ -198,6 +201,7 @@ onBeforeMount(async () => {
         </tbody>
       </table>
     </div>
+    
     <!--Create new user profile-->
     <div v-if="data.actions === 'create' || data.actions === 'edit'">
       <form @submit.prevent="submitData(data.actions)" class="form form-check" role="form">
@@ -211,7 +215,7 @@ onBeforeMount(async () => {
           <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="username">Учетная запись: </label>
                   <div class="col-lg-4">
-                      <input autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" 
+                      <input :disabled="data.actions === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" 
                         placeholder="Логин без пробелов на латинице" required type="text" v-model="data.profile['username']" pattern="[a-zA-Z]+">
                   </div>
               </div>
@@ -220,6 +224,14 @@ onBeforeMount(async () => {
               <div class="col-lg-4">
                 <select class="form-select" id="role" name="role" v-model="data.profile['role']" required>
                   <option v-for="(value, name) in config.roles" :value=value :key="name" >{{name}}</option>                
+                </select>
+              </div>
+          </div>
+          <div class="mb-3 row required">
+            <label class="col-form-label col-lg-2" for="role">Регион: </label>
+              <div class="col-lg-4">
+                <select class="form-select" id="role" name="role" v-model="data.profile['location']" required>
+                  <option v-for="(value, name) in config.locations" :value=value :key="name" >{{name}}</option>                
                 </select>
               </div>
           </div>
@@ -233,6 +245,7 @@ onBeforeMount(async () => {
           </div>
       </form>
     </div>
+    
     <!--Open user profile-->
     <div v-if="data.actions === 'profile'">
       <table class="table table-responsive" >
@@ -242,6 +255,7 @@ onBeforeMount(async () => {
         <tbody>
           <tr><td width="35%">Имя пользователя</td><td>{{data.profile['fullname'] }}</td></tr>
           <tr><td>Логин</td><td>{{ data.profile['username'] }}</td></tr>
+          <tr><td>Регион</td><td>{{ data.profile['location'] }}</td></tr>
           <tr><td>Создан</td><td>{{ new Date(data.profile['pswd_create']).toLocaleString('ru-RU') }}</td></tr>
           <tr><td>Изменен</td><td>{{ new Date(data.profile['pswd_change']).toLocaleString('ru-RU') }}</td></tr>
           <tr><td>Вход</td><td>{{ new Date(data.profile['last_login']).toLocaleString('ru-RU')}}</td></tr>
@@ -255,6 +269,7 @@ onBeforeMount(async () => {
         <button @click="editUserInfo('delete')" class="btn btn-outline-primary">Удалить</button>
       </div>
     </div>
+    
     <!--Logs table-->
     <div v-if="data.actions === 'logs'">
       <table class="table table-hover table-responsive align-middle">
@@ -279,7 +294,8 @@ onBeforeMount(async () => {
           </tr>
         </tbody>
       </table>
-      <button @click="openLog('read')" class="btn btn-outline-primary" type="button">Отметить прочитанными</button>
+      <button @click="logAction('reply')" class="btn btn-outline-primary" type="button">Отметить прочитанными</button>
+      <button @click="logAction('delete')" class="btn btn-outline-primary" type="button">Удалить всё</button>
     </div>
   </div>
 

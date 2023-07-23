@@ -15,8 +15,7 @@ async function updateMessage(flag = 'new') {
     const response = await axios.get(`${config.appUrl}/messages/${flag}`, {
       headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
     });
-    const { messages } = response.data;
-    data.value.message = messages;
+    data.value.message = response.data;
   } catch (error) {
     console.error(error);
   }
@@ -49,10 +48,10 @@ onMounted(async () => {
                 <span v-if="data.new" class="position-absolute translate-middle badge rounded-pill text-bg-info">{{data.new}}</span></router-link>
             </li>
             <li class="nav-item">
-              <router-link :to="{ name: 'profile', params: {id: '0'}}" class="nav-link active">Создать</router-link>
+              <router-link :to="{ name: 'index', params: {flag: 'officer'} }" class="nav-link active">Кабинет</router-link>
             </li>
             <li class="nav-item">
-              <router-link :to="{ name: 'index', params: {flag: 'officer'} }" class="nav-link active">Кабинет</router-link>
+              <router-link :to="{ name: 'profile', params: {id: '0'}}" class="nav-link active">Создать</router-link>
             </li>
             <li class="nav-item">
               <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
