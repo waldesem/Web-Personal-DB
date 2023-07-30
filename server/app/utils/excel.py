@@ -3,7 +3,6 @@ import openpyxl
 
 from app.models.model import db, Staff, Document, Address, Contact, Workplace
 
-BASE_PATH = r'\\cronosx1\New folder\УВБ\Отдел корпоративной защиты\Персонал\Персонал-3\\'
 
 class ExcelFile:
     """ Create class for import data from excel files"""

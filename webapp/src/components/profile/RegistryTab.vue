@@ -5,9 +5,17 @@ import { ref } from 'vue';
 import config from '@/config';
   
 const props = defineProps({
-  table: String,
+  table: Array as () => Array<TableItem>,
   candId: String
 });
+
+type TableItem = {
+  id: string;
+  comments: string;
+  decision: string;
+  supervisor: string;
+  deadline: Date;
+};
 
 const emit = defineEmits(['updateItem','updateMessage']);
 
@@ -17,7 +25,7 @@ async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
     const response = await axios.post(`${config.appUrl}/registry/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
     });
     const { message } = response.data;
     const alert = {
@@ -51,8 +59,8 @@ async function submitData(event: Event) {
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="decision">Решение</label>
           <div class="col-lg-10">
-            <select v-for="(name, value) in config.decisions" :key="name" class="form-select" id="decision" name="decision">
-              <option :value="value">{{ value }}</option>
+            <select class="form-select" id="decision" name="decision" value="">
+              <option v-for="(name, value) in config.decisions" :key="name"  :value="value">{{ value }}</option>
             </select>
           </div>
         </div>
@@ -69,7 +77,16 @@ async function submitData(event: Event) {
     </template>
 
     <template v-else>
-      <div v-html="table"></div>
+      <table v-if="props.table?.length" v-for="tbl in props.table" class="table table-responsive">
+        <thead><tr><th colspan="2">{{ `#${tbl['id']}` }}</th></tr></thead>
+        <tbody>
+          <tr><td width="25%">Комментарий</td><td>{{ tbl['comments'] }}</td></tr>
+          <tr><td width="25%">Решение</td><td>{{ tbl['decision'] }}</td></tr>
+          <tr><td width="25%">Согласующий</td><td>{{ tbl['supervisor'] }}</td></tr>
+          <tr><td width="25%">Дата</td><td>{{ new Date(tbl['deadline']).toLocaleDateString('ru-RU') }}</td></tr>
+        </tbody>
+      </table>
+      <p v-else >Данные отсутствуют</p>
       <button @click="url = 'registry'" class="btn btn-outline-primary" type="button">Добавить запись</button>
     </template>
   </div>

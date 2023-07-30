@@ -8,12 +8,11 @@ import config from '@/config';
 onBeforeMount(async () => {
   try {
     const response = await axios.get(`${config.appUrl}/auth`, {
-      headers: {Authorization: `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {Authorization: `Bearer ${localStorage.getItem('access_token')}`}
     });
-    const { access_token } = response.data;
-    localStorage.setItem('jwt_token', access_token);
-    access_token 
-    ? router.push({ name: 'index', params: {flag: 'new'} }) 
+    const { access } = response.data;
+    access === "Authorized" 
+    ? router.push({ name: 'index', params: {flag: 'new', page: 1} }) 
     : router.push({ name: 'login' });
   } catch (error) {
     console.error(error)

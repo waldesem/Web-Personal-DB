@@ -20,7 +20,7 @@ const captions = ['Статистика по кандидатам', 'Стати�
 async function submitData() {
   const formData = {'start': data.value.start, 'end': data.value.end};
   const response = await axios.post(`${config.appUrl}/information`, formData, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
   });
   const { candidates, poligraf } = response.data;
   data.value.checks = candidates;

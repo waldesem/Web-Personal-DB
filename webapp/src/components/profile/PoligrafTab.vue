@@ -5,9 +5,17 @@ import { ref } from 'vue';
 import config from '@/config';
 
 const props = defineProps({
-  table: String,
+  table: Array as () => Array<TableItem>,
   candId: String
 });
+
+type TableItem = {
+  id: string;
+  comments: string;
+  decision: string;
+  supervisor: string;
+  deadline: Date;
+};
   
 const emit = defineEmits(['updateMessage', 'updateItem']);
 
@@ -17,7 +25,7 @@ async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
     const response = await axios.post(`${config.appUrl}/${url.value}/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
     });
     const { message } = response.data;
     emit('updateMessage', {
@@ -49,7 +57,7 @@ async function submitData(event: Event) {
           </div>
         </div>
         <div class="mb-3 row required">
-          <label class="col-form-label col-lg-2" for="results">Информация</label>
+          <label class="col-form-label col-lg-2" for="results">Результат</label>
           <div class="col-lg-10">
             <textarea class="form-control" id="results" name="results" required></textarea>
           </div>
@@ -67,7 +75,19 @@ async function submitData(event: Event) {
     </template>
 
     <template v-else>
-      <div v-html="table"></div>
+      <table v-if="props.table?.length" v-for="tbl in props.table" class="table table-responsive">
+        <thead><tr><th colspan="2">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th></tr></thead>
+        <tbody>
+          <tr><td width="25%">Тематика</td><td>{{ tbl['theme' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Результат</td><td>{{ tbl['results' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Полиграфолог</td><td>{{ tbl['officer' as keyof typeof tbl] }}</td></tr>
+          <tr>
+            <td width="25%">Дата</td>
+            <td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).toLocaleDateString('ru-RU') }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else >Данные отсутствуют</p>
       <button @click="url = 'poligraf'" class="btn btn-outline-primary" type="button">Добавить запись</button>
     </template>
   </div>

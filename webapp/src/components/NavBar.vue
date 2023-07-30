@@ -1,30 +1,21 @@
 <script setup lang="ts">
 
 import { ref, onMounted } from 'vue';
-
 import axios from 'axios';
 import config from '@/config';
+import router from '@/router';
+
 
 const data = ref({
   new: '', 
   message: []
 });
 
-async function updateMessage(flag = 'new') {
-  try{
-    const response = await axios.get(`${config.appUrl}/messages/${flag}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
-    data.value.message = response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`${config.appUrl}/persons/new`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+    const response = await axios.get(`${config.appUrl}/news`, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
     });
     const { news } = response.data;
     data.value.new = news;
@@ -34,21 +25,54 @@ onMounted(async () => {
   updateMessage()
 });
 
+
+async function updateMessage(flag = 'new') {
+  try{
+    const response = await axios.get(`${config.appUrl}/messages/${flag}`, {
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+    });
+    data.value.message = response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+async function userLogout(){
+  const response = await axios.delete(`${config.appUrl}/logout`, {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+  });
+  console.log(response.status);
+  
+  const resp = await axios.delete(`${config.appUrl}/logout`, {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`}
+  });
+  console.log(resp.status)
+  
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+
+  router.push({ name: 'login' });
+}
+
 </script>
+
 
 <template>
   <div class="container-fluid">
     <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary">
       <div class="container">
-        <router-link :to="{ name: 'index', params: {flag: 'main'} }" class="nav-link active">StaffSec</router-link>
+        
+        <router-link :to="{ name: 'index', params: {flag: 'main', page: 1} }" class="nav-link active">StaffSec</router-link>
+        
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <router-link :to="{ name: 'index', params: {flag: 'new'} }" class="nav-link active">Кандидаты
+              <router-link :to="{ name: 'index', params: {flag: 'new', page: 1} }" class="nav-link active">Кандидаты
                 <span v-if="data.new" class="position-absolute translate-middle badge rounded-pill text-bg-info">{{data.new}}</span></router-link>
             </li>
             <li class="nav-item">
-              <router-link :to="{ name: 'index', params: {flag: 'officer'} }" class="nav-link active">Кабинет</router-link>
+              <router-link :to="{ name: 'index', params: {flag: 'officer', page: 1} }" class="nav-link active">Кабинет</router-link>
             </li>
             <li class="nav-item">
               <router-link :to="{ name: 'profile', params: {id: '0'}}" class="nav-link active">Создать</router-link>
@@ -72,7 +96,7 @@ onMounted(async () => {
           </ul>                                
         </div>
         <div class="d-flex px-2">
-          <router-link :to="{name: 'login'}" class="nav-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Выход"><i class="bi bi-box-arrow-in-right"></i></router-link>
+          <a @click="userLogout" class="nav-link active" data-bs-toggle="tooltip" data-bs-placement="right" title="Выход"><i class="bi bi-box-arrow-in-right"></i></a>
         </div>
       </div>
     </nav>

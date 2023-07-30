@@ -21,6 +21,11 @@ python3 --version
 
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
+sudo apt install python3-pip
+sudo apt install python3-venv
+cd server
+python3 -m venv env
+source /env/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -82,7 +87,7 @@ npm run build -- --dest ../server/app/static
 ```
 This will compile the TypeScript code and output the JavaScript and CSS files in the static directory named "dist".
 
-### Docker
+### Docker (not tested yet)
 To build the Docker image, open a terminal or command prompt in the directory containing the Dockerfile and run the following command:
 ```
 docker build -t staff_security_api .

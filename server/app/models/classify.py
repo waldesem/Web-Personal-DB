@@ -1,13 +1,9 @@
 from enum import Enum
+import os
 
-
-class Location(Enum):
-    main = 'Главный офис'
-    tomsk = 'Томск'
-    region = 'Регион'
-
-
-class Roles(Enum):
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'Persons'))
+print(BASE_PATH)
+class Role(Enum):
 
     admin = 'admin'
     superuser = 'superuser'

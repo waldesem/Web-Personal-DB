@@ -7,39 +7,30 @@ import config from '@/config';
 const emit = defineEmits(['updateMessage', 'updateItem'])
 
 const props = defineProps({
-  table: String,
+  table: Array as () => Array<TableItem>,
   item: Object,
   candId: String,
   status: String
 });
+
+
+type TableItem = {
+  id: string;
+  comments: string;
+  decision: string;
+  supervisor: string;
+  deadline: Date;
+};
 
 const { item } = toRefs(props);
 const check = item?.value ?? {};
 
 const url = ref('');
 
-async function submitData(event: Event){
-  try {
-    const response = await axios.post(`${config.appUrl}/check/${url.value}/${props.candId}`, check, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-  });
-    const { message } = response.data;
-    const alert = {
-      'save': ['alert-info', 'Проверка сохранена'],
-      'cancel': ['alert-warning', 'Проверка отменена'],
-      'poligraf': ['alert-info', 'Окончено. Назначено проведение ПФО'],
-      'result': ['alert-success', 'Проверка окончена']
-    }
-    emit('updateMessage', {
-      attr: alert[message as keyof typeof alert][0],
-      text: alert[message as keyof typeof alert][1]
-    });
-    emit('updateItem', props.candId)
-    url.value = ''
-  } catch (error) {
-    console.log(error);
-  }
+const headers = {
+  headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
 };
+
 
 async function addCheck() {
   if (props.status === config.status.save || 
@@ -51,9 +42,7 @@ async function addCheck() {
     })
   } else {
     try {
-      const response = await axios.get(`${config.appUrl}/check/status/${props.candId}`, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-      });
+      const response = await axios.get(`${config.appUrl}/check/add/${props.candId}`, headers);
       const { message } = response.data;
       message === "manual" ? url.value = 'new' : url.value = '';
       emit('updateMessage', {
@@ -66,7 +55,31 @@ async function addCheck() {
   }
 };
 
+
+async function submitData(event: Event){
+  try {
+    const response = await axios.post(`${config.appUrl}/check/create/${props.candId}`, check, headers);
+    const { message } = response.data;
+    const alert = {
+      'save': ['alert-info', 'Проверка сохранена'],
+      'cancel': ['alert-warning', 'Проверка отменена'],
+      'poligraf': ['alert-info', 'Окончено. Назначено проведение ПФО'],
+      'result': ['alert-success', 'Проверка окончена']
+    }
     
+    emit('updateMessage', {
+      attr: alert[message as keyof typeof alert][0],
+      text: alert[message as keyof typeof alert][1]
+    });
+
+    emit('updateItem', props.candId)
+    url.value = ''
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
 function deleteCheck() {
   if (props.status === config.status.robot) {
   emit('updateMessage', {
@@ -80,11 +93,21 @@ function deleteCheck() {
   }
 };
 
+async function cancelCheck() {
+  checkDelete();
+  url.value = '';
+  const response = await axios.get(`${config.appUrl}/anketa/status/${props.candId}`, headers);
+  const { message } = response.data;
+  emit('updateMessage', {
+    attr: message == 'update' ? "alert-success" : "alert-warning",
+    text: message == 'update' ? "Статус обновлен" : "Текущий статус обновить нельзя",
+  });
+  window.scrollTo(0,0)
+}
+
 async function checkDelete() {
   try {
-    const response = await axios.get(`${config.appUrl}/check/delete/${props.candId}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
+    const response = await axios.get(`${config.appUrl}/check/delete/${props.candId}`, headers);
     const { message } = response.data;
     emit('updateMessage', {
       attr: message === "reply" ? 'alert-success' : 'alert-warning',
@@ -96,20 +119,6 @@ async function checkDelete() {
   console.error(error);
   }
 };
-
-async function cancelCheck() {
-  checkDelete();
-  url.value = '';
-  const response = await axios.get(`${config.appUrl}/resume/status/${props.candId}`, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-  });
-  const { message } = response.data;
-  emit('updateMessage', {
-    attr: message == 'update' ? "alert-success" : "alert-warning",
-    text: message == 'update' ? "Статус обновлен" : "Текущий статус обновить нельзя",
-  });
-  window.scrollTo(0,0)
-}
 
 </script>
 
@@ -218,8 +227,8 @@ async function cancelCheck() {
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="conclusion">Результат</label>
           <div class="col-lg-10">
-            <select v-for="(name, value) in config.conclusions" :key="name" class="form-select" id="conclusion" name="conclusion" v-model="check.conclusion">
-              <option :value="value">{{ value }}</option>
+            <select class="form-select" id="conclusion" name="conclusion" v-model="check.conclusion">
+              <option v-for="(name, value) in config.conclusions" :key="value" :value="name">{{ name }}</option>
             </select>
           </div>
         </div>
@@ -241,7 +250,33 @@ async function cancelCheck() {
       </form>
     </template>
     <template v-else>
-      <div v-html="table"></div>
+      <table v-if="props.table?.length" v-for="tbl in props.table" class="table table-responsive">
+        <thead><tr><th colspan="2">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th></tr></thead>
+        <tbody>
+          <tr><td width="25%">Проверка по местам работы</td><td>{{ tbl['workplace' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Бывший работник МТСБ</td><td>{{ tbl['employee' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка паспорта</td><td>{{ tbl['document' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка ИНН</td><td>{{ tbl['inn' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка ФССП</td><td>{{ tbl['debt' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка банкротства</td><td>{{ tbl['bankruptcy' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка БКИ</td><td>{{ tbl['bki' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка судебных дел</td><td>{{ tbl['courts' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка аффилированности</td><td>{{ tbl['affiliation' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка по списку террористов</td><td>{{ tbl['terrorist' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка нахождения в розыске</td><td>{{ tbl['mvd' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка в открытых источниках</td><td>{{ tbl['internet' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка Кронос</td><td>{{ tbl['cronos' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Проверка Крос</td><td>{{ tbl['cros' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Дополнительная информация</td><td>{{ tbl['addition' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Материалы проверки</td><td>{{ tbl['path' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">ПФО</td><td>{{ tbl['pfo' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Комментарии</td><td>{{ tbl['comments' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Результат проверки</td><td>{{ tbl['conclusion' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Сотрудник</td><td>{{ tbl['officer' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Дата</td><td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).toLocaleDateString('ru-RU') }}</td></tr>
+        </tbody>
+      </table>
+      <p v-else >Данные отсутствуют</p>
       <div class="btn-group" role="group">
         <button @click="deleteCheck" :disabled="config.status && (status === config.status['finish'])" class="btn btn-outline-primary">Удалить проверку</button>
         <button @click="addCheck" :disabled="config.status && (status !== config.status['new'] && 

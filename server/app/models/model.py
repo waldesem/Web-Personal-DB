@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 
-from .classify import Category, Decisions, Location, Status
+from .classify import Category, Decisions, Status
 
 
 db = SQLAlchemy()
@@ -11,13 +11,23 @@ def default_time():
     return datetime.now()
 
 
+class Region(db.Model):
+    """ Create model for regions"""
+
+    __tablename__ = 'regions'
+    
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    region = db.Column(db.String(250))
+    users = db.relationship('User', backref='users')
+    persons = db.relationship('Person', backref='persons')
+
+
 class User(db.Model):
     """ Create model for users"""
 
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    location = db.Column(db.Enum(Location))
     fullname = db.Column(db.String(250))
     username = db.Column(db.String(250), unique=True)
     password = db.Column(db.LargeBinary)
@@ -26,8 +36,10 @@ class User(db.Model):
     last_login = db.Column(db.DateTime)
     blocked = db.Column(db.Boolean(), default=False)
     role = db.Column(db.String(250))
+    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
     messages = db.relationship('Message', backref='messages', cascade="all, delete, delete-orphan")
-
+    tokens = db.relationship('TokenBlocklist', backref='tokens', cascade="all, delete, delete-orphan")
+    
     def has_role(self, role):
         return self.role == role
     
@@ -47,6 +59,16 @@ class Message(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
+class TokenBlocklist(db.Model):
+    """ Create model for tokens"""
+    
+    __tablename__ = 'tokens'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    jti = db.Column(db.String(36), nullable=False)
+    created_at = db.Column(db.DateTime, default= default_time, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
 class Person(db.Model):
     """ Create model for persons dates"""
 
@@ -54,7 +76,7 @@ class Person(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     category = db.Column(db.String(250), default=Category.candidate.value)
-    region = db.Column(db.Enum(Location), nullable=False)
+    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
     fullname = db.Column(db.String(250), nullable=False, index=True)
     previous = db.Column(db.String(250))
     birthday = db.Column(db.Date, nullable=False, index=True)
@@ -64,6 +86,8 @@ class Person(db.Model):
     inn = db.Column(db.String(12))
     education = db.Column(db.String(250))
     addition = db.Column(db.Text)
+    path = db.Column(db.String(250))
+    photo_path = db.Column(db.String(250))
     status = db.Column(db.String(250), default=Status.new.value)
     create = db.Column(db.DateTime, default=default_time)
     update = db.Column(db.DateTime, default=default_time, onupdate=default_time)
@@ -78,7 +102,9 @@ class Person(db.Model):
     inquiries = db.relationship('Inquiry', backref='persons', cascade="all, delete, delete-orphan")
     investigations = db.relationship('Investigation', backref='persons', cascade="all, delete, delete-orphan")
     relations= db.relationship('Relation', backref='persons', cascade="all, delete, delete-orphan")
-    additions = db.relationship('Addition', backref='persons', cascade="all, delete, delete-orphan")
+
+    def has_status(self, status):
+        return self.status in status
 
 
 class Relation(db.Model):
@@ -178,8 +204,8 @@ class Check(db.Model):  # модель данных проверки канди�
     pfo = db.Column(db.Boolean, default=False)
     comments = db.Column(db.Text)
     conclusion = db.Column(db.String(250), default=Status.save.value)
-    deadline = db.Column(db.DateTime, default=default_time, onupdate=default_time)
     officer = db.Column(db.String(250))
+    deadline = db.Column(db.DateTime, default=default_time, onupdate=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     registries = db.relationship('Registry', backref='checks', cascade="all, delete, delete-orphan")
 
@@ -192,8 +218,8 @@ class Registry(db.Model):  # модель данных результаты ПФ
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     comments = db.Column(db.Text)
     decision = db.Column(db.String(250), default=Decisions.agreed.value)
-    deadline = db.Column(db.DateTime, default=datetime.now())
     supervisor = db.Column(db.String(25))
+    deadline = db.Column(db.DateTime, default=default_time)
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
 
 
@@ -233,24 +259,6 @@ class Inquiry(db.Model):
     source = db.Column(db.String(250))
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-    
-
-class Addition(db.Model):
-    """ Create model for persons additions"""
-
-    __tablename__ = 'additions'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    info = db.Column(db.Text)
-    deadline = db.Column(db.Date, default=default_time)
-    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-
-
-class TokenBlocklist(db.Model):
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    jti = db.Column(db.String(36), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
 
 
 class Log(db.Model):

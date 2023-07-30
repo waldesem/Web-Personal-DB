@@ -10,6 +10,7 @@ import FooterDiv from './FooterDiv.vue';
 const route = useRoute();
 
 const data = ref({
+  regions: {},
   fullname: '',
   birthday: '',
   candidates: [],
@@ -19,49 +20,28 @@ const data = ref({
   currentPath: String(route.params.flag)
 });
 
-async function getCandidates(url: string, page=1) {
-  data.value.currentPage = page;
-  data.value.currentPath = url;
-  let response
-  const headers = {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-  }
-  try {
-    if (url !== 'search') {
-      data.value.fullname = '';
-      data.value.birthday = '';
-      response = await axios.get(`${config.appUrl}/index/${url}/${page}`, headers);
-    } else {
-      response = await axios.post(`${config.appUrl}/index/search/${page}`, 
-      {
-        "fullname": data.value.fullname, 
-        "birthday": data.value.birthday
-      }, headers)
-    }
-    const [ datas, metadata ] = response.data;
-    Object.assign(data.value, {
-      candidates: datas,
-      hasPrev: metadata.has_prev,
-      hasNext: metadata.has_next
-    })
-  } catch (error) {
-    console.error(error);
-  }
-};
 
-async function prevPage() {
-  if (data.value.hasPrev) {
-    data.value.currentPage -= 1;
-    await getCandidates(data.value.currentPath, data.value.currentPage);
-  }
-};
+onBeforeMount(async () => {
+  getCandidates(data.value.currentPath);
+  
+  const resp = await axios.get(`${config.appUrl}/region/list`);
+  const locations = resp.data;
+  data.value.regions = locations.reduce(
+    (acc: {[key: number]: string}, obj: {id: number, region: string}) => {
+    acc[obj.id] = obj.region;
+    return acc;
+    }, {}
+  );
+});
 
-async function nextPage() {
-  if (data.value.hasNext) {
-    data.value.currentPage += 1;
-    await getCandidates(data.value.currentPath, data.value.currentPage);
+
+watch(
+  [() => route.params.flag, () => route.params.page],
+  ([flag, page]) => {
+    getCandidates(flag.toString(), parseInt(page as string));
   }
-};
+);
+
 
 const header = computed(() => {
   const name = {
@@ -73,15 +53,56 @@ const header = computed(() => {
   return name[data.value.currentPath as keyof typeof name]
 });
 
-watch(() => route.params.flag,
-  (pathURL) => {
-    getCandidates(String(pathURL))
-  }
-);
 
-onBeforeMount(async () => {
-  getCandidates(data.value.currentPath)
-});
+async function getCandidates(url: string, page=1) {
+  data.value.currentPage = page;
+  data.value.currentPath = url;
+  let response
+  const headers = {
+    headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+  }
+
+  try {
+    if (url !== 'search') {
+      data.value.fullname = '';
+      data.value.birthday = '';
+      response = await axios.get(`${config.appUrl}/index/${url}/${page}`, headers);
+
+    } else {
+      response = await axios.post(`${config.appUrl}/index/${url}/${page}`, 
+      {
+        "fullname": data.value.fullname, 
+        "birthday": data.value.birthday
+      }, headers)
+    }
+    const [ datas, metadata ] = response.data;
+    Object.assign(data.value, {
+      candidates: datas,
+      hasPrev: metadata.has_prev,
+      hasNext: metadata.has_next
+    })
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+async function prevPage() {
+  if (data.value.hasPrev) {
+    data.value.currentPage -= 1;
+    await getCandidates(data.value.currentPath, data.value.currentPage);
+  }
+};
+
+
+async function nextPage() {
+  if (data.value.hasNext) {
+    data.value.currentPage += 1;
+    await getCandidates(data.value.currentPath, data.value.currentPage);
+  }
+};
+
 
 </script>
 
@@ -128,7 +149,7 @@ onBeforeMount(async () => {
         <tbody>
           <tr height="50px" v-for="candidate in data.candidates" :key="candidate">
             <td>{{ candidate["id" as keyof typeof candidate] }}</td>
-            <td>{{ candidate["region" as keyof typeof candidate] }}</td>
+            <td>{{ data.regions[candidate["region_id" as keyof typeof candidate]] }}</td>
             <td>
               <router-link :to="{ name: 'profile', params: {
                 id: candidate['id' as keyof typeof candidate]

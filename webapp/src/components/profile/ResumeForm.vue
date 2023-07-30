@@ -16,7 +16,7 @@ const resume = toRefs(props).resume?.value ?? {};
 async function submitData(event: Event) {
   try {
     const response = await axios.post(`${config.appUrl}/resume/create`, resume, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
     });
     const { result, person_id } = response.data;
     emit('updateMessage', {
@@ -46,14 +46,6 @@ onBeforeRouteLeave((to, from) => {
         </select>
       </div>
     </div>
-    <!--div class="mb-3 row">
-    <label class="col-form-label col-lg-2" for="region">Регион</label>
-      <div class="col-lg-10">
-        <select v-for="(name, value) in config.locations" :key="name" class="form-select" required v-model="resume.region" id="region" name="region">
-          <option :value="value">{{value}}</option>
-        </select>
-      </div>
-    </div-->
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="fullname">Полное ФИО</label>
       <div class="col-lg-10">

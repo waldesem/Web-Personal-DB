@@ -6,7 +6,8 @@ import config from '@/config';
 
 const props = defineProps({
     candId: String,
-    path: String
+    path: String,
+    regions: Object
 });
   
 const emit = defineEmits(['updateMessage', 'updateItem']);
@@ -15,7 +16,7 @@ async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
     const response = await axios.post(`${config.appUrl}/update/${props.path}/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
     });
     const message = response.status;
     emit('updateMessage', {
@@ -34,7 +35,9 @@ const name = computed(() => {
   'document': 'документ',
   'address': 'адрес',
   'contact': "контакт",
-  'workplace': "место работы"
+  'workplace': "место работы", 
+  'relation': 'связь',
+  'location': 'регион'
   }
   return actionHeader[props.path as keyof typeof actionHeader]
 });
@@ -214,7 +217,23 @@ const name = computed(() => {
               </div>
             </div>
           </form>
-
+          
+          <form v-else-if="path == 'location'" @submit.prevent="submitData" class="form form-check" role="form">
+            <div class="mb-3 row">
+              <label class="col-form-label col-lg-2" for="region">Регион</label>
+              <div class="col-lg-10">
+                <select class="form-select" required value="" id="region" name="region">
+                  <option v-for="name, value in props.regions" :value="value">{{name}}</option>                
+                </select>
+              </div>
+            </div>
+            <div class=" row">
+              <div class="offset-lg-2 col-lg-10">
+                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Изменить">
+              </div>
+            </div>
+          </form>
+    
         </div>
       </div>
     </div>

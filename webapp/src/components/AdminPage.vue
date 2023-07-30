@@ -6,14 +6,16 @@ import config from '@/config';
 import AlertMessage from './AlertMessage.vue';
 import router from '@/router';
 
+
 const data = ref({
-  actions: '',
+  actions: 'create',
   logs: [],
   users: [],
+  regions: [],
   profile: {
     id: '',
     fullname: '',
-    location: '',
+    region_id: 0,
     username: '',
     pswd_create: '',
     pswd_change: '',
@@ -26,33 +28,48 @@ const data = ref({
   text: ''
 });
 
+const headers  = {
+  headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+};
+
+
+onBeforeMount(async () => {
+  const response = await axios.get(`${config.appUrl}/admin/admin`, headers);
+  const { admin } = response.data;
+  if (!admin) {
+    router.push({ name: 'login' })
+  } else {
+    try {
+        Promise.all([
+        getUsers(),
+        logAction('new'),
+        regionList()
+      ])
+    } catch (error) {
+      console.error(error)
+      router.push({ name: 'login' })
+    }
+  }
+});
+
+
 async function getUsers(){
   try {
-    const response = await axios.get(`${config.appUrl}/admin/index`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
-    const datas = response.data;
-    Object.assign(data.value, {
-      users: datas,
-      actions: 'users',
-      user_id: '0'
-    })
+    const response = await axios.get(`${config.appUrl}/admin/index`, headers);
+    data.value.users = response.data;
   } catch (error) {
     console.error(error);
   }
 };
 
-async function submitData(action: String){
+async function submitData(flag: String){
   try {  
-    const response = await axios.post(`${config.appUrl}/user/actions/${action}/${data.value.user_id}`, {
+    const response = await axios.post(`${config.appUrl}/user/update/${flag}/${data.value.user_id}`, {
       'fullname': data.value.profile['fullname'], 
       'username': data.value.profile['username'],
-      'location': data.value.profile['location'],
+      'region_id': data.value.profile['region_id'],
       'role': data.value.profile['role']
-      }, {headers: {
-      'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`
-      }
-    });
+      }, headers);
     const  { user } = response.data;
     const resp = {
       'create': ['alert-success', 'Пользователь успешно создан'],
@@ -61,46 +78,47 @@ async function submitData(action: String){
     }
     data.value.attr = resp[user as keyof typeof resp][0];
     data.value.text = resp[user as keyof typeof resp][1];
-    data.value.actions = user === 'none' ? 'create' : 'users';
+    data.value.actions = user === 'none' ? 'create' : 'create';
     getUsers();
   } catch (error) {
     console.error(error);
   }
 };
 
-async function viewUser(id: string){
+
+async function viewUser(id: String){
+  data.value.actions = 'profile';
   try {
-    const response = await axios.get(`${config.appUrl}/user/profile/${id}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
+    const response = await axios.get(`${config.appUrl}/user/profile/${id}`, headers);
     const datas = response.data;
-    Object.assign(data.value, {
-      profile: datas,
-      actions: 'profile',
-      user_id: datas['id']
-    })
+    data.value.profile = datas;
+    data.value.user_id = datas['id']
   } catch (error) {
     console.error(error);
   }
 };
 
-async function editUserInfo(action: String) {
-  const confirm_title = action == 'delete' ? 'удалить' : 'блокировать/разблокировать'; 
-  if (confirm(`Вы действительно хотите ${confirm_title} пользователя?`)) {
+
+async function editUserInfo(flag: String) {
+  const confirm_title = {
+     'delete': 'окончательно удалить',
+     'block': 'блокировать/разблокировать',
+     'drop': 'сбросить пароль'
+  };  
+  if (confirm(`Вы действительно хотите ${confirm_title[flag as keyof typeof confirm_title]} пользователя?`)) {
     try {
-      const response = await axios.get(`${config.appUrl}/user/actions/${action}/${data.value.user_id}`, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-      });
+      const response = await axios.get(`${config.appUrl}/user/action/${flag}/${data.value.user_id}`, headers);
       const { user } = response.data;
       const resp = {
         'True': ['alert-success', 'Пользователь заблокирован'],
         'False': ['alert-success', 'Пользователь разблокирован'],
         'delete': ['alert-danger', 'Пользователь удалён'],
+        'drop': ['alert-success', 'Пароль пользователя удален'],
         'None': ['alert-danger', 'Возникла ошибка'],
       }
       data.value.attr = resp[user as keyof typeof resp][0];
       data.value.text = resp[user as keyof typeof resp][1];
-      data.value.actions = user !== 'delete' ? 'profile' : 'users';
+      data.value.actions = user !== 'delete' ? 'profile' : 'create';
       user !== 'delete' ? viewUser(data.value.user_id) : getUsers()
     } catch (error) {
       console.error(error);
@@ -108,11 +126,44 @@ async function editUserInfo(action: String) {
   }
 }
 
+
+async function regionList(){
+  const response = await axios.get(`${config.appUrl}/region/list`);
+  const locations  = response.data;
+  data.value.regions = locations.reduce(
+  (acc: {[key: number]: string}, obj: {id: number, region: string}) => {
+  acc[obj.id] = obj.region;
+  return acc;
+  }, {}
+);
+};
+  
+
+async function addRegion() {
+  const response = await axios.post(`${config.appUrl}/region/add`, {
+    'region': data.value.profile['region_id']
+    }, headers);
+  const  { location } = response.data;
+  data.value.attr = location ? 'alert-warning' : 'alert-success' ;
+  data.value.text = location 
+    ? 'При добавлении записи возникла ошибка'
+    : 'Запись добавлена. Для применения изменений необходим перезапуск сервера';
+  regionList();
+};
+
+async function delRegion(id: String) {
+  if (confirm(`Вы действительно хотите удалить регион?`)) {
+    const response = await axios.get(`${config.appUrl}/region/delete/${id}`, headers);
+    const  { location } = response.data;
+    data.value.attr = 'alert-success';
+    data.value.text = `Регион ${location} удален. Перезапустите приложение`;
+    regionList()
+  }
+};
+
 async function logAction(flag: string) {
   try {
-    const response = await axios.get(`${config.appUrl}/admin/log/${flag}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
-    });
+    const response = await axios.get(`${config.appUrl}/logs/${flag}`, headers);
     data.value.logs = response.data;
   } catch (error) {
     console.error(error);
@@ -121,8 +172,8 @@ async function logAction(flag: string) {
 
 const header = computed(() => {
   const actionHeader = {
-  'users': 'Список пользователей',
-  'create': 'Создать пользователя',
+  'create': 'Список пользователей',
+  'region': 'Список регионов',
   'profile': 'Профиль пользователя',
   'logs': "Системные сообщения"
   }
@@ -133,17 +184,8 @@ const count = computed(() => {
   return data.value.logs ? data.value.logs.length : 0
 });
 
-onBeforeMount(async () => {
-  try {
-    getUsers();
-    logAction('new')
-  } catch (error) {
-    console.error(error)
-    router.push({ name: 'login' })
-  }
-});
-
 </script>
+
 
 <template>
   <div class="container-fluid">
@@ -153,13 +195,13 @@ onBeforeMount(async () => {
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a @click="getUsers" class="nav-link active" href="#" >Пользователи</a>
+              <a @click="getUsers(); data.actions = 'create'" class="nav-link active" href="#">Пользователи</a>
             </li>
             <li class="nav-item">
-              <a @click="data.actions='create'; data.user_id='0'" class="nav-link active" href="#" >Создать</a>
+              <a @click="regionList(); data.actions = 'region'" class="nav-link active" href="#" >Регионы</a>
             </li>
             <li class="nav-item">
-              <a @click="data.actions='logs'" class="nav-link active" href="#">Сообщения
+              <a @click="logAction('new'); data.actions = 'logs'" class="nav-link active" href="#">Сообщения
                 <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{count}}</span>
               </a>
             </li>
@@ -176,8 +218,59 @@ onBeforeMount(async () => {
     <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
     <div class="py-5"><h4>{{ header }}</h4></div>
     
+    <!--Create new user profile-->
+    <div v-if="data.actions === 'create' || data.actions === 'edit'" class="py-3">
+      <form @submit.prevent="submitData(data.actions)" class="form form-check" role="form">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="row">
+              <label class="col-form-label col-lg-4" for="fullname">Имя пользователя:</label>
+              <div class="col-lg-8">
+                <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" 
+                  placeholder="Имя пользователя" required type="text" v-model="data.profile['fullname']" pattern="[a-zA-Z ]+">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="row">
+              <label class="col-form-label col-lg-4" for="username">Учетная запись:</label>
+              <div class="col-lg-8">
+                <input :disabled="data.actions === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" 
+                  placeholder="Логин без пробелов на латинице" required type="text" v-model="data.profile['username']" pattern="[a-zA-Z]+">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="row">
+              <label class="col-form-label col-lg-4" for="role">Роль:</label>
+              <div class="col-lg-8">
+                <select class="form-select" id="role" name="role" v-model="data.profile['role']" required>
+                  <option v-for="(value, name) in config.roles" :value=value :key="name">{{name}}</option>                
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="row">
+              <label class="col-form-label col-lg-4" for="region">Регион:</label>
+              <div class="col-lg-8">
+                <select class="form-select" id="region" name="region" v-model="data.profile['region_id']" required>
+                  <option v-for="name, value in data.regions" :value="value">{{name}}</option>                
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-1">
+            <button class="btn btn-outline-primary" name="submit" type="submit">{{data.actions === 'create' ? 'Создать' : 'Изменить'}}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
     <!--Users table-->
-    <div v-if="data.actions === 'users'">
+    <div v-if="data.actions === 'create'" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <thead>
           <tr height="50px">
@@ -202,52 +295,8 @@ onBeforeMount(async () => {
       </table>
     </div>
     
-    <!--Create new user profile-->
-    <div v-if="data.actions === 'create' || data.actions === 'edit'">
-      <form @submit.prevent="submitData(data.actions)" class="form form-check" role="form">
-          <div class="mb-3 row required">
-              <label class="col-form-label col-lg-2" for="fullname">Имя пользователя: </label>
-              <div class="col-lg-4">
-                  <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" 
-                        placeholder="Имя пользователя" required type="text" v-model="data.profile['fullname']" pattern="[a-zA-Z ]+">
-              </div>
-          </div>
-          <div class="mb-3 row required">
-              <label class="col-form-label col-lg-2" for="username">Учетная запись: </label>
-                  <div class="col-lg-4">
-                      <input :disabled="data.actions === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" 
-                        placeholder="Логин без пробелов на латинице" required type="text" v-model="data.profile['username']" pattern="[a-zA-Z]+">
-                  </div>
-              </div>
-          <div class="mb-3 row required">
-            <label class="col-form-label col-lg-2" for="role">Роль: </label>
-              <div class="col-lg-4">
-                <select class="form-select" id="role" name="role" v-model="data.profile['role']" required>
-                  <option v-for="(value, name) in config.roles" :value=value :key="name" >{{name}}</option>                
-                </select>
-              </div>
-          </div>
-          <div class="mb-3 row required">
-            <label class="col-form-label col-lg-2" for="role">Регион: </label>
-              <div class="col-lg-4">
-                <select class="form-select" id="role" name="role" v-model="data.profile['location']" required>
-                  <option v-for="(value, name) in config.locations" :value=value :key="name" >{{name}}</option>                
-                </select>
-              </div>
-          </div>
-          <div class=" row">
-              <div class="offset-lg-2 col-lg-4">
-                <div class="btn-group" role="group">
-                  <button class="btn btn-outline-primary" name="submit" type="submit">{{data.actions === 'create' ? 'Создать' : 'Изменить'}}</button>
-                  <button @click="data.actions='users'" class="btn btn-outline-primary" type="button">Отмена</button>
-              </div>
-              </div>
-          </div>
-      </form>
-    </div>
-    
     <!--Open user profile-->
-    <div v-if="data.actions === 'profile'">
+    <div v-if="data.actions === 'profile' || data.actions === 'edit'">
       <table class="table table-responsive" >
         <thead>
           <tr><th colspan="2"># {{ data.profile['id'] as any }}</th></tr>
@@ -255,7 +304,7 @@ onBeforeMount(async () => {
         <tbody>
           <tr><td width="35%">Имя пользователя</td><td>{{data.profile['fullname'] }}</td></tr>
           <tr><td>Логин</td><td>{{ data.profile['username'] }}</td></tr>
-          <tr><td>Регион</td><td>{{ data.profile['location'] }}</td></tr>
+          <tr><td>Регион</td><td>{{ data.regions[data.profile['region_id']] }}</td></tr>
           <tr><td>Создан</td><td>{{ new Date(data.profile['pswd_create']).toLocaleString('ru-RU') }}</td></tr>
           <tr><td>Изменен</td><td>{{ new Date(data.profile['pswd_change']).toLocaleString('ru-RU') }}</td></tr>
           <tr><td>Вход</td><td>{{ new Date(data.profile['last_login']).toLocaleString('ru-RU')}}</td></tr>
@@ -266,12 +315,51 @@ onBeforeMount(async () => {
       <div class="btn-group py-2" role="group">
         <button @click="editUserInfo('block')" class="btn btn-outline-primary">{{data.profile['blocked'] ? "Разблокировать" : 'Заблокировать' }}</button>
         <button @click="data.actions = 'edit'" class="btn btn-outline-primary">Редактировать</button>
+        <button @click="editUserInfo('drop')" class="btn btn-outline-primary">Сбросить пароль</button>
         <button @click="editUserInfo('delete')" class="btn btn-outline-primary">Удалить</button>
       </div>
     </div>
     
+    <!--Regions table-->
+    <div v-if="data.actions === 'region'" class="py-3">
+      <form @submit.prevent="addRegion" class="form form-check" role="form"> 
+        <div class="row mb-3">
+          <div class="row">
+            <label class="col-form-label col-lg-1" for="region">Регион: </label>
+            <div class="col-lg-9">
+                <input autocomplete="region" class="form-control" minlength="3" maxlength="25" name="region" 
+                      placeholder="Регион" required type="text" v-model="data.profile.region_id">
+            </div>
+            <div class="col-lg-2">
+                <button class="btn btn-outline-primary" name="submit" type="submit">Добавить регион</button>
+            </div>
+          </div>
+        </div>
+      
+      </form>
+
+      <div class="py-3">
+        <table class="table table-hover table-responsive align-middle">
+          <thead>
+            <tr height="50px">
+              <th width="15%">#</th>
+              <th>Регион</th>
+              <th width="25%">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr height="50px" v-for="name, value in data.regions">
+              <td>{{ value }}</td>
+              <td>{{ name }}</td>
+              <td><a class="link-opacity-50" href="#" @click="delRegion(value.toString())">Удалить</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
     <!--Logs table-->
-    <div v-if="data.actions === 'logs'">
+    <div v-if="data.actions === 'logs'" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <thead>
           <tr height="50px">
@@ -294,8 +382,10 @@ onBeforeMount(async () => {
           </tr>
         </tbody>
       </table>
-      <button @click="logAction('reply')" class="btn btn-outline-primary" type="button">Отметить прочитанными</button>
-      <button @click="logAction('delete')" class="btn btn-outline-primary" type="button">Удалить всё</button>
+      <div class="btn-group py-3" role="group">
+        <button @click="logAction('reply')" class="btn btn-outline-primary" type="button">Отметить прочитанными</button>
+        <button @click="logAction('delete')" class="btn btn-outline-primary" type="button">Удалить всё</button>
+      </div>  
     </div>
   </div>
 

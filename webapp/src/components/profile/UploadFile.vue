@@ -15,7 +15,7 @@ async function submitFile(event: Event) {
   if (fileInput && fileInput.files) formData.append('file', fileInput.files[0]);
   try {
     const response = await axios.post(`${config.appUrl}/resume/upload`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
     });
     const { result, person_id } = response.data;
     emit('updateMessage', {
@@ -35,7 +35,7 @@ async function submitFile(event: Event) {
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
       <div class="col-lg-10">
-        <input class="form-control" id="file" type="file" ref="file">
+        <input class="form-control" id="file" type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ref="file">
       </div>
     </div>
   </form>

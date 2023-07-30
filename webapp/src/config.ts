@@ -3,16 +3,15 @@ import axios from 'axios';
 const url = 'http://localhost:5000';
 
 const response = await axios.get(`${url}/classify`);
-const [statuses, roles, locations, conclusions, decisions, categorys] = response.data;
+const [statuses, roles, conclusions, decisions, categories] = response.data;
 
 const config = {
   appUrl: url,
   status: statuses,
   roles: roles,
-  locations: locations,
   conclusions: conclusions,
   decisions: decisions,
-  categorys: categorys,
+  categories: categories,
 }; 
 
 export default config;

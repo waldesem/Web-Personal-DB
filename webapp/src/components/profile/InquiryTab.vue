@@ -5,9 +5,17 @@ import { ref } from 'vue';
 import config from '@/config';
 
 const props = defineProps({
-  table: String,
+  table: Array as () => Array<TableItem>,
   candId: String
 });
+
+type TableItem = {
+  id: string;
+  comments: string;
+  decision: string;
+  supervisor: string;
+  deadline: Date;
+};
 
 const emit = defineEmits(['updateMessage', 'updateItem']);
 
@@ -17,7 +25,7 @@ async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
     const response = await axios.post(`${config.appUrl}/${url.value}/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`}
+      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
     });
     const { message } = response.data;
     emit('updateMessage', {
@@ -68,7 +76,19 @@ async function submitData(event: Event) {
     </template>
 
     <template v-else>
-      <div v-html="table"></div>
+      <table v-if="props.table?.length" v-for="tbl in props.table" class="table table-responsive">
+        <thead><tr><th colspan="2">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th></tr></thead>
+        <tbody>
+          <tr><td width="25%">Информация</td><td>{{ tbl['info' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Иннициатор</td><td>{{ tbl['initiator' as keyof typeof tbl] }}</td></tr>
+          <tr><td width="25%">Источник</td><td>{{ tbl['source' as keyof typeof tbl] }}</td></tr>
+          <tr>
+            <td width="25%">Дата запроса</td>
+            <td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).toLocaleDateString('ru-RU') }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else >Данные отсутствуют</p>
       <a @click="url = 'inquiry'" class="btn btn-outline-primary" type="button">Добавить запись</a>
     </template>
   </div>

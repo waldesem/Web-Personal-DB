@@ -3,7 +3,7 @@ from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
 from ..models.model import Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Message, Log
+    Check, Registry, Poligraf, Investigation, Inquiry, Message, Log, Region
 
 ma = Marshmallow()
 
@@ -11,12 +11,21 @@ class LogSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Log
         ordered = True
-        many = True
         
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for user"""
+    region_id = ma.auto_field()
+
     class Meta:
         model = User
+        ordered = True
+
+
+class LocationSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for location"""
+    class Meta:
+        model = Region 
         ordered = True
 
 
@@ -43,6 +52,9 @@ class MessagesSchema(ma.SQLAlchemySchema):
 
 
 class PersonSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for person"""
+    region_id = ma.auto_field()
+
     class Meta:
         model = Person
         ordered = True
@@ -88,7 +100,7 @@ class CheckSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Check
         ordered = True
-
+        
 
 class InvestigationSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
