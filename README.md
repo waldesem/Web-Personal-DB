@@ -24,8 +24,8 @@ Once you have Python installed, you can install the required Python packages by 
 sudo apt install python3-pip
 sudo apt install python3-venv
 cd server
-python3 -m venv env
-source /env/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -79,13 +79,13 @@ npm i
 ```
 To start development node server, run the following command in your terminal:
 ```
-npm run serve
+npm run dev
 ```
 To build the TypeScript code in the static directory, run the following command in your terminal:
 ```
 npm run build -- --dest ../server/app/static
 ```
-This will compile the TypeScript code and output the JavaScript and CSS files in the static directory named "dist".
+This will compile the TypeScript code and output the JavaScript and CSS files in the static directory.
 
 ### Docker (not tested yet)
 To build the Docker image, open a terminal or command prompt in the directory containing the Dockerfile and run the following command:
