@@ -1,20 +1,31 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue';
-import axios from 'axios';
-import router from './router';
-import config from './config';
+import { appAuth } from '@store/auth';
+import { locationStore } from '@store/location';
+import { appClassify } from '@store/classify';
+import router from '@router/router';
+import server from '@store/server';
+import FooterDiv from './components/FooterDiv.vue';
+
+
+const storeAuth = appAuth()
+const storeLocation = locationStore();
+const classifyApp = appClassify();
 
 
 onBeforeMount(async () => {
   try {
-    const response = await axios.get(`${config.appUrl}/auth`, {
-      headers: {Authorization: `Bearer ${localStorage.getItem('access_token')}`}
-    });
+    const response = await storeAuth.axiosInstance.get(`${server}/auth`);
     const { access } = response.data;
+    
     access === "Authorized" 
-    ? router.push({ name: 'index', params: {flag: 'new', page: 1} }) 
+    ? router.push({ name: 'persons' }) 
     : router.push({ name: 'login' });
+    
+    storeLocation.getRegions();
+    classifyApp.getClassify();
+  
   } catch (error) {
     console.error(error)
     router.push({ name: 'login' })
@@ -23,7 +34,4 @@ onBeforeMount(async () => {
   
 </script>
 
-<template>
-  <router-view/>
-</template>
-./router/router
+<template><router-view/><FooterDiv /></template>

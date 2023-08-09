@@ -43,7 +43,7 @@ def auth():
     return {'access': 'Denied'}
 
 
-@bp.post('/auth/login')
+@bp.post('/login')
 @bp.input(LoginSchema)
 @bp.doc(hide=True)
 def login(response):
@@ -77,7 +77,7 @@ def login(response):
             'access_token': None}
 
 
-@bp.post('/auth/password')
+@bp.post('/password')
 @bp.input(LoginSchema)
 @bp.doc(hide=True)
 def change_password(response):

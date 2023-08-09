@@ -1,7 +1,3 @@
-<template>
-  <div class="alert alert-dismissible" :class="props.attr" role="info">{{props.text}}</div>
-</template>
-
 <script setup lang="ts">
 
 const props = defineProps({
@@ -10,3 +6,9 @@ const props = defineProps({
 });
 
 </script>
+
+<template>
+  <div class="container py-3">
+    <div class="alert" :class="props.attr" role="info" fade show>{{props.text}}</div>
+  </div>
+</template>

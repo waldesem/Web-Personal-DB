@@ -1,8 +1,10 @@
 <script setup lang="ts">
 
-import axios from 'axios';
 import { computed } from 'vue';
-import config from '../../config';
+import server from '@store/server';
+import { appAuth } from '@store/auth';
+
+const storeAuth = appAuth();
 
 const props = defineProps({
     candId: String,
@@ -15,9 +17,7 @@ const emit = defineEmits(['updateMessage', 'updateItem']);
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${config.appUrl}/update/${props.path}/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-    });
+    const response = await storeAuth.axiosInstance.post(`${server}/update/${props.path}/${props.candId}`, formData);
     const message = response.status;
     emit('updateMessage', {
       attr: message === 200 ? "alert-success" : "alert-error",
@@ -49,7 +49,7 @@ const name = computed(() => {
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="modalWinLabel">Добавить {{name}}</h1>
+          <h1 class="modal-title fs-5" id="modalWinLabel">{{name === 'регион' ? 'Изменить регион' : 'Добавить ' + name}}</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -239,3 +239,10 @@ const name = computed(() => {
     </div>
   </div>
 </template>
+
+<style>
+      html,
+      body {
+          scrollbar-gutter: stable;
+      }
+</style>

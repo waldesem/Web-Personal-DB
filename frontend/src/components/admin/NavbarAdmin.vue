@@ -8,7 +8,7 @@
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-                <router-link :to="{ name: 'main', params: {flag: 'main', page: 1} }" class="nav-link active" href="#">Кандидаты</router-link>
+                <router-link :to="{ name: 'main', params: {flag: 'main'} }" class="nav-link active" href="#">Кандидаты</router-link>
             </li>          
             <li class="nav-item">
                 <router-link :to="{ name: 'users' }" class="nav-link active" href="#">Пользователи</router-link>

@@ -243,6 +243,7 @@ class Investigation(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     theme = db.Column(db.String(250))
     info = db.Column(db.Text)
+    officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
@@ -256,6 +257,7 @@ class Inquiry(db.Model):
     info = db.Column(db.Text)
     initiator = db.Column(db.String(250))
     source = db.Column(db.String(250))
+    officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 

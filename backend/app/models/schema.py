@@ -148,7 +148,7 @@ class ResumeSchema(ma.SQLAlchemySchema):
 class ProfileSchema(ma.SQLAlchemySchema):
     """ Create model for rendering profile on page"""
 
-    resume = fields.Nested(PersonSchema, many=True)
+    resume = fields.Nested(PersonSchema)
     documents = fields.Nested(DocumentSchema, many=True)
     addresses = fields.Nested(AddressSchema, many=True)
     contacts = fields.Nested(ContactSchema, many=True)

@@ -1,4 +1,5 @@
 from functools import wraps
+import os
 import bcrypt
 
 from flask import request, abort
@@ -40,7 +41,7 @@ def get_users():
     return datas
 
 
-@bp.get('/users/<int:user_id>')
+@bp.get('/user/<int:user_id>')
 @bp.output(UserSchema)
 @bp.doc(hide=True)
 @admin_required
@@ -48,14 +49,13 @@ def get_user(user_id):
     return db.session.query(User).get(user_id)
 
 
-@bp.post('/users/<int:user_id>/post/<flag>/')
+@bp.post('/user/<flag>')
 @bp.doc(hide=True)
 @admin_required
-def add_user_info(flag, user_id):
+def add_user_info(flag):
     response = request.get_json()
     user = db.session.query(User).filter_by(username=response['username']).one_or_none()
-
-    if not user and flag == "create":
+    if not user:
         new_user = User(fullname=response['fullname'],
                         username=response['username'],
                         region_id = response['region_id'],
@@ -67,7 +67,6 @@ def add_user_info(flag, user_id):
         return {'user': flag}
 
     elif flag == "edit":
-        user = db.session.query(User).get(user_id)
         for k, v in response.items():
             setattr(user, k, v)
         db.session.commit()
@@ -77,10 +76,10 @@ def add_user_info(flag, user_id):
         return {'user': 'none'}
 
 
-@bp.get('/users/<int:user_id>/get/<flag>')
+@bp.get('/user/<int:user_id>/<flag>')
 @bp.doc(hide=True)
 @admin_required
-def edit_user_info(flag, user_id):
+def edit_user_info(user_id, flag):
     user = db.session.query(User).get(user_id)
     if user.username != current_user.username:
         if flag == 'block':
@@ -124,7 +123,7 @@ def log_actions(flag):
     return logs
     
     
-@bp.post('/region')
+@bp.post('/region/add')
 @bp.doc(hide=True)
 @admin_required
 def add_location():
@@ -137,7 +136,7 @@ def add_location():
     return {'location': bool(location)}
 
 
-@bp.get('/region/<int:loc_id>/delete')
+@bp.get('/region/delete/<int:loc_id>')
 @bp.doc(hide=True)
 @admin_required
 def del_location(loc_id):
@@ -147,12 +146,13 @@ def del_location(loc_id):
     return {'location': location.region}
         
         
-@bp.get('/person/<int:person_id>/delete')
+@bp.get('/person/delete/<int:person_id>')
 @bp.doc(hide=True)
 @admin_required
 def del_person(person_id):
     person = db.session.query(Person).filter_by(id=person_id).one_or_none()
     db.session.delete(person)
     db.session.commit()
+    os.rmdir(person.path)
     return {'person': person.fullname}
     

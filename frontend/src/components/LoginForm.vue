@@ -2,9 +2,12 @@
 
 import { ref, computed } from 'vue';
 import axios from 'axios';
-import config from '../config';
-import router from '../router';
+import server from '../store/server';
+import router from '../router/router';
 import AlertMessage from './AlertMessage.vue';
+import { appAuth } from '../store/auth';
+
+const storeAuth = appAuth()
 
 const login = ref({
   username: '',
@@ -31,10 +34,10 @@ async function submitData(path: String) {
   };
     try {
       const response = path === 'password'
-        ? await axios.post(`${config.appUrl}/auth/password`, login.value, {
+        ? await storeAuth.axiosInstance.post(`${server}/password`, login.value, {
           headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
         })
-        : await axios.post(`${config.appUrl}/auth/login`, login.value);
+        : await axios.post(`${server}/login`, login.value);
       const { access, access_token, refresh_token } = response.data;
       data.value.alert = access;
       
@@ -45,7 +48,11 @@ async function submitData(path: String) {
         case "Authorized":
           localStorage.setItem('access_token', access_token);
           localStorage.setItem('refresh_token', refresh_token);
-          router.push({ name: 'index', params: { flag: 'new', page: 1 } });
+          
+          storeAuth.setRefreshToken(refresh_token);
+          storeAuth.setAccessToken(access_token);
+          
+          router.push({ name: 'index'});
           break;
         case "Overdue":
           data.value.path = 'password';
@@ -124,4 +131,3 @@ const attrAndText = computed(() => {
     </div>
   </div>
 </template>
-../router/router

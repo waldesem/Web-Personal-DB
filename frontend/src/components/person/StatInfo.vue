@@ -1,14 +1,18 @@
 <script setup lang="ts">
 
 import { ref, onBeforeMount } from 'vue';
-import axios from 'axios';
-import config from '../config';
-import NavBar from '../components/NavBar.vue';
-import FooterDiv from './FooterDiv.vue';
+import { locationStore } from '../../store/location';
+import { appAuth } from '../../store/auth';
+import server from '../../store/server';
+
+const storeLocation = locationStore();
+
+const storeAuth = appAuth();
 
 const todayDate = new Date();
 
 const data = ref({
+  region: 'all' ? 'Все регионы' : '',
   checks: [], 
   pfo: [],
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toISOString().slice(0,10),
@@ -18,10 +22,8 @@ const data = ref({
 const captions = ['Статистика по кандидатам', 'Статистика по полиграфу'];
 
 async function submitData() {
-  const formData = {'start': data.value.start, 'end': data.value.end};
-  const response = await axios.post(`${config.appUrl}/information`, formData, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-  });
+  const formData = {'start': data.value.start, 'end': data.value.end, 'region': data.value.region};
+  const response = await storeAuth.axiosInstance.post(`${server}/information`, formData);
   const { candidates, poligraf } = response.data;
   data.value.checks = candidates;
   data.value.pfo = poligraf
@@ -34,12 +36,11 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <NavBar />
-  <div class="container py-5">
+  <div class="container py-3">
     <div class="py-5">
-      <h4>Cтатистика за период c {{ data.start }} по {{ data.end }}</h4>
+      <h4>Статистика по региону {{ data.region }} за период c {{ data.start }} по {{ data.end }}</h4>
     </div>
-    <div v-for="(tbl, index) in [data.checks, data.pfo]" class="py-2">
+    <div v-for="(tbl, index) in [data.checks, data.pfo]" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <caption>{{captions[index]}}</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>
@@ -53,6 +54,12 @@ onBeforeMount(async () => {
     <div class="py-5">
       <form @submit.prevent="submitData" class="form form-check" role="form">
           <div class="mb-3 row required">
+            <label class="col-form-label col-md-2" for="region">Регион</label>
+            <div class="col-md-2">
+              <select class="form-select" id="region" name="region" v-model="data.region" required>
+                  <option v-for="name, value in storeLocation.regionsObject" :value="value">{{name}}</option>                
+                </select>
+            </div>
             <label class="col-form-label col-md-1" for="start">Период:</label>
             <div class="col-md-2">
                 <input class="form-control" id="start" name="start" required type="date" v-model="data.start">
@@ -67,5 +74,4 @@ onBeforeMount(async () => {
       </form>
     </div>
   </div>
-  <FooterDiv />
 </template>

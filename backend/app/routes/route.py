@@ -37,10 +37,7 @@ def main(path=''):
 @bp.get('/locations')
 @bp.doc(hide=True)
 def get_locations():
-    query = db.session.query(Region.id, Region.region).all()
-    region_schema = LocationSchema()
-    datas = region_schema.dump(query, many=True)
-    return datas
+    return {rgn[0]: rgn[1] for rgn in db.session.query(Region.id, Region.region).all()}
     
     
 @bp.get('/classify')
@@ -120,7 +117,7 @@ def get_messages(flag):
 @bp.output(ProfileSchema)
 @jwt_required()
 def get_profile(person_id):
-    resume = db.session.query(Person).filter_by(id=person_id).all()
+    resume = db.session.query(Person).filter_by(id=person_id).one_or_none()
     
     documents = db.session.query(Document).filter_by(person_id=person_id).order_by(Document.person_id.asc()).all()
     
@@ -170,13 +167,12 @@ def upload_file():
     person_id, result = add_resume(excel.resume, location_id)
     resume_data(person_id, excel.passport, excel.addresses, excel.contacts, excel.workplaces, excel.staff)
 
-    return {'person_id': person_id, 'result': bool(result)}
+    return {'result': bool(result), 'person_id': person_id}
 
 
 def add_resume(resume: dict, location_id):
     result = db.session.query(Person).filter(Person.fullname.ilike(resume['fullname']),
                                              Person.birthday==resume['birthday']).one_or_none()
-    
     if result:
         resume.update({'status': Status.update.value, 'region_id': location_id})
         for k, v in resume.items():
@@ -190,7 +186,6 @@ def add_resume(resume: dict, location_id):
             if not os.path.isdir(new_path):
                 os.mkdir(new_path)
                 setattr(result, 'path', new_path)
-                db.session.commit()
     else:
         value = Person(**resume | {'region_id': location_id})
         db.session.add(value)
@@ -204,7 +199,7 @@ def add_resume(resume: dict, location_id):
     return [person_id, bool(result)]
 
 
-@bp.post('/profile/<int:person_id>/upload')
+@bp.post('/photo/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def upload_photo(person_id):
@@ -238,13 +233,13 @@ def upload_photo(person_id):
     return {'result': True}
 
 
-@bp.get('/photos/<path:path>') 
+@bp.get('/images/<path:path>') 
 @bp.doc(hide=True)
 def send_photos(path):
     return send_from_directory(path, 'photo.jpeg', mimetype='image/jpeg')
 
 
-@bp.post('/profile/<person_id>/update/staff')
+@bp.post('/update/staff/<person_id>')
 @bp.input(StaffSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -254,7 +249,7 @@ def update_staff(person_id, response):
     return ''
 
 
-@bp.post('/profile/<person_id>/update/document')
+@bp.post('//update/document/<person_id>')
 @bp.input(DocumentSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -264,7 +259,7 @@ def update_document(person_id, resonse):
     return ''
 
 
-@bp.post('/profile/<person_id>/update/contact')
+@bp.post('/update/contact/<person_id>')
 @bp.input(ContactSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -274,7 +269,7 @@ def update_contact(person_id, response):
     return ''
 
 
-@bp.post('/profile/<person_id>/update/workplace')
+@bp.post('/update/workplace/<person_id>')
 @bp.input(WorkplaceSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -284,7 +279,7 @@ def update_workplace(person_id, response):
     return ''
 
 
-@bp.post('/profile/<person_id>/update/address')
+@bp.post('/update/address/<person_id>')
 @bp.input(AddressSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -294,7 +289,7 @@ def update_address(person_id, response):
     return ''
 
 
-@bp.post('/profile/<person_id>/update/relation')
+@bp.post('/update/relation/<person_id>')
 @bp.input(RelationSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -307,7 +302,7 @@ def create_relation(person_id, response):
     return ''
 
 
-@bp.post('/profile/<person_id>/update/location')
+@bp.post('/update/location/<person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def add_region(person_id):
@@ -317,13 +312,35 @@ def add_region(person_id):
     users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
                                           User.region_id == location).all()
     for user in users:
-        db.session.add(Report(message=f'Делегирована анкета {person.fullname} от \
+        db.session.add(Report(report=f'Делегирована анкета {person.fullname} от \
                                {current_user.username}', user_id=user.id))
     db.session.commit()
     return ''
-    
 
-@bp.get('/profile/<int:person_id>/anketa/status')
+
+@bp.delete('/delete/<item>/<int:item_id>')
+@bp.doc(hide=True)
+@jwt_required()
+def delete_item(item, item_id):
+    item_model_map = {
+        'staff': Staff,
+        'relation': Relation,
+        'document': Document,
+        'workplace': Workplace,
+        'address': Address,
+        'contact': Contact
+    }
+    item_model = item_model_map.get(item)
+    if item_model:
+        item_instance = item_model.query.get(item_id)
+        if item_instance:
+            db.session.delete(item_instance)
+            db.session.commit()
+    return ''
+
+
+
+@bp.get('/anketa/status/<int:person_id>/')
 @bp.doc(hide=True)
 @jwt_required()
 def patch_status(person_id: int):
@@ -335,7 +352,7 @@ def patch_status(person_id: int):
     return {"message": Status.error.name.value}
     
 
-@bp.get('/profile/<int:person_id>/anketa/send')
+@bp.get('/anketa/send/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def send_resume(person_id):
@@ -365,7 +382,7 @@ def send_resume(person_id):
         return {'message': Status.error.name}
 
 
-@bp.get('/profile/<int:person_id>/anketa/probe/')
+@bp.get('/anketa/probe/<int:person_id>/')
 @bp.doc(hide=True)
 @jwt_required()
 def send_check(flag, person_id):
@@ -380,7 +397,7 @@ def send_check(flag, person_id):
     return {'message': Status.error.name}
 
 
-@bp.get('/profile/<int:person_id>/check/add')
+@bp.get('/check/add/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def add_check(person_id):
@@ -406,7 +423,7 @@ def folder_check(person_id, fullname):
     return check_path
                              
 
-@bp.post('/profile/<int:person_id>/check/create')
+@bp.post('/check/create/<int:person_id>')
 @bp.input(CheckSchema)
 @bp.doc(hide=True)
 @jwt_required()
@@ -434,7 +451,7 @@ def post_check(person_id: int, response: dict):
         return {'message': Status.poligraf.name if response['pfo'] else Status.result.name}
 
 
-@bp.get('/profile/<int:person_id>/check/delete')
+@bp.get('/check/delete/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def delete_check(person_id):
@@ -448,7 +465,7 @@ def delete_check(person_id):
     return {'message': Status.error.name}
 
 
-@bp.post('/profile/<int:person_id>/registry')
+@bp.post('/registry/<int:person_id>')
 @bp.input(RegistrySchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -483,7 +500,7 @@ def post_registry(person_id, resp):
     return {'message': Status.error.name}
 
 
-@bp.post('/profile/<int:person_id>/poligraf')
+@bp.post('/poligraf/<int:person_id>')
 @bp.input(PoligrafSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
@@ -497,22 +514,22 @@ def post_poligraf(person_id, response):
     return {'message': person_id}
 
 
-@bp.post('/profile/<int:person_id>/investigation')
+@bp.post('/investigation/<int:person_id>')
 @bp.input(InvestigationSchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def post_investigation(person_id, response):
-    db.session.add(Investigation(**response | {'person_id': person_id}))
+    db.session.add(Investigation(**response | {'person_id': person_id, 'officer': current_user.username}))
     db.session.commit()
     return {'message': person_id}
 
 
-@bp.post('/profile/<int:person_id>/inquiry')
+@bp.post('/inquiry/<int:person_id>')
 @bp.input(InquirySchema, location='form')
 @bp.doc(hide=True)
 @jwt_required()
 def post_inquiry(person_id, response):
-    db.session.add(Inquiry(**response | {'person_id': person_id}))
+    db.session.add(Inquiry(**response | {'person_id': person_id, 'officer': current_user.username}))
     db.session.commit()
     return {'message': person_id}
 
@@ -521,12 +538,16 @@ def post_inquiry(person_id, response):
 @bp.doc(hide=True)
 @jwt_required()
 def post_information():
-    period = request.get_json()
-    candidates = db.session.query(Registry.decision, func.count(Registry.id)).group_by(Registry.decision). \
-        filter(Registry.deadline.between(period['start'], period['end'])).all()
+    response = request.get_json()
+    candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
+        join(Check, Check.id == Registry.check_id). \
+            join(Person, Person.id == Check.person_id).\
+                group_by(Registry.decision).\
+                    filter(Registry.deadline.between(response['start'], response['end']), 
+                           Person.region_id == response['region']).all()
     
     pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme). \
-        filter(Poligraf.deadline.between(period['start'], period['end'])).all()
+        filter(Poligraf.deadline.between(response['start'], response['end'])).all()
     
     return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
             "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))}

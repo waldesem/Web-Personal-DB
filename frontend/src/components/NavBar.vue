@@ -1,10 +1,11 @@
 <script setup lang="ts">
 
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import config from '../config';
-import router from '../router';
+import { ref } from 'vue';
+import { appAuth } from '@/store/auth';
+import server from '@store/server';
+import router from '@router/router';
 
+const storeAuth = appAuth();
 
 const data = ref({
   new: '', 
@@ -12,16 +13,14 @@ const data = ref({
 });
 
 
-onMounted(async () => {
-  updateMessage()
-});
+// onMounted(async () => {
+//   setInterval(updateMessage, 600000);
+// });
 
 
 async function updateMessage(flag = 'new') {
   try{
-    const response = await axios.get(`${config.appUrl}/messages/${flag}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-    });
+    const response = await storeAuth.axiosInstance.get(`${server}/messages/${flag}`);
     data.value.message = response.data;
   } catch (error) {
     console.error(error);
@@ -30,14 +29,10 @@ async function updateMessage(flag = 'new') {
 
 
 async function userLogout(){
-  const response = await axios.delete(`${config.appUrl}/logout`, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-  });
+  const response = await storeAuth.axiosInstance.delete(`${server}/logout`);
   console.log(response.status);
   
-  const resp = await axios.delete(`${config.appUrl}/logout`, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`}
-  });
+  const resp = await storeAuth.axiosInstance.delete(`${server}/logout`);
   console.log(resp.status)
   
   localStorage.removeItem('access_token');
@@ -53,19 +48,14 @@ async function userLogout(){
   <div class="container-fluid">
     <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary">
       <div class="container">
-        
-        <router-link :to="{ name: 'index', params: {flag: 'main', page: 1} }" class="nav-link active">StaffSec</router-link>
-        
+        <router-link :to="{ name: 'app'}" class="nav-link active">StaffSec</router-link>
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <router-link :to="{ name: 'index', params: {flag: 'new', page: 1} }" class="nav-link active">Кандидаты</router-link>
+              <router-link :to="{ name: 'persons'}" class="nav-link active">Кандидаты</router-link>
             </li>
             <li class="nav-item">
-              <router-link :to="{ name: 'index', params: {flag: 'officer', page: 1} }" class="nav-link active">Кабинет</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link :to="{ name: 'profile', params: {id: '0'}}" class="nav-link active">Создать</router-link>
+              <router-link :to="{ name: 'resume' }" class="nav-link active">Создать</router-link>
             </li>
             <li class="nav-item">
               <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
@@ -91,4 +81,4 @@ async function userLogout(){
       </div>
     </nav>
   </div>
-</template>../router/router
+</template>

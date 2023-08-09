@@ -1,49 +1,49 @@
 <script setup lang="ts">
 
-import { onBeforeMount, ref, toRefs } from 'vue'
-import axios from 'axios';
-import config from '../../config';
-import router from '../../router';
+import { onBeforeMount, toRefs } from 'vue'
+import { locationStore } from '../../store/location';
+import { appClassify } from '../../store/classify';
+import { appAuth } from '../../store/auth';
+import server from '../../store/server';
 
+const storeAuth = appAuth()
+
+const storeLocation = locationStore();
+
+const classifyApp = appClassify();
+
+const emit = defineEmits(['updateMessage', 'updateAction']);
 
 const props = defineProps({
-  actions: String,
-  userId: String,
-  profile: Object
+  profile: Object,
+  action: String
 })
 
 const profile = toRefs(props).profile?.value ?? {};
 
-const data = ref({
-  attr: '',
-  text: '',
-});
-
-const regions = ref({});
-
 
 onBeforeMount(async () => {
-    const response = await axios.get(`${config.appUrl}/locations`);
-    const locations  = response.data;
-    regions.value = locations.reduce(
-    (acc: {[key: number]: string}, obj: {id: number, region: string}) => {
-    acc[obj.id] = obj.region;
-    return acc;
-    }, {}
-  );
+  storeLocation.getRegions();
 });
+
+
+function updateMessage(alert: Object) {
+  emit('updateMessage', alert)
+};
+
+function cancelEdit() {
+  emit('updateAction')
+};
 
 
 async function submitData(){
   try {  
-    const response = await axios.post(`${config.appUrl}/admin/user/${props.userId}/post/${props.actions}`, {
-      'fullname': profile.value.fullname, 
-      'username': profile.value.username,
-      'email': profile.value.email,
-      'region_id': profile.value.region_id,
-      'role': profile.value.role
-      }, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+    const response = await storeAuth.axiosInstance.post(`${server}/user/${props.action}`, {
+      'fullname': profile.fullname,
+      'username': profile.username,
+      'email': profile.email,
+      'region_id': profile.region_id,
+      'role': profile.role
     });
     const  { user } = response.data;
     
@@ -52,75 +52,68 @@ async function submitData(){
       'edit': ['alert-success', 'Пользователь успешно изменен'],
       'none': ['alert-danger', 'Ошибка создания (пользователь существует)/редактирования']
     }
-    data.value.attr = resp[user as keyof typeof resp][0];
-    data.value.text = resp[user as keyof typeof resp][1];
-    
-    router.push({ name: 'users' })
-  
+    updateMessage({ 
+      attr: resp[user as keyof typeof resp][0],
+      text: resp[user as keyof typeof resp][1] 
+    });
+    cancelEdit();
+
   } catch (error) {
     console.error(error);
   }
 };
-  
+
+
 </script>
 
 <template>
   <div class="py-2">
     <form @submit.prevent="submitData()" class="form form-check" role="form">
-      <div class="row mb-3">
-      <div class="col-md-4">
-          <div class="row">
-          <label class="col-form-label col-lg-4" for="fullname">Имя пользователя:</label>
-          <div class="col-lg-8">
-              <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" 
-              required type="text" v-model="profile.fullname" pattern="[a-zA-Z ]+">
-          </div>
-          </div>
+      <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="fullname">Имя пользователя:</label>
+        <div class="col-lg-10">
+          <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" 
+              required type="text" v-model="profile.fullname" pattern="[a-zA-Zа-яА-Я ]+">
+        </div>
       </div>
-      <div class="col-md-4">
-          <div class="row">
-          <label class="col-form-label col-lg-4" for="username">Учетная запись:</label>
-          <div class="col-lg-8">
-              <input :disabled="props.actions === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" 
+      <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="username">Учетная запись:</label>
+        <div class="col-lg-10">
+          <input :disabled="props.action === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" 
               required type="text" v-model="profile.username" pattern="[a-zA-Z]+">
-          </div>
-          </div>
+        </div>
       </div>
-      <div class="col-md-4">
-          <div class="row">
-          <label class="col-form-label col-lg-4" for="email">Электронная почта:</label>
-          <div class="col-lg-8">
-              <input autocomplete="email" class="form-control" minlength="3" maxlength="25" name="email" 
-              required type="text" v-model="profile.email" pattern="[a-zA-Z]+">
-          </div>
-          </div>
+      <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="email">Электронная почта:</label>
+        <div class="col-lg-10">
+          <input autocomplete="email" class="form-control" minlength="3" maxlength="25" name="email" 
+              required type="email" v-model="profile.email">
+        </div>
       </div>
-      </div>
-      <div class="row mb-3">
-      <div class="col-md-6">
-          <div class="row">
-          <label class="col-form-label col-lg-4" for="role">Роль:</label>
-          <div class="col-lg-8">
-              <select class="form-select" id="role" name="role" v-model="profile.role" required>
-              <option v-for="(value, name) in config.roles" :value=value :key="name">{{name}}</option>                
+      <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="role">Роль</label>
+        <div class="col-lg-10">
+          <select class="form-select" id="role" name="role" v-model="profile.role" required>
+              <option v-for="(value, name) in classifyApp.role" :value=value :key="name">{{name}}</option>                
               </select>
-          </div>
-          </div>
+        </div>
       </div>
-      <div class="col-md-5">
-          <div class="row">
-          <label class="col-form-label col-lg-4" for="region">Регион:</label>
-          <div class="col-lg-8">
-              <select class="form-select" id="region" name="region" v-model="profile.region_id" required>
-              <option v-for="name, value in regions" :value="value">{{name}}</option>                
+      <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="region">Регион</label>
+        <div class="col-lg-10">
+          <select class="form-select" id="region" name="region" v-model="profile.region_id" required>
+              <option v-for="name, value in storeLocation.regionsObject" :value="value">{{name}}</option>                
               </select>
-          </div>
-          </div>
+        </div>
       </div>
-      <div class="col-md-1">
-          <button class="btn btn-outline-primary" name="submit" type="submit">{{props.actions === 'create' ? 'Создать' : 'Изменить'}}</button>
-      </div>
+      <div class=" row">
+        <div class="offset-lg-2 col-lg-10">
+          <div class="btn-group">
+            <button class="btn btn-outline-primary" name="submit" type="submit">{{props.action === 'create' ? 'Создать' : 'Изменить'}}</button>
+            <button class="btn btn-outline-primary" name="cancel" type="button" @click="cancelEdit">Отмена</button>
+          </div>
+        </div>
       </div>
     </form>
   </div>
-</template>../../router/router
+</template>

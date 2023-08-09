@@ -1,9 +1,16 @@
 <script setup lang="ts">
 
-import axios from 'axios';
 import { ref } from 'vue';
-import config from '../../config';
-  
+import { appAuth } from '@store/auth';
+import { appClassify } from '@store/classify';
+import server from '@store/server';
+
+const emit = defineEmits(['updateItem','updateMessage']);
+
+const storeAuth = appAuth();
+
+const classifyApp = appClassify();
+
 const props = defineProps({
   table: Array as () => Array<TableItem>,
   candId: String
@@ -17,28 +24,29 @@ type TableItem = {
   deadline: Date;
 };
 
-const emit = defineEmits(['updateItem','updateMessage']);
-
 const url = ref('');
+
 
 async function submitData(event: Event) {
   try {
     const formData = new FormData(event.target as HTMLFormElement);
-    const response = await axios.post(`${config.appUrl}/registry/${props.candId}`, formData, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-    });
+    const response = await storeAuth.axiosInstance.post(`${server}/registry/${props.candId}`, formData);
     const { message } = response.data;
+  
     const alert = {
       'result': ['alert-success', 'Согласование отправлено'],
       'cancel': ['alert-warning', 'Отправка не удалась'],
       'error': ['alert-danger', 'Возникла ошибка']
     }
+    
     emit('updateMessage', {
       attr: alert[message as keyof typeof alert][0],
       text: alert[message as keyof typeof alert][1]
     });
     url.value = '';
+    
     emit('updateItem', props.candId);
+  
   } catch (error) {
     console.error(error);
   }
@@ -60,7 +68,7 @@ async function submitData(event: Event) {
           <label class="col-form-label col-lg-2" for="decision">Решение</label>
           <div class="col-lg-10">
             <select class="form-select" id="decision" name="decision" value="">
-              <option v-for="(name, value) in config.decisions" :key="name"  :value="value">{{ value }}</option>
+              <option v-for="(name, value) in classifyApp.decision" :key="name"  :value="value">{{ value }}</option>
             </select>
           </div>
         </div>

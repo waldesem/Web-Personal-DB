@@ -1,20 +1,17 @@
 <script setup lang="ts">
 
 import { ref, onBeforeMount } from 'vue'
-import axios from 'axios';
-import config from '../../config';
-import AlertMessage from '../AlertMessage.vue';
-import FooterDiv from '../FooterDiv.vue';
-import NavbarAdmin from './NavbarAdmin.vue'
+import { appAuth } from '../../store/auth';
+import server from '../../store/server';
 import UserForm from './UserForm.vue';
 
+const emit = defineEmits(['updateMessage']);
 
+const storeAuth = appAuth()
 
-const data = ref({
-  users: [],
-  attr: '',
-  text: ''
-});
+const users = ref([]);
+
+const actions = ref('');
 
 
 onBeforeMount(async () => {
@@ -22,12 +19,16 @@ onBeforeMount(async () => {
 });
 
 
+function updateMessage(alert: Object) {
+  emit('updateMessage', alert)
+};
+
+
 async function getUsers(){
+  actions.value = ''
   try {
-    const response = await axios.get(`${config.appUrl}/admin/users`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-    });
-    data.value.users = response.data;
+    const response = await storeAuth.axiosInstance.get(`${server}/users`);
+    users.value = response.data;
   } catch (error) {
     console.error(error);
   }
@@ -37,11 +38,13 @@ async function getUsers(){
 
 
 <template>
-  <NavbarAdmin />
   <div class="container py-5">
-    <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
-    <div class="py-5"><h4>Список пользователей</h4></div>
-      <UserForm :action="'create'" :userId="'0'" />
+    <div class="py-3"><h4>{{ actions === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4></div>
+    <UserForm v-if="actions === 'create'" 
+                  :action="actions" 
+                  @updateMessage="updateMessage"
+                  @updateAction="getUsers" />
+    <div v-else class="py-2">
       <table class="table table-hover table-responsive align-middle">
         <thead>
           <tr height="50px">
@@ -54,16 +57,22 @@ async function getUsers(){
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="user in data.users" :key="user">
+          <tr height="50px" v-for="user in users">
             <td>{{ user["id" as keyof typeof user] }}</td>
             <td>{{ user["fullname" as keyof typeof user] }}</td>
-            <td><router-link :to="{ name: 'shape', params: {flag: 'id'} }" href="#">{{ user["username" as keyof typeof user] }}</router-link></td>
+            <td>
+              <router-link 
+                :to="{ name: 'shape', params: {id: user['id' as keyof typeof user]} }" 
+                href="#">{{ user["username" as keyof typeof user]}}
+              </router-link>
+              </td>
             <td>{{ new Date(user["pswd_create" as keyof typeof user]).toLocaleString('ru-RU') }}</td>
             <td>{{ new Date(user["last_login" as keyof typeof user]).toLocaleString('ru-RU') }}</td>
             <td>{{ user["role" as keyof typeof user] }}</td>
           </tr>
         </tbody>
       </table>
+      <button class="btn btn-primary" @click="actions = 'create'">Добавить пользователя</button>
     </div>
-  <FooterDiv />
+  </div>
 </template>

@@ -1,48 +1,43 @@
 <script setup lang="ts">
 
-import axios from 'axios';
 import { ref, toRefs } from 'vue';
-import config from '../../config';
+import { appAuth } from '@store/auth';
+import { appClassify } from '@store/classify';
+import server from '@store/server';
+
+const storeAuth = appAuth();
+
+const classifyApp = appClassify();
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
 
 const props = defineProps({
-  table: Array as () => Array<TableItem>,
-  item: Object,
+  table: {
+    type: Array as () => object[] | undefined,
+    required: true,
+  },
   candId: String,
   status: String
 });
 
+const tableRef = toRefs(props).table;
 
-type TableItem = {
-  id: string;
-  comments: string;
-  decision: string;
-  supervisor: string;
-  deadline: Date;
-};
-
-const { item } = toRefs(props);
-const check = item?.value ?? {};
+const check = tableRef && tableRef.value && tableRef.value[0] ? tableRef.value[0] : {};
 
 const url = ref('');
 
-const headers = {
-  headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-};
-
 
 async function addCheck() {
-  if (props.status === config.status.save || 
-    props.status === config.status.manual ||
-    props.status === config.status.robot) {
+  if (props.status === classifyApp.status['save'] || 
+    props.status === classifyApp.status['manual'] ||
+    props.status === classifyApp.status['robot']) {
     emit('updateMessage', {
       attr: 'alert-warning',
       text: 'Нельзя добавить проверку к текущему статусу'
     })
   } else {
     try {
-      const response = await axios.get(`${config.appUrl}/check/add/${props.candId}`, headers);
+      const response = await storeAuth.axiosInstance.get(`${server}/check/add/${props.candId}`);
       const { message } = response.data;
       message === "manual" ? url.value = 'new' : url.value = '';
       emit('updateMessage', {
@@ -58,7 +53,7 @@ async function addCheck() {
 
 async function submitData(){
   try {
-    const response = await axios.post(`${config.appUrl}/check/create/${props.candId}`, check, headers);
+    const response = await storeAuth.axiosInstance.post(`${server}/check/create/${props.candId}`, check);
     const { message } = response.data;
     const alert = {
       'save': ['alert-info', 'Проверка сохранена'],
@@ -81,7 +76,7 @@ async function submitData(){
 
 
 function deleteCheck() {
-  if (props.status === config.status.robot) {
+  if (props.status === classifyApp.status['robot']) {
   emit('updateMessage', {
       attr: 'alert-warning',
       text: 'Нельзя удалить проверку с текущим статусом'
@@ -96,7 +91,7 @@ function deleteCheck() {
 async function cancelCheck() {
   checkDelete();
   url.value = '';
-  const response = await axios.get(`${config.appUrl}/anketa/status/${props.candId}`, headers);
+  const response = await storeAuth.axiosInstance.get(`${server}/anketa/status/${props.candId}`);
   const { message } = response.data;
   emit('updateMessage', {
     attr: message == 'update' ? "alert-success" : "alert-warning",
@@ -107,7 +102,7 @@ async function cancelCheck() {
 
 async function checkDelete() {
   try {
-    const response = await axios.get(`${config.appUrl}/check/delete/${props.candId}`, headers);
+    const response = await storeAuth.axiosInstance.get(`${server}/check/delete/${props.candId}`);
     const { message } = response.data;
     emit('updateMessage', {
       attr: message === "reply" ? 'alert-success' : 'alert-warning',
@@ -129,97 +124,97 @@ async function checkDelete() {
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="workplace">Проверка по месту работы</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="workplace" name="workplace" v-model="check.workplace"></textarea>
+            <textarea class="form-control" id="workplace" name="workplace" v-model="check['workplace' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="employee">Проверка по кадровому учету</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="employee" name="employee" v-model="check.employee"></textarea>
+            <textarea class="form-control" id="employee" name="employee" v-model="check['employee' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="document">Проверка документов</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="document" name="document" v-model="check.document"></textarea>
+            <textarea class="form-control" id="document" name="document" v-model="check['document' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="inn">Проверка ИНН</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="inn" name="inn" v-model="check.inn"></textarea>
+            <textarea class="form-control" id="inn" name="inn" v-model="check['inn' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="debt">Проверка задолженностей</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="debt" name="debt" v-model="check.debt"></textarea>
+            <textarea class="form-control" id="debt" name="debt" v-model="check['debt' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="bankruptcy">Проверка банкротства</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="bankruptcy" name="bankruptcy" v-model="check.bankruptcy"></textarea>
+            <textarea class="form-control" id="bankruptcy" name="bankruptcy" v-model="check['bankruptcy' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="bki">Проверка кредитной истории</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="bki" name="bki" v-model="check.bki"></textarea>
+            <textarea class="form-control" id="bki" name="bki" v-model="check['bki' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="courts">Проверка по решениям судов</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="courts" name="courts" v-model="check.courts"></textarea>
+            <textarea class="form-control" id="courts" name="courts" v-model="check['courts' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="affiliation">Проверка аффилированности</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="affiliation" name="affiliation" v-model="check.affiliation"></textarea>
+            <textarea class="form-control" id="affiliation" name="affiliation" v-model="check['affiliation' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="terrorist">Проверка списка террористов</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="terrorist" name="terrorist" v-model="check.terrorist"></textarea>
+            <textarea class="form-control" id="terrorist" name="terrorist" v-model="check['terrorist' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="mvd">Проверка учетам МВД</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="mvd" name="mvd" v-model="check.mvd"></textarea>
+            <textarea class="form-control" id="mvd" name="mvd" v-model="check['mvd' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="internet">Проверка по открытым источникам</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="internet" name="internet" v-model="check.internet"></textarea>
+            <textarea class="form-control" id="internet" name="internet" v-model="check['internet' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="cronos">Проверка Кронос</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="cronos" name="cronos" v-model="check.cronos"></textarea>
+            <textarea class="form-control" id="cronos" name="cronos" v-model="check['cronos' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="cros">Проверка Крос</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="cros" name="cros" v-model="check.cros"></textarea>
+            <textarea class="form-control" id="cros" name="cros" v-model="check['cros' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="addition">Дополнительная информация</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="addition" name="addition" v-model="check.addition"></textarea>
+            <textarea class="form-control" id="addition" name="addition" v-model="check['addition' as keyof typeof check]"></textarea>
           </div>
         </div>
         <div class=" row">
           <div class="offset-lg-2 col-lg-10">
             <div class="mb-3 form-check">
-              <input class="form-check-input" id="pfo" name="pfo" v-model="check.pfo" type="checkbox" value="y">
+              <input class="form-check-input" id="pfo" name="pfo" v-model="check['pfo' as keyof typeof check]" type="checkbox" value="y">
               <label class="form-check-label" for="pfo">Полиграф</label>
             </div>
           </div>
@@ -227,15 +222,15 @@ async function checkDelete() {
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="conclusion">Результат</label>
           <div class="col-lg-10">
-            <select class="form-select" id="conclusion" name="conclusion" v-model="check.conclusion">
-              <option v-for="(name, value) in config.conclusions" :key="value" :value="name">{{ name }}</option>
+            <select class="form-select" id="conclusion" name="conclusion" v-model="check['conclusion' as keyof typeof check]">
+              <option v-for="(name, value) in classifyApp.conclusion" :key="value" :value="name">{{ name }}</option>
             </select>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
           <div class="col-lg-10">
-            <input class="form-control" id="comments" name="comments" maxlength="250" v-model="check.comments" type="text">
+            <input class="form-control" id="comments" name="comments" maxlength="250" v-model="check['comments' as keyof typeof check]" type="text">
           </div>
         </div>
         <div class=" row">
@@ -278,12 +273,27 @@ async function checkDelete() {
       </table>
       <p v-else >Данные отсутствуют</p>
       <div class="btn-group" role="group">
-        <button @click="deleteCheck" :disabled="config.status && (status === config.status['finish'])" class="btn btn-outline-primary">Удалить проверку</button>
-        <button @click="addCheck" :disabled="config.status && (status !== config.status['new'] && 
-                                                               status !== config.status['update'])" class="btn btn-outline-primary">Добавить проверку</button>
-        <button @click="url='edit'" :disabled="config.status && (status !== config.status['save'] && 
-                                                                 status !== config.status['cancel'] && 
-                                                                 status !== config.status['manual'])"  class="btn btn-outline-primary">Изменить проверку</button>
+        <button 
+          @click="deleteCheck" 
+          :disabled="classifyApp.status 
+          && (status === classifyApp.status['finish'])" 
+          class="btn btn-outline-primary">Удалить проверку
+        </button>
+        <button 
+          @click="addCheck" 
+          :disabled="classifyApp.status 
+          && (status !== classifyApp.status['new'] 
+          && status !== classifyApp.status['update'])" 
+          class="btn btn-outline-primary">Добавить проверку
+        </button>
+        <button 
+          @click="url='edit'" 
+          :disabled="classifyApp.status 
+          && (status !== classifyApp.status['save'] 
+          && status !== classifyApp.status['cancel'] 
+          && status !== classifyApp.status['manual'])"  
+          class="btn btn-outline-primary">Изменить проверку
+        </button>
       </div>
     </template>
   </div>

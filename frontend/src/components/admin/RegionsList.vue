@@ -1,71 +1,67 @@
 <script setup lang="ts">
 
 import { onBeforeMount, ref } from 'vue'
-import axios from 'axios';
-import config from '../../config';
-import NavbarAdmin from './NavbarAdmin.vue'
-import AlertMessage from '../AlertMessage.vue';
-import FooterDiv from '../FooterDiv.vue';
+import { locationStore } from '../../store/location';
+import { appAuth } from '../../store/auth';
+import server from '../../store/server';
 
+const emit = defineEmits(['updateMessage']);
 
-const data = ref({
-  regions: [],
-  location: '',
-  attr: '',
-  text: ''
-});
+const storeAuth = appAuth()
+
+const storeLocation = locationStore();
+
+const region = ref('');
 
 
 onBeforeMount(async () => {
-  regionList();
+  storeLocation.getRegions();
 });
 
 
-async function regionList(){
-    const response = await axios.get(`${config.appUrl}/locations`);
-    const locations  = response.data;
-    data.value.regions = locations.reduce(
-    (acc: {[key: number]: string}, obj: {id: number, region: string}) => {
-    acc[obj.id] = obj.region;
-    return acc;
-    }, {}
-  );
+function updateMessage(alert: Object) {
+  emit('updateMessage', alert)
 };
 
-  
+
 async function addRegion() {
-  const response = await axios.post(`${config.appUrl}/admin/region/add`, {
-    'region': data.value.location
-  }, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
+  const response = await storeAuth.axiosInstance.post(`${server}/region/add`, {
+    'region': region.value
   });
   const  { location } = response.data;
-  data.value.attr = location ? 'alert-warning' : 'alert-success' ;
-  data.value.text = location 
+  updateMessage({
+    attr: location ? 'alert-warning' : 'alert-success',
+    text: location 
     ? 'При добавлении записи возникла ошибка'
-    : 'Запись добавлена. Для применения изменений необходим перезапуск приложения';
-  regionList();
+    : 'Запись добавлена'
+  })
+  storeLocation.getRegions();
 };
 
 
 async function delRegion(id: String) {
+  if (id === '1') {
+    updateMessage({
+      attr: 'alert-info',
+      text: 'Нельзя удалить регион "Главный офис"'
+    })
+    return
+  }
   if (confirm(`Вы действительно хотите удалить регион?`)) {
-    const response = await axios.get(`${config.appUrl}/admin/region/delete/${id}`, {
-    headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-  });
+    const response = await storeAuth.axiosInstance.get(`${server}/region/delete/${id}`);
     const  { location } = response.data;
-    data.value.attr = 'alert-success';
-    data.value.text = `Регион ${location} удален. Перезапустите приложение`;
-    regionList()
+    updateMessage({
+      attr: 'alert-success',
+      text: `Регион ${location} удален`
+    })
+    storeLocation.getRegions();
   }
 };
 
 </script>
 
 <template>
-<NavbarAdmin />
-  <div class="container py-5">
-  <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
+  <div class="container py-3">
   <div class="py-5"><h4>Список регионов</h4></div>
     <form @submit.prevent="addRegion" class="form form-check" role="form"> 
       <div class="row mb-3">
@@ -73,7 +69,7 @@ async function delRegion(id: String) {
           <label class="col-form-label col-lg-1" for="region">Регион: </label>
           <div class="col-lg-9">
               <input autocomplete="region" class="form-control" minlength="3" maxlength="25" name="region" 
-                    placeholder="Регион" required type="text" v-model="data.location">
+                    placeholder="Регион" required type="text" v-model="region">
           </div>
           <div class="col-lg-2">
               <button class="btn btn-outline-primary" name="submit" type="submit">Добавить регион</button>
@@ -91,7 +87,7 @@ async function delRegion(id: String) {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="name, value in data.regions">
+          <tr height="50px" v-for="name, value in storeLocation.regionsObject">
             <td>{{ value }}</td>
             <td>{{ name }}</td>
             <td><a class="link-opacity-50" href="#" @click="delRegion(value.toString())">Удалить</a></td>
@@ -100,5 +96,4 @@ async function delRegion(id: String) {
       </table>
     </div>
   </div>
-  <FooterDiv />
 </template>

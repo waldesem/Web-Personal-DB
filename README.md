@@ -9,7 +9,7 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-JWT-Extended for authorization;,
 - Flask-SQLAlchemy (SQLAlchemy) as ORM and database;
 - Flask-Marshmallow (Marshmallow) as validation and serialization of data;
-- Vue3 as the frontend;
+- Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
 
 ### Installation
@@ -81,7 +81,8 @@ To start development node server, run the following command in your terminal:
 ```
 npm run dev
 ```
-To build the TypeScript code in the static directory, run the following command in your terminal:
+To build the code in the static directory, first comment first row in server.ts and uncomment second row. 
+Then, run the following command in your terminal:
 ```
 npm run build -- --dest ../server/app/static
 ```

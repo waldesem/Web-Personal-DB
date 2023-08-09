@@ -52,21 +52,12 @@ class ExcelFile:
 
 
 def resume_data(person_id, document, addresses, contacts, workplaces, staff):
-    objects_to_add = [
-                         Staff(**staff | {'person_id': person_id})
-                         for _, value in staff.items() if value
-                     ] + [
-                         Document(**document | {'person_id': person_id})
-                         for _, value in document.items() if value
-                     ] + [
-                         Address(**address | {'person_id': person_id})
-                         for address in addresses if address['address']
-                     ] + [
-                         Contact(**contact | {'person_id': person_id})
-                         for contact in contacts if contact['contact']
-                     ] + [
-                         Workplace(**work | {'person_id': person_id})
-                         for work in workplaces if work['workplace']
-                     ]
-    db.session.bulk_save_objects(objects_to_add)
+    db.session.add(Staff(**staff | {'person_id': person_id}))
+    db.session.add(Document(**document | {'person_id': person_id}))
+    for address in addresses:
+        db.session.add(Address(**address | {'person_id': person_id}))
+    for contact in contacts:
+        db.session.add(Contact(**contact | {'person_id': person_id}))
+    for workplace in workplaces:
+        db.session.add(Workplace(**workplace | {'person_id': person_id}))
     db.session.commit()

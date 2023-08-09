@@ -1,8 +1,10 @@
 <script setup lang="ts">
 
-import axios from 'axios';
-import config from '../../config';
 import { ref } from 'vue';
+import { appAuth } from '@store/auth';
+import server from '@store/server';
+
+const storeAuth = appAuth();
 
 const props = defineProps({
   path: String,
@@ -20,9 +22,7 @@ async function submitFile(event: Event) {
   if (fileInput && fileInput.files && fileInput.files[0].size < 2097152) {
     formData.append('file', fileInput.files[0]);
     try {
-      const response = await axios.post(`${config.appUrl}/photo/upload/${props.candId}`, formData, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-      });
+      const response = await storeAuth.axiosInstance.post(`${server}/photo/${props.candId}`, formData);
       const { result } = response.data;
       updateMessage({
         attr: result ? "alert-success" : "alert-warning",
@@ -55,7 +55,7 @@ function updateItem(resp_id: string) {
   <div class="row">
     <div class="col-3">
       <div class="card">
-        <img :src="config.appUrl + '/photo' + props.path" class="card-img-top" alt="Нет фото">
+        <img :src="server + '/images' + props.path" class="card-img-top" alt="Нет фото">
         <div class="card-body">
           <form class="form form-check" enctype="multipart/form-data" role="form" @change="submitFile">
             <input class="form-control form-control-sm" id="file" type="file" accept="image/*" ref="file">

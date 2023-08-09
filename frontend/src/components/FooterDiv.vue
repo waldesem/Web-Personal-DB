@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
-import config from '../config';
+import server from '../store/server';
 
-const doc_url = `${config.appUrl}/docs`;
+const doc_url = `${server}/docs`;
 
 </script>
 

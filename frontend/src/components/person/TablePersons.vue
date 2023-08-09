@@ -1,65 +1,52 @@
 <script setup lang="ts">
 
-import { ref, onBeforeMount, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
-import config from '../config';
-import AlertMessage from './AlertMessage.vue';
+import { ref, onBeforeMount, computed } from 'vue';
+import { locationStore } from '../../store/location';
+import { appAuth } from '../../store/auth';
+import server from '../../store/server';
 
-const route = useRoute();
+
+const emit = defineEmits(['updateMessage']);
+
+const storeAuth = appAuth()
+
+const store = locationStore();
 
 const props = defineProps({
-  flag: String,
   admin: Boolean
 });
 
 const data = ref({
-  attr: '', 
-  text: '',
-  regions: {},
   fullname: '',
   birthday: '',
   candidates: [],
   hasPrev: false,
   hasNext: false,
   currentPage: 1,
-  currentPath: props.flag
+  currentPath: 'main',
 });
 
 
 onBeforeMount(async () => {
-  getCandidates(props.flag);
-  const resp = await axios.get(`${config.appUrl}/locations`);
-  const locations = resp.data;
-  data.value.regions = locations.reduce(
-    (acc: {[key: number]: string}, obj: {id: number, region: string}) => {
-      acc[obj.id] = obj.region;
-      return acc;
-    }, {}
-  );
+  getCandidates(data.value.currentPath);
 });
-
-
-watch(
-  [() => route.params.flag, () => route.params.page],
-  ([flag, page]) => {
-    getCandidates(flag.toString(), parseInt(page as string));
-  }
-);
 
 
 const header = computed(() => {
   const name = {
     'search': "Результаты поиска", 
-    'officer': "Страница пользователя", 
+    'officer': "Страница пользователя",
     'main': props.admin ? "Список кандидатов" : "Главная страница",
     'new': "Новые кандидаты"
   }
   return name[data.value.currentPath as keyof typeof name]
 });
 
+function updateMessage(alert: Object) {
+  emit('updateMessage', alert)
+};
 
-async function getCandidates(url: string | undefined, page=1) {
+async function getCandidates(url: string, page=1) {
   data.value.currentPage = page;
   data.value.currentPath = url;
   let response
@@ -71,10 +58,10 @@ async function getCandidates(url: string | undefined, page=1) {
     if (url !== 'search') {
       data.value.fullname = '';
       data.value.birthday = '';
-      response = await axios.get(`${config.appUrl}/index/${url}/${page}`, headers);
+      response = await storeAuth.axiosInstance.get(`${server}/index/${url}/${page}`, headers);
 
     } else {
-      response = await axios.post(`${config.appUrl}/index/${url}/${page}`, 
+      response = await storeAuth.axiosInstance.post(`${server}/index/${url}/${page}`, 
       {
         "fullname": data.value.fullname, 
         "birthday": data.value.birthday
@@ -109,15 +96,18 @@ async function nextPage() {
 };
 
 
-async function delPerson(id: String, flag='delete') {
+async function delPerson(id: String) {
   if (confirm(`Вы действительно хотите удалить анкету?`)) {
-    const response = await axios.get(`${config.appUrl}/admin/person/${id}/${flag}`, {
+    const response = await storeAuth.axiosInstance.get(`${server}/person/delete/${id}`, {
     headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
   });
     const  { person } = response.data;
-    data.value.attr = 'alert-success';
-    data.value.text = `Анкета ${person} удален`;
-    getCandidates(props.flag)
+    updateMessage({
+      attr: 'alert-success',
+      text: `Анкета ${person} удален`
+    })
+    
+    getCandidates(data.value.currentPath);
   }
 };
 
@@ -125,36 +115,45 @@ async function delPerson(id: String, flag='delete') {
 </script>
 
 <template>
-  <div class="container py-5">
-    <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
+  <div class="container py-3">
     <div class="py-5"><h4>{{ header }}</h4></div>
-    <div v-if="data.currentPath != 'officer'">
-      <form @submit.prevent="getCandidates('search')" class="form form-check" role="form">
-        <div class="row">
-          <div class="col-md-7">
-            <div class="mb-3">
-              <label class="visually-hidden" for="fullname">Fullname</label>
-              <input class="form-control mb-2 mr-sm-2 mb-sm-0" id="fullname" maxlength="250" minlength="3" v-model="data.fullname" name="fullname" placeholder="поиск по ФИО" type="text">
+    <div class="row py-3">
+      <div class="col-md-3">
+        <form class="form form-check" role="form">
+          <label class="visually-hidden" for="region">Действия</label>
+          <select class="form-select" id="action" name="action" v-model="data.currentPath" @change="getCandidates(data.currentPath)">
+            <option value="new" selected>Новые кандидаты</option>
+            <option value="main">Все кандидаты</option>
+            <option value="officer">Мои анкеты</option>
+          </select>
+        </form>
+      </div>
+      <div class="col-md-9">
+        <form @submit.prevent="getCandidates('search')" class="form form-check" role="form">
+          <div class="row">
+            <div class="col-md-7">
+                <label class="visually-hidden" for="fullname">Fullname</label>
+                <input class="form-control" id="fullname" maxlength="250" minlength="3" v-model="data.fullname" name="fullname" placeholder="поиск по ФИО" type="text">
             </div>
-          </div>
-          <div class="col-md-3">
-            <div class="mb-3">
-              <label class="visually-hidden" for="birthday">Birthday</label>
-              <input class="form-control mb-2 mr-sm-2 mb-sm-0" id="birthday" v-model="data.birthday" name="birthday" placeholder="по дате рождения" type="date">
+            <div class="col-md-3">
+                <label class="visually-hidden" for="birthday">Birthday</label>
+                <input class="form-control" id="birthday" v-model="data.birthday" name="birthday" placeholder="по дате рождения" type="date">
             </div>
+            <div class="col-md-1">
+              <button class="btn btn-outline-primary btn-md" type="submit">Найти</button>
+              </div>
+            <!-- <div class="col-md-1">
+              <button class="btn btn-outline-primary btn-md" type="reset" data-bs-toggle="tooltip" data-bs-placement="top" title="Очистить поиск">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div-->
           </div>
-          <div class="col-md-1">
-            <button class="btn btn-outline-primary btn-md" type="submit">Найти</button>
-          </div>
-          <div class="col-md-1">
-            <button @click="getCandidates('main')" class="btn btn-outline-primary btn-md" data-bs-toggle="tooltip" data-bs-placement="top" title="Очистить поиск"><i class="bi bi-trash"></i></button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
     <div class="py-3">
       <table class="table table-hover table-responsive align-middle">
-        <thead>
+        <thead> 
           <tr height="50px">
             <th width="5%">#</th>
             <th width="15%">Регион</th>
@@ -168,7 +167,7 @@ async function delPerson(id: String, flag='delete') {
         <tbody>
           <tr height="50px" v-for="candidate in data.candidates" :key="candidate">
             <td>{{ candidate["id" as keyof typeof candidate] }}</td>
-            <td>{{ data.regions[candidate["region_id" as keyof typeof candidate]] }}</td>
+            <td>{{ store.regionsObject[candidate["region_id" as keyof typeof candidate]] }}</td>
             <td v-if="admin">{{ candidate["fullname" as keyof typeof candidate] }}</td>
             <td v-else>
               <router-link :to="{ name: 'profile', params: {

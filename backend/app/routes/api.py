@@ -32,7 +32,7 @@ def anketa(anketa: dict):
     resume = anketa['resume']
     resume["request_id"] = resume.pop('id')
     
-    regions = {rgn[1][1]: rgn[0][1] for rgn in db.session.guery(Region.id, Region.region).all()}
+    regions = {rgn[1][1]: rgn[0][1] for rgn in db.session.query(Region.id, Region.region).all()}
     division = re.split(r'/', resume['staff']['department'])
     location_id = 1
     for div in division:

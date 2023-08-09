@@ -1,12 +1,10 @@
 <script setup lang="ts">
 
 import { onBeforeMount, ref } from 'vue'
-import axios from 'axios';
-import config from '../../config';
-import NavbarAdmin from './NavbarAdmin.vue'
-import AlertMessage from '../AlertMessage.vue';
-import FooterDiv from '../FooterDiv.vue';
+import server from '../../store/server';
+import { appAuth } from '../../store/auth';
 
+const storeAuth = appAuth()
 
 const data = ref({
     logs: [],
@@ -22,9 +20,7 @@ onBeforeMount(async () => {
 
 async function logsList() {
   try {
-    const response = await axios.get(`${config.appUrl}/admin/logs`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-    });
+    const response = await storeAuth.axiosInstance.get(`${server}/logs`);
     data.value.logs = response.data;
   } catch (error) {
     console.error(error);
@@ -34,10 +30,9 @@ async function logsList() {
 
 async function logAction(flag: string) {
   try {
-    const response = await axios.get(`${config.appUrl}/admin/logs/${flag}`, {
-      headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
-    });
+    const response = await storeAuth.axiosInstance.get(`${server}/logs/${flag}`);
     data.value.logs = response.data;
+  
   } catch (error) {
     console.error(error);
   }
@@ -47,9 +42,7 @@ async function logAction(flag: string) {
 
 
 <template>
-  <NavbarAdmin />
-  <div class="container py-5">
-    <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
+  <div class="container py-3">
     <div class="py-5"><h4>Системные сообщения</h4></div>
     <div class="py-3">
       <table class="table table-hover table-responsive align-middle">
@@ -80,5 +73,4 @@ async function logAction(flag: string) {
       </div>  
     </div>
   </div>
-  <FooterDiv />
 </template>
