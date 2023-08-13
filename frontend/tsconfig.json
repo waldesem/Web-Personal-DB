@@ -10,8 +10,9 @@
       "@store/*": ["./src/store/*"],
       "@router/*": ["./src/router/*"],
       "@components/*": ["./src/components/*"],
-      "@admin/*": ["./src/components/admin/*"],
-      "@person/*": ["./src/components/person/*"],
+      "@layouts/*": ["./src/components/layouts/*"],
+      "@pages/*": ["./src/components/pages/*"],
+      "@content/*": ["./src/components/content/*"],
     },
 
     /* Bundler mode */

@@ -14,6 +14,14 @@ jwt = JWTManager()
 
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
+    """
+    Check if a JWT token is revoked.
+    Parameters:
+        jwt_header (str): The JWT header containing information about the token.
+        jwt_payload (dict): The JWT payload containing information about the token.
+    Returns:
+        bool: True if the token is revoked, False otherwise.
+    """
     jti = jwt_payload["jti"]
     token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
 
@@ -22,11 +30,26 @@ def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
 
 @jwt.user_identity_loader
 def user_identity_lookup(user):
+    """
+    A function that acts as a user identity loader for the JWT framework.
+    Parameters:
+        user (Any): The user object to be used for user identity.
+    Returns:
+        Any: The user object.
+    """
     return user
 
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
+    """
+    Look up a user based on JWT data.
+    Parameters:
+        _jwt_header (dict): The JWT header.
+        jwt_data (dict): The JWT data.
+    Returns:
+        User: The user found based on the JWT data, or None if not found.
+    """
     identity = jwt_data["sub"]
     return User.query.filter_by(username=identity).one_or_none()
 
@@ -35,6 +58,12 @@ def user_lookup_callback(_jwt_header, jwt_data):
 @jwt_required()
 @bp.doc(hide=True)
 def auth(): 
+    """
+    A function that handles the authentication process.
+    Returns:
+        dict: A dictionary with the access status.
+            - 'access': 'Authorized' if the user is authorized, 'Denied' otherwise.
+    """
     user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
     if user and not user.has_blocked():
         user.last_login = datetime.now()
@@ -47,6 +76,16 @@ def auth():
 @bp.input(LoginSchema)
 @bp.doc(hide=True)
 def login(response):
+    """
+    Logs in a user and returns an access token and refresh token if successful.
+    Parameters:
+        response (dict): The response from the login form containing the username and password.   
+    Returns:
+        dict: A dictionary containing the access status, access token, and refresh token.
+            - 'access': The access status, which can be 'Authorized', 'Overdue', or 'Denied'.
+            - 'access_token': The access token if the login is successful, otherwise None.
+            - 'refresh_token': The refresh token if the login is successful, otherwise None.
+    """
     user = db.session.query(User).filter_by(username=response['username']).one_or_none()
     if user and not user.blocked and not user.has_role(Role.api.value):
         if bcrypt.checkpw(response['password'].encode('utf-8'), user.password):
@@ -81,6 +120,14 @@ def login(response):
 @bp.input(LoginSchema)
 @bp.doc(hide=True)
 def change_password(response):
+    """
+    Change the password for a user.
+    Args:
+        response (dict): The response object containing the username, current password, 
+                         and new password.
+    Returns:
+        dict: A dictionary with the access status and an access token (set to None).
+    """
     user = db.session.query(User).filter_by(username=response['username']).one_or_none()
     if user:
         if bcrypt.checkpw(response['password'].encode('utf-8'), user.password):
@@ -98,6 +145,12 @@ def change_password(response):
 @bp.doc(hide=True)
 @jwt_required(verify_type=False)
 def logout():
+    """
+    Logout the user and invalidate the access token.
+    Returns:
+    A dictionary with a single key-value pair:
+    - `access`: A string representing the access level, which is set to 'Default' after successful logout.
+    """
     jti = get_jwt()["jti"]
     db.session.add(TokenBlocklist(jti=jti))
     db.session.commit()
@@ -108,6 +161,11 @@ def logout():
 @bp.doc(hide=True)
 @jwt_required(refresh=True)
 def refresh():
+    """
+    Generates a new access token for the current user.
+    :return: A dictionary containing the new access token.
+    :rtype: dict
+    """
     access_token = create_access_token(identity=get_jwt_identity())
     return {'access_token': access_token}
     

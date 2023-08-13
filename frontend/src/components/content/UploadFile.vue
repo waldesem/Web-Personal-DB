@@ -8,10 +8,17 @@ const storeAuth = appAuth();
 
 const emit = defineEmits(['updateMessage', 'updateItem'])
 
+// Переменная для загрузки файла
 const file = ref(null);
     
 
-async function submitFile(event: Event) {
+/**
+ * Submits a file for upload.
+ *
+ * @param {Event} event - The event object.
+ * @return {Promise<void>} A promise that resolves when the file is successfully uploaded.
+ */
+async function submitFile(event: Event): Promise<void> {
   event.preventDefault();
   
   const formData = new FormData();
@@ -22,12 +29,12 @@ async function submitFile(event: Event) {
     try {
       const response = await storeAuth.axiosInstance.post(`${server}/resume/upload`, formData);
       const { result, person_id } = response.data;
-      
+      // Обновляем сообщение
       emit('updateMessage', {
         attr: result ? "alert-info" : "alert-success",
         text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
       });
-      
+      // Отправка события в родительский компонент для обновления карточки 
       emit('updateItem', person_id)
     
     } catch (error) {

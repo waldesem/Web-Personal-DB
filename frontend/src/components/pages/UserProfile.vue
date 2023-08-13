@@ -1,13 +1,15 @@
 <script setup lang="ts">
+// Компонент страницы профиля пользователя
 
 import { onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router';
-import { appAuth } from '../../store/auth';
-import { locationStore } from '../../store/location';
-import router from '../../router/router';
-import server from '../../store/server';
-import UserForm from './UserForm.vue'
+import { appAuth } from '@store/auth';
+import { locationStore } from '@store/location';
+import router from '@router/router';
+import server from '@store/server';
+import UserForm from '@content/UserForm.vue'
 
+// Объявление событиия отправки сообщения
 const emit = defineEmits(['updateMessage']);
 
 const storeAuth = appAuth()
@@ -16,12 +18,11 @@ const storeLocation = locationStore();
 
 const route = useRoute();
 
-const data = ref({
-  actions: '',
-  regions: [],
-  userId: route.params.id
-});
+const action = ref('');  // Выбор действия
 
+const userId = route.params.id;  // ID пользователя из роута 
+
+// Данные пользователя
 const profile = ref({
   id: '',
   fullname: '',
@@ -36,39 +37,49 @@ const profile = ref({
   attempt: ''
 });
 
-
+// Инициализация данных пользователя
 onBeforeMount(async () => {
-  viewUser(data.value.userId as String);
+  viewUser(userId as String);
 });
 
-
-function updateMessage(alert: Object) {
-  emit('updateMessage', alert)
-};
-
-
-async function viewUser(id: String){
+/**
+ * Fetches user data from the server based on the provided ID and updates the profile value.
+ *
+ * @param {String} id - The ID of the user to fetch data for.
+ * @return {Promise<void>} - A promise that resolves when the user data is fetched and the profile value is updated.
+ */
+async function viewUser(id: String): Promise<void>{
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/user/${id}`);
     const datas = response.data;
     profile.value = datas;
+    
   } catch (error) {
     console.error(error);
   }
 };
 
 
-async function editUserInfo(flag: String) {
+/**
+ * Edits user information based on the given flag.
+ *
+ * @param {String} flag - The flag indicating the type of edit to perform.
+ * @return {Promise<void>} - A promise that resolves when the user information has been edited.
+ */
+async function editUserInfo(flag: String): Promise<void> {
+  // Матчинг заголовка окна подтверждения действия
   const confirm_title = {
     'delete': 'окончательно удалить',
     'block': 'блокировать/разблокировать',
     'drop': 'сбросить пароль'
-  };  
+  };
   if (confirm(`Вы действительно хотите ${confirm_title[flag as keyof typeof confirm_title]} пользователя?`)) {
+
     try {
-      const response = await storeAuth.axiosInstance.get(`${server}/user/${data.value.userId}/${flag}`);
+      const response = await storeAuth.axiosInstance.get(`${server}/user/${userId}/${flag}`);
       const { user } = response.data;
       
+      // Матчинг атрибута и текста сообщения
       const resp = {
         'True': ['alert-success', 'Пользователь заблокирован'],
         'False': ['alert-success', 'Пользователь разблокирован'],
@@ -76,12 +87,13 @@ async function editUserInfo(flag: String) {
         'drop': ['alert-success', 'Пароль пользователя удален'],
         'None': ['alert-danger', 'Возникла ошибка'],
       };
-
-      updateMessage({
+      // Обновление сообщения
+      emit('updateMessage',{
         attr: resp[user as keyof typeof resp][0],
         text: resp[user as keyof typeof resp][1]
       });
-      user !== 'delete' ? viewUser(data.value.userId as String) : router.push({ name: 'users' })
+      // Обновление страницы либо редирект на страницу списка пользователей
+      user !== 'delete' ? viewUser(userId as String) : router.push({ name: 'users' })
     
     } catch (error) {
       console.error(error);
@@ -89,18 +101,17 @@ async function editUserInfo(flag: String) {
   }
 }
 
-
 </script>
 
 
 <template>
   <div class="container py-3">
     <div class="py-5"><h4>Профиль пользователя</h4></div>
-    <UserForm v-if="data.actions === 'edit'" 
-              :action="data.actions" 
+    <UserForm v-if="action === 'edit'" 
+              :action="action" 
               :profile="profile" 
-              @updateMessage="updateMessage" 
-              @updateAction="data.actions = ''"/>
+              @updateMessage="emit('updateMessage')" 
+              @updateAction="action = ''"/>
     <div v-else class="py-2">
       <table class="table table-responsive" >
         <thead>
@@ -121,7 +132,7 @@ async function editUserInfo(flag: String) {
       </table>
       <div class="btn-group py-2" role="group">
         <button @click="editUserInfo('block')" class="btn btn-outline-primary">{{profile.blocked ? "Разблокировать" : 'Заблокировать' }}</button>
-        <button @click="data.actions = 'edit'" class="btn btn-outline-primary">Редактировать</button>
+        <button @click="action = 'edit'" class="btn btn-outline-primary">Редактировать</button>
         <button @click="editUserInfo('drop')" class="btn btn-outline-primary">Сбросить пароль</button>
         <button @click="editUserInfo('delete')" class="btn btn-outline-primary">Удалить</button>
       </div>

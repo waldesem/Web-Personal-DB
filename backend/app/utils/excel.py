@@ -52,6 +52,18 @@ class ExcelFile:
 
 
 def resume_data(person_id, document, addresses, contacts, workplaces, staff):
+    """
+    Adds resume data to the database for a person.
+    Args:
+        person_id (int): The ID of the person.
+        document (dict): A dictionary containing document information.
+        addresses (list): A list of dictionaries containing address information.
+        contacts (list): A list of dictionaries containing contact information.
+        workplaces (list): A list of dictionaries containing workplace information.
+        staff (dict): A dictionary containing staff information.
+    Returns:
+        None
+    """
     db.session.add(Staff(**staff | {'person_id': person_id}))
     db.session.add(Document(**document | {'person_id': person_id}))
     for address in addresses:

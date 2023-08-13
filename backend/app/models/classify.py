@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Role(Enum):
+    """ Roles """
 
     admin = 'admin'
     superuser = 'superuser'
@@ -10,6 +11,7 @@ class Role(Enum):
 
 
 class Status(Enum):
+    """ Status """
 
     new = 'Новый'
     update = 'Обновлен'
@@ -25,6 +27,7 @@ class Status(Enum):
 
 
 class Conclusions(Enum):
+    """ Conclusions """
 
     agreed = 'СОГЛАСОВАНО'
     with_comment = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
@@ -32,6 +35,8 @@ class Conclusions(Enum):
 
 
 class Decisions(Enum):
+    """ Decisions """
+
     agreed = 'СОГЛАСОВАНО'
     with_comment = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
     denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
@@ -40,6 +45,7 @@ class Decisions(Enum):
 
 
 class Category(Enum):
+    """ Category """
 
     candidate = 'Кандидат'
     other = 'Проверяемый'

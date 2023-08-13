@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Компонент для отображения сообщений
 
 const props = defineProps({
   attr: String,

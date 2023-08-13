@@ -10,9 +10,9 @@ export default defineConfig({
       { find: '@store', replacement: fileURLToPath(new URL('./src/store', import.meta.url)) },
       { find: '@router', replacement: fileURLToPath(new URL('./src/router', import.meta.url)) },
       { find: '@components', replacement: fileURLToPath(new URL('./src/components', import.meta.url)) },
-      { find: '@admin', replacement: fileURLToPath(new URL('./src/components/admin', import.meta.url)) },
-      { find: '@person', replacement: fileURLToPath(new URL('./src/components/person', import.meta.url)) },
-      
+      { find: '@layouts', replacement: fileURLToPath(new URL('./src/components/layouts', import.meta.url)) },
+      { find: '@pages', replacement: fileURLToPath(new URL('./src/components/pages', import.meta.url)) },
+      { find: '@content', replacement: fileURLToPath(new URL('./src/components/content', import.meta.url)) },
     ],
   },
 })

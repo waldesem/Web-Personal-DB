@@ -28,21 +28,52 @@ bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 @bp.get('/<path:path>')
 @bp.doc(hide=True)
 def main(path=''):
+    """
+    Get the file from the specified path in the static folder and return it, or return the index.html file if the path is not found.
+    Parameters:
+        path (str): The path of the file to retrieve from the static folder. Defaults to an empty string if no path is provided.
+    Returns:
+        Response: The file from the specified path in the static folder, or the index.html file if the path is not found.
+    """
     if path and os.path.exists(os.path.join(bp.static_folder, path)):
         return send_from_directory(bp.static_folder, path)
     else:
         return bp.send_static_file('index.html')
 
 
+@bp.get('/images/<path:path>') 
+@bp.doc(hide=True)
+def send_photos(path):
+    """
+    Send photos from the specified path.
+    Parameters:
+        path (str): The path to the directory containing the photos.
+    Returns:
+        Response: The response containing the requested photo.
+    """
+    return send_from_directory(os.path.join(path, 'photos'), 'photo.jpeg', mimetype='image/jpeg')
+
+
 @bp.get('/locations')
 @bp.doc(hide=True)
 def get_locations():
+    """
+    Retrieves all locations from the database.
+    Returns:
+        dict: A dictionary containing the locations, where the keys are the region IDs and the values are the corresponding region names.
+    """
     return {rgn[0]: rgn[1] for rgn in db.session.query(Region.id, Region.region).all()}
     
     
 @bp.get('/classify')
 @bp.doc(hide=True)
 def get_classify():
+    """
+    Get the classification data.
+    This function retrieves the classification data for the API. It returns a dictionary 
+    containing the values of the different status options, role options, conclusions,
+    decisions, and categories.
+    """
     return [{i.name: i.value for i in Status}, 
             {i.name: i.value for i in Role}, 
             {i.name: i.value for i in Conclusions}, 
@@ -50,11 +81,47 @@ def get_classify():
             {i.name: i.value for i in Category}]
 
 
+@bp.get('/messages/<string:flag>')
+@bp.doc(hide=True)
+@bp.output(MessagesSchema)
+@jwt_required()
+def get_messages(flag):
+    """
+    Retrieves messages based on a flag.
+    Args:
+        flag (str): The flag to determine the type of messages to retrieve.
+    Returns:
+        list: A list of messages retrieved based on the flag.
+    """
+    messages = db.session.query(Report).filter(Report.status == Status.new.value,
+                                                Report.user_id == current_user.id).limit(12).all()
+    if flag == 'reply':
+        db.session.delete(messages)
+        db.session.commit()
+        messages = []
+    return messages
+
+
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
 @bp.doc(hide=True)
 @jwt_required()
 def index(flag, page):
-    pagination = 12
+    """
+    This function handles the index route of the API. It takes in two parameters:
+    - flag: a string representing the flag indicating the type of query to perform
+    - page: an integer representing the page number for pagination
+    
+    The function performs different queries based on the value of the flag parameter:
+    - If flag is 'main', the function checks the location_id and performs a query to retrieve a paginated list of Person objects ordered by id in descending order. If the location_id is not 1, the query is filtered by region_id.
+    - If flag is 'new', the function performs a query to retrieve a paginated list of Person objects with status values of 'new' or 'update' and category value of 'candidate', filtered by region_id and ordered by id in descending order.
+    - If flag is 'officer', the function performs a query to retrieve a paginated list of Person objects with status values not equal to 'finish', 'result', or 'cancel', joined with the Check table on the officer field. The query is filtered by the current user's username and ordered by id in ascending order.
+    - If flag is 'search', the function retrieves a JSON payload from the request and performs a query to retrieve a paginated list of Person objects filtered by fullname and birthday fields. The query is filtered by region_id if the location_id is not 1, and ordered by id in ascending order.
+    
+    The function uses a pagination value of 12 and the PersonSchema to serialize the query results into a list of datas. It also determines the has_next and has_prev values based on the pagination query object.
+    
+    The function returns a list containing the serialized datas and a dictionary with the has_next and has_prev values.
+    """
+    pagination = 16
     location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
     match flag:
         case 'main':
@@ -98,25 +165,30 @@ def index(flag, page):
     return [datas, {'has_next': has_next, "has_prev": has_prev}]
 
 
-@bp.get('/messages/<string:flag>')
-@bp.doc(hide=True)
-@bp.output(MessagesSchema)
-@jwt_required()
-def get_messages(flag):
-    messages = db.session.query(Report).filter(Report.status == Status.new.value,
-                                                Report.user_id == current_user.id).limit(12).all()
-    if flag == 'reply':
-        db.session.delete(messages)
-        db.session.commit()
-        messages = []
-    return messages
-
-
 @bp.get('/profile/<int:person_id>')
 @bp.doc(hide=True)
 @bp.output(ProfileSchema)
 @jwt_required()
 def get_profile(person_id):
+    """
+    Retrieves the profile information for a specific person.
+    Parameters:
+        person_id (int): The ID of the person.
+    Returns:
+        dict: A dictionary containing the profile information of the person. The dictionary has the following keys:
+            - 'resume' (Person): The resume information of the person.
+            - 'documents' (list[Document]): The list of documents associated with the person.
+            - 'addresses' (list[Address]): The list of addresses associated with the person.
+            - 'contacts' (list[Contact]): The list of contacts associated with the person.
+            - 'workplaces' (list[Workplace]): The list of workplaces associated with the person.
+            - 'staffs' (list[Staff]): The list of staff members associated with the person.
+            - 'relations' (list[Relation]): The list of relations associated with the person.
+            - 'checks' (list[Check]): The list of checks associated with the person.
+            - 'registries' (list[Registry]): The list of registries associated with the person.
+            - 'pfos' (list[Poligraf]): The list of poligrafs associated with the person.
+            - 'invs' (list[Investigation]): The list of investigations associated with the person.
+            - 'inquiries' (list[Inquiry]): The list of inquiries associated with the person.
+    """
     resume = db.session.query(Person).filter_by(id=person_id).one_or_none()
     
     documents = db.session.query(Document).filter_by(person_id=person_id).order_by(Document.person_id.asc()).all()
@@ -151,6 +223,13 @@ def get_profile(person_id):
 @bp.doc(hide=True)
 @jwt_required()
 def post_resume(response):
+    """
+    Creates a new resume for a person.
+    Parameters:
+        - response: The input data for creating the resume. (PersonSchema)
+    Returns:
+        - A dictionary containing the person_id and the result of the resume creation. (dict)
+    """
     location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
     person_id, result = add_resume(response, location_id)
     return {'person_id': person_id, 'result': result}
@@ -160,6 +239,11 @@ def post_resume(response):
 @bp.doc(hide=True)
 @jwt_required()
 def upload_file():
+    """
+    Uploads a file and adds the resume data to the database.
+    Returns:
+        A dictionary containing the result of the upload and the person ID.
+    """
     file = request.files['file']
     excel = ExcelFile(file)
     location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
@@ -171,6 +255,14 @@ def upload_file():
 
 
 def add_resume(resume: dict, location_id):
+    """
+    Adds a resume to the database.
+    Args:
+        resume (dict): A dictionary containing the resume information.
+        location_id: The ID of the location where the resume is being added.
+    Returns:
+        list: A list containing the person ID and a boolean indicating if the person already exists in the database.
+    """
     result = db.session.query(Person).filter(Person.fullname.ilike(resume['fullname']),
                                              Person.birthday==resume['birthday']).one_or_none()
     if result:
@@ -199,26 +291,27 @@ def add_resume(resume: dict, location_id):
     return [person_id, bool(result)]
 
 
-@bp.post('/photo/<int:person_id>')
+@bp.post('/photo/upload/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def upload_photo(person_id):
+    """
+    Uploads a photo for a given person.
+    :param person_id: The ID of the person.
+    :type person_id: int
+    :return: A dictionary indicating the result of the upload.
+    :rtype: dict
+    """
     if 'file' not in request.files:
         return {'result': False}
     
     person = Person.query.get(person_id)
     if person.path:
-        if not os.path.isdir(person.path):
-            os.mkdir(person.path)
-        else:
-            for index, file in enumerate(os.listdir(person.path)):
-                if file.startswith('photo'):
-                    lst_file = file.rsplit('.', 1)
-                    os.rename(os.path.join(person.path, file), 
-                              os.path.join(person.path, f'{lst_file[0]}-{index+1}.{lst_file[1]}'))
+        if not os.path.isdir(person.path):  # если директория не существует
+            os.mkdir(os.path.join(person.path))
         new_path = person.path
     else:
-        new_path = os.path.join(f'{person_id}-{person["fullname"]}')
+        new_path = os.path.join(BASE_PATH, f'{person_id}-{person["fullname"]}')
         if not os.path.isdir(new_path):
             os.mkdir(new_path)
         setattr(person, 'path', new_path)
@@ -227,180 +320,107 @@ def upload_photo(person_id):
     file = request.files['file']
     im = Image.open(file)
     rgb_im = im.convert('RGB')
-    photo_path = os.path.join(new_path,'photo.jpg')
-    rgb_im.save(photo_path)
+    if not os.path.isdir(os.path.join(new_path, 'photos')):
+        os.mkdir(os.path.join(new_path, 'photos'))
+    # сохраняем фото в директорию photos с пометкой времени в формате YYYYMMDDHHMMSS
+    rgb_im.save(os.path.join(new_path, 'photos', f'{datetime.now().strftime("%Y%m%d%H%M%S")}.jpg'))
     
     return {'result': True}
-
-
-@bp.get('/images/<path:path>') 
-@bp.doc(hide=True)
-def send_photos(path):
-    return send_from_directory(path, 'photo.jpeg', mimetype='image/jpeg')
-
-
-@bp.post('/update/staff/<person_id>')
-@bp.input(StaffSchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def update_staff(person_id, response):
-    db.session.add(Staff(**response | {'person_id': person_id}))
-    db.session.commit()
-    return ''
-
-
-@bp.post('//update/document/<person_id>')
-@bp.input(DocumentSchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def update_document(person_id, resonse):
-    db.session.add(Document(**resonse | {'person_id': person_id}))
-    db.session.commit()
-    return ''
-
-
-@bp.post('/update/contact/<person_id>')
-@bp.input(ContactSchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def update_contact(person_id, response):
-    db.session.add(Contact(**response | {'person_id': person_id}))
-    db.session.commit()
-    return ''
-
-
-@bp.post('/update/workplace/<person_id>')
-@bp.input(WorkplaceSchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def update_workplace(person_id, response):
-    db.session.add(Workplace(**response | {'person_id': person_id}))
-    db.session.commit()
-    return ''
-
-
-@bp.post('/update/address/<person_id>')
-@bp.input(AddressSchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def update_address(person_id, response):
-    db.session.add(Address(**response | {'person_id': person_id}))
-    db.session.commit()
-    return ''
-
-
-@bp.post('/update/relation/<person_id>')
-@bp.input(RelationSchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def create_relation(person_id, response):
-    db.session.add(Relation(**response | {'person_id': person_id}))
-    db.session.add(Relation(relation = response['relation'], 
-                            relation_id = person_id, 
-                            person_id = response['relation_id']))
-    db.session.commit()
-    return ''
-
-
-@bp.post('/update/location/<person_id>')
-@bp.doc(hide=True)
-@jwt_required()
-def add_region(person_id):
-    location = request.form['region']
-    person = Person.query.get(person_id)
-    setattr(person, 'region_id', location)
-    users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
-                                          User.region_id == location).all()
-    for user in users:
-        db.session.add(Report(report=f'Делегирована анкета {person.fullname} от \
-                               {current_user.username}', user_id=user.id))
-    db.session.commit()
-    return ''
-
-
-@bp.delete('/delete/<item>/<int:item_id>')
-@bp.doc(hide=True)
-@jwt_required()
-def delete_item(item, item_id):
-    item_model_map = {
-        'staff': Staff,
-        'relation': Relation,
-        'document': Document,
-        'workplace': Workplace,
-        'address': Address,
-        'contact': Contact
-    }
-    item_model = item_model_map.get(item)
-    if item_model:
-        item_instance = item_model.query.get(item_id)
-        if item_instance:
-            db.session.delete(item_instance)
-            db.session.commit()
-    return ''
-
 
 
 @bp.get('/anketa/status/<int:person_id>/')
 @bp.doc(hide=True)
 @jwt_required()
 def patch_status(person_id: int):
+    """
+    Update the status of a person in the database.
+    Parameters:
+        person_id (int): The ID of the person whose status needs to be updated.
+    Returns:
+        dict: A dictionary containing the message of the status update.
+    """
     person = Person.query.get(person_id)
     if person and not person.has_status([Status.result.value]):
         person.status = Status.update.value
         db.session.commit()
         return {"message": Status.update.value}
     return {"message": Status.error.name.value}
-    
+
 
 @bp.get('/anketa/send/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def send_resume(person_id):
+    """
+    Sends a resume to the check's robot.
+    Parameters:
+        person_id (int): The ID of the person.
+    Returns:
+        dict: A dictionary containing the response message.
+            Possible values for the 'message' key:
+                - 'new': The resume status is set to 'new'.
+                - 'update': The resume status is set to 'update'.
+                - 'error': An error occurred during the request.
+    """
     resume = db.session.query(Person).get(person_id)
-    anketa_schema = AnketaSchema()
-    serial = anketa_schema.dump(dict(
-        resume = resume, 
-        document = db.session.query(Document).filter_by(person_id=person_id).order_by(Document.id.desc()).first(), 
-        address = db.session.query(Address).filter_by(person_id=person_id).filter(Address.view.ilike("%регистрац%")).\
-            order_by(Address.id.desc()).first()))
-    try:
-        response = requests.post(url='https://httpbin.org/post', json=serial, timeout=5)
-        response.raise_for_status()
-        if response.status_code == 200:
-            resume.status = Status.robot.value
-            db.session.add(Check(officer=current_user.username, 
-                                    path = os.path.join(BASE_PATH, 
-                                                        resume.fullname[0], 
-                                                        f"{str(resume.id)}-{resume.fullname}",
-                                                        datetime.now().strftime("%Y-%m-%d")),
-                                                        person_id=person_id))
-            db.session.commit()
-            return {'message': Status.robot.name}
-        return {'message': Status.error.name}
-    except requests.exceptions.RequestException as e:
-        print(e)
-        return {'message': Status.error.name}
-
-
-@bp.get('/anketa/probe/<int:person_id>/')
-@bp.doc(hide=True)
-@jwt_required()
-def send_check(flag, person_id):
-    person = Person.query.get(person_id)
-    if person.has_status([Status.new.value, Status.update.value]):
-        folder_check(person_id, person["fullname"])
-        person.status = Status.robot.value
-        db.session.add(Check(officer=current_user.username, person_id = person_id))
-        db.session.commit()
-        return {'message': Status.robot.name}
-        
+    if resume.has_status([Status.new.value, Status.update.value]):
+        folder_check(person_id, resume["fullname"])
+        anketa_schema = AnketaSchema()
+        serial = anketa_schema.dump(dict(
+            resume = resume, 
+            document = db.session.query(Document).filter_by(person_id=person_id).order_by(Document.id.desc()).first(), 
+            address = db.session.query(Address).filter_by(person_id=person_id).filter(Address.view.ilike("%регистрац%")).\
+                order_by(Address.id.desc()).first()))
+        try:
+            response = requests.post(url='https://httpbin.org/post', json=serial, timeout=5)
+            response.raise_for_status()
+            if response.status_code == 200:
+                resume.status = Status.robot.value
+                db.session.add(Check(officer=current_user.username, 
+                                        path = os.path.join(BASE_PATH, 
+                                                            resume.fullname[0], 
+                                                            f"{str(resume.id)}-{resume.fullname}",
+                                                            datetime.now().strftime("%Y-%m-%d")),
+                                                            person_id=person_id))
+                db.session.commit()
+                return {'message': Status.robot.name}
+            return {'message': Status.error.name}
+        except requests.exceptions.RequestException as e:
+            print(e)
+            return {'message': Status.error.name}
     return {'message': Status.error.name}
+
+
+def folder_check(person_id, fullname):
+    """
+        Check if a folder exists for a given person and create it if it does not exist.
+
+        :param person_id: The ID of the person.
+        :type person_id: int
+        :param fullname: The full name of the person.
+        :type fullname: str
+        :return: The path of the created folder.
+        :rtype: str
+    """
+    url = os.path.join(BASE_PATH, f'{person_id}-{fullname}')
+    if not os.path.isdir(url):
+        os.mkdir(url)
+    check_path = os.path.join(url, datetime.now().strftime("%Y-%m-%d"))
+    os.mkdir(check_path)
+    return check_path
 
 
 @bp.get('/check/add/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def add_check(person_id):
+    """
+    Add a check for a person with the given ID.
+    Parameters:
+        person_id (int): The ID of the person.
+    Returns:
+        dict: A dictionary containing the message indicating the status of the check.
+    """
     person = Person.query.get(person_id)
     if person.has_status([Status.new.value, Status.update.value]):
         check_path = folder_check(person_id, person.fullname)
@@ -413,74 +433,125 @@ def add_check(person_id):
         
     return {'message': Status.error.name}
 
-
-def folder_check(person_id, fullname):
-    url = os.path.join(BASE_PATH, f'{person_id}-{fullname}')
-    if not os.path.isdir(url):
-        os.mkdir(url)
-    check_path = os.path.join(url, datetime.now().strftime("%Y-%m-%d"))
-    os.mkdir(check_path)
-    return check_path
-                             
-
-@bp.post('/check/create/<int:person_id>')
-@bp.input(CheckSchema)
+                         
+@bp.post('/<item>/<action>/<int:id>')
 @bp.doc(hide=True)
 @jwt_required()
-def post_check(person_id: int, response: dict):
-    person = db.session.query(Person).get(person_id)
-    latest_check = db.session.query(Check).filter_by(person_id=person_id).order_by(Check.id.desc()).first()
+def post_item(item, action, id):
+    """
+        Endpoint for posting an item.
+        Args:
+            item (str): The type of item being posted.
+            action (str): The action to be performed on the item.
+            id (int): The ID of the item being posted.
+        Returns:
+            dict: A dictionary containing the message response.
+    """
+    item_model_map = {
+        'staff': [Staff, StaffSchema],
+        'relation': [Relation, RelationSchema],
+        'document': [Document, DocumentSchema],
+        'workplace': [Workplace, WorkplaceSchema],
+        'address': [Address, AddressSchema],
+        'contact': [Contact, ContactSchema],
+        'check': [Check, CheckSchema],
+        'registry': [Registry, RegistrySchema],
+        'poligraf': [Poligraf, PoligrafSchema],
+        'investigation': [Investigation, InvestigationSchema],
+        'inquiry': [Inquiry, InquirySchema],
+        'location': [Person, LocationSchema]
+    }
+    schema = item_model_map.get(item)[1]
+    response = schema.load(request.get_json())
     
+    if item == 'registry':
+        post_registry(id, response)
+
+    else:
+        model = item_model_map.get(item)[0]
+        item_instance = model.query.get(id)
+        if action == 'update':
+            if item == 'check':
+                post_check(id, response, item_instance)
+            else:
+                for k, v in response.items():
+                    setattr(item_instance, k, v)
+                if item == 'location':
+                    users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
+                                          User.region_id == response).all()
+                    for user in users:
+                        db.session.add(Report(report=f'Делегирована анкета {item_instance.fullname} от \
+                               {current_user.username}', user_id=user.id))
+        else:
+            if item in ['staff', 'document', 'workplace', 'address', 'contact', 'relation']:
+                db.session.add(model(**response | {'person_id': id}))
+                if item == 'relation':
+                    db.session.add(Relation(relation = response['relation'], 
+                                            relation_id = id, 
+                                            person_id = response['relation_id']))
+            else:
+                db.session.add(model(**response | {'person_id': id, 'officer': current_user.username}))
+                if item == 'poligraf' and item_instance.has_status(Status.poligraf.value):
+                    item_instance.status = Status.result.value
+        db.session.commit()
+        return {'message': id}
+
+
+def post_check(int, response: dict, item_instance):
+    """
+    Updates the person with the given ID using the provided response data.
+    Parameters:
+        int: The ID of the person to update.
+        response (dict): A dictionary containing the response data.
+        item_instance: The instance of the item to update.
+    Returns:
+        dict: A dictionary with a message indicating the status of the update.
+    """
+    person = db.session.query(Person).get(int)
+
     response['pfo'] = bool(response.pop('pfo')) if 'pfo' in response else False
     response.update({"officer": current_user.username})
     
     for k, v in response.items():
-        setattr(latest_check, k, v)
+        setattr(item_instance, k, v)
     
     if response['conclusion'] == 'Сохранено':
         person.status = Status.save.value
         db.session.commit()
         return {'message': Status.save.name}
+    
     elif response['conclusion'] == "Отмена":
         person.status = Status.finish.value
         db.session.commit()
         return {'message': Status.cancel.name}
+    
     else:
         person.status = Status.poligraf.value if response['pfo'] else Status.result.value
         db.session.commit()
         return {'message': Status.poligraf.name if response['pfo'] else Status.result.name}
 
 
-@bp.get('/check/delete/<int:person_id>')
-@bp.doc(hide=True)
-@jwt_required()
-def delete_check(person_id):
-    person = db.session.query(Person).get(person_id)
-    if not person.has_status([Status.result.value, Status.finish.value]):
-        latest_check = db.session.query(Check).filter_by(person_id=person_id).order_by(Check.id.desc()).first()
-        if latest_check is not None:
-            db.session.delete(latest_check)
-            db.session.commit()
-            return {'message': Status.reply.name}
-    return {'message': Status.error.name}
-
-
-@bp.post('/registry/<int:person_id>')
-@bp.input(RegistrySchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def post_registry(person_id, resp):
+def post_registry(id, response):
+    """
+    Post a registry entry for a given ID and response.
+        :param id: The ID of the person.
+        :type id: int
+        :param response: The response to the registry entry.
+        :type response: dict
+        :return: A dictionary with a message indicating the result of the registry entry.
+        :rtype: dict
+    """
     user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
     if user.has_role(Role.superuser.value):
-        check_id = db.session.query(Check.id).filter_by(person_id=person_id).order_by(Check.id.desc()).one_or_none()
-        reg = {'check_id': check_id, 'supervisor': current_user.username} | resp
-        person = Person.query.get(person_id)
-        if person.request_id:
+        check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).one_or_none()
+        reg = {'check_id': check_id, 'supervisor': current_user.username} | response
+        person = Person.query.get(id)
+        if person.request_id:  # отправка ответа о результатах проверки если анкета поступила через API
             try:
                 response = requests.post(url='https://httpbin.org/post', 
                                         json=json.dumps({"id": person.request_id,
                                                         "deadline": datetime.now().strftime("%Y-%m-d%"),
-                                                        "supervisor": current_user.username} | resp), timeout=5)
+                                                        "supervisor": current_user.username} | response), timeout=5)
                 response.raise_for_status()
                 if response.status_code == 200:
                     db.session.add(Registry(**reg))
@@ -500,44 +571,54 @@ def post_registry(person_id, resp):
     return {'message': Status.error.name}
 
 
-@bp.post('/poligraf/<int:person_id>')
-@bp.input(PoligrafSchema, location='form')
+@bp.delete('/<item>/delete/<int:item_id>')
 @bp.doc(hide=True)
 @jwt_required()
-def post_poligraf(person_id, response):
-    poligraf = Poligraf(**response, person_id=person_id, officer=current_user.username)
-    db.session.add(poligraf)
-    person = Person.query.get(person_id)
-    if person.has_status(Status.poligraf.value):
-        person.status = Status.result.value
+def delete_item(item, item_id):
+    """
+    Deletes an item of a specified type from the database.
+    Args:
+        item (str): The type of item to delete.
+        item_id (int): The ID of the item to delete.
+    Returns:
+        str: An empty string if the item is successfully deleted.
+    """
+    item_model_map = {
+        'staff': Staff,
+        'relation': Relation,
+        'document': Document,
+        'workplace': Workplace,
+        'address': Address,
+        'contact': Contact,
+        'check': Check,
+        'poligraf': Poligraf,
+        'investigation': Investigation,
+        'inquiry': Inquiry
+    }
+    item_model = item_model_map.get(item)
+    item_instance = item_model.query.get(item_id)
+    if item == 'check':
+        person = db.session.query(Person).get(db.session.query(Check.person_id).filter_by(id=item_id).scalar())
+        if person.has_status([Status.result.value, Status.finish.value]) \
+            or db.session.query(Registry).filter_by(check_id=item_id).one_or_none():
+            return {'message': Status.error.name}  # нельзя удалить оконченную проверку
+        
+    os.rmdir(item_instance.path) if os.path.isdir(item_instance.path) else None  # удаление директории с файлами
+    db.session.delete(item_instance)
     db.session.commit()
-    return {'message': person_id}
-
-
-@bp.post('/investigation/<int:person_id>')
-@bp.input(InvestigationSchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def post_investigation(person_id, response):
-    db.session.add(Investigation(**response | {'person_id': person_id, 'officer': current_user.username}))
-    db.session.commit()
-    return {'message': person_id}
-
-
-@bp.post('/inquiry/<int:person_id>')
-@bp.input(InquirySchema, location='form')
-@bp.doc(hide=True)
-@jwt_required()
-def post_inquiry(person_id, response):
-    db.session.add(Inquiry(**response | {'person_id': person_id, 'officer': current_user.username}))
-    db.session.commit()
-    return {'message': person_id}
+    return ''
 
 
 @bp.post('/information')
 @bp.doc(hide=True)
 @jwt_required()
 def post_information():
+    """
+    Returns:
+        dict: A dictionary containing the candidates and poligraf information.
+            - candidates (dict): A dictionary mapping the decision to the count of candidates.
+            - poligraf (dict): A dictionary mapping the theme to the count of poligraf entries.
+    """
     response = request.get_json()
     candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
         join(Check, Check.id == Registry.check_id). \
@@ -555,4 +636,12 @@ def post_information():
 
 @bp.errorhandler(BadRequest)
 def handle_bad_request(e):
+    """
+    A decorator function that handles the BadRequest error.
+    Parameters:
+    - e (BadRequest): The BadRequest error object.
+    Returns:
+    - str: The error message 'bad request!'.
+    - int: The HTTP status code 400.
+    """
     return 'bad request!', 400

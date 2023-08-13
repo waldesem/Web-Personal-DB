@@ -8,6 +8,11 @@ from .classify import Category, Decisions, Status
 db = SQLAlchemy()
 
 def default_time():
+    """
+    Returns the current datetime.
+    :return: The current datetime.
+    :rtype: datetime
+    """
     return datetime.now()
 
 
@@ -42,9 +47,21 @@ class User(db.Model):
     reports = db.relationship('Report', backref='reports', cascade="all, delete, delete-orphan")
     
     def has_role(self, role):
+        """
+        Checks if the user has a specific role.
+        Args:
+            role (str): The role to check against.
+        Returns:
+            bool: True if the user has the specified role, False otherwise.
+        """
         return self.role == role
     
     def has_blocked(self):
+        """
+        Check if the object is blocked.
+        Returns:
+            bool: True if the object is blocked, False otherwise.
+        """
         return self.blocked
 
 

@@ -61,48 +61,56 @@ class PersonSchema(ma.SQLAlchemyAutoSchema):
 
 
 class RelationSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for relation"""
     class Meta:
         model = Relation
         ordered = True
 
 
 class DocumentSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for document"""
     class Meta:
         model = Document
         ordered = True
 
 
 class AddressSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for address"""
     class Meta:
         model = Address
         ordered = True
 
 
 class StaffSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for staff"""
     class Meta:
         model = Staff
         ordered = True
 
 
 class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for workplace"""
     class Meta:
         model = Workplace
         ordered = True
 
 
 class ContactSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for contact"""
     class Meta:
         model = Contact
         ordered = True
 
 
 class CheckSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for check"""
     class Meta:
         model = Check
         ordered = True
         
 
 class InvestigationSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for investigation"""
     class Meta:
         model = Investigation
         ordered = True
@@ -115,12 +123,14 @@ class InquirySchema(ma.SQLAlchemyAutoSchema):
 
 
 class PoligrafSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for poligraf"""
     class Meta:
         model = Poligraf
         ordered = True
 
 
 class RegistrySchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for registry"""
     class Meta:
         model = Registry
         ordered = True

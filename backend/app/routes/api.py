@@ -19,6 +19,14 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(username: str, password: str):
+    """
+    Verify the password for a given username.
+    Args:
+        username (str): The username to verify.
+        password (str): The password to verify.
+    Returns:
+        str: An empty string if the password is verified, otherwise None.
+    """
     user = db.session.query(User).filter_by(username=username).one_or_none()
     if user and not user.blocked and user.has_role(Role.api.value):
         if bcrypt.checkpw(password.encode('utf-8'), user.password):
@@ -29,6 +37,14 @@ def verify_password(username: str, password: str):
 @bp.input(ResumeSchema)
 @bp.auth_required(auth)
 def anketa(anketa: dict):
+    """
+    Create a new anketa and add it to the database.
+    Parameters:
+        anketa (dict): The anketa data as a dictionary.
+    Returns:
+        Tuple[bool, int]: A tuple containing a boolean indicating the success of 
+        the operation and an HTTP status code.
+    """
     resume = anketa['resume']
     resume["request_id"] = resume.pop('id')
     
@@ -63,6 +79,13 @@ def anketa(anketa: dict):
 @bp.input(CheckSchema)
 @bp.auth_required(auth)
 def check_in(response):
+    """
+    Checks in a candidate and updates the candidate's information in the database.
+    Parameters:
+    - response: A dictionary containing the response data from the client.
+    Returns:
+    - An empty string and a status code of 200 indicating a successful check-in.
+    """
     candidate = db.session.query(Person).get(response['id'])
     del response['id']
     latest_check = db.session.query(Check).filter_by(person_id=candidate.id).order_by(Check.id.desc()).first()

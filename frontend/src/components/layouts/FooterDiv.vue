@@ -1,6 +1,7 @@
 <script setup lang="ts">
+// Компонент для отображения подвала
 
-import server from '../store/server';
+import server from '@store/server';
 
 const doc_url = `${server}/docs`;
 

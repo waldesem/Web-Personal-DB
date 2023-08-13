@@ -1,9 +1,10 @@
 <script setup lang="ts">
+// Компонент для отображения статистики по региону и полиграфу 
 
 import { ref, onBeforeMount } from 'vue';
-import { locationStore } from '../../store/location';
-import { appAuth } from '../../store/auth';
-import server from '../../store/server';
+import { locationStore } from '@store/location';
+import { appAuth } from '@store/auth';
+import server from '@store/server';
 
 const storeLocation = locationStore();
 
@@ -11,8 +12,9 @@ const storeAuth = appAuth();
 
 const todayDate = new Date();
 
+// Данные формы ввода и реактиный объект
 const data = ref({
-  region: 'all' ? 'Все регионы' : '',
+  region: '',
   checks: [], 
   pfo: [],
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toISOString().slice(0,10),
@@ -21,17 +23,27 @@ const data = ref({
 
 const captions = ['Статистика по кандидатам', 'Статистика по полиграфу'];
 
-async function submitData() {
-  const formData = {'start': data.value.start, 'end': data.value.end, 'region': data.value.region};
-  const response = await storeAuth.axiosInstance.post(`${server}/information`, formData);
+// Отправка запроса на сервер перед монтированием компонента
+onBeforeMount(async () => {
+  submitData()
+});
+
+/**
+ * Submits data to the server.
+ *
+ * @return {Promise<void>} A promise that resolves when the data is successfully submitted.
+ */
+
+async function submitData(): Promise<void> {
+  const response = await storeAuth.axiosInstance.post(`${server}/information`, {
+    'start': data.value.start, 'end': data.value.end, 'region': data.value.region
+  });
   const { candidates, poligraf } = response.data;
+  
   data.value.checks = candidates;
   data.value.pfo = poligraf
 };
 
-onBeforeMount(async () => {
-  submitData()
-});
 
 </script>
 

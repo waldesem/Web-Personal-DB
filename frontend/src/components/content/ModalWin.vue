@@ -1,35 +1,51 @@
 <script setup lang="ts">
+// компонент для отображения модального окна
 
-import { computed } from 'vue';
-import server from '@store/server';
-import { appAuth } from '@store/auth';
+import { computed, ref } from 'vue';
+import { locationStore } from '@/store/location';
 
-const storeAuth = appAuth();
+const storeLocation = locationStore();
 
+const emit = defineEmits(['updateItem']);
+
+// данные из родительского компонента
 const props = defineProps({
     candId: String,
     path: String,
-    regions: Object
+    modal: Object,
+    action: String
 });
-  
-const emit = defineEmits(['updateMessage', 'updateItem']);
 
-async function submitData(event: Event) {
-  try {
-    const formData = new FormData(event.target as HTMLFormElement);
-    const response = await storeAuth.axiosInstance.post(`${server}/update/${props.path}/${props.candId}`, formData);
-    const message = response.status;
-    emit('updateMessage', {
-      attr: message === 200 ? "alert-success" : "alert-error",
-      text: message === 200 ? 'Запись успешно добавлена' : 'Ошибка'
-    });
-    emit('updateItem', props.candId);
-  } catch (error) {
-    console.error(error);
-  }
-}
+const modal = ref({}); // содержимое модального окна
+
+/**
+ * Updates an item.
+ *
+ * @param {Event} event - The event that triggered the update.
+ * @param {type} id - The ID of the person to be updated.
+ * @param {string} url - The URL to be updated.
+ * @param {type} actions - The actions to be performed during the update.
+ * @param {type} item_id - The ID of the item to be updated.
+ * @param {type} item - The item to be updated.
+ * @return {void} This function does not return anything.
+ */
+ function updateItem(
+  event: Event,
+  id = props.candId, 
+  url = props.path, 
+  actions = props.action, 
+  item_id = modal['id' as keyof typeof modal],
+  item = modal
+  
+  ): void {
+    event.preventDefault();
+    emit('updateItem', id, url, actions, item_id, item);
+    modal.value = {};
+  };
+
 
 const name = computed(() => {
+  // Матчинг заголовков модального окна
   const actionHeader = {
   'staff': 'должность',
   'document': 'документ',
@@ -54,69 +70,73 @@ const name = computed(() => {
         </div>
         <div class="modal-body">
 
-          <form v-if="path == 'staff'" @submit.prevent="submitData" class="form form-check" role="form">
+          <form v-if="path == 'staff'" @submit.prevent="event => updateItem(event)" class="form form-check" role="form">
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="position">Должность</label>
               <div class="col-lg-10">
-                <input class="form-control" id="position" maxlength="250" name="position" required type="text" value="">
+                <input class="form-control" id="position" maxlength="250" name="position" required type="text" v-model="modal['position']">
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="department">Деператамент/Кластер</label>
               <div class="col-lg-10">
-                <input class="form-control" id="department" maxlength="250" name="department" type="text" value="">
+                <input class="form-control" id="department" maxlength="250" name="department" type="text" v-model="modal['department']">
               </div>
             </div>
             <div class=" row">
               <div class="offset-lg-2 col-lg-10">
-                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Принять">
+                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
               </div>
             </div>
           </form>
 
-          <form v-else-if="path == 'document'" @submit.prevent="submitData" class="form form-check" role="form">
+          <form v-else-if="path == 'document'" @submit.prevent="event => updateItem(event)" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="view">Выбрать</label>
               <div class="col-lg-10">
-                <select class="form-select" id="view" name="view"><option value="Паспорт гражданина России">Паспорт гражданина России</option><option value="Иностранный документ">Иностранный документ</option><option value="Другое">Другое</option></select>
+                <select class="form-select" id="view" name="view" v-model="modal['view']">
+                  <option value="Паспорт гражданина России">Паспорт гражданина России</option>
+                  <option value="Иностранный документ">Иностранный документ</option>
+                  <option value="Другое">Другое</option>
+                </select>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="series">Серия документа</label>
               <div class="col-lg-10">
-                <input class="form-control" id="series" maxlength="25" name="series" type="text" value="">
+                <input class="form-control" id="series" maxlength="25" name="series" type="text" v-model="modal['series']">
               </div>
             </div>
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="number">Номер документа</label>
               <div class="col-lg-10">
-                <input class="form-control" id="number" maxlength="25" name="number" required type="text" value="">
+                <input class="form-control" id="number" maxlength="25" name="number" required type="text" v-model="modal['number']">
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="agency">Орган выдавший</label>
               <div class="col-lg-10">
-                <input class="form-control" id="agency" maxlength="250" name="agency" type="text" value="">
+                <input class="form-control" id="agency" maxlength="250" name="agency" type="text" v-model="modal['agency']">
               </div>
             </div>
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="issue">Дата выдачи</label>
               <div class="col-lg-10">
-                <input class="form-control" id="issue" name="issue" required type="date" value="">
+                <input class="form-control" id="issue" name="issue" required type="date" v-model="modal['issue']">
               </div>
             </div>
             <div class=" row">
               <div class="offset-lg-2 col-lg-10">
-                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Принять">
+                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
               </div>
             </div>
           </form>
           
-          <form v-else-if="path == 'address'" @submit.prevent="submitData" class="form form-check" role="form">
+          <form v-else-if="path == 'address'" @submit.prevent="event => updateItem(event)" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="view">Выбрать</label>
               <div class="col-lg-10">
-                <select class="form-select" id="view" name="view">
+                <select class="form-select" id="view" name="view" v-model="modal['view']">
                   <option value="Адрес регистрации">Адрес регистрации</option>
                   <option value="Адрес проживания">Адрес проживания</option>
                   <option value="Другое">Другое</option>
@@ -126,27 +146,27 @@ const name = computed(() => {
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="region">Регион</label>
               <div class="col-lg-10">
-                <input class="form-control" id="region" maxlength="250" name="region" type="text" value="">
+                <input class="form-control" id="region" maxlength="250" name="region" type="text" v-model="modal['region']">
               </div>
             </div>
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="address">Полный</label>
               <div class="col-lg-10">
-                <input class="form-control" id="address" maxlength="250" name="address" required type="text" value="">
+                <input class="form-control" id="address" maxlength="250" name="address" required type="text" v-model="modal['address']">
               </div>
             </div>
             <div class=" row">
               <div class="offset-lg-2 col-lg-10">
-                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Принять">
+                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
               </div>
             </div>
           </form>
 
-          <form v-else-if="path == 'contact'" @submit.prevent="submitData" class="form form-check" role="form">
+          <form v-else-if="path == 'contact'" @submit.prevent="event => updateItem(event)" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="view">Выбрать</label>
               <div class="col-lg-10">
-                <select class="form-select" id="view" name="view">
+                <select class="form-select" id="view" name="view" v-model="modal['view']">
                   <option value="Телефон">Телефон</option>
                   <option value="E-mail">E-mail</option>
                   <option value="Другое">Другое</option>
@@ -156,80 +176,80 @@ const name = computed(() => {
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="contact">Контакт</label>
               <div class="col-lg-10">
-                <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" value="">
+                <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" v-model="modal['contact']">
               </div>
             </div>
             <div class=" row">
               <div class="offset-lg-2 col-lg-10">
-                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Принять">
+                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
               </div>
             </div>
           </form>
           
-          <form v-else-if="path == 'workplace'" @submit.prevent="submitData" class="form form-check" role="form">
+          <form v-else-if="path == 'workplace'" @submit.prevent="event => updateItem(event)" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="period">Период работы</label>
               <div class="col-lg-10">
-                <input class="form-control" id="period" maxlength="25" name="period" type="text" value="">
+                <input class="form-control" id="period" maxlength="25" name="period" type="text" v-model="modal['period']">
               </div>
             </div>
             <div class="mb-3 row required">
               <label class="col-form-label col-lg-2" for="workplace">Место работы</label>
               <div class="col-lg-10">
-                <input class="form-control" id="workplace" maxlength="250" name="workplace" required type="text" value="">
+                <input class="form-control" id="workplace" maxlength="250" name="workplace" required type="text" v-model="modal['workplace']">
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="address">Адрес организации</label>
               <div class="col-lg-10">
-                <input class="form-control" id="address" maxlength="250" name="address" type="text" value="">
+                <input class="form-control" id="address" maxlength="250" name="address" type="text" v-model="modal['address']">
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="position">Должность</label>
               <div class="col-lg-10">
-                <input class="form-control" id="position" maxlength="250" name="position" type="text" value="">
+                <input class="form-control" id="position" maxlength="250" name="position" type="text" v-model="modal['position']">
               </div>
             </div>
             <div class=" row">
               <div class="offset-lg-2 col-lg-10">
-                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Принять">
+                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
               </div>
             </div>
           </form>
 
-          <form v-else-if="path == 'relation'" @submit.prevent="submitData" class="form form-check" role="form">
+          <form v-else-if="path == 'relation'" @submit.prevent="event => updateItem(event)" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="relation">Тип связи</label>
               <div class="col-lg-10">
-                <input class="form-control" id="relation" maxlength="250" name="relation" type="text" value="">
+                <input class="form-control" id="relation" maxlength="250" name="relation" type="text" v-model="modal['relation']">
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="relation_id">ID связи</label>
               <div class="col-lg-10">
-                <input class="form-control" id="relation_id" maxlength="25" name="relation_id" type="text" value="">
+                <input class="form-control" id="relation_id" maxlength="25" name="relation_id" type="text" v-model="modal['relation_id']">
               </div>
             </div>
             <div class=" row">
               <div class="offset-lg-2 col-lg-10">
-                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Принять">
+                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
               </div>
             </div>
           </form>
           
-          <form v-else-if="path == 'location'" @submit.prevent="submitData" class="form form-check" role="form">
+          <form v-else-if="path == 'location'" @submit.prevent="event => updateItem(event)" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="region">Регион</label>
               <div class="col-lg-10">
-                <select class="form-select" required value="" id="region" name="region">
-                  <option v-for="name, value in props.regions" :value="value">{{name}}</option>                
+                <select class="form-select" required id="region" name="region" v-model="modal['region']">
+                  <option v-for="name, value in storeLocation.regionsObject" :value="value">{{name}}</option>                
                 </select>
               </div>
             </div>
             <div class=" row">
               <div class="offset-lg-2 col-lg-10">
-                <input class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit" value="Изменить">
+                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
               </div>
             </div>
           </form>

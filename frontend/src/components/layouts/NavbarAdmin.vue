@@ -1,4 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/* Компонент NavBarAdmin - выводит навигационную панель в шапке сайта для администратора.
+Содержит ссылки на страницы: Кандидаты, Пользователи, Регионы, Сообщения */
+</script>
 
 <template>
     <div class="container-fluid">

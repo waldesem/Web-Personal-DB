@@ -81,7 +81,7 @@ To start development node server, run the following command in your terminal:
 ```
 npm run dev
 ```
-To build the code in the static directory, first comment first row in server.ts and uncomment second row. 
+To build the code in the static directory, first comment/uncomment rows in server.ts. 
 Then, run the following command in your terminal:
 ```
 npm run build -- --dest ../server/app/static

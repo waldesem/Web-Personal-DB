@@ -1,20 +1,22 @@
 <script setup lang="ts">
+// Родительский компонент админки
 
 import { onBeforeMount, ref } from 'vue'
 import server from '@store/server';
-import router from '../router/router';
-import { appAuth } from '../store/auth';
-import NavbarAdmin from './admin/NavbarAdmin.vue';
-import AlertMessage from './AlertMessage.vue';
+import router from '@router/router';
+import { appAuth } from '@store/auth';
+import NavbarAdmin from '@layouts/NavbarAdmin.vue';
+import AlertMessage from '@components/layouts/AlertMessage.vue';
 
 const storeAuth = appAuth()
 
+// Аттрибут и текст сообщения на странице админки
 const data = ref({
   attr: '',
   text: ''
 })
 
-
+// Проверка доступа к странице админки 
 onBeforeMount(async () => {
   const response = await storeAuth.axiosInstance.get(`${server}/admin`);
   const { admin } = response.data;
@@ -23,7 +25,7 @@ onBeforeMount(async () => {
   : router.push({ name: 'login' })
 })
 
-
+// Обновление сообщения на странице админки
 function updateMessage(alert: Object){
   data.value.attr = (alert as { attr: string })["attr"];
   data.value.text = (alert as { text: string })["text"];

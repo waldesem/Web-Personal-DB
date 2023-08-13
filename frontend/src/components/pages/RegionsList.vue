@@ -1,9 +1,10 @@
 <script setup lang="ts">
+// Компонент для отображения списка регионов
 
-import { onBeforeMount, ref } from 'vue'
-import { locationStore } from '../../store/location';
-import { appAuth } from '../../store/auth';
-import server from '../../store/server';
+import { ref } from 'vue'
+import { locationStore } from '@store/location';
+import { appAuth } from '@store/auth';
+import server from '@store/server';
 
 const emit = defineEmits(['updateMessage']);
 
@@ -11,25 +12,19 @@ const storeAuth = appAuth()
 
 const storeLocation = locationStore();
 
-const region = ref('');
+const region = ref('');  // выбранный регион
 
-
-onBeforeMount(async () => {
-  storeLocation.getRegions();
-});
-
-
-function updateMessage(alert: Object) {
-  emit('updateMessage', alert)
-};
-
-
-async function addRegion() {
+/**
+ * Adds a region to the server.
+ *
+ * @return {Promise<void>} This function does not return anything.
+ */
+async function addRegion(): Promise<void> {
   const response = await storeAuth.axiosInstance.post(`${server}/region/add`, {
     'region': region.value
   });
   const  { location } = response.data;
-  updateMessage({
+  emit('updateMessage',{
     attr: location ? 'alert-warning' : 'alert-success',
     text: location 
     ? 'При добавлении записи возникла ошибка'
@@ -39,22 +34,29 @@ async function addRegion() {
 };
 
 
-async function delRegion(id: String) {
+/**
+ * Deletes a region.
+ *
+ * @param {String} id - The ID of the region to be deleted.
+ * @return {Promise<void>} - A promise that resolves when the region is deleted.
+ */
+async function delRegion(id: String): Promise<void> {
   if (id === '1') {
-    updateMessage({
+    emit('updateMessage',{
       attr: 'alert-info',
       text: 'Нельзя удалить регион "Главный офис"'
     })
     return
-  }
+  };
   if (confirm(`Вы действительно хотите удалить регион?`)) {
     const response = await storeAuth.axiosInstance.get(`${server}/region/delete/${id}`);
     const  { location } = response.data;
-    updateMessage({
+    
+    emit('updateMessage',{
       attr: 'alert-success',
       text: `Регион ${location} удален`
     })
-    storeLocation.getRegions();
+    storeLocation.getRegions(); // Обновление списка регионов в хранилище
   }
 };
 

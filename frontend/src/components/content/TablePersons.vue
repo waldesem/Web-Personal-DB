@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
 import { ref, onBeforeMount, computed } from 'vue';
-import { locationStore } from '../../store/location';
-import { appAuth } from '../../store/auth';
-import server from '../../store/server';
+import { locationStore } from '@store/location';
+import { appAuth } from '@store/auth';
+import server from '@store/server';
 
 
 const emit = defineEmits(['updateMessage']);
@@ -16,6 +16,7 @@ const props = defineProps({
   admin: Boolean
 });
 
+// Объявление переменных
 const data = ref({
   fullname: '',
   birthday: '',
@@ -26,12 +27,12 @@ const data = ref({
   currentPath: 'main',
 });
 
-
+// Инициализация списка кандидатов
 onBeforeMount(async () => {
   getCandidates(data.value.currentPath);
 });
 
-
+// матчинг заголовков страниц
 const header = computed(() => {
   const name = {
     'search': "Результаты поиска", 
@@ -42,11 +43,15 @@ const header = computed(() => {
   return name[data.value.currentPath as keyof typeof name]
 });
 
-function updateMessage(alert: Object) {
-  emit('updateMessage', alert)
-};
 
-async function getCandidates(url: string, page=1) {
+/**
+ * Retrieves candidates from the specified URL and updates the data store.
+ *
+ * @param {string} url - The URL to retrieve candidates from.
+ * @param {number} [page=1] - The page number of the candidates to retrieve. Default is 1.
+ * @return {Promise<void>} - A promise that resolves when the candidates are retrieved and the data store is updated.
+ */
+async function getCandidates(url: string, page: number=1): Promise<void> {
   data.value.currentPage = page;
   data.value.currentPath = url;
   let response
@@ -59,7 +64,7 @@ async function getCandidates(url: string, page=1) {
       data.value.fullname = '';
       data.value.birthday = '';
       response = await storeAuth.axiosInstance.get(`${server}/index/${url}/${page}`, headers);
-
+    // Поиск кандидатов
     } else {
       response = await storeAuth.axiosInstance.post(`${server}/index/${url}/${page}`, 
       {
@@ -79,34 +84,49 @@ async function getCandidates(url: string, page=1) {
   }
 };
 
-
-async function prevPage() {
+/**
+ * Asynchronously moves to the previous page if it exists.
+ *
+ * @return {undefined} No return value.
+ */
+//
+async function prevPage(): Promise<void> {
   if (data.value.hasPrev) {
     data.value.currentPage -= 1;
-    await getCandidates(data.value.currentPath, data.value.currentPage);
+    getCandidates(data.value.currentPath, data.value.currentPage);
   }
 };
 
 
-async function nextPage() {
+/**
+ * Moves to the next page if there is one available.
+ *
+ * @return {Promise<void>} A promise that resolves when the operation is complete.
+ */
+async function nextPage(): Promise<void> {
   if (data.value.hasNext) {
     data.value.currentPage += 1;
-    await getCandidates(data.value.currentPath, data.value.currentPage);
+    getCandidates(data.value.currentPath, data.value.currentPage);
   }
 };
 
 
-async function delPerson(id: String) {
+/**
+ * Deletes a person record.
+ *
+ * @param {String} id - The ID of the person to delete.
+ * @return {Promise} A promise that resolves with the result of the deletion.
+ */
+async function delPerson(id: String): Promise<any> {
   if (confirm(`Вы действительно хотите удалить анкету?`)) {
     const response = await storeAuth.axiosInstance.get(`${server}/person/delete/${id}`, {
     headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
   });
     const  { person } = response.data;
-    updateMessage({
+    emit('updateMessage', {
       attr: 'alert-success',
       text: `Анкета ${person} удален`
     })
-    
     getCandidates(data.value.currentPath);
   }
 };
@@ -141,12 +161,7 @@ async function delPerson(id: String) {
             </div>
             <div class="col-md-1">
               <button class="btn btn-outline-primary btn-md" type="submit">Найти</button>
-              </div>
-            <!-- <div class="col-md-1">
-              <button class="btn btn-outline-primary btn-md" type="reset" data-bs-toggle="tooltip" data-bs-placement="top" title="Очистить поиск">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div-->
+            </div>
           </div>
         </form>
       </div>

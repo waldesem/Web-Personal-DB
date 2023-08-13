@@ -1,6 +1,7 @@
 <script setup lang="ts">
+// компонент для отображения и редактирования проверок кандидата
 
-import { ref, toRefs } from 'vue';
+import { ref } from 'vue';
 import { appAuth } from '@store/auth';
 import { appClassify } from '@store/classify';
 import server from '@store/server';
@@ -9,23 +10,42 @@ const storeAuth = appAuth();
 
 const classifyApp = appClassify();
 
-const emit = defineEmits(['updateMessage', 'updateItem'])
+const emit = defineEmits(['updateMessage', 'updateItem', 'deleteItem']);
 
 const props = defineProps({
-  table: {
-    type: Array as () => object[] | undefined,
-    required: true,
-  },
+  table: Array as () => Array<TableItem>,
   candId: String,
   status: String
 });
 
-const tableRef = toRefs(props).table;
+type TableItem = {
+  id: string;
+  workplace: string;
+  employee: string;
+  document: string;
+  inn: string;
+  debt: string;
+  bankruptcy: string;
+  bki: string;
+  courts: string;
+  affiliation: string;
+  terrorist: string;
+  mvd: string;
+  internet: string;
+  cronos: string;
+  cross: string;
+  addition: string;
+  poligraf: boolean;
+  conclusion: string;
+  comments: string;
+};
 
-const check = tableRef && tableRef.value && tableRef.value[0] ? tableRef.value[0] : {};
+// реактивные данные для показа в форме
+const check = ref({});
+  
+const action = ref(''); // action для редактирования
 
-const url = ref('');
-
+const isHovered = ref(false);
 
 async function addCheck() {
   if (props.status === classifyApp.status['save'] || 
@@ -39,7 +59,7 @@ async function addCheck() {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/check/add/${props.candId}`);
       const { message } = response.data;
-      message === "manual" ? url.value = 'new' : url.value = '';
+      message === "manual" ? action.value = 'create' : action.value = '';
       emit('updateMessage', {
         attr: message === "manual" ? 'alert-info' : 'alert-warning',
         text: message === "manual" ? 'Начата ручная проверка' : 'Проверка кандидата уже начата'
@@ -50,47 +70,45 @@ async function addCheck() {
   }
 };
 
+/**
+ * Updates an item.
+ *
+ * @param {Event} event - The event that triggered the update.
+ * @param {type} id - The ID of the person to be updated.
+ * @param {string} url - The URL to be updated.
+ * @param {type} actions - The actions to be performed during the update.
+ * @param {type} item_id - The ID of the item to be updated.
+ * @param {type} item - The item to be updated.
+ * @return {void} This function does not return anything.
+ */
+ function updateItem(
+  event: Event,
+  id = props.candId, 
+  url = 'inquiry', 
+  actions = action.value, 
+  item_id = check['id' as keyof typeof check],
+  item = check
+  ): void {
+    event.preventDefault();
+    emit('updateItem', id, url, actions, item_id, item);
+    action.value = '';
+    check.value = {};
+  };
 
-async function submitData(){
-  try {
-    const response = await storeAuth.axiosInstance.post(`${server}/check/create/${props.candId}`, check);
-    const { message } = response.data;
-    const alert = {
-      'save': ['alert-info', 'Проверка сохранена'],
-      'cancel': ['alert-warning', 'Проверка отменена'],
-      'poligraf': ['alert-info', 'Окончено. Назначено проведение ПФО'],
-      'result': ['alert-success', 'Проверка окончена']
-    }
-    
-    emit('updateMessage', {
-      attr: alert[message as keyof typeof alert][0],
-      text: alert[message as keyof typeof alert][1]
-    });
 
-    emit('updateItem', props.candId)
-    url.value = ''
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-
-function deleteCheck() {
+function deleteItem(id: string, flag: string): void {
   if (props.status === classifyApp.status['robot']) {
   emit('updateMessage', {
       attr: 'alert-warning',
       text: 'Нельзя удалить проверку с текущим статусом'
     })
   } else {
-    if (confirm("Вы действительно хотите удалить проверку?")) {
-      checkDelete();
-    }
+    emit('deleteItem', id, flag)
   }
 };
 
 async function cancelCheck() {
-  checkDelete();
-  url.value = '';
+  action.value = '';
   const response = await storeAuth.axiosInstance.get(`${server}/anketa/status/${props.candId}`);
   const { message } = response.data;
   emit('updateMessage', {
@@ -100,27 +118,13 @@ async function cancelCheck() {
   window.scrollTo(0,0)
 }
 
-async function checkDelete() {
-  try {
-    const response = await storeAuth.axiosInstance.get(`${server}/check/delete/${props.candId}`);
-    const { message } = response.data;
-    emit('updateMessage', {
-      attr: message === "reply" ? 'alert-success' : 'alert-warning',
-      text: message === "reply" ? 'Проверка удалена' : 'Проверку с текущим статусом удалить нельзя'
-    });
-    emit('updateItem', props.candId)
-    window.scrollTo(0,0)
-  } catch (error) {
-  console.error(error);
-  }
-};
-
 </script>
 
 <template>
   <div class="py-3">
-    <template v-if="url">
-      <form @submit.prevent="submitData" class="form form-check" role="form">
+
+    <template v-if="action">
+      <form @submit.prevent="event => updateItem(event)" class="form form-check" role="form"  id="checkFormId">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="workplace">Проверка по месту работы</label>
           <div class="col-lg-10">
@@ -244,9 +248,30 @@ async function checkDelete() {
         </div>
       </form>
     </template>
+
     <template v-else>
       <table v-if="props.table?.length" v-for="tbl in props.table" class="table table-responsive">
-        <thead><tr><th colspan="2">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th></tr></thead>
+        <thead>
+          <tr>
+            <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
+            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
+              <a href="#" :disabled="classifyApp.status 
+                          && (status === classifyApp.status['finish'])" 
+                          :class="{isHovered ? 'link-opacity-75' : 'd-none'}"  
+                          @click="deleteItem(tbl['id' as keyof typeof tbl].toString(), 'check')"
+                          data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
+                          <i class="bi bi-trash"></i></a>
+              <a href="#" :disabled="classifyApp.status 
+                          && (status !== classifyApp.status['save'] 
+                          && status !== classifyApp.status['cancel'] 
+                          && status !== classifyApp.status['manual'])" 
+                          :class="{isHovered ? 'link-opacity-75' : 'd-none'}"
+                          @click="action = 'update'; check = tbl"
+                          data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить" >
+                          <i class="bi bi-pencil-square"></i></a>
+            </th>
+          </tr>
+        </thead>   
         <tbody>
           <tr><td width="25%">Проверка по местам работы</td><td>{{ tbl['workplace' as keyof typeof tbl] }}</td></tr>
           <tr><td width="25%">Бывший работник МТСБ</td><td>{{ tbl['employee' as keyof typeof tbl] }}</td></tr>
@@ -272,29 +297,14 @@ async function checkDelete() {
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <div class="btn-group" role="group">
-        <button 
-          @click="deleteCheck" 
-          :disabled="classifyApp.status 
-          && (status === classifyApp.status['finish'])" 
-          class="btn btn-outline-primary">Удалить проверку
-        </button>
-        <button 
-          @click="addCheck" 
-          :disabled="classifyApp.status 
-          && (status !== classifyApp.status['new'] 
-          && status !== classifyApp.status['update'])" 
-          class="btn btn-outline-primary">Добавить проверку
-        </button>
-        <button 
-          @click="url='edit'" 
-          :disabled="classifyApp.status 
-          && (status !== classifyApp.status['save'] 
-          && status !== classifyApp.status['cancel'] 
-          && status !== classifyApp.status['manual'])"  
-          class="btn btn-outline-primary">Изменить проверку
-        </button>
-      </div>
+      <button 
+        @click="addCheck" 
+        :disabled="classifyApp.status 
+        && (status !== classifyApp.status['new'] 
+        && status !== classifyApp.status['update'])" 
+        class="btn btn-outline-primary">Добавить проверку
+      </button>
     </template>
+
   </div>
 </template>

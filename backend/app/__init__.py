@@ -14,6 +14,10 @@ from .routes.login import jwt
 # from app.tasks.tasker import broker
 
 def create_app():
+    """
+    Initializes and configures a Flask application.
+    :return: The Flask application instance.
+    """
     app = APIFlask(__name__, title="Web-Personal-DB", docs_ui="redoc")  # инициализация API Flask
     app.config.from_pyfile('../instance/env.py')
     app.json.sort_keys = False  # отключение сортировки поля json
@@ -48,6 +52,13 @@ def create_app():
     class LogFilter(logging.Filter):
         """Фильтр логов для записи в БД"""
         def filter(self, record):
+            """
+            Add a log record to the database.
+            Args:
+                record (logging.LogRecord): The log record to be added.
+            Returns:
+                bool: True if the log record was successfully added to the database, False otherwise.
+            """
             log_entry = Log(timestamp=record.created,
                 level=record.levelname,
                 message=record.msg,

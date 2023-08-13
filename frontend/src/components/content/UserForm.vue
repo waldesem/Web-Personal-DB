@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import { onBeforeMount, toRefs } from 'vue'
-import { locationStore } from '../../store/location';
-import { appClassify } from '../../store/classify';
-import { appAuth } from '../../store/auth';
-import server from '../../store/server';
+import { toRefs } from 'vue'
+import { locationStore } from '@store/location';
+import { appClassify } from '@store/classify';
+import { appAuth } from '@store/auth';
+import server from '@store/server';
 
 const storeAuth = appAuth()
 
@@ -19,24 +19,15 @@ const props = defineProps({
   action: String
 })
 
+// Данные пользователя из родительского компонента или пустой объект
 const profile = toRefs(props).profile?.value ?? {};
 
-
-onBeforeMount(async () => {
-  storeLocation.getRegions();
-});
-
-
-function updateMessage(alert: Object) {
-  emit('updateMessage', alert)
-};
-
-function cancelEdit() {
-  emit('updateAction')
-};
-
-
-async function submitData(){
+/**
+ * Submits data to the server.
+ *
+ * @return {Promise<void>} A promise that resolves when the data is successfully submitted.
+ */
+async function submitData(): Promise<void>{
   try {  
     const response = await storeAuth.axiosInstance.post(`${server}/user/${props.action}`, {
       'fullname': profile.fullname,
@@ -46,17 +37,17 @@ async function submitData(){
       'role': profile.role
     });
     const  { user } = response.data;
-    
+    // Матчинг атрибута и текста сообщения
     const resp = {
       'create': ['alert-success', 'Пользователь успешно создан'],
       'edit': ['alert-success', 'Пользователь успешно изменен'],
       'none': ['alert-danger', 'Ошибка создания (пользователь существует)/редактирования']
     }
-    updateMessage({ 
+    emit('updateMessage', { 
       attr: resp[user as keyof typeof resp][0],
       text: resp[user as keyof typeof resp][1] 
     });
-    cancelEdit();
+    emit('updateAction');
 
   } catch (error) {
     console.error(error);
@@ -110,7 +101,7 @@ async function submitData(){
         <div class="offset-lg-2 col-lg-10">
           <div class="btn-group">
             <button class="btn btn-outline-primary" name="submit" type="submit">{{props.action === 'create' ? 'Создать' : 'Изменить'}}</button>
-            <button class="btn btn-outline-primary" name="cancel" type="button" @click="cancelEdit">Отмена</button>
+            <button class="btn btn-outline-primary" name="cancel" type="button" @click="$emit('updateAction')">Отмена</button>
           </div>
         </div>
       </div>

@@ -1,34 +1,34 @@
 <script setup lang="ts">
 
 import { ref, onBeforeMount } from 'vue'
-import { appAuth } from '../../store/auth';
-import server from '../../store/server';
-import UserForm from './UserForm.vue';
+import { appAuth } from '@store/auth';
+import server from '@store/server';
+import UserForm from '@content/UserForm.vue';
 
 const emit = defineEmits(['updateMessage']);
 
 const storeAuth = appAuth()
 
-const users = ref([]);
+const users = ref([]);  // Список пользователей
 
-const actions = ref('');
+const action = ref(''); // Выбранное действие
 
-
+// Получение списка пользователей
 onBeforeMount(async () => {
   getUsers()
 });
 
-
-function updateMessage(alert: Object) {
-  emit('updateMessage', alert)
-};
-
-
-async function getUsers(){
-  actions.value = ''
+/**
+ * Retrieves a list of users from the server.
+ *
+ * @return {Promise<void>} - A promise that resolves with the list of users retrieved from the server.
+ */
+async function getUsers(): Promise<void>{
+  action.value = ''
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/users`);
     users.value = response.data;
+  
   } catch (error) {
     console.error(error);
   }
@@ -39,10 +39,10 @@ async function getUsers(){
 
 <template>
   <div class="container py-5">
-    <div class="py-3"><h4>{{ actions === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4></div>
-    <UserForm v-if="actions === 'create'" 
-                  :action="actions" 
-                  @updateMessage="updateMessage"
+    <div class="py-3"><h4>{{ action === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4></div>
+    <UserForm v-if="action === 'create'" 
+                  :action="action" 
+                  @updateMessage="emit('updateMessage')"
                   @updateAction="getUsers" />
     <div v-else class="py-2">
       <table class="table table-hover table-responsive align-middle">
@@ -72,7 +72,7 @@ async function getUsers(){
           </tr>
         </tbody>
       </table>
-      <button class="btn btn-primary" @click="actions = 'create'">Добавить пользователя</button>
+      <button class="btn btn-primary" @click="action = 'create'">Добавить пользователя</button>
     </div>
   </div>
 </template>

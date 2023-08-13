@@ -1,22 +1,29 @@
 <script setup lang="ts">
+// компонент формы добавления или редактирования резюе
 
-// import { onBeforeRouteLeave } from 'vue-router';
 import { toRefs } from 'vue'
 import { appAuth } from '@store/auth';
 import server from '@store/server';
 
 const storeAuth = appAuth();
 
-const emit = defineEmits (['updateMessage', 'updateItem', 'cancelEdit']);
+const emit = defineEmits (['updateMessage', 'getProfile', 'cancelEdit']);
 
+// объект из родительского компонента
 const props = defineProps({
   resume: Object
 });
 
+// создаем рективный объект из props или пустой объект
 const resume = toRefs(props).resume?.value ?? {};
 
 
-async function submitData() {
+/**
+ * Submits the data to the server to create a new resume.
+ *
+ * @return {Promise<void>} A promise that resolves when the data has been successfully submitted.
+ */
+async function submitData(): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.post(`${server}/resume/create`, resume);
     const { result, person_id } = response.data;
@@ -26,17 +33,12 @@ async function submitData() {
       text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
     });
     
-    emit('updateItem', person_id);
+    emit('getProfile', person_id);
   
   } catch (error) {
     console.error(error);
   }
 }
-
-// onBeforeRouteLeave((_to, _from) => {
-//   const answer = window.confirm('Вы действительно хотите покинуть страницу?');
-//   if (!answer) return false
-// })
 
 </script>
 <template>

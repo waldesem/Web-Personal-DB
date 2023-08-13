@@ -1,37 +1,51 @@
 <script setup lang="ts">
+// компонент для отображения логов
 
 import { onBeforeMount, ref } from 'vue'
-import server from '../../store/server';
-import { appAuth } from '../../store/auth';
+import { appAuth } from '@store/auth';
+import server from '@store/server';
+
+const emit = defineEmits(['updateMessage']);
 
 const storeAuth = appAuth()
 
-const data = ref({
-    logs: [],
-    attr: '',
-    text: ''
-  });
+const logs = ref([]);
 
-
+// получение списка логов при загрузке страницы
 onBeforeMount(async () => {
   logsList();
 });
 
-
-async function logsList() {
+/**
+ * Retrieves a list of logs from the server and updates the 'logs' value accordingly.
+ *
+ * @return {Promise<void>} A promise that resolves when the logs are successfully retrieved and updated.
+ */
+async function logsList(): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/logs`);
-    data.value.logs = response.data;
+    logs.value = response.data;
+  
   } catch (error) {
     console.error(error);
   }
 }
 
 
-async function logAction(flag: string) {
+/**
+ * Fetches logs based on the given flag and stores the result in the 'logs' variable.
+ *
+ * @param {string} flag - The flag to filter the logs by ('delete' or 'reply').
+ * @return {Promise<void>} - A promise that resolves with no value.
+ */
+async function logAction(flag: string): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/logs/${flag}`);
-    data.value.logs = response.data;
+    logs.value = response.data;
+    emit('updateMessage', {
+      attr: 'alert-info', 
+      text: flag === 'delete' ? 'Лог успешно удален' : 'Лог отмечен как прочитанный'
+    })
   
   } catch (error) {
     console.error(error);
@@ -57,7 +71,7 @@ async function logAction(flag: string) {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="log in data.logs" :key="log">
+          <tr v-for="log in logs" :key="log">
             <td>{{ log["id" as keyof typeof log] }}</td>
             <td>{{ new Date(log["timestamp" as keyof typeof log]).toLocaleString('ru-RU') }}</td>
             <td>{{ log["level" as keyof typeof log] }}</td>
