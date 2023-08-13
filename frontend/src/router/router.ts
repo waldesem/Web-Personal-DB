@@ -4,6 +4,8 @@ import { appAuth } from '@store/auth';
 import server from '@/store/server';
 import App from '@/App.vue';
 import LoginForm from '@pages/LoginForm.vue';
+import AdminPage from '@components/AdminPage.vue';
+import StaffPage from '@components/StaffPage.vue';
 import PersonsList from '@pages/PersonsList.vue';
 import ProFile from '@pages/ProFile.vue';
 import StatInfo from '@pages/StatInfo.vue';
@@ -34,7 +36,8 @@ const router = createRouter({
     },
     {
       path: '/index',
-      redirect: 'persons',
+      name: 'index',
+      component: StaffPage,
       children: [
         {
           path: 'persons',
@@ -60,7 +63,8 @@ const router = createRouter({
     },
     {
       path: '/admin',
-      redirect: 'main',
+      name: 'admin',
+      component: AdminPage,
       children: [
         {
           path: ':flag',

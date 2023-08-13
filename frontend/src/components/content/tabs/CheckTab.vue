@@ -45,7 +45,7 @@ const check = ref({});
   
 const action = ref(''); // action для редактирования
 
-const isHovered = ref(false);
+//const isHovered = ref(false);
 
 async function addCheck() {
   if (props.status === classifyApp.status['save'] || 
@@ -254,18 +254,17 @@ async function cancelCheck() {
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
+            <th>
               <a href="#" :disabled="classifyApp.status 
                           && (status === classifyApp.status['finish'])" 
-                          :class="{isHovered ? 'link-opacity-75' : 'd-none'}"  
                           @click="deleteItem(tbl['id' as keyof typeof tbl].toString(), 'check')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
+                          &nbsp;
               <a href="#" :disabled="classifyApp.status 
                           && (status !== classifyApp.status['save'] 
                           && status !== classifyApp.status['cancel'] 
                           && status !== classifyApp.status['manual'])" 
-                          :class="{isHovered ? 'link-opacity-75' : 'd-none'}"
                           @click="action = 'update'; check = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>

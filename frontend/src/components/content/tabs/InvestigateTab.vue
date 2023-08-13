@@ -23,7 +23,7 @@ const investigation = ref({});
   
 const action = ref(''); // action для редактирования
 
-const isHovered = ref(false); // переменная для ховеров
+//const isHovered = ref(false); // переменная для ховеров
 
 
 function updateItem(
@@ -75,13 +75,12 @@ function updateItem(
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}"
-                           @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'investigation')"
+            <th>
+              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'investigation')"
                            data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}"
-                          @click="action = 'update'; investigation = tbl"
+                          &nbsp;
+              <a href="#" @click="action = 'update'; investigation = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>

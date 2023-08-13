@@ -35,8 +35,6 @@ const modal = ref({});
 
 const action = ref('');
 
-const isHovered = ref(false);
-
 /**
  * Updates the status.
  *
@@ -103,9 +101,8 @@ async function sendResume(): Promise<void> {
         <thead>
           <tr>
             <th width="25%">{{ `ID #${props.resume['id']}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click="flag = 'resume'"
+            <th>
+              <a href="#" @click="flag = 'resume'"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить">
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -152,13 +149,12 @@ async function sendResume(): Promise<void> {
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'staff')"
+            <th>
+              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'staff')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click= "flag = 'staff'; action = 'update'; modal = tbl"
+              &nbsp;
+              <a href="#" @click= "flag = 'staff'; action = 'update'; modal = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить">
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -176,13 +172,12 @@ async function sendResume(): Promise<void> {
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'document')"
+            <th>
+              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'document')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click= "flag = 'document'; action = 'update'; modal = tbl"
+              &nbsp;
+              <a href="#" @click= "flag = 'document'; action = 'update'; modal = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить">
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -204,13 +199,12 @@ async function sendResume(): Promise<void> {
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'address')"
+            <th>
+              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'address')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click= "flag = 'address'; action = 'update'; modal = tbl"
+              &nbsp;
+              <a href="#" @click= "flag = 'address'; action = 'update'; modal = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить">
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -229,13 +223,12 @@ async function sendResume(): Promise<void> {
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'contact')"
+            <th>
+              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'contact')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click= "flag = 'contact'; action = 'update'; modal = tbl"
+              &nbsp;
+              <a href="#" @click= "flag = 'contact'; action = 'update'; modal = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить">
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -253,13 +246,12 @@ async function sendResume(): Promise<void> {
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'workplace')"
+            <th>
+              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'workplace')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click= "flag = 'workplace'; action = 'update'; modal = tbl"
+              &nbsp;
+              <a href="#" @click= "flag = 'workplace'; action = 'update'; modal = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить">
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -279,13 +271,12 @@ async function sendResume(): Promise<void> {
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th @mouseover="isHovered = true" @mouseout="isHovered = false">
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'relation')"
+            <th>
+              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'relation')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
-              <a href="#" :class="{isHovered ? 'link-opacity-75' : 'd-none'}" 
-                          @click= "flag = 'relation'; action = 'update'; modal = tbl"
+              &nbsp;
+              <a href="#" @click= "flag = 'relation'; action = 'update'; modal = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить">
                           <i class="bi bi-pencil-square"></i></a>
             </th>

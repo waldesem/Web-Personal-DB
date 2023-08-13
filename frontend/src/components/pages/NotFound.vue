@@ -1,3 +1,7 @@
+<script setup lang="ts">
+// Not Found Page 
+</script>
+
 <template>
   <div class="container px-5 py-5">
     <h1 class="text-primary mb-4">404 - Page Not Found</h1>

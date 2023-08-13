@@ -10,7 +10,7 @@ import RegistryTab from '@content/tabs/RegistryTab.vue';
 import PoligrafTab from '@content/tabs/PoligrafTab.vue';
 import InvestigateTab from '@content/tabs/InvestigateTab.vue';
 import InquiryTab from '@content/tabs/InquiryTab.vue';
-import PhotoTab from '@content/tabs/PhotoTab.vue';
+//import PhotoTab from '@content/tabs/PhotoTab.vue';
 
 const storeAuth = appAuth()
 
@@ -241,11 +241,11 @@ async function updateItem(
                   @updateItem="updateItem"/>
         </div>
         <div class="tab-pane py-1" role="tabpanel" id="photoTab">
-          <PhotoTab v-if="data.candId !== '0'"
+          <!--PhotoTab v-if="data.candId !== '0'"
                       :path="data.path" 
                       :candId="data.candId" 
                       @updateMessage="emit('updateMessage')" 
-                      @getProfile="getProfile" />
+                      @getProfile="getProfile" /-->
         </div>
       </template>
     </div>
