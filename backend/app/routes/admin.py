@@ -1,5 +1,5 @@
 from functools import wraps
-import os
+import shutil
 import bcrypt
 
 from flask import request, abort
@@ -149,7 +149,7 @@ def logs_list():
     Returns:
         A list of Log objects with the status set to 'new'.
     """
-    return db.session.query(Log).filter_by(status=Status.new.value).limit(100).all()
+    return db.session.query(Log).filter_by(status=Status.new.name).limit(100).all()
     
 
 @bp.get('/logs/<flag>')
@@ -164,15 +164,15 @@ def log_actions(flag):
     Returns:
     - list: A list of logs matching the specified flag and having a status of 'new'.
     """
-    logs = db.session.query(Log).filter_by(status=Status.new.value).all()
+    logs = db.session.query(Log).filter_by(status=Status.new.name).all()
     if flag == 'reply':
         for log in logs:
-            setattr(log, 'status', Status.reply.value)
+            setattr(log, 'status', Status.reply.name)
         db.session.commit()
     elif flag == 'delete':
         db.session.delete(logs)
         db.session.commit()
-    logs = db.session.query(Log).filter_by(status=Status.new.value).limit(100).all()
+    logs = db.session.query(Log).filter_by(status=Status.new.name).limit(100).all()
     return logs
     
     
@@ -226,6 +226,9 @@ def del_person(person_id):
     person = db.session.query(Person).filter_by(id=person_id).one_or_none()
     db.session.delete(person)
     db.session.commit()
-    os.rmdir(person.path)
+    try:
+        shutil.rmtree(person.path)
+    except Exception as e:
+        print(e)
     return {'person': person.fullname}
     

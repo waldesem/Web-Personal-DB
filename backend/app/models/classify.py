@@ -22,17 +22,19 @@ class Status(Enum):
     poligraf = 'ПФО'
     result = 'Результат'
     finish = 'Окончено'
-    cancel = 'Отмена'
+    cancel = 'Отменено'
     error = 'Ошибка'
 
 
 class Conclusions(Enum):
     """ Conclusions """
-
+    
     agreed = 'СОГЛАСОВАНО'
     with_comment = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
     denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
-
+    saved = "СОХРАНЕН"
+    canceled = 'ОТМЕНЕНО'
+   
 
 class Decisions(Enum):
     """ Decisions """
@@ -40,8 +42,6 @@ class Decisions(Enum):
     agreed = 'СОГЛАСОВАНО'
     with_comment = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
     denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
-    saved = "СОХРАНЕН"
-    canceled = 'ОТМЕНЕНО'
 
 
 class Category(Enum):

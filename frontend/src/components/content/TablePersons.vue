@@ -3,14 +3,15 @@
 import { ref, onBeforeMount, computed } from 'vue';
 import { locationStore } from '@store/location';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@/store/alert';
 import server from '@store/server';
 
-
-const emit = defineEmits(['updateMessage']);
 
 const storeAuth = appAuth()
 
 const store = locationStore();
+
+const storeAlert = appAlert();
 
 const props = defineProps({
   admin: Boolean
@@ -123,10 +124,10 @@ async function delPerson(id: String): Promise<any> {
     headers: {'Authorization': `Bearer ${localStorage.getItem('access_token')}`}
   });
     const  { person } = response.data;
-    emit('updateMessage', {
-      attr: 'alert-success',
-      text: `Анкета ${person} удален`
-    })
+    
+    storeAlert.alertAttr = 'alert-success';
+    storeAlert.alertText = `Анкета ${person} удален`;
+
     getCandidates(data.value.currentPath);
   }
 };
@@ -141,7 +142,7 @@ async function delPerson(id: String): Promise<any> {
       <div class="col-md-3">
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="region">Действия</label>
-          <select class="form-select" id="action" name="action" v-model="data.currentPath" @change="getCandidates(data.currentPath)">
+          <select class="form-select" id="region" name="region" v-model="data.currentPath" @change="getCandidates(data.currentPath)">
             <option value="new" selected>Новые кандидаты</option>
             <option value="main">Все кандидаты</option>
             <option value="officer">Мои анкеты</option>

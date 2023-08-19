@@ -3,11 +3,12 @@
 
 import { onBeforeMount, ref } from 'vue'
 import { appAuth } from '@store/auth';
+import { appAlert } from '@store/alert';
 import server from '@store/server';
 
-const emit = defineEmits(['updateMessage']);
+const storeAuth = appAuth();
 
-const storeAuth = appAuth()
+const storeAlert = appAlert();
 
 const logs = ref([]);
 
@@ -42,10 +43,8 @@ async function logAction(flag: string): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/logs/${flag}`);
     logs.value = response.data;
-    emit('updateMessage', {
-      attr: 'alert-info', 
-      text: flag === 'delete' ? 'Лог успешно удален' : 'Лог отмечен как прочитанный'
-    })
+    storeAlert.alertAttr = 'alert-info';
+    storeAlert.alertText = flag === 'delete' ? 'Лог успешно удален' : 'Лог отмечен как прочитанный';
   
   } catch (error) {
     console.error(error);

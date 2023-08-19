@@ -1,10 +1,8 @@
 <script setup lang="ts">
 
 import router from '@/router/router';
-import UploadFile from '@content/UploadFile.vue';
-import ResumeForm from '@content/ResumeForm.vue';
-
-const emit = defineEmits(['updateMessage', 'updateItem']);
+import UploadFile from '@content/forms/UploadFile.vue';
+import ResumeForm from '@content/forms/ResumeForm.vue';
 
 
 /**
@@ -23,10 +21,8 @@ function updateProfile(resp_id: string): undefined {
 <template>
     <div class="container py-3">
         <div class="py-5"><h4>Создать анкету</h4></div>
-        <UploadFile @updateMessage="emit('updateMessage')" 
-                    @updateItem="updateProfile"/>
+        <UploadFile @updateItem="updateProfile"/>
         <ResumeForm @cancelEdit="router.push({ name: 'persons' })" 
-                    @updateMessage="emit('updateMessage')" 
                     @updateItem="updateProfile" />
     </div>
 </template>

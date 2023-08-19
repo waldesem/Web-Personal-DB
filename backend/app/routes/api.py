@@ -4,14 +4,12 @@ import re
 
 import bcrypt
 from apiflask import HTTPBasicAuth
-# from flask_mailing import Message 
 
 from ..routes import bp
-# from ..mail.mail import mail
 from ..routes.route import add_resume, folder_check
 from ..utils.excel import resume_data
 from ..models.model import db, User, Person, Region, Check, Report, Status
-from ..models.schema import CheckSchema, ResumeSchema
+from ..models.schema import CheckSchemaApi, PersonSchemaApi
 from ..models.classify import Role
 
 auth = HTTPBasicAuth()
@@ -34,80 +32,67 @@ def verify_password(username: str, password: str):
 
 
 @bp.post('/api/v1/anketa')
-@bp.input(ResumeSchema)
+@bp.input(PersonSchemaApi)
 @bp.auth_required(auth)
-def anketa(anketa: dict):
+def get_anketa(json_data):
     """
-    Create a new anketa and add it to the database.
+    Take a new anketa.
     Parameters:
         anketa (dict): The anketa data as a dictionary.
     Returns:
         Tuple[bool, int]: A tuple containing a boolean indicating the success of 
         the operation and an HTTP status code.
     """
-    resume = anketa['resume']
+    resume = json_data['resume']
     resume["request_id"] = resume.pop('id')
-    
-    regions = {rgn[1][1]: rgn[0][1] for rgn in db.session.query(Region.id, Region.region).all()}
-    division = re.split(r'/', resume['staff']['department'])
+    regions = {rgn[1]: rgn[0] for rgn in db.session.query(Region.id, Region.region).all()}
+    division = re.split(r'/', json_data['staff']['department'])
     location_id = 1
     for div in division:
-        if div.strip() in regions:
-            location_id = regions.values[div]
+        location_id = regions[div] if div.strip() in regions else 1  # Проверка на существование региона и запись id, если нет - 'Главный офис'
+            
             
     person_id, result = add_resume(resume, location_id)
         
     users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
                                                         User.region_id == location_id).all()
     for user in users:
-        # message = Message(subject="Новая анкета",
-        #                   recipients=[user.email],
-        #                   body=f'<p>Поступила анкета {resume["fullname"]}</p>',
-        #                   subtype="html")
-        # await mail.send_message(message)
-
-        db.session.add(Report(message=f'Поступила анкета {resume["fullname"]}', 
+        db.session.add(Report(report=f'Поступила анкета {resume["fullname"]}', 
                                user_id=user.id))
     db.session.commit()
 
-    resume_data(person_id, resume['document'], resume['addresses'], 
-                resume['contacts'], resume['workplaces'], resume['staff'])
-    return bool(result), 200
+    resume_data(person_id, json_data['document'], json_data['addresses'], 
+                json_data['contacts'], json_data['workplaces'], json_data['staff'])
+    return '', 200
 
 
 @bp.post('/api/v1/check')
-@bp.input(CheckSchema)
+@bp.input(CheckSchemaApi)
 @bp.auth_required(auth)
-def check_in(response):
+def check_in(json_data):
     """
-    Checks in a candidate and updates the candidate's information in the database.
+    Take a new check result candidate.
     Parameters:
     - response: A dictionary containing the response data from the client.
     Returns:
     - An empty string and a status code of 200 indicating a successful check-in.
     """
-    candidate = db.session.query(Person).get(response['id'])
-    del response['id']
+    candidate = db.session.query(Person).get(json_data['id'])
+    del json_data['id']
     latest_check = db.session.query(Check).filter_by(person_id=candidate.id).order_by(Check.id.desc()).first()
     user = db.session.query(User).filter_by(username=latest_check.officer).one_or_none().scalar()
     
     db.session.add(Report(message=f'Проверка кандидата {candidate.fullname} окончена', user_id=user.id))
-    # message = Message(subject="Результаты проверки",
-    #                   recipients=[user.email],
-    #                   body=f'<p>Проверка кандидата {candidate.fullname} окончена</p>',
-    #                   subtype="html")
-    # await mail.send_message(message)
 
-    if os.path.isdir(response['path']):
+    if os.path.isdir(json_data['path']):
         check_path = latest_check.path if os.path.isdir(latest_check.path) else folder_check(candidate.id, candidate["fullname"])
-        response.update({'path': check_path})
         try:
-            for file in os.listdir(response['path']):
+            for file in os.listdir(json_data['path']):
                 shutil.copyfile(file, check_path)
         except FileNotFoundError as error:
             db.session.add(Report(message=error, user_id=user.id))
     
-    for k, v in response.items():
+    for k, v in json_data.items():
         setattr(latest_check, k, v)
     
     candidate.status = Status.reply.value

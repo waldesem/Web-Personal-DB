@@ -2,53 +2,46 @@
 // компонент для отображения и редактирования данных запросов
 
 import { ref } from 'vue';
+import { appProfile } from '@/store/profile';
 
-const emit = defineEmits(['updateItem', 'deleteItem']);
-
-const props = defineProps({
-  table: Array as () => Array<TableItem>,
-  candId: String
-});
-
-type TableItem = {
-  id: string;
-  info: string;
-  innitiator: string;
-  source: string;
-  officer: string;
-  deadline: Date;
-};
+const storeProfile = appProfile();
 
 // реактивные данные для показа в форме
-const inquiry = ref({});
-  
-const action = ref(''); // action для редактирования
+const inquiry = ref({
+  info: '',
+  initiator: '',
+  source: ''
+});
 
-// const isHovered = ref(false); // переменная для ховеров
+const inquiry_id = ref('');
+
+const action = ref(''); // action для редактирования
 
 /**
  * Updates an item.
  *
- * @param {Event} event - The event that triggered the update.
- * @param {type} id - The ID of the person to be updated.
- * @param {string} url - The URL to be updated.
- * @param {type} actions - The actions to be performed during the update.
- * @param {type} item_id - The ID of the item to be updated.
- * @param {type} item - The item to be updated.
  * @return {void} This function does not return anything.
  */
-function updateItem(
-  event: Event,
-  id = props.candId, 
-  url = 'inquiry', 
-  actions = action.value, 
-  item_id = inquiry['id' as keyof typeof inquiry],
-  item = inquiry
-  ): void {
-    event.preventDefault();
-    emit('updateItem', id, url, actions, item_id, item);
+function updateItem(): void {
+    storeProfile.updateItem(storeProfile.candId, 'inquiry', action.value, inquiry_id.value, {
+      'info': inquiry.value.info, 'initiator': inquiry.value.initiator, 'source': inquiry.value.source
+    });
+    cancelAction();
+  };
+
+/**
+ * Cancels the current action.
+ *
+ * @return {void} 
+ */
+function cancelAction(): void {
     action.value = '';
-    inquiry.value = {};
+    inquiry_id.value = '';
+    Object.assign(inquiry.value, {
+      'info': '',
+      'initiator': '',
+      'source': ''
+    })
   };
 
 
@@ -57,7 +50,7 @@ function updateItem(
 <template>
   <div class="py-3">
     <template v-if="action">
-      <form @submit.prevent="event => updateItem(event)" class="form form-check" role="form"  id="inquiryFormId">
+      <form @submit.prevent="updateItem" class="form form-check" role="form"  id="inquiryFormId">
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="info">Информация</label>
           <div class="col-lg-10">
@@ -81,7 +74,7 @@ function updateItem(
             <div class="btn-group" role="group">
                 <button class="btn btn-outline-primary" type="submit">Принять</button>
                 <button class="btn btn-outline-primary" type="reset">Очистить</button>
-                <button class="btn btn-outline-primary" type="button" @click="action = ''; inquiry = {}">Отмена</button>
+                <button class="btn btn-outline-primary" type="button" @click="cancelAction">Отмена</button>
               </div>
             </div>
         </div>
@@ -89,17 +82,17 @@ function updateItem(
     </template>
 
     <template v-else>
-      <table v-if="props.table?.length" v-for="tbl in props.table" class="table table-responsive">
+      <table v-if="storeProfile.needs?.length" v-for="tbl in storeProfile.needs" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th>
-              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'inquiry')"
-                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
+              <a href="#" @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].toString(), 'inquiry')"
+                           title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
-              <a href="#" @click="action = 'update'; inquiry = tbl"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить" >
+              <a href="#" @click="action = 'update'; inquiry_id = tbl['id' as keyof typeof tbl].toString(); inquiry = tbl"
+                          title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>
           </tr>

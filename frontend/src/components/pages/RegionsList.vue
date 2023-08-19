@@ -4,13 +4,14 @@
 import { ref } from 'vue'
 import { locationStore } from '@store/location';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@store/alert';
 import server from '@store/server';
-
-const emit = defineEmits(['updateMessage']);
 
 const storeAuth = appAuth()
 
 const storeLocation = locationStore();
+
+const storeAlert = appAlert();
 
 const region = ref('');  // выбранный регион
 
@@ -24,12 +25,10 @@ async function addRegion(): Promise<void> {
     'region': region.value
   });
   const  { location } = response.data;
-  emit('updateMessage',{
-    attr: location ? 'alert-warning' : 'alert-success',
-    text: location 
+  storeAlert.alertAttr = location ? 'alert-warning' : 'alert-success';
+  storeAlert.alertText = location 
     ? 'При добавлении записи возникла ошибка'
-    : 'Запись добавлена'
-  })
+    : 'Запись добавлена';
   storeLocation.getRegions();
 };
 
@@ -42,20 +41,17 @@ async function addRegion(): Promise<void> {
  */
 async function delRegion(id: String): Promise<void> {
   if (id === '1') {
-    emit('updateMessage',{
-      attr: 'alert-info',
-      text: 'Нельзя удалить регион "Главный офис"'
-    })
+    storeAlert.alertAttr = 'alert-info';
+    storeAlert.alertText = 'Нельзя удалить регион "Главный офис"';
     return
   };
   if (confirm(`Вы действительно хотите удалить регион?`)) {
     const response = await storeAuth.axiosInstance.get(`${server}/region/delete/${id}`);
     const  { location } = response.data;
     
-    emit('updateMessage',{
-      attr: 'alert-success',
-      text: `Регион ${location} удален`
-    })
+    storeAlert.alertAttr = 'alert-success';
+    storeAlert.alertText = `Регион ${location} удален`;
+
     storeLocation.getRegions(); // Обновление списка регионов в хранилище
   }
 };

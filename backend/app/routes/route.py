@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+import shutil
 import requests
 
 from flask_jwt_extended import current_user, jwt_required
@@ -15,7 +16,7 @@ from ..models.model import User, db, Person, Staff, Document, Address, Contact, 
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
 from ..models.schema import MessagesSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema, LocationSchema
+            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
 from ..models.classify import Category, Conclusions, Decisions, Role, Status
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'persons'))
@@ -222,7 +223,7 @@ def get_profile(person_id):
 @bp.input(PersonSchema)
 @bp.doc(hide=True)
 @jwt_required()
-def post_resume(response):
+def post_resume(json_data):
     """
     Creates a new resume for a person.
     Parameters:
@@ -231,7 +232,7 @@ def post_resume(response):
         - A dictionary containing the person_id and the result of the resume creation. (dict)
     """
     location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
-    person_id, result = add_resume(response, location_id)
+    person_id, result = add_resume(json_data, location_id)
     return {'person_id': person_id, 'result': result}
 
 
@@ -291,6 +292,178 @@ def add_resume(resume: dict, location_id):
     return [person_id, bool(result)]
 
 
+
+@bp.post('/profile/staff/<action>/<int:id>')
+@bp.doc(hide=True)
+@bp.input(StaffSchema)
+@jwt_required()
+def post_staff(action, id, json_data):
+    """
+    Create or update a staff profile.
+    Parameters:
+        action (str): The action to perform. Possible values are 'create' or 'update'.
+        id (int): The ID of the staff member.
+        response (dict): The response data containing the staff profile information.
+    Returns:
+        dict: A dictionary containing the action performed and the ID of the staff member.
+    """
+    if action == 'create':
+        db.session.add(Staff(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Staff).get(id), k, v)
+    db.session.commit()
+    return {'table': 'staff', 'action': action, 'id': id}
+
+
+@bp.post('/profile/document/<action>/<int:id>')
+@bp.doc(hide=True)
+@bp.input(DocumentSchema)
+@jwt_required()
+def post_document(action, id, json_data):
+    """
+    Create or update a document based on the specified action and ID.
+    Args:
+        action (str): The action to perform. Valid values are 'create' and 'update'.
+        id (int): The ID of the document.
+        response (dict): The response data containing the document attributes.
+    Returns:
+        dict: A dictionary containing the table name, action performed, and ID of the document.
+    """
+    if action == 'create':
+        db.session.add(Document(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Document).get(id), k, v)
+    db.session.commit()
+    return {'table': 'document', 'action': action, 'id': id}
+
+
+@bp.post('/profile/address/<action>/<int:id>')
+@bp.doc(hide=True)
+@bp.input(AddressSchema)
+@jwt_required()
+def post_address(action, id, json_data):
+    """
+    Create or update an address for a profile.
+    Parameters:
+        action (str): The action to perform. Can be 'create' or 'update'.
+        id (int): The ID of the profile.
+        response (dict): The address information to create or update.
+    Returns:
+        dict: A dictionary with the table name, action performed, and profile ID.
+    """
+    if action == 'create':
+        db.session.add(Address(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Address).get(id), k, v)
+    db.session.commit()
+    return {'table': 'address', 'action': action, 'id': id}
+
+
+@bp.post('/profile/contact/<action>/<int:id>')
+@bp.doc(hide=True)
+@bp.input(ContactSchema)
+@jwt_required()
+def post_contact(action, id, json_data):
+    """
+    Endpoint for creating or updating a contact in the profile.
+    Parameters:
+        action (str): The action to perform, either 'create' or 'update'.
+        id (int): The ID of the contact to create or update.
+        response (dict): The data for creating or updating the contact.
+    Returns:
+        dict: A dictionary containing the table name, the action performed, and the ID of the contact.
+    """
+    if action == 'create':
+        db.session.add(Contact(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Contact).get(id), k, v)
+    db.session.commit()
+    return {'table': 'contact', 'action': action, 'id': id}
+
+
+@bp.post('/profile/workplace/<action>/<int:id>')
+@bp.input(WorkplaceSchema)
+@bp.doc(hide=True)
+@jwt_required()
+def post_workplace(action, id, json_data):
+    """
+    POST method for updating workplace information.
+    Parameters:
+        action (str): The action to perform on the workplace information. Valid values are 'create' or 'update'.
+        id (int): The id of the workplace to update.
+        response (dict): The updated workplace information.
+    Returns:
+        dict: A dictionary containing the table name, the action performed, and the id of the updated workplace.
+    """
+    if action == 'create':
+        db.session.add(Workplace(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Workplace).get(id), k, v)
+    db.session.commit()
+    return {'table': 'workplace', 'action': action, 'id': id}
+
+
+@bp.post('/profile/relation/<action>/<int:id>')
+@bp.input(RelationSchema)
+@bp.doc(hide=True)
+@jwt_required()
+def post_relation(action, id, json_data):
+    """
+    Post a relation to the profile.
+    :param action: The action to perform on the relation. Possible values are 'create' or any other action.
+    :type action: str
+    :param id: The ID of the profile relation.
+    :type id: int
+    :param response: The response containing the relation details.
+    :type response: dict
+    :return: A dictionary containing the table name, action performed, and the ID of the profile relation.
+    :rtype: dict
+    """
+    if action == 'create':
+        db.session.add(Relation(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Relation).get(id), k, v)
+    db.session.add(Relation(relation = json_data['relation'], 
+                            relation_id = id, 
+                            person_id = json_data['relation_id']))
+    db.session.commit()
+    return {'table': 'relation', 'action': action, 'id': id}
+
+
+@bp.post('/profile/location/<action>/<int:id>')
+@bp.input(PersonSchema)
+@bp.doc(hide=True)
+@jwt_required()
+def post_location(action, id, json_data):
+    """
+    Create or update a person's location.
+    Parameters:
+    - action (str): The action to perform. Can be 'create' or any other string.
+    - id (int): The ID of the person.
+    - response (dict): The response containing the person's location information.
+    Returns:
+    - dict: A dictionary containing the table name, action, and ID of the location.
+    """
+    if action == 'create':
+        db.session.add(Person(**json_data | {'region_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Person).get(id), k, v)
+        users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
+                                            User.region_id == json_data['region_id']).all()
+        for user in users:
+            db.session.add(Report(report=f'Делегирована анкета ID #{id} от \
+                {current_user.username}', user_id=user.id))        
+    db.session.commit()
+    return {'table': 'location', 'action': action, 'id': id}
+
+
 @bp.post('/photo/upload/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
@@ -328,7 +501,7 @@ def upload_photo(person_id):
     return {'result': True}
 
 
-@bp.get('/anketa/status/<int:person_id>/')
+@bp.get('/anketa/status/<int:person_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def patch_status(person_id: int):
@@ -340,11 +513,11 @@ def patch_status(person_id: int):
         dict: A dictionary containing the message of the status update.
     """
     person = Person.query.get(person_id)
-    if person and not person.has_status([Status.result.value]):
+    if person and not person.has_status([Status.finish.value]):
         person.status = Status.update.value
         db.session.commit()
-        return {"message": Status.update.value}
-    return {"message": Status.error.name.value}
+        return {"message": Status.update.name}
+    return {"message": Status.error.name}
 
 
 @bp.get('/anketa/send/<int:person_id>')
@@ -433,105 +606,64 @@ def add_check(person_id):
         
     return {'message': Status.error.name}
 
-                         
-@bp.post('/<item>/<action>/<int:id>')
+
+@bp.post('/profile/check/<action>/<int:id>')
 @bp.doc(hide=True)
+@bp.input(CheckSchema)
 @jwt_required()
-def post_item(item, action, id):
+def post_check(action, id, json_data):
     """
-        Endpoint for posting an item.
-        Args:
-            item (str): The type of item being posted.
-            action (str): The action to be performed on the item.
-            id (int): The ID of the item being posted.
-        Returns:
-            dict: A dictionary containing the message response.
+    Endpoint for performing a check on a profile.
+    Args:
+        action (str): The action to perform on the profile check.
+        id (int): The ID of the profile to perform the check on.
+        response (dict): The response containing the check details.
+    Returns:
+        dict: A dictionary containing information about the performed check.
     """
-    item_model_map = {
-        'staff': [Staff, StaffSchema],
-        'relation': [Relation, RelationSchema],
-        'document': [Document, DocumentSchema],
-        'workplace': [Workplace, WorkplaceSchema],
-        'address': [Address, AddressSchema],
-        'contact': [Contact, ContactSchema],
-        'check': [Check, CheckSchema],
-        'registry': [Registry, RegistrySchema],
-        'poligraf': [Poligraf, PoligrafSchema],
-        'investigation': [Investigation, InvestigationSchema],
-        'inquiry': [Inquiry, InquirySchema],
-        'location': [Person, LocationSchema]
-    }
-    schema = item_model_map.get(item)[1]
-    response = schema.load(request.get_json())
-    
-    if item == 'registry':
-        post_registry(id, response)
+    json_data['pfo'] = bool(json_data.pop('pfo')) if 'pfo' in json_data else False
+    if action == 'create':
+        person = db.session.query(Person).get(id)        
+        db.session.add(Check(**json_data | {'person_id': id, 'officer': current_user.username}))
 
     else:
-        model = item_model_map.get(item)[0]
-        item_instance = model.query.get(id)
-        if action == 'update':
-            if item == 'check':
-                post_check(id, response, item_instance)
-            else:
-                for k, v in response.items():
-                    setattr(item_instance, k, v)
-                if item == 'location':
-                    users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
-                                          User.region_id == response).all()
-                    for user in users:
-                        db.session.add(Report(report=f'Делегирована анкета {item_instance.fullname} от \
-                               {current_user.username}', user_id=user.id))
-        else:
-            if item in ['staff', 'document', 'workplace', 'address', 'contact', 'relation']:
-                db.session.add(model(**response | {'person_id': id}))
-                if item == 'relation':
-                    db.session.add(Relation(relation = response['relation'], 
-                                            relation_id = id, 
-                                            person_id = response['relation_id']))
-            else:
-                db.session.add(model(**response | {'person_id': id, 'officer': current_user.username}))
-                if item == 'poligraf' and item_instance.has_status(Status.poligraf.value):
-                    item_instance.status = Status.result.value
-        db.session.commit()
-        return {'message': id}
+        check = db.session.query(Check).get(id)
+        person = db.session.query(Person).get(check.person_id)
+        for k, v in json_data.items():
+            setattr(check, k, v)
+    db.session.commit()    
 
-
-def post_check(int, response: dict, item_instance):
-    """
-    Updates the person with the given ID using the provided response data.
-    Parameters:
-        int: The ID of the person to update.
-        response (dict): A dictionary containing the response data.
-        item_instance: The instance of the item to update.
-    Returns:
-        dict: A dictionary with a message indicating the status of the update.
-    """
-    person = db.session.query(Person).get(int)
-
-    response['pfo'] = bool(response.pop('pfo')) if 'pfo' in response else False
-    response.update({"officer": current_user.username})
-    
-    for k, v in response.items():
-        setattr(item_instance, k, v)
-    
-    if response['conclusion'] == 'Сохранено':
+    if json_data['conclusion'] == (Status.save.value).upper():
         person.status = Status.save.value
         db.session.commit()
-        return {'message': Status.save.name}
+        return {'table': 'check', 
+                'action': action, 
+                'id': id, 
+                'message': Status.save.name}
     
-    elif response['conclusion'] == "Отмена":
-        person.status = Status.finish.value
+    elif json_data['conclusion'] == (Status.cancel.name).upper():
+        person.status = Status.result.value
         db.session.commit()
-        return {'message': Status.cancel.name}
+        return {'table': 'check', 
+                'action': action, 
+                'id': id, 
+                'message': Status.cancel.name}
     
     else:
-        person.status = Status.poligraf.value if response['pfo'] else Status.result.value
+        person.status = Status.poligraf.value if json_data['pfo'] else Status.result.value
         db.session.commit()
-        return {'message': Status.poligraf.name if response['pfo'] else Status.result.name}
+    
+    return {'table': 'check', 
+            'action': action, 
+            'id': id, 
+            'message': Status.poligraf.name if json_data['pfo'] else Status.result.name}
 
 
-def post_registry(id, response):
+@bp.post('/profile/registry/<action>/<int:id>')
+@bp.input(RegistrySchema)
+@bp.doc(hide=True)
+@jwt_required()
+def post_registry(action, id, json_data):
     """
     Post a registry entry for a given ID and response.
         :param id: The ID of the person.
@@ -542,36 +674,121 @@ def post_registry(id, response):
         :rtype: dict
     """
     user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-    if user.has_role(Role.superuser.value):
-        check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).one_or_none()
-        reg = {'check_id': check_id, 'supervisor': current_user.username} | response
-        person = Person.query.get(id)
+    if not user.has_role(Role.user.value):
+        check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).scalar()
+        reg = {'check_id': check_id, 'supervisor': current_user.username} | json_data
+        person = db.session.query(Person).get(id)
         if person.request_id:  # отправка ответа о результатах проверки если анкета поступила через API
             try:
                 response = requests.post(url='https://httpbin.org/post', 
                                         json=json.dumps({"id": person.request_id,
                                                         "deadline": datetime.now().strftime("%Y-%m-d%"),
-                                                        "supervisor": current_user.username} | response), timeout=5)
+                                                        "supervisor": current_user.username} | json_data), timeout=5)
                 response.raise_for_status()
                 if response.status_code == 200:
                     db.session.add(Registry(**reg))
                     person.status = Status.cancel.value if reg['decision'] == Status.cancel.value else Status.finish.value
                     db.session.commit()
-                    return {'message': Status.result.name}
+                    return {'table': 'registry', 
+                            'action': action, 
+                            'id': id, 
+                            'message': Status.finish.name}
                 else:
-                    return {'message': Status.cancel.name}
+                    return {'table': 'registry', 
+                            'action': action, 
+                            'id': id, 
+                            'message': Status.cancel.name}
             except Exception as e:
                 print(e)
-                return {"message": Status.error.name}
+                return {'table': 'registry', 
+                        'action': action, 
+                        'id': id, 
+                        "message": Status.error.name}
         else:
             db.session.add(Registry(**reg))
             person.status = Status.cancel.value if reg['decision'] == Status.cancel.value else Status.finish.value
             db.session.commit()
-            return {'message': Status.result.name}
-    return {'message': Status.error.name}
+            return {'table': 'registry', 
+                    'action': action, 
+                    'id': id, 
+                    'message': Status.finish.name}
+    return {'table': 'registry', 
+            'action': action, 
+            'id': id, 
+            'message': Status.reply.name}
 
 
-@bp.delete('/<item>/delete/<int:item_id>')
+@bp.post('/profile/poligraf/<action>/<int:id>')
+@bp.doc(hide=True)
+@bp.input(PoligrafSchema)
+@jwt_required()
+def post_poligraf(action, id, json_data):
+    """
+    Endpoint for creating or updating a poligraf profile.
+    Args:
+        action (str): The action to perform. Can be 'create' or any other value for updating.
+        id (int): The ID of the poligraf profile.
+        response (dict): The data to be stored in the poligraf profile.
+    Returns:
+        dict: A dictionary containing the action performed and the ID of the poligraf profile.
+    """
+    if action == 'create':
+        db.session.add(Poligraf(**json_data | {'person_id': id, 'officer': current_user.username}))
+        person = db.session.query(Person).get(id)
+        if person.has_status(Status.poligraf.value):
+            person.status = Status.result.value
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Poligraf).get(id), k, v)
+    db.session.commit()
+    return {'table': 'poligraf', 'action': action, 'id': id}
+
+
+@bp.post('/profile/investigation/<action>/<int:id>')
+@bp.doc(hide=True)
+@bp.input(InvestigationSchema)
+@jwt_required()
+def post_investigation(action, id, json_data):
+    """
+    Endpoint for creating or updating an investigation profile for a person.
+    Args:
+        action (str): The action to perform. 'create' to create a new investigation profile, or any other value to update an existing profile.
+        person_id (int): The ID of the person for whom the investigation profile is being created or updated.
+    Returns:
+        dict: A dictionary containing the action performed and the person ID.
+    """
+    if action == 'create':
+        db.session.add(Investigation(**json_data | {'person_id': id, 'officer': current_user.username}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Investigation).get(id), k, v)
+    db.session.commit()
+    return {'table': 'investigation', 'action': action, 'id': id}
+
+
+@bp.post('/profile/inquiry/<action>/<id>')
+@bp.doc(hide=True)
+@bp.input(InquirySchema)
+@jwt_required()
+def post_inquiry(action, id, json_data):
+    """
+    Endpoint to post an inquiry for a specific person.
+    Parameters:
+        - action (str): The action to perform. Can be 'create' or any other string.
+        - person_id (int): The ID of the person for whom the inquiry is being posted.
+    Returns:
+        dict: A dictionary containing the action performed and the person ID.
+    """
+    if action == 'create':
+        db.session.add(Inquiry(**json_data | {'person_id': id, 'officer': current_user.username}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Inquiry).get(id), k, v)
+    db.session.commit()
+    return {'table': 'inquiry', 'action': action, 'id': id}
+ 
+
+@bp.delete('/profile/<item>/delete/<int:item_id>')
 @bp.doc(hide=True)
 @jwt_required()
 def delete_item(item, item_id):
@@ -599,14 +816,15 @@ def delete_item(item, item_id):
     item_instance = item_model.query.get(item_id)
     if item == 'check':
         person = db.session.query(Person).get(db.session.query(Check.person_id).filter_by(id=item_id).scalar())
-        if person.has_status([Status.result.value, Status.finish.value]) \
+        if person.has_status(Status.finish.value) \
             or db.session.query(Registry).filter_by(check_id=item_id).one_or_none():
             return {'message': Status.error.name}  # нельзя удалить оконченную проверку
-        
-    os.rmdir(item_instance.path) if os.path.isdir(item_instance.path) else None  # удаление директории с файлами
+        setattr(person, 'status', Status.update.value)
+        if item_instance.path:
+            if os.path.isdir(item_instance.path): shutil.rmtree(item_instance.path)  # удаление директории с файлами
     db.session.delete(item_instance)
     db.session.commit()
-    return ''
+    return {'message': item}
 
 
 @bp.post('/information')
@@ -620,16 +838,24 @@ def post_information():
             - poligraf (dict): A dictionary mapping the theme to the count of poligraf entries.
     """
     response = request.get_json()
-    candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
-        join(Check, Check.id == Registry.check_id). \
-            join(Person, Person.id == Check.person_id).\
-                group_by(Registry.decision).\
-                    filter(Registry.deadline.between(response['start'], response['end']), 
-                           Person.region_id == response['region']).all()
+    if not response['region']:
+        candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
+            join(Check, Check.id == Registry.check_id). \
+                join(Person, Person.id == Check.person_id).\
+                    group_by(Registry.decision).\
+                        filter(Registry.deadline.between(response['start'], response['end'])).all()
+
+        pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme). \
+            filter(Poligraf.deadline.between(response['start'], response['end'])).all()
     
-    pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme). \
-        filter(Poligraf.deadline.between(response['start'], response['end'])).all()
-    
+    else:
+        candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
+            join(Check, Check.id == Registry.check_id). \
+                join(Person, Person.id == Check.person_id).\
+                    group_by(Registry.decision).\
+                        filter(Registry.deadline.between(response['start'], response['end']), 
+                                Person.region_id == int(response['region'])).all()
+        pfo = []
     return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
             "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))}
 

@@ -15,4 +15,7 @@ export default defineConfig({
       { find: '@content', replacement: fileURLToPath(new URL('./src/components/content', import.meta.url)) },
     ],
   },
+  build: {
+    outDir: '../backend/app/static',
+  }
 })

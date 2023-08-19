@@ -3,11 +3,14 @@
 
 import { ref } from 'vue';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@/store/alert';
 import server from '@store/server';
 
 const storeAuth = appAuth();
 
-const emit = defineEmits(['updateMessage', 'updateItem', 'getProfile']);
+const storeAlert = appAlert();
+
+const emit = defineEmits(['updateItem', 'getProfile']);
 
 // Данные из родительского компонента: путь к файлу и ID кандидата
 const props = defineProps({
@@ -37,10 +40,8 @@ async function submitFile(event: Event): Promise<void> {
       const response = await storeAuth.axiosInstance.post(`${server}/photo/${props.candId}`, formData);
       const { result } = response.data;
       // Обновляем сообщение
-      emit('updateMessage', {
-        attr: result ? "alert-success" : "alert-warning",
-        text: result ? 'Фото добавлено' : 'Ошибка при добавлении фото'
-      });
+      storeAlert.alertAttr = result ? "alert-success" : "alert-warning";
+      storeAlert.alertText = result ? 'Фото добавлено' : 'Ошибка при добавлении фото';
       // Отправка события в родительский компонент для обновления карточки
       emit('getProfile', String(props.candId))
 
@@ -50,10 +51,8 @@ async function submitFile(event: Event): Promise<void> {
   
   } else {
     // Обновляем сообщение, если размер файла превышает 2 МБ
-    emit('updateMessage', {
-      attr: "alert-warning",
-      text: 'Ошибка. Возможно размер файла более 2 МБ'
-    });
+    storeAlert.alertAttr = "alert-warning";
+    storeAlert.alertText = 'Ошибка. Возможно размер файла более 2 МБ';
   }
 }
 

@@ -2,53 +2,44 @@
 // компонент для отображения и редактирования данных полиграфа
 
 import { ref } from 'vue';
+import { appProfile } from '@/store/profile';
 
-const emit = defineEmits(['updateItem', 'deleteItem']);
-
-// данные из родительского компонента
-const props = defineProps({
-  table: Array as () => Array<TableItem>,
-  candId: String
-});
-
-type TableItem = {
-  id: string;
-  theme: string;
-  result: string;
-  officer: string;
-  deadline: Date;
-};
+const storeProfile = appProfile();
 
 // реактивные данные для показа в форме
-const poligraf = ref({});
-  
-const action = ref(''); // action для редактирования
+const poligraf = ref({
+  theme: '',
+  results: ''
+});
 
-//const isHovered = ref(false); // переменная для ховеров
+const poligraf_id = ref('');
+
+const action = ref(''); // action для редактирования
 
 /**
  * Updates an item.
  *
- * @param {Event} event - The event that triggered the update.
- * @param {type} id - The ID of the person to be updated.
- * @param {string} url - The URL to be updated.
- * @param {type} actions - The actions to be performed during the update.
- * @param {type} item_id - The ID of the item to be updated.
- * @param {type} item - The item to be updated.
  * @return {void} This function does not return anything.
  */
-function updateItem(
-  event: Event,
-  id = props.candId, 
-  url = 'poligraf', 
-  actions = action.value, 
-  item_id = poligraf['id' as keyof typeof poligraf],
-  item = poligraf
-  ): void {
-    event.preventDefault();
-    emit('updateItem', id, url, actions, item_id, item);
+ function updateItem(): void {
+    storeProfile.updateItem(storeProfile.candId, 'poligraf', action.value, poligraf_id.value, {
+      'theme': poligraf.value.theme, 'results': poligraf.value.results
+    });
+    cancelAction();
+  };
+
+/**
+ * Cancels the current action.
+ *
+ * @return {void} 
+ */
+function cancelAction(): void {
     action.value = '';
-    poligraf.value = {};
+    poligraf_id.value = '';
+    Object.assign(poligraf.value, {
+      'theme': '',
+      'result': ''
+    })
   };
 
 </script>
@@ -57,7 +48,7 @@ function updateItem(
   <div class="py-3">
     
     <template v-if="action">
-      <form @submit.prevent="event => updateItem(event)" class="form form-check" role="form"  id="poligrafFormId">
+      <form @submit.prevent="updateItem" class="form form-check" role="form"  id="poligrafFormId">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
           <div class="col-lg-10">
@@ -80,7 +71,7 @@ function updateItem(
             <div class="btn-group" role="group">
               <button class="btn btn-outline-primary" type="submit">Принять</button>
               <button class="btn btn-outline-primary" type="reset">Очистить</button>
-              <button class="btn btn-outline-primary" type="button" @click="action = ''; poligraf = {};">Отмена</button>
+              <button class="btn btn-outline-primary" type="button" @click="cancelAction">Отмена</button>
             </div>
           </div>
         </div>
@@ -88,16 +79,16 @@ function updateItem(
     </template>
 
     <template v-else>
-      <table v-if="props.table?.length" v-for="tbl in props.table" class="table table-responsive">
+      <table v-if="storeProfile.pfo.length" v-for="tbl in storeProfile.pfo" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th>
-              <a href="#" @click="emit('deleteItem', tbl['id' as keyof typeof tbl].toString(), 'poligraf')"
-                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
-                          <i class="bi bi-trash"></i></a>
-                          &nbsp;
-              <a href="#" @click="action = 'update'; poligraf = tbl"
+              <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'poligraf')" title="Удалить">
+                <i class="bi bi-trash"></i>
+              </a>
+              &nbsp;
+              <a href="#" @click="action = 'update'; poligraf_id = tbl['id']; poligraf = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>

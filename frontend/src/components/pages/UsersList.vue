@@ -3,9 +3,7 @@
 import { ref, onBeforeMount } from 'vue'
 import { appAuth } from '@store/auth';
 import server from '@store/server';
-import UserForm from '@content/UserForm.vue';
-
-const emit = defineEmits(['updateMessage']);
+import UserForm from '@content/forms/UserForm.vue';
 
 const storeAuth = appAuth()
 
@@ -42,7 +40,6 @@ async function getUsers(): Promise<void>{
     <div class="py-3"><h4>{{ action === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4></div>
     <UserForm v-if="action === 'create'" 
                   :action="action" 
-                  @updateMessage="emit('updateMessage')"
                   @updateAction="getUsers" />
     <div v-else class="py-2">
       <table class="table table-hover table-responsive align-middle">

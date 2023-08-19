@@ -1,20 +1,18 @@
 <script setup lang="ts">
 // Родительский компонент админки
 
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount } from 'vue'
+import { appAlert } from '@/store/alert';
+import { appAuth } from '@store/auth';
 import server from '@store/server';
 import router from '@router/router';
-import { appAuth } from '@store/auth';
 import NavbarAdmin from '@layouts/NavbarAdmin.vue';
 import AlertMessage from '@components/layouts/AlertMessage.vue';
 
-const storeAuth = appAuth()
+const storeAuth = appAuth();
 
-// Аттрибут и текст сообщения на странице админки
-const data = ref({
-  attr: '',
-  text: ''
-})
+const storeAlert = appAlert();
+
 
 // Проверка доступа к странице админки 
 onBeforeMount(async () => {
@@ -25,16 +23,12 @@ onBeforeMount(async () => {
   : router.push({ name: 'login' })
 })
 
-// Обновление сообщения на странице админки
-function updateMessage(alert: Object){
-  data.value.attr = (alert as { attr: string })["attr"];
-  data.value.text = (alert as { text: string })["text"];
-}
-
 </script>
 
 <template>
   <NavbarAdmin />
-  <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
-  <router-view @updateMessage="updateMessage" />
+  <AlertMessage v-if="storeAlert.alertAttr && storeAlert.alertText" />
+  <router-view v-slot="{ Component }" >
+        <component :is="Component" :key="$route.fullPath"/>
+    </router-view>
 </template>

@@ -1,20 +1,21 @@
 <script setup lang="ts">
 // Компонент страницы профиля пользователя
 
-import { onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@store/alert';
 import { locationStore } from '@store/location';
 import router from '@router/router';
 import server from '@store/server';
-import UserForm from '@content/UserForm.vue'
+import UserForm from '@content/forms/UserForm.vue'
 
-// Объявление событиия отправки сообщения
-const emit = defineEmits(['updateMessage']);
 
 const storeAuth = appAuth()
 
 const storeLocation = locationStore();
+
+const storeAlert = appAlert();
 
 const route = useRoute();
 
@@ -40,6 +41,10 @@ const profile = ref({
 // Инициализация данных пользователя
 onBeforeMount(async () => {
   viewUser(userId as String);
+});
+
+const isBlocked = computed(() => {
+    return profile.value.blocked ? 'Заблокирован' : 'Разблокирован';
 });
 
 /**
@@ -88,10 +93,8 @@ async function editUserInfo(flag: String): Promise<void> {
         'None': ['alert-danger', 'Возникла ошибка'],
       };
       // Обновление сообщения
-      emit('updateMessage',{
-        attr: resp[user as keyof typeof resp][0],
-        text: resp[user as keyof typeof resp][1]
-      });
+      storeAlert.alertAttr = resp[user as keyof typeof resp][0];
+      storeAlert.alertText = resp[user as keyof typeof resp][1];
       // Обновление страницы либо редирект на страницу списка пользователей
       user !== 'delete' ? viewUser(userId as String) : router.push({ name: 'users' })
     
@@ -110,10 +113,9 @@ async function editUserInfo(flag: String): Promise<void> {
     <UserForm v-if="action === 'edit'" 
               :action="action" 
               :profile="profile" 
-              @updateMessage="emit('updateMessage')" 
               @updateAction="action = ''"/>
     <div v-else class="py-2">
-      <table class="table table-responsive" >
+      <table class="table table-responsive">
         <thead>
           <tr><th colspan="2"># {{ profile.id }}</th></tr>
         </thead>
@@ -127,7 +129,7 @@ async function editUserInfo(flag: String): Promise<void> {
           <tr><td>Вход</td><td>{{ new Date(profile.last_login).toLocaleString('ru-RU')}}</td></tr>
           <tr><td>Роль</td><td>{{ profile.role }}</td></tr>
           <tr><td>Попыток входа</td><td>{{profile.attempt }}</td></tr>
-          <tr><td>Блокировка</td><td>{{profile.blocked }}</td></tr>
+          <tr><td>Блокировка</td><td>{{ isBlocked }}</td></tr>
         </tbody>
       </table>
       <div class="btn-group py-2" role="group">

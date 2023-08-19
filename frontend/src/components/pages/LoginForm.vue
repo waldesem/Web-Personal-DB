@@ -1,14 +1,26 @@
 <script setup lang="ts">
 
 import axios from 'axios';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@store/alert';
+import { locationStore } from '@store/location';
+import { appClassify } from '@store/classify';
+import { appUsers } from '@/store/userinfo';
 import server from '@store/server';
 import router from '@router/router';
 import AlertMessage from '@layouts/AlertMessage.vue';
 
 
-const storeAuth = appAuth()
+const storeAuth = appAuth();
+
+const storeAlert = appAlert();
+
+const storeLocation = locationStore();
+
+const classifyApp = appClassify();
+
+const storeUsers = appUsers();
 
 // Объект с данными из формы входа пользователя
 const login = ref({
@@ -18,10 +30,10 @@ const login = ref({
   conf_pswd: ''
 });
 
-const data = ref(''); // Данные ответа сервера
+const action = ref('login'); // Выбранное действие в форме входа: 'login', 'password'
 
-const action = ref(''); // Выбранное действие в форме входа: 'login', 'password'
-
+storeAlert.alertAttr = 'alert-info';
+storeAlert.alertText = 'Авторизуйтесь для входа в систему';
 
 /**
  * Submits data to the server.
@@ -33,26 +45,29 @@ async function submitData(path: String): Promise<void> {
   // Проверка на совпадение паролей нового и старого
   if (path === 'password') {
     if (login.value.password === login.value.new_pswd) {
-      data.value = 'Match'
+      storeAlert.alertAttr = 'alert-warning';
+      storeAlert.alertText = 'Старый и новый пароли совпадают';
       return
     };
     // Проверка на совпадение паролей нового и подтверждения
     if (login.value.conf_pswd !== login.value.new_pswd && path === 'password') {
-      data.value = 'NoMatch';
+      storeAlert.alertAttr = 'alert-warning';
+      storeAlert.alertText = 'Новый пароль и подтверждение не совпадают';
       return
     }
   };
   try {
     const response = path === 'password'
-      ? await storeAuth.axiosInstance.post(`${server}/password`, login.value)
+      ? await axios.post(`${server}/password`, login.value)
       : await axios.post(`${server}/login`, login.value);
-    const { access, access_token, refresh_token } = response.data;
-    data.value = access;
+    const { access, access_token, refresh_token, fullname, username } = response.data;
 
     switch (access) {
       case "Success":
         // Успешная смена пароля
         action.value = 'login';
+        storeAlert.alertAttr = 'alert-success';
+        storeAlert.alertText = 'Пароль установлен. Войдите с новым паролем';
         break;
 
       case "Authorized":
@@ -63,12 +78,29 @@ async function submitData(path: String): Promise<void> {
         storeAuth.setRefreshToken(refresh_token);
         storeAuth.setAccessToken(access_token);
 
+        storeUsers.fullName = fullname;
+        storeUsers.userName = username;
+    
+        storeLocation.getRegions();  // Получение списка регионов
+        classifyApp.getClassify();  // Получение списка категорий
+
         router.push({ name: 'persons' });
         break;
 
       case "Overdue":
         // Пароль просрочен
         action.value = 'password';
+        storeAlert.alertAttr = 'alert-warning';
+        storeAlert.alertText = 'Пароль просрочен. Измените пароль';
+        storeAuth.setRefreshToken(refresh_token);
+        storeAuth.setAccessToken(access_token);
+        break;
+
+      case "Denied":
+        // Неверный логин или пароль
+        action.value = 'login';
+        storeAlert.alertAttr = 'alert-danger';
+        storeAlert.alertText = 'Неверный логин или пароль';
         break;
     }
 
@@ -76,20 +108,6 @@ async function submitData(path: String): Promise<void> {
     console.error(error)
   }
 }
-
-const attrAndText = computed(() => {
-  // Имена атрибутов и текста сообщений для вывода пользователю в зависимости от ответа сервера
-  const alerts = {
-    Authorized: [],
-    Denied: ['alert-danger', 'Неверный логин или пароль'],
-    Overdue: ['alert-warning', 'Пароль просрочен. Измените пароль'],
-    Success: ['alert-success', 'Пароль установлен. Войдите с новым паролем'],
-    Default: ['alert-info', 'Авторизуйтесь для входа в систему'],
-    NoMatch: ['alert-warning', 'Новый пароль и подтверждение не совпадают'],
-    Match: ['alert-warning', 'Старый и новый пароли совпадают'],
-  };
-  return alerts[data.value as keyof typeof alerts] as [string, string];
-});
 
 </script>
 
@@ -99,7 +117,7 @@ const attrAndText = computed(() => {
       <h2>StaffSec - кадровая безопасность</h2>
     </div>
     <div class="border border-primary px-5 py-5">
-      <AlertMessage v-if="attrAndText" :attr="attrAndText[0]" :text="attrAndText[1]" />
+      <AlertMessage />
       <h5>{{ action === 'login' ? 'Вход в систему' : 'Изменить пароль' }}</h5>
       <div class="py-3">
         <form @submit.prevent="submitData(action)" class="form form-check" role="form">

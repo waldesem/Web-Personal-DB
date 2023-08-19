@@ -3,11 +3,14 @@
 
 import { toRefs } from 'vue'
 import { appAuth } from '@store/auth';
+import { appAlert } from '@store/alert';
 import server from '@store/server';
 
 const storeAuth = appAuth();
 
-const emit = defineEmits (['updateMessage', 'getProfile', 'cancelEdit']);
+const storeAlert = appAlert();
+
+const emit = defineEmits (['updateProfile', 'cancelEdit']);
 
 // объект из родительского компонента
 const props = defineProps({
@@ -28,12 +31,10 @@ async function submitData(): Promise<void> {
     const response = await storeAuth.axiosInstance.post(`${server}/resume/create`, resume);
     const { result, person_id } = response.data;
     
-    emit('updateMessage', {
-      attr: result ? "alert-info" : "alert-success",
-      text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
-    });
+    storeAlert.alertAttr = result ? "alert-info" : "alert-success";
+    storeAlert.alertText = result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена';
     
-    emit('getProfile', person_id);
+    emit('updateProfile', person_id);
   
   } catch (error) {
     console.error(error);

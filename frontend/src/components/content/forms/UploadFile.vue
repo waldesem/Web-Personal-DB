@@ -2,11 +2,14 @@
 
 import { ref } from 'vue';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@store/alert';
 import server from '@store/server';
 
 const storeAuth = appAuth();
 
-const emit = defineEmits(['updateMessage', 'updateItem'])
+const storeAlert = appAlert();
+
+const emit = defineEmits(['updateItem'])
 
 // Переменная для загрузки файла
 const file = ref(null);
@@ -30,10 +33,8 @@ async function submitFile(event: Event): Promise<void> {
       const response = await storeAuth.axiosInstance.post(`${server}/resume/upload`, formData);
       const { result, person_id } = response.data;
       // Обновляем сообщение
-      emit('updateMessage', {
-        attr: result ? "alert-info" : "alert-success",
-        text: result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена'
-      });
+      storeAlert.alertAttr = result ? "alert-info" : "alert-success";
+      storeAlert.alertText = result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена';
       // Отправка события в родительский компонент для обновления карточки 
       emit('updateItem', person_id)
     
@@ -42,10 +43,8 @@ async function submitFile(event: Event): Promise<void> {
     }
   
   } else {
-    emit('updateMessage', {
-      attr: "alert-warning",
-      text: "Загрузите файл"
-    });
+    storeAlert.alertAttr = "alert-warning";
+    storeAlert.alertText = "Ошибка при загрузке файла";
   }
 }
 

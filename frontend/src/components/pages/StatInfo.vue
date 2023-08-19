@@ -36,7 +36,7 @@ onBeforeMount(async () => {
 
 async function submitData(): Promise<void> {
   const response = await storeAuth.axiosInstance.post(`${server}/information`, {
-    'start': data.value.start, 'end': data.value.end, 'region': data.value.region
+    'start': data.value.start, 'end': data.value.end, 'region': data.value.region ? storeLocation.regionsObject[data.value.region] : '' 
   });
   const { candidates, poligraf } = response.data;
   
@@ -50,7 +50,7 @@ async function submitData(): Promise<void> {
 <template>
   <div class="container py-3">
     <div class="py-5">
-      <h4>Статистика по региону {{ data.region }} за период c {{ data.start }} по {{ data.end }}</h4>
+      <h4>Статистика по региону {{ data.region ? data.region : 'Все регионы' }} за период c {{ data.start }} по {{ data.end }}</h4>
     </div>
     <div v-for="(tbl, index) in [data.checks, data.pfo]" class="py-3">
       <table class="table table-hover table-responsive align-middle">
@@ -68,9 +68,10 @@ async function submitData(): Promise<void> {
           <div class="mb-3 row required">
             <label class="col-form-label col-md-2" for="region">Регион</label>
             <div class="col-md-2">
-              <select class="form-select" id="region" name="region" v-model="data.region" required>
-                  <option v-for="name, value in storeLocation.regionsObject" :value="value">{{name}}</option>                
-                </select>
+              <select class="form-select" id="region" name="region" v-model="data.region">
+                <option value="" selected>Выберите регион</option>
+                <option v-for="name, value in storeLocation.regionsObject" :key="value" :value="name">{{name}}</option>                
+              </select>
             </div>
             <label class="col-form-label col-md-1" for="start">Период:</label>
             <div class="col-md-2">

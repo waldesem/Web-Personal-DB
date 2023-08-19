@@ -1,29 +1,33 @@
 <script setup lang="ts">
 // Родительский компонент для страниц с кандидатами
 
-import { ref } from 'vue';
+import { appAlert } from '@/store/alert';
 import router from '@router/router';
 import NavBar from '@layouts/NavBar.vue'
 import AlertMessage from '@layouts/AlertMessage.vue';
 
-// Аттрибут и текст сообщения на странице
-const data = ref({
-  attr: '',
-  text: ''
-})
+const storeAlert = appAlert();
+
 
 router.push({ name: 'persons' }) // Переход на страницу с кандидатами
-
-// Обновление сообщения
-function updateMessage(alert: Object){
-  data.value.attr = (alert as { attr: string })["attr"];
-  data.value.text = (alert as { text: string })["text"];
-}
 
 </script>
 
 <template>
-    <NavBar />
-    <AlertMessage v-if="data.attr" :attr="data.attr" :text="data.text" />
-    <router-view @updateMessage="updateMessage" />
+  <NavBar />
+  <AlertMessage v-if="storeAlert.alertAttr && storeAlert.alertText" />
+  <router-view v-slot="{ Component }" >
+    <transition name="component-fade" mode="out-in">
+      <component :is="Component" :key="$route.fullPath"/>
+    </transition>
+  </router-view>
 </template>
+
+<style scoped>
+.component-fade-enter-active, .component-fade-leave-active {
+  transition: opacity .1s ease;
+}
+.component-fade-enter, .component-fade-leave-to {
+  opacity: 0;
+}
+</style>

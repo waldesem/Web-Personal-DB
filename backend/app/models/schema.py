@@ -102,6 +102,14 @@ class ContactSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class AnketaSchema(ma.SQLAlchemySchema):
+    """ Create schema for sending anketa"""
+
+    resume = PersonSchema()
+    document = DocumentSchema()
+    address = AddressSchema()
+
+
 class CheckSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:
@@ -130,29 +138,10 @@ class PoligrafSchema(ma.SQLAlchemyAutoSchema):
 
 
 class RegistrySchema(ma.SQLAlchemyAutoSchema):
-    """ Create model for registry"""
+    """ Create schema for registry"""
     class Meta:
         model = Registry
         ordered = True
-
-
-class AnketaSchema(ma.SQLAlchemySchema):
-    """ Create model for sending anketa on check to API"""
-
-    resume = PersonSchema()
-    document = DocumentSchema()
-    address = AddressSchema()
-
-
-class ResumeSchema(ma.SQLAlchemySchema):
-    """ Create model to get resume from API"""
-
-    resume = fields.Nested(PersonSchema())
-    document = fields.Nested(DocumentSchema())
-    staff = fields.Nested(StaffSchema())
-    addresses = fields.List(fields.Nested(AddressSchema()))
-    workplaces = fields.List(fields.Nested(WorkplaceSchema()))
-    contacts = fields.List(fields.Nested(ContactSchema()))
 
 
 class ProfileSchema(ma.SQLAlchemySchema):
@@ -171,3 +160,73 @@ class ProfileSchema(ma.SQLAlchemySchema):
     invs = fields.Nested(InvestigationSchema, many=True)
     inquiries = fields.Nested(InquirySchema, many=True)
         
+
+# Schemas for api endpoint '/api/v1/anketa'
+class PersonSchemaApi(ma.SQLAlchemyAutoSchema):
+    """ Create schema for person"""
+    region_id = ma.auto_field()
+
+    class Meta:
+        model = Person
+        ordered = True
+        excude = ('region_id', 'category', 'addition', 'path', 'status', 'create', 'update', 'request_id')
+
+
+class DocumentSchemaApi(ma.SQLAlchemyAutoSchema):
+    """ Create schema for document"""
+    class Meta:
+        model = Document
+        ordered = True
+        excude = ('id',)
+
+
+class AddressSchemaApi(ma.SQLAlchemyAutoSchema):
+    """ Create schema for address"""
+    class Meta:
+        model = Address
+        ordered = True
+        excude = ('id',)
+
+
+class StaffSchemaApi(ma.SQLAlchemyAutoSchema):
+    """ Create schema for staff"""
+    class Meta:
+        model = Staff
+        ordered = True
+        excude = ('id',)
+
+
+class WorkplaceSchemaApi(ma.SQLAlchemyAutoSchema):
+    """ Create schema for workplace"""
+    class Meta:
+        model = Workplace
+        ordered = True
+        excude = ('id',)
+
+
+class ContactSchemaApi(ma.SQLAlchemyAutoSchema):
+    """ Create schema for contact"""
+    class Meta:
+        model = Contact
+        ordered = True
+        excude = ('id',)
+
+
+class AnketaSchemaApi(ma.SQLAlchemySchema):
+    """ Create schema to get resume from API"""
+
+    resume = fields.Nested(PersonSchemaApi())
+    document = fields.Nested(DocumentSchemaApi())
+    staff = fields.Nested(StaffSchemaApi())
+    addresses = fields.List(fields.Nested(AddressSchemaApi()))
+    workplaces = fields.List(fields.Nested(WorkplaceSchemaApi()))
+    contacts = fields.List(fields.Nested(ContactSchemaApi()))
+
+
+# Schema for api endpoint '/api/v1/check'
+class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
+    """ Create model for api check"""
+    class Meta:
+        model = Check
+        ordered = True
+        exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline')

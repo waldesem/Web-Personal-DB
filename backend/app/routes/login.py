@@ -68,14 +68,14 @@ def auth():
     if user and not user.has_blocked():
         user.last_login = datetime.now()
         db.session.commit()
-        return {'access': 'Authorized'}
+        return {'access': 'Authorized', 'fullname': user.fullname, 'username': user.username}
     return {'access': 'Denied'}
 
 
 @bp.post('/login')
 @bp.input(LoginSchema)
 @bp.doc(hide=True)
-def login(response):
+def login(json_data):
     """
     Logs in a user and returns an access token and refresh token if successful.
     Parameters:
@@ -86,9 +86,9 @@ def login(response):
             - 'access_token': The access token if the login is successful, otherwise None.
             - 'refresh_token': The refresh token if the login is successful, otherwise None.
     """
-    user = db.session.query(User).filter_by(username=response['username']).one_or_none()
+    user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
     if user and not user.blocked and not user.has_role(Role.api.value):
-        if bcrypt.checkpw(response['password'].encode('utf-8'), user.password):
+        if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
             delta_change = datetime.now() - user.pswd_create
             if user.pswd_change and delta_change.days < 365:
                 user.last_login = datetime.now()
@@ -98,7 +98,9 @@ def login(response):
                 refresh_token = create_refresh_token(identity=user.username)
                 return {'access': 'Authorized', 
                         'access_token': access_token, 
-                        'refresh_token': refresh_token}
+                        'refresh_token': refresh_token,
+                        'fullname': user.fullname,
+                        'username': user.username}
             return {"access": "Overdue", 
                     'access_token': None}
         else:
@@ -119,7 +121,7 @@ def login(response):
 @bp.post('/password')
 @bp.input(LoginSchema)
 @bp.doc(hide=True)
-def change_password(response):
+def change_password(json_data):
     """
     Change the password for a user.
     Args:
@@ -128,10 +130,10 @@ def change_password(response):
     Returns:
         dict: A dictionary with the access status and an access token (set to None).
     """
-    user = db.session.query(User).filter_by(username=response['username']).one_or_none()
+    user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
     if user:
-        if bcrypt.checkpw(response['password'].encode('utf-8'), user.password):
-            setattr(user, 'password', bcrypt.hashpw(response['new_pswd'].encode('utf-8'), 
+        if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
+            setattr(user, 'password', bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'), 
                                                     bcrypt.gensalt()))
             setattr(user, "pswd_change", datetime.now())
             db.session.commit()

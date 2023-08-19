@@ -106,7 +106,7 @@ class Person(db.Model):
     path = db.Column(db.String(250))
     status = db.Column(db.String(250), default=Status.new.value)
     create = db.Column(db.DateTime, default=default_time)
-    update = db.Column(db.DateTime, default=default_time, onupdate=default_time)
+    update = db.Column(db.DateTime, onupdate=default_time)
     request_id = db.Column(db.Integer, default=0)
     documents = db.relationship('Document', backref='persons', cascade="all, delete, delete-orphan")
     addresses = db.relationship('Address', backref='persons', cascade="all, delete, delete-orphan")
@@ -289,7 +289,7 @@ class Log(db.Model):
     message = db.Column(db.Text)
     pathname = db.Column(db.String(250))
     lineno = db.Column(db.Integer)
-    status = db.Column(db.String, default=Status.new)
+    status = db.Column(db.String, default=Status.new.name)
 
     def __init__(self, timestamp, level, message, pathname, lineno):
         self.timestamp = timestamp

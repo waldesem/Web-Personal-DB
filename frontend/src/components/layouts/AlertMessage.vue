@@ -1,15 +1,14 @@
 <script setup lang="ts">
 // Компонент для отображения сообщений
 
-const props = defineProps({
-  attr: String,
-  text: String
-});
+import { appAlert } from '@store/alert';
+
+const alertStore = appAlert();
 
 </script>
 
 <template>
   <div class="container py-3">
-    <div class="alert" :class="props.attr" role="info" fade show>{{props.text}}</div>
+    <div class="alert" :class="alertStore.alertAttr" role="info" fade show>{{alertStore.alertText}}</div>
   </div>
 </template>

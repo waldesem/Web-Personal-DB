@@ -4,6 +4,7 @@ import { toRefs } from 'vue'
 import { locationStore } from '@store/location';
 import { appClassify } from '@store/classify';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@store/alert';
 import server from '@store/server';
 
 const storeAuth = appAuth()
@@ -12,7 +13,9 @@ const storeLocation = locationStore();
 
 const classifyApp = appClassify();
 
-const emit = defineEmits(['updateMessage', 'updateAction']);
+const storeAlert = appAlert();
+
+const emit = defineEmits(['updateAction']);
 
 const props = defineProps({
   profile: Object,
@@ -43,10 +46,9 @@ async function submitData(): Promise<void>{
       'edit': ['alert-success', 'Пользователь успешно изменен'],
       'none': ['alert-danger', 'Ошибка создания (пользователь существует)/редактирования']
     }
-    emit('updateMessage', { 
-      attr: resp[user as keyof typeof resp][0],
-      text: resp[user as keyof typeof resp][1] 
-    });
+    storeAlert.alertAttr = resp[user as keyof typeof resp][0];
+    storeAlert.alertText = resp[user as keyof typeof resp][1];
+    
     emit('updateAction');
 
   } catch (error) {
