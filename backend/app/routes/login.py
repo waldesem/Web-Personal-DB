@@ -68,7 +68,10 @@ def auth():
     if user and not user.has_blocked():
         user.last_login = datetime.now()
         db.session.commit()
-        return {'access': 'Authorized', 'fullname': user.fullname, 'username': user.username}
+        return {'access': 'Authorized', 
+                'fullname': user.fullname, 
+                'username': user.username,
+                'role': user.role}
     return {'access': 'Denied'}
 
 
@@ -100,7 +103,8 @@ def login(json_data):
                         'access_token': access_token, 
                         'refresh_token': refresh_token,
                         'fullname': user.fullname,
-                        'username': user.username}
+                        'username': user.username,
+                        'role': user.role}
             return {"access": "Overdue", 
                     'access_token': None}
         else:

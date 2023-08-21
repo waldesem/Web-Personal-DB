@@ -2,11 +2,11 @@
 // Компонент для отображения статистики по региону и полиграфу 
 
 import { ref, onBeforeMount } from 'vue';
-import { locationStore } from '@store/location';
+import { appLocation } from '@store/location';
 import { appAuth } from '@store/auth';
 import server from '@store/server';
 
-const storeLocation = locationStore();
+const storeLocation = appLocation();
 
 const storeAuth = appAuth();
 
@@ -52,7 +52,7 @@ async function submitData(): Promise<void> {
     <div class="py-5">
       <h4>Статистика по региону {{ data.region ? data.region : 'Все регионы' }} за период c {{ data.start }} по {{ data.end }}</h4>
     </div>
-    <div v-for="(tbl, index) in [data.checks, data.pfo]" class="py-3">
+    <div v-for="(tbl, index) in [data.checks, data.pfo]" :key="index" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <caption>{{captions[index]}}</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>

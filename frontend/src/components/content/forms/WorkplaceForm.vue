@@ -1,56 +1,39 @@
 <script setup lang="ts">
 // компонент для отображения формы добавления и редактирования данных 
+ 
+import { appAnketa } from '@/store/anketa';
 
-import { toRef } from 'vue';
-
-const emit = defineEmits(['formItem']);
-
-const props = defineProps({
-    item: {
-        type: Object,
-        required: true,
-        default: () => ({})
-    }
-});
-
-const formData = toRef(props.item);
-
-
- /**
-  * Updates or adds an item.
-  *
-  * @return {void} 
-  */
- function submitData(): void {
-  emit('formItem', { 'period': formData.value['period'], 'workplace': formData.value['workplace'], 'address': formData.value['address'], 'position': formData.value['position'] });
-}
+const storeAnketa = appAnketa();
 
 </script>
 
 <template>
-   <form @submit.prevent="submitData" class="form form-check" role="form">
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="period">Период работы</label>
-        <div class="col-lg-10">
-        <input class="form-control" id="period" maxlength="25" name="period" type="text" v-model="formData['period']">
+   <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form">
+    <div class="mb-3 row required">
+        <label class="col-form-label col-lg-2" for="start_date">Период работы</label>
+        <div class="col-lg-2">
+            <input class="form-control" id="start_date" name="start_date" type="date" v-model="storeAnketa.itemForm['start_date']">
+        </div> - 
+        <div class="col-lg-2">
+            <input class="form-control" id="end_date" name="end_date" type="date" v-model="storeAnketa.itemForm['end_date']">
         </div>
     </div>
     <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="workplace">Место работы</label>
         <div class="col-lg-10">
-        <input class="form-control" id="workplace" maxlength="250" name="workplace" required type="text" v-model="formData['workplace']">
+        <input class="form-control" id="workplace" maxlength="250" name="workplace" required type="text" v-model="storeAnketa.itemForm['workplace']">
         </div>
     </div>
     <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="address">Адрес организации</label>
         <div class="col-lg-10">
-        <input class="form-control" id="address" maxlength="250" name="address" type="text" v-model="formData['address']">
+        <input class="form-control" id="address" maxlength="250" name="address" type="text" v-model="storeAnketa.itemForm['address']">
         </div>
     </div>
     <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="position">Должность</label>
         <div class="col-lg-10">
-        <input class="form-control" id="position" maxlength="250" name="position" type="text" v-model="formData['position']">
+        <input class="form-control" id="position" maxlength="250" name="position" type="text" v-model="storeAnketa.itemForm['position']">
         </div>
     </div>
     <div class=" row">

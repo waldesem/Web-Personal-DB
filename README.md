@@ -50,11 +50,11 @@ To start the application at http://localhost:5000 run the following command in y
 ```
 export FLASK_APP=app
 export FLASK_ENV=testing  # create a testing environment and SQLite database (optional)
-flask run
+flask run  # --debug (optional)
 ```
 If you need to run the server with specific host and port:
 ```
-flask run --host=0.0.0.0 --port=5000
+flask run --host=0.0.0.0 --port=5000  # watch the settings in gunicorn.conf.py
 ```
 Start the app with Gunicorn server:
 ```

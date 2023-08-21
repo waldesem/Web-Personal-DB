@@ -14,7 +14,7 @@ const logs = ref([]);
 
 // получение списка логов при загрузке страницы
 onBeforeMount(async () => {
-  logsList();
+  LogsPage();
 });
 
 /**
@@ -22,7 +22,7 @@ onBeforeMount(async () => {
  *
  * @return {Promise<void>} A promise that resolves when the logs are successfully retrieved and updated.
  */
-async function logsList(): Promise<void> {
+async function LogsPage(): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/logs`);
     logs.value = response.data;

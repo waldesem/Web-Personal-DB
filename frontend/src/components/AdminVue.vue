@@ -18,9 +18,7 @@ const storeAlert = appAlert();
 onBeforeMount(async () => {
   const response = await storeAuth.axiosInstance.get(`${server}/admin`);
   const { admin } = response.data;
-  admin 
-  ? router.push({ name: 'main', params: { flag: 'main'} }) 
-  : router.push({ name: 'login' })
+  admin ? router.push({ name: 'users' }) : router.push({ name: 'login' })
 })
 
 </script>

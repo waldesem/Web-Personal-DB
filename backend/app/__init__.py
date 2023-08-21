@@ -7,10 +7,9 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 
 from .models.model import User, Region, Log, db
-from .models.classify import Role
+from .models.classify import Role, regions
 from .models.schema import ma
 from .routes.login import jwt
-from ..fake import regions
 
 
 def create_app():

@@ -53,26 +53,23 @@ export const appProfile = defineStore('appProfile', () => {
     }],
     works: [{
       id: '',
-      period: '',
+      start_date: '',
+      end_date: '',
       workplace: '',
       address: '',
       position: '',
     }],
-    relate: [{
+    staffs: [{
       id: '',
       position: '',
       department: ''
     }],
-    staffs: [{
+    relate: [{
       id: '',
       relation: '',
       relation_id: ''
     }]
   });
-
-  const status = ref('');
-  const header = ref('');
-  const path = ref('');
 
   const verification = ref([{
     id: '',
@@ -154,10 +151,6 @@ export const appProfile = defineStore('appProfile', () => {
         relate: relations
       });
 
-      header.value = resume['fullname'];
-      path.value = resume['path'];
-      status.value = resume['status']
-
       verification.value = checks;
       register.value = registries;
       pfo.value = pfos;
@@ -172,7 +165,7 @@ export const appProfile = defineStore('appProfile', () => {
   /**
    * Updates an item.
    *
-   * @param {string} id - The ID of the person.
+   * @param {string} person_id - The ID of the person.
    * @param {string} url - The URL of the item.
    * @param {string} actions - The actions to be performed on the item.
    * @param {string} item_id - The ID of the item.
@@ -245,14 +238,14 @@ export const appProfile = defineStore('appProfile', () => {
         }
       }
       // Обновляем данные кандидата
-      getProfile()
+      getProfile();
     
     } catch (error) {
   
       storeAlert.alertAttr = 'alert-danger';
       storeAlert.alertText = `Возникла ошибка ${error}`;
     }
-  }
+  };
   
   /**
    * Deletes an item from the server based on its ID and flag.
@@ -273,5 +266,5 @@ export const appProfile = defineStore('appProfile', () => {
       getProfile();
     }
   }
-  return { candId, anketa, status, header, path, verification, register, pfo, inquisition, needs, getProfile, updateItem, deleteItem }
+  return { candId, anketa, verification, register, pfo, inquisition, needs, getProfile, updateItem, deleteItem }
 })

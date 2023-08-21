@@ -25,7 +25,7 @@ onBeforeMount(() => {
 
 <template>
   <div class="container py-3">    
-    <div class="py-5"><h4>{{storeProfile.header}}</h4></div>
+    <div class="py-5"><h4>{{storeProfile.anketa.resume['fullname']}}</h4></div>
 
     <div class="nav nav-tabs nav-justified" role="tablist">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" type="button" role="tab">Анкета</button>

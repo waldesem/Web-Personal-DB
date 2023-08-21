@@ -1,38 +1,18 @@
 <script setup lang="ts">
 // компонент для отображения формы добавления и редактирования данных 
+ 
+import { appAnketa } from '@/store/anketa';
 
-import { toRef } from 'vue';
-
-const emit = defineEmits(['formItem']);
-
-const props = defineProps({
-    item: {
-        type: Object,
-        required: true,
-        default: () => ({})
-    }
-});
-
-const formData = toRef(props.item);
-
-
- /**
-  * Updates or adds an item.
-  *
-  * @return {void} 
-  */
- function submitData(): void {
-  emit('formItem', { 'view': formData.value['view'], 'contact': formData.value['contact']});
-}
+const storeAnketa = appAnketa();
 
 </script>
 
 <template>
-   <form @submit.prevent="submitData" class="form form-check" role="form">
+   <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form">
     <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="view">Выбрать</label>
         <div class="col-lg-10">
-        <select class="form-select" id="view" name="view" v-model="formData['view']">
+        <select class="form-select" id="view" name="view" v-model="storeAnketa.itemForm['view']">
             <option value="Телефон">Телефон</option>
             <option value="E-mail">E-mail</option>
             <option value="Другое">Другое</option>
@@ -42,7 +22,7 @@ const formData = toRef(props.item);
     <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="contact">Контакт</label>
         <div class="col-lg-10">
-        <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" v-model="formData['contact']">
+        <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" v-model="storeAnketa.itemForm['contact']">
         </div>
     </div>
     <div class=" row">

@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 import openpyxl
 
 from app.models.model import db, Staff, Document, Address, Contact, Workplace
@@ -39,6 +40,17 @@ class ExcelFile:
         self.workplaces = [
             {
                 'period': str(self.sheet[f'AA{i}'].value).strip(),
+
+                'start_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[0],
+                                                '%d.%m.%Y').date() \
+                    if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[0]) \
+                        else datetime.strptime('2000-01-01', '%d.%m.%Y').date(),
+
+                'end_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[1], 
+                                              '%d.%m.%Y').date() \
+                    if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[1]) \
+                          else datetime.now().date(),
+                          
                 'workplace': str(self.sheet[f'AB{i}'].value).strip(),
                 'address': str(self.sheet[f'AC{i}'].value).strip(),
                 'position': str(self.sheet[f'AD{i}'].value).strip()

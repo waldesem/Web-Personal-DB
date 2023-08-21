@@ -7,7 +7,7 @@ interface Region {
   [key: string]: string;
 }
 
-export const locationStore = defineStore('appLocations', () => {
+export const appLocation = defineStore('appLocation', () => {
   
   const regionsObject: Ref<Region> = ref({});
 

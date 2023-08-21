@@ -1,28 +1,12 @@
 <script setup lang="ts">
 // компонент для отображения модального окна
 
-import { toRef } from 'vue';
-import { locationStore } from '@/store/location';
+import { appLocation } from '@/store/location';
+import { appAnketa } from '@/store/anketa';
 
-const storeLocation = locationStore();
+const storeLocation = appLocation();
 
-const emit = defineEmits(['modalItem']);
-
-// данные из родительского компонента
-const props = defineProps({
-    item: Object
-});
-
-const modalItem = toRef(props.item ? props.item : {});
-
- /**
-  * Updates or adds an item.
-  *
-  * @return {void} 
-  */
- function submitData(): void {
-  emit('modalItem', modalItem.value);
-}
+const storeAnketa = appAnketa();
 
 </script>
 
@@ -35,12 +19,12 @@ const modalItem = toRef(props.item ? props.item : {});
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="submitData" class="form form-check" role="form">
+          <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="region">Регион</label>
               <div class="col-lg-10">
-                <select class="form-select" required id="region_id" name="region_id" v-model="modalItem['region_id']">
-                  <option v-for="name, value in storeLocation.regionsObject" :value="value">{{name}}</option>                
+                <select class="form-select" required id="region_id" name="region_id" v-model="storeAnketa.itemForm['region_id']">
+                  <option v-for="name, value in storeLocation.regionsObject" :key="value" :value="value">{{name}}</option>                
                 </select>
               </div>
             </div>

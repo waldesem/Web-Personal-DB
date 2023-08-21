@@ -3,19 +3,18 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { appAuth } from '@store/auth';
 import server from '@/store/server';
 import App from '@/App.vue';
-import LoginForm from '@pages/LoginForm.vue';
-import AdminPage from '@components/AdminPage.vue';
-import StaffPage from '@components/StaffPage.vue';
-import PersonsList from '@pages/PersonsList.vue';
-import ProFile from '@pages/ProFile.vue';
-import StatInfo from '@pages/StatInfo.vue';
+import LoginPage from '@pages/LoginPage.vue';
+import AdminVue from '@components/AdminVue.vue';
+import StaffVue from '@components/StaffVue.vue';
+import PersonsPage from '@pages/PersonsPage.vue';
+import ProfilePage from '@pages/ProfilePage.vue';
+import StatPage from '@pages/StatPage.vue';
 import NotFound from '@pages/NotFound.vue';
-import UsersList from '@pages/UsersList.vue';
-import UserProfile from '@pages/UserProfile.vue';
-import LogsList from '@pages/LogsList.vue';
-import RegionsList from '@pages/RegionsList.vue';
-import PersonsAdmin from '@pages/PersonsAdmin.vue';
-import CreateResume from '@pages/CreateResume.vue';
+import UsersListPage from '@pages/UsersListPage.vue';
+import UserPage from '@pages/UserPage.vue';
+import LogsPage from '@pages/LogsPage.vue';
+import RegionPage from '@pages/RegionPage.vue';
+import ResumePage from '@pages/ResumePage.vue';
 
 // Маршруты приложения  
 const router = createRouter({
@@ -32,64 +31,59 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginForm,
+      component: LoginPage,
     },
     {
       path: '/index',
       name: 'index',
-      component: StaffPage,
+      component: StaffVue,
       children: [
         {
           path: 'persons',
           name: 'persons',
-          component: PersonsList
+          component: PersonsPage
         },
         {
           path: 'resume',
           name: 'resume',
-          component: CreateResume
+          component: ResumePage
         },
         {
           path: 'profile/:id',
           name: 'profile',
-          component: ProFile,
+          component: ProfilePage,
         },
         {
           path: 'information',
           name: 'information',
-          component: StatInfo
+          component: StatPage
         }
       ]
     },
     {
       path: '/admin',
       name: 'admin',
-      component: AdminPage,
+      component: AdminVue,
       children: [
-        {
-          path: ':flag',
-          name: 'main',
-          component: PersonsAdmin
-        },
         {
           path: 'users',
           name: 'users',
-          component: UsersList
+          component: UsersListPage
         },
         {
           path: 'user/:id',
           name: 'shape',
-          component: UserProfile,
+          component: UserPage,
         },
         {
           path: 'logs',
           name: 'logs',
-          component: LogsList,
+          component: LogsPage,
         },
         {
           path: 'regions',
           name: 'regions',
-          component: RegionsList,
+          component: RegionPage,
         }
       ]
     },

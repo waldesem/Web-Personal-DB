@@ -1,18 +1,15 @@
 <script setup lang="ts">
 /* Компонент NavBarAdmin - выводит навигационную панель в шапке сайта для администратора.
-Содержит ссылки на страницы: Кандидаты, Пользователи, Регионы, Сообщения */
+Содержит ссылки на страницы: Пользователи, Регионы, Сообщения */
 </script>
 
 <template>
     <div class="container-fluid">
     <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary">
       <div class="container">
-        <router-link :to="{ name: 'admin' }" class="nav-link active" href="#">Admin-StaffSec</router-link>
+        <router-link :to="{ name: 'admin' }" class="nav-link active" href="#">ADMIN-StaffSec</router-link>
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                <router-link :to="{ name: 'main', params: {flag: 'main'} }" class="nav-link active" href="#">Кандидаты</router-link>
-            </li>          
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">      
             <li class="nav-item">
                 <router-link :to="{ name: 'users' }" class="nav-link active" href="#">Пользователи</router-link>
             </li>

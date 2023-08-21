@@ -1,72 +1,35 @@
 <script setup lang="ts">
 // компонент для отображения и редактирования данных запросов
 
-import { ref } from 'vue';
+import { appAnketa } from '@/store/anketa';
 import { appProfile } from '@/store/profile';
 
+const storeAnketa = appAnketa();
+
 const storeProfile = appProfile();
-
-// реактивные данные для показа в форме
-const inquiry = ref({
-  info: '',
-  initiator: '',
-  source: ''
-});
-
-const inquiry_id = ref('');
-
-const action = ref(''); // action для редактирования
-
-/**
- * Updates an item.
- *
- * @return {void} This function does not return anything.
- */
-function updateItem(): void {
-    storeProfile.updateItem(storeProfile.candId, 'inquiry', action.value, inquiry_id.value, {
-      'info': inquiry.value.info, 'initiator': inquiry.value.initiator, 'source': inquiry.value.source
-    });
-    cancelAction();
-  };
-
-/**
- * Cancels the current action.
- *
- * @return {void} 
- */
-function cancelAction(): void {
-    action.value = '';
-    inquiry_id.value = '';
-    Object.assign(inquiry.value, {
-      'info': '',
-      'initiator': '',
-      'source': ''
-    })
-  };
-
 
 </script>
 
 <template>
   <div class="py-3">
-    <template v-if="action">
-      <form @submit.prevent="updateItem" class="form form-check" role="form"  id="inquiryFormId">
+    <template v-if="storeAnketa.action">
+      <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form"  id="inquiryFormId">
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="info">Информация</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="info" name="info" required v-model="inquiry['info' as keyof typeof inquiry]"></textarea>
+            <textarea class="form-control" id="info" name="info" required v-model="storeAnketa.itemForm.inquiry['info']"></textarea>
           </div>
         </div>
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="initiator">Инициатор</label>
           <div class="col-lg-10">
-            <input class="form-control" id="initiator" maxlength="250" name="initiator" required type="text" v-model="inquiry['initiator' as keyof typeof inquiry]">
+            <input class="form-control" id="initiator" maxlength="250" name="initiator" required type="text" v-model="storeAnketa.itemForm.inquiry['initiator']">
           </div>
         </div>
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="source">Источник</label>
           <div class="col-lg-10">
-            <input class="form-control" id="source" maxlength="250" name="source" required type="text" v-model="inquiry['source' as keyof typeof inquiry]">
+            <input class="form-control" id="source" maxlength="250" name="source" required type="text" v-model="storeAnketa.itemForm.inquiry['source']">
           </div>
         </div>
         <div class=" row">
@@ -74,7 +37,7 @@ function cancelAction(): void {
             <div class="btn-group" role="group">
                 <button class="btn btn-outline-primary" type="submit">Принять</button>
                 <button class="btn btn-outline-primary" type="reset">Очистить</button>
-                <button class="btn btn-outline-primary" type="button" @click="cancelAction">Отмена</button>
+                <button class="btn btn-outline-primary" type="button" @click="storeAnketa.cancelEdit">Отмена</button>
               </div>
             </div>
         </div>
@@ -82,7 +45,7 @@ function cancelAction(): void {
     </template>
 
     <template v-else>
-      <table v-if="storeProfile.needs?.length" v-for="tbl in storeProfile.needs" class="table table-responsive">
+      <table v-if="storeProfile.needs?.length" v-for="tbl in storeProfile.needs" :key="tbl['id' as keyof typeof tbl]" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
@@ -91,7 +54,7 @@ function cancelAction(): void {
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
-              <a href="#" @click="action = 'update'; inquiry_id = tbl['id' as keyof typeof tbl].toString(); inquiry = tbl"
+              <a href="#" @click="storeAnketa.action = 'update'; storeAnketa.itemId = tbl['id' as keyof typeof tbl].toString(); storeAnketa.itemForm = tbl"
                           title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -109,7 +72,7 @@ function cancelAction(): void {
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <a @click="action = 'create'" class="btn btn-outline-primary" type="button">Добавить запись</a>
+      <a @click="storeAnketa.action = 'create'; storeAnketa.itemForm = {}; storeAnketa.itemId = ''" class="btn btn-outline-primary" type="button">Добавить запись</a>
     </template>
   </div>
 </template>

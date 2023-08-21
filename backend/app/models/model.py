@@ -177,7 +177,8 @@ class Workplace(db.Model):
     __tablename__ = 'workplaces'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    period = db.Column(db.String(250))
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
     workplace = db.Column(db.String(250))
     address = db.Column(db.String(250))
     position = db.Column(db.String(250))

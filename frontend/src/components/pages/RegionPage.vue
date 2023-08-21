@@ -85,7 +85,7 @@ async function delRegion(id: String): Promise<void> {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="name, value in storeLocation.regionsObject">
+          <tr height="50px" v-for="name, value in storeLocation.regionsObject" :key="value">
             <td>{{ value }}</td>
             <td>{{ name }}</td>
             <td><a class="link-opacity-50" href="#" @click="delRegion(value.toString())">Удалить</a></td>

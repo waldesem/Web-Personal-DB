@@ -1,58 +1,24 @@
 <script setup lang="ts">
 // компонент для отображения и редактирования данных полиграфа
 
-import { ref } from 'vue';
+import { appAnketa } from '@/store/anketa';
 import { appProfile } from '@/store/profile';
 
+const storeAnketa = appAnketa();
+
 const storeProfile = appProfile();
-
-// реактивные данные для показа в форме
-const poligraf = ref({
-  theme: '',
-  results: ''
-});
-
-const poligraf_id = ref('');
-
-const action = ref(''); // action для редактирования
-
-/**
- * Updates an item.
- *
- * @return {void} This function does not return anything.
- */
- function updateItem(): void {
-    storeProfile.updateItem(storeProfile.candId, 'poligraf', action.value, poligraf_id.value, {
-      'theme': poligraf.value.theme, 'results': poligraf.value.results
-    });
-    cancelAction();
-  };
-
-/**
- * Cancels the current action.
- *
- * @return {void} 
- */
-function cancelAction(): void {
-    action.value = '';
-    poligraf_id.value = '';
-    Object.assign(poligraf.value, {
-      'theme': '',
-      'result': ''
-    })
-  };
 
 </script>
 
 <template>
   <div class="py-3">
     
-    <template v-if="action">
-      <form @submit.prevent="updateItem" class="form form-check" role="form"  id="poligrafFormId">
+    <template v-if="storeAnketa.action">
+      <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form"  id="poligrafFormId">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
           <div class="col-lg-10">
-            <select class="form-select" id="theme" name="theme" required v-model="poligraf['theme' as keyof typeof poligraf]">
+            <select class="form-select" id="theme" name="theme" required v-model="storeAnketa.itemForm.poligraf['theme']">
               <option value="Проверка кандидата">Проверка кандидата</option>
               <option value="Служебная проверка">Служебная проверка</option>
               <option value="Служебное расследование">Служебное расследование</option>
@@ -63,7 +29,7 @@ function cancelAction(): void {
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="results">Результат</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="results" name="results" required v-model="poligraf['results' as keyof typeof poligraf]"></textarea>
+            <textarea class="form-control" id="results" name="results" required v-model="storeAnketa.itemForm.poligraf['results']"></textarea>
           </div>
         </div>
         <div class=" row">
@@ -71,7 +37,7 @@ function cancelAction(): void {
             <div class="btn-group" role="group">
               <button class="btn btn-outline-primary" type="submit">Принять</button>
               <button class="btn btn-outline-primary" type="reset">Очистить</button>
-              <button class="btn btn-outline-primary" type="button" @click="cancelAction">Отмена</button>
+              <button class="btn btn-outline-primary" type="button" @click="storeAnketa.cancelEdit">Отмена</button>
             </div>
           </div>
         </div>
@@ -79,7 +45,7 @@ function cancelAction(): void {
     </template>
 
     <template v-else>
-      <table v-if="storeProfile.pfo.length" v-for="tbl in storeProfile.pfo" class="table table-responsive">
+      <table v-if="storeProfile.pfo.length" v-for="tbl in storeProfile.pfo" :key="tbl['id' as keyof typeof tbl]" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
@@ -88,7 +54,7 @@ function cancelAction(): void {
                 <i class="bi bi-trash"></i>
               </a>
               &nbsp;
-              <a href="#" @click="action = 'update'; poligraf_id = tbl['id']; poligraf = tbl"
+              <a href="#" @click="storeAnketa.action = 'update'; storeAnketa.itemId = tbl['id']; storeAnketa.itemForm = tbl"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -105,7 +71,7 @@ function cancelAction(): void {
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button @click="action = 'create'" class="btn btn-outline-primary" type="button">Добавить запись</button>
+      <button @click="storeAnketa.action = 'create'; storeAnketa.itemForm = {}; storeAnketa.itemId = ''" class="btn btn-outline-primary" type="button">Добавить запись</button>
     </template>
   
   </div>

@@ -5,6 +5,7 @@ import axios from 'axios';
 import server from '../store/server';
 
 export const appAuth = defineStore('appAuth', () => {
+
   const refreshToken = ref(localStorage.getItem('refresh_token'));
   const accessToken = ref(localStorage.getItem('access_token'));
 

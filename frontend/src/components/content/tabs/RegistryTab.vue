@@ -1,46 +1,34 @@
 <script setup lang="ts">
 // компонент для отображения данных согласования кандидата
-
-import { ref } from 'vue';
-import { appClassify } from '@store/classify';
+ 
+import { appAnketa } from '@/store/anketa';
 import { appProfile } from '@/store/profile';
+import { appClassify } from '@/store/classify';
 
-const classifyApp = appClassify();
+const storeAnketa = appAnketa();
 
 const storeProfile = appProfile();
 
-const registry = ref({});  // реактивные данные для показа в форме
-
-const action = ref(''); // action для редактирования
-
-/**
- * Updates an item.
- *
- * @return {void} This function does not return anything.
- */
- function updateItem(): void {
-  storeProfile.updateItem(storeProfile.candId, 'registry', action.value, '', registry.value)
-    action.value = '';
-  };
+const classifyApp = appClassify();
 
 </script>
 
 <template>
   <div class="py-3">
 
-    <template v-if="action">
-      <form @submit.prevent="updateItem" class="form form-check" role="form"  id="registryFormId">
+    <template v-if="storeAnketa.action">
+      <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form"  id="registryFormId">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="comments" name="comments" v-model="registry['comments' as keyof typeof registry]"></textarea>
+            <textarea class="form-control" id="comments" name="comments" v-model="storeAnketa.itemForm.registry['comments']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="decision">Решение</label>
           <div class="col-lg-10">
-            <select class="form-select" id="decision" name="decision" v-model="registry['decision' as keyof typeof registry]">
-              <option v-for="(name, value) in classifyApp.decision" :key="value"  :value="name">{{ name }}</option>
+            <select class="form-select" id="decision" name="decision" v-model="storeAnketa.itemForm.registry['decision']">
+              <option v-for="(name, value) in classifyApp.decision" :key="value" :value="name">{{ name }}</option>
             </select>
           </div>
         </div>
@@ -49,7 +37,7 @@ const action = ref(''); // action для редактирования
             <div class="btn-group" role="group">
               <button class="btn btn-outline-primary" type="submit">Принять</button>
               <button class="btn btn-outline-primary" type="reset">Очистить</button>
-              <button class="btn btn-outline-primary" type="button" @click="action = ''; registry = {}">Отмена</button>
+              <button class="btn btn-outline-primary" type="button" @click="storeAnketa.cancelEdit">Отмена</button>
             </div>
           </div>
         </div>
@@ -57,7 +45,7 @@ const action = ref(''); // action для редактирования
     </template>
 
     <template v-else>
-      <table v-if="storeProfile.register.length" v-for="tbl in storeProfile.register" class="table table-responsive">
+      <table v-if="storeProfile.register.length" v-for="tbl in storeProfile.register" :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ tbl['id'] ? `#${tbl['id']}` : '' }}</th><th></th></tr>
         </thead>
@@ -69,7 +57,7 @@ const action = ref(''); // action для редактирования
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button :disabled="classifyApp.status && (storeProfile.status !== classifyApp.status['result'])" @click="action = 'create'" class="btn btn-outline-primary" type="button">Добавить запись</button>
+      <button :disabled="classifyApp.status && (storeProfile.anketa.resume['status'] !== classifyApp.status['result'])" @click="storeAnketa.action = 'create'; storeAnketa.itemForm = {}; storeAnketa.itemId = ''" class="btn btn-outline-primary" type="button">Добавить запись</button>
     </template>
   
   </div>
