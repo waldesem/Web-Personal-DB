@@ -61,7 +61,7 @@ db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
-instance/
+migrations/
 .webassets-cache
 
 # Scrapy stuff:
@@ -188,3 +188,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Office files
+.xls*

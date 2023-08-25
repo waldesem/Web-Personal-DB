@@ -1,73 +1,24 @@
 <script setup lang="ts">
 // Компонент для отображения списка регионов
 
-import { ref } from 'vue'
-import { locationStore } from '@store/location';
-import { appAuth } from '@store/auth';
-import { appAlert } from '@store/alert';
-import server from '@store/server';
+import { appLocation } from '@store/location';
+import { storeAdmin } from '@store/admin';
 
-const storeAuth = appAuth()
-
-const storeLocation = locationStore();
-
-const storeAlert = appAlert();
-
-const region = ref('');  // выбранный регион
-
-/**
- * Adds a region to the server.
- *
- * @return {Promise<void>} This function does not return anything.
- */
-async function addRegion(): Promise<void> {
-  const response = await storeAuth.axiosInstance.post(`${server}/region/add`, {
-    'region': region.value
-  });
-  const  { location } = response.data;
-  storeAlert.alertAttr = location ? 'alert-warning' : 'alert-success';
-  storeAlert.alertText = location 
-    ? 'При добавлении записи возникла ошибка'
-    : 'Запись добавлена';
-  storeLocation.getRegions();
-};
-
-
-/**
- * Deletes a region.
- *
- * @param {String} id - The ID of the region to be deleted.
- * @return {Promise<void>} - A promise that resolves when the region is deleted.
- */
-async function delRegion(id: String): Promise<void> {
-  if (id === '1') {
-    storeAlert.alertAttr = 'alert-info';
-    storeAlert.alertText = 'Нельзя удалить регион "Главный офис"';
-    return
-  };
-  if (confirm(`Вы действительно хотите удалить регион?`)) {
-    const response = await storeAuth.axiosInstance.get(`${server}/region/delete/${id}`);
-    const  { location } = response.data;
-    
-    storeAlert.alertAttr = 'alert-success';
-    storeAlert.alertText = `Регион ${location} удален`;
-
-    storeLocation.getRegions(); // Обновление списка регионов в хранилище
-  }
-};
+const adminStore = storeAdmin();
+const storeLocation = appLocation();
 
 </script>
 
 <template>
   <div class="container py-3">
   <div class="py-5"><h4>Список регионов</h4></div>
-    <form @submit.prevent="addRegion" class="form form-check" role="form"> 
+    <form @submit.prevent="adminStore.addRegion" class="form form-check" role="form"> 
       <div class="row mb-3">
         <div class="row">
           <label class="col-form-label col-lg-1" for="region">Регион: </label>
           <div class="col-lg-9">
               <input autocomplete="region" class="form-control" minlength="3" maxlength="25" name="region" 
-                    placeholder="Регион" required type="text" v-model="region">
+                    placeholder="Регион" required type="text" v-model="adminStore.region">
           </div>
           <div class="col-lg-2">
               <button class="btn btn-outline-primary" name="submit" type="submit">Добавить регион</button>
@@ -88,7 +39,7 @@ async function delRegion(id: String): Promise<void> {
           <tr height="50px" v-for="name, value in storeLocation.regionsObject" :key="value">
             <td>{{ value }}</td>
             <td>{{ name }}</td>
-            <td><a class="link-opacity-50" href="#" @click="delRegion(value.toString())">Удалить</a></td>
+            <td><a class="link-opacity-50" href="#" @click="adminStore.delRegion(value.toString())">Удалить</a></td>
           </tr>
         </tbody>
       </table>

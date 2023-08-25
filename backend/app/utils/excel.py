@@ -39,21 +39,17 @@ class ExcelFile:
         ]
         self.workplaces = [
             {
-                'period': str(self.sheet[f'AA{i}'].value).strip(),
+            'start_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AA{i}'].value))[0].strip(), '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AA{i}'].value))[0].strip()) \
+                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
 
-                'start_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[0],
-                                                '%d.%m.%Y').date() \
-                    if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[0]) \
-                        else datetime.strptime('2000-01-01', '%d.%m.%Y').date(),
-
-                'end_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[1], 
-                                              '%d.%m.%Y').date() \
-                    if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AB{i}'].value).strip())[1]) \
-                          else datetime.now().date(),
-                          
-                'workplace': str(self.sheet[f'AB{i}'].value).strip(),
-                'address': str(self.sheet[f'AC{i}'].value).strip(),
-                'position': str(self.sheet[f'AD{i}'].value).strip()
+            'end_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AA{i}'].value))[1].strip(), '%d.%m.%Y').date() \
+                 if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AA{i}'].value))[1].strip()) \
+                    else datetime.now().date(),
+                        
+            'workplace': str(self.sheet[f'AB{i}'].value).strip(),
+            'address': str(self.sheet[f'AC{i}'].value).strip(),
+            'position': str(self.sheet[f'AD{i}'].value).strip()
             }
             for i in range(3, 6)
         ]

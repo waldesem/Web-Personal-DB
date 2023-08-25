@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 import axios from 'axios';
-import server from '../store/server';
+import server from '@store/server';
+
 
 export const appAuth = defineStore('appAuth', () => {
 

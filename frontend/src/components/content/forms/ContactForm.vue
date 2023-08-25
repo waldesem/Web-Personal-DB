@@ -1,18 +1,18 @@
 <script setup lang="ts">
 // компонент для отображения формы добавления и редактирования данных 
  
-import { appAnketa } from '@/store/anketa';
+import { appProfile } from '@/store/profile';
 
-const storeAnketa = appAnketa();
+const storeProfile = appProfile();
 
 </script>
 
 <template>
-   <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form">
+   <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
     <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="view">Выбрать</label>
         <div class="col-lg-10">
-        <select class="form-select" id="view" name="view" v-model="storeAnketa.itemForm['view']">
+        <select class="form-select" id="view" name="view" v-model="storeProfile.itemForm['view']">
             <option value="Телефон">Телефон</option>
             <option value="E-mail">E-mail</option>
             <option value="Другое">Другое</option>
@@ -22,7 +22,7 @@ const storeAnketa = appAnketa();
     <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="contact">Контакт</label>
         <div class="col-lg-10">
-        <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" v-model="storeAnketa.itemForm['contact']">
+        <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" v-model="storeProfile.itemForm['contact']">
         </div>
     </div>
     <div class=" row">

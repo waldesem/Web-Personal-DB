@@ -3,115 +3,111 @@
 
 import { appClassify } from '@store/classify';
 import { appProfile } from '@/store/profile';
-import { appAnketa } from '@/store/anketa';
 
 const classifyApp = appClassify();
-
 const storeProfile = appProfile();
-
-const storeAnketa = appAnketa();
 
 </script>
 
 <template>
   <div class="py-3">
 
-    <template v-if="storeAnketa.action === 'update'">
-      <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form"  id="checkFormId">
+    <template v-if="storeProfile.action === 'update' && storeProfile.flag === 'check'">
+      <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form"  id="checkFormId">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="workplace">Проверка по месту работы</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="workplace" name="workplace" v-model="storeAnketa.itemForm.workplace"></textarea>
+            <textarea class="form-control" id="workplace" name="workplace" v-model="storeProfile.itemForm['workplace']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="employee">Проверка по кадровому учету</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="employee" name="employee" v-model="storeAnketa.itemForm.employee"></textarea>
+            <textarea class="form-control" id="employee" name="employee" v-model="storeProfile.itemForm['employee']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="document">Проверка документов</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="document" name="document" v-model="storeAnketa.itemForm.document"></textarea>
+            <textarea class="form-control" id="document" name="document" v-model="storeProfile.itemForm['document']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="inn">Проверка ИНН</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="inn" name="inn" v-model="storeAnketa.itemForm.inn"></textarea>
+            <textarea class="form-control" id="inn" name="inn" v-model="storeProfile.itemForm['inn']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="debt">Проверка задолженностей</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="debt" name="debt" v-model="storeAnketa.itemForm.debt"></textarea>
+            <textarea class="form-control" id="debt" name="debt" v-model="storeProfile.itemForm['debt']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="bankruptcy">Проверка банкротства</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="bankruptcy" name="bankruptcy" v-model="storeAnketa.itemForm.bankruptcy"></textarea>
+            <textarea class="form-control" id="bankruptcy" name="bankruptcy" v-model="storeProfile.itemForm['bankruptcy']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="bki">Проверка кредитной истории</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="bki" name="bki" v-model="storeAnketa.itemForm.bki"></textarea>
+            <textarea class="form-control" id="bki" name="bki" v-model="storeProfile.itemForm['bki']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="courts">Проверка по решениям судов</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="courts" name="courts" v-model="storeAnketa.itemForm.courts"></textarea>
+            <textarea class="form-control" id="courts" name="courts" v-model="storeProfile.itemForm['courts']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="affiliation">Проверка аффилированности</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="affiliation" name="affiliation" v-model="storeAnketa.itemForm.affiliation"></textarea>
+            <textarea class="form-control" id="affiliation" name="affiliation" v-model="storeProfile.itemForm['affiliation']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="terrorist">Проверка списка террористов</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="terrorist" name="terrorist" v-model="storeAnketa.itemForm.terrorist"></textarea>
+            <textarea class="form-control" id="terrorist" name="terrorist" v-model="storeProfile.itemForm['terrorist']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="mvd">Проверка учетам МВД</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="mvd" name="mvd" v-model="storeAnketa.itemForm.mvd"></textarea>
+            <textarea class="form-control" id="mvd" name="mvd" v-model="storeProfile.itemForm['mvd']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="internet">Проверка по открытым источникам</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="internet" name="internet" v-model="storeAnketa.itemForm.internet"></textarea>
+            <textarea class="form-control" id="internet" name="internet" v-model="storeProfile.itemForm['internet']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="cronos">Проверка Кронос</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="cronos" name="cronos" v-model="storeAnketa.itemForm.cronos"></textarea>
+            <textarea class="form-control" id="cronos" name="cronos" v-model="storeProfile.itemForm['cronos']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="cros">Проверка Крос</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="cros" name="cros" v-model="storeAnketa.itemForm.cros"></textarea>
+            <textarea class="form-control" id="cros" name="cros" v-model="storeProfile.itemForm['cros']"></textarea>
           </div>
         </div>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="addition">Дополнительная информация</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="addition" name="addition" v-model="storeAnketa.itemForm.addition"></textarea>
+            <textarea class="form-control" id="addition" name="addition" v-model="storeProfile.itemForm['addition']"></textarea>
           </div>
         </div>
         <div class=" row">
           <div class="offset-lg-2 col-lg-10">
             <div class="mb-3 form-check">
-              <input class="form-check-input" id="pfo" name="pfo" v-model="storeAnketa.itemForm['pfo']" type="checkbox" value="y">
+              <input class="form-check-input" id="pfo" name="pfo" v-model="storeProfile.itemForm['pfo']" type="checkbox" value="y">
               <label class="form-check-label" for="pfo">Полиграф</label>
             </div>
           </div>
@@ -119,7 +115,7 @@ const storeAnketa = appAnketa();
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="conclusion">Результат</label>
           <div class="col-lg-10">
-            <select class="form-select" id="conclusion" name="conclusion" v-model="storeAnketa.itemForm['conclusion']">
+            <select class="form-select" id="conclusion" name="conclusion" v-model="storeProfile.itemForm['conclusion']">
               <option v-for="(name, value) in classifyApp.conclusion" :key="value" :value="name">{{ name }}</option>
             </select>
           </div>
@@ -127,7 +123,7 @@ const storeAnketa = appAnketa();
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
           <div class="col-lg-10">
-            <input class="form-control" id="comments" name="comments" maxlength="250" v-model="storeAnketa.itemForm['comments']" type="text">
+            <input class="form-control" id="comments" name="comments" maxlength="250" v-model="storeProfile.itemForm['comments']" type="text">
           </div>
         </div>
         <div class=" row">
@@ -135,7 +131,7 @@ const storeAnketa = appAnketa();
             <div class="btn-group" role="group">
               <button class="btn btn-outline-primary" type="submit">Принять</button>
               <button class="btn btn-outline-primary" type="reset">Очистить</button>
-              <button class="btn btn-outline-primary" type="button" @click="storeAnketa.cancelCheck">Отмена</button>
+              <button class="btn btn-outline-primary" type="button" @click="storeProfile.cancelCheck">Отмена</button>
             </div>
           </div>
         </div>
@@ -149,16 +145,19 @@ const storeAnketa = appAnketa();
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th>
               <a href="#" :disabled="classifyApp.status 
-                          && (storeProfile.anketa.resume['status'] === classifyApp.status['finish'])" 
-                          @click="storeAnketa.deleteCheck(tbl['id' as keyof typeof tbl].toString(), 'check')"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
+                            && (storeProfile.anketa.resume['status'] === classifyApp.status['finish'])" 
+                          @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].toString(), 'check')"
+                           title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;
               <a href="#" :disabled="classifyApp.status 
-                          && (storeProfile.anketa.resume['status'] !== classifyApp.status['save'] 
-                          && storeProfile.anketa.resume['status'] !== classifyApp.status['cancel'] 
-                          && storeProfile.anketa.resume['status'] !== classifyApp.status['manual'])" 
-                          @click="storeAnketa.action = 'update'; storeAnketa.itemId = tbl['id' as keyof typeof tbl].toString(); storeAnketa.itemForm = tbl"
+                            && (storeProfile.anketa.resume['status'] !== classifyApp.status['save'] 
+                            && storeProfile.anketa.resume['status'] !== classifyApp.status['cancel'] 
+                            && storeProfile.anketa.resume['status'] !== classifyApp.status['manual'])" 
+                          @click="storeProfile.action = 'update'; 
+                                  storeProfile.flag = 'check';
+                                  storeProfile.itemId = tbl['id' as keyof typeof tbl].toString(); 
+                                  storeProfile.itemForm = tbl"
                           title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -189,12 +188,11 @@ const storeAnketa = appAnketa();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button 
-        @click="storeAnketa.addCheck; 
-                storeAnketa.flag = 'check'" 
-        :disabled="classifyApp.status 
-        && (storeProfile.anketa.resume['status'] !== classifyApp.status['new'] 
-        && storeProfile.anketa.resume['status'] !== classifyApp.status['update'])" 
+      <button  @click="storeProfile.addCheck" 
+                :disabled="classifyApp.status 
+                && (storeProfile.anketa.resume['status'] !== classifyApp.status['new'] 
+                && storeProfile.anketa.resume['status'] !== classifyApp.status['update'])
+                && storeProfile.anketa.resume['status'] !== classifyApp.status['save']" 
         class="btn btn-outline-primary">Добавить проверку
       </button>
     </template>

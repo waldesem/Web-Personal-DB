@@ -3,14 +3,9 @@ from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
 from ..models.model import Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Report, Log, Region
+    Check, Registry, Poligraf, Investigation, Inquiry, Report, Region
 
 ma = Marshmallow()
-
-class LogSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Log
-        ordered = True
         
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
@@ -31,7 +26,6 @@ class LocationSchema(ma.SQLAlchemyAutoSchema):
 
 class LoginSchema(Schema):
     """ Create model for login"""
-
     username = fields.String()
     password = fields.String()
     new_pswd = fields.String()
@@ -43,12 +37,6 @@ class MessageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Report
         ordered = True
-
-
-class MessagesSchema(ma.SQLAlchemySchema):
-    """ Create model for messages list"""
-    
-    messages = fields.Nested(MessageSchema, many=True)
 
 
 class PersonSchema(ma.SQLAlchemyAutoSchema):
@@ -101,15 +89,6 @@ class ContactSchema(ma.SQLAlchemyAutoSchema):
         model = Contact
         ordered = True
 
-
-class AnketaSchema(ma.SQLAlchemySchema):
-    """ Create schema for sending anketa"""
-
-    resume = PersonSchema()
-    document = DocumentSchema()
-    address = AddressSchema()
-
-
 class CheckSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:
@@ -146,7 +125,6 @@ class RegistrySchema(ma.SQLAlchemyAutoSchema):
 
 class ProfileSchema(ma.SQLAlchemySchema):
     """ Create model for rendering profile on page"""
-
     resume = fields.Nested(PersonSchema)
     documents = fields.Nested(DocumentSchema, many=True)
     addresses = fields.Nested(AddressSchema, many=True)
@@ -161,72 +139,30 @@ class ProfileSchema(ma.SQLAlchemySchema):
     inquiries = fields.Nested(InquirySchema, many=True)
         
 
+# Schemas for Robot api endpoint
+class AnketaSchema(ma.SQLAlchemySchema):
+    """ Create schema for sending anketa"""
+    resume = PersonSchema()
+    document = DocumentSchema()
+    address = AddressSchema()
+
+
 # Schemas for api endpoint '/api/v1/anketa'
-class PersonSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create schema for person"""
-    region_id = ma.auto_field()
-
-    class Meta:
-        model = Person
-        ordered = True
-        excude = ('region_id', 'category', 'addition', 'path', 'status', 'create', 'update', 'request_id')
-
-
-class DocumentSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create schema for document"""
-    class Meta:
-        model = Document
-        ordered = True
-        excude = ('id',)
-
-
-class AddressSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create schema for address"""
-    class Meta:
-        model = Address
-        ordered = True
-        excude = ('id',)
-
-
-class StaffSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create schema for staff"""
-    class Meta:
-        model = Staff
-        ordered = True
-        excude = ('id',)
-
-
-class WorkplaceSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create schema for workplace"""
-    class Meta:
-        model = Workplace
-        ordered = True
-        excude = ('id',)
-
-
-class ContactSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create schema for contact"""
-    class Meta:
-        model = Contact
-        ordered = True
-        excude = ('id',)
-
-
 class AnketaSchemaApi(ma.SQLAlchemySchema):
     """ Create schema to get resume from API"""
+    resume = fields.Nested(PersonSchema(), exclude = ('region_id', 'addition', 'path', 
+                                                         'status', 'create', 'update', 'request_id',))
+    document = fields.Nested(DocumentSchema(), exclude=('id',))
+    staff = fields.Nested(StaffSchema(), exclude=('id',))
+    addresses = fields.List(fields.Nested(AddressSchema(), exclude=('id',)))
+    workplaces = fields.List(fields.Nested(WorkplaceSchema(), exclude=('id',)))
+    contacts = fields.List(fields.Nested(ContactSchema(), exclude=('id',)))
 
-    resume = fields.Nested(PersonSchemaApi())
-    document = fields.Nested(DocumentSchemaApi())
-    staff = fields.Nested(StaffSchemaApi())
-    addresses = fields.List(fields.Nested(AddressSchemaApi()))
-    workplaces = fields.List(fields.Nested(WorkplaceSchemaApi()))
-    contacts = fields.List(fields.Nested(ContactSchemaApi()))
 
-
-# Schema for api endpoint '/api/v1/check'
+# Schema for api endpoint '/api/v1/check
 class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create model for api check"""
+    """ Create schema for check API """
     class Meta:
         model = Check
         ordered = True
-        exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline')
+        exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline',)

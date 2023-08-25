@@ -1,10 +1,7 @@
 <script setup lang="ts">
 // компонент для отображения и редактирования данных расследований
 
-import { appAnketa } from '@/store/anketa';
 import { appProfile } from '@/store/profile';
-
-const storeAnketa = appAnketa();
 
 const storeProfile = appProfile();
 
@@ -12,18 +9,18 @@ const storeProfile = appProfile();
 
 <template>
   <div class="py-3">
-    <template v-if="storeAnketa.action">
-      <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form"  id="investigationFormId">
+    <template v-if="(storeProfile.action === 'update' || storeProfile.action === 'create') && storeProfile.flag === 'investigation'">
+      <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form"  id="investigationFormId">
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
           <div class="col-lg-10">
-            <input class="form-control" id="theme" maxlength="250" name="theme" required type="text" v-model="storeAnketa.itemForm.investigation['theme']">
+            <input class="form-control" id="theme" maxlength="250" name="theme" required type="text" v-model="storeProfile.itemForm['theme']">
           </div>
         </div>
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="info">Информация</label>
           <div class="col-lg-10">
-            <textarea class="form-control" id="info" name="info" required v-model="storeAnketa.itemForm.investigation['info']"></textarea>
+            <textarea class="form-control" id="info" name="info" required v-model="storeProfile.itemForm['info']"></textarea>
           </div>
         </div>
         <div class=" row">
@@ -31,7 +28,7 @@ const storeProfile = appProfile();
             <div class="btn-group" role="group">
                 <button class="btn btn-outline-primary" type="submit">Принять</button>
                 <button class="btn btn-outline-primary" type="reset">Очистить</button>
-                <button class="btn btn-outline-primary" type="button" @click="storeAnketa.cancelEdit">Отмена</button>
+                <button class="btn btn-outline-primary" type="button" @click="storeProfile.cancelEdit">Отмена</button>
               </div>
             </div>
         </div>
@@ -45,12 +42,14 @@ const storeProfile = appProfile();
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th>
               <a href="#" @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].toString(), 'investigation')"
-                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
+                           title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;
-              <a href="#" @click="storeAnketa.action = 'update'; storeAnketa.itemId = tbl['id' as keyof typeof tbl].toString(); storeAnketa.itemForm = tbl"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить" >
-                <i class="bi bi-pencil-square"></i>
+              <a href="#" @click="storeProfile.action = 'update'; 
+                                  storeProfile.flag = 'investigation';
+                                  storeProfile.itemId = tbl['id' as keyof typeof tbl].toString(); 
+                                  storeProfile.itemForm = tbl"
+                title="Изменить"><i class="bi bi-pencil-square"></i>
               </a>
             </th>
           </tr>
@@ -66,7 +65,10 @@ const storeProfile = appProfile();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <a @click="storeAnketa.action = 'create'; storeAnketa.itemForm = {}; storeAnketa.itemId = ''" class="btn btn-outline-primary" type="button">Добавить запись</a>
+      <a @click="storeProfile.action = 'create';
+                 storeProfile.flag = 'investigation';
+                 storeProfile.itemForm = {}" 
+        class="btn btn-outline-primary" type="button">Добавить запись</a>
     </template>
   </div>
 </template>

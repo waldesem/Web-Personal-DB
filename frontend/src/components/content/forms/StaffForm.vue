@@ -1,25 +1,25 @@
 <script setup lang="ts">
 // компонент для отображения формы добавления и редактирования данных 
  
-import { appAnketa } from '@/store/anketa';
+import { appProfile } from '@/store/profile';
 
-const storeAnketa = appAnketa();
+const storeProfile = appProfile();
 
 
 </script>
 
 <template>
-    <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form">
+    <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
     <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="position">Должность</label>
         <div class="col-lg-10">
-        <input class="form-control" id="position" maxlength="250" name="position" required type="text" v-model="storeAnketa.itemForm['position']">
+        <input class="form-control" id="position" maxlength="250" name="position" required type="text" v-model="storeProfile.itemForm['position']">
         </div>
     </div>
     <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="department">Деператамент/Кластер</label>
         <div class="col-lg-10">
-        <input class="form-control" id="department" maxlength="250" name="department" type="text" v-model="storeAnketa.itemForm['department']">
+        <input class="form-control" id="department" maxlength="250" name="department" type="text" v-model="storeProfile.itemForm['department']">
         </div>
     </div>
     <div class=" row">

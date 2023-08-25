@@ -2,11 +2,11 @@
 // компонент для отображения модального окна
 
 import { appLocation } from '@/store/location';
-import { appAnketa } from '@/store/anketa';
+import { appProfile } from '@/store/profile';
 
 const storeLocation = appLocation();
 
-const storeAnketa = appAnketa();
+const storeProfile = appProfile();
 
 </script>
 
@@ -19,11 +19,11 @@ const storeAnketa = appAnketa();
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="storeAnketa.updateItem" class="form form-check" role="form">
+          <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
             <div class="mb-3 row">
-              <label class="col-form-label col-lg-2" for="region">Регион</label>
+              <label class="col-form-label col-lg-2" for="region_id" >Регион</label>
               <div class="col-lg-10">
-                <select class="form-select" required id="region_id" name="region_id" v-model="storeAnketa.itemForm['region_id']">
+                <select class="form-select" required id="region_id" name="region_id" v-model="storeProfile.itemForm['region_id']">
                   <option v-for="name, value in storeLocation.regionsObject" :key="value" :value="value">{{name}}</option>                
                 </select>
               </div>

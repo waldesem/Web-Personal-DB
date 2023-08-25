@@ -1,10 +1,17 @@
 <script setup lang="ts">
 
 import { appLogin } from '@store/login';
+import { appAlert } from '@store/alert';
 import AlertMessage from '@layouts/AlertMessage.vue';
 import LoginForm from '@content/forms/LoginForm.vue';
 
 const storeLogin = appLogin();
+
+const storeAlert = appAlert();
+
+
+storeAlert.alertAttr = 'alert-info';
+storeAlert.alertText = 'Авторизуйтесь для входа в систему';
 
 </script>
 

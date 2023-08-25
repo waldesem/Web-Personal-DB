@@ -1,20 +1,19 @@
 <script setup lang="ts">
 // компонент для отображения списка кандидатов для пользователя 
+
 import { computed, onBeforeMount } from 'vue';
-import { appLocation } from '@store/location';
-import { appLogin } from '@/store/login';
 import { appPersons } from '@/store/persons';
-
-const storeLocation = appLocation();
-
-const storeUsers = appLogin();
+import { appLocation } from '@store/location';
 
 const storePersons = appPersons();
+const storeLocation = appLocation();
+
 
 // Инициализация списка кандидатов
-onBeforeMount(async () => {
-  storePersons.getCandidates(storePersons.currenData.currentPath);
-});
+onBeforeMount(() => {
+  
+  storePersons.getCandidates();
+})
 
 // матчинг заголовков страниц
 const header = computed(() => {
@@ -36,7 +35,7 @@ const header = computed(() => {
       <div class="col-md-3">
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="action">Действия</label>
-          <select class="form-select" id="region" name="region" v-model="storePersons.currenData.currentPath" @change="storePersons.getCandidates(storePersons.currenData.currentPath); storePersons.dropData">
+          <select class="form-select" id="region" name="region" v-model="storePersons.currenData.currentPath" @change="storePersons.getCandidates(storePersons.currenData.currentPath)">
             <option value="" selected>Выберите действие</option>
             <option value="new">Новые кандидаты</option>
             <option value="main">Все кандидаты</option>
@@ -72,25 +71,20 @@ const header = computed(() => {
             <th width="20%">Дата рождения</th>
             <th width="10%">Статус</th>
             <th width="10%">Дата</th>
-            <th v-if="storeUsers.userRole === 'admin'" width="10%">Действия</th>
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="candidate in storePersons.data.candidates" :key="candidate">
-            <td>{{ candidate["id" as keyof typeof candidate] }}</td>
-            <td>{{ storeLocation.regionsObject[candidate["region_id" as keyof typeof candidate]] }}</td>
+          <tr height="50px" v-for="candidate in storePersons.data.candidates" :key="candidate['id']">
+            <td>{{ candidate["id"] }}</td>
+            <td>{{ storeLocation.regionsObject[candidate["region_id"]] }}</td>
             <td>
-              <router-link :to="{ name: 'profile', params: {
-                id: candidate['id' as keyof typeof candidate]
-                } }">{{ candidate["fullname" as keyof typeof candidate] }}
+              <router-link :to="{ name: 'profile', params: { id: candidate['id'] } }">
+                {{ candidate["fullname"] }}
               </router-link>
             </td>
-            <td>{{ new Date(candidate["birthday" as keyof typeof candidate]).toLocaleDateString('ru-RU')  }}</td>
-            <td>{{ candidate["status" as keyof typeof candidate] }}</td>
-            <td>{{ new Date(candidate["create" as keyof typeof candidate]).toLocaleDateString('ru-RU')  }}</td>
-            <td v-if="storeUsers.userRole === 'admin'">
-              <a class="link-opacity-50" href="#" @click="storePersons.delPerson(candidate['id' as keyof typeof candidate])">Удалить</a>
-            </td>
+            <td>{{ new Date(candidate["birthday"]).toLocaleDateString('ru-RU')  }}</td>
+            <td>{{ candidate["status"] }}</td>
+            <td>{{ new Date(candidate["create"]).toLocaleDateString('ru-RU')  }}</td>
           </tr>
         </tbody>
       </table>
@@ -108,4 +102,4 @@ const header = computed(() => {
       </nav>
     </div>
   </div>
-</template></template>
+</template>

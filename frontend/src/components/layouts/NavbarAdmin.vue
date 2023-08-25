@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /* Компонент NavBarAdmin - выводит навигационную панель в шапке сайта для администратора.
-Содержит ссылки на страницы: Пользователи, Регионы, Сообщения */
+Содержит ссылки на страницы: Пользователи, Регионы */
 </script>
 
 <template>
     <div class="container-fluid">
     <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary">
       <div class="container">
-        <router-link :to="{ name: 'admin' }" class="nav-link active" href="#">ADMIN-StaffSec</router-link>
+        <a class="navbar-brand" href="#">Admin-StaffSec</a>
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">      
             <li class="nav-item">
@@ -15,10 +15,6 @@
             </li>
             <li class="nav-item">
                 <router-link :to="{ name: 'regions' }" class="nav-link active" href="#" >Регионы</router-link>
-            </li>
-            <li class="nav-item">
-                <router-link :to="{ name: 'logs' }" class="nav-link active" href="#">Сообщения
-              </router-link>
             </li>
           </ul>                                
         </div>

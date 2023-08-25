@@ -9,7 +9,7 @@ from ..routes import bp
 from ..routes.route import add_resume, folder_check
 from ..utils.excel import resume_data
 from ..models.model import db, User, Person, Region, Check, Report, Status
-from ..models.schema import CheckSchemaApi, PersonSchemaApi
+from ..models.schema import CheckSchemaApi, AnketaSchemaApi
 from ..models.classify import Role
 
 auth = HTTPBasicAuth()
@@ -32,7 +32,7 @@ def verify_password(username: str, password: str):
 
 
 @bp.post('/api/v1/anketa')
-@bp.input(PersonSchemaApi)
+@bp.input(AnketaSchemaApi)
 @bp.auth_required(auth)
 def get_anketa(json_data):
     """
@@ -47,11 +47,8 @@ def get_anketa(json_data):
     resume["request_id"] = resume.pop('id')
     regions = {rgn[1]: rgn[0] for rgn in db.session.query(Region.id, Region.region).all()}
     division = re.split(r'/', json_data['staff']['department'])
-    location_id = 1
-    for div in division:
-        location_id = regions[div] if div.strip() in regions else 1  # Проверка на существование региона и запись id, если нет - 'Главный офис'
-            
-            
+    location_id = [regions.get(key.strip(), 1) for key in division][0]
+                  
     person_id, result = add_resume(resume, location_id)
         
     users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
@@ -80,9 +77,9 @@ def check_in(json_data):
     candidate = db.session.query(Person).get(json_data['id'])
     del json_data['id']
     latest_check = db.session.query(Check).filter_by(person_id=candidate.id).order_by(Check.id.desc()).first()
-    user = db.session.query(User).filter_by(username=latest_check.officer).one_or_none().scalar()
+    user = db.session.query(User).filter_by(username=latest_check.officer).one_or_none()
     
-    db.session.add(Report(message=f'Проверка кандидата {candidate.fullname} окончена', user_id=user.id))
+    db.session.add(Report(report=f'Проверка кандидата {candidate.fullname} окончена', user_id=user.id))
 
     if os.path.isdir(json_data['path']):
         check_path = latest_check.path if os.path.isdir(latest_check.path) else folder_check(candidate.id, candidate["fullname"])
@@ -90,7 +87,7 @@ def check_in(json_data):
             for file in os.listdir(json_data['path']):
                 shutil.copyfile(file, check_path)
         except FileNotFoundError as error:
-            db.session.add(Report(message=error, user_id=user.id))
+            db.session.add(Report(report=f'{error}', user_id=user.id))
     
     for k, v in json_data.items():
         setattr(latest_check, k, v)

@@ -4,11 +4,13 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 
 ### The main technology stack used in this project includes:
 
-- Python;
-- Flask (APIFlask) as the web server;
-- Flask-JWT-Extended for authorization;,
-- Flask-SQLAlchemy (SQLAlchemy) as ORM and database;
-- Flask-Marshmallow (Marshmallow) as validation and serialization of data;
+- Python3;
+- APIFlask a lightweight Python web API framework based on Flask and marshmallow-code projects;
+- Gunicorn as HTTP server;
+- Flask-JWT-Extended as a tool for authorization;
+- Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
+- Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
+- Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
 
@@ -21,6 +23,7 @@ python3 --version
 
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
+sudo apt install python3
 sudo apt install python3-pip
 sudo apt install python3-venv
 mkdir staffsec
@@ -34,6 +37,7 @@ To Use a PostgreSQL Database in a Flask Application install PostgreSQL (Ubuntu e
 ```
 sudo apt-get -y install postgresql
 sudo systemctl start postgresql.service
+sudo systemctl enable postgresql.service
 ```
 Creating the PostgreSQL Database and User
 ```
@@ -50,18 +54,16 @@ To start the application at http://localhost:5000 run the following command in y
 ```
 export FLASK_APP=app
 export FLASK_ENV=testing  # create a testing environment and SQLite database (optional)
-flask run  # --debug (optional)
-```
-If you need to run the server with specific host and port:
-```
-flask run --host=0.0.0.0 --port=5000  # watch the settings in gunicorn.conf.py
-```
-Start the app with Gunicorn server:
-```
-gunicorn -c gunicorn.conf.py wsgi:app
+flask run
 ```
 Database tables creates automatically. Admin user on default has name admin and the same password.
-You must change it in first login to application
+Change it in first login to application. Regions gets from the classify file
+Then you can start the app with Gunicorn server:
+```
+gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
+```
+
+### Migration
 
 For migrate database enter commands:
 ```

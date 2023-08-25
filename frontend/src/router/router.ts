@@ -1,20 +1,19 @@
-import axios from 'axios';
 import { createRouter, createWebHistory } from 'vue-router'
 import { appAuth } from '@store/auth';
 import server from '@/store/server';
+import axios from 'axios';
 import App from '@/App.vue';
 import LoginPage from '@pages/LoginPage.vue';
-import AdminVue from '@components/AdminVue.vue';
 import StaffVue from '@components/StaffVue.vue';
-import PersonsPage from '@pages/PersonsPage.vue';
+import PersonPage from '@pages/PersonPage.vue';
+import ResumePage from '@pages/ResumePage.vue';
 import ProfilePage from '@pages/ProfilePage.vue';
 import StatPage from '@pages/StatPage.vue';
-import NotFound from '@pages/NotFound.vue';
+import AdminVue from '@components/AdminVue.vue';
 import UsersListPage from '@pages/UsersListPage.vue';
 import UserPage from '@pages/UserPage.vue';
-import LogsPage from '@pages/LogsPage.vue';
 import RegionPage from '@pages/RegionPage.vue';
-import ResumePage from '@pages/ResumePage.vue';
+import NotFound from '@pages/NotFound.vue';
 
 // Маршруты приложения  
 const router = createRouter({
@@ -41,7 +40,7 @@ const router = createRouter({
         {
           path: 'persons',
           name: 'persons',
-          component: PersonsPage
+          component: PersonPage
         },
         {
           path: 'resume',
@@ -76,11 +75,6 @@ const router = createRouter({
           component: UserPage,
         },
         {
-          path: 'logs',
-          name: 'logs',
-          component: LogsPage,
-        },
-        {
           path: 'regions',
           name: 'regions',
           component: RegionPage,
@@ -94,14 +88,14 @@ const router = createRouter({
     }
   ],
   history: createWebHistory()
-})
+});
 
 // Защита маршрутов с использованием токенов аутентификации и хранилища данных Pinia
 router.beforeEach(async (to, _from, next) => {
   const refresh_token = localStorage.getItem('refresh_token');
   const access_token = localStorage.getItem('access_token');
 
-  const storeAuth = appAuth()  // Хранилище данных Pinia
+  const storeAuth = appAuth()
 
   if (to.name !== 'login') {
     if (refresh_token) {

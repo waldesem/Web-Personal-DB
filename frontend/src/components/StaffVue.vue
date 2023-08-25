@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// Родительский компонент для страниц с кандидатами
 
+import { onMounted } from 'vue';
 import { appAlert } from '@/store/alert';
 import router from '@router/router';
 import NavBar from '@layouts/NavBar.vue'
@@ -8,8 +8,9 @@ import AlertMessage from '@layouts/AlertMessage.vue';
 
 const storeAlert = appAlert();
 
-
-router.push({ name: 'persons' }) // Переход на страницу с кандидатами
+onMounted(() => {
+  router.push({ name: 'persons' }) // Переход на страницу с кандидатами
+})
 
 </script>
 
@@ -24,6 +25,7 @@ router.push({ name: 'persons' }) // Переход на страницу с ка
 </template>
 
 <style scoped>
+
 .component-fade-enter-active, .component-fade-leave-active {
   transition: opacity .1s ease;
 }

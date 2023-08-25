@@ -12,10 +12,9 @@ import InquiryTab from '@content/tabs/InquiryTab.vue';
 //import PhotoTab from '@content/tabs/PhotoTab.vue';
 
 const route = useRoute();
-
 const storeProfile = appProfile();
 
-storeProfile.candId = route.params.id.toString();
+storeProfile.candId = route.params.id as string;
 
 onBeforeMount(() => {
   storeProfile.getProfile();

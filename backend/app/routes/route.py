@@ -14,7 +14,7 @@ from . import bp
 from ..utils.excel import ExcelFile, resume_data
 from ..models.model import User, db, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
-from ..models.schema import MessagesSchema, RelationSchema, StaffSchema, AddressSchema, \
+from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
             InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
 from ..models.classify import Category, Conclusions, Decisions, Role, Status
@@ -84,7 +84,6 @@ def get_classify():
 
 @bp.get('/messages/<string:flag>')
 @bp.doc(hide=True)
-@bp.output(MessagesSchema)
 @jwt_required()
 def get_messages(flag):
     """
@@ -94,13 +93,22 @@ def get_messages(flag):
     Returns:
         list: A list of messages retrieved based on the flag.
     """
-    messages = db.session.query(Report).filter(Report.status == Status.new.value,
-                                                Report.user_id == current_user.id).limit(12).all()
+    def update_messages():
+        updates = db.session.query(Report).filter(Report.status == Status.new.value, Report.user_id == current_user.id).limit(12).all()
+        return updates
+    
+    messages = update_messages()
+    
     if flag == 'reply':
-        db.session.delete(messages)
+        for message in messages:
+             db.session.delete(message)
         db.session.commit()
-        messages = []
-    return messages
+        messages = update_messages()
+
+    schema = MessageSchema()
+    datas = schema.dump(messages, many=True)
+
+    return datas
 
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
@@ -111,15 +119,6 @@ def index(flag, page):
     This function handles the index route of the API. It takes in two parameters:
     - flag: a string representing the flag indicating the type of query to perform
     - page: an integer representing the page number for pagination
-    
-    The function performs different queries based on the value of the flag parameter:
-    - If flag is 'main', the function checks the location_id and performs a query to retrieve a paginated list of Person objects ordered by id in descending order. If the location_id is not 1, the query is filtered by region_id.
-    - If flag is 'new', the function performs a query to retrieve a paginated list of Person objects with status values of 'new' or 'update' and category value of 'candidate', filtered by region_id and ordered by id in descending order.
-    - If flag is 'officer', the function performs a query to retrieve a paginated list of Person objects with status values not equal to 'finish', 'result', or 'cancel', joined with the Check table on the officer field. The query is filtered by the current user's username and ordered by id in ascending order.
-    - If flag is 'search', the function retrieves a JSON payload from the request and performs a query to retrieve a paginated list of Person objects filtered by fullname and birthday fields. The query is filtered by region_id if the location_id is not 1, and ordered by id in ascending order.
-    
-    The function uses a pagination value of 12 and the PersonSchema to serialize the query results into a list of datas. It also determines the has_next and has_prev values based on the pagination query object.
-    
     The function returns a list containing the serialized datas and a dictionary with the has_next and has_prev values.
     """
     pagination = 16
@@ -149,13 +148,13 @@ def index(flag, page):
             if location_id == 1:
                 query = db.session.query(Person).filter(
                     or_(Person.fullname.ilike('%{}%'.format(search['fullname'])), search['fullname'] == ''),
-                    or_(Person.birthday.ilike('%{}%'.format(search['birthday'])), search['birthday'] == ''),
+                    or_(Person.birthday == search['birthday'] if search['birthday'] else True),
                     ).order_by(Person.id.asc()).\
                         paginate(page=page, per_page=pagination, error_out=False)
             else:
                 query = db.session.query(Person).filter(
                 or_(Person.fullname.ilike('%{}%'.format(search['fullname'])), search['fullname'] == ''),
-                or_(Person.birthday.ilike('%{}%'.format(search['birthday'])), search['birthday'] == ''),
+                or_(Person.birthday == search['birthday']),
                 Person.region_id == location_id).order_by(Person.id.asc()).\
                     paginate(page=page, per_page=pagination, error_out=False)
     
@@ -313,7 +312,7 @@ def post_staff(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Staff).get(id), k, v)
     db.session.commit()
-    return {'table': 'staff', 'action': action, 'id': id}
+    return {'table': 'staff', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/document/<action>/<int:id>')
@@ -336,7 +335,7 @@ def post_document(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Document).get(id), k, v)
     db.session.commit()
-    return {'table': 'document', 'action': action, 'id': id}
+    return {'table': 'document', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/address/<action>/<int:id>')
@@ -359,7 +358,7 @@ def post_address(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Address).get(id), k, v)
     db.session.commit()
-    return {'table': 'address', 'action': action, 'id': id}
+    return {'table': 'address', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/contact/<action>/<int:id>')
@@ -382,7 +381,7 @@ def post_contact(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Contact).get(id), k, v)
     db.session.commit()
-    return {'table': 'contact', 'action': action, 'id': id}
+    return {'table': 'contact', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/workplace/<action>/<int:id>')
@@ -405,7 +404,7 @@ def post_workplace(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Workplace).get(id), k, v)
     db.session.commit()
-    return {'table': 'workplace', 'action': action, 'id': id}
+    return {'table': 'workplace', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/relation/<action>/<int:id>')
@@ -433,7 +432,7 @@ def post_relation(action, id, json_data):
                             relation_id = id, 
                             person_id = json_data['relation_id']))
     db.session.commit()
-    return {'table': 'relation', 'action': action, 'id': id}
+    return {'table': 'relation', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/location/<action>/<int:id>')
@@ -458,10 +457,9 @@ def post_location(action, id, json_data):
         users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
                                             User.region_id == json_data['region_id']).all()
         for user in users:
-            db.session.add(Report(report=f'Делегирована анкета ID #{id} от \
-                {current_user.username}', user_id=user.id))        
+            db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))        
     db.session.commit()
-    return {'table': 'location', 'action': action, 'id': id}
+    return {'table': 'location', 'actions': action, 'id': id}
 
 
 @bp.post('/photo/upload/<int:person_id>')
@@ -513,10 +511,10 @@ def patch_status(person_id: int):
         dict: A dictionary containing the message of the status update.
     """
     person = Person.query.get(person_id)
-    if person and not person.has_status([Status.finish.value]):
+    if person:
         person.status = Status.update.value
         db.session.commit()
-        return {"message": Status.update.name}
+        return {"message": Status.update.value}
     return {"message": Status.error.name}
 
 
@@ -537,7 +535,7 @@ def send_resume(person_id):
     """
     resume = db.session.query(Person).get(person_id)
     if resume.has_status([Status.new.value, Status.update.value]):
-        folder_check(person_id, resume["fullname"])
+        folder_check(person_id, resume.fullname)
         anketa_schema = AnketaSchema()
         serial = anketa_schema.dump(dict(
             resume = resume, 
@@ -579,7 +577,8 @@ def folder_check(person_id, fullname):
     if not os.path.isdir(url):
         os.mkdir(url)
     check_path = os.path.join(url, datetime.now().strftime("%Y-%m-%d"))
-    os.mkdir(check_path)
+    if not os.path.isdir(check_path):
+        os.mkdir(check_path)
     return check_path
 
 
@@ -594,7 +593,7 @@ def add_check(person_id):
     Returns:
         dict: A dictionary containing the message indicating the status of the check.
     """
-    person = Person.query.get(person_id)
+    person = db.session.query(Person).get(person_id)
     if person.has_status([Status.new.value, Status.update.value]):
         check_path = folder_check(person_id, person.fullname)
         person.status = Status.manual.value
@@ -674,8 +673,8 @@ def post_registry(action, id, json_data):
         :rtype: dict
     """
     user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-    if not user.has_role(Role.user.value):
-        check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).scalar()
+    if user.has_role(Role.superuser.value) or user.has_role(Role.admin.value):
+        check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).first()[0]
         reg = {'check_id': check_id, 'supervisor': current_user.username} | json_data
         person = db.session.query(Person).get(id)
         if person.request_id:  # отправка ответа о результатах проверки если анкета поступила через API
@@ -697,13 +696,12 @@ def post_registry(action, id, json_data):
                     return {'table': 'registry', 
                             'action': action, 
                             'id': id, 
-                            'message': Status.cancel.name}
+                            'message': response.text}
             except Exception as e:
-                print(e)
                 return {'table': 'registry', 
                         'action': action, 
                         'id': id, 
-                        "message": Status.error.name}
+                        "message": e}
         else:
             db.session.add(Registry(**reg))
             person.status = Status.cancel.value if reg['decision'] == Status.cancel.value else Status.finish.value
@@ -713,7 +711,7 @@ def post_registry(action, id, json_data):
                     'id': id, 
                     'message': Status.finish.name}
     return {'table': 'registry', 
-            'action': action, 
+            'actions': action, 
             'id': id, 
             'message': Status.reply.name}
 
@@ -741,7 +739,7 @@ def post_poligraf(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Poligraf).get(id), k, v)
     db.session.commit()
-    return {'table': 'poligraf', 'action': action, 'id': id}
+    return {'table': 'poligraf', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/investigation/<action>/<int:id>')
@@ -763,7 +761,7 @@ def post_investigation(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Investigation).get(id), k, v)
     db.session.commit()
-    return {'table': 'investigation', 'action': action, 'id': id}
+    return {'table': 'investigation', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/inquiry/<action>/<id>')
@@ -785,7 +783,7 @@ def post_inquiry(action, id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Inquiry).get(id), k, v)
     db.session.commit()
-    return {'table': 'inquiry', 'action': action, 'id': id}
+    return {'table': 'inquiry', 'actions': action, 'id': id}
  
 
 @bp.delete('/profile/<item>/delete/<int:item_id>')
@@ -801,6 +799,7 @@ def delete_item(item, item_id):
         str: An empty string if the item is successfully deleted.
     """
     item_model_map = {
+        'person': Person,
         'staff': Staff,
         'relation': Relation,
         'document': Document,
@@ -814,18 +813,18 @@ def delete_item(item, item_id):
     }
     item_model = item_model_map.get(item)
     item_instance = item_model.query.get(item_id)
-    if item == 'check':
-        person = db.session.query(Person).get(db.session.query(Check.person_id).filter_by(id=item_id).scalar())
-        if person.has_status(Status.finish.value) \
-            or db.session.query(Registry).filter_by(check_id=item_id).one_or_none():
-            return {'message': Status.error.name}  # нельзя удалить оконченную проверку
-        setattr(person, 'status', Status.update.value)
-        if item_instance.path:
-            if os.path.isdir(item_instance.path): shutil.rmtree(item_instance.path)  # удаление директории с файлами
+    if item in ['person', 'check']:
+        try:
+            shutil.rmtree(item_instance.path)
+        except Exception as e:
+            print(e)
+        if item == 'check':
+            person = db.session.query(Person).get(db.session.query(Check.person_id).filter_by(id=item_id).scalar())
+            setattr(person, 'status', Status.update.value)
     db.session.delete(item_instance)
     db.session.commit()
     return {'message': item}
-
+    
 
 @bp.post('/information')
 @bp.doc(hide=True)
@@ -838,24 +837,16 @@ def post_information():
             - poligraf (dict): A dictionary mapping the theme to the count of poligraf entries.
     """
     response = request.get_json()
-    if not response['region']:
-        candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
-            join(Check, Check.id == Registry.check_id). \
-                join(Person, Person.id == Check.person_id).\
-                    group_by(Registry.decision).\
-                        filter(Registry.deadline.between(response['start'], response['end'])).all()
+    candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
+        join(Check, Check.id == Registry.check_id). \
+            join(Person, Person.id == Check.person_id).\
+                group_by(Registry.decision).\
+                    filter(Registry.deadline.between(response['start'], response['end']), 
+                            Person.region_id == int(response['region'])).all()
 
-        pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme). \
-            filter(Poligraf.deadline.between(response['start'], response['end'])).all()
+    pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme). \
+        filter(Poligraf.deadline.between(response['start'], response['end'])).all()
     
-    else:
-        candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
-            join(Check, Check.id == Registry.check_id). \
-                join(Person, Person.id == Check.person_id).\
-                    group_by(Registry.decision).\
-                        filter(Registry.deadline.between(response['start'], response['end']), 
-                                Person.region_id == int(response['region'])).all()
-        pfo = []
     return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
             "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))}
 

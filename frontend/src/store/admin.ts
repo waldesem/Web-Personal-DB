@@ -2,21 +2,22 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue'
 import { appAuth } from '@store/auth';
 import { appAlert } from '@store/alert';
+import { appLocation } from './location';
 import router from '@router/router';
 import server from '@store/server';
 
 
-const storeAuth = appAuth()
+export const storeAdmin = defineStore('storeAdmin',  () => {
 
-const storeAlert = appAlert();
-
-export const appUsers = defineStore('appUsers',  () => {
+  const storeAuth = appAuth();
+  const storeAlert = appAlert();
+  const storeLocation = appLocation();
 
   const users = ref([]);
-
   const userId = ref('');
+  const action = ref('');
+  const region = ref('');
 
-  const action = ref('');  // Выбор действия
 
   // Данные пользователя
   const profile = ref({
@@ -81,7 +82,7 @@ export const appUsers = defineStore('appUsers',  () => {
     if (confirm(`Вы действительно хотите ${confirm_title[flag as keyof typeof confirm_title]} пользователя?`)) {
 
       try {
-      const response = await storeAuth.axiosInstance.get(`${server}/user/${userId}/${flag}`);
+      const response = await storeAuth.axiosInstance.get(`${server}/user/${userId.value}/${flag}`);
       const { user } = response.data;
       
       // Матчинг атрибута и текста сообщения
@@ -110,31 +111,70 @@ export const appUsers = defineStore('appUsers',  () => {
    * @return {Promise<void>} A promise that resolves when the data is successfully submitted.
    */
   async function submitData(): Promise<void>{
-  try {  
-    const response = await storeAuth.axiosInstance.post(`${server}/user/${action.value}`, {
-      'fullname': profile.value.fullname,
-      'username': profile.value.username,
-      'email': profile.value.email,
-      'region_id': profile.value.region_id,
-      'role': profile.value.role
-    });
-    const  { user } = response.data;
-    // Матчинг атрибута и текста сообщения
-    const resp = {
-      'create': ['alert-success', 'Пользователь успешно создан'],
-      'edit': ['alert-success', 'Пользователь успешно изменен'],
-      'none': ['alert-danger', 'Ошибка создания (пользователь существует)/редактирования']
-    }
-    storeAlert.alertAttr = resp[user as keyof typeof resp][0];
-    storeAlert.alertText = resp[user as keyof typeof resp][1];
-    
-    action.value === 'create' ? getUsers() : viewUser(userId.value);
-    action.value = '';
+    try {  
+      const response = await storeAuth.axiosInstance.post(`${server}/user/${action.value}`, {
+        'fullname': profile.value.fullname,
+        'username': profile.value.username,
+        'email': profile.value.email,
+        'region_id': profile.value.region_id,
+        'role': profile.value.role
+      });
+      const  { user } = response.data;
+      // Матчинг атрибута и текста сообщения
+      const resp = {
+        'create': ['alert-success', 'Пользователь успешно создан'],
+        'edit': ['alert-success', 'Пользователь успешно изменен'],
+        'none': ['alert-danger', 'Ошибка создания (пользователь существует)/редактирования']
+      }
+      storeAlert.alertAttr = resp[user as keyof typeof resp][0];
+      storeAlert.alertText = resp[user as keyof typeof resp][1];
+      
+      action.value === 'create' ? getUsers() : viewUser(userId.value);
+      action.value = '';
 
-  } catch (error) {
+    } catch (error) {
       console.error(error);
-  }
+    }
   };
 
-    return { users, profile, action, userId, getUsers, editUserInfo, submitData, viewUser };
+  /**
+   * Adds a region to the server.
+   *
+   * @return {Promise<void>} This function does not return anything.
+   */
+  async function addRegion(): Promise<void> {
+    const response = await storeAuth.axiosInstance.post(`${server}/region/add`, {
+      'region': region.value
+    });
+    const  { location } = response.data;
+    storeAlert.alertAttr = location ? 'alert-warning' : 'alert-success';
+    storeAlert.alertText = location 
+      ? 'При добавлении записи возникла ошибка'
+      : 'Запись добавлена';
+    storeLocation.getRegions();
+  };
+
+  /**
+   * Deletes a region.
+   *
+   * @param {String} id - The ID of the region to be deleted.
+   * @return {Promise<void>} - A promise that resolves when the region is deleted.
+   */
+  async function delRegion(id: String): Promise<void> {
+    if (id === '1') {
+      storeAlert.alertAttr = 'alert-info';
+      storeAlert.alertText = 'Нельзя удалить регион "Главный офис"';
+      return
+    };
+    if (confirm(`Вы действительно хотите удалить регион?`)) {
+      const response = await storeAuth.axiosInstance.get(`${server}/region/delete/${id}`);
+      const  { location } = response.data;
+      
+      storeAlert.alertAttr = 'alert-success';
+      storeAlert.alertText = `Регион ${location} удален`;
+
+      storeLocation.getRegions(); // Обновление списка регионов в хранилище
+    }
+  };
+    return { users, profile, action, userId, region, getUsers, editUserInfo, submitData, viewUser, addRegion, delRegion,};
 });

@@ -1,13 +1,12 @@
 from functools import wraps
-import shutil
 import bcrypt
 
 from flask import request, abort
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user
 
 from . import bp
-from ..models.model import Person, db, User, Log, Status, Region
-from ..models.schema import LogSchema, UserSchema
+from ..models.model import  User, Region, db
+from ..models.schema import  UserSchema
 from ..models.classify import Role
 
 
@@ -138,43 +137,6 @@ def edit_user_info(user_id, flag):
             return {'user': flag}
     return {'user': 'None'}
 
-
-@bp.get('/logs')
-@bp.output(LogSchema)
-@bp.doc(hide=True)
-@admin_required
-def logs_list():
-    """
-    Retrieves a list of logs with the status set to 'new' from the database.
-    Returns:
-        A list of Log objects with the status set to 'new'.
-    """
-    return db.session.query(Log).filter_by(status=Status.new.name).limit(100).all()
-    
-
-@bp.get('/logs/<flag>')
-@bp.output(LogSchema)
-@bp.doc(hide=True)
-@admin_required
-def log_actions(flag):
-    """
-    Handles actions related to logs based on the provided flag.
-    Parameters:
-    - flag (str): The flag to determine the action to be taken. Can be 'reply' or 'delete'.
-    Returns:
-    - list: A list of logs matching the specified flag and having a status of 'new'.
-    """
-    logs = db.session.query(Log).filter_by(status=Status.new.name).all()
-    if flag == 'reply':
-        for log in logs:
-            setattr(log, 'status', Status.reply.name)
-        db.session.commit()
-    elif flag == 'delete':
-        db.session.delete(logs)
-        db.session.commit()
-    logs = db.session.query(Log).filter_by(status=Status.new.name).limit(100).all()
-    return logs
-    
     
 @bp.post('/region/add')
 @bp.doc(hide=True)
@@ -210,25 +172,3 @@ def del_location(loc_id):
     db.session.delete(location)
     db.session.commit()
     return {'location': location.region}
-        
-        
-@bp.get('/person/delete/<int:person_id>')
-@bp.doc(hide=True)
-@admin_required
-def del_person(person_id):
-    """
-    Delete a person from the database and remove their associated directory.
-    Parameters:
-        person_id (int): The ID of the person to be deleted.    
-    Returns:
-        dict: A dictionary containing the full name of the deleted person.
-    """
-    person = db.session.query(Person).filter_by(id=person_id).one_or_none()
-    db.session.delete(person)
-    db.session.commit()
-    try:
-        shutil.rmtree(person.path)
-    except Exception as e:
-        print(e)
-    return {'person': person.fullname}
-    

@@ -47,21 +47,9 @@ class User(db.Model):
     reports = db.relationship('Report', backref='reports', cascade="all, delete, delete-orphan")
     
     def has_role(self, role):
-        """
-        Checks if the user has a specific role.
-        Args:
-            role (str): The role to check against.
-        Returns:
-            bool: True if the user has the specified role, False otherwise.
-        """
         return self.role == role
     
     def has_blocked(self):
-        """
-        Check if the object is blocked.
-        Returns:
-            bool: True if the object is blocked, False otherwise.
-        """
         return self.blocked
 
 
@@ -262,7 +250,7 @@ class Investigation(db.Model):
     theme = db.Column(db.String(250))
     info = db.Column(db.Text)
     officer = db.Column(db.String(25))
-    deadline = db.Column(db.Date, default=default_time)
+    deadline = db.Column(db.Date, default=default_time, onupdate=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
@@ -278,23 +266,3 @@ class Inquiry(db.Model):
     officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-
-
-class Log(db.Model):
-    """ Create model for logs"""
-    
-    __tablename__ = 'logs'
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    timestamp = db.Column(db.DateTime)
-    level = db.Column(db.String(250))
-    message = db.Column(db.Text)
-    pathname = db.Column(db.String(250))
-    lineno = db.Column(db.Integer)
-    status = db.Column(db.String, default=Status.new.name)
-
-    def __init__(self, timestamp, level, message, pathname, lineno):
-        self.timestamp = timestamp
-        self.level = level
-        self.message = message
-        self.pathname = pathname
-        self.lineno = lineno

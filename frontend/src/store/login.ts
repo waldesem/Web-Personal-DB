@@ -1,31 +1,24 @@
+import router from '@router/router';
 import axios from 'axios';
-import { ref } from 'vue';
+import server from '@store/server';
 import { defineStore } from 'pinia'
 import { appAuth } from '@store/auth';
 import { appAlert } from '@store/alert';
 import { appLocation } from '@store/location';
 import { appClassify } from '@store/classify';
-import server from '@store/server';
-import router from '@router/router';
-
-
-const storeAuth = appAuth();
-
-const storeAlert = appAlert();
-
-const storeLocation = appLocation();
-
-const classifyApp = appClassify();
+import { ref } from 'vue';
 
 
 export const appLogin = defineStore('appLogin',  () => {
 
+  const storeAuth = appAuth();
+  const storeAlert = appAlert();
+  const storeLocation = appLocation();
+  const classifyApp = appClassify();
+
   const action = ref('login');
-
   const fullName = ref('');
-
   const userName = ref('');
-
   const userRole = ref('');
   
   // Объект с данными из формы входа пользователя
@@ -35,10 +28,6 @@ export const appLogin = defineStore('appLogin',  () => {
     new_pswd: '',
     conf_pswd: ''
   });
-
-  storeAlert.alertAttr = 'alert-info';
-  storeAlert.alertText = 'Авторизуйтесь для входа в систему';
-
 
   async function getAuth(): Promise<void> {
     try {
@@ -55,6 +44,9 @@ export const appLogin = defineStore('appLogin',  () => {
   
       storeLocation.getRegions();  // Получение списка регионов
       classifyApp.getClassify();  // Получение списка категорий
+
+      storeAlert.alertAttr = '';
+      storeAlert.alertText = '';
     
     } catch (error) {
       console.error(error)
@@ -111,6 +103,9 @@ export const appLogin = defineStore('appLogin',  () => {
           storeLocation.getRegions();  // Получение списка регионов
           classifyApp.getClassify();  // Получение списка категорий
 
+          storeAlert.alertAttr = '';
+          storeAlert.alertText = '';
+
           router.push({ name: 'persons' });
           break;
 
@@ -135,5 +130,26 @@ export const appLogin = defineStore('appLogin',  () => {
     }
   }
 
-  return { action, fullName, userName, userRole, loginData, submitData, getAuth }
+  /**
+   * Logs the user out by sending a DELETE request to the server's logout endpoint.
+   *
+   * @return {Promise<void>} Promise that resolves when the user is successfully logged out.
+   */
+  async function userLogout(): Promise<void>{
+    const response = await storeAuth.axiosInstance.delete(`${server}/logout`);
+    console.log(response.status);
+
+    const resp = await axios.delete(`${server}/logout`, {
+        headers: {'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`}
+    });
+    console.log(resp.status);
+
+    // Удаление токенов для авторизации и редирект на страницу авторизации
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+
+    router.push({ name: 'login' });
+  };
+  
+  return { action, fullName, userName, userRole, loginData, submitData, getAuth, userLogout }
 })
