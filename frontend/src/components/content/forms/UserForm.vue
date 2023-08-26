@@ -18,22 +18,22 @@ const classifyApp = appClassify();
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="fullname">Имя пользователя:</label>
         <div class="col-lg-10">
-          <input autocomplete="fullname" class="form-control" minlength="3" maxlength="25" name="fullname" 
-              required type="text" v-model="adminStore.profile.fullname" pattern="[a-zA-Zа-яА-Я ]+">
+          <input autocomplete="fullname" class="form-control" minlength="3" maxlength="250" name="fullname" 
+              required type="text" v-model="adminStore.profile.fullname" placeholder="Петров Петр Петрович" pattern="[a-zA-Zа-яА-Я ]+">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="username">Учетная запись:</label>
         <div class="col-lg-10">
-          <input :disabled="adminStore.action === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="25" name="username" 
-              required type="text" v-model="adminStore.profile.username" pattern="[a-zA-Z]+">
+          <input :disabled="adminStore.action === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="250" name="username" 
+              required type="text" v-model="adminStore.profile.username" placeholder="petrov" pattern="[a-z]+">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="email">Электронная почта:</label>
         <div class="col-lg-10">
-          <input autocomplete="email" class="form-control" minlength="3" maxlength="25" name="email" 
-              required type="email" v-model="adminStore.profile.email">
+          <input autocomplete="email" class="form-control" minlength="3" maxlength="250" name="email" 
+              required type="email" placeholder="petrov@petrov.ru" v-model="adminStore.profile.email">
         </div>
       </div>
       <div class="mb-3 row">

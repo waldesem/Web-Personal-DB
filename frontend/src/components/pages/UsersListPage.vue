@@ -43,7 +43,7 @@ onBeforeMount(async () => {
           </tr>
         </tbody>
       </table>
-      <button class="btn btn-primary" @click="adminStore.action = 'create'">Добавить пользователя</button>
+      <button class="btn btn-primary" @click="adminStore.resetItem; adminStore.action = 'create'">Добавить пользователя</button>
     </div>
   </div>
 </template>@/store/admin

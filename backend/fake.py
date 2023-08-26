@@ -87,7 +87,7 @@ def get_anketa(index):
     } for i in range(index)]
 
 
-def test_api(number=10, server='http://127.0.0.1:5000', username='newapi', password = 'newapi'):
+def test_api(number=20, server='http://188.225.42.184:5000', username='robot', password = 'WwFwVi7NeEgcH72F'):
     anketas = get_anketa(number)
     for anketa in anketas:
         response = requests.post(f'{server}/api/v1/anketa', 

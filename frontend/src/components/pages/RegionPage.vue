@@ -12,7 +12,7 @@ const storeLocation = appLocation();
 <template>
   <div class="container py-3">
   <div class="py-5"><h4>Список регионов</h4></div>
-    <form @submit.prevent="adminStore.addRegion" class="form form-check" role="form"> 
+    <form @submit.prevent="adminStore.updateRegion" class="form form-check" role="form"> 
       <div class="row mb-3">
         <div class="row">
           <label class="col-form-label col-lg-1" for="region">Регион: </label>
@@ -39,7 +39,6 @@ const storeLocation = appLocation();
           <tr height="50px" v-for="name, value in storeLocation.regionsObject" :key="value">
             <td>{{ value }}</td>
             <td>{{ name }}</td>
-            <td><a class="link-opacity-50" href="#" @click="adminStore.delRegion(value.toString())">Удалить</a></td>
           </tr>
         </tbody>
       </table>

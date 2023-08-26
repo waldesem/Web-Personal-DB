@@ -203,15 +203,15 @@ def get_profile(person_id):
     
     staffs = db.session.query(Staff).filter_by(person_id=person_id).order_by(Staff.id.asc()).all()
     
-    checks = db.session.query(Check).filter_by(person_id=person_id).order_by(Check.id.asc()).all()
+    checks = db.session.query(Check).filter_by(person_id=person_id).order_by(Check.id.desc()).all()
 
     registries = [db.session.query(Registry).filter_by(check_id=check.id).first() for check in checks]
     
-    pfos = db.session.query(Poligraf).filter_by(person_id=person_id).order_by(Poligraf.id.asc()).all()
+    pfos = db.session.query(Poligraf).filter_by(person_id=person_id).order_by(Poligraf.id.desc()).all()
     
-    invs = db.session.query(Investigation).filter_by(person_id=person_id).order_by(Investigation.id.asc()).all()
+    invs = db.session.query(Investigation).filter_by(person_id=person_id).order_by(Investigation.id.desc()).all()
     
-    inquiries = db.session.query(Inquiry).filter_by(person_id=person_id).order_by(Inquiry.id.asc()).all()
+    inquiries = db.session.query(Inquiry).filter_by(person_id=person_id).order_by(Inquiry.id.desc()).all()
 
     return {'resume': resume, 'documents': documents, 'addresses': addresses, 'contacts': contacts, 
             'workplaces': workplaces, 'staffs': staffs, 'relations': relations, 'checks': checks, 

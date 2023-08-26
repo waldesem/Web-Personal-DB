@@ -48,21 +48,6 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
 
-### Usage
-
-To start the application at http://localhost:5000 run the following command in your terminal:
-```
-export FLASK_APP=app
-export FLASK_ENV=testing  # create a testing environment and SQLite database (optional)
-flask run
-```
-Database tables creates automatically. Admin user on default has name admin and the same password.
-Change it in first login to application. Regions gets from the classify file
-Then you can start the app with Gunicorn server:
-```
-gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
-```
-
 ### Migration
 
 For migrate database enter commands:
@@ -78,7 +63,7 @@ After installing Node.js, you can install the required npm packages by running i
 ```
 npm i
 ```
-To start development node server, run the following command in your terminal:
+To start development node server  run the following command in your terminal:
 ```
 npm run dev
 ```
@@ -88,6 +73,77 @@ Then, run the following command in your terminal:
 npm run build
 ```
 This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
+
+### Usage
+
+To start the application at http://localhost:5000 run the following command in your terminal:
+```
+export FLASK_APP=app
+export FLASK_ENV=testing  # create a testing environment and SQLite database (optional)
+flask run
+```
+Database tables creates automatically. Admin user on default has name admin and the same password.
+Change it in first login to application. Regions gets from the classify file
+Then you can start the app with Gunicorn server:
+```
+gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
+```
+
+### Gunicorn Service
+
+To create the gunicorn service for the systemd run the following command in your terminal:
+```
+sudo nano /etc/systemd/system/staffsec.service
+```
+Add the following line:
+```
+[Unit]
+Description=Gunicorn instance to serve staffsec
+After=network.target
+[Service]
+User=user
+Group=www-data
+WorkingDirectory=/home/user/DB-Personal-DB/backend
+Environment="PATH=/home/user/DB-Personal-DB/backend/venv/bin"
+ExecStart=/home/user/DB-Personal-DB/backend/venv/bin/gunicorn -c gunicorn.conf.py wsgi:app
+[Install]
+WantedBy=multi-user.target
+```
+Start the service:
+```
+sudo systemctl start staffsec
+sudo systemctl enable staffsec
+sudo systemctl status staffsec
+```
+
+### Nginx
+
+Nginx configuration:
+Open the file '/etc/nginx/sites-available/staffsec' and add the following line:
+```
+server {
+    listen 80;
+    server_name yourdomain.com;
+    location / {
+        include proxy_params;
+        proxy_pass http://0.0.0.0:5000;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+Add configuration file '/etc/nginx/sites-enabled/staffsec' and restart Nginx:
+```
+sudo ln -s /etc/nginx/sites-available/staffsec /etc/nginx/sites-enabled/staffsec
+sudo service nginx restart
+```
+Add rule in your firewall:
+```
+sudo ufw allow 'Nginx HTTP'
+sudo ufw reload
+```
 
 ### License
 This project is licensed under the MIT License. See the LICENSE file for details.

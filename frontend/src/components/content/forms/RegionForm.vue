@@ -19,6 +19,7 @@ const storeProfile = appProfile();
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          
           <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="region_id" >Регион</label>

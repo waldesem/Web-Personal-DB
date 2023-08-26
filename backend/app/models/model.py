@@ -249,6 +249,7 @@ class Investigation(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     theme = db.Column(db.String(250))
     info = db.Column(db.Text)
+    # path = db.Column(db.String(250))
     officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time, onupdate=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))

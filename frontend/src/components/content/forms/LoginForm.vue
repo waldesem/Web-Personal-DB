@@ -1,8 +1,12 @@
 <script setup lang="ts">
 
 import { appLogin } from '@/store/login';
+import { ref } from 'vue';
 
 const storeLogin = appLogin();
+
+const hidePassword = ref(true);
+
 
 </script>
 
@@ -13,14 +17,23 @@ const storeLogin = appLogin();
         <label class="col-form-label col-lg-2" for="username">Логин: </label>
         <div class="col-lg-6">
           <input autocomplete="username" class="form-control" required id="username" name="username" type="text"
-            v-model.trim="storeLogin.loginData.username" minlength="5" maxlength="25" pattern="[a-zA-Z]+">
+            v-model.trim="storeLogin.loginData.username" minlength="4" maxlength="16" 
+            placeholder="Латинские буквы 4-16 символов" pattern="[a-zA-Z]+">
         </div>
       </div>
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="password">Пароль: </label>
         <div class="col-lg-6">
-          <input autocomplete="current-password" class="form-control" required id="password" name="password"
-            type="password" v-model.trim="storeLogin.loginData.password" minlength="4" maxlength="25" pattern="[0-9a-zA-Z]+">
+          <div class="input-group">
+            <input autocomplete="current-password" class="form-control" required id="password" name="password"
+              :type="hidePassword ? 'password' : 'text'" v-model.trim="storeLogin.loginData.password" minlength="8" maxlength="16" 
+              placeholder="Латинские буквы и цифры 8-16 символов" pattern="[0-9a-zA-Z]+">
+            <span class="input-group-text">
+                <a role="button" @click="hidePassword = !hidePassword">
+                  <i :class="hidePassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
+                </a>
+            </span>
+          </div>
           <div v-if="storeLogin.action === 'login'" class="py-2">
             <a @click="storeLogin.action = 'password'" href="#">Изменить пароль</a>
           </div>
@@ -30,15 +43,17 @@ const storeLogin = appLogin();
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="new_pswd">Новый: </label>
           <div class="col-lg-6">
-            <input autocomplete="current-password" class="form-control" required name="new_pswd" type="password"
-              v-model.trim="storeLogin.loginData.new_pswd" minlength="5" maxlength="25" pattern="[0-9a-zA-Z]+">
+            <input autocomplete="current-password" class="form-control" required name="new_pswd" :type="hidePassword ? 'password' : 'text'"
+              v-model.trim="storeLogin.loginData.new_pswd" minlength="8" maxlength="16" 
+              placeholder="Латинские буквы и цифры 8-16 символов" pattern="[0-9a-zA-Z]+">
           </div>
         </div>
         <div class="mb-3 row required">
           <label class="col-form-label col-lg-2" for="conf_pswd">Повтор: </label>
           <div class="col-lg-6">
-            <input autocomplete="current-password" class="form-control" required name="conf_pswd" type="password"
-              v-model.trim="storeLogin.loginData.conf_pswd" minlength="5" maxlength="25" pattern="[0-9a-zA-Z]+">
+            <input autocomplete="current-password" class="form-control" required name="conf_pswd" :type="hidePassword ? 'password' : 'text'"
+              v-model.trim="storeLogin.loginData.conf_pswd" minlength="8" maxlength="16" 
+              placeholder="Латинские буквы и цифры 8-16 символов" pattern="[0-9a-zA-Z]+">
           </div>
         </div>
       </div>

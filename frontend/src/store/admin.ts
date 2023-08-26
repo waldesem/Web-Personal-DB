@@ -7,7 +7,7 @@ import router from '@router/router';
 import server from '@store/server';
 
 
-export const storeAdmin = defineStore('storeAdmin',  () => {
+export const storeAdmin = defineStore('storeAdmin', () => {
 
   const storeAuth = appAuth();
   const storeAlert = appAlert();
@@ -137,12 +137,28 @@ export const storeAdmin = defineStore('storeAdmin',  () => {
     }
   };
 
+  const resetItem = (): void => {
+    Object.assign(profile.value, {
+      id: '',
+      fullname: '',
+      region_id: '',
+      username: '',
+      email: '',
+      pswd_create: '',
+      pswd_change: '',
+      last_login: '',
+      role: '',
+      blocked: '',
+      attempt: ''
+    })
+  };
+
   /**
    * Adds a region to the server.
    *
    * @return {Promise<void>} This function does not return anything.
    */
-  async function addRegion(): Promise<void> {
+  async function updateRegion(): Promise<void> {
     const response = await storeAuth.axiosInstance.post(`${server}/region/add`, {
       'region': region.value
     });
@@ -154,27 +170,5 @@ export const storeAdmin = defineStore('storeAdmin',  () => {
     storeLocation.getRegions();
   };
 
-  /**
-   * Deletes a region.
-   *
-   * @param {String} id - The ID of the region to be deleted.
-   * @return {Promise<void>} - A promise that resolves when the region is deleted.
-   */
-  async function delRegion(id: String): Promise<void> {
-    if (id === '1') {
-      storeAlert.alertAttr = 'alert-info';
-      storeAlert.alertText = 'Нельзя удалить регион "Главный офис"';
-      return
-    };
-    if (confirm(`Вы действительно хотите удалить регион?`)) {
-      const response = await storeAuth.axiosInstance.get(`${server}/region/delete/${id}`);
-      const  { location } = response.data;
-      
-      storeAlert.alertAttr = 'alert-success';
-      storeAlert.alertText = `Регион ${location} удален`;
-
-      storeLocation.getRegions(); // Обновление списка регионов в хранилище
-    }
-  };
-    return { users, profile, action, userId, region, getUsers, editUserInfo, submitData, viewUser, addRegion, delRegion,};
+  return { users, profile, action, userId, region, getUsers, editUserInfo, submitData, viewUser, resetItem, updateRegion };
 });

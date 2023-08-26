@@ -66,9 +66,9 @@ const header = computed(() => {
         <thead> 
           <tr height="50px">
             <th width="5%">#</th>
-            <th width="15%">Регион</th>
+            <th width="25%">Регион</th>
             <th>Фамилия Имя Отчество</th>
-            <th width="20%">Дата рождения</th>
+            <th width="15%">Дата рождения</th>
             <th width="10%">Статус</th>
             <th width="10%">Дата</th>
           </tr>
