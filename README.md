@@ -23,9 +23,7 @@ python3 --version
 
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
-sudo apt install python3
-sudo apt install python3-pip
-sudo apt install python3-venv
+sudo apt install python3 python3-pip python3-venv
 mkdir staffsec
 cd staffsec
 python3 -m venv venv

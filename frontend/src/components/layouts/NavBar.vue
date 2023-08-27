@@ -4,15 +4,17 @@
 
 import { appPersons } from '@/store/persons';
 import { appLogin } from '@/store/login';
+import { appProfile } from '@/store/profile';
 
 
 const personsStore = appPersons();
 const storeLogin = appLogin();
+const storeProfile = appProfile();
 
 </script>
 
 <template>
-  <div class="container-fluid">
+  <div v-if="!storeProfile.printPdf" class="container-fluid">
     <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary">
       <div class="container">
         <a class="navbar-brand" href="#">StaffSec</a>

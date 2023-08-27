@@ -32,7 +32,7 @@ const storeClassify = appClassify();
         <thead>
           <tr>
             <th width="25%">{{ `ID #${storeProfile.anketa.resume['id']}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.flag = 'resume'; 
                                   storeProfile.action = 'update';
                                   storeProfile.itemForm = storeProfile.anketa.resume;
@@ -41,6 +41,7 @@ const storeClassify = appClassify();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -98,7 +99,7 @@ const storeClassify = appClassify();
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'staff')" title="Удалить">
                 <i class="bi bi-trash"></i>
               </a>
@@ -110,6 +111,7 @@ const storeClassify = appClassify();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -134,7 +136,7 @@ const storeClassify = appClassify();
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'document')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -146,6 +148,7 @@ const storeClassify = appClassify();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -173,7 +176,7 @@ const storeClassify = appClassify();
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'address')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -185,6 +188,7 @@ const storeClassify = appClassify();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -209,7 +213,7 @@ const storeClassify = appClassify();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'contact')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -221,6 +225,7 @@ const storeClassify = appClassify();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -244,7 +249,7 @@ const storeClassify = appClassify();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'workplace')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -256,6 +261,7 @@ const storeClassify = appClassify();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -284,7 +290,7 @@ const storeClassify = appClassify();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'relation')"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -296,6 +302,7 @@ const storeClassify = appClassify();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -310,7 +317,7 @@ const storeClassify = appClassify();
       <p v-else >Данные отсутствуют</p>
     </template>
 
-    <div class="py-3">
+    <div v-if="!storeProfile.printPdf" class="py-3">
       <div class='btn-group' role="group">
         
         <button @click="storeProfile.sendResume" 

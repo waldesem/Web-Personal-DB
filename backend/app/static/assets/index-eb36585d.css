@@ -1,4 +1,4 @@
-@charset "UTF-8";@import"https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap";.envelope{font-size:2rem}.component-fade-enter-active[data-v-1f264142],.component-fade-leave-active[data-v-1f264142]{transition:opacity .1s ease}.component-fade-enter[data-v-1f264142],.component-fade-leave-to[data-v-1f264142]{opacity:0}html,body{scrollbar-gutter:stable}/*!
+@charset "UTF-8";@import"https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap";.envelope{font-size:2rem}.component-fade-enter-active[data-v-1f264142],.component-fade-leave-active[data-v-1f264142]{transition:opacity .1s ease}.component-fade-enter[data-v-1f264142],.component-fade-leave-to[data-v-1f264142]{opacity:0}html,body{scrollbar-gutter:stable}@media print{.no-print{display:none!important}}/*!
  * Bootswatch v5.3.1 (https://bootswatch.com)
  * Theme: journal
  * Copyright 2012-2023 Thomas Park

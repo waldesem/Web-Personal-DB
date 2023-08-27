@@ -46,7 +46,7 @@ const storeProfile = appProfile();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].toString(), 'inquiry')"
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -57,6 +57,7 @@ const storeProfile = appProfile();
                                   storeProfile.itemForm = tbl"
                 title="Изменить"><i class="bi bi-pencil-square"></i></a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>        
         <tbody>
@@ -71,7 +72,7 @@ const storeProfile = appProfile();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <a @click="storeProfile.action = 'create'; 
+      <a v-if="!storeProfile.printPdf" @click="storeProfile.action = 'create'; 
                 storeProfile.flag = 'inquiry';
                 storeProfile.itemForm = {}"
          class="btn btn-outline-primary" type="button">Добавить запись</a>

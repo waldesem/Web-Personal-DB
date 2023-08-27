@@ -25,8 +25,8 @@ bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 
 @bp.get('/', defaults={'path': ''})
-@bp.get('/<string:path>')
 @bp.get('/<path:path>')
+@bp.get('/index/profile/<path:path>')
 @bp.doc(hide=True)
 def main(path=''):
     """
@@ -40,19 +40,6 @@ def main(path=''):
         return send_from_directory(bp.static_folder, path)
     else:
         return bp.send_static_file('index.html')
-
-
-@bp.get('/images/<path:path>') 
-@bp.doc(hide=True)
-def send_photos(path):
-    """
-    Send photos from the specified path.
-    Parameters:
-        path (str): The path to the directory containing the photos.
-    Returns:
-        Response: The response containing the requested photo.
-    """
-    return send_from_directory(os.path.join(path, 'photos'), 'photo.jpeg', mimetype='image/jpeg')
 
 
 @bp.get('/locations')
@@ -211,7 +198,7 @@ def get_profile(person_id):
     
     invs = db.session.query(Investigation).filter_by(person_id=person_id).order_by(Investigation.id.desc()).all()
     
-    inquiries = db.session.query(Inquiry).filter_by(person_id=person_id).order_by(Inquiry.id.desc()).all()
+    inquiries = db.session.query(Inquiry).filter_by(person_id=person_id).order_by(Inquiry.id.desc()).all()  
 
     return {'resume': resume, 'documents': documents, 'addresses': addresses, 'contacts': contacts, 
             'workplaces': workplaces, 'staffs': staffs, 'relations': relations, 'checks': checks, 
@@ -494,7 +481,7 @@ def upload_photo(person_id):
     if not os.path.isdir(os.path.join(new_path, 'photos')):
         os.mkdir(os.path.join(new_path, 'photos'))
     # сохраняем фото в директорию photos с пометкой времени в формате YYYYMMDDHHMMSS
-    rgb_im.save(os.path.join(new_path, 'photos', f'{datetime.now().strftime("%Y%m%d%H%M%S")}.jpg'))
+    rgb_im.save(os.path.join(new_path, 'photos', 'image.jpg'))
     
     return {'result': True}
 

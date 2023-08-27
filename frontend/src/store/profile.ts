@@ -11,8 +11,8 @@ import router from '@/router/router';
 export const appProfile = defineStore('appProfile', () => {
   
   const storeAuth = appAuth()
-  const classifyApp = appClassify();
   const storeAlert = appAlert();
+  const classifyApp = appClassify();
 
   const candId = ref('');
   const flag = ref('');
@@ -20,6 +20,7 @@ export const appProfile = defineStore('appProfile', () => {
   const itemId = ref('');
   const itemForm: Record<string, any> = ref({});
   const spinner = ref(false);
+  const printPdf = ref(false);
 
 /**
  * Fetches the profile information for a given ID.
@@ -359,7 +360,7 @@ export const appProfile = defineStore('appProfile', () => {
   };
 
   return {
-    candId, anketa, verification, register, pfo, inquisition, needs, flag, action, itemForm, itemId, spinner,
+    candId, anketa, verification, register, pfo, inquisition, needs, flag, action, itemForm, itemId, spinner, printPdf,
     submitResume, submitFile, updateStatus, sendResume, clearItem, cancelEdit,
     redirectMain, updateItem, deleteItem, addCheck, cancelCheck, getProfile
   };

@@ -3,15 +3,17 @@
 
 import server from '@store/server';
 import { appLogin } from '@/store/login';
+import { appProfile } from '@/store/profile';
 
 const loginStore = appLogin();
+const profileStore = appProfile();
 
 const doc_url = `${server}/docs`;
 
 </script>
 
 <template>
-  <div class="container py-5">
+  <div v-if="!profileStore.printPdf" class="container py-5">
     <footer class="d-flex flex-wrap justify-content-around align-items-center py-3 my-4 border-top">
       <p><router-link :to="{ name: 'persons' }">Home</router-link></p>
       <p><a :href="doc_url" target=”_blank”>OpenAPI</a></p>

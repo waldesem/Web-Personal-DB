@@ -50,7 +50,7 @@ const router = createRouter({
         {
           path: 'profile/:id',
           name: 'profile',
-          component: ProfilePage,
+          component: ProfilePage
         },
         {
           path: 'information',

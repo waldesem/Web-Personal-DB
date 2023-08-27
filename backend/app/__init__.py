@@ -17,7 +17,7 @@ def create_app():
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")  # инициализация APIFlask
     app.config.from_pyfile('../instance/env.py')
     app.json.sort_keys = False  # отключение сортировки поля json
-    CORS(app, resources={r"/*": {"origins": "*"}})  # CORS для браузера и APIFlask
+    CORS(app, resources={r"/*": {"origins": "*"}})  # CORS
     db.init_app(app)  # инициализация БД 
     ma.init_app(app)  # инициализация моделей 
     jwt.init_app(app)  # инициализация JWT 

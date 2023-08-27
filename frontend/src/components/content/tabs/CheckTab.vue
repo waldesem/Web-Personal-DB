@@ -143,7 +143,7 @@ const storeProfile = appProfile();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th>
+            <th v-if="!storeProfile.printPdf">
               <a href="#" :disabled="classifyApp.status 
                             && (storeProfile.anketa.resume['status'] === classifyApp.status['finish'])" 
                           @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].toString(), 'check')"
@@ -161,6 +161,7 @@ const storeProfile = appProfile();
                           title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>
+            <th v-else></th>
           </tr>
         </thead>   
         <tbody>
@@ -188,7 +189,7 @@ const storeProfile = appProfile();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button  @click="storeProfile.addCheck" 
+      <button  v-if="!storeProfile.printPdf" @click="storeProfile.addCheck" 
                 :disabled="classifyApp.status 
                 && (storeProfile.anketa.resume['status'] !== classifyApp.status['new'] 
                 && storeProfile.anketa.resume['status'] !== classifyApp.status['update'])

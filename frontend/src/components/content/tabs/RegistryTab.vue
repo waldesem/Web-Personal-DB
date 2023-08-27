@@ -56,10 +56,10 @@ const classifyApp = appClassify();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button :disabled="classifyApp.status && (storeProfile.anketa.resume['status'] !== classifyApp.status['result'])" 
-              @click="storeProfile.action = 'create'; 
-                      storeProfile.flag = 'registry';
-                      storeProfile.itemForm = {}" 
+      <button v-if="!storeProfile.printPdf" :disabled="classifyApp.status && (storeProfile.anketa.resume['status'] !== classifyApp.status['result'])" 
+                                            @click="storeProfile.action = 'create'; 
+                                                    storeProfile.flag = 'registry';
+                                                    storeProfile.itemForm = {}" 
         class="btn btn-outline-primary" type="button">Добавить запись
       </button>
     </template>
