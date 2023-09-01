@@ -70,10 +70,12 @@ export const appProfile = defineStore('appProfile', () => {
       storeAlert.alertText = result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена';
       
       if (action.value === 'update') {
-        cancelEdit();
-        getProfile()
-      } else router.push({ name: 'profile', params: { id: person_id } });
-    
+        getProfile();
+      } else {
+        router.push({ name: 'profile', params: { id: person_id } })
+      };
+      cancelEdit();
+      
     } catch (error) {
       console.error(error);
     }
@@ -331,12 +333,14 @@ export const appProfile = defineStore('appProfile', () => {
     }
   };
 
-  /**
+    /**
    * Clears the item form and sets the itemId value to an empty string.
    */
   const clearItem = () => {
-    itemForm.value = {};
     itemId.value = '';
+    Object.keys(itemForm.value).forEach(key => {
+      delete itemForm.value[key];
+    });
   };
 
   /**

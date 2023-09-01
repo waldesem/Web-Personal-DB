@@ -51,7 +51,7 @@ class ExcelFile:
             'address': str(self.sheet[f'AC{i}'].value).strip(),
             'position': str(self.sheet[f'AD{i}'].value).strip()
             }
-            for i in range(3, 6)
+            for i in range(3, 6) if self.sheet[f'AA{i}'].value
         ]
         self.staff = {
             'position': str(self.sheet['C3'].value).strip(),
