@@ -40,7 +40,7 @@ const storeProfile = appProfile();
     <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="issue">Дата выдачи</label>
         <div class="col-lg-10">
-        <input class="form-control" id="issue" name="issue" required type="date" v-model="storeProfile.itemForm['issue']">
+        <input class="form-control" id="issue" name="issue" required type="date" v-model="storeProfile.itemForm['issue']" :max="new Date().toISOString().split('T')[0]">
         </div>
     </div>
     <div class=" row">

@@ -2,7 +2,6 @@
 /* Компонент анкеты */
 
 import { appProfile } from '@/store/profile';
-import { appLocation } from '@/store/location';
 import { appClassify } from '@/store/classify';
 import ResumeForm from '@content/forms/ResumeForm.vue';
 import RegionForm from '@content/forms/RegionForm.vue';
@@ -14,7 +13,6 @@ import RelationForm from '@content/forms/RelationForm.vue';
 import WorkplaceForm from '@content/forms/WorkplaceForm.vue';
 
 const storeProfile = appProfile();
-const storeLocation = appLocation();
 const storeClassify = appClassify();
 
 </script>
@@ -54,7 +52,7 @@ const storeClassify = appClassify();
                                   storeProfile.itemForm = storeProfile.anketa.resume;
                                   storeProfile.itemId = storeProfile.anketa.resume['id']" 
                 data-bs-toggle="modal" data-bs-target="#modalWin">
-                {{ storeLocation.regionsObject[storeProfile.anketa.resume['region_id']]}}
+                {{ storeClassify.regions[storeProfile.anketa.resume['region_id']]}}
               </a>
             </td>
           </tr>

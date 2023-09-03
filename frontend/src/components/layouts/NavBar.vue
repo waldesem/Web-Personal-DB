@@ -30,8 +30,10 @@ const storeProfile = appProfile();
               <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
             </li>
             <li v-if="personsStore.messages.length" class="nav-item dropdown">
-              <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#"><i class="bi bi-envelope-fill"></i>
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{personsStore.messages ? personsStore.messages.length : 0}}</span></a>
+              <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
+                <i class="bi bi-envelope-fill"></i>
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{personsStore.messages ? personsStore.messages.length : 0}}</span>
+              </a>
                 <ul class="dropdown-menu">
                   <h6 class="dropdown-header">Непрочитанные сообщения</h6>
                   <li v-for="message in personsStore.messages" :key="message['id']">

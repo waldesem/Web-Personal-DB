@@ -26,7 +26,7 @@ export const appPersons = defineStore('appPersons',  () => {
 
   const messages = ref([]);  // Список сообщений для пользователя
   
-  // Получение списка сообщений после монтирования компонента и обновление каждые 10 минут
+  // Получение списка сообщений после монтирования компонента и обновление каждые 30 минут
   let isStarted = false;
   if (!isStarted) {
     updateMessage();
@@ -71,7 +71,7 @@ export const appPersons = defineStore('appPersons',  () => {
    * @return {undefined} No return value.
    */
   //
-  const prevPage = (): undefined => {
+  function prevPage(): undefined {
     if (data.value.hasPrev) {
       currenData.value.currentPage -= 1;
       getCandidates(currenData.value.currentPath, currenData.value.currentPage);
@@ -83,7 +83,7 @@ export const appPersons = defineStore('appPersons',  () => {
    *
    * @return {Promise<void>} A promise that resolves when the operation is complete.
    */
-  const nextPage = (): undefined => {
+  function nextPage(): undefined {
     if (data.value.hasNext) {
       currenData.value.currentPage += 1;
       getCandidates(currenData.value.currentPath, currenData.value.currentPage);

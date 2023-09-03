@@ -1,27 +1,49 @@
+from functools import wraps
 import json
 import os
 from datetime import datetime
 import shutil
 import requests
 
-from flask_jwt_extended import current_user, jwt_required
+from flask_jwt_extended import current_user, get_jwt_identity, jwt_required
 from sqlalchemy import func, or_
-from flask import request, send_from_directory
+from flask import abort, request, send_from_directory
 from werkzeug.exceptions import BadRequest
 from PIL import Image
 
 from . import bp
+from . login import roles_required
 from ..utils.excel import ExcelFile, resume_data
 from ..models.model import User, db, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
 from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
             InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
-from ..models.classify import Category, Conclusions, Decisions, Role, Status
+from ..models.classify import Category, Conclusions, Decisions, Roles, Groups, Status, Regions
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'persons'))
 
 bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+
+
+def user_required(func):
+    """
+    Decorator that checks if the user making the request is an user. 
+    If the user is an user, the function is executed. Otherwise, a 404 error is returned.
+    Parameters:
+        func (function): The function to be decorated.
+    Returns:
+        function: The wrapped function.
+    """
+    @wraps(func)
+    @jwt_required()
+    def wrapper(*args, **kwargs):
+        user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+        if user.has_role(Roles.user.value):
+            return func(*args, **kwargs)
+        else:
+            abort(404)
+    return wrapper
 
 
 @bp.get('/', defaults={'path': ''})
@@ -40,17 +62,6 @@ def main(path=''):
         return send_from_directory(bp.static_folder, path)
     else:
         return bp.send_static_file('index.html')
-
-
-@bp.get('/locations')
-@bp.doc(hide=True)
-def get_locations():
-    """
-    Retrieves all locations from the database.
-    Returns:
-        dict: A dictionary containing the locations, where the keys are the region IDs and the values are the corresponding region names.
-    """
-    return {rgn[0]: rgn[1] for rgn in db.session.query(Region.id, Region.region).all()}
     
     
 @bp.get('/classify')
@@ -60,13 +71,15 @@ def get_classify():
     Get the classification data.
     This function retrieves the classification data for the API. It returns a dictionary 
     containing the values of the different status options, role options, conclusions,
-    decisions, and categories.
+    decisions, categories, groups and roles 
     """
     return [{i.name: i.value for i in Status}, 
-            {i.name: i.value for i in Role}, 
+            {rgn[0]: rgn[1] for rgn in db.session.query(Region.id, Region.region).all()}, 
             {i.name: i.value for i in Conclusions}, 
             {i.name: i.value for i in Decisions}, 
-            {i.name: i.value for i in Category}]
+            {i.name: i.value for i in Category},
+            {i.name: i.value for i in Groups},
+            {i.name: i.value for i in Roles}]
 
 
 @bp.get('/messages/<string:flag>')
@@ -120,7 +133,7 @@ def index(flag, page):
                     paginate(page=page, per_page=pagination, error_out=False)
         
         case 'new':
-            query = db.session.query(Person).filter(Person.status.in_([Status.new.value, Status.update.value]), 
+            query = db.session.query(Person).filter(Person.status.in_([Status.new.value, Status.update.value, Status.repeat.value]), 
                                                     Person.region_id == location_id, Person.category == Category.candidate.value).\
                     order_by(Person.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
         
@@ -205,24 +218,7 @@ def get_profile(person_id):
             'registries': registries, 'pfos': pfos, 'invs': invs, 'inquiries': inquiries}
 
 
-@bp.post('/resume/create')
-@bp.input(PersonSchema)
-@bp.doc(hide=True)
-@jwt_required()
-def post_resume(json_data):
-    """
-    Creates a new resume for a person.
-    Parameters:
-        - response: The input data for creating the resume. (PersonSchema)
-    Returns:
-        - A dictionary containing the person_id and the result of the resume creation. (dict)
-    """
-    location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
-    person_id, result = add_resume(json_data, location_id)
-    return {'person_id': person_id, 'result': result}
-
-
-@bp.post('/resume/upload')
+@bp.post('/anketa/upload')
 @bp.doc(hide=True)
 @jwt_required()
 def upload_file():
@@ -235,13 +231,30 @@ def upload_file():
     excel = ExcelFile(file)
     location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
 
-    person_id, result = add_resume(excel.resume, location_id)
+    person_id, result = add_resume(excel.resume, location_id, 'create')
     resume_data(person_id, excel.passport, excel.addresses, excel.contacts, excel.workplaces, excel.staff)
 
     return {'result': bool(result), 'person_id': person_id}
 
 
-def add_resume(resume: dict, location_id):
+@bp.post('/resume/<action>')
+@bp.input(PersonSchema)
+@bp.doc(hide=True)
+@jwt_required()
+def post_resume(action, json_data):
+    """
+    Creates a new resume for a person.
+    Parameters:
+        - response: The input data for creating the resume. (PersonSchema)
+    Returns:
+        - A dictionary containing the person_id and the result of the resume creation. (dict)
+    """
+    location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
+    person_id, result = add_resume(json_data, location_id, action)
+    return {'person_id': person_id, 'result': result}
+
+
+def add_resume(resume: dict, location_id, action):
     """
     Adds a resume to the database.
     Args:
@@ -253,14 +266,17 @@ def add_resume(resume: dict, location_id):
     result = db.session.query(Person).filter(Person.fullname.ilike(resume['fullname']),
                                              Person.birthday==resume['birthday']).one_or_none()
     if result:
-        resume.update({'status': Status.update.value, 'region_id': location_id})
+        if action == "create" or action == 'api':
+            resume.update({'status': Status.repeat.value, 'region_id': location_id})
+        else:
+            resume.update({'status': Status.update.value, 'region_id': location_id})
         for k, v in resume.items():
             setattr(result, k, v)
         person_id = result.id
         
         if result.path and not os.path.isdir(result.path):
             os.mkdir(result.path)
-        else:
+        elif not result.path:
             new_path = os.path.join(BASE_PATH, f'{person_id}-{resume["fullname"]}')
             if not os.path.isdir(new_path):
                 os.mkdir(new_path)
@@ -270,13 +286,14 @@ def add_resume(resume: dict, location_id):
         db.session.add(value)
         db.session.flush()
         person_id = value.id
+        
         path = os.path.join(BASE_PATH, f'{person_id}-{resume["fullname"]}')
         setattr(value, 'path', path)
-        os.mkdir(path)
+        if not os.path.isdir(path):
+            os.mkdir(path)
         
     db.session.commit()
     return [person_id, bool(result)]
-
 
 
 @bp.post('/profile/staff/<action>/<int:id>')
@@ -478,10 +495,10 @@ def upload_photo(person_id):
     file = request.files['file']
     im = Image.open(file)
     rgb_im = im.convert('RGB')
-    if not os.path.isdir(os.path.join(new_path, 'photos')):
-        os.mkdir(os.path.join(new_path, 'photos'))
+    if not os.path.isdir(os.path.join(new_path, 'images')):
+        os.mkdir(os.path.join(new_path, 'images'))
     # сохраняем фото в директорию photos с пометкой времени в формате YYYYMMDDHHMMSS
-    rgb_im.save(os.path.join(new_path, 'photos', 'image.jpg'))
+    rgb_im.save(os.path.join(new_path, 'images', 'person.jpg'))
     
     return {'result': True}
 
@@ -549,7 +566,7 @@ def send_resume(person_id):
     return {'message': Status.error.name}
 
 
-def folder_check(person_id, fullname):
+def folder_check(person_id, fullname, folder_name):
     """
         Check if a folder exists for a given person and create it if it does not exist.
 
@@ -563,10 +580,13 @@ def folder_check(person_id, fullname):
     url = os.path.join(BASE_PATH, f'{person_id}-{fullname}')
     if not os.path.isdir(url):
         os.mkdir(url)
-    check_path = os.path.join(url, datetime.now().strftime("%Y-%m-%d"))
-    if not os.path.isdir(check_path):
-        os.mkdir(check_path)
-    return check_path
+    folder = os.path.join(url, folder_name)
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
+    subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
+    if not os.path.isdir(subfolder):
+        os.mkdir(subfolder)
+    return subfolder
 
 
 @bp.get('/check/add/<int:person_id>')
@@ -581,8 +601,8 @@ def add_check(person_id):
         dict: A dictionary containing the message indicating the status of the check.
     """
     person = db.session.query(Person).get(person_id)
-    if person.has_status([Status.new.value, Status.update.value]):
-        check_path = folder_check(person_id, person.fullname)
+    if person.has_status([Status.new.value, Status.update.value, Status.repeat.value]):
+        check_path = folder_check(person_id, person.fullname, 'Проверки')
         person.status = Status.manual.value
         db.session.add(Check(officer=current_user.username, 
                                 path = check_path,
@@ -646,6 +666,7 @@ def post_check(action, id, json_data):
 
 
 @bp.post('/profile/registry/<action>/<int:id>')
+@roles_required(Roles.superuser.value)
 @bp.input(RegistrySchema)
 @bp.doc(hide=True)
 @jwt_required()
@@ -660,47 +681,42 @@ def post_registry(action, id, json_data):
         :rtype: dict
     """
     user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-    if user.has_role(Role.superuser.value) or user.has_role(Role.admin.value):
-        check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).first()[0]
-        reg = {'check_id': check_id, 'supervisor': current_user.username} | json_data
-        person = db.session.query(Person).get(id)
-        if person.request_id:  # отправка ответа о результатах проверки если анкета поступила через API
-            try:
-                response = requests.post(url='https://httpbin.org/post', 
-                                        json=json.dumps({"id": person.request_id,
-                                                        "deadline": datetime.now().strftime("%Y-%m-d%"),
-                                                        "supervisor": current_user.username} | json_data), timeout=5)
-                response.raise_for_status()
-                if response.status_code == 200:
-                    db.session.add(Registry(**reg))
-                    person.status = Status.cancel.value if reg['decision'] == Status.cancel.value else Status.finish.value
-                    db.session.commit()
-                    return {'table': 'registry', 
-                            'action': action, 
-                            'id': id, 
-                            'message': Status.finish.name}
-                else:
-                    return {'table': 'registry', 
-                            'action': action, 
-                            'id': id, 
-                            'message': response.text}
-            except Exception as e:
+    check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).first()[0]
+    reg = {'check_id': check_id, 'supervisor': current_user.username} | json_data
+    person = db.session.query(Person).get(id)
+    if person.request_id:  # отправка ответа о результатах проверки если анкета поступила через API
+        try:
+            response = requests.post(url='https://httpbin.org/post', 
+                                    json=json.dumps({"id": person.request_id,
+                                                    "deadline": datetime.now().strftime("%Y-%m-d%"),
+                                                    "supervisor": current_user.username} | json_data), timeout=5)
+            response.raise_for_status()
+            if response.status_code == 200:
+                db.session.add(Registry(**reg))
+                person.status = Status.cancel.value if reg['decision'] == Status.cancel.value else Status.finish.value
+                db.session.commit()
                 return {'table': 'registry', 
                         'action': action, 
                         'id': id, 
-                        "message": e}
-        else:
-            db.session.add(Registry(**reg))
-            person.status = Status.cancel.value if reg['decision'] == Status.cancel.value else Status.finish.value
-            db.session.commit()
+                        'message': Status.finish.name}
+            else:
+                return {'table': 'registry', 
+                        'action': action, 
+                        'id': id, 
+                        'message': response.text}
+        except Exception as e:
             return {'table': 'registry', 
                     'action': action, 
                     'id': id, 
-                    'message': Status.finish.name}
-    return {'table': 'registry', 
-            'actions': action, 
-            'id': id, 
-            'message': Status.reply.name}
+                    "message": e}
+    else:
+        db.session.add(Registry(**reg))
+        person.status = Status.cancel.value if reg['decision'] == Status.cancel.value else Status.finish.value
+        db.session.commit()
+        return {'table': 'registry', 
+                'action': action, 
+                'id': id, 
+                'message': Status.finish.name}
 
 
 @bp.post('/profile/poligraf/<action>/<int:id>')
@@ -718,10 +734,11 @@ def post_poligraf(action, id, json_data):
         dict: A dictionary containing the action performed and the ID of the poligraf profile.
     """
     if action == 'create':
-        db.session.add(Poligraf(**json_data | {'person_id': id, 'officer': current_user.username}))
         person = db.session.query(Person).get(id)
         if person.has_status(Status.poligraf.value):
             person.status = Status.result.value
+        # invs_path = folder_check(id, person.fullname, 'Полиграф')
+        db.session.add(Poligraf(**json_data | {'person_id': id, 'officer': current_user.username}))
     else:
         for k, v in json_data.items():
             setattr(db.session.query(Poligraf).get(id), k, v)
@@ -742,8 +759,10 @@ def post_investigation(action, id, json_data):
     Returns:
         dict: A dictionary containing the action performed and the person ID.
     """
+    canddiate = db.session.query(Person).get(id)
     if action == 'create':
-        db.session.add(Investigation(**json_data | {'person_id': id, 'officer': current_user.username}))
+        invs_path = folder_check(id, canddiate.fullname, 'Расследования')
+        db.session.add(Investigation(**json_data | {'person_id': id, 'path': invs_path, 'officer': current_user.username}))
     else:
         for k, v in json_data.items():
             setattr(db.session.query(Investigation).get(id), k, v)
@@ -800,7 +819,7 @@ def delete_item(item, item_id):
     }
     item_model = item_model_map.get(item)
     item_instance = item_model.query.get(item_id)
-    if item in ['person', 'check']:
+    if item in ['person', 'check', 'investigation']:
         try:
             shutil.rmtree(item_instance.path)
         except Exception as e:

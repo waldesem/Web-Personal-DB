@@ -61,13 +61,13 @@ export const appAuth = defineStore('appAuth', () => {
   );
 
   // Update the refresh token in the store
-  const setRefreshToken = (token: string) => {
+  function setRefreshToken(token: string) {
     refreshToken.value = token;
     localStorage.setItem('refresh_token', token);
   };
 
   // Update the access token in the store
-  const setAccessToken = (token: string) => {
+  function setAccessToken(token: string){
     accessToken.value = token;
     localStorage.setItem('access_token', token);
   };

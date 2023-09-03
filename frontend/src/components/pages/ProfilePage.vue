@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router';
+import { onBeforeRouteLeave, useRoute } from 'vue-router';
 import { appProfile } from '@/store/profile';
 import { appAlert } from '@/store/alert';
 import AnketaTab from '@content/tabs/AnketaTab.vue';
@@ -22,13 +22,19 @@ onBeforeMount(() => {
   storeProfile.getProfile();
 });
 
-</script>
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  storeProfile.cancelEdit();
+  next();
+});
 
+</script>
+``
 <template>
-  <div class="container py-3">
+  <div class="container py-5">
     <div class="py-5">
       <!-- <PhotoForm /> -->
       <h4>{{storeProfile.anketa.resume['fullname']}}
+        &nbsp;
         <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
                             storeAlert.alertAttr=''; storeAlert.alertText=''">
           <i class="bi bi-printer" title="Версия для печати"></i>

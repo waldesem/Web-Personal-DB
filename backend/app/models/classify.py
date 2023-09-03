@@ -1,17 +1,19 @@
 from enum import Enum
 
 
-class Location(Enum):
+class Regions(Enum):
     MAIN_OFFICE = 'Главный офис'
     SOUTH_REGION = 'Региональный центр Юг'
-    NORTHWEST_REGION = 'Региональный центр Северо-Запад'
+    WEST_REGION = 'Региональный центр Запад'
     URAL_REGION = 'Региональный центр Урал'
-    SIBERIA_REGION = 'Региональный центр Сибирь'
     EAST_REGION = 'Региональный центр Восток'
-    SALES_CENTER = 'Центр Агентских продаж'
+
+class Groups(Enum):
+    staffsec = 'Центр кадровой безопасности'
+    creditsec = 'Центр безопасности кредитования'
 
 
-class Role(Enum):
+class Roles(Enum):
     """ Roles """
 
     admin = 'admin'
@@ -20,10 +22,18 @@ class Role(Enum):
     api = 'api'
 
 
+class Category(Enum):
+    """ Category """
+
+    candidate = 'Кандидат'
+    other = 'Проверяемый'
+
+
 class Status(Enum):
     """ Status """
 
     new = 'Новый'
+    repeat = "Повторный"
     update = 'Обновлен'
     manual = 'Проверка'
     save = "Сохранен"
@@ -52,10 +62,3 @@ class Decisions(Enum):
     agreed = 'СОГЛАСОВАНО'
     with_comment = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
     denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
-
-
-class Category(Enum):
-    """ Category """
-
-    candidate = 'Кандидат'
-    other = 'Проверяемый'

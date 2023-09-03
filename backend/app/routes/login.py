@@ -1,13 +1,15 @@
 from datetime import datetime
+from functools import wraps
 
 import bcrypt
+from flask import abort
 from flask_jwt_extended import JWTManager, current_user, \
     create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
 
 from . import bp
 from ..models.model import TokenBlocklist, Report, User, db
-from ..models.schema import LoginSchema
-from ..models.classify import Role
+from ..models.schema import LoginSchema, UserSchema
+from ..models.classify import Roles
 
 jwt = JWTManager()
 
@@ -68,10 +70,9 @@ def auth():
     if user and not user.has_blocked():
         user.last_login = datetime.now()
         db.session.commit()
-        return {'access': 'Authorized', 
-                'fullname': user.fullname, 
-                'username': user.username,
-                'role': user.role}
+        schema = UserSchema()
+        usr = schema.dump(user)
+        return {'access': 'Authorized'} | usr
     return {'access': 'Denied'}
 
 
@@ -90,23 +91,19 @@ def login(json_data):
             - 'refresh_token': The refresh token if the login is successful, otherwise None.
     """
     user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
-    if user and not user.blocked and not user.has_role(Role.api.value):
+    if user and not user.blocked and not user.has_role(Roles.api.value):
         if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
             delta_change = datetime.now() - user.pswd_create
             if user.pswd_change and delta_change.days < 365:
                 user.last_login = datetime.now()
                 user.attempt = 0
                 db.session.commit()
-                access_token = create_access_token(identity=user.username)
-                refresh_token = create_refresh_token(identity=user.username)
+                schema = UserSchema()
+                usr = schema.dump(user)
                 return {'access': 'Authorized', 
-                        'access_token': access_token, 
-                        'refresh_token': refresh_token,
-                        'fullname': user.fullname,
-                        'username': user.username,
-                        'role': user.role}
-            return {"access": "Overdue", 
-                    'access_token': None}
+                        'access_token': create_access_token(identity=user.username), 
+                        'refresh_token': create_refresh_token(identity=user.username)} | usr
+            return {"access": "Overdue"}
         else:
             if user.attempt < 4:
                 user.attempt = user.attempt+1
@@ -118,8 +115,7 @@ def login(json_data):
                                            Превышение попыток входа', 
                                             user_id=admin.id))
             db.session.commit()
-    return {"access": "Denied", 
-            'access_token': None}
+    return {"access": "Denied"}
 
 
 @bp.post('/password')
@@ -141,10 +137,8 @@ def change_password(json_data):
                                                     bcrypt.gensalt()))
             setattr(user, "pswd_change", datetime.now())
             db.session.commit()
-            return {"access": "Success", 
-                    'access_token': None}
-    return {"access": "Denied", 
-            'access_token': None}
+            return {"access": "Success"}
+    return {"access": "Denied"}
 
 
 @bp.delete('/logout')
@@ -174,4 +168,31 @@ def refresh():
     """
     access_token = create_access_token(identity=get_jwt_identity())
     return {'access_token': access_token}
-    
+
+
+def roles_required(*roles):
+    def decorator(func):
+        @wraps(func)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+            if user is not None and any(user.has_role(role) for role in roles):
+                return func(*args, **kwargs)
+            else:
+                abort(404)
+        return wrapper
+    return decorator
+
+
+def group_required(*groups):
+    def decorator(func):
+        @wraps(func)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+            if user is not None and any(user.has_group(group) for group in groups):
+                return func(*args, **kwargs)
+            else:
+                abort(404)
+        return wrapper
+    return decorator

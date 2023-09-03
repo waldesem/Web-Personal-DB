@@ -61,14 +61,16 @@ export const appProfile = defineStore('appProfile', () => {
    * @return {Promise<void>} A promise that resolves when the data has been successfully submitted.
    */
   async function submitResume(): Promise<void> {
-
     try {
-      const response = await storeAuth.axiosInstance.post(`${server}/resume/create`, itemForm.value);
+      const response = await storeAuth.axiosInstance.post(`${server}/resume/${action.value}`, itemForm.value);
       const { result, person_id } = response.data;
       
-      storeAlert.alertAttr = result ? "alert-info" : "alert-success";
-      storeAlert.alertText = result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена';
-      
+      if (result) {
+        storeAlert.setAlert(action.value === "create" ? "alert-info" : "alert-success", 
+                            result ? 'Анкета добавлена повторно' : 'Анкета успешно обновлена');
+      } else {
+        storeAlert.setAlert("alert-success", "Анкета успешно добавлена");
+      }
       if (action.value === 'update') {
         getProfile();
       } else {
@@ -95,11 +97,11 @@ export const appProfile = defineStore('appProfile', () => {
       formData.append('file', inputElement.files[0]);
       
       try {
-        const response = await storeAuth.axiosInstance.post(`${server}/resume/upload`, formData);
+        const response = await storeAuth.axiosInstance.post(`${server}/anketa/upload`, formData);
         const { result, person_id } = response.data;
 
-        storeAlert.alertAttr = result ? "alert-info" : "alert-success";
-        storeAlert.alertText = result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена';
+        storeAlert.setAlert(result ? "alert-info" : "alert-success",
+                            result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена');
 
         router.push({ name: 'profile', params: { id: person_id } })
       
@@ -108,8 +110,7 @@ export const appProfile = defineStore('appProfile', () => {
       }
     
     } else {
-      storeAlert.alertAttr = "alert-warning";
-      storeAlert.alertText = "Ошибка при загрузке файла";
+      storeAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
     }
   };
 
@@ -125,12 +126,10 @@ export const appProfile = defineStore('appProfile', () => {
       
       getProfile();
       
-      storeAlert.alertAttr = message == classifyApp.status['update'] 
-          ? "alert-success" 
-          : "alert-warning";
-      storeAlert.alertText = message == classifyApp.status['update'] 
-          ? "Статус обновлен" 
-          : "Анкету с текущим статусом обновить нельзя";
+      storeAlert.setAlert(message == classifyApp.status['update'] ? "alert-success" : "alert-warning",
+                          message == classifyApp.status['update'] 
+                                      ? "Статус обновлен" 
+                                      : "Анкету с текущим статусом обновить нельзя")
     }
   };
 
@@ -150,8 +149,8 @@ export const appProfile = defineStore('appProfile', () => {
           'robot': ['Анкета отправлена на проверку', "alert-success"],
           'error': ['Отправка анкеты кандидата не удалась, либо анкета уже взята в работу', "alert-info"],
         };
-        storeAlert.alertAttr = textMessage[message as keyof typeof textMessage][1];
-        storeAlert.alertText = textMessage[message as keyof typeof textMessage][0];
+        storeAlert.setAlert(textMessage[message as keyof typeof textMessage][1],
+                            textMessage[message as keyof typeof textMessage][0]);
   
         getProfile();
         window.scrollTo(0, 0);
@@ -169,6 +168,7 @@ export const appProfile = defineStore('appProfile', () => {
    * @return {Promise<void>} A promise that resolves with no value.
    */
   async function updateItem(): Promise<void> {
+
     flag.value === 'registry' ? spinner.value = true : spinner.value = false;
     try {
       const response = action.value === 'create' 
@@ -202,38 +202,28 @@ export const appProfile = defineStore('appProfile', () => {
           'result': ['alert-success', 'Проверка окончена']
         };
 
-        storeAlert.alertAttr = alert[message as keyof typeof alert][0];
-        storeAlert.alertText = alert[message as keyof typeof alert][1];
+        storeAlert.setAlert(alert[message as keyof typeof alert][0], alert[message as keyof typeof alert][1]);
       
       } else if (table === 'registry') {
 
         switch (message) {
           case 'finish':
-            storeAlert.alertAttr = 'alert-info';
-            storeAlert.alertText = 'Согласование успешно отправлено';
-            break;
-
-          case 'reply':
-            storeAlert.alertAttr = 'alert-warning';
-            storeAlert.alertText = 'Вы не имеете прав на отправку согласования';
+            storeAlert.setAlert('alert-info', 'Согласование успешно отправлено');
             break;
 
           default:
-            storeAlert.alertAttr = 'alert-danger';
-            storeAlert.alertText = message;
+            storeAlert.setAlert('alert-danger', message);
             break;
         };
 
       } else {
         switch (actions) {
           case 'create':
-            storeAlert.alertAttr = 'alert-success';
-            storeAlert.alertText =  `Для ID ${id} добавлена запись в таблицу ${matches[table as keyof typeof matches]}`;
+            storeAlert.setAlert('alert-success', `Для ID ${id} добавлена запись в таблицу ${matches[table as keyof typeof matches]}`);
             break;
           
             case 'update':
-              storeAlert.alertAttr = 'alert-success';
-              storeAlert.alertText = `Изменена запись ${id} в таблице ${matches[table as keyof typeof matches]}`;
+              storeAlert.setAlert('alert-success', `Изменена запись ${id} в таблице ${matches[table as keyof typeof matches]}`);
             break;
   
           default:
@@ -244,8 +234,7 @@ export const appProfile = defineStore('appProfile', () => {
       getProfile();
     
     } catch (error) {
-      storeAlert.alertAttr = 'alert-danger';
-      storeAlert.alertText = `Возникла ошибка ${error}`;
+      storeAlert.setAlert('alert-danger', `Возникла ошибка ${error}`);
     }
     spinner.value = false;
   };
@@ -262,8 +251,7 @@ export const appProfile = defineStore('appProfile', () => {
     if ([classifyApp.status['robot'], classifyApp.status['finish']].includes(anketa.value.resume['status']) 
       && (flag === 'check' || flag === 'person')) {
 
-      storeAlert.alertAttr = 'alert-warning';
-      storeAlert.alertText = 'Нельзя удалить запись с текущим статусом';
+      storeAlert.setAlert('alert-warning', 'Нельзя удалить запись с текущим статусом');
       return
     };
 
@@ -271,11 +259,9 @@ export const appProfile = defineStore('appProfile', () => {
       const response = await storeAuth.axiosInstance.delete(`${server}/profile/${flag}/delete/${id}`);
       const {message} = response.data;
       
-      storeAlert.alertAttr = 'alert-info';
-      storeAlert.alertText = message === flag 
-        ? `Запись с ID ${id} из таблицы ${message} удалена`
-        : message;
-        
+      storeAlert.setAlert('alert-info', storeAlert.alertText = message === flag 
+                                                                ? `Запись с ID ${id} из таблицы ${message} удалена`
+                                                                : message);
       flag === 'person' ? router.push({ name: 'persons' }) : getProfile();
     }
   };
@@ -290,8 +276,7 @@ export const appProfile = defineStore('appProfile', () => {
       anketa.value.resume['status'] === classifyApp.status['manual'] ||
       anketa.value.resume['status'] === classifyApp.status['robot']) {
       
-      storeAlert.alertAttr = 'alert-warning';
-      storeAlert.alertText = 'Нельзя добавить проверку к текущему статусу';
+      storeAlert.setAlert('alert-warning', 'Нельзя добавить проверку к текущему статусу');
 
     } else {
       try {
@@ -299,15 +284,13 @@ export const appProfile = defineStore('appProfile', () => {
         const { message } = response.data;
         
         if (message === "manual") {
-          storeAlert.alertAttr = 'alert-info';
-          storeAlert.alertText = 'Начата ручная проверка';
+          storeAlert.setAlert('alert-info', 'Начата ручная проверка');
           getProfile();
 
         } else {
           cancelEdit();
-          storeAlert.alertAttr = 'alert-warning';
-          storeAlert.alertText = 'Проверка кандидата уже начата';
-        }
+          storeAlert.setAlert('alert-warning', 'Проверка кандидата уже начата');
+        };
 
       } catch (error) {
         console.error(error)
@@ -327,16 +310,16 @@ export const appProfile = defineStore('appProfile', () => {
       const response = await storeAuth.axiosInstance.get(`${server}/anketa/status/${candId.value}`);
       const { message } = response.data;
 
-      storeAlert.alertAttr = message == 'update' ? "alert-success" : "alert-warning";
-      storeAlert.alertText = message == 'update' ? "Отмена. Статус обновлен" : "Текущий статус обновить нельзя";
+      storeAlert.setAlert(message == 'update' ? "alert-success" : "alert-warning",
+                          message == 'update' ? "Отмена. Статус обновлен" : "Текущий статус обновить нельзя");
       cancelEdit();
     }
   };
 
-    /**
+  /**
    * Clears the item form and sets the itemId value to an empty string.
    */
-  const clearItem = () => {
+  function clearItem(): void {
     itemId.value = '';
     Object.keys(itemForm.value).forEach(key => {
       delete itemForm.value[key];
@@ -348,7 +331,7 @@ export const appProfile = defineStore('appProfile', () => {
    *
    * @return {void} 
    */
-  const cancelEdit = (): void => {
+  function cancelEdit(): void {
     clearItem();
     action.value = '';
     flag.value = '';
@@ -359,7 +342,7 @@ export const appProfile = defineStore('appProfile', () => {
    *
    * @return {void} No return value.
    */
-  const redirectMain = (): void => {
+  function redirectMain(): void {
     router.push({ name: 'persons' })
   };
 

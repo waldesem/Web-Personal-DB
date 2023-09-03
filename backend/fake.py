@@ -2,7 +2,7 @@ import random
 from faker import Faker
 import requests
 import json
-from app.models.classify import Category, Location
+from app.models.classify import Category, Regions
 
 fake = Faker("ru-RU")
 
@@ -37,7 +37,7 @@ def get_anketa(index):
         },
         "staff": {
             "position": fake.job(),
-            "department": f'{random.choice([region.value for region in Location])}/{fake.company_suffix()}'
+            "department": f'{random.choice([region.value for region in Regions])}/{fake.company_suffix()}'
         },
         "addresses": [
             {
@@ -87,7 +87,7 @@ def get_anketa(index):
     } for i in range(index)]
 
 
-def test_api(number=20, server='http://188.225.42.184:5000', username='robot', password = 'WwFwVi7NeEgcH72F'):
+def test_api(number=20, server='http://188.225.42.184', username='robot', password = 'WwFwVi7NeEgcH72F'):
     anketas = get_anketa(number)
     for anketa in anketas:
         response = requests.post(f'{server}/api/v1/anketa', 

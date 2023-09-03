@@ -3,9 +3,11 @@
  
 import { appProfile } from '@/store/profile';
 import { appClassify } from '@/store/classify';
+import { appLogin } from '@/store/login';
 
 const storeProfile = appProfile();
 const classifyApp = appClassify();
+const loginStore = appLogin();
 
 </script>
 
@@ -56,7 +58,8 @@ const classifyApp = appClassify();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button v-if="!storeProfile.printPdf" :disabled="classifyApp.status && (storeProfile.anketa.resume['status'] !== classifyApp.status['result'])" 
+      <button v-if="!storeProfile.printPdf" :disabled="storeProfile.anketa.resume['status'] !== classifyApp.status['result']
+                                            || !loginStore.hasRole('superuser')" 
                                             @click="storeProfile.action = 'create'; 
                                                     storeProfile.flag = 'registry';
                                                     storeProfile.itemForm = {}" 

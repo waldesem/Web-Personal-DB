@@ -23,10 +23,9 @@ onBeforeMount(async () => {
           <tr height="50px">
             <th width="5%">#</th>
             <th>Имя пользователя</th>
-            <th width="15%">Логин</th>
+            <th width="25%">Логин</th>
             <th width="20%">Создан</th>
             <th width="20%">Вход</th>
-            <th width="10%">Роль</th>
           </tr>
         </thead>
         <tbody>
@@ -39,7 +38,6 @@ onBeforeMount(async () => {
             </td>
             <td>{{ new Date(user["pswd_create" as keyof typeof user]).toLocaleString('ru-RU') }}</td>
             <td>{{ new Date(user["last_login" as keyof typeof user]).toLocaleString('ru-RU') }}</td>
-            <td>{{ user["role" as keyof typeof user] }}</td>
           </tr>
         </tbody>
       </table>

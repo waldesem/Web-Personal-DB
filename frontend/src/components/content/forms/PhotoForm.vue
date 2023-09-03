@@ -14,6 +14,7 @@ const storeProfile = appProfile();
 // Файл с изображением
 const file = ref(null);
 
+
 /**
  * Submits a file to the server.
  *
@@ -53,12 +54,10 @@ async function submitPhoto(event: Event): Promise<void> {
 <template>
   <div class="py-3">
     <div class="card" style="width: 18rem;">
-      <img :src="storeProfile.anketa.resume.path + '/photos/image.jpg'" class="card-img-top" alt="...">
-        <div class="card-body">
-      </div>
-      <form class="form form-check" enctype="multipart/form-data" role="form" @change="submitPhoto">
-        <input class="form-control form-control-sm" id="file" type="file" accept="image/*" ref="file">
-      </form>
+      <img class="card-img-top" src="image">
     </div>
+    <form enctype="multipart/form-data" @change="submitPhoto">
+      <input id="file" name="file" type="file" accept="image/*" ref="file">
+    </form>
   </div>
 </template>

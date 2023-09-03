@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue'
 import { appAuth } from '@store/auth';
 import { appAlert } from '@store/alert';
-import { appLocation } from './location';
 import router from '@router/router';
 import server from '@store/server';
 
@@ -11,13 +10,12 @@ export const storeAdmin = defineStore('storeAdmin', () => {
 
   const storeAuth = appAuth();
   const storeAlert = appAlert();
-  const storeLocation = appLocation();
 
   const users = ref([]);
   const userId = ref('');
   const action = ref('');
-  const region = ref('');
-
+  const flag = ref('');
+  const orRoleGroup = ref('');
 
   // Данные пользователя
   const profile = ref({
@@ -29,7 +27,8 @@ export const storeAdmin = defineStore('storeAdmin', () => {
       pswd_create: '',
       pswd_change: '',
       last_login: '',
-      role: '',
+      roles: [],
+      groups: [],
       blocked: '',
       attempt: ''
   });
@@ -94,8 +93,8 @@ export const storeAdmin = defineStore('storeAdmin', () => {
         'None': ['alert-danger', 'Возникла ошибка'],
       };
       // Обновление сообщения
-      storeAlert.alertAttr = resp[user as keyof typeof resp][0];
-      storeAlert.alertText = resp[user as keyof typeof resp][1];
+      storeAlert.setAlert(resp[user as keyof typeof resp][0],
+                          resp[user as keyof typeof resp][1]);
       // Обновление страницы либо редирект на страницу списка пользователей
       user !== 'delete' ? viewUser(userId.value) : router.push({ name: 'users' })
       
@@ -117,7 +116,6 @@ export const storeAdmin = defineStore('storeAdmin', () => {
         'username': profile.value.username,
         'email': profile.value.email,
         'region_id': profile.value.region_id,
-        'role': profile.value.role
       });
       const  { user } = response.data;
       // Матчинг атрибута и текста сообщения
@@ -126,9 +124,8 @@ export const storeAdmin = defineStore('storeAdmin', () => {
         'edit': ['alert-success', 'Пользователь успешно изменен'],
         'none': ['alert-danger', 'Ошибка создания (пользователь существует)/редактирования']
       }
-      storeAlert.alertAttr = resp[user as keyof typeof resp][0];
-      storeAlert.alertText = resp[user as keyof typeof resp][1];
-      
+      storeAlert.setAlert(resp[user as keyof typeof resp][0],
+                          resp[user as keyof typeof resp][1]);
       action.value === 'create' ? getUsers() : viewUser(userId.value);
       action.value = '';
 
@@ -137,38 +134,53 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     }
   };
 
-  const resetItem = (): void => {
-    Object.assign(profile.value, {
-      id: '',
-      fullname: '',
-      region_id: '',
-      username: '',
-      email: '',
-      pswd_create: '',
-      pswd_change: '',
-      last_login: '',
-      role: '',
-      blocked: '',
-      attempt: ''
-    })
+  function resetItem(){
+    Object.keys(profile.value).forEach((key: string) => {
+      delete profile.value[key as keyof typeof profile.value];
+    });
   };
 
   /**
-   * Adds a region to the server.
+   * Edits the group role.
    *
-   * @return {Promise<void>} This function does not return anything.
+   * @return {Promise<void>} Promise that resolves when the function completes.
    */
-  async function updateRegion(): Promise<void> {
-    const response = await storeAuth.axiosInstance.post(`${server}/region/add`, {
-      'region': region.value
-    });
-    const  { location } = response.data;
-    storeAlert.alertAttr = location ? 'alert-warning' : 'alert-success';
-    storeAlert.alertText = location 
-      ? 'При добавлении записи возникла ошибка'
-      : 'Запись добавлена';
-    storeLocation.getRegions();
+  async function editGroupRole(item: string, choice: string, value: string = orRoleGroup.value): Promise<void> {
+    if (value) {
+      try {
+        const response = await storeAuth.axiosInstance.get(`${server}/admin/${item}/${choice}/${value}/${userId.value}`);
+        const { result } = response.data;
+        if (result === 'Success') {
+          // Матчинг атрибута и текста сообщения
+          const flags = {
+            'role': 'Роль',
+            'group': 'Группа'
+          };
+          const actions = {
+            'add': ['alert-success', item === 'role' 
+              ? `Пользователю ${userId.value} добавлена ${flags[item as keyof typeof flags]} ${value}` 
+              : `Пользователь ${userId.value} добавлен в: ${flags[item as keyof typeof flags]} ${value}`],
+            'remove': ['alert-info', item === 'role' 
+              ? `Пользователю ${userId.value} удалена ${flags[item as keyof typeof flags]} ${value}`
+              : `Пользователь ${userId.value} удален из: ${flags[item as keyof typeof flags]} ${value}`]
+          };
+        
+          // Обновление сообщения
+          storeAlert.setAlert(actions[choice as keyof typeof actions][0], 
+                              actions[choice as keyof typeof actions][1]);
+          // Обновление профиля
+          viewUser(userId.value)
+        } else if (result === 'Failed') {
+          storeAlert.setAlert('alert-danger', 'Роль уже добавлена или пользователь уже включён в группу');
+        } else {
+          storeAlert.setAlert('alert-danger', 'Ошибка');
+        }
+
+      } catch (error) {
+      console.error(error);
+      }
+    }
   };
 
-  return { users, profile, action, userId, region, getUsers, editUserInfo, submitData, viewUser, resetItem, updateRegion };
+  return { users, profile, action, userId, flag, orRoleGroup, getUsers, editUserInfo, submitData, viewUser, resetItem, editGroupRole };
 });

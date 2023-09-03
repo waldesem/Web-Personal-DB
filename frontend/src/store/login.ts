@@ -4,7 +4,6 @@ import server from '@store/server';
 import { defineStore } from 'pinia'
 import { appAuth } from '@store/auth';
 import { appAlert } from '@store/alert';
-import { appLocation } from '@store/location';
 import { appClassify } from '@store/classify';
 import { ref } from 'vue';
 
@@ -13,13 +12,13 @@ export const appLogin = defineStore('appLogin',  () => {
 
   const storeAuth = appAuth();
   const storeAlert = appAlert();
-  const storeLocation = appLocation();
   const classifyApp = appClassify();
 
   const action = ref('login');
   const fullName = ref('');
   const userName = ref('');
-  const userRole = ref('');
+  const userRoles = ref([]);
+  const userGroups = ref([]);
   
   // Объект с данными из формы входа пользователя
   const loginData = ref({
@@ -32,7 +31,7 @@ export const appLogin = defineStore('appLogin',  () => {
   async function getAuth(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/auth`);
-      const { access, fullname, username, role } = response.data;
+      const { access, fullname, username, roles, groups } = response.data;
       
       access === "Authorized" 
       ? router.push({ name: 'persons' })
@@ -40,9 +39,9 @@ export const appLogin = defineStore('appLogin',  () => {
       
       fullName.value = fullname;
       userName.value = username;
-      userRole.value = role;
+      userRoles.value = roles;
+      userGroups.value = groups;
   
-      storeLocation.getRegions();  // Получение списка регионов
       classifyApp.getClassify();  // Получение списка категорий
 
       storeAlert.alertAttr = '';
@@ -52,7 +51,27 @@ export const appLogin = defineStore('appLogin',  () => {
       console.error(error)
       router.push({ name: 'login' })
     }
-  }
+  };
+
+  /**
+   * Determines if the user has a specific role.
+   *
+   * @param {string} role - The role to check.
+   * @return {boolean} Returns true if the user has the specified role, false otherwise.
+   */
+  function hasRole(role: string): boolean {
+    return userRoles.value.some((r: { role: any; }) => r.role === role);
+  };
+
+  /**
+   * Determines if the user belongs to a specific group.
+   *
+   * @param {string} group - The name of the group to check.
+   * @return {boolean} Returns true if the user belongs to the specified group, false otherwise.
+   */
+  function hasGroup(group: string): boolean {
+    return userGroups.value.some((g: { group: any; }) => g.group === group);
+  };
 
   /**
    * Submits data to the server.
@@ -78,7 +97,7 @@ export const appLogin = defineStore('appLogin',  () => {
       const response = action.value === 'password'
       ? await axios.post(`${server}/password`, loginData.value)
       : await axios.post(`${server}/login`, loginData.value);
-      const { access, access_token, refresh_token, fullname, username, role } = response.data;
+      const { access, access_token, refresh_token, fullname, username, roles, groups } = response.data;
 
       switch (access) {
         case "Success":
@@ -98,9 +117,9 @@ export const appLogin = defineStore('appLogin',  () => {
 
           fullName.value = fullname;
           userName.value = username;
-          userRole.value = role;
+          userRoles.value = roles;
+          userGroups.value = groups;
 
-          storeLocation.getRegions();  // Получение списка регионов
           classifyApp.getClassify();  // Получение списка категорий
 
           storeAlert.alertAttr = '';
@@ -114,8 +133,6 @@ export const appLogin = defineStore('appLogin',  () => {
           action.value = 'password';
           storeAlert.alertAttr = 'alert-warning';
           storeAlert.alertText = 'Пароль просрочен. Измените пароль';
-          storeAuth.setRefreshToken(refresh_token);
-          storeAuth.setAccessToken(access_token);
           break;
 
         case "Denied":
@@ -128,7 +145,7 @@ export const appLogin = defineStore('appLogin',  () => {
     } catch (error) {
       console.error(error)
     }
-  }
+  };
 
   /**
    * Logs the user out by sending a DELETE request to the server's logout endpoint.
@@ -151,5 +168,5 @@ export const appLogin = defineStore('appLogin',  () => {
     router.push({ name: 'login' });
   };
   
-  return { action, fullName, userName, userRole, loginData, submitData, getAuth, userLogout }
+  return { action, fullName, userName, userRoles, userGroups, loginData, submitData, getAuth, userLogout, hasRole, hasGroup }
 })

@@ -12,7 +12,6 @@ import StatPage from '@pages/StatPage.vue';
 import AdminVue from '@components/AdminVue.vue';
 import UsersListPage from '@pages/UsersListPage.vue';
 import UserPage from '@pages/UserPage.vue';
-import RegionPage from '@pages/RegionPage.vue';
 import NotFound from '@pages/NotFound.vue';
 
 // Маршруты приложения  
@@ -73,11 +72,6 @@ const router = createRouter({
           path: 'user/:id',
           name: 'shape',
           component: UserPage,
-        },
-        {
-          path: 'regions',
-          name: 'regions',
-          component: RegionPage,
         }
       ]
     },

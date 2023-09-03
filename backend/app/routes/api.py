@@ -10,7 +10,7 @@ from ..routes.route import add_resume, folder_check
 from ..utils.excel import resume_data
 from ..models.model import db, User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
-from ..models.classify import Role
+from ..models.classify import Roles
 
 auth = HTTPBasicAuth()
 
@@ -26,7 +26,7 @@ def verify_password(username: str, password: str):
         str: An empty string if the password is verified, otherwise None.
     """
     user = db.session.query(User).filter_by(username=username).one_or_none()
-    if user and not user.blocked and user.has_role(Role.api.value):
+    if user and not user.blocked and user.has_role(Roles.api.value):
         if bcrypt.checkpw(password.encode('utf-8'), user.password):
             return ''
 
@@ -49,7 +49,7 @@ def get_anketa(json_data):
     division = re.split(r'/', json_data['staff']['department'])
     location_id = [regions.get(key.strip(), 1) for key in division][0]
                   
-    person_id, result = add_resume(resume, location_id)
+    person_id, result = add_resume(resume, location_id, 'api')
         
     users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
                                                         User.region_id == location_id).all()
@@ -60,7 +60,7 @@ def get_anketa(json_data):
 
     resume_data(person_id, json_data['document'], json_data['addresses'], 
                 json_data['contacts'], json_data['workplaces'], json_data['staff'])
-    return '', 200
+    return 'Success', 200
 
 
 @bp.post('/api/v1/check')
@@ -79,21 +79,24 @@ def check_in(json_data):
     latest_check = db.session.query(Check).filter_by(person_id=candidate.id).order_by(Check.id.desc()).first()
     user = db.session.query(User).filter_by(username=latest_check.officer).one_or_none()
     
-    db.session.add(Report(report=f'Проверка кандидата {candidate.fullname} окончена', user_id=user.id))
+    if candidate.status == Status.robot.value:
+        if os.path.isdir(json_data['path']):
+            check_path = latest_check.path if os.path.isdir(latest_check.path) else folder_check(candidate.id, candidate["fullname"])
+            
+            try:
+                for file in os.listdir(json_data['path']):
+                    shutil.copyfile(file, check_path)
+            except FileNotFoundError as error:
+                db.session.add(Report(report=f'{error}', user_id=user.id))
+            
+            for k, v in json_data.items():
+                setattr(latest_check, k, v)
+            db.session.add(Report(report=f'Проверка кандидата {candidate.fullname} окончена', user_id=user.id))
+            candidate.status = Status.reply.value
+            db.session.commit()   
 
-    if os.path.isdir(json_data['path']):
-        check_path = latest_check.path if os.path.isdir(latest_check.path) else folder_check(candidate.id, candidate["fullname"])
-        try:
-            for file in os.listdir(json_data['path']):
-                shutil.copyfile(file, check_path)
-        except FileNotFoundError as error:
-            db.session.add(Report(report=f'{error}', user_id=user.id))
-    
-    for k, v in json_data.items():
-        setattr(latest_check, k, v)
-    
-    candidate.status = Status.reply.value
-    db.session.commit()
-    
-    return '', 200
-
+    else:
+        db.session.add(Report(report=f'Результат проверки {candidate.fullname} не может быть записан. Материал проверки находится в {json_data["path"]}', user_id=user.id))
+        db.session.commit()
+        
+    return 'Success', 200

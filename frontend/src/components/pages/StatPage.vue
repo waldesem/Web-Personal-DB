@@ -2,15 +2,18 @@
 // Компонент для отображения статистики по региону и полиграфу 
 
 import { ref, onBeforeMount } from 'vue';
-import { appLocation } from '@store/location';
+import { appClassify } from '@store/classify';
 import { appAuth } from '@store/auth';
+import { appAlert } from '@/store/alert';
 import server from '@store/server';
 
-const storeLocation = appLocation();
+const storeClassify = appClassify();
 const storeAuth = appAuth();
+const storeAlert = appAlert();
 
 const todayDate = new Date();
-
+storeAlert.alertAttr = '';
+storeAlert.alertText = '';
 const header = ref('');
 
 const data = ref({
@@ -39,7 +42,7 @@ async function submitData(): Promise<void> {
     'start': data.value.start, 'end': data.value.end, 'region': data.value.region 
   });
   const { candidates, poligraf } = response.data;
-  header.value = storeLocation.regionsObject[data.value.region];
+  header.value = storeClassify.regions[data.value.region];
   
   data.value.checks = candidates;
   data.value.pfo = poligraf
@@ -49,7 +52,7 @@ async function submitData(): Promise<void> {
 </script>
 
 <template>
-  <div class="container py-3">
+  <div class="container py-5">
     <div class="py-5">
       <h4>Статистика по региону {{ header }} за период c {{ data.start }} по {{ data.end }}</h4>
     </div>
@@ -71,7 +74,7 @@ async function submitData(): Promise<void> {
             <div class="col-md-2">
               <select class="form-select" id="region" name="region" v-model="data.region">
                 <option value="" selected>Выберите регион</option>
-                <option v-for="name, value in storeLocation.regionsObject" :key="value" :value="value">{{name}}</option>                
+                <option v-for="name, value in storeClassify.regions" :key="value" :value="value">{{name}}</option>                
               </select>
             </div>
             <label class="col-form-label col-md-1" for="start">Период:</label>

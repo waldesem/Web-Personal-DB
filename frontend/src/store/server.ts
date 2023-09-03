@@ -1,4 +1,3 @@
-//const server = 'http://localhost:5000';
-const server = '';
+const server = 'http://localhost:5000';
 
 export default server;

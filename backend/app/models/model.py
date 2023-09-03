@@ -22,10 +22,40 @@ class Region(db.Model):
     __tablename__ = 'regions'
     
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    region = db.Column(db.String(250))
+    region = db.Column(db.String(255))
     users = db.relationship('User', backref='users')
     persons = db.relationship('Person', backref='persons')
+   
+    
+user_groups = db.Table(
+    'user_groups',
+    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
+    db.Column('group_id', db.Integer(), db.ForeignKey('groups.id'))
+)
+    
+    
+user_roles = db.Table(
+    'user_roles',
+    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
+    db.Column('role_id', db.Integer(), db.ForeignKey('roles.id'))
+)
+        
+        
+class Group(db.Model):
 
+    __tablename__ = 'groups'
+
+    id = db.Column(db.Integer, primary_key=True)
+    group = db.Column(db.String(255), unique=True)
+
+
+class Role(db.Model):
+
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    role = db.Column(db.String(255), unique=True)
+    
 
 class User(db.Model):
     """ Create model for users"""
@@ -33,25 +63,29 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    fullname = db.Column(db.String(250))
-    username = db.Column(db.String(250), unique=True)
+    fullname = db.Column(db.String(255))
+    username = db.Column(db.String(255), unique=True)
     password = db.Column(db.LargeBinary)
-    email = db.Column(db.String(250))
+    email = db.Column(db.String(255))
     pswd_create = db.Column(db.DateTime, default=default_time)
     pswd_change = db.Column(db.DateTime)
     last_login = db.Column(db.DateTime)
     blocked = db.Column(db.Boolean(), default=False)
-    role = db.Column(db.String(250))
     attempt = db.Column(db.Integer(), default=0)
     region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
     reports = db.relationship('Report', backref='reports', cascade="all, delete, delete-orphan")
-    
+    roles = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy='dynamic'))
+    groups = db.relationship('Group', secondary=user_groups, backref=db.backref('users', lazy='dynamic'))
+   
+    def has_group(self, group):
+        return any(g.group == group for g in self.groups)
+        
     def has_role(self, role):
-        return self.role == role
+        return any(r.role == role for r in self.roles)
     
     def has_blocked(self):
         return self.blocked
-
+    
 
 class Report(db.Model):
     """ Create model for report"""
@@ -60,7 +94,7 @@ class Report(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     report = db.Column(db.Text)
-    status = db.Column(db.String(250), default=Status.new.value)
+    status = db.Column(db.String(255), default=Status.new.value)
     create = db.Column(db.DateTime, default=default_time)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
@@ -80,19 +114,19 @@ class Person(db.Model):
     __tablename__ = 'persons'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    category = db.Column(db.String(250), default=Category.candidate.value)
+    category = db.Column(db.String(255), default=Category.candidate.value)
     region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
-    fullname = db.Column(db.String(250), nullable=False, index=True)
-    previous = db.Column(db.String(250))
+    fullname = db.Column(db.String(255), nullable=False, index=True)
+    previous = db.Column(db.String(255))
     birthday = db.Column(db.Date, nullable=False, index=True)
-    birthplace = db.Column(db.String(250))
-    country = db.Column(db.String(250))
-    snils = db.Column(db.String(250))
+    birthplace = db.Column(db.String(255))
+    country = db.Column(db.String(255))
+    snils = db.Column(db.String(255))
     inn = db.Column(db.String(12))
-    education = db.Column(db.String(250))
+    education = db.Column(db.String(255))
     addition = db.Column(db.Text)
-    path = db.Column(db.String(250))
-    status = db.Column(db.String(250), default=Status.new.value)
+    path = db.Column(db.String(255))
+    status = db.Column(db.String(255), default=Status.new.value)
     create = db.Column(db.DateTime, default=default_time)
     update = db.Column(db.DateTime, onupdate=default_time)
     request_id = db.Column(db.Integer, default=0)
@@ -117,7 +151,7 @@ class Relation(db.Model):
     __tablename__ = 'relations'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    relation = db.Column(db.String(250))
+    relation = db.Column(db.String(255))
     relation_id = db.Column(db.Integer)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
@@ -128,8 +162,8 @@ class Staff(db.Model):
     __tablename__ = 'staffs'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    position = db.Column(db.String(250))
-    department = db.Column(db.String(250))
+    position = db.Column(db.String(255))
+    department = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
@@ -139,10 +173,10 @@ class Document(db.Model):
     __tablename__ = 'documents'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    view = db.Column(db.String(250))
+    view = db.Column(db.String(255))
     series = db.Column(db.String(25))
     number = db.Column(db.String(25))
-    agency = db.Column(db.String(250))
+    agency = db.Column(db.String(255))
     issue = db.Column(db.Date)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
@@ -153,8 +187,8 @@ class Address(db.Model):
     __tablename__ = 'addresses'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    view = db.Column(db.String(250))
-    region = db.Column(db.String(250))
+    view = db.Column(db.String(255))
+    region = db.Column(db.String(255))
     address = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
@@ -167,9 +201,10 @@ class Workplace(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
-    workplace = db.Column(db.String(250))
-    address = db.Column(db.String(250))
-    position = db.Column(db.String(250))
+    now_work = db.Column(db.Boolean)
+    workplace = db.Column(db.String(255))
+    address = db.Column(db.String(255))
+    position = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
@@ -179,8 +214,8 @@ class Contact(db.Model):  # создаем общий класс телефон�
     __tablename__ = 'contacts'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    view = db.Column(db.String(250))
-    contact = db.Column(db.String(250))
+    view = db.Column(db.String(255))
+    contact = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
@@ -205,11 +240,11 @@ class Check(db.Model):  # модель данных проверки канди�
     cronos = db.Column(db.Text)
     cros = db.Column(db.Text)
     addition = db.Column(db.Text)
-    path = db.Column(db.String(250))
+    path = db.Column(db.String(255))
     pfo = db.Column(db.Boolean, default=False)
     comments = db.Column(db.Text)
-    conclusion = db.Column(db.String(250), default=Status.save.value)
-    officer = db.Column(db.String(250))
+    conclusion = db.Column(db.String(255), default=Status.save.value)
+    officer = db.Column(db.String(255))
     deadline = db.Column(db.DateTime, default=default_time, onupdate=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     registries = db.relationship('Registry', backref='checks', cascade="all, delete, delete-orphan")
@@ -222,7 +257,7 @@ class Registry(db.Model):  # модель данных результаты ПФ
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     comments = db.Column(db.Text)
-    decision = db.Column(db.String(250), default=Decisions.agreed.value)
+    decision = db.Column(db.String(255), default=Decisions.agreed.value)
     supervisor = db.Column(db.String(25))
     deadline = db.Column(db.DateTime, default=default_time)
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
@@ -234,8 +269,9 @@ class Poligraf(db.Model):  # модель данных результаты ПФ
     __tablename__ = 'poligrafs'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    theme = db.Column(db.String(250))
+    theme = db.Column(db.String(255))
     results = db.Column(db.Text)
+    path = db.Column(db.String(255))
     officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
@@ -247,9 +283,9 @@ class Investigation(db.Model):
     __tablename__ = 'investigations'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    theme = db.Column(db.String(250))
+    theme = db.Column(db.String(255))
     info = db.Column(db.Text)
-    # path = db.Column(db.String(250))
+    path = db.Column(db.String(255))
     officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time, onupdate=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
@@ -262,8 +298,8 @@ class Inquiry(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     info = db.Column(db.Text)
-    initiator = db.Column(db.String(250))
-    source = db.Column(db.String(250))
+    initiator = db.Column(db.String(255))
+    source = db.Column(db.String(255))
     officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))

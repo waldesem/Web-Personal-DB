@@ -13,9 +13,6 @@
             <li class="nav-item">
                 <router-link :to="{ name: 'users' }" class="nav-link active" href="#">Пользователи</router-link>
             </li>
-            <li class="nav-item">
-                <router-link :to="{ name: 'regions' }" class="nav-link active" href="#" >Регионы</router-link>
-            </li>
           </ul>                                
         </div>
         <div class="d-flex px-2">

@@ -3,14 +3,30 @@ from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
 from ..models.model import Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Report, Region
+    Check, Registry, Poligraf, Investigation, Inquiry, Report, Region, Role, Group
 
 ma = Marshmallow()
+
+
+class RoleSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for role"""
+    class Meta:
+        model = Role
+        ordered = True
+
+
+class GroupSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for group"""
+    class Meta:
+        model = Group
+        ordered = True
         
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for user"""
     region_id = ma.auto_field()
+    roles = ma.Nested('RoleSchema', many=True)
+    groups = ma.Nested('GroupSchema', many=True)
 
     class Meta:
         model = User

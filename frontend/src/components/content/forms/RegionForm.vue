@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // компонент для отображения модального окна
 
-import { appLocation } from '@/store/location';
+import { appClassify } from '@/store/classify';
 import { appProfile } from '@/store/profile';
 
-const storeLocation = appLocation();
+const storeClassify = appClassify();
 
 const storeProfile = appProfile();
 
@@ -25,7 +25,7 @@ const storeProfile = appProfile();
               <label class="col-form-label col-lg-2" for="region_id" >Регион</label>
               <div class="col-lg-10">
                 <select class="form-select" required id="region_id" name="region_id" v-model="storeProfile.itemForm['region_id']">
-                  <option v-for="name, value in storeLocation.regionsObject" :key="value" :value="value">{{name}}</option>                
+                  <option v-for="name, value in storeClassify.regions" :key="value" :value="value">{{name}}</option>                
                 </select>
               </div>
             </div>

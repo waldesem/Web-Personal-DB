@@ -3,10 +3,10 @@
 
 import { computed, onBeforeMount } from 'vue';
 import { appPersons } from '@/store/persons';
-import { appLocation } from '@store/location';
+import { appClassify } from '@store/classify';
 
 const storePersons = appPersons();
-const storeLocation = appLocation();
+const storeClassify = appClassify();
 
 
 // Инициализация списка кандидатов
@@ -29,7 +29,7 @@ const header = computed(() => {
 </script>
 
 <template>
-  <div class="container py-3">
+  <div class="container py-5">
     <div class="py-5"><h4>{{ header }}</h4></div>
     <div class="row py-3">
       <div class="col-md-3">
@@ -76,7 +76,7 @@ const header = computed(() => {
         <tbody>
           <tr height="50px" v-for="candidate in storePersons.data.candidates" :key="candidate['id']">
             <td>{{ candidate["id"] }}</td>
-            <td>{{ storeLocation.regionsObject[candidate["region_id"]] }}</td>
+            <td>{{ storeClassify.regions[candidate["region_id"]] }}</td>
             <td>
               <router-link :to="{ name: 'profile', params: { id: candidate['id'] } }">
                 {{ candidate["fullname"] }}

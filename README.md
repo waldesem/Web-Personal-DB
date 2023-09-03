@@ -89,7 +89,7 @@ gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the sett
 
 ### Gunicorn Service
 
-To create the gunicorn service for the systemd run the following command in your terminal:
+For create systemd service run the following command in your terminal:
 ```
 sudo nano /etc/systemd/system/staffsec.service
 ```

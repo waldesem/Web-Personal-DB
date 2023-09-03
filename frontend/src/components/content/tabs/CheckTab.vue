@@ -165,35 +165,35 @@ const storeProfile = appProfile();
           </tr>
         </thead>   
         <tbody>
-          <tr><td width="25%">Проверка по местам работы</td><td>{{ tbl['workplace' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Бывший работник МТСБ</td><td>{{ tbl['employee' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка паспорта</td><td>{{ tbl['document' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка ИНН</td><td>{{ tbl['inn' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка ФССП</td><td>{{ tbl['debt' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка банкротства</td><td>{{ tbl['bankruptcy' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка БКИ</td><td>{{ tbl['bki' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка судебных дел</td><td>{{ tbl['courts' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка аффилированности</td><td>{{ tbl['affiliation' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка по списку террористов</td><td>{{ tbl['terrorist' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка нахождения в розыске</td><td>{{ tbl['mvd' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка в открытых источниках</td><td>{{ tbl['internet' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка Кронос</td><td>{{ tbl['cronos' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Проверка Крос</td><td>{{ tbl['cros' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Дополнительная информация</td><td>{{ tbl['addition' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Материалы проверки</td><td>{{ tbl['path' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">ПФО</td><td>{{ tbl['pfo' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Комментарии</td><td>{{ tbl['comments' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Результат проверки</td><td>{{ tbl['conclusion' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Сотрудник</td><td>{{ tbl['officer' as keyof typeof tbl] }}</td></tr>
-          <tr><td width="25%">Дата</td><td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).toLocaleDateString('ru-RU') }}</td></tr>
+          <tr><td>Проверка по местам работы</td><td>{{ tbl['workplace' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Бывший работник МТСБ</td><td>{{ tbl['employee' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка паспорта</td><td>{{ tbl['document' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка ИНН</td><td>{{ tbl['inn' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка ФССП</td><td>{{ tbl['debt' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка банкротства</td><td>{{ tbl['bankruptcy' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка БКИ</td><td>{{ tbl['bki' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка судебных дел</td><td>{{ tbl['courts' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка аффилированности</td><td>{{ tbl['affiliation' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка по списку террористов</td><td>{{ tbl['terrorist' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка нахождения в розыске</td><td>{{ tbl['mvd' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка в открытых источниках</td><td>{{ tbl['internet' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка Кронос</td><td>{{ tbl['cronos' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Проверка Крос</td><td>{{ tbl['cros' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Дополнительная информация</td><td>{{ tbl['addition' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Материалы проверки</td><td>{{ tbl['path' as keyof typeof tbl] }}</td></tr>
+          <tr><td>ПФО</td><td>{{ tbl['pfo' as keyof typeof tbl] ? "Назначено" : "Не назначено" }}</td></tr>
+          <tr><td>Комментарии</td><td>{{ tbl['comments' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Результат проверки</td><td>{{ tbl['conclusion' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Сотрудник</td><td>{{ tbl['officer' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Дата</td><td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).toLocaleDateString('ru-RU') }}</td></tr>
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
       <button  v-if="!storeProfile.printPdf" @click="storeProfile.addCheck" 
-                :disabled="classifyApp.status 
-                && (storeProfile.anketa.resume['status'] !== classifyApp.status['new'] 
-                && storeProfile.anketa.resume['status'] !== classifyApp.status['update'])
-                && storeProfile.anketa.resume['status'] !== classifyApp.status['save']" 
+                                            :disabled="![classifyApp.status['new'], 
+                                                        classifyApp.status['update'], 
+                                                        classifyApp.status['save'], 
+                                                        classifyApp.status['repeat']].includes(storeProfile.anketa.resume['status'])" 
         class="btn btn-outline-primary">Добавить проверку
       </button>
     </template>
