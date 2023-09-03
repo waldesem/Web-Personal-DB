@@ -18,7 +18,7 @@ const doc_url = `${server}/docs`;
       <p><router-link :to="{ name: 'persons' }">Home</router-link></p>
       <p><a :href="doc_url" target=”_blank”>OpenAPI</a></p>
       <p v-if="loginStore.hasRole('admin')"><router-link :to="{ name: 'admin' }">Admin</router-link></p>
-      <p><a href="https://github.com/waldesem/StaffSec">GitHub</a></p>
+      <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>
     </footer>
   </div>
 </template>
