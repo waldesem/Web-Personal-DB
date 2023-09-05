@@ -268,174 +268,48 @@ def add_resume(resume: dict, location_id, action):
     return [person_id, bool(result)]
 
 
-@bp.post('/profile/staff/<action>/<int:id>')
+@bp.post('/profile/<table>/<action>/<int:id>')
+@roles_required(Roles.user.value)
 @bp.doc(hide=True)
-@bp.input(StaffSchema)
-@jwt_required()
-def post_staff(action, id, json_data):
+def post_staff(table, action, id):
     """
-    Create or update a staff profile.
+    Handles the POST request to update staff profile information.
     Parameters:
-        action (str): The action to perform. Possible values are 'create' or 'update'.
+        table (str): The table name for the profile information.
+        action (str): The action to perform on the profile information.
         id (int): The ID of the staff member.
-        response (dict): The response data containing the staff profile information.
     Returns:
-        dict: A dictionary containing the action performed and the ID of the staff member.
+        dict: A dictionary containing the updated table name, action, and ID.
     """
+    response = request.get_json()
+    mapping = {
+        'staff': [StaffSchema, Staff],
+        'document': [DocumentSchema, Document],
+        'address': [AddressSchema, Address],
+        'contact': [ContactSchema, Contact],
+        'workplace': [WorkplaceSchema, Workplace],
+        'relation': [RelationSchema, Relation],
+        'location': [PersonSchema, Person]
+        }
+    schema = mapping[table][0]  
+    data = schema.dump(response)
+
     if action == 'create':
-        db.session.add(Staff(**json_data | {'person_id': id}))
+        db.session.add(mapping[table][1](**data | {'person_id': id}))
     else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Staff).get(id), k, v)
-    db.session.commit()
-    return {'table': 'staff', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/document/<action>/<int:id>')
-@bp.doc(hide=True)
-@bp.input(DocumentSchema)
-@jwt_required()
-def post_document(action, id, json_data):
-    """
-    Create or update a document based on the specified action and ID.
-    Args:
-        action (str): The action to perform. Valid values are 'create' and 'update'.
-        id (int): The ID of the document.
-        response (dict): The response data containing the document attributes.
-    Returns:
-        dict: A dictionary containing the table name, action performed, and ID of the document.
-    """
-    if action == 'create':
-        db.session.add(Document(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Document).get(id), k, v)
-    db.session.commit()
-    return {'table': 'document', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/address/<action>/<int:id>')
-@bp.doc(hide=True)
-@bp.input(AddressSchema)
-@jwt_required()
-def post_address(action, id, json_data):
-    """
-    Create or update an address for a profile.
-    Parameters:
-        action (str): The action to perform. Can be 'create' or 'update'.
-        id (int): The ID of the profile.
-        response (dict): The address information to create or update.
-    Returns:
-        dict: A dictionary with the table name, action performed, and profile ID.
-    """
-    if action == 'create':
-        db.session.add(Address(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Address).get(id), k, v)
-    db.session.commit()
-    return {'table': 'address', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/contact/<action>/<int:id>')
-@bp.doc(hide=True)
-@bp.input(ContactSchema)
-@jwt_required()
-def post_contact(action, id, json_data):
-    """
-    Endpoint for creating or updating a contact in the profile.
-    Parameters:
-        action (str): The action to perform, either 'create' or 'update'.
-        id (int): The ID of the contact to create or update.
-        response (dict): The data for creating or updating the contact.
-    Returns:
-        dict: A dictionary containing the table name, the action performed, and the ID of the contact.
-    """
-    if action == 'create':
-        db.session.add(Contact(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Contact).get(id), k, v)
-    db.session.commit()
-    return {'table': 'contact', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/workplace/<action>/<int:id>')
-@bp.input(WorkplaceSchema)
-@bp.doc(hide=True)
-@jwt_required()
-def post_workplace(action, id, json_data):
-    """
-    POST method for updating workplace information.
-    Parameters:
-        action (str): The action to perform on the workplace information. Valid values are 'create' or 'update'.
-        id (int): The id of the workplace to update.
-        response (dict): The updated workplace information.
-    Returns:
-        dict: A dictionary containing the table name, the action performed, and the id of the updated workplace.
-    """
-    if action == 'create':
-        db.session.add(Workplace(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Workplace).get(id), k, v)
-    db.session.commit()
-    return {'table': 'workplace', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/relation/<action>/<int:id>')
-@bp.input(RelationSchema)
-@bp.doc(hide=True)
-@jwt_required()
-def post_relation(action, id, json_data):
-    """
-    Post a relation to the profile.
-    :param action: The action to perform on the relation. Possible values are 'create' or any other action.
-    :type action: str
-    :param id: The ID of the profile relation.
-    :type id: int
-    :param response: The response containing the relation details.
-    :type response: dict
-    :return: A dictionary containing the table name, action performed, and the ID of the profile relation.
-    :rtype: dict
-    """
-    if action == 'create':
-        db.session.add(Relation(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Relation).get(id), k, v)
-    db.session.add(Relation(relation = json_data['relation'], 
-                            relation_id = id, 
-                            person_id = json_data['relation_id']))
-    db.session.commit()
-    return {'table': 'relation', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/location/<action>/<int:id>')
-@bp.input(PersonSchema)
-@bp.doc(hide=True)
-@jwt_required()
-def post_location(action, id, json_data):
-    """
-    Create or update a person's location.
-    Parameters:
-    - action (str): The action to perform. Can be 'create' or any other string.
-    - id (int): The ID of the person.
-    - response (dict): The response containing the person's location information.
-    Returns:
-    - dict: A dictionary containing the table name, action, and ID of the location.
-    """
-    if action == 'create':
-        db.session.add(Person(**json_data | {'region_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Person).get(id), k, v)
-        users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
-                                            User.region_id == json_data['region_id']).all()
+        for k, v in data.items():
+            setattr(db.session.query(mapping[table][1]).get(id), k, v)
+    if table == 'relation':
+        # Добавляем связь к анкете соответствующей родительской анкете
+        db.session.add(Relation(relation = data['relation'], 
+                                relation_id = id,
+                                person_id = data['relation_id']))
+    if table == 'location':
+        users = db.session.query(User).filter_by(region_id=data['region_id']).all()
         for user in users:
-            db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))        
+            db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))
     db.session.commit()
-    return {'table': 'location', 'actions': action, 'id': id}
+    return {'table': table, 'actions': action, 'id': id}
 
 
 @bp.post('/photo/upload/<int:person_id>')
