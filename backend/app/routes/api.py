@@ -6,7 +6,7 @@ import bcrypt
 from apiflask import HTTPBasicAuth
 
 from ..routes import bp
-from ..routes.route import add_resume, folder_check
+from ..routes.route import add_resume, create_folders
 from ..utils.excel import resume_data
 from ..models.model import db, User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
@@ -81,7 +81,7 @@ def check_in(json_data):
     
     if candidate.status == Status.robot.value:
         if os.path.isdir(json_data['path']):
-            check_path = latest_check.path if os.path.isdir(latest_check.path) else folder_check(candidate.id, candidate["fullname"])
+            check_path = latest_check.path if os.path.isdir(latest_check.path) else create_folders(candidate.id, candidate["fullname"])
             
             try:
                 for file in os.listdir(json_data['path']):
