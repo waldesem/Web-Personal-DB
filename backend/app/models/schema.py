@@ -1,4 +1,5 @@
 from apiflask import Schema
+from apiflask.fields import File
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
@@ -53,6 +54,11 @@ class MessageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Report
         ordered = True
+
+
+class MessagesListSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for list of the messages"""
+    messages = fields.Nested(MessageSchema, many=True)
 
 
 class PersonSchema(ma.SQLAlchemyAutoSchema):
@@ -182,3 +188,8 @@ class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
         model = Check
         ordered = True
         exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline',)
+
+
+class FileSchema(Schema):
+    """ Create schema for file"""
+    image = File()

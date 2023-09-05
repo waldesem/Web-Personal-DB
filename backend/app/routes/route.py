@@ -5,21 +5,21 @@ from datetime import datetime
 import shutil
 import requests
 
+from flask import abort, request, send_from_directory
 from flask_jwt_extended import current_user, get_jwt_identity, jwt_required
 from sqlalchemy import func, or_
-from flask import abort, request, send_from_directory
-from werkzeug.exceptions import BadRequest
 from PIL import Image
+from werkzeug.exceptions import BadRequest
 
 from . import bp
-from . login import roles_required
+from . login import roles_required, group_required
 from ..utils.excel import ExcelFile, resume_data
 from ..models.model import User, db, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
-from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressSchema, \
+from ..models.schema import MessagesListSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
-from ..models.classify import Category, Conclusions, Decisions, Roles, Groups, Status, Regions
+            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema, FileSchema
+from ..models.classify import Category, Conclusions, Decisions, Roles, Groups, Status
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'persons'))
 
@@ -84,6 +84,7 @@ def get_classify():
 
 @bp.get('/messages/<string:flag>')
 @bp.doc(hide=True)
+@bp.output(MessagesListSchema)
 @jwt_required()
 def get_messages(flag):
     """
@@ -105,10 +106,7 @@ def get_messages(flag):
         db.session.commit()
         messages = update_messages()
 
-    schema = MessageSchema()
-    datas = schema.dump(messages, many=True)
-
-    return datas
+    return messages
 
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
@@ -175,19 +173,7 @@ def get_profile(person_id):
     Parameters:
         person_id (int): The ID of the person.
     Returns:
-        dict: A dictionary containing the profile information of the person. The dictionary has the following keys:
-            - 'resume' (Person): The resume information of the person.
-            - 'documents' (list[Document]): The list of documents associated with the person.
-            - 'addresses' (list[Address]): The list of addresses associated with the person.
-            - 'contacts' (list[Contact]): The list of contacts associated with the person.
-            - 'workplaces' (list[Workplace]): The list of workplaces associated with the person.
-            - 'staffs' (list[Staff]): The list of staff members associated with the person.
-            - 'relations' (list[Relation]): The list of relations associated with the person.
-            - 'checks' (list[Check]): The list of checks associated with the person.
-            - 'registries' (list[Registry]): The list of registries associated with the person.
-            - 'pfos' (list[Poligraf]): The list of poligrafs associated with the person.
-            - 'invs' (list[Investigation]): The list of investigations associated with the person.
-            - 'inquiries' (list[Inquiry]): The list of inquiries associated with the person.
+        dict: A dictionary containing the profile information of the person.
     """
     resume = db.session.query(Person).filter_by(id=person_id).one_or_none()
     
@@ -221,13 +207,14 @@ def get_profile(person_id):
 @bp.post('/anketa/upload')
 @bp.doc(hide=True)
 @jwt_required()
-def upload_file():
+@bp.input(FileSchema, location='files')
+def upload_file(files_data):
     """
     Uploads a file and adds the resume data to the database.
     Returns:
         A dictionary containing the result of the upload and the person ID.
     """
-    file = request.files['file']
+    file = files_data['file']
     excel = ExcelFile(file)
     location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
 
