@@ -6,7 +6,7 @@ from . import bp
 from .login import roles_required
 from ..models.model import  User, Role, Group, db
 from ..models.schema import  UserSchema
-from ..models.classify import Roles
+from ..models.classes import Roles
 
 
 @bp.get('/admin')

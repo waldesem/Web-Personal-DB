@@ -2,13 +2,16 @@ from enum import Enum
 
 
 class Regions(Enum):
+    """ Regions """
     MAIN_OFFICE = 'Главный офис'
     SOUTH_REGION = 'Региональный центр Юг'
     WEST_REGION = 'Региональный центр Запад'
     URAL_REGION = 'Региональный центр Урал'
     EAST_REGION = 'Региональный центр Восток'
 
+
 class Groups(Enum):
+    """ Groups """
     staffsec = 'Центр кадровой безопасности'
     creditsec = 'Центр безопасности кредитования'
 

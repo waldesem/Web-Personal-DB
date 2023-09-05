@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 
 from .models.model import User, Region, Role, Group, db
-from .models.classify import Roles, Groups, Regions
+from .models.classes import Roles, Groups, Regions
 from .models.schema import  ma
 from .routes.login import jwt
 

@@ -9,7 +9,7 @@ from flask_jwt_extended import JWTManager, current_user, \
 from . import bp
 from ..models.model import TokenBlocklist, Report, User, db
 from ..models.schema import LoginSchema, UserSchema
-from ..models.classify import Roles
+from ..models.classes import Roles
 
 jwt = JWTManager()
 

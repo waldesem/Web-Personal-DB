@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 
-from .classify import Category, Decisions, Status
+from .classes import Category, Decisions, Status
 
 
 db = SQLAlchemy()

@@ -18,7 +18,7 @@ from ..models.model import User, db, Person, Staff, Document, Address, Contact, 
 from ..models.schema import MessagesListSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
             InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema, FileSchema
-from ..models.classify import Category, Conclusions, Decisions, Roles, Groups, Status
+from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'persons'))
 

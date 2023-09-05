@@ -10,7 +10,7 @@ from ..routes.route import add_resume, create_folders
 from ..utils.excel import resume_data
 from ..models.model import db, User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
-from ..models.classify import Roles
+from ..models.classes import Roles
 
 auth = HTTPBasicAuth()
 
