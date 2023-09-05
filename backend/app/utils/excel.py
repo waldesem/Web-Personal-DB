@@ -39,24 +39,33 @@ class ExcelFile:
         ]
         self.workplaces = [
             {
-            'start_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AA{i}'].value))[0].strip(), '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AA{i}'].value))[0].strip()) \
-                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
-
-            'end_date': datetime.strptime(re.split(r'-', str(self.sheet[f'AA{i}'].value))[1].strip(), '%d.%m.%Y').date() \
-                 if re.match(r'\d\d.\d\d.\d\d\d\d', re.split(r'-', str(self.sheet[f'AA{i}'].value))[1].strip()) \
-                    else datetime.now().date(),
-                        
             'workplace': str(self.sheet[f'AB{i}'].value).strip(),
             'address': str(self.sheet[f'AC{i}'].value).strip(),
             'position': str(self.sheet[f'AD{i}'].value).strip()
-            }
-            for i in range(3, 6) if self.sheet[f'AA{i}'].value
+            } | self.parse_period(self.sheet[f'AA{i}'].value)
+            for i in range(3, 6) if self.sheet[f'AB{i}'].value
         ]
         self.staff = {
             'position': str(self.sheet['C3'].value).strip(),
             'department': str(self.sheet['D3'].value).strip()
         }
+
+    def parse_period(self, cell):
+        """ Parse period from excel file """
+        lst = re.split(r'-', cell)
+        if len(lst) == 2:
+            start, end = lst[0].strip(), lst[1].strip()
+            
+            start_date = datetime.strptime(start, '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', start) \
+                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
+            end_date = datetime.strptime(end, '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', end) \
+                    else datetime.now().date()
+        else:
+            start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
+            end_date = datetime.now().date()
+        return {'start_date': start_date, 'end_date': end_date}
 
 
 def resume_data(person_id, document, addresses, contacts, workplaces, staff):
