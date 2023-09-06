@@ -17,7 +17,7 @@ from ..models.model import User, db, Person, Staff, Document, Address, Contact, 
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
 from ..models.schema import MessagesListSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema, FileSchema
+            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
 from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'persons'))
@@ -192,14 +192,13 @@ def get_profile(person_id):
 @bp.post('/anketa/upload')
 @bp.doc(hide=True)
 @jwt_required()
-@bp.input(FileSchema, location='files')
-def upload_file(files_data):
+def upload_file():
     """
     Uploads a file and adds the resume data to the database.
     Returns:
         A dictionary containing the result of the upload and the person ID.
     """
-    file = files_data['file']
+    file = request.files['file']
     excel = ExcelFile(file)
     location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
 

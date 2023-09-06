@@ -1,5 +1,4 @@
 from apiflask import Schema
-from apiflask.fields import File
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
@@ -188,8 +187,3 @@ class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
         model = Check
         ordered = True
         exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline',)
-
-
-class FileSchema(Schema):
-    """ Create schema for file"""
-    image = File()
