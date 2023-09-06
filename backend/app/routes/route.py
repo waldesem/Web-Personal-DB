@@ -295,21 +295,13 @@ def post_anketa_item(table, action, id):
     if action == 'create':
         db.session.add(mapping[table][1](**data | {'person_id': id}))
     else:
-        if table == 'location':
-            person = db.session.query(mapping[table][1]).get(id)
-            person.path = response['path']
-        else:
-            for k, v in data.items():
-                setattr(db.session.query(mapping[table][1]).get(id), k, v)
+        for k, v in data.items():
+            setattr(db.session.query(mapping[table][1]).get(id), k, v)
     if table == 'relation':
         # Добавляем связь к анкете соответствующей родительской анкете
         db.session.add(Relation(relation = data['relation'], 
                                 relation_id = id,
                                 person_id = data['relation_id']))
-    if table == 'location':
-        users = db.session.query(User).filter_by(region_id=data['region_id']).all()
-        for user in users:
-            db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))
     db.session.commit()
     return {'table': table, 'actions': action, 'id': id}
 
@@ -332,7 +324,7 @@ def post_location(id):
     person.region_id = response['region_id']
     users = db.session.query(User).filter_by(region_id=response['region_id']).all()
     for user in users:
-        db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))
+        db.session.add(Report(report=f'Получена анкета {person.fullname} от {current_user.fullname}', user_id=user.id))
     db.session.commit()
     return {'table': 'location', 'actions': 'update', 'id': id}
 
@@ -418,7 +410,7 @@ def send_resume(person_id):
             if response.status_code == 200:
                 check_path = create_folders(person_id, resume.fullname, 'Проверки')
                 resume.status = Status.robot.value
-                db.session.add(Check(officer=current_user.username, 
+                db.session.add(Check(officer=current_user.fullname, 
                                      path=check_path,
                                      person_id = person_id))
                 db.session.commit()
@@ -469,7 +461,7 @@ def add_check(person_id):
     if person.has_status([Status.new.value, Status.update.value, Status.repeat.value]):
         check_path = create_folders(person_id, person.fullname, 'Проверки')
         person.status = Status.manual.value
-        db.session.add(Check(officer=current_user.username, 
+        db.session.add(Check(officer=current_user.fullname, 
                                 path = check_path,
                                 person_id = person_id))
         db.session.commit()
@@ -495,7 +487,7 @@ def post_check(action, id, json_data):
     json_data['pfo'] = bool(json_data.pop('pfo')) if 'pfo' in json_data else False
     if action == 'create':
         person = db.session.query(Person).get(id)        
-        db.session.add(Check(**json_data | {'person_id': id, 'officer': current_user.username}))
+        db.session.add(Check(**json_data | {'person_id': id, 'officer': current_user.fullname}))
 
     else:
         check = db.session.query(Check).get(id)
@@ -546,7 +538,7 @@ def post_registry(action, id, json_data):
         :rtype: dict
     """
     check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).scalar()
-    reg = {'supervisor': current_user.username} | json_data
+    reg = {'supervisor': current_user.fullname} | json_data
     person = db.session.query(Person).get(id)
     # отправка ответа о результатах проверки если анкета поступила через API
     if person.request_id or person.request_id != 'NULL':  
@@ -602,7 +594,7 @@ def post_poligraf(action, id, json_data):
         person = db.session.query(Person).get(id)
         if person.has_status(Status.poligraf.value):
             person.status = Status.result.value
-        db.session.add(Poligraf(**json_data | {'person_id': id, 'officer': current_user.username}))
+        db.session.add(Poligraf(**json_data | {'person_id': id, 'officer': current_user.fullname}))
     else:
         for k, v in json_data.items():
             setattr(db.session.query(Poligraf).get(id), k, v)
@@ -626,7 +618,7 @@ def post_investigation(action, id, json_data):
     canddiate = db.session.query(Person).get(id)
     if action == 'create':
         invs_path = create_folders(id, canddiate.fullname, 'Расследования')
-        db.session.add(Investigation(**json_data | {'person_id': id, 'path': invs_path, 'officer': current_user.username}))
+        db.session.add(Investigation(**json_data | {'person_id': id, 'path': invs_path, 'officer': current_user.fullname}))
     else:
         for k, v in json_data.items():
             setattr(db.session.query(Investigation).get(id), k, v)
@@ -648,7 +640,7 @@ def post_inquiry(action, id, json_data):
         dict: A dictionary containing the action performed and the person ID.
     """
     if action == 'create':
-        db.session.add(Inquiry(**json_data | {'person_id': id, 'officer': current_user.username}))
+        db.session.add(Inquiry(**json_data | {'person_id': id, 'officer': current_user.fullname}))
     else:
         for k, v in json_data.items():
             setattr(db.session.query(Inquiry).get(id), k, v)

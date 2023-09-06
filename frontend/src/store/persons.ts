@@ -31,7 +31,7 @@ export const appPersons = defineStore('appPersons',  () => {
   if (!isStarted) {
     updateMessage();
     isStarted = true;
-    setInterval(updateMessage, 1800000);
+    setInterval(updateMessage, 1000000);
   };
 
   /**

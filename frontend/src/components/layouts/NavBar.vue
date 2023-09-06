@@ -37,7 +37,10 @@ const storeProfile = appProfile();
                 <ul class="dropdown-menu">
                   <h6 class="dropdown-header">Непрочитанные сообщения</h6>
                   <li v-for="message in personsStore.messages" :key="message['id']">
-                    <a class="dropdown-item">{{ `${new Date(message['create']).toLocaleString('ru-RU')}: ${message['report']}` }}</a>
+                    <a class="dropdown-item">
+                      <p>{{ `${new Date(message['create']).toLocaleString('ru-RU')}:`}}</p>
+                      <p>{{ message['report'] }}</p>
+                    </a>
                   </li>
                   <div class="dropdown-divider"></div>
                   <li><a class="dropdown-item" href="#" @click="personsStore.updateMessage('reply')">Очистить</a></li>
@@ -62,5 +65,11 @@ const storeProfile = appProfile();
 <style>
   .envelope {
     font-size: 2rem; /* Adjust the value as needed */
+  }
+  .dropdown-menu {
+    max-width: 1000px;
+    max-height: 1000px; /* set a fixed height for the dropdown menu */
+    overflow-y: auto; /* enable vertical scrolling */
+    overflow-x: auto  ;
   }
 </style>
