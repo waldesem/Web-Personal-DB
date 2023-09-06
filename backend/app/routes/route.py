@@ -90,8 +90,8 @@ def get_messages(flag):
 
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
-@jwt_required()
 def index(flag, page):
     """
     This function handles the index route of the API. It takes in two parameters:
@@ -149,9 +149,9 @@ def index(flag, page):
 
 
 @bp.get('/profile/<int:person_id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @bp.output(ProfileSchema)
-@jwt_required()
 def get_profile(person_id):
     """
     Retrieves the profile information for a specific person.
@@ -190,8 +190,8 @@ def get_profile(person_id):
 
 
 @bp.post('/anketa/upload')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
-@jwt_required()
 def upload_file():
     """
     Uploads a file and adds the resume data to the database.
@@ -209,9 +209,9 @@ def upload_file():
 
 
 @bp.post('/resume/<action>')
+@group_required(Groups.staffsec.value)
 @bp.input(PersonSchema)
 @bp.doc(hide=True)
-@jwt_required()
 def post_resume(action, json_data):
     """
     Creates a new resume for a person.
@@ -268,9 +268,9 @@ def add_resume(resume: dict, location_id, action):
 
 
 @bp.post('/profile/<table>/<action>/<int:id>')
-@roles_required(Roles.user.value)
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
-def post_staff(table, action, id):
+def post_anketa_item(table, action, id):
     """
     Handles the POST request to update staff profile information.
     Parameters:
@@ -282,7 +282,7 @@ def post_staff(table, action, id):
     """
     response = request.get_json()
     mapping = {
-        'staff': [StaffSchema, Staff],
+        'staff': [StaffSchema(), Staff],
         'document': [DocumentSchema, Document],
         'address': [AddressSchema, Address],
         'contact': [ContactSchema, Contact],
@@ -312,8 +312,8 @@ def post_staff(table, action, id):
 
 
 @bp.post('/photo/upload/<int:person_id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
-@jwt_required()
 def upload_photo(person_id):
     """
     Uploads a photo for a given person.
@@ -349,8 +349,8 @@ def upload_photo(person_id):
 
 
 @bp.get('/anketa/status/<int:person_id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
-@jwt_required()
 def patch_status(person_id: int):
     """
     Update the status of a person in the database.
@@ -368,8 +368,8 @@ def patch_status(person_id: int):
 
 
 @bp.get('/anketa/send/<int:person_id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
-@jwt_required()
 def send_resume(person_id):
     """
     Sends a resume to the check's robot.
@@ -428,6 +428,7 @@ def create_folders(person_id, fullname, folder_name):
 
 
 @bp.get('/check/add/<int:person_id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @jwt_required()
 def add_check(person_id):
@@ -452,9 +453,9 @@ def add_check(person_id):
 
 
 @bp.post('/profile/check/<action>/<int:id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @bp.input(CheckSchema)
-@jwt_required()
 def post_check(action, id, json_data):
     """
     Endpoint for performing a check on a profile.
@@ -504,10 +505,10 @@ def post_check(action, id, json_data):
 
 
 @bp.post('/profile/registry/<action>/<int:id>')
+@group_required(Groups.staffsec.value)
 @roles_required(Roles.superuser.value)
 @bp.input(RegistrySchema)
 @bp.doc(hide=True)
-@jwt_required()
 def post_registry(action, id, json_data):
     """
     Post a registry entry for a given ID and response.
@@ -558,9 +559,9 @@ def post_registry(action, id, json_data):
 
 
 @bp.post('/profile/poligraf/<action>/<int:id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @bp.input(PoligrafSchema)
-@jwt_required()
 def post_poligraf(action, id, json_data):
     """
     Endpoint for creating or updating a poligraf profile.
@@ -584,9 +585,9 @@ def post_poligraf(action, id, json_data):
 
 
 @bp.post('/profile/investigation/<action>/<int:id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @bp.input(InvestigationSchema)
-@jwt_required()
 def post_investigation(action, id, json_data):
     """
     Endpoint for creating or updating an investigation profile for a person.
@@ -608,9 +609,9 @@ def post_investigation(action, id, json_data):
 
 
 @bp.post('/profile/inquiry/<action>/<id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @bp.input(InquirySchema)
-@jwt_required()
 def post_inquiry(action, id, json_data):
     """
     Endpoint to post an inquiry for a specific person.
@@ -630,6 +631,7 @@ def post_inquiry(action, id, json_data):
  
 
 @bp.delete('/profile/<item>/delete/<int:item_id>')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @jwt_required()
 def delete_item(item, item_id):
@@ -670,6 +672,7 @@ def delete_item(item, item_id):
     
 
 @bp.post('/information')
+@group_required(Groups.staffsec.value)
 @bp.doc(hide=True)
 @jwt_required()
 def post_information():

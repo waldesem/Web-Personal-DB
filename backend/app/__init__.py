@@ -52,11 +52,8 @@ def create_app():
                              password=bcrypt.hashpw(Roles.admin.value.encode('utf-8'), bcrypt.gensalt()),  # admin
                              region_id=1)
             db.session.add(new_admin)
-            db.session.flush()
-            
-            new_admin.groups.append(db.session.query(Group).filter_by(group=Groups.staffsec.value).first())
+            db.session.flush()            
             new_admin.roles.append(db.session.query(Role).filter_by(role=Roles.admin.value).first())
-            new_admin.roles.append(db.session.query(Role).filter_by(role=Roles.superuser.value).first())
             db.session.add(new_admin)
             
         db.session.commit()
