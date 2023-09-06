@@ -87,7 +87,7 @@ def add_user_info(flag, json_data):
         return {'user': 'none'}
 
 
-@bp.get('/user/<flag>/<int:user_id>')
+@bp.get('/user/<int:user_id>/<flag>')
 @roles_required(Roles.admin.value)
 @bp.doc(hide=True)
 def user_state(user_id, flag):

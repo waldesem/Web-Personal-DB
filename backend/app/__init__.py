@@ -54,6 +54,8 @@ def create_app():
             db.session.add(new_admin)
             db.session.flush()            
             new_admin.roles.append(db.session.query(Role).filter_by(role=Roles.admin.value).first())
+            new_admin.groups.append(db.session.query(Group).filter_by(group=Groups.staffsec.value).first())
+            new_admin.groups.append(db.session.query(Group).filter_by(group=Groups.creditsec.value).first())
             db.session.add(new_admin)
             
         db.session.commit()

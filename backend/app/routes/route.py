@@ -15,7 +15,7 @@ from . login import roles_required, group_required
 from ..utils.excel import ExcelFile, resume_data
 from ..models.model import User, db, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
-from ..models.schema import MessagesListSchema, RelationSchema, StaffSchema, AddressSchema, \
+from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
             InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
 from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
@@ -63,7 +63,6 @@ def get_classes():
 
 @bp.get('/messages/<string:flag>')
 @bp.doc(hide=True)
-@bp.output(MessagesListSchema)
 @jwt_required()
 def get_messages(flag):
     """
@@ -75,7 +74,7 @@ def get_messages(flag):
     """
     def update_messages():
         updates = db.session.query(Report).filter(Report.status == Status.new.value, 
-                                                  Report.user_id == current_user.id).limit(12).all()
+                                                  Report.user_id == current_user.id).limit(16).all()
         return updates
     
     messages = update_messages()
@@ -85,7 +84,8 @@ def get_messages(flag):
              db.session.delete(message)
         db.session.commit()
         messages = update_messages()
-
+    schema = MessageSchema()
+    messages = schema.dump(messages, many=True)
     return messages
 
 
@@ -283,12 +283,11 @@ def post_anketa_item(table, action, id):
     response = request.get_json()
     mapping = {
         'staff': [StaffSchema(), Staff],
-        'document': [DocumentSchema, Document],
-        'address': [AddressSchema, Address],
-        'contact': [ContactSchema, Contact],
-        'workplace': [WorkplaceSchema, Workplace],
-        'relation': [RelationSchema, Relation],
-        'location': [PersonSchema, Person]
+        'document': [DocumentSchema(), Document],
+        'address': [AddressSchema(), Address],
+        'contact': [ContactSchema(), Contact],
+        'workplace': [WorkplaceSchema(), Workplace],
+        'relation': [RelationSchema(), Relation]
         }
     schema = mapping[table][0]  
     data = schema.dump(response)
@@ -296,8 +295,12 @@ def post_anketa_item(table, action, id):
     if action == 'create':
         db.session.add(mapping[table][1](**data | {'person_id': id}))
     else:
-        for k, v in data.items():
-            setattr(db.session.query(mapping[table][1]).get(id), k, v)
+        if table == 'location':
+            person = db.session.query(mapping[table][1]).get(id)
+            person.path = response['path']
+        else:
+            for k, v in data.items():
+                setattr(db.session.query(mapping[table][1]).get(id), k, v)
     if table == 'relation':
         # Добавляем связь к анкете соответствующей родительской анкете
         db.session.add(Relation(relation = data['relation'], 
@@ -309,6 +312,29 @@ def post_anketa_item(table, action, id):
             db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))
     db.session.commit()
     return {'table': table, 'actions': action, 'id': id}
+
+
+@bp.post('/profile/location/update/<int:id>')
+@group_required(Groups.staffsec.value)
+@bp.doc(hide=True)
+def post_location(id):
+    """
+    Handles the POST request to update staff profile information.
+    Parameters:
+        table (str): The table name for the profile information.
+        action (str): The action to perform on the profile information.
+        id (int): The ID of the staff member.
+    Returns:
+        dict: A dictionary containing the updated table name, action, and ID.
+    """
+    response = request.get_json()
+    person = db.session.query(Person).get(id)
+    person.region_id = response['region_id']
+    users = db.session.query(User).filter_by(region_id=response['region_id']).all()
+    for user in users:
+        db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))
+    db.session.commit()
+    return {'table': 'location', 'actions': 'update', 'id': id}
 
 
 @bp.post('/photo/upload/<int:person_id>')
