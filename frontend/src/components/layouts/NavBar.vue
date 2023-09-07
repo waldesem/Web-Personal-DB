@@ -1,14 +1,12 @@
 <script setup lang="ts">
-/* Компонент NavBar - выводит навигационную панель в шапке сайта для авторизованного пользователя.
-Содержит ссылки на страницы: Кандидаты, Создать, Информация */
 
-import { appPersons } from '@/store/persons';
+import { appMessages } from '@/store/messages';
 import { appLogin } from '@/store/login';
 import { appProfile } from '@/store/profile';
-import  { appClassify } from  '@/store/classify'
+import { appClassify } from  '@/store/classify';
 
 const storeClassify = appClassify();
-const personsStore = appPersons();
+const storeMessages = appMessages();
 const storeLogin = appLogin();
 const storeProfile = appProfile();
 
@@ -16,35 +14,43 @@ const storeProfile = appProfile();
 
 <template>
   <div v-if="!storeProfile.printPdf" class="container-fluid">
-    <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary">
+    <nav :class="storeLogin.hasRole('admin') ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
       <div class="container">
         <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu" aria-controls="offcanvasMenu">StaffSec</a>
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <router-link :to="{ name: 'staffsec'}" class="nav-link active">Кандидаты</router-link>
+            
+            <li v-f="storeLogin.hasRole('admin')" class="nav-item">
+              <router-link :to="{ name: 'users' }" class="nav-link active" href="#">Пользователи</router-link>
             </li>
-            <li class="nav-item">
-              <router-link :to="{ name: 'resume' }" class="nav-link active">Создать</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
-            </li>
-            <li v-if="personsStore.messages.length" class="nav-item dropdown">
+
+            <template v-if="storeLogin.hasGroup('staffsec')">
+              <li class="nav-item">
+                  <router-link :to="{ name: 'staffsec'}" class="nav-link active">Кандидаты</router-link>
+              </li>
+              <li class="nav-item">
+                  <router-link :to="{ name: 'resume' }" class="nav-link active">Создать</router-link>
+              </li>
+              <li class="nav-item">
+                  <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
+              </li>
+            </template>
+            
+            <li v-if="storeMessages.messages.length" class="nav-item dropdown">
               <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
                 <i class="bi bi-envelope-fill"></i>
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{personsStore.messages ? personsStore.messages.length : 0}}</span>
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{storeMessages.messages ? storeMessages.messages.length : 0}}</span>
               </a>
                 <ul class="dropdown-menu">
                   <h6 class="dropdown-header">Непрочитанные сообщения</h6>
-                  <li v-for="message in personsStore.messages" :key="message['id']">
+                  <li v-for="message in storeMessages.messages" :key="message['id']">
                     <a class="dropdown-item">
                       <p>{{ `${new Date(message['create']).toLocaleString('ru-RU')}:`}}</p>
                       <p>{{ message['report'] }}</p>
                     </a>
                   </li>
                   <div class="dropdown-divider"></div>
-                  <li><a class="dropdown-item" href="#" @click="personsStore.updateMessage('reply')">Очистить</a></li>
+                  <li><a class="dropdown-item" href="#" @click="storeMessages.updateMessage('reply')">Очистить</a></li>
                 </ul>
             </li>
             <li class="nav-item">

@@ -24,15 +24,6 @@ export const appPersons = defineStore('appPersons',  () => {
     currentPath: 'new'
   });
 
-  const messages = ref([]);  // Список сообщений для пользователя
-  
-  // Получение списка сообщений после монтирования компонента и обновление каждые 30 минут
-  let isStarted = false;
-  if (!isStarted) {
-    updateMessage();
-    isStarted = true;
-    setInterval(updateMessage, 1000000);
-  };
 
   /**
    * Retrieves candidates from the specified URL and updates the data store.
@@ -90,21 +81,5 @@ export const appPersons = defineStore('appPersons',  () => {
     }
   };
 
-  /**
-   * Updates the messages based on the provided flag ('new' or 'reply').
-   *
-   * @param {string} flag - The flag to determine which messages to update. Default is 'new'.
-   * @return {Promise<void>} - A promise that resolves when the message is successfully updated.
-   */
-  async function updateMessage(flag: string = 'new'): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(`${server}/messages/${flag}`);
-      messages.value = response.data;
-        
-    } catch (error) {
-        console.error(error);
-    }
-  };
-
-  return { data, searchData, currenData, messages, getCandidates, prevPage, nextPage, updateMessage };
+  return { data, searchData, currenData, getCandidates, prevPage, nextPage };
 });

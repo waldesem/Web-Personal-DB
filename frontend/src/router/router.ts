@@ -4,12 +4,10 @@ import server from '@/store/server';
 import axios from 'axios';
 import App from '@/App.vue';
 import LoginPage from '@pages/LoginPage.vue';
-import StaffVue from '@components/StaffVue.vue';
 import PersonPage from '@pages/PersonPage.vue';
 import ResumePage from '@pages/ResumePage.vue';
 import ProfilePage from '@pages/ProfilePage.vue';
 import StatPage from '@pages/StatPage.vue';
-import AdminVue from '@components/AdminVue.vue';
 import UsersListPage from '@pages/UsersListPage.vue';
 import UserPage from '@pages/UserPage.vue';
 import NotFound from '@pages/NotFound.vue';
@@ -32,49 +30,36 @@ const router = createRouter({
       name: 'login',
       component: LoginPage,
     },
+
     {
-      path: '/staff',
-      name: 'staff',
-      component: StaffVue,
-      children: [
-        {
-          path: 'persons',
-          name: 'staffsec',
-          component: PersonPage
-        },
-        {
-          path: 'resume',
-          name: 'resume',
-          component: ResumePage
-        },
-        {
-          path: 'profile/:id',
-          name: 'profile',
-          component: ProfilePage
-        },
-        {
-          path: 'information',
-          name: 'information',
-          component: StatPage
-        }
-      ]
+      path: 'persons',
+      name: 'staffsec',
+      component: PersonPage
     },
     {
-      path: '/admin',
-      name: 'admin',
-      component: AdminVue,
-      children: [
-        {
-          path: 'users',
-          name: 'users',
-          component: UsersListPage
-        },
-        {
-          path: 'user/:id',
-          name: 'shape',
-          component: UserPage,
-        }
-      ]
+      path: 'resume',
+      name: 'resume',
+      component: ResumePage
+    },
+    {
+      path: 'profile/:id',
+      name: 'profile',
+      component: ProfilePage
+    },
+    {
+      path: 'information',
+      name: 'information',
+      component: StatPage
+    },
+    {
+      path: 'users',
+      name: 'users',
+      component: UsersListPage
+    },
+    {
+      path: 'user/:id',
+      name: 'shape',
+      component: UserPage,
     },
     {
       path: '/:pathMatch(.*)*',  

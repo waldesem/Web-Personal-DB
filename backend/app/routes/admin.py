@@ -9,19 +9,6 @@ from ..models.schema import  UserSchema
 from ..models.classes import Roles
 
 
-@bp.get('/admin')
-@roles_required(Roles.admin.value)
-@bp.doc(hide=True)
-def get_admin():
-    """
-    Retrieves the admin status of the current user.
-    Returns:
-        dict: A dictionary containing the admin status of the user.
-    """
-    user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-    return {"admin": user.has_role(Roles.admin.value)}
-
-
 @bp.get('/users')
 @roles_required(Roles.admin.value)
 @bp.doc(hide=True)
