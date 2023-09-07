@@ -78,7 +78,7 @@ const header = computed(() => {
             <td>{{ candidate["id"] }}</td>
             <td>{{ storeClassify.regions[candidate["region_id"]] }}</td>
             <td>
-              <router-link :to="{ name: 'profile', params: { id: candidate['id'] } }">
+              <router-link :to="{ name: 'profile', params: { id: candidate['id'] } }" target="_blank">
                 {{ candidate["fullname"] }}
               </router-link>
             </td>

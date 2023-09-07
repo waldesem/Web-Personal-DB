@@ -40,8 +40,8 @@ export const appLogin = defineStore('appLogin', () => {
         router.push({ name: 'login' });
       } else {
         hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles]) 
-              ? router.push({ name: 'admin' }) 
-              : router.push({ name: groups[0]['group'] });
+          ? router.push({ name: 'admin' }) 
+          : router.push({ name: groups[0]['group'] });
       };
       Object.assign(userData.value, {
         fullName: fullname,

@@ -20,7 +20,7 @@ const storeProfile = appProfile();
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             
-            <li v-f="storeLogin.hasRole('admin')" class="nav-item">
+            <li v-if="storeLogin.hasRole('admin')" class="nav-item">
               <router-link :to="{ name: 'users' }" class="nav-link active" href="#">Пользователи</router-link>
             </li>
 
@@ -39,10 +39,10 @@ const storeProfile = appProfile();
             <li v-if="storeMessages.messages.length" class="nav-item dropdown">
               <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
                 <i class="bi bi-envelope-fill"></i>
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{storeMessages.messages ? storeMessages.messages.length : 0}}</span>
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{ storeMessages.messages.length }}</span>
               </a>
                 <ul class="dropdown-menu">
-                  <h6 class="dropdown-header">Непрочитанные сообщения</h6>
+                  <h6 class="dropdown-header">Новые сообщения</h6>
                   <li v-for="message in storeMessages.messages" :key="message['id']">
                     <a class="dropdown-item">
                       <p>{{ `${new Date(message['create']).toLocaleString('ru-RU')}:`}}</p>

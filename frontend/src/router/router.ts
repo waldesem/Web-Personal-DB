@@ -8,12 +8,11 @@ import PersonPage from '@pages/PersonPage.vue';
 import ResumePage from '@pages/ResumePage.vue';
 import ProfilePage from '@pages/ProfilePage.vue';
 import StatPage from '@pages/StatPage.vue';
-import UsersListPage from '@pages/UsersListPage.vue';
+import AdminPage from '@pages/AdminPage.vue';
 import UserPage from '@pages/UserPage.vue';
 import NotFound from '@pages/NotFound.vue';
 import ContactPage from '@pages/ContactPage.vue';
 
-// Маршруты приложения  
 const router = createRouter({
   routes: [
     {
@@ -21,61 +20,54 @@ const router = createRouter({
       component: App
     },
     {
-      path: '/auth',
-      name: 'app',
-      component: App
-    },
-    {
       path: '/login',
       name: 'login',
       component: LoginPage,
     },
-
     {
-      path: 'persons',
+      path: '/persons',
       name: 'staffsec',
       component: PersonPage
     },
     {
-      path: 'resume',
+      path: '/resume',
       name: 'resume',
       component: ResumePage
     },
     {
-      path: 'profile/:id',
+      path: '/profile/:id',
       name: 'profile',
       component: ProfilePage
     },
     {
-      path: 'information',
+      path: '/information',
       name: 'information',
       component: StatPage
     },
     {
-      path: 'users',
+      path: '/users',
       name: 'users',
-      component: UsersListPage
+      component: AdminPage
     },
     {
-      path: 'user/:id',
+      path: '/user/:id',
       name: 'shape',
       component: UserPage,
+    },
+    {
+      path: '/contacts',
+      name: 'contacts',
+      component: ContactPage
     },
     {
       path: '/:pathMatch(.*)*',  
       name: '404', 
       component: NotFound
-    },
-    {
-      path: 'contacts',
-      name: 'contacts',
-      component: ContactPage
     }
   ],
   history: createWebHistory()
 });
 
-// Защита маршрутов с использованием токенов аутентификации и хранилища данных Pinia
 router.beforeEach(async (to, _from, next) => {
   const refresh_token = localStorage.getItem('refresh_token');
   const access_token = localStorage.getItem('access_token');
