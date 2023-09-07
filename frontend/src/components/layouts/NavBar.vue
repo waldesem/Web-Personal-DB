@@ -22,7 +22,7 @@ const storeProfile = appProfile();
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <router-link :to="{ name: 'persons'}" class="nav-link active">Кандидаты</router-link>
+              <router-link :to="{ name: 'staffsec'}" class="nav-link active">Кандидаты</router-link>
             </li>
             <li class="nav-item">
               <router-link :to="{ name: 'resume' }" class="nav-link active">Создать</router-link>

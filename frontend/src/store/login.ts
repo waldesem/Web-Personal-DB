@@ -8,7 +8,7 @@ import { appClassify } from '@store/classify';
 import { ref } from 'vue';
 
 
-export const appLogin = defineStore('appLogin',  () => {
+export const appLogin = defineStore('appLogin', () => {
 
   const storeAuth = appAuth();
   const storeAlert = appAlert();
@@ -36,10 +36,13 @@ export const appLogin = defineStore('appLogin',  () => {
       const response = await storeAuth.axiosInstance.get(`${server}/auth`);
       const { access, fullname, username, roles, groups } = response.data;
       
-      access === "Authorized" 
-      ? router.push({ name: 'persons' })
-      : router.push({ name: 'login' });
-      
+      if (access === "Authorized") { 
+        router.push({ name: 'login' });
+      } else {
+        hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles]) 
+              ? router.push({ name: 'admin' }) 
+              : router.push({ name: groups[0]['group'] });
+      };
       Object.assign(userData.value, {
         fullName: fullname,
         userName: username,
@@ -125,7 +128,9 @@ export const appLogin = defineStore('appLogin',  () => {
           });
           classifyApp.getClassify();  // Получение списка категорий
 
-          router.push({ name: 'persons' });
+          hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles]) 
+            ? router.push({ name: 'admin' }) 
+            : router.push({ name: groups[0]['group'] });
           break;
 
         case "Overdue":

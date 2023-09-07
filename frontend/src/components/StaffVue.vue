@@ -9,7 +9,7 @@ import AlertMessage from '@layouts/AlertMessage.vue';
 const storeAlert = appAlert();
 
 onMounted(() => {
-  router.push({ name: 'persons' }) // Переход на страницу с кандидатами
+  router.push({ name: 'staffsec' }) // Переход на страницу с кандидатами
 })
 
 </script>

@@ -33,13 +33,13 @@ const router = createRouter({
       component: LoginPage,
     },
     {
-      path: '/index',
-      name: 'index',
+      path: '/staff',
+      name: 'staff',
       component: StaffVue,
       children: [
         {
           path: 'persons',
-          name: 'persons',
+          name: 'staffsec',
           component: PersonPage
         },
         {
@@ -56,11 +56,6 @@ const router = createRouter({
           path: 'information',
           name: 'information',
           component: StatPage
-        },
-        {
-          path: 'contacts',
-          name: 'contacts',
-          component: ContactPage
         }
       ]
     },
@@ -85,6 +80,11 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',  
       name: '404', 
       component: NotFound
+    },
+    {
+      path: 'contacts',
+      name: 'contacts',
+      component: ContactPage
     }
   ],
   history: createWebHistory()

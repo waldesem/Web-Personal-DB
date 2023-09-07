@@ -262,7 +262,7 @@ export const appProfile = defineStore('appProfile', () => {
       storeAlert.setAlert('alert-info', storeAlert.alertText = message === flag 
                                                                 ? `Запись с ID ${id} из таблицы ${message} удалена`
                                                                 : message);
-      flag === 'person' ? router.push({ name: 'persons' }) : getProfile();
+      flag === 'person' ? router.push({ name: 'staffsec' }) : getProfile();
     }
   };
 
@@ -343,7 +343,7 @@ export const appProfile = defineStore('appProfile', () => {
    * @return {void} No return value.
    */
   function redirectMain(): void {
-    router.push({ name: 'persons' })
+    router.push({ name: 'staffsec' })
   };
 
   return {
