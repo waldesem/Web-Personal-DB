@@ -15,12 +15,13 @@ export const appLogin = defineStore('appLogin',  () => {
   const classifyApp = appClassify();
 
   const action = ref('login');
-  
-  // const userData = ref({});
-  const fullName = ref('');
-  const userName = ref('');
-  const userRoles = ref([]);
-  const userGroups = ref([]);
+
+  const userData = ref({
+    fullName: '',
+    userName: '',
+    userRoles: [],
+    userGroups: []
+  });
   
   // Объект с данными из формы входа пользователя
   const loginData = ref({
@@ -39,10 +40,10 @@ export const appLogin = defineStore('appLogin',  () => {
       ? router.push({ name: 'persons' })
       : router.push({ name: 'login' });
       
-      fullName.value = fullname;
-      userName.value = username;
-      userRoles.value = roles;
-      userGroups.value = groups;
+      userData.value.fullName = fullname;
+      userData.value.userName = username;
+      userData.value.userRoles = roles;
+      userData.value.userGroups = groups;
   
       classifyApp.getClassify();  // Получение списка категорий
 
@@ -62,7 +63,7 @@ export const appLogin = defineStore('appLogin',  () => {
    * @return {boolean} Returns true if the user has the specified role, false otherwise.
    */
   function hasRole(role: string): boolean {
-    return userRoles.value.some((r: { role: any; }) => r.role === role);
+    return userData.value.userRoles.some((r: { role: any; }) => r.role === role);
   };
 
   /**
@@ -72,7 +73,7 @@ export const appLogin = defineStore('appLogin',  () => {
    * @return {boolean} Returns true if the user belongs to the specified group, false otherwise.
    */
   function hasGroup(group: string): boolean {
-    return userGroups.value.some((g: { group: any; }) => g.group === group);
+    return userData.value.userGroups.some((g: { group: any; }) => g.group === group);
   };
 
   /**
@@ -117,10 +118,10 @@ export const appLogin = defineStore('appLogin',  () => {
           storeAuth.setRefreshToken(refresh_token);
           storeAuth.setAccessToken(access_token);
 
-          fullName.value = fullname;
-          userName.value = username;
-          userRoles.value = roles;
-          userGroups.value = groups;
+          userData.value.fullName = fullname;
+          userData.value.userName = username;
+          userData.value.userRoles = roles;
+          userData.value.userGroups = groups;
 
           classifyApp.getClassify();  // Получение списка категорий
 
@@ -170,5 +171,5 @@ export const appLogin = defineStore('appLogin',  () => {
     router.push({ name: 'login' });
   };
   
-  return { action, fullName, userName, userRoles, userGroups, loginData, submitData, getAuth, userLogout, hasRole, hasGroup }
+  return { action, userData, loginData, submitData, getAuth, userLogout, hasRole, hasGroup }
 })

@@ -13,6 +13,7 @@ import AdminVue from '@components/AdminVue.vue';
 import UsersListPage from '@pages/UsersListPage.vue';
 import UserPage from '@pages/UserPage.vue';
 import NotFound from '@pages/NotFound.vue';
+import ContactPage from '@pages/ContactPage.vue';
 
 // Маршруты приложения  
 const router = createRouter({
@@ -55,6 +56,11 @@ const router = createRouter({
           path: 'information',
           name: 'information',
           component: StatPage
+        },
+        {
+          path: 'contacts',
+          name: 'contacts',
+          component: ContactPage
         }
       ]
     },

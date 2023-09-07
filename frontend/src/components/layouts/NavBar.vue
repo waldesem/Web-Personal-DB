@@ -47,10 +47,13 @@ const storeProfile = appProfile();
                   <li><a class="dropdown-item" href="#" @click="personsStore.updateMessage('reply')">Очистить</a></li>
                 </ul>
             </li>
+            <li class="nav-item">
+              <router-link :to="{name: 'contact'}" class="nav-link active">Контакты</router-link>
+            </li>
           </ul>                                
           <li class="nav-item dropdown d-flex">
-            <a href="#" class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" :title="storeLogin.fullName">
-              {{ storeLogin.fullName.split(' ').map(item => item.charAt(0)).join('') }}
+            <a href="#" class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" :title="storeLogin.userData.fullName">
+              {{ storeLogin.userData.fullName.split(' ').map(item => item.charAt(0)).join('') }}
               <i class="bi bi-person-circle"></i>
             </a>
             <ul class="dropdown-menu">
@@ -72,7 +75,6 @@ const storeProfile = appProfile();
           <li v-for="(value,  name) in storeClassify.groups" :key="name" :disabled="!storeLogin.hasGroup(name)">
             <router-link :to="{name: name}">{{ value }}</router-link>
           </li>
-          <li><router-link :to="{name: 'contact'}">Контакты</router-link></li>
         </ul>
     </div>
   </div>
