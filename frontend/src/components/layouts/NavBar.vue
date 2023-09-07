@@ -5,8 +5,9 @@
 import { appPersons } from '@/store/persons';
 import { appLogin } from '@/store/login';
 import { appProfile } from '@/store/profile';
+import  { appClassify } from  '@/store/classify'
 
-
+const storeClassify = appClassify();
 const personsStore = appPersons();
 const storeLogin = appLogin();
 const storeProfile = appProfile();
@@ -17,7 +18,7 @@ const storeProfile = appProfile();
   <div v-if="!storeProfile.printPdf" class="container-fluid">
     <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary">
       <div class="container">
-        <a class="navbar-brand" href="#">StaffSec</a>
+        <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu" aria-controls="offcanvasMenu">StaffSec</a>
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
@@ -59,6 +60,21 @@ const storeProfile = appProfile();
         </div>
       </div>
     </nav>
+  </div>
+
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasLabel">Деператамент экономической безопасности</h5>
+      <!--button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button-->
+    </div>
+    <div class="offcanvas-body">
+        <ul>
+          <li v-for="(value,  name) in storeClassify.groups" :key="name" :disabled="!storeLogin.hasGroup(name)">
+            <router-link :to="{name: name}">{{ value }}</router-link>
+          </li>
+          <li><router-link :to="{name: 'contact'}">Контакты</router-link></li>
+        </ul>
+    </div>
   </div>
 </template>
 

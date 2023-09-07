@@ -15,6 +15,8 @@ export const appLogin = defineStore('appLogin',  () => {
   const classifyApp = appClassify();
 
   const action = ref('login');
+  
+  // const userData = ref({});
   const fullName = ref('');
   const userName = ref('');
   const userRoles = ref([]);
