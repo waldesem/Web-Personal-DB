@@ -40,15 +40,14 @@ export const appLogin = defineStore('appLogin',  () => {
       ? router.push({ name: 'persons' })
       : router.push({ name: 'login' });
       
-      userData.value.fullName = fullname;
-      userData.value.userName = username;
-      userData.value.userRoles = roles;
-      userData.value.userGroups = groups;
-  
+      Object.assign(userData.value, {
+        fullName: fullname,
+        userName: username,
+        userRoles: roles,
+        userGroups: groups
+      });
+      
       classifyApp.getClassify();  // Получение списка категорий
-
-      storeAlert.alertAttr = '';
-      storeAlert.alertText = '';
     
     } catch (error) {
       console.error(error)
@@ -118,15 +117,13 @@ export const appLogin = defineStore('appLogin',  () => {
           storeAuth.setRefreshToken(refresh_token);
           storeAuth.setAccessToken(access_token);
 
-          userData.value.fullName = fullname;
-          userData.value.userName = username;
-          userData.value.userRoles = roles;
-          userData.value.userGroups = groups;
-
+          Object.assign(userData.value, {
+            fullName: fullname,
+            userName: username,
+            userRoles: roles,
+            userGroups: groups
+          });
           classifyApp.getClassify();  // Получение списка категорий
-
-          storeAlert.alertAttr = '';
-          storeAlert.alertText = '';
 
           router.push({ name: 'persons' });
           break;

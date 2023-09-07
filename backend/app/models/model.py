@@ -209,7 +209,7 @@ class Workplace(db.Model):
 
 
 class Contact(db.Model):  # создаем общий класс телефонного номера
-    """ Create model for phones"""
+    """ Create model for contacts"""
 
     __tablename__ = 'contacts'
 
@@ -217,6 +217,8 @@ class Contact(db.Model):  # создаем общий класс телефон�
     view = db.Column(db.String(255))
     contact = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
+    connections = db.relationship('Connection', backref='contacts', cascade="all, delete, delete-orphan")
 
 
 class Check(db.Model):  # модель данных проверки кандидатов
@@ -302,3 +304,36 @@ class Inquiry(db.Model):
     officer = db.Column(db.String(25))
     deadline = db.Column(db.Date, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+
+
+class Organization(db.Model):
+    """ Create model for persons inquiries"""
+
+    __tablename__ = 'organizations'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255))
+    regions = db.relationship('Region', backref='organizations', cascade="all, delete, delete-orphan")
+
+
+class Region(db.Model):
+    """ Create model for regions"""
+
+    __tablename__ = 'regions'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    region = db.Column(db.String(255))
+    org_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
+    contacts = db.relationship('Contact', backref='regions', cascade="all, delete, delete-orphan")
+
+
+class Connection(db.Model):
+    """ Create model for persons connections"""
+
+    __tablename__ = 'connections'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    connection = db.Column(db.String(255))
+    name = db.Column(db.String(255))
+    contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'))
+
