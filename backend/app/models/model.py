@@ -47,6 +47,7 @@ class Group(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     group = db.Column(db.String(255), unique=True)
+    connections = db.relationship('Connection', backref='groups', cascade="all, delete, delete-orphan")
 
 
 class Role(db.Model):
@@ -313,16 +314,17 @@ class Organization(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255))
-    regions = db.relationship('Region', backref='organizations', cascade="all, delete, delete-orphan")
+    regions = db.relationship('Location', backref='organizations', cascade="all, delete, delete-orphan")
 
 
-class Region(db.Model):
-    """ Create model for regions"""
+class Location(db.Model):
+    """ Create model for locations"""
 
-    __tablename__ = 'regions'
+    __tablename__ = 'locations'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     region = db.Column(db.String(255))
+    city = db.Column(db.String(255))
     org_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
     contacts = db.relationship('Contact', backref='regions', cascade="all, delete, delete-orphan")
 
@@ -336,4 +338,5 @@ class Connection(db.Model):
     connection = db.Column(db.String(255))
     name = db.Column(db.String(255))
     contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
 
