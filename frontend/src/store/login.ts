@@ -15,6 +15,7 @@ export const appLogin = defineStore('appLogin', () => {
   const classifyApp = appClassify();
 
   const action = ref('login');
+  const pageIdentity = ref('');
 
   const userData = ref({
     fullName: '',
@@ -36,22 +37,23 @@ export const appLogin = defineStore('appLogin', () => {
       const response = await storeAuth.axiosInstance.get(`${server}/auth`);
       const { access, fullname, username, roles, groups } = response.data;
       
-      if (access === "Authorized") { 
+      if (access === "Denied") {
         router.push({ name: 'login' });
+
       } else {
-        hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles]) 
-          ? router.push({ name: 'admin' }) 
+        hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles])
+          ? router.push({ name: 'admin' })
           : router.push({ name: groups[0]['group'] });
+
+        Object.assign(userData.value, {
+          fullName: fullname,
+          userName: username,
+          userRoles: roles,
+          userGroups: groups
+        });
+        classifyApp.getClassify();  // Получение списка категорий
       };
-      Object.assign(userData.value, {
-        fullName: fullname,
-        userName: username,
-        userRoles: roles,
-        userGroups: groups
-      });
-      
-      classifyApp.getClassify();  // Получение списка категорий
-    
+
     } catch (error) {
       console.error(error)
       router.push({ name: 'login' })
@@ -128,10 +130,9 @@ export const appLogin = defineStore('appLogin', () => {
           });
           classifyApp.getClassify();  // Получение списка категорий
 
-          hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles]) 
-            ? router.push({ name: 'admin' }) 
+          hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles])
+            ? router.push({ name: 'admin' })
             : router.push({ name: groups[0]['group'] });
-
           storeAlert.setAlert('alert-success', 'Успешный вход в систему');
           break;
 
@@ -183,5 +184,5 @@ export const appLogin = defineStore('appLogin', () => {
     router.push({ name: 'login' });
   };
   
-  return { action, userData, loginData, submitData, getAuth, userLogout, hasRole, hasGroup }
+  return { action, userData, loginData, pageIdentity, submitData, getAuth, userLogout, hasRole, hasGroup }
 })

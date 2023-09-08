@@ -4,14 +4,15 @@
 import { computed, onBeforeMount } from 'vue';
 import { appPersons } from '@/store/persons';
 import { appClassify } from '@store/classify';
+import { appLogin } from '@/store/login';
 
 const storePersons = appPersons();
 const storeClassify = appClassify();
-
+const storeLogin = appLogin();
 
 // Инициализация списка кандидатов
 onBeforeMount(() => {
-  
+  storeLogin.pageIdentity = 'staffsec';
   storePersons.getCandidates();
 })
 

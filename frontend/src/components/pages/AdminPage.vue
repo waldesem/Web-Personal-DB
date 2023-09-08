@@ -2,12 +2,15 @@
 
 import { onBeforeMount } from 'vue'
 import { storeAdmin } from '@store/admin';
+import { appLogin } from '@store/login';
 import UserForm from '@content/forms/UserForm.vue';
 
 const adminStore = storeAdmin();
+const storeLogin = appLogin();
 
 // Получение списка пользователей
 onBeforeMount(async () => {
+  storeLogin.pageIdentity = 'admin';
   adminStore.getUsers()
 });
 

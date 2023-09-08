@@ -20,11 +20,11 @@ const storeProfile = appProfile();
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             
-            <li v-if="storeLogin.hasRole('admin')" class="nav-item">
+            <li v-if="storeLogin.pageIdentity === 'admin'" class="nav-item">
               <router-link :to="{ name: 'users' }" class="nav-link active" href="#">Пользователи</router-link>
             </li>
 
-            <template v-if="storeLogin.hasGroup('staffsec')">
+            <template v-if="storeLogin.pageIdentity === 'staffsec'">
               <li class="nav-item">
                   <router-link :to="{ name: 'staffsec'}" class="nav-link active">Кандидаты</router-link>
               </li>
@@ -35,8 +35,12 @@ const storeProfile = appProfile();
                   <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
               </li>
             </template>
-            
-            <li v-if="storeMessages.messages.length" class="nav-item dropdown">
+
+            <li v-if="!['login', 'admin'].includes(storeLogin.pageIdentity)" class="nav-item">
+              <router-link :to="{name: 'contacts'}" class="nav-link active">Контакты</router-link>
+            </li>
+
+            <li v-if="storeMessages.messages.length && storeLogin.pageIdentity !== 'login'" class="nav-item dropdown">
               <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
                 <i class="bi bi-envelope-fill"></i>
                 <span class="position-absolute translate-middle badge rounded-pill text-bg-success">{{ storeMessages.messages.length }}</span>
@@ -52,9 +56,6 @@ const storeProfile = appProfile();
                   <div class="dropdown-divider"></div>
                   <li><a class="dropdown-item" href="#" @click="storeMessages.updateMessage('reply')">Очистить</a></li>
                 </ul>
-            </li>
-            <li v-if="storeLogin.userData.userName" class="nav-item">
-              <router-link :to="{name: 'contacts'}" class="nav-link active">Контакты</router-link>
             </li>
           </ul>                                
           <li class="nav-item dropdown d-flex">

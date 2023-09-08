@@ -8,6 +8,7 @@ import LoginForm from '@content/forms/LoginForm.vue';
 const storeLogin = appLogin();
 const storeAlert = appAlert();
 
+storeLogin.pageIdentity = 'login';
 storeAlert.alertAttr = 'alert-info';
 storeAlert.alertText = 'Авторизуйтесь для входа в систему';
 
