@@ -170,6 +170,14 @@ export const appLogin = defineStore('appLogin', () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 
+    Object.keys(userData.value).forEach(key => {
+      delete userData.value[key as keyof typeof userData.value];
+    });
+
+    Object.keys(loginData.value).forEach(key => {
+      delete loginData.value[key as keyof typeof loginData.value];
+    });
+    
     router.push({ name: 'login' });
   };
   

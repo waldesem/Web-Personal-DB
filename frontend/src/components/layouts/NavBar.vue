@@ -53,8 +53,8 @@ const storeProfile = appProfile();
                   <li><a class="dropdown-item" href="#" @click="storeMessages.updateMessage('reply')">Очистить</a></li>
                 </ul>
             </li>
-            <li class="nav-item">
-              <router-link :to="{name: 'contact'}" class="nav-link active">Контакты</router-link>
+            <li v-if="storeLogin.userData.userName" class="nav-item">
+              <router-link :to="{name: 'contacts'}" class="nav-link active">Контакты</router-link>
             </li>
           </ul>                                
           <li class="nav-item dropdown d-flex">
