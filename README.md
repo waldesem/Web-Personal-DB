@@ -80,7 +80,7 @@ export FLASK_APP=app
 export FLASK_ENV=testing  # create a testing environment and SQLite database (optional)
 flask run
 ```
-Database tables creates automatically. Admin user on default has name admin and the same password.
+Database tables creates automatically. Admin user on default has name admin and the password 'administrator'.
 Change it in first login to application. Regions gets from the classify file
 Then you can start the app with Gunicorn server:
 ```

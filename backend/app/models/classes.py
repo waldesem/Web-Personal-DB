@@ -13,8 +13,7 @@ class Regions(Enum):
 class Groups(Enum):
     """ Groups """
     staffsec = 'Центр кадровой безопасности'
-    creditsec = 'Центр безопасности кредитования'
-
+    
 
 class Roles(Enum):
     """ Roles """

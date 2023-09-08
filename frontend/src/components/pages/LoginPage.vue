@@ -16,7 +16,7 @@ storeAlert.alertText = 'Авторизуйтесь для входа в сист
 <template>
   <div class="container px-5 py-5 w-50">
     <div class="text-primary text-opacity-75 py-5">
-      <h2>StaffSec - кадровая безопасность</h2>
+      <h2>Деператамент экономической безопасности</h2>
     </div>
     <div class="border border-primary px-5 py-5">
       <AlertMessage />

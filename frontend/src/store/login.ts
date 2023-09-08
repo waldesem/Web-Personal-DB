@@ -131,6 +131,8 @@ export const appLogin = defineStore('appLogin', () => {
           hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles]) 
             ? router.push({ name: 'admin' }) 
             : router.push({ name: groups[0]['group'] });
+
+          storeAlert.setAlert('alert-success', 'Успешный вход в систему');
           break;
 
         case "Overdue":
