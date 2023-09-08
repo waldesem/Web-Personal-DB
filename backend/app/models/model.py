@@ -218,7 +218,7 @@ class Contact(db.Model):  # создаем общий класс телефон�
     view = db.Column(db.String(255))
     contact = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
+    region_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
     connections = db.relationship('Connection', backref='contacts', cascade="all, delete, delete-orphan")
 
 
@@ -326,7 +326,7 @@ class Location(db.Model):
     region = db.Column(db.String(255))
     city = db.Column(db.String(255))
     org_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
-    contacts = db.relationship('Contact', backref='regions', cascade="all, delete, delete-orphan")
+    contacts = db.relationship('Contact', backref='locations', cascade="all, delete, delete-orphan")
 
 
 class Connection(db.Model):
