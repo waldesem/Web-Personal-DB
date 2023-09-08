@@ -13,8 +13,8 @@ const profileStore = appProfile();
 <template>
   <div v-if="!profileStore.printPdf" class="container py-5">
     <footer class="d-flex flex-wrap justify-content-around align-items-center py-3 my-4 border-top">
-      <p v-if="loginStore.pageIdentity !== 'admin'">
-        <router-link :to="{ name: 'admin' }">Admin</router-link>
+      <p v-if="loginStore.pageIdentity === 'admin'">
+        <router-link :to="{ name: 'users' }">Admin</router-link>
       </p>
       <p><a :href="`${server}/docs`" target=”_blank”>OpenAPI</a></p>
       <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>
