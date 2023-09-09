@@ -1,3 +1,14 @@
+<template>
+  <div class="py-3">
+    <div class="card" style="width: 18rem;">
+      <img class="card-img-top" :src="`${storeProfile.anketa.resume.path}/images/person.jpg`">
+    </div>
+    <form enctype="multipart/form-data" @change="submitPhoto">
+      <input id="file" name="file" type="file" accept="image/*" ref="file">
+    </form>
+  </div>
+</template>
+
 <script setup lang="ts">
 // компонент для загрузки и отображения фото пользователя
 
@@ -13,7 +24,6 @@ const storeProfile = appProfile();
 
 // Файл с изображением
 const file = ref(null);
-
 
 /**
  * Submits a file to the server.
@@ -50,14 +60,3 @@ async function submitPhoto(event: Event): Promise<void> {
 };
 
 </script>
-
-<template>
-  <div class="py-3">
-    <div class="card" style="width: 18rem;">
-      <img class="card-img-top" src="image">
-    </div>
-    <form enctype="multipart/form-data" @change="submitPhoto">
-      <input id="file" name="file" type="file" accept="image/*" ref="file">
-    </form>
-  </div>
-</template>
