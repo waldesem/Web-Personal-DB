@@ -326,6 +326,7 @@ class Connection(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255))
+    comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     local_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
     contacts = db.relationship('Contact', backref='connections', cascade="all, delete, delete-orphan")

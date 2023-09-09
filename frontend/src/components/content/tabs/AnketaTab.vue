@@ -124,11 +124,14 @@ const storeClassify = appClassify();
       <p v-else >Данные отсутствуют</p>
     </template>
 
-
-    <a class="btn btn-link" @click="storeProfile.flag === 'document' ? storeProfile.flag = '' : storeProfile.flag = 'document'; 
-                                    storeProfile.flag === 'document' ? storeProfile.action = 'create' : storeProfile.action = ''; 
-                                    storeProfile.clearItem" 
-      :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить документ'">Документы</a>
+    <h6>Документы
+      <a class="btn btn-link" @click="storeProfile.flag === 'document' ? storeProfile.flag = '' : storeProfile.flag = 'document'; 
+                                      storeProfile.flag === 'document' ? storeProfile.action = 'create' : storeProfile.action = ''; 
+                                      storeProfile.clearItem" 
+        :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить документ'">
+        <i :class="storeProfile.flag === 'document' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      </a>
+    </h6>
     <template v-if="storeProfile.flag === 'document'">
       <DocumentForm />
     </template>
@@ -164,11 +167,15 @@ const storeClassify = appClassify();
       </table>
       <p v-else >Данные отсутствуют</p>
     </template>
-      
-    <a class="btn btn-link" @click="storeProfile.flag === 'address' ? storeProfile.flag = '' : storeProfile.flag = 'address'; 
-                                    storeProfile.flag === 'address' ? storeProfile.action = 'create' : storeProfile.action = ''; 
-                                    storeProfile.clearItem" 
-                                    :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить адрес'">Адрес</a>
+    
+    <h6>Адрес
+      <a class="btn btn-link" @click="storeProfile.flag === 'address' ? storeProfile.flag = '' : storeProfile.flag = 'address'; 
+                                      storeProfile.flag === 'address' ? storeProfile.action = 'create' : storeProfile.action = ''; 
+                                      storeProfile.clearItem" 
+                                      :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить адрес'">
+        <i :class="storeProfile.flag === 'address' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      </a>
+    </h6>
     <template v-if="storeProfile.flag === 'address'">
       <AddressForm />
     </template>
@@ -202,10 +209,14 @@ const storeClassify = appClassify();
       <p v-else >Данные отсутствуют</p>
     </template>
 
-    <a class="btn btn-link" @click="storeProfile.flag === 'contact' ? storeProfile.flag = '' : storeProfile.flag = 'contact'; 
-                                    storeProfile.flag === 'contact' ? storeProfile.action = 'create' : storeProfile.action = ''; 
-                                    storeProfile.clearItem" 
-                                    :title="storeProfile.flag === 'contact' ? 'Закрыть форму' : 'Добавить контакт'">Контакты</a>
+    <h6>Контакты
+      <a class="btn btn-link" @click="storeProfile.flag === 'contact' ? storeProfile.flag = '' : storeProfile.flag = 'contact'; 
+                                      storeProfile.flag === 'contact' ? storeProfile.action = 'create' : storeProfile.action = ''; 
+                                      storeProfile.clearItem" 
+                                      :title="storeProfile.flag === 'contact' ? 'Закрыть форму' : 'Добавить контакт'">
+        <i :class="storeProfile.flag === 'contact' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      </a>
+    </h6>
     <template v-if="storeProfile.flag === 'contact'">
       <ContactForm />
     </template>
@@ -238,10 +249,14 @@ const storeClassify = appClassify();
       <p v-else >Данные отсутствуют</p>
     </template>
 
-    <a class="btn btn-link" @click="storeProfile.flag === 'workplace' ? storeProfile.flag = '' : storeProfile.flag = 'workplace'; 
-                                    storeProfile.flag === 'workplace' ? storeProfile.action = 'create' : storeProfile.action = ''; 
-                                    storeProfile.clearItem" 
-                                    :title="storeProfile.flag === 'workplace' ? 'Закрыть форму' : 'Добавить работу'">Работа</a>
+    <h6>Работа
+      <a class="btn btn-link" @click="storeProfile.flag === 'workplace' ? storeProfile.flag = '' : storeProfile.flag = 'workplace'; 
+                                      storeProfile.flag === 'workplace' ? storeProfile.action = 'create' : storeProfile.action = ''; 
+                                      storeProfile.clearItem" 
+                                      :title="storeProfile.flag === 'workplace' ? 'Закрыть форму' : 'Добавить работу'">
+        <i :class="storeProfile.flag === 'workplace' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      </a>
+    </h6>
     <template v-if="storeProfile.flag === 'workplace'">
       <WorkplaceForm />
     </template>
@@ -279,10 +294,14 @@ const storeClassify = appClassify();
       <p v-else >Данные отсутствуют</p>
     </template>
 
-    <a class="btn btn-link" @click="storeProfile.flag === 'relation' ? storeProfile.flag = '' : storeProfile.flag = 'relation'; 
-                                    storeProfile.flag === 'relation' ? storeProfile.action = 'create' : storeProfile.action = ''; 
-                                    storeProfile.clearItem" 
-                                    :title="storeProfile.flag === 'relation' ? 'Закрыть форму' : 'Добавить связь'">Связи</a>
+    <h6>Связи
+      <a class="btn btn-link" @click="storeProfile.flag === 'relation' ? storeProfile.flag = '' : storeProfile.flag = 'relation'; 
+                                      storeProfile.flag === 'relation' ? storeProfile.action = 'create' : storeProfile.action = ''; 
+                                      storeProfile.clearItem" 
+                                      :title="storeProfile.flag === 'relation' ? 'Закрыть форму' : 'Добавить связь'">
+        <i :class="storeProfile.flag === 'relation' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      </a>
+    </h6>
     <template v-if="storeProfile.flag === 'relation'">
       <RelationForm />
     </template>
