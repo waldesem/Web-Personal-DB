@@ -96,7 +96,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
       storeAlert.setAlert(resp[user as keyof typeof resp][0],
                           resp[user as keyof typeof resp][1]);
       // Обновление страницы либо редирект на страницу списка пользователей
-      user !== 'delete' ? viewUser(userId.value) : router.push({ name: 'users' })
+      user !== 'delete' ? viewUser(userId.value) : router.push({ name: 'users', params: { group: 'admins' } });
       
       } catch (error) {
       console.error(error);

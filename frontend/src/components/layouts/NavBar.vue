@@ -3,9 +3,7 @@
 import { appMessages } from '@/store/messages';
 import { appLogin } from '@/store/login';
 import { appProfile } from '@/store/profile';
-import { appClassify } from  '@/store/classify';
 
-const storeClassify = appClassify();
 const storeMessages = appMessages();
 const storeLogin = appLogin();
 const storeProfile = appProfile();
@@ -14,30 +12,30 @@ const storeProfile = appProfile();
 
 <template>
   <div v-if="!storeProfile.printPdf" class="container-fluid">
-    <nav :class="storeLogin.hasRole('admin') ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
+    <nav :class="storeLogin.pageIdentity ==='admin' ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
       <div class="container">
         <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu" aria-controls="offcanvasMenu">ДЭБ</a>
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             
-            <li v-if="storeLogin.pageIdentity === 'admin'" class="nav-item">
-              <router-link :to="{ name: 'users' }" class="nav-link active" href="#">Пользователи</router-link>
+            <li v-if="storeLogin.pageIdentity === 'admins'" class="nav-item">
+              <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">Пользователи</router-link>
             </li>
 
             <template v-if="storeLogin.pageIdentity === 'staffsec'">
               <li class="nav-item">
-                  <router-link :to="{ name: 'staffsec'}" class="nav-link active">Кандидаты</router-link>
+                  <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" class="nav-link active">Кандидаты</router-link>
               </li>
               <li class="nav-item">
-                  <router-link :to="{ name: 'resume' }" class="nav-link active">Создать</router-link>
+                  <router-link :to="{ name: 'resume', params: { group: 'staffsec' } }" class="nav-link active">Создать</router-link>
               </li>
               <li class="nav-item">
-                  <router-link :to="{ name: 'information' }" class="nav-link active">Информация</router-link>
+                  <router-link :to="{ name: 'information', params: { group: 'staffsec' } }" class="nav-link active">Информация</router-link>
               </li>
             </template>
 
-            <li v-if="!['login', 'admin'].includes(storeLogin.pageIdentity)" class="nav-item">
-              <router-link :to="{name: 'contacts'}" class="nav-link active">Контакты</router-link>
+            <li v-if="!['login', 'admins'].includes(storeLogin.pageIdentity)" class="nav-item">
+              <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}" class="nav-link active">Контакты</router-link>
             </li>
 
             <li v-if="storeMessages.messages.length && storeLogin.pageIdentity !== 'login'" class="nav-item dropdown">
@@ -59,8 +57,8 @@ const storeProfile = appProfile();
             </li>
           </ul>                                
           <li class="nav-item dropdown d-flex">
-            <a href="#" class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" :title="storeLogin.userData.fullName">
-              {{ storeLogin.userData.fullName.split(' ').map(item => item.charAt(0)).join('') }}
+            <a href="#" class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" :title="storeLogin.userData.fullName ? storeLogin.userData.fullName : ''">
+              {{ storeLogin.userData.fullName ? storeLogin.userData.fullName.split(' ').map(item => item.charAt(0)).join('') : '' }}
               <i class="bi bi-person-circle"></i>
             </a>
             <ul class="dropdown-menu">
@@ -75,12 +73,15 @@ const storeProfile = appProfile();
   <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="offcanvasLabel">Деператамент экономической безопасности</h5>
-      <!--button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button-->
     </div>
     <div class="offcanvas-body">
         <ul>
-          <li v-for="(value,  name) in storeClassify.groups" :key="name" :disabled="!storeLogin.hasGroup(name)">
-            <router-link :to="{name: name}">{{ value }}</router-link>
+          <li v-if="storeLogin.hasGroup('admins')" class="mb-4">
+            <router-link :to="{ name: 'users', params: { group: 'admins' } }">Администраторы</router-link>
+          </li>
+          <li class="mb-4">
+            <router-link v-if="storeLogin.hasGroup('staffsec')" :to="{ name: 'persons', params: { group: 'staffsec' } }">Центр кадровой безопасности</router-link>
+            <p v-else>Центр кадровой безопасности</p>
           </li>
         </ul>
     </div>

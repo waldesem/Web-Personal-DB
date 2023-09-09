@@ -12,6 +12,7 @@ class Regions(Enum):
 
 class Groups(Enum):
     """ Groups """
+    admins = 'Администратор системы'
     staffsec = 'Центр кадровой безопасности'
     
 

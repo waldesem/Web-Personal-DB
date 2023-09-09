@@ -3,6 +3,7 @@ import { appAuth } from '@store/auth';
 import server from '@/store/server';
 import axios from 'axios';
 import App from '@/App.vue';
+import GroupVue from '@/components/GroupVue.vue';
 import LoginPage from '@pages/LoginPage.vue';
 import PersonPage from '@pages/PersonPage.vue';
 import ResumePage from '@pages/ResumePage.vue';
@@ -25,39 +26,46 @@ const router = createRouter({
       component: LoginPage,
     },
     {
-      path: '/persons',
-      name: 'staffsec',
-      component: PersonPage
-    },
-    {
-      path: '/resume',
-      name: 'resume',
-      component: ResumePage
-    },
-    {
-      path: '/profile/:id',
-      name: 'profile',
-      component: ProfilePage
-    },
-    {
-      path: '/information',
-      name: 'information',
-      component: StatPage
-    },
-    {
-      path: '/users',
-      name: 'users',
-      component: AdminPage
-    },
-    {
-      path: '/user/:id',
-      name: 'shape',
-      component: UserPage,
-    },
-    {
-      path: '/contacts',
-      name: 'contacts',
-      component: ContactPage
+      path: '/:group',
+      name: 'group',
+      component: GroupVue,
+      children: [
+        {
+          path: 'persons',
+          name: 'persons',
+          component: PersonPage
+        },
+        {
+          path: 'resume',
+          name: 'resume',
+          component: ResumePage
+        },
+        {
+          path: 'profile/:id',
+          name: 'profile',
+          component: ProfilePage
+        },
+        {
+          path: 'information',
+          name: 'information',
+          component: StatPage
+        },
+        {
+          path: 'users',
+          name: 'users',
+          component: AdminPage
+        },
+        {
+          path: 'user/:id',
+          name: 'shape',
+          component: UserPage,
+        },
+        {
+          path: 'contacts',
+          name: 'contacts',
+          component: ContactPage
+        },
+      ]
     },
     {
       path: '/:pathMatch(.*)*',  

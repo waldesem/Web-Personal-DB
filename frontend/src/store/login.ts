@@ -36,7 +36,7 @@ export const appLogin = defineStore('appLogin', () => {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/auth`);
       const { access, fullname, username, roles, groups } = response.data;
-      
+
       Object.assign(userData.value, {
         fullName: fullname,
         userName: username,
@@ -48,8 +48,8 @@ export const appLogin = defineStore('appLogin', () => {
         router.push({ name: 'login' });
       } else {
         hasRole('admin')
-          ? router.push({ name: 'users' })
-          : router.push({ name: groups[0]['group'] });
+          ? router.push({ name: 'users', params: { group: 'admins' } })
+          : router.push({ name: 'persons', params: { group: userData.value.userGroups[0]['group'] } });
           classifyApp.getClassify();  // Получение списка категорий
       };
 
@@ -129,9 +129,9 @@ export const appLogin = defineStore('appLogin', () => {
           });
           classifyApp.getClassify();  // Получение списка категорий
 
-          hasRole(classifyApp.roles['admin' as keyof typeof classifyApp.roles])
-            ? router.push({ name: 'users' })
-            : router.push({ name: groups[0]['group'] });
+          hasRole('admin')
+            ? router.push({ name: 'users', params: { group: 'admins' } })
+            : router.push({ name: 'persons', params: { group: Object.keys(groups)[0] } });
           storeAlert.setAlert('alert-success', 'Успешный вход в систему');
           break;
 

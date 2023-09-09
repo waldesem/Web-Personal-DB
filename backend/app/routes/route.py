@@ -90,7 +90,7 @@ def get_messages(flag):
 
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 def index(flag, page):
     """
@@ -149,7 +149,7 @@ def index(flag, page):
 
 
 @bp.get('/profile/<int:person_id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @bp.output(ProfileSchema)
 def get_profile(person_id):
@@ -190,7 +190,7 @@ def get_profile(person_id):
 
 
 @bp.post('/anketa/upload')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 def upload_file():
     """
@@ -209,7 +209,7 @@ def upload_file():
 
 
 @bp.post('/resume/<action>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.input(PersonSchema)
 @bp.doc(hide=True)
 def post_resume(action, json_data):
@@ -268,7 +268,7 @@ def add_resume(resume: dict, location_id, action):
 
 
 @bp.post('/profile/<table>/<action>/<int:id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 def post_anketa_item(table, action, id):
     """
@@ -307,7 +307,7 @@ def post_anketa_item(table, action, id):
 
 
 @bp.post('/profile/location/update/<int:id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 def post_location(id):
     """
@@ -330,7 +330,7 @@ def post_location(id):
 
 
 @bp.post('/photo/upload/<int:person_id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 def upload_photo(person_id):
     """
@@ -367,7 +367,7 @@ def upload_photo(person_id):
 
 
 @bp.get('/anketa/status/<int:person_id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 def patch_status(person_id: int):
     """
@@ -386,7 +386,7 @@ def patch_status(person_id: int):
 
 
 @bp.get('/anketa/send/<int:person_id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 def send_resume(person_id):
     """
@@ -446,7 +446,7 @@ def create_folders(person_id, fullname, folder_name):
 
 
 @bp.get('/check/add/<int:person_id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @jwt_required()
 def add_check(person_id):
@@ -471,7 +471,7 @@ def add_check(person_id):
 
 
 @bp.post('/profile/check/<action>/<int:id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @bp.input(CheckSchema)
 def post_check(action, id, json_data):
@@ -523,7 +523,7 @@ def post_check(action, id, json_data):
 
 
 @bp.post('/profile/registry/<action>/<int:id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @roles_required(Roles.superuser.value)
 @bp.input(RegistrySchema)
 @bp.doc(hide=True)
@@ -577,7 +577,7 @@ def post_registry(action, id, json_data):
 
 
 @bp.post('/profile/poligraf/<action>/<int:id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @bp.input(PoligrafSchema)
 def post_poligraf(action, id, json_data):
@@ -603,7 +603,7 @@ def post_poligraf(action, id, json_data):
 
 
 @bp.post('/profile/investigation/<action>/<int:id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @bp.input(InvestigationSchema)
 def post_investigation(action, id, json_data):
@@ -627,7 +627,7 @@ def post_investigation(action, id, json_data):
 
 
 @bp.post('/profile/inquiry/<action>/<id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @bp.input(InquirySchema)
 def post_inquiry(action, id, json_data):
@@ -649,7 +649,7 @@ def post_inquiry(action, id, json_data):
  
 
 @bp.delete('/profile/<item>/delete/<int:item_id>')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @jwt_required()
 def delete_item(item, item_id):
@@ -690,7 +690,7 @@ def delete_item(item, item_id):
     
 
 @bp.post('/information')
-@group_required(Groups.staffsec.value)
+@group_required(Groups.staffsec.name)
 @bp.doc(hide=True)
 @jwt_required()
 def post_information():

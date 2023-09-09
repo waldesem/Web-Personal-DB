@@ -2,15 +2,15 @@
 
 import { onBeforeMount } from 'vue'
 import { storeAdmin } from '@store/admin';
-import { appLogin } from '@store/login';
+//import { appLogin } from '@store/login';
 import UserForm from '@content/forms/UserForm.vue';
 
 const adminStore = storeAdmin();
-const storeLogin = appLogin();
+//const storeLogin = appLogin();
 
 // Получение списка пользователей
 onBeforeMount(async () => {
-  storeLogin.pageIdentity = 'admin';
+  //storeLogin.pageIdentity = 'admin';
   adminStore.getUsers()
 });
 
@@ -36,7 +36,7 @@ onBeforeMount(async () => {
             <td>{{ user["id" as keyof typeof user] }}</td>
             <td>{{ user["fullname" as keyof typeof user] }}</td>
             <td>
-              <router-link :to="{ name: 'shape', params: {id: user['id' as keyof typeof user]} }">
+              <router-link :to="{ name: 'shape', params: { group: 'admins', id: user['id' as keyof typeof user]} }">
                 {{ user["username" as keyof typeof user]}}</router-link>
             </td>
             <td>{{ new Date(user["pswd_create" as keyof typeof user]).toLocaleString('ru-RU') }}</td>

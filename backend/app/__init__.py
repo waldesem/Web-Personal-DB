@@ -37,8 +37,8 @@ def create_app():
                 
         groups = db.session.query(Group.group).all()
         for grp in Groups:
-            if not grp.value in [gr[0] for gr in groups]:
-                db.session.add(Group(group=grp.value)) 
+            if not grp.name in [gr[0] for gr in groups]:
+                db.session.add(Group(group=grp.name)) 
         
         roles = db.session.query(Role.role).all()
         for actor in Roles:
@@ -54,6 +54,7 @@ def create_app():
             db.session.add(new_admin)
             db.session.flush()            
             new_admin.roles.append(db.session.query(Role).filter_by(role=Roles.admin.value).first())
+            new_admin.groups.append(db.session.query(Group).filter_by(group=Groups.admins.name).first())
             db.session.add(new_admin)
             
         db.session.commit()

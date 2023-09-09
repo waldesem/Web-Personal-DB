@@ -14,21 +14,21 @@ const storeClassify = appClassify();
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="fullname">Имя пользователя:</label>
         <div class="col-lg-10">
-          <input autocomplete="fullname" class="form-control" minlength="3" maxlength="250" name="fullname" 
+          <input autocomplete="fullname" class="form-control" minlength="" maxlength="250" name="fullname" 
               required type="text" v-model="adminStore.profile.fullname" placeholder="Петров Петр Петрович" pattern="[a-zA-Zа-яА-Я ]+">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="username">Учетная запись:</label>
         <div class="col-lg-10">
-          <input :disabled="adminStore.action === 'edit'" autocomplete="username" class="form-control" minlength="3" maxlength="250" name="username" 
-              required type="text" v-model="adminStore.profile.username" placeholder="petrov" pattern="[a-z]+">
+          <input :disabled="adminStore.action === 'edit'" autocomplete="username" class="form-control" minlength="8" maxlength="250" name="username" 
+              required type="text" v-model="adminStore.profile.username" placeholder="petrovich (min 8, max 16)" pattern="[a-z]+">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="email">Электронная почта:</label>
         <div class="col-lg-10">
-          <input autocomplete="email" class="form-control" minlength="3" maxlength="250" name="email" 
+          <input autocomplete="email" class="form-control" name="email" 
               required type="email" placeholder="petrov@petrov.ru" v-model="adminStore.profile.email">
         </div>
       </div>

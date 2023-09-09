@@ -84,10 +84,14 @@ const storeClassify = appClassify();
       <p v-else >Данные отсутствуют</p>
     </template>
         
-    <a class="btn btn-link" @click="storeProfile.flag === 'staff' ? storeProfile.flag = '' : storeProfile.flag = 'staff'; 
+    <h6>Должности
+      <a class="btn btn-link" @click="storeProfile.flag === 'staff' ? storeProfile.flag = '' : storeProfile.flag = 'staff'; 
                                     storeProfile.flag === 'staff' ? storeProfile.action = 'create' : storeProfile.action = ''; 
                                     storeProfile.clearItem" 
-                                    :title="storeProfile.flag === 'staff' ? 'Закрыть форму' : 'Добавить должность'">Должности</a>
+                                    :title="storeProfile.flag === 'staff' ? 'Закрыть форму' : 'Добавить должность'">
+        <i :class="storeProfile.flag === 'staff' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      </a>
+    </h6>
     <template v-if="storeProfile.flag === 'staff'">
       <StaffForm />
     </template>
@@ -307,7 +311,7 @@ const storeClassify = appClassify();
           <tr><td>Тип связи</td><td>{{ tbl['relation'] }}</td></tr>
           <tr>
             <td>Связь</td>
-            <td><router-link v-if="tbl['relation_id']" :to="{ name: 'profile', params: {id: String(tbl['relation_id'])} }">
+            <td><router-link v-if="tbl['relation_id']" :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }">
               Связь ID #{{ tbl['relation_id'] }}</router-link></td>
           </tr>
         </tbody>

@@ -4,15 +4,15 @@
 import { computed, onBeforeMount } from 'vue';
 import { appPersons } from '@/store/persons';
 import { appClassify } from '@store/classify';
-import { appLogin } from '@/store/login';
+//import { appLogin } from '@/store/login';
 
 const storePersons = appPersons();
 const storeClassify = appClassify();
-const storeLogin = appLogin();
+//const storeLogin = appLogin();
 
 // Инициализация списка кандидатов
 onBeforeMount(() => {
-  storeLogin.pageIdentity = 'staffsec';
+  //storeLogin.pageIdentity = 'staffsec';
   storePersons.getCandidates();
 })
 
@@ -79,7 +79,7 @@ const header = computed(() => {
             <td>{{ candidate["id"] }}</td>
             <td>{{ storeClassify.regions[candidate["region_id"]] }}</td>
             <td>
-              <router-link :to="{ name: 'profile', params: { id: candidate['id'] } }" target="_blank">
+              <router-link :to="{ name: 'profile', params: { group: 'staffsec',  id: candidate['id'] } }">
                 {{ candidate["fullname"] }}
               </router-link>
             </td>

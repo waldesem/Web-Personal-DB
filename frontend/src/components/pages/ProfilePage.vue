@@ -14,6 +14,7 @@ import InquiryTab from '@content/tabs/InquiryTab.vue';
 
 const storeAlert = appAlert();
 const storeProfile = appProfile();
+
 const route = useRoute();
 storeProfile.candId = route.params.id as string;
 

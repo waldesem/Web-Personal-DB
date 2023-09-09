@@ -45,7 +45,7 @@ const isBlocked = computed(() => {
           <tr><td>Группы</td>
             <td>
               <ul v-for="(group, index) in adminStore.profile.groups" :key=index>
-                <li>{{ group['group'] }}
+                <li>{{ storeClassify.groups[group['group']] }}
                   <a href="#" @click="adminStore.editGroupRole('group', 'remove', group['group'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
@@ -55,7 +55,7 @@ const isBlocked = computed(() => {
                 <select class="form-select" id="group" name="group" 
                     v-model="adminStore.orRoleGroup" @change="adminStore.editGroupRole('group', 'add')">
                   <option value="" selected>Добавить группу</option>
-                  <option v-for="(val, name) in storeClassify.groups" :key="name" :value="val">
+                  <option v-for="(val, name) in storeClassify.groups" :key="name" :value="name">
                     {{ val }}</option>
                 </select>
               </form>

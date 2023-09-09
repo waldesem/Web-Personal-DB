@@ -11,7 +11,7 @@ export const appClassify = defineStore('appClassify',  () => {
   const conclusion = ref({});
   const decision = ref({});
   const category = ref({});
-  const groups = ref({});
+  const groups = ref<{ [key: string]: any }>({});
   const roles = ref({});
   
   async function getClassify() {
