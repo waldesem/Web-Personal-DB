@@ -13,7 +13,7 @@ from werkzeug.exceptions import BadRequest
 from . import bp
 from . login import roles_required, group_required
 from ..utils.excel import ExcelFile, resume_data
-from ..models.model import User, db, Person, Staff, Document, Address, Contact, Workplace, \
+from ..models.model import db, cache,  User, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
 from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
@@ -28,6 +28,7 @@ bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 @bp.get('/', defaults={'path': ''})
 @bp.get('/<path:path>')
 @bp.get('/index/profile/<path:path>')
+@cache.cached(timeout=50)
 @bp.doc(hide=True)
 def main(path=''):
     """
@@ -44,6 +45,7 @@ def main(path=''):
     
     
 @bp.get('/classify')
+@cache.cached(timeout=50)
 @bp.doc(hide=True)
 def get_classes():
     """
@@ -91,6 +93,7 @@ def get_messages(flag):
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
 @group_required(Groups.staffsec.name)
+@cache.cached(timeout=50)
 @bp.doc(hide=True)
 def index(flag, page):
     """
@@ -150,6 +153,7 @@ def index(flag, page):
 
 @bp.get('/profile/<int:person_id>')
 @group_required(Groups.staffsec.name)
+@cache.cached(timeout=50)
 @bp.doc(hide=True)
 @bp.output(ProfileSchema)
 def get_profile(person_id):

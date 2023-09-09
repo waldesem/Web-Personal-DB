@@ -3,7 +3,7 @@ from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_cors import CORS
 
-from .models.model import User, Region, Role, Group, db
+from .models.model import User, Region, Role, Group, db, cache
 from .models.classes import Roles, Groups, Regions
 from .models.schema import  ma
 from .routes.login import jwt
@@ -21,6 +21,7 @@ def create_app():
     db.init_app(app)
     ma.init_app(app)
     jwt.init_app(app)
+    cache.init_app(app)
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
 

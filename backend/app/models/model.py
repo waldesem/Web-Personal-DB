@@ -1,11 +1,14 @@
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_caching import Cache
 
 from .classes import Category, Decisions, Status
 
 
 db = SQLAlchemy()
+cache = Cache()
+
 
 def default_time():
     """
@@ -78,9 +81,11 @@ class User(db.Model):
     roles = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy='dynamic'))
     groups = db.relationship('Group', secondary=user_groups, backref=db.backref('users', lazy='dynamic'))
    
+    @cache.memoize(60)
     def has_group(self, group):
         return any(g.group == group for g in self.groups)
-        
+    
+    @cache.memoize(60)
     def has_role(self, role):
         return any(r.role == role for r in self.roles)
     
