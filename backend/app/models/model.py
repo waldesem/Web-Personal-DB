@@ -100,15 +100,6 @@ class Report(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
-class TokenBlocklist(db.Model):
-    """ Create model for tokens"""
-    
-    __tablename__ = 'tokens'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    jti = db.Column(db.String(36), nullable=False)
-    created_at = db.Column(db.DateTime, default= default_time, nullable=False)
-
 class Person(db.Model):
     """ Create model for persons dates"""
 
@@ -339,4 +330,3 @@ class Connection(db.Model):
     local_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
     contacts = db.relationship('Contact', backref='connections', cascade="all, delete, delete-orphan")
     
-

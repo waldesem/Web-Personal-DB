@@ -2,32 +2,33 @@ from datetime import datetime
 from functools import wraps
 
 import bcrypt
-from flask import abort
+import redis
+from flask import current_app, abort
 from flask_jwt_extended import JWTManager, current_user, \
     create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
 
 from . import bp
-from ..models.model import TokenBlocklist, Report, User, db
+from ..models.model import  Report, User, db
 from ..models.schema import LoginSchema, UserSchema
 from ..models.classes import Roles
 
 jwt = JWTManager()
 
 
-@jwt.token_in_blocklist_loader
-def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
-    """
-    Check if a JWT token is revoked.
-    Parameters:
-        jwt_header (str): The JWT header containing information about the token.
-        jwt_payload (dict): The JWT payload containing information about the token.
-    Returns:
-        bool: True if the token is revoked, False otherwise.
-    """
-    jti = jwt_payload["jti"]
-    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+# Setup our redis connection for storing the blocklisted tokens. You will probably
+# want your redis instance configured to persist data to disk, so that a restart
+# does not cause your application to forget that a JWT was revoked.
+jwt_redis_blocklist = redis.StrictRedis(
+    host="localhost", port=6379, db=0, decode_responses=True
+)
 
-    return token is not None
+
+# Callback function to check if a JWT exists in the redis blocklist
+@jwt.token_in_blocklist_loader
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+    jti = jwt_payload["jti"]
+    token_in_redis = jwt_redis_blocklist.get(jti)
+    return token_in_redis is not None
 
 
 @jwt.user_identity_loader
@@ -152,8 +153,8 @@ def logout():
     - `access`: A string representing the access level, which is set to 'Default' after successful logout.
     """
     jti = get_jwt()["jti"]
-    db.session.add(TokenBlocklist(jti=jti))
-    db.session.commit()
+    access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+    jwt_redis_blocklist.set(jti, "", ex=access_expires)
     return {'access': 'Default'}
 
 
