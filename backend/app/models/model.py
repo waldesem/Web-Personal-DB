@@ -47,7 +47,7 @@ class Group(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     group = db.Column(db.String(255), unique=True)
-    connections = db.relationship('Connection', backref='groups', cascade="all, delete, delete-orphan")
+    organizations = db.relationship('Organization', backref='organizations')
 
 
 class Role(db.Model):
@@ -218,8 +218,7 @@ class Contact(db.Model):  # создаем общий класс телефон�
     view = db.Column(db.String(255))
     contact = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-    region_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
-    connections = db.relationship('Connection', backref='contacts', cascade="all, delete, delete-orphan")
+    conn_id = db.Column(db.Integer, db.ForeignKey('connections.id'))
 
 
 class Check(db.Model):  # модель данных проверки кандидатов
@@ -314,7 +313,8 @@ class Organization(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255))
-    regions = db.relationship('Location', backref='organizations', cascade="all, delete, delete-orphan")
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    locations = db.relationship('Location', backref='organizations', cascade="all, delete, delete-orphan")
 
 
 class Location(db.Model):
@@ -323,10 +323,9 @@ class Location(db.Model):
     __tablename__ = 'locations'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    region = db.Column(db.String(255))
-    city = db.Column(db.String(255))
+    territory = db.Column(db.String(255))
     org_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
-    contacts = db.relationship('Contact', backref='locations', cascade="all, delete, delete-orphan")
+    connections = db.relationship('Connection', backref='locations', cascade="all, delete, delete-orphan")
 
 
 class Connection(db.Model):
@@ -335,8 +334,9 @@ class Connection(db.Model):
     __tablename__ = 'connections'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    connection = db.Column(db.String(255))
     name = db.Column(db.String(255))
-    contact_id = db.Column(db.Integer, db.ForeignKey('contacts.id'))
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    data = db.Column(db.Date, default=default_time, onupdate=default_time)
+    local_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
+    contacts = db.relationship('Contact', backref='connections', cascade="all, delete, delete-orphan")
+    
 
