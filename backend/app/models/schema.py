@@ -211,4 +211,5 @@ class ConnectionSchema(ma.SQLAlchemyAutoSchema):
 class ContacsBookSchema(ma.SQLAlchemySchema):
     """ Create schema for Contacs Book """
 
-    pass
+    contact = fields.Nested(OrganizationSchema(LocationSchema(ContactSchema(ConnectionSchema(), 
+                                                                            many=True), many=True), many=True), many=True)
