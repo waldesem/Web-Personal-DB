@@ -1,37 +1,59 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { onBeforeMount } from 'vue';
+import { storeContact } from '@/store/contacts';
 
+const contactStore = storeContact();
 
-const clock = ref('');
-
-function updateClock() {
-    // Get the current date and time
-    const now = new Date();
-
-    // Extract the hours, minutes, and seconds
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-
-    // Format the time as HH:MM:SS
-    clock.value = `${hours}:${minutes}:${seconds}`;
-};
-
-// Update the clock every second
-setInterval(updateClock, 1000);
+onBeforeMount(() => {
+  contactStore.getContacts();
+});
 
 </script>
 
 <template>
   <div class="container py-5">
-    <div class="py-5" id="header">
-      <h1 class="text-center">{{ clock }}</h1>
-      <h2 class="text-center">Страница в разработке</h2>
-      <h3 class="text-center">Приносим извинения за доставленные неудобства</h3>
-      <h4 class="text-center">Благодарим за понимание</h4>
-      <h5 class="text-center">Администрация</h5>
+    <div class="py-5"><h4>Контакты</h4></div>
+    <form @submit.prevent="contactStore.getContacts" class="form form-check" role="form">
+      <div class="row py-3">
+        <div class="col-md-8">
+          <label class="visually-hidden" for="name">name</label>
+          <input class="form-control" id="name" maxlength="250" minlength="3" name="name" placeholder="Название организации" type="text" v-model="contactStore.organization">
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-outline-primary btn-md" type="submit">Найти</button>
+        </div>
+      </div>
+    </form>
+    <div class="py-3">
+      <table class="table table-hover table-responsive align-middle">
+        <thead> 
+          <tr height="50px">
+            <th width="15%">#</th>
+            <th>Организация</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr height="50px" v-for="contact in contactStore.data.сontacts" :key="contact['id']">
+            <td>{{ contact["id"] }}</td>
+            <td>
+              <router-link :to="{ name: 'contacts', params: { id: contact['id'] } }">{{ contact["name"] }}</router-link>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="py-3">
+      <nav v-if="contactStore.data.hasPrev || contactStore.data.hasNext">
+        <ul class="pagination justify-content-center">
+          <li v-bind:class="{ 'page-item': true, disabled: !contactStore.data.hasPrev }">
+            <a class="page-link" href="#" v-on:click.prevent="contactStore.prevPage">Предыдущая</a>
+          </li>
+          <li v-bind:class="{ 'page-item': true, disabled: !contactStore.data.hasNext }">
+            <a class="page-link" href="#" v-on:click.prevent="contactStore.nextPage">Следующая</a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
-  

@@ -11,8 +11,10 @@ import ProfilePage from '@pages/ProfilePage.vue';
 import StatPage from '@pages/StatPage.vue';
 import AdminPage from '@pages/AdminPage.vue';
 import UserPage from '@pages/UserPage.vue';
-import NotFound from '@pages/NotFound.vue';
 import ContactPage from '@pages/ContactPage.vue';
+import ConnectPage from '@pages/ConnectPage.vue';
+import NotFound from '@pages/NotFound.vue';
+
 
 const router = createRouter({
   routes: [
@@ -65,6 +67,11 @@ const router = createRouter({
           name: 'contacts',
           component: ContactPage
         },
+        {
+          path: 'connect/:id',
+          name: 'connect',
+          component: ConnectPage
+        }
       ]
     },
     {

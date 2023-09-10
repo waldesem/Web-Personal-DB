@@ -1,10 +1,9 @@
 from flask import request
 from flask_jwt_extended import jwt_required
 
-
 from . import bp
 from ..models.model import db, cache, Organization, Location, Contact, Connect,  Group
-from ..models.schema import ContacsBookSchema, OrganizationSchema
+from ..models.schema import ConnectSchema, ContacsBookSchema, ContactSchema, LocationSchema, OrganizationSchema
 
 
 @bp.route('/contacts/<group>/<flag>/<int:page>', methods=['GET', 'POST'])
@@ -12,6 +11,22 @@ from ..models.schema import ContacsBookSchema, OrganizationSchema
 @cache.cached(timeout=50)
 @bp.doc(hide=True)
 def get_contacts(group, flag, page):
+    """
+    Get contacts based on the specified group, flag, and page.
+
+    Parameters:
+        group (str): The group parameter.
+        flag (str): The flag parameter.
+        page (int): The page parameter.
+
+    Returns:
+        list: A list containing the contacts data and pagination information.
+            The contacts data is a list of dictionaries representing the organizations.
+            Each dictionary contains the organization's ID and name.
+            The pagination information includes the following keys:
+                - has_next (int): 1 if there is a next page, 0 otherwise.
+                - has_prev (int): 1 if there is a previous page, 0 otherwise.
+    """
     pagination = 16
     group_id = db.session.query(Group.id).filter_by(group=group).first()
     match flag:
@@ -36,7 +51,15 @@ def get_contacts(group, flag, page):
 @bp.doc(hide=True)
 @bp.output(ContacsBookSchema)
 def view_contact(contact_id):
-   
+    """
+    Retrieves a contact from the database by its ID and returns the contact information along with its associated organization, locations, and connections.
+    Parameters:
+        contact_id (int): The ID of the contact to retrieve.
+    Returns:
+        dict: A dictionary containing the contact information, the associated organization, a list of locations, and a list of connections.
+    Raises:
+        None
+    """
     org = db.session.query(Organization).filter_by(id=contact_id).first()
     locations = db.session.query(Location).filter_by(id=org.id).all()
     contacts = [db.session.query(Contact).filter_by(id=location.id).all() for location in locations]
@@ -48,20 +71,32 @@ def view_contact(contact_id):
 @bp.post('/contact/<action>/<item>/<int:item_id>')
 @jwt_required()
 @bp.doc(hide=True)
-@bp.output(ContacsBookSchema)
-def edit_contact(action, item, item_id, json_data):
+def edit_contact(action, item, item_id):
+    """
+    Edit a contact in the contacts book.
+    Parameters:
+        - action (str): The action to perform on the contact.
+        - item (str): The type of item to edit (organization, location, contact, connect).
+        - item_id (int): The ID of the item to edit.
+        - json_data (dict): The data to update the contact with.
+    Returns:
+        dict: A dictionary containing the action, item, and item_id of the edited contact.
+    """
     mapped = {
-        'organization': Organization,
-        'location': Location,
-        'contact': Contact,
-        'connect': Connect
+        'organization': [Organization, OrganizationSchema],
+        'location': [Location, LocationSchema],
+        'contact': [Contact, ContactSchema],
+        'connect': [Connect, ConnectSchema]
     }
-    model = mapped.get(item)
+    data = request.get_json()
+    model = mapped[item][0]
+    schema = mapped[item][1]
+    verified = schema.dump(data)
     resp = db.session.query(model).filter_by(id=item_id).first()
     if action == 'create' and not resp:
-       db.session.add(model(**json_data))
+       db.session.add(model(**verified))
     else:
-        for k, v in json_data.items():
+        for k, v in verified.items():
             setattr(resp, k, v)
     db.session.commit()
 
