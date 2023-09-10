@@ -1,11 +1,9 @@
 from apiflask import Schema
-from apiflask.fields import File
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
-from redis import Connection
 
 from ..models.model import Location, Organization, Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Report, Region, Role, Group
+    Check, Registry, Poligraf, Investigation, Inquiry, Report, Region, Role, Group, Connect
 
 ma = Marshmallow()
 
@@ -201,15 +199,17 @@ class LocationSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class ConnectionSchema(ma.SQLAlchemyAutoSchema):
+class ConnectSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
-        model = Connection
+        model = Connect
         ordered = True
 
 
 class ContacsBookSchema(ma.SQLAlchemySchema):
     """ Create schema for Contacs Book """
 
-    contact = fields.Nested(OrganizationSchema(LocationSchema(ContactSchema(ConnectionSchema(), 
-                                                                            many=True), many=True), many=True), many=True)
+    org = fields.Nested(OrganizationSchema())
+    locals = fields.Nested(LocationSchema(), many=True)
+    contacts = fields.Nested(ContactSchema(), many=True)
+    connects = fields.Nested(ConnectSchema(), many=True)

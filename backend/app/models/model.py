@@ -214,7 +214,7 @@ class Contact(db.Model):  # создаем общий класс телефон�
     view = db.Column(db.String(255))
     contact = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-    conn_id = db.Column(db.Integer, db.ForeignKey('connections.id'))
+    conn_id = db.Column(db.Integer, db.ForeignKey('connects.id'))
 
 
 class Check(db.Model):  # модель данных проверки кандидатов
@@ -321,18 +321,18 @@ class Location(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     territory = db.Column(db.String(255))
     org_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
-    connections = db.relationship('Connection', backref='locations', cascade="all, delete, delete-orphan")
+    connects = db.relationship('Connect', backref='locations', cascade="all, delete, delete-orphan")
 
 
-class Connection(db.Model):
-    """ Create model for persons connections"""
+class Connect(db.Model):
+    """ Create model for persons connects"""
 
-    __tablename__ = 'connections'
+    __tablename__ = 'connects'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255))
     comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     local_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
-    contacts = db.relationship('Contact', backref='connections', cascade="all, delete, delete-orphan")
+    contacts = db.relationship('Contact', backref='connects', cascade="all, delete, delete-orphan")
     

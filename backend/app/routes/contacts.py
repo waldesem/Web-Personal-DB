@@ -3,9 +3,8 @@ from flask_jwt_extended import jwt_required
 
 
 from . import bp
-from ..models.model import db, cache, Organization, Location, Contact, Connection,  Group
+from ..models.model import db, cache, Organization, Location, Contact, Connect,  Group
 from ..models.schema import ContacsBookSchema, OrganizationSchema
-from ..models.classes import Groups
 
 
 @bp.route('/contacts/<group>/<flag>/<int:page>', methods=['GET', 'POST'])
@@ -38,7 +37,9 @@ def get_contact(group, flag, page):
 @bp.output(ContacsBookSchema)
 def get_profile(contact_id):
    
-    query = db.session.query(Organization).filter_by(id=contact_id).\
-                    join(Location).join(Contact).join(Connection).first()
+    org = db.session.query(Organization).filter_by(id=contact_id).first()
+    locations = db.session.query(Location).filter_by(id=org.id).all()
+    contacts = [db.session.query(Contact).filter_by(id=location.id).all() for location in locations]
+    connect = [db.session.query(Connect).filter_by(id=contact.id).all() for contact in contacts]
 
-    return query
+    return {'org': org, 'locations': locations, 'contacts': contacts, 'connect': connect}
