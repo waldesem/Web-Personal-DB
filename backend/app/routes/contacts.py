@@ -11,7 +11,7 @@ from ..models.schema import ContacsBookSchema, OrganizationSchema
 @jwt_required()
 @cache.cached(timeout=50)
 @bp.doc(hide=True)
-def get_contact(group, flag, page):
+def get_contacts(group, flag, page):
     pagination = 16
     group_id = db.session.query(Group.id).filter_by(group=group).first()
     match flag:
@@ -35,7 +35,7 @@ def get_contact(group, flag, page):
 @cache.cached(timeout=50)
 @bp.doc(hide=True)
 @bp.output(ContacsBookSchema)
-def get_profile(contact_id):
+def view_contact(contact_id):
    
     org = db.session.query(Organization).filter_by(id=contact_id).first()
     locations = db.session.query(Location).filter_by(id=org.id).all()
@@ -43,3 +43,26 @@ def get_profile(contact_id):
     connect = [db.session.query(Connect).filter_by(id=contact.id).all() for contact in contacts]
 
     return {'org': org, 'locations': locations, 'contacts': contacts, 'connect': connect}
+
+
+@bp.post('/contact/<action>/<item>/<int:item_id>')
+@jwt_required()
+@bp.doc(hide=True)
+@bp.output(ContacsBookSchema)
+def edit_contact(action, item, item_id, json_data):
+    mapped = {
+        'organization': Organization,
+        'location': Location,
+        'contact': Contact,
+        'connect': Connect
+    }
+    model = mapped.get(item)
+    resp = db.session.query(model).filter_by(id=item_id).first()
+    if action == 'create' and not resp:
+       db.session.add(model(**json_data))
+    else:
+        for k, v in json_data.items():
+            setattr(resp, k, v)
+    db.session.commit()
+
+    return {'action': action, 'item': item, 'item_id': item_id}

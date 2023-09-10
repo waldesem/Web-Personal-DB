@@ -22,7 +22,7 @@ const storeClassify = appClassify();
         <label class="col-form-label col-lg-2" for="username">Учетная запись:</label>
         <div class="col-lg-10">
           <input :disabled="adminStore.action === 'edit'" autocomplete="username" class="form-control" minlength="8" maxlength="250" name="username" 
-              required type="text" v-model="adminStore.profile.username" placeholder="petrovich (min 8, max 16)" pattern="[a-z]+">
+              required type="text" v-model="adminStore.profile.username" placeholder="От 8 до 16 символов: a-z, A-Z" pattern="[a-z]+">
         </div>
       </div>
       <div class="mb-3 row">
