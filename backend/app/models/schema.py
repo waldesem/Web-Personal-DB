@@ -2,8 +2,9 @@ from apiflask import Schema
 from apiflask.fields import File
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
+from redis import Connection
 
-from ..models.model import Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
+from ..models.model import Location, Organization, Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Report, Region, Role, Group
 
 ma = Marshmallow()
@@ -183,3 +184,31 @@ class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
         model = Check
         ordered = True
         exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline',)
+
+
+# Schemas for Contacts Book
+class OrganizationSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = Organization
+        ordered = True
+
+
+class LocationSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = Location
+        ordered = True
+
+
+class ConnectionSchema(ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = Connection
+        ordered = True
+
+
+class ContacsBookSchema(ma.SQLAlchemySchema):
+    """ Create schema for Contacs Book """
+
+    pass
