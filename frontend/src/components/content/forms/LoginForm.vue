@@ -18,7 +18,7 @@ const hidePassword = ref(true);
         <div class="col-lg-6">
           <input autocomplete="username" class="form-control" required id="username" name="username" type="text"
             v-model.trim="storeLogin.loginData.username" minlength="4" maxlength="16" 
-            placeholder="login" pattern="[a-zA-Z]+">
+            placeholder="Логин пользователя" pattern="[a-zA-Z]+">
         </div>
       </div>
       <div class="mb-3 row required">
@@ -27,7 +27,7 @@ const hidePassword = ref(true);
           <div class="input-group">
             <input autocomplete="current-password" class="form-control" required id="password" name="password"
               :type="hidePassword ? 'password' : 'text'" v-model.trim="storeLogin.loginData.password" minlength="8" maxlength="16" 
-              placeholder="password" pattern="[0-9a-zA-Z]+">
+              placeholder="Пароль пользователя" pattern="[0-9a-zA-Z]+">
             <span class="input-group-text">
                 <a role="button" @click="hidePassword = !hidePassword">
                   <i :class="hidePassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>

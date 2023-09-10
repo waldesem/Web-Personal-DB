@@ -118,7 +118,7 @@ class Person(db.Model):
     birthday = db.Column(db.Date, nullable=False, index=True)
     birthplace = db.Column(db.String(255))
     country = db.Column(db.String(255))
-    snils = db.Column(db.String(255))
+    snils = db.Column(db.String(11))
     inn = db.Column(db.String(12))
     education = db.Column(db.String(255))
     addition = db.Column(db.Text)

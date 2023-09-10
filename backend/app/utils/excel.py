@@ -14,20 +14,24 @@ class ExcelFile:
         self.sheet = self.wb.worksheets[0]
 
         self.resume = {
-            'fullname': str(self.sheet['K3'].value).title().strip(),
+            'fullname': str(self.sheet['K3'].value).title().strip().title(),
             'previous': str(self.sheet['S3'].value).strip(),
-            'birthday': datetime.strptime(str(self.sheet['L3'].value).strip(), '%d.%m.%Y').date(),
+            'birthday': datetime.strptime(str(self.sheet['L3'].value).strip(), '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', str(self.sheet['L3'].value).strip()) \
+                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
             'birthplace': str(self.sheet['M3'].value).strip(),
             'country': str(self.sheet['T3'].value).strip(),
-            'snils': str(self.sheet['U3'].value).strip(),
-            'inn': str(self.sheet['V3'].value).strip(),
+            'snils': str(self.sheet['U3'].value).strip().replace(" ", "").replace("-", "")[:11],
+            'inn': str(self.sheet['V3'].value).strip()[:12],
             'education': str(self.sheet['X3'].value).strip()
         }
         self.passport = {
             'view': 'Паспорт гражданина России',
-            'series': str(self.sheet['P3'].value).strip(),
-            'number': str(self.sheet['Q3'].value).strip(),
-            'issue': datetime.strptime(str(self.sheet['R3'].value).strip(), '%d.%m.%Y').date()
+            'series': str(self.sheet['P3'].value).strip()[:4],
+            'number': str(self.sheet['Q3'].value).strip()[:6],
+            'issue': datetime.strptime(str(self.sheet['R3'].value).strip(), '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', str(self.sheet['L3'].value).strip()) \
+                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
         }
         self.addresses = [
             {'view': "Адрес регистрации", 'address': str(self.sheet['N3'].value).strip()},

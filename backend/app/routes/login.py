@@ -110,11 +110,6 @@ def login(json_data):
                 user.attempt = user.attempt+1
             else:
                 user.blocked = True
-                admins = db.session.query(User).filter(User.role.in_(['admin'])).all()
-                for admin in admins:
-                    db.session.add(Report(message=f'Заблокирован пользователь {user["username"]}. \
-                                           Превышение попыток входа', 
-                                            user_id=admin.id))
             db.session.commit()
     return {"access": "Denied"}
 
