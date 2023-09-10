@@ -131,7 +131,7 @@ export const appLogin = defineStore('appLogin', () => {
 
           hasRole('admin')
             ? router.push({ name: 'users', params: { group: 'admins' } })
-            : router.push({ name: 'persons', params: { group: Object.keys(groups)[0] } });
+            : router.push({ name: 'persons', params: { group: userData.value.userGroups[0]['group'] } });
           storeAlert.setAlert('alert-success', 'Успешный вход в систему');
           break;
 
@@ -155,30 +155,17 @@ export const appLogin = defineStore('appLogin', () => {
   };
 
   /**
-   * Logs the user out by sending a DELETE request to the server's logout endpoint.
+   * Logs the user out by sending a GET request to the server's logout endpoint.
    *
    * @return {Promise<void>} Promise that resolves when the user is successfully logged out.
    */
   async function userLogout(): Promise<void>{
-    const response = await storeAuth.axiosInstance.delete(`${server}/logout`);
+    const response = await storeAuth.axiosInstance.get(`${server}/logout`);
     console.log(response.status);
-
-    const resp = await axios.delete(`${server}/logout`, {
-        headers: {'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`}
-    });
-    console.log(resp.status);
 
     // Удаление токенов для авторизации и редирект на страницу авторизации
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-
-    Object.keys(userData.value).forEach(key => {
-      delete userData.value[key as keyof typeof userData.value];
-    });
-
-    Object.keys(loginData.value).forEach(key => {
-      delete loginData.value[key as keyof typeof loginData.value];
-    });
     
     router.push({ name: 'login' });
   };

@@ -109,7 +109,17 @@ def user_state(user_id, flag):
 @roles_required(Roles.admin.value)
 @bp.doc(hide=True)
 def action_role_group(flag, action, value, user_id):
+    """
+	This function performs an action on a role or group for a given user.
+	Parameters:
+	- flag: A string representing the type of item to be acted upon. It can be either role or group.
+	- action: A string representing the action to be performed. It can be either "add" or "remove".
+	- value: A string representing the value of the role or group.
+	- user_id: An integer representing the user ID.
 
+	Returns:
+	- A dictionary with a "result" key indicating the success or failure of the action.
+	"""
     user = db.session.query(User).get(user_id)
     item = db.session.query(Role).filter_by(role=value).first() \
         if flag == 'role' else db.session.query(Group).filter_by(group=value).first() 

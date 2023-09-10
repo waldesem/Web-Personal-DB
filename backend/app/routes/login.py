@@ -142,7 +142,7 @@ def change_password(json_data):
     return {"access": "Denied"}
 
 
-@bp.delete('/logout')
+@bp.get('/logout')
 @bp.doc(hide=True)
 @jwt_required(verify_type=False)
 def logout():

@@ -24,18 +24,14 @@ setInterval(updateClock, 1000);
 </script>
 
 <template>
-    <h1>{{ `Сейчас ${clock} а страница все еще в разработке` }}</h1>
+  <div class="container py-5">
+    <div class="py-5" id="header">
+      <h1 class="text-center">{{ clock }}</h1>
+      <h2 class="text-center">Страница в разработке</h2>
+      <h3 class="text-center">Приносим извинения за доставленные неудобства</h3>
+      <h4 class="text-center">Благодарим за понимание</h4>
+      <h5 class="text-center">Администрация</h5>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-
-.h1 {
-    color: red;
-    text-align: center;
-    font-size: 40px;
-    font-weight: bold;
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
-
-</style>
+  

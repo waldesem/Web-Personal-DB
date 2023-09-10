@@ -51,8 +51,7 @@ def get_anketa(json_data):
                   
     person_id, result = add_resume(resume, location_id, 'api')
         
-    users = db.session.query(User).filter(User.role.in_(['superuser', 'user']), 
-                                                        User.region_id == location_id).all()
+    users = db.session.query(User).filter_by(region_id=location_id).all()
     for user in users:
         db.session.add(Report(report=f'Поступила анкета {resume["fullname"]}', 
                                user_id=user.id))
