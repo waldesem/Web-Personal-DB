@@ -28,7 +28,8 @@ onMounted(() => {
 <template>
   <NavBar />
     <AlertMessage />
-    <router-view>
-    </router-view>
+    <router-view v-slot="{ Component }" >
+        <component :is="Component" :key="$route.fullPath"/>
+  </router-view>
   <FooterDiv />
 </template>

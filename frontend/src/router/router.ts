@@ -1,9 +1,9 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { RouterView, createRouter, createWebHistory } from 'vue-router'
 import { appAuth } from '@store/auth';
 import server from '@/store/server';
 import axios from 'axios';
 import App from '@/App.vue';
-import GroupVue from '@/components/GroupVue.vue';
+//import GroupVue from '@/components/GroupVue.vue';
 import LoginPage from '@pages/LoginPage.vue';
 import PersonPage from '@pages/PersonPage.vue';
 import ResumePage from '@pages/ResumePage.vue';
@@ -30,7 +30,7 @@ const router = createRouter({
     {
       path: '/:group',
       name: 'group',
-      component: GroupVue,
+      component: RouterView,
       children: [
         {
           path: 'persons',
