@@ -1,4 +1,4 @@
-import { RouterView, createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { appAuth } from '@store/auth';
 import server from '@/store/server';
 import axios from 'axios';
