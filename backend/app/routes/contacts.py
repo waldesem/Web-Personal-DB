@@ -95,6 +95,8 @@ def edit_contact(action, item, item_id):
     resp = db.session.query(model).filter_by(id=item_id).first()
     if action == 'create' and not resp:
        db.session.add(model(**verified))
+    elif action == 'delete':
+        db.session.delete(resp)
     else:
         for k, v in verified.items():
             setattr(resp, k, v)
