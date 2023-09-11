@@ -14,11 +14,11 @@ onBeforeMount(() => {
 <template>
   <div class="container py-5">
     <div class="py-5"><h4>Контакты</h4></div>
-    <form @submit.prevent="contactStore.getContacts" class="form form-check" role="form">
+    <form @submit.prevent="contactStore.getContacts('search')" class="form form-check" role="form">
       <div class="row py-3">
         <div class="col-md-8">
           <label class="visually-hidden" for="name">name</label>
-          <input class="form-control" id="name" maxlength="250" minlength="3" name="name" placeholder="Название организации" type="text" v-model="contactStore.organization">
+          <input class="form-control" id="name" maxlength="250" minlength="3" name="name" placeholder="Название организации" type="text" v-model="contactStore.searchData">
         </div>
         <div class="col-md-3">
           <button class="btn btn-outline-primary btn-md" type="submit">Найти</button>

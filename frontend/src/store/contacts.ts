@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { appAuth } from '@store/auth';
+import { appLogin } from '@store/login';
 import { ref } from 'vue';
 import server from '@store/server';
 
@@ -7,6 +8,7 @@ import server from '@store/server';
 export const storeContact = defineStore('storeContact',  () => {
 
   const storeAuth = appAuth();
+  const storeLogin = appLogin();
   
   const contactId = ref('');
   
@@ -16,12 +18,19 @@ export const storeContact = defineStore('storeContact',  () => {
     hasNext: false
   });
 
-  const organization = ref('');
+  const searchData = ref('');
   
   const currenData = ref({
     currentPage: 1,
     currentPath: 'list'
   });
+
+  const contactData = ref({
+    organization: '', 
+    locations: [], 
+    connects: [], 
+    contacts: []
+  })
 
 
   /**
@@ -37,8 +46,8 @@ export const storeContact = defineStore('storeContact',  () => {
 
     try {
       const response = url === 'search' 
-        ? await storeAuth.axiosInstance.post(`${server}/contact/${url}/${page}`, organization.value) 
-        : await storeAuth.axiosInstance.get(`${server}/contact/${url}/${page}`);
+        ? await storeAuth.axiosInstance.post(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`, searchData.value) 
+        : await storeAuth.axiosInstance.get(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`);
 
       const [ datas, metadata ] = response.data;
       Object.assign(data.value, {
@@ -77,5 +86,20 @@ export const storeContact = defineStore('storeContact',  () => {
     }
   };
 
-  return { data, organization, currenData, contactId, getContacts, prevPage, nextPage };
+async function viewContact() {
+  try{
+    const response = await storeAuth.axiosInstance.get(`${server}/contact/${contactId.value}`);
+    const { org, location, connect, contact } = response.data
+    Object.assign(contactData.value, {
+      organization: org,
+      locations: location,
+      connects: connect,
+      contacts: contact
+    })
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+  return { data, searchData, currenData, contactId, contactData, getContacts, prevPage, nextPage, viewContact };
 });
