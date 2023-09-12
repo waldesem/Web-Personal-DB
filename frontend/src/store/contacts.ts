@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { appAuth } from '@store/auth';
 import { appLogin } from '@store/login';
+import { appAlert } from '@store/alert';
 import { ref } from 'vue';
 import server from '@store/server';
 
@@ -9,9 +10,8 @@ export const storeContact = defineStore('storeContact',  () => {
 
   const storeAuth = appAuth();
   const storeLogin = appLogin();
-  
-  const contactId = ref('');
-  
+  const storeAlert = appAlert();
+
   const data = ref({
     сontacts: [],
     hasPrev: false,
@@ -25,13 +25,7 @@ export const storeContact = defineStore('storeContact',  () => {
     currentPath: 'list'
   });
 
-  const contactData = ref({
-    organization: '', 
-    locations: [], 
-    connects: [], 
-    contacts: []
-  })
-
+  const itemForm = ref({});
 
   /**
    * Retrieves candidates from the specified URL and updates the data store.
@@ -86,20 +80,34 @@ export const storeContact = defineStore('storeContact',  () => {
     }
   };
 
-async function viewContact() {
-  try{
-    const response = await storeAuth.axiosInstance.get(`${server}/contact/${contactId.value}`);
-    const { org, location, connect, contact } = response.data
-    Object.assign(contactData.value, {
-      organization: org,
-      locations: location,
-      connects: connect,
-      contacts: contact
-    })
-  } catch (error) {
-    console.error(error);
-  }
-};
+  /**
+   * Updates an item.
+   *
+   * @return {Promise<void>} A promise that resolves with no value.
+   */
+  async function updateItem(flag: string, contactId: string): Promise<void> {
+    
+    try {
+      const response = flag === 'create' || flag === 'update'
+      ? await storeAuth.axiosInstance.post(`${server}/contact/${flag}/${contactId}`, itemForm.value)
+      : await storeAuth.axiosInstance.delete(`${server}/contact/$${flag}/${contactId}`);
 
-  return { data, searchData, currenData, contactId, contactData, getContacts, prevPage, nextPage, viewContact };
+      const { action, item_id } = response.data;
+
+      const alert = {
+        'create': ['alert-success', `Создан контакт ${item_id}`],
+        'update': ['alert-info', `Контакт ${item_id} обновлен`],
+        'delete': ['alert-warning', `Контакт ${item_id} удален`]
+      };
+
+      storeAlert.setAlert(alert[action as keyof typeof alert][0], alert[action as keyof typeof alert][1]);
+
+      getContacts(currenData.value.currentPath, currenData.value.currentPage);
+
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  return { data, searchData, currenData, getContacts, prevPage, nextPage, updateItem };
 });

@@ -50,7 +50,7 @@ class Group(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     group = db.Column(db.String(255), unique=True)
-    organizations = db.relationship('Organization', backref='organizations')
+    connects = db.relationship('Connect', backref='groups')
 
 
 class Role(db.Model):
@@ -77,7 +77,7 @@ class User(db.Model):
     blocked = db.Column(db.Boolean(), default=False)
     attempt = db.Column(db.Integer(), default=0)
     region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
-    reports = db.relationship('Report', backref='reports', cascade="all, delete, delete-orphan")
+    reports = db.relationship('Report', backref='users', cascade="all, delete, delete-orphan")
     roles = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy='dynamic'))
     groups = db.relationship('Group', secondary=user_groups, backref=db.backref('users', lazy='dynamic'))
    
@@ -214,7 +214,6 @@ class Contact(db.Model):  # создаем общий класс телефон�
     view = db.Column(db.String(255))
     contact = db.Column(db.String(255))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-    conn_id = db.Column(db.Integer, db.ForeignKey('connects.id'))
 
 
 class Check(db.Model):  # модель данных проверки кандидатов
@@ -302,37 +301,17 @@ class Inquiry(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Organization(db.Model):
-    """ Create model for persons inquiries"""
-
-    __tablename__ = 'organizations'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255))
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
-    locations = db.relationship('Location', backref='organizations', cascade="all, delete, delete-orphan")
-
-
-class Location(db.Model):
-    """ Create model for locations"""
-
-    __tablename__ = 'locations'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    territory = db.Column(db.String(255))
-    org_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
-    connects = db.relationship('Connect', backref='locations', cascade="all, delete, delete-orphan")
-
-
 class Connect(db.Model):
     """ Create model for persons connects"""
 
     __tablename__ = 'connects'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255))
+    company = db.Column(db.String(255))
+    city = db.Column(db.String(255))
+    fullname = db.Column(db.String(255))
+    contact = db.Column(db.String(255))
     comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
-    local_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
-    contacts = db.relationship('Contact', backref='connects', cascade="all, delete, delete-orphan")
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
     
