@@ -24,24 +24,27 @@ export const storeContact = defineStore('storeContact',  () => {
     currentPage: 1,
     currentPath: 'list'
   });
+  
+  const itemAction = ref('');
+  const itemId = ref('');
+  const itemForm = ref({
+    id: '',
+    company: '',
+    city: '',
+    fullname: '',
+    contact: '',
+    comment: '',
+    data: ''
+  });
 
-  const itemForm = ref({});
-
-  /**
-   * Retrieves candidates from the specified URL and updates the data store.
-   *
-   * @param {string} url - The URL to retrieve candidates from.
-   * @param {number} [page=1] - The page number of the candidates to retrieve. Default is 1.
-   * @return {Promise<void>} - A promise that resolves when the candidates are retrieved and the data store is updated.
-   */
   async function getContacts(url: string=currenData.value.currentPath, page: number=1): Promise<void> {
     currenData.value.currentPage = page;
     currenData.value.currentPath = url;
 
     try {
       const response = url === 'search' 
-        ? await storeAuth.axiosInstance.post(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`, searchData.value) 
-        : await storeAuth.axiosInstance.get(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`);
+        ? await storeAuth.axiosInstance.post(`${server}/connects/${storeLogin.pageIdentity}/${url}/${page}`, searchData.value)
+        : await storeAuth.axiosInstance.get(`${server}/connects/${storeLogin.pageIdentity}/${url}/${page}`);
 
       const [ datas, metadata ] = response.data;
       Object.assign(data.value, {
@@ -85,7 +88,7 @@ export const storeContact = defineStore('storeContact',  () => {
    *
    * @return {Promise<void>} A promise that resolves with no value.
    */
-  async function updateItem(flag: string, contactId: string): Promise<void> {
+  async function updateItem(flag: string = itemAction.value, contactId: string = itemId.value): Promise<void> {
     
     try {
       const response = flag === 'create' || flag === 'update'
@@ -96,12 +99,16 @@ export const storeContact = defineStore('storeContact',  () => {
 
       const alert = {
         'create': ['alert-success', `Создан контакт ${item_id}`],
-        'update': ['alert-info', `Контакт ${item_id} обновлен`],
+        'edit': ['alert-info', `Контакт ${item_id} обновлен`],
         'delete': ['alert-warning', `Контакт ${item_id} удален`]
       };
-
       storeAlert.setAlert(alert[action as keyof typeof alert][0], alert[action as keyof typeof alert][1]);
 
+      Object.keys(itemForm.value).forEach(key => {
+        delete itemForm.value[key as keyof typeof itemForm.value];
+      });
+      itemAction.value = '';
+      itemId.value = '';
       getContacts(currenData.value.currentPath, currenData.value.currentPage);
 
     } catch (error) {
@@ -109,5 +116,5 @@ export const storeContact = defineStore('storeContact',  () => {
     }
   };
 
-  return { data, searchData, currenData, getContacts, prevPage, nextPage, updateItem };
+  return { data, searchData, currenData, itemAction, itemId, itemForm, getContacts, prevPage, nextPage, updateItem };
 });

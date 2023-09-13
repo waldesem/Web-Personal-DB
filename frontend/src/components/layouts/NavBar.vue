@@ -34,9 +34,9 @@ const storeProfile = appProfile();
               </li>
             </template>
 
-            <!--li v-if="!['login', 'admins'].includes(storeLogin.pageIdentity)" class="nav-item">
+            <li v-if="!['login', 'admins'].includes(storeLogin.pageIdentity)" class="nav-item">
               <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}" class="nav-link active">Контакты</router-link>
-            </li-->
+            </li>
 
             <li v-if="storeMessages.messages.length && storeLogin.pageIdentity !== 'login'" class="nav-item dropdown">
               <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
