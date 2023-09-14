@@ -5,7 +5,6 @@ import { appAlert } from '@store/alert';
 import { ref } from 'vue';
 import server from '@store/server';
 
-
 export const storeContact = defineStore('storeContact',  () => {
 
   const storeAuth = appAuth();
@@ -13,7 +12,9 @@ export const storeContact = defineStore('storeContact',  () => {
   const storeAlert = appAlert();
 
   const data = ref({
-    сontacts: [],
+    contacts: [],
+    companies: [],
+    cities: [],
     hasPrev: false,
     hasNext: false
   });
@@ -28,29 +29,31 @@ export const storeContact = defineStore('storeContact',  () => {
   const itemAction = ref('');
   const itemId = ref('');
   const itemForm = ref({
-    id: '',
     company: '',
     city: '',
     fullname: '',
     contact: '',
-    comment: '',
-    data: ''
+    comment: ''
   });
 
   async function getContacts(url: string=currenData.value.currentPath, page: number=1): Promise<void> {
     currenData.value.currentPage = page;
     currenData.value.currentPath = url;
-
+    
     try {
       const response = url === 'search' 
-        ? await storeAuth.axiosInstance.post(`${server}/connects/${storeLogin.pageIdentity}/${url}/${page}`, searchData.value)
-        : await storeAuth.axiosInstance.get(`${server}/connects/${storeLogin.pageIdentity}/${url}/${page}`);
+        ? await storeAuth.axiosInstance.post(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`, {
+          'company': searchData.value
+        })
+        : await storeAuth.axiosInstance.get(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`);
+      const [ datas, has_prev, has_next, companies, cities ] = response.data;
 
-      const [ datas, metadata ] = response.data;
       Object.assign(data.value, {
         contacts: datas,
-        hasPrev: metadata.has_prev,
-        hasNext: metadata.has_next
+        hasPrev: has_prev['has_prev'],
+        hasNext: has_next['has_next'],
+        companies: companies['companies'],
+        cities: cities['cities'],
       });
 
     } catch (error) {
@@ -59,7 +62,7 @@ export const storeContact = defineStore('storeContact',  () => {
   };
 
   /**
-   * Asynchronously moves to the previous page if it exists.
+   * Moves to the previous page if it exists.
    *
    * @return {undefined} No return value.
    */
@@ -88,12 +91,12 @@ export const storeContact = defineStore('storeContact',  () => {
    *
    * @return {Promise<void>} A promise that resolves with no value.
    */
-  async function updateItem(flag: string = itemAction.value, contactId: string = itemId.value): Promise<void> {
-    
+  async function updateItem(_event: Event, flag: string=itemAction.value, contactId: string=itemId.value): Promise<void> {
+
     try {
-      const response = flag === 'create' || flag === 'update'
-      ? await storeAuth.axiosInstance.post(`${server}/contact/${flag}/${contactId}`, itemForm.value)
-      : await storeAuth.axiosInstance.delete(`${server}/contact/$${flag}/${contactId}`);
+      const response = flag === 'create' || flag === 'edit'
+      ? await storeAuth.axiosInstance.post(`${server}/contact/${storeLogin.pageIdentity}/${flag}/${contactId}`, itemForm.value)
+      : await storeAuth.axiosInstance.delete(`${server}/contact/${storeLogin.pageIdentity}/${flag}/${contactId}`);
 
       const { action, item_id } = response.data;
 

@@ -13,11 +13,11 @@ from werkzeug.exceptions import BadRequest
 from . import bp
 from . login import roles_required, group_required
 from ..utils.excel import ExcelFile, resume_data
-from ..models.model import db, cache,  User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region
+from ..models.model import db, User, Person, Staff, Document, Address, Contact, Workplace, \
+    Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region, Group, Connect
 from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
+            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema, ConnectSchema
 from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'persons'))
@@ -28,7 +28,6 @@ bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 @bp.get('/', defaults={'path': ''})
 @bp.get('/<path:path>')
 @bp.get('/index/profile/<path:path>')
-@cache.cached(timeout=60)
 @bp.doc(hide=True)
 def main(path=''):
     """
@@ -45,7 +44,6 @@ def main(path=''):
     
     
 @bp.get('/classify')
-@cache.cached(timeout=50)
 @bp.doc(hide=True)
 def get_classes():
     """
@@ -731,6 +729,57 @@ def post_information():
             "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))}
 
 
+@bp.route('/contacts/<group>/<flag>/<int:page>', methods=['GET', 'POST'])
+@jwt_required()
+@bp.doc(hide=True)
+def get_contacts(group, flag, page):
+    """
+    Get contacts based on the specified group, flag, and page.
+    """
+    pagination = 16
+    group_id = db.session.query(Group.id).filter_by(group=group).scalar()
+    match flag:
+        case 'list':
+            query = db.session.query(Connect). \
+                order_by(Connect.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
+        case 'search':
+            search = request.get_json()
+            query = db.session.query(Connect).filter_by(company=search['company']).filter_by(group_id=group_id).\
+                order_by(Connect.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
+    resume_schema = ConnectSchema()
+    datas = resume_schema.dump(query, many=True)
+    datalist = db.session.query(Connect.company, Connect. city).all()
+
+    return [datas, {'has_next': int(query.has_next)}, {"has_prev": int(query.has_prev)}, 
+            {'companies': [company[0] for company in datalist]},  {'cities': [city[1] for city in datalist]}]
+
+
+@bp.route('/contact/<group>/<action>/<int:item_id>', methods=['GET', 'POST'])
+@jwt_required()
+@bp.doc(hide=True)
+def update_contact(group, action, item_id):
+    if action == 'delete':
+        resp = db.session.query(Connect).filter_by(id=item_id).first()
+        db.session.delete(resp)
+    else:
+        data = request.get_json()
+        schema = ConnectSchema()
+        json_dumped = schema.dump(data)
+        if action == 'create':
+            group_id = db.session.query(Group.id).filter_by(group=group).scalar()
+            connect = Connect(**json_dumped | {"group_id": group_id})
+            db.session.add(connect)
+            db.session.flush()
+            item_id = connect.id
+        else:
+            resp = db.session.query(Connect).filter_by(id=item_id).first()
+            for k, v in json_dumped.items():
+                setattr(resp, k, v)
+    db.session.commit()
+
+    return {'action': action, 'item_id': item_id}
+
+
 @bp.errorhandler(BadRequest)
 def handle_bad_request(e):
     """
@@ -742,3 +791,4 @@ def handle_bad_request(e):
     - int: The HTTP status code 400.
     """
     return 'bad request!', 400
+
