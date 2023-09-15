@@ -3,6 +3,7 @@
 import { appMessages } from '@/store/messages';
 import { appLogin } from '@/store/login';
 import { appProfile } from '@/store/profile';
+import server from '@store/server';
 
 const storeMessages = appMessages();
 const storeLogin = appLogin();
@@ -20,6 +21,7 @@ const storeProfile = appProfile();
             
             <li v-if="storeLogin.pageIdentity === 'admins'" class="nav-item">
               <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">Пользователи</router-link>
+              <p><a :href="`${server}/dashboard`" target=”_blank”>Dashboard</a></p>
             </li>
 
             <template v-if="storeLogin.pageIdentity === 'staffsec'">
