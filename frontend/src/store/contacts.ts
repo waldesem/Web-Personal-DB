@@ -108,9 +108,9 @@ export const storeContact = defineStore('storeContact',  () => {
       const { action, item_id } = response.data;
 
       const alert = {
-        'create': ['alert-success', `Создан контакт ${item_id}`],
-        'edit': ['alert-info', `Контакт ${item_id} обновлен`],
-        'delete': ['alert-warning', `Контакт ${item_id} удален`]
+        'create': ['alert-success', `Создан контакт с ID ${item_id}`],
+        'edit': ['alert-info', `Контакт с ID ${item_id} обновлен`],
+        'delete': ['alert-warning', `Контакт с ID ${item_id} удален`]
       };
       storeAlert.setAlert(alert[action as keyof typeof alert][0], alert[action as keyof typeof alert][1]);
 

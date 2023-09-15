@@ -31,10 +31,12 @@ const contactStore = storeContact();
         <input class="form-control form-control-sm" id="comment" maxlength="250" name="comment" placeholder="Комментарий" type="text" v-model="contactStore.itemForm['comment']">
       </div>
       <div class="col-md-1">
-        <p>{{ new Date().toLocaleDateString('ru-RU') }}</p>
+        <button class="btn btn-outline-primary btn-sm" type="submit">Принять</button>
       </div>
       <div class="col-md-1">
-        <button class="btn btn-link" type="submit"><i class="bi bi-check-square"></i></button>
+        <button class="btn btn-outline-primary btn-sm" @click="contactStore.itemAction = '';
+                                                                     contactStore.itemId= ''">Отмена
+                      </button>
       </div>
     </div>
   </form>

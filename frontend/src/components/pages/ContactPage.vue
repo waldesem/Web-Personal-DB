@@ -16,7 +16,7 @@ onBeforeMount(() => {
     <div class="py-5"><h4>Контакты</h4></div>
     <form @input="contactStore.getContacts('search')" class="form form-check" role="form">
       <div class="row py-3">
-        <input class="form-control" id="name" maxlength="255" minlength="2" name="name" placeholder="Поиск контактов" type="text" v-model="contactStore.searchData">
+        <input class="form-control" id="name" name="name" placeholder="Поиск контактов" type="text" v-model="contactStore.searchData">
       </div>
     </form>
     <div class="py-3">
@@ -30,27 +30,23 @@ onBeforeMount(() => {
             <th width="15%">Контакт</th>
             <th width="15%">Примечение</th>
             <th width="10%">Дата</th>
-            <th colspan="2">
+            <th width="5%">
               <a role="button" @click="contactStore.itemAction === 'create' 
                                       ? contactStore.itemAction = '' 
                                       : contactStore.itemAction = 'create'; 
                                         contactStore.itemId='0'" 
-                               :title="contactStore.itemAction === 'create' ? 'Отмена' : 'Добавить контакт'">
-                <i :class="contactStore.itemAction === 'create' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+                               :title="contactStore.itemAction === 'create' 
+                                      ? 'Отмена' : 'Добавить контакт'">
+                <i :class="contactStore.itemAction === 'create' 
+                          ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
               </a>
             </th>
+            <th width="5%"></th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="contactStore.itemAction === 'create'">
-            <td colspan="8">
-              <ConnectForm/>
-            </td>
-            <td>
-              <a class="btn btn-link" title="Отмена" @click="contactStore.itemAction = ''">
-                <i class="bi bi-escape"></i>
-              </a>
-            </td>
+            <td colspan="9"><ConnectForm/></td>
           </tr>
           <tr>
             <td colspan="9">
@@ -78,19 +74,12 @@ onBeforeMount(() => {
                       </a>
                     </td>
                   </tr>
-                  <tr v-if="contactStore.itemAction === 'edit' || contactStore.itemId === contact['id']" >
-                    <td colspan="8">
-                      <ConnectForm />
-                    </td>
-                    <td>
-                      <a class="btn btn-link" title="Отмена" @click="contactStore.itemAction = ''">
-                        <i class="bi bi-escape"></i>
-                      </a>
-                    </td>
+                  <tr v-if="contactStore.itemAction === 'edit' &&  contactStore.itemId === contact['id']" >
+                    <td colspan="9"><ConnectForm /></td>
                   </tr>
                 </tbody>
               </table>
-             </td>
+            </td>
           </tr>
         </tbody>
       </table>

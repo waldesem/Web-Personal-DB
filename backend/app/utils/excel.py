@@ -50,7 +50,7 @@ class ExcelFile:
             'workplace': self.parse_cell(self.sheet[f'AB{i}']),
             'address': self.parse_cell(self.sheet[f'AC{i}']),
             'position': self.parse_cell(self.sheet[f'AD{i}'])
-            } | self.parse_period(self.sheet[f'AA{i}'])
+            } | self.parse_period(self.sheet[f'AA{i}'].value)
             for i in range(3, 6) if self.sheet[f'AB{i}'].value
         ]
         self.staff = {
