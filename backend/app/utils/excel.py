@@ -14,45 +14,52 @@ class ExcelFile:
         self.sheet = self.wb.worksheets[0]
 
         self.resume = {
-            'fullname': str(self.sheet['K3'].value).strip().title()[:255],
-            'previous': str(self.sheet['S3'].value).strip()[:255],
-            'birthday': datetime.strptime(str(self.sheet['L3'].value).strip(), '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', str(self.sheet['L3'].value).strip()) \
+            'fullname': self.parse_cell(self.sheet['K3']).title(),
+            'previous': self.parse_cell(self.sheet['S3']).title(),
+            'birthday': datetime.strptime(self.parse_cell(self.sheet['L3']), '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', self.parse_cell(self.sheet['L3'])) \
                     else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
-            'birthplace': str(self.sheet['M3'].value).strip()[:255],
-            'country': str(self.sheet['T3'].value).strip()[:255],
-            'snils': str(self.sheet['U3'].value).strip().replace(" ", "").replace("-", "")[:11],
-            'inn': str(self.sheet['V3'].value).strip()[:12],
-            'education': str(self.sheet['X3'].value).strip()[:255]
+            'birthplace': self.parse_cell(self.sheet['M3']),
+            'country': self.parse_cell(self.sheet['T3']),
+            'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").replace("-", "")[:11],
+            'inn': self.parse_cell(self.sheet['V3'], 12),
+            'education': self.parse_cell(self.sheet['X3'])
         }
         self.passport = {
             'view': 'Паспорт гражданина России',
-            'series': str(self.sheet['P3'].value).strip()[:4],
-            'number': str(self.sheet['Q3'].value).strip()[:6],
-            'issue': datetime.strptime(str(self.sheet['R3'].value).strip(), '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', str(self.sheet['L3'].value).strip()) \
+            'series': self.parse_cell(self.sheet['P3'], 4),
+            'number': self.parse_cell(self.sheet['Q3'], 6),
+            'issue': datetime.strptime(self.parse_cell(self.sheet['R3']), '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', self.parse_cell(self.sheet['L3'])) \
                     else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
         }
         self.addresses = [
-            {'view': "Адрес регистрации", 'address': str(self.sheet['N3'].value).strip()[:255]},
-            {'view': "Адрес проживания", 'address': str(self.sheet['O3'].value).strip()[:255]}
+            {'view': "Адрес регистрации", 
+             'address': self.parse_cell(self.sheet['N3'])},
+            {'view': "Адрес проживания", 
+             'address': self.parse_cell(self.sheet['O3'])}
         ]
         self.contacts = [
-            {'view': str(self.sheet['Y1'].value).strip(), 'contact': str(self.sheet['Y3'].value).strip()[:255]},
-            {'view': str(self.sheet['Z1'].value).strip(), 'contact': str(self.sheet['Z3'].value).strip()[:255]}
+            {'view': self.parse_cell(self.sheet['Y1']), 
+             'contact': self.parse_cell(self.sheet['Y3']).replace(" ", "")},
+            {'view': self.parse_cell(self.sheet['Z1']), 
+             'contact': self.parse_cell(self.sheet['Z3']).replace(" ", "")}
         ]
         self.workplaces = [
             {
-            'workplace': str(self.sheet[f'AB{i}'].value).strip()[:255],
-            'address': str(self.sheet[f'AC{i}'].value).strip()[:255],
-            'position': str(self.sheet[f'AD{i}'].value).strip()[:255]
-            } | self.parse_period(self.sheet[f'AA{i}'].value)
+            'workplace': self.parse_cell(self.sheet[f'AB{i}']),
+            'address': self.parse_cell(self.sheet[f'AC{i}']),
+            'position': self.parse_cell(self.sheet[f'AD{i}'])
+            } | self.parse_period(self.sheet[f'AA{i}'])
             for i in range(3, 6) if self.sheet[f'AB{i}'].value
         ]
         self.staff = {
-            'position': str(self.sheet['C3'].value).strip()[:255],
-            'department': str(self.sheet['D3'].value).strip()[:255]
+            'position': self.parse_cell(self.sheet['C3']),
+            'department': self.parse_cell(self.sheet['D3'])
         }
+
+    def parse_cell(self, cell, limit=255):
+        return str(cell.value).strip()[:limit]
 
     def parse_period(self, cell):
         """ Parse period from excel file """
