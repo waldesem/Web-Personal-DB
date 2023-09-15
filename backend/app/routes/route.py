@@ -744,8 +744,9 @@ def get_contacts(group, flag, page):
                 order_by(Connect.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
         case 'search':
             search = request.get_json()
-            query = db.session.query(Connect).filter_by(company=search['company']).filter_by(group_id=group_id).\
-                order_by(Connect.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
+            query = db.session.query(Connect).filter(Connect.company.ilike('%{}%'.format(search['company'])))\
+                .filter_by(group_id=group_id).order_by(Connect.id.desc()).\
+                    paginate(page=page, per_page=pagination, error_out=False)
     resume_schema = ConnectSchema()
     datas = resume_schema.dump(query, many=True)
     datalist = db.session.query(Connect.company, Connect. city).all()
@@ -754,7 +755,7 @@ def get_contacts(group, flag, page):
             {'companies': [company[0] for company in datalist]},  {'cities': [city[1] for city in datalist]}]
 
 
-@bp.route('/contact/<group>/<action>/<int:item_id>', methods=['GET', 'POST'])
+@bp.route('/contact/<group>/<action>/<int:item_id>', methods=['DELETE', 'POST'])
 @jwt_required()
 @bp.doc(hide=True)
 def update_contact(group, action, item_id):

@@ -2,6 +2,7 @@
 
 import { onBeforeMount } from 'vue';
 import { storeContact } from '@/store/contacts';
+import ConnectForm from '@content/forms/ConnectForm.vue';
 
 const contactStore = storeContact();
 
@@ -13,13 +14,13 @@ onBeforeMount(() => {
 <template>
   <div class="container py-5">
     <div class="py-5"><h4>Контакты</h4></div>
-    <form @change="contactStore.getContacts('search')" class="form form-check" role="form">
+    <form @input="contactStore.getContacts('search')" class="form form-check" role="form">
       <div class="row py-3">
-        <input class="form-control" id="name" maxlength="255" minlength="2" name="name" placeholder="Название организации" type="text" v-model="contactStore.searchData">
+        <input class="form-control" id="name" maxlength="255" minlength="2" name="name" placeholder="Поиск контактов" type="text" v-model="contactStore.searchData">
       </div>
     </form>
     <div class="py-3">
-      <table class="table table-hover table-responsive align-middle">
+      <table class="table table-responsive align-middle">
         <thead> 
           <tr>
             <th width="5%">#</th>
@@ -29,72 +30,67 @@ onBeforeMount(() => {
             <th width="15%">Контакт</th>
             <th width="15%">Примечение</th>
             <th width="10%">Дата</th>
-            <th></th>
-            <th>
-              <a role="button" title="Добавить контакт" @click="contactStore.itemAction='create'; contactStore.itemId='0'">
-                <i class="bi bi-plus-circle"></i>
+            <th colspan="2">
+              <a role="button" @click="contactStore.itemAction === 'create' 
+                                      ? contactStore.itemAction = '' 
+                                      : contactStore.itemAction = 'create'; 
+                                        contactStore.itemId='0'" 
+                               :title="contactStore.itemAction === 'create' ? 'Отмена' : 'Добавить контакт'">
+                <i :class="contactStore.itemAction === 'create' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
               </a>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-if="contactStore.itemAction === 'create' || contactStore.itemAction === 'edit'">
-            <td colspan="9">
-              <form @submit.prevent="contactStore.updateItem" class="form form-check">
-                <div class="row">
-                  <div class="col-md-2">
-                    <input class="form-control form-control-sm" list="companies" id="company" maxlength="250" name="company" placeholder="Название" type="text" v-model="contactStore.itemForm['company']" required>
-                    <datalist id="companies">
-                      <option v-for="company in contactStore.data.companies" :value="company"></option>
-                    </datalist>
-                  </div>
-                  <div class="col-md-2">
-                    <input class="form-control form-control-sm" id="city" list="cities" maxlength="255" name="city" placeholder="Город" type="text" v-model="contactStore.itemForm['city']" required>
-                    <datalist id="cities">
-                      <option v-for="city in contactStore.data.cities" :value="city"></option>
-                    </datalist>
-                  </div>
-                  <div class="col-md-2">
-                    <input class="form-control form-control-sm" id="fullname" maxlength="250" name="fullname" placeholder="Имя" type="text" v-model="contactStore.itemForm['fullname']" required>
-                  </div>
-                  <div class="col-md-2">
-                    <input class="form-control form-control-sm" id="contact" maxlength="250" name="contact" placeholder="Контакт" type="text" v-model="contactStore.itemForm['contact']" required>
-                  </div>
-                  <div class="col-md-2">
-                    <input class="form-control form-control-sm" id="comment" maxlength="250" name="comment" placeholder="Комментарий" type="text" v-model="contactStore.itemForm['comment']">
-                  </div>
-                  <div class="col-md-1">
-                    <p>{{ new Date().toLocaleDateString('ru-RU') }}</p>
-                  </div>
-                  <div class="col-md-1">
-                    <button class="btn btn-outline-primary btn-sm" type="submit">Добавить</button>
-                  </div>
-                </div>
-              </form>
+          <tr v-if="contactStore.itemAction === 'create'">
+            <td colspan="8">
+              <ConnectForm/>
+            </td>
+            <td>
+              <a class="btn btn-link" title="Отмена" @click="contactStore.itemAction = ''">
+                <i class="bi bi-escape"></i>
+              </a>
             </td>
           </tr>
-          <tr v-for="contact in contactStore.data.contacts" :key="contact['id']">
-            <td>{{ contact["id"] }}</td>
-            <td>{{ contact["company"] }}</td>
-            <td>{{ contact["city"] }}</td>
-            <td>{{ contact["fullname"] }}</td>
-            <td>{{ contact["contact"] }}</td>
-            <td>{{ contact["comment"] }}</td>
-            <td>{{ contact["data"] }}</td>
-            <td>
-              <a class="btn btn-link" data-bs-toggle="tooltip" data-bs-placement="right" title="Изменить"
-                        @click="contactStore.itemAction='edit'; 
-                                contactStore.itemId=contact['id'];
-                                contactStore.itemForm=contact">
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </td>
-            <td>
-              <a href="#" @click="contactStore.updateItem($event, 'delete', contact['id'])"
-                            data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
-                <i class="bi bi-trash"></i>
-              </a>
-            </td>
+          <tr>
+            <td colspan="9">
+              <table v-for="contact in contactStore.data.contacts" :key="contact['id']" class="table table-responsive align-middle">
+                <tbody>
+                  <tr v-if="contactStore.itemId !== contact['id']">
+                    <td width="5%">{{ contact["id"] }}</td>
+                    <td width="15%">{{ contact["company"] }}</td>
+                    <td width="15%">{{ contact["city"] }}</td>
+                    <td width="15%">{{ contact["fullname"] }}</td>
+                    <td width="15%">{{ contact["contact"] }}</td>
+                    <td width="15%">{{ contact["comment"] }}</td>
+                    <td width="10%">{{ contact["data"] }}</td>
+                    <td width="5%">
+                      <a class="btn btn-link" title="Изменить"
+                          @click="contactStore.itemAction='edit'; 
+                                  contactStore.itemId=contact['id'];
+                                  contactStore.itemForm=contact">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </td>
+                    <td width="5%">
+                      <a href="#" @click="contactStore.updateItem($event, 'delete', contact['id'])" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr v-if="contactStore.itemAction === 'edit' || contactStore.itemId === contact['id']" >
+                    <td colspan="8">
+                      <ConnectForm />
+                    </td>
+                    <td>
+                      <a class="btn btn-link" title="Отмена" @click="contactStore.itemAction = ''">
+                        <i class="bi bi-escape"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+             </td>
           </tr>
         </tbody>
       </table>

@@ -95,7 +95,14 @@ export const storeContact = defineStore('storeContact',  () => {
 
     try {
       const response = flag === 'create' || flag === 'edit'
-      ? await storeAuth.axiosInstance.post(`${server}/contact/${storeLogin.pageIdentity}/${flag}/${contactId}`, itemForm.value)
+      ? await storeAuth.axiosInstance.post(`${server}/contact/${storeLogin.pageIdentity}/${flag}/${contactId}`, {
+        'company': itemForm.value.company,
+        'city': itemForm.value.city,
+        'fullname': itemForm.value.fullname,
+        'contact': itemForm.value.contact,
+        'comment': itemForm.value.comment
+        }
+      )
       : await storeAuth.axiosInstance.delete(`${server}/contact/${storeLogin.pageIdentity}/${flag}/${contactId}`);
 
       const { action, item_id } = response.data;
