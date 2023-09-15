@@ -4,7 +4,7 @@ from datetime import datetime
 import shutil
 import requests
 
-from flask import request, send_from_directory
+from flask import request, current_app, send_from_directory
 from flask_jwt_extended import current_user, jwt_required
 from sqlalchemy import func, or_
 from PIL import Image
@@ -20,8 +20,6 @@ from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressS
             InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema, ConnectSchema
 from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
 
-BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'persons'))
-
 bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
 
@@ -32,10 +30,6 @@ bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 def main(path=''):
     """
     Get the file from the specified path in the static folder and return it, or return the index.html file if the path is not found.
-    Parameters:
-        path (str): The path of the file to retrieve from the static folder. Defaults to an empty string if no path is provided.
-    Returns:
-        Response: The file from the specified path in the static folder, or the index.html file if the path is not found.
     """
     if path and os.path.exists(os.path.join(bp.static_folder, path)):
         return send_from_directory(bp.static_folder, path)
@@ -250,7 +244,7 @@ def add_resume(resume: dict, location_id, action):
         if result.path and not os.path.isdir(result.path):
             os.mkdir(result.path)
         elif not result.path:
-            new_path = os.path.join(BASE_PATH, f'{person_id}-{resume["fullname"]}')
+            new_path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{resume["fullname"]}')
             if not os.path.isdir(new_path):
                 os.mkdir(new_path)
             result.path = new_path
@@ -260,7 +254,7 @@ def add_resume(resume: dict, location_id, action):
         db.session.flush()
         person_id = person.id
         
-        path = os.path.join(BASE_PATH, f'{person_id}-{resume["fullname"]}')
+        path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{resume["fullname"]}')
         person.path = path
         if not os.path.isdir(path):
             os.mkdir(path)
@@ -354,7 +348,7 @@ def upload_photo(person_id):
             os.mkdir(os.path.join(person.path))
         new_path = person.path
     else:
-        new_path = os.path.join(BASE_PATH, f'{person_id}-{person["fullname"]}')
+        new_path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{person["fullname"]}')
         if not os.path.isdir(new_path):
             os.mkdir(new_path)
         person.path = new_path
@@ -440,7 +434,7 @@ def create_folders(person_id, fullname, folder_name):
         :return: The path of the created folder.
         :rtype: str
     """
-    url = os.path.join(BASE_PATH, f'{person_id}-{fullname}')
+    url = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{fullname}')
     if not os.path.isdir(url):
         os.mkdir(url)
     folder = os.path.join(url, folder_name)
