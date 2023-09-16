@@ -20,7 +20,7 @@ onBeforeMount(() => {
       </div>
     </form>
     <div class="py-3">
-      <table class="table table-responsive align-middle">
+      <table class="table table-responsive align-middle no-bottom-border">
         <thead> 
           <tr>
             <th width="5%">#</th>
@@ -28,7 +28,7 @@ onBeforeMount(() => {
             <th width="15%">Город</th>
             <th width="15%">Имя</th>
             <th width="15%">Контакт</th>
-            <th width="15%">Примечение</th>
+            <th width="15%">Примечание</th>
             <th width="10%">Дата</th>
             <th width="5%">
               <a role="button" @click="contactStore.itemAction === 'create' 
@@ -50,7 +50,7 @@ onBeforeMount(() => {
           </tr>
           <tr>
             <td colspan="9">
-              <table v-for="contact in contactStore.data.contacts" :key="contact['id']" class="table table-responsive align-middle">
+              <table v-for="contact in contactStore.data.contacts" :key="contact['id']" class="table table-responsive table-hover align-middle">
                 <tbody>
                   <tr v-if="contactStore.itemId !== contact['id']">
                     <td width="5%">{{ contact["id"] }}</td>
@@ -98,3 +98,10 @@ onBeforeMount(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+table td
+{
+  border-bottom: none;
+}
+</style>
