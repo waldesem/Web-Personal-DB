@@ -1,22 +1,16 @@
 <script setup lang="ts">
-// компонент для отображения списка кандидатов для пользователя 
 
 import { computed, onBeforeMount } from 'vue';
 import { appPersons } from '@/store/persons';
 import { appClassify } from '@store/classify';
-//import { appLogin } from '@/store/login';
 
 const storePersons = appPersons();
 const storeClassify = appClassify();
-//const storeLogin = appLogin();
 
-// Инициализация списка кандидатов
 onBeforeMount(() => {
-  //storeLogin.pageIdentity = 'staffsec';
   storePersons.getCandidates();
 })
 
-// матчинг заголовков страниц
 const header = computed(() => {
   const name = {
     'search': "Результаты поиска", 
@@ -45,19 +39,9 @@ const header = computed(() => {
         </form>
       </div>
       <div class="col-md-9">
-        <form @submit.prevent="storePersons.getCandidates('search')" class="form form-check" role="form">
+        <form @input="storePersons.searchPerson('search')" class="form form-check" role="form">
           <div class="row">
-            <div class="col-md-7">
-                <label class="visually-hidden" for="fullname">Fullname</label>
-                <input class="form-control" id="fullname" maxlength="250" minlength="3" v-model="storePersons.searchData.fullname" name="fullname" placeholder="поиск по ФИО" type="text">
-            </div>
-            <div class="col-md-3">
-                <label class="visually-hidden" for="birthday">Birthday</label>
-                <input class="form-control" id="birthday" v-model="storePersons.searchData.birthday" name="birthday" placeholder="по дате рождения" type="date">
-            </div>
-            <div class="col-md-1">
-              <button class="btn btn-outline-primary btn-md" type="submit">Найти</button>
-            </div>
+            <input class="form-control" id="fullname" maxlength="250" minlength="3" v-model="storePersons.searchData.fullname" name="fullname" placeholder="поиск по ФИО" type="text">
           </div>
         </form>
       </div>

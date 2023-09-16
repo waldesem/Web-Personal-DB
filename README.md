@@ -77,12 +77,14 @@ This will compile the TypeScript code and output the JavaScript and CSS files in
 To start the application at http://localhost:5000 run the following command in your terminal:
 ```
 export FLASK_APP=app
-export FLASK_ENV=testing  # create a testing environment and SQLite database (optional)
+export FLASK_ENV=testing    # create a testing environment and SQLite database (optional)
+flask create-default        # create default tables and populate them with data from the classify file
 flask run
 ```
-Database tables creates automatically. Admin user on default has name admin and the password 'administrator'.
+Admin user on default has name admin and the password 'administrator'.
 Change it in first login to application. Regions gets from the classify file
-Then you can start the app with Gunicorn server:
+
+To start the app with Gunicorn server:
 ```
 gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
 ```

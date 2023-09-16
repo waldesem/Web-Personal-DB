@@ -123,16 +123,11 @@ def index(flag, page):
         case 'search':
             search = request.get_json()
             if location_id == 1:
-                query = db.session.query(Person).filter(
-                    or_(Person.fullname.ilike('%{}%'.format(search['fullname'])), search['fullname'] == ''),
-                    or_(Person.birthday == search['birthday'] if search['birthday'] else True),
-                    ).order_by(Person.id.asc()).\
-                        paginate(page=page, per_page=pagination, error_out=False)
+                query = db.session.query(Person).filter(Person.fullname.ilike('%{}%'.format(search['fullname']))).\
+                    order_by(Person.id.asc()).paginate(page=page, per_page=pagination, error_out=False)
             else:
-                query = db.session.query(Person).filter(
-                or_(Person.fullname.ilike('%{}%'.format(search['fullname'])), search['fullname'] == ''),
-                or_(Person.birthday == search['birthday']),
-                Person.region_id == location_id).order_by(Person.id.asc()).\
+                query = db.session.query(Person).filter(Person.fullname.ilike('%{}%'.format(search['fullname'])), 
+                                                        Person.region_id == location_id).order_by(Person.id.asc()).\
                     paginate(page=page, per_page=pagination, error_out=False)
     
     resume_schema = PersonSchema()

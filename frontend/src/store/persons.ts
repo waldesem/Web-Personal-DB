@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { appAuth } from '@store/auth';
 import { ref } from 'vue';
 import server from '@store/server';
-
+import debounce from '@store/debounce';
 
 export const appPersons = defineStore('appPersons',  () => {
 
@@ -16,7 +16,6 @@ export const appPersons = defineStore('appPersons',  () => {
 
   const searchData = ref({
     fullname: '',
-    birthday: ''
   });
   
   const currenData = ref({
@@ -38,10 +37,7 @@ export const appPersons = defineStore('appPersons',  () => {
 
     try {
       const response = url === 'search' 
-        ? await storeAuth.axiosInstance.post(`${server}/index/${url}/${page}`, {
-            "fullname": searchData.value.fullname, 
-            "birthday": searchData.value.birthday
-          }) 
+        ? await storeAuth.axiosInstance.post(`${server}/index/${url}/${page}`, searchData.value) 
         : await storeAuth.axiosInstance.get(`${server}/index/${url}/${page}`);
 
       const [ datas, metadata ] = response.data;
@@ -81,5 +77,7 @@ export const appPersons = defineStore('appPersons',  () => {
     }
   };
 
-  return { data, searchData, currenData, getCandidates, prevPage, nextPage };
+  const searchPerson = debounce(getCandidates, 500);
+
+  return { data, searchData, currenData, getCandidates, prevPage, nextPage, searchPerson };
 });

@@ -4,6 +4,7 @@ import { appLogin } from '@store/login';
 import { appAlert } from '@store/alert';
 import { ref } from 'vue';
 import server from '@store/server';
+import debounce from '@store/debounce';
 
 export const storeContact = defineStore('storeContact',  () => {
 
@@ -126,5 +127,7 @@ export const storeContact = defineStore('storeContact',  () => {
     }
   };
 
-  return { data, searchData, currenData, itemAction, itemId, itemForm, getContacts, prevPage, nextPage, updateItem };
+  const searchContacts = debounce(getContacts, 500);
+
+  return { data, searchData, currenData, itemAction, itemId, itemForm, getContacts, prevPage, nextPage, updateItem, searchContacts };
 });

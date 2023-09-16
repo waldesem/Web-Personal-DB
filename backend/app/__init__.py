@@ -1,6 +1,7 @@
 import bcrypt
 import os
 from apiflask import APIFlask
+import click
 from flask_migrate import Migrate
 from flask_cors import CORS
 
@@ -34,7 +35,9 @@ def create_app():
     from app.routes import bp as route_bp
     app.register_blueprint(route_bp)
 
-    with app.app_context():
+
+    @app.cli.command('create-default')
+    def create_default():
         db.create_all()
         regions = db.session.query(Region.region).all()
         for reg in Regions:
