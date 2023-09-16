@@ -2,8 +2,6 @@ from datetime import datetime
 import re
 import openpyxl
 
-from app.models.model import db, Staff, Document, Address, Contact, Workplace
-
 
 class ExcelFile:
     """ Create class for import data from excel files"""
@@ -77,27 +75,3 @@ class ExcelFile:
             start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
             end_date = datetime.now().date()
         return {'start_date': start_date, 'end_date': end_date}
-
-
-def resume_data(person_id, document, addresses, contacts, workplaces, staff):
-    """
-    Adds resume data to the database for a person.
-    Args:
-        person_id (int): The ID of the person.
-        document (dict): A dictionary containing document information.
-        addresses (list): A list of dictionaries containing address information.
-        contacts (list): A list of dictionaries containing contact information.
-        workplaces (list): A list of dictionaries containing workplace information.
-        staff (dict): A dictionary containing staff information.
-    Returns:
-        None
-    """
-    db.session.add(Staff(**staff | {'person_id': person_id}))
-    db.session.add(Document(**document | {'person_id': person_id}))
-    for address in addresses:
-        db.session.add(Address(**address | {'person_id': person_id}))
-    for contact in contacts:
-        db.session.add(Contact(**contact | {'person_id': person_id}))
-    for workplace in workplaces:
-        db.session.add(Workplace(**workplace | {'person_id': person_id}))
-    db.session.commit()

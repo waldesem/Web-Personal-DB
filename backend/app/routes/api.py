@@ -6,8 +6,7 @@ import bcrypt
 from apiflask import HTTPBasicAuth
 
 from ..routes import bp
-from ..routes.route import add_resume, create_folders
-from ..utils.excel import resume_data
+from ..utils.actions import resume_data, add_resume, create_folders
 from ..models.model import db, User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
 from ..models.classes import Roles

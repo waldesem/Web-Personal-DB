@@ -1,24 +1,23 @@
 import json
 import os
-from datetime import datetime
 import shutil
 import requests
 
 from flask import request, current_app, send_from_directory
 from flask_jwt_extended import current_user, jwt_required
-from sqlalchemy import func, or_
+from sqlalchemy import func
 from PIL import Image
-from werkzeug.exceptions import BadRequest
 
 from . import bp
 from . login import roles_required, group_required
-from ..utils.excel import ExcelFile, resume_data
+from ..utils.excel import ExcelFile
+from ..utils.actions import resume_data, add_resume, create_folders
 from ..models.model import db, User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report, Region, Group, Connect
-from ..models.schema import MessageSchema, RelationSchema, StaffSchema, AddressSchema, \
+    Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report
+from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema, ConnectSchema
-from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
+            InvestigationSchema, PoligrafSchema, RegistrySchema, WorkplaceSchema, AnketaSchema
+from ..models.classes import Category, Roles, Groups, Status
 
 bp.static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
 
@@ -35,52 +34,6 @@ def main(path=''):
         return send_from_directory(bp.static_folder, path)
     else:
         return bp.send_static_file('index.html')
-    
-    
-@bp.get('/classify')
-@bp.doc(hide=True)
-def get_classes():
-    """
-    Get the classification data.
-    This function retrieves the classification data for the API. It returns a dictionary 
-    containing the values of the different status options, role options, conclusions,
-    decisions, categories, groups and roles 
-    """
-    return [{i.name: i.value for i in Status}, 
-            {rgn[0]: rgn[1] for rgn in db.session.query(Region.id, Region.region).all()}, 
-            {i.name: i.value for i in Conclusions}, 
-            {i.name: i.value for i in Decisions}, 
-            {i.name: i.value for i in Category},
-            {i.name: i.value for i in Groups},
-            {i.name: i.value for i in Roles}]
-
-
-@bp.get('/messages/<string:flag>')
-@bp.doc(hide=True)
-@jwt_required()
-def get_messages(flag):
-    """
-    Retrieves messages based on a flag.
-    Args:
-        flag (str): The flag to determine the type of messages to retrieve.
-    Returns:
-        list: A list of messages retrieved based on the flag.
-    """
-    def update_messages():
-        updates = db.session.query(Report).filter(Report.status == Status.new.value, 
-                                                  Report.user_id == current_user.id).limit(16).all()
-        return updates
-    
-    messages = update_messages()
-    
-    if flag == 'reply':
-        for message in messages:
-             db.session.delete(message)
-        db.session.commit()
-        messages = update_messages()
-    schema = MessageSchema()
-    messages = schema.dump(messages, many=True)
-    return messages
 
 
 @bp.route('/index/<flag>/<int:page>', methods=['GET', 'POST'])
@@ -216,86 +169,100 @@ def post_resume(action, json_data):
     return {'person_id': person_id, 'result': result}
 
 
-def add_resume(resume: dict, location_id, action):
-    """
-    Adds a resume to the database.
-    Args:
-        resume (dict): A dictionary containing the resume information.
-        location_id: The ID of the location where the resume is being added.
-    Returns:
-        list: A list containing the person ID and a boolean indicating if the person already exists in the database.
-    """
-    result = db.session.query(Person).filter(Person.fullname.ilike(resume['fullname']),
-                                             Person.birthday==resume['birthday']).one_or_none()
-    if result:
-        if action == "create" or action == 'api':
-            resume.update({'status': Status.repeat.value, 'region_id': location_id})
-        else:
-            resume.update({'status': Status.update.value, 'region_id': location_id})
-        for k, v in resume.items():
-            setattr(result, k, v)
-        person_id = result.id
-        
-        if result.path and not os.path.isdir(result.path):
-            os.mkdir(result.path)
-        elif not result.path:
-            new_path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{resume["fullname"]}')
-            if not os.path.isdir(new_path):
-                os.mkdir(new_path)
-            result.path = new_path
-    else:
-        person = Person(**resume | {'region_id': location_id})
-        db.session.add(person)
-        db.session.flush()
-        person_id = person.id
-        
-        path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{resume["fullname"]}')
-        person.path = path
-        if not os.path.isdir(path):
-            os.mkdir(path)
-        
-    db.session.commit()
-    return [person_id, bool(result)]
-
-
-@bp.post('/profile/<table>/<action>/<int:id>')
+@bp.post('/profile/staff/<action>/<int:id>')
 @group_required(Groups.staffsec.name)
 @roles_required(Roles.user.name)
+@bp.input(StaffSchema)
 @bp.doc(hide=True)
-def post_anketa_item(table, action, id):
-    """
-    Handles the POST request to update staff profile information.
-    Parameters:
-        table (str): The table name for the profile information.
-        action (str): The action to perform on the profile information.
-        id (int): The ID of the staff member.
-    Returns:
-        dict: A dictionary containing the updated table name, action, and ID.
-    """
-    response = request.get_json()
-    mapping = {
-        'staff': [StaffSchema(), Staff],
-        'document': [DocumentSchema(), Document],
-        'address': [AddressSchema(), Address],
-        'contact': [ContactSchema(), Contact],
-        'workplace': [WorkplaceSchema(), Workplace],
-        'relation': [RelationSchema(), Relation]
-        }
-    schema = mapping[table][0]  
-    data = schema.dump(response)
-
+def add_staff_item(action, id, json_data):
+    
     if action == 'create':
-        db.session.add(mapping[table][1](**data | {'person_id': id}))
+        db.session.add(Staff(**json_data | {'person_id': id}))
     else:
-        for k, v in data.items():
-            setattr(db.session.query(mapping[table][1]).get(id), k, v)
-    if table == 'relation':
-        # Добавляем связь к анкете соответствующей родительской анкете
-        db.session.add(Relation(relation = data['relation'], 
-                                relation_id = id,
-                                person_id = data['relation_id']))
+        for k, v in json_data.items():
+            setattr(db.session.query(Staff).get(id), k, v)
     db.session.commit()
-    return {'table': table, 'actions': action, 'id': id}
+    return {'table': 'staff', 'actions': action, 'id': id}
+
+
+@bp.post('/profile/document/<action>/<int:id>')
+@group_required(Groups.staffsec.name)
+@roles_required(Roles.user.name)
+@bp.input(DocumentSchema)
+@bp.doc(hide=True)
+def add_doc_item(action, id, json_data):
+    
+    if action == 'create':
+        db.session.add(Document(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Document).get(id), k, v)
+    db.session.commit()
+    return {'table': 'document', 'actions': action, 'id': id}
+
+
+@bp.post('/profile/address/<action>/<int:id>')
+@group_required(Groups.staffsec.name)
+@roles_required(Roles.user.name)
+@bp.input(AddressSchema)
+@bp.doc(hide=True)
+def add_address_item(action, id, json_data):
+    
+    if action == 'create':
+        db.session.add(Address(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Address).get(id), k, v)
+    db.session.commit()
+    return {'table': 'address', 'actions': action, 'id': id}
+
+
+@bp.post('/profile/contact/<action>/<int:id>')
+@group_required(Groups.staffsec.name)
+@roles_required(Roles.user.name)
+@bp.input(ContactSchema)
+@bp.doc(hide=True)
+def add_contact_item(action, id, json_data):
+    
+    if action == 'create':
+        db.session.add(Contact(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Contact).get(id), k, v)
+    db.session.commit()
+    return {'table': 'contact', 'actions': action, 'id': id}
+
+
+@bp.post('/profile/workplace/<action>/<int:id>')
+@group_required(Groups.staffsec.name)
+@roles_required(Roles.user.name)
+@bp.input(WorkplaceSchema)
+@bp.doc(hide=True)
+def add_workplace_item(action, id, json_data):
+    
+    if action == 'create':
+        db.session.add(Workplace(**json_data | {'person_id': id}))
+    else:
+        for k, v in json_data.items():
+            setattr(db.session.query(Workplace).get(id), k, v)
+    db.session.commit()
+    return {'table': 'workplace', 'actions': action, 'id': id}
+
+
+@bp.post('/profile/relation/<action>/<int:id>')
+@group_required(Groups.staffsec.name)
+@roles_required(Roles.user.name)
+@bp.input(RelationSchema)
+@bp.doc(hide=True)
+def post_relation_item(action, id, json_data):
+    for k, v in json_data.items():
+        setattr(db.session.query(Relation).get(id), k, v)
+        # Добавляем связь к анкете соответствующей родительской анкете
+    db.session.add(Relation(relation = json_data['relation'], 
+                            relation_id = id,
+                            person_id = json_data['relation_id']))
+    db.session.commit()
+    return {'table': 'relation', 'actions': action, 'id': id}
 
 
 @bp.post('/profile/location/update/<int:id>')
@@ -416,29 +383,6 @@ def send_resume(person_id):
             print(e)
             return {'message': Status.error.name}
     return {'message': Status.error.name}
-
-
-def create_folders(person_id, fullname, folder_name):
-    """
-        Check if a folder exists for a given person and create it if it does not exist.
-
-        :param person_id: The ID of the person.
-        :type person_id: int
-        :param fullname: The full name of the person.
-        :type fullname: str
-        :return: The path of the created folder.
-        :rtype: str
-    """
-    url = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{fullname}')
-    if not os.path.isdir(url):
-        os.mkdir(url)
-    folder = os.path.join(url, folder_name)
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
-    subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
-    if not os.path.isdir(subfolder):
-        os.mkdir(subfolder)
-    return subfolder
 
 
 @bp.get('/check/add/<int:person_id>')
@@ -716,69 +660,4 @@ def post_information():
     
     return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
             "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))}
-
-
-@bp.route('/contacts/<group>/<flag>/<int:page>', methods=['GET', 'POST'])
-@jwt_required()
-@bp.doc(hide=True)
-def get_contacts(group, flag, page):
-    """
-    Get contacts based on the specified group, flag, and page.
-    """
-    pagination = 16
-    group_id = db.session.query(Group.id).filter_by(group=group).scalar()
-    match flag:
-        case 'list':
-            query = db.session.query(Connect). \
-                order_by(Connect.id.desc()).paginate(page=page, per_page=pagination, error_out=False)
-        case 'search':
-            search = request.get_json()
-            query = db.session.query(Connect).filter(Connect.company.ilike('%{}%'.format(search['company'])))\
-                .filter_by(group_id=group_id).order_by(Connect.id.desc()).\
-                    paginate(page=page, per_page=pagination, error_out=False)
-    resume_schema = ConnectSchema()
-    datas = resume_schema.dump(query, many=True)
-    datalist = db.session.query(Connect.company, Connect. city).all()
-
-    return [datas, {'has_next': int(query.has_next)}, {"has_prev": int(query.has_prev)}, 
-            {'companies': [company[0] for company in datalist]},  {'cities': [city[1] for city in datalist]}]
-
-
-@bp.route('/contact/<group>/<action>/<int:item_id>', methods=['DELETE', 'POST'])
-@jwt_required()
-@bp.doc(hide=True)
-def update_contact(group, action, item_id):
-    if action == 'delete':
-        resp = db.session.query(Connect).filter_by(id=item_id).first()
-        db.session.delete(resp)
-    else:
-        data = request.get_json()
-        schema = ConnectSchema()
-        json_dumped = schema.dump(data)
-        if action == 'create':
-            group_id = db.session.query(Group.id).filter_by(group=group).scalar()
-            connect = Connect(**json_dumped | {"group_id": group_id})
-            db.session.add(connect)
-            db.session.flush()
-            item_id = connect.id
-        else:
-            resp = db.session.query(Connect).filter_by(id=item_id).first()
-            for k, v in json_dumped.items():
-                setattr(resp, k, v)
-    db.session.commit()
-
-    return {'action': action, 'item_id': item_id}
-
-
-@bp.errorhandler(BadRequest)
-def handle_bad_request(e):
-    """
-    A decorator function that handles the BadRequest error.
-    Parameters:
-    - e (BadRequest): The BadRequest error object.
-    Returns:
-    - str: The error message 'bad request!'.
-    - int: The HTTP status code 400.
-    """
-    return 'bad request!', 400
 
