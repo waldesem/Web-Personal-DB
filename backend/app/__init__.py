@@ -2,6 +2,7 @@ import bcrypt
 from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_cors import CORS
+import flask_monitoringdashboard as dashboard
 
 from .models.model import User, Region, Role, Group, db, cache
 from .models.classes import Roles, Groups, Regions
@@ -22,6 +23,7 @@ def create_app():
     ma.init_app(app)
     jwt.init_app(app)
     cache.init_app(app)
+    dashboard.bind(app)
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
 
