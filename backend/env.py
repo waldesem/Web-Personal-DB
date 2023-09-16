@@ -11,7 +11,7 @@ CACHE_TYPE = "SimpleCache"
 CACHE_DEFAULT_TIMEOUT = 300
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://flask:flask@localhost/personal'
-BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'persons'))
+BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',  '..', 'persons'))
 
 if os.environ.get('FLASK_ENV') == 'testing':
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.pardir, 'personal.db')

@@ -1,10 +1,10 @@
 import bcrypt
+import os
 from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_cors import CORS
-import flask_monitoringdashboard as dashboard
 
-from .models.model import User, Region, Role, Group, db, cache
+from .models.model import db, cache, User, Region, Role, Group
 from .models.classes import Roles, Groups, Regions
 from .models.schema import  ma
 from .routes.login import jwt
@@ -16,23 +16,26 @@ def create_app():
     :return: The Flask application instance.
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
-    app.config.from_pyfile('../instance/env.py')
-    app.json.sort_keys = False
+    app.config.from_pyfile(os.path.join('..', 'env.py'))
+    
     CORS(app, resources={r"/*": {"origins": "*"}})
+    
     db.init_app(app)
+    
     ma.init_app(app)
+    
     jwt.init_app(app)
+    
     cache.init_app(app)
-    dashboard.bind(app)
+        
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
 
     from app.routes import bp as route_bp
     app.register_blueprint(route_bp)
 
-    with app.app_context():    # create DB tables and default values
-        db.create_all()  
-        
+    with app.app_context():
+        db.create_all()
         regions = db.session.query(Region.region).all()
         for reg in Regions:
             if not reg.value in [rgn[0] for rgn in regions]:
@@ -61,5 +64,5 @@ def create_app():
             db.session.add(new_admin)
             
         db.session.commit()
-
+        
     return app
