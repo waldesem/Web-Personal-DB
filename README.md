@@ -65,6 +65,15 @@ npm run build
 ```
 This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
 
+### Migration
+
+For migrate database enter commands:
+```
+flask db init       # run this command for the first time if migration folder is not exist
+flask db migrate    # after change db schema
+flask db upgrade    # after change db schema
+```
+
 ### Usage
 
 To start the application at http://localhost:5000 run the following command in your terminal:
@@ -80,14 +89,6 @@ Change it in first login to application.
 To start the app with Gunicorn server:
 ```
 gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
-```
-### Migration
-
-For migrate database enter commands:
-```
-flask db init       # run this command for the first time if migration folder is not exist
-flask db migrate    # after change db schema
-flask db upgrade    # after change db schema
 ```
 
 ### Gunicorn Service
