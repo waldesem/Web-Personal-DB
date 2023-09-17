@@ -31,9 +31,9 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 </script>
 ``
 <template>
-  <div class="container py-5">
+  <div class="container py-3">
     <div class="py-5">
-      <!-- <PhotoForm /> -->
+      <!--PhotoForm /-->
       <h4>{{storeProfile.anketa.resume['fullname']}}
         &nbsp;
         <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;

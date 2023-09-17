@@ -67,7 +67,7 @@ async function submitData(): Promise<void> {
         </tbody>
       </table>
     </div>
-    <div class="py-5">
+    <div class="py-3">
       <form @submit.prevent="submitData" class="form form-check" role="form">
           <div class="mb-3 row required">
             <label class="col-form-label col-md-2" for="region">Регион</label>

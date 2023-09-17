@@ -1,21 +1,34 @@
+from flask_jwt_extended import jwt_required, current_user
+
 from . import bp
-from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
-from ..models.model import db, Region
-    
-    
-@bp.get('/classify')
+from ..models.classes import Status
+from ..models.model import db, Report
+from ..models.schema import MessageSchema
+
+
+@bp.get('/messages/<string:flag>')
 @bp.doc(hide=True)
-def get_classes():
+@jwt_required()
+def get_messages(flag):
     """
-    Get the classification data.
-    This function retrieves the classification data for the API. It returns a dictionary 
-    containing the values of the different status options, role options, conclusions,
-    decisions, categories, groups and roles 
+    Retrieves messages based on a flag.
+    Args:
+        flag (str): The flag to determine the type of messages to retrieve.
+    Returns:
+        list: A list of messages retrieved based on the flag.
     """
-    return [{i.name: i.value for i in Status}, 
-            {rgn[0]: rgn[1] for rgn in db.session.query(Region.id, Region.region).all()}, 
-            {i.name: i.value for i in Conclusions}, 
-            {i.name: i.value for i in Decisions}, 
-            {i.name: i.value for i in Category},
-            {i.name: i.value for i in Groups},
-            {i.name: i.value for i in Roles}]
+    def update_messages():
+        updates = db.session.query(Report).filter(Report.status == Status.new.value, 
+                                                  Report.user_id == current_user.id).limit(16).all()
+        return updates
+
+    messages = update_messages()
+
+    if flag == 'reply':
+        for message in messages:
+             db.session.delete(message)
+        db.session.commit()
+        messages = update_messages()
+    schema = MessageSchema()
+    messages = schema.dump(messages, many=True)
+    return messages

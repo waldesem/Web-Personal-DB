@@ -82,7 +82,7 @@ flask create-default        # create default tables and populate them with data 
 flask run
 ```
 Admin user on default has name admin and the password 'administrator'.
-Change it in first login to application. Regions gets from the classify file
+Change it in first login to application.
 
 To start the app with Gunicorn server:
 ```
@@ -143,6 +143,13 @@ Add rule in your firewall:
 ```
 sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
+```
+
+### Doker (not tested yet)
+To build the docker image run the following command in your terminal:
+```
+docker build -t staffsec .
+docker run --add-host host.docker.internal:host-gateway -p 5000:5000 staffsec
 ```
 
 ### License

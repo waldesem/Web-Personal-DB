@@ -17,7 +17,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div class="container py-5">
+  <div class="container py-3">
     <div class="py-3"><h4>{{ adminStore.action === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4></div>
     <UserForm v-if="adminStore.action === 'create'" />
     <div v-else class="py-2">

@@ -11,7 +11,7 @@ storeProfile.action = 'update';
 </script>
 
 <template>
-    <div class="container py-5">
+    <div class="container py-3">
         <div class="py-5"><h4>Создать анкету</h4></div>
         <UploadFile />
         <ResumeForm />

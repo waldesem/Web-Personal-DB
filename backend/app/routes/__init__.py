@@ -12,7 +12,9 @@ from app.routes import admin
 
 from app.routes import error
 
-from app.routes import contact
+from app.routes import contacts
 
 from app.routes import messages
+
+from app.routes import classify 
 

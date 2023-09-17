@@ -1,10 +1,12 @@
 <template>
   <div class="py-3">
     <div class="card" style="width: 18rem;">
-      <img class="card-img-top" :src="`${storeProfile.anketa.resume.path}/images/person.jpg`">
+      <img class="card-img-top" :src="imgUrl">
     </div>
     <form enctype="multipart/form-data" @change="submitPhoto">
-      <input id="file" name="file" type="file" accept="image/*" ref="file">
+      <div class="py-1">
+        <input id="file" name="file" type="file" accept="image/*" ref="file">
+      </div>
     </form>
   </div>
 </template>
@@ -22,8 +24,8 @@ const storeAuth = appAuth();
 const storeAlert = appAlert();
 const storeProfile = appProfile();
 
-// Файл с изображением
 const file = ref(null);
+const imgUrl = ref(new URL(`${storeProfile.anketa.resume.path}/images/person.jpg`, import.meta.url).href);
 
 /**
  * Submits a file to the server.
@@ -35,17 +37,17 @@ async function submitPhoto(event: Event): Promise<void> {
   event.preventDefault();
   const formData = new FormData();
   const fileInput = file.value as HTMLInputElement | null;
-  // Если файл выбран и размер не превышает 2 МБ
+
   if (fileInput && fileInput.files && fileInput.files[0].size < 2097152) {
     formData.append('file', fileInput.files[0]);
     
     try {
       const response = await storeAuth.axiosInstance.post(`${server}/photo/upload/${storeProfile.candId}`, formData);
       const { result } = response.data;
-      // Обновляем сообщение
+
       storeAlert.alertAttr = result ? "alert-success" : "alert-warning";
       storeAlert.alertText = result ? 'Фото добавлено' : 'Ошибка при добавлении фото';
-      // Отправка события в родительский компонент для обновления карточки
+
       storeProfile.getProfile();
 
     } catch (error) {
@@ -53,7 +55,6 @@ async function submitPhoto(event: Event): Promise<void> {
     } 
   
   } else {
-    // Обновляем сообщение, если размер файла превышает 2 МБ
     storeAlert.alertAttr = "alert-warning";
     storeAlert.alertText = 'Ошибка. Возможно размер файла более 2 МБ';
   }

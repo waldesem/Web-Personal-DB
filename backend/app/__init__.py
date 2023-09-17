@@ -1,7 +1,6 @@
 import bcrypt
 import os
 from apiflask import APIFlask
-import click
 from flask_migrate import Migrate
 from flask_cors import CORS
 

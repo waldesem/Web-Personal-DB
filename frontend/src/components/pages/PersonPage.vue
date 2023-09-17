@@ -24,9 +24,9 @@ const header = computed(() => {
 </script>
 
 <template>
-  <div class="container py-5">
+  <div class="container py-3">
     <div class="py-5"><h4>{{ header }}</h4></div>
-    <div class="row py-3">
+    <div class="row">
       <div class="col-md-3">
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="action">Действия</label>

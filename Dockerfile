@@ -1,6 +1,3 @@
-# docker build -t staffsec .
-# docker run --add-host host.docker.internal:host-gateway -p 5000:5000 staffsec
-
 # Use the official Python base image
 FROM python:3.10
 

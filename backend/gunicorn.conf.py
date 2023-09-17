@@ -17,3 +17,6 @@ errorlog = "gunicorn.log"
 
 # The log level (debug, info, warning, error, critical)
 loglevel = "warning"
+
+# Worker class (options: sync, eventlet, gevent)
+worker_class = "sync"
