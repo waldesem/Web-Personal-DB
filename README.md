@@ -15,6 +15,7 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Bootstrap 5 as the UI framework.
 
 ### Installation
+
 To use this project, you will need to have Python 3.10 or higher installed on your local machine. You must install Python if you don't have it already.
 Check your Python version with the following command:
 ```
@@ -46,16 +47,8 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
 
-### Migration
-
-For migrate database enter commands:
-```
-flask db init       # run this command for the first time if migration folder is not exist
-flask db migrate    # after change db schema
-flask db upgrade    # after change db schema
-```
-
 ### Node Development (optional)
+
 You will also need to have Node.js installed on your machine to build and run the TypeScript code.
 After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
 ```
@@ -87,6 +80,14 @@ Change it in first login to application.
 To start the app with Gunicorn server:
 ```
 gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
+```
+### Migration
+
+For migrate database enter commands:
+```
+flask db init       # run this command for the first time if migration folder is not exist
+flask db migrate    # after change db schema
+flask db upgrade    # after change db schema
 ```
 
 ### Gunicorn Service
