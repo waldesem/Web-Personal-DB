@@ -64,10 +64,23 @@ const storeProfile = appProfile();
         <tbody>
           <tr><td>Тема</td><td>{{ tbl['theme' as keyof typeof tbl] }}</td></tr>
           <tr><td>Результат</td><td>{{ tbl['results' as keyof typeof tbl] }}</td></tr>
+          <tr><td>Ссылка</td><td>{{ tbl['path' as keyof typeof tbl] }}</td></tr>
           <tr><td>Полиграфолог</td><td>{{ tbl['officer' as keyof typeof tbl] }}</td></tr>
           <tr>
             <td>Дата</td>
             <td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).toLocaleDateString('ru-RU') }}</td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <form class="form form-check" enctype="multipart/form-data" role="form" @change="storeProfile.submitFile($event, 'poligraf', tbl['id'].toString())">
+                <div class="mb-3 row">
+                  <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
+                  <div class="col-lg-10">
+                    <input class="form-control" id="file" type="multifile" ref="file">
+                  </div>
+                </div>
+              </form>
+            </td>
           </tr>
         </tbody>
       </table>

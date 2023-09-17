@@ -137,21 +137,24 @@ def get_profile(person_id):
 @roles_required(Roles.user.name)
 @bp.doc(hide=True)
 def upload_file(action, item_id=0):
-    
-    
-    if 'file' not in request.files:
+    """
+    Handles the POST request to upload a file.
+    Parameters:
+        action (str): The action to perform on the file.
+        item_id (int): The ID of the file to upload.
+    Returns:
+        dict: A dictionary containing the action performed and the item ID.
+    """
+    if request.files['file'].filename == '':
         return {'result': False, 'item_id': item_id}
     
-    file = request.files['file']
-    filename = secure_filename(file.filename)
-    temp_path = os.path.join(current_app.config["BASE_PATH"], filename)
-    if not os.path.isfile(temp_path):
-        file.save(temp_path)
-    else:
-        os.remove(temp_path)
-        file.save(temp_path)
-    
     if action == 'anketa':
+        file = request.files['file']
+        
+        filename = secure_filename(file.filename)
+        temp_path = os.path.join(current_app.config["BASE_PATH"], f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}')
+        file.save(temp_path)
+        
         excel = ExcelFile(temp_path)
         location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
 
@@ -178,6 +181,28 @@ def upload_file(action, item_id=0):
         save_path = os.path.join(action_folder, filename)
         if not os.path.isfile(save_path):
             shutil.move(temp_path, save_path)
+        return {'result': bool(result), 'person_id': person_id}
+
+    else:
+        model_mapping = {
+            'check': Check,
+            'investigation': Investigation,
+            'poligraf': Poligraf,
+            'inquiry': Inquiry
+        }
+        files = request.files.getlist('file')
+        model = model_mapping.get(action)
+        item = db.session.query(model).filter_by(id=item_id).scalar()
+        folder = item.path
+        if not folder:
+            person  = Person.query.get(item.person_id)
+            folder = create_folders(person.id, person.fullname, action)
+            item.path = folder
+            db.session.commit()
+        for file in files:
+            filename = secure_filename(file.filename)
+            for file in files:
+                file.save(os.path.join(folder, filename))
         
         return {'result': bool(result), 'person_id': person_id}
 
@@ -200,107 +225,10 @@ def post_resume(action, json_data):
     return {'person_id': person_id, 'result': result}
 
 
-@bp.post('/profile/staff/<action>/<int:id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.input(StaffSchema)
+@bp.post('/profile/<table>/<action>/<int:id>')
+@roles_required(Roles.user.value)
 @bp.doc(hide=True)
-def add_staff_item(action, id, json_data):
-    
-    if action == 'create':
-        db.session.add(Staff(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Staff).get(id), k, v)
-    db.session.commit()
-    return {'table': 'staff', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/document/<action>/<int:id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.input(DocumentSchema)
-@bp.doc(hide=True)
-def add_doc_item(action, id, json_data):
-    
-    if action == 'create':
-        db.session.add(Document(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Document).get(id), k, v)
-    db.session.commit()
-    return {'table': 'document', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/address/<action>/<int:id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.input(AddressSchema)
-@bp.doc(hide=True)
-def add_address_item(action, id, json_data):
-    
-    if action == 'create':
-        db.session.add(Address(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Address).get(id), k, v)
-    db.session.commit()
-    return {'table': 'address', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/contact/<action>/<int:id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.input(ContactSchema)
-@bp.doc(hide=True)
-def add_contact_item(action, id, json_data):
-    
-    if action == 'create':
-        db.session.add(Contact(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Contact).get(id), k, v)
-    db.session.commit()
-    return {'table': 'contact', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/workplace/<action>/<int:id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.input(WorkplaceSchema)
-@bp.doc(hide=True)
-def add_workplace_item(action, id, json_data):
-    
-    if action == 'create':
-        db.session.add(Workplace(**json_data | {'person_id': id}))
-    else:
-        for k, v in json_data.items():
-            setattr(db.session.query(Workplace).get(id), k, v)
-    db.session.commit()
-    return {'table': 'workplace', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/relation/<action>/<int:id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.input(RelationSchema)
-@bp.doc(hide=True)
-def post_relation_item(action, id, json_data):
-    for k, v in json_data.items():
-        setattr(db.session.query(Relation).get(id), k, v)
-        # Добавляем связь к анкете соответствующей родительской анкете
-    db.session.add(Relation(relation = json_data['relation'], 
-                            relation_id = id,
-                            person_id = json_data['relation_id']))
-    db.session.commit()
-    return {'table': 'relation', 'actions': action, 'id': id}
-
-
-@bp.post('/profile/location/update/<int:id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.doc(hide=True)
-def post_location(id):
+def post_staff(table, action, id):
     """
     Handles the POST request to update staff profile information.
     Parameters:
@@ -311,13 +239,35 @@ def post_location(id):
         dict: A dictionary containing the updated table name, action, and ID.
     """
     response = request.get_json()
-    person = db.session.query(Person).get(id)
-    person.region_id = response['region_id']
-    users = db.session.query(User).filter_by(region_id=response['region_id']).all()
-    for user in users:
-        db.session.add(Report(report=f'Получена анкета {person.fullname} от {current_user.fullname}', user_id=user.id))
+    mapping = {
+        'staff': [StaffSchema, Staff],
+        'document': [DocumentSchema, Document],
+        'address': [AddressSchema, Address],
+        'contact': [ContactSchema, Contact],
+        'workplace': [WorkplaceSchema, Workplace],
+        'relation': [RelationSchema, Relation],
+        'location': [PersonSchema, Person]
+        }
+    schema = mapping[table][0]  
+    data = schema.dump(response)
+
+    if action == 'create':
+        db.session.add(mapping[table][1](**data | {'person_id': id}))
+    else:
+        for k, v in data.items():
+            setattr(db.session.query(mapping[table][1]).get(id), k, v)
+    
+    if table == 'relation':
+        db.session.add(Relation(relation = data['relation'], 
+                                relation_id = id,
+                                person_id = data['relation_id']))
+    if table == 'location':
+        users = db.session.query(User).filter_by(region_id=data['region_id']).all()
+        for user in users:
+            db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))
+    
     db.session.commit()
-    return {'table': 'location', 'actions': 'update', 'id': id}
+    return {'table': table, 'actions': action, 'id': id}
 
 
 @bp.get('/anketa/status/<int:person_id>')
@@ -552,10 +502,8 @@ def post_investigation(action, id, json_data):
     Returns:
         dict: A dictionary containing the action performed and the person ID.
     """
-    canddiate = db.session.query(Person).get(id)
     if action == 'create':
-        invs_path = create_folders(id, canddiate.fullname, 'Расследования')
-        db.session.add(Investigation(**json_data | {'person_id': id, 'path': invs_path, 'officer': current_user.fullname}))
+        db.session.add(Investigation(**json_data | {'person_id': id, 'officer': current_user.fullname}))
     else:
         for k, v in json_data.items():
             setattr(db.session.query(Investigation).get(id), k, v)
