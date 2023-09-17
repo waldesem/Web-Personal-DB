@@ -89,7 +89,7 @@ export const appProfile = defineStore('appProfile', () => {
    * @param {Event} event - The event object.
    * @return {Promise<void>} A promise that resolves when the file is successfully uploaded.
    */
-  async function submitFile(event: Event): Promise<void> {
+  async function submitFile(event: Event, flag: string, idItem: string = '0'): Promise<void> {
 
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files && inputElement.files.length > 0) {
@@ -97,13 +97,17 @@ export const appProfile = defineStore('appProfile', () => {
       formData.append('file', inputElement.files[0]);
       
       try {
-        const response = await storeAuth.axiosInstance.post(`${server}/anketa/upload`, formData);
-        const { result, person_id } = response.data;
+        const response = await storeAuth.axiosInstance.post(`${server}/file/${flag}/${idItem}`, formData);
+        const { result, item_id } = response.data;
 
-        storeAlert.setAlert(result ? "alert-info" : "alert-success",
-                            result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена');
+        if (flag === 'anketa'){
+          storeAlert.setAlert(result ? "alert-info" : "alert-success",
+                              result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена');
 
-        router.push({ name: 'profile', params: { id: person_id } })
+          router.push({ name: 'profile', params: { id: item_id } })
+        } else {
+          storeAlert.setAlert("alert-success", "Файл или файлы успешно загружен/добавлены");
+        };
       
       } catch (error) {
         console.error(error);

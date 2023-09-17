@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import UploadFile from '@content/forms/UploadFile.vue';
 import ResumeForm from '@content/forms/ResumeForm.vue';
 import { appProfile } from '@/store/profile';
 
@@ -13,7 +12,14 @@ storeProfile.action = 'update';
 <template>
     <div class="container py-3">
         <div class="py-5"><h4>Создать анкету</h4></div>
-        <UploadFile />
+        <form class="form form-check" enctype="multipart/form-data" role="form" @change="storeProfile.submitFile($event, 'anketa')">
+            <div class="mb-3 row">
+            <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
+            <div class="col-lg-10">
+                <input class="form-control" id="file" type="file" accept=".xlsx" ref="file">
+            </div>
+            </div>
+        </form>
         <ResumeForm />
     </div>
 </template>

@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 import shutil
@@ -6,7 +7,7 @@ import requests
 from flask import request, current_app, send_from_directory
 from flask_jwt_extended import current_user, jwt_required
 from sqlalchemy import func
-from PIL import Image
+from werkzeug.utils import secure_filename
 
 from . import bp
 from . login import roles_required, group_required
@@ -131,24 +132,54 @@ def get_profile(person_id):
             'registries': registries, 'pfos': pfos, 'invs': invs, 'inquiries': inquiries}
 
 
-@bp.post('/anketa/upload')
+@bp.post('/file/<action>/<int:item_id>')
 @group_required(Groups.staffsec.name)
 @roles_required(Roles.user.name)
 @bp.doc(hide=True)
-def upload_file():
-    """
-    Uploads a file and adds the resume data to the database.
-    Returns:
-        A dictionary containing the result of the upload and the person ID.
-    """
+def upload_file(action, item_id=0):
+    
+    
+    if 'file' not in request.files:
+        return {'result': False, 'item_id': item_id}
+    
     file = request.files['file']
-    excel = ExcelFile(file)
-    location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
+    filename = secure_filename(file.filename)
+    temp_path = os.path.join(current_app.config["BASE_PATH"], filename)
+    if not os.path.isfile(temp_path):
+        file.save(temp_path)
+    else:
+        os.remove(temp_path)
+        file.save(temp_path)
+    
+    if action == 'anketa':
+        excel = ExcelFile(temp_path)
+        location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
 
-    person_id, result = add_resume(excel.resume, location_id, 'create')
-    resume_data(person_id, excel.passport, excel.addresses, excel.contacts, excel.workplaces, excel.staff)
+        person_id, result = add_resume(excel.resume, location_id, 'create')
+        resume_data(person_id, excel.passport, excel.addresses, excel.contacts, excel.workplaces, excel.staff)
+        excel.close()
 
-    return {'result': bool(result), 'person_id': person_id}
+        person = Person.query.get(person_id)
+        if person and person.path:
+            if not os.path.isdir(person.path):
+                os.mkdir(os.path.join(person.path))
+            new_path = person.path
+        else:
+            new_path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{person["fullname"]}')
+            if not os.path.isdir(new_path):
+                os.mkdir(new_path)
+            person.path = new_path
+            db.session.commit()
+
+        action_folder = os.path.join(new_path, action)
+        if not os.path.isdir(action_folder):
+            os.mkdir(action_folder)
+
+        save_path = os.path.join(action_folder, filename)
+        if not os.path.isfile(save_path):
+            shutil.move(temp_path, save_path)
+        
+        return {'result': bool(result), 'person_id': person_id}
 
 
 @bp.post('/resume/<action>')
@@ -287,44 +318,6 @@ def post_location(id):
         db.session.add(Report(report=f'Получена анкета {person.fullname} от {current_user.fullname}', user_id=user.id))
     db.session.commit()
     return {'table': 'location', 'actions': 'update', 'id': id}
-
-
-@bp.post('/photo/upload/<int:person_id>')
-@group_required(Groups.staffsec.name)
-@roles_required(Roles.user.name)
-@bp.doc(hide=True)
-def upload_photo(person_id):
-    """
-    Uploads a photo for a given person.
-    :param person_id: The ID of the person.
-    :type person_id: int
-    :return: A dictionary indicating the result of the upload.
-    :rtype: dict
-    """
-    if 'file' not in request.files:
-        return {'result': False}
-    
-    person = Person.query.get(person_id)
-    if person.path:
-        if not os.path.isdir(person.path):  # если директория не существует
-            os.mkdir(os.path.join(person.path))
-        new_path = person.path
-    else:
-        new_path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{person["fullname"]}')
-        if not os.path.isdir(new_path):
-            os.mkdir(new_path)
-        person.path = new_path
-        db.session.commit()
-
-    file = request.files['file']
-    im = Image.open(file)
-    rgb_im = im.convert('RGB')
-    images = os.path.join(new_path, 'images')
-    if not os.path.isdir(images):
-        os.mkdir(images)
-    rgb_im.save(os.path.join(images, 'person.jpg'))
-    
-    return {'result': True}
 
 
 @bp.get('/anketa/status/<int:person_id>')

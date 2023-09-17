@@ -75,3 +75,6 @@ class ExcelFile:
             start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
             end_date = datetime.now().date()
         return {'start_date': start_date, 'end_date': end_date}
+
+    def close(self):
+        self.wb.close()

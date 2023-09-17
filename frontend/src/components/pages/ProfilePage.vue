@@ -10,7 +10,6 @@ import RegistryTab from '@content/tabs/RegistryTab.vue';
 import PoligrafTab from '@content/tabs/PoligrafTab.vue';
 import InvestigateTab from '@content/tabs/InvestigateTab.vue';
 import InquiryTab from '@content/tabs/InquiryTab.vue';
-//import PhotoForm from '@content/forms/PhotoForm.vue';
 
 const storeAlert = appAlert();
 const storeProfile = appProfile();
@@ -33,7 +32,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 <template>
   <div class="container py-3">
     <div class="py-5">
-      <!--PhotoForm /-->
       <h4>{{storeProfile.anketa.resume['fullname']}}
         &nbsp;
         <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
