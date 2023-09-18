@@ -8,7 +8,7 @@ from flask_jwt_extended import JWTManager, current_user, \
     create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
 
 from . import bp
-from ..models.model import  Report, User, db
+from ..models.model import  User, db
 from ..models.schema import LoginSchema, UserSchema
 from ..models.classes import Roles
 

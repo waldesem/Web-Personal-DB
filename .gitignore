@@ -187,6 +187,5 @@ pnpm-debug.log*
 *.sw?
 *.wixproj
 
-# Project files
+# Project files & folders
 persons/
-fake.py
