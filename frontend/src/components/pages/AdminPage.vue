@@ -2,15 +2,12 @@
 
 import { onBeforeMount } from 'vue'
 import { storeAdmin } from '@store/admin';
-//import { appLogin } from '@store/login';
 import UserForm from '@content/forms/UserForm.vue';
 
 const adminStore = storeAdmin();
-//const storeLogin = appLogin();
 
 // Получение списка пользователей
 onBeforeMount(async () => {
-  //storeLogin.pageIdentity = 'admin';
   adminStore.getUsers()
 });
 
@@ -18,10 +15,12 @@ onBeforeMount(async () => {
 
 <template>
   <div class="container py-3">
-    <div class="py-3"><h4>{{ adminStore.action === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4></div>
+    <div class="py-3">
+      <h4>{{ adminStore.action === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4>
+    </div>
     <UserForm v-if="adminStore.action === 'create'" />
     <div v-else class="py-2">
-      <table class="table table-hover table-responsive align-middle">
+      <table class="table table-responsive align-middle">
         <thead>
           <tr height="50px">
             <th width="5%">#</th>
@@ -44,7 +43,9 @@ onBeforeMount(async () => {
           </tr>
         </tbody>
       </table>
-      <button class="btn btn-primary" @click="adminStore.resetItem; adminStore.action = 'create'">Добавить пользователя</button>
+      <div class="py-1">
+        <button class="btn btn-primary" @click="adminStore.resetItem; adminStore.action = 'create'">Добавить пользователя</button>
+      </div>
     </div>
   </div>
 </template>@/store/admin

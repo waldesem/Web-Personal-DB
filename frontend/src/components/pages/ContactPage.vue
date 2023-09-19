@@ -13,7 +13,9 @@ onBeforeMount(() => {
 
 <template>
   <div class="container py-3">
-    <div class="py-5"><h4>Контакты</h4></div>
+    <div class="py-5">
+      <h4>Контакты</h4>
+    </div>
     <form @input="contactStore.searchContacts('search')" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="name" name="name" placeholder="Поиск контактов" type="text" v-model="contactStore.searchData">

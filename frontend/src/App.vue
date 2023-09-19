@@ -1,16 +1,14 @@
 <script setup lang="ts">
 
-import { onMounted, watch } from 'vue';
+import { onBeforeMount, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { appLogin } from '@/store/login';
 import FooterDiv from '@layouts/FooterDiv.vue';
 import AlertMessage from '@layouts/AlertMessage.vue';
-import NavBar from './components/layouts/NavBar.vue';
+import NavBar from '@layouts/NavBar.vue';
 
 const storeLogin = appLogin();
-
 const route = useRoute();
-
 
 watch(() => route.params.group,
   newValue => {
@@ -18,17 +16,15 @@ watch(() => route.params.group,
   }
 );
 
-onMounted(() => {
+onBeforeMount(() => {
   storeLogin.getAuth()
 });
 
-  
 </script>
 
 <template>
   <NavBar />
-    <AlertMessage />
-    <router-view>
-  </router-view>
+  <AlertMessage />
+  <router-view></router-view>
   <FooterDiv />
 </template>
