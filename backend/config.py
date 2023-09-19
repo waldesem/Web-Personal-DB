@@ -19,8 +19,11 @@ class Config:
     CACHE_TYPE = "SimpleCache"
     CACHE_DEFAULT_TIMEOUT = 90
 
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
-    
-    BASE_PATH = os.path.abspath(os.path.join(basedir,  'persons'))
- 
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    BASE_PATH = os.path.abspath(os.path.join(basedir, 'persons'))
+
+    def __init__(self) -> None:
+        if not os.path.isdir(self.BASE_PATH):
+            os.mkdir(self.BASE_PATH)
