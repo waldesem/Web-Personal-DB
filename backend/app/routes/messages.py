@@ -1,8 +1,9 @@
 from flask_jwt_extended import jwt_required, current_user
 
 from . import bp
+from .. import db
 from ..models.classes import Status
-from ..models.model import db, Report
+from ..models.model import Report
 from ..models.schema import MessageSchema
 
 

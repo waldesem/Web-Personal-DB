@@ -5,9 +5,10 @@ import re
 import bcrypt
 from apiflask import HTTPBasicAuth
 
-from ..routes import bp
+from . import bp
+from .. import db
 from ..utils.actions import resume_data, add_resume, create_folders
-from ..models.model import db, User, Person, Region, Check, Report, Status
+from ..models.model import User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
 from ..models.classes import Roles
 

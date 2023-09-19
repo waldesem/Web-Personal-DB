@@ -4,15 +4,14 @@ from functools import wraps
 import bcrypt
 import redis
 from flask import current_app, abort
-from flask_jwt_extended import JWTManager, current_user, \
+from flask_jwt_extended import current_user, \
     create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
 
 from . import bp
-from ..models.model import  User, db
+from .. import jwt, db
+from ..models.model import  User
 from ..models.schema import LoginSchema, UserSchema
 from ..models.classes import Roles
-
-jwt = JWTManager()
 
 
 # Setup our redis connection for storing the blocklisted tokens. You will probably

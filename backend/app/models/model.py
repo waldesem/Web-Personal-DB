@@ -1,13 +1,7 @@
 from datetime import datetime
 
-from flask_sqlalchemy import SQLAlchemy
-from flask_caching import Cache
-
+from .. import db, cache
 from .classes import Category, Decisions, Status
-
-
-db = SQLAlchemy()
-cache = Cache()
 
 
 def default_time():

@@ -1,6 +1,7 @@
 import bcrypt
 
-from app.models.model import db, User, Region, Role, Group
+from app import db
+from app.models.model import User, Region, Role, Group
 from app.models.classes import Roles, Groups, Regions
 
 def register_command(app):

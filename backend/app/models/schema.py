@@ -1,11 +1,9 @@
 from apiflask import Schema
-from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
+from .. import ma
 from ..models.model import Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Report, Region, Role, Group, Connect
-
-ma = Marshmallow()
 
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):

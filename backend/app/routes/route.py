@@ -10,10 +10,11 @@ from sqlalchemy import func
 from werkzeug.utils import secure_filename
 
 from . import bp
+from .. import db
 from . login import roles_required, group_required
 from ..utils.excel import ExcelFile
 from ..utils.actions import resume_data, add_resume, create_folders
-from ..models.model import db, User, Person, Staff, Document, Address, Contact, Workplace, \
+from ..models.model import User, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
         PersonSchema, ProfileSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \

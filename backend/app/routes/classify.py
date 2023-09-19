@@ -1,6 +1,7 @@
 from . import bp
+from .. import db
 from ..models.classes import Category, Conclusions, Decisions, Roles, Groups, Status
-from ..models.model import db, Region
+from ..models.model import Region
 
     
 @bp.get('/classify')

@@ -3,8 +3,9 @@ import bcrypt
 from flask_jwt_extended import current_user
 
 from . import bp
+from .. import db
 from .login import roles_required
-from ..models.model import  User, Role, Group, db
+from ..models.model import  User, Role, Group
 from ..models.schema import  UserSchema
 from ..models.classes import Roles
 
