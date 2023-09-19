@@ -79,7 +79,7 @@ flask db upgrade    # after change db schema
 To start the application at http://localhost:5000 run the following command in your terminal:
 ```
 export FLASK_APP=app
-flask create_default        # create default tables and populate them with data from the classify file
+flask create_default        # create default tables and populate them with data from the classes.py file
 flask run
 ```
 Admin user on default has name admin and the password 'administrator'.
