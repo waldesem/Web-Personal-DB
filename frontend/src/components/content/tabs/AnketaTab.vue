@@ -286,6 +286,10 @@ const storeClassify = appClassify();
             <td>Период</td>
             <td>{{ tbl['start_date'] }} - {{ tbl['end_date'] }}</td>
           </tr>
+          <tr>
+            <td>Работает по н.в.</td>
+            <td>{{ tbl['now_work'] }}</td>
+          </tr>
           <tr><td>Организация</td><td>{{ tbl['workplace'] }}</td></tr>
           <tr><td>Адрес</td><td>{{ tbl['address'] }}</td></tr>
           <tr><td>Должность</td><td>{{ tbl['position'] }}</td></tr>

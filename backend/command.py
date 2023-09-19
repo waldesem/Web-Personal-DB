@@ -24,15 +24,14 @@ def register_command(app):
                 db.session.add(Role(role=actor.value)) 
         db.session.commit()
 
-        if not db.session.query(User).filter_by(username='admin').one_or_none():  # создание супер администратора:)
-            new_admin = User(fullname='Administrator',
-                                username=Roles.admin.value,  # admin
-                                password=bcrypt.hashpw('administrator'.encode('utf-8'), bcrypt.gensalt()),  # admin
-                                region_id=1)
-            db.session.add(new_admin)
-            db.session.flush()            
-            new_admin.roles.append(db.session.query(Role).filter_by(role=Roles.admin.value).first())
-            new_admin.groups.append(db.session.query(Group).filter_by(group=Groups.admins.name).first())
-            db.session.add(new_admin)
+        new_admin = User(fullname='Administrator',
+                            username=Roles.admin.value,  # admin
+                            password=bcrypt.hashpw('administrator'.encode('utf-8'), bcrypt.gensalt()),  # admin
+                            region_id=1)
+        db.session.add(new_admin)
+        db.session.flush()            
+        new_admin.roles.append(db.session.query(Role).filter_by(role=Roles.admin.value).first())
+        new_admin.groups.append(db.session.query(Group).filter_by(group=Groups.admins.name).first())
+        db.session.add(new_admin)
             
         db.session.commit()

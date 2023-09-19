@@ -46,6 +46,7 @@ interface Resume {
     id: string;
     start_date: string;
     end_date: string;
+    now_work: boolean;
     workplace: string;
     address: string;
     position: string;
@@ -171,6 +172,7 @@ interface Resume {
       id: '',
       start_date: '',
       end_date: '',
+      now_work: false,
       workplace: '',
       address: '',
       position: '',

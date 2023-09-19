@@ -19,7 +19,7 @@ class Region(db.Model):
     __tablename__ = 'regions'
     
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    region = db.Column(db.String(255))
+    region = db.Column(db.String(255), unique=True)
     users = db.relationship('User', backref='users')
     persons = db.relationship('Person', backref='persons')
    
@@ -64,7 +64,7 @@ class User(db.Model):
     fullname = db.Column(db.String(255))
     username = db.Column(db.String(255), unique=True)
     password = db.Column(db.LargeBinary)
-    email = db.Column(db.String(255))
+    email = db.Column(db.String(255), unique=True)
     pswd_create = db.Column(db.DateTime, default=default_time)
     pswd_change = db.Column(db.DateTime)
     last_login = db.Column(db.DateTime)
