@@ -22,7 +22,97 @@ jwt_redis_blocklist = redis.StrictRedis(
     host="localhost", port=6379, db=0, decode_responses=True
 )
 
-    
+class LoginView(MethodView):
+
+    decorators = [bp.doc(hide=True)]
+        
+    @jwt_required()
+    def get(self): 
+        user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
+        if user and not user.has_blocked():
+            user.last_login = datetime.now()
+            db.session.commit()
+            schema = UserSchema()
+            usr = schema.dump(user)
+            return {'access': 'Authorized'} | usr
+        return {'access': 'Denied'}
+
+    @bp.input(LoginSchema)
+    def post(self, json_data):
+        user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
+        if user and not user.blocked and not user.has_role(Roles.api.value):
+            if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
+                delta_change = datetime.now() - user.pswd_create
+                if user.pswd_change and delta_change.days < 365:
+                    user.last_login = datetime.now()
+                    user.attempt = 0
+                    db.session.commit()
+                    schema = UserSchema()
+                    usr = schema.dump(user)
+                    return {'access': 'Authorized', 
+                            'access_token': create_access_token(identity=user.username), 
+                            'refresh_token': create_refresh_token(identity=user.username)} | usr
+                return {"access": "Overdue"}
+            else:
+                if user.attempt < 4:
+                    user.attempt = user.attempt+1
+                else:
+                    user.blocked = True
+                db.session.commit()
+        return {"access": "Denied"}
+
+    @bp.input(LoginSchema)
+    def patch(self, json_data):
+        """
+        Change the password for a user.
+        Args:
+            response (dict): The response object containing the username, current password, 
+                            and new password.
+        Returns:
+            dict: A dictionary with the access status and an access token (set to None).
+        """
+        user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
+        if user:
+            if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
+                setattr(user, 'password', bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'), 
+                                                        bcrypt.gensalt()))
+                setattr(user, "pswd_change", datetime.now())
+                db.session.commit()
+                return {"access": "Success"}
+        return {"access": "Denied"}
+
+
+    @jwt_required(verify_type=False)
+    def delete(self):
+        """
+        Logout the user and invalidate the access token.
+        Returns:
+            A dictionary with a single key-value pair:
+            - `access`: A string representing the access level, which is set to 'Default' after successful logout.
+        """
+        jti = get_jwt()["jti"]
+        access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+        jwt_redis_blocklist.set(jti, "", ex=access_expires)
+        return {'access': 'Default'}
+
+bp.add_url_rule('/login', view_func=LoginView.as_view('login'))
+
+
+class TokenView(MethodView):
+
+    @jwt_required(refresh=True)
+    def post(self):
+        """
+        Generates a new access token for the current user.
+        :return: A dictionary containing the new access token.
+        :rtype: dict
+        """
+        access_token = create_access_token(identity=get_jwt_identity())
+        return {'access_token': access_token}
+
+bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
+
+
 # Callback function to check if a JWT exists in the redis blocklist
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
@@ -84,115 +174,3 @@ def group_required(*groups):
         return wrapper
     return decorator
 
-
-class ContactsView(MethodView):
-
-    decorators = [bp.doc(hide=True)]
-        
-    @bp.get('/auth')
-    @jwt_required()
-    @bp.doc(hide=True)
-    def auth(): 
-        """
-        A function that handles the authentication process.
-        Returns:
-            dict: A dictionary with the access status.
-                - 'access': 'Authorized' if the user is authorized, 'Denied' otherwise.
-        """
-        user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-        if user and not user.has_blocked():
-            user.last_login = datetime.now()
-            db.session.commit()
-            schema = UserSchema()
-            usr = schema.dump(user)
-            return {'access': 'Authorized'} | usr
-        return {'access': 'Denied'}
-
-
-@bp.post('/login')
-@bp.input(LoginSchema)
-@bp.doc(hide=True)
-def login(json_data):
-    """
-    Logs in a user and returns an access token and refresh token if successful.
-    Parameters:
-        response (dict): The response from the login form containing the username and password.   
-    Returns:
-        dict: A dictionary containing the access status, access token, and refresh token.
-            - 'access': The access status, which can be 'Authorized', 'Overdue', or 'Denied'.
-            - 'access_token': The access token if the login is successful, otherwise None.
-            - 'refresh_token': The refresh token if the login is successful, otherwise None.
-    """
-    user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
-    if user and not user.blocked and not user.has_role(Roles.api.value):
-        if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
-            delta_change = datetime.now() - user.pswd_create
-            if user.pswd_change and delta_change.days < 365:
-                user.last_login = datetime.now()
-                user.attempt = 0
-                db.session.commit()
-                schema = UserSchema()
-                usr = schema.dump(user)
-                return {'access': 'Authorized', 
-                        'access_token': create_access_token(identity=user.username), 
-                        'refresh_token': create_refresh_token(identity=user.username)} | usr
-            return {"access": "Overdue"}
-        else:
-            if user.attempt < 4:
-                user.attempt = user.attempt+1
-            else:
-                user.blocked = True
-            db.session.commit()
-    return {"access": "Denied"}
-
-
-@bp.post('/password')
-@bp.input(LoginSchema)
-@bp.doc(hide=True)
-def change_password(json_data):
-    """
-    Change the password for a user.
-    Args:
-        response (dict): The response object containing the username, current password, 
-                         and new password.
-    Returns:
-        dict: A dictionary with the access status and an access token (set to None).
-    """
-    user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
-    if user:
-        if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
-            setattr(user, 'password', bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'), 
-                                                    bcrypt.gensalt()))
-            setattr(user, "pswd_change", datetime.now())
-            db.session.commit()
-            return {"access": "Success"}
-    return {"access": "Denied"}
-
-
-@bp.get('/logout')
-@bp.doc(hide=True)
-@jwt_required(verify_type=False)
-def logout():
-    """
-    Logout the user and invalidate the access token.
-    Returns:
-    A dictionary with a single key-value pair:
-    - `access`: A string representing the access level, which is set to 'Default' after successful logout.
-    """
-    jti = get_jwt()["jti"]
-    access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
-    jwt_redis_blocklist.set(jti, "", ex=access_expires)
-    return {'access': 'Default'}
-
-
-@bp.post("/refresh")
-@bp.doc(hide=True)
-@jwt_required(refresh=True)
-def refresh():
-    """
-    Generates a new access token for the current user.
-    :return: A dictionary containing the new access token.
-    :rtype: dict
-    """
-    access_token = create_access_token(identity=get_jwt_identity())
-    return {'access_token': access_token}
