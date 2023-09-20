@@ -14,15 +14,14 @@ class MessagesView(MethodView):
 
     def __init__(self) -> None:
         super().__init__()
-        self.messages = db.session.query(Report).filter(Report.status == Status.new.value, 
-                                                        Report.user_id == current_user.id).all()
+        self.messages = db.session.query(Report).\
+            filter(Report.status == Status.new.value, Report.user_id == current_user.id).all()
 
     def get(self):
         return self.messages
     
     def delete(self):
-        for message in self.messages:
-            db.session.delete(message)
+        db.session.delete(self.messages)
         db.session.commit()
         return []
 

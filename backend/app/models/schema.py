@@ -193,4 +193,8 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Connect
         ordered = True
+
+
+class ConnectsSchema(ma.SQLAlchemySchema):
         
+    messages = fields.Nested(ConnectSchema, many=True)

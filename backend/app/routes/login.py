@@ -4,6 +4,7 @@ from functools import wraps
 import bcrypt
 import redis
 from flask import current_app, abort
+from flask.views import MethodView
 from flask_jwt_extended import current_user, \
     create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
 
@@ -21,7 +22,7 @@ jwt_redis_blocklist = redis.StrictRedis(
     host="localhost", port=6379, db=0, decode_responses=True
 )
 
-
+    
 # Callback function to check if a JWT exists in the redis blocklist
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
@@ -56,24 +57,56 @@ def user_lookup_callback(_jwt_header, jwt_data):
     return User.query.filter_by(username=identity).one_or_none()
 
 
-@bp.get('/auth')
-@jwt_required()
-@bp.doc(hide=True)
-def auth(): 
-    """
-    A function that handles the authentication process.
-    Returns:
-        dict: A dictionary with the access status.
-            - 'access': 'Authorized' if the user is authorized, 'Denied' otherwise.
-    """
-    user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
-    if user and not user.has_blocked():
-        user.last_login = datetime.now()
-        db.session.commit()
-        schema = UserSchema()
-        usr = schema.dump(user)
-        return {'access': 'Authorized'} | usr
-    return {'access': 'Denied'}
+def roles_required(*roles):
+    def decorator(func):
+        @wraps(func)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+            if user is not None and any(user.has_role(role) for role in roles):
+                return func(*args, **kwargs)
+            else:
+                abort(404)
+        return wrapper
+    return decorator
+
+
+def group_required(*groups):
+    def decorator(func):
+        @wraps(func)
+        @jwt_required()
+        def wrapper(*args, **kwargs):
+            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+            if user is not None and any(user.has_group(group) for group in groups):
+                return func(*args, **kwargs)
+            else:
+                abort(404)
+        return wrapper
+    return decorator
+
+
+class ContactsView(MethodView):
+
+    decorators = [bp.doc(hide=True)]
+        
+    @bp.get('/auth')
+    @jwt_required()
+    @bp.doc(hide=True)
+    def auth(): 
+        """
+        A function that handles the authentication process.
+        Returns:
+            dict: A dictionary with the access status.
+                - 'access': 'Authorized' if the user is authorized, 'Denied' otherwise.
+        """
+        user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
+        if user and not user.has_blocked():
+            user.last_login = datetime.now()
+            db.session.commit()
+            schema = UserSchema()
+            usr = schema.dump(user)
+            return {'access': 'Authorized'} | usr
+        return {'access': 'Denied'}
 
 
 @bp.post('/login')
@@ -163,31 +196,3 @@ def refresh():
     """
     access_token = create_access_token(identity=get_jwt_identity())
     return {'access_token': access_token}
-
-
-def roles_required(*roles):
-    def decorator(func):
-        @wraps(func)
-        @jwt_required()
-        def wrapper(*args, **kwargs):
-            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
-            if user is not None and any(user.has_role(role) for role in roles):
-                return func(*args, **kwargs)
-            else:
-                abort(404)
-        return wrapper
-    return decorator
-
-
-def group_required(*groups):
-    def decorator(func):
-        @wraps(func)
-        @jwt_required()
-        def wrapper(*args, **kwargs):
-            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
-            if user is not None and any(user.has_group(group) for group in groups):
-                return func(*args, **kwargs)
-            else:
-                abort(404)
-        return wrapper
-    return decorator
