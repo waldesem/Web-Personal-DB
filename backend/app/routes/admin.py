@@ -1,145 +1,124 @@
 import bcrypt
 
 from flask_jwt_extended import current_user
+from flask.views import MethodView
 
 from . import bp
 from .. import db
 from .login import roles_required
 from ..models.model import  User, Role, Group
-from ..models.schema import  UserSchema
+from ..models.schema import  UserSchema, UsersSchema
 from ..models.classes import Roles
 
 
-@bp.get('/users')
-@roles_required(Roles.admin.value)
-@bp.doc(hide=True)
-def get_users():
-    """
-    Retrieve all users from the database.
-    Returns:
-        list: A list of user data.
-    """
-    query = db.session.query(User).order_by(User.id.desc()).all()
-    user_schema = UserSchema()
-    datas = user_schema.dump(query, many=True)
-    return datas
+class UsersView(MethodView):
+
+    @roles_required(Roles.admin.value)
+    @bp.output(UsersSchema)
+    @bp.doc(hide=True)
+    def get(self):
+        return db.session.query(User).order_by(User.id.desc()).all()
+
+bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
 
 
-@bp.get('/user/<int:user_id>')
-@roles_required(Roles.admin.value)
-@bp.output(UserSchema)
-@bp.doc(hide=True)
-def get_user(user_id):
-    """
-    Get a user by their ID.
-    Parameters:
-        user_id (int): The ID of the user.
-    Returns:
-        User: The user object corresponding to the given ID.
-    """
-    return db.session.query(User).get(user_id)
+class UserView(MethodView):
 
+    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
 
-@bp.post('/user/<flag>')
-@roles_required(Roles.admin.value)
-@bp.input(UserSchema)
-@bp.doc(hide=True)
-def add_user_info(flag, json_data):
-    """
-    Add user information to the database.
-    Args:
-        flag (str): A flag indicating the type of user information to add. 
-    Returns:
-        dict: A dictionary containing the response for the given flag. If the flag is 'edit', the dictionary will contain the updated user information. 
-        If the flag is anything other than 'edit', the dictionary will contain the value 'none'.
-    """
-    # response = request.get_json()
-    user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
-    if not user:
-        new_user = User(fullname=json_data['fullname'],
-                        username=json_data['username'],
-                        region_id = json_data['region_id'],
-                        email = json_data['email'],
-                        password=bcrypt.hashpw(json_data['username'].encode('utf-8'), bcrypt.gensalt()))
-        db.session.add(new_user)
-        db.session.commit()
-        return {'user': flag}
+    @bp.output(UserSchema)
+    def get(self, action, user_id):
+        user = db.session.query(User).get(user_id)
+        match action:
+            case 'view':
+                return user
+            case 'block':
+                if user.username != current_user.username:
+                    user.blocked = not user.blocked
+                    db.session.commit()
+                return user
+            case 'drop':
+                setattr(user, 'password', bcrypt.hashpw(user.username.encode('utf-8'), bcrypt.gensalt()))
+                setattr(user, 'pswd_change', None)
+                db.session.commit()
+                return user                
 
-    elif flag == "edit":
-        for k, v in json_data.items():
-            setattr(user, k, v)
-        db.session.commit()
-        return {'user': flag}
-
-    else:
-        return {'user': 'none'}
-
-
-@bp.get('/user/<int:user_id>/<flag>')
-@roles_required(Roles.admin.value)
-@bp.doc(hide=True)
-def user_state(user_id, flag):
-    """
-    Edit user information.
-    Parameters:
-        user_id (int): The ID of the user.
-        flag (str): The flag indicating the action to be performed.
-    Returns:
-        dict: A dictionary containing the result of the operation. If the flag is 'block', it returns {'user': str}.
-        If the flag is 'drop', it returns {'user': str}. Otherwise, it returns {'user': str}.
-    """
-    user = db.session.query(User).get(user_id)
-    if user.username != current_user.username:
-        if flag == 'block':
-            user.blocked = not user.blocked
+    @bp.input(UserSchema)
+    def post(json_data):
+        if not db.session.query(User).filter_by(username=json_data['username']).one_or_none():
+            db.session.add(User(fullname=json_data['fullname'],
+                                username=json_data['username'],
+                                region_id = json_data['region_id'],
+                                email = json_data['email'],
+                                password=bcrypt.hashpw(json_data['username'].encode('utf-8'), bcrypt.gensalt())))
             db.session.commit()
-            return {'user': str(user.blocked)}
-        if flag == 'drop':
-            setattr(user, 'password', bcrypt.hashpw(user.username.encode('utf-8'), bcrypt.gensalt()))
-            setattr(user, 'pswd_change', None)
+            return ''
+    
+    @bp.input(UserSchema)
+    def patch(self, json_data):
+        user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
+        if user:
+            for k, v in json_data.items():
+                setattr(user, k, v)
             db.session.commit()
-            return {'user': flag}
-        else:
+            return ''
+
+    def delete(self, user_id):
+        user = db.session.query(User).get(user_id)
+        if user.username != current_user.username:
             db.session.delete(user)
             db.session.commit()
-            return {'user': flag}
-    return {'user': 'None'}
-
-
-@bp.get('/admin/<flag>/<action>/<value>/<int:user_id>')
-@roles_required(Roles.admin.value)
-@bp.doc(hide=True)
-def action_role_group(flag, action, value, user_id):
-    """
-	This function performs an action on a role or group for a given user.
-	Parameters:
-	- flag: A string representing the type of item to be acted upon. It can be either role or group.
-	- action: A string representing the action to be performed. It can be either "add" or "remove".
-	- value: A string representing the value of the role or group.
-	- user_id: An integer representing the user ID.
-
-	Returns:
-	- A dictionary with a "result" key indicating the success or failure of the action.
-	"""
-    user = db.session.query(User).get(user_id)
-    item = db.session.query(Role).filter_by(role=value).first() \
-        if flag == 'role' else db.session.query(Group).filter_by(group=value).first() 
-    
-    if item:
-        response = user.has_role(value) if flag == 'role' else user.has_group(value)
+            return ''
         
-        if action == 'add' and not response:
-            user.roles.append(item) if flag == 'role' else user.groups.append(item)
+user_view = UserView.as_view('user')
+bp.add_url_rule('/user', view_func=user_view, methods=['PATCH', 'POST'])
+bp.add_url_rule('/user/<int:user_id>', view_func=user_view, methods=['DELETE'])
+bp.add_url_rule('/user/<flag>/<int:user_id>', view_func=user_view, methods=['GET'])
+
+
+class GroupView(MethodView):
+
+    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
+    
+    def post(self, value, user_id):
+        user = db.session.query(User).get(user_id)
+        item = db.session.query(Group).filter_by(group=value).first() 
+        group = user.has_group(value)
+        if not group:
+            user.groups.append(item)
             db.session.commit()
-            return {'result': 'Success'}
-        
-        elif action == 'remove':
-            if user.username == current_user.username and value == 'admin':
-                return {'result': 'Denied'}
-            else:
-                user.roles.remove(item) if flag == 'role' else user.groups.remove(item)
-                db.session.commit()
-                return {'result': 'Success'}
+            return ''
     
-    return {'result': 'Failed'}
+    def delete(self, value, user_id):
+        user = db.session.query(User).get(user_id)
+        item = db.session.query(Group).filter_by(group=value).first() 
+        if user.username != current_user.username and value != 'admin':
+            user.groups.remove(item)
+            db.session.commit()
+            return ''
+        
+bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('group'))
 
+
+class RoleView(MethodView):
+
+    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
+    
+    def get(self, value, user_id):
+        user = db.session.query(User).get(user_id)
+        item = db.session.query(Role).filter_by(role=value).first() 
+        response = user.has_role(value)
+        if not response:
+            user.roles.append(item)
+            db.session.commit()
+            return ''
+    
+    def delete(self, value, user_id):
+        user = db.session.query(User).get(user_id)
+        item = db.session.query(Role).filter_by(role=value).first()
+        if user.username != current_user.username and value != 'admin':
+            user.roles.remove(item)
+            db.session.commit()
+            return ''
+        
+bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))

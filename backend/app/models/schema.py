@@ -31,6 +31,11 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class UsersSchema(ma.SQLAlchemySchema):
+        
+    users = fields.Nested(UserSchema, many=True)
+    
+
 class LocationSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for location"""
     class Meta:
@@ -198,3 +203,4 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
 class ConnectsSchema(ma.SQLAlchemySchema):
         
     messages = fields.Nested(ConnectSchema, many=True)
+
