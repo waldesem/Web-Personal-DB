@@ -51,7 +51,12 @@ class MessageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Report
         ordered = True
+
+
+class MessagesSchema(ma.SQLAlchemySchema):
         
+    messages = fields.Nested(MessageSchema, many=True)
+
 
 class PersonSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for person"""
