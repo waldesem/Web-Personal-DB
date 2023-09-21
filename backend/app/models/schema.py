@@ -79,11 +79,21 @@ class RelationSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class RelationsSchema(ma.SQLAlchemySchema):
+        
+    relations = fields.Nested(RelationSchema, many=True)
+
+
 class DocumentSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for document"""
     class Meta:
         model = Document
         ordered = True
+
+
+class DocumentsSchema(ma.SQLAlchemySchema):
+        
+    documents = fields.Nested(DocumentSchema, many=True)
 
 
 class AddressSchema(ma.SQLAlchemyAutoSchema):
@@ -93,11 +103,21 @@ class AddressSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class AddressesSchema(ma.SQLAlchemySchema):
+        
+    adresses = fields.Nested(AddressSchema, many=True)
+
+
 class StaffSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for staff"""
     class Meta:
         model = Staff
         ordered = True
+
+
+class StaffsSchema(ma.SQLAlchemySchema):
+        
+    staffs = fields.Nested(StaffSchema, many=True)
 
 
 class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
@@ -107,37 +127,45 @@ class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class WorkplacesSchema(ma.SQLAlchemySchema):
+        
+    workplaces = fields.Nested(WorkplaceSchema, many=True)
+
+
 class ContactSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for contact"""
     class Meta:
         model = Contact
         ordered = True
 
+
+class ContactsSchema(ma.SQLAlchemySchema):
+        
+    contacts = fields.Nested(ContactSchema, many=True)
+
+
+class RelationSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for relation"""
+    class Meta:
+        model = Relation
+        ordered = True
+
+
+class RelationsSchema(ma.SQLAlchemySchema):
+        
+    relations = fields.Nested(RelationSchema, many=True)
+
+
 class CheckSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:
         model = Check
         ordered = True
+
+
+class ChecksSchema(ma.SQLAlchemySchema):
         
-
-class InvestigationSchema(ma.SQLAlchemyAutoSchema):
-    """ Create model for investigation"""
-    class Meta:
-        model = Investigation
-        ordered = True
-
-
-class InquirySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Inquiry
-        ordered = True
-
-
-class PoligrafSchema(ma.SQLAlchemyAutoSchema):
-    """ Create model for poligraf"""
-    class Meta:
-        model = Poligraf
-        ordered = True
+    check = fields.Nested(CheckSchema, many=True)
 
 
 class RegistrySchema(ma.SQLAlchemyAutoSchema):
@@ -147,21 +175,56 @@ class RegistrySchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class ProfileSchema(ma.SQLAlchemySchema):
-    """ Create model for rendering profile on page"""
-    resume = fields.Nested(PersonSchema)
-    documents = fields.Nested(DocumentSchema, many=True)
-    addresses = fields.Nested(AddressSchema, many=True)
-    contacts = fields.Nested(ContactSchema, many=True)
-    workplaces = fields.Nested(WorkplaceSchema, many=True)
-    staffs = fields.Nested(StaffSchema, many=True)
-    relations = fields.Nested(RelationSchema, many=True)
-    checks = fields.Nested(CheckSchema, many=True)
-    registries = fields.Nested(RegistrySchema, many=True)
-    pfos = fields.Nested(PoligrafSchema, many=True)
-    invs = fields.Nested(InvestigationSchema, many=True)
-    inquiries = fields.Nested(InquirySchema, many=True)
+class RegistriesSchema(ma.SQLAlchemySchema):
         
+    registries = fields.Nested(RegistrySchema, many=True)
+
+
+class InquirySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Inquiry
+        ordered = True
+
+
+class InquiriesSchema(ma.SQLAlchemySchema):
+        
+    inquries = fields.Nested(InquirySchema, many=True)
+
+
+class InvestigationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Investigation
+        ordered = True
+
+
+class InvestigationsSchema(ma.SQLAlchemySchema):
+        
+    investigation = fields.Nested(InvestigationSchema, many=True)
+
+
+class PoligrafSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for poligraf"""
+    class Meta:
+        model = Poligraf
+        ordered = True
+
+
+class PoligrafsSchema(ma.SQLAlchemySchema):
+        
+    poligrafs = fields.Nested(PoligrafSchema, many=True)
+
+
+class ConnectSchema(ma.SQLAlchemyAutoSchema):
+    """ Create schema for Connections """
+    class Meta:
+        model = Connect
+        ordered = True
+
+
+class ConnectsSchema(ma.SQLAlchemySchema):
+    
+    messages = fields.Nested(ConnectSchema, many=True)
+
 
 # Schemas for Robot api endpoint
 class AnketaSchema(ma.SQLAlchemySchema):
@@ -190,17 +253,3 @@ class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
         model = Check
         ordered = True
         exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline',)
-
-
-class ConnectSchema(ma.SQLAlchemyAutoSchema):
-    """ Create schema for Connections """
-
-    class Meta:
-        model = Connect
-        ordered = True
-
-
-class ConnectsSchema(ma.SQLAlchemySchema):
-        
-    messages = fields.Nested(ConnectSchema, many=True)
-

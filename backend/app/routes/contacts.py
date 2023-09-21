@@ -15,30 +15,29 @@ class ContactsView(MethodView):
     def __init__(self) -> None:
         super().__init__()
         self.datalist = db.session.query(Connect.company, Connect. city).all()
-
+        self.schema = ConnectSchema()
     
-    @bp.output(ConnectsSchema)
+    @bp.output(ConnectSchema)
     def get(self, group, item):
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
         query = db.session.query(Connect).filter_by(group_id=group_id). \
                     order_by(Connect.id.desc()).paginate(page=item, per_page=self.pagination, error_out=False)
-    
-        return [query, {'has_next': int(query.has_next)}, {"has_prev": int(query.has_prev)}, 
+        datas = self.schema.dump(query, many=True)
+        return [datas, {'has_next': int(query.has_next)}, {"has_prev": int(query.has_prev)}, 
                 {'companies': [company[0] for company in self.datalist]},  
                 {'cities': [city[1] for city in self.datalist]}]
 
-    @bp.output(ConnectsSchema)
     def post(self, group, item, json_data):
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
         query = db.session.query(Connect).filter(Connect.company.ilike('%{}%'.format(json_data['company'])))\
                     .filter_by(group_id=group_id).order_by(Connect.id.desc()).\
                         paginate(page=item, per_page=self.pagination, error_out=False)
-
-        return [query, {'has_next': int(query.has_next)}, {"has_prev": int(query.has_prev)}, 
+        datas = self.schema.dump(query, many=True)
+        return [datas, {'has_next': int(query.has_next)}, {"has_prev": int(query.has_prev)}, 
                 {'companies': [company[0] for company in self.datalist]},  
                 {'cities': [city[1] for city in self.datalist]}]
     
-bp.add_url_rule('/contacts/<group>/<int:item>', view_func=ContactsView.as_view('contacts'))
+bp.add_url_rule('/connects/<group>/<int:item>', view_func=ContactsView.as_view('connects'))
 
 
 class ConnnectView(MethodView):

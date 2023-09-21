@@ -4,7 +4,7 @@ from app import db
 from app.models.model import User, Region, Role, Group
 from app.models.classes import Roles, Groups, Regions
 
-def register_command(app):
+def register_cli(app):
     @app.cli.command('create')
     def create_default():
         db.create_all()
