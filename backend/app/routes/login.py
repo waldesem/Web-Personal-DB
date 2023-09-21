@@ -28,7 +28,8 @@ class LoginView(MethodView):
         
     @jwt_required()
     def get(self): 
-        user = db.session.query(User).filter_by(username=current_user.username).one_or_none()
+        user = db.session.query(User).\
+            filter_by(username=current_user.username).one_or_none()
         if user and not user.has_blocked():
             user.last_login = datetime.now()
             db.session.commit()
@@ -39,7 +40,8 @@ class LoginView(MethodView):
 
     @bp.input(LoginSchema)
     def post(self, json_data):
-        user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
+        user = db.session.query(User).\
+            filter_by(username=json_data['username']).one_or_none()
         if user and not user.blocked and not user.has_role(Roles.api.value):
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 delta_change = datetime.now() - user.pswd_create
@@ -51,7 +53,8 @@ class LoginView(MethodView):
                     usr = schema.dump(user)
                     return {'access': 'Authorized', 
                             'access_token': create_access_token(identity=user.username), 
-                            'refresh_token': create_refresh_token(identity=user.username)} | usr
+                            'refresh_token': create_refresh_token(identity=user.username)} \
+                                | usr
                 return {"access": "Overdue"}
             else:
                 if user.attempt < 4:
@@ -71,7 +74,8 @@ class LoginView(MethodView):
         Returns:
             dict: A dictionary with the access status and an access token (set to None).
         """
-        user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
+        user = db.session.query(User).\
+            filter_by(username=json_data['username']).one_or_none()
         if user:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 setattr(user, 'password', bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'), 
@@ -86,9 +90,6 @@ class LoginView(MethodView):
     def delete(self):
         """
         Logout the user and invalidate the access token.
-        Returns:
-            A dictionary with a single key-value pair:
-            - `access`: A string representing the access level, which is set to 'Default' after successful logout.
         """
         jti = get_jwt()["jti"]
         access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
@@ -152,7 +153,8 @@ def roles_required(*roles):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+            user = db.session.query(User).\
+                filter_by(username=get_jwt_identity()).one_or_none()
             if user is not None and any(user.has_role(role) for role in roles):
                 return func(*args, **kwargs)
             else:
@@ -166,7 +168,8 @@ def group_required(*groups):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = db.session.query(User).filter_by(username=get_jwt_identity()).one_or_none()
+            user = db.session.query(User).\
+                filter_by(username=get_jwt_identity()).one_or_none()
             if user is not None and any(user.has_group(group) for group in groups):
                 return func(*args, **kwargs)
             else:

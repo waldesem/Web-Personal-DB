@@ -5,7 +5,7 @@ import shutil
 from apiflask import abort
 import requests
 
-from flask import request, current_app
+from flask import request, current_app, send_from_directory
 from flask.views import MethodView
 from flask_jwt_extended import current_user, jwt_required
 from sqlalchemy import func
@@ -16,13 +16,30 @@ from .. import db
 from . login import roles_required, group_required
 from ..utils.excel import ExcelFile
 from ..utils.actions import resume_data, add_resume, create_folders
-from ..models.model import User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Relation, Status, Report
-from ..models.schema import AddressesSchema, ChecksSchema, ContactsSchema, DocumentsSchema, InquiriesSchema, \
-    InvestigationsSchema, PoligrafsSchema, RegistriesSchema, RelationSchema, RelationsSchema, StaffSchema, \
-        AddressSchema, PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, InvestigationSchema, \
-            PoligrafSchema, RegistrySchema, StaffsSchema, WorkplaceSchema, AnketaSchema, WorkplacesSchema
+from ..models.model import User, Person, Staff, Document, Address, Contact, \
+    Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
+    Status, Report
+from ..models.schema import AddressesSchema, ChecksSchema, ContactsSchema, \
+    DocumentsSchema, InquiriesSchema, InvestigationsSchema, PoligrafsSchema, \
+    RegistriesSchema, RelationSchema, RelationsSchema, StaffSchema, AddressSchema, \
+    PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
+    InvestigationSchema, PoligrafSchema, RegistrySchema, StaffsSchema, \
+    WorkplaceSchema, AnketaSchema, WorkplacesSchema
 from ..models.classes import Category, Roles, Groups, Status
+
+
+@bp.get('/', defaults={'path': ''})
+@bp.get('/<path:path>')
+@bp.doc(hide=True)
+def main(path=''):
+    """
+    Get the file from the specified path in the static folder and return it, 
+    or return the index.html file if the path is not found.
+    """
+    if path and os.path.exists(os.path.join(bp.static_folder, path)):
+        return send_from_directory(bp.static_folder, path)
+    else:
+        return bp.send_static_file('index.html')
 
 
 class IndexView(MethodView):
@@ -30,9 +47,9 @@ class IndexView(MethodView):
     decorators = [group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
     def __init__(self) -> None:
-        super().__init__()
         self.pagination = 16
-        self.location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
+        self.location_id = db.session.query(User.region_id).\
+            filter_by(username=current_user.username).scalar()
         self.schema = PersonSchema()
     
     def get(self, flag, page):
@@ -40,27 +57,45 @@ class IndexView(MethodView):
             case 'main':
                 if self.location_id == 1:
                     query = db.session.query(Person).order_by(Person.id.desc()). \
-                        paginate(page=page, per_page=self.pagination, error_out=False)
+                        paginate(page=page, 
+                                 per_page=self.pagination, 
+                                 error_out=False)
                 else:
-                    query = db.session.query(Person).filter_by(region_id=self.location_id).order_by(Person.id.desc()). \
-                        paginate(page=page, per_page=self.pagination, error_out=False)
-            
+                    query = db.session.query(Person).\
+                        filter_by(region_id=self.location_id).\
+                        order_by(Person.id.desc()).paginate(page=page, 
+                                                            per_page=self.pagination, 
+                                                            error_out=False)
             case 'new':
                 if self.location_id == 1:
-                    query = db.session.query(Person).filter(Person.status.in_([Status.new.value, Status.update.value, Status.repeat.value]), 
-                                                        Person.region_id == self.location_id, Person.category == Category.candidate.value).\
-                        order_by(Person.id.desc()).paginate(page=page, per_page=self.pagination, error_out=False)
+                    query = db.session.query(Person).\
+                        filter(Person.status.in_([Status.new.value, 
+                                                  Status.update.value, 
+                                                  Status.repeat.value]), 
+                               Person.region_id == self.location_id, 
+                               Person.category == Category.candidate.value).\
+                        order_by(Person.id.desc()).paginate(page=page, 
+                                                            per_page=self.pagination, 
+                                                            error_out=False)
                 else:
-                    query = db.session.query(Person).filter(Person.status.in_([Status.new.value, Status.update.value, Status.repeat.value]), 
-                                                        Person.region_id == self.location_id, Person.category == Category.candidate.value).\
-                        order_by(Person.id.desc()).paginate(page=page, per_page=self.pagination, error_out=False)
-            
+                    query = db.session.query(Person).\
+                        filter(Person.status.in_([Status.new.value, 
+                                                  Status.update.value, 
+                                                  Status.repeat.value]), 
+                                Person.region_id == self.location_id, 
+                                Person.category == Category.candidate.value).\
+                        order_by(Person.id.desc()).paginate(page=page, 
+                                                            per_page=self.pagination, 
+                                                            error_out=False)
             case 'officer': 
-                query = db.session.query(Person).filter(Person.status.notin_(
-                    [Status.finish.value, Status.result.value, Status.cancel.value])). \
-                        join(Check, isouter=True).filter_by(officer=current_user.username).order_by(Person.id.asc()). \
-                            paginate(page=page, per_page=self.pagination, error_out=False)
-        
+                query = db.session.query(Person).\
+                    filter(Person.status.notin_([Status.finish.value, 
+                                                 Status.result.value, 
+                                                 Status.cancel.value])). \
+                    join(Check, isouter=True).filter_by(officer=current_user.username).\
+                    order_by(Person.id.asc()).paginate(page=page, 
+                                                       per_page=self.pagination, 
+                                                       error_out=False)
         datas = self.schema.dump(query, many=True)
         has_next, has_prev = int(query.has_next), int(query.has_prev)
         return [datas, {'has_next': has_next, "has_prev": has_prev}]
@@ -68,22 +103,25 @@ class IndexView(MethodView):
     @input(PersonSchema)
     def post(self, page, json_data):
         if self.location_id == 1:
-            query = db.session.query(Person).filter(Person.fullname.ilike('%{}%'.format(json_data['fullname']))).\
-                order_by(Person.id.asc()).paginate(page=page, per_page=self.pagination, error_out=False)
+            query = db.session.query(Person).\
+                filter(Person.fullname.ilike('%{}%'.format(json_data['fullname']))).\
+                order_by(Person.id.asc()).paginate(page=page, 
+                                                   per_page=self.pagination, 
+                                                   error_out=False)
         else:
-            query = db.session.query(Person).filter(Person.fullname.ilike('%{}%'.format(json_data['fullname'])), 
-                                                    Person.region_id == self.location_id).order_by(Person.id.asc()).\
-                paginate(page=page, per_page=self.pagination, error_out=False)
-    
+            query = db.session.query(Person).\
+                filter(Person.fullname.ilike('%{}%'.format(json_data['fullname'])), 
+                       Person.region_id == self.location_id).\
+                order_by(Person.id.asc()).paginate(page=page, 
+                                                   per_page=self.pagination, 
+                                                   error_out=False)
         datas = self.schema.dump(query, many=True)
         has_next, has_prev = int(query.has_next), int(query.has_prev)
-        
         return [datas, {'has_next': has_next, "has_prev": has_prev}]
 
 index_view = IndexView.as_view('index')
 bp.add_url_rule('/index/<flag>/<int:page>', view_func=index_view, methods=['GET'])
 bp.add_url_rule('/index/<int:page>', view_func=index_view, methods=['POST'])
-
 
 
 class ResumeView(MethodView):
@@ -100,24 +138,35 @@ class ResumeView(MethodView):
                 return db.session.query(Person).filter_by(id=person_id).one_or_none()
         elif action == 'send':
             resume = db.session.query(Person).get(person_id)
-            if resume.has_status([Status.new.value, Status.update.value, Status.repeat.value]):
+            if resume.has_status([Status.new.value, 
+                                  Status.update.value, 
+                                  Status.repeat.value]):
                 anketa_schema = AnketaSchema()
                 serial = anketa_schema.dump(dict(
                     resume = resume, 
-                    document = db.session.query(Document).filter_by(person_id=person_id).order_by(Document.id.desc()).first(), 
-                    address = db.session.query(Address).filter_by(person_id=person_id).filter(Address.view.ilike("%регистрац%")).\
+                    document = db.session.query(Document).\
+                        filter_by(person_id=person_id).\
+                        order_by(Document.id.desc()).first(), 
+                    address = db.session.query(Address).\
+                        filter(Address.person_id==person_id, 
+                               Address.view.ilike("%регистрац%")).\
                         order_by(Address.id.desc()).first()))
                 try:
-                    response = requests.post(url='https://httpbin.org/post', json=serial, timeout=5)
+                    response = requests.post(url='https://httpbin.org/post', 
+                                             json=serial, 
+                                             timeout=5)
                     response.raise_for_status()
                     if response.status_code == 200:
-                        check_path = create_folders(person_id, resume.fullname, 'Проверки')
+                        check_path = create_folders(person_id, 
+                                                    resume.fullname, 
+                                                    'check')
                         resume.status = Status.robot.value
                         db.session.add(Check(officer=current_user.fullname, 
-                                            path=check_path,
-                                            person_id = person_id))
+                                             path=check_path,
+                                             person_id = person_id))
                         db.session.commit()
-                        return db.session.query(Person).filter_by(id=person_id).one_or_none()    
+                        return db.session.query(Person).\
+                            filter_by(id=person_id).one_or_none()    
                     return abort(404)
                 except requests.exceptions.RequestException as e:
                     print(e)
@@ -129,7 +178,8 @@ class ResumeView(MethodView):
     @roles_required(Roles.user.name)
     @bp.input(PersonSchema)
     def post(self, action, json_data):
-        location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
+        location_id = db.session.query(User.region_id).\
+            filter_by(username=current_user.username).scalar()
         person_id, result = add_resume(json_data, location_id, action)
         return {'person_id': person_id}
     
@@ -139,7 +189,8 @@ class ResumeView(MethodView):
         db.session.add(Person(**json_data | {'person_id': person_id}))
         users = db.session.query(User).filter_by(region_id=json_data['region_id']).all()
         for user in users:
-            db.session.add(Report(report=f'Делегирована анкета ID #{id} от {current_user.username}', user_id=user.id))
+            db.session.add(Report(report=f'Делегирована анкета ID #{id} \
+                                  от {current_user.username}', user_id=user.id))
         db.session.commit()
         return ''
         
@@ -166,7 +217,8 @@ class StaffView(MethodView):
     
     @bp.output(StaffsSchema)
     def get(self, person_id):
-        return db.session.query(Staff).filter_by(person_id=person_id).order_by(Staff.id.asc()).all()
+        return db.session.query(Staff).filter_by(person_id=person_id).\
+            order_by(Staff.id.asc()).all()
 
     @bp.input(StaffSchema)
     @roles_required(Roles.user.value)
@@ -199,7 +251,8 @@ class DocumentView(MethodView):
     
     @bp.output(DocumentsSchema)
     def get(self, person_id):
-        return db.session.query(Document).filter_by(person_id=person_id).order_by(Document.id.asc()).all()
+        return db.session.query(Document).filter_by(person_id=person_id).\
+            order_by(Document.id.asc()).all()
     
     @bp.input(DocumentSchema)
     @roles_required(Roles.user.value)
@@ -223,7 +276,7 @@ class DocumentView(MethodView):
     
 document_view = DocumentView.as_view('document')
 bp.add_url_rule('/document', view_func=document_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/document/<int:user_id>', view_func=document_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/document/<int:user_id>', view_func=document_view, methods=['GET','DELETE'])
 
 
 class AddressView(MethodView):
@@ -232,7 +285,8 @@ class AddressView(MethodView):
     
     @bp.output(AddressesSchema)
     def get(self, person_id):
-        return db.session.query(Address).filter_by(person_id=person_id).order_by(Address.id.asc()).all()
+        return db.session.query(Address).filter_by(person_id=person_id).\
+            order_by(Address.id.asc()).all()
     
     @bp.input(AddressSchema)
     @roles_required(Roles.user.value)
@@ -265,7 +319,8 @@ class ContactView(MethodView):
     
     @bp.output(ContactsSchema)
     def get(self, person_id):
-        return db.session.query(Contact).filter_by(person_id=person_id).order_by(Contact.id.asc()).all()
+        return db.session.query(Contact).filter_by(person_id=person_id).\
+            order_by(Contact.id.asc()).all()
     
     @bp.input(ContactSchema)
     @roles_required(Roles.user.value)
@@ -289,7 +344,7 @@ class ContactView(MethodView):
     
 contact_view = ContactView.as_view('contact')
 bp.add_url_rule('/contact', view_func=contact_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/contact/<int:user_id>', view_func=contact_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/contact/<int:user_id>', view_func=contact_view, methods=['GET','DELETE'])
 
 
 class WorkplaceView(MethodView):
@@ -298,7 +353,8 @@ class WorkplaceView(MethodView):
     
     @bp.output(WorkplacesSchema)
     def get(self, person_id):
-        return db.session.query(Workplace).filter_by(person_id=person_id).order_by(Workplace.id.asc()).all()
+        return db.session.query(Workplace).filter_by(person_id=person_id).\
+            order_by(Workplace.id.asc()).all()
     
     @bp.input(WorkplaceSchema)
     @roles_required(Roles.user.value)
@@ -322,7 +378,7 @@ class WorkplaceView(MethodView):
     
 workplace_view = AddressView.as_view('workplace')
 bp.add_url_rule('/workplace', view_func=workplace_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/workplace/<int:user_id>', view_func=workplace_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/workplace/<int:user_id>', view_func=workplace_view, methods=['GET','DELETE'])
 
 
 class RelationView(MethodView):
@@ -331,7 +387,8 @@ class RelationView(MethodView):
     
     @bp.output(RelationsSchema)
     def get(self, person_id):
-        return db.session.query(Relation).filter_by(person_id=person_id).order_by(Relation.id.asc()).all()
+        return db.session.query(Relation).filter_by(person_id=person_id).\
+            order_by(Relation.id.asc()).all()
     
     @bp.input(RelationSchema)
     @roles_required(Roles.user.value)
@@ -358,7 +415,7 @@ class RelationView(MethodView):
     
 relation_view = RelationView.as_view('relation')
 bp.add_url_rule('/relation', view_func=workplace_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/relation/<int:user_id>', view_func=workplace_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/relation/<int:user_id>', view_func=workplace_view, methods=['GET','DELETE'])
 
 
 class CheckView(MethodView):
@@ -369,17 +426,17 @@ class CheckView(MethodView):
     def get(self, action, item_id):
         if action == 'add':
             person = db.session.query(Person).get(item_id)
-            if person.has_status([Status.new.value, Status.update.value, Status.repeat.value]):
+            if person.has_status([Status.new.value, 
+                                  Status.update.value, 
+                                  Status.repeat.value]):
                 check_path = create_folders(item_id, person.fullname, 'check')
                 person.status = Status.manual.value
                 db.session.add(Check(officer=current_user.fullname, 
                                         path = check_path,
                                         person_id = item_id))
                 db.session.commit()
-                return db.session.query(Check).filter_by(person_id=item_id).order_by(Check.id.asc()).all()
-        else:
-            return db.session.query(Check).filter_by(person_id=item_id).order_by(Check.id.asc()).all()
-    
+        return db.session.query(Check).filter_by(person_id=item_id).\
+            order_by(Check.id.asc()).all()
     
     @bp.input(CheckSchema)
     @roles_required(Roles.user.value)
@@ -387,8 +444,8 @@ class CheckView(MethodView):
         json_data['pfo'] = bool(json_data.pop('pfo')) if 'pfo' in json_data else False
         if action == 'create':
             person = db.session.query(Person).get(item_id)        
-            db.session.add(Check(**json_data | {'person_id': item_id, 'officer': current_user.fullname}))
-
+            db.session.add(Check(**json_data | {'person_id': item_id, 
+                                                'officer': current_user.fullname}))
         else:
             check = db.session.query(Check).get(item_id)
             person = db.session.query(Person).get(check.item_id)
@@ -413,13 +470,15 @@ class CheckView(MethodView):
                     'message': Status.cancel.name}
         
         else:
-            person.status = Status.poligraf.value if json_data['pfo'] else Status.result.value
+            person.status = Status.poligraf.value if json_data['pfo'] \
+                else Status.result.value
             db.session.commit()
         
         return {'table': 'check', 
                 'action': action, 
                 'id': item_id, 
-                'message': Status.poligraf.name if json_data['pfo'] else Status.result.name}
+                'message': Status.poligraf.name if json_data['pfo'] \
+                    else Status.result.name}
    
     @roles_required(Roles.user.name)
     def delete(self, item_id):
@@ -429,14 +488,15 @@ class CheckView(MethodView):
             shutil.rmtree(check.path)
         except Exception as e:
             print(e)
-        person = db.session.query(Person).get(db.session.query(Check.person_id).filter_by(id=item_id).scalar())
+        person = db.session.query(Person).get(db.session.query(Check.person_id).\
+                                              filter_by(id=item_id).scalar())
         person.status = Status.update.value
         db.session.commit()
         return ''
     
 check_view = CheckView.as_view('check')
 bp.add_url_rule('/checks', view_func=workplace_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/checks/<action>/<int:item_id>', view_func=workplace_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/checks/<action>/<int:item_id>', view_func=workplace_view, methods=['GET','DELETE'])
 
 
 class RegistryView(MethodView):
@@ -445,12 +505,14 @@ class RegistryView(MethodView):
     
     @bp.output(RegistriesSchema)
     def get(self, person_id):
-        return db.session.query(Registry).filter_by(person_id=person_id).order_by(Registry.id.asc()).all()
+        return db.session.query(Registry).filter_by(person_id=person_id).\
+            order_by(Registry.id.asc()).all()
     
     @bp.input(RegistrySchema)
     @roles_required(Roles.superuser.value)
     def post(self, id, json_data):
-        check_id = db.session.query(Check.id).filter_by(person_id=id).order_by(Check.id.desc()).scalar()
+        check_id = db.session.query(Check.id).filter_by(person_id=id).\
+            order_by(Check.id.desc()).scalar()
         reg = {'supervisor': current_user.fullname} | json_data
         person = db.session.query(Person).get(id)
 
@@ -478,7 +540,7 @@ class RegistryView(MethodView):
 
 registry_view = RegistryView.as_view('registry')
 bp.add_url_rule('/registry', view_func=workplace_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/registry/<int:user_id>', view_func=workplace_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/registry/<int:user_id>', view_func=workplace_view, methods=['GET','DELETE'])
 
 
 class InvestigationView(MethodView):
@@ -487,12 +549,14 @@ class InvestigationView(MethodView):
     
     @bp.output(InvestigationsSchema)
     def get(self, person_id):
-        return db.session.query(Investigation).filter_by(person_id=person_id).order_by(Investigation.id.asc()).all()
+        return db.session.query(Investigation).filter_by(person_id=person_id).\
+            order_by(Investigation.id.asc()).all()
     
     @bp.input(InvestigationSchema)
     @roles_required(Roles.user.value)
     def post(self, id, json_data):
-        db.session.add(Investigation(**json_data | {'person_id': id, 'officer': current_user.fullname}))
+        db.session.add(Investigation(**json_data | {'person_id': id, 
+                                                    'officer': current_user.fullname}))
         return ''
         
     @bp.input(InvestigationSchema)
@@ -515,8 +579,8 @@ class InvestigationView(MethodView):
         return ''
     
 investigation_view = InvestigationView.as_view('investigation')
-bp.add_url_rule('/investigation', view_func=investigation_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/investigation/<int:user_id>', view_func=investigation_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/investigation', view_func=investigation_view, methods=['POST','PATCH'])
+bp.add_url_rule('/investigation/<int:user_id>', view_func=investigation_view, methods=['GET','DELETE'])
 
 
 class PoligrafView(MethodView):
@@ -526,7 +590,8 @@ class PoligrafView(MethodView):
     db.session.commit()
     @bp.output(PoligrafsSchema)
     def get(self, person_id):
-        return db.session.query(Poligraf).filter_by(person_id=person_id).order_by(Poligraf.id.asc()).all()
+        return db.session.query(Poligraf).filter_by(person_id=person_id).\
+            order_by(Poligraf.id.asc()).all()
     
     @bp.input(PoligrafSchema)
     @roles_required(Roles.user.value)
@@ -534,7 +599,8 @@ class PoligrafView(MethodView):
         person = db.session.query(Person).get(id)
         if person.has_status(Status.poligraf.value):
             person.status = Status.result.value
-        db.session.add(Poligraf(**json_data | {'person_id': id, 'officer': current_user.fullname}))
+        db.session.add(Poligraf(**json_data | {'person_id': id, 
+                                               'officer': current_user.fullname}))
         return ''
         
     @bp.input(PoligrafSchema)
@@ -553,7 +619,7 @@ class PoligrafView(MethodView):
         
 pfo_view = PoligrafView.as_view('relation')
 bp.add_url_rule('/poligraf', view_func=pfo_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/poligraf/<int:user_id>', view_func=pfo_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/poligraf/<int:user_id>', view_func=pfo_view, methods=['GET','DELETE'])
 
 
 class InquiryView(MethodView):
@@ -562,12 +628,14 @@ class InquiryView(MethodView):
     
     @bp.output(InquiriesSchema)
     def get(self, person_id):
-        return db.session.query(Inquiry).filter_by(person_id=person_id).order_by(Inquiry.id.asc()).all()
+        return db.session.query(Inquiry).filter_by(person_id=person_id).\
+            order_by(Inquiry.id.asc()).all()
     
     @bp.input(InquirySchema)
     @roles_required(Roles.user.value)
     def post(self, id, json_data):
-        db.session.add(Inquiry(**json_data | {'person_id': id, 'officer': current_user.fullname}))
+        db.session.add(Inquiry(**json_data | {'person_id': id, 
+                                              'officer': current_user.fullname}))
         return ''
         
     @bp.input(InquirySchema)
@@ -586,7 +654,7 @@ class InquiryView(MethodView):
     
 inquiry_view = InquiryView.as_view('inquiry')
 bp.add_url_rule('/inquiry', view_func=workplace_view, methods=['POST', 'PATCH'])
-bp.add_url_rule('/inquiry/<int:user_id>', view_func=workplace_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/inquiry/<int:user_id>', view_func=workplace_view, methods=['GET','DELETE'])
 
 
 class FileView(MethodView):
@@ -602,14 +670,17 @@ class FileView(MethodView):
             file = request.files['file']
             
             filename = secure_filename(file.filename)
-            temp_path = os.path.join(current_app.config["BASE_PATH"], f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}')
+            temp_path = os.path.join(current_app.config["BASE_PATH"], 
+                                     f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}')
             file.save(temp_path)
             
             excel = ExcelFile(temp_path)
-            location_id = db.session.query(User.region_id).filter_by(username=current_user.username).scalar()
+            location_id = db.session.query(User.region_id).\
+                filter_by(username=current_user.username).scalar()
 
             person_id, result = add_resume(excel.resume, location_id, 'create')
-            resume_data(person_id, excel.passport, excel.addresses, excel.contacts, excel.workplaces, excel.staff)
+            resume_data(person_id, excel.passport, excel.addresses, 
+                        excel.contacts, excel.workplaces, excel.staff)
             excel.close()
 
             person = Person.query.get(person_id)
@@ -618,7 +689,8 @@ class FileView(MethodView):
                     os.mkdir(os.path.join(person.path))
                 new_path = person.path
             else:
-                new_path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{person["fullname"]}')
+                new_path = os.path.join(current_app.config["BASE_PATH"], 
+                                        f'{person_id}-{person["fullname"]}')
                 if not os.path.isdir(new_path):
                     os.mkdir(new_path)
                 person.path = new_path
@@ -669,13 +741,14 @@ class InfoView(MethodView):
         response = request.get_json()
         candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
             join(Check, Check.id == Registry.check_id). \
-                join(Person, Person.id == Check.person_id).\
-                    group_by(Registry.decision).\
-                        filter(Registry.deadline.between(response['start'], response['end']), 
-                                Person.region_id == int(response['region'])).all()
+            join(Person, Person.id == Check.person_id).\
+            group_by(Registry.decision).\
+            filter(Registry.deadline.between(response['start'], response['end']), 
+                Person.region_id == int(response['region'])).all()
 
-        pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).group_by(Poligraf.theme). \
-            filter(Poligraf.deadline.between(response['start'], response['end'])).all()
+        pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).\
+            group_by(Poligraf.theme).filter(Poligraf.deadline.between(response['start'], 
+                                                                      response['end'])).all()
         
         return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
             "poligraf": dict(map(lambda x: (x[1], x[0]), pfo))}

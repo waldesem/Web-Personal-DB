@@ -75,13 +75,14 @@ def check_in(json_data):
     """
     candidate = db.session.query(Person).get(json_data['id'])
     del json_data['id']
-    latest_check = db.session.query(Check).filter_by(person_id=candidate.id).order_by(Check.id.desc()).first()
+    latest_check = db.session.query(Check).filter_by(person_id=candidate.id).\
+        order_by(Check.id.desc()).first()
     user = db.session.query(User).filter_by(username=latest_check.officer).one_or_none()
     
     if candidate.status == Status.robot.value:
         if os.path.isdir(json_data['path']):
-            check_path = latest_check.path if os.path.isdir(latest_check.path) else create_folders(candidate.id, candidate["fullname"])
-            
+            check_path = latest_check.path if os.path.isdir(latest_check.path) \
+                else create_folders(candidate.id, candidate["fullname"])
             try:
                 for file in os.listdir(json_data['path']):
                     shutil.copyfile(file, check_path)
@@ -90,12 +91,16 @@ def check_in(json_data):
             
             for k, v in json_data.items():
                 setattr(latest_check, k, v)
-            db.session.add(Report(report=f'Проверка кандидата {candidate.fullname} окончена', user_id=user.id))
+            db.session.add(Report(report=f'Проверка кандидата \
+                                  {candidate.fullname} окончена', user_id=user.id))
             candidate.status = Status.reply.value
             db.session.commit()   
 
     else:
-        db.session.add(Report(report=f'Результат проверки {candidate.fullname} не может быть записан. Материал проверки находится в {json_data["path"]}', user_id=user.id))
+        db.session.add(Report(report=f'Результат проверки \
+                              {candidate.fullname} не может быть записан. \
+                                Материал проверки находится в {json_data["path"]}', 
+                                user_id=user.id))
         db.session.commit()
         
     return 'Success', 200

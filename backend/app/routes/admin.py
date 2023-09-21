@@ -38,25 +38,29 @@ class UserView(MethodView):
                     db.session.commit()
                 return user
             case 'drop':
-                setattr(user, 'password', bcrypt.hashpw(user.username.encode('utf-8'), bcrypt.gensalt()))
+                setattr(user, 'password', bcrypt.hashpw(user.username.encode('utf-8'), 
+                                                        bcrypt.gensalt()))
                 setattr(user, 'pswd_change', None)
                 db.session.commit()
                 return user                
 
     @bp.input(UserSchema)
     def post(json_data):
-        if not db.session.query(User).filter_by(username=json_data['username']).one_or_none():
+        if not db.session.query(User).\
+            filter_by(username=json_data['username']).one_or_none():
             db.session.add(User(fullname=json_data['fullname'],
                                 username=json_data['username'],
                                 region_id = json_data['region_id'],
                                 email = json_data['email'],
-                                password=bcrypt.hashpw(json_data['username'].encode('utf-8'), bcrypt.gensalt())))
+                                password=bcrypt.hashpw(json_data['username'].encode('utf-8'), 
+                                                       bcrypt.gensalt())))
             db.session.commit()
             return ''
     
     @bp.input(UserSchema)
     def patch(self, json_data):
-        user = db.session.query(User).filter_by(username=json_data['username']).one_or_none()
+        user = db.session.query(User).\
+            filter_by(username=json_data['username']).one_or_none()
         if user:
             for k, v in json_data.items():
                 setattr(user, k, v)

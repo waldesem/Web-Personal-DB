@@ -30,16 +30,10 @@ def create_app(config_class=Config):
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
 
-    from app.routes import bp as route_bp
-    app.register_blueprint(route_bp)
+    #from app.routes import bp as route_bp
+    #app.register_blueprint(route_bp)
 
     from cli import register_cli
     register_cli(app)
 
-    @app.get('/', defaults={'path': ''})
-    @app.get('/<path:path>')
-    @app.doc(hide=True)
-    def main():
-        return app.send_static_file('index.html')
-    
     return app
