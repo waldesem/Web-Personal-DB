@@ -49,7 +49,7 @@ def get_anketa(json_data):
     division = re.split(r'/', json_data['staff']['department'])
     location_id = [regions.get(key.strip(), 1) for key in division][0]
                   
-    person_id, result = add_resume(resume, location_id, 'api')
+    person_id = add_resume(resume, location_id, 'api')
         
     users = db.session.query(User).filter_by(region_id=location_id).all()
     for user in users:

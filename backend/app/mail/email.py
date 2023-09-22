@@ -1,12 +1,13 @@
+import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-SMTP_SERVER = '0.0.0.0'
-SMTP_PORT = 587
-SMTP_USERNAME = 'your_username'
-SMTP_PASSWORD = 'your_password'
-SENDER_EMAIL = 'staffsec@example.com'
+SMTP_SERVER = os.environ.get('SMTP_SERVER')
+SMTP_PORT = os.environ.get('SMTP_PORT')
+SMTP_USERNAME = os.environ.get('SMTP_USERNAME')
+SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
 
 
 def send_text_email(receiver_email, subject, message):

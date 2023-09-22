@@ -83,6 +83,7 @@ class User(db.Model):
     def has_role(self, role):
         return any(r.role == role for r in self.roles)
     
+    @cache.memoize(60)
     def has_blocked(self):
         return self.blocked
     
@@ -110,23 +111,24 @@ class Person(db.Model):
     fullname = db.Column(db.String(255), nullable=False, index=True)
     previous = db.Column(db.String(255))
     birthday = db.Column(db.Date, nullable=False, index=True)
-    birthplace = db.Column(db.String(255))
+    birthplace = db.Column(db.Text)
     country = db.Column(db.String(255))
     snils = db.Column(db.String(11))
     inn = db.Column(db.String(12))
-    education = db.Column(db.String(255))
+    education = db.Column(db.Text)
     addition = db.Column(db.Text)
     path = db.Column(db.Text)
     status = db.Column(db.String(255), default=Status.new.value)
     create = db.Column(db.DateTime, default=default_time)
     update = db.Column(db.DateTime, onupdate=default_time)
-    request_id = db.Column(db.Integer, default=0)
+    request_id = db.Column(db.Integer)
     documents = db.relationship('Document', backref='persons', cascade="all, delete, delete-orphan")
     addresses = db.relationship('Address', backref='persons', cascade="all, delete, delete-orphan")
     workplaces = db.relationship('Workplace', backref='persons', cascade="all, delete, delete-orphan")
     contacts = db.relationship('Contact', backref='persons', cascade="all, delete, delete-orphan")
     staffs = db.relationship('Staff', backref='persons', cascade="all, delete, delete-orphan")
     checks = db.relationship('Check', backref='persons', cascade="all, delete, delete-orphan")
+    registries = db.relationship('Registry', backref='persons', cascade="all, delete, delete-orphan")
     poligrafs = db.relationship('Poligraf', backref='persons', cascade="all, delete, delete-orphan")
     inquiries = db.relationship('Inquiry', backref='persons', cascade="all, delete, delete-orphan")
     investigations = db.relationship('Investigation', backref='persons', cascade="all, delete, delete-orphan")
@@ -154,7 +156,7 @@ class Staff(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     position = db.Column(db.String(255))
-    department = db.Column(db.String(255))
+    department = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
@@ -167,7 +169,7 @@ class Document(db.Model):
     view = db.Column(db.String(255))
     series = db.Column(db.String(255))
     number = db.Column(db.String(255))
-    agency = db.Column(db.String(255))
+    agency = db.Column(db.Text)
     issue = db.Column(db.Date)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
@@ -193,9 +195,9 @@ class Workplace(db.Model):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     now_work = db.Column(db.Boolean)
-    workplace = db.Column(db.String(255))
-    address = db.Column(db.String(255))
-    position = db.Column(db.String(255))
+    workplace = db.Column(db.Text)
+    address = db.Column(db.Text)
+    position = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
@@ -234,7 +236,7 @@ class Check(db.Model):  # модель данных проверки канди�
     path = db.Column(db.Text)
     pfo = db.Column(db.Boolean, default=False)
     comments = db.Column(db.Text)
-    conclusion = db.Column(db.String(255), default=Status.save.value)
+    conclusion = db.Column(db.String(255))
     officer = db.Column(db.String(255))
     deadline = db.Column(db.DateTime, default=default_time, onupdate=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
@@ -248,9 +250,10 @@ class Registry(db.Model):  # модель данных результаты ПФ
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     comments = db.Column(db.Text)
-    decision = db.Column(db.String(255), default=Decisions.agreed.value)
+    decision = db.Column(db.String(255))
     supervisor = db.Column(db.String(255))
     deadline = db.Column(db.DateTime, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
 
 

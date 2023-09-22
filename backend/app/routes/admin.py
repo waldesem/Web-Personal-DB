@@ -1,3 +1,4 @@
+from apiflask import EmptySchema
 import bcrypt
 
 from flask_jwt_extended import current_user
@@ -5,7 +6,7 @@ from flask.views import MethodView
 
 from . import bp
 from .. import db
-from .login import roles_required
+from .login import r_g
 from ..models.model import  User, Role, Group
 from ..models.schema import  UserSchema, UsersSchema
 from ..models.classes import Roles
@@ -13,18 +14,24 @@ from ..models.classes import Roles
 
 class UsersView(MethodView):
 
-    @roles_required(Roles.admin.value)
+    decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
+
     @bp.output(UsersSchema)
-    @bp.doc(hide=True)
     def get(self):
         return db.session.query(User).order_by(User.id.desc()).all()
+    
+    @bp.input(UserSchema)
+    @bp.output(UsersSchema)
+    def post(self, json_data):
+        return db.session.query(User).order_by(User.id.desc()).\
+            filter(User.fullname.ilike('%{}%'.format(json_data['fullname']))).all()
 
 bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
 
 
 class UserView(MethodView):
 
-    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
+    decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     @bp.output(UserSchema)
     def get(self, action, user_id):
@@ -65,8 +72,9 @@ class UserView(MethodView):
             for k, v in json_data.items():
                 setattr(user, k, v)
             db.session.commit()
-            return ''
-
+            return '', 201
+        
+    @bp.output(EmptySchema, status_code=204)
     def delete(self, user_id):
         user = db.session.query(User).get(user_id)
         if user.username != current_user.username:
@@ -82,7 +90,7 @@ bp.add_url_rule('/user/<flag>/<int:user_id>', view_func=user_view, methods=['GET
 
 class GroupView(MethodView):
 
-    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
+    decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
     
     def post(self, value, user_id):
         user = db.session.query(User).get(user_id)
@@ -91,8 +99,9 @@ class GroupView(MethodView):
         if not group:
             user.groups.append(item)
             db.session.commit()
-            return ''
-    
+            return '', 201
+        
+    @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
         user = db.session.query(User).get(user_id)
         item = db.session.query(Group).filter_by(group=value).first() 
@@ -106,7 +115,7 @@ bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('gro
 
 class RoleView(MethodView):
 
-    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
+    decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
     
     def get(self, value, user_id):
         user = db.session.query(User).get(user_id)
@@ -115,8 +124,9 @@ class RoleView(MethodView):
         if not response:
             user.roles.append(item)
             db.session.commit()
-            return ''
-    
+            return '', 201
+        
+    @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
         user = db.session.query(User).get(user_id)
         item = db.session.query(Role).filter_by(role=value).first()

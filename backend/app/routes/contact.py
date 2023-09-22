@@ -1,10 +1,11 @@
+from apiflask import EmptySchema
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask.views import MethodView
 
 from . import bp
 from ..models.model import db, Group, Connect
-from ..models.schema import ConnectSchema
+from ..models.schema import ConnectSchema, ConnectsSchema
 
 
 class ContactsView(MethodView):
@@ -14,33 +15,32 @@ class ContactsView(MethodView):
 
     def __init__(self) -> None:
         self.datalist = db.session.query(Connect.company, Connect. city).all()
-        self.schema = ConnectSchema()
     
+    @bp.output(ConnectsSchema)
     def get(self, group, item):
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
         query = db.session.query(Connect).filter_by(group_id=group_id). \
                     order_by(Connect.id.desc()).paginate(page=item, 
                                                          per_page=self.pagination, 
                                                          error_out=False)
-        datas = self.schema.dump(query, many=True)
-        return [datas, 
-                {'has_next': int(query.has_next)}, 
-                {"has_prev": int(query.has_prev)}, 
-                {'companies': [company[0] for company in self.datalist]},  
-                {'cities': [city[1] for city in self.datalist]}]
+        return {'connects': query, 
+                'has_next': int(query.has_next), 
+                'has_prev': int(query.has_prev), 
+                'companies': [company[0] for company in self.datalist],  
+                'cities': [city[1] for city in self.datalist]}
 
+    @bp.output(ConnectsSchema)
     def post(self, group, item, json_data):
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
         query = db.session.query(Connect).\
             filter(Connect.company.ilike('%{}%'.format(json_data['company'])),
                    Connect.group_id==group_id).order_by(Connect.id.desc()).\
             paginate(page=item, per_page=self.pagination, error_out=False)
-        datas = self.schema.dump(query, many=True)
-        return [datas, 
-                {'has_next': int(query.has_next)}, 
-                {"has_prev": int(query.has_prev)}, 
-                {'companies': [company[0] for company in self.datalist]},  
-                {'cities': [city[1] for city in self.datalist]}]
+        return {'connects': query, 
+                'has_next': int(query.has_next), 
+                'has_prev': int(query.has_prev), 
+                'companies': [company[0] for company in self.datalist],  
+                'cities': [city[1] for city in self.datalist]}
     
 bp.add_url_rule('/connects/<group>/<int:item>', view_func=ContactsView.as_view('connects'))
 
@@ -66,6 +66,7 @@ class ConnnectView(MethodView):
             setattr(resp, k, v)
         return {'item_id': item}
 
+    @bp.output(EmptySchema, status_code=204)
     def delete(self, item):
         resp = db.session.query(Connect).filter_by(id=item).first()
         db.session.delete(resp)

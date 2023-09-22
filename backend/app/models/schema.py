@@ -72,6 +72,13 @@ class PersonSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class PersonsSchema(ma.SQLAlchemySchema):
+        
+    persons = fields.Nested(PersonSchema, many=True)
+    has_next = fields.Integer()
+    has_prev = fields.Integer()
+
+
 class RelationSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for relation"""
     class Meta:
@@ -223,10 +230,13 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
 
 class ConnectsSchema(ma.SQLAlchemySchema):
     
-    messages = fields.Nested(ConnectSchema, many=True)
+    connects = fields.Nested(ConnectSchema, many=True)
+    has_next = fields.Integer()
+    has_prev = fields.Integer()
+    companies = fields.List()  
+    cities = fields.List()
 
 
-# Schemas for Robot api endpoint
 class AnketaSchema(ma.SQLAlchemySchema):
     """ Create schema for sending anketa"""
     resume = PersonSchema()
@@ -234,9 +244,8 @@ class AnketaSchema(ma.SQLAlchemySchema):
     address = AddressSchema()
 
 
-# Schemas for api endpoint '/api/v1/anketa'
 class AnketaSchemaApi(ma.SQLAlchemySchema):
-    """ Create schema to get resume from API"""
+    """ Create schema to get anketa from /api/v1/anketa"""
     resume = fields.Nested(PersonSchema(), exclude = ('region_id', 'addition', 'path', 
                                                          'status', 'create', 'update', 'request_id',))
     document = fields.Nested(DocumentSchema(), exclude=('id',))
@@ -246,9 +255,8 @@ class AnketaSchemaApi(ma.SQLAlchemySchema):
     contacts = fields.List(fields.Nested(ContactSchema(), exclude=('id',)))
 
 
-# Schema for api endpoint '/api/v1/check
 class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
-    """ Create schema for check API """
+    """ Create schema for check /api/v1/check """
     class Meta:
         model = Check
         ordered = True

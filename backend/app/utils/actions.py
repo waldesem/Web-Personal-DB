@@ -92,4 +92,4 @@ def add_resume(resume: dict, location_id, action):
             os.mkdir(path)
         
     db.session.commit()
-    return [person_id, bool(result)]
+    return [person_id]
