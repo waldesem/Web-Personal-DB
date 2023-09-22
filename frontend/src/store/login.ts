@@ -2,7 +2,7 @@ import router from '@router/router';
 import axios from 'axios';
 import server from '@store/server';
 import { defineStore } from 'pinia'
-import { appAuth } from '@store/auth';
+import { appAuth } from '@/store/token';
 import { appAlert } from '@store/alert';
 import { appClassify } from '@store/classify';
 import { ref } from 'vue';

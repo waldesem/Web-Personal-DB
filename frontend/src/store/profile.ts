@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { appClassify } from '@store/classify';
-import { appAuth } from '@store/auth';
+import { appAuth } from '@/store/token';
 import { appAlert } from '@store/alert';
 import { anketa, verification, register, pfo, inquisition, needs } from '@store/interfaces'
 import server from '@/store/server';

@@ -3,7 +3,7 @@
 
 import { ref, onBeforeMount } from 'vue';
 import { appClassify } from '@store/classify';
-import { appAuth } from '@store/auth';
+import { appAuth } from '@store/token';
 import { appAlert } from '@/store/alert';
 import server from '@store/server';
 
@@ -92,3 +92,4 @@ async function submitData(): Promise<void> {
     </div>
   </div>
 </template>
+@/store/token

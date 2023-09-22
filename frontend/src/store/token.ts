@@ -23,15 +23,18 @@ export const appAuth = defineStore('appAuth', () => {
           return Promise.reject('Refresh token expired');
         
         } else {
+
           if (accessToken.value) {
             const expiry_access = (JSON.parse(atob(accessToken.value.split('.')[1]))).exp;
 
             if (Math.floor((new Date).getTime() / 1000) >= expiry_access) {
+             
               try {
                 const response = await axios.post(`${server}/refresh`, null, {
                   headers: { 'Authorization': `Bearer ${localStorage.getItem('refresh_token')}` }
                 });
                 const { access_token } = response.data;
+                
                 localStorage.setItem('access_token', access_token);
                 accessToken.value = access_token;
               

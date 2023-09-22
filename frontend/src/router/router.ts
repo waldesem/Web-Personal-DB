@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { appAuth } from '@store/auth';
+import { appAuth } from '@/store/token';
 import server from '@/store/server';
 import axios from 'axios';
 import App from '@/App.vue';

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { appAuth } from '@/store/auth';
+import { appAuth } from '@/store/token';
 import { ref } from 'vue';
 import server from '@/store/server';
 

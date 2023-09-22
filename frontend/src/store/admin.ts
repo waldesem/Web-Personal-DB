@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue'
-import { appAuth } from '@store/auth';
+import { appAuth } from '@/store/token';
 import { appAlert } from '@store/alert';
 import router from '@router/router';
 import server from '@store/server';
@@ -11,14 +11,28 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const storeAuth = appAuth();
   const storeAlert = appAlert();
 
-  const users = ref([]);
+  const users = ref<User[]>([]);
   const userId = ref('');
   const action = ref('');
   const flag = ref('');
   const orRoleGroup = ref('');
 
-  // Данные пользователя
-  const profile = ref({
+  interface User {
+    id: string,
+    fullname: string,
+    username: string,
+    email: string,
+    region_id: string,
+    pswd_create: string,
+    pswd_change: string,
+    last_login: string,
+    roles: string[],
+    groups: string[],
+    blocked: string,
+    attempt: string
+  };
+
+  const profile = ref<User>({
       id: '',
       fullname: '',
       region_id: '',
@@ -36,7 +50,8 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   /**
    * Retrieves a list of users from the server.
    *
-   * @return {Promise<void>} - A promise that resolves with the list of users retrieved from the server.
+   * @return {Promise<void>} - A promise that resolves with the list of users 
+   * retrieved from the server.
    */
   async function getUsers(): Promise<void>{
     try {
@@ -49,10 +64,12 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   };
 
   /**
-   * Fetches user data from the server based on the provided ID and updates the profile value.
+   * Fetches user data from the server based on the provided ID 
+   * and updates the profile value.
    *
    * @param {String} id - The ID of the user to fetch data for.
-   * @return {Promise<void>} - A promise that resolves when the user data is fetched and the profile value is updated.
+   * @return {Promise<void>} - A promise that resolves when the user data 
+   * is fetched and the profile value is updated.
    */
   async function viewUser(id: string = userId.value): Promise<void>{
     try {
@@ -69,7 +86,8 @@ export const storeAdmin = defineStore('storeAdmin', () => {
    * Edits user information based on the given flag.
    *
    * @param {String} flag - The flag indicating the type of edit to perform.
-   * @return {Promise<void>} - A promise that resolves when the user information has been edited.
+   * @return {Promise<void>} - A promise that resolves when the user information 
+   * has been edited.
    */
   async function editUserInfo(flag: String): Promise<void> {
     // Матчинг заголовка окна подтверждения действия
@@ -182,5 +200,6 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     }
   };
 
-  return { users, profile, action, userId, flag, orRoleGroup, getUsers, editUserInfo, submitData, viewUser, resetItem, editGroupRole };
+  return { users, profile, action, userId, flag, orRoleGroup, 
+    getUsers, editUserInfo, submitData, viewUser, resetItem, editGroupRole };
 });
