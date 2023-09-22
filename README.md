@@ -1,6 +1,6 @@
-# StaffSec
+# EconSec (in development now)
 
-StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
+EconSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 
 ### The main technology stack used in this project includes:
 
