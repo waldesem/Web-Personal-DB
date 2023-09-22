@@ -9,15 +9,6 @@ from ..models.classes import Status
 def resume_data(person_id, document, addresses, contacts, workplaces, staff):
     """
     Adds resume data to the database for a person.
-    Args:
-        person_id (int): The ID of the person.
-        document (dict): A dictionary containing document information.
-        addresses (list): A list of dictionaries containing address information.
-        contacts (list): A list of dictionaries containing contact information.
-        workplaces (list): A list of dictionaries containing workplace information.
-        staff (dict): A dictionary containing staff information.
-    Returns:
-        None
     """
     db.session.add(Staff(**staff | {'person_id': person_id}))
     db.session.add(Document(**document | {'person_id': person_id}))
@@ -32,14 +23,7 @@ def resume_data(person_id, document, addresses, contacts, workplaces, staff):
 
 def create_folders(person_id, fullname, folder_name):
     """
-        Check if a folder exists for a given person and create it if it does not exist.
-
-        :param person_id: The ID of the person.
-        :type person_id: int
-        :param fullname: The full name of the person.
-        :type fullname: str
-        :return: The path of the created folder.
-        :rtype: str
+    Check if a folder exists for a given person and create it if it does not exist.
     """
     url = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{fullname}')
     if not os.path.isdir(url):
@@ -56,14 +40,10 @@ def create_folders(person_id, fullname, folder_name):
 def add_resume(resume: dict, location_id, action):
     """
     Adds a resume to the database.
-    Args:
-        resume (dict): A dictionary containing the resume information.
-        location_id: The ID of the location where the resume is being added.
-    Returns:
-        list: A list containing the person ID and a boolean indicating if the person already exists in the database.
     """
-    result = db.session.query(Person).filter(Person.fullname.ilike(resume['fullname']),
-                                             Person.birthday==resume['birthday']).one_or_none()
+    result = db.session.query(Person).\
+        filter(Person.fullname.ilike(resume['fullname']),
+               Person.birthday==resume['birthday']).one_or_none()
     if result:
         if action == "create" or action == 'api':
             resume.update({'status': Status.repeat.value, 'region_id': location_id})
@@ -76,7 +56,8 @@ def add_resume(resume: dict, location_id, action):
         if result.path and not os.path.isdir(result.path):
             os.mkdir(result.path)
         elif not result.path:
-            new_path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{resume["fullname"]}')
+            new_path = os.path.join(current_app.config["BASE_PATH"], 
+                                    f'{person_id}-{resume["fullname"]}')
             if not os.path.isdir(new_path):
                 os.mkdir(new_path)
             result.path = new_path
@@ -86,7 +67,8 @@ def add_resume(resume: dict, location_id, action):
         db.session.flush()
         person_id = person.id
         
-        path = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{resume["fullname"]}')
+        path = os.path.join(current_app.config["BASE_PATH"], 
+                            f'{person_id}-{resume["fullname"]}')
         person.path = path
         if not os.path.isdir(path):
             os.mkdir(path)

@@ -14,12 +14,15 @@ class ExcelFile:
         self.resume = {
             'fullname': self.parse_cell(self.sheet['K3']).title(),
             'previous': self.parse_cell(self.sheet['S3']).title(),
-            'birthday': datetime.strptime(self.parse_cell(self.sheet['L3']), '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', self.parse_cell(self.sheet['L3'])) \
+            'birthday': datetime.strptime(self.parse_cell(self.sheet['L3']), 
+                                          '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d',
+                             self.parse_cell(self.sheet['L3'])) \
                     else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
             'birthplace': self.parse_cell(self.sheet['M3']),
             'country': self.parse_cell(self.sheet['T3']),
-            'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").replace("-", "")[:11],
+            'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").\
+                replace("-", "")[:11],
             'inn': self.parse_cell(self.sheet['V3'], 12),
             'education': self.parse_cell(self.sheet['X3'])
         }
@@ -27,8 +30,10 @@ class ExcelFile:
             'view': 'Паспорт гражданина России',
             'series': self.parse_cell(self.sheet['P3'], 4),
             'number': self.parse_cell(self.sheet['Q3'], 6),
-            'issue': datetime.strptime(self.parse_cell(self.sheet['R3']), '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', self.parse_cell(self.sheet['L3'])) \
+            'issue': datetime.strptime(self.parse_cell(self.sheet['R3']), 
+                                       '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', 
+                            self.parse_cell(self.sheet['L3'])) \
                     else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
         }
         self.addresses = [

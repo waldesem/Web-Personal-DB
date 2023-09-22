@@ -19,7 +19,7 @@ from ..utils.actions import resume_data, add_resume, create_folders
 from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
-from ..models.schema import AddressesSchema, ChecksSchema, ContactsSchema, \
+from ..models.schema import AddressesSchema, AnketaSchemaApi, ChecksSchema, ContactsSchema, \
     DocumentsSchema, InquiriesSchema, InvestigationsSchema, PersonsSchema, PoligrafsSchema, \
     RegistriesSchema, RelationSchema, RelationsSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
@@ -99,9 +99,10 @@ bp.add_url_rule('/index/<int:page>', view_func=index_view, methods=['POST'])
 
 class ResumeView(MethodView):
     
-    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
+    decorators = [r_g.group_required(Groups.staffsec.name)]
     
     @bp.output(PersonSchema)
+    @bp.doc(hide=True)
     def get(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         if action == 'status':
@@ -144,8 +145,8 @@ class ResumeView(MethodView):
         else:
             return person
         
-    @r_g.roles_required(Roles.user.name)
-    @bp.input(PersonSchema)
+    @r_g.roles_required(Roles.user.name, Roles.api.name)
+    @bp.input(AnketaSchemaApi)
     def post(self, action, json_data):
         location_id = db.session.query(User.region_id).\
             filter_by(username=current_user.username).scalar()
@@ -154,9 +155,11 @@ class ResumeView(MethodView):
     
     @r_g.roles_required(Roles.user.name)
     @bp.input(PersonSchema)
+    @bp.doc(hide=True)
     def patch(self, person_id, json_data):
         db.session.add(Person(**json_data | {'person_id': person_id}))
-        users = db.session.query(User).filter_by(region_id=json_data['region_id']).all()
+        users = db.session.query(User).\
+            filter_by(region_id=json_data['region_id']).all()
         for user in users:
             db.session.add(Report(report=f'Делегирована анкета ID #{id} \
                                   от {current_user.username}', user_id=user.id))
@@ -165,6 +168,7 @@ class ResumeView(MethodView):
         
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
+    @bp.doc(hide=True)
     def delete(self, person_id):
         person = db.session.query(Person).get(person_id)
         try:
