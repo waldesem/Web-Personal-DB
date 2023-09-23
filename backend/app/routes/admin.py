@@ -8,7 +8,7 @@ from . import bp
 from .. import db
 from .login import r_g
 from ..models.model import  User, Role, Group
-from ..models.schema import  UserSchema, UsersSchema
+from ..models.schema import  UserSchema
 from ..models.classes import Roles
 
 
@@ -16,17 +16,18 @@ class UsersView(MethodView):
 
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
 
-    @bp.output(UsersSchema)
+    schema = UserSchema()
+
     def get(self):
         """
         Retrieves all users from the database and returns them in descending order by ID.
 
         :return: A list of User objects.
         """
-        return db.session.query(User).order_by(User.id.desc()).all()
+        query = db.session.query(User).order_by(User.id.desc())
+        return self.schema.dump(query, many=True)
     
     @bp.input(UserSchema)
-    @bp.output(UsersSchema)
     def post(self, json_data):
         """
         Endpoint to handle POST requests for creating new users.
@@ -37,8 +38,9 @@ class UsersView(MethodView):
         Returns:
             list: A list of User objects that match the search criteria.
         """
-        return db.session.query(User).order_by(User.id.desc()).\
+        query = db.session.query(User).order_by(User.id.desc()).\
             filter(User.fullname.ilike('%{}%'.format(json_data['fullname']))).all()
+        return self.schema.dump(query, many=True)
 
 bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
 
@@ -144,7 +146,7 @@ class UserView(MethodView):
         
 user_view = UserView.as_view('user')
 bp.add_url_rule('/user', view_func=user_view, methods=['PATCH', 'POST'])
-bp.add_url_rule('/user/<flag>/<int:user_id>', view_func=user_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/user/<action>/<int:user_id>', view_func=user_view, methods=['GET', 'DELETE'])
 
 
 class GroupView(MethodView):

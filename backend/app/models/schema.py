@@ -29,11 +29,6 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         ordered = True
-
-
-class UsersSchema(ma.SQLAlchemySchema):
-        
-    users = fields.Nested(UserSchema, many=True)
     
 
 class LocationSchema(ma.SQLAlchemyAutoSchema):

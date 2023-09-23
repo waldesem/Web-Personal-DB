@@ -18,6 +18,16 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const selectRole = ref('');
   const selectGroup = ref('');
 
+  interface Group {
+    id: string,
+    group: string
+  };
+
+  interface Role {
+    id: string,
+    role: string
+  };
+
   interface User {
     id: string,
     fullname: string,
@@ -27,11 +37,12 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     pswd_create: string,
     pswd_change: string,
     last_login: string,
-    roles: string[],
-    groups: string[],
+    roles: Role[],
+    groups: Group[],
     blocked: string,
     attempt: string
   };
+
 
   const profile = ref<User>({
       id: '',
@@ -75,15 +86,16 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   async function userAction(action: String, id: string = userId.value): Promise<void>{
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
-      const datas = response.data;
-      profile.value = datas;
+      profile.value = response.data;
       
-      const resp = {
-        'block': ['alert-success', 'Пользователь за/раз-блокирован'],
-        'drop': ['alert-success', 'Пароль пользователя удален']
+      if (action !== 'view') {
+        const resp = {
+          'block': ['alert-success', 'Пользователь (за/раз)блокирован'],
+          'drop': ['alert-success', 'Пароль пользователя удален']
+        };
+        storeAlert.setAlert(resp[action as keyof typeof resp][0],
+                            resp[action as keyof typeof resp][1]);
       };
-      storeAlert.setAlert(resp[action as keyof typeof resp][0],
-                          resp[action as keyof typeof resp][1]);
 
     } catch (error) {
       console.error(error);
