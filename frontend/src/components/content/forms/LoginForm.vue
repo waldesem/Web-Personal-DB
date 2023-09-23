@@ -7,12 +7,11 @@ const storeLogin = appLogin();
 
 const hidePassword = ref(true);
 
-
 </script>
 
 <template>
   <div class="py-3">
-    <form @submit.prevent="storeLogin.submitData" class="form form-check" role="form">
+    <form @submit.prevent="storeLogin.submitLogin" class="form form-check" role="form">
       <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="username">Логин: </label>
         <div class="col-lg-6">
@@ -53,7 +52,7 @@ const hidePassword = ref(true);
           <div class="col-lg-6">
             <input autocomplete="current-password" class="form-control" required name="conf_pswd" :type="hidePassword ? 'password' : 'text'"
               v-model.trim="storeLogin.loginData.conf_pswd" minlength="8" maxlength="16" 
-              placeholder="От 8 до 16 символов: a-z, A-Z" pattern="[0-9a-zA-Z]+">
+              placeholder="Повторите новый пароль" pattern="[0-9a-zA-Z]+">
           </div>
         </div>
       </div>

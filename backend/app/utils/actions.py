@@ -21,22 +21,6 @@ def resume_data(person_id, document, addresses, contacts, workplaces, staff):
     db.session.commit()
 
 
-def create_folders(person_id, fullname, folder_name):
-    """
-    Check if a folder exists for a given person and create it if it does not exist.
-    """
-    url = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{fullname}')
-    if not os.path.isdir(url):
-        os.mkdir(url)
-    folder = os.path.join(url, folder_name)
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
-    subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
-    if not os.path.isdir(subfolder):
-        os.mkdir(subfolder)
-    return subfolder
-
-
 def add_resume(resume: dict, location_id, action):
     """
     Adds a resume to the database.
@@ -75,3 +59,19 @@ def add_resume(resume: dict, location_id, action):
         
     db.session.commit()
     return [person_id]
+
+
+def create_folders(person_id, fullname, folder_name):
+    """
+    Check if a folder exists for a given person and create it if it does not exist.
+    """
+    url = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{fullname}')
+    if not os.path.isdir(url):
+        os.mkdir(url)
+    folder = os.path.join(url, folder_name)
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
+    subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
+    if not os.path.isdir(subfolder):
+        os.mkdir(subfolder)
+    return subfolder

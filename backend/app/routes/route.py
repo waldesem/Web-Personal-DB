@@ -19,7 +19,7 @@ from ..utils.actions import resume_data, add_resume, create_folders
 from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
-from ..models.schema import AddressesSchema, AnketaSchemaApi, ChecksSchema, ContactsSchema, \
+from ..models.schema import AddressesSchema, ChecksSchema, ContactsSchema, \
     DocumentsSchema, InquiriesSchema, InvestigationsSchema, PersonsSchema, PoligrafsSchema, \
     RegistriesSchema, RelationSchema, RelationsSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
@@ -146,7 +146,7 @@ class ResumeView(MethodView):
             return person
         
     @r_g.roles_required(Roles.user.name, Roles.api.name)
-    @bp.input(AnketaSchemaApi)
+    @bp.input(PersonSchema)
     def post(self, action, json_data):
         location_id = db.session.query(User.region_id).\
             filter_by(username=current_user.username).scalar()
@@ -633,21 +633,22 @@ class FileView(MethodView):
             excel.close()
 
             person = db.session.query(Person).get(person_id)
-            if person and person.path:
+            if person.path:
                 if not os.path.isdir(person.path):
                     os.mkdir(os.path.join(person.path))
                 new_path = person.path
+                db.session.commit()
             else:
                 new_path = os.path.join(current_app.config["BASE_PATH"], 
                                         f'{person_id}-{person["fullname"]}')
+                person.path = new_path
+                db.session.commit()
                 if not os.path.isdir(new_path):
                     os.mkdir(new_path)
                 person.path = new_path
                 db.session.commit()
 
-            action_folder = os.path.join(new_path, action)
-            if not os.path.isdir(action_folder):
-                os.mkdir(action_folder)
+            action_folder = create_folders(person_id, person["fullname"], action)
 
             save_path = os.path.join(action_folder, filename)
             if not os.path.isfile(save_path):
