@@ -10,7 +10,7 @@ const storeClassify = appClassify();
 
 <template>
   <div class="py-2">
-    <form @submit.prevent="adminStore.submitData" class="form form-check" role="form">
+    <form @submit.prevent="adminStore.submitUserData" class="form form-check" role="form">
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="fullname">Имя пользователя:</label>
         <div class="col-lg-10">

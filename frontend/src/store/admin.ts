@@ -15,7 +15,8 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const userId = ref('');
   const action = ref('');
   const flag = ref('');
-  const orRoleGroup = ref('');
+  const selectRole = ref('');
+  const selectGroup = ref('');
 
   interface User {
     id: string,
@@ -71,53 +72,35 @@ export const storeAdmin = defineStore('storeAdmin', () => {
    * @return {Promise<void>} - A promise that resolves when the user data 
    * is fetched and the profile value is updated.
    */
-  async function viewUser(id: string = userId.value): Promise<void>{
+  async function userAction(action: String, id: string = userId.value): Promise<void>{
     try {
-      const response = await storeAuth.axiosInstance.get(`${server}/user/${id}`);
+      const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
       const datas = response.data;
       profile.value = datas;
-        
+      
+      const resp = {
+        'block': ['alert-success', 'Пользователь за/раз-блокирован'],
+        'drop': ['alert-success', 'Пароль пользователя удален']
+      };
+      storeAlert.setAlert(resp[action as keyof typeof resp][0],
+                          resp[action as keyof typeof resp][1]);
+
     } catch (error) {
       console.error(error);
     }
   };
 
-  /**
-   * Edits user information based on the given flag.
-   *
-   * @param {String} flag - The flag indicating the type of edit to perform.
-   * @return {Promise<void>} - A promise that resolves when the user information 
-   * has been edited.
-   */
-  async function editUserInfo(flag: String): Promise<void> {
-    // Матчинг заголовка окна подтверждения действия
-    const confirm_title = {
-      'delete': 'окончательно удалить',
-      'block': 'блокировать/разблокировать',
-      'drop': 'сбросить пароль'
-    };
-    if (confirm(`Вы действительно хотите ${confirm_title[flag as keyof typeof confirm_title]} пользователя?`)) {
-
+  async function userDelete(action: String, id: string = userId.value): Promise<void>{
+    if (confirm("Вы действительно хотите удалить пользователя?")){
       try {
-      const response = await storeAuth.axiosInstance.get(`${server}/user/${userId.value}/${flag}`);
-      const { user } = response.data;
-      
-      // Матчинг атрибута и текста сообщения
-      const resp = {
-        'True': ['alert-success', 'Пользователь заблокирован'],
-        'False': ['alert-success', 'Пользователь разблокирован'],
-        'delete': ['alert-danger', 'Пользователь удалён'],
-        'drop': ['alert-success', 'Пароль пользователя удален'],
-        'None': ['alert-danger', 'Возникла ошибка'],
-      };
-      // Обновление сообщения
-      storeAlert.setAlert(resp[user as keyof typeof resp][0],
-                          resp[user as keyof typeof resp][1]);
-      // Обновление страницы либо редирект на страницу списка пользователей
-      user !== 'delete' ? viewUser(userId.value) : router.push({ name: 'users', params: { group: 'admins' } });
-      
+        const response = await storeAuth.axiosInstance.delete(`${server}/user/${action}/${id}`);
+        console.log(response.status);
+
+        storeAlert.setAlert('alert-danger', 'Пользователь удалён');
+        router.push({ name: 'users', params: { group: 'admins' } });
+
       } catch (error) {
-      console.error(error);
+        console.error(error);
       }
     }
   };
@@ -127,35 +110,32 @@ export const storeAdmin = defineStore('storeAdmin', () => {
    *
    * @return {Promise<void>} A promise that resolves when the data is successfully submitted.
    */
-  async function submitData(): Promise<void>{
+  async function submitUserData(): Promise<void>{
+    const formData = {
+      'fullname': profile.value.fullname,
+      'username': profile.value.username,
+      'email': profile.value.email,
+      'region_id': profile.value.region_id,
+    };
     try {  
-      const response = await storeAuth.axiosInstance.post(`${server}/user/${action.value}`, {
-        'fullname': profile.value.fullname,
-        'username': profile.value.username,
-        'email': profile.value.email,
-        'region_id': profile.value.region_id,
-      });
-      const  { user } = response.data;
-      // Матчинг атрибута и текста сообщения
+      const response = action.value === 'edit' 
+        ? await storeAuth.axiosInstance.post(`${server}/user/${action.value}`, formData)
+        : await storeAuth.axiosInstance.patch(`${server}/user/${action.value}/${userId.value}`, formData);
+      const { message } = response.data;
+
       const resp = {
-        'create': ['alert-success', 'Пользователь успешно создан'],
-        'edit': ['alert-success', 'Пользователь успешно изменен'],
-        'none': ['alert-danger', 'Ошибка создания (пользователь существует)/редактирования']
+        'Created': ['alert-success', 'Пользователь успешно создан'],
+        'Patched': ['alert-success', 'Пользователь успешно изменен'],
       }
-      storeAlert.setAlert(resp[user as keyof typeof resp][0],
-                          resp[user as keyof typeof resp][1]);
-      action.value === 'create' ? getUsers() : viewUser(userId.value);
+      storeAlert.setAlert(resp[message as keyof typeof resp][0],
+                          resp[message as keyof typeof resp][1]);
+      action.value === 'edit' ? userAction('view', userId.value): getUsers();
       action.value = '';
 
     } catch (error) {
       console.error(error);
+      storeAlert.setAlert('alert-danger', 'Ошибка сохранения данных');
     }
-  };
-
-  function resetItem(){
-    Object.keys(profile.value).forEach((key: string) => {
-      delete profile.value[key as keyof typeof profile.value];
-    });
   };
 
   /**
@@ -163,43 +143,52 @@ export const storeAdmin = defineStore('storeAdmin', () => {
    *
    * @return {Promise<void>} Promise that resolves when the function completes.
    */
-  async function editGroupRole(item: string, choice: string, value: string = orRoleGroup.value): Promise<void> {
-    if (value) {
-      try {
-        const response = await storeAuth.axiosInstance.get(`${server}/admin/${item}/${choice}/${value}/${userId.value}`);
-        const { result } = response.data;
-        if (result === 'Success') {
-          // Матчинг атрибута и текста сообщения
-          const flags = {
-            'role': 'Роль',
-            'group': 'Группа'
-          };
-          const actions = {
-            'add': ['alert-success', item === 'role' 
-              ? `Пользователю ${userId.value} добавлена ${flags[item as keyof typeof flags]} ${value}` 
-              : `Пользователь ${userId.value} добавлен в: ${flags[item as keyof typeof flags]} ${value}`],
-            'remove': ['alert-info', item === 'role' 
-              ? `Пользователю ${userId.value} удалена ${flags[item as keyof typeof flags]} ${value}`
-              : `Пользователь ${userId.value} удален из: ${flags[item as keyof typeof flags]} ${value}`]
-          };
-        
-          // Обновление сообщения
-          storeAlert.setAlert(actions[choice as keyof typeof actions][0], 
-                              actions[choice as keyof typeof actions][1]);
-          // Обновление профиля
-          viewUser(userId.value)
-        } else if (result === 'Failed') {
-          storeAlert.setAlert('alert-danger', 'Роль уже добавлена или пользователь уже включён в группу');
-        } else {
-          storeAlert.setAlert('alert-danger', 'Ошибка');
-        }
+  async function editGroupRole(
+    item: string, action: string, value: string = ''
+    ): Promise<void> {
+    
+    value = item === 'role' ? selectRole.value : selectGroup.value;
+    
+    try {
+      const response = action == 'add' 
+        ? await storeAuth.axiosInstance.get(
+          `${server}/${item}/${value}/${userId.value}`
+          )
+        : await storeAuth.axiosInstance.delete(
+          `${server}/${item}/${value}/${userId.value}`
+          );
 
-      } catch (error) {
-      console.error(error);
+      const result = response.status;
+      if (result === 201 || result === 204) {
+        const flags = {
+          'role': 'Роль',
+          'group': 'Группа'
+        };
+        const actions = {
+          'add': ['alert-success', item === 'role' 
+            ? `Пользователю ${userId.value} добавлена \
+            ${flags[item as keyof typeof flags]} ${value}` 
+            : `Пользователь ${userId.value} добавлен в: \
+            ${flags[item as keyof typeof flags]} ${value}`],
+          'remove': ['alert-info', item === 'role' 
+            ? `Пользователю ${userId.value} удалена \
+            ${flags[item as keyof typeof flags]} ${value}`
+            : `Пользователь ${userId.value} удален из: \
+            ${flags[item as keyof typeof flags]} ${value}`]
+        };
+      
+        storeAlert.setAlert(actions[action as keyof typeof actions][0], 
+                            actions[action as keyof typeof actions][1]);
+
+        userAction('view', userId.value);
       }
+    } catch (error) {
+    console.error(error);
+    storeAlert.setAlert('alert-danger', 
+                        'Роль уже добавлена или пользователь уже включён в группу');
     }
   };
-
-  return { users, profile, action, userId, flag, orRoleGroup, 
-    getUsers, editUserInfo, submitData, viewUser, resetItem, editGroupRole };
+  
+  return { users, profile, action, userId, flag, selectRole, selectGroup,
+    getUsers, submitUserData, userAction, userDelete, editGroupRole };
 });

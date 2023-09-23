@@ -6,7 +6,6 @@ import UserForm from '@content/forms/UserForm.vue';
 
 const adminStore = storeAdmin();
 
-// Получение списка пользователей
 onBeforeMount(async () => {
   adminStore.getUsers()
 });
@@ -31,21 +30,21 @@ onBeforeMount(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="user in adminStore.users" :key="user['id' as keyof typeof user]">
-            <td>{{ user["id" as keyof typeof user] }}</td>
-            <td>{{ user["fullname" as keyof typeof user] }}</td>
+          <tr height="50px" v-for="user in adminStore.users" :key="user.id">
+            <td>{{ user.id }}</td>
+            <td>{{ user.fullname }}</td>
             <td>
-              <router-link :to="{ name: 'shape', params: { group: 'admins', id: user['id' as keyof typeof user]} }">
-                {{ user["username" as keyof typeof user]}}</router-link>
+              <router-link :to="{ name: 'shape', params: { group: 'admins', id: user.id} }">
+                {{ user.username }}</router-link>
             </td>
-            <td>{{ new Date(user["pswd_create" as keyof typeof user]).toLocaleString('ru-RU') }}</td>
-            <td>{{ new Date(user["last_login" as keyof typeof user]).toLocaleString('ru-RU') }}</td>
+            <td>{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>
+            <td>{{ new Date(user.last_login).toLocaleString('ru-RU') }}</td>
           </tr>
         </tbody>
       </table>
       <div class="py-1">
-        <button class="btn btn-primary" @click="adminStore.resetItem; adminStore.action = 'create'">Добавить пользователя</button>
+        <button class="btn btn-primary" @click="adminStore.action = 'create'">Добавить пользователя</button>
       </div>
     </div>
   </div>
-</template>@/store/admin
+</template>

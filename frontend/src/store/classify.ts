@@ -21,7 +21,7 @@ export const appClassify = defineStore('appClassify', () => {
    * @return {Promise<void>} A promise that resolves once the data 
    * is retrieved and variables are updated.
    */
-  async function getClassify() {
+  async function getClassify(): Promise<void> {
     const response = await axios.get(`${server}/classes`);
     const [statuses, region, conclusions, 
       decisions, categories, group, role] = response.data;

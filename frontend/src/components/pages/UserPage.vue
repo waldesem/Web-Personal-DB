@@ -11,13 +11,11 @@ const route = useRoute();
 const adminStore = storeAdmin();
 const storeClassify = appClassify();
 
-adminStore.userId = route.params.id as string;  // ID пользователя из роута
+adminStore.userId = route.params.id as string;
 
-// Инициализация данных пользователя
 onBeforeMount(async () => {
-  adminStore.viewUser();
+  adminStore.userAction('view');
 });
-
 
 const isBlocked = computed(() => {
   return adminStore.profile.blocked ? 'Заблокирован' : 'Разблокирован';
@@ -46,14 +44,14 @@ const isBlocked = computed(() => {
             <td>
               <ul v-for="(group, index) in adminStore.profile.groups" :key=index>
                 <li>{{ storeClassify.groups[group['group']] }}
-                  <a href="#" @click="adminStore.editGroupRole('group', 'remove', group['group'])">
+                  <a href="#" @click="adminStore.editGroupRole('group','remove', group['group'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
               </ul>
               <form class="form form-check" role="form">
                 <select class="form-select" id="group" name="group" 
-                    v-model="adminStore.orRoleGroup" @change="adminStore.editGroupRole('group', 'add')">
+                    v-model="adminStore.selectGroup" @change="adminStore.editGroupRole('group','add')">
                   <option value="" selected>Добавить группу</option>
                   <option v-for="(val, name) in storeClassify.groups" :key="name" :value="name">
                     {{ val }}</option>
@@ -65,14 +63,14 @@ const isBlocked = computed(() => {
             <td>
               <ul v-for="(role, index) in adminStore.profile.roles" :key=index>
                 <li>{{ role['role'] }}
-                  <a href="#" @click="adminStore.editGroupRole('role', 'remove', role['role'])">
+                  <a href="#" @click="adminStore.editGroupRole('role','remove', role['role'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
               </ul>
               <form class="form form-check" role="form">
                 <select class="form-select" id="role" name="role" 
-                    v-model="adminStore.orRoleGroup" @change="adminStore.editGroupRole('role', 'add')">
+                    v-model="adminStore.selectRole" @change="adminStore.editGroupRole('role', 'add')">
                   <option value="" selected>Добавить роль</option>
                   <option v-for="(val, name) in storeClassify.roles" :key="name" :value="val">
                     {{ val }}</option>
@@ -85,12 +83,12 @@ const isBlocked = computed(() => {
         </tbody>
       </table>
       <div class="btn-group py-3" role="group">
-        <button @click="adminStore.editUserInfo('block')" class="btn btn-outline-primary">
+        <button @click="adminStore.userAction('block')" class="btn btn-outline-primary">
           {{adminStore.profile.blocked ? "Разблокировать" : 'Заблокировать' }}
         </button>
         <button @click="adminStore.action = 'edit'" class="btn btn-outline-primary">Редактировать</button>
-        <button @click="adminStore.editUserInfo('drop')" class="btn btn-outline-primary">Сбросить пароль</button>
-        <button @click="adminStore.editUserInfo('delete')" class="btn btn-outline-primary">Удалить</button>
+        <button @click="adminStore.userAction('drop')" class="btn btn-outline-primary">Сбросить пароль</button>
+        <button @click="adminStore.userDelete('delete')" class="btn btn-outline-primary">Удалить</button>
       </div>
     </div>
   </div>
