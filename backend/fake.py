@@ -21,7 +21,8 @@ def get_anketa(index):
             "category": random.choice([category.value for category in Category]),
             "fullname": fake.name(),
             "previous": fake.last_name(),
-            "birthday": fake.date_of_birth(minimum_age=14, maximum_age=85).strftime("%Y-%m-%d"),
+            "birthday": fake.date_of_birth(minimum_age=14, 
+                                           maximum_age=85).strftime("%Y-%m-%d"),
             "birthplace": fake.city(),
             "country": fake.country(),
             "snils": fake.ssn(),
@@ -37,7 +38,8 @@ def get_anketa(index):
         },
         "staff": {
             "position": fake.job(),
-            "department": f'{random.choice([region.value for region in Regions])}/{fake.company_suffix()}'
+            "department": f'{random.choice([region.value for 
+                                            region in Regions])}/{fake.company_suffix()}'
         },
         "addresses": [
             {
@@ -87,7 +89,8 @@ def get_anketa(index):
     } for i in range(index)]
 
 
-def test_api(number=20, server='http://127.0.0.1:5000', username='newrestapi', password='newrestapi'):
+def test_api(number=20, server='http://127.0.0.1:5000', 
+             username='newrestapi', password='newrestapi'):
     anketas = get_anketa(number)
     for anketa in anketas:
         response = requests.post(f'{server}/api/v1/anketa', 

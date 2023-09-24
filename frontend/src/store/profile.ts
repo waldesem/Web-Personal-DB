@@ -44,7 +44,9 @@ export const appProfile = defineStore('appProfile', () => {
     ]);
   };
 
-  async function getItem(item: string, action: string = 'get', id: string = candId.value): Promise<void> {
+  async function getItem(
+    item: string, action: string = 'get', id: string = candId.value
+    ): Promise<void> {
 
     if (item === 'check' && action === 'add'){
       if (anketa.value.resume['status'] === classifyApp.status['save'] || 
@@ -100,10 +102,11 @@ export const appProfile = defineStore('appProfile', () => {
 
       storeAlert.setAlert('alert-success', 'Данные успешно обновлены');
       
-      await Promise.all([
-        await getItem(flag.value, action.value, candId.value),
-        await getItem('resume', 'get', candId.value)
-      ])
+      if (['registry', 'check', 'poligraf'].includes(flag.value)) {
+        getItem('resume', 'get', candId.value)
+      };
+      getItem(flag.value, action.value, candId.value);
+
       cancelEdit();
 
     } catch (error) {
@@ -113,9 +116,12 @@ export const appProfile = defineStore('appProfile', () => {
   };
   
 
-  async function deleteItem(item: string, action: string = 'delete', id: string = candId.value): Promise<void> {
+  async function deleteItem(
+    item: string, action: string = 'delete', id: string = candId.value
+    ): Promise<void> {
 
-    if ([classifyApp.status['robot'], classifyApp.status['finish']].includes(anketa.value.resume['status']) 
+    if ([classifyApp.status['robot'], 
+        classifyApp.status['finish']].includes(anketa.value.resume['status']) 
       && (item === 'check' || item === 'resume')) {
 
       storeAlert.setAlert('alert-warning', 'Нельзя удалить запись с текущим статусом');
@@ -124,7 +130,9 @@ export const appProfile = defineStore('appProfile', () => {
 
     if (confirm(`Вы действительно хотите удалить запись?`)) {
       try {
-        const response = await storeAuth.axiosInstance.delete(`${server}/${item}/${action}/${id}`);
+        const response = await storeAuth.axiosInstance.delete(
+          `${server}/${item}/${action}/${id}`
+          );
         console.log(response.status);
         item === 'resume' 
           ? router.push({ name: 'persons', params: { group: storeLogin.pageIdentity } }) 
@@ -140,11 +148,14 @@ export const appProfile = defineStore('appProfile', () => {
   /**
    * Submits the data to the server to create a new resume.
    *
-   * @return {Promise<void>} A promise that resolves when the data has been successfully submitted.
+   * @return {Promise<void>} A promise that resolves when the data has been 
+   * successfully submitted.
    */
   async function submitResume(): Promise<void> {
     try {
-      const response = await storeAuth.axiosInstance.post(`${server}/resume/${action.value}`, itemForm.value);
+      const response = await storeAuth.axiosInstance.post(
+        `${server}/resume/${action.value}`, itemForm.value
+        );
       const { message } = response.data;
       
       storeAlert.setAlert(action.value === "create" 
@@ -169,7 +180,9 @@ export const appProfile = defineStore('appProfile', () => {
    * @param {Event} event - The event object.
    * @return {Promise<void>} A promise that resolves when the file is successfully uploaded.
    */
-  async function submitFile(event: Event, flag: string, idItem: string = '0'): Promise<void> {
+  async function submitFile(
+    event: Event, flag: string, idItem: string = '0'
+    ): Promise<void> {
 
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files && inputElement.files.length > 0) {
@@ -177,16 +190,20 @@ export const appProfile = defineStore('appProfile', () => {
       formData.append('file', inputElement.files[0]);
       
       try {
-        const response = await storeAuth.axiosInstance.post(`${server}/file/${flag}/${idItem}`, formData);
+        const response = await storeAuth.axiosInstance.post(
+          `${server}/file/${flag}/${idItem}`, formData
+          );
         const { result, item_id } = response.data;
 
         if (flag === 'anketa'){
           storeAlert.setAlert(result ? "alert-info" : "alert-success",
-                              result ? 'Анкета уже существует. Данные обновлены' : 'Анкета успешно добавлена');
+                              result ? 'Анкета уже существует. Данные обновлены' 
+                                     : 'Анкета успешно добавлена');
 
           router.push({ name: 'profile', params: { id: item_id } })
         } else {
-          storeAlert.setAlert("alert-success", "Файл или файлы успешно загружен/добавлены");
+          storeAlert.setAlert("alert-success", 
+                              "Файл или файлы успешно загружен/добавлены");
         };
       
       } catch (error) {

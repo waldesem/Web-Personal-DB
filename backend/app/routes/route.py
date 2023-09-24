@@ -148,7 +148,7 @@ class ResumeView(MethodView):
     @r_g.roles_required(Roles.user.name)
     @bp.input(PersonSchema)
     @bp.doc(hide=True)
-    def patch(self, person_id, json_data):
+    def patch(self, action, person_id, json_data):
         db.session.add(Person(**json_data | {'person_id': person_id}))
         users = db.session.query(User).\
             filter_by(region_id=json_data['region_id']).all()
@@ -174,10 +174,8 @@ class ResumeView(MethodView):
 resume_view = ResumeView.as_view('resume')
 bp.add_url_rule('/resume/<action>', 
                 view_func=resume_view, methods=['POST'])
-bp.add_url_rule('/resume/<int:person_id>', 
-                view_func=resume_view, methods=['PATCH'])
 bp.add_url_rule('/resume/<action>/<int:person_id>', 
-                view_func=resume_view, methods=['GET', 'DELETE'])
+                view_func=resume_view, methods=['GET', 'PATCH', 'DELETE'])
 
 
 class StaffView(MethodView):
