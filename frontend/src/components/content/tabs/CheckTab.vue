@@ -189,7 +189,7 @@ const storeProfile = appProfile();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button  v-if="!storeProfile.printPdf" @click="storeProfile.addCheck" 
+      <button  v-if="!storeProfile.printPdf" @click="storeProfile.getItem('check', 'add')" 
                                             :disabled="![classifyApp.status['new'], 
                                                         classifyApp.status['update'], 
                                                         classifyApp.status['save'], 

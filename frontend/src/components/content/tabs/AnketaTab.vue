@@ -68,7 +68,7 @@ const storeClassify = appClassify();
           <tr><td>Документы</td><td>{{ storeProfile.anketa.resume['path'] }}</td></tr>
           <tr>
             <td>Статус</td>
-            <td><a href="#" @click="storeProfile.updateStatus">{{ storeProfile.anketa.resume['status'] }}</a></td>
+            <td><a href="#" @click="storeProfile.getItem('resume', 'status')">{{ storeProfile.anketa.resume['status'] }}</a></td>
           </tr>
           <tr>
             <td>Создан</td>
@@ -345,7 +345,7 @@ const storeClassify = appClassify();
     <div v-if="!storeProfile.printPdf" class="py-3">
       <div class='btn-group' role="group">
         
-        <button @click="storeProfile.sendResume" 
+        <button @click="storeProfile.getItem('resume', 'send')" 
           :disabled="(storeProfile.anketa.resume['status'] !== storeClassify.status['new'] 
             && storeProfile.anketa.resume['status'] !== storeClassify.status['update']) 
             || storeProfile.spinner" 

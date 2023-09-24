@@ -15,7 +15,7 @@ const loginStore = appLogin();
   <div class="py-3">
 
     <template v-if="storeProfile.action === 'create' && storeProfile.flag === 'registry'">
-      <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form"  id="registryFormId">
+      <form @submit.prevent="storeProfile.updateItem()" class="form form-check" role="form"  id="registryFormId">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
           <div class="col-lg-10">

@@ -69,21 +69,11 @@ class RelationSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class RelationsSchema(ma.SQLAlchemySchema):
-        
-    relations = fields.Nested(RelationSchema, many=True)
-
-
 class DocumentSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for document"""
     class Meta:
         model = Document
         ordered = True
-
-
-class DocumentsSchema(ma.SQLAlchemySchema):
-        
-    documents = fields.Nested(DocumentSchema, many=True)
 
 
 class AddressSchema(ma.SQLAlchemyAutoSchema):
@@ -93,21 +83,11 @@ class AddressSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class AddressesSchema(ma.SQLAlchemySchema):
-        
-    adresses = fields.Nested(AddressSchema, many=True)
-
-
 class StaffSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for staff"""
     class Meta:
         model = Staff
         ordered = True
-
-
-class StaffsSchema(ma.SQLAlchemySchema):
-        
-    staffs = fields.Nested(StaffSchema, many=True)
 
 
 class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
@@ -117,21 +97,11 @@ class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class WorkplacesSchema(ma.SQLAlchemySchema):
-        
-    workplaces = fields.Nested(WorkplaceSchema, many=True)
-
-
 class ContactSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for contact"""
     class Meta:
         model = Contact
         ordered = True
-
-
-class ContactsSchema(ma.SQLAlchemySchema):
-        
-    contacts = fields.Nested(ContactSchema, many=True)
 
 
 class RelationSchema(ma.SQLAlchemyAutoSchema):
@@ -141,21 +111,11 @@ class RelationSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class RelationsSchema(ma.SQLAlchemySchema):
-        
-    relations = fields.Nested(RelationSchema, many=True)
-
-
 class CheckSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:
         model = Check
         ordered = True
-
-
-class ChecksSchema(ma.SQLAlchemySchema):
-        
-    check = fields.Nested(CheckSchema, many=True)
 
 
 class RegistrySchema(ma.SQLAlchemyAutoSchema):
@@ -165,20 +125,10 @@ class RegistrySchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class RegistriesSchema(ma.SQLAlchemySchema):
-        
-    registries = fields.Nested(RegistrySchema, many=True)
-
-
 class InquirySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Inquiry
         ordered = True
-
-
-class InquiriesSchema(ma.SQLAlchemySchema):
-        
-    inquries = fields.Nested(InquirySchema, many=True)
 
 
 class InvestigationSchema(ma.SQLAlchemyAutoSchema):
@@ -187,21 +137,11 @@ class InvestigationSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class InvestigationsSchema(ma.SQLAlchemySchema):
-        
-    investigation = fields.Nested(InvestigationSchema, many=True)
-
-
 class PoligrafSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for poligraf"""
     class Meta:
         model = Poligraf
         ordered = True
-
-
-class PoligrafsSchema(ma.SQLAlchemySchema):
-        
-    poligrafs = fields.Nested(PoligrafSchema, many=True)
 
 
 class ConnectSchema(ma.SQLAlchemyAutoSchema):

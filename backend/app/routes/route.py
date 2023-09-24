@@ -19,12 +19,10 @@ from ..utils.actions import resume_data, add_resume, create_folders
 from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
-from ..models.schema import AddressesSchema, ChecksSchema, ContactsSchema, \
-    DocumentsSchema, InquiriesSchema, InvestigationsSchema, PoligrafsSchema, \
-    RegistriesSchema, RelationSchema, RelationsSchema, StaffSchema, AddressSchema, \
+from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-    InvestigationSchema, PoligrafSchema, RegistrySchema, StaffsSchema, \
-    WorkplaceSchema, AnketaSchema, WorkplacesSchema
+    InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema,\
+    WorkplaceSchema
 from ..models.classes import Category, Roles, Groups, Status
 
 
@@ -87,7 +85,8 @@ class IndexView(MethodView):
         has_next, has_prev = int(query.has_next), int(query.has_prev)
         return {'person': query, 'has_next': has_next, "has_prev": has_prev}
 
-bp.add_url_rule('/index/<flag>/<int:page>', view_func=IndexView.as_view('index'))
+bp.add_url_rule('/index/<flag>/<int:page>', 
+                view_func=IndexView.as_view('index'))
 
 
 class ResumeView(MethodView):
@@ -101,7 +100,7 @@ class ResumeView(MethodView):
         if action == 'status':
             person.status = Status.update.value
             db.session.commit()
-            return ''
+            return db.session.query(Person).get(person_id)
         elif action == 'send':
             if person.has_status([Status.new.value, 
                                   Status.update.value, 
@@ -130,7 +129,7 @@ class ResumeView(MethodView):
                                              path=check_path,
                                              person_id = person_id))
                         db.session.commit()
-                        return ''
+                        return db.session.query(Person).get(person_id)
                     return abort(response.status_code)
                 except requests.exceptions.RequestException as e:
                     print(e)
@@ -162,7 +161,7 @@ class ResumeView(MethodView):
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     @bp.doc(hide=True)
-    def delete(self, person_id):
+    def delete(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         try:
             shutil.rmtree(person.path)
@@ -173,30 +172,34 @@ class ResumeView(MethodView):
         return ''
     
 resume_view = ResumeView.as_view('resume')
-bp.add_url_rule('/resume/<action>', view_func=resume_view, methods=['POST'])
-bp.add_url_rule('/resume/<int:person_id>', view_func=resume_view, methods=['DELETE', 'PATCH'])
-bp.add_url_rule('/resume/<action>/<int:person_id>', view_func=resume_view, methods=['GET'])
+bp.add_url_rule('/resume/<action>', 
+                view_func=resume_view, methods=['POST'])
+bp.add_url_rule('/resume/<int:person_id>', 
+                view_func=resume_view, methods=['PATCH'])
+bp.add_url_rule('/resume/<action>/<int:person_id>', 
+                view_func=resume_view, methods=['GET', 'DELETE'])
 
 
 class StaffView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(StaffsSchema)
-    def get(self, item_id):
-        return db.session.query(Staff).filter_by(person_id=item_id).\
-            order_by(Staff.id.asc()).all()
+    def get(self, action, item_id):
+        schema = StaffSchema()
+        return schema.dump(db.session.query(Staff).\
+                           filter_by(person_id=item_id).\
+                            order_by(Staff.id.asc()).all(), many=True)
 
     @bp.input(StaffSchema)
     @r_g.roles_required(Roles.user.value)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Staff(**json_data | {'person_id': item_id}))
         db.session.commit()
         return '', 201
         
     @bp.input(StaffSchema)
     @r_g.roles_required(Roles.user.value)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Staff).get(item_id), k, v)
         db.session.commit()
@@ -204,34 +207,35 @@ class StaffView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Staff).get(item_id))
         db.session.commit()
         return ''
     
-bp.add_url_rule('/staff/<int:item_id>', view_func=StaffView.as_view('staff'))
+bp.add_url_rule('/staff/<action>/<int:item_id>', 
+                view_func=StaffView.as_view('staff'))
 
 
 class DocumentView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(DocumentsSchema)
-    def get(self, item_id):
-        return db.session.query(Document).filter_by(person_id=item_id).\
-            order_by(Document.id.asc()).all()
+    def get(self, action, item_id):
+        schema = DocumentSchema()
+        return schema.dump(db.session.query(Document).\
+                           filter_by(person_id=item_id).\
+                            order_by(Document.id.asc()).all(), many=True)
     
     @r_g.roles_required(Roles.user.value)
     @bp.input(DocumentSchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Document(**json_data | {'person_id': item_id}))
         db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
     @bp.input(DocumentSchema)
-    @bp.output(DocumentsSchema)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Document).get(item_id), k, v)
         db.session.commit()
@@ -239,32 +243,34 @@ class DocumentView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Document).get(item_id))
         db.session.commit()
         return ''
     
-bp.add_url_rule('/document/<int:item_id>', view_func=DocumentView.as_view('document'))
+bp.add_url_rule('/document/<action>/<int:item_id>', 
+                view_func=DocumentView.as_view('document'))
 
 
 class AddressView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(AddressesSchema)
-    def get(self, item_id):
-        return db.session.query(Address).filter_by(person_id=item_id).\
-            order_by(Address.id.asc()).all()
+    def get(self, action, item_id):
+        schema = AddressSchema()
+        return schema.dump(db.session.query(Address).\
+                           filter_by(person_id=item_id).\
+                            order_by(Address.id.asc()).all(), many=True)
             
     @r_g.roles_required(Roles.user.value)
     @bp.input(AddressSchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Address(**json_data | {'person_id': item_id}))
         return '', 201
         
     @r_g.roles_required(Roles.user.value)    
     @bp.input(AddressSchema)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Address).get(item_id), k, v)
         db.session.commit()
@@ -272,32 +278,34 @@ class AddressView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Address).get(item_id))
         db.session.commit()
         return ''
     
-bp.add_url_rule('/address/<int:item_id>', view_func=AddressView.as_view('address'))
+bp.add_url_rule('/address/<action>/<int:item_id>', 
+                view_func=AddressView.as_view('address'))
 
 
 class ContactView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(ContactsSchema)
-    def get(self, item_id):
-        return db.session.query(Contact).filter_by(person_id=item_id).\
-            order_by(Contact.id.asc()).all()
+    def get(self, action, item_id):
+        schema = ContactSchema()
+        return schema.dump(db.session.query(Contact).\
+                           filter_by(person_id=item_id).\
+                            order_by(Contact.id.asc()).all(), many=True)
             
     @r_g.roles_required(Roles.user.value)
     @bp.input(ContactSchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Contact(**json_data | {'person_id': item_id}))
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
     @bp.input(ContactSchema)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Contact).get(item_id), k, v)
         db.session.commit()
@@ -305,59 +313,63 @@ class ContactView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Contact).get(item_id))
         db.session.commit()
         return ''
 
-bp.add_url_rule('/contact/<int:item_id>', view_func=ContactView.as_view('contact'))
+bp.add_url_rule('/contact/<action>/<int:item_id>', 
+                view_func=ContactView.as_view('contact'))
 
 
 class WorkplaceView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(WorkplacesSchema)
-    def get(self, item_id):
-        return db.session.query(Workplace).filter_by(person_id=item_id).\
-            order_by(Workplace.id.asc()).all()
+    def get(self, action, item_id):
+        schema = WorkplaceSchema()
+        return schema.dump(db.session.query(Workplace).\
+                           filter_by(person_id=item_id).\
+                            order_by(Workplace.id.asc()).all(), many=True)
             
     @r_g.roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Workplace(**json_data | {'person_id': item_id}))
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
     @bp.output(EmptySchema, status_code=204)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Workplace).get(item_id), k, v)
         db.session.commit()
         return '', 201
    
     @r_g.roles_required(Roles.user.name)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Workplace).get(item_id))
         db.session.commit()
         return ''
     
-bp.add_url_rule('/workplace/<int:item_id>', view_func=AddressView.as_view('workplace'))
+bp.add_url_rule('/workplace/<action>/<int:item_id>', 
+                view_func=AddressView.as_view('workplace'))
 
 
 class RelationView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(RelationsSchema)
-    def get(self, item_id):
-        return db.session.query(Relation).filter_by(person_id=item_id).\
-            order_by(Relation.id.asc()).all()
+    def get(self, action, item_id):
+        schema = RelationSchema()
+        return schema.dump(db.session.query(Relation).\
+                           filter_by(person_id=item_id).\
+                            order_by(Relation.id.asc()).all(), many=True)
             
     @r_g.roles_required(Roles.user.value)
     @bp.input(RelationSchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Relation(**json_data | {'person_id': item_id}))
         db.session.add(Relation(relation = json_data['relation'], 
                                 relation_id = item_id,
@@ -366,27 +378,27 @@ class RelationView(MethodView):
         
     @r_g.roles_required(Roles.user.value)
     @bp.input(RelationSchema)
-    def patch(self, id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Relation).get(id), k, v)
+            setattr(db.session.query(Relation).get(item_id), k, v)
         db.session.commit()
         return '', 201
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Relation).get(item_id))
         db.session.commit()
         return ''
     
-bp.add_url_rule('/relation/<int:item_id>', view_func=RelationView.as_view('relation'))
+bp.add_url_rule('/relation/<action>/<int:item_id>', 
+                view_func=RelationView.as_view('relation'))
 
 
 class CheckView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(ChecksSchema)
     def get(self, action, item_id):
         if action == 'add':
             person = db.session.query(Person).get(item_id)
@@ -400,9 +412,11 @@ class CheckView(MethodView):
                                         person_id = item_id))
                 db.session.commit()
                 return '', 201
-            return '', 205
-        return db.session.query(Check).filter_by(person_id=item_id).\
-            order_by(Check.id.asc()).all()
+
+        schema = CheckSchema()
+        return schema.dump(db.session.query(Check).\
+                           filter_by(person_id=item_id).\
+                            order_by(Check.id.asc()).all(), many=True)
             
     @r_g.roles_required(Roles.user.value)
     @bp.input(CheckSchema)
@@ -427,7 +441,7 @@ class CheckView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         check = db.session.query(Check).get(item_id)
         db.session.delete(check)
         try:
@@ -440,7 +454,8 @@ class CheckView(MethodView):
         db.session.commit()
         return ''
     
-bp.add_url_rule('/checks/<action>/<int:item_id>', view_func=CheckView.as_view('check'))
+bp.add_url_rule('/check/<action>/<int:item_id>', 
+                view_func=CheckView.as_view('check'))
 
 
 class RegistryView(MethodView):
@@ -455,13 +470,15 @@ class RegistryView(MethodView):
                 else Status.finish.value
         db.session.commit()
         
-    @bp.output(RegistriesSchema)
-    def get(self, item_id):
-        return db.session.query(Registry).filter_by(person_id=item_id).all() 
+    def get(self, action, item_id):
+        schema = RegistrySchema()
+        return schema.dump(db.session.query(Registry).\
+                           filter_by(person_id=item_id).\
+                            order_by(Registry.id.asc()).all(), many=True)
     
     @r_g.roles_required(Roles.superuser.value)
     @bp.input(RegistrySchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         check_id = db.session.query(Check.id).filter_by(person_id=item_id).\
             order_by(Check.id.desc()).scalar()
         reg = {'supervisor': current_user.fullname} | json_data
@@ -483,21 +500,23 @@ class RegistryView(MethodView):
         self.add_to_db(person, reg, check_id, item_id)
         return '', 201
 
-bp.add_url_rule('/registry/<int:user_id>', view_func=RegistryView.as_view('registry'))
+bp.add_url_rule('/registry/<action>/<int:user_id>', 
+                view_func=RegistryView.as_view('registry'))
 
 
 class InvestigationView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(InvestigationsSchema)
-    def get(self, item_id):
-        return db.session.query(Investigation).filter_by(person_id=item_id).\
-            order_by(Investigation.id.asc()).all()
+    def get(self, action, item_id):
+        schema = InvestigationSchema()
+        return schema.dump(db.session.query(Investigation).\
+                           filter_by(person_id=item_id).\
+                            order_by(Investigation.id.asc()).all(), many=True)
     
     @r_g.roles_required(Roles.user.value)
     @bp.input(InvestigationSchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Investigation(**json_data | {'person_id': item_id, 
                                                     'officer': current_user.fullname}))
         return '', 201
@@ -512,7 +531,7 @@ class InvestigationView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         invs = db.session.query(Investigation).get(item_id)
         db.session.delete(invs)
         try:
@@ -522,22 +541,23 @@ class InvestigationView(MethodView):
         db.session.commit()
         return ''
     
-investigation_view = InvestigationView.as_view('investigation')
-bp.add_url_rule('/investigation/<int:item_id>', view_func=investigation_view)
+bp.add_url_rule('/investigation/<action>/<int:item_id>', 
+                view_func=InvestigationView.as_view('investigation'))
 
 
 class PoligrafView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
 
-    @bp.output(PoligrafsSchema)
-    def get(self, item_id):
-        return db.session.query(Poligraf).filter_by(person_id=item_id).\
-            order_by(Poligraf.id.asc()).all()
+    def get(self, action, item_id):
+        schema = PoligrafSchema()
+        return schema.dump(db.session.query(Poligraf).\
+                           filter_by(person_id=item_id).\
+                            order_by(Poligraf.id.asc()).all(), many=True)
     
     @r_g.roles_required(Roles.user.value)
     @bp.input(PoligrafSchema)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         person = db.session.query(Person).get(id)
         if person.has_status(Status.poligraf.value):
             person.status = Status.result.value
@@ -547,7 +567,7 @@ class PoligrafView(MethodView):
         
     @r_g.roles_required(Roles.user.value)
     @bp.input(PoligrafSchema)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Poligraf).get(item_id), k, v)
         db.session.commit()
@@ -555,33 +575,35 @@ class PoligrafView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Poligraf).get(item_id))
         db.session.commit()
         return ''
         
-bp.add_url_rule('/poligraf/<int:item_id>', view_func=PoligrafView.as_view('poligraf'))
+bp.add_url_rule('/poligraf/<action>/<int:item_id>', 
+                view_func=PoligrafView.as_view('poligraf'))
 
 
 class InquiryView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
-    @bp.output(InquiriesSchema)
-    def get(self, item_id):
-        return db.session.query(Inquiry).filter_by(person_id=item_id).\
-            order_by(Inquiry.id.asc()).all()
+    def get(self, action, item_id):
+        schema = InquirySchema()
+        return schema.dump(db.session.query(Inquiry).\
+                           filter_by(person_id=item_id).\
+                            order_by(Inquiry.id.asc()).all(), many=True)
     
     @bp.input(InquirySchema)
     @r_g.roles_required(Roles.user.value)
-    def post(self, item_id, json_data):
+    def post(self, action, item_id, json_data):
         db.session.add(Inquiry(**json_data | {'person_id': item_id, 
                                               'officer': current_user.fullname}))
         return '', 201
         
     @bp.input(InquirySchema)
     @r_g.roles_required(Roles.user.value)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Inquiry).get(item_id), k, v)
         db.session.commit()
@@ -589,12 +611,13 @@ class InquiryView(MethodView):
    
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    def delete(self, item_id):
+    def delete(self, action, item_id):
         db.session.delete(db.session.query(Inquiry).get(item_id))
         db.session.commit()
         return ''
 
-bp.add_url_rule('/inquiry/<int:item_id>', view_func=InquiryView.as_view('inquiry'))
+bp.add_url_rule('/inquiry/<action>/<int:item_id>', 
+                view_func=InquiryView.as_view('inquiry'))
 
 
 class FileView(MethodView):
@@ -670,7 +693,8 @@ class FileView(MethodView):
                     file.save(os.path.join(folder, filename))
             return '', 201
 
-bp.add_url_rule('/file/<action>/<int:item_id>', view_func=FileView.as_view('file'))
+bp.add_url_rule('/file/<action>/<int:item_id>', 
+                view_func=FileView.as_view('file'))
 
 
 class InfoView(MethodView):
