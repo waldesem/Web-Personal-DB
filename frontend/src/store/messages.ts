@@ -24,11 +24,13 @@ export const appMessages = defineStore('appMessages', () => {
    */
   async function updateMessage(flag: string = 'new'): Promise<void> {
     try {
-      const response = await storeAuth.axiosInstance.get(`${server}/messages/${flag}`);
+      const response = flag === 'new' 
+        ? await storeAuth.axiosInstance.get(`${server}/messages`)
+        : await storeAuth.axiosInstance.delete(`${server}/messages`);
       messages.value = response.data;
         
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
   };
 

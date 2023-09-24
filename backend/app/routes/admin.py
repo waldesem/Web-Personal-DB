@@ -72,14 +72,14 @@ class UserView(MethodView):
                     db.session.commit()
                 return db.session.query(User).get(user_id)
             case 'drop':
-                setattr(user, 'password', bcrypt.hashpw(user.username.encode('utf-8'), 
+                setattr(user, 'password', bcrypt.hashpw('11111111'.encode('utf-8'), 
                                                         bcrypt.gensalt()))
                 setattr(user, 'pswd_change', None)
                 db.session.commit()
                 return db.session.query(User).get(user_id)                
 
     @bp.input(UserSchema)
-    def post(json_data):
+    def post(self, json_data):
         """
         Creates a new user based on the provided JSON data.
 
@@ -98,7 +98,7 @@ class UserView(MethodView):
                                 username=json_data['username'],
                                 region_id = json_data['region_id'],
                                 email = json_data['email'],
-                                password=bcrypt.hashpw(json_data['username'].encode('utf-8'), 
+                                password=bcrypt.hashpw('11111111'.encode('utf-8'), 
                                                        bcrypt.gensalt())))
             db.session.commit()
             return {'message': 'Created'}, 201
@@ -146,7 +146,8 @@ class UserView(MethodView):
         
 user_view = UserView.as_view('user')
 bp.add_url_rule('/user', view_func=user_view, methods=['PATCH', 'POST'])
-bp.add_url_rule('/user/<action>/<int:user_id>', view_func=user_view, methods=['GET', 'DELETE'])
+bp.add_url_rule('/user/<int:user_id>', view_func=user_view, methods=['DELETE'])
+bp.add_url_rule('/user/<action>/<int:user_id>', view_func=user_view, methods=['GET'])
 
 
 class GroupView(MethodView):

@@ -53,11 +53,6 @@ class MessageSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class MessagesSchema(ma.SQLAlchemySchema):
-        
-    messages = fields.Nested(MessageSchema, many=True)
-
-
 class PersonSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for person"""
     region_id = ma.auto_field()
@@ -221,15 +216,6 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Connect
         ordered = True
-
-
-class ConnectsSchema(ma.SQLAlchemySchema):
-    
-    connects = fields.Nested(ConnectSchema, many=True)
-    has_next = fields.Integer()
-    has_prev = fields.Integer()
-    companies = fields.List(fields.String())
-    cities = fields.List(fields.String())
 
 
 class AnketaSchema(ma.SQLAlchemySchema):

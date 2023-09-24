@@ -88,7 +88,7 @@ const isBlocked = computed(() => {
         </button>
         <button @click="adminStore.action = 'edit'" class="btn btn-outline-primary">Редактировать</button>
         <button @click="adminStore.userAction('drop')" class="btn btn-outline-primary">Сбросить пароль</button>
-        <button @click="adminStore.userDelete('delete')" class="btn btn-outline-primary">Удалить</button>
+        <button @click="adminStore.userDelete" class="btn btn-outline-primary">Удалить</button>
       </div>
     </div>
   </div>

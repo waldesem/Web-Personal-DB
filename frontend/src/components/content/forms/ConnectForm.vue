@@ -7,7 +7,7 @@ const contactStore = storeContact();
 </script>
 
 <template>
-  <form @submit.prevent="contactStore.updateItem" class="form form-check">
+  <form @submit.prevent="contactStore.updateContact" class="form form-check">
     <div class="row">
       <div class="col-md-2">
         <input class="form-control form-control-sm" list="companies" id="company" maxlength="250" name="company" placeholder="Название" type="text" v-model="contactStore.itemForm['company']" required>

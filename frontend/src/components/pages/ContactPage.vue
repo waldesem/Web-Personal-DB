@@ -9,6 +9,7 @@ const contactStore = storeContact();
 onBeforeMount(() => {
   contactStore.getContacts()
 });
+
 </script>
 
 <template>
@@ -16,7 +17,7 @@ onBeforeMount(() => {
     <div class="py-5">
       <h4>Контакты</h4>
     </div>
-    <form @input="contactStore.searchContacts('search')" class="form form-check" role="form">
+    <form @input="contactStore.searchContacts" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="name" name="name" placeholder="Поиск контактов" type="text" v-model="contactStore.searchData">
       </div>
@@ -35,8 +36,7 @@ onBeforeMount(() => {
             <th width="5%">
               <a role="button" @click="contactStore.itemAction === 'create' 
                                       ? contactStore.itemAction = '' 
-                                      : contactStore.itemAction = 'create'; 
-                                        contactStore.itemId='0'" 
+                                      : contactStore.itemAction = 'create'" 
                                :title="contactStore.itemAction === 'create' 
                                       ? 'Отмена' : 'Добавить контакт'">
                 <i :class="contactStore.itemAction === 'create' 
@@ -46,7 +46,7 @@ onBeforeMount(() => {
             <th width="5%"></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="contactStore.data.contacts">
           <tr v-if="contactStore.itemAction === 'create'">
             <td colspan="9"><ConnectForm/></td>
           </tr>
@@ -71,7 +71,7 @@ onBeforeMount(() => {
                       </a>
                     </td>
                     <td width="5%">
-                      <a href="#" @click="contactStore.updateItem($event, 'delete', contact['id'])" title="Удалить">
+                      <a href="#" @click="contactStore.deleteContact($event, contact['id'])" title="Удалить">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>

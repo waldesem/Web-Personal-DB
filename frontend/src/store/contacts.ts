@@ -12,21 +12,8 @@ export const storeContact = defineStore('storeContact',  () => {
   const storeLogin = appLogin();
   const storeAlert = appAlert();
 
-  const data = ref({
-    contacts: [],
-    companies: [],
-    cities: [],
-    hasPrev: false,
-    hasNext: false
-  });
-
   const searchData = ref('');
-  
-  const currenData = ref({
-    currentPage: 1,
-    currentPath: 'list'
-  });
-  
+  const currentPage = ref(1);
   const itemAction = ref('');
   const itemId = ref('');
   const itemForm = ref({
@@ -36,17 +23,24 @@ export const storeContact = defineStore('storeContact',  () => {
     contact: '',
     comment: ''
   });
+  const data = ref({
+    contacts: [],
+    companies: [],
+    cities: [],
+    hasPrev: false,
+    hasNext: false
+  });
 
-  async function getContacts(url: string=currenData.value.currentPath, page: number=1): Promise<void> {
-    currenData.value.currentPage = page;
-    currenData.value.currentPath = url;
-    
+  /**
+   * Retrieves contacts from the server and updates the data value with the response.
+   *
+   * @return {Promise<void>} A Promise that resolves when the contacts have been retrieved and the data value has been updated.
+   */
+  async function getContacts(): Promise<void> {
     try {
-      const response = url === 'search' 
-        ? await storeAuth.axiosInstance.post(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`, {
+      const response = await storeAuth.axiosInstance.post(`${server}/connects/${storeLogin.pageIdentity}/${currentPage.value}`, {
           'company': searchData.value
-        })
-        : await storeAuth.axiosInstance.get(`${server}/contacts/${storeLogin.pageIdentity}/${url}/${page}`);
+        });
       const [ datas, has_prev, has_next, companies, cities ] = response.data;
 
       Object.assign(data.value, {
@@ -62,6 +56,64 @@ export const storeContact = defineStore('storeContact',  () => {
     }
   };
 
+
+  /**
+   * Updates a contact based on the provided flag and contact ID.
+   *
+   * @param {Event} _event - The event triggering the update.
+   * @param {string} flag - The flag indicating the action to perform (default: "itemAction.value").
+   * @param {string} contactId - The ID of the contact to update (default: "itemId.value").
+   * @return {Promise<void>} - A promise that resolves when the update is complete.
+   */
+  async function updateContact(_event: Event, flag: string=itemAction.value, contactId: string=itemId.value): Promise<void> {
+    try {
+      const response = flag === 'create'
+        ? await storeAuth.axiosInstance.post(
+          `${server}/connect/${storeLogin.pageIdentity}`, itemForm.value
+          )
+        : await storeAuth.axiosInstance.patch(
+          `${server}/connect/${contactId}`, itemForm.value
+          );
+      const { item_id } = response.data;
+
+      const alert = {
+        'create': ['alert-success', `Создан контакт с ID ${item_id}`],
+        'edit': ['alert-info', `Контакт с ID ${item_id} обновлен`]
+      };
+      storeAlert.setAlert(alert[flag as keyof typeof alert][0], 
+                                alert[flag as keyof typeof alert][1]);
+      getContacts();
+      itemAction.value = '';
+      itemId.value = '';
+
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  /**
+   * Deletes a contact.
+   *
+   * @param {Event} _event - the event object
+   * @param {string} contactId - the ID of the contact to delete
+   * @return {Promise<void>} a Promise that resolves when the contact is deleted
+   */
+  async function deleteContact(_event: Event, contactId: string=itemId.value): Promise<void> {
+
+    try {
+      const response = await storeAuth.axiosInstance.delete(`${server}/connect/${contactId}`);
+      console.log(response.status);
+      storeAlert.setAlert('alert-success', `Контакт с ID ${contactId} удален`);
+
+      getContacts();
+
+    } catch (error) {
+      console.log(error)
+      
+      storeAlert.setAlert('alert-danger', `Ошибка при удалении контакта с ID ${contactId}`);
+    }
+  };
+
   /**
    * Moves to the previous page if it exists.
    *
@@ -70,8 +122,8 @@ export const storeContact = defineStore('storeContact',  () => {
   //
   function prevPage(): undefined {
     if (data.value.hasPrev) {
-      currenData.value.currentPage -= 1;
-      getContacts(currenData.value.currentPath, currenData.value.currentPage);
+      currentPage.value -= 1;
+      getContacts();
     }
   };
 
@@ -82,52 +134,12 @@ export const storeContact = defineStore('storeContact',  () => {
    */
   function nextPage(): undefined {
     if (data.value.hasNext) {
-      currenData.value.currentPage += 1;
-      getContacts(currenData.value.currentPath, currenData.value.currentPage);
-    }
-  };
-
-  /**
-   * Updates an item.
-   *
-   * @return {Promise<void>} A promise that resolves with no value.
-   */
-  async function updateItem(_event: Event, flag: string=itemAction.value, contactId: string=itemId.value): Promise<void> {
-
-    try {
-      const response = flag === 'create' || flag === 'edit'
-      ? await storeAuth.axiosInstance.post(`${server}/contact/${storeLogin.pageIdentity}/${flag}/${contactId}`, {
-        'company': itemForm.value.company,
-        'city': itemForm.value.city,
-        'fullname': itemForm.value.fullname,
-        'contact': itemForm.value.contact,
-        'comment': itemForm.value.comment
-        }
-      )
-      : await storeAuth.axiosInstance.delete(`${server}/contact/${storeLogin.pageIdentity}/${flag}/${contactId}`);
-
-      const { action, item_id } = response.data;
-
-      const alert = {
-        'create': ['alert-success', `Создан контакт с ID ${item_id}`],
-        'edit': ['alert-info', `Контакт с ID ${item_id} обновлен`],
-        'delete': ['alert-warning', `Контакт с ID ${item_id} удален`]
-      };
-      storeAlert.setAlert(alert[action as keyof typeof alert][0], alert[action as keyof typeof alert][1]);
-
-      Object.keys(itemForm.value).forEach(key => {
-        delete itemForm.value[key as keyof typeof itemForm.value];
-      });
-      itemAction.value = '';
-      itemId.value = '';
-      getContacts(currenData.value.currentPath, currenData.value.currentPage);
-
-    } catch (error) {
-      console.log(error)
+      currentPage.value += 1;
+      getContacts();
     }
   };
 
   const searchContacts = debounce(getContacts, 500);
 
-  return { data, searchData, currenData, itemAction, itemId, itemForm, getContacts, prevPage, nextPage, updateItem, searchContacts };
+  return { data, searchData, itemAction, itemId, itemForm, getContacts, prevPage, nextPage, deleteContact, updateContact, searchContacts };
 });

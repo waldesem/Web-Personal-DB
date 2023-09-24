@@ -5,42 +5,43 @@ from flask.views import MethodView
 
 from . import bp
 from ..models.model import db, Group, Connect
-from ..models.schema import ConnectSchema, ConnectsSchema
+from ..models.schema import ConnectSchema
 
 
 class ContactsView(MethodView):
 
     decorators = [jwt_required(), bp.doc(hide=True)]
-    pagination = 16
 
-    def __init__(self) -> None:
-        self.datalist = db.session.query(Connect.company, Connect. city).all()
-    
-    @bp.output(ConnectsSchema)
-    def get(self, group, item):
-        group_id = db.session.query(Group.id).filter_by(group=group).scalar()
-        query = db.session.query(Connect).filter_by(group_id=group_id). \
-                    order_by(Connect.id.desc()).paginate(page=item, 
-                                                         per_page=self.pagination, 
-                                                         error_out=False)
-        return {'connects': query, 
-                'has_next': int(query.has_next), 
-                'has_prev': int(query.has_prev), 
-                'companies': [company[0] for company in self.datalist],  
-                'cities': [city[1] for city in self.datalist]}
+    def post(self, group, item):
+        """
+        Retrieves a paginated list of Connect objects based on the specified group and item.
 
-    @bp.output(ConnectsSchema)
-    def post(self, group, item, json_data):
+        Args:
+            group (str): The name of the group.
+            item (int): The page number of the pagination.
+
+        Returns:
+            list: A list containing the following:
+                - A serialized version of the Connect objects matching the search criteria.
+                - A dictionary indicating whether there is a next page.
+                - A dictionary indicating whether there is a previous page.
+                - A list of companies.
+                - A list of cities.
+        """
+        pagination = 16
+        schema = ConnectSchema()
+        response = request.get_json()
+        datalist = db.session.query(Connect.company, Connect. city).all()
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
         query = db.session.query(Connect).\
-            filter(Connect.company.ilike('%{}%'.format(json_data['company'])),
+            filter(Connect.company.ilike('%{}%'.format(response['company'])),
                    Connect.group_id==group_id).order_by(Connect.id.desc()).\
-            paginate(page=item, per_page=self.pagination, error_out=False)
-        return {'connects': query, 
-                'has_next': int(query.has_next), 
-                'has_prev': int(query.has_prev), 
-                'companies': [company[0] for company in self.datalist],  
-                'cities': [city[1] for city in self.datalist]}
+            paginate(page=item, per_page=pagination, error_out=False)
+        return [schema.dump(query, many=True), 
+                {'has_next': int(query.has_next)}, 
+                {'has_prev': int(query.has_prev)}, 
+                {'companies': [company[0] for company in datalist]},  
+                {'cities': [city[1] for city in datalist]}]
     
 bp.add_url_rule('/connects/<group>/<int:item>', view_func=ContactsView.as_view('connects'))
 
@@ -51,6 +52,16 @@ class ConnnectView(MethodView):
     
     @bp.input(ConnectSchema)
     def post(self, group, json_data):
+        """
+        Create a new connection.
+
+        Parameters:
+            group (str): The name of the group.
+            json_data (dict): The JSON data containing the connection information.
+
+        Returns:
+            dict: A dictionary containing the ID of the created connection.
+        """
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
         connect = Connect(**json_data | {"group_id": group_id})
         db.session.add(connect)
@@ -61,16 +72,37 @@ class ConnnectView(MethodView):
 
     @bp.input(ConnectSchema)
     def patch(self, item, json_data):
+        """
+        Patch an item in the Connect table.
+
+        Args:
+            item: The id of the item to be patched.
+            json_data: The data to be updated.
+        
+        Returns:
+            A dictionary containing the updated item id.
+        """
         resp = db.session.query(Connect).filter_by(id=item).first()
         for k, v in json_data.items():
             setattr(resp, k, v)
+        db.session.commit()
         return {'item_id': item}
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, item):
+        """
+        Deletes an item from the database.
+
+        Parameters:
+            item (int): The ID of the item to be deleted.
+
+        Returns:
+            str: An empty string indicating the deletion was successful.
+        """
         resp = db.session.query(Connect).filter_by(id=item).first()
         db.session.delete(resp)
-        return {'item_id': item}
+        db.session.commit()
+        return ''
 
 
 contacts_view = ConnnectView.as_view('connect')

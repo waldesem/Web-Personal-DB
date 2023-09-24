@@ -78,8 +78,8 @@ export const appLogin = defineStore('appLogin', () => {
     };
     try {
       const response = action.value === 'password'
-      ? await axios.patch(`${server}/login`, loginData.value)
-      : await axios.post(`${server}/login`, loginData.value);
+        ? await axios.patch(`${server}/login`, loginData.value)
+        : await axios.post(`${server}/login`, loginData.value);
       
       const { message, access_token, refresh_token } = response.data;
 

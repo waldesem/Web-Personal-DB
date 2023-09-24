@@ -102,10 +102,10 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     }
   };
 
-  async function userDelete(action: String, id: string = userId.value): Promise<void>{
+  async function userDelete(): Promise<void>{
     if (confirm("Вы действительно хотите удалить пользователя?")){
       try {
-        const response = await storeAuth.axiosInstance.delete(`${server}/user/${action}/${id}`);
+        const response = await storeAuth.axiosInstance.delete(`${server}/user/${userId.value}`);
         console.log(response.status);
 
         storeAlert.setAlert('alert-danger', 'Пользователь удалён');
@@ -131,8 +131,8 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     };
     try {  
       const response = action.value === 'edit' 
-        ? await storeAuth.axiosInstance.post(`${server}/user/${action.value}`, formData)
-        : await storeAuth.axiosInstance.patch(`${server}/user/${action.value}/${userId.value}`, formData);
+        ? await storeAuth.axiosInstance.patch(`${server}/user`, formData)
+        : await storeAuth.axiosInstance.post(`${server}/user`, formData);
       const { message } = response.data;
 
       const resp = {
