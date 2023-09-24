@@ -20,7 +20,7 @@ from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
 from ..models.schema import AddressesSchema, ChecksSchema, ContactsSchema, \
-    DocumentsSchema, InquiriesSchema, InvestigationsSchema, PersonsSchema, PoligrafsSchema, \
+    DocumentsSchema, InquiriesSchema, InvestigationsSchema, PoligrafsSchema, \
     RegistriesSchema, RelationSchema, RelationsSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, RegistrySchema, StaffsSchema, \
@@ -38,8 +38,8 @@ class IndexView(MethodView):
             filter_by(username=current_user.username).scalar()
         self.schema = PersonSchema()
     
-    @bp.output(PersonsSchema)
-    def get(self, flag, page):
+    def post(self, flag, page):
+        json_data = request.get_json()
         if flag == 'main' and self.location_id == 1:
             query = db.session.query(Person).order_by(Person.id.desc()). \
                 paginate(page=page, 
@@ -70,31 +70,24 @@ class IndexView(MethodView):
                 order_by(Person.id.asc()).paginate(page=page, 
                                                    per_page=self.pagination, 
                                                    error_out=False)
-        has_next, has_prev = int(query.has_next), int(query.has_prev)
-        return {'person': query, 'has_next': has_next, "has_prev": has_prev}
-
-    @bp.input(PersonSchema)
-    @bp.output(PersonsSchema)
-    def post(self, page, json_data):
-        if self.location_id == 1:
+        elif flag == 'search' and self.location_id == 1:
             query = db.session.query(Person).\
                 filter(Person.fullname.ilike('%{}%'.format(json_data['fullname']))).\
                 order_by(Person.id.asc()).paginate(page=page, 
                                                    per_page=self.pagination, 
                                                    error_out=False)
-        else:
+        elif flag == 'search' and self.location_id != 1:
             query = db.session.query(Person).\
                 filter(Person.fullname.ilike('%{}%'.format(json_data['fullname'])), 
                        Person.region_id == self.location_id).\
                 order_by(Person.id.asc()).paginate(page=page, 
                                                    per_page=self.pagination, 
                                                    error_out=False)
+            
         has_next, has_prev = int(query.has_next), int(query.has_prev)
-        return {'persons': query, 'has_next': has_next, "has_prev": has_prev}
+        return {'person': query, 'has_next': has_next, "has_prev": has_prev}
 
-index_view = IndexView.as_view('index')
-bp.add_url_rule('/index/<flag>/<int:page>', view_func=index_view, methods=['GET'])
-bp.add_url_rule('/index/<int:page>', view_func=index_view, methods=['POST'])
+bp.add_url_rule('/index/<flag>/<int:page>', view_func=IndexView.as_view('index'))
 
 
 class ResumeView(MethodView):

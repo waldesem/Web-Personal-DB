@@ -62,13 +62,6 @@ class PersonSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class PersonsSchema(ma.SQLAlchemySchema):
-        
-    persons = fields.Nested(PersonSchema, many=True)
-    has_next = fields.Integer()
-    has_prev = fields.Integer()
-
-
 class RelationSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for relation"""
     class Meta:

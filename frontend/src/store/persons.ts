@@ -8,21 +8,21 @@ export const appPersons = defineStore('appPersons',  () => {
 
   const storeAuth = appAuth();
   
-  const data = ref({
-    candidates: [],
-    hasPrev: false,
-    hasNext: false
-  });
+  const candidates = ref<Candidate[]>([]);
+  const has_prev = ref(false);
+  const has_next = ref(false);
+  const searchData = ref('');
+  const currentPage = ref(1);
+  const currentPath = ref('new');
 
-  const searchData = ref({
-    fullname: '',
-  });
-  
-  const currenData = ref({
-    currentPage: 1,
-    currentPath: 'new'
-  });
-
+interface Candidate {
+  id: number;
+  fullname: string;
+  region_id: number;
+  birthday: string;
+  status: string;
+  create: string;
+}
 
   /**
    * Retrieves candidates from the specified URL and updates the data store.
@@ -31,21 +31,15 @@ export const appPersons = defineStore('appPersons',  () => {
    * @param {number} [page=1] - The page number of the candidates to retrieve. Default is 1.
    * @return {Promise<void>} - A promise that resolves when the candidates are retrieved and the data store is updated.
    */
-  async function getCandidates(url: string=currenData.value.currentPath, page: number=1): Promise<void> {
-    currenData.value.currentPage = page;
-    currenData.value.currentPath = url;
+  async function getCandidates(url: string=currentPath.value): Promise<void> {
 
     try {
-      const response = url === 'search' 
-        ? await storeAuth.axiosInstance.post(`${server}/index/${url}/${page}`, searchData.value) 
-        : await storeAuth.axiosInstance.get(`${server}/index/${url}/${page}`);
+      const response = await storeAuth.axiosInstance.post(`${server}/index/${url}/${currentPage.value}`, {'fullname': searchData.value});
 
       const [ datas, metadata ] = response.data;
-      Object.assign(data.value, {
-        candidates: datas,
-        hasPrev: metadata.has_prev,
-        hasNext: metadata.has_next
-      })
+      candidates.value = datas;
+      has_prev.value = metadata.has_prev;
+      has_next.value = metadata.has_next;
 
     } catch (error) {
       console.error(error);
@@ -59,9 +53,9 @@ export const appPersons = defineStore('appPersons',  () => {
    */
   //
   function prevPage(): undefined {
-    if (data.value.hasPrev) {
-      currenData.value.currentPage -= 1;
-      getCandidates(currenData.value.currentPath, currenData.value.currentPage);
+    if (has_prev.value) {
+      currentPage.value -= 1;
+      getCandidates(currentPath.value);
     }
   };
 
@@ -71,13 +65,14 @@ export const appPersons = defineStore('appPersons',  () => {
    * @return {Promise<void>} A promise that resolves when the operation is complete.
    */
   function nextPage(): undefined {
-    if (data.value.hasNext) {
-      currenData.value.currentPage += 1;
-      getCandidates(currenData.value.currentPath, currenData.value.currentPage);
+    if (has_next.value) {
+      currentPage.value += 1;
+      getCandidates(currentPath.value);
     }
   };
 
   const searchPerson = debounce(getCandidates, 500);
 
-  return { data, searchData, currenData, getCandidates, prevPage, nextPage, searchPerson };
+  return { candidates, searchData, currentPath, has_next, has_prev,
+     getCandidates, prevPage, nextPage, searchPerson };
 });

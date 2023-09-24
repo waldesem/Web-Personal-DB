@@ -18,7 +18,7 @@ const header = computed(() => {
     'main': "Главная страница",
     'new': "Новые кандидаты"
   }
-  return name[storePersons.currenData.currentPath as keyof typeof name]
+  return name[storePersons.currentPath as keyof typeof name]
 });
 
 </script>
@@ -30,7 +30,7 @@ const header = computed(() => {
       <div class="col-md-3">
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="action">Действия</label>
-          <select class="form-select" id="region" name="region" v-model="storePersons.currenData.currentPath" @change="storePersons.getCandidates(storePersons.currenData.currentPath)">
+          <select class="form-select" id="region" name="region" v-model="storePersons.currentPath" @change="storePersons.getCandidates(storePersons.currentPath)">
             <option value="" selected>Выберите действие</option>
             <option value="new">Новые кандидаты</option>
             <option value="main">Все кандидаты</option>
@@ -41,7 +41,7 @@ const header = computed(() => {
       <div class="col-md-9">
         <form @input="storePersons.searchPerson('search')" class="form form-check" role="form">
           <div class="row">
-            <input class="form-control" id="fullname" maxlength="250" minlength="3" v-model="storePersons.searchData.fullname" name="fullname" placeholder="поиск по ФИО" type="text">
+            <input class="form-control" id="fullname" maxlength="250" minlength="3" v-model="storePersons.searchData" name="fullname" placeholder="поиск по ФИО" type="text">
           </div>
         </form>
       </div>
@@ -59,28 +59,28 @@ const header = computed(() => {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="candidate in storePersons.data.candidates" :key="candidate['id']">
+          <tr height="50px" v-for="candidate in storePersons.candidates" :key="candidate.id">
             <td>{{ candidate["id"] }}</td>
-            <td>{{ storeClassify.regions[candidate["region_id"]] }}</td>
+            <td>{{ storeClassify.regions[candidate.region_id] }}</td>
             <td>
-              <router-link :to="{ name: 'profile', params: { group: 'staffsec',  id: candidate['id'] } }">
-                {{ candidate["fullname"] }}
+              <router-link :to="{ name: 'profile', params: { group: 'staffsec',  id: candidate.id } }">
+                {{ candidate.fullname }}
               </router-link>
             </td>
-            <td>{{ new Date(candidate["birthday"]).toLocaleDateString('ru-RU')  }}</td>
-            <td>{{ candidate["status"] }}</td>
-            <td>{{ new Date(candidate["create"]).toLocaleDateString('ru-RU')  }}</td>
+            <td>{{ new Date(candidate.birthday).toLocaleDateString('ru-RU')  }}</td>
+            <td>{{ candidate.status }}</td>
+            <td>{{ new Date(candidate.create).toLocaleDateString('ru-RU')  }}</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="py-3">
-      <nav v-if="storePersons.data.hasPrev || storePersons.data.hasNext">
+      <nav v-if="storePersons.has_prev || storePersons.has_next">
         <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.data.hasPrev }">
+          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.has_prev }">
             <a class="page-link" href="#" v-on:click.prevent="storePersons.prevPage">Предыдущая</a>
           </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.data.hasNext }">
+          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.has_next }">
             <a class="page-link" href="#" v-on:click.prevent="storePersons.nextPage">Следующая</a>
           </li>
         </ul>
