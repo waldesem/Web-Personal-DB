@@ -12,32 +12,44 @@ const storeProfile = appProfile();
 
 <template>
   <div v-if="!storeProfile.printPdf" class="container-fluid">
-    <nav :class="storeLogin.pageIdentity ==='admins' ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
+    <nav :class="storeLogin.pageIdentity ==='admins' 
+                                          ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' 
+                                          : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
       <div class="container">
-        <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu" aria-controls="offcanvasMenu">{{ storeLogin.pageIdentity ? storeLogin.pageIdentity.toUpperCase() : '' }}</a>
+        <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu" aria-controls="offcanvasMenu">
+          {{ storeLogin.pageIdentity ? storeLogin.pageIdentity.toUpperCase() : '' }}</a>
         <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             
             <template v-if="storeLogin.pageIdentity === 'admins'">
               <li class="nav-item">
-                <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">Пользователи</router-link>
+                <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">
+                  Пользователи</router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'table', params: { group: 'admins' } }" class="nav-link active" href="#">
+                  Таблицы</router-link>
               </li>
             </template>
 
             <template v-if="storeLogin.pageIdentity === 'staffsec'">
               <li class="nav-item">
-                  <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" class="nav-link active">Кандидаты</router-link>
+                  <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" class="nav-link active">
+                    Кандидаты</router-link>
               </li>
               <li class="nav-item">
-                  <router-link :to="{ name: 'resume', params: { group: 'staffsec' } }" class="nav-link active">Создать</router-link>
+                  <router-link :to="{ name: 'resume', params: { group: 'staffsec' } }" class="nav-link active">
+                    Создать</router-link>
               </li>
               <li class="nav-item">
-                  <router-link :to="{ name: 'information', params: { group: 'staffsec' } }" class="nav-link active">Информация</router-link>
+                  <router-link :to="{ name: 'information', params: { group: 'staffsec' } }" class="nav-link active">
+                    Информация</router-link>
               </li>
             </template>
 
             <li v-if="!['login', 'admins'].includes(storeLogin.pageIdentity)" class="nav-item">
-              <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}" class="nav-link active">Контакты</router-link>
+              <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}" class="nav-link active">
+                Контакты</router-link>
             </li>
 
             <li v-if="storeMessages.messages.length && storeLogin.pageIdentity !== 'login'" class="nav-item dropdown">
@@ -79,10 +91,12 @@ const storeProfile = appProfile();
     <div class="offcanvas-body">
         <ul>
           <li v-if="storeLogin.hasGroup('admins')" class="mb-4">
-            <router-link :to="{ name: 'users', params: { group: 'admins' } }">Администраторы</router-link>
+            <router-link :to="{ name: 'users', params: { group: 'admins' } }">
+              Администраторы</router-link>
           </li>
           <li class="mb-4">
-            <router-link v-if="storeLogin.hasGroup('staffsec')" :to="{ name: 'persons', params: { group: 'staffsec' } }">Центр кадровой безопасности</router-link>
+            <router-link v-if="storeLogin.hasGroup('staffsec')" :to="{ name: 'persons', params: { group: 'staffsec' } }">
+              Центр кадровой безопасности</router-link>
             <p v-else>Центр кадровой безопасности</p>
           </li>
         </ul>

@@ -4,6 +4,7 @@ import { appAuth } from '@/store/token';
 import { appAlert } from '@store/alert';
 import router from '@router/router';
 import server from '@store/server';
+import debounce from './debounce';
 
 
 export const storeAdmin = defineStore('storeAdmin', () => {
@@ -17,6 +18,15 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const flag = ref('');
   const selectRole = ref('');
   const selectGroup = ref('');
+  const currentPage = ref(1);
+  const hasNext = ref(false);
+  const hasPrev = ref(false);
+  const selectedTable = ref('');
+  const tableItem = ref([]);
+  const searchID = ref('');
+  const itemId = ref('');
+  const itemForm: Record<string, any> = ref({});
+  const itemAction = ref('');
 
   interface Group {
     id: string,
@@ -58,6 +68,11 @@ export const storeAdmin = defineStore('storeAdmin', () => {
       blocked: '',
       attempt: ''
   });
+  const tables = [
+    'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
+    'relation', 'check', 'registry', 'poligraf','investigation',
+    'inquiry'
+  ];
 
   /**
    * Retrieves a list of users from the server.
@@ -201,6 +216,94 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     }
   };
   
-  return { users, profile, action, userId, flag, selectRole, selectGroup,
-    getUsers, submitUserData, userAction, userDelete, editGroupRole };
+  /**
+   * Retrieves a list of users from the server.
+   *
+   * @return {Promise<void>} - A promise that resolves with the list of users 
+   * retrieved from the server.
+   */
+  async function getItem(item: string): Promise<void>{
+    try {
+      const response = await storeAuth.axiosInstance.get(`${server}/table/${item}`);
+      tableItem.value = response.data;
+    
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  async function searchItem(): Promise<void> {
+    try {
+      const response = await storeAuth.axiosInstance.post(
+        `${server}/table/${selectedTable.value}/${currentPage.value}`, {
+          'id': searchID.value
+        }
+        );
+      const [ datas, has_prev, has_next ] = response.data;
+
+        tableItem.value =  datas;
+        hasPrev.value = has_prev['has_prev'];
+        hasNext.value = has_next['has_next'];
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  async function deleteItem(idItem: string): Promise<void>{
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/table/${selectedTable.value}/${idItem}`);
+      console.log(response.status);
+      searchItem();
+    
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  async function updateItem(item: string): Promise<void>{
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/table/${item}/${itemId.value}`
+        );
+      console.log(response.status);
+      searchItem();
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  /**
+   * Moves to the previous page if it exists.
+   *
+   * @return {undefined} No return value.
+   */
+  //
+  function prevPage(): undefined {
+    if (hasPrev.value) {
+      currentPage.value -= 1;
+      searchItem();
+    }
+  };
+
+  /**
+   * Moves to the next page if there is one available.
+   *
+   * @return {Promise<void>} A promise that resolves when the operation is complete.
+   */
+  function nextPage(): undefined {
+    if (hasNext.value) {
+      currentPage.value += 1;
+      searchItem();
+    }
+  };
+
+  const searchItemHandeler = debounce(searchItem, 500);
+
+  return { users, profile, action, userId, flag, selectRole, selectGroup, tables, 
+    selectedTable, tableItem, searchID, itemId, hasNext, hasPrev, itemForm, itemAction,
+    getUsers, submitUserData, userAction, userDelete, editGroupRole, 
+    getItem, searchItemHandeler, nextPage, prevPage, updateItem, deleteItem };
 });

@@ -1,5 +1,6 @@
 from apiflask import EmptySchema
 import bcrypt
+from flask import request
 
 from flask_jwt_extended import current_user
 from flask.views import MethodView
@@ -7,9 +8,14 @@ from flask.views import MethodView
 from . import bp
 from .. import db
 from .login import r_g
-from ..models.model import  User, Role, Group
-from ..models.schema import  UserSchema
 from ..models.classes import Roles
+from ..models.model import User, Person, Staff, Document, Address, Contact, \
+    Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
+    Status, Report, Role, Group
+from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
+    PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
+    InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema,\
+    WorkplaceSchema, UserSchema
 
 
 class UsersView(MethodView):
@@ -239,3 +245,71 @@ class RoleView(MethodView):
             return '', 204
         
 bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))
+
+
+class TableView(MethodView):
+
+    decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
+    pagination = 16
+    mapped_item = {
+        'resume': [Person, PersonSchema()],
+        'staff': [Staff, StaffSchema()],
+        'document': [Document, DocumentSchema()],
+        'address': [Address, AddressSchema()],
+        'contact': [Contact, ContactSchema()],
+        'workplace': [Workplace, WorkplaceSchema()],
+        'relation': [Relation, RelationSchema()],
+        'check': [Check, CheckSchema()],
+        'registry': [Registry, RegistrySchema()],
+        'poligraf': [Poligraf, PoligrafSchema()],
+        'investigation': [Investigation, InvestigationSchema()],
+        'inquiry': [Inquiry, InquirySchema()]
+    }
+
+    def get(self, item, page):
+        model = self.mapped_item[item][0]
+        schema = self.mapped_item[item][1]
+        query = db.session.query(model).\
+            order_by(model.id.desc()).paginate(page=page, 
+                                               per_page=self.pagination, 
+                                               error_out=False)
+        return [schema.dump(query, many=True), 
+                {'has_next': int(query.has_next)}, 
+                {'has_prev': int(query.has_prev)}]
+               
+    def post(self, item, page):
+        model = self.mapped_item[item][0]
+        schema = self.mapped_item[item][1]
+        json_data = schema.load(request.get_json())
+        query = db.session.query(model).\
+            filter_by(id=json_data['id']).\
+            order_by(model.id.desc()).paginate(page=page, 
+                                               per_page=self.pagination, 
+                                               error_out=False)
+        return [schema.dump(query, many=True), 
+                {'has_next': int(query.has_next)}, 
+                {'has_prev': int(query.has_prev)}]
+        
+    def patch(self, item, item_id):
+        model = self.mapped_item[item][0]
+        schema = self.mapped_item[item][1]
+        json_data = schema.load(request.get_json())
+        data = db.session.query(model).\
+            filter_by(id=item_id).one_or_none()
+        if data:
+            for k, v in json_data.items():
+                setattr(data, k, v)
+            db.session.commit()
+            return {'message': 'Patched'}, 201
+        
+    @bp.output(EmptySchema, status_code=204)
+    def delete(self, item, item_id):
+        model = self.mapped_item[item][0]
+        db.session.query(model).filter_by(id=item_id).one_or_none()
+        return ''
+
+table_view = TableView.as_view('table')
+bp.add_url_rule('/table/<item>', view_func=table_view, methods=['POST'])
+bp.add_url_rule('/table/<item>/<page>', view_func=table_view, methods=['GET'])
+bp.add_url_rule('/table/<item>/<item_id>', 
+                view_func=table_view, methods=['DELETE', 'PATCH'])

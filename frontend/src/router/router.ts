@@ -11,6 +11,7 @@ import ProfilePage from '@pages/ProfilePage.vue';
 import StatPage from '@pages/StatPage.vue';
 import AdminPage from '@pages/AdminPage.vue';
 import UserPage from '@pages/UserPage.vue';
+import AdminTables from '@pages/AdminTables.vue'
 import ContactPage from '@pages/ContactPage.vue';
 import NotFound from '@pages/NotFound.vue';
 
@@ -60,6 +61,11 @@ const router = createRouter({
           path: 'user/:id',
           name: 'shape',
           component: UserPage,
+        },
+        {
+          path: 'table',
+          name: 'table',
+          component: AdminTables,
         },
         {
           path: 'contacts',
