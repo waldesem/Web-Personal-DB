@@ -12,22 +12,6 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const storeAuth = appAuth();
   const storeAlert = appAlert();
 
-  const users = ref<User[]>([]);
-  const userId = ref('');
-  const action = ref('');
-  const flag = ref('');
-  const selectRole = ref('');
-  const selectGroup = ref('');
-  const currentPage = ref(1);
-  const hasNext = ref(false);
-  const hasPrev = ref(false);
-  const selectedTable = ref('');
-  const tableItem = ref([]);
-  const searchID = ref('');
-  const itemId = ref('');
-  const itemForm: Record<string, any> = ref({});
-  const itemAction = ref('');
-
   interface Group {
     id: string,
     group: string
@@ -53,22 +37,46 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     attempt: string
   };
 
-
-  const profile = ref<User>({
-      id: '',
-      fullname: '',
-      region_id: '',
-      username: '',
-      email: '',
-      pswd_create: '',
-      pswd_change: '',
-      last_login: '',
-      roles: [],
-      groups: [],
-      blocked: '',
-      attempt: ''
+  const userData = ref({
+    userList: <User[]>([]),
+    userId: '',
+    userAct: '',
+    userFlag: '',
+    userRole: '',
+    userGroup: '',
+    currentPage: 1,
+    hasNext: false,
+    hasPrev: false,
   });
-  const tables = [
+
+  const tableData = ref({
+    table: '',
+    tableItem: [],
+    itemId: '',
+    searchId: '',
+    itemForm: <Record<string, any>>({}),
+    itemAction: '',
+    currentPage: 1,
+    hasNext: false,
+    hasPrev: false
+  });
+
+  const profileData = ref<User>({
+    id: '',
+    fullname: '',
+    region_id: '',
+    username: '',
+    email: '',
+    pswd_create: '',
+    pswd_change: '',
+    last_login: '',
+    roles: [],
+    groups: [],
+    blocked: '',
+    attempt: ''
+  });
+
+  const tablesList = [
     'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
     'relation', 'check', 'registry', 'poligraf','investigation',
     'inquiry'
@@ -83,7 +91,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   async function getUsers(): Promise<void>{
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/users`);
-      users.value = response.data;
+      userData.value.userList = response.data;
     
     } catch (error) {
       console.error(error);
@@ -98,10 +106,10 @@ export const storeAdmin = defineStore('storeAdmin', () => {
    * @return {Promise<void>} - A promise that resolves when the user data 
    * is fetched and the profile value is updated.
    */
-  async function userAction(action: String, id: string = userId.value): Promise<void>{
+  async function userAction(action: String, id: string = userData.value.userId): Promise<void>{
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
-      profile.value = response.data;
+      profileData.value = response.data;
       
       if (action !== 'view') {
         const resp = {
@@ -120,7 +128,9 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   async function userDelete(): Promise<void>{
     if (confirm("Вы действительно хотите удалить пользователя?")){
       try {
-        const response = await storeAuth.axiosInstance.delete(`${server}/user/${userId.value}`);
+        const response = await storeAuth.axiosInstance.delete(
+          `${server}/user/${userData.value.userId}`
+          );
         console.log(response.status);
 
         storeAlert.setAlert('alert-danger', 'Пользователь удалён');
@@ -135,17 +145,18 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   /**
    * Submits data to the server.
    *
-   * @return {Promise<void>} A promise that resolves when the data is successfully submitted.
+   * @return {Promise<void>} A promise that resolves when the data is 
+   * successfully submitted.
    */
   async function submitUserData(): Promise<void>{
     const formData = {
-      'fullname': profile.value.fullname,
-      'username': profile.value.username,
-      'email': profile.value.email,
-      'region_id': profile.value.region_id,
+      'fullname': profileData.value.fullname,
+      'username': profileData.value.username,
+      'email': profileData.value.email,
+      'region_id': profileData.value.region_id,
     };
     try {  
-      const response = action.value === 'edit' 
+      const response = userData.value.userAct === 'edit' 
         ? await storeAuth.axiosInstance.patch(`${server}/user`, formData)
         : await storeAuth.axiosInstance.post(`${server}/user`, formData);
       const { message } = response.data;
@@ -156,8 +167,9 @@ export const storeAdmin = defineStore('storeAdmin', () => {
       }
       storeAlert.setAlert(resp[message as keyof typeof resp][0],
                           resp[message as keyof typeof resp][1]);
-      action.value === 'edit' ? userAction('view', userId.value): getUsers();
-      action.value = '';
+      userData.value.userAct === 'edit' 
+        ? userAction('view', userData.value.userId): getUsers();
+      userData.value.userId = '';
 
     } catch (error) {
       console.error(error);
@@ -174,15 +186,15 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     item: string, action: string, value: string = ''
     ): Promise<void> {
     
-    value = item === 'role' ? selectRole.value : selectGroup.value;
+    value = item === 'role' ? userData.value.userRole : userData.value.userGroup;
     
     try {
       const response = action == 'add' 
         ? await storeAuth.axiosInstance.get(
-          `${server}/${item}/${value}/${userId.value}`
+          `${server}/${item}/${value}/${userData.value.userId}`
           )
         : await storeAuth.axiosInstance.delete(
-          `${server}/${item}/${value}/${userId.value}`
+          `${server}/${item}/${value}/${userData.value.userId}`
           );
 
       const result = response.status;
@@ -193,21 +205,21 @@ export const storeAdmin = defineStore('storeAdmin', () => {
         };
         const actions = {
           'add': ['alert-success', item === 'role' 
-            ? `Пользователю ${userId.value} добавлена \
+            ? `Пользователю ${userData.value.userId} добавлена \
             ${flags[item as keyof typeof flags]} ${value}` 
-            : `Пользователь ${userId.value} добавлен в: \
+            : `Пользователь ${userData.value.userId} добавлен в: \
             ${flags[item as keyof typeof flags]} ${value}`],
           'remove': ['alert-info', item === 'role' 
-            ? `Пользователю ${userId.value} удалена \
+            ? `Пользователю ${userData.value.userId} удалена \
             ${flags[item as keyof typeof flags]} ${value}`
-            : `Пользователь ${userId.value} удален из: \
+            : `Пользователь ${userData.value.userId} удален из: \
             ${flags[item as keyof typeof flags]} ${value}`]
         };
       
         storeAlert.setAlert(actions[action as keyof typeof actions][0], 
                             actions[action as keyof typeof actions][1]);
 
-        userAction('view', userId.value);
+        userAction('view', userData.value.userId);
       }
     } catch (error) {
     console.error(error);
@@ -225,7 +237,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   async function getItem(item: string): Promise<void>{
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/table/${item}`);
-      tableItem.value = response.data;
+      tableData.value.tableItem = response.data;
     
     } catch (error) {
       console.error(error);
@@ -235,15 +247,15 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   async function searchItem(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.post(
-        `${server}/table/${selectedTable.value}/${currentPage.value}`, {
-          'id': searchID.value
+        `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`, {
+          'id': tableData.value.searchId
         }
         );
       const [ datas, has_prev, has_next ] = response.data;
 
-        tableItem.value =  datas;
-        hasPrev.value = has_prev['has_prev'];
-        hasNext.value = has_next['has_next'];
+        tableData.value.tableItem =  datas;
+        tableData.value.hasPrev = has_prev['has_prev'];
+        tableData.value.hasNext = has_next['has_next'];
 
     } catch (error) {
       console.error(error);
@@ -253,7 +265,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   async function deleteItem(idItem: string): Promise<void>{
     try {
       const response = await storeAuth.axiosInstance.delete(
-        `${server}/table/${selectedTable.value}/${idItem}`);
+        `${server}/table/${tableData.value.table}/${idItem}`);
       console.log(response.status);
       searchItem();
     
@@ -265,7 +277,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   async function updateItem(item: string): Promise<void>{
     try {
       const response = await storeAuth.axiosInstance.get(
-        `${server}/table/${item}/${itemId.value}`
+        `${server}/table/${item}/${tableData.value.itemId}`
         );
       console.log(response.status);
       searchItem();
@@ -275,35 +287,20 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     }
   };
 
-  /**
-   * Moves to the previous page if it exists.
-   *
-   * @return {undefined} No return value.
-   */
-  //
-  function prevPage(): undefined {
-    if (hasPrev.value) {
-      currentPage.value -= 1;
-      searchItem();
-    }
+  function switchPage(
+    hasPage: boolean, currPage: number, action: string, flag: string
+    ): undefined {
+    if (hasPage && action === 'previous') {
+      currPage -= 1;
+    } else if (hasPage && action === 'next'){
+      currPage += 1;
+    };
+    flag === 'users' ? getUsers() : searchItem();
   };
 
-  /**
-   * Moves to the next page if there is one available.
-   *
-   * @return {Promise<void>} A promise that resolves when the operation is complete.
-   */
-  function nextPage(): undefined {
-    if (hasNext.value) {
-      currentPage.value += 1;
-      searchItem();
-    }
-  };
+  const idHandler = debounce(searchItem, 500);
 
-  const searchItemHandeler = debounce(searchItem, 500);
-
-  return { users, profile, action, userId, flag, selectRole, selectGroup, tables, 
-    selectedTable, tableItem, searchID, itemId, hasNext, hasPrev, itemForm, itemAction,
+  return { userData, tableData, profileData, tablesList,
     getUsers, submitUserData, userAction, userDelete, editGroupRole, 
-    getItem, searchItemHandeler, nextPage, prevPage, updateItem, deleteItem };
+    getItem, idHandler, switchPage, updateItem, deleteItem };
 });
