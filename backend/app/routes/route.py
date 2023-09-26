@@ -83,7 +83,7 @@ class IndexView(MethodView):
                                                    error_out=False)
             
         has_next, has_prev = int(query.has_next), int(query.has_prev)
-        return {'person': query, 'has_next': has_next, "has_prev": has_prev}
+        return [query, {'has_next': has_next, "has_prev": has_prev}]
 
 bp.add_url_rule('/index/<flag>/<int:page>', 
                 view_func=IndexView.as_view('index'))

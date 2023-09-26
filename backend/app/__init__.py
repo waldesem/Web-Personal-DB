@@ -22,8 +22,9 @@ def create_app(config_class=Config):
     Initializes and configures a Flask application.
     :return: The Flask application instance.
     """
-    app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
+    app = APIFlask(__name__, title="EconSec", docs_ui="redoc")
     app.config.from_object(config_class)
+    app.json.sort_keys = False
     
     CORS(app, resources={r"/*": {"origins": "*"}})
     db.init_app(app)

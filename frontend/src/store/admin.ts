@@ -79,7 +79,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const tablesList = [
     'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
     'relation', 'check', 'registry', 'poligraf','investigation',
-    'inquiry'
+    'inquiry', 'user'
   ];
 
   /**
@@ -122,6 +122,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
 
     } catch (error) {
       console.error(error);
+      userAction('view', userData.value.userId);
     }
   };
 
@@ -170,6 +171,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
       userData.value.userAct === 'edit' 
         ? userAction('view', userData.value.userId): getUsers();
       userData.value.userId = '';
+      userData.value.userAct = '';
 
     } catch (error) {
       console.error(error);
@@ -177,68 +179,57 @@ export const storeAdmin = defineStore('storeAdmin', () => {
     }
   };
 
-  /**
-   * Edits the group role.
-   *
-   * @return {Promise<void>} Promise that resolves when the function completes.
-   */
-  async function editGroupRole(
-    item: string, action: string, value: string = ''
-    ): Promise<void> {
-    
-    value = item === 'role' ? userData.value.userRole : userData.value.userGroup;
-    
+  async function addGroupRole(item: string, value: string): Promise<void> {
     try {
-      const response = action == 'add' 
-        ? await storeAuth.axiosInstance.get(
-          `${server}/${item}/${value}/${userData.value.userId}`
-          )
-        : await storeAuth.axiosInstance.delete(
-          `${server}/${item}/${value}/${userData.value.userId}`
-          );
-
-      const result = response.status;
-      if (result === 201 || result === 204) {
-        const flags = {
-          'role': 'Роль',
-          'group': 'Группа'
-        };
-        const actions = {
-          'add': ['alert-success', item === 'role' 
-            ? `Пользователю ${userData.value.userId} добавлена \
-            ${flags[item as keyof typeof flags]} ${value}` 
-            : `Пользователь ${userData.value.userId} добавлен в: \
-            ${flags[item as keyof typeof flags]} ${value}`],
-          'remove': ['alert-info', item === 'role' 
-            ? `Пользователю ${userData.value.userId} удалена \
-            ${flags[item as keyof typeof flags]} ${value}`
-            : `Пользователь ${userData.value.userId} удален из: \
-            ${flags[item as keyof typeof flags]} ${value}`]
-        };
-      
-        storeAlert.setAlert(actions[action as keyof typeof actions][0], 
-                            actions[action as keyof typeof actions][1]);
-
-        userAction('view', userData.value.userId);
-      }
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/${item}/${value}/${userData.value.userId}`
+        );
+      console.log(response.status);
+      storeAlert.setAlert('alert-success', 
+                          'Пользователю добавлена роль \
+                          либо он включен в группу');
+      userAction('view', userData.value.userId);
+    
     } catch (error) {
-    console.error(error);
-    storeAlert.setAlert('alert-danger', 
-                        'Роль уже добавлена или пользователь уже включён в группу');
+      console.error(error);
+      storeAlert.setAlert('alert-danger', 'Ошибка');
+      userAction('view', userData.value.userId);
     }
   };
-  
+
+  async function delRoleGroup(item: string, value: string): Promise<void> {
+    
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/${item}/${value}/${userData.value.userId}`
+        );
+      console.log(response.status);
+      storeAlert.setAlert('alert-success', 'Группа или роль удалена');
+      userAction('view', userData.value.userId);
+
+    } catch (error) {
+      console.error(error);
+      storeAlert.setAlert('alert-danger', 'Ошибка удаления');
+      userAction('view', userData.value.userId);
+    }
+  };
+
   /**
    * Retrieves a list of users from the server.
    *
    * @return {Promise<void>} - A promise that resolves with the list of users 
    * retrieved from the server.
    */
-  async function getItem(item: string): Promise<void>{
+  async function getItem(): Promise<void>{
     try {
-      const response = await storeAuth.axiosInstance.get(`${server}/table/${item}`);
-      tableData.value.tableItem = response.data;
-    
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`
+      );
+      const [ datas, has_prev, has_next ] = response.data;
+      tableData.value.tableItem = datas;
+      tableData.value.hasPrev = has_prev['has_prev'];
+      tableData.value.hasNext = has_next['has_next'];
+
     } catch (error) {
       console.error(error);
     }
@@ -301,6 +292,6 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const idHandler = debounce(searchItem, 500);
 
   return { userData, tableData, profileData, tablesList,
-    getUsers, submitUserData, userAction, userDelete, editGroupRole, 
+    getUsers, submitUserData, userAction, userDelete, addGroupRole, delRoleGroup, 
     getItem, idHandler, switchPage, updateItem, deleteItem };
 });

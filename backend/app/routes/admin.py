@@ -8,13 +8,13 @@ from flask.views import MethodView
 from . import bp
 from .. import db
 from .login import r_g
-from ..models.classes import Roles
+from ..models.classes import Roles, Groups
 from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
-    Status, Report, Role, Group
+    Role, Group
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-    InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema,\
+    InvestigationSchema, PoligrafSchema, RegistrySchema,\
     WorkplaceSchema, UserSchema
 
 
@@ -194,7 +194,7 @@ class GroupView(MethodView):
         """
         user = db.session.query(User).get(user_id)
         item = db.session.query(Group).filter_by(group=value).first() 
-        if user.username != current_user.username and value != 'admin':
+        if not (user.username == current_user.username and value == Groups.admins.name):
             user.groups.remove(item)
             db.session.commit()
             return '', 204
@@ -239,7 +239,7 @@ class RoleView(MethodView):
         """
         user = db.session.query(User).get(user_id)
         item = db.session.query(Role).filter_by(role=value).first()
-        if user.username != current_user.username and value != 'admin':
+        if not (user.username == current_user.username and value == Roles.admin.name):
             user.roles.remove(item)
             db.session.commit()
             return '', 204
@@ -252,6 +252,7 @@ class TableView(MethodView):
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
     pagination = 16
     mapped_item = {
+        'user': [User, UserSchema()],
         'resume': [Person, PersonSchema()],
         'staff': [Staff, StaffSchema()],
         'document': [Document, DocumentSchema()],
@@ -309,7 +310,7 @@ class TableView(MethodView):
         return ''
 
 table_view = TableView.as_view('table')
-bp.add_url_rule('/table/<item>', view_func=table_view, methods=['POST'])
-bp.add_url_rule('/table/<item>/<page>', view_func=table_view, methods=['GET'])
+bp.add_url_rule('/table/<item>/<int:page>', 
+                view_func=table_view, methods=['GET', 'POST'])
 bp.add_url_rule('/table/<item>/<item_id>', 
                 view_func=table_view, methods=['DELETE', 'PATCH'])

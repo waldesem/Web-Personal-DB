@@ -15,9 +15,12 @@ onBeforeMount(async () => {
 <template>
   <div class="container py-3">
     <div class="py-3">
-      <h4>{{ adminStore.action === 'create' ? 'Добавить пользователя' : 'Список пользователей'}}</h4>
+      <h4>{{ adminStore.userData.userAct === 'create' 
+        ? 'Добавить пользователя' 
+        : 'Список пользователей'}}
+      </h4>
     </div>
-    <UserForm v-if="adminStore.action === 'create'" />
+    <UserForm v-if="adminStore.userData.userAct === 'create'" />
     <div v-else class="py-2">
       <table class="table table-responsive align-middle">
         <thead>
@@ -30,7 +33,7 @@ onBeforeMount(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="user in adminStore.users" :key="user.id">
+          <tr height="50px" v-for="user in adminStore.userData.userList" :key="user.id">
             <td>{{ user.id }}</td>
             <td>{{ user.fullname }}</td>
             <td>
@@ -43,7 +46,9 @@ onBeforeMount(async () => {
         </tbody>
       </table>
       <div class="py-1">
-        <button class="btn btn-primary" @click="adminStore.action = 'create'">Добавить пользователя</button>
+        <button class="btn btn-primary" @click="adminStore.userData.userAct = 'create'">
+          Добавить пользователя
+        </button>
       </div>
     </div>
   </div>
