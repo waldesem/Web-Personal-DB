@@ -292,6 +292,6 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   const idHandler = debounce(searchItem, 500);
 
   return { userData, tableData, profileData, tablesList,
-    getUsers, submitUserData, userAction, userDelete, addGroupRole, delRoleGroup, 
-    getItem, idHandler, switchPage, updateItem, deleteItem };
+    getUsers, submitUserData, userAction, userDelete, addGroupRole, 
+    delRoleGroup, getItem, idHandler, switchPage, updateItem, deleteItem };
 });

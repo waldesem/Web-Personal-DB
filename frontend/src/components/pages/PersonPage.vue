@@ -18,7 +18,7 @@ const header = computed(() => {
     'main': "Главная страница",
     'new': "Новые кандидаты"
   }
-  return name[storePersons.currentPath as keyof typeof name]
+  return name[storePersons.personData.currentPath as keyof typeof name]
 });
 
 </script>
@@ -30,7 +30,9 @@ const header = computed(() => {
       <div class="col-md-3">
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="action">Действия</label>
-          <select class="form-select" id="region" name="region" v-model="storePersons.currentPath" @change="storePersons.getCandidates(storePersons.currentPath)">
+          <select class="form-select" id="region" name="region" 
+                  v-model="storePersons.personData.currentPath" 
+                  @change="storePersons.getCandidates(storePersons.personData.currentPath)">
             <option value="" selected>Выберите действие</option>
             <option value="new">Новые кандидаты</option>
             <option value="main">Все кандидаты</option>
@@ -41,7 +43,9 @@ const header = computed(() => {
       <div class="col-md-9">
         <form @input="storePersons.searchPerson('search')" class="form form-check" role="form">
           <div class="row">
-            <input class="form-control" id="fullname" maxlength="250" minlength="3" v-model="storePersons.searchData" name="fullname" placeholder="поиск по ФИО" type="text">
+            <input class="form-control" id="fullname" maxlength="250" minlength="3" 
+                  v-model="storePersons.personData.searchData" 
+                  name="fullname" placeholder="поиск по ФИО" type="text">
           </div>
         </form>
       </div>
@@ -59,7 +63,8 @@ const header = computed(() => {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="candidate in storePersons.candidates" :key="candidate.id">
+          <tr height="50px" v-for="candidate in storePersons.personData.candidates" 
+              :key="candidate.id">
             <td>{{ candidate["id"] }}</td>
             <td>{{ storeClassify.regions[candidate.region_id] }}</td>
             <td>
@@ -75,12 +80,12 @@ const header = computed(() => {
       </table>
     </div>
     <div class="py-3">
-      <nav v-if="storePersons.has_prev || storePersons.has_next">
+      <nav v-if="storePersons.personData.has_prev || storePersons.personData.has_next">
         <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.has_prev }">
+          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.personData.has_prev }">
             <a class="page-link" href="#" v-on:click.prevent="storePersons.prevPage">Предыдущая</a>
           </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.has_next }">
+          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.personData.has_next }">
             <a class="page-link" href="#" v-on:click.prevent="storePersons.nextPage">Следующая</a>
           </li>
         </ul>
