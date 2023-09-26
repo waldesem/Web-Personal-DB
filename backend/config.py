@@ -22,8 +22,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    BASE_PATH = os.path.abspath(os.path.join(basedir, 'persons'))
-
-    def __init__(self) -> None:
-        if not os.path.isdir(self.BASE_PATH):
-            os.mkdir(self.BASE_PATH)
+    BASE_PATH = os.path.abspath(os.path.join('..', 'persons'))
