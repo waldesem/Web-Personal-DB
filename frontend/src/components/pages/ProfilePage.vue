@@ -42,12 +42,18 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     </div>
     <template v-if="!storeProfile.printPdf">
       <div v-if="!storeProfile.printPdf" class="nav nav-tabs nav-justified" role="tablist">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" type="button" role="tab">Анкета</button>
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#checkTab" type="button" role="tab">Проверки</button>
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registryTab" type="button" role="tab">Согласования</button>
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#poligrafTab" type="button" role="tab">Полиграф</button>
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#investigateTab" type="button" role="tab">Расследования</button>
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#inquiryTab" type="button" role="tab">Запросы</button>
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" 
+            type="button" role="tab">Анкета</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#checkTab" 
+            type="button" role="tab">Проверки</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registryTab" 
+            type="button" role="tab">Согласования</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#poligrafTab" 
+            type="button" role="tab">Полиграф</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#investigateTab" 
+            type="button" role="tab">Расследования</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#inquiryTab" 
+            type="button" role="tab">Запросы</button>
       </div>
       <div class="tab-content">
         <div class="tab-pane fade show active py-1" role="tabpanel" id="anketaTab">

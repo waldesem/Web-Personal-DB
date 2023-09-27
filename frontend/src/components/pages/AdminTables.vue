@@ -55,10 +55,14 @@ const adminStore = storeAdmin();
       <nav v-if="adminStore.tableData.hasPrev || adminStore.tableData.hasNext">
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !adminStore.tableData.hasPrev }">
-            <a class="page-link" href="#" v-on:click.prevent="adminStore.switchPage(adminStore.tableData.hasPrev, adminStore.tableData.currentPage, 'previous', 'table')">Предыдущая</a>
+            <a class="page-link" href="#" @click.prevent="adminStore.switchPage(
+              adminStore.tableData.hasPrev, adminStore.tableData.currentPage, 'previous', 'table'
+              )">Предыдущая</a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !adminStore.tableData.hasNext }">
-            <a class="page-link" href="#" v-on:click.prevent="adminStore.switchPage(adminStore.tableData.hasNext, adminStore.tableData.currentPage, 'next', 'table')">Следующая</a>
+            <a class="page-link" href="#" @click.prevent="adminStore.switchPage(
+              adminStore.tableData.hasNext, adminStore.tableData.currentPage, 'next', 'table'
+              )">Следующая</a>
           </li>
         </ul>
       </nav>

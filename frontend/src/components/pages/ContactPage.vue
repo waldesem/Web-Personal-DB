@@ -52,7 +52,8 @@ onBeforeMount(() => {
           </tr>
           <tr>
             <td colspan="9">
-              <table v-for="contact in contactStore.data.contacts" :key="contact['id']" class="table table-responsive table-hover align-middle">
+              <table v-for="contact in contactStore.data.contacts" :key="contact['id']" 
+                  class="table table-responsive table-hover align-middle">
                 <tbody>
                   <tr v-if="contactStore.itemId !== contact['id']">
                     <td width="5%">{{ contact["id"] }}</td>
@@ -71,12 +72,14 @@ onBeforeMount(() => {
                       </a>
                     </td>
                     <td width="5%">
-                      <a href="#" @click="contactStore.deleteContact($event, contact['id'])" title="Удалить">
+                      <a href="#" @click="contactStore.deleteContact($event, contact['id'])" 
+                          title="Удалить">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>
                   </tr>
-                  <tr v-if="contactStore.itemAction === 'edit' &&  contactStore.itemId === contact['id']" >
+                  <tr v-if="contactStore.itemAction === 'edit' 
+                      && contactStore.itemId === contact['id']" >
                     <td colspan="9"><ConnectForm /></td>
                   </tr>
                 </tbody>
@@ -90,10 +93,12 @@ onBeforeMount(() => {
       <nav v-if="contactStore.data.hasPrev || contactStore.data.hasNext">
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !contactStore.data.hasPrev }">
-            <a class="page-link" href="#" v-on:click.prevent="contactStore.prevPage">Предыдущая</a>
+            <a class="page-link" href="#" v-on:click.prevent="contactStore.prevPage">
+                Предыдущая</a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !contactStore.data.hasNext }">
-            <a class="page-link" href="#" v-on:click.prevent="contactStore.nextPage">Следующая</a>
+            <a class="page-link" href="#" v-on:click.prevent="contactStore.nextPage">
+                Следующая</a>
           </li>
         </ul>
       </nav>

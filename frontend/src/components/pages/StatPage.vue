@@ -74,18 +74,22 @@ async function submitData(): Promise<void> {
             <div class="col-md-2">
               <select class="form-select" id="region" name="region" v-model="data.region">
                 <option value="" selected>Выберите регион</option>
-                <option v-for="name, value in storeClassify.regions" :key="value" :value="value">{{name}}</option>                
+                <option v-for="name, value in storeClassify.regions" :key="value" 
+                    :value="value">{{name}}</option>                
               </select>
             </div>
             <label class="col-form-label col-md-1" for="start">Период:</label>
             <div class="col-md-2">
-                <input class="form-control" id="start" name="start" required type="date" v-model="data.start">
+              <input class="form-control" id="start" name="start" required type="date" 
+                  v-model="data.start">
             </div>
             <div class="col-md-2">
-                <input class="form-control" name="end" required type="date" v-model=data.end>
+              <input class="form-control" name="end" required type="date" 
+                  v-model=data.end>
             </div>
             <div class="col-md-2">
-                <button class="btn btn-primary btn-md" name="submit" type="submit">Принять</button>
+              <button class="btn btn-primary btn-md" name="submit" type="submit">
+                  Принять</button>
             </div>
           </div>
       </form>

@@ -9,6 +9,8 @@ const alertStore = appAlert();
 
 <template>
   <div class="container py-3">
-    <div class="alert" :class="alertStore.alertAttr" role="info" fade show>{{alertStore.alertText}}</div>
+    <div class="alert" :class="alertStore.alertAttr" role="info" fade show>
+      {{alertStore.alertText}}
+    </div>
   </div>
 </template>
