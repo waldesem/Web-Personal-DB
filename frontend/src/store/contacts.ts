@@ -65,7 +65,9 @@ export const storeContact = defineStore('storeContact',  () => {
    * @param {string} contactId - The ID of the contact to update (default: "itemId.value").
    * @return {Promise<void>} - A promise that resolves when the update is complete.
    */
-  async function updateContact(_event: Event, flag: string=itemAction.value, contactId: string=itemId.value): Promise<void> {
+  async function updateContact(
+    _event: Event, flag: string=itemAction.value, contactId: string=itemId.value
+    ): Promise<void> {
     try {
       const response = flag === 'create'
         ? await storeAuth.axiosInstance.post(
@@ -85,6 +87,13 @@ export const storeContact = defineStore('storeContact',  () => {
       getContacts();
       itemAction.value = '';
       itemId.value = '';
+      Object.assign(itemForm.value, {
+        company: '',
+        city: '',
+        fullname: '',
+        contact: '',
+        comment: ''
+      })
 
     } catch (error) {
       console.log(error)

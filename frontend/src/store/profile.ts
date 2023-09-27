@@ -23,24 +23,14 @@ export const appProfile = defineStore('appProfile', () => {
   const itemForm: Record<string, any> = ref({});
   const spinner = ref(false);
   const printPdf = ref(false);
-  const mappingItems = {
-    'resume': anketa.value.resume,
-    'staff': anketa.value.staffs,
-    'document': anketa.value.docums,
-    'address': anketa.value.addrs,
-    'contact': anketa.value.conts,
-    'workplace': anketa.value.works,
-    'relation': anketa.value.relate,
-    'check': verification.value,
-    'registry': register.value,
-    'poligraf': pfo.value,
-    'investigation': inquisition.value,
-    'inquiry': needs.value
-  };
+  const mappingItems = ['resume', 'staff', 'document', 'address',
+    'contact', 'workplace', 'relation', 'check', 'registry',
+    'poligraf', 'investigation', 'inquiry'
+];
 
   async function getProfile() {
     await Promise.all([
-      Object.keys(mappingItems).map(async (key) => await getItem(key))
+      mappingItems.map(async (item) => await getItem(item))
     ]);
   };
 
@@ -61,8 +51,45 @@ export const appProfile = defineStore('appProfile', () => {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/${item}/${action}/${id}`);
       
-      mappingItems[item as keyof typeof mappingItems] = response.data;
-      
+      switch (item){
+        case 'resume':
+          anketa.value.resume = response.data;
+          break;
+        case 'staff': 
+          anketa.value.staffs = response.data;
+          break;
+        case 'document': 
+          anketa.value.docums = response.data;
+          break;
+        case 'address': 
+          anketa.value.addrs = response.data;
+          break;
+        case 'contact': 
+          anketa.value.conts = response.data;
+          break;
+        case 'workplace': 
+          anketa.value.works = response.data;
+          break;
+        case 'relation': 
+          anketa.value.relate = response.data;
+          break;
+        case 'check': 
+          verification.value = response.data;
+          break;
+        case 'registry': 
+          register.value = response.data;
+          break;
+        case 'poligraf': 
+          pfo.value = response.data;
+          break;
+        case 'investigation':
+           inquisition.value = response.data;
+           break;
+        case 'inquiry': 
+          needs.value = response.data
+          break;
+      };
+
       if (action === 'status'){
         storeAlert.setAlert('alert-info', 'Статус анкеты обновлен');
       
@@ -233,7 +260,7 @@ export const appProfile = defineStore('appProfile', () => {
   function clearItem(): void {
     itemId.value = '';
       Object.keys(itemForm.value).forEach(key => {
-        itemForm.value[key] = '';
+        delete itemForm.value[key];
     });
   };
 

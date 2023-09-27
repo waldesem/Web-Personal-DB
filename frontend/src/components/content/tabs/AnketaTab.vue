@@ -97,7 +97,8 @@ const storeClassify = appClassify();
     </template>
 
     <template v-else>
-      <table v-if="storeProfile.anketa.staffs && storeProfile.anketa.staffs.length" v-for="tbl in storeProfile.anketa.staffs" :key="tbl['id']" class="table table-responsive">
+      <table v-if="storeProfile.anketa.staffs && storeProfile.anketa.staffs.length" 
+             v-for="tbl in storeProfile.anketa.staffs" :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
@@ -137,7 +138,8 @@ const storeClassify = appClassify();
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.anketa.docums && storeProfile.anketa.docums.length" v-for="tbl in storeProfile.anketa.docums" :key="tbl['id']" class="table table-responsive">
+      <table v-if="storeProfile.anketa.docums && storeProfile.anketa.docums.length" 
+             v-for="tbl in storeProfile.anketa.docums" :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
@@ -181,7 +183,8 @@ const storeClassify = appClassify();
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.anketa.addrs && storeProfile.anketa.addrs.length" v-for="tbl in storeProfile.anketa.addrs" :key="tbl['id']" class="table table-responsive">
+      <table v-if="storeProfile.anketa.addrs && storeProfile.anketa.addrs.length" 
+             v-for="tbl in storeProfile.anketa.addrs" :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
@@ -222,7 +225,8 @@ const storeClassify = appClassify();
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.anketa.conts && storeProfile.anketa.conts.length" v-for="tbl in storeProfile.anketa.conts" :key="tbl['id']" class="table table-responsive">
+      <table v-if="storeProfile.anketa.conts && storeProfile.anketa.conts.length" 
+             v-for="tbl in storeProfile.anketa.conts" :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
@@ -262,7 +266,8 @@ const storeClassify = appClassify();
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.anketa.works && storeProfile.anketa.works.length" v-for="tbl in storeProfile.anketa.works" :key="tbl['id']" class="table table-responsive">
+      <table v-if="storeProfile.anketa.works && storeProfile.anketa.works.length" 
+             v-for="tbl in storeProfile.anketa.works" :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
@@ -311,7 +316,8 @@ const storeClassify = appClassify();
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.anketa.relate && storeProfile.anketa.relate.length" v-for="tbl in storeProfile.anketa.relate" :key="tbl['id']" class="table table-responsive">
+      <table v-if="storeProfile.anketa.relate && storeProfile.anketa.relate.length" 
+             v-for="tbl in storeProfile.anketa.relate" :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>

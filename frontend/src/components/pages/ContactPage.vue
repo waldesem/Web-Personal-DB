@@ -14,7 +14,7 @@ onBeforeMount(() => {
 
 <template>
   <div class="container py-3">
-    <div class="py-5">
+    <div class="py-3">
       <h4>Контакты</h4>
     </div>
     <form @input="contactStore.searchContacts" class="form form-check" role="form">

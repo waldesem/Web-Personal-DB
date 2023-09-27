@@ -265,6 +265,7 @@ class AddressView(MethodView):
     @bp.input(AddressSchema)
     def post(self, action, item_id, json_data):
         db.session.add(Address(**json_data | {'person_id': item_id}))
+        db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)    
@@ -300,6 +301,7 @@ class ContactView(MethodView):
     @bp.input(ContactSchema)
     def post(self, action, item_id, json_data):
         db.session.add(Contact(**json_data | {'person_id': item_id}))
+        db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
@@ -335,6 +337,7 @@ class WorkplaceView(MethodView):
     @bp.input(WorkplaceSchema)
     def post(self, action, item_id, json_data):
         db.session.add(Workplace(**json_data | {'person_id': item_id}))
+        db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
@@ -373,6 +376,7 @@ class RelationView(MethodView):
         db.session.add(Relation(relation = json_data['relation'], 
                                 relation_id = item_id,
                                 person_id = json_data['relation_id']))
+        db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
@@ -499,7 +503,7 @@ class RegistryView(MethodView):
         self.add_to_db(person, reg, check_id, item_id)
         return '', 201
 
-bp.add_url_rule('/registry/<action>/<int:user_id>', 
+bp.add_url_rule('/registry/<action>/<int:item_id>', 
                 view_func=RegistryView.as_view('registry'))
 
 
