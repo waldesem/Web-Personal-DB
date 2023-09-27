@@ -5,7 +5,7 @@ import { appProfile } from '@/store/profile';
 
 
 const storeProfile = appProfile();
-storeProfile.action = 'update';
+storeProfile.action = 'create';
 
 </script>
 

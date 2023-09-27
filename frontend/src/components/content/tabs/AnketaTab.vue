@@ -103,7 +103,7 @@ const storeClassify = appClassify();
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'staff')" title="Удалить">
+              <a href="#" @click="storeProfile.deleteItem('staff', 'delete', tbl['id'].toString())" title="Удалить">
                 <i class="bi bi-trash"></i>
               </a>
               &nbsp;
@@ -144,7 +144,7 @@ const storeClassify = appClassify();
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'document')"
+              <a href="#" @click="storeProfile.deleteItem('document', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
@@ -189,7 +189,7 @@ const storeClassify = appClassify();
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'address')"
+              <a href="#" @click="storeProfile.deleteItem('address', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
@@ -213,11 +213,17 @@ const storeClassify = appClassify();
     </template>
 
     <h6>Контакты
-      <a class="btn btn-link" @click="storeProfile.flag === 'contact' ? storeProfile.flag = '' : storeProfile.flag = 'contact'; 
-                                      storeProfile.flag === 'contact' ? storeProfile.action = 'create' : storeProfile.action = ''; 
+      <a class="btn btn-link" @click="storeProfile.flag === 'contact' 
+                                      ? storeProfile.flag = '' 
+                                      : storeProfile.flag = 'contact'; 
+                                      storeProfile.flag === 'contact' 
+                                      ? storeProfile.action = 'create' 
+                                      : storeProfile.action = ''; 
                                       storeProfile.clearItem" 
-                                      :title="storeProfile.flag === 'contact' ? 'Закрыть форму' : 'Добавить контакт'">
-        <i :class="storeProfile.flag === 'contact' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+                              :title="storeProfile.flag === 'contact' 
+                                      ? 'Закрыть форму' : 'Добавить контакт'">
+        <i :class="storeProfile.flag === 'contact' 
+            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'contact'">
@@ -231,7 +237,7 @@ const storeClassify = appClassify();
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'contact')"
+              <a href="#" @click="storeProfile.deleteItem('contact', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
@@ -272,7 +278,7 @@ const storeClassify = appClassify();
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'workplace')"
+              <a href="#" @click="storeProfile.deleteItem('workplace', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
@@ -322,7 +328,7 @@ const storeClassify = appClassify();
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" @click="storeProfile.deleteItem(tbl['id'].toString(), 'relation')"
+              <a href="#" @click="storeProfile.deleteItem('relation', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
@@ -363,7 +369,7 @@ const storeClassify = appClassify();
         <button type="button" class="btn btn-outline-danger" 
           :disabled="storeProfile.anketa.resume['status'] === storeClassify.status['finish']
             || storeProfile.spinner" 
-          @click="storeProfile.deleteItem(storeProfile.anketa.resume['id'], 'person')">Удалить анкету
+          @click="storeProfile.deleteItem('resume', 'delete', storeProfile.anketa.resume['id'])">Удалить анкету
         </button>
 
       </div>

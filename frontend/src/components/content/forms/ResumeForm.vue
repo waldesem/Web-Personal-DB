@@ -5,7 +5,6 @@ import { appProfile } from '@/store/profile';
 
 const storeProfile = appProfile();
 
-
 </script>
 <template>
   <div class="py-3">

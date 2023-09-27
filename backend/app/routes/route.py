@@ -336,20 +336,22 @@ class WorkplaceView(MethodView):
     @r_g.roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
     def post(self, action, item_id, json_data):
+        json_data['now_work'] = bool(json_data.pop('now_work')) if 'now_work' in json_data else False
         db.session.add(Workplace(**json_data | {'person_id': item_id}))
         db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
-    @bp.output(EmptySchema, status_code=204)
     def patch(self, action, item_id, json_data):
+        json_data['now_work'] = bool(json_data.pop('now_work')) if 'now_work' in json_data else False
         for k, v in json_data.items():
             setattr(db.session.query(Workplace).get(item_id), k, v)
         db.session.commit()
         return '', 201
    
     @r_g.roles_required(Roles.user.name)
+    @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.query(Workplace).get(item_id))
         db.session.commit()
@@ -522,6 +524,7 @@ class InvestigationView(MethodView):
     def post(self, action, item_id, json_data):
         db.session.add(Investigation(**json_data | {'person_id': item_id, 
                                                     'officer': current_user.fullname}))
+        db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
@@ -561,11 +564,12 @@ class PoligrafView(MethodView):
     @r_g.roles_required(Roles.user.value)
     @bp.input(PoligrafSchema)
     def post(self, action, item_id, json_data):
-        person = db.session.query(Person).get(id)
+        person = db.session.query(Person).get(item_id)
         if person.has_status(Status.poligraf.value):
             person.status = Status.result.value
         db.session.add(Poligraf(**json_data | {'person_id': item_id, 
                                                'officer': current_user.fullname}))
+        db.session.commit()
         return '', 201
         
     @r_g.roles_required(Roles.user.value)
@@ -602,6 +606,7 @@ class InquiryView(MethodView):
     def post(self, action, item_id, json_data):
         db.session.add(Inquiry(**json_data | {'person_id': item_id, 
                                               'officer': current_user.fullname}))
+        db.session.commit()
         return '', 201
         
     @bp.input(InquirySchema)

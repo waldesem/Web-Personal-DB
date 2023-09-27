@@ -72,13 +72,8 @@ const storeProfile = appProfile();
           </tr>
           <tr>
             <td colspan="2">
-              <form class="form form-check" enctype="multipart/form-data" role="form" @change="storeProfile.submitFile($event, 'poligraf', tbl['id'].toString())">
-                <div class="mb-3 row">
-                  <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
-                  <div class="col-lg-10">
-                    <input class="form-control" id="file" type="multifile" ref="file">
-                  </div>
-                </div>
+              <form class="form" enctype="multipart/form-data" role="form" @change="storeProfile.submitFile($event, 'poligraf', tbl['id'].toString())">
+                    <input class="form-control" id="file" type="file" ref="file" multiple>
               </form>
             </td>
           </tr>

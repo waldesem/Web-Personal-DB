@@ -194,7 +194,7 @@ class Workplace(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
-    now_work = db.Column(db.Boolean)
+    now_work = db.Column(db.Boolean, default=False)
     workplace = db.Column(db.Text)
     address = db.Column(db.Text)
     position = db.Column(db.Text)

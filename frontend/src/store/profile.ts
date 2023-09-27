@@ -115,7 +115,7 @@ export const appProfile = defineStore('appProfile', () => {
     flag.value === 'registry' 
       ? spinner.value = true 
       : spinner.value = false;
-
+    console.log(itemForm.value)
     try {
       const response = action.value === 'create' 
         ? await storeAuth.axiosInstance.post(
@@ -134,11 +134,10 @@ export const appProfile = defineStore('appProfile', () => {
       };
       getItem(flag.value, action.value, candId.value);
 
-      cancelEdit();
-
     } catch (error) {
       storeAlert.setAlert('alert-danger', `Возникла ошибка ${error}`);
     }
+    cancelEdit();
     spinner.value = false;
   };
   
@@ -166,7 +165,8 @@ export const appProfile = defineStore('appProfile', () => {
           : getItem(item);
 
          storeAlert.setAlert('alert-info', `Запись с ID ${id} удалена`);
-      } catch (error) {
+      
+        } catch (error) {
         console.error(error)
       }
     }
@@ -184,6 +184,7 @@ export const appProfile = defineStore('appProfile', () => {
         `${server}/resume/${action.value}`, itemForm.value
         );
       const { message } = response.data;
+    console.log(message)
       
       storeAlert.setAlert(action.value === "create" 
                             ? "alert-success" : "alert-info", 
@@ -191,8 +192,9 @@ export const appProfile = defineStore('appProfile', () => {
                             ? 'Анкета успешно добавлена' 
                             : 'Анкета успешно обновлена');
 
-      action.value === 'update' ? getItem('resume')
-        : router.push({ name: 'profile', params: { id: message } });
+      action.value === 'create' 
+        ? router.push({ name: 'profile', params: { id: message } })
+        : getItem('resume');
       
       cancelEdit();
       
