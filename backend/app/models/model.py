@@ -155,7 +155,7 @@ class Staff(db.Model):
     __tablename__ = 'staffs'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    position = db.Column(db.String(255))
+    position = db.Column(db.Text)
     department = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 

@@ -20,33 +20,25 @@ class ExcelFile:
         self.resume = {
             'fullname': self.parse_cell(self.sheet['K3']).title(),
             'previous': self.parse_cell(self.sheet['S3']).title(),
-            'birthday': datetime.strptime(self.parse_cell(self.sheet['L3']), 
-                                          '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d',
-                             self.parse_cell(self.sheet['L3'])) \
-                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
-            'birthplace': self.parse_cell(self.sheet['M3']),
+            'birthday': self.parse_date(self.parse_cell(self.sheet['L3'])),
+            'birthplace': str(self.sheet['M3']).strip(),
             'country': self.parse_cell(self.sheet['T3']),
             'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").\
                 replace("-", "")[:11],
             'inn': self.parse_cell(self.sheet['V3'], 12),
-            'education': self.parse_cell(self.sheet['X3'])
+            'education': str(self.sheet['X3']).strip()
         }
         self.passport = {
             'view': 'Паспорт гражданина России',
             'series': self.parse_cell(self.sheet['P3'], 4),
             'number': self.parse_cell(self.sheet['Q3'], 6),
-            'issue': datetime.strptime(self.parse_cell(self.sheet['R3']), 
-                                       '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', 
-                            self.parse_cell(self.sheet['L3'])) \
-                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date(),
+            'issue': self.parse_date(self.parse_cell(self.sheet['R3'])),
         }
         self.addresses = [
             {'view': "Адрес регистрации", 
              'address': self.parse_cell(self.sheet['N3'])},
             {'view': "Адрес проживания", 
-             'address': self.parse_cell(self.sheet['O3'])}
+             'address': str(self.sheet['O3']).strip()}
         ]
         self.contacts = [
             {'view': self.parse_cell(self.sheet['Y1']), 
@@ -56,54 +48,42 @@ class ExcelFile:
         ]
         self.workplaces = [
             {
-            'workplace': self.parse_cell(self.sheet[f'AB{i}']),
-            'address': self.parse_cell(self.sheet[f'AC{i}']),
-            'position': self.parse_cell(self.sheet[f'AD{i}'])
+            'workplace': str(self.sheet[f'AB{i}']).strip(),
+            'address': str(self.sheet[f'AC{i}']).strip(),
+            'position': str(self.sheet[f'AD{i}']).strip()
             } | self.parse_period(self.sheet[f'AA{i}'].value)
             for i in range(3, 6) if self.sheet[f'AB{i}'].value
         ]
         self.staff = {
-            'position': self.parse_cell(self.sheet['C3']),
-            'department': self.parse_cell(self.sheet['D3'])
+            'position': str(self.sheet['C3']).strip(),
+            'department': str(self.sheet['D3']).strip
         }
 
     def parse_cell(self, cell, limit=255):
         return str(cell.value).strip()[:limit]
+    
+    def parse_date(self, data):
+        return datetime.strptime(data, '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', data) \
+                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
 
     def parse_period(self, cell):
         """ Parse period from excel file """
         lst = re.split(r'-', cell)
         if len(lst) == 2:
             start, end = lst[0].strip(), lst[1].strip()
-            
-            start_date = datetime.strptime(start, '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', start) \
-                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
+            start_date = self.parse_date(start)
             end_date = datetime.strptime(end, '%d.%m.%Y').date() \
                 if re.match(r'\d\d.\d\d.\d\d\d\d', end) \
                     else datetime.now().date()
-        else:
+        
+        elif len(lst) and len(lst) != 2:
             start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
             end_date = datetime.now().date()
         return {'start_date': start_date, 'end_date': end_date}
 
     def close(self):
         self.wb.close()
-
-
-def resume_data(person_id, document, addresses, contacts, workplaces, staff):
-    """
-    Adds resume data to the database for a person.
-    """
-    db.session.add(Staff(**staff | {'person_id': person_id}))
-    db.session.add(Document(**document | {'person_id': person_id}))
-    for address in addresses:
-        db.session.add(Address(**address | {'person_id': person_id}))
-    for contact in contacts:
-        db.session.add(Contact(**contact | {'person_id': person_id}))
-    for workplace in workplaces:
-        db.session.add(Workplace(**workplace | {'person_id': person_id}))
-    db.session.commit()
 
 
 def add_resume(resume: dict, location_id, action):

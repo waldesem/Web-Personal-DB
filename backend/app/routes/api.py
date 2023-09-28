@@ -7,8 +7,9 @@ from apiflask import HTTPBasicAuth
 
 from . import bp
 from .. import db
-from ..utils.utilities import resume_data, add_resume, create_folders
-from ..models.model import User, Person, Region, Check, Report, Status
+from ..utils.utilities import add_resume, create_folders
+from ..models.model import Staff, Document, Contact, Workplace,Address,\
+      User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
 from ..models.classes import Roles
 
@@ -51,15 +52,20 @@ def get_anketa(json_data):
     location_id = [regions.get(key.strip(), 1) for key in division][0]
                   
     person_id = add_resume(resume, location_id, 'api')
-        
+    db.session.add(Staff(**json_data['staff'] | {'person_id': person_id}))
+    db.session.add(Document(**json_data['document'] | {'person_id': person_id}))
+    for address in json_data['addresses']:
+        db.session.add(Address(**address | {'person_id': person_id}))
+    for contact in json_data['contacts']:
+        db.session.add(Contact(**contact | {'person_id': person_id}))
+    for workplace in json_data['workplaces']:
+        db.session.add(Workplace(**workplace | {'person_id': person_id}))
     users = db.session.query(User).filter_by(region_id=location_id).all()
+    
     for user in users:
         db.session.add(Report(report=f'Поступила анкета {resume["fullname"]}', 
                                user_id=user.id))
     db.session.commit()
-
-    resume_data(person_id, json_data['document'], json_data['addresses'], 
-                json_data['contacts'], json_data['workplaces'], json_data['staff'])
     return '', 201
 
 

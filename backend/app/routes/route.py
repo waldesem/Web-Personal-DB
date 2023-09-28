@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 from . import bp
 from .. import db
 from . login import r_g
-from ..utils.utilities import ExcelFile, resume_data, add_resume, create_folders
+from ..utils.utilities import ExcelFile, add_resume, create_folders
 from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
@@ -649,13 +649,21 @@ class FileView(MethodView):
             file.save(temp_path)
             
             excel = ExcelFile(temp_path)
+            excel.close()
             location_id = db.session.query(User.region_id).\
                 filter_by(username=current_user.username).scalar()
 
             person_id = add_resume(excel.resume, location_id, 'create')
-            resume_data(person_id, excel.passport, excel.addresses, 
-                        excel.contacts, excel.workplaces, excel.staff)
-            excel.close()
+            
+            db.session.add(Staff(**excel.staff | {'person_id': person_id}))
+            db.session.add(Document(**excel.document | {'person_id': person_id}))
+            for address in excel.addresses:
+                db.session.add(Address(**address | {'person_id': person_id}))
+            for contact in excel.contacts:
+                db.session.add(Contact(**contact | {'person_id': person_id}))
+            for workplace in excel.workplaces:
+                db.session.add(Workplace(**workplace | {'person_id': person_id}))
+            db.session.commit()
 
             person = db.session.query(Person).get(person_id)
             if person.path:
