@@ -14,8 +14,7 @@ from werkzeug.utils import secure_filename
 from . import bp
 from .. import db
 from . login import r_g
-from ..utils.excel import ExcelFile
-from ..utils.actions import resume_data, add_resume, create_folders
+from ..utils.utilities import ExcelFile, resume_data, add_resume, create_folders
 from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report

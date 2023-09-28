@@ -7,7 +7,7 @@ from apiflask import HTTPBasicAuth
 
 from . import bp
 from .. import db
-from ..utils.actions import resume_data, add_resume, create_folders
+from ..utils.utilities import resume_data, add_resume, create_folders
 from ..models.model import User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
 from ..models.classes import Roles
@@ -32,8 +32,8 @@ def verify_password(username: str, password: str):
 
 
 @bp.post('/api/v1/anketa')
-@bp.input(AnketaSchemaApi)
 @bp.auth_required(auth)
+@bp.input(AnketaSchemaApi)
 def get_anketa(json_data):
     """
     Take a new anketa.
@@ -60,12 +60,12 @@ def get_anketa(json_data):
 
     resume_data(person_id, json_data['document'], json_data['addresses'], 
                 json_data['contacts'], json_data['workplaces'], json_data['staff'])
-    return 'Success', 200
+    return '', 201
 
 
 @bp.post('/api/v1/check')
-@bp.input(CheckSchemaApi)
 @bp.auth_required(auth)
+@bp.input(CheckSchemaApi)
 def check_in(json_data):
     """
     Take a new check result candidate.
@@ -104,4 +104,4 @@ def check_in(json_data):
                                 user_id=user.id))
         db.session.commit()
         
-    return 'Success', 200
+    return '', 201
