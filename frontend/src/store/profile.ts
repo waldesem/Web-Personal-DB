@@ -23,14 +23,12 @@ export const appProfile = defineStore('appProfile', () => {
   const itemForm: Record<string, any> = ref({});
   const spinner = ref(false);
   const printPdf = ref(false);
-  const mappingItems = ['resume', 'staff', 'document', 'address',
-    'contact', 'workplace', 'relation', 'check', 'registry',
-    'poligraf', 'investigation', 'inquiry'
-];
 
   async function getProfile() {
     await Promise.all([
-      mappingItems.map(async (item) => await getItem(item))
+      ['resume', 'staff', 'document', 'address',
+    'contact', 'workplace', 'relation', 'check', 'registry',
+    'poligraf', 'investigation', 'inquiry'].map(async (item) => await getItem(item))
     ]);
   };
 
@@ -47,10 +45,10 @@ export const appProfile = defineStore('appProfile', () => {
         return
       };
     };
-
     try {
-      const response = await storeAuth.axiosInstance.get(`${server}/${item}/${action}/${id}`);
-      
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/${item}/${action}/${id}`
+        );
       switch (item){
         case 'resume':
           anketa.value.resume = response.data;
@@ -115,8 +113,8 @@ export const appProfile = defineStore('appProfile', () => {
     flag.value === 'registry' 
       ? spinner.value = true 
       : spinner.value = false;
-    console.log(itemForm.value)
-    try {
+
+      try {
       const response = action.value === 'create' 
         ? await storeAuth.axiosInstance.post(
           `${server}/${flag.value}/${action.value}/${candId.value}`, itemForm.value
@@ -184,8 +182,7 @@ export const appProfile = defineStore('appProfile', () => {
         `${server}/resume/${action.value}`, itemForm.value
         );
       const { message } = response.data;
-    console.log(message)
-      
+
       storeAlert.setAlert(action.value === "create" 
                             ? "alert-success" : "alert-info", 
                           action.value === "create"
@@ -222,14 +219,12 @@ export const appProfile = defineStore('appProfile', () => {
         const response = await storeAuth.axiosInstance.post(
           `${server}/file/${flag}/${idItem}`, formData
           );
-        const { result, item_id } = response.data;
+        const { message } = response.data;
 
         if (flag === 'anketa'){
-          storeAlert.setAlert(result ? "alert-info" : "alert-success",
-                              result ? 'Анкета уже существует. Данные обновлены' 
-                                     : 'Анкета успешно добавлена');
+          storeAlert.setAlert("alert-success", "Данные успешно загружены");
 
-          router.push({ name: 'profile', params: { id: item_id } })
+          router.push({ name: 'profile', params: { id: message } })
         } else {
           storeAlert.setAlert("alert-success", 
                               "Файл или файлы успешно загружен/добавлены");

@@ -64,7 +64,7 @@ class IndexView(MethodView):
                 filter(Person.status.notin_([Status.finish.value, 
                                                 Status.result.value, 
                                                 Status.cancel.value])). \
-                join(Check, isouter=True).filter_by(officer=current_user.username).\
+                join(Check, isouter=True).filter_by(officer=current_user.fullname).\
                 order_by(Person.id.asc()).paginate(page=page, 
                                                    per_page=self.pagination, 
                                                    error_out=False)
@@ -150,11 +150,13 @@ class ResumeView(MethodView):
     @bp.input(PersonSchema)
     @bp.doc(hide=True)
     def patch(self, action, person_id, json_data):
-        db.session.add(Person(**json_data | {'person_id': person_id}))
+        person = db.session.query(Person).get(person_id)
+        person.region_id = json_data['region_id']
         users = db.session.query(User).\
             filter_by(region_id=json_data['region_id']).all()
-        for user in users:
-            db.session.add(Report(report=f'Делегирована анкета ID #{id} \
+        if len(users):
+            for user in users:
+                db.session.add(Report(report=f'Делегирована анкета ID #{id} \
                                   от {current_user.username}', user_id=user.id))
         db.session.commit()
         return '', 201
@@ -358,7 +360,7 @@ class WorkplaceView(MethodView):
         return ''
     
 bp.add_url_rule('/workplace/<action>/<int:item_id>', 
-                view_func=AddressView.as_view('workplace'))
+                view_func=WorkplaceView.as_view('workplace'))
 
 
 class RelationView(MethodView):
@@ -425,7 +427,7 @@ class CheckView(MethodView):
             
     @r_g.roles_required(Roles.user.value)
     @bp.input(CheckSchema)
-    def post(self, action, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         json_data['pfo'] = bool(json_data.pop('pfo')) if 'pfo' in json_data else False
         if action == 'create':
             person = db.session.query(Person).get(item_id)        
@@ -433,7 +435,7 @@ class CheckView(MethodView):
                                                 'officer': current_user.fullname}))
         else:
             check = db.session.query(Check).get(item_id)
-            person = db.session.query(Person).get(check.item_id)
+            person = db.session.query(Person).get(check.person_id)
             for k, v in json_data.items():
                 setattr(check, k, v)
         if json_data['conclusion'] == (Status.save.value).upper():
@@ -664,7 +666,7 @@ class FileView(MethodView):
                 db.session.commit()
             else:
                 new_path = os.path.join(current_app.config["BASE_PATH"], 
-                                        f'{person_id}-{person["fullname"]}')
+                                        f'{person_id}-{person.fullname}')
                 person.path = new_path
                 db.session.commit()
                 if not os.path.isdir(new_path):
@@ -672,7 +674,7 @@ class FileView(MethodView):
                 person.path = new_path
                 db.session.commit()
 
-            action_folder = create_folders(person_id, person["fullname"], action)
+            action_folder = create_folders(person_id, person.fullname, action)
 
             save_path = os.path.join(action_folder, filename)
             if not os.path.isfile(save_path):

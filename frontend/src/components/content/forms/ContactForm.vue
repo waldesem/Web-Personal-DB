@@ -1,44 +1,32 @@
 <script setup lang="ts">
-
+// компонент для отображения формы добавления и редактирования данных 
+ 
 import { appProfile } from '@/store/profile';
-
 const storeProfile = appProfile();
-
 </script>
 
 <template>
-  <div class="modal fade" id="winModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalWinLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="modalWinLabel">Создать контакт</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+   <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
+    <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="view">Выбрать</label>
+        <div class="col-lg-10">
+        <select class="form-select" id="view" name="view" v-model="storeProfile.itemForm['view']">
+            <option value="Телефон">Телефон</option>
+            <option value="E-mail">E-mail</option>
+            <option value="Другое">Другое</option>
+        </select>
         </div>
-        <div class="modal-body">
-          
-          <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
-            <div class="mb-3 row">
-              <label class="col-form-label col-lg-2" for="region_id" >Регион</label>
-              <div class="col-lg-10">
-               
-              </div>
-            </div>
-            <div class=" row">
-              <div class="offset-lg-2 col-lg-10">
-                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
-              </div>
-            </div>
-          </form>
-    
-        </div>
-      </div>
     </div>
-  </div>
+    <div class="mb-3 row required">
+        <label class="col-form-label col-lg-2" for="contact">Контакт</label>
+        <div class="col-lg-10">
+        <input class="form-control" id="contact" maxlength="250" name="contact" required type="text" v-model="storeProfile.itemForm['contact']">
+        </div>
+    </div>
+    <div class=" row">
+        <div class="offset-lg-2 col-lg-10">
+            <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>
+        </div>
+    </div>
+    </form>
 </template>
-
-<style>
-  html,
-  body {
-      scrollbar-gutter: stable;
-  }
-</style>

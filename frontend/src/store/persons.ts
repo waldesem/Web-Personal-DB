@@ -30,8 +30,6 @@ export const appPersons = defineStore('appPersons', () => {
    * Retrieves candidates from the specified URL and updates the data store.
    *
    * @param {string} url - The URL to retrieve candidates from.
-   * @param {number} [page=1] - The page number of the candidates to retrieve. 
-   * Default is 1.
    * @return {Promise<void>} - A promise that resolves when the candidates are 
    * retrieved and the data store is updated.
    */

@@ -20,7 +20,7 @@ const storeClassify = appClassify();
 <template>
   <div class="p-3">
   
-    <template v-if="storeProfile.flag === 'resume'" >
+    <template v-if="storeProfile.flag === 'resume' && storeProfile.action === 'update'" >
       <ResumeForm />
     </template>
 
@@ -47,8 +47,8 @@ const storeClassify = appClassify();
           <tr>
             <td>Регион</td>
             <td>
-              <a href="#" @click="storeProfile.flag = 'location'; 
-                                  storeProfile.action = 'update'; 
+              <a href="#" @click="storeProfile.flag = 'resume'; 
+                                  storeProfile.action = 'location'; 
                                   storeProfile.itemForm = storeProfile.anketa.resume;
                                   storeProfile.itemId = storeProfile.anketa.resume['id']" 
                 data-bs-toggle="modal" data-bs-target="#modalWin">
@@ -299,7 +299,7 @@ const storeClassify = appClassify();
           </tr>
           <tr>
             <td>Работает по н.в.</td>
-            <td>{{ tbl['now_work'] }}</td>
+            <td>{{ tbl['now_work'] ? 'Работает' : 'Не работает' }}</td>
           </tr>
           <tr><td>Организация</td><td>{{ tbl['workplace'] }}</td></tr>
           <tr><td>Адрес</td><td>{{ tbl['address'] }}</td></tr>
