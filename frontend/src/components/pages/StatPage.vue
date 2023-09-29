@@ -41,37 +41,23 @@ onBeforeMount(async () => {
   submitData()
 });
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export const data = {
-  labels: [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ],
+const data = ref({
+  labels: Object.keys(stat.value.checks),
   datasets: [
     {
       label: 'Data One',
       backgroundColor: '#f87979',
-      data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
+      data: Object.values(stat.value.checks)
     }
   ]
-}
+});
 
-export const options = {
+const options = {
   responsive: true,
   maintainAspectRatio: false
-}
-
+};
 
 /**
  * Submits data to the server.
