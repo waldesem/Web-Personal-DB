@@ -25,8 +25,8 @@ python3 --version
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
 sudo apt install python3 python3-pip python3-venv
-mkdir staffsec
-cd staffsec
+mkdir econsec
+cd econsec
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -94,12 +94,12 @@ gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the sett
 
 For create systemd service run the following command in your terminal:
 ```
-sudo nano /etc/systemd/system/staffsec.service
+sudo nano /etc/systemd/system/econsec.service
 ```
 Add the following line:
 ```
 [Unit]
-Description=Gunicorn instance to serve staffsec
+Description=Gunicorn instance to serve econsec
 After=network.target
 [Service]
 User=user
@@ -112,15 +112,15 @@ WantedBy=multi-user.target
 ```
 Start the service:
 ```
-sudo systemctl start staffsec
-sudo systemctl enable staffsec
-sudo systemctl status staffsec
+sudo systemctl start econsec
+sudo systemctl enable econsec
+sudo systemctl status econsec
 ```
 
 ### Nginx
 
 Nginx configuration:
-Open the file '/etc/nginx/sites-available/staffsec' and add the following line:
+Open the file '/etc/nginx/sites-available/econsec' and add the following line:
 ```
 server {
     listen 80;
@@ -135,9 +135,9 @@ server {
     }
 }
 ```
-Add configuration file '/etc/nginx/sites-enabled/staffsec' and restart Nginx:
+Add configuration file '/etc/nginx/sites-enabled/econsec' and restart Nginx:
 ```
-sudo ln -s /etc/nginx/sites-available/staffsec /etc/nginx/sites-enabled/staffsec
+sudo ln -s /etc/nginx/sites-available/econsec /etc/nginx/sites-enabled/econsec
 sudo service nginx restart
 ```
 Add rule in your firewall:
@@ -149,8 +149,8 @@ sudo ufw reload
 ### Doker (not tested yet)
 To build the docker image run the following command in your terminal:
 ```
-docker build -t staffsec .
-docker run --add-host host.docker.internal:host-gateway -p 5000:5000 staffsec
+docker build -t econsec .
+docker run --add-host host.docker.internal:host-gateway -p 5000:5000 econsec
 ```
 
 ### License

@@ -14,7 +14,6 @@ def get_anketa(index):
     Returns:
         list: A list of anketa objects.
     """
-
     return [{
         "resume": {
             "id": i,
@@ -29,18 +28,18 @@ def get_anketa(index):
             "inn": fake.businesses_inn(),
             "education": fake.text(max_nb_chars=100),
         },
-        "document": {
+        "document": [{
             "view": fake.word(),
             "series": str(fake.random_int(min=1000, max=9999)),
             "number": str(fake.random_int(min=100000, max=999999)),
             "agency": fake.company(),
             "issue": fake.date_this_decade().strftime("%Y-%m-%d")
-        },
-        "staff": {
+        }],
+        "staff": [{
             "position": fake.job(),
             "department": f'{random.choice([region.value for 
                                             region in Regions])}/{fake.company_suffix()}'
-        },
+        }],
         "addresses": [
             {
                 "view": 'Адрес проживания',
@@ -91,8 +90,7 @@ def get_anketa(index):
 
 def test_api(number=20, server='http://127.0.0.1:5000', 
              username='newrestapi', password='newrestapi'):
-    anketas = get_anketa(number)
-    for anketa in anketas:
+    for anketa in get_anketa(number):
         response = requests.post(f'{server}/api/v1/anketa', 
                                 data=json.dumps(anketa), 
                                 headers={

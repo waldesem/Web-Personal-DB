@@ -28,12 +28,12 @@ class ExcelFile:
             'inn': self.parse_cell(self.sheet['V3'], 12),
             'education': str(self.sheet['X3']).strip()
         }
-        self.passport = {
+        self.passport = [{
             'view': 'Паспорт гражданина России',
             'series': self.parse_cell(self.sheet['P3'], 4),
             'number': self.parse_cell(self.sheet['Q3'], 6),
             'issue': self.parse_date(self.parse_cell(self.sheet['R3'])),
-        }
+        }]
         self.addresses = [
             {'view': "Адрес регистрации", 
              'address': self.parse_cell(self.sheet['N3'])},
@@ -54,10 +54,10 @@ class ExcelFile:
             } | self.parse_period(self.sheet[f'AA{i}'].value)
             for i in range(3, 6) if self.sheet[f'AB{i}'].value
         ]
-        self.staff = {
+        self.staff = [{
             'position': str(self.sheet['C3']).strip(),
             'department': str(self.sheet['D3']).strip
-        }
+        }]
 
     def parse_cell(self, cell, limit=255):
         return str(cell.value).strip()[:limit]

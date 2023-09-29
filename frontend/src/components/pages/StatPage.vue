@@ -2,6 +2,16 @@
 // Компонент для отображения статистики по региону и полиграфу 
 
 import { ref, onBeforeMount } from 'vue';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js';
+import { Bar } from 'vue-chartjs';
 import { appClassify } from '@store/classify';
 import { appAuth } from '@store/token';
 import { appAlert } from '@/store/alert';
@@ -16,7 +26,7 @@ storeAlert.alertAttr = '';
 storeAlert.alertText = '';
 const header = ref('');
 
-const data = ref({
+const stat = ref({
   region: 1,
   checks: [], 
   pfo: [],
@@ -31,6 +41,38 @@ onBeforeMount(async () => {
   submitData()
 });
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+
+export const data = {
+  labels: [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ],
+  datasets: [
+    {
+      label: 'Data One',
+      backgroundColor: '#f87979',
+      data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
+    }
+  ]
+}
+
+export const options = {
+  responsive: true,
+  maintainAspectRatio: false
+}
+
+
 /**
  * Submits data to the server.
  *
@@ -39,13 +81,13 @@ onBeforeMount(async () => {
 
 async function submitData(): Promise<void> {
   const response = await storeAuth.axiosInstance.post(`${server}/information`, {
-    'start': data.value.start, 'end': data.value.end, 'region': data.value.region 
+    'start': stat.value.start, 'end': stat.value.end, 'region': stat.value.region 
   });
   const { candidates, poligraf } = response.data;
-  header.value = storeClassify.regions[data.value.region];
+  header.value = storeClassify.regions[stat.value.region];
   
-  data.value.checks = candidates;
-  data.value.pfo = poligraf
+  stat.value.checks = candidates;
+  stat.value.pfo = poligraf
 };
 
 
@@ -54,9 +96,9 @@ async function submitData(): Promise<void> {
 <template>
   <div class="container py-5">
     <div class="py-5">
-      <h4>Статистика по региону {{ header }} за период c {{ data.start }} по {{ data.end }}</h4>
+      <h4>Статистика по региону {{ header }} за период c {{ stat.start }} по {{ stat.end }}</h4>
     </div>
-    <div v-for="(tbl, index) in [data.checks, data.pfo]" :key="index" class="py-3">
+    <div v-for="(tbl, index) in [stat.checks, stat.pfo]" :key="index" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <caption>{{captions[index]}}</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>
@@ -67,12 +109,17 @@ async function submitData(): Promise<void> {
         </tbody>
       </table>
     </div>
+    
+    <div>
+      <Bar :data="data" :options="options" />
+    </div>
+
     <div class="py-3">
       <form @submit.prevent="submitData" class="form form-check" role="form">
           <div class="mb-3 row required">
             <label class="col-form-label col-md-2" for="region">Регион</label>
             <div class="col-md-2">
-              <select class="form-select" id="region" name="region" v-model="data.region">
+              <select class="form-select" id="region" name="region" v-model="stat.region">
                 <option value="" selected>Выберите регион</option>
                 <option v-for="name, value in storeClassify.regions" :key="value" 
                     :value="value">{{name}}</option>                
@@ -81,11 +128,11 @@ async function submitData(): Promise<void> {
             <label class="col-form-label col-md-1" for="start">Период:</label>
             <div class="col-md-2">
               <input class="form-control" id="start" name="start" required type="date" 
-                  v-model="data.start">
+                  v-model="stat.start">
             </div>
             <div class="col-md-2">
               <input class="form-control" name="end" required type="date" 
-                  v-model=data.end>
+                  v-model=stat.end>
             </div>
             <div class="col-md-2">
               <button class="btn btn-primary btn-md" name="submit" type="submit">
@@ -96,4 +143,3 @@ async function submitData(): Promise<void> {
     </div>
   </div>
 </template>
-@/store/token

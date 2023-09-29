@@ -160,11 +160,11 @@ class AnketaSchema(ma.SQLAlchemySchema):
 
 class AnketaSchemaApi(ma.SQLAlchemySchema):
     """ Create schema to get anketa from /api/v1/anketa"""
-    resume = fields.Nested(PersonSchema())  # exclude = ('region_id', 'addition', 
-                                            # 'path', 'status', 'create', 'update', 
-                                            # 'request_id',)
-    document = fields.Nested(DocumentSchema(), exclude=('id',))
-    staff = fields.Nested(StaffSchema(), exclude=('id',))
+    resume = fields.Nested(PersonSchema(), 
+                           exclude = ('region_id', 'addition', 'path', 'status', 
+                                      'create', 'update', 'request_id',))
+    document = fields.List(fields.Nested(DocumentSchema(), exclude=('id',)))
+    staff = fields.List(fields.Nested(StaffSchema(), exclude=('id',)))
     addresses = fields.List(fields.Nested(AddressSchema(), exclude=('id',)))
     workplaces = fields.List(fields.Nested(WorkplaceSchema(), exclude=('id',)))
     contacts = fields.List(fields.Nested(ContactSchema(), exclude=('id',)))

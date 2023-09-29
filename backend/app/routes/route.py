@@ -656,7 +656,7 @@ class FileView(MethodView):
             person_id = add_resume(excel.resume, location_id, 'create')
 
             models = [Staff, Document, Address, Contact, Workplace]
-            for count, items in enumerate([[excel.staff], [excel.document], 
+            for count, items in enumerate([excel.staff, excel.document, 
                                    excel.addresses, excel.contacts, 
                                    excel.workplaces]):
                 for item in items:

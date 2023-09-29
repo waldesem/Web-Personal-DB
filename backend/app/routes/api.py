@@ -54,7 +54,7 @@ def get_anketa(json_data):
     person_id = add_resume(resume, location_id, 'api')
     
     models = [Staff, Document, Address, Contact, Workplace]
-    for count, items in enumerate([[json_data['staff']], [json_data['document']], 
+    for count, items in enumerate([json_data['staff'], json_data['document'], 
                                    json_data['addresses'],json_data['contacts'], 
                                    json_data['workplaces']]):
         for item in items:
