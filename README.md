@@ -82,7 +82,8 @@ export FLASK_APP=app
 flask create       # create default tables and populate them with data from the classes.py file
 flask run
 ```
-Admin user on default has name 'admin' and the password 'administrator'.
+Admin user on default has name 'admin'.
+Default password for all app users is '88888888'.
 Change it in first login to application.
 
 To start the app with Gunicorn server:

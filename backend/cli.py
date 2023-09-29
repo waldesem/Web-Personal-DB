@@ -29,12 +29,11 @@ def register_cli(app):
         for actor in Roles:
             if not actor.value in [rl[0] for rl in roles]:
                 db.session.add(Role(role=actor.value)) 
-        db.session.commit()
 
         if not db.session.query(User).filter_by(username=Roles.admin.name).one_or_none():
             new_admin = User(fullname='Administrator',
                                 username=Roles.admin.value,
-                                password=bcrypt.hashpw('administrator'.encode('utf-8'), 
+                                password=bcrypt.hashpw('88888888'.encode('utf-8'), 
                                                     bcrypt.gensalt()),  # admin
                                 region_id=1)
             db.session.add(new_admin)

@@ -1,6 +1,6 @@
 from apiflask import EmptySchema
 import bcrypt
-from flask import request
+from flask import current_app, request
 
 from flask_jwt_extended import current_user
 from flask.views import MethodView
@@ -61,7 +61,8 @@ class UserView(MethodView):
         Retrieves a user based on the specified action and user ID.
 
         Parameters:
-            action (str): The action to perform. Possible values are 'view', 'block', or 'drop'.
+            action (str): The action to perform. Possible values are 'view', 
+            'block', or 'drop'.
             user_id (int): The ID of the user to retrieve.
 
         Returns:
@@ -78,8 +79,10 @@ class UserView(MethodView):
                     db.session.commit()
                 return db.session.query(User).get(user_id)
             case 'drop':
-                setattr(user, 'password', bcrypt.hashpw('11111111'.encode('utf-8'), 
-                                                        bcrypt.gensalt()))
+                setattr(user, 'password', 
+                        bcrypt.hashpw(current_app.config('DEFAULT_PASSWORD').\
+                                      encode('utf-8'), 
+                                      bcrypt.gensalt()))
                 setattr(user, 'pswd_change', None)
                 db.session.commit()
                 return db.session.query(User).get(user_id)                
@@ -93,7 +96,9 @@ class UserView(MethodView):
             json_data (dict): A dictionary containing the user data in JSON format.
 
         Returns:
-            tuple: A tuple containing a message and status code. The message indicates the result of the operation, and the status code represents the HTTP status code.
+            tuple: A tuple containing a message and status code. The message 
+            indicates the result of the operation, and the status code represents 
+            the HTTP status code.
 
         Raises:
             None
@@ -104,7 +109,9 @@ class UserView(MethodView):
                                 username=json_data['username'],
                                 region_id = json_data['region_id'],
                                 email = json_data['email'],
-                                password=bcrypt.hashpw('11111111'.encode('utf-8'), 
+                                password=bcrypt.hashpw(current_app.\
+                                                       config('DEFAULT_PASSWORD').\
+                                                        encode('utf-8'), 
                                                        bcrypt.gensalt())))
             db.session.commit()
             return {'message': 'Created'}, 201
@@ -118,7 +125,8 @@ class UserView(MethodView):
             json_data (dict): A dictionary containing the updated information for the user.
 
         Returns:
-            tuple: A tuple containing a message indicating the success of the patch operation and the HTTP status code.
+            tuple: A tuple containing a message indicating the success of the 
+            patch operation and the HTTP status code.
 
         Raises:
             None
@@ -162,14 +170,16 @@ class GroupView(MethodView):
     
     def get(self, value, user_id):
         """
-        Retrieves a user's group from the database and adds it to the user's list of groups if it does not already exist.
+        Retrieves a user's group from the database and adds it to the user's 
+        list of groups if it does not already exist.
 
         Parameters:
             value (str): The group value to retrieve.
             user_id (int): The ID of the user.
 
         Returns:
-            tuple: A tuple containing an empty string and the HTTP status code 201 if the group was added successfully.
+            tuple: A tuple containing an empty string and the HTTP status code 
+            201 if the group was added successfully.
 
         """
         user = db.session.query(User).get(user_id)
@@ -215,7 +225,8 @@ class RoleView(MethodView):
             user_id (int): The ID of the user.
             
         Returns:
-            tuple: A tuple containing an empty string and the status code 201 if the role was successfully added to the user's roles. Otherwise, returns None.
+            tuple: A tuple containing an empty string and the status code 201 
+            if the role was successfully added to the user's roles. Otherwise, returns None.
         """
         user = db.session.query(User).get(user_id)
         item = db.session.query(Role).filter_by(role=value).first() 

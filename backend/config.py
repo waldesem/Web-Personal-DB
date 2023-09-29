@@ -23,3 +23,5 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     BASE_PATH = os.path.abspath(os.path.join('..', 'persons'))
+
+    DEFAULT_PASSWORD = '8'*8
