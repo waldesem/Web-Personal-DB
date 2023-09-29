@@ -3,6 +3,7 @@
 import { computed, onBeforeMount } from 'vue';
 import { appPersons } from '@/store/persons';
 import { appClassify } from '@store/classify';
+import router from '@/router/router';
 
 const storePersons = appPersons();
 const storeClassify = appClassify();
@@ -20,6 +21,10 @@ const header = computed(() => {
   }
   return name[storePersons.personData.currentPath as keyof typeof name]
 });
+
+function openLink(cand_id: number){
+  router.push({ name: 'profile', params: { group: 'staffsec', id: cand_id }})
+};
 
 </script>
 
@@ -64,17 +69,13 @@ const header = computed(() => {
         </thead>
         <tbody>
           <tr height="50px" v-for="candidate in storePersons.personData.candidates" 
-              :key="candidate.id">
+              :key="candidate.id" @click="openLink(candidate.id)">
             <td>{{ candidate["id"] }}</td>
             <td>{{ storeClassify.regions[candidate.region_id] }}</td>
-            <td>
-              <router-link :to="{ name: 'profile', params: { group: 'staffsec', id: candidate.id } }">
-                {{ candidate.fullname }}
-              </router-link>
-            </td>
-            <td>{{ new Date(candidate.birthday).toLocaleDateString('ru-RU')  }}</td>
+            <td>{{ candidate.fullname }}</td>
+            <td>{{ new Date(candidate.birthday).toLocaleDateString('ru-RU') }}</td>
             <td>{{ candidate.status }}</td>
-            <td>{{ new Date(candidate.create).toLocaleDateString('ru-RU')  }}</td>
+            <td>{{ new Date(candidate.create).toLocaleDateString('ru-RU') }}</td>
           </tr>
         </tbody>
       </table>

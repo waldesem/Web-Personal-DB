@@ -654,15 +654,15 @@ class FileView(MethodView):
                 filter_by(username=current_user.username).scalar()
 
             person_id = add_resume(excel.resume, location_id, 'create')
-            
-            db.session.add(Staff(**excel.staff | {'person_id': person_id}))
-            db.session.add(Document(**excel.document | {'person_id': person_id}))
-            for address in excel.addresses:
-                db.session.add(Address(**address | {'person_id': person_id}))
-            for contact in excel.contacts:
-                db.session.add(Contact(**contact | {'person_id': person_id}))
-            for workplace in excel.workplaces:
-                db.session.add(Workplace(**workplace | {'person_id': person_id}))
+
+            models = [Staff, Document, Address, Contact, Workplace]
+            for count, items in enumerate([[excel.staff], [excel.document], 
+                                   excel.addresses, excel.contacts, 
+                                   excel.workplaces]):
+                for item in items:
+                    if item:
+                        db.session.add(models[count](**item | 
+                                                     {'person_id': person_id}))
             db.session.commit()
 
             person = db.session.query(Person).get(person_id)
