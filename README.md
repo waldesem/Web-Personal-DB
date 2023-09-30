@@ -133,19 +133,63 @@ server {
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
+
+        location /static/ {
+            alias /home/user/DB-Personal-DB/backend/person/;
+            expires 30d;
+        }
     }
 }
 ```
 Add configuration file '/etc/nginx/sites-enabled/econsec' and restart Nginx:
 ```
 sudo ln -s /etc/nginx/sites-available/econsec /etc/nginx/sites-enabled/econsec
-sudo service nginx restart
+sudo service nginx restart  # or sudo service nginx reload
 ```
 Add rule in your firewall:
 ```
 sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
 ```
+
+### Samba Configuration for Opening Files on Windows from Ubuntu Server (not tested yet)
+
+Install Samba on your Linux server if it is not already installed.
+```
+sudo apt install samba
+```
+Open the Samba configuration file using a text editor:
+```
+sudo nano /etc/samba/smb.conf
+```
+In the Samba configuration file, add the following lines to the configuration file to define a share:
+```
+[share_name]
+path = /path/to/share/directory  # See a BASE_PATH from config.py
+writable = yes
+guest ok = no
+valid users = @smbgroup
+create mask = 0664
+directory mask = 0775
+```
+Save the changes to the Samba configuration file and exit the text editor.
+
+Set a password for the Samba user that will have access to the shared directory. 
+You can do this by running the following command, replacing `username` with the desired username:
+```
+sudo smbpasswd -a username
+```
+Restart the Samba service to apply the configuration changes:
+```
+sudo service smbd restart
+```
+
+On your Windows machine, open File Explorer and enter the IP address or hostname of the Linux server in the address bar, using the following format:
+```
+\\server_ip_address
+```
+Replace `server_ip_address` with the actual IP address of your Linux server.
+You will be prompted for to enter a username and password for the Samba user that will have access to the shared directory.
 
 ### Doker (not tested yet)
 To build the docker image run the following command in your terminal:

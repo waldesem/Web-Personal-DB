@@ -134,8 +134,7 @@ class ResumeView(MethodView):
                 except requests.exceptions.RequestException as e:
                     print(e)
             return abort(404)
-        else:
-            return person
+        return person
         
     @r_g.roles_required(Roles.user.name, Roles.api.name)
     @bp.input(PersonSchema)
@@ -708,7 +707,8 @@ class FileView(MethodView):
             for file in files:
                 filename = secure_filename(file.filename)
                 for file in files:
-                    file.save(os.path.join(folder, filename))
+                    file.save(os.path.join(folder, 
+                        f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return '', 201
 
 bp.add_url_rule('/file/<action>/<int:item_id>', 
@@ -717,25 +717,28 @@ bp.add_url_rule('/file/<action>/<int:item_id>',
 
 class InfoView(MethodView):
 
+    def __init__(self) -> None:
+        self.location_id = db.session.query(User.region_id).\
+            filter_by(username=current_user.username).scalar()
+    
     @r_g.group_required(Groups.staffsec.name)
     @bp.doc(hide=True)
     def post(self):
         response = request.get_json()
-        location_id = db.session.query(User.region_id).\
-            filter_by(username=current_user.username).scalar()
+        
         candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
             join(Check, Check.id == Registry.check_id). \
             join(Person, Person.id == Check.person_id).\
             group_by(Registry.decision).\
             filter(Registry.deadline.between(response['start'], response['end']),
                    Person.region_id == int(response['region'])).all()
-        if location_id == 1:
+        if self.location_id == 1:
             pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).\
                 group_by(Poligraf.theme).\
                     filter(Poligraf.deadline.between(response['start'], 
                                                     response['end'])).all()
         return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
                 "poligraf": dict(map(lambda x: (x[1], x[0]), pfo)) 
-                if location_id == 1 else {}}
+                if self.location_id == 1 else {}}
 
 bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
