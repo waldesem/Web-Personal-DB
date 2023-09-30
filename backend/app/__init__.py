@@ -50,7 +50,7 @@ def create_app(config_class=Config):
         """
         if path and os.path.exists(os.path.join(app.static_folder, path)):
             return send_from_directory(app.static_folder, path)
-        else:
-            return app.send_static_file('index.html')
+        
+        return app.send_static_file('index.html')
 
     return app
