@@ -14,17 +14,45 @@ class MessagesView(MethodView):
     decorators = [jwt_required(), bp.doc(hide=True)]
 
     def __init__(self) -> None:
+        """
+        Initializes a new instance of the class.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         self.schema = MessageSchema()
         self.messages = db.session.query(Report).\
             filter(Report.status == Status.new.value, 
                    Report.user_id == current_user.id).all()
 
     def get(self):
+        """
+        Get the serialized representation of the messages.
+
+        Returns:
+            A serialized representation of the messages.
+        """
         return self.schema.dump(self.messages, many=True)
     
     @bp.output(EmptySchema, status_code=204)
     def delete(self):
-        db.session.delete(self.messages)
+        """
+        Deletes the current instance of the resource from the database.
+
+        Args:
+            None
+
+        Returns:
+            str: An empty string indicating a successful deletion.
+
+        Raises:
+            None
+        """
+        for message in self.messages:
+            db.session.delete(message)
         db.session.commit()
         return ''
 

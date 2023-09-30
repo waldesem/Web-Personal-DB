@@ -48,7 +48,8 @@ def get_anketa(json_data):
     resume["request_id"] = resume.pop('id')
     regions = {rgn[1]: rgn[0] for rgn in db.session.query(Region.id, 
                                                           Region.region).all()}
-    division = re.split(r'/', json_data['staff']['department'])
+    
+    division = re.split(r'/', json_data['staff'][0]['department'])
     location_id = [regions.get(key.strip(), 1) for key in division][0]
                   
     person_id = add_resume(resume, location_id, 'api')

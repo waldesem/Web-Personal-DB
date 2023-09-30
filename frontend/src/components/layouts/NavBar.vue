@@ -15,7 +15,7 @@ const storeProfile = appProfile();
           ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' 
           : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
     <div class="container">
-      <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu" aria-controls="offcanvasMenu">
+      <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
         {{ storeLogin.pageIdentity ? storeLogin.pageIdentity.toUpperCase() : '' }}</a>
       <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
