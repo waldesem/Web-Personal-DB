@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { storeContact } from '@/store/contacts';
 import ConnectForm from '@content/forms/ConnectForm.vue';
 
@@ -8,6 +9,11 @@ const contactStore = storeContact();
 
 onBeforeMount(() => {
   contactStore.getContacts()
+});
+
+onBeforeRouteLeave(() => {
+  contactStore.itemAction = '';
+  contactStore.itemId = '';
 });
 
 </script>
@@ -19,7 +25,8 @@ onBeforeMount(() => {
     </div>
     <form @input="contactStore.searchContacts" class="form form-check" role="form">
       <div class="row py-3">
-        <input class="form-control" id="name" name="name" placeholder="Поиск контактов" type="text" v-model="contactStore.searchData">
+        <input class="form-control" id="name" name="name" placeholder="Поиск контактов" type="text" 
+               v-model="contactStore.searchData">
       </div>
     </form>
     <div class="py-3">

@@ -1,6 +1,6 @@
 from apiflask import EmptySchema
-import bcrypt
 from flask import current_app, request
+import bcrypt
 
 from flask_jwt_extended import current_user
 from flask.views import MethodView
@@ -80,7 +80,7 @@ class UserView(MethodView):
                 return db.session.query(User).get(user_id)
             case 'drop':
                 setattr(user, 'password', 
-                        bcrypt.hashpw(current_app.config('DEFAULT_PASSWORD').\
+                        bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD'].\
                                       encode('utf-8'), 
                                       bcrypt.gensalt()))
                 setattr(user, 'pswd_change', None)
@@ -110,7 +110,7 @@ class UserView(MethodView):
                                 region_id = json_data['region_id'],
                                 email = json_data['email'],
                                 password=bcrypt.hashpw(current_app.\
-                                                       config('DEFAULT_PASSWORD').\
+                                                       config['DEFAULT_PASSWORD'].\
                                                         encode('utf-8'), 
                                                        bcrypt.gensalt())))
             db.session.commit()
@@ -292,9 +292,9 @@ class TableView(MethodView):
     def post(self, item, page):
         model = self.mapped_item[item][0]
         schema = self.mapped_item[item][1]
-        json_data = schema.load(request.get_json())
+        json_data = request.get_json()
         query = db.session.query(model).\
-            filter_by(id=json_data['id']).\
+            filter_by(id=int(json_data['id'])).\
             order_by(model.id.desc()).paginate(page=page, 
                                                per_page=self.pagination, 
                                                error_out=False)
@@ -314,14 +314,16 @@ class TableView(MethodView):
             db.session.commit()
             return {'message': 'Patched'}, 201
         
-    @bp.output(EmptySchema, status_code=204)
     def delete(self, item, item_id):
         model = self.mapped_item[item][0]
-        db.session.query(model).filter_by(id=item_id).one_or_none()
+        table = db.session.query(model).filter_by(id=item_id).one_or_none()
+        if table:
+            db.session.delete(table)
+            db.session.commit() 
         return ''
 
 table_view = TableView.as_view('table')
 bp.add_url_rule('/table/<item>/<int:page>', 
                 view_func=table_view, methods=['GET', 'POST'])
-bp.add_url_rule('/table/<item>/<item_id>', 
+bp.add_url_rule('/table/<item>/<int:item_id>', 
                 view_func=table_view, methods=['DELETE', 'PATCH'])

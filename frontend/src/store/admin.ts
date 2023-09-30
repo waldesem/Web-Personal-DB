@@ -177,23 +177,31 @@ export const storeAdmin = defineStore('storeAdmin', () => {
       console.error(error);
       storeAlert.setAlert('alert-danger', 'Ошибка сохранения данных');
     }
+    Object.assign(profileData.value, {
+      fullname: '',
+      username: '',
+      email: '',
+      region_id: '',
+    });
   };
 
   async function addGroupRole(item: string, value: string): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/${item}/${value}/${userData.value.userId}`
-        );
-      console.log(response.status);
-      storeAlert.setAlert('alert-success', 
-                          'Пользователю добавлена роль \
-                          либо он включен в группу');
-      userAction('view', userData.value.userId);
-    
-    } catch (error) {
-      console.error(error);
-      storeAlert.setAlert('alert-danger', 'Ошибка');
-      userAction('view', userData.value.userId);
+    if (value !== '') {
+      try {
+        const response = await storeAuth.axiosInstance.get(
+          `${server}/${item}/${value}/${userData.value.userId}`
+          );
+        console.log(response.status);
+        storeAlert.setAlert('alert-success', 
+                            'Пользователю добавлена роль \
+                            либо он включен в группу');
+        userAction('view', userData.value.userId);
+      
+      } catch (error) {
+        console.error(error);
+        storeAlert.setAlert('alert-danger', 'Ошибка');
+        userAction('view', userData.value.userId);
+      }
     }
   };
 
@@ -236,6 +244,10 @@ export const storeAdmin = defineStore('storeAdmin', () => {
   };
 
   async function searchItem(): Promise<void> {
+    if (tableData.value.searchId === '') {
+      getItem();
+      return
+    }
     try {
       const response = await storeAuth.axiosInstance.post(
         `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`, {
@@ -258,7 +270,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
       const response = await storeAuth.axiosInstance.delete(
         `${server}/table/${tableData.value.table}/${idItem}`);
       console.log(response.status);
-      searchItem();
+      getItem();
     
     } catch (error) {
       console.error(error);
@@ -271,7 +283,7 @@ export const storeAdmin = defineStore('storeAdmin', () => {
         `${server}/table/${item}/${tableData.value.itemId}`
         );
       console.log(response.status);
-      searchItem();
+      getItem();
 
     } catch (error) {
       console.error(error);

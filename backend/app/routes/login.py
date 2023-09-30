@@ -146,9 +146,9 @@ class LoginView(MethodView):
             filter_by(username=json_data['username']).one_or_none()
         if user:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
-                setattr(user, 'password', bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'), 
-                                                        bcrypt.gensalt()))
-                setattr(user, "pswd_change", datetime.now())
+                user.password = bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'), 
+                                                        bcrypt.gensalt())
+                user.pswd_change = datetime.now()
                 db.session.commit()
                 return {'message': 'Authenticated'}
         return {'message': 'Denied'}
@@ -177,6 +177,7 @@ class TokenView(MethodView):
     """Token view"""
 
     @jwt_required(refresh=True)
+    @bp.doc(hide=True)
     def post(self):
         """
         Generate a new access token for the authenticated user.

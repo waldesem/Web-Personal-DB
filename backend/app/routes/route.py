@@ -91,7 +91,7 @@ bp.add_url_rule('/index/<flag>/<int:page>',
 
 class ResumeView(MethodView):
     
-    decorators = [r_g.group_required(Groups.staffsec.name)]
+    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
     @bp.output(PersonSchema)
     @bp.doc(hide=True)
@@ -449,14 +449,14 @@ class CheckView(MethodView):
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         check = db.session.query(Check).get(item_id)
-        db.session.delete(check)
         try:
             shutil.rmtree(check.path)
         except Exception as e:
             print(e)
         person = db.session.query(Person).get(db.session.query(Check.person_id).\
-                                              filter_by(id=item_id).scalar())
+                                              filter_by(id=item_id).one_or_none())
         person.status = Status.update.value
+        db.session.delete(check)
         db.session.commit()
         return ''
     
@@ -656,11 +656,12 @@ class FileView(MethodView):
             person_id = add_resume(excel.resume, location_id, 'create')
 
             models = [Staff, Document, Address, Contact, Workplace]
-            for count, items in enumerate([excel.staff, excel.document, 
+            for count, items in enumerate([excel.staff, excel.passport, 
                                    excel.addresses, excel.contacts, 
                                    excel.workplaces]):
                 for item in items:
                     if item:
+                        print(item)
                         db.session.add(models[count](**item | 
                                                      {'person_id': person_id}))
             db.session.commit()
@@ -700,7 +701,7 @@ class FileView(MethodView):
             item = db.session.query(model).filter_by(id=item_id).scalar()
             folder = item.path
             if not folder:
-                person = db.session.query(Person).get(person_id)
+                person = db.session.query(Person).get(item.person_id)
                 folder = create_folders(person.id, person.fullname, action)
                 item.path = folder
                 db.session.commit()

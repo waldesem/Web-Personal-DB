@@ -15,7 +15,7 @@ export const appLogin = defineStore('appLogin', () => {
   const storeClasses = appClassify();
 
   const action = ref('login');
-  const pageIdentity = ref('login');
+  const pageIdentity = ref('  ');
 
   const userData = ref({
     fullName: '',
@@ -131,8 +131,8 @@ export const appLogin = defineStore('appLogin', () => {
 
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      clearData();
       router.push({ name: 'login' });
+      clearData();
 
     } catch (error) {
       console.error(error)

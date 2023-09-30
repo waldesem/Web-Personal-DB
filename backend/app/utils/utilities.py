@@ -4,7 +4,7 @@ from datetime import datetime
 
 import openpyxl
 from flask import current_app
-from ..models.model import db, Staff, Document, Address, Contact, Workplace, Person
+from ..models.model import db, Person
 from ..models.classes import Status
 from datetime import datetime
 
@@ -21,12 +21,12 @@ class ExcelFile:
             'fullname': self.parse_cell(self.sheet['K3']).title(),
             'previous': self.parse_cell(self.sheet['S3']).title(),
             'birthday': self.parse_date(self.parse_cell(self.sheet['L3'])),
-            'birthplace': str(self.sheet['M3']).strip(),
+            'birthplace': str(self.sheet['M3'].value).strip(),
             'country': self.parse_cell(self.sheet['T3']),
             'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").\
                 replace("-", "")[:11],
             'inn': self.parse_cell(self.sheet['V3'], 12),
-            'education': str(self.sheet['X3']).strip()
+            'education': str(self.sheet['X3'].value).strip()
         }
         self.passport = [{
             'view': 'Паспорт гражданина России',
@@ -38,7 +38,7 @@ class ExcelFile:
             {'view': "Адрес регистрации", 
              'address': self.parse_cell(self.sheet['N3'])},
             {'view': "Адрес проживания", 
-             'address': str(self.sheet['O3']).strip()}
+             'address': str(self.sheet['O3'].value).strip()}
         ]
         self.contacts = [
             {'view': self.parse_cell(self.sheet['Y1']), 
@@ -48,15 +48,15 @@ class ExcelFile:
         ]
         self.workplaces = [
             {
-            'workplace': str(self.sheet[f'AB{i}']).strip(),
-            'address': str(self.sheet[f'AC{i}']).strip(),
-            'position': str(self.sheet[f'AD{i}']).strip()
+            'workplace': str(self.sheet[f'AB{i}'].value).strip(),
+            'address': str(self.sheet[f'AC{i}'].value).strip(),
+            'position': str(self.sheet[f'AD{i}'].value).strip()
             } | self.parse_period(self.sheet[f'AA{i}'].value)
             for i in range(3, 6) if self.sheet[f'AB{i}'].value
         ]
         self.staff = [{
-            'position': str(self.sheet['C3']).strip(),
-            'department': str(self.sheet['D3']).strip
+            'position': str(self.sheet['C3'].value).strip(),
+            'department': str(self.sheet['D3'].value).strip()
         }]
 
     def parse_cell(self, cell, limit=255):

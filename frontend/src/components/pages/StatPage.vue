@@ -2,15 +2,7 @@
 // Компонент для отображения статистики по региону и полиграфу 
 
 import { ref, onBeforeMount } from 'vue';
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale
-} from 'chart.js';
+import {Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale} from 'chart.js';
 import { Bar } from 'vue-chartjs';
 import { appClassify } from '@store/classify';
 import { appAuth } from '@store/token';
@@ -47,7 +39,7 @@ const data = ref({
   labels: Object.keys(stat.value.checks),
   datasets: [
     {
-      label: 'Data One',
+      label: 'Статистика по кандидатам',
       backgroundColor: '#f87979',
       data: Object.values(stat.value.checks)
     }

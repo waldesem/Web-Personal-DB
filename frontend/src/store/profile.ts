@@ -95,7 +95,10 @@ export const appProfile = defineStore('appProfile', () => {
         storeAlert.setAlert('alert-success', 'Анкета отправлена на проверку');
         spinner.value = false
         window.scrollTo(0, 0);
-      };
+      
+      } else if (item === 'check' && action === 'add'){
+          getItem('check', 'get', candId.value);
+      }
 
     } catch (error) {
       console.error(error)

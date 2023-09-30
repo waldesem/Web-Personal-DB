@@ -3,35 +3,9 @@
 
 import { appClassify } from '@store/classify';
 import { appProfile } from '@/store/profile';
-import { ref } from 'vue';
 
 const classifyApp = appClassify();
 const storeProfile = appProfile();
-const notNegative = ref(false)
-
-if (notNegative) {
-  [
-    storeProfile.itemForm.value.workplace,
-    storeProfile.itemForm.value.employee,
-    storeProfile.itemForm.value.document,
-    storeProfile.itemForm.value.inn,
-    storeProfile.itemForm.value.debt,
-    storeProfile.itemForm.value.bankruptcy,
-    storeProfile.itemForm.value.bki,
-    storeProfile.itemForm.value.courts,
-    storeProfile.itemForm.value.affiliation,
-    storeProfile.itemForm.value.terrorist,
-    storeProfile.itemForm.value.mvd,
-    storeProfile.itemForm.value.internet,
-    storeProfile.itemForm.value.cronos,
-    storeProfile.itemForm.value.cros,
-    storeProfile.itemForm.value.addition,
-    storeProfile.itemForm.value.cros,
-    storeProfile.itemForm.value.cros,
-  ].forEach((item) => {
-    item.value = 'Негативной информации не выявлено'
-  })
-};
 
 </script>
 
@@ -39,16 +13,6 @@ if (notNegative) {
   <div class="py-3">
 
     <template v-if="storeProfile.action === 'update' && storeProfile.flag === 'check'">
-      
-      <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-          <div class="mb-3 form-check">
-            <input class="form-check-input" id="ok" name="ok" 
-                   v-model="notNegative" type="checkbox">
-            <label class="form-check-label" for="ok">Негатива нет</label>
-          </div>
-        </div>
-      </div>
 
       <form @submit.prevent="storeProfile.updateItem" 
           class="form form-check" role="form"  id="checkFormId">
@@ -235,7 +199,7 @@ if (notNegative) {
             <th v-if="!storeProfile.printPdf">
               <a href="#" :disabled="classifyApp.status 
                             && (storeProfile.anketa.resume['status'] === classifyApp.status['finish'])" 
-                          @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].toString(), 'check')"
+                          @click="storeProfile.deleteItem('check', 'delete',tbl['id' as keyof typeof tbl].toString(), )"
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;

@@ -40,8 +40,8 @@ class ContactsView(MethodView):
         return [schema.dump(query, many=True), 
                 {'has_next': int(query.has_next)}, 
                 {'has_prev': int(query.has_prev)}, 
-                {'companies': [company[0] for company in datalist]},  
-                {'cities': [city[1] for city in datalist]}]
+                {'companies': list({company[0] for company in datalist})},  
+                {'cities': list({city[1] for city in datalist})}]
     
 bp.add_url_rule('/connects/<group>/<int:item>', view_func=ContactsView.as_view('connects'))
 
