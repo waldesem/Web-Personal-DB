@@ -40,11 +40,11 @@ const data = ref({
   datasets: [
     {
       label: 'Статистика по кандидатам',
-      backgroundColor: '#f87979',
       data: Object.values(stat.value.checks)
     }
   ]
 });
+
 
 const options = {
   responsive: true,
@@ -75,21 +75,24 @@ async function submitData(): Promise<void> {
     <div class="py-5">
       <h4>Статистика по региону {{ header }} за период c {{ stat.start }} по {{ stat.end }}</h4>
     </div>
+    
+    <div>
+      <Bar :data="data" :options="options" />
+    </div>
+    
     <div v-for="(tbl, index) in [stat.checks, stat.pfo]" :key="index" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <caption>{{captions[index]}}</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>
         <tbody>
           <tr height="50px" v-for="(value, name, index) in tbl" :key="index">
-            <td >{{value}}</td><td>{{name}}</td>
+            <td >{{name}}</td><td>{{value}}</td>
           </tr>
         </tbody>
       </table>
     </div>
     
-    <div>
-      <Bar :data="data" :options="options" />
-    </div>
+
 
     <div class="py-3">
       <form @submit.prevent="submitData" class="form form-check" role="form">

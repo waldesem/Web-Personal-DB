@@ -744,8 +744,8 @@ class InfoView(MethodView):
                 group_by(Poligraf.theme).\
                     filter(Poligraf.deadline.between(response['start'], 
                                                     response['end'])).all()
-        return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates)),
-                "poligraf": dict(map(lambda x: (x[1], x[0]), pfo)) 
-                if self.location_id == 1 else {}}
+        print(candidates)
+        return {"candidates": dict(candidates),
+                "poligraf": dict(pfo) if self.location_id == 1 else {}}
 
 bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
