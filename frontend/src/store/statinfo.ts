@@ -1,13 +1,32 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import {Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale} from 'chart.js';
 import { appClassify } from '@store/classify';
 import { appAuth } from '@store/token';
 import server from '@store/server';
+import {
+  Chart as ChartJS, 
+  Title, 
+  Tooltip, 
+  Legend, 
+  BarElement, 
+  CategoryScale, 
+  LinearScale,
+  PointElement, 
+  LineElement
+} from 'chart.js';
 
 export const storeStatinfo = defineStore('storeStatinfo', () => {
   
-  ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+  ChartJS.register(
+    CategoryScale, 
+    LinearScale, 
+    BarElement,
+    PointElement, 
+    LineElement, 
+    Title, 
+    Tooltip, 
+    Legend
+    );
 
   const storeClassify = appClassify();
   const storeAuth = appAuth();

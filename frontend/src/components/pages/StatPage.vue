@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import { computed, onBeforeMount } from 'vue';
-import { Bar } from 'vue-chartjs';
+import { computed, onBeforeMount, ref } from 'vue';
+import { Bar, Line } from 'vue-chartjs';
 import { storeStatinfo } from '@/store/statinfo';
 import { appClassify } from '@/store/classify';
 
@@ -9,6 +9,7 @@ const storeStat = storeStatinfo();
 const storeClassify = appClassify();
 
 const captions = ['Статистика по кандидатам', 'Статистика по полиграфу'];
+const chartRadio = ref('bar');
 
 // Отправка запроса на сервер перед монтированием компонента
 onBeforeMount(async () => {
@@ -28,8 +29,23 @@ computed(() => {
       <h4>Статистика по региону {{ storeStat.header }} за период c {{ storeStat.stat.start }} по {{ storeStat.stat.end }}</h4>
     </div>
     
-    <div>
+    <div class="form form-check" role="form">
+      <input class="form-check-input" type="radio" id="bar" name="bar"
+        v-model="chartRadio" value="bar">
+      <label class="form-check-label" for="chart">Гистограмма</label>
+    </div>
+    <div class="form form-check" role="form">
+      <input class="form-check-input" type="radio" id="line" name="line"
+        v-model="chartRadio" value="line">
+      <label class="form-check-label" for="table">Линейный график</label>
+    </div>
+
+    <div v-if="chartRadio === 'bar'">
       <Bar v-if="storeStat.loaded" :data="storeStat.chartData" :options="storeStat.chartOptions" />
+    </div>
+    
+    <div v-if="chartRadio === 'line'">
+      <Line v-if="storeStat.loaded" :data="storeStat.chartData" :options="storeStat.chartOptions" />
     </div>
     
     <div v-for="(tbl, index) in [storeStat.stat.checks, storeStat.stat.pfo]" :key="index" class="py-3">
