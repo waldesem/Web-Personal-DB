@@ -744,7 +744,6 @@ class InfoView(MethodView):
                 group_by(Poligraf.theme).\
                     filter(Poligraf.deadline.between(response['start'], 
                                                     response['end'])).all()
-        print(candidates)
         return {"candidates": dict(candidates),
                 "poligraf": dict(pfo) if self.location_id == 1 else {}}
 
