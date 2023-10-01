@@ -35,7 +35,7 @@ def verify_password(username: str, password: str):
 @bp.post('/api/v1/anketa')
 @bp.auth_required(auth)
 @bp.input(AnketaSchemaApi)
-def get_anketa(json_data):
+def anketa_in(json_data):
     """
     Take a new anketa.
     Parameters:
@@ -80,13 +80,13 @@ def check_in(json_data):
     Parameters:
     - response: A dictionary containing the response data from the client.
     Returns:
-    - An empty string and a status code of 200 indicating a successful check-in.
+    - An empty string and a status code of 201 indicating a successful check-in.
     """
     candidate = db.session.query(Person).get(json_data['id'])
     del json_data['id']
     latest_check = db.session.query(Check).filter_by(person_id=candidate.id).\
         order_by(Check.id.desc()).first()
-    user = db.session.query(User).filter_by(username=latest_check.officer).one_or_none()
+    user = db.session.query(User).filter_by(fullname=latest_check.officer).one_or_none()
     
     if candidate.status == Status.robot.value:
         if os.path.isdir(json_data['path']):
@@ -98,12 +98,12 @@ def check_in(json_data):
             except FileNotFoundError as error:
                 db.session.add(Report(report=f'{error}', user_id=user.id))
             
-            for k, v in json_data.items():
-                setattr(latest_check, k, v)
-            db.session.add(Report(report=f'Проверка кандидата \
-                                  {candidate.fullname} окончена', user_id=user.id))
-            candidate.status = Status.reply.value
-            db.session.commit()   
+        for k, v in json_data.items():
+            setattr(latest_check, k, v)
+        db.session.add(Report(report=f'Проверка кандидата \
+                                {candidate.fullname} окончена', user_id=user.id))
+        candidate.status = Status.reply.value
+        db.session.commit()   
 
     else:
         db.session.add(Report(report=f'Результат проверки \

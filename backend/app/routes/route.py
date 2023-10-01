@@ -717,12 +717,12 @@ bp.add_url_rule('/file/<action>/<int:item_id>',
 
 class InfoView(MethodView):
 
+    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
+
     def __init__(self) -> None:
         self.location_id = db.session.query(User.region_id).\
             filter_by(username=current_user.username).scalar()
     
-    @r_g.group_required(Groups.staffsec.name)
-    @bp.doc(hide=True)
     def post(self):
         response = request.get_json()
         
@@ -732,7 +732,14 @@ class InfoView(MethodView):
             group_by(Registry.decision).\
             filter(Registry.deadline.between(response['start'], response['end']),
                    Person.region_id == int(response['region'])).all()
+        
         if self.location_id == 1:
+            candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
+                join(Check, Check.id == Registry.check_id). \
+                join(Person, Person.id == Check.person_id).\
+                group_by(Registry.decision).\
+                filter(Registry.deadline.between(response['start'], response['end'])).all()
+            
             pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).\
                 group_by(Poligraf.theme).\
                     filter(Poligraf.deadline.between(response['start'], 

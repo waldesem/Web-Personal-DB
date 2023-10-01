@@ -68,7 +68,6 @@ async function submitData(): Promise<void> {
   stat.value.pfo = poligraf
 };
 
-
 </script>
 
 <template>

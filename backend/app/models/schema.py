@@ -175,4 +175,5 @@ class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Check
         ordered = True
-        exclude = ('pfo', 'comments', 'conclusion', 'officer', 'deadline',)
+        exclude = ('workplace', 'internet', 'cronos', 'cros', 'addition', 
+                   'pfo', 'comments', 'conclusion', 'officer', 'deadline',)
