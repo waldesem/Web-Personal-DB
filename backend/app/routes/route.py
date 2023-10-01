@@ -8,7 +8,7 @@ from apiflask import abort, EmptySchema
 from flask import request, current_app
 from flask.views import MethodView
 from flask_jwt_extended import current_user
-from sqlalchemy import func
+from sqlalchemy import extract, func
 from werkzeug.utils import secure_filename
 
 from . import bp
@@ -718,33 +718,36 @@ bp.add_url_rule('/file/<action>/<int:item_id>',
 class InfoView(MethodView):
 
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
-
-    def __init__(self) -> None:
-        self.location_id = db.session.query(User.region_id).\
-            filter_by(username=current_user.username).scalar()
     
     def post(self):
         response = request.get_json()
         
-        candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
+        candidates = db.session.query(
+                extract('month', Registry.deadline).label('month'),
+                Registry.decision, 
+                func.count(Registry.id)
+            ).\
             join(Check, Check.id == Registry.check_id). \
             join(Person, Person.id == Check.person_id).\
             group_by(Registry.decision).\
             filter(Registry.deadline.between(response['start'], response['end']),
                    Person.region_id == int(response['region'])).all()
+    
+        pfo = db.session.query(
+                extract('month', Registry.deadline).label('month'),
+                Poligraf.theme, 
+                func.count(Poligraf.id)).\
+            group_by(Poligraf.theme).\
+            filter(Poligraf.deadline.between(response['start'], 
+                                             response['end'])).all()
         
-        if self.location_id == 1:
-            candidates = db.session.query(Registry.decision, func.count(Registry.id)).\
-                join(Check, Check.id == Registry.check_id). \
-                join(Person, Person.id == Check.person_id).\
-                group_by(Registry.decision).\
-                filter(Registry.deadline.between(response['start'], response['end'])).all()
-            
-            pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).\
-                group_by(Poligraf.theme).\
-                    filter(Poligraf.deadline.between(response['start'], 
-                                                    response['end'])).all()
-        return {"candidates": dict(candidates),
-                "poligraf": dict(pfo) if self.location_id == 1 else {}}
+        return {"candidates": [
+                    {'month': row[0], 'decision': row[1], 'count': row[2]}
+            for row in candidates
+            ],
+                "poligraf": [
+                    {'month': row[0], 'decision': row[1], 'count': row[2]}
+            for row in pfo
+            ]}
 
 bp.add_url_rule('/information', view_func=InfoView.as_view('information'))

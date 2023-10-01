@@ -43,7 +43,11 @@ export const storeStatinfo = defineStore('storeStatinfo', () => {
   const todayDate = new Date();
   const header = ref('');
   const loaded = ref(false);
-  const chartData = ref<ChartInterface>({
+  const barData = ref<ChartInterface>({
+    labels: [],
+    datasets: []
+  });
+  const lineData = ref<ChartInterface>({
     labels: [],
     datasets: []
   });
@@ -55,8 +59,8 @@ export const storeStatinfo = defineStore('storeStatinfo', () => {
 
   const stat = ref({
     region: 1,
-    checks: {}, 
-    pfo: {},
+    checks: [], 
+    pfo: [],
     start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toISOString().slice(0,10),
     end: todayDate.toISOString().slice(0,10)
   });
@@ -74,22 +78,39 @@ export const storeStatinfo = defineStore('storeStatinfo', () => {
     const { candidates, poligraf } = response.data;
     header.value = storeClassify.regions[stat.value.region];
     
-    stat.value.checks = candidates;
     stat.value.pfo = poligraf;
+    stat.value.checks = candidates;
 
-    chartData.value = {
-      labels: Object.keys(stat.value.checks) as string[],
+    const decisions = [...new Set(stat.value.checks.map(result => result['decision']))];
+
+    barData.value = {
+      labels: decisions,
       datasets: [
         {
-          label: 'Статистика по кандидатам',
+          label: 'Решения по кандидатам',
           backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'], 
-          data: Object.values(stat.value.checks) as number[]
+          data: stat.value.checks.filter(result => 
+            result['decision']).map(result => result['count'])
         }
       ]
+    };
+
+    lineData.value = {
+      labels: stat.value.checks.map(result => result['month']),
+      datasets: decisions.map((decision) => {
+        return {
+          label: decision,
+          data: stat.value.checks.filter(result => 
+            result['decision'] === decision).map(result => result['count']),
+          borderColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
+          backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
+          fill: false
+        };
+      })
     };
 
     loaded.value = true;
   };
 
-    return {loaded, stat, chartData, chartOptions, header, submitData }
+    return {loaded, stat, barData, lineData, chartOptions, header, submitData }
   });

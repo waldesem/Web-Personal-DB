@@ -4,11 +4,12 @@ import { computed, onBeforeMount, ref } from 'vue';
 import { Bar, Line } from 'vue-chartjs';
 import { storeStatinfo } from '@/store/statinfo';
 import { appClassify } from '@/store/classify';
+import { appLogin } from '@store/login';
 
 const storeStat = storeStatinfo();
 const storeClassify = appClassify();
+const storeLogin = appLogin();
 
-const captions = ['Статистика по кандидатам', 'Статистика по полиграфу'];
 const chartRadio = ref('bar');
 
 // Отправка запроса на сервер перед монтированием компонента
@@ -41,19 +42,31 @@ computed(() => {
     </div>
 
     <div v-if="chartRadio === 'bar'">
-      <Bar v-if="storeStat.loaded" :data="storeStat.chartData" :options="storeStat.chartOptions" />
+      <Bar v-if="storeStat.loaded" :data="storeStat.barData" :options="storeStat.chartOptions" />
     </div>
     
     <div v-if="chartRadio === 'line'">
-      <Line v-if="storeStat.loaded" :data="storeStat.chartData" :options="storeStat.chartOptions" />
+      <Line v-if="storeStat.loaded" :data="storeStat.lineData" :options="storeStat.chartOptions" />
     </div>
-    
-    <div v-for="(tbl, index) in [storeStat.stat.checks, storeStat.stat.pfo]" :key="index" class="py-3">
+
+    <div class="py-3">
       <table class="table table-hover table-responsive align-middle">
-        <caption>{{captions[index]}}</caption>
+        <caption>Статистика по кандидатам</caption>
+        <thead><tr><th width="45%">Решение</th><th>Количество</th></tr></thead>
+        <tbody>
+          <tr height="50px" v-for="(value, name, index) in storeStat.stat.checks" :key="index">
+            <td >{{name}}</td><td>{{value}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-if="storeLogin.userData.region_id === '1'" class="py-3">
+      <table class="table table-hover table-responsive align-middle">
+        <caption>Статистика по полиграфу</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in tbl" :key="index">
+          <tr height="50px" v-for="(value, name, index) in storeStat.stat.pfo" :key="index">
             <td >{{name}}</td><td>{{value}}</td>
           </tr>
         </tbody>
@@ -65,8 +78,12 @@ computed(() => {
           <div class="mb-3 row required">
             <label class="col-form-label col-md-2" for="region">Регион</label>
             <div class="col-md-2">
-              <select class="form-select" id="region" name="region" v-model="storeStat.stat.region">
-                <option value="" selected>Выберите регион</option>
+              <select :disabled="storeLogin.userData.region_id !== '1'"
+                      @change="storeStat.submitData()" 
+                      class="form-select" id="region" name="region" 
+                      v-model="storeStat.stat.region">
+                <option :value="storeLogin.userData.region_id" selected>
+                  {{ storeClassify.regions[storeLogin.userData.region_id] }}</option>
                 <option v-for="name, value in storeClassify.regions" :key="value" 
                     :value="value">{{name}}</option>                
               </select>

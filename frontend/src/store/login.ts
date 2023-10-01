@@ -15,13 +15,14 @@ export const appLogin = defineStore('appLogin', () => {
   const storeClasses = appClassify();
 
   const action = ref('login');
-  const pageIdentity = ref('  ');
+  const pageIdentity = ref('');
 
   const userData = ref({
     fullName: '',
     userName: '',
     userRoles: [],
-    userGroups: []
+    userGroups: [],
+    region_id: '',
   });
   
   const loginData = ref({
@@ -40,7 +41,8 @@ export const appLogin = defineStore('appLogin', () => {
         fullName: userResponse['fullname'],
         userName: userResponse['username'],
         userRoles: userResponse['roles'],
-        userGroups: userResponse['groups']
+        userGroups: userResponse['groups'],
+        region_id: userResponse['region_id'],
       });
 
       hasRole('admin')
