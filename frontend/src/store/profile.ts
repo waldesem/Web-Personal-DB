@@ -45,6 +45,11 @@ export const appProfile = defineStore('appProfile', () => {
         return
       };
     };
+    if (item === 'check' && action === 'self'){
+      if (!confirm('Вы действительно делегировать анкету себе?')) {
+      return
+      };
+    };
     try {
       const response = await storeAuth.axiosInstance.get(
         `${server}/${item}/${action}/${id}`
@@ -96,7 +101,7 @@ export const appProfile = defineStore('appProfile', () => {
         spinner.value = false
         window.scrollTo(0, 0);
       
-      } else if (item === 'check' && action === 'add'){
+      } else if (item === 'check' && (action === 'add' || action === 'self')){
           getItem('check', 'get', candId.value);
       }
 
@@ -241,7 +246,7 @@ export const appProfile = defineStore('appProfile', () => {
       storeAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
     }
   };
-
+  
   /**
    * Cancels the check.
    *

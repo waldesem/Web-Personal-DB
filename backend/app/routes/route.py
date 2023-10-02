@@ -417,7 +417,19 @@ class CheckView(MethodView):
                                         person_id = item_id))
                 db.session.commit()
                 return '', 201
-
+        
+        if action == 'self':
+            check = db.session.query(Check).get(item_id)
+            prev_officer = db.session.query(User).filter_by(fullname=check.officer).one_or_none()
+            new_officer = db.session.query(User).filter_by(fullname=current_user.fullname).one_or_none()
+            db.session.add(Report(report=f'Aнкета ID #{id} делегирована \
+                                  {current_user.fullname}', user_id=prev_officer.id))
+            check.officer = current_user.fullname
+            db.session.add(Report(report=f'Aнкета ID #{id} переделегирована \
+                                  {current_user.fullname}', user_id=new_officer.id))
+            db.session.commit()
+            return '', 201
+                
         schema = CheckSchema()
         return schema.dump(db.session.query(Check).\
                            filter_by(person_id=item_id).\
