@@ -3,9 +3,11 @@
 
 import { appClassify } from '@store/classify';
 import { appProfile } from '@/store/profile';
+import { appLogin } from '@store/login';
 
 const classifyApp = appClassify();
 const storeProfile = appProfile();
+const storeLogin = appLogin();
 
 </script>
 
@@ -199,14 +201,15 @@ const storeProfile = appProfile();
             <th v-if="!storeProfile.printPdf">
               <a href="#" :disabled="classifyApp.status 
                             && (storeProfile.anketa.resume['status'] === classifyApp.status['finish'])" 
-                          @click="storeProfile.deleteItem('check', 'delete',tbl['id' as keyof typeof tbl].toString(), )"
+                          @click="storeProfile.deleteItem('check', 'delete', tbl['id' as keyof typeof tbl].toString())"
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;
               <a href="#" :disabled="classifyApp.status 
                             && (storeProfile.anketa.resume['status'] !== classifyApp.status['save'] 
                             && storeProfile.anketa.resume['status'] !== classifyApp.status['cancel'] 
-                            && storeProfile.anketa.resume['status'] !== classifyApp.status['manual'])" 
+                            && storeProfile.anketa.resume['status'] !== classifyApp.status['manual'])
+                            || storeLogin.userData.region_id !== '1'" 
                           @click="storeProfile.action = 'update'; 
                                   storeProfile.flag = 'check';
                                   storeProfile.itemId = tbl['id' as keyof typeof tbl].toString(); 

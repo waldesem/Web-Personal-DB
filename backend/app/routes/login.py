@@ -121,7 +121,7 @@ class LoginView(MethodView):
                             'refresh_token': create_refresh_token(identity=user.username)}
                 return {'message': 'Overdue'}
             else:
-                if user.attempt < 4:
+                if user.attempt < 9:
                     user.attempt = user.attempt+1
                 else:
                     user.blocked = True

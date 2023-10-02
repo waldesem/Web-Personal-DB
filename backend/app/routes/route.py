@@ -21,7 +21,7 @@ from ..models.model import User, Person, Staff, Document, Address, Contact, \
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema,\
-    WorkplaceSchema
+    WorkplaceSchema, ProfileSchema
 from ..models.classes import Category, Roles, Groups, Status
 
 
@@ -89,12 +89,39 @@ bp.add_url_rule('/index/<flag>/<int:page>',
                 view_func=IndexView.as_view('index'))
 
 
+class ProfileView(MethodView):
+    
+    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
+    
+    @bp.output(ProfileSchema)
+    def get(self, action, itemm_id):
+        resume = db.session.query(Person).get(itemm_id)
+        staffs, docs, addrs, conts, works, rels, checks, regs, pfos, invs, inqs = \
+            [db.session.query(model).filter_by(person_id=itemm_id).all() 
+                 for model in [Staff, Document, Address, Contact, Workplace, 
+                               Relation, Check, Registry, Poligraf, 
+                               Investigation, Inquiry]]
+        return {'resume': resume, 
+                'staffs': staffs, 
+                'documents': docs, 
+                'addresses': addrs, 
+                'contacts': conts, 
+                'workplaces': works, 
+                'relations': rels, 
+                'checks': checks, 
+                'registries': regs, 
+                'pfos': pfos, 'invs': invs, 
+                'inquiries': inqs}
+    
+bp.add_url_rule('/profile/<action>/<int:itemm_id>>', 
+                view_func=ProfileView.as_view('profile'))
+
+
 class ResumeView(MethodView):
     
     decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
     
     @bp.output(PersonSchema)
-    @bp.doc(hide=True)
     def get(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         if action == 'status':
@@ -146,7 +173,6 @@ class ResumeView(MethodView):
     
     @r_g.roles_required(Roles.user.name)
     @bp.input(PersonSchema)
-    @bp.doc(hide=True)
     def patch(self, action, person_id, json_data):
         person = db.session.query(Person).get(person_id)
         person.region_id = json_data['region_id']
@@ -161,7 +187,6 @@ class ResumeView(MethodView):
         
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
-    @bp.doc(hide=True)
     def delete(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         try:

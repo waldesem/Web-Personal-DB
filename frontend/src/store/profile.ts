@@ -24,13 +24,6 @@ export const appProfile = defineStore('appProfile', () => {
   const spinner = ref(false);
   const printPdf = ref(false);
 
-  async function getProfile() {
-    await Promise.all([
-      ['resume', 'staff', 'document', 'address',
-    'contact', 'workplace', 'relation', 'check', 'registry',
-    'poligraf', 'investigation', 'inquiry'].map(async (item) => await getItem(item))
-    ]);
-  };
 
   async function getItem(
     item: string, action: string = 'get', id: string = candId.value
@@ -89,7 +82,25 @@ export const appProfile = defineStore('appProfile', () => {
            inquisition.value = response.data;
            break;
         case 'inquiry': 
-          needs.value = response.data
+          needs.value = response.data;
+          break;
+        default:
+          const {resumeResp, staffResp, docsResp, addrResp,
+            contResp, worksResp, relResp, checkResp, regResp, 
+            pfoResp, invsResp, inqResp } = response.data
+
+          anketa.value.resume = resumeResp;
+          anketa.value.staffs = staffResp;
+          anketa.value.docums = docsResp;
+          anketa.value.addrs = addrResp;
+          anketa.value.conts = contResp;
+          anketa.value.works = worksResp;
+          anketa.value.relate = relResp;
+          verification.value = checkResp;
+          register.value = regResp;
+          pfo.value = pfoResp;
+          inquisition.value = invsResp;
+          needs.value = inqResp;
           break;
       };
 
@@ -293,6 +304,6 @@ export const appProfile = defineStore('appProfile', () => {
     candId, anketa, verification, register, pfo, inquisition, needs, 
     flag, action, itemForm, itemId, spinner, printPdf,
     getItem, submitResume, submitFile, clearItem, cancelEdit,
-    redirectMain, updateItem, deleteItem, cancelCheck, getProfile
+    redirectMain, updateItem, deleteItem, cancelCheck
   };
 })

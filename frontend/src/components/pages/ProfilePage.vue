@@ -19,7 +19,7 @@ storeProfile.candId = route.params.id as string;
 
 
 onBeforeMount(() => {
-  storeProfile.getProfile();
+  storeProfile.getItem('profile');
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
