@@ -705,7 +705,8 @@ class FileView(MethodView):
                 'check': Check,
                 'investigation': Investigation,
                 'poligraf': Poligraf,
-                'inquiry': Inquiry
+                'inquiry': Inquiry,
+                'image': Person
             }
             files = request.files.getlist('file')
             model = model_mapping.get(action)

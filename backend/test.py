@@ -126,11 +126,12 @@ if __name__ == '__main__':
     password='88888888'
     server='http://127.0.0.1:5000'
 
-    # for _ in range(10):
-    # anketa_test = AnketaTest()
-    #     anketa_test.test_api_anketa(username, password)
+    for _ in range(10):
+        anketa_test = AnketaTest()
+        anketa_test.test_api_anketa(username, password)
 
-    for person_id in range(6, 16):
+    id_list = []
+    for person_id in id_list:
         check_test = CheckTest()
         check_test.test_api_check(username, password, person_id)
 
