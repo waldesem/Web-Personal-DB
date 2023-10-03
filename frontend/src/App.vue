@@ -2,12 +2,12 @@
 
 import { onBeforeMount, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { appLogin } from '@/store/login';
+import { loginStore } from '@/store/login';
 import FooterDiv from '@layouts/FooterDiv.vue';
 import AlertMessage from '@layouts/AlertMessage.vue';
 import NavBar from '@layouts/NavBar.vue';
 
-const storeLogin = appLogin();
+const storeLogin = loginStore();
 const route = useRoute();
 
 watch(() => route.params.group,

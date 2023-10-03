@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { appAuth } from '@/store/token';
+import { authStore } from '@/store/token';
 import server from '@/store/server';
 import axios from 'axios';
 import App from '@/App.vue';
@@ -87,7 +87,7 @@ router.beforeEach(async (to, _from, next) => {
   const refresh_token = localStorage.getItem('refresh_token');
   const access_token = localStorage.getItem('access_token');
 
-  const storeAuth = appAuth()
+  const storeAuth = authStore()
 
   if (to.name !== 'login') {
     if (refresh_token) {

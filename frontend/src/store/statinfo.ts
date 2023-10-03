@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { appClassify } from '@store/classify';
-import { appAuth } from '@store/token';
+import { classifyStore } from '@store/classify';
+import { authStore } from '@store/token';
 import server from '@store/server';
 import {
   Chart as ChartJS, 
@@ -15,7 +15,7 @@ import {
   LineElement
 } from 'chart.js';
 
-export const storeStatinfo = defineStore('storeStatinfo', () => {
+export const statStore = defineStore('statStore', () => {
   
   ChartJS.register(
     CategoryScale, 
@@ -28,8 +28,8 @@ export const storeStatinfo = defineStore('storeStatinfo', () => {
     Legend
     );
 
-  const storeClassify = appClassify();
-  const storeAuth = appAuth();
+  const storeClassify = classifyStore();
+  const storeAuth = authStore();
 
   interface ChartInterface {
     labels: string[];

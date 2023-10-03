@@ -2,14 +2,14 @@
 // Компонент страницы профиля пользователя
 
 import { computed, onBeforeMount } from 'vue';
-import { appClassify } from '@store/classify';
+import { classifyStore } from '@store/classify';
 import { storeAdmin } from '@store/admin';
 import { useRoute } from 'vue-router';
 import UserForm from '@content/forms/UserForm.vue'
 
 const route = useRoute();
 const adminStore = storeAdmin();
-const storeClassify = appClassify();
+const storeClassify = classifyStore();
 
 adminStore.userData.userId = route.params.id as string;
 

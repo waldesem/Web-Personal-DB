@@ -1,12 +1,12 @@
 <script setup lang="ts">
 
 import { computed, onBeforeMount } from 'vue';
-import { appPersons } from '@/store/persons';
-import { appClassify } from '@store/classify';
+import { personStore } from '@/store/persons';
+import { classifyStore } from '@store/classify';
 import router from '@/router/router';
 
-const storePersons = appPersons();
-const storeClassify = appClassify();
+const storePersons = personStore();
+const storeClassify = classifyStore();
 
 onBeforeMount(() => {
   storePersons.getCandidates();
@@ -68,8 +68,9 @@ function openLink(cand_id: number){
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="candidate in storePersons.personData.candidates" 
-              :key="candidate.id" @click="openLink(candidate.id)">
+          <tr v-for="candidate in storePersons.personData.candidates" 
+              :key="candidate.id" @click="openLink(candidate.id)" 
+              data-href='#' height="50px">
             <td>{{ candidate["id"] }}</td>
             <td>{{ storeClassify.regions[candidate.region_id] }}</td>
             <td>{{ candidate.fullname }}</td>
@@ -84,13 +85,23 @@ function openLink(cand_id: number){
       <nav v-if="storePersons.personData.has_prev || storePersons.personData.has_next">
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !storePersons.personData.has_prev }">
-            <a class="page-link" href="#" v-on:click.prevent="storePersons.prevPage">Предыдущая</a>
+            <a class="page-link" href="#" v-on:click.prevent="storePersons.prevPage">
+              Предыдущая
+            </a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !storePersons.personData.has_next }">
-            <a class="page-link" href="#" v-on:click.prevent="storePersons.nextPage">Следующая</a>
+            <a class="page-link" href="#" v-on:click.prevent="storePersons.nextPage">
+              Следующая
+            </a>
           </li>
         </ul>
       </nav>
     </div>
   </div>
 </template>
+
+<style>
+.data-href {
+  cursor: pointer;
+}
+</style>

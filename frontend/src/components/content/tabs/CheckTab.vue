@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // компонент для отображения и редактирования проверок кандидата
 
-import { appClassify } from '@store/classify';
-import { appProfile } from '@/store/profile';
-import { appLogin } from '@store/login';
+import { classifyStore } from '@store/classify';
+import { profileStore } from '@/store/profile';
+import { loginStore } from '@store/login';
 
-const classifyApp = appClassify();
-const storeProfile = appProfile();
-const storeLogin = appLogin();
+const classifyApp = classifyStore();
+const storeProfile = profileStore();
+const storeLogin = loginStore();
 
 </script>
 

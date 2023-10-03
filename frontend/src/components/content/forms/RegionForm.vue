@@ -1,12 +1,12 @@
 <script setup lang="ts">
 // компонент для отображения модального окна
 
-import { appClassify } from '@/store/classify';
-import { appProfile } from '@/store/profile';
+import { classifyStore } from '@/store/classify';
+import { profileStore } from '@/store/profile';
 
-const storeClassify = appClassify();
+const storeClassify = classifyStore();
 
-const storeProfile = appProfile();
+const storeProfile = profileStore();
 
 </script>
 

@@ -1,12 +1,42 @@
 <script setup lang="ts">
 
-import { appMessages } from '@/store/messages';
-import { appLogin } from '@/store/login';
-import { appProfile } from '@/store/profile';
+import { ref } from 'vue';
+import { authStore } from '@/store/token';
+import { loginStore } from '@/store/login';
+import { profileStore } from '@/store/profile';
+import server from '@/store/server';
 
-const storeMessages = appMessages();
-const storeLogin = appLogin();
-const storeProfile = appProfile();
+const storeAuth = authStore();
+const storeLogin = loginStore();
+const storeProfile = profileStore();
+
+const messages = ref([]);
+
+// Получение списка сообщений после монтирования компонента и обновление каждые 10 минут
+let isStarted = false;
+if (!isStarted) {
+  updateMessage();
+  isStarted = true;
+  setInterval(updateMessage, 1000000);
+};
+
+/**
+ * Updates the messages based on the provided flag ('new' or 'reply').
+ *
+ * @param {string} flag - The flag to determine which messages to update. Default is 'new'.
+ * @return {Promise<void>} - A promise that resolves when the message is successfully updated.
+ */
+async function updateMessage(flag: string = 'new'): Promise<void> {
+  try {
+    const response = flag === 'new' 
+      ? await storeAuth.axiosInstance.get(`${server}/messages`)
+      : await storeAuth.axiosInstance.delete(`${server}/messages`);
+    messages.value = response.data;
+      
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 </script>
 
@@ -51,23 +81,24 @@ const storeProfile = appProfile();
             </li>
           </template>
 
-          <li v-if="!['login', 'admins', undefined].includes(storeLogin.pageIdentity)" class="nav-item">
+          <li v-if="!['login', 'admins', undefined].includes(storeLogin.pageIdentity)" 
+                class="nav-item">
             <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}" 
                 class="nav-link active">
               Контакты</router-link>
           </li>
 
-          <li v-if="storeMessages.messages.length && storeLogin.pageIdentity !== 'login'" 
+          <li v-if="messages.length && storeLogin.pageIdentity !== 'login'" 
               class="nav-item dropdown">
             <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
               <i class="bi bi-envelope-fill"></i>
               <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
-                {{ storeMessages.messages.length }}
+                {{ messages.length }}
               </span>
             </a>
               <ul class="dropdown-menu">
                 <h6 class="dropdown-header">Новые сообщения</h6>
-                <li v-for="message in storeMessages.messages" :key="message['id']">
+                <li v-for="message in messages" :key="message['id']">
                   <a class="dropdown-item">
                     <p>{{ `${new Date(message['create']).toLocaleString('ru-RU')}:`}}</p>
                     <p>{{ message['report'] }}</p>
@@ -76,7 +107,7 @@ const storeProfile = appProfile();
                 <div class="dropdown-divider"></div>
                 <li>
                   <a class="dropdown-item" href="#" 
-                    @click="storeMessages.updateMessage('reply')">Очистить</a>
+                    @click="updateMessage('reply')">Очистить</a>
                 </li>
               </ul>
           </li>
@@ -102,7 +133,9 @@ const storeProfile = appProfile();
 
   <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasLabel">Деператамент экономической безопасности</h5>
+      <h5 class="offcanvas-title" id="offcanvasLabel">
+        Деператамент экономической безопасности
+      </h5>
     </div>
     <div class="offcanvas-body">
         <ul>

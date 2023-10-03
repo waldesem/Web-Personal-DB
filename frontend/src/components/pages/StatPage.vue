@@ -2,13 +2,13 @@
 
 import { computed, onBeforeMount, ref } from 'vue';
 import { Bar, Line } from 'vue-chartjs';
-import { storeStatinfo } from '@/store/statinfo';
-import { appClassify } from '@/store/classify';
-import { appLogin } from '@store/login';
+import { statStore } from '@/store/statinfo';
+import { classifyStore } from '@/store/classify';
+import { loginStore } from '@store/login';
 
-const storeStat = storeStatinfo();
-const storeClassify = appClassify();
-const storeLogin = appLogin();
+const storeStat = statStore();
+const storeClassify = classifyStore();
+const storeLogin = loginStore();
 
 const chartRadio = ref('bar');
 

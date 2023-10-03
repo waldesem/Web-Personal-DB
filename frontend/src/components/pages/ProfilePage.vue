@@ -2,8 +2,8 @@
 
 import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave, useRoute } from 'vue-router';
-import { appProfile } from '@/store/profile';
-import { appAlert } from '@/store/alert';
+import { profileStore } from '@/store/profile';
+import { alertStore } from '@/store/alert';
 import AnketaTab from '@content/tabs/AnketaTab.vue';
 import CheckTab from '@content/tabs/CheckTab.vue';
 import RegistryTab from '@content/tabs/RegistryTab.vue';
@@ -11,8 +11,8 @@ import PoligrafTab from '@content/tabs/PoligrafTab.vue';
 import InvestigateTab from '@content/tabs/InvestigateTab.vue';
 import InquiryTab from '@content/tabs/InquiryTab.vue';
 
-const storeAlert = appAlert();
-const storeProfile = appProfile();
+const storeAlert = alertStore();
+const storeProfile = profileStore();
 
 const route = useRoute();
 storeProfile.candId = route.params.id as string;

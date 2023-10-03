@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
 import { storeAdmin } from '@store/admin';
-import { appClassify } from '@/store/classify';
+import { classifyStore } from '@/store/classify';
 
 const adminStore = storeAdmin();
-const storeClassify = appClassify();
+const storeClassify = classifyStore();
 
 </script>
 

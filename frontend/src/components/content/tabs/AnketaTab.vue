@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /* Компонент анкеты */
 
-import { appProfile } from '@/store/profile';
-import { appClassify } from '@/store/classify';
+import { profileStore } from '@/store/profile';
+import { classifyStore } from '@/store/classify';
 import ResumeForm from '@content/forms/ResumeForm.vue';
 import RegionForm from '@content/forms/RegionForm.vue';
 import StaffForm from '@content/forms/StaffForm.vue';
@@ -12,8 +12,8 @@ import ContactForm from '@content/forms/ContactForm.vue';
 import RelationForm from '@content/forms/RelationForm.vue';
 import WorkplaceForm from '@content/forms/WorkplaceForm.vue';
 
-const storeProfile = appProfile();
-const storeClassify = appClassify();
+const storeProfile = profileStore();
+const storeClassify = classifyStore();
 
 </script>
 

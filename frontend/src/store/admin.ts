@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue'
-import { appAuth } from '@/store/token';
-import { appAlert } from '@store/alert';
+import { authStore } from '@/store/token';
+import { alertStore } from '@store/alert';
 import router from '@router/router';
 import server from '@store/server';
 import debounce from './debounce';
@@ -9,8 +9,8 @@ import debounce from './debounce';
 
 export const storeAdmin = defineStore('storeAdmin', () => {
 
-  const storeAuth = appAuth();
-  const storeAlert = appAlert();
+  const storeAuth = authStore();
+  const storeAlert = alertStore();
 
   interface Group {
     id: string,

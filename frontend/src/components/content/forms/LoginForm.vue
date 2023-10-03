@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-import { appLogin } from '@/store/login';
+import { loginStore } from '@/store/login';
 import { ref } from 'vue';
 
-const storeLogin = appLogin();
+const storeLogin = loginStore();
 
 const hidePassword = ref(true);
 

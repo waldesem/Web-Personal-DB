@@ -5,13 +5,13 @@ import axios from 'axios';
 import server from '@store/server';
 
 
-export const appAuth = defineStore('appAuth', () => {
+export const authStore = defineStore('authStore', () => {
+  
+  const router = useRouter();
 
   const refreshToken = ref(localStorage.getItem('refresh_token'));
   const accessToken = ref(localStorage.getItem('access_token'));
-
   const axiosInstance = ref(axios.create());
-  const router = useRouter();
 
   axiosInstance.value.interceptors.request.use(
     async (config) => {
@@ -75,5 +75,10 @@ export const appAuth = defineStore('appAuth', () => {
     localStorage.setItem('access_token', token);
   };
 
-  return { refreshToken, accessToken, axiosInstance, setRefreshToken, setAccessToken };
+  return { 
+    refreshToken, 
+    accessToken, 
+    axiosInstance, 
+    setRefreshToken, 
+    setAccessToken };
 });

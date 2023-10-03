@@ -2,17 +2,17 @@ import router from '@router/router';
 import axios from 'axios';
 import server from '@store/server';
 import { defineStore } from 'pinia'
-import { appAuth } from '@/store/token';
-import { appAlert } from '@store/alert';
-import { appClassify } from '@store/classify';
+import { authStore } from '@/store/token';
+import { alertStore } from '@store/alert';
+import { classifyStore } from '@store/classify';
 import { ref } from 'vue';
 
 
-export const appLogin = defineStore('appLogin', () => {
+export const loginStore = defineStore('loginStore', () => {
 
-  const storeAuth = appAuth();
-  const storeAlert = appAlert();
-  const storeClasses = appClassify();
+  const storeAuth = authStore();
+  const storeAlert = alertStore();
+  const storeClasses = classifyStore();
 
   const action = ref('login');
   const pageIdentity = ref('');
@@ -182,5 +182,15 @@ export const appLogin = defineStore('appLogin', () => {
     })
   };
 
-  return { action, userData, loginData, pageIdentity, submitLogin, getAuth, userLogout, hasRole, hasGroup }
-})
+  return { 
+    action, 
+    userData, 
+    loginData, 
+    pageIdentity, 
+    submitLogin, 
+    getAuth, 
+    userLogout, 
+    hasRole, 
+    hasGroup 
+  }
+});

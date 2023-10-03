@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
-import { appLogin } from '@store/login';
-import { appAlert } from '@store/alert';
+import { loginStore } from '@store/login';
+import { alertStore } from '@store/alert';
 import LoginForm from '@content/forms/LoginForm.vue';
 
-const storeLogin = appLogin();
-const storeAlert = appAlert();
+const storeLogin = loginStore();
+const storeAlert = alertStore();
 
 storeAlert.setAlert('alert-info', 'Авторизуйтесь для входа в систему');
 

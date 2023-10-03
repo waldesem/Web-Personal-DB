@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue';
 
 
-export const appAlert = defineStore('appAlert',  () => {
+export const alertStore = defineStore('alertStore', () => {
 
   const alertAttr = ref('');
   const alertText = ref('');

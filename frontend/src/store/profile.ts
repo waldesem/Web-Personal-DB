@@ -1,20 +1,20 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { appClassify } from '@store/classify';
-import { appAuth } from '@/store/token';
-import { appAlert } from '@store/alert';
+import { classifyStore } from '@store/classify';
+import { authStore } from '@/store/token';
+import { alertStore } from '@store/alert';
 import { anketa, verification, register, pfo, inquisition, needs } from '@store/interfaces'
 import server from '@/store/server';
 import router from '@/router/router';
-import { appLogin } from './login';
+import { loginStore } from './login';
 
 
-export const appProfile = defineStore('appProfile', () => {
+export const profileStore = defineStore('profileStore', () => {
   
-  const storeAuth = appAuth()
-  const storeAlert = appAlert();
-  const classifyApp = appClassify();
-  const storeLogin = appLogin();
+  const storeAuth = authStore()
+  const storeAlert = alertStore();
+  const classifyApp = classifyStore();
+  const storeLogin = loginStore();
 
   const candId = ref('');
   const flag = ref('');

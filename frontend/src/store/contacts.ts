@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia';
-import { appAuth } from '@/store/token';
-import { appLogin } from '@store/login';
-import { appAlert } from '@store/alert';
+import { authStore } from '@/store/token';
+import { loginStore } from '@store/login';
+import { alertStore } from '@store/alert';
 import { ref } from 'vue';
 import server from '@store/server';
 import debounce from '@store/debounce';
 
-export const storeContact = defineStore('storeContact',  () => {
 
-  const storeAuth = appAuth();
-  const storeLogin = appLogin();
-  const storeAlert = appAlert();
+export const contactStore = defineStore('contactStore', () => {
+
+  const storeAuth = authStore();
+  const storeLogin = loginStore();
+  const storeAlert = alertStore();
 
   const searchData = ref('');
   const currentPage = ref(1);
@@ -55,7 +56,6 @@ export const storeContact = defineStore('storeContact',  () => {
       console.error(error);
     }
   };
-
 
   /**
    * Updates a contact based on the provided flag and contact ID.
@@ -150,5 +150,17 @@ export const storeContact = defineStore('storeContact',  () => {
 
   const searchContacts = debounce(getContacts, 500);
 
-  return { data, searchData, itemAction, itemId, itemForm, getContacts, prevPage, nextPage, deleteContact, updateContact, searchContacts };
+  return { 
+    data, 
+    searchData, 
+    itemAction, 
+    itemId, 
+    itemForm, 
+    prevPage, 
+    nextPage,
+    getContacts, 
+    deleteContact, 
+    updateContact, 
+    searchContacts 
+  };
 });

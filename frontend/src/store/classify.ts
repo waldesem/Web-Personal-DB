@@ -4,7 +4,7 @@ import axios from 'axios';
 import server from '@store/server';
 
 
-export const appClassify = defineStore('appClassify', () => {
+export const classifyStore = defineStore('classifyStore', () => {
 
   const status = ref<{ [key: string]: any }>({});
   const regions = ref<{ [key: string]: any }>({});

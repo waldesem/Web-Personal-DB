@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
-import { appAuth } from '@/store/token';
+import { authStore } from '@/store/token';
 import { ref } from 'vue';
 import server from '@store/server';
 import debounce from '@store/debounce';
 
-export const appPersons = defineStore('appPersons', () => {
+export const personStore = defineStore('personStore', () => {
 
-  const storeAuth = appAuth();
+  const storeAuth = authStore();
   
   interface Candidate {
     id: number;

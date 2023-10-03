@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
 import ResumeForm from '@content/forms/ResumeForm.vue';
-import { appProfile } from '@/store/profile';
+import { profileStore } from '@/store/profile';
 
 
-const storeProfile = appProfile();
+const storeProfile = profileStore();
 storeProfile.action = 'create';
 
 </script>

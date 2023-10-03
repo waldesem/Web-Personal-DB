@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // компонент для отображения данных согласования кандидата
  
-import { appProfile } from '@/store/profile';
-import { appClassify } from '@/store/classify';
-import { appLogin } from '@/store/login';
+import { profileStore } from '@/store/profile';
+import { classifyStore } from '@/store/classify';
+import { loginStore } from '@/store/login';
 
-const storeProfile = appProfile();
-const classifyApp = appClassify();
-const loginStore = appLogin();
+const storeProfile = profileStore();
+const classifyApp = classifyStore();
+const loginStore = loginStore();
 
 </script>
 

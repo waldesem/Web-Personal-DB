@@ -1,16 +1,16 @@
 <script setup lang="ts">
 // Компонент для отображения сообщений
 
-import { appAlert } from '@store/alert';
+import { alertStore } from '@store/alert';
 
-const alertStore = appAlert();
+const storeAlert = alertStore();
 
 </script>
 
 <template>
   <div class="container py-3">
-    <div class="alert" :class="alertStore.alertAttr" role="info" fade show>
-      {{alertStore.alertText}}
+    <div class="alert" :class="storeAlert.alertAttr" role="info" fade show>
+      {{storeAlert.alertText}}
     </div>
   </div>
 </template>

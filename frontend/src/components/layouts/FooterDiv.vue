@@ -2,9 +2,9 @@
 // Компонент для отображения подвала
 
 import server from '@store/server';
-import { appProfile } from '@/store/profile';
+import { profileStore } from '@/store/profile';
 
-const profileStore = appProfile();
+const profileStore = profileStore();
 
 </script>
 
