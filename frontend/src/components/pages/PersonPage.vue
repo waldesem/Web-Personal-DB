@@ -1,16 +1,36 @@
 <script setup lang="ts">
 
-import { computed, onBeforeMount } from 'vue';
-import { personStore } from '@/store/persons';
+import { computed, onBeforeMount, ref } from 'vue';
 import { classifyStore } from '@store/classify';
+import { authStore } from '@/store/token';
 import router from '@/router/router';
+import server from '@store/server';
+import debounce from '@store/debounce';
 
-const storePersons = personStore();
+const storeAuth = authStore();
 const storeClassify = classifyStore();
 
+interface Candidate {
+  id: number;
+  fullname: string;
+  region_id: number;
+  birthday: string;
+  status: string;
+  create: string;
+};
+
+const personData = ref({
+  candidates: <Candidate[]>([]),
+  has_prev: false,
+  has_next: false,
+  searchData: '',
+  currentPage: 1,
+  currentPath: 'new'
+});
+
 onBeforeMount(() => {
-  storePersons.getCandidates();
-})
+  getCandidates();
+});
 
 const header = computed(() => {
   const name = {
@@ -19,12 +39,64 @@ const header = computed(() => {
     'main': "Главная страница",
     'new': "Новые кандидаты"
   }
-  return name[storePersons.personData.currentPath as keyof typeof name]
+  return name[personData.value.currentPath as keyof typeof name]
 });
 
 function openLink(cand_id: number){
   router.push({ name: 'profile', params: { group: 'staffsec', id: cand_id }})
 };
+
+/**
+ * Retrieves candidates from the specified URL and updates the data store.
+ *
+ * @param {string} url - The URL to retrieve candidates from.
+ * @return {Promise<void>} - A promise that resolves when the candidates are 
+ * retrieved and the data store is updated.
+ */
+async function getCandidates(url: string=personData.value.currentPath): Promise<void> {
+
+  try {
+    const response = await storeAuth.axiosInstance.post(
+      `${server}/index/${url}/${personData.value.currentPage}`, 
+        {'fullname': personData.value.searchData}
+      );
+
+    const [ datas, metadata ] = response.data;
+    personData.value.candidates = datas;
+    personData.value.has_prev = metadata.has_prev;
+    personData.value.has_next = metadata.has_next;
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+/**
+ * Asynchronously moves to the previous page if it exists.
+ *
+ * @return {undefined} No return value.
+ */
+//
+function prevPage(): undefined {
+  if (personData.value.has_prev) {
+    personData.value.currentPage -= 1;
+    getCandidates(personData.value.currentPath);
+  }
+};
+
+/**
+ * Moves to the next page if there is one available.
+ *
+ * @return {Promise<void>} A promise that resolves when the operation is complete.
+ */
+function nextPage(): undefined {
+  if (personData.value.has_next) {
+    personData.value.currentPage += 1;
+    getCandidates(personData.value.currentPath);
+  }
+};
+
+const searchPerson = debounce(getCandidates, 500);
 
 </script>
 
@@ -36,8 +108,8 @@ function openLink(cand_id: number){
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="action">Действия</label>
           <select class="form-select" id="region" name="region" 
-                  v-model="storePersons.personData.currentPath" 
-                  @change="storePersons.getCandidates(storePersons.personData.currentPath)">
+                  v-model="personData.currentPath" 
+                  @change="getCandidates(personData.currentPath)">
             <option value="" selected>Выберите действие</option>
             <option value="new">Новые кандидаты</option>
             <option value="main">Все кандидаты</option>
@@ -46,10 +118,10 @@ function openLink(cand_id: number){
         </form>
       </div>
       <div class="col-md-9">
-        <form @input="storePersons.searchPerson('search')" class="form form-check" role="form">
+        <form @input="searchPerson('search')" class="form form-check" role="form">
           <div class="row">
             <input class="form-control" id="fullname" maxlength="250" minlength="3" 
-                  v-model="storePersons.personData.searchData" 
+                  v-model="personData.searchData" 
                   name="fullname" placeholder="поиск по ФИО" type="text">
           </div>
         </form>
@@ -68,7 +140,7 @@ function openLink(cand_id: number){
           </tr>
         </thead>
         <tbody>
-          <tr v-for="candidate in storePersons.personData.candidates" 
+          <tr v-for="candidate in personData.candidates" 
               :key="candidate.id" @click="openLink(candidate.id)" 
               data-href='#' height="50px">
             <td>{{ candidate["id"] }}</td>
@@ -82,15 +154,15 @@ function openLink(cand_id: number){
       </table>
     </div>
     <div class="py-3">
-      <nav v-if="storePersons.personData.has_prev || storePersons.personData.has_next">
+      <nav v-if="personData.has_prev || personData.has_next">
         <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.personData.has_prev }">
-            <a class="page-link" href="#" v-on:click.prevent="storePersons.prevPage">
+          <li v-bind:class="{ 'page-item': true, disabled: !personData.has_prev }">
+            <a class="page-link" href="#" v-on:click.prevent="prevPage">
               Предыдущая
             </a>
           </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !storePersons.personData.has_next }">
-            <a class="page-link" href="#" v-on:click.prevent="storePersons.nextPage">
+          <li v-bind:class="{ 'page-item': true, disabled: !personData.has_next }">
+            <a class="page-link" href="#" v-on:click.prevent="nextPage">
               Следующая
             </a>
           </li>

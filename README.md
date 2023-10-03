@@ -1,6 +1,6 @@
-# EconSec
+# StaffSec
 
-EconSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
+StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 
 ### The main technology stack used in this project includes:
 
@@ -25,8 +25,8 @@ python3 --version
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
 sudo apt install python3 python3-pip python3-venv
-mkdir econsec
-cd econsec
+git clone https://github.com/waldesem/Web-Personal-DB.git
+cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -95,12 +95,12 @@ gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the sett
 
 For create systemd service run the following command in your terminal:
 ```
-sudo nano /etc/systemd/system/econsec.service
+sudo nano /etc/systemd/system/staffsec.service
 ```
 Add the following line:
 ```
 [Unit]
-Description=Gunicorn instance to serve econsec
+Description=Gunicorn instance to serve staffsec
 After=network.target
 [Service]
 User=user
@@ -113,15 +113,15 @@ WantedBy=multi-user.target
 ```
 Start the service:
 ```
-sudo systemctl start econsec
-sudo systemctl enable econsec
-sudo systemctl status econsec
+sudo systemctl start staffsec
+sudo systemctl enable staffsec
+sudo systemctl status staffsec
 ```
 
 ### Nginx
 
 Nginx configuration:
-Open the file '/etc/nginx/sites-available/econsec' and add the following line:
+Open the file '/etc/nginx/sites-available/staffsec' and add the following line:
 ```
 server {
     listen 80;
@@ -141,9 +141,9 @@ server {
     }
 }
 ```
-Add configuration file '/etc/nginx/sites-enabled/econsec' and restart Nginx:
+Add configuration file '/etc/nginx/sites-enabled/staffsec' and restart Nginx:
 ```
-sudo ln -s /etc/nginx/sites-available/econsec /etc/nginx/sites-enabled/econsec
+sudo ln -s /etc/nginx/sites-available/staffsec /etc/nginx/sites-enabled/staffsec
 sudo service nginx restart  # or sudo service nginx reload
 ```
 Add rule in your firewall:
@@ -194,8 +194,8 @@ You will be prompted for to enter a username and password for the Samba user tha
 ### Doker (not tested yet)
 To build the docker image run the following command in your terminal:
 ```
-docker build -t econsec .
-docker run --add-host host.docker.internal:host-gateway -p 5000:5000 econsec
+docker build -t staffsec .
+docker run --add-host host.docker.internal:host-gateway -p 5000:5000 staffsec
 ```
 
 ### License

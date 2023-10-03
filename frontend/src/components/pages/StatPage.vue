@@ -2,32 +2,137 @@
 
 import { computed, onBeforeMount, ref } from 'vue';
 import { Bar, Line } from 'vue-chartjs';
-import { statStore } from '@/store/statinfo';
-import { classifyStore } from '@/store/classify';
+import { authStore } from '@store/token';
 import { loginStore } from '@store/login';
+import { classifyStore } from '@/store/classify';
+import server from '@store/server';
+import {
+  Chart as ChartJS, 
+  Title, 
+  Tooltip, 
+  Legend, 
+  BarElement, 
+  CategoryScale, 
+  LinearScale,
+  PointElement, 
+  LineElement
+} from 'chart.js';
 
-const storeStat = statStore();
-const storeClassify = classifyStore();
+const storeAuth = authStore();
 const storeLogin = loginStore();
+const storeClassify = classifyStore();
 
 const chartRadio = ref('bar');
 
 // Отправка запроса на сервер перед монтированием компонента
 onBeforeMount(async () => {
-  storeStat.loaded = false;
-  storeStat.submitData()
+  loaded.value = false;
+  submitData()
 });
 
 computed(() => {
-  storeStat.header = storeClassify.regions[storeStat.stat.region];
+  header.value = storeClassify.regions[stat.value.region];
 });
+
+ChartJS.register(
+    CategoryScale, 
+    LinearScale, 
+    BarElement,
+    PointElement, 
+    LineElement, 
+    Title, 
+    Tooltip, 
+    Legend
+    );
+
+
+interface ChartInterface {
+  labels: string[];
+  datasets: {
+    label: string;
+    backgroundColor: string[];
+    data: number[];
+  }[];
+};
+
+const todayDate = new Date();
+const header = ref('');
+const loaded = ref(false);
+const barData = ref<ChartInterface>({
+  labels: [],
+  datasets: []
+});
+const lineData = ref<ChartInterface>({
+  labels: [],
+  datasets: []
+});
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false
+};
+
+
+const stat = ref({
+  region: 1,
+  checks: [], 
+  pfo: [],
+  start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toISOString().slice(0,10),
+  end: todayDate.toISOString().slice(0,10)
+});
+
+/**
+ * Submits data to the server.
+ *
+ * @return {Promise<void>} A promise that resolves when the data is successfully submitted.
+ */
+
+async function submitData(): Promise<void> {
+  const response = await storeAuth.axiosInstance.post(`${server}/information`, {
+    'start': stat.value.start, 'end': stat.value.end, 'region': stat.value.region 
+  });
+  const { candidates, poligraf } = response.data;
+  header.value = storeClassify.regions[stat.value.region];
+  
+  stat.value.pfo = poligraf;
+  stat.value.checks = candidates;
+
+  const decisions = [...new Set(stat.value.checks.map(result => result['decision']))];
+
+  barData.value = {
+    labels: decisions,
+    datasets: [
+      {
+        label: 'Решения по кандидатам',
+        backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'], 
+        data: stat.value.checks.filter(result => 
+          result['decision']).map(result => result['count'])
+      }
+    ]
+  };
+
+  lineData.value = {
+    labels: stat.value.checks.map(result => result['month']),
+    datasets: decisions.map((decision) => {
+      return {
+        label: decision,
+        data: stat.value.checks.filter(result => 
+          result['decision'] === decision).map(result => result['count']),
+        borderColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
+        backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
+        fill: false
+      };
+    })
+  };
+
+  loaded.value = true;
+};
 
 </script>
 
 <template>
   <div class="container py-5">
     <div class="py-5">
-      <h4>Статистика по региону {{ storeStat.header }} за период c {{ storeStat.stat.start }} по {{ storeStat.stat.end }}</h4>
+      <h4>Статистика по региону {{ header }} за период c {{ stat.start }} по {{ stat.end }}</h4>
     </div>
     
     <div class="form form-check" role="form">
@@ -42,11 +147,11 @@ computed(() => {
     </div>
 
     <div v-if="chartRadio === 'bar'">
-      <Bar v-if="storeStat.loaded" :data="storeStat.barData" :options="storeStat.chartOptions" />
+      <Bar v-if="loaded" :data="barData" :options="chartOptions" />
     </div>
     
     <div v-if="chartRadio === 'line'">
-      <Line v-if="storeStat.loaded" :data="storeStat.lineData" :options="storeStat.chartOptions" />
+      <Line v-if="loaded" :data="lineData" :options="chartOptions" />
     </div>
 
     <div class="py-3">
@@ -54,7 +159,7 @@ computed(() => {
         <caption>Статистика по кандидатам</caption>
         <thead><tr><th width="45%">Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in storeStat.stat.checks" :key="index">
+          <tr height="50px" v-for="(value, name, index) in stat.checks" :key="index">
             <td >{{name}}</td><td>{{value}}</td>
           </tr>
         </tbody>
@@ -66,7 +171,7 @@ computed(() => {
         <caption>Статистика по полиграфу</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in storeStat.stat.pfo" :key="index">
+          <tr height="50px" v-for="(value, name, index) in stat.pfo" :key="index">
             <td >{{name}}</td><td>{{value}}</td>
           </tr>
         </tbody>
@@ -74,14 +179,14 @@ computed(() => {
     </div>
     
     <div class="py-3">
-      <form @submit.prevent="storeStat.submitData" class="form form-check" role="form">
+      <form @submit.prevent="submitData" class="form form-check" role="form">
           <div class="mb-3 row required">
             <label class="col-form-label col-md-2" for="region">Регион</label>
             <div class="col-md-2">
               <select :disabled="storeLogin.userData.region_id !== '1'"
-                      @change="storeStat.submitData()" 
+                      @change="submitData()" 
                       class="form-select" id="region" name="region" 
-                      v-model="storeStat.stat.region">
+                      v-model="stat.region">
                 <option :value="storeLogin.userData.region_id" selected>
                   {{ storeClassify.regions[storeLogin.userData.region_id] }}</option>
                 <option v-for="name, value in storeClassify.regions" :key="value" 
@@ -91,11 +196,11 @@ computed(() => {
             <label class="col-form-label col-md-1" for="start">Период:</label>
             <div class="col-md-2">
               <input class="form-control" id="start" name="start" required type="date" 
-                  v-model="storeStat.stat.start">
+                  v-model="stat.start">
             </div>
             <div class="col-md-2">
               <input class="form-control" name="end" required type="date" 
-                  v-model=storeStat.stat.end>
+                  v-model=stat.end>
             </div>
             <div class="col-md-2">
               <button class="btn btn-primary btn-md" name="submit" type="submit">

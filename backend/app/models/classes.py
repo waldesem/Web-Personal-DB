@@ -29,7 +29,6 @@ class Category(Enum):
     """ Category """
 
     candidate = 'Кандидат'
-    other = 'Проверяемый'
 
 
 class Status(Enum):
