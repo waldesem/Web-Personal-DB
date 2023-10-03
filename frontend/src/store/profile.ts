@@ -230,6 +230,7 @@ export const appProfile = defineStore('appProfile', () => {
     ): Promise<void> {
 
     const inputElement = event.target as HTMLInputElement;
+    
     if (inputElement && inputElement.files && inputElement.files.length > 0) {
       const formData = new FormData();
       formData.append('file', inputElement.files[0]);
@@ -258,6 +259,18 @@ export const appProfile = defineStore('appProfile', () => {
     }
   };
   
+  async function deleteFile(flag: string, idItem: string): Promise<void> {
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/file/${flag}/${idItem}`
+        );
+      console.log(response.data);
+    
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   /**
    * Cancels the check.
    *
@@ -304,6 +317,6 @@ export const appProfile = defineStore('appProfile', () => {
     candId, anketa, verification, register, pfo, inquisition, needs, 
     flag, action, itemForm, itemId, spinner, printPdf,
     getItem, submitResume, submitFile, clearItem, cancelEdit,
-    redirectMain, updateItem, deleteItem, cancelCheck
+    redirectMain, updateItem, deleteItem, cancelCheck, deleteFile
   };
 })

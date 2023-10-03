@@ -85,11 +85,17 @@ const storeClassify = appClassify();
     </template>
         
     <h6>Должности
-      <a class="btn btn-link" @click="storeProfile.flag === 'staff' ? storeProfile.flag = '' : storeProfile.flag = 'staff'; 
-                                    storeProfile.flag === 'staff' ? storeProfile.action = 'create' : storeProfile.action = ''; 
-                                    storeProfile.clearItem" 
-                                    :title="storeProfile.flag === 'staff' ? 'Закрыть форму' : 'Добавить должность'">
-        <i :class="storeProfile.flag === 'staff' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      <a class="btn btn-link" @click="storeProfile.flag === 'staff' 
+                                        ? storeProfile.flag = '' 
+                                        : storeProfile.flag = 'staff'; 
+                                      storeProfile.flag === 'staff' 
+                                        ? storeProfile.action = 'create' 
+                                        : storeProfile.action = ''; 
+                                      storeProfile.clearItem" 
+                              :title="storeProfile.flag === 'staff' 
+                                        ? 'Закрыть форму' : 'Добавить должность'">
+        <i :class="storeProfile.flag === 'staff' 
+              ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'staff'">
