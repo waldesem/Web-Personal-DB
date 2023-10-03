@@ -32,6 +32,18 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 <template>
   <div class="container py-3">
     <div class="py-5">
+      
+      <div class="card" style="width: 18rem;">
+        <img src="..." class="card-img-top" alt="...">
+        <div class="card-body">
+          <form @change="storeProfile.submitFile($event, 'image', storeProfile.anketa.resume['id'])">
+            <div class="mb-3">
+              <input class="form-control form-control-sm" id="formImage" type="file">
+            </div>
+          </form>
+        </div>
+      </div>
+      
       <h4>{{storeProfile.anketa.resume['fullname']}}
         &nbsp;
         <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;

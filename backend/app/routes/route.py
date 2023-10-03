@@ -10,6 +10,7 @@ from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import extract, func
 from werkzeug.utils import secure_filename
+from PIL import Image
 
 from . import bp
 from .. import db
@@ -667,9 +668,10 @@ bp.add_url_rule('/inquiry/<action>/<int:item_id>',
 
 class FileView(MethodView):
 
-    @r_g.group_required(Groups.staffsec.name)
-    @r_g.roles_required(Roles.user.name)
-    @bp.doc(hide=True)
+    decorators = [r_g.group_required(Groups.staffsec.name), 
+                  r_g.roles_required(Roles.user.name),
+                  bp.doc(hide=True)]
+
     def post(self, action, item_id=0):
         
         if request.files['file'].filename == '':
@@ -742,12 +744,34 @@ class FileView(MethodView):
                 folder = create_folders(person.id, person.fullname, action)
                 item.path = folder
                 db.session.commit()
-            for file in files:
-                filename = secure_filename(file.filename)
+            if action == 'image':
+                im = Image.open(files[0])
+                rgb_im = im.convert('RGB')
+                images = os.path.join(folder, 'images')
+                if not os.path.isdir(images):
+                    os.mkdir(images)
+                image_path = os.path.join(images, 'image.jpg')
+                if image_path:
+                    os.remove(image_path)
+                rgb_im.save(os.path.join(image_path))
+            else:
                 for file in files:
-                    file.save(os.path.join(folder, 
-                        f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
+                    filename = secure_filename(file.filename)
+                    for file in files:
+                        file.save(os.path.join(folder, 
+                            f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return '', 201
+        
+
+    @r_g.group_required(Groups.staffsec.name)
+    @r_g.roles_required(Roles.user.name)
+    @bp.output(EmptySchema, status_code=204)
+    def delete(self, action, item_id):
+        person = db.session.query(Person).get(item_id)
+        os.remove(person.path)
+        person.path = ''
+        db.session.commit()
+        return ''
 
 bp.add_url_rule('/file/<action>/<int:item_id>', 
                 view_func=FileView.as_view('file'))
