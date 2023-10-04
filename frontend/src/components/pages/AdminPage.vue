@@ -1,13 +1,13 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue'
-import { storeAdmin } from '@store/admin';
-import UserForm from '@content/forms/UserForm.vue';
+import { adminStore } from '@store/admin';
+import UserContent from '@content/UserContent.vue';
 
-const adminStore = storeAdmin();
+const storeAdmin = adminStore();
 
 onBeforeMount(async () => {
-  adminStore.getUsers()
+  storeAdmin.getUsers()
 });
 
 </script>
@@ -15,13 +15,13 @@ onBeforeMount(async () => {
 <template>
   <div class="container py-3">
     <div class="py-3">
-      <h4>{{ adminStore.userData.userAct === 'create' 
+      <h4>{{ storeAdmin.userData.userAct === 'create' 
         ? 'Добавить пользователя' 
         : 'Список пользователей'}}
       </h4>
     </div>
-    <UserForm v-if="adminStore.userData.userAct === 'create'" />
-    <div v-else class="py-2">
+    <UserContent />
+    <div class="py-2">
       <table class="table table-responsive align-middle">
         <thead>
           <tr height="50px">
@@ -33,12 +33,13 @@ onBeforeMount(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="user in adminStore.userData.userList" :key="user.id">
+          <tr height="50px" v-for="user in storeAdmin.userData.userList" :key="user.id">
             <td>{{ user.id }}</td>
             <td>{{ user.fullname }}</td>
             <td>
-              <router-link :to="{ name: 'shape', params: { group: 'admins', id: user.id} }">
-                {{ user.username }}</router-link>
+              <a href="#" data-bs-toggle="modal" data-bs-target="#modalUser"
+                    @click="storeAdmin.userData.userId=user.id" >
+                {{ user.username }}</a>
             </td>
             <td>{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>
             <td>{{ new Date(user.last_login).toLocaleString('ru-RU') }}</td>
@@ -46,7 +47,8 @@ onBeforeMount(async () => {
         </tbody>
       </table>
       <div class="py-1">
-        <button class="btn btn-primary" @click="adminStore.userData.userAct = 'create'">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUser"
+                @click="storeAdmin.userData.userAct = 'create'">
           Добавить пользователя
         </button>
       </div>

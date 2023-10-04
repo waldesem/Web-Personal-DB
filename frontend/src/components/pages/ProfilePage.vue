@@ -57,7 +57,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       <h4>{{storeProfile.anketa.resume['fullname']}}
         &nbsp;
         <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
-                            storeAlert.alertAttr=''; storeAlert.alertText=''">
+                            storeAlert.attrAlert=''; storeAlert.textAlert=''">
           <i class="bi bi-printer" title="Версия для печати"></i>
         </a>
       </h4>

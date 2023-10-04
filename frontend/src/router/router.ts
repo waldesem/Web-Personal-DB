@@ -10,7 +10,6 @@ import ResumePage from '@pages/ResumePage.vue';
 import ProfilePage from '@pages/ProfilePage.vue';
 import StatPage from '@pages/StatPage.vue';
 import AdminPage from '@pages/AdminPage.vue';
-import UserPage from '@pages/UserPage.vue';
 import AdminTables from '@pages/AdminTables.vue'
 import ContactPage from '@pages/ContactPage.vue';
 import NotFound from '@pages/NotFound.vue';
@@ -58,11 +57,6 @@ const router = createRouter({
           component: AdminPage
         },
         {
-          path: 'user/:id',
-          name: 'shape',
-          component: UserPage,
-        },
-        {
           path: 'table',
           name: 'table',
           component: AdminTables,
@@ -91,23 +85,23 @@ router.beforeEach(async (to, _from, next) => {
 
   if (to.name !== 'login') {
     if (refresh_token) {
-      // Проверка действительности refresh_token
+
       const expiry_refresh = (JSON.parse(atob(refresh_token.split('.')[1]))).exp;
-      // Проверка действительности токена
+
       if (Math.floor((new Date).getTime() / 1000) >= expiry_refresh) {
         next({ name: 'login' })
         
       } else {
-        // Проверка действительности access_token
+
         if (access_token) {
           const expiry_access = (JSON.parse(atob(access_token.split('.')[1]))).exp;
-          // Проверка действительности токена
+
           if (Math.floor((new Date).getTime() / 1000) >= expiry_access) {
             const response = await axios.post(`${server}/refresh`, null, {
               headers: {'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`}
             });
             const { access_token } = response.data;
-            // Сохранение access_token в хранилище
+
             localStorage.setItem('access_token', access_token);
             storeAuth.setAccessToken(access_token);
             next()

@@ -1,21 +1,24 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 
 export const alertStore = defineStore('alertStore', () => {
 
-  const alertAttr = ref('');
-  const alertText = ref('');
+  const attrAlert = ref('');
+  const textAlert = ref('');
 
   const setAlert = (attr: string = '', text: string = '') => {
-    alertAttr.value = attr;
-    alertText.value = text;
+    attrAlert.value = attr;
+    textAlert.value = text;
     
     setTimeout(() => {
-      alertAttr.value = '';
-      alertText.value = '';
+      setAlert();
     }, 10000);
   };
 
-  return { alertAttr, alertText, setAlert }
+  return { 
+    attrAlert, 
+    textAlert, 
+    setAlert 
+  }
 })
