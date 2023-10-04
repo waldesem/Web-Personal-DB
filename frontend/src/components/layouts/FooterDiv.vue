@@ -4,12 +4,12 @@
 import server from '@store/server';
 import { profileStore } from '@/store/profile';
 
-const profileStore = profileStore();
+const storeProfile = profileStore();
 
 </script>
 
 <template>
-  <div v-if="!profileStore.printPdf" class="container py-5">
+  <div v-if="!storeProfile.printPdf" class="container py-5">
     <footer class="d-flex flex-wrap justify-content-around align-items-center py-3 my-4 border-top">
       <p><a :href="`${server}/docs`" target=”_blank”>OpenAPI</a></p>
       <p><a href="https://github.com/waldesem/Web-Personal-DB">GitHub</a></p>

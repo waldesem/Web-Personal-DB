@@ -113,9 +113,9 @@ async function submitLogin(): Promise<void> {
                        :type="hidePassword ? 'password' : 'text'" 
                        v-model.trim="storeLogin.loginData.password" >
                 <span class="input-group-text">
-                    <a role="button" @click="hidePassword = !hidePassword">
-                      <i :class="hidePassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
-                    </a>
+                  <a role="button" @click="hidePassword = !hidePassword">
+                    <i :class="hidePassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
+                  </a>
                 </span>
               </div>
               <div v-if="action === 'login'" class="py-2">
@@ -145,8 +145,8 @@ async function submitLogin(): Promise<void> {
               </div>
             </div>
           </div>
-          <div class=" row">
-            <div class="offset-lg-2 col-lg-">
+          <div class="row">
+            <div class="offset-lg-2 col-lg-10">
               <button class="btn btn-primary btn-md" name="submit" type="submit">
                 {{ action === 'login' ? 'Войти' : 'Изменить' }}
               </button>
