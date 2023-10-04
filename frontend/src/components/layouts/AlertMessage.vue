@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Компонент для отображения сообщений
 
 import { alertStore } from '@store/alert';
 
@@ -9,8 +8,8 @@ const storeAlert = alertStore();
 
 <template>
   <div class="container py-3">
-    <div class="alert" :class="storeAlert.attrAlert" role="info" fade show>
-      {{storeAlert.textAlert}}
+    <div class="alert" :class="storeAlert.alertMessage.attrAlert" role="info" fade show>
+      {{storeAlert.alertMessage.textAlert}}
     </div>
   </div>
 </template>

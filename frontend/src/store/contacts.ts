@@ -1,17 +1,14 @@
 import { defineStore } from 'pinia';
 import { authStore } from '@/store/token';
 import { loginStore } from '@store/login';
-import { alertStore } from '@store/alert';
 import { ref } from 'vue';
 import server from '@store/server';
-import debounce from '@store/debounce';
 
 
 export const contactStore = defineStore('contactStore', () => {
 
   const storeAuth = authStore();
   const storeLogin = loginStore();
-  const storeAlert = alertStore();
 
   const searchData = ref('');
   const currentPage = ref(1);
@@ -24,7 +21,7 @@ export const contactStore = defineStore('contactStore', () => {
     contact: '',
     comment: ''
   });
-  const data = ref({
+  const responseData = ref({
     contacts: [],
     companies: [],
     cities: [],
@@ -39,12 +36,14 @@ export const contactStore = defineStore('contactStore', () => {
    */
   async function getContacts(): Promise<void> {
     try {
-      const response = await storeAuth.axiosInstance.post(`${server}/connects/${storeLogin.pageIdentity}/${currentPage.value}`, {
+      const response = await storeAuth.axiosInstance.post(
+        `${server}/connects/${storeLogin.pageIdentity}/${currentPage.value
+        }`, {
           'company': searchData.value
         });
       const [ datas, has_prev, has_next, companies, cities ] = response.data;
 
-      Object.assign(data.value, {
+      Object.assign(responseData.value, {
         contacts: datas,
         hasPrev: has_prev['has_prev'],
         hasNext: has_next['has_next'],
@@ -57,110 +56,13 @@ export const contactStore = defineStore('contactStore', () => {
     }
   };
 
-  /**
-   * Updates a contact based on the provided flag and contact ID.
-   *
-   * @param {Event} _event - The event triggering the update.
-   * @param {string} flag - The flag indicating the action to perform (default: "itemAction.value").
-   * @param {string} contactId - The ID of the contact to update (default: "itemId.value").
-   * @return {Promise<void>} - A promise that resolves when the update is complete.
-   */
-  async function updateContact(
-    _event: Event, flag: string=itemAction.value, contactId: string=itemId.value
-    ): Promise<void> {
-    try {
-      const response = flag === 'create'
-        ? await storeAuth.axiosInstance.post(
-          `${server}/connect/${storeLogin.pageIdentity}`, itemForm.value
-          )
-        : await storeAuth.axiosInstance.patch(
-          `${server}/connect/${contactId}`, itemForm.value
-          );
-      const { item_id } = response.data;
-
-      const alert = {
-        'create': ['alert-success', `Создан контакт ID ${item_id}`],
-        'edit': ['alert-info', `Контакт ID ${item_id} обновлен`]
-      };
-      storeAlert.setAlert(alert[flag as keyof typeof alert][0], 
-                                alert[flag as keyof typeof alert][1]);
-      getContacts();
-      itemAction.value = '';
-      itemId.value = '';
-      Object.assign(itemForm.value, {
-        company: '',
-        city: '',
-        fullname: '',
-        contact: '',
-        comment: ''
-      })
-
-    } catch (error) {
-      console.log(error)
-    }
-  };
-
-  /**
-   * Deletes a contact.
-   *
-   * @param {Event} _event - the event object
-   * @param {string} contactId - the ID of the contact to delete
-   * @return {Promise<void>} a Promise that resolves when the contact is deleted
-   */
-  async function deleteContact(_event: Event, contactId: string=itemId.value): Promise<void> {
-
-    try {
-      const response = await storeAuth.axiosInstance.delete(`${server}/connect/${contactId}`);
-      console.log(response.status);
-      storeAlert.setAlert('alert-success', `Контакт с ID ${contactId} удален`);
-
-      getContacts();
-
-    } catch (error) {
-      console.log(error)
-      
-      storeAlert.setAlert('alert-danger', `Ошибка при удалении контакта с ID ${contactId}`);
-    }
-  };
-
-  /**
-   * Moves to the previous page if it exists.
-   *
-   * @return {undefined} No return value.
-   */
-  //
-  function prevPage(): undefined {
-    if (data.value.hasPrev) {
-      currentPage.value -= 1;
-      getContacts();
-    }
-  };
-
-  /**
-   * Moves to the next page if there is one available.
-   *
-   * @return {Promise<void>} A promise that resolves when the operation is complete.
-   */
-  function nextPage(): undefined {
-    if (data.value.hasNext) {
-      currentPage.value += 1;
-      getContacts();
-    }
-  };
-
-  const searchContacts = debounce(getContacts, 500);
-
   return { 
-    data, 
+    responseData, 
     searchData, 
     itemAction, 
     itemId, 
     itemForm, 
-    prevPage, 
-    nextPage,
+    currentPage,
     getContacts, 
-    deleteContact, 
-    updateContact, 
-    searchContacts 
   };
 });

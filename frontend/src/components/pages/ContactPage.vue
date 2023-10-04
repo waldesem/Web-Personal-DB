@@ -3,9 +3,17 @@
 import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { contactStore } from '@/store/contacts';
+import { alertStore } from '@store/alert';
+import { authStore } from '@/store/token';
 import ConnectForm from '@content/forms/ConnectForm.vue';
+import debounce from '@store/debounce';
+import server from '@store/server';
 
+const storeAlert = alertStore();
 const storeContact = contactStore();
+const storeAuth = authStore();
+
+const searchContacts = debounce(storeContact.getContacts, 500);
 
 onBeforeMount(() => {
   storeContact.getContacts()
@@ -16,6 +24,54 @@ onBeforeRouteLeave(() => {
   storeContact.itemId = '';
 });
 
+/**
+ * Deletes a contact.
+ *
+ * @param {Event} _event - the event object
+ * @param {string} contactId - the ID of the contact to delete
+ * @return {Promise<void>} a Promise that resolves when the contact is deleted
+ */
+async function deleteContact(_event: Event, contactId: string=storeContact.itemId): Promise<void> {
+
+  try {
+    const response = await storeAuth.axiosInstance.delete(`${server}/connect/${contactId}`);
+    console.log(response.status);
+    storeAlert.setAlert('alert-success', `Контакт с ID ${contactId} удален`);
+
+    storeContact.getContacts();
+
+  } catch (error) {
+    console.log(error)
+    
+    storeAlert.setAlert('alert-danger', `Ошибка при удалении контакта с ID ${contactId}`);
+  }
+};
+
+/**
+ * Moves to the previous page if it exists.
+ *
+ * @return {undefined} No return value.
+ */
+//
+function prevPage(): undefined {
+  if (storeContact.responseData.hasPrev) {
+    storeContact.currentPage -= 1;
+    storeContact.getContacts();
+  }
+};
+
+/**
+ * Moves to the next page if there is one available.
+ *
+ * @return {Promise<void>} A promise that resolves when the operation is complete.
+ */
+function nextPage(): undefined {
+  if (storeContact.responseData.hasNext) {
+    storeContact.currentPage += 1;
+    storeContact.getContacts();
+  }
+};
+
 </script>
 
 <template>
@@ -23,7 +79,7 @@ onBeforeRouteLeave(() => {
     <div class="py-3">
       <h4>Контакты</h4>
     </div>
-    <form @input="storeContact.searchContacts" class="form form-check" role="form">
+    <form @input="searchContacts" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="name" name="name" placeholder="Поиск контактов" type="text" 
                v-model="storeContact.searchData">
@@ -53,13 +109,13 @@ onBeforeRouteLeave(() => {
             <th width="5%"></th>
           </tr>
         </thead>
-        <tbody v-if="storeContact.data.contacts">
+        <tbody v-if="storeContact.responseData.contacts">
           <tr v-if="storeContact.itemAction === 'create'">
             <td colspan="9"><ConnectForm/></td>
           </tr>
           <tr>
             <td colspan="9">
-              <table v-for="contact in storeContact.data.contacts" :key="contact['id']" 
+              <table v-for="contact in storeContact.responseData.contacts" :key="contact['id']" 
                   class="table table-responsive table-hover align-middle">
                 <tbody>
                   <tr v-if="storeContact.itemId !== contact['id']">
@@ -80,7 +136,7 @@ onBeforeRouteLeave(() => {
                     </td>
                     <td width="5%">
                       <a href="#" title="Удалить" 
-                          @click="storeContact.deleteContact($event, contact['id'])">
+                          @click="deleteContact($event, contact['id'])">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>
@@ -97,14 +153,14 @@ onBeforeRouteLeave(() => {
       </table>
     </div>
     <div class="py-3">
-      <nav v-if="storeContact.data.hasPrev || storeContact.data.hasNext">
+      <nav v-if="storeContact.responseData.hasPrev || storeContact.responseData.hasNext">
         <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !storeContact.data.hasPrev }">
-            <a class="page-link" href="#" v-on:click.prevent="storeContact.prevPage">
+          <li v-bind:class="{ 'page-item': true, disabled: !storeContact.responseData.hasPrev }">
+            <a class="page-link" href="#" v-on:click.prevent="prevPage">
                 Предыдущая</a>
           </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !storeContact.data.hasNext }">
-            <a class="page-link" href="#" v-on:click.prevent="storeContact.nextPage">
+          <li v-bind:class="{ 'page-item': true, disabled: !storeContact.responseData.hasNext }">
+            <a class="page-link" href="#" v-on:click.prevent="nextPage">
                 Следующая</a>
           </li>
         </ul>

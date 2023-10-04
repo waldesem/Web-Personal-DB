@@ -4,12 +4,14 @@ import { ref } from 'vue';
 
 export const alertStore = defineStore('alertStore', () => {
 
-  const attrAlert = ref('');
-  const textAlert = ref('');
+  const alertMessage = ref({
+    attrAlert: '',
+    textAlert: ''
+  });
 
   const setAlert = (attr: string = '', text: string = '') => {
-    attrAlert.value = attr;
-    textAlert.value = text;
+    alertMessage.value.attrAlert = attr;
+    alertMessage.value.textAlert = text;
     
     setTimeout(() => {
       setAlert();
@@ -17,8 +19,7 @@ export const alertStore = defineStore('alertStore', () => {
   };
 
   return { 
-    attrAlert, 
-    textAlert, 
+    alertMessage, 
     setAlert 
   }
 })

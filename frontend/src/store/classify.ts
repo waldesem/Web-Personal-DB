@@ -8,9 +8,9 @@ export const classifyStore = defineStore('classifyStore', () => {
 
   const status = ref<{ [key: string]: any }>({});
   const regions = ref<{ [key: string]: any }>({});
-  const conclusion = ref({});
-  const decision = ref({});
-  const category = ref({});
+  const conclusion = ref<{ [key: string]: any }>({});
+  const decision = ref<{ [key: string]: any }>({});
+  const category = ref<{ [key: string]: any }>({});
   const groups = ref<{ [key: string]: any }>({});
   const roles = ref<{ [key: string]: any }>({});
   
@@ -22,19 +22,31 @@ export const classifyStore = defineStore('classifyStore', () => {
    * is retrieved and variables are updated.
    */
   async function getClassify(): Promise<void> {
-    const response = await axios.get(`${server}/classes`);
-    const [statuses, region, conclusions, 
-      decisions, categories, group, role] = response.data;
+    try {
+      const response = await axios.get(`${server}/classes`);
+      [ 
+        status.value, 
+        regions.value, 
+        conclusion.value, 
+        decision.value, 
+        category.value, 
+        groups.value, 
+        roles.value 
+      ] = response.data;
 
-    status.value = statuses; 
-    regions.value = region;
-    conclusion.value = conclusions; 
-    decision.value = decisions;
-    category.value = categories;
-    groups.value = group;
-    roles.value = role;
+    } catch (error) {
+      console.error(error)
+    }
   };
   
-  return { status, regions, conclusion, decision, 
-    groups, roles, category, getClassify }
-})
+  return {
+    status, 
+    regions,
+    conclusion, 
+    decision, 
+    groups, 
+    roles, 
+    category, 
+    getClassify 
+  }
+});
