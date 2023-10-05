@@ -147,7 +147,7 @@ const searchPerson = debounce(getCandidates, 500);
               :key="candidate.id" @click="openLink(candidate.id)" 
               data-href='#' height="50px">
             <td>{{ candidate["id"] }}</td>
-            <td>{{ storeClassify.regions[candidate.region_id] }}</td>
+            <td>{{ storeClassify.classifyItems.regions[candidate.region_id] }}</td>
             <td>{{ candidate.fullname }}</td>
             <td>{{ new Date(candidate.birthday).toLocaleDateString('ru-RU') }}</td>
             <td>{{ candidate.status }}</td>

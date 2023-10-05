@@ -3,9 +3,9 @@ import { defineStore } from 'pinia';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
+import { loginStore } from './login';
 import server from '@/store/server';
 import router from '@/router/router';
-import { loginStore } from './login';
 
 
 export const profileStore = defineStore('profileStore', () => {
@@ -274,9 +274,9 @@ export const profileStore = defineStore('profileStore', () => {
     ): Promise<void> {
 
     if (item === 'check' && action === 'add'){
-      if (profile.value.resume['status'] === classifyApp.status['save'] || 
-          profile.value.resume['status'] === classifyApp.status['manual'] ||
-          profile.value.resume['status'] === classifyApp.status['robot']) {
+      if (profile.value.resume['status'] === classifyApp.classifyItems.status['save'] || 
+          profile.value.resume['status'] === classifyApp.classifyItems.status['manual'] ||
+          profile.value.resume['status'] === classifyApp.classifyItems.status['robot']) {
         
         storeAlert.setAlert('alert-warning', 'Нельзя добавить проверку к текущему статусу');
         return
@@ -342,7 +342,7 @@ export const profileStore = defineStore('profileStore', () => {
         window.scrollTo(0, 0);
       
       } else if (item === 'check' && (action === 'add' || action === 'self')){
-          getItem('check', 'get', candId.value);
+        getItem('check', 'get', candId.value);
       }
 
     } catch (error) {
@@ -392,8 +392,8 @@ export const profileStore = defineStore('profileStore', () => {
     item: string, action: string = 'delete', id: string = candId.value
     ): Promise<void> {
 
-    if ([classifyApp.status['robot'], 
-        classifyApp.status['finish']].includes(profile.value.resume['status']) 
+    if ([classifyApp.classifyItems.status['robot'], 
+        classifyApp.classifyItems.status['finish']].includes(profile.value.resume['status']) 
       && (item === 'check' || item === 'resume')) {
 
       storeAlert.setAlert('alert-warning', 'Нельзя удалить запись с текущим статусом');

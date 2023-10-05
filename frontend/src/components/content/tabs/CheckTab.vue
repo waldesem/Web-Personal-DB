@@ -14,7 +14,7 @@ const storeLogin = loginStore();
  * @return {Promise<void>} Returns a promise that resolves when the check is cancelled.
  */
   async function cancelCheck(): Promise<void> {
-  if (storeProfile.profile.resume['status'] !== classifyApp.status['save']) {
+  if (storeProfile.profile.resume['status'] !== classifyApp.classifyItems.status['save']) {
     storeProfile.getItem('resume', 'status', storeProfile.candId);
   };
   storeProfile.cancelEdit();
@@ -179,8 +179,8 @@ const storeLogin = loginStore();
           <div class="col-lg-10">
             <select class="form-select" id="conclusion" name="conclusion" 
                     v-model="storeProfile.itemForm['conclusion']">
-              <option v-for="(name, value) in classifyApp.conclusion" :key="value" 
-                    :value="name">{{ name }}</option>
+              <option v-for="(name, value) in classifyApp.classifyItems.conclusion" 
+                      :key="value" :value="name">{{ name }}</option>
             </select>
           </div>
         </div>
@@ -212,16 +212,19 @@ const storeLogin = loginStore();
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" :disabled="classifyApp.status 
-                          && (storeProfile.profile.resume['status'] === classifyApp.status['finish'])" 
-                          @click="storeProfile.deleteItem('check', 'delete', tbl['id' as keyof typeof tbl].toString())"
+              <a href="#" :disabled="classifyApp.classifyItems.status 
+                          && (storeProfile.profile.resume['status'] === 
+                              classifyApp.classifyItems.status['finish'])" 
+                          @click="storeProfile.deleteItem(
+                            'check', 'delete', tbl['id' as keyof typeof tbl].toString()
+                            )"
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;
-              <a href="#" :disabled="classifyApp.status 
-                            && (storeProfile.profile.resume['status'] !== classifyApp.status['save'] 
-                            && storeProfile.profile.resume['status'] !== classifyApp.status['cancel'] 
-                            && storeProfile.profile.resume['status'] !== classifyApp.status['manual'])
+              <a href="#" :disabled="classifyApp.classifyItems.status 
+                            && (storeProfile.profile.resume['status'] !== classifyApp.classifyItems.status['save'] 
+                            && storeProfile.profile.resume['status'] !== classifyApp.classifyItems.status['cancel'] 
+                            && storeProfile.profile.resume['status'] !== classifyApp.classifyItems.status['manual'])
                             || storeLogin.userData.region_id !== '1'" 
                           @click="storeProfile.action = 'update'; 
                                   storeProfile.flag = 'check';
@@ -326,10 +329,10 @@ const storeLogin = loginStore();
       <p v-else >Данные отсутствуют</p>
       <button v-if="!storeProfile.printPdf" 
               @click="storeProfile.getItem('check', 'add')" 
-              :disabled="![classifyApp.status['new'], 
-                          classifyApp.status['update'], 
-                          classifyApp.status['save'], 
-                          classifyApp.status['repeat']].includes(storeProfile.profile.resume['status'])" 
+              :disabled="![classifyApp.classifyItems.status['new'], 
+                          classifyApp.classifyItems.status['update'], 
+                          classifyApp.classifyItems.status['save'], 
+                          classifyApp.classifyItems.status['repeat']].includes(storeProfile.profile.resume['status'])" 
         class="btn btn-outline-primary">Добавить проверку
       </button>
     </template>

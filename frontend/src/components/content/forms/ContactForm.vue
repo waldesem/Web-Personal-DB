@@ -1,8 +1,9 @@
 <script setup lang="ts">
-// компонент для отображения формы добавления и редактирования данных 
  
 import { profileStore } from '@/store/profile';
+
 const storeProfile = profileStore();
+
 </script>
 
 <template>

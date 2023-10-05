@@ -115,7 +115,7 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
                   </tr>
                   <tr>
                     <td>Регион</td>
-                    <td>{{ storeClassify.regions[storeAdmin.profileData.region_id] }}</td>
+                    <td>{{ storeClassify.classifyItems.regions[storeAdmin.profileData.region_id] }}</td>
                   </tr>
                   <tr>
                     <td>Создан</td>
@@ -132,7 +132,7 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
                   <tr><td>Группы</td>
                     <td>
                       <ul v-for="(group, index) in storeAdmin.profileData.groups" :key=index>
-                        <li>{{ storeClassify.groups[group['group']] }}
+                        <li>{{ storeClassify.classifyItems.groups[group['group']] }}
                           <a href="#" @click="delRoleGroup('group', group['group'])">
                             <i class="bi bi-dash-circle"></i>
                           </a>
@@ -143,7 +143,8 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
                                 v-model="storeAdmin.userData.userGroup" 
                                 @change="addGroupRole('group', storeAdmin.userData.userGroup)">
                           <option value="" selected>Добавить группу</option>
-                          <option v-for="(val, name) in storeClassify.groups" :key="name" :value="name">
+                          <option v-for="(val, name) in storeClassify.classifyItems.groups" 
+                                  :key="name" :value="name">
                             {{ val }}</option>
                         </select>
                       </form>
@@ -163,7 +164,8 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
                             v-model="storeAdmin.userData.userRole" 
                             @change="addGroupRole('role', storeAdmin.userData.userRole)">
                           <option value="" selected>Добавить роль</option>
-                          <option v-for="(val, name) in storeClassify.roles" :key="name" :value="val">
+                          <option v-for="(val, name) in storeClassify.classifyItems.roles" 
+                                  :key="name" :value="val">
                             {{ val }}</option>
                         </select>
                       </form>

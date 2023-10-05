@@ -34,7 +34,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           <div class="card" style="width: 18rem;">
             <img src="..." class="card-img-top" alt="...">
             <div class="card-body">
-              <form @change="storeProfile.submitFile($event, 'image', storeProfile.anketa.resume['id'])">
+              <form @change="storeProfile.submitFile($event, 'image', storeProfile.profile.resume['id'])">
                 <div class="mb-3">
                   <input class="form-control form-control-sm" id="formImage" type="file">
                 </div>
@@ -43,14 +43,14 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           </div>
         </div>
         <div class="col">
-          <a href="#" @click="storeProfile.deleteFile('image', storeProfile.anketa.resume['id'])" 
+          <a href="#" @click="storeProfile.deleteFile('image', storeProfile.profile.resume['id'])" 
             title="Удалить">
             <i class="bi bi-trash"></i>
           </a>
         </div>
       </div>
 
-      <h4>{{storeProfile.anketa.resume['fullname']}}
+      <h4>{{storeProfile.profile.resume['fullname']}}
         &nbsp;
         <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
                             storeAlert.setAlert">

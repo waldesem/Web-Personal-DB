@@ -52,7 +52,7 @@ const storeClassify = classifyStore();
                                   storeProfile.itemForm = storeProfile.profile.resume;
                                   storeProfile.itemId = storeProfile.profile.resume['id']" 
                 data-bs-toggle="modal" data-bs-target="#modalWin">
-                {{ storeClassify.regions[storeProfile.profile.resume['region_id']]}}
+                {{ storeClassify.classifyItems.regions[storeProfile.profile.resume['region_id']]}}
               </a>
             </td>
           </tr>
@@ -438,8 +438,8 @@ const storeClassify = classifyStore();
       <div class='btn-group' role="group">
         
         <button @click="storeProfile.getItem('resume', 'send')" 
-            :disabled="(storeProfile.profile.resume['status'] !== storeClassify.status['new'] 
-              && storeProfile.profile.resume['status'] !== storeClassify.status['update']) 
+            :disabled="(storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['new'] 
+              && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['update']) 
               || storeProfile.spinner" 
             class="btn btn-outline-primary">{{ !storeProfile.spinner ? 'Отправить на проверку' : '' }}
           <span v-if="storeProfile.spinner" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
@@ -447,7 +447,7 @@ const storeClassify = classifyStore();
         </button>
         
         <button type="button" class="btn btn-outline-danger" 
-          :disabled="storeProfile.profile.resume['status'] === storeClassify.status['finish']
+          :disabled="storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish']
             || storeProfile.spinner" 
           @click="storeProfile.deleteItem('resume', 'delete', storeProfile.profile.resume['id'])">
           Удалить анкету

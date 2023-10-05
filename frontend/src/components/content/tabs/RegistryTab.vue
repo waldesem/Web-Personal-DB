@@ -27,7 +27,7 @@ const storeLogin = loginStore();
           <div class="col-lg-10">
             <select class="form-select" id="decision" name="decision" 
                     v-model="storeProfile.itemForm['decision']">
-              <option v-for="(name, value) in classifyApp.decision" 
+              <option v-for="(name, value) in classifyApp.classifyItems.decision" 
                       :key="value" :value="name">
                       {{ name }}
               </option>
@@ -81,7 +81,8 @@ const storeLogin = loginStore();
       </table>
       <p v-else >Данные отсутствуют</p>
       <button v-if="!storeProfile.printPdf" 
-              :disabled="storeProfile.profile.resume['status'] !== classifyApp.status['result']
+              :disabled="storeProfile.profile.resume['status'] !== 
+                          classifyApp.classifyItems.status['result']
                          || !storeLogin.hasRole('superuser')" 
               @click="storeProfile.action = 'create'; 
                       storeProfile.flag = 'registry';

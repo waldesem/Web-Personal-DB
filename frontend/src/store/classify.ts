@@ -6,13 +6,23 @@ import server from '@store/server';
 
 export const classifyStore = defineStore('classifyStore', () => {
 
-  const status = ref<{ [key: string]: any }>({});
-  const regions = ref<{ [key: string]: any }>({});
-  const conclusion = ref<{ [key: string]: any }>({});
-  const decision = ref<{ [key: string]: any }>({});
-  const category = ref<{ [key: string]: any }>({});
-  const groups = ref<{ [key: string]: any }>({});
-  const roles = ref<{ [key: string]: any }>({});
+  const classifyItems = ref({
+    status: <Record<string, any>>({}),
+    regions: <Record<string, any>>({}),
+    conclusion: <Record<string, any>>({}),
+    decision: <Record<string, any>>({}),
+    category: <Record<string, any>>({}),
+    groups: <Record<string, any>>({}),
+    roles: <Record<string, any>>({}),
+  })
+
+  // const status = ref<{ [key: string]: any }>({});
+  // const regions = ref<{ [key: string]: any }>({});
+  // const conclusion = ref<{ [key: string]: any }>({});
+  // const decision = ref<{ [key: string]: any }>({});
+  // const category = ref<{ [key: string]: any }>({});
+  // const groups = ref<{ [key: string]: any }>({});
+  // const roles = ref<{ [key: string]: any }>({});
   
   /**
    * Retrieves the classification data from the server
@@ -25,13 +35,13 @@ export const classifyStore = defineStore('classifyStore', () => {
     try {
       const response = await axios.get(`${server}/classes`);
       [ 
-        status.value, 
-        regions.value, 
-        conclusion.value, 
-        decision.value, 
-        category.value, 
-        groups.value, 
-        roles.value 
+        classifyItems.value.status, 
+        classifyItems.value.regions, 
+        classifyItems.value.conclusion, 
+        classifyItems.value.decision, 
+        classifyItems.value.category, 
+        classifyItems.value.groups, 
+        classifyItems.value.roles 
       ] = response.data;
 
     } catch (error) {
@@ -40,13 +50,7 @@ export const classifyStore = defineStore('classifyStore', () => {
   };
   
   return {
-    status, 
-    regions,
-    conclusion, 
-    decision, 
-    groups, 
-    roles, 
-    category, 
+    classifyItems,
     getClassify 
   }
 });

@@ -31,7 +31,7 @@ onBeforeMount(async () => {
 });
 
 computed(() => {
-  header.value = storeClassify.regions[stat.value.region];
+  header.value = storeClassify.classifyItems.regions[stat.value.region];
 });
 
 ChartJS.register(
@@ -91,7 +91,7 @@ async function submitData(): Promise<void> {
     'start': stat.value.start, 'end': stat.value.end, 'region': stat.value.region 
   });
   const { candidates, poligraf } = response.data;
-  header.value = storeClassify.regions[stat.value.region];
+  header.value = storeClassify.classifyItems.regions[stat.value.region];
   
   stat.value.pfo = poligraf;
   stat.value.checks = candidates;
@@ -188,9 +188,9 @@ async function submitData(): Promise<void> {
                       class="form-select" id="region" name="region" 
                       v-model="stat.region">
                 <option :value="storeLogin.userData.region_id" selected>
-                  {{ storeClassify.regions[storeLogin.userData.region_id] }}</option>
-                <option v-for="name, value in storeClassify.regions" :key="value" 
-                    :value="value">{{name}}</option>                
+                  {{ storeClassify.classifyItems.regions[storeLogin.userData.region_id] }}</option>
+                <option v-for="name, value in storeClassify.classifyItems.regions" 
+                        :key="value" :value="value">{{name}}</option>                
               </select>
             </div>
             <label class="col-form-label col-md-1" for="start">Период:</label>
