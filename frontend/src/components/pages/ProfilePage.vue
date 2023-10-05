@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue';
-import { onBeforeRouteLeave, useRoute } from 'vue-router';
+import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
 import { alertStore } from '@/store/alert';
 import AnketaTab from '@content/tabs/AnketaTab.vue';
@@ -14,10 +14,6 @@ import InquiryTab from '@content/tabs/InquiryTab.vue';
 const storeAlert = alertStore();
 const storeProfile = profileStore();
 
-const route = useRoute();
-storeProfile.candId = route.params.id as string;
-
-
 onBeforeMount(() => {
   storeProfile.getItem('profile');
 });
@@ -28,7 +24,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 });
 
 </script>
-``
+
 <template>
   <div class="container py-3">
     <div class="py-5">
@@ -57,7 +53,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       <h4>{{storeProfile.anketa.resume['fullname']}}
         &nbsp;
         <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
-                            storeAlert.attrAlert=''; storeAlert.textAlert=''">
+                            storeAlert.setAlert">
           <i class="bi bi-printer" title="Версия для печати"></i>
         </a>
       </h4>

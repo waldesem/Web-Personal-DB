@@ -3,7 +3,6 @@ import { defineStore } from 'pinia';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { anketa, verification, register, pfo, inquisition, needs } from '@store/interfaces'
 import server from '@/store/server';
 import router from '@/router/router';
 import { loginStore } from './login';
@@ -16,23 +15,268 @@ export const profileStore = defineStore('profileStore', () => {
   const classifyApp = classifyStore();
   const storeLogin = loginStore();
 
+  interface Resume {
+    id: string;
+    category: string;
+    region_id: string;
+    fullname: string;
+    previous: string;
+    birthday: string;
+    birthplace: string;
+    country: string;
+    snils: string;
+    inn: string;
+    education: string;
+    addition: string;
+    path: string;
+    status: string;
+    create: string;
+    update: string;
+    request_id: string;
+  };
+
+  interface Document {
+    id: string;
+    view: string;
+    series: string;
+    number: string;
+    agency: string;
+    issue: string;
+  };
+
+  interface Address {
+    id: string;
+    view: string;
+    region: string;
+    address: string;
+  };
+
+  interface Contact {
+    id: string;
+    view: string;
+    contact: string;
+  };
+
+  interface Work {
+    id: string;
+    start_date: string;
+    end_date: string;
+    now_work: boolean;
+    workplace: string;
+    address: string;
+    position: string;
+  };
+
+  interface Staff {
+    id: string;
+    position: string;
+    department: string;
+  };
+
+  interface Relation {
+    id: string;
+    relation: string;
+    relation_id: string;
+  };
+
+  interface Verification {
+    id: string;
+    workplace: string;
+    employee: string;
+    document: string;
+    inn: string;
+    debt: string;
+    bankruptcy: string;
+    bki: string;
+    courts: string;
+    affiliation: string;
+    terrorist: string;
+    mvd: string;
+    internet: string;
+    cronos: string;
+    cros: string;
+    addition: string;
+    pfo: boolean;
+    conclusion: string;
+    comments: string;
+    deadline: string;
+    officer: string;
+  };
+
+  interface Register {
+    id: string;
+    comments: string;
+    decision: string;
+    supervisor: string;
+    deadline: string;
+  };
+
+  interface Pfo {
+    id: string;
+    theme: string;
+    results: string;
+    officer: string;
+    deadline: string;
+  };
+
+  interface Inquisition {
+    id: string;
+    theme: string;
+    info: string;
+    officer: string;
+    deadline: string;
+  };
+
+  interface Needs {
+    id: string;
+    info: string;
+    initiator: string;
+    source: string;
+    officer: string;
+    deadline: string;
+  };
+
+  const profile = ref<{
+    resume: Resume;
+    docums: Document[];
+    addrs: Address[];
+    conts: Contact[];
+    works: Work[];
+    staffs: Staff[];
+    relate: Relation[];
+    verification: Verification[];
+    register: Register[];
+    pfo: Pfo[];
+    inquisition: Inquisition[];
+    needs: Needs[]
+  }>({
+    resume: {
+      id: '',
+      category: '',
+      region_id: '',
+      fullname: '',
+      previous: '',
+      birthday: '',
+      birthplace: '',
+      country: '',
+      snils: '',
+      inn: '',
+      education: '',
+      addition: '',
+      path: '',
+      status: '',
+      create: '',
+      update: '',
+      request_id: '',
+    },
+    docums: [{
+      id: '',
+      view: '',
+      series: '',
+      number: '',
+      agency: '',
+      issue: '',
+    }],
+    addrs: [{
+      id: '',
+      view: '',
+      region: '',
+      address: '',
+    }],
+    conts: [{
+      id: '',
+      view: '',
+      contact: '',
+    }],
+    works: [{
+      id: '',
+      start_date: '',
+      end_date: '',
+      now_work: false,
+      workplace: '',
+      address: '',
+      position: '',
+    }],
+    staffs: [{
+      id: '',
+      position: '',
+      department: ''
+    }],
+    relate: [{
+      id: '',
+      relation: '',
+      relation_id: ''
+    }],
+    verification: [{
+      id: '',
+      workplace: '', 
+      employee: '', 
+      document: '', 
+      inn: '', 
+      debt: '', 
+      bankruptcy: '', 
+      bki: '', 
+      courts: '', 
+      affiliation: '', 
+      terrorist: '', 
+      mvd: '', 
+      internet: '', 
+      cronos: '', 
+      cros: '', 
+      addition: '', 
+      pfo: false, 
+      conclusion: '', 
+      comments: '', 
+      deadline: '', 
+      officer: '',
+    }],
+    register: [{
+      id: '',
+      comments: '',
+      decision: '',
+      supervisor: '',
+      deadline: '',
+    }],
+    pfo: [{
+      id: '',
+      theme: '',
+      results: '',
+      officer: '',
+      deadline: '',
+    }],
+    inquisition: [{
+      id: '',
+      theme: '',
+      info: '',
+      officer: '',
+      deadline: ''
+    }],
+    needs: [{
+      id: '',
+      info: '',
+      initiator: '',
+      source: '',
+      officer: '',
+      deadline: '',
+    }]
+  });
+
+  const itemForm: Record<string, any> = ref({});
   const candId = ref('');
   const flag = ref('');
   const action = ref('');
   const itemId = ref('');
-  const itemForm: Record<string, any> = ref({});
   const spinner = ref(false);
   const printPdf = ref(false);
-
 
   async function getItem(
     item: string, action: string = 'get', id: string = candId.value
     ): Promise<void> {
 
     if (item === 'check' && action === 'add'){
-      if (anketa.value.resume['status'] === classifyApp.status['save'] || 
-        anketa.value.resume['status'] === classifyApp.status['manual'] ||
-        anketa.value.resume['status'] === classifyApp.status['robot']) {
+      if (profile.value.resume['status'] === classifyApp.status['save'] || 
+          profile.value.resume['status'] === classifyApp.status['manual'] ||
+          profile.value.resume['status'] === classifyApp.status['robot']) {
         
         storeAlert.setAlert('alert-warning', 'Нельзя добавить проверку к текущему статусу');
         return
@@ -49,58 +293,43 @@ export const profileStore = defineStore('profileStore', () => {
         );
       switch (item){
         case 'resume':
-          anketa.value.resume = response.data;
+          profile.value.resume = response.data;
           break;
         case 'staff': 
-          anketa.value.staffs = response.data;
+          profile.value.staffs = response.data;
           break;
         case 'document': 
-          anketa.value.docums = response.data;
+          profile.value.docums = response.data;
           break;
         case 'address': 
-          anketa.value.addrs = response.data;
+          profile.value.addrs = response.data;
           break;
         case 'contact': 
-          anketa.value.conts = response.data;
+          profile.value.conts = response.data;
           break;
         case 'workplace': 
-          anketa.value.works = response.data;
+          profile.value.works = response.data;
           break;
         case 'relation': 
-          anketa.value.relate = response.data;
+          profile.value.relate = response.data;
           break;
         case 'check': 
-          verification.value = response.data;
+          profile.value.verification = response.data;
           break;
         case 'registry': 
-          register.value = response.data;
+          profile.value.register = response.data;
           break;
         case 'poligraf': 
-          pfo.value = response.data;
+          profile.value.pfo = response.data;
           break;
         case 'investigation':
-           inquisition.value = response.data;
+          profile.value.inquisition = response.data;
            break;
         case 'inquiry': 
-          needs.value = response.data;
+        profile.value.needs = response.data;
           break;
         default:
-          const {resumeResp, staffResp, docsResp, addrResp,
-            contResp, worksResp, relResp, checkResp, regResp, 
-            pfoResp, invsResp, inqResp } = response.data
-
-          anketa.value.resume = resumeResp;
-          anketa.value.staffs = staffResp;
-          anketa.value.docums = docsResp;
-          anketa.value.addrs = addrResp;
-          anketa.value.conts = contResp;
-          anketa.value.works = worksResp;
-          anketa.value.relate = relResp;
-          verification.value = checkResp;
-          register.value = regResp;
-          pfo.value = pfoResp;
-          inquisition.value = invsResp;
-          needs.value = inqResp;
+           profile.value = response.data;
           break;
       };
 
@@ -164,7 +393,7 @@ export const profileStore = defineStore('profileStore', () => {
     ): Promise<void> {
 
     if ([classifyApp.status['robot'], 
-        classifyApp.status['finish']].includes(anketa.value.resume['status']) 
+        classifyApp.status['finish']].includes(profile.value.resume['status']) 
       && (item === 'check' || item === 'resume')) {
 
       storeAlert.setAlert('alert-warning', 'Нельзя удалить запись с текущим статусом');
@@ -186,36 +415,6 @@ export const profileStore = defineStore('profileStore', () => {
         } catch (error) {
         console.error(error)
       }
-    }
-  };
-
-  /**
-   * Submits the data to the server to create a new resume.
-   *
-   * @return {Promise<void>} A promise that resolves when the data has been 
-   * successfully submitted.
-   */
-  async function submitResume(): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.post(
-        `${server}/resume/${action.value}`, itemForm.value
-        );
-      const { message } = response.data;
-
-      storeAlert.setAlert(action.value === "create" 
-                            ? "alert-success" : "alert-info", 
-                          action.value === "create"
-                            ? 'Анкета успешно добавлена' 
-                            : 'Анкета успешно обновлена');
-
-      action.value === 'create' 
-        ? router.push({ name: 'profile', params: { id: message } })
-        : getItem('resume');
-      
-      cancelEdit();
-      
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -272,18 +471,6 @@ export const profileStore = defineStore('profileStore', () => {
   };
 
   /**
-   * Cancels the check.
-   *
-   * @return {Promise<void>} Returns a promise that resolves when the check is cancelled.
-   */
-  async function cancelCheck(): Promise<void> {
-    if (anketa.value.resume['status'] !== classifyApp.status['save']) {
-      getItem('resume', 'status', candId.value);
-    };
-    cancelEdit();
-  };
-
-  /**
    * Clears the item form and sets the itemId value to an empty string.
    */
   function clearItem(): void {
@@ -304,19 +491,21 @@ export const profileStore = defineStore('profileStore', () => {
     flag.value = '';
   };
 
-  /**
-   * Redirects to the main page.
-   *
-   * @return {void} No return value.
-   */
-  function redirectMain(): void {
-    router.push({ name: 'staffsec' })
-  };
-
   return {
-    candId, anketa, verification, register, pfo, inquisition, needs, 
-    flag, action, itemForm, itemId, spinner, printPdf,
-    getItem, submitResume, submitFile, clearItem, cancelEdit,
-    redirectMain, updateItem, deleteItem, cancelCheck, deleteFile
+    candId, 
+    profile, 
+    flag, 
+    action, 
+    itemForm, 
+    itemId, 
+    spinner, 
+    printPdf,
+    getItem, 
+    submitFile, 
+    clearItem, 
+    cancelEdit,
+    updateItem, 
+    deleteItem, 
+    deleteFile
   };
 })

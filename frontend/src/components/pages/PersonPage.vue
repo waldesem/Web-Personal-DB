@@ -3,12 +3,14 @@
 import { computed, onBeforeMount, ref } from 'vue';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
+import { profileStore } from '@/store/profile';
 import router from '@/router/router';
 import server from '@store/server';
 import debounce from '@store/debounce';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
+const storeProfile = profileStore();
 
 interface Candidate {
   id: number;
@@ -43,6 +45,7 @@ const header = computed(() => {
 });
 
 function openLink(cand_id: number){
+  storeProfile.candId = cand_id.toString();
   router.push({ name: 'profile', params: { group: 'staffsec', id: cand_id }})
 };
 

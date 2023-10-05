@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// компонент для отображения и редактирования проверок кандидата
 
 import { classifyStore } from '@store/classify';
 import { profileStore } from '@/store/profile';
@@ -8,6 +7,18 @@ import { loginStore } from '@store/login';
 const classifyApp = classifyStore();
 const storeProfile = profileStore();
 const storeLogin = loginStore();
+
+/**
+ * Cancels the check.
+ *
+ * @return {Promise<void>} Returns a promise that resolves when the check is cancelled.
+ */
+  async function cancelCheck(): Promise<void> {
+  if (storeProfile.profile.resume['status'] !== classifyApp.status['save']) {
+    storeProfile.getItem('resume', 'status', storeProfile.candId);
+  };
+  storeProfile.cancelEdit();
+};
 
 </script>
 
@@ -186,7 +197,7 @@ const storeLogin = loginStore();
               <button class="btn btn-outline-primary" type="submit">Принять</button>
               <button class="btn btn-outline-primary" type="reset">Очистить</button>
               <button class="btn btn-outline-primary" type="button" 
-                      @click="storeProfile.cancelCheck">Отмена</button>
+                      @click="cancelCheck">Отмена</button>
             </div>
           </div>
         </div>
@@ -194,21 +205,23 @@ const storeLogin = loginStore();
     </template>
 
     <template v-else>
-      <table v-if="storeProfile.verification?.length" v-for="tbl in storeProfile.verification" :key="tbl['id']" class="table table-responsive">
+      <table v-if="storeProfile.profile.verification?.length" 
+             v-for="tbl in storeProfile.profile.verification" 
+              :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th v-if="!storeProfile.printPdf">
               <a href="#" :disabled="classifyApp.status 
-                            && (storeProfile.anketa.resume['status'] === classifyApp.status['finish'])" 
+                          && (storeProfile.profile.resume['status'] === classifyApp.status['finish'])" 
                           @click="storeProfile.deleteItem('check', 'delete', tbl['id' as keyof typeof tbl].toString())"
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;
               <a href="#" :disabled="classifyApp.status 
-                            && (storeProfile.anketa.resume['status'] !== classifyApp.status['save'] 
-                            && storeProfile.anketa.resume['status'] !== classifyApp.status['cancel'] 
-                            && storeProfile.anketa.resume['status'] !== classifyApp.status['manual'])
+                            && (storeProfile.profile.resume['status'] !== classifyApp.status['save'] 
+                            && storeProfile.profile.resume['status'] !== classifyApp.status['cancel'] 
+                            && storeProfile.profile.resume['status'] !== classifyApp.status['manual'])
                             || storeLogin.userData.region_id !== '1'" 
                           @click="storeProfile.action = 'update'; 
                                   storeProfile.flag = 'check';
@@ -311,11 +324,12 @@ const storeLogin = loginStore();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button  v-if="!storeProfile.printPdf" @click="storeProfile.getItem('check', 'add')" 
-                                            :disabled="![classifyApp.status['new'], 
-                                                        classifyApp.status['update'], 
-                                                        classifyApp.status['save'], 
-                                                        classifyApp.status['repeat']].includes(storeProfile.anketa.resume['status'])" 
+      <button v-if="!storeProfile.printPdf" 
+              @click="storeProfile.getItem('check', 'add')" 
+              :disabled="![classifyApp.status['new'], 
+                          classifyApp.status['update'], 
+                          classifyApp.status['save'], 
+                          classifyApp.status['repeat']].includes(storeProfile.profile.resume['status'])" 
         class="btn btn-outline-primary">Добавить проверку
       </button>
     </template>

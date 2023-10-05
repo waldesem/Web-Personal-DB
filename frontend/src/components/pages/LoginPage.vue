@@ -86,74 +86,80 @@ async function submitLogin(): Promise<void> {
 </script>
 
 <template>
-  <div class="container px-5 py-3 w-50">
-    <div class="text-primary text-opacity-75 py-3">
-      <h2>StaffSec - кадровая безопасность</h2>
-    </div>
-    <div class="border border-primary px-5 py-5">
-      <h5>{{ action === 'login' ? 'Вход в систему' : 'Изменить пароль' }}</h5>
-      <div class="py-3">
-        <form @submit.prevent="submitLogin" class="form form-check" role="form">
-          <div class="mb-3 row required">
-            <label class="col-form-label col-lg-2" for="username">Логин: </label>
-            <div class="col-lg-6">
-              <input autocomplete="username" class="form-control" required 
-                id="username" name="username" type="text" minlength="4" maxlength="16" 
-                placeholder="Логин пользователя" pattern="[a-zA-Z]+"
-                v-model.trim="storeLogin.loginData.username">
-            </div>
-          </div>
-          <div class="mb-3 row required">
-            <label class="col-form-label col-lg-2" for="password">Пароль: </label>
-            <div class="col-lg-6">
-              <div class="input-group">
-                <input autocomplete="current-password" class="form-control" required 
-                       id="password" name="password" minlength="8" maxlength="16" 
-                       placeholder="Пароль пользователя" pattern="[0-9a-zA-Z]+"
-                       :type="hidePassword ? 'password' : 'text'" 
-                       v-model.trim="storeLogin.loginData.password" >
-                <span class="input-group-text">
-                  <a role="button" @click="hidePassword = !hidePassword">
-                    <i :class="hidePassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
-                  </a>
-                </span>
-              </div>
-              <div v-if="action === 'login'" class="py-2">
-                <a @click="action = 'password'" href="#">Изменить пароль</a>
-              </div>
-            </div>
-          </div>
-          <div v-if="action === 'password'">
-            <div class="mb-3 row required">
-              <label class="col-form-label col-lg-2" for="new_pswd">Новый: </label>
+  <div class="container py-5">
+    
+    <div class="row">
+      <div class="col col-3"></div>
+      <div class="col col-6">
+        <div class="text-primary text-opacity-75 py-3">
+          <h2>StaffSec - кадровая безопасность</h2>
+        </div>
+        <h5>{{ action === 'login' ? 'Вход в систему' : 'Изменить пароль' }}</h5>
+        
+        <div class="py-3">
+          <form @submit.prevent="submitLogin" class="form form-check" role="form">
+            <div class="mb-3 row">
+              <label class="col-form-label col-lg-2" for="username">Логин: </label>
               <div class="col-lg-6">
-                <input autocomplete="current-password" class="form-control" required 
-                       name="new_pswd" minlength="8" maxlength="16"
-                       placeholder="От 8 до 16 символов: a-z, A-Z" pattern="[0-9a-zA-Z]+"
-                       :type="hidePassword ? 'password' : 'text'"
-                       v-model.trim="storeLogin.loginData.new_pswd">
+                <input autocomplete="username" class="form-control" required 
+                  id="username" name="username" type="text" minlength="4" maxlength="16" 
+                  placeholder="Логин пользователя" pattern="[a-zA-Z]+"
+                  v-model.trim="storeLogin.loginData.username">
               </div>
             </div>
-            <div class="mb-3 row required">
-              <label class="col-form-label col-lg-2" for="conf_pswd">Повтор: </label>
+            <div class="mb-3 row">
+              <label class="col-form-label col-lg-2" for="password">Пароль: </label>
               <div class="col-lg-6">
-                <input autocomplete="current-password" class="form-control" required 
-                       name="conf_pswd" minlength="8" maxlength="16" 
-                       placeholder="Повторите новый пароль" pattern="[0-9a-zA-Z]+"
-                       :type="hidePassword ? 'password' : 'text'"
-                       v-model.trim="storeLogin.loginData.conf_pswd">
+                <div class="input-group">
+                  <input autocomplete="current-password" class="form-control" required 
+                        id="password" name="password" minlength="8" maxlength="16" 
+                        placeholder="Пароль пользователя" pattern="[0-9a-zA-Z]+"
+                        :type="hidePassword ? 'password' : 'text'" 
+                        v-model.trim="storeLogin.loginData.password" >
+                  <span class="input-group-text">
+                    <a role="button" @click="hidePassword = !hidePassword">
+                      <i :class="hidePassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
+                    </a>
+                  </span>
+                </div>
+                <div v-if="action === 'login'" class="py-2">
+                  <a @click="action = 'password'" href="#">Изменить пароль</a>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="offset-lg-2 col-lg-10">
-              <button class="btn btn-primary btn-md" name="submit" type="submit">
-                {{ action === 'login' ? 'Войти' : 'Изменить' }}
-              </button>
+            <div v-if="action === 'password'">
+              <div class="mb-3 row">
+                <label class="col-form-label col-lg-2" for="new_pswd">Новый: </label>
+                <div class="col-lg-6">
+                  <input autocomplete="current-password" class="form-control" required 
+                        name="new_pswd" minlength="8" maxlength="16"
+                        placeholder="От 8 до 16 символов: a-z, A-Z" pattern="[0-9a-zA-Z]+"
+                        :type="hidePassword ? 'password' : 'text'"
+                        v-model.trim="storeLogin.loginData.new_pswd">
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-form-label col-lg-2" for="conf_pswd">Повтор: </label>
+                <div class="col-lg-6">
+                  <input autocomplete="current-password" class="form-control" required 
+                        name="conf_pswd" minlength="8" maxlength="16" 
+                        placeholder="Повторите новый пароль" pattern="[0-9a-zA-Z]+"
+                        :type="hidePassword ? 'password' : 'text'"
+                        v-model.trim="storeLogin.loginData.conf_pswd">
+                </div>
+              </div>
             </div>
-          </div>
-        </form>
+            <div class="row">
+              <div class="offset-lg-2 col-lg-10">
+                <button class="btn btn-primary btn-md" name="submit" type="submit">
+                  {{ action === 'login' ? 'Войти' : 'Изменить' }}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
+      <div class="col col-3"></div>
     </div>
   </div>
 </template>

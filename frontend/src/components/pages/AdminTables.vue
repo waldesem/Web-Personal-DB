@@ -22,7 +22,7 @@ const tableData = ref({
 const tablesList = [
     'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
     'relation', 'check', 'registry', 'poligraf','investigation',
-    'inquiry', 'user'
+    'inquiry'
   ];
 
 /**
@@ -104,6 +104,7 @@ const idHandler = debounce(searchItem, 500);
           <select class="form-select" id="region" name="region" 
               v-model="tableData.table" 
               @change="getItem()">
+            <option :value="tablesList[0]" selected>{{ tablesList[0] }}</option>
             <option v-for="table, index in tablesList" :key="index" :value="table">
               {{ table }}
             </option>

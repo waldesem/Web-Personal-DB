@@ -184,7 +184,7 @@ async function submitData(): Promise<void> {
             <label class="col-form-label col-md-2" for="region">Регион</label>
             <div class="col-md-2">
               <select :disabled="storeLogin.userData.region_id !== '1'"
-                      @change="submitData()" 
+                      @change="submitData" 
                       class="form-select" id="region" name="region" 
                       v-model="stat.region">
                 <option :value="storeLogin.userData.region_id" selected>
