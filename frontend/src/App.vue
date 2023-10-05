@@ -10,15 +10,15 @@ import NavBar from '@layouts/NavBar.vue';
 const storeLogin = loginStore();
 const route = useRoute();
 
+onBeforeMount(() => {
+  storeLogin.getAuth()
+});
+
 watch(() => route.params.group,
   newValue => {
     storeLogin.pageIdentity = newValue as string;
   }
 );
-
-onBeforeMount(() => {
-  storeLogin.getAuth()
-});
 
 </script>
 

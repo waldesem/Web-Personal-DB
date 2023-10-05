@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { authStore } from '@/store/token';
 import { loginStore } from '@store/login';
 import { ref } from 'vue';
-import server from '@store/server';
+import { server } from '@store/shared';
 
 
 export const contactStore = defineStore('contactStore', () => {

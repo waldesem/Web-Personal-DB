@@ -5,9 +5,9 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
+import { debounce } from '@store/shared';
 import ConnectForm from '@content/forms/ConnectForm.vue';
-import debounce from '@store/debounce';
-import server from '@store/server';
+import { server } from '@store/shared';
 
 const storeAlert = alertStore();
 const storeContact = contactStore();

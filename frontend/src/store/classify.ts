@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue';
 import axios from 'axios';
-import server from '@store/server';
+import { server } from '@store/shared';
 
 
 export const classifyStore = defineStore('classifyStore', () => {

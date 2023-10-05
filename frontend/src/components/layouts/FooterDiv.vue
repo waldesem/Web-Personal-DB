@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Компонент для отображения подвала
 
-import server from '@store/server';
+import { server } from '@store/shared';
 import { profileStore } from '@/store/profile';
 
 const storeProfile = profileStore();

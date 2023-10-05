@@ -2,7 +2,7 @@
 
 import { ref } from 'vue';
 import axios from 'axios';
-import server from '@store/server';
+import { server } from '@store/shared';
 import { loginStore } from '@store/login';
 import { alertStore } from '@store/alert';
 import { authStore } from '@store/token'

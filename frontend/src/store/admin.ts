@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import server from '@store/server';
+import { server } from '@store/shared';
 
 
 export const adminStore = defineStore('adminStore', () => {

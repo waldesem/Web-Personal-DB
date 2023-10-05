@@ -2,8 +2,7 @@
 
 import { ref } from 'vue'
 import { authStore } from '@/store/token';
-import server from '@store/server';
-import debounce from '@store/debounce';
+import { server, debounce, switchPage } from '@store/shared';
 
 const storeAuth = authStore();
 
@@ -80,15 +79,6 @@ async function deleteItem(idItem: string): Promise<void>{
   }
 };
 
-function switchPage(hasPage: boolean, currPage: number, action: string) {
-    if (hasPage && action === 'previous') {
-      currPage -= 1;
-    } else if (hasPage && action === 'next'){
-      currPage += 1;
-    };
-    searchItem();
-  };
-
 const idHandler = debounce(searchItem, 500);
 
 </script>
@@ -143,12 +133,16 @@ const idHandler = debounce(searchItem, 500);
       <nav v-if="tableData.hasPrev || tableData.hasNext">
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasPrev }">
-            <a class="page-link" href="#" @click.prevent="switchPage(
-              tableData.hasPrev, tableData.currentPage, 'previous')">Предыдущая</a>
+            <a class="page-link" href="#" 
+               @click.prevent="switchPage(tableData.hasPrev, tableData.currentPage, 'previous', searchItem)">
+               Предыдущая
+            </a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasNext }">
-            <a class="page-link" href="#" @click.prevent="switchPage(
-              tableData.hasNext, tableData.currentPage, 'next')">Следующая</a>
+            <a class="page-link" href="#" 
+               @click.prevent="switchPage(tableData.hasNext, tableData.currentPage, 'next', searchItem)">
+               Следующая
+              </a>
           </li>
         </ul>
       </nav>

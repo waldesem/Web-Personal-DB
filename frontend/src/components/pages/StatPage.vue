@@ -5,7 +5,7 @@ import { Bar, Line } from 'vue-chartjs';
 import { authStore } from '@store/token';
 import { loginStore } from '@store/login';
 import { classifyStore } from '@/store/classify';
-import server from '@store/server';
+import { server } from '@store/shared';
 import {
   Chart as ChartJS, 
   Title, 

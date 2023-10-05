@@ -4,9 +4,9 @@ import { computed, onBeforeMount, ref } from 'vue';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { profileStore } from '@/store/profile';
+import { debounce } from '@store/shared';
 import router from '@/router/router';
-import server from '@store/server';
-import debounce from '@store/debounce';
+import { server } from '@store/shared';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();

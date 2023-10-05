@@ -1,5 +1,5 @@
 import router from '@router/router';
-import server from '@store/server';
+import { server } from '@store/shared';
 import { defineStore } from 'pinia'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
@@ -13,7 +13,7 @@ export const loginStore = defineStore('loginStore', () => {
   const storeAlert = alertStore();
   const storeClasses = classifyStore();
 
-  const pageIdentity = ref('');
+  const pageIdentity = ref('login');
 
   const userData = ref({
     fullName: '',
@@ -43,12 +43,12 @@ export const loginStore = defineStore('loginStore', () => {
         region_id: userResponse['region_id'],
       });
 
-      hasRole('admin')
-        ? router.push({ name: 'users', params: { group: 'admins' } })
+      hasRole('admin') 
+        ? router.push({ name: 'users', params: { group: 'admins' }}) 
         : router.push({ name: 'persons', params: { group: userData.value.userGroups[0]['group'] } });
       
       storeClasses.getClassify();
-      storeAlert.setAlert('', '');
+      storeAlert.setAlert();
 
     } catch (error) {
       console.error(error);
