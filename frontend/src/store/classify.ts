@@ -16,14 +16,6 @@ export const classifyStore = defineStore('classifyStore', () => {
     roles: <Record<string, any>>({}),
   })
 
-  // const status = ref<{ [key: string]: any }>({});
-  // const regions = ref<{ [key: string]: any }>({});
-  // const conclusion = ref<{ [key: string]: any }>({});
-  // const decision = ref<{ [key: string]: any }>({});
-  // const category = ref<{ [key: string]: any }>({});
-  // const groups = ref<{ [key: string]: any }>({});
-  // const roles = ref<{ [key: string]: any }>({});
-  
   /**
    * Retrieves the classification data from the server
    * and updates the corresponding variables with the response.

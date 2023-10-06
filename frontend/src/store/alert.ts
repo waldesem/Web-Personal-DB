@@ -10,8 +10,10 @@ export const alertStore = defineStore('alertStore', () => {
   });
 
   const setAlert = (attr: string = '', text: string = '') => {
-    alertMessage.value.attrAlert = attr;
-    alertMessage.value.textAlert = text;
+    Object.assign(alertMessage.value, {
+      attrAlert: attr,
+      textAlert: text
+    });
     
     setTimeout(() => {
       setAlert();
@@ -22,4 +24,5 @@ export const alertStore = defineStore('alertStore', () => {
     alertMessage, 
     setAlert 
   }
-})
+});
+

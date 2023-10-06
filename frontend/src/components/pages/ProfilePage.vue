@@ -4,12 +4,12 @@ import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
 import { alertStore } from '@/store/alert';
-import AnketaTab from '@content/tabs/AnketaTab.vue';
-import CheckTab from '@content/tabs/CheckTab.vue';
-import RegistryTab from '@content/tabs/RegistryTab.vue';
-import PoligrafTab from '@content/tabs/PoligrafTab.vue';
-import InvestigateTab from '@content/tabs/InvestigateTab.vue';
-import InquiryTab from '@content/tabs/InquiryTab.vue';
+import AnketaTab from '@components/tabs/AnketaTab.vue';
+import CheckTab from '@components/tabs/CheckTab.vue';
+import RegistryTab from '@components/tabs/RegistryTab.vue';
+import PoligrafTab from '@components/tabs/PoligrafTab.vue';
+import InvestigateTab from '@components/tabs/InvestigateTab.vue';
+import InquiryTab from '@components/tabs/InquiryTab.vue';
 
 const storeAlert = alertStore();
 const storeProfile = profileStore();

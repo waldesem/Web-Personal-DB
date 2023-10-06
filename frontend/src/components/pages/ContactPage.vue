@@ -6,7 +6,7 @@ import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { server, debounce, switchPage, clearItem } from '@share/utilities';
-import ConnectForm from '@content/forms/ConnectForm.vue';
+import ConnectForm from '@components/forms/ConnectForm.vue';
 
 const storeAlert = alertStore();
 const storeContact = contactStore();

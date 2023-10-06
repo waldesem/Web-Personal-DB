@@ -1,10 +1,10 @@
-import router from '@router/router';
-import { server } from '@share/utilities';
 import { defineStore } from 'pinia'
+import { ref } from 'vue';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { classifyStore } from '@store/classify';
-import { ref } from 'vue';
+import { server } from '@share/utilities';
+import router from '@router/router';
 
 
 export const loginStore = defineStore('loginStore', () => {
@@ -45,7 +45,9 @@ export const loginStore = defineStore('loginStore', () => {
 
       hasRole('admin') 
         ? router.push({ name: 'users', params: { group: 'admins' }}) 
-        : router.push({ name: 'persons', params: { group: userData.value.userGroups[0]['group'] } });
+        : router.push({ name: 'persons', params: { 
+          group: userData.value.userGroups[0]['group'] } 
+        });
       
       storeClasses.getClassify();
       storeAlert.setAlert();
@@ -75,13 +77,6 @@ export const loginStore = defineStore('loginStore', () => {
     localStorage.removeItem('refresh_token');
     
     router.push({ name: 'login' });
-
-    Object.assign(loginData.value, {
-      username: '',
-      password: '',
-      new_pswd: '',
-      conf_pswd: ''
-    });
 
     Object.assign(userData.value, {
       fullName: '',

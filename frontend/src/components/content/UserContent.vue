@@ -5,9 +5,9 @@ import { classifyStore } from '@/store/classify';
 import { adminStore } from '@store/admin';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
-import UserForm from '@content/forms/UserForm.vue'
-import router from '@router/router';
 import { server } from '@share/utilities';
+import UserForm from '@components/forms/UserForm.vue'
+import router from '@router/router';
 
 const storeAdmin = adminStore();
 const storeClassify = classifyStore();
@@ -205,7 +205,7 @@ ul, li {
   list-style: none;
 }
 
-#role {
+#role, #group {
   padding-left: 0;
   width: 30%;
 }

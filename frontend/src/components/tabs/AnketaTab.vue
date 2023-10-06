@@ -1,17 +1,16 @@
 <script setup lang="ts">
-/* Компонент анкеты */
 
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { clearItem } from '@share/utilities'
-import ResumeForm from '@content/forms/ResumeForm.vue';
-import RegionForm from '@content/forms/RegionForm.vue';
-import StaffForm from '@content/forms/StaffForm.vue';
-import DocumentForm from '@content/forms/DocumentForm.vue';
-import AddressForm from '@content/forms/AddressForm.vue';
-import ContactForm from '@content/forms/ContactForm.vue';
-import RelationForm from '@content/forms/RelationForm.vue';
-import WorkplaceForm from '@content/forms/WorkplaceForm.vue';
+import ResumeForm from '@components/forms/ResumeForm.vue';
+import RegionForm from '@components/forms/RegionForm.vue';
+import StaffForm from '@components/forms/StaffForm.vue';
+import DocumentForm from '@components/forms/DocumentForm.vue';
+import AddressForm from '@components/forms/AddressForm.vue';
+import ContactForm from '@components/forms/ContactForm.vue';
+import RelationForm from '@components/forms/RelationForm.vue';
+import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// компонент для отображения и редактирования данных расследований
 
 import { profileStore } from '@/store/profile';
+import InvestigationForm from '@content/forms/InvestigationForm.vue'
 
 const storeProfile = profileStore();
 
@@ -9,38 +9,12 @@ const storeProfile = profileStore();
 
 <template>
   <div class="py-3">
-    <template v-if="(storeProfile.action === 'update' 
-                  || storeProfile.action === 'create') 
-                  && storeProfile.flag === 'investigation'">
-      <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
-        <div class="mb-3 row required">
-          <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
-          <div class="col-lg-10">
-            <input class="form-control" id="theme" maxlength="250" name="theme" required type="text" 
-              v-model="storeProfile.itemForm['theme']">
-          </div>
-        </div>
-        <div class="mb-3 row required">
-          <label class="col-form-label col-lg-2" for="info">Информация</label>
-          <div class="col-lg-10">
-            <textarea class="form-control" id="info" name="info" required 
-              v-model="storeProfile.itemForm['info']"></textarea>
-          </div>
-        </div>
-        <div class=" row">
-          <div class="offset-lg-2 col-lg-10">
-            <div class="btn-group" role="group">
-                <button class="btn btn-outline-primary" type="submit">Принять</button>
-                <button class="btn btn-outline-primary" type="reset">Очистить</button>
-                <button class="btn btn-outline-primary" type="button" 
-                        @click="storeProfile.cancelEdit">Отмена</button>
-              </div>
-            </div>
-        </div>
-      </form>
-    </template>
 
-    <template v-else>
+    <InvestigationForm v-if="(storeProfile.action === 'update' 
+                  || storeProfile.action === 'create') 
+                  && storeProfile.flag === 'investigation'" />
+
+    <div v-else>
       <table v-if="storeProfile.profile.inquisition?.length" 
              v-for="tbl in storeProfile.profile.inquisition" 
               :key="tbl['id']" class="table table-responsive">
@@ -90,6 +64,7 @@ const storeProfile = profileStore();
                        storeProfile.flag = 'investigation';
                        storeProfile.itemForm = {}" 
         class="btn btn-outline-primary" type="button">Добавить запись</a>
-    </template>
+    </div>
+    
   </div>
 </template>

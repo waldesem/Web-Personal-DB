@@ -3,7 +3,7 @@
 import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
 import { clearItem } from '@share/utilities'
-import ResumeForm from '@content/forms/ResumeForm.vue';
+import ResumeForm from '@components/forms/ResumeForm.vue';
 
 const storeProfile = profileStore();
 storeProfile.action = 'create';
