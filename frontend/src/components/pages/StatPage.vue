@@ -1,11 +1,13 @@
 <script setup lang="ts">
 
 import { computed, onBeforeMount, ref } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { Bar, Line } from 'vue-chartjs';
 import { authStore } from '@store/token';
 import { loginStore } from '@store/login';
 import { classifyStore } from '@/store/classify';
-import { server } from '@store/shared';
+import { server, clearItem } from '@share/utilities';
+import { Chart } from '@share/interfaces';
 import {
   Chart as ChartJS, 
   Title, 
@@ -24,10 +26,16 @@ const storeClassify = classifyStore();
 
 const chartRadio = ref('bar');
 
-// Отправка запроса на сервер перед монтированием компонента
 onBeforeMount(async () => {
   loaded.value = false;
   submitData()
+});
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  [barData, lineData, stat].forEach((item) => {
+    clearItem(item)
+  });
+  next()
 });
 
 computed(() => {
@@ -45,24 +53,14 @@ ChartJS.register(
     Legend
     );
 
-
-interface ChartInterface {
-  labels: string[];
-  datasets: {
-    label: string;
-    backgroundColor: string[];
-    data: number[];
-  }[];
-};
-
 const todayDate = new Date();
 const header = ref('');
 const loaded = ref(false);
-const barData = ref<ChartInterface>({
+const barData = ref<Chart>({
   labels: [],
   datasets: []
 });
-const lineData = ref<ChartInterface>({
+const lineData = ref<Chart>({
   labels: [],
   datasets: []
 });
@@ -70,13 +68,12 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false
 };
-
-
 const stat = ref({
   region: 1,
   checks: [], 
   pfo: [],
-  start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1).toISOString().slice(0,10),
+  start: new Date(todayDate.getFullYear(), 
+                  todayDate.getMonth(), 1).toISOString().slice(0,10),
   end: todayDate.toISOString().slice(0,10)
 });
 

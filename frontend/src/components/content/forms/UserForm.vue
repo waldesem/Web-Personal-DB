@@ -4,7 +4,7 @@ import { adminStore } from '@store/admin';
 import { classifyStore } from '@/store/classify';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
-import { server } from '@store/shared';
+import { server } from '@share/utilities';
 
 const storeAdmin = adminStore();
 const storeClassify = classifyStore();

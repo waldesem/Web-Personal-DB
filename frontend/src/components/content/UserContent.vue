@@ -7,7 +7,7 @@ import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import UserForm from '@content/forms/UserForm.vue'
 import router from '@router/router';
-import { server } from '@store/shared';
+import { server } from '@share/utilities';
 
 const storeAdmin = adminStore();
 const storeClassify = classifyStore();

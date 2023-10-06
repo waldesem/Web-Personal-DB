@@ -1,8 +1,9 @@
 <script setup lang="ts">
 
 import { ref } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { authStore } from '@/store/token';
-import { server, debounce, switchPage } from '@store/shared';
+import { server, debounce, switchPage, clearItem } from '@share/utilities';
 
 const storeAuth = authStore();
 
@@ -17,6 +18,11 @@ const tableData = ref({
     hasNext: false,
     hasPrev: false
   });
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  clearItem(tableData);
+  next()
+});
 
 const tablesList = [
     'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
@@ -134,13 +140,23 @@ const idHandler = debounce(searchItem, 500);
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasPrev }">
             <a class="page-link" href="#" 
-               @click.prevent="switchPage(tableData.hasPrev, tableData.currentPage, 'previous', searchItem)">
+               @click.prevent="switchPage(
+                tableData.hasPrev, 
+                tableData.currentPage, 
+                'previous', 
+                searchItem
+                )">
                Предыдущая
             </a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasNext }">
             <a class="page-link" href="#" 
-               @click.prevent="switchPage(tableData.hasNext, tableData.currentPage, 'next', searchItem)">
+               @click.prevent="switchPage(
+                tableData.hasNext, 
+                tableData.currentPage, 
+                'next', 
+                searchItem
+                )">
                Следующая
               </a>
           </li>

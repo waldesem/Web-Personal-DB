@@ -1,25 +1,17 @@
 <script setup lang="ts">
 
 import { computed, onBeforeMount, ref } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { profileStore } from '@/store/profile';
-import { debounce } from '@store/shared';
+import { debounce, server, switchPage, clearItem } from '@share/utilities';
+import { Candidate } from '@/share/interfaces';
 import router from '@/router/router';
-import { server } from '@store/shared';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
-
-interface Candidate {
-  id: number;
-  fullname: string;
-  region_id: number;
-  birthday: string;
-  status: string;
-  create: string;
-};
 
 const personData = ref({
   candidates: <Candidate[]>([]),
@@ -32,6 +24,11 @@ const personData = ref({
 
 onBeforeMount(() => {
   getCandidates();
+});
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  clearItem(personData);
+  next()
 });
 
 const header = computed(() => {
@@ -71,31 +68,6 @@ async function getCandidates(url: string=personData.value.currentPath): Promise<
 
   } catch (error) {
     console.error(error);
-  }
-};
-
-/**
- * Asynchronously moves to the previous page if it exists.
- *
- * @return {undefined} No return value.
- */
-//
-function prevPage(): undefined {
-  if (personData.value.has_prev) {
-    personData.value.currentPage -= 1;
-    getCandidates(personData.value.currentPath);
-  }
-};
-
-/**
- * Moves to the next page if there is one available.
- *
- * @return {Promise<void>} A promise that resolves when the operation is complete.
- */
-function nextPage(): undefined {
-  if (personData.value.has_next) {
-    personData.value.currentPage += 1;
-    getCandidates(personData.value.currentPath);
   }
 };
 
@@ -160,12 +132,24 @@ const searchPerson = debounce(getCandidates, 500);
       <nav v-if="personData.has_prev || personData.has_next">
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !personData.has_prev }">
-            <a class="page-link" href="#" v-on:click.prevent="prevPage">
+            <a class="page-link" href="#" 
+                v-on:click.prevent="switchPage(
+                  personData.has_prev, 
+                  personData.currentPage,
+                  'previous',
+                  getCandidates
+                )">
               Предыдущая
             </a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !personData.has_next }">
-            <a class="page-link" href="#" v-on:click.prevent="nextPage">
+            <a class="page-link" href="#" 
+                v-on:click.prevent="switchPage(
+                  personData.has_next, 
+                  personData.currentPage,
+                  'next',
+                  getCandidates
+                )">
               Следующая
             </a>
           </li>

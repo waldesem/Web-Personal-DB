@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-
+import { Message } from '@share/interfaces'
 
 export const alertStore = defineStore('alertStore', () => {
 
-  const alertMessage = ref({
+  const alertMessage = ref<Message>({
     attrAlert: '',
     textAlert: ''
   });

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import axios from 'axios';
-import { server } from '@store/shared';
+import { server } from '@share/utilities';
 
 
 export const authStore = defineStore('authStore', () => {

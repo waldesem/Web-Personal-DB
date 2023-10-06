@@ -2,38 +2,14 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { server } from '@store/shared';
+import { server } from '@share/utilities';
+import { User } from '@share/interfaces';
 
 
 export const adminStore = defineStore('adminStore', () => {
 
   const storeAuth = authStore();
   const storeAlert = alertStore();
-
-  interface Group {
-    id: string,
-    group: string
-  };
-
-  interface Role {
-    id: string,
-    role: string
-  };
-
-  interface User {
-    id: string,
-    fullname: string,
-    username: string,
-    email: string,
-    region_id: string,
-    pswd_create: string,
-    pswd_change: string,
-    last_login: string,
-    roles: Role[],
-    groups: Group[],
-    blocked: string,
-    attempt: string
-  };
 
   const userData = ref({
     userList: <User[]>([]),

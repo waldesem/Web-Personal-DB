@@ -1,8 +1,9 @@
 <script setup lang="ts">
 
 import { ref } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import axios from 'axios';
-import { server } from '@store/shared';
+import { server, clearItem } from '@share/utilities';
 import { loginStore } from '@store/login';
 import { alertStore } from '@store/alert';
 import { authStore } from '@store/token'
@@ -15,6 +16,12 @@ const action = ref('login');
 const hidePassword = ref(true);
 storeAlert.alertMessage.attrAlert = 'alert-info';
 storeAlert.alertMessage.textAlert = 'Авторизуйтесь для входа в систему';
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  clearItem(storeLogin.userData);
+  clearItem(storeLogin.loginData);
+  next()
+});
 
 /**
  * Submits data to the server.

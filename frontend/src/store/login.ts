@@ -1,5 +1,5 @@
 import router from '@router/router';
-import { server } from '@store/shared';
+import { server } from '@share/utilities';
 import { defineStore } from 'pinia'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';

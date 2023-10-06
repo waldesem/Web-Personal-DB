@@ -4,7 +4,7 @@ import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { loginStore } from '@store/login';
-import { server } from '@store/shared';
+import { server } from '@share/utilities';
 
 const storeAlert = alertStore();
 const storeContact = contactStore();

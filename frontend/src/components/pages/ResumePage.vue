@@ -1,11 +1,17 @@
 <script setup lang="ts">
 
-import ResumeForm from '@content/forms/ResumeForm.vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
-
+import { clearItem } from '@share/utilities'
+import ResumeForm from '@content/forms/ResumeForm.vue';
 
 const storeProfile = profileStore();
 storeProfile.action = 'create';
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  clearItem(storeProfile.itemForm);
+  next()
+});
 
 </script>
 

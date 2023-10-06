@@ -3,6 +3,7 @@
 
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
+import { clearItem } from '@share/utilities'
 import ResumeForm from '@content/forms/ResumeForm.vue';
 import RegionForm from '@content/forms/RegionForm.vue';
 import StaffForm from '@content/forms/StaffForm.vue';
@@ -129,7 +130,7 @@ const storeClassify = classifyStore();
                                       storeProfile.flag === 'staff' 
                                         ? storeProfile.action = 'create' 
                                         : storeProfile.action = ''; 
-                                      storeProfile.clearItem" 
+                                      clearItem(storeProfile.itemForm)" 
           :title="storeProfile.flag === 'staff' 
             ? 'Закрыть форму' : 'Добавить должность'">
         <i :class="storeProfile.flag === 'staff' 
@@ -178,7 +179,7 @@ const storeClassify = classifyStore();
                               storeProfile.flag === 'document' 
                                 ? storeProfile.action = 'create' 
                                 : storeProfile.action = ''; 
-                              storeProfile.clearItem" 
+                              clearItem(storeProfile.itemForm)" 
           :title="storeProfile.flag === 'document' 
               ? 'Закрыть форму' : 'Добавить документ'">
         <i :class="storeProfile.flag === 'document' 
@@ -231,7 +232,7 @@ const storeClassify = classifyStore();
                               storeProfile.flag === 'address' 
                                 ? storeProfile.action = 'create' 
                                 : storeProfile.action = ''; 
-                              storeProfile.clearItem" 
+                              clearItem(storeProfile.itemForm)" 
           :title="storeProfile.flag === 'document' 
             ? 'Закрыть форму' : 'Добавить адрес'">
         <i :class="storeProfile.flag === 'address' 
@@ -280,7 +281,7 @@ const storeClassify = classifyStore();
                                       storeProfile.flag === 'contact' 
                                       ? storeProfile.action = 'create' 
                                       : storeProfile.action = ''; 
-                                      storeProfile.clearItem" 
+                                      clearItem(storeProfile.itemForm)" 
                               :title="storeProfile.flag === 'contact' 
                                       ? 'Закрыть форму' : 'Добавить контакт'">
         <i :class="storeProfile.flag === 'contact' 
@@ -328,7 +329,7 @@ const storeClassify = classifyStore();
                               storeProfile.flag === 'workplace' 
                                 ? storeProfile.action = 'create' 
                                 : storeProfile.action = ''; 
-                              storeProfile.clearItem" 
+                              clearItem(storeProfile.itemForm)" 
           :title="storeProfile.flag === 'workplace' 
             ? 'Закрыть форму' : 'Добавить работу'">
         <i :class="storeProfile.flag === 'workplace' 
@@ -385,7 +386,7 @@ const storeClassify = classifyStore();
                               storeProfile.flag === 'relation' 
                                 ? storeProfile.action = 'create' 
                                 : storeProfile.action = ''; 
-                              storeProfile.clearItem" 
+                              clearItem(storeProfile.itemForm)" 
           :title="storeProfile.flag === 'relation' 
             ? 'Закрыть форму' : 'Добавить связь'">
         <i :class="storeProfile.flag === 'relation' 

@@ -1,13 +1,21 @@
 <script setup lang="ts">
 
-import { onBeforeMount } from 'vue'
+import { onBeforeMount } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { adminStore } from '@store/admin';
+import { clearItem } from '@/share/utilities';
 import UserContent from '@content/UserContent.vue';
 
 const storeAdmin = adminStore();
 
 onBeforeMount(async () => {
   storeAdmin.getUsers()
+});
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  clearItem(storeAdmin.userData);
+  clearItem(storeAdmin.profileData);
+  next();
 });
 
 </script>
