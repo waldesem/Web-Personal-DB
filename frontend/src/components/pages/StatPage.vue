@@ -6,7 +6,7 @@ import { Bar, Line } from 'vue-chartjs';
 import { authStore } from '@store/token';
 import { loginStore } from '@store/login';
 import { classifyStore } from '@/store/classify';
-import { server, clearItem } from '@share/utilities';
+import { server } from '@share/utilities';
 import { Chart } from '@share/interfaces';
 import {
   Chart as ChartJS, 
@@ -33,9 +33,6 @@ onBeforeMount(async () => {
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   loaded.value = false;
-  [barData, lineData, stat].forEach((item) => {
-    clearItem(item)
-  });
   next()
 });
 
@@ -96,32 +93,50 @@ async function submitData(): Promise<void> {
   stat.value.pfo = poligraf;
   stat.value.checks = candidates;
 
-  const decisions = [...new Set(stat.value.checks.map(result => result['decision']))];
+  const summedBarData= stat.value.checks
+    .filter((result: { [x: string]: any; }) => result['decision'])
+    .reduce((acc: { [x: string]: any; }, result: { [x: string]: any; }) => {
+      const decision = result['decision'];
+      const count = result['count'];
+      acc[decision] = (acc[decision] || 0) + count;
+      return acc;
+    }, {});
 
   barData.value = {
-    labels: decisions,
+    labels: Object.keys(summedBarData),
     datasets: [
       {
         label: 'Решения по кандидатам',
         backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'], 
-        data: stat.value.checks.filter(result => 
-          result['decision']).map(result => result['count'])
+        data: Object.values(summedBarData),
       }
     ]
   };
 
+  const summedCountsByMonth: { [key: string]: number }[] = [];
+
+  stat.value.checks.forEach(result => {
+    const month = result['month'];
+    const count = result['count'];
+
+    const monthObj = summedCountsByMonth.find(obj => obj.hasOwnProperty(month));
+
+    if (monthObj) {
+      monthObj[month] += count;
+    } else {
+      summedCountsByMonth.push({ [month]: count });
+    }
+  });
+
   lineData.value = {
-    labels: stat.value.checks.map(result => result['month']),
-    datasets: decisions.map((decision) => {
-      return {
-        label: decision,
-        data: stat.value.checks.filter(result => 
-          result['decision'] === decision).map(result => result['count']),
-        borderColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
+    labels: summedCountsByMonth.map(obj => Object.keys(obj)[0]),
+    datasets: [
+      {
+        label: 'Статистика по кандидатам',
+        data: summedCountsByMonth.map(obj => Object.values(obj)[0]),
         backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
-        fill: false
-      };
-    })
+      }
+    ]
   };
 
   loaded.value = true;
@@ -154,19 +169,38 @@ async function submitData(): Promise<void> {
       <Line v-if="loaded" :data="lineData" :options="chartOptions" />
     </div>
 
-    <div class="py-3">
+    <div v-if="chartRadio === 'bar'" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <caption>Статистика по кандидатам</caption>
         <thead><tr><th width="45%">Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in stat.checks" :key="index">
-            <td >{{name}}</td><td>{{value}}</td>
+          <tr height="50px" v-for="(value, index) in barData.datasets[0].data" 
+              :key="index">
+            <td >{{barData.labels[index]}}</td><td>{{value}}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div v-if="storeLogin.userData.region_id === '1'" class="py-3">
+    <div v-if="chartRadio === 'line'" class="py-3">
+      <table class="table table-hover table-responsive align-middle">
+        <caption>Статистика по кандидатам</caption>
+        <thead>
+          <tr>
+            <th width="25%">Решение</th>
+            <th v-for="index, label in lineData.labels" :key="index">{{ label }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(index, value) in Object.keys(barData.labels)" :key="index">
+             <td>{{ value }}</td>
+            <td v-for="_month, decision, count in stat.checks" :key="decision">{{ count }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-if="storeLogin.userData.region_id == '1'" class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <caption>Статистика по полиграфу</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>
@@ -183,7 +217,7 @@ async function submitData(): Promise<void> {
           <div class="mb-3 row required">
             <label class="col-form-label col-md-2" for="region">Регион</label>
             <div class="col-md-2">
-              <select :disabled="storeLogin.userData.region_id !== '1'"
+              <select :disabled="storeLogin.userData.region_id != '1'"
                       @change="submitData" 
                       class="form-select" id="region" name="region" 
                       v-model="stat.region">

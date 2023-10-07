@@ -220,10 +220,10 @@ export const profileStore = defineStore('profileStore', () => {
           profile.value.inquisition = response.data;
            break;
         case 'inquiry': 
-        profile.value.needs = response.data;
+          profile.value.needs = response.data;
           break;
         default:
-           profile.value = response.data;
+           console.log(profile.value);
           break;
       };
 
@@ -354,6 +354,7 @@ export const profileStore = defineStore('profileStore', () => {
     }
   };
   
+
   async function deleteFile(flag: string, idItem: string): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.delete(

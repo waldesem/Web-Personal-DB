@@ -5,9 +5,8 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { profileStore } from '@/store/profile';
-import { debounce, server, switchPage, clearItem } from '@share/utilities';
+import { debounce, server, switchPage } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
-import router from '@/router/router';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
@@ -27,7 +26,13 @@ onBeforeMount(() => {
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(personData);
+  Object.assign(personData.value, {
+    has_prev: false,
+    has_next: false,
+    searchData: '',
+    currentPage: 1,
+    currentPath: 'new'
+  });
   next()
 });
 
@@ -40,11 +45,6 @@ const header = computed(() => {
   }
   return name[personData.value.currentPath as keyof typeof name]
 });
-
-function openLink(cand_id: number){
-  storeProfile.candId = cand_id.toString();
-  router.push({ name: 'profile', params: { group: 'staffsec', id: cand_id }})
-};
 
 /**
  * Retrieves candidates from the specified URL and updates the data store.
@@ -116,11 +116,16 @@ const searchPerson = debounce(getCandidates, 500);
         </thead>
         <tbody>
           <tr v-for="candidate in personData.candidates" 
-              :key="candidate.id" @click="openLink(candidate.id)" 
-              data-href='#' height="50px">
+              :key="candidate.id" height="50px">
             <td>{{ candidate["id"] }}</td>
             <td>{{ storeClassify.classifyItems.regions[candidate.region_id] }}</td>
-            <td>{{ candidate.fullname }}</td>
+            <td>
+              <router-link 
+                :to="{ name: 'profile', params: { group: 'staffsec', id: candidate.id } }" 
+                @click="storeProfile.candId = candidate.id.toString()">
+                {{ candidate.fullname }}
+              </router-link>
+            </td>
             <td>{{ new Date(candidate.birthday).toLocaleDateString('ru-RU') }}</td>
             <td>{{ candidate.status }}</td>
             <td>{{ new Date(candidate.create).toLocaleDateString('ru-RU') }}</td>
@@ -158,9 +163,3 @@ const searchPerson = debounce(getCandidates, 500);
     </div>
   </div>
 </template>
-
-<style>
-.data-href {
-  cursor: pointer;
-}
-</style>

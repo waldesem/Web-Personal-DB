@@ -5,10 +5,10 @@ import requests
 import shutil
 
 from apiflask import abort, EmptySchema
-from flask import request, current_app
+from flask import request, current_app, send_file
 from flask.views import MethodView
 from flask_jwt_extended import current_user
-from sqlalchemy import extract, func
+from sqlalchemy import and_, extract, func
 from werkzeug.utils import secure_filename
 from PIL import Image
 
@@ -22,7 +22,7 @@ from ..models.model import User, Person, Staff, Document, Address, Contact, \
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema,\
-    WorkplaceSchema, ProfileSchema
+    WorkplaceSchema
 from ..models.classes import Category, Roles, Groups, Status
 
 
@@ -88,35 +88,6 @@ class IndexView(MethodView):
 
 bp.add_url_rule('/index/<flag>/<int:page>', 
                 view_func=IndexView.as_view('index'))
-
-
-class ProfileView(MethodView):
-    
-    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
-    
-    @bp.output(ProfileSchema)
-    def get(self, action, itemm_id):
-        resume = db.session.query(Person).get(itemm_id)
-        staffs, docs, addrs, conts, works, rels, checks, regs, pfos, invs, inqs = \
-            [db.session.query(model).filter_by(person_id=itemm_id).all() 
-                 for model in [Staff, Document, Address, Contact, Workplace, 
-                               Relation, Check, Registry, Poligraf, 
-                               Investigation, Inquiry]]
-        return {'resume': resume, 
-                'staffs': staffs, 
-                'documents': docs, 
-                'addresses': addrs, 
-                'contacts': conts, 
-                'workplaces': works, 
-                'relations': rels, 
-                'checks': checks, 
-                'registries': regs, 
-                'pfos': pfos, 'invs': invs, 
-                'inquiries': inqs}
-    
-bp.add_url_rule('/profile/<action>/<int:itemm_id>>', 
-                view_func=ProfileView.as_view('profile'))
-
 
 class ResumeView(MethodView):
     
@@ -672,6 +643,22 @@ class FileView(MethodView):
                   r_g.roles_required(Roles.user.name),
                   bp.doc(hide=True)]
 
+    def get(action, item_id):
+        """
+        Retrieves a file from the server and sends it as a response.
+
+        Parameters:
+            action (str): The action to perform.
+            item_id (int): The ID of the item to retrieve.
+
+        Returns:
+            FileResponse: The file response containing the requested file, if it exists.
+        """
+        person = db.session.query(Person).get(item_id)
+        file_path = os.path.join(person.path, 'images', 'image.jpg')
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True)
+
     def post(self, action, item_id=0):
         
         if request.files['file'].filename == '':
@@ -761,10 +748,8 @@ class FileView(MethodView):
                         file.save(os.path.join(folder, 
                             f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return {'message': item_id}
-        
 
-    @r_g.group_required(Groups.staffsec.name)
-    @r_g.roles_required(Roles.user.name)
+
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         if action == 'image':
@@ -786,31 +771,27 @@ class InfoView(MethodView):
         response = request.get_json()
         
         candidates = db.session.query(
-                extract('month', Registry.deadline).label('month'),
-                Registry.decision, 
-                func.count(Registry.id)
-            ).\
+            extract('month', Registry.deadline).label('month'),
+            Registry.decision, 
+            func.count(Registry.id)
+        ).\
             join(Check, Check.id == Registry.check_id). \
             join(Person, Person.id == Check.person_id).\
-            group_by(Registry.decision).\
-            filter(Registry.deadline.between(response['start'], response['end']),
-                   Person.region_id == int(response['region'])).all()
-    
-        pfo = db.session.query(
-                extract('month', Registry.deadline).label('month'),
-                Poligraf.theme, 
-                func.count(Poligraf.id)).\
-            group_by(Poligraf.theme).\
+            group_by(Registry.decision, extract('month', Registry.deadline)).\
+            filter(and_(Registry.deadline.between(response['start'], 
+                                                response['end']))).all()
+        # Person.region_id == int(response['region'])
+        
+        pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)).\
+            group_by(Registry.deadline).\
             filter(Poligraf.deadline.between(response['start'], 
-                                             response['end'])).all()
+                                              response['end'])).all()
         
         return {"candidates": [
                     {'month': row[0], 'decision': row[1], 'count': row[2]}
             for row in candidates
             ],
-                "poligraf": [
-                    {'month': row[0], 'decision': row[1], 'count': row[2]}
-            for row in pfo
-            ]}
+                "poligraf": dict(pfo)
+            }
 
 bp.add_url_rule('/information', view_func=InfoView.as_view('information'))

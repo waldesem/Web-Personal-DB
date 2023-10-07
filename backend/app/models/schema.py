@@ -151,22 +151,6 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class ProfileSchema(ma.SQLAlchemySchema):
-    """ Create model for rendering profile on page"""
-    resume = fields.Nested(PersonSchema)
-    documents = fields.Nested(DocumentSchema, many=True)
-    addresses = fields.Nested(AddressSchema, many=True)
-    contacts = fields.Nested(ContactSchema, many=True)
-    workplaces = fields.Nested(WorkplaceSchema, many=True)
-    staffs = fields.Nested(StaffSchema, many=True)
-    relations = fields.Nested(RelationSchema, many=True)
-    checks = fields.Nested(CheckSchema, many=True)
-    registries = fields.Nested(RegistrySchema, many=True)
-    pfos = fields.Nested(PoligrafSchema, many=True)
-    invs = fields.Nested(InvestigationSchema, many=True)
-    inquiries = fields.Nested(InquirySchema, many=True)
-
-
 class AnketaSchema(ma.SQLAlchemySchema):
     """ Create schema for sending anketa"""
     resume = PersonSchema()

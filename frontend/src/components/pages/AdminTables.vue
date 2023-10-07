@@ -1,9 +1,8 @@
 <script setup lang="ts">
 
 import { onBeforeMount, ref } from 'vue'
-import { onBeforeRouteLeave } from 'vue-router'
 import { authStore } from '@/store/token';
-import { server, debounce, switchPage, clearItem } from '@share/utilities';
+import { server, debounce, switchPage } from '@share/utilities';
 
 const storeAuth = authStore();
 
@@ -27,11 +26,6 @@ const tableData = ref({
 onBeforeMount(() => {
   tableData.value.table = tablesList[0];
   getItem();
-});
-
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(tableData);
-  next()
 });
 
 /**

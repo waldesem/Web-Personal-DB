@@ -3,7 +3,6 @@
 import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { adminStore } from '@store/admin';
-import { clearItem } from '@/share/utilities';
 import UserContent from '@content/UserContent.vue';
 
 const storeAdmin = adminStore();
@@ -13,7 +12,32 @@ onBeforeMount(async () => {
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(storeAdmin.profileData);
+  Object.assign(storeAdmin.userData, {
+    userList: [],
+    userId: '',
+    userAct: '',
+    userFlag: '',
+    userRole: '',
+    userGroup: '',
+    currentPage: 1,
+    hasNext: false,
+    hasPrev: false,
+  });
+
+  Object.assign(storeAdmin.profileData, {
+    id: '',
+    fullname: '',
+    region_id: '',
+    username: '',
+    email: '',
+    pswd_create: '',
+    pswd_change: '',
+    last_login: '',
+    roles: [],
+    groups: [],
+    blocked: '',
+    attempt: ''
+  });
   next();
 });
 

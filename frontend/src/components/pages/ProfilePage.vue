@@ -1,21 +1,28 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
 import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
 import { alertStore } from '@/store/alert';
+import { authStore } from '@/store/token';
 import AnketaTab from '@components/tabs/AnketaTab.vue';
 import CheckTab from '@components/tabs/CheckTab.vue';
 import RegistryTab from '@components/tabs/RegistryTab.vue';
 import PoligrafTab from '@components/tabs/PoligrafTab.vue';
 import InvestigateTab from '@components/tabs/InvestigateTab.vue';
 import InquiryTab from '@components/tabs/InquiryTab.vue';
+import { server } from '@share/utilities';
 
 const storeAlert = alertStore();
 const storeProfile = profileStore();
+const storeAuth = authStore();
+
+const urlImage = ref('');
 
 onBeforeMount(() => {
-  storeProfile.getItem('profile');
+  getProfile();
+  getImage();
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
@@ -23,31 +30,63 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   next();
 });
 
+async function getProfile() {
+  await Promise.all([
+    [
+      'resume', 
+      'staff', 
+      'document', 
+      'address',
+      'contact', 
+      'workplace', 
+      'relation', 
+      'check', 
+      'registry', 
+      'poligraf', 
+      'investigation', 
+      'inquiry'
+    ].map(async (item) => await storeProfile.getItem(item))
+  ]);
+};
+
+async function getImage(): Promise<void> {
+  try {
+    const response = await storeAuth.axiosInstance.get(
+      `${server}/file/get/${storeProfile.candId}`, 
+        { responseType: 'blob' }
+      );
+    urlImage.value = window.URL.createObjectURL(new Blob([response.data]));
+  
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 </script>
 
 <template>
   <div class="container py-3">
     <div class="py-5">
       
-      <div class="row">
+      <div v-if="urlImage" class="row py-3">
         <div class="col">
           <div class="card" style="width: 18rem;">
-            <img src="..." class="card-img-top" alt="...">
+            <img :src="urlImage" class="card-img-top" alt="...">
             <div class="card-body">
               <form @change="storeProfile.submitFile($event, 'image', storeProfile.profile.resume['id'])">
-                <div class="mb-3">
+                <div>
                   <input class="form-control form-control-sm" id="formImage" type="file">
                 </div>
               </form>
             </div>
           </div>
         </div>
-        <div class="col">
+        <!--div class="col">
           <a href="#" @click="storeProfile.deleteFile('image', storeProfile.profile.resume['id'])" 
             title="Удалить">
             <i class="bi bi-trash"></i>
           </a>
-        </div>
+        </div-->
       </div>
 
       <h4>{{storeProfile.profile.resume['fullname']}}

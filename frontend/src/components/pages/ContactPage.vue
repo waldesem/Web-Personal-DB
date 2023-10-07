@@ -24,7 +24,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeContact.searchData = '';
   storeContact.currentPage = 1;
   clearItem(storeContact.itemForm);
-  clearItem(storeContact.responseData);
   next()
 });
 
