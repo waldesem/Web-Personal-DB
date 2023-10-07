@@ -1,29 +1,24 @@
 <script setup lang="ts">
 
-import { computed, onBeforeMount } from 'vue';
 import { classifyStore } from '@/store/classify';
 import { adminStore } from '@store/admin';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
+import { loginStore } from '@/store/login';
 import { server } from '@share/utilities';
 import UserForm from '@components/forms/UserForm.vue'
-import router from '@router/router';
 
 const storeAdmin = adminStore();
 const storeClassify = classifyStore();
 const storeAlert = alertStore();
 const storeAuth = authStore();
-
-onBeforeMount(async () => {
-  storeAdmin.userAction('view');
-});
-
-const isBlocked = computed(() => {
-  return storeAdmin.profileData.blocked ? 'Заблокирован' : 'Разблокирован';
-});
-
+const storeLogin = loginStore();
 
 async function userDelete(): Promise<void>{
+  if (storeLogin.hasRole('admin')) {
+    storeAlert.setAlert('alert-danger', 'Нельзя удалить администратора');
+    return;
+  };
   if (confirm("Вы действительно хотите удалить пользователя?")){
     try {
       const response = await storeAuth.axiosInstance.delete(
@@ -32,7 +27,7 @@ async function userDelete(): Promise<void>{
       console.log(response.status);
 
       storeAlert.setAlert('alert-danger', 'Пользователь удалён');
-      router.push({ name: 'users', params: { group: 'admins' } });
+      storeAdmin.getUsers();
 
     } catch (error) {
       console.error(error);
@@ -47,17 +42,12 @@ async function addGroupRole(item: string, value: string): Promise<void> {
         `${server}/${item}/${value}/${storeAdmin.userData.userId}`
         );
       console.log(response.status);
-      storeAlert.setAlert('alert-success', 
-                          'Пользователю добавлена роль \
-                          либо он включен в группу');
-      storeAdmin.userAction('view', storeAdmin.userData.userId);
     
     } catch (error) {
       console.error(error);
       storeAlert.setAlert('alert-danger', 'Ошибка');
-      
-      storeAdmin.userAction('view', storeAdmin.userData.userId);
-    }
+    };
+    storeAdmin.userAction('view', storeAdmin.userData.userId);
   }
 };
 
@@ -68,14 +58,12 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
       `${server}/${item}/${value}/${storeAdmin.userData.userId}`
       );
     console.log(response.status);
-    storeAlert.setAlert('alert-success', 'Группа или роль удалена');
-    storeAdmin.userAction('view', storeAdmin.userData.userId);
 
   } catch (error) {
     console.error(error);
     storeAlert.setAlert('alert-danger', 'Ошибка удаления');
-    storeAdmin.userAction('view', storeAdmin.userData.userId);
   }
+  storeAdmin.userAction('view', storeAdmin.userData.userId);
 };
 
 </script>
@@ -83,7 +71,7 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
 <template>
   <div class="modal fade" id="modalUser" data-bs-backdrop="static" data-bs-keyboard="false" 
        tabindex="-1" aria-labelledby="modalWinLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="modalUserLabel">Профиль пользователян</h1>
@@ -171,8 +159,14 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
                       </form>
                     </td>
                   </tr>
-                  <tr><td>Попыток входа</td><td>{{ storeAdmin.profileData.attempt }}</td></tr>
-                  <tr><td>Блокировка</td><td>{{ isBlocked }}</td></tr>
+                  <tr>
+                    <td>Попыток входа</td>
+                    <td>{{ storeAdmin.profileData.attempt }}</td>
+                  </tr>
+                  <tr>
+                    <td>Блокировка</td>
+                    <td>{{ storeAdmin.profileData.blocked ? 'Заблокирован' : 'Разблокирован' }}</td>
+                  </tr>
                 </tbody>
               </table>
               <div class="btn-group py-3" role="group">
@@ -196,17 +190,15 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
 </template>
 
 <style>
+
   html,
   body {
       scrollbar-gutter: stable;
   }
+
 ul, li {
   padding: 0;
   list-style: none;
 }
 
-#role, #group {
-  padding-left: 0;
-  width: 30%;
-}
 </style>

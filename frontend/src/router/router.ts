@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { authStore } from '@/store/token';
-import server from '@/store/server';
+import { server } from '@share/utilities';
 import axios from 'axios';
 import App from '@/App.vue';
 import PagesVue from '@/components/PagesVue.vue';

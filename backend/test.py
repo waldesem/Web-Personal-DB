@@ -11,10 +11,11 @@ fake = Faker("ru-RU")
 
 class AnketaTest:
 
-    def __init__(self):
+    def __init__(self, request_id):
+        self.request_id = request_id
         self.anketa = {
             "resume": {
-                "id": str(random.randint(1, 999999)),
+                "id": str(request_id),
                 "category": Category.candidate.value,
                 "fullname": fake.name(),
                 "previous": fake.last_name(),
@@ -119,19 +120,18 @@ class CheckTest:
                                  auth=(user, paswd))
         print(response.status_code)
 
-
 if __name__ == '__main__':
 
     username='pulseapi'
     password='88888888'
     server='http://127.0.0.1:5000'
+    id_range = 10
 
-    for _ in range(10):
-        anketa_test = AnketaTest()
+    for person_id in range(1, id_range):
+        anketa_test = AnketaTest(person_id)
         anketa_test.test_api_anketa(username, password)
-
-    id_list = []
-    for person_id in id_list:
-        check_test = CheckTest()
-        check_test.test_api_check(username, password, person_id)
+    
+    # for person_id in range(1, id_range):
+    #     check_test = CheckTest()
+    #     check_test.test_api_check(username, password, person_id)
 

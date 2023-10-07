@@ -13,7 +13,6 @@ onBeforeMount(async () => {
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(storeAdmin.userData);
   clearItem(storeAdmin.profileData);
   next();
 });
@@ -46,7 +45,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <td>{{ user.fullname }}</td>
             <td>
               <a href="#" data-bs-toggle="modal" data-bs-target="#modalUser"
-                    @click="storeAdmin.userData.userId=user.id" >
+                @click="storeAdmin.userAction('view', user.id)" >
                 {{ user.username }}</a>
             </td>
             <td>{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>

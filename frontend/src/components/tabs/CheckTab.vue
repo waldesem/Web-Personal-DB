@@ -3,7 +3,7 @@
 import { classifyStore } from '@store/classify';
 import { profileStore } from '@/store/profile';
 import { loginStore } from '@store/login';
-import CheckForm from '@content/forms/CheckForm.vue'
+import CheckForm from '@components/forms/CheckForm.vue'
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();

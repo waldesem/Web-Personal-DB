@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue'
 import { authStore } from '@/store/token';
-import { alertStore } from '@store/alert';
 import { server } from '@share/utilities';
 import { User } from '@share/interfaces';
 
@@ -9,7 +8,6 @@ import { User } from '@share/interfaces';
 export const adminStore = defineStore('adminStore', () => {
 
   const storeAuth = authStore();
-  const storeAlert = alertStore();
 
   const userData = ref({
     userList: <User[]>([]),
@@ -63,23 +61,15 @@ export const adminStore = defineStore('adminStore', () => {
    * is fetched and the profile value is updated.
    */
   async function userAction(action: String, id: string = userData.value.userId): Promise<void>{
+    userData.value.userId = id;
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
       profileData.value = response.data;
       
-      if (action !== 'view') {
-        const resp = {
-          'block': ['alert-success', 'Пользователь (за/раз)блокирован'],
-          'drop': ['alert-success', 'Пароль пользователя удален']
-        };
-
-        storeAlert.setAlert(resp[action as keyof typeof resp][0],
-                            resp[action as keyof typeof resp][1]);
-      };
+       userAction('view', userData.value.userId);
 
     } catch (error) {
       console.error(error);
-      userAction('view', userData.value.userId);
     }
   };
 

@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { profileStore } from '@/store/profile';
-import server from '@/store/server';
+import { server } from '@share/utilities';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();

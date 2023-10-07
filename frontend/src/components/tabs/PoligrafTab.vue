@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { profileStore } from '@/store/profile';
-import PoligrafForm from '@content/forms/PoligrafForm.vue';
+import PoligrafForm from '@components/forms/PoligrafForm.vue';
 
 const storeProfile = profileStore();
 

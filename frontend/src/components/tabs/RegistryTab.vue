@@ -3,7 +3,7 @@
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { loginStore } from '@/store/login';
-import RegistryForm from '@content/forms/RegistryForm.vue';
+import RegistryForm from '@components/forms/RegistryForm.vue';
 
 const storeProfile = profileStore();
 const classifyApp = classifyStore();

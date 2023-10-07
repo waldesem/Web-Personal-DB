@@ -1,34 +1,38 @@
 <script setup lang="ts">
 
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { authStore } from '@/store/token';
 import { server, debounce, switchPage, clearItem } from '@share/utilities';
 
 const storeAuth = authStore();
 
+const tablesList = [
+  'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
+  'relation', 'check', 'registry', 'poligraf','investigation', 'inquiry'
+];
+
 const tableData = ref({
-    table: '',
-    tableItem: [],
-    itemId: '',
-    searchId: '',
-    itemForm: <Record<string, any>>({}),
-    itemAction: '',
-    currentPage: 1,
-    hasNext: false,
-    hasPrev: false
-  });
+  table: '',
+  tableItem: [],
+  itemId: '',
+  searchId: '',
+  itemForm: <Record<string, any>>({}),
+  itemAction: '',
+  currentPage: 1,
+  hasNext: false,
+  hasPrev: false
+});
+
+onBeforeMount(() => {
+  tableData.value.table = tablesList[0];
+  getItem();
+});
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   clearItem(tableData);
   next()
 });
-
-const tablesList = [
-    'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
-    'relation', 'check', 'registry', 'poligraf','investigation',
-    'inquiry'
-  ];
 
 /**
  * Retrieves a list of users from the server.
@@ -36,7 +40,8 @@ const tablesList = [
  * @return {Promise<void>} - A promise that resolves with the list of users 
  * retrieved from the server.
  */
-  async function getItem(): Promise<void>{
+async function getItem(): Promise<void>{
+
   try {
     const response = await storeAuth.axiosInstance.get(
       `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`
@@ -100,7 +105,6 @@ const idHandler = debounce(searchItem, 500);
           <select class="form-select" id="region" name="region" 
               v-model="tableData.table" 
               @change="getItem()">
-            <option :value="tablesList[0]" selected>{{ tablesList[0] }}</option>
             <option v-for="table, index in tablesList" :key="index" :value="table">
               {{ table }}
             </option>

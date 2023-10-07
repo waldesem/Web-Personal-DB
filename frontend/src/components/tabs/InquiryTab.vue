@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { profileStore } from '@/store/profile';
-import InquiryForm from '@content/forms/InquiryForm.vue'
+import InquiryForm from '@components/forms/InquiryForm.vue'
 
 const storeProfile = profileStore();
 
