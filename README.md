@@ -1,4 +1,4 @@
-# StaffSec (in dev now)
+# StaffSec
 
 StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 
@@ -132,11 +132,6 @@ server {
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
-
-        location /static/ {
-            alias /home/user/DB-Personal-DB/backend/person/;
-            expires 30d;
-        }
     }
 }
 ```
