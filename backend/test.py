@@ -125,9 +125,9 @@ if __name__ == '__main__':
     username = 'pulseapi'
     password = '88888888'
     server = 'http://127.0.0.1:5000'
-    id_range = 10
+    id_range = 30
 
-    for person_id in range(1, id_range):
+    for person_id in range(20, id_range):
         anketa_test = AnketaTest(person_id)
         anketa_test.test_api_anketa(username, password)
 

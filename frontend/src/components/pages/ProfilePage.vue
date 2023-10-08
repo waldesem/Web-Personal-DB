@@ -1,33 +1,28 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
 import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
 import { alertStore } from '@/store/alert';
-import { authStore } from '@/store/token';
 import AnketaTab from '@components/tabs/AnketaTab.vue';
 import CheckTab from '@components/tabs/CheckTab.vue';
 import RegistryTab from '@components/tabs/RegistryTab.vue';
 import PoligrafTab from '@components/tabs/PoligrafTab.vue';
 import InvestigateTab from '@components/tabs/InvestigateTab.vue';
 import InquiryTab from '@components/tabs/InquiryTab.vue';
-import { server } from '@share/utilities';
 
 const storeAlert = alertStore();
 const storeProfile = profileStore();
-const storeAuth = authStore();
-
-const urlImage = ref('');
 
 onBeforeMount(() => {
   getProfile();
-  getImage();
+  storeProfile.getImage();
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeProfile.cancelEdit();
-  urlImage.value = '';
+  storeProfile.urlImage = '';
+  storeProfile.candId = '';
   next();
 });
 
@@ -50,18 +45,6 @@ async function getProfile() {
   ]);
 };
 
-async function getImage(): Promise<void> {
-  try {
-    const response = await storeAuth.axiosInstance.get(
-      `${server}/file/get/${storeProfile.candId}`, 
-        { responseType: 'blob' }
-      );
-    urlImage.value = window.URL.createObjectURL(new Blob([response.data]));
-  
-  } catch (error) {
-    console.error(error);
-  }
-};
 
 </script>
 
@@ -70,7 +53,10 @@ async function getImage(): Promise<void> {
     <div class="py-1">
       <div class="py-3">
         <div class="card" style="width: 16rem;">
-          <img :src="urlImage ? urlImage : '/assets/no-photo.png'" style="width: 100%; height: auto;" 
+          <img :src="storeProfile.urlImage 
+                ? storeProfile.urlImage 
+                : '/no-photo.png'" 
+                style="width: 100%; height: auto;" 
                 class="card-img-top" alt="...">
           <div class="card-body">
             <form @change="storeProfile.submitFile($event, 'image', storeProfile.profile.resume['id'])">

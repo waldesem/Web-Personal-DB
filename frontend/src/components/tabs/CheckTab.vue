@@ -111,7 +111,11 @@ const storeLogin = loginStore();
           </tr>
           <tr>
             <td>Материалы проверки</td>
-            <td>{{ tbl['path' as keyof typeof tbl] }}</td>
+            <td>
+              <a :href="'file://' + tbl['path' as keyof typeof tbl]" target="_blank">
+                {{ tbl['path' as keyof typeof tbl] }}
+              </a>
+            </td>
           </tr>
           <tr>
             <td>ПФО</td>

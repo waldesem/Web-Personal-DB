@@ -162,7 +162,16 @@ export const profileStore = defineStore('profileStore', () => {
   const itemId = ref('');
   const spinner = ref(false);
   const printPdf = ref(false);
+  const urlImage = ref('');
 
+  /**
+   * Retrieves an item from the server.
+   *
+   * @param {string} item - The item to retrieve.
+   * @param {string} [action='get'] - The action to perform on the item.
+   * @param {string} [id=candId.value] - The ID of the item.
+   * @return {Promise<void>} - A promise that resolves with no value.
+   */
   async function getItem(
     item: string, action: string = 'get', id: string = candId.value
     ): Promise<void> {
@@ -284,6 +293,14 @@ export const profileStore = defineStore('profileStore', () => {
   };
   
 
+  /**
+   * Deletes an item.
+   *
+   * @param {string} item - The item to delete.
+   * @param {string} action - The action to perform on the item. Default is 'delete'.
+   * @param {string} id - The ID of the item. Default is the value of candId.
+   * @return {Promise<void>} A promise that resolves when the item is deleted.
+   */
   async function deleteItem(
     item: string, action: string = 'delete', id: string = candId.value
     ): Promise<void> {
@@ -327,6 +344,19 @@ export const profileStore = defineStore('profileStore', () => {
     const inputElement = event.target as HTMLInputElement;
     
     if (inputElement && inputElement.files && inputElement.files.length > 0) {
+
+      const file = inputElement.files[0];
+      const maxSizeInBytes = 1024 * 1024; // 1MB
+      
+      if (file.size > maxSizeInBytes) {
+        storeAlert.setAlert(
+          'alert-warning', 
+          'File size exceeds the limit. Please select a smaller file.'
+          );
+        inputElement.value = ''; // Reset the input field
+        return;
+      }
+
       const formData = new FormData();
       formData.append('file', inputElement.files[0]);
       
@@ -340,9 +370,14 @@ export const profileStore = defineStore('profileStore', () => {
           storeAlert.setAlert("alert-success", "Данные успешно загружены");
 
           router.push({ name: 'profile', params: { id: message } })
+        
+        } else if (flag === 'image'){
+          getImage();
+          
         } else {
           storeAlert.setAlert("alert-success", 
                               "Файл или файлы успешно загружен/добавлены");
+          getItem(flag, 'get', idItem);
         };
       
       } catch (error) {
@@ -354,19 +389,24 @@ export const profileStore = defineStore('profileStore', () => {
     }
   };
   
-
-  async function deleteFile(flag: string, idItem: string): Promise<void> {
+  /**
+   * Retrieves an image from the server and assigns it to the urlImage variable.
+   *
+   * @return {Promise<void>} A Promise that resolves when the image has been retrieved and assigned.
+   */
+  async function getImage(): Promise<void> {
     try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/file/${flag}/${idItem}`
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/file/get/${candId.value}`, 
+          { responseType: 'blob' }
         );
-      console.log(response.data);
+      urlImage.value = window.URL.createObjectURL(new Blob([response.data]));
     
     } catch (error) {
       console.error(error);
     }
   };
-
+  
   /**
    * Cancels the current edit operation.
    *
@@ -388,11 +428,12 @@ export const profileStore = defineStore('profileStore', () => {
     itemId, 
     spinner, 
     printPdf,
+    urlImage,
     getItem, 
     submitFile, 
     cancelEdit,
     updateItem, 
     deleteItem, 
-    deleteFile
+    getImage
   };
 })

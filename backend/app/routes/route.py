@@ -152,8 +152,8 @@ class ResumeView(MethodView):
             filter_by(region_id=json_data['region_id']).all()
         if len(users):
             for user in users:
-                db.session.add(Report(report=f'Делегирована анкета ID #{id} \
-                                  от {current_user.username}', user_id=user.id))
+                db.session.add(Report(report=f'Делегирована анкета ID #{person_id} \
+                                  от {current_user.fullname}', user_id=user.id))
         db.session.commit()
         return '', 201
 
@@ -538,7 +538,7 @@ class InvestigationView(MethodView):
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(InvestigationSchema)
-    def patch(self, item_id, json_data):
+    def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
             setattr(db.session.query(Investigation).get(item_id), k, v)
         db.session.commit()
@@ -692,6 +692,7 @@ class FileView(MethodView):
         file_path = os.path.join(person.path, 'images', 'image.jpg')
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True)
+        return abort(404)
 
     def post(self, action, item_id=0):
 

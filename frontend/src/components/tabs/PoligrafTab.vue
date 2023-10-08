@@ -48,7 +48,11 @@ const storeProfile = profileStore();
           </tr>
           <tr>
             <td>Ссылка</td>
-            <td>{{ tbl['path' as keyof typeof tbl] }}</td>
+            <td>
+              <a :href="'file://' + tbl['path' as keyof typeof tbl]" target="_blank">
+                {{ tbl['path' as keyof typeof tbl] }}
+              </a>
+            </td>
           </tr>
           <tr>
             <td>Полиграфолог</td>

@@ -140,7 +140,7 @@ const searchPerson = debounce(getCandidates, 500);
             <a class="page-link" href="#" 
                 v-on:click.prevent="switchPage(
                   personData.has_prev, 
-                  personData.currentPage,
+                  personData.currentPage -= 1,
                   'previous',
                   getCandidates
                 )">
@@ -151,7 +151,7 @@ const searchPerson = debounce(getCandidates, 500);
             <a class="page-link" href="#" 
                 v-on:click.prevent="switchPage(
                   personData.has_next, 
-                  personData.currentPage,
+                  personData.currentPage += 1,
                   'next',
                   getCandidates
                 )">

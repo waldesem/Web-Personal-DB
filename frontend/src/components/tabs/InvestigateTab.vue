@@ -52,6 +52,14 @@ const storeProfile = profileStore();
             <td>{{ tbl['officer' as keyof typeof tbl] }}</td>
           </tr>
           <tr>
+            <td>Ссылка</td>
+            <td>
+              <a :href="'file://' + tbl['path' as keyof typeof tbl]" target="_blank">
+                {{ tbl['path' as keyof typeof tbl] }}
+              </a>
+            </td>
+          </tr>
+          <tr>
             <td>Дата</td>
             <td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).
               toLocaleDateString('ru-RU') }}</td>
