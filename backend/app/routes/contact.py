@@ -9,7 +9,6 @@ from ..models.schema import ConnectSchema
 
 
 class ContactsView(MethodView):
-
     decorators = [jwt_required(), bp.doc(hide=True)]
 
     def post(self, group, item):
@@ -31,25 +30,25 @@ class ContactsView(MethodView):
         pagination = 16
         schema = ConnectSchema()
         response = request.get_json()
-        datalist = db.session.query(Connect.company, Connect. city).all()
+        datalist = db.session.query(Connect.company, Connect.city).all()
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
-        query = db.session.query(Connect).\
+        query = db.session.query(Connect). \
             filter(Connect.company.ilike('%{}%'.format(response['company'])),
-                   Connect.group_id==group_id).order_by(Connect.id.desc()).\
+                   Connect.group_id == group_id).order_by(Connect.id.desc()). \
             paginate(page=item, per_page=pagination, error_out=False)
-        return [schema.dump(query, many=True), 
-                {'has_next': int(query.has_next)}, 
-                {'has_prev': int(query.has_prev)}, 
-                {'companies': list({company[0] for company in datalist})},  
+        return [schema.dump(query, many=True),
+                {'has_next': int(query.has_next)},
+                {'has_prev': int(query.has_prev)},
+                {'companies': list({company[0] for company in datalist})},
                 {'cities': list({city[1] for city in datalist})}]
-    
+
+
 bp.add_url_rule('/connects/<group>/<int:item>', view_func=ContactsView.as_view('connects'))
 
 
 class ConnnectView(MethodView):
-
     decorators = [jwt_required(), bp.doc(hide=True)]
-    
+
     @bp.input(ConnectSchema)
     def post(self, group, json_data):
         """
@@ -107,5 +106,4 @@ class ConnnectView(MethodView):
 
 contacts_view = ConnnectView.as_view('connect')
 bp.add_url_rule('/connect/<group>', view_func=contacts_view, methods=['POST'])
-bp.add_url_rule('/connect/<int:item>', view_func=contacts_view, methods=['PATCH','DELETE'])
-
+bp.add_url_rule('/connect/<int:item>', view_func=contacts_view, methods=['PATCH', 'DELETE'])

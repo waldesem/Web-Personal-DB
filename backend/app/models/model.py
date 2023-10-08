@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from .. import db, cache
-from .classes import Category, Decisions, Status
+from .classes import Category, Status
 
 
 def default_time():

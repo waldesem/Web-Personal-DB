@@ -11,13 +11,14 @@ class ClassesView(MethodView):
 
     @bp.doc(hide=True)
     def get(self):
-        return [{i.name: i.value for i in Status}, 
-                {rgn[0]: rgn[1] for rgn in db.session.query(Region.id, 
-                                                            Region.region).all()}, 
-                {i.name: i.value for i in Conclusions}, 
-                {i.name: i.value for i in Decisions}, 
+        return [{i.name: i.value for i in Status},
+                {rgn[0]: rgn[1] for rgn in db.session.query(Region.id,
+                                                            Region.region).all()},
+                {i.name: i.value for i in Conclusions},
+                {i.name: i.value for i in Decisions},
                 {i.name: i.value for i in Category},
                 {i.name: i.value for i in Groups},
                 {i.name: i.value for i in Roles}]
+
 
 bp.add_url_rule('/classes', view_func=ClassesView.as_view('classes'))

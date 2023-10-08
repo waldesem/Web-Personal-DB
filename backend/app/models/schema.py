@@ -104,13 +104,6 @@ class ContactSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class RelationSchema(ma.SQLAlchemyAutoSchema):
-    """ Create model for relation"""
-    class Meta:
-        model = Relation
-        ordered = True
-
-
 class CheckSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:

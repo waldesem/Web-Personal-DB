@@ -25,6 +25,20 @@ const storeLogin = loginStore();
 const storeClassify = classifyStore();
 
 const chartRadio = ref('bar');
+const mapped_month = {
+  '1': 'Январь',
+  '2': 'Февраль',
+  '3': 'Март',
+  '4': 'Апрель',
+  '5': 'Май',
+  '6': 'Июнь',
+  '7': 'Июль',
+  '8': 'Август',
+  '9': 'Сентябрь',
+  '10': 'Октябрь',
+  '11': 'Ноябрь',
+  '12': 'Декабрь'
+};
 
 onBeforeMount(async () => {
   loaded.value = false;
@@ -54,18 +68,6 @@ ChartJS.register(
 const todayDate = new Date();
 const header = ref('');
 const loaded = ref(false);
-const barData = ref<Chart>({
-  labels: [],
-  datasets: []
-});
-const lineData = ref<Chart>({
-  labels: [],
-  datasets: []
-});
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false
-};
 const stat = ref({
   region: 1,
   checks: [], 
@@ -76,6 +78,20 @@ const stat = ref({
     ).toISOString().slice(0,10),
   end: todayDate.toISOString().slice(0,10)
 });
+const barData = ref<Chart>({
+  labels: [],
+  datasets: []
+});
+const summedBarData = ref({});
+const lineData = ref<Chart>({
+  labels: [],
+  datasets: []
+});
+const summedLineData = ref<Array<Record<string, number>>>([{}]);
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false
+};
 
 /**
  * Submits data to the server.
@@ -93,7 +109,7 @@ async function submitData(): Promise<void> {
   stat.value.pfo = poligraf;
   stat.value.checks = candidates;
 
-  const summedBarData= stat.value.checks
+  summedBarData.value = stat.value.checks
     .filter((result: { [x: string]: any; }) => result['decision'])
     .reduce((acc: { [x: string]: any; }, result: { [x: string]: any; }) => {
       const decision = result['decision'];
@@ -103,37 +119,37 @@ async function submitData(): Promise<void> {
     }, {});
 
   barData.value = {
-    labels: Object.keys(summedBarData),
+    labels: Object.keys(summedBarData.value),
     datasets: [
       {
         label: 'Решения по кандидатам',
         backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'], 
-        data: Object.values(summedBarData),
+        data: Object.values(summedBarData.value),
       }
     ]
   };
 
-  const summedCountsByMonth: { [key: string]: number }[] = [];
+  //summedCountsByMonth: { [key: string]: number }[] = [];
 
   stat.value.checks.forEach(result => {
     const month = result['month'];
     const count = result['count'];
 
-    const monthObj = summedCountsByMonth.find(obj => obj.hasOwnProperty(month));
+    const monthObj = summedLineData.value.find(obj => obj.hasOwnProperty(month));
 
     if (monthObj) {
       monthObj[month] += count;
     } else {
-      summedCountsByMonth.push({ [month]: count });
+      summedLineData.value.push({ [month]: count });
     }
   });
 
   lineData.value = {
-    labels: summedCountsByMonth.map(obj => Object.keys(obj)[0]),
+    labels: summedLineData.value.map(obj => Object.keys(obj)[0]),
     datasets: [
       {
         label: 'Статистика по кандидатам',
-        data: summedCountsByMonth.map(obj => Object.values(obj)[0]),
+        data: summedLineData.value.map(obj => Object.values(obj)[0]),
         backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
       }
     ]
@@ -171,12 +187,12 @@ async function submitData(): Promise<void> {
 
     <div v-if="chartRadio === 'bar'" class="py-3">
       <table class="table table-hover table-responsive align-middle">
-        <caption>Статистика по кандидатам</caption>
+        <caption>Решения по кандидатам</caption>
         <thead><tr><th width="45%">Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, index) in barData.datasets[0].data" 
+          <tr height="50px" v-for="(value, index) in Object.keys(summedBarData)" 
               :key="index">
-            <td >{{barData.labels[index]}}</td><td>{{value}}</td>
+            <td >{{ value }}</td><td>{{Object.values(summedBarData)[index]}}</td>
           </tr>
         </tbody>
       </table>
@@ -187,14 +203,16 @@ async function submitData(): Promise<void> {
         <caption>Статистика по кандидатам</caption>
         <thead>
           <tr>
-            <th width="25%">Решение</th>
-            <th v-for="index, label in lineData.labels" :key="index">{{ label }}</th>
+            <th v-for="label, index in lineData.labels" :key="index">
+              {{ mapped_month[label as keyof typeof mapped_month] }}
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(index, value) in Object.keys(barData.labels)" :key="index">
-             <td>{{ value }}</td>
-            <td v-for="_month, decision, count in stat.checks" :key="decision">{{ count }}</td>
+          <tr>
+            <td v-for="check, index in summedLineData.map(obj => Object.values(obj)[0])" :key="index">
+              {{ check }}
+            </td>
           </tr>
         </tbody>
       </table>
