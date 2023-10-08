@@ -643,7 +643,7 @@ class FileView(MethodView):
                   r_g.roles_required(Roles.user.name),
                   bp.doc(hide=True)]
 
-    def get(action, item_id):
+    def get(self, action, item_id):
         """
         Retrieves a file from the server and sends it as a response.
 

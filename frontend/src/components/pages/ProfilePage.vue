@@ -27,6 +27,7 @@ onBeforeMount(() => {
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeProfile.cancelEdit();
+  urlImage.value = '';
   next();
 });
 
@@ -66,27 +67,17 @@ async function getImage(): Promise<void> {
 
 <template>
   <div class="container py-3">
-    <div class="py-5">
-      
-      <div v-if="urlImage" class="row py-3">
-        <div class="col">
-          <div class="card" style="width: 18rem;">
-            <img :src="urlImage" class="card-img-top" alt="...">
-            <div class="card-body">
-              <form @change="storeProfile.submitFile($event, 'image', storeProfile.profile.resume['id'])">
-                <div>
-                  <input class="form-control form-control-sm" id="formImage" type="file">
-                </div>
-              </form>
-            </div>
+    <div class="py-1">
+      <div class="py-3">
+        <div class="card" style="width: 16rem;">
+          <img :src="urlImage ? urlImage : '/assets/no-photo.png'" style="width: 100%; height: auto;" 
+                class="card-img-top" alt="...">
+          <div class="card-body">
+            <form @change="storeProfile.submitFile($event, 'image', storeProfile.profile.resume['id'])">
+              <input class="form-control form-control-sm" id="formImage" type="file">                  
+            </form>
           </div>
         </div>
-        <!--div class="col">
-          <a href="#" @click="storeProfile.deleteFile('image', storeProfile.profile.resume['id'])" 
-            title="Удалить">
-            <i class="bi bi-trash"></i>
-          </a>
-        </div-->
       </div>
 
       <h4>{{storeProfile.profile.resume['fullname']}}
