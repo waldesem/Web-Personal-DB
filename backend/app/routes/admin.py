@@ -19,20 +19,11 @@ from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
 
 
 class UsersView(MethodView):
-    decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
+    
+    decorators = [r_g.roles_required(Roles.admin.value), 
+                  bp.input(UserSchema),
+                  bp.doc(hide=True)]
 
-    schema = UserSchema()
-
-    def get(self):
-        """
-        Retrieves all users from the database and returns them in descending order by ID.
-
-        :return: A list of User objects.
-        """
-        query = db.session.query(User).order_by(User.id.desc())
-        return self.schema.dump(query, many=True)
-
-    @bp.input(UserSchema)
     def post(self, json_data):
         """
         Endpoint to handle POST requests for creating new users.
@@ -43,9 +34,10 @@ class UsersView(MethodView):
         Returns:
             list: A list of User objects that match the search criteria.
         """
+        schema = UserSchema()
         query = db.session.query(User).order_by(User.id.desc()). \
             filter(User.fullname.ilike('%{}%'.format(json_data['fullname']))).all()
-        return self.schema.dump(query, many=True)
+        return schema.dump(query, many=True)
 
 
 bp.add_url_rule('/users', view_func=UsersView.as_view('users'))

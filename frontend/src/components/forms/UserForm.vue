@@ -18,43 +18,27 @@ const storeAlert = alertStore();
  * successfully submitted.
  */
 async function submitUser(): Promise<void>{
-  const formData = {
-    'fullname': storeAdmin.profileData.fullname,
-    'username': storeAdmin.profileData.username,
-    'email': storeAdmin.profileData.email,
-    'region_id': storeAdmin.profileData.region_id,
-  };
+  console.log(storeAdmin.userData.userAct)
   try {  
     const response = storeAdmin.userData.userAct === 'edit' 
-      ? await storeAuth.axiosInstance.patch(`${server}/user`, formData)
-      : await storeAuth.axiosInstance.post(`${server}/user`, formData);
+      ? await storeAuth.axiosInstance.patch(`${server}/user`, storeAdmin.formData)
+      : await storeAuth.axiosInstance.post(`${server}/user`, storeAdmin.formData);
     const { message } = response.data;
 
     const resp = {
       'Created': ['alert-success', 'Пользователь успешно создан'],
       'Patched': ['alert-success', 'Пользователь успешно изменен'],
-    }
+    };
     storeAlert.setAlert(resp[message as keyof typeof resp][0],
                         resp[message as keyof typeof resp][1]);
 
-    storeAdmin.userData.userAct === 'edit' 
-      ? storeAdmin.userAction('view', storeAdmin.userData.userId) 
-      : storeAdmin.getUsers();
-
-    storeAdmin.userData.userId = '';
+    storeAdmin.getUsers();
 
   } catch (error) {
     console.error(error);
     storeAlert.setAlert('alert-danger', 'Ошибка сохранения данных');
   };
-
   storeAdmin.userData.userAct = '';
-  Object.assign(storeAdmin.profileData, {
-    fullname: '',
-    username: '',
-    email: '',
-    region_id: '',
-  });
 };
 
 </script>
@@ -64,19 +48,19 @@ async function submitUser(): Promise<void>{
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="fullname">Имя пользователя:</label>
       <div class="col-lg-10">
-        <input autocomplete="fullname" class="form-control" minlength="" maxlength="250" 
+        <input autocomplete="fullname" class="form-control" minlength="1" maxlength="250" 
                name="fullname" required type="text" placeholder="Петров Петр Петрович" 
                pattern="[a-zA-Zа-яА-Я ]+"
-               v-model="storeAdmin.profileData.fullname">
+               v-model="storeAdmin.formData.fullname">
       </div>
     </div>
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="username">Учетная запись:</label>
       <div class="col-lg-10">
         <input :disabled="storeAdmin.userData.userAct === 'edit'" 
-                autocomplete="username" class="form-control" minlength="8" maxlength="250" 
-                name="username" required type="text" placeholder="a-z, A-Z" pattern="[a-z]+"
-                v-model="storeAdmin.profileData.username">
+                autocomplete="username" class="form-control" minlength="1" maxlength="250" 
+                name="username" required type="text" placeholder="PPetrov" pattern="[a-zA-Z]+"
+                v-model="storeAdmin.formData.username">
       </div>
     </div>
     <div class="mb-3 row">
@@ -84,14 +68,14 @@ async function submitUser(): Promise<void>{
       <div class="col-lg-10">
         <input autocomplete="email" class="form-control" name="email" 
             required type="email" placeholder="petrov@petrov.ru" 
-            v-model="storeAdmin.profileData.email">
+            v-model="storeAdmin.formData.email">
       </div>
     </div>
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="region">Регион</label>
       <div class="col-lg-10">
         <select class="form-select" id="region" name="region" 
-                v-model="storeAdmin.profileData.region_id" required>
+                v-model="storeAdmin.formData.region_id">
           <option v-for="name, value in storeClassify.classifyItems.regions" 
                   :key="value" :value="value">
             {{name}}

@@ -10,10 +10,7 @@
       "@store/*": ["./src/store/*"],
       "@share/*": ["./src/share/*"],
       "@router/*": ["./src/router/*"],
-      "@components/*": ["./src/components/*"],
-      "@layouts/*": ["./src/components/layouts/*"],
-      "@pages/*": ["./src/components/pages/*"],
-      "@content/*": ["./src/components/content/*"],
+      "@components/*": ["./src/components/*"]
     },
 
     /* Bundler mode */

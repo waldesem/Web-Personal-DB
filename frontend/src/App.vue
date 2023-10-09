@@ -3,9 +3,9 @@
 import { onBeforeMount, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
-import FooterDiv from '@layouts/FooterDiv.vue';
-import AlertMessage from '@layouts/AlertMessage.vue';
-import NavBar from '@layouts/NavBar.vue';
+import FooterDiv from '@components/layouts/FooterDiv.vue';
+import AlertMessage from '@components/layouts/AlertMessage.vue';
+import NavBar from '@components/layouts/NavBar.vue';
 
 const storeLogin = loginStore();
 const route = useRoute();

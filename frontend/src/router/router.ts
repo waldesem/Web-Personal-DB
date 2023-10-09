@@ -4,15 +4,15 @@ import { server } from '@share/utilities';
 import axios from 'axios';
 import App from '@/App.vue';
 import PagesVue from '@/components/PagesVue.vue';
-import LoginPage from '@pages/LoginPage.vue';
-import PersonPage from '@pages/PersonPage.vue';
-import ResumePage from '@pages/ResumePage.vue';
-import ProfilePage from '@pages/ProfilePage.vue';
-import StatPage from '@pages/StatPage.vue';
-import AdminPage from '@pages/AdminPage.vue';
-import AdminTables from '@pages/AdminTables.vue'
-import ContactPage from '@pages/ContactPage.vue';
-import NotFound from '@pages/NotFound.vue';
+import LoginPage from '@components/pages/LoginPage.vue';
+import PersonPage from '@components/pages/PersonPage.vue';
+import ResumePage from '@components/pages/ResumePage.vue';
+import ProfilePage from '@components/pages/ProfilePage.vue';
+import StatPage from '@components/pages/StatPage.vue';
+import AdminPage from '@components/pages/AdminPage.vue';
+import AdminTables from '@components/pages/AdminTables.vue'
+import ContactPage from '@components/pages/ContactPage.vue';
+import NotFound from '@components/pages/NotFound.vue';
 
 
 const router = createRouter({
@@ -22,7 +22,7 @@ const router = createRouter({
       component: App
     },
     {
-      path: '/login',
+      path: '/login/auth',
       name: 'login',
       component: LoginPage,
     },
@@ -89,7 +89,7 @@ router.beforeEach(async (to, _from, next) => {
       const expiry_refresh = (JSON.parse(atob(refresh_token.split('.')[1]))).exp;
 
       if (Math.floor((new Date).getTime() / 1000) >= expiry_refresh) {
-        next({ name: 'login' })
+        next({ name: 'login' });
         
       } else {
 
@@ -104,23 +104,23 @@ router.beforeEach(async (to, _from, next) => {
 
             localStorage.setItem('access_token', access_token);
             storeAuth.setAccessToken(access_token);
-            next()
+            next();
             
           } else {
-            next()
-          }
+            next();
+          };
           
         } else {
-          next({ name: 'login' })
-        }
-      }
+          next({ name: 'login' });
+        };
+      };
       
     } else {
-      next({ name: 'login' })
-    }
+      next({ name: 'login' });
+    };
     
   } else {
-    next()
+    next();
   }
 });
 

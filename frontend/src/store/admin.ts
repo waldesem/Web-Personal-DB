@@ -16,11 +16,8 @@ export const adminStore = defineStore('adminStore', () => {
     userFlag: '',
     userRole: '',
     userGroup: '',
-    currentPage: 1,
-    hasNext: false,
-    hasPrev: false,
+    searchUser: ''
   });
-
   const profileData = ref<User>({
     id: '',
     fullname: '',
@@ -35,6 +32,12 @@ export const adminStore = defineStore('adminStore', () => {
     blocked: '',
     attempt: ''
   });
+  const formData = ref({
+    fullname: '',
+    username: '',
+    email: '',
+    region_id: '',
+  })
 
   /**
    * Retrieves a list of users from the server.
@@ -44,7 +47,10 @@ export const adminStore = defineStore('adminStore', () => {
    */
   async function getUsers(): Promise<void>{
     try {
-      const response = await storeAuth.axiosInstance.get(`${server}/users`);
+      const response = await storeAuth.axiosInstance.post(`${server}/users`,
+      {
+        'fullname': userData.value.searchUser 
+      });
       userData.value.userList = response.data;
     
     } catch (error) {
@@ -66,8 +72,10 @@ export const adminStore = defineStore('adminStore', () => {
       const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
       profileData.value = response.data;
       
+      if (action !== 'view'){
        userAction('view', userData.value.userId);
-
+      };
+      
     } catch (error) {
       console.error(error);
     }
@@ -76,6 +84,7 @@ export const adminStore = defineStore('adminStore', () => {
   return { 
     userData, 
     profileData, 
+    formData,
     getUsers, 
     userAction
   };

@@ -4,7 +4,6 @@ import { classifyStore } from '@/store/classify';
 import { adminStore } from '@store/admin';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
-import { loginStore } from '@/store/login';
 import { server } from '@share/utilities';
 import UserForm from '@components/forms/UserForm.vue'
 
@@ -12,13 +11,8 @@ const storeAdmin = adminStore();
 const storeClassify = classifyStore();
 const storeAlert = alertStore();
 const storeAuth = authStore();
-const storeLogin = loginStore();
 
 async function userDelete(): Promise<void>{
-  if (storeLogin.hasRole('admin')) {
-    storeAlert.setAlert('alert-danger', 'Нельзя удалить администратора');
-    return;
-  };
   if (confirm("Вы действительно хотите удалить пользователя?")){
     try {
       const response = await storeAuth.axiosInstance.delete(
@@ -69,13 +63,14 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
 </script>
 
 <template>
-  <div class="modal fade" id="modalUser" data-bs-backdrop="static" data-bs-keyboard="false" 
+  <div class="modal" id="modalUser" data-bs-backdrop="static" data-bs-keyboard="false" 
        tabindex="-1" aria-labelledby="modalWinLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="modalUserLabel">Профиль пользователян</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" 
+          <button @click="storeAdmin.userData.userAct = ''"
+                  type="button" class="btn-close" data-bs-dismiss="modal" 
                   aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -173,7 +168,12 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
                 <button @click="storeAdmin.userAction('block')" class="btn btn-outline-primary">
                   {{storeAdmin.profileData.blocked ? "Разблокировать" : 'Заблокировать' }}
                 </button>
-                <button @click="storeAdmin.userData.userAct = 'edit'" class="btn btn-outline-primary">
+                <button @click="storeAdmin.userData.userAct = 'edit';
+                        storeAdmin.formData.fullname = storeAdmin.profileData.fullname;
+                        storeAdmin.formData.email = storeAdmin.profileData.email;
+                        storeAdmin.formData.username = storeAdmin.profileData.username;
+                        storeAdmin.formData.region_id = storeAdmin.profileData.region_id;" 
+                        class="btn btn-outline-primary">
                     Редактировать</button>
                 <button @click="storeAdmin.userAction('drop')" class="btn btn-outline-primary">
                     Сбросить пароль</button>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router';
 import { adminStore } from '@store/admin';
-import UserContent from '@content/UserContent.vue';
+import { debounce } from '@share/utilities';
+import UserContent from '@components/content/UserContent.vue';
 
 const storeAdmin = adminStore();
 
@@ -11,35 +11,7 @@ onBeforeMount(async () => {
   storeAdmin.getUsers()
 });
 
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(storeAdmin.userData, {
-    userList: [],
-    userId: '',
-    userAct: '',
-    userFlag: '',
-    userRole: '',
-    userGroup: '',
-    currentPage: 1,
-    hasNext: false,
-    hasPrev: false,
-  });
-
-  Object.assign(storeAdmin.profileData, {
-    id: '',
-    fullname: '',
-    region_id: '',
-    username: '',
-    email: '',
-    pswd_create: '',
-    pswd_change: '',
-    last_login: '',
-    roles: [],
-    groups: [],
-    blocked: '',
-    attempt: ''
-  });
-  next();
-});
+const searchUsers = debounce(storeAdmin.getUsers, 500);
 
 </script>
 
@@ -52,6 +24,12 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       </h4>
     </div>
     <UserContent />
+    <form @input="searchUsers" class="form form-check" role="form">
+      <div class="row py-3">
+        <input class="form-control" id="fullusername" name="fullusername" type="text" 
+               v-model="storeAdmin.userData.searchUser">
+      </div>
+    </form>
     <div class="py-2">
       <table class="table table-responsive align-middle">
         <thead>
@@ -63,20 +41,24 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <th width="20%">Вход</th>
           </tr>
         </thead>
-        <tbody>
-          <tr height="50px" v-for="user in storeAdmin.userData.userList" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.fullname }}</td>
-            <td>
-              <a href="#" data-bs-toggle="modal" data-bs-target="#modalUser"
-                @click="storeAdmin.userAction('view', user.id)" >
-                {{ user.username }}</a>
-            </td>
-            <td>{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>
-            <td>{{ new Date(user.last_login).toLocaleString('ru-RU') }}</td>
-          </tr>
-        </tbody>
       </table>
+      <div class="overflow">
+        <table class="table table-responsive align-middle" >
+          <tbody>
+            <tr height="50px" v-for="user in storeAdmin.userData.userList" :key="user.id">
+              <td width="5%">{{ user.id }}</td>
+              <td>{{ user.fullname }}</td>
+              <td width="25%">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#modalUser"
+                  @click="storeAdmin.userAction('view', user.id)" >
+                  {{ user.username }}</a>
+              </td>
+              <td width="20%">{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>
+              <td width="20%">{{ new Date(user.last_login).toLocaleString('ru-RU') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="py-1">
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUser"
                 @click="storeAdmin.userData.userAct = 'create'">
@@ -86,3 +68,10 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     </div>
   </div>
 </template>
+
+<style>
+.overflow {
+  height: 300px;
+  overflow-y: auto;
+} 
+</style>

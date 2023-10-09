@@ -42,7 +42,7 @@ export const authStore = defineStore('authStore', () => {
                 router.push({ name: 'login' });
                 return Promise.reject(error);
               }
-            }
+            };
           
           } else {
             router.push({ name: 'login' });
@@ -63,13 +63,11 @@ export const authStore = defineStore('authStore', () => {
     }
   );
 
-  // Update the refresh token in the store
   function setRefreshToken(token: string) {
     refreshToken.value = token;
     localStorage.setItem('refresh_token', token);
   };
 
-  // Update the access token in the store
   function setAccessToken(token: string){
     accessToken.value = token;
     localStorage.setItem('access_token', token);
@@ -80,5 +78,6 @@ export const authStore = defineStore('authStore', () => {
     accessToken, 
     axiosInstance, 
     setRefreshToken, 
-    setAccessToken };
+    setAccessToken 
+  };
 });

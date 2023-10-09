@@ -116,13 +116,15 @@ class LoginView(MethodView):
         """
         user = db.session.query(User). \
             filter_by(username=json_data['username']).one_or_none()
-        if user and not user.blocked and not user.has_role(Roles.api.value):
+        if user and not user.blocked:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 delta_change = datetime.now() - user.pswd_create
                 if user.pswd_change and delta_change.days < 365:
                     user.last_login = datetime.now()
                     user.attempt = 0
                     db.session.commit()
+                    if user.has_role(Roles.api.value):
+                        return {'message': 'Overdue'}
                     return {'message': 'Authenticated',
                             'access_token': create_access_token(identity=user.username),
                             'refresh_token': create_refresh_token(identity=user.username)}
