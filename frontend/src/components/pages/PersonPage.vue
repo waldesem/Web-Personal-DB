@@ -5,7 +5,7 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { profileStore } from '@/store/profile';
-import { debounce, server, switchPage } from '@share/utilities';
+import { debounce, server } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
 
 const storeAuth = authStore();
@@ -53,15 +53,18 @@ const header = computed(() => {
  * @return {Promise<void>} - A promise that resolves when the candidates are 
  * retrieved and the data store is updated.
  */
-async function getCandidates(url: string=personData.value.currentPath): Promise<void> {
-
+async function getCandidates(
+    url: string=personData.value.currentPath,
+    page: number = personData.value.currentPage
+  ): Promise<void> {
+  personData.value.currentPage = page;
   try {
     const response = await storeAuth.axiosInstance.post(
-      `${server}/index/${url}/${personData.value.currentPage}`, 
+      `${server}/index/${url}/${page}`, 
         {'fullname': personData.value.searchData}
       );
-
     const [ datas, metadata ] = response.data;
+    
     personData.value.candidates = datas;
     personData.value.has_prev = metadata.has_prev;
     personData.value.has_next = metadata.has_next;
@@ -138,24 +141,18 @@ const searchPerson = debounce(getCandidates, 500);
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !personData.has_prev }">
             <a class="page-link" href="#" 
-                v-on:click.prevent="switchPage(
-                  personData.has_prev, 
-                  personData.currentPage -= 1,
-                  'previous',
-                  getCandidates
-                )">
-              Предыдущая
+                v-on:click.prevent="getCandidates(
+                  personData.currentPath, personData.currentPage - 1
+                  )">
+                Предыдущая
             </a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !personData.has_next }">
             <a class="page-link" href="#" 
-                v-on:click.prevent="switchPage(
-                  personData.has_next, 
-                  personData.currentPage += 1,
-                  'next',
-                  getCandidates
-                )">
-              Следующая
+                v-on:click.prevent="getCandidates(
+                  personData.currentPath, personData.currentPage + 1
+                  )">
+                Следующая
             </a>
           </li>
         </ul>

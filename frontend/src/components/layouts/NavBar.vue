@@ -4,11 +4,13 @@ import { ref } from 'vue';
 import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { profileStore } from '@/store/profile';
+import { adminStore } from '@/store/admin';
 import { server } from '@share/utilities';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
 const storeProfile = profileStore();
+const storeAdmin = adminStore();
 
 const messages = ref([]);
 
@@ -55,6 +57,13 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
               <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">
                 Пользователи
               </router-link>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#"
+                data-bs-toggle="modal" data-bs-target="#modalUser"
+                @click="storeAdmin.userData.userAct = 'create'">
+                 Создать
+              </a>
             </li>
             <li class="nav-item">
               <router-link :to="{ name: 'table', params: { group: 'admins' } }" class="nav-link active" href="#">

@@ -34,10 +34,11 @@ export const contactStore = defineStore('contactStore', () => {
    *
    * @return {Promise<void>} A Promise that resolves when the contacts have been retrieved and the data value has been updated.
    */
-  async function getContacts(): Promise<void> {
+  async function getContacts(page: number = currentPage.value): Promise<void> {
+    currentPage.value = page;
     try {
       const response = await storeAuth.axiosInstance.post(
-        `${server}/connects/${storeLogin.pageIdentity}/${currentPage.value
+        `${server}/connects/${storeLogin.pageIdentity}/${page
         }`, {
           'company': searchData.value
         });
@@ -45,10 +46,10 @@ export const contactStore = defineStore('contactStore', () => {
 
       Object.assign(responseData.value, {
         contacts: datas,
-        hasPrev: has_prev['has_prev'],
-        hasNext: has_next['has_next'],
-        companies: companies['companies'],
-        cities: cities['cities'],
+        hasPrev: has_prev.has_prev,
+        hasNext: has_next.has_next,
+        companies: companies.companies,
+        cities: cities.cities,
       });
 
     } catch (error) {

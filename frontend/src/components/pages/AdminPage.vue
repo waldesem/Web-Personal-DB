@@ -59,12 +59,6 @@ const searchUsers = debounce(storeAdmin.getUsers, 500);
           </tbody>
         </table>
       </div>
-      <div class="py-1">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUser"
-                @click="storeAdmin.userData.userAct = 'create'">
-          Добавить пользователя
-        </button>
-      </div>
     </div>
   </div>
 </template>

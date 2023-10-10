@@ -5,7 +5,7 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
-import { server, debounce, switchPage, clearItem } from '@share/utilities';
+import { server, debounce, clearItem } from '@share/utilities';
 import ConnectForm from '@components/forms/ConnectForm.vue';
 
 const storeAlert = alertStore();
@@ -135,22 +135,16 @@ async function deleteContact(_event: Event, contactId: string=storeContact.itemI
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !storeContact.responseData.hasPrev }">
             <a class="page-link" href="#" 
-              v-on:click.prevent="switchPage(
-                storeContact.responseData.hasPrev,
-                storeContact.currentPage, 
-                'previous', 
-                storeContact.getContacts
-                )">
+              v-on:click.prevent="storeContact.getContacts(
+                storeContact.currentPage - 1
+              )">
                 Предыдущая</a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !storeContact.responseData.hasNext }">
             <a class="page-link" href="#" 
-              v-on:click.prevent="switchPage(
-                storeContact.responseData.hasNext, 
-                storeContact.currentPage, 
-                'next', 
-                storeContact.getContacts
-                )">
+              v-on:click.prevent="storeContact.getContacts(
+                storeContact.currentPage + 1
+              )">
                 Следующая</a>
           </li>
         </ul>

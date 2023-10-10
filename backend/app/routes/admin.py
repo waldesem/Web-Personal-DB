@@ -44,6 +44,7 @@ bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
 
 
 class UserView(MethodView):
+
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     @bp.output(UserSchema)
@@ -157,6 +158,7 @@ bp.add_url_rule('/user/<action>/<int:user_id>', view_func=user_view, methods=['G
 
 
 class GroupView(MethodView):
+
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
@@ -251,8 +253,8 @@ bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'
 
 
 class TableView(MethodView):
+    
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
-    pagination = 16
     mapped_item = {
         'user': [User, UserSchema()],
         'resume': [Person, PersonSchema()],
@@ -269,41 +271,25 @@ class TableView(MethodView):
         'inquiry': [Inquiry, InquirySchema()]
     }
 
-    def get(self, item, page):
-        model = self.mapped_item[item][0]
-        schema = self.mapped_item[item][1]
-        query = db.session.query(model). \
-            order_by(model.id.desc()).paginate(page=page,
-                                               per_page=self.pagination,
-                                               error_out=False)
-        return [schema.dump(query, many=True),
-                {'has_next': int(query.has_next)},
-                {'has_prev': int(query.has_prev)}]
-
     def post(self, item, page):
+        pagination = 16
         model = self.mapped_item[item][0]
         schema = self.mapped_item[item][1]
         json_data = request.get_json()
-        query = db.session.query(model). \
-            filter_by(id=int(json_data['id'])). \
-            order_by(model.id.desc()).paginate(page=page,
-                                               per_page=self.pagination,
-                                               error_out=False)
+        if json_data['id']:
+            query = db.session.query(model). \
+                filter_by(id=json_data['id']). \
+                order_by(model.id.desc()).paginate(page=page,
+                                                per_page=pagination,
+                                                error_out=False)
+        else:
+            query = db.session.query(model). \
+                order_by(model.id.desc()).paginate(page=page,
+                                                per_page=pagination,
+                                                error_out=False)
         return [schema.dump(query, many=True),
-                {'has_next': int(query.has_next)},
-                {'has_prev': int(query.has_prev)}]
-
-    def patch(self, item, item_id):
-        model = self.mapped_item[item][0]
-        schema = self.mapped_item[item][1]
-        json_data = schema.load(request.get_json())
-        data = db.session.query(model). \
-            filter_by(id=item_id).one_or_none()
-        if data:
-            for k, v in json_data.items():
-                setattr(data, k, v)
-            db.session.commit()
-            return {'message': 'Patched'}, 201
+                {'has_next': int(query.has_next),
+                 'has_prev': int(query.has_prev)}]
 
     def delete(self, item, item_id):
         model = self.mapped_item[item][0]

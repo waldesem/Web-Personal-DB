@@ -2,7 +2,7 @@
 
 import { onBeforeMount, ref } from 'vue'
 import { authStore } from '@/store/token';
-import { server, debounce, switchPage } from '@share/utilities';
+import { server, debounce } from '@share/utilities';
 
 const storeAuth = authStore();
 
@@ -19,8 +19,8 @@ const tableData = ref({
   itemForm: <Record<string, any>>({}),
   itemAction: '',
   currentPage: 1,
-  hasNext: false,
-  hasPrev: false
+  hasNext: 0,
+  hasPrev: 0
 });
 
 onBeforeMount(() => {
@@ -28,49 +28,29 @@ onBeforeMount(() => {
   getItem();
 });
 
-/**
- * Retrieves a list of users from the server.
- *
- * @return {Promise<void>} - A promise that resolves with the list of users 
- * retrieved from the server.
- */
-async function getItem(): Promise<void>{
 
-  try {
-    const response = await storeAuth.axiosInstance.get(
-      `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`
-    );
-    const [ datas, has_prev, has_next ] = response.data;
-    tableData.value.tableItem = datas;
-    tableData.value.hasPrev = has_prev['has_prev'];
-    tableData.value.hasNext = has_next['has_next'];
-
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-async function searchItem(): Promise<void> {
-  if (tableData.value.searchId === '') {
-    getItem();
-    return
-  }
+async function getItem(page: number = tableData.value.currentPage): Promise<void> {
+  tableData.value.currentPage = page;
   try {
     const response = await storeAuth.axiosInstance.post(
-      `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`, {
+      `${server}/table/${tableData.value.table}/${page}`, {
         'id': tableData.value.searchId
       }
       );
-    const [ datas, has_prev, has_next ] = response.data;
+    const [ datas, metadata ] = response.data;
 
     tableData.value.tableItem =  datas;
-    tableData.value.hasPrev = has_prev['has_prev'];
-    tableData.value.hasNext = has_next['has_next'];
+    tableData.value.hasNext = metadata.has_next;
+    tableData.value.hasPrev = metadata.has_prev;
+    
+    console.log(metadata);
 
   } catch (error) {
     console.error(error);
   }
 };
+
+const searchItem = debounce(getItem, 500);
 
 async function deleteItem(idItem: string): Promise<void>{
   try {
@@ -84,7 +64,6 @@ async function deleteItem(idItem: string): Promise<void>{
   }
 };
 
-const idHandler = debounce(searchItem, 500);
 
 </script>
 
@@ -98,7 +77,7 @@ const idHandler = debounce(searchItem, 500);
         <form class="form form-check" role="form">
           <select class="form-select" id="region" name="region" 
               v-model="tableData.table" 
-              @change="getItem()">
+              @change="getItem(1)">
             <option v-for="table, index in tablesList" :key="index" :value="table">
               {{ table }}
             </option>
@@ -106,7 +85,7 @@ const idHandler = debounce(searchItem, 500);
         </form>
       </div>
       <div class="col-md-8">
-        <form @input="idHandler" class="form form-check" role="form">
+        <form @input="searchItem" class="form form-check" role="form">
           <input class="form-control" id="name" name="name" placeholder="Поиск ID" type="text" 
                   v-model="tableData.searchId">
         </form>
@@ -116,7 +95,7 @@ const idHandler = debounce(searchItem, 500);
       <table class="table table-hover align-middle">
         <thead> 
           <tr>
-            <th width="95%" v-for="key, index in Object.keys(tableData.tableItem[0])" 
+            <th v-for="key, index in Object.keys(tableData.tableItem[0])" 
                       :key="index">{{ key }}</th>
             <th width="5%">action</th>
           </tr>
@@ -138,23 +117,13 @@ const idHandler = debounce(searchItem, 500);
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasPrev }">
             <a class="page-link" href="#" 
-               @click.prevent="switchPage(
-                tableData.hasPrev, 
-                tableData.currentPage, 
-                'previous', 
-                searchItem
-                )">
+               @click.prevent="getItem(tableData.currentPage - 1)">
                Предыдущая
             </a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasNext }">
             <a class="page-link" href="#" 
-               @click.prevent="switchPage(
-                tableData.hasNext, 
-                tableData.currentPage, 
-                'next', 
-                searchItem
-                )">
+              @click.prevent="getItem(tableData.currentPage + 1)">
                Следующая
               </a>
           </li>
