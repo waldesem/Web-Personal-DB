@@ -14,7 +14,6 @@ const storeAdmin = adminStore();
 
 const messages = ref([]);
 
-// Получение списка сообщений после монтирования компонента и обновление каждые 10 минут
 let isStarted = false;
 if (!isStarted) {
   updateMessage();

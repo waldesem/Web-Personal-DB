@@ -14,6 +14,7 @@ class Groups(Enum):
     """ Groups """
     admins = 'Администратор системы'
     staffsec = 'Центр кадровой безопасности'
+    api = 'Application programming interface'
     
 
 class Roles(Enum):

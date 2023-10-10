@@ -5,7 +5,7 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
-import { server, debounce, clearItem } from '@share/utilities';
+import { server, debounce } from '@share/utilities';
 import ConnectForm from '@components/forms/ConnectForm.vue';
 
 const storeAlert = alertStore();
@@ -23,7 +23,13 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeContact.itemAction = '';
   storeContact.searchData = '';
   storeContact.currentPage = 1;
-  clearItem(storeContact.itemForm);
+  Object.assign(storeContact.itemForm, {
+    company: '',
+    city: '',
+    fullname: '',
+    contact: '',
+    comment: ''
+  });
   next()
 });
 

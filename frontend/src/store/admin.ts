@@ -37,7 +37,7 @@ export const adminStore = defineStore('adminStore', () => {
     username: '',
     email: '',
     region_id: '',
-  })
+  });
 
   /**
    * Retrieves a list of users from the server.

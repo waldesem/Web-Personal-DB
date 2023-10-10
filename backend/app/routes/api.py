@@ -65,7 +65,7 @@ def anketa_in(json_data):
     users = db.session.query(User).filter_by(region_id=location_id).all()
     for user in users:
         if user:
-            db.session.add(Report(report=f'Поступила анкета {resume["fullname"]}',
+            db.session.add(Report(report=f'Поступила анкета #{person_id} {resume["fullname"]}',
                                   user_id=user.id))
     db.session.commit()
     return '', 201
