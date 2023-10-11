@@ -93,7 +93,7 @@ const storeClassify = classifyStore();
             <td>{{ storeProfile.profile.resume['addition'] }}</td>
           </tr>
           <tr>
-            <td>Документы</td>
+            <td>Материалы</td>
             <td>{{ storeProfile.profile.resume['path'] }}</td>
           </tr>
           <tr>

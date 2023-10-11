@@ -58,21 +58,22 @@ async function getProfile() {
                 : '/no-photo.png'" 
                 style="width: 100%; height: auto;" 
                 class="card-img-top" alt="...">
-          <div class="card-body">
+          <div v-if="!storeProfile.printPdf" class="card-body">
             <form @change="storeProfile.submitFile($event, 'image', storeProfile.profile.resume['id'])">
               <input class="form-control form-control-sm" id="formImage" type="file">                  
             </form>
           </div>
         </div>
       </div>
-
-      <h4>{{storeProfile.profile.resume['fullname']}}
-        &nbsp;
-        <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
-                            storeAlert.setAlert">
-          <i class="bi bi-printer" title="Версия для печати"></i>
-        </a>
-      </h4>
+      <div class="py-2">
+        <h3>{{storeProfile.profile.resume['fullname']}}
+          &nbsp;
+          <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
+                              storeAlert.setAlert">
+            <i class="bi bi-printer" title="Версия для печати"></i>
+          </a>
+        </h3>
+      </div>
     </div>
     <template v-if="!storeProfile.printPdf">
       <div v-if="!storeProfile.printPdf" class="nav nav-tabs nav-justified" role="tablist">

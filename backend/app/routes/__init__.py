@@ -16,5 +16,5 @@ from app.routes import contact
 
 from app.routes import message
 
-from app.routes import classes 
+from app.routes import classify
 

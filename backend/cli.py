@@ -40,7 +40,8 @@ def register_cli(app):
                              username=Roles.admin.value,
                              password=bcrypt.hashpw('88888888'.encode('utf-8'),
                                                     bcrypt.gensalt()),  # admin
-                             region_id=1)
+                             region_id=db.session.query(Region).\
+                                filter_by(region=Regions.NULL.value))
             db.session.add(new_admin)
             db.session.flush()
             new_admin.roles.append(db.session.query(Role).
