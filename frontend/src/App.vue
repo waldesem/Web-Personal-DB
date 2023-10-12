@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { onBeforeMount, watch } from 'vue';
+import { onBeforeMount, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
 import FooterDiv from '@components/layouts/FooterDiv.vue';
@@ -12,9 +12,6 @@ const route = useRoute();
 
 onBeforeMount(() => {
   storeLogin.getAuth()
-  // const appModal = new bootstrap.Model('#modalApp')
-  // appModal.show();
-  // setTimeout(appModal.hide(), 3000)
 });
 
 watch(() => route.params.group,
@@ -23,6 +20,10 @@ watch(() => route.params.group,
   }
 );
 
+onMounted(() => {
+  document.getElementById('openModal')?.click();
+  setTimeout(() => document.getElementById('closeModal')?.click(), 3000)
+});
 
 </script>
 
@@ -34,24 +35,31 @@ watch(() => route.params.group,
 
   <div class="modal" id="modalApp" data-bs-backdrop="static" data-bs-keyboard="false" 
        tabindex="-1" aria-labelledby="modalAppLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="modalUserLabel">Кадровая безопасность</h1>
-        </div>
-        <div class="modal-body">
-          <div class="py-2">
-            <div class="text-primary text-opacity-75 py-3">
-              <h1>StaffSec</h1>
-            </div>
-            <p class="text-center">Web interface for managing a candidate database</p>
-            <div class="modal-footer">
-              <p class="text-end">2023</p>
-            </div>
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content py-5">
+        <button hidden class="btn-close" type="button" id="closeModal" data-bs-dismiss="modal"></button>
+        <div class="modal-body py-5">
+          <div class="text-primary text-opacity-75 py-3">
+            <h1 class="text-center">StaffSec</h1>
+          </div>
+          <div class="text-secondary text-opacity-75 py-2">
+            <h2 class="text-center">Кадровая безопасность</h2>
+          </div>
+          <div class="py-1">
+            <p class="text-center fs-6">Web interface for managing a candidate database</p>
+            <p class="text-center">2023</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <button id="openModal" hidden type="button" data-bs-toggle="modal" data-bs-target="#modalApp"></button>
+
 </template>
+
+<style>
+.modal-backdrop {
+  opacity: 0.75 !important;
+}
+</style>
