@@ -58,8 +58,7 @@ To start development node server  run the following command in your terminal:
 ```
 npm run dev
 ```
-To build the code in the static directory flask app, first comment/uncomment rows in server.ts. 
-Then, run the following command in your terminal:
+To build the code in the static directory flask app, run the following command in your terminal:
 ```
 npm run build
 ```
