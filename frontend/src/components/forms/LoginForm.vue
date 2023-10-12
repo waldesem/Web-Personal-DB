@@ -56,7 +56,10 @@ try {
         storeAuth.setRefreshToken(refresh_token);
         storeAuth.setAccessToken(access_token);
         
+        document.getElementById('openModal')?.click();
         storeLogin.getAuth();
+        setTimeout(() => document.getElementById('closeModal')?.click(), 2000)
+
       };
       break;
 

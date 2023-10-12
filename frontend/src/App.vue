@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { onBeforeMount, onMounted, watch } from 'vue';
+import { onBeforeMount, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
 import FooterDiv from '@components/layouts/FooterDiv.vue';
@@ -20,11 +20,6 @@ watch(() => route.params.group,
   }
 );
 
-onMounted(() => {
-  document.getElementById('openModal')?.click();
-  setTimeout(() => document.getElementById('closeModal')?.click(), 3000)
-});
-
 </script>
 
 <template>
@@ -36,20 +31,31 @@ onMounted(() => {
   <div class="modal" id="modalApp" data-bs-backdrop="static" data-bs-keyboard="false" 
        tabindex="-1" aria-labelledby="modalAppLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-      <div class="modal-content py-5">
-        <button hidden class="btn-close" type="button" id="closeModal" data-bs-dismiss="modal"></button>
+      <div class="modal-content">
+          <button hidden class="btn-close" type="button" id="closeModal" data-bs-dismiss="modal"></button>
         <div class="modal-body py-5">
           <div class="text-primary text-opacity-75 py-3">
             <h1 class="text-center">StaffSec</h1>
           </div>
-          <div class="text-secondary text-opacity-75 py-2">
-            <h2 class="text-center">Кадровая безопасность</h2>
+          <div class="text-secondary text-opacity-95 py-3">
+            <h3 class="text-center">Кадровая безопасность</h3>
           </div>
-          <div class="py-1">
-            <p class="text-center fs-6">Web interface for managing a candidate database</p>
-            <p class="text-center">2023</p>
+          <div class="text-secondary text-opacity-95 py-3">
+            <h5 class="text-center">Интерфейс базы данных кандидатов и сотрудников</h5>
           </div>
-        </div>
+          <div class="progress" role="progressbar">
+            <div class="row">>
+              <div class="col-2"></div>
+              <div class="col-8">
+                <div class="progress-bar progress-bar-stripped progress-bar-animated" style="width: 100%"></div>
+              </div>
+              <div class="col-2"></div>
+            </div>
+          </div>
+          <p class="text-center text-secondary text-opacity-95 py-1">MIT License</p>
+          <p class="text-center text-secondary text-opacity-95 py-1">2023 Версия 0.1</p>
+        </div>  
+
       </div>
     </div>
   </div>

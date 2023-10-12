@@ -192,4 +192,4 @@ docker run --add-host host.docker.internal:host-gateway -p 5000:5000 staffsec
 ```
 
 ### License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License.
