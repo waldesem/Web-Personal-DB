@@ -1,9 +1,9 @@
 import csv
-from datetime import datetime
 import json
 import os
 import requests
 import shutil
+from datetime import datetime
 
 from apiflask import abort, EmptySchema
 from flask import request, current_app, send_file
@@ -16,7 +16,7 @@ from PIL import Image
 from . import bp
 from .. import db
 from .login import r_g
-from ..utils.utilities import ExcelFile, add_resume, create_folders
+from ..utils.utilities import CsvFile, ExcelFile, add_resume, create_folders
 from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
@@ -674,6 +674,7 @@ bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
 
 
 class FileView(MethodView):
+
     decorators = [r_g.group_required(Groups.staffsec.name),
                   r_g.roles_required(Roles.user.name),
                   bp.doc(hide=True)]
@@ -697,7 +698,7 @@ class FileView(MethodView):
 
     def post(self, action, item_id=0):
 
-        if request.files['file'].filename == '':
+        if not request.files['file'].filename:
             return {'result': False, 'item_id': item_id}
 
         if action == 'anketa':
@@ -717,22 +718,17 @@ class FileView(MethodView):
                 anketa.close()
             
             elif temp_path.endswith('csv'):
-                with open(temp_path, newline='') as csvfile:
-                    anketa = csv.DictReader(csvfile)
-                    for row in anketa:
-                        print(row.items())
+                anketa  = CsvFile(temp_path)
 
             person_id = add_resume(anketa.resume, location_id, 'create')
-
             models = [Staff, Document, Address, Contact, Workplace]
-            for count, items in enumerate([anketa.staff, anketa.passport,
-                                           anketa.addresses, anketa.contacts,
+            for count, items in enumerate([anketa.staff, anketa.passport, 
+                                           anketa.addresses, anketa.contacts, 
                                            anketa.workplaces]):
                 for item in items:
                     if item:
                         print(item)
-                        db.session.add(models[count](**item |
-                                                       {'person_id': person_id}))
+                        db.session.add(models[count](**item | {'person_id': person_id}))
             db.session.commit()
 
             person = db.session.query(Person).get(person_id)
@@ -790,7 +786,8 @@ class FileView(MethodView):
                     filename = secure_filename(file.filename)
                     for file in files:
                         file.save(os.path.join(folder,
-                                               f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
+                                               f'{datetime.now().\
+                                                  strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return {'message': item_id}
 
     @bp.output(EmptySchema, status_code=204)
@@ -800,8 +797,7 @@ class FileView(MethodView):
             os.remove(person.path)
             person.path = ''
             db.session.commit()
-            return ''
-
+            return ''        
 
 bp.add_url_rule('/file/<action>/<int:item_id>',
                 view_func=FileView.as_view('file'))

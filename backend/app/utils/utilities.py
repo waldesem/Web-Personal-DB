@@ -1,3 +1,4 @@
+import csv
 import os
 import re
 from datetime import datetime
@@ -18,72 +19,140 @@ class ExcelFile:
         self.sheet = self.wb.worksheets[0]
 
         self.resume = {
-            'fullname': self.parse_cell(self.sheet['K3']).title(),
-            'previous': self.parse_cell(self.sheet['S3']).title(),
-            'birthday': self.parse_date(self.parse_cell(self.sheet['L3'])),
+            'fullname': parse_cell(self.sheet['K3']).title(),
+            'previous': parse_cell(self.sheet['S3']).title(),
+            'birthday': parse_date(parse_cell(self.sheet['L3'])),
             'birthplace': str(self.sheet['M3'].value).strip(),
-            'country': self.parse_cell(self.sheet['T3']),
-            'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").\
+            'country': parse_cell(self.sheet['T3']),
+            'snils': parse_cell(self.sheet['U3']).replace(" ", "").\
                 replace("-", "")[:11],
-            'inn': self.parse_cell(self.sheet['V3'], 12),
+            'inn': parse_cell(self.sheet['V3'], 12),
             'education': str(self.sheet['X3'].value).strip()
         }
-        self.passport = [{
-            'view': 'Паспорт гражданина России',
-            'series': self.parse_cell(self.sheet['P3'], 4),
-            'number': self.parse_cell(self.sheet['Q3'], 6),
-            'issue': self.parse_date(self.parse_cell(self.sheet['R3'])),
-        }]
+        self.passport = [
+            {
+                'view': 'Паспорт гражданина России',
+                'series': parse_cell(self.sheet['P3'], 4),
+                'number': parse_cell(self.sheet['Q3'], 6),
+                'issue': parse_date(parse_cell(self.sheet['R3'])),
+            }
+        ]
         self.addresses = [
-            {'view': "Адрес регистрации", 
-             'address': self.parse_cell(self.sheet['N3'])},
-            {'view': "Адрес проживания", 
-             'address': str(self.sheet['O3'].value).strip()}
+            {
+                'view': "Адрес регистрации", 
+                'address': parse_cell(self.sheet['N3'])
+            },
+            {
+                'view': "Адрес проживания", 
+                'address': str(self.sheet['O3'].value).strip()
+            }
         ]
         self.contacts = [
-            {'view': self.parse_cell(self.sheet['Y1']), 
-             'contact': self.parse_cell(self.sheet['Y3']).replace(" ", "")},
-            {'view': self.parse_cell(self.sheet['Z1']), 
-             'contact': self.parse_cell(self.sheet['Z3']).replace(" ", "")}
+            {
+                'view': parse_cell(self.sheet['Y1']), 
+                'contact': parse_cell(self.sheet['Y3']).replace(" ", "")
+            },
+            {
+                'view': parse_cell(self.sheet['Z1']), 
+                'contact': parse_cell(self.sheet['Z3']).replace(" ", "")
+            }
         ]
         self.workplaces = [
             {
-            'workplace': str(self.sheet[f'AB{i}'].value).strip(),
-            'address': str(self.sheet[f'AC{i}'].value).strip(),
-            'position': str(self.sheet[f'AD{i}'].value).strip()
-            } | self.parse_period(self.sheet[f'AA{i}'].value)
+                'workplace': str(self.sheet[f'AB{i}'].value).strip(),
+                'address': str(self.sheet[f'AC{i}'].value).strip(),
+                'position': str(self.sheet[f'AD{i}'].value).strip()
+            } | parse_period(self.sheet[f'AA{i}'].value)
             for i in range(3, 6) if self.sheet[f'AB{i}'].value
         ]
-        self.staff = [{
-            'position': str(self.sheet['C3'].value).strip(),
-            'department': str(self.sheet['D3'].value).strip()
-        }]
-
-    def parse_cell(self, cell, limit=255):
-        return str(cell.value).strip()[:limit]
-    
-    def parse_date(self, data):
-        return datetime.strptime(data, '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', data) \
-                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
-
-    def parse_period(self, cell):
-        """ Parse period from excel file """
-        lst = re.split(r'-', cell)
-        if len(lst) == 2:
-            start, end = lst[0].strip(), lst[1].strip()
-            start_date = self.parse_date(start)
-            end_date = datetime.strptime(end, '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', end) \
-                    else datetime.now().date()
-        
-        elif len(lst) and len(lst) != 2:
-            start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
-            end_date = datetime.now().date()
-        return {'start_date': start_date, 'end_date': end_date}
+        self.staff = [
+            {
+                'position': str(self.sheet['C3'].value).strip(),
+                'department': str(self.sheet['D3'].value).strip()
+            }
+        ]
 
     def close(self):
         self.wb.close()
+
+
+class CsvFile:
+    """ Create class for import data from csv files"""
+
+    def __init__(self, file) -> None:
+        with open(file, newline='') as csvfile:
+            self.csv_dict = csv.DictReader(csvfile)
+
+        self.resume = {
+            'fullname': parse_cell(self.csv_dict['fullname']).title(),
+            'previous': parse_cell(self.csv_dict['previous']).title(),
+            'birthday': parse_date(parse_cell(self.csv_dict['birthday'])),
+            'birthplace': str(self.csv_dict['birthplace'].value).strip(),
+            'country': parse_cell(self.csv_dict['country']),
+            'snils': parse_cell(self.csv_dict['snils']).replace(" ", "").\
+                replace("-", "")[:11],
+            'inn': parse_cell(self.csv_dict['inn'], 12),
+            'education': str(self.csv_dict['education'].value).strip()
+        }
+        self.passport = [
+            {
+                'view': 'Паспорт гражданина России',
+                'series': parse_cell(self.csv_dict['series'], 4),
+                'number': parse_cell(self.csv_dict['number'], 6),
+                'issue': parse_date(parse_cell(self.csv_dict['issue']))
+            }
+        ]
+        self.addresses = [
+            {
+                'view': "Адрес регистрации", 
+                'address': parse_cell(self.csv_dict['address'])
+            }
+        ]
+        self.contacts = [
+            {
+                'view': parse_cell(self.csv_dict['view']), 
+                'contact': parse_cell(self.csv_dict['contact']).replace(" ", "")
+            }
+        ]
+        self.workplaces = [
+            {
+                'workplace': str(self.csv_dict[f'workplace'].value).strip(),
+                'address': str(self.csv_dict[f'address'].value).strip(),
+                'position': str(self.csv_dict[f'position'].value).strip()
+            }
+        ]
+        self.staff = [
+            {
+                'position': str(self.csv_dict['position'].value).strip(),
+                'department': str(self.csv_dict['department'].value).strip()
+            }
+        ]
+
+
+def parse_cell(cell, limit=255):
+    return str(cell.value).strip()[:limit]
+
+
+def parse_date(data):
+    return datetime.strptime(data, '%d.%m.%Y').date() \
+            if re.match(r'\d\d.\d\d.\d\d\d\d', data) \
+                else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
+
+
+def parse_period(cell):
+    """ Parse period from excel file """
+    lst = re.split(r'-', cell)
+    if len(lst) == 2:
+        start, end = lst[0].strip(), lst[1].strip()
+        start_date = parse_date(start)
+        end_date = datetime.strptime(end, '%d.%m.%Y').date() \
+            if re.match(r'\d\d.\d\d.\d\d\d\d', end) \
+                else datetime.now().date()
+    
+    elif len(lst) and len(lst) != 2:
+        start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
+        end_date = datetime.now().date()
+        return {'start_date': start_date, 'end_date': end_date}
 
 
 def add_resume(resume: dict, location_id, action):
