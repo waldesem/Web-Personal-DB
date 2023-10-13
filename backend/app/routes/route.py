@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 import json
 import os
@@ -700,6 +701,9 @@ class FileView(MethodView):
             return {'result': False, 'item_id': item_id}
 
         if action == 'anketa':
+            location_id = db.session.query(User.region_id). \
+                filter_by(username=current_user.username).scalar()
+                       
             file = request.files['file']
 
             filename = secure_filename(file.filename)
@@ -708,17 +712,22 @@ class FileView(MethodView):
                                         -{filename}')
             file.save(temp_path)
 
-            excel = ExcelFile(temp_path)
-            excel.close()
-            location_id = db.session.query(User.region_id). \
-                filter_by(username=current_user.username).scalar()
+            if temp_path.endswith('xlsx'):
+                anketa = ExcelFile(temp_path)
+                anketa.close()
+            
+            elif temp_path.endswith('csv'):
+                with open(temp_path, newline='') as csvfile:
+                    anketa = csv.DictReader(csvfile)
+                    for row in anketa:
+                        print(row.items())
 
-            person_id = add_resume(excel.resume, location_id, 'create')
+            person_id = add_resume(anketa.resume, location_id, 'create')
 
             models = [Staff, Document, Address, Contact, Workplace]
-            for count, items in enumerate([excel.staff, excel.passport,
-                                           excel.addresses, excel.contacts,
-                                           excel.workplaces]):
+            for count, items in enumerate([anketa.staff, anketa.passport,
+                                           anketa.addresses, anketa.contacts,
+                                           anketa.workplaces]):
                 for item in items:
                     if item:
                         print(item)

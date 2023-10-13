@@ -23,7 +23,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <div class="mb-3 row">
             <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
             <div class="col-lg-10">
-                <input class="form-control" id="file" type="file" accept=".xlsx" ref="file">
+                <input class="form-control" id="file" type="file" accept=".xlsx, .csv" ref="file">
             </div>
             </div>
         </form>
