@@ -439,7 +439,8 @@ const storeClassify = classifyStore();
         
         <button @click="storeProfile.getItem('resume', 'send')" 
             :disabled="(storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['new'] 
-              && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['update']) 
+              && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['update']
+              && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['repeat']) 
               || storeProfile.spinner" 
             class="btn btn-outline-primary">{{ !storeProfile.spinner ? 'Отправить на проверку' : '' }}
           <span v-if="storeProfile.spinner" class="spinner-border spinner-border-sm" aria-hidden="true"></span>

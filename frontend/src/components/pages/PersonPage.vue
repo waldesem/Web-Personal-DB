@@ -57,7 +57,10 @@ async function getCandidates(
     url: string=personData.value.currentPath,
     page: number = personData.value.currentPage
   ): Promise<void> {
-  personData.value.currentPage = page;
+  
+    personData.value.currentPage = page;
+    personData.value.currentPath = url;
+
   try {
     const response = await storeAuth.axiosInstance.post(
       `${server}/index/${url}/${page}`, 
@@ -87,7 +90,8 @@ const searchPerson = debounce(getCandidates, 500);
           <label class="visually-hidden" for="action">Действия</label>
           <select class="form-select" id="region" name="region" 
                   v-model="personData.currentPath" 
-                  @change="getCandidates(personData.currentPath)">
+                  @change="personData.searchData = ''; 
+                  getCandidates(personData.currentPath, 1)">
             <option value="" selected>Выберите действие</option>
             <option value="new">Новые кандидаты</option>
             <option value="main">Все кандидаты</option>

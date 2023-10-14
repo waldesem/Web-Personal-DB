@@ -44,16 +44,12 @@ watch(() => route.params.group,
             <h5 class="text-center">Интерфейс базы данных кандидатов и сотрудников</h5>
           </div>
           <div class="progress" role="progressbar">
-            <div class="row">>
-              <div class="col-2"></div>
-              <div class="col-8">
-                <div class="progress-bar progress-bar-stripped progress-bar-animated" style="width: 100%"></div>
-              </div>
-              <div class="col-2"></div>
-            </div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
           </div>
-          <p class="text-center text-secondary text-opacity-95 py-1">MIT License</p>
-          <p class="text-center text-secondary text-opacity-95 py-1">2023 Версия 0.1</p>
+          <div class="py-3">
+            <p class="text-center text-secondary text-opacity-95 py-1">MIT License</p>
+            <p class="text-center text-secondary text-opacity-95 py-1">2023 Версия 0.1</p>
+          </div>
         </div>  
 
       </div>

@@ -161,7 +161,7 @@ async function submitData(): Promise<void> {
 </script>
 
 <template>
-  <div class="container py-5">
+  <div class="container py-3">
     <div class="py-5">
       <h4>Статистика по региону {{ header }} c {{ stat.start }} по {{ stat.end }}</h4>
     </div>

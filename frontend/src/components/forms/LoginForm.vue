@@ -58,7 +58,7 @@ try {
         
         document.getElementById('openModal')?.click();
         storeLogin.getAuth();
-        setTimeout(() => document.getElementById('closeModal')?.click(), 2000)
+        setTimeout(() => document.getElementById('closeModal')?.click(), 3000)
 
       };
       break;

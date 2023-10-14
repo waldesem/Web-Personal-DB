@@ -152,7 +152,7 @@ def parse_period(cell):
     elif len(lst) and len(lst) != 2:
         start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
         end_date = datetime.now().date()
-        return {'start_date': start_date, 'end_date': end_date}
+    return {'start_date': start_date, 'end_date': end_date}
 
 
 def add_resume(resume: dict, location_id, action):

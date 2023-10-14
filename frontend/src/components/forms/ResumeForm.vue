@@ -32,11 +32,13 @@ const storeLogin = loginStore();
                             ? 'Анкета успешно добавлена' 
                             : 'Анкета успешно обновлена');
 
-      storeProfile.action === 'create' 
-        ? router.push({ name: 'profile', params: { id: message } })
-        : storeProfile.getItem('resume');
-      
-        storeProfile.cancelEdit();
+      if (storeProfile.action === 'create') {
+        storeProfile.candId = message
+        router.push({ name: 'profile', params: { id: message } });
+      } else {
+        storeProfile.getItem('resume');
+      };
+      storeProfile.cancelEdit();
       
     } catch (error) {
       console.error(error);

@@ -10,17 +10,13 @@ export const contactStore = defineStore('contactStore', () => {
   const storeAuth = authStore();
   const storeLogin = loginStore();
 
-  const searchData = ref('');
-  const currentPage = ref(1);
-  const itemAction = ref('');
-  const itemId = ref('');
-  const itemForm = ref({
-    company: '',
-    city: '',
-    fullname: '',
-    contact: '',
-    comment: ''
+  const contactsData = ref({
+    searchData: '',
+    currentPage: 1,
+    itemAction: '',
+    itemId: '',
   });
+  const itemForm: Record<string, any> = ref({});
   const responseData = ref({
     contacts: [],
     companies: [],
@@ -34,14 +30,14 @@ export const contactStore = defineStore('contactStore', () => {
    *
    * @return {Promise<void>} A Promise that resolves when the contacts have been retrieved and the data value has been updated.
    */
-  async function getContacts(page: number = currentPage.value): Promise<void> {
-    currentPage.value = page;
+  async function getContacts(): Promise<void> {
+
     try {
       const response = await storeAuth.axiosInstance.post(
-        `${server}/connects/${storeLogin.pageIdentity}/${page
-        }`, {
-          'company': searchData.value
-        });
+        `${server}/connects/${storeLogin.pageIdentity}/${contactsData.value.currentPage}`, {
+          'company': contactsData.value.searchData
+        }
+      );
       const [ datas, has_prev, has_next, companies, cities ] = response.data;
 
       Object.assign(responseData.value, {
@@ -59,11 +55,8 @@ export const contactStore = defineStore('contactStore', () => {
 
   return { 
     responseData, 
-    searchData, 
-    itemAction, 
-    itemId, 
-    itemForm, 
-    currentPage,
+    contactsData,
+    itemForm,
     getContacts, 
   };
 });

@@ -431,7 +431,7 @@ class CheckView(MethodView):
         schema = CheckSchema()
         return schema.dump(db.session.query(Check). \
                            filter_by(person_id=item_id). \
-                           order_by(Check.id.asc()).all(), many=True)
+                           order_by(Check.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(CheckSchema)
@@ -489,7 +489,7 @@ class RegistryView(MethodView):
         schema = RegistrySchema()
         return schema.dump(db.session.query(Registry). \
                            filter_by(person_id=item_id). \
-                           order_by(Registry.id.asc()).all(), many=True)
+                           order_by(Registry.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.superuser.value)
     @bp.input(RegistrySchema)
@@ -527,7 +527,7 @@ class InvestigationView(MethodView):
         schema = InvestigationSchema()
         return schema.dump(db.session.query(Investigation). \
                            filter_by(person_id=item_id). \
-                           order_by(Investigation.id.asc()).all(), many=True)
+                           order_by(Investigation.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(InvestigationSchema)
@@ -569,7 +569,7 @@ class PoligrafView(MethodView):
         schema = PoligrafSchema()
         return schema.dump(db.session.query(Poligraf). \
                            filter_by(person_id=item_id). \
-                           order_by(Poligraf.id.asc()).all(), many=True)
+                           order_by(Poligraf.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(PoligrafSchema)
@@ -609,7 +609,7 @@ class InquiryView(MethodView):
         schema = InquirySchema()
         return schema.dump(db.session.query(Inquiry). \
                            filter_by(person_id=item_id). \
-                           order_by(Inquiry.id.asc()).all(), many=True)
+                           order_by(Inquiry.id.desc()).all(), many=True)
 
     @bp.input(InquirySchema)
     @r_g.roles_required(Roles.user.value)
@@ -727,7 +727,6 @@ class FileView(MethodView):
                                            anketa.workplaces]):
                 for item in items:
                     if item:
-                        print(item)
                         db.session.add(models[count](**item | {'person_id': person_id}))
             db.session.commit()
 
@@ -786,8 +785,7 @@ class FileView(MethodView):
                     filename = secure_filename(file.filename)
                     for file in files:
                         file.save(os.path.join(folder,
-                                               f'{datetime.now().\
-                                                  strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
+                                               f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return {'message': item_id}
 
     @bp.output(EmptySchema, status_code=204)

@@ -185,11 +185,18 @@ export const profileStore = defineStore('profileStore', () => {
         return
       };
     };
+    
     if (item === 'check' && action === 'self'){
       if (!confirm('Вы действительно делегировать анкету себе?')) {
       return
       };
     };
+    if (item === 'resume' && action === 'status'){
+      if (!confirm('Вы действительно хотите изменить статус резюме]?')) {
+      return
+      };
+    };
+
     try {
       const response = await storeAuth.axiosInstance.get(
         `${server}/${item}/${action}/${id}`
@@ -243,6 +250,7 @@ export const profileStore = defineStore('profileStore', () => {
         storeAlert.setAlert('alert-success', 'Анкета отправлена на проверку');
         spinner.value = false
         window.scrollTo(0, 0);
+        getItem('check', 'get', candId.value);
       
       } else if (item === 'check' && (action === 'add' || action === 'self')){
         getItem('check', 'get', candId.value);
@@ -368,7 +376,7 @@ export const profileStore = defineStore('profileStore', () => {
 
         if (flag === 'anketa'){
           storeAlert.setAlert("alert-success", "Данные успешно загружены");
-
+          candId.value = message
           router.push({ name: 'profile', params: { id: message } })
         
         } else if (flag === 'image'){

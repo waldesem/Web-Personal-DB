@@ -4,7 +4,7 @@ import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { loginStore } from '@store/login';
-import { server } from '@share/utilities';
+import { server, clearItem } from '@share/utilities';
 
 const storeAlert = alertStore();
 const storeContact = contactStore();
@@ -20,10 +20,12 @@ const storeLogin = loginStore();
    * @return {Promise<void>} - A promise that resolves when the update is complete.
    */
    async function updateContact(
-    _event: Event, 
-    flag: string=storeContact.itemAction, 
-    contactId: string=storeContact.itemId
+      event: Event, 
+      flag: string=storeContact.contactsData.itemAction, 
+      contactId: string=storeContact.contactsData.itemId
     ): Promise<void> {
+    
+    event.preventDefault();
     try {
       const response = flag === 'create'
         ? await storeAuth.axiosInstance.post(
@@ -42,15 +44,9 @@ const storeLogin = loginStore();
                                 alert[flag as keyof typeof alert][1]);
       
       storeContact.getContacts();
-      storeContact.itemAction = '';
-      storeContact.itemId = '';
-      Object.assign(storeContact.itemForm, {
-        company: '',
-        city: '',
-        fullname: '',
-        contact: '',
-        comment: ''
-      })
+      storeContact.contactsData.itemAction = '';
+      storeContact.contactsData.itemId = '';
+      clearItem(storeContact.itemForm);
 
     } catch (error) {
       console.log(error)
@@ -79,17 +75,17 @@ const storeLogin = loginStore();
         </datalist>
       </div>
       <div class="col-md-2">
-        <input class="form-control form-control-sm" id="fullname" maxlength="250" 
+        <input class="form-control form-control-sm" id="fullname" maxlength="255" 
                name="fullname" placeholder="Имя" type="text" 
                v-model="storeContact.itemForm['fullname']" required>
       </div>
       <div class="col-md-2">
-        <input class="form-control form-control-sm" id="contact" maxlength="250" 
+        <input class="form-control form-control-sm" id="contact" maxlength="255" 
                name="contact" placeholder="Контакт" type="text" 
                v-model="storeContact.itemForm['contact']" required>
       </div>
       <div class="col-md-2">
-        <input class="form-control form-control-sm" id="comment" maxlength="250" 
+        <input class="form-control form-control-sm" id="comment" maxlength="255" 
                name="comment" placeholder="Комментарий" type="text" 
                v-model="storeContact.itemForm['comment']">
       </div>
@@ -97,8 +93,9 @@ const storeLogin = loginStore();
         <button class="btn btn-outline-primary btn-sm" type="submit">Принять</button>
       </div>
       <div class="col-md-1">
-        <button class="btn btn-outline-primary btn-sm" @click="storeContact.itemAction = '';
-                                                               storeContact.itemId= ''">
+        <button class="btn btn-outline-primary btn-sm" 
+                @click="storeContact.contactsData.itemAction = '';
+                        storeContact.contactsData.itemId= ''">
           Отмена
         </button>
       </div>

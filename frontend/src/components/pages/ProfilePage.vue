@@ -14,9 +14,11 @@ import InquiryTab from '@components/tabs/InquiryTab.vue';
 const storeAlert = alertStore();
 const storeProfile = profileStore();
 
-onBeforeMount(() => {
-  getProfile();
-  storeProfile.getImage();
+onBeforeMount(async () => {
+  Promise.all([
+      await getProfile(),
+      await storeProfile.getImage()
+  ])
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {

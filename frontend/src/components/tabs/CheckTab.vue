@@ -2,12 +2,10 @@
 
 import { classifyStore } from '@store/classify';
 import { profileStore } from '@/store/profile';
-import { loginStore } from '@store/login';
 import CheckForm from '@components/forms/CheckForm.vue'
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
-const storeLogin = loginStore();
 
 </script>
 
@@ -24,20 +22,17 @@ const storeLogin = loginStore();
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th v-if="!storeProfile.printPdf">
-              <a href="#" :disabled="storeClassify.classifyItems.status 
-                          && (storeProfile.profile.resume['status'] === 
-                              storeClassify.classifyItems.status['finish'])" 
+              <a href="#" :hidden="storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish'] 
+                                || storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['robot']"
                           @click="storeProfile.deleteItem(
                             'check', 'delete', tbl['id' as keyof typeof tbl].toString()
                             )"
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;
-              <a href="#" :disabled="storeClassify.classifyItems.status 
-                            && (storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['save'] 
-                            && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['cancel'] 
-                            && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['manual'])
-                            || storeLogin.userData.region_id !== '1'" 
+              <a href="#" :hidden="storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['save'] 
+                                  && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['cancel'] 
+                                  && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['manual']" 
                           @click="storeProfile.action = 'update'; 
                                   storeProfile.flag = 'check';
                                   storeProfile.itemId = tbl['id' as keyof typeof tbl].toString(); 
