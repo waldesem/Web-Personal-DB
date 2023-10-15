@@ -166,7 +166,10 @@ create mask = 0664
 directory mask = 0775
 ```
 Save the changes to the Samba configuration file and exit the text editor.
-
+Then you must create account for unix user that will have access to the shared directory.
+```
+sudo adduser username
+```
 Set a password for the Samba user that will have access to the shared directory. 
 You can do this by running the following command, replacing `username` with the desired username:
 ```
