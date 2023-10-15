@@ -175,9 +175,13 @@ You can do this by running the following command, replacing `username` with the 
 ```
 sudo smbpasswd -a username
 ```
-Restart the Samba service to apply the configuration changes:
+Start the Samba service:
 ```
-sudo service smbd restart
+sudo systemctl start smbd
+sudo systemctl enable smbd
+sudo service smbd restart # or sudo service smbd reload
+sudo ufw allow Samba
+sudo ufw reload
 ```
 
 On your Windows machine, open File Explorer and enter the IP address or hostname of the Linux server in the address bar, using the following format:
