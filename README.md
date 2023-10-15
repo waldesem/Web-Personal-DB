@@ -124,6 +124,7 @@ Open the file '/etc/nginx/sites-available/staffsec' and add the following line:
 server {
     listen 80;
     server_name yourdomain.com;
+    
     location / {
         include proxy_params;
         proxy_pass http://0.0.0.0:5000;
@@ -131,13 +132,31 @@ server {
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $server_port;
+        proxy_redirect off;
+    }
+
+    location /samba {
+        proxy_pass http://0.0.0.0:445;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $server_port;
+        proxy_redirect off;
     }
 }
 ```
 Add configuration file '/etc/nginx/sites-enabled/staffsec' and restart Nginx:
 ```
 sudo ln -s /etc/nginx/sites-available/staffsec /etc/nginx/sites-enabled/staffsec
-sudo service nginx restart  # or sudo service nginx reload
+# sudo ln -sf /etc/nginx/sites-available/staffsec /etc/nginx/sites-enabled/staffsec # for upgrade
+sudo service nginx restart
 ```
 Add rule in your firewall:
 ```
