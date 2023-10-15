@@ -16,13 +16,5 @@ export default defineConfig({
   build: {
     outDir: '../backend/app/static',
     emptyOutDir: true
-  },
-  server: {
-    proxy: {
-      '/api': {
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
   }
 })
