@@ -157,8 +157,8 @@ sudo nano /etc/samba/smb.conf
 ```
 In the Samba configuration file, add the following lines to the configuration file to define a share:
 ```
-[share_name]
-path = /path/to/share/directory  # See a BASE_PATH from config.py
+[persons]
+path = /root/Web-Personal-DB/persons  # See a BASE_PATH from config.py
 writable = yes
 guest ok = no
 valid users = @smbgroup
@@ -166,9 +166,9 @@ create mask = 0664
 directory mask = 0775
 ```
 Save the changes to the Samba configuration file and exit the text editor.
-Then you must create account for unix user that will have access to the shared directory.
+Then you must create samba group and account for unix user that will have access to the shared directory.
 ```
-sudo adduser username
+sudo adduser username smbgroup
 ```
 Set a password for the Samba user that will have access to the shared directory. 
 You can do this by running the following command, replacing `username` with the desired username:
@@ -186,7 +186,7 @@ sudo ufw reload
 
 On your Windows machine, open File Explorer and enter the IP address or hostname of the Linux server in the address bar, using the following format:
 ```
-\\server_ip_address
+\\server_ip_address\persons
 ```
 Replace `server_ip_address` with the actual IP address of your Linux server.
 You will be prompted for to enter a username and password for the Samba user that will have access to the shared directory.
