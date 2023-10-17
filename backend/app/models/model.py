@@ -2,7 +2,7 @@ from datetime import datetime
 
 from .. import db, cache
 from .classes import Category, Status
-
+from ..utils.analysis import analyse_text
 
 def default_time():
     """
@@ -133,6 +133,7 @@ class Person(db.Model):
     inquiries = db.relationship('Inquiry', backref='persons', cascade="all, delete, delete-orphan")
     investigations = db.relationship('Investigation', backref='persons', cascade="all, delete, delete-orphan")
     relations= db.relationship('Relation', backref='persons', cascade="all, delete, delete-orphan")
+    tags= db.relationship('Tag', backref='tags', cascade="all, delete, delete-orphan")
 
     def has_status(self, status):
         return self.status in status
@@ -312,4 +313,24 @@ class Connect(db.Model):
     comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
-    
+
+
+class Tag(db.Model):
+    """ Create model for tags cloud"""
+
+    __tablename__ = 'tags'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    tag = db.Column(db.Text)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+
+    def update_tags(self, new_set):
+        tags = db.session.query(Tag).filter_by(person_id=self.person_id).first()
+        new_tags = analyse_text(new_set)
+        
+        if tags:
+            new_tags.union(set(tags.tag.split(' ')))
+            tags.tag = ' '.join(new_tags)
+        else:
+            db.session.add(Tag(tag=new_tags, person_id=self.person_id))
+        db.session.commit()

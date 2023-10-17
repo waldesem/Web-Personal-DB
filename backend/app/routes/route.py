@@ -17,7 +17,7 @@ from . import bp
 from .. import db
 from .login import r_g
 from ..utils.utilities import CsvFile, ExcelFile, add_resume, create_folders
-from ..models.model import User, Person, Staff, Document, Address, Contact, \
+from ..models.model import Tag, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
@@ -142,6 +142,8 @@ class ResumeView(MethodView):
         location_id = db.session.query(User.region_id). \
             filter_by(username=current_user.username).scalar()
         person_id = add_resume(json_data, location_id, action)
+        tags = db.session.query(Tag).filter_by(person_id=person_id).first()
+        tags.update_tags(json_data)
         return {'message': person_id}
 
     @r_g.roles_required(Roles.user.name)
@@ -451,7 +453,11 @@ class CheckView(MethodView):
         else:
             person.status = Status.poligraf.value if json_data['pfo'] \
                 else Status.result.value
+        tags = db.session.query(Tag).filter_by(person_id=check.person_id).first()
+        tags.update_tags(json_data)
         db.session.commit()
+
+
         return '', 201
 
     @r_g.roles_required(Roles.user.name)
@@ -513,6 +519,8 @@ class RegistryView(MethodView):
                 print(e)
                 return '', 404
         self.add_to_db(person, reg, check_id, item_id)
+        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
+        tags.update_tags(json_data)
         return '', 201
 
 
@@ -535,6 +543,8 @@ class InvestigationView(MethodView):
         db.session.add(Investigation(**json_data | {'person_id': item_id,
                                                     'officer': current_user.fullname}))
         db.session.commit()
+        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
+        tags.update_tags(json_data)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -580,6 +590,8 @@ class PoligrafView(MethodView):
         db.session.add(Poligraf(**json_data | {'person_id': item_id,
                                                'officer': current_user.fullname}))
         db.session.commit()
+        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
+        tags.update_tags(json_data)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -617,6 +629,8 @@ class InquiryView(MethodView):
         db.session.add(Inquiry(**json_data | {'person_id': item_id,
                                               'officer': current_user.fullname}))
         db.session.commit()
+        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
+        tags.update_tags(json_data)
         return '', 201
 
     @bp.input(InquirySchema)
@@ -671,6 +685,17 @@ class InfoView(MethodView):
 
 
 bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
+
+
+class TagView(MethodView):
+        
+    @r_g.group_required(Groups.staffsec.name)
+    @bp.doc(hide=True)
+    def get(self, action, item_id):
+        return {'tags': db.session.query(Tag).filter_by(person_id=item_id).first()}
+
+bp.add_url_rule('/tag/<action>/<int:item_id>',
+                view_func=TagView.as_view('tag'))
 
 
 class FileView(MethodView):
@@ -729,6 +754,9 @@ class FileView(MethodView):
                     if item:
                         db.session.add(models[count](**item | {'person_id': person_id}))
             db.session.commit()
+            
+            tags = db.session.query(Tag).filter_by(person_id=person_id).first()
+            tags.update_tags(anketa.resume)
 
             person = db.session.query(Person).get(person_id)
             if person.path:
