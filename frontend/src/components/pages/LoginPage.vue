@@ -1,25 +1,12 @@
 <script setup lang="ts">
 
-import { onBeforeRouteLeave } from 'vue-router';
-import { loginStore } from '@store/login';
 import { alertStore } from '@store/alert';
 import LoginForm from '@components/forms/LoginForm.vue'
 
-const storeLogin = loginStore();
 const storeAlert = alertStore();
 
 storeAlert.alertMessage.attrAlert = 'alert-info';
 storeAlert.alertMessage.textAlert = 'Авторизуйтесь для входа в систему';
-
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(storeLogin.loginData, {
-    username: '',
-    password: '',
-    new_pswd: '',
-    conf_pswd: ''
-  });
-  next()
-});
 
 </script>
 

@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { classifyStore } from '@store/classify';
@@ -13,29 +12,22 @@ export const loginStore = defineStore('loginStore', () => {
   const storeAlert = alertStore();
   const storeClasses = classifyStore();
 
-  const pageIdentity = ref('login');
+  let  pageIdentity = 'login';
 
-  const userData = ref({
+  let userData = {
     fullName: '',
     userName: '',
     userRoles: [],
     userGroups: [],
     region_id: '',
-  });
+  };
   
-  const loginData = ref({
-    username: '',
-    password: '',
-    new_pswd: '',
-    conf_pswd: ''
-  });
-
   async function getAuth(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/login`);
       const userResponse = response.data;
 
-      Object.assign(userData.value, {
+      Object.assign(userData, {
         fullName: userResponse['fullname'],
         userName: userResponse['username'],
         userRoles: userResponse['roles'],
@@ -46,7 +38,7 @@ export const loginStore = defineStore('loginStore', () => {
       hasRole('admin') 
         ? router.push({ name: 'users', params: { group: 'admins' }}) 
         : router.push({ name: 'persons', params: { 
-          group: userData.value.userGroups[0]['group'] } 
+          group: userData.userGroups[0]['group'] } 
         });
       
       storeClasses.getClassify();
@@ -54,7 +46,6 @@ export const loginStore = defineStore('loginStore', () => {
 
     } catch (error) {
       console.error(error);
-
       userLogout();
     }
   };
@@ -78,7 +69,7 @@ export const loginStore = defineStore('loginStore', () => {
     
     router.push({ name: 'login' });
 
-    Object.assign(userData.value, {
+    Object.assign(userData, {
       fullName: '',
       userName: '',
       userRoles: [],
@@ -93,7 +84,7 @@ export const loginStore = defineStore('loginStore', () => {
    * @return {boolean} Returns true if the user has the specified role, false otherwise.
    */
   function hasRole(role: string): boolean {
-    return userData.value.userRoles.some((r: { role: any; }) => r.role === role);
+    return userData.userRoles.some((r: { role: any; }) => r.role === role);
   };
 
   /**
@@ -103,12 +94,11 @@ export const loginStore = defineStore('loginStore', () => {
    * @return {boolean} Returns true if the user belongs to the specified group, false otherwise.
    */
   function hasGroup(group: string): boolean {
-    return userData.value.userGroups.some((g: { group: any; }) => g.group === group);
+    return userData.userGroups.some((g: { group: any; }) => g.group === group);
   };
 
   return { 
     userData, 
-    loginData, 
     pageIdentity, 
     getAuth, 
     userLogout, 
