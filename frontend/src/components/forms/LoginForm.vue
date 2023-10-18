@@ -119,7 +119,7 @@ try {
           </div>
         </div>
       </div>
-      <div v-if="action === 'password'">
+      <div v-show="action === 'password'">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="new_pswd">Новый: </label>
           <div class="col-lg-6">
@@ -143,9 +143,15 @@ try {
       </div>
       <div class="row">
         <div class="offset-lg-2 col-lg-10">
-          <button class="btn btn-primary btn-md" name="submit" type="submit">
-            {{ action === 'login' ? 'Войти' : 'Изменить' }}
-          </button>
+          <div class="btn-group" role="group">
+            <button class="btn btn-primary btn-md" name="submit" type="submit">
+              {{ action === 'login' ? 'Войти' : 'Изменить' }}
+            </button>
+            <button v-if="action === 'password'" class="btn btn-primary btn-md" type="button" 
+                    @click="action = 'login'">
+              Отменить
+            </button>
+          </div>
         </div>
       </div>
     </form>

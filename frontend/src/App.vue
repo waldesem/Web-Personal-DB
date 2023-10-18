@@ -62,6 +62,6 @@ watch(() => route.params.group,
 
 <style>
 .modal-backdrop {
-  opacity: 0.75 !important;
+  opacity: 0.85 !important;
 }
 </style>
