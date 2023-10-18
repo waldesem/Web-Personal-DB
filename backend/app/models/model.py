@@ -1,8 +1,15 @@
 from datetime import datetime
 
+from sqlalchemy_searchable import SearchQueryMixin, make_searchable
+from sqlalchemy_utils.types import TSVectorType
+
 from .. import db, cache
 from .classes import Category, Status
 from ..utils.analysis import analyse_text
+
+
+make_searchable(db.metadata)
+
 
 def default_time():
     """
@@ -300,9 +307,14 @@ class Inquiry(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
+class ConnectQuery(Query, SearchQueryMixin):
+    """ Class for searchable Connect table (only postgresql)"""
+    pass
+
 class Connect(db.Model):
     """ Create model for persons connects"""
-
+    
+    query_class = ConnectQuery
     __tablename__ = 'connects'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
@@ -310,9 +322,12 @@ class Connect(db.Model):
     city = db.Column(db.String(255))
     fullname = db.Column(db.String(255))
     contact = db.Column(db.String(255))
+    # adding = db.Column(db.String(255))
+    # mobile = db.Column(db.String(255))
     comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    search_vector = db.Column(TSVectorType('company', 'fullname', 'contact')) # comment if not use Postgresql
 
 
 class Tag(db.Model):
@@ -334,3 +349,5 @@ class Tag(db.Model):
         else:
             db.session.add(Tag(tag=new_tags, person_id=self.person_id))
         db.session.commit()
+
+db.configure_mappers()
