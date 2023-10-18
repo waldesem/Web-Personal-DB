@@ -11,6 +11,7 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
+- SpaCy an Natasha as NLP libraries for profile analysis.
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
 
