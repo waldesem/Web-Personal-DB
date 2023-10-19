@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { onBeforeMount, ref } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router';
 import { authStore } from '@/store/token';
 import { server, debounce } from '@share/utilities';
 
@@ -14,10 +15,7 @@ const tablesList = [
 const tableData = ref({
   table: '',
   tableItem: [],
-  itemId: '',
   searchId: '',
-  itemForm: <Record<string, any>>({}),
-  itemAction: '',
   currentPage: 1,
   hasNext: 0,
   hasPrev: 0
@@ -28,23 +26,31 @@ onBeforeMount(() => {
   getItem();
 });
 
+onBeforeRouteLeave(() => {
+  Object.assign(tableData.value, {
+    table: '',
+    tableItem: [],
+    searchId: '',
+    currentPage: 1,
+    hasNext: 0,
+    hasPrev: 0
+  })
+});
 
-async function getItem(page: number = tableData.value.currentPage): Promise<void> {
-  tableData.value.currentPage = page;
+async function getItem(): Promise<void> {
+
   try {
     const response = await storeAuth.axiosInstance.post(
-      `${server}/table/${tableData.value.table}/${page}`, {
+      `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`, {
         'id': tableData.value.searchId
       }
-      );
+    );
     const [ datas, metadata ] = response.data;
 
     tableData.value.tableItem =  datas;
     tableData.value.hasNext = metadata.has_next;
     tableData.value.hasPrev = metadata.has_prev;
     
-    console.log(metadata);
-
   } catch (error) {
     console.error(error);
   }
@@ -77,7 +83,7 @@ async function deleteItem(idItem: string): Promise<void>{
         <form class="form form-check" role="form">
           <select class="form-select" id="region" name="region" 
               v-model="tableData.table" 
-              @change="getItem(1)">
+              @change="tableData.currentPage = 1; getItem()">
             <option v-for="table, index in tablesList" :key="index" :value="table">
               {{ table }}
             </option>
@@ -117,13 +123,13 @@ async function deleteItem(idItem: string): Promise<void>{
         <ul class="pagination justify-content-center">
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasPrev }">
             <a class="page-link" href="#" 
-               @click.prevent="getItem(tableData.currentPage - 1)">
+               @click.prevent="tableData.currentPage -= 1; getItem()">
                Предыдущая
             </a>
           </li>
           <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasNext }">
             <a class="page-link" href="#" 
-              @click.prevent="getItem(tableData.currentPage + 1)">
+              @click.prevent="tableData.currentPage += 1; getItem()">
                Следующая
               </a>
           </li>

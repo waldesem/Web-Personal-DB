@@ -18,6 +18,7 @@ export const adminStore = defineStore('adminStore', () => {
     userGroup: '',
     searchUser: ''
   });
+
   const profileData = ref<User>({
     id: '',
     fullname: '',
@@ -32,12 +33,13 @@ export const adminStore = defineStore('adminStore', () => {
     blocked: '',
     attempt: ''
   });
-  const formData = ref({
+
+  let formData = {
     fullname: '',
     username: '',
     email: '',
     region_id: '',
-  });
+  };
 
   /**
    * Retrieves a list of users from the server.
@@ -81,10 +83,10 @@ export const adminStore = defineStore('adminStore', () => {
     }
   };
 
-  return { 
+  return {
+    formData,
     userData, 
     profileData, 
-    formData,
     getUsers, 
     userAction
   };

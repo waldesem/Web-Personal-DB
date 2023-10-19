@@ -12,7 +12,7 @@ export const loginStore = defineStore('loginStore', () => {
   const storeAlert = alertStore();
   const storeClasses = classifyStore();
 
-  let  pageIdentity = 'login';
+  let pageIdentity = 'login';
 
   let userData = {
     fullName: '',

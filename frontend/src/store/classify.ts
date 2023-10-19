@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue';
 import axios from 'axios';
 import { server } from '@share/utilities';
 
 
 export const classifyStore = defineStore('classifyStore', () => {
 
-  const classifyItems = ref({
+  const classifyItems = {
     status: <Record<string, any>>({}),
     regions: <Record<string, any>>({}),
     conclusion: <Record<string, any>>({}),
@@ -14,7 +13,7 @@ export const classifyStore = defineStore('classifyStore', () => {
     category: <Record<string, any>>({}),
     groups: <Record<string, any>>({}),
     roles: <Record<string, any>>({}),
-  })
+  };
 
   /**
    * Retrieves the classification data from the server
@@ -27,13 +26,13 @@ export const classifyStore = defineStore('classifyStore', () => {
     try {
       const response = await axios.get(`${server}/classes`);
       [ 
-        classifyItems.value.status, 
-        classifyItems.value.regions, 
-        classifyItems.value.conclusion, 
-        classifyItems.value.decision, 
-        classifyItems.value.category, 
-        classifyItems.value.groups, 
-        classifyItems.value.roles 
+        classifyItems.status, 
+        classifyItems.regions, 
+        classifyItems.conclusion, 
+        classifyItems.decision, 
+        classifyItems.category, 
+        classifyItems.groups, 
+        classifyItems.roles 
       ] = response.data;
 
     } catch (error) {

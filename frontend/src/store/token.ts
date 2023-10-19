@@ -9,14 +9,15 @@ export const authStore = defineStore('authStore', () => {
   
   const router = useRouter();
 
-  const refreshToken = ref(localStorage.getItem('refresh_token'));
-  const accessToken = ref(localStorage.getItem('access_token'));
+  let refreshToken = localStorage.getItem('refresh_token');
+  let accessToken = localStorage.getItem('access_token');
+  
   const axiosInstance = ref(axios.create());
 
   axiosInstance.value.interceptors.request.use(
     async (config) => {
-      if (refreshToken.value) {
-        const expiry_refresh = (JSON.parse(atob(refreshToken.value.split('.')[1]))).exp;
+      if (refreshToken) {
+        const expiry_refresh = (JSON.parse(atob(refreshToken.split('.')[1]))).exp;
 
         if (Math.floor((new Date).getTime() / 1000) >= expiry_refresh) {
           router.push({ name: 'login' });
@@ -24,8 +25,8 @@ export const authStore = defineStore('authStore', () => {
         
         } else {
 
-          if (accessToken.value) {
-            const expiry_access = (JSON.parse(atob(accessToken.value.split('.')[1]))).exp;
+          if (accessToken) {
+            const expiry_access = (JSON.parse(atob(accessToken.split('.')[1]))).exp;
 
             if (Math.floor((new Date).getTime() / 1000) >= expiry_access) {
              
@@ -36,7 +37,7 @@ export const authStore = defineStore('authStore', () => {
                 const { access_token } = response.data;
                 
                 localStorage.setItem('access_token', access_token);
-                accessToken.value = access_token;
+                accessToken = access_token;
               
               } catch (error) {
                 router.push({ name: 'login' });
@@ -55,7 +56,7 @@ export const authStore = defineStore('authStore', () => {
         return Promise.reject('Refresh token not available');
       }
 
-      config.headers['Authorization'] = `Bearer ${accessToken.value}`;
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
       return config;
     },
     (error) => {
@@ -64,18 +65,16 @@ export const authStore = defineStore('authStore', () => {
   );
 
   function setRefreshToken(token: string) {
-    refreshToken.value = token;
+    refreshToken = token;
     localStorage.setItem('refresh_token', token);
   };
 
   function setAccessToken(token: string){
-    accessToken.value = token;
+    accessToken = token;
     localStorage.setItem('access_token', token);
   };
 
   return { 
-    refreshToken, 
-    accessToken, 
     axiosInstance, 
     setRefreshToken, 
     setAccessToken 

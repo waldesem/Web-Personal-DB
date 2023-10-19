@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import axios from 'axios';
+import { ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { loginStore } from '@store/login';
 import { alertStore } from '@store/alert';
@@ -11,16 +12,15 @@ const storeLogin = loginStore();
 const storeAlert = alertStore();
 const storeAuth = authStore();
 
+const action = ref('login');
+const hidePassword = ref(true);
+
 let loginData = {
   username: '',
   password: '',
   new_pswd: '',
   conf_pswd: ''
 };
-
-let action = 'login';
-
-let hidePassword = true;
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   Object.assign(loginData, {
@@ -39,64 +39,64 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
  */
  async function submitLogin(): Promise<void> {
 
-if (action === 'password') {
-  if (loginData.password === loginData.new_pswd) {
-  storeAlert.setAlert('alert-warning', 
-                      'Старый и новый пароли совпадают');
-  return
-  };
-  if (loginData.conf_pswd !== loginData.new_pswd) {
+  if (action.value === 'password') {
+    if (loginData.password === loginData.new_pswd) {
     storeAlert.setAlert('alert-warning', 
-                        'Новый пароль и подтверждение не совпадают');
-    return
-  }
-};
-try {
-  const response = action === 'password'
-    ? await axios.patch(`${server}/login`, loginData)
-    : await axios.post(`${server}/login`, loginData);
-  
-  const { message, access_token, refresh_token } = response.data;
-
-  switch (message) {
-    case 'Authenticated':
-
-      if (action === 'password') {
-        action = 'login';
-        storeAlert.setAlert('alert-success',
-                            'Пароль установлен. Войдите с новым паролем');
-      } else {
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('refresh_token', refresh_token);
-        
-        storeAuth.setRefreshToken(refresh_token);
-        storeAuth.setAccessToken(access_token);
-        
-        document.getElementById('openModal')?.click();
-        setTimeout(() => document.getElementById('closeModal')?.click(), 3000)
-        storeLogin.getAuth();
-      };
-      break;
-
-    case 'Overdue':
-      action = 'password';
+                        'Старый и новый пароли совпадают');
+      return
+    };
+    if (loginData.conf_pswd !== loginData.new_pswd) {
       storeAlert.setAlert('alert-warning', 
-                          'Пароль просрочен. Измените пароль');
-      break;
+                          'Новый пароль и подтверждение не совпадают');
+      return
+    }
+  };
+  try {
+    const response = action.value === 'password'
+      ? await axios.patch(`${server}/login`, loginData)
+      : await axios.post(`${server}/login`, loginData);
+    
+    const { message, access_token, refresh_token } = response.data;
 
-    case 'Denied':
-      action = 'login';
-      storeAlert.setAlert('alert-danger', 
-                          'Неверный логин или пароль');
-      break;
-  }
-} catch (error) {
-  console.error(error)
-  storeAlert.setAlert('alert-danger', 
-                      'Ошибка авторизации');
-  action = 'login';
-  storeLogin.userLogout();
-};
+    switch (message) {
+      case 'Authenticated':
+
+        if (action.value === 'password') {
+          action.value = 'login';
+          storeAlert.setAlert('alert-success',
+                              'Пароль установлен. Войдите с новым паролем');
+        } else {
+          localStorage.setItem('access_token', access_token);
+          localStorage.setItem('refresh_token', refresh_token);
+          
+          storeAuth.setRefreshToken(refresh_token);
+          storeAuth.setAccessToken(access_token);
+          
+          document.getElementById('openModal')?.click();
+          setTimeout(() => document.getElementById('closeModal')?.click(), 3000)
+          storeLogin.getAuth();
+        };
+        break;
+
+      case 'Overdue':
+        action.value = 'password';
+        storeAlert.setAlert('alert-warning', 
+                            'Пароль просрочен. Измените пароль');
+        break;
+
+      case 'Denied':
+        action.value = 'login';
+        storeAlert.setAlert('alert-danger', 
+                            'Неверный логин или пароль');
+        break;
+    }
+  } catch (error) {
+    console.error(error)
+    storeAlert.setAlert('alert-danger', 
+                        'Ошибка авторизации');
+    action.value = 'login';
+    storeLogin.userLogout();
+  };
 };
 
 </script>
@@ -134,7 +134,7 @@ try {
           </div>
         </div>
       </div>
-      <div v-show="action === 'password'">
+      <div v-if="action === 'password'">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="new_pswd">Новый: </label>
           <div class="col-lg-6">
@@ -156,16 +156,15 @@ try {
           </div>
         </div>
       </div>
-      <div class="row">
+      <div class="row mb-3">
         <div class="offset-lg-2 col-lg-10">
-          <div class="btn-group" role="group">
             <button class="btn btn-primary btn-md" name="submit" type="submit">
               {{ action === 'login' ? 'Войти' : 'Изменить' }}
-            </button>
-            <button v-show="action === 'password'" class="btn btn-primary btn-md" 
+            </button>              
+              &nbsp;
+            <button v-show="action === 'password'" class="btn btn-secondary btn-md" 
                     type="button" @click="action = 'login'">Отменить
             </button>
-          </div>
         </div>
       </div>
     </form>

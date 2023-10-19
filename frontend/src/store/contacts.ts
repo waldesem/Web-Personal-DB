@@ -16,7 +16,9 @@ export const contactStore = defineStore('contactStore', () => {
     itemAction: '',
     itemId: '',
   });
+  
   const itemForm: Record<string, any> = ref({});
+  
   const responseData = ref({
     contacts: [],
     companies: [],
@@ -28,7 +30,8 @@ export const contactStore = defineStore('contactStore', () => {
   /**
    * Retrieves contacts from the server and updates the data value with the response.
    *
-   * @return {Promise<void>} A Promise that resolves when the contacts have been retrieved and the data value has been updated.
+   * @return {Promise<void>} A Promise that resolves when the contacts have 
+   * been retrieved and the data value has been updated.
    */
   async function getContacts(): Promise<void> {
 

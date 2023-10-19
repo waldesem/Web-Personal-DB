@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable
 from sqlalchemy_utils.types import TSVectorType
+from flask_sqlalchemy.query import Query
 
 from .. import db, cache
 from .classes import Category, Status
