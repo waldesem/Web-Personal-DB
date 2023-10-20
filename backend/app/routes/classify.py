@@ -3,8 +3,7 @@ from flask.views import MethodView
 from . import bp
 from .. import db
 from ..models.classes import Category, Conclusions, \
-    Decisions, Roles, Groups, Status
-from ..models.model import Region
+    Decisions, Roles, Groups, Status, Regions
 
 
 class ClassesView(MethodView):
@@ -12,8 +11,7 @@ class ClassesView(MethodView):
     @bp.doc(hide=True)
     def get(self):
         return [{i.name: i.value for i in Status},
-                {rgn[0]: rgn[1] for rgn in db.session.query(Region.id,
-                                                            Region.region).all()},
+                {index: i.value for index, i in enumerate(Regions, 1)},
                 {i.name: i.value for i in Conclusions},
                 {i.name: i.value for i in Decisions},
                 {i.name: i.value for i in Category},

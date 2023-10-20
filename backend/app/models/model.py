@@ -329,7 +329,7 @@ class Connect(db.Model):
     comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
-    search_vector = db.Column(TSVectorType('company', 'fullname', 'contact')) # comment if not use Postgresql
+    search_vector = db.Column(TSVectorType('company', 'fullname', 'phone', 'mobile')) # comment if not use Postgre
 
 
 class Tag(db.Model):
