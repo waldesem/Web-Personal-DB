@@ -54,5 +54,20 @@ if __name__ == '__main__':
         "inn": fake.businesses_inn(),
         "education": fake.text(max_nb_chars=100),
     }
-    tag_set = analyse_text(resume)
-    print(tag_set)
+    check = {
+        'id': '',
+        'employee': fake.text(max_nb_chars=100),
+        'document': fake.text(max_nb_chars=100),
+        'inn': fake.text(max_nb_chars=100),
+        'debt': fake.text(max_nb_chars=100),
+        'bankruptcy': fake.text(max_nb_chars=100),
+        'bki': fake.text(max_nb_chars=100),
+        'courts': fake.text(max_nb_chars=100),
+        'affiliation': fake.text(max_nb_chars=100),
+        'terrorist': fake.text(max_nb_chars=100),
+        'mvd': fake.text(max_nb_chars=100),
+        'path': ''
+    }
+    for s in [resume, check]:
+        tag_set = analyse_text(s)
+        print(tag_set)
