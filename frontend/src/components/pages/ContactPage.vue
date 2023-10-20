@@ -65,8 +65,8 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
                placeholder="Поиск контактов" v-model="storeContact.contactsData.searchData">
       </div>
     </form>
-    <div class="py-3">
-      <table class="table table-responsive align-middle no-bottom-border">
+    <div class="table-responsive py-3">
+      <table class="table align-middle no-bottom-border">
         <thead> 
           <tr>
             <th width="5%">#</th>
@@ -96,14 +96,17 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
           <tr>
             <td colspan="9">
               <table v-for="contact in storeContact.responseData.contacts" :key="contact['id']" 
-                  class="table table-responsive table-hover align-middle">
+                  class="table table-hover align-middle">
                 <tbody>
                   <tr v-if="storeContact.contactsData.itemId !== contact['id']">
                     <td width="5%">{{ contact["id"] }}</td>
                     <td width="15%">{{ contact["company"] }}</td>
                     <td width="15%">{{ contact["city"] }}</td>
                     <td width="15%">{{ contact["fullname"] }}</td>
-                    <td width="15%">{{ contact["contact"] }}</td>
+                    <td width="15%">{{ contact["phone"] }}</td>
+                    <td width="15%">{{ contact["adding"] }}</td>
+                    <td width="15%">{{ contact["mobile"] }}</td>
+                    <td width="15%">{{ contact["mail"] }}</td>
                     <td width="15%">{{ contact["comment"] }}</td>
                     <td width="10%">{{ contact["data"] }}</td>
                     <td width="5%">
@@ -152,10 +155,3 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
     </div>
   </div>
 </template>
-
-<style scoped>
-table td
-{
-  border-bottom: none;
-}
-</style>

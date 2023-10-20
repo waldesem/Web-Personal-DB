@@ -80,9 +80,24 @@ const storeLogin = loginStore();
                v-model="storeContact.itemForm['fullname']" required>
       </div>
       <div class="col-md-2">
-        <input class="form-control form-control-sm" id="contact" maxlength="255" 
-               name="contact" placeholder="Контакт" type="text" 
-               v-model="storeContact.itemForm['contact']" required>
+        <input class="form-control form-control-sm" id="phone" maxlength="255" 
+               name="phone" placeholder="Телефон" type="text" 
+               v-model="storeContact.itemForm['phone']">
+      </div>
+      <div class="col-md-2">
+        <input class="form-control form-control-sm" id="adding" maxlength="255" 
+               name="adding" placeholder="Добав." type="text" 
+               v-model="storeContact.itemForm['adding']" required>
+      </div>
+      <div class="col-md-2">
+        <input class="form-control form-control-sm" id="mobile" maxlength="255" 
+               name="mobile" placeholder="Мобильный" type="text" 
+               v-model="storeContact.itemForm['mobile']" required>
+      </div>
+      <div class="col-md-2">
+        <input class="form-control form-control-sm" id="mail" maxlength="255" 
+               name="mail" placeholder="Почта" type="text" 
+               v-model="storeContact.itemForm['mail']" required>
       </div>
       <div class="col-md-2">
         <input class="form-control form-control-sm" id="comment" maxlength="255" 
