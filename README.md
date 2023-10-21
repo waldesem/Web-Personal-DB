@@ -49,23 +49,6 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
 
-### Node Development (optional)
-
-You will also need to have Node.js installed on your machine to build and run the TypeScript code.
-After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
-```
-npm i
-```
-To start development node server  run the following command in your terminal:
-```
-npm run dev
-```
-To build the code in the static directory flask app, run the following command in your terminal:
-```
-npm run build
-```
-This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
-
 ### Migration
 
 For migrate database enter commands:
@@ -166,7 +149,7 @@ sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
 ```
 
-### Samba Configuration for Opening Files on Windows from Ubuntu Server (not tested yet)
+### Samba Configuration for Opening Files on Windows from Ubuntu Server
 
 Install Samba on your Linux server if it is not already installed.
 ```
@@ -219,5 +202,27 @@ docker build -t staffsec .
 docker run --add-host host.docker.internal:host-gateway -p 5000:5000 staffsec
 ```
 
+### Node Development (optional)
+
+You will also need to have Node.js installed on your machine to build and run the TypeScript code.
+After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
+```
+npm i
+```
+To start development node server  run the following command in your terminal:
+```
+npm run dev
+```
+To build the code in the static directory flask app, first comment/uncomment the lines `server` in /Web-Personal-DB/frontend/src/share/utilities.ts
+Then run the following command in your terminal:
+```
+npm run build
+```
+This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
+
+
 ### License
 This project is licensed under the MIT License.
+
+### Screenshots
+![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/main/README.png?raw=true)
