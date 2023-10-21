@@ -104,7 +104,7 @@ const searchPerson = debounce(getCandidates, 500);
         </form>
       </div>
       <div class="col-md-8">
-        <form @input="searchPerson( personData.extendedSearch ? 'search' : 'extended')" 
+        <form @input="searchPerson(personData.extendedSearch ? 'extended' : 'search')" 
               class="form form-check" role="form">
           <div class="row">
             <input class="form-control" id="search" maxlength="250" minlength="3" 

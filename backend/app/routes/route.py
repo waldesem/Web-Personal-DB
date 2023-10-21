@@ -39,67 +39,48 @@ class IndexView(MethodView):
     def post(self, flag, page):
         json_data = request.get_json()
 
-        if flag == 'main' and self.location_id == 1:
-            query = db.session.query(Person).order_by(Person.id.desc()). \
-                paginate(page=page,
-                         per_page=self.pagination,
-                         error_out=False)
-            
-        elif flag == 'main' and self.location_id != 1:
-            query = db.session.query(Person). \
-                filter_by(region_id=self.location_id). \
-                order_by(Person.id.desc()).paginate(page=page,
-                                                    per_page=self.pagination,
-                                                    error_out=False)
-        elif flag == 'new':
-            query = db.session.query(Person). \
-                filter(Person.status.in_([Status.new.value,
-                                          Status.update.value,
-                                          Status.repeat.value]),
-                       Person.region_id == self.location_id,
-                       Person.category == Category.candidate.value). \
-                order_by(Person.id.desc()).paginate(page=page,
-                                                    per_page=self.pagination,
-                                                    error_out=False)
-        elif flag == 'officer':
-            query = db.session.query(Person). \
-                filter(Person.status.notin_([Status.finish.value,
-                                             Status.result.value,
-                                             Status.cancel.value])). \
-                join(Check, isouter=True).filter_by(officer=current_user.fullname). \
-                order_by(Person.id.asc()).paginate(page=page,
-                                                   per_page=self.pagination,
-                                                   error_out=False)
-            
-        elif flag == 'search' and self.location_id == 1:
-            query = db.session.query(Person). \
-                filter(Person.fullname.ilike('%{}%'.format(json_data['search']))). \
-                order_by(Person.id.asc()).paginate(page=page,
-                                                   per_page=self.pagination,
-                                                   error_out=False)
-            
-        elif flag == 'search' and self.location_id != 1:
-            query = db.session.query(Person). \
-                filter(Person.fullname.ilike('%{}%'.format(json_data['search'])),
-                       Person.region_id == self.location_id). \
-                order_by(Person.id.asc()).paginate(page=page,
-                                                   per_page=self.pagination,
-                                                   error_out=False)
+        query = db.session.query(Person).order_by(Person.id.desc())
         
-        elif flag == 'extended' and self.location_id == 1:
-            persons_id = db.session.query(Tag.person_id). \
-                filter(Tag.tag.ilike(json_data['search'])).all()
-            
-            query = db.session.query(Person). \
-                filter(Person.id.in_(persons_id)). \
-                order_by(Person.id.asc()).paginate(page=page,
-                                                   per_page=self.pagination,
-                                                   error_out=False)
+        match flag:
 
+            case 'main':
+                if self.location_id != 1:
+                    query = query.filter_by(region_id=self.location_id)
+            
+            case 'new':
+                query = query.filter(Person.status.in_([Status.new.value,
+                                                        Status.update.value,
+                                                        Status.repeat.value]),
+                                    Person.region_id == self.location_id,
+                                    Person.category == Category.candidate.value)
+            case 'officer':
+                query = query.filter(Person.status.notin_([Status.finish.value,
+                                                            Status.result.value,
+                                                            Status.cancel.value])) \
+                            .join(Check, isouter=True) \
+                            .filter_by(officer=current_user.fullname) \
+                            .order_by(Person.id.asc())
+            
+            case 'search':
+                if self.location_id != 1:
+                    query = query.filter(Person.region_id == self.location_id)
+                query = query.filter(Person.fullname.ilike('%{}%'.format(json_data['search']))) \
+                            .order_by(Person.id.asc())
+            
+            case 'extended':
+                persons_id = db.session.query(Tag.person_id). \
+                    filter(func.match(Tag.tag, json_data['search'])).all()
+                query = query.filter(Person.id.in_(persons_id)) \
+                            .order_by(Person.id.asc())
+            
+        query = query.paginate(page=page,
+                            per_page=self.pagination,
+                            error_out=False)
+        
         has_next, has_prev = int(query.has_next), int(query.has_prev)
+        
         return [self.schema.dump(query, many=True),
                 {'has_next': has_next, "has_prev": has_prev}]
-
 
 bp.add_url_rule('/index/<flag>/<int:page>',
                 view_func=IndexView.as_view('index'))
@@ -681,8 +662,8 @@ class InfoView(MethodView):
             join(Person, Person.id == Check.person_id). \
             group_by(Registry.decision, extract('month', Registry.deadline)). \
             filter(and_(Registry.deadline.between(response['start'],
-                                                  response['end']))).all()
-        # Person.region_id == int(response['region'])
+                                                  response['end']), 
+                        Person.region_id == int(response['region']))).all()
 
         pfo = db.session.query(Poligraf.theme, func.count(Poligraf.id)). \
             group_by(Poligraf.theme). \
@@ -826,9 +807,9 @@ class FileView(MethodView):
                     filename = secure_filename(file.filename)
                     for file in files:
                         file.save(os.path.join(folder,
-                                               f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
+                            f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return {'message': item_id}
-
+    
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         if action == 'image':
