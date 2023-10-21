@@ -319,12 +319,12 @@ class Connect(db.Model):
     __tablename__ = 'connects'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    company = db.Column(db.String(255))
+    company = db.Column(db.String(255), index=True)
     city = db.Column(db.String(255))
-    fullname = db.Column(db.String(255))
-    phone = db.Column(db.String(255))
+    fullname = db.Column(db.String(255), index=True)
+    phone = db.Column(db.String(255), index=True)
     adding = db.Column(db.String(255))
-    mobile = db.Column(db.String(255))
+    mobile = db.Column(db.String(255), index=True)
     mail = db.Column(db.String(255))
     comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
@@ -338,7 +338,7 @@ class Tag(db.Model):
     __tablename__ = 'tags'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    tag = db.Column(db.Text)
+    tag = db.Column(db.Text, index=True)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
     def update_tags(self, new_set):
@@ -346,10 +346,10 @@ class Tag(db.Model):
         new_tags = analyse_text(new_set)
         
         if tags:
-            new_tags.union(set(tags.tag.split(' ')))
-            tags.tag = ' '.join(new_tags)
+            result = new_tags.union(set(tags.tag.split(' ')))
+            tags.tag = ' '.join(result)
         else:
-            db.session.add(Tag(tag=new_tags, person_id=self.person_id))
+            db.session.add(Tag(tag=' '.join(new_tags), person_id=self.person_id))
         db.session.commit()
 
 db.configure_mappers()

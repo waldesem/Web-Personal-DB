@@ -12,7 +12,6 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
 - SpaCy as NLP library for profile analysis.
-- Elasticsearch as a search engine;
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
 
@@ -47,28 +46,6 @@ CREATE DATABASE personal;
 CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
-```
-
-### Elasticsearch (automatically generated)
-
-Install Elasticsearch:
-```
-sudo apt-get install elasticsearch
-```
-To configure Elasticsearch:
-```
-sudo nano /etc/elasticsearch/elasticsearch.yml
-```
-Add the following line:
-```
-network.host: 0.0.0.0
-```
-Save and exit the file.
-
-Start Elasticsearch:
-```
-sudo service elasticsearch start
-sudo service elasticsearch status
 ```
 
 ### Node Development (optional)

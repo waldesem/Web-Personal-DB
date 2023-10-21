@@ -5,18 +5,21 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { profileStore } from '@/store/profile';
+import { loginStore } from '@/store/login';
 import { debounce, server } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
+const storeLogin = loginStore();
 
 const personData = ref({
   candidates: <Candidate[]>([]),
   has_prev: false,
   has_next: false,
   searchData: '',
+  extendedSearch: false,
   currentPage: 1,
   currentPath: 'new'
 });
@@ -30,6 +33,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     has_prev: false,
     has_next: false,
     searchData: '',
+    extendedSearch: false,
     currentPage: 1,
     currentPath: 'new'
   });
@@ -64,7 +68,7 @@ async function getCandidates(
   try {
     const response = await storeAuth.axiosInstance.post(
       `${server}/index/${url}/${page}`, 
-        {'fullname': personData.value.searchData}
+        {'search': personData.value.searchData}
       );
     const [ datas, metadata ] = response.data;
     
@@ -99,14 +103,18 @@ const searchPerson = debounce(getCandidates, 500);
           </select>
         </form>
       </div>
-      <div class="col-md-9">
-        <form @input="searchPerson('search')" class="form form-check" role="form">
+      <div class="col-md-8">
+        <form @input="searchPerson( personData.extendedSearch ? 'search' : 'extended')" 
+              class="form form-check" role="form">
           <div class="row">
-            <input class="form-control" id="fullname" maxlength="250" minlength="3" 
+            <input class="form-control" id="search" maxlength="250" minlength="3" 
                   v-model="personData.searchData" 
-                  name="fullname" placeholder="поиск по ФИО" type="text">
+                  name="search" placeholder="поиск по ФИО" type="text">
           </div>
         </form>
+      </div>
+      <div v-show="storeLogin.userData.region_id == '1'" class="col-md-1">
+        <input class="checkbox" id="checkbox" type="checkbox" v-model="personData.extendedSearch" value="search">
       </div>
     </div>
     <div class="py-3">

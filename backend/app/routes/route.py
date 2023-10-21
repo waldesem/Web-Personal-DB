@@ -38,11 +38,13 @@ class IndexView(MethodView):
 
     def post(self, flag, page):
         json_data = request.get_json()
+
         if flag == 'main' and self.location_id == 1:
             query = db.session.query(Person).order_by(Person.id.desc()). \
                 paginate(page=page,
                          per_page=self.pagination,
                          error_out=False)
+            
         elif flag == 'main' and self.location_id != 1:
             query = db.session.query(Person). \
                 filter_by(region_id=self.location_id). \
@@ -68,16 +70,28 @@ class IndexView(MethodView):
                 order_by(Person.id.asc()).paginate(page=page,
                                                    per_page=self.pagination,
                                                    error_out=False)
+            
         elif flag == 'search' and self.location_id == 1:
             query = db.session.query(Person). \
-                filter(Person.fullname.ilike('%{}%'.format(json_data['fullname']))). \
+                filter(Person.fullname.ilike('%{}%'.format(json_data['search']))). \
                 order_by(Person.id.asc()).paginate(page=page,
                                                    per_page=self.pagination,
                                                    error_out=False)
+            
         elif flag == 'search' and self.location_id != 1:
             query = db.session.query(Person). \
-                filter(Person.fullname.ilike('%{}%'.format(json_data['fullname'])),
+                filter(Person.fullname.ilike('%{}%'.format(json_data['search'])),
                        Person.region_id == self.location_id). \
+                order_by(Person.id.asc()).paginate(page=page,
+                                                   per_page=self.pagination,
+                                                   error_out=False)
+        
+        elif flag == 'extended' and self.location_id == 1:
+            persons_id = db.session.query(Tag.person_id). \
+                filter(Tag.tag.ilike(json_data['search'])).all()
+            
+            query = db.session.query(Person). \
+                filter(Person.id.in_(persons_id)). \
                 order_by(Person.id.asc()).paginate(page=page,
                                                    per_page=self.pagination,
                                                    error_out=False)
@@ -519,8 +533,7 @@ class RegistryView(MethodView):
                 print(e)
                 return '', 404
         self.add_to_db(person, reg, check_id, item_id)
-        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
-        tags.update_tags(json_data)
+        
         return '', 201
 
 
