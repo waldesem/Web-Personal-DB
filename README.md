@@ -225,4 +225,4 @@ This will compile the TypeScript code and output the JavaScript and CSS files in
 This project is licensed under the MIT License.
 
 ### Screenshots
-![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/main/README.png?raw=true)
+![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/1.png?raw=true)
