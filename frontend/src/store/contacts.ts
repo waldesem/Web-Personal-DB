@@ -38,7 +38,7 @@ export const contactStore = defineStore('contactStore', () => {
     try {
       const response = await storeAuth.axiosInstance.post(
         `${server}/connects/${storeLogin.pageIdentity}/${contactsData.value.currentPage}`, {
-          'company': contactsData.value.searchData
+          'search': contactsData.value.searchData
         }
       );
       const [ datas, has_prev, has_next, companies, cities ] = response.data;

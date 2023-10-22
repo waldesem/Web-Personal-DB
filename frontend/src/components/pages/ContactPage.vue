@@ -61,8 +61,9 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
     </div>
     <form @input="searchContacts" class="form form-check" role="form">
       <div class="row py-3">
-        <input class="form-control" id="company" name="company" type="text"
-               placeholder="Поиск контактов" v-model="storeContact.contactsData.searchData">
+        <input class="form-control" id="search" name="search" type="search"
+               placeholder="Поиск по организации, имени, номеру мобильного телефона" 
+               v-model="storeContact.contactsData.searchData">
       </div>
     </form>
     <div class="table-responsive py-3">

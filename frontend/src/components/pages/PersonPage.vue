@@ -109,7 +109,7 @@ const searchPerson = debounce(getCandidates, 500);
           <div class="row">
             <input class="form-control" id="search" maxlength="250" minlength="3" 
                   v-model="personData.searchData" 
-                  name="search" placeholder="поиск по ФИО" type="text">
+                  name="search" placeholder="поиск по имени и ИНН" type="text">
           </div>
         </form>
       </div>

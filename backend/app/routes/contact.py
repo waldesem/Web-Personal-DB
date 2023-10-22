@@ -32,10 +32,12 @@ class ContactsView(MethodView):
         response = request.get_json()
         datalist = db.session.query(Connect.company, Connect.city).all()
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
+        
         # code below works only with postresql
-        query = Connect.query.search('%{}%'.format(response['company'])).\
+        query = Connect.query.search('%{}%'.format(response['search'])).\
             filter(Connect.group_id == group_id).order_by(Connect.id.desc()). \
             paginate(page=item, per_page=pagination, error_out=False)
+        
         # query = db.session.query(Connect). \
         #     filter(Connect.company.ilike('%{}%'.format(response['company'])),
         #            Connect.group_id == group_id).order_by(Connect.id.desc()). \

@@ -58,20 +58,21 @@ class IndexView(MethodView):
                                                             Status.result.value,
                                                             Status.cancel.value])) \
                             .join(Check, isouter=True) \
-                            .filter_by(officer=current_user.fullname) \
-                            .order_by(Person.id.asc())
+                            .filter_by(officer=current_user.fullname)
             
             case 'search':
+                # comment if not use Postgres
+                query = Person.query.search('%{}%'.format(json_data['search'])) 
+
                 if self.location_id != 1:
                     query = query.filter(Person.region_id == self.location_id)
-                query = query.filter(Person.fullname.ilike('%{}%'.format(json_data['search']))) \
-                            .order_by(Person.id.asc())
+                # uncomment if not use Postgres
+                # query = query.filter(Person.fullname.ilike('%{}%'.format(json_data['search'])))
             
             case 'extended':
                 persons_id = db.session.query(Tag.person_id). \
                     filter(func.match(Tag.tag, json_data['search'])).all()
-                query = query.filter(Person.id.in_(persons_id)) \
-                            .order_by(Person.id.asc())
+                query = query.filter(Person.id.in_(persons_id))
             
         query = query.paginate(page=page,
                             per_page=self.pagination,

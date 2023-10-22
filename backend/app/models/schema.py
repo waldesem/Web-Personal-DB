@@ -60,7 +60,8 @@ class PersonSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Person
         ordered = True
-
+        exclude = ('search_vector',) # only if use searchable sqlalchemy
+        
 
 class RelationSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for relation"""

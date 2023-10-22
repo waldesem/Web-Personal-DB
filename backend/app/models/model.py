@@ -5,8 +5,8 @@ from sqlalchemy_utils.types import TSVectorType
 from flask_sqlalchemy.query import Query
 
 from .. import db, cache
+from ..analyze.analysis import analyse_text
 from .classes import Category, Status
-from ..utils.analysis import analyse_text
 
 
 make_searchable(db.metadata)
@@ -182,7 +182,11 @@ class Person(db.Model):
                                cascade="all, delete, delete-orphan")
     tags= db.relationship('Tag', backref='tags', 
                           cascade="all, delete, delete-orphan")
-
+    ones = db.relationship('OneS', backref='ones', 
+                           cascade="all, delete, delete-orphan")
+    # comment if not use Postgres
+    search_vector = db.Column(TSVectorType('previous', 'fullname', 'inn')) 
+    
     def has_status(self, status):
         """
         Check if the current status of the object matches any of the given status values.
@@ -391,7 +395,7 @@ class Connect(db.Model):
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
     # comment if not use Postgres
-    search_vector = db.Column(TSVectorType('company', 'fullname', 'phone', 'mobile')) 
+    search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile')) 
 
 
 class Tag(db.Model):
@@ -429,5 +433,19 @@ class Tag(db.Model):
         tags = db.session.query(Tag).filter_by(person_id=self.person_id).first()
         db.session.delete(tags)
         db.session.commit()
+
+
+class OneS(db.Model):
+    """ Create model for ones"""
+
+    __tablename__ = 'ones'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
+                   autoincrement=True)
+    start_date = db.Column(db.Date)
+    start_position = db.Column(db.Text)
+    end_date = db.Column(db.Date)
+    end_position = db.Column(db.Text)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 db.configure_mappers()

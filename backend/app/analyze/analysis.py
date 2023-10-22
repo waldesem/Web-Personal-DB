@@ -11,7 +11,7 @@ def analyse_text(data: dict):
 
     list_data = [str(v) for v in data.values()]
     
-    digital = {digit for digit in list_data if digit.isdigit() and len(digit) > 2}
+    digital = {digit for digit in list_data if digit.isdigit() and len(digit) > 3}
 
     dates = {d for d in list_data if re.match(r'\d\d.\d\d.\d\d\d\d', d) \
              or re.match(r'\d\d\d\d-\d\d-\d\d', d)}
@@ -26,9 +26,7 @@ def analyse_text(data: dict):
     
     doc = nlp(txt)
 
-    lemmas = {token.lemma_ for token in doc \
-              if token.pos_ == 'NOUN' or token.pos_ == 'VERB' \
-                or token.pos_ == 'ADJ' or token.pos_ == 'ADV'}
+    lemmas = {token.lemma_ for token in doc if token.pos_ in ('PROPN', 'NOUN', 'VERB')}
     
     named = {token.text for token in doc.ents}
 

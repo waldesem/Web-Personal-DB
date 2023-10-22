@@ -81,23 +81,23 @@ const storeLogin = loginStore();
       </div>
       <div class="col-md-2">
         <input class="form-control form-control-sm" id="phone" maxlength="255" 
-               name="phone" placeholder="Телефон" type="text" 
+               name="phone" placeholder="Телефон" type="tel" 
                v-model="storeContact.itemForm['phone']">
       </div>
       <div class="col-md-2">
         <input class="form-control form-control-sm" id="adding" maxlength="255" 
-               name="adding" placeholder="Добав." type="text" 
-               v-model="storeContact.itemForm['adding']" required>
+               name="adding" placeholder="Добав." type="tel" 
+               v-model="storeContact.itemForm['adding']">
       </div>
       <div class="col-md-2">
         <input class="form-control form-control-sm" id="mobile" maxlength="255" 
-               name="mobile" placeholder="Мобильный" type="text" 
-               v-model="storeContact.itemForm['mobile']" required>
+               name="mobile" placeholder="Мобильный" type="tel" 
+               v-model="storeContact.itemForm['mobile']">
       </div>
       <div class="col-md-2">
         <input class="form-control form-control-sm" id="mail" maxlength="255" 
-               name="mail" placeholder="Почта" type="text" 
-               v-model="storeContact.itemForm['mail']" required>
+               name="mail" placeholder="Почта" type="email" 
+               v-model="storeContact.itemForm['mail']">
       </div>
       <div class="col-md-2">
         <input class="form-control form-control-sm" id="comment" maxlength="255" 
@@ -111,7 +111,7 @@ const storeLogin = loginStore();
         <button class="btn btn-outline-primary btn-sm" 
                 @click="storeContact.contactsData.itemAction = '';
                         storeContact.contactsData.itemId= ''">
-          Отмена
+            Отмена
         </button>
       </div>
     </div>

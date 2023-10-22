@@ -108,14 +108,14 @@ const storeLogin = loginStore();
         <label class="col-form-label col-lg-2" for="snils">СНИЛС</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="11" minlength="11" id="snils" name="snils" type="text"
-                 v-model="storeProfile.itemForm['snils']" >
+                 v-model="storeProfile.itemForm['snils']" pattern="\d{11}">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="inn">ИНН</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="12" minlength="12" id="inn" name="inn" type="text"
-                 v-model="storeProfile.itemForm['inn']" >
+                 v-model="storeProfile.itemForm['inn']" pattern="\d{12}">
         </div>
       </div>
       <div class="mb-3 row">
