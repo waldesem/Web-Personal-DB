@@ -9,7 +9,7 @@ const storeAuth = authStore();
 
 const tablesList = [
   'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
-  'relation', 'check', 'registry', 'poligraf','investigation', 'inquiry'
+  'relation', 'check', 'registry', 'poligraf','investigation', 'inquiry', 'tag'
 ];
 
 const tableData = ref({
@@ -23,6 +23,7 @@ const tableData = ref({
 
 onBeforeMount(() => {
   tableData.value.table = tablesList[0];
+  console.log(tableData.value.table);
   getItem();
 });
 

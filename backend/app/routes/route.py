@@ -16,6 +16,7 @@ from PIL import Image
 from . import bp
 from .. import db
 from .login import r_g
+from ..utils.analysis import analyse_text
 from ..utils.utilities import CsvFile, ExcelFile, add_resume, create_folders
 from ..models.model import Tag, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
@@ -42,11 +43,9 @@ class IndexView(MethodView):
         query = db.session.query(Person).order_by(Person.id.desc())
         
         match flag:
-
             case 'main':
                 if self.location_id != 1:
                     query = query.filter_by(region_id=self.location_id)
-            
             case 'new':
                 query = query.filter(Person.status.in_([Status.new.value,
                                                         Status.update.value,
@@ -59,19 +58,16 @@ class IndexView(MethodView):
                                                             Status.cancel.value])) \
                             .join(Check, isouter=True) \
                             .filter_by(officer=current_user.fullname)
-            
             case 'search':
                 # comment if not use Postgres
-                query = Person.query.search('%{}%'.format(json_data['search'])) 
-
+                if json_data['search']:
+                    query = Person.query.search('%{}%'.format(json_data['search'])) 
                 if self.location_id != 1:
                     query = query.filter(Person.region_id == self.location_id)
-                # uncomment if not use Postgres
-                # query = query.filter(Person.fullname.ilike('%{}%'.format(json_data['search'])))
             
             case 'extended':
                 persons_id = db.session.query(Tag.person_id). \
-                    filter(func.match(Tag.tag, json_data['search'])).all()
+                    filter(Tag.tag.ilike(json_data['search'])).all()
                 query = query.filter(Person.id.in_(persons_id))
             
         query = query.paginate(page=page,
@@ -138,8 +134,15 @@ class ResumeView(MethodView):
         location_id = db.session.query(User.region_id). \
             filter_by(username=current_user.username).scalar()
         person_id = add_resume(json_data, location_id, action)
+        
+        new_tags = analyse_text(json_data)
         tags = db.session.query(Tag).filter_by(person_id=person_id).first()
-        tags.update_tags(json_data)
+        if tags:
+            result = new_tags.union(set(tags.tag.split(' ')))
+            tags.tag = ' '.join(result)
+        else:
+            db.session.add(Tag(tag=' '.join(new_tags), person_id=person_id))
+
         return {'message': person_id}
 
     @r_g.roles_required(Roles.user.name)

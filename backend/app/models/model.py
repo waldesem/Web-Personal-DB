@@ -5,7 +5,6 @@ from sqlalchemy_utils.types import TSVectorType
 from flask_sqlalchemy.query import Query
 
 from .. import db, cache
-from ..analyze.analysis import analyse_text
 from .classes import Category, Status
 
 
@@ -135,8 +134,14 @@ class Report(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
+class PersonQuery(Query, SearchQueryMixin):
+    """ Class for searchable Connect table (only postgresql)"""
+    pass
+   
+
 class Person(db.Model):
     """ Create model for persons dates"""
+    query_class = PersonQuery
 
     __tablename__ = 'persons'
 
@@ -408,44 +413,21 @@ class Tag(db.Model):
     tag = db.Column(db.Text, index=True)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
-    def update_tags(self, new_set):
-        """
-        Update the tags associated with the current person.
-        Parameters:
-            - new_set: A set of new tags to update.
-        Returns:
-            None
-        """
-        tags = db.session.query(Tag).filter_by(person_id=self.person_id).first()
-        new_tags = analyse_text(new_set)
-        
-        if tags:
-            result = new_tags.union(set(tags.tag.split(' ')))
-            tags.tag = ' '.join(result)
-        else:
-            db.session.add(Tag(tag=' '.join(new_tags), person_id=self.person_id))
-        db.session.commit()
-
-    def delete_tags(self):
-        """
-        Deletes the tags associated with the current person.
-        """
-        tags = db.session.query(Tag).filter_by(person_id=self.person_id).first()
-        db.session.delete(tags)
-        db.session.commit()
-
 
 class OneS(db.Model):
-    """ Create model for ones"""
+    """ Create model for 1C database table"""
 
     __tablename__ = 'ones'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
+    fullname = db.Column(db.String(255))
+    birth_date = db.Column(db.Date)
     start_date = db.Column(db.Date)
     start_position = db.Column(db.Text)
     end_date = db.Column(db.Date)
     end_position = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+
 
 db.configure_mappers()

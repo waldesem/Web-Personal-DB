@@ -66,17 +66,20 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
                v-model="storeContact.contactsData.searchData">
       </div>
     </form>
-    <div class="table-responsive py-3">
-      <table class="table align-middle no-bottom-border">
+    <div class="py-3">
+      <table class="table align-middle text-center no-bottom-border">
         <thead> 
           <tr>
             <th width="5%">#</th>
-            <th width="15%">Компания</th>
-            <th width="15%">Город</th>
-            <th width="15%">Имя</th>
-            <th width="15%">Контакт</th>
-            <th width="15%">Примечание</th>
-            <th width="10%">Дата</th>
+            <th width="10%">Компания</th>
+            <th width="10%">Город</th>
+            <th width="10%">Имя</th>
+            <th width="10%">Телефон</th>
+            <th width="10%">Добавочный</th>
+            <th width="10%">Мобильный</th>
+            <th width="10%">E-mail</th>
+            <th width="10%">Примечание</th>
+            <th width="5%">Дата</th>
             <th width="5%">
               <a role="button" @click="storeContact.contactsData.itemAction === 'create' 
                                       ? storeContact.contactsData.itemAction = '' 
@@ -95,21 +98,21 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
             <td colspan="9"><ConnectForm/></td>
           </tr>
           <tr>
-            <td colspan="9">
+            <td colspan="12">
               <table v-for="contact in storeContact.responseData.contacts" :key="contact['id']" 
-                  class="table table-hover align-middle">
+                     class="table table-hover align-middle text-center">
                 <tbody>
                   <tr v-if="storeContact.contactsData.itemId !== contact['id']">
                     <td width="5%">{{ contact["id"] }}</td>
-                    <td width="15%">{{ contact["company"] }}</td>
-                    <td width="15%">{{ contact["city"] }}</td>
-                    <td width="15%">{{ contact["fullname"] }}</td>
-                    <td width="15%">{{ contact["phone"] }}</td>
-                    <td width="15%">{{ contact["adding"] }}</td>
-                    <td width="15%">{{ contact["mobile"] }}</td>
-                    <td width="15%">{{ contact["mail"] }}</td>
-                    <td width="15%">{{ contact["comment"] }}</td>
-                    <td width="10%">{{ contact["data"] }}</td>
+                    <td width="10%">{{ contact["company"] }}</td>
+                    <td width="10%">{{ contact["city"] }}</td>
+                    <td width="10%">{{ contact["fullname"] }}</td>
+                    <td width="10%">{{ contact["phone"] }}</td>
+                    <td width="10%">{{ contact["adding"] }}</td>
+                    <td width="10%">{{ contact["mobile"] }}</td>
+                    <td width="10%">{{ contact["mail"] }}</td>
+                    <td width="10%">{{ contact["comment"] }}</td>
+                    <td width="5%">{{ contact["data"] }}</td>
                     <td width="5%">
                       <a class="btn btn-link" title="Изменить"
                           @click="storeContact.contactsData.itemAction='edit'; 
@@ -156,3 +159,9 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
     </div>
   </div>
 </template>
+
+<style scoped>
+.no-bottom-border td {
+  border-bottom: none;
+}
+</style>

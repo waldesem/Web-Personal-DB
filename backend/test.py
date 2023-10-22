@@ -4,8 +4,6 @@ import json
 import requests
 from faker import Faker
 
-from app.models.classes import Category, Regions
-
 fake = Faker("ru-RU")
 
 
@@ -16,7 +14,7 @@ class AnketaTest:
         self.anketa = {
             "resume": {
                 "id": str(request_id),
-                "category": Category.candidate.value,
+                "category": 'Кандидат',
                 "fullname": fake.name(),
                 "previous": fake.last_name(),
                 "birthday": fake.date_of_birth(minimum_age=14,
@@ -36,7 +34,7 @@ class AnketaTest:
             }],
             "staff": [{
                 "position": fake.job(),
-                "department": f"{random.choice([region.value for region in Regions])}/{fake.company_suffix()}"
+                "department": f"Главный офис/{fake.company_suffix()}"
             }],
             "addresses": [
                 {
@@ -125,9 +123,9 @@ if __name__ == '__main__':
     username = 'pulseapi'
     password = '88888888'
     server = 'http://127.0.0.1:5000'
-    id_range = 30
+    id_range = 2
 
-    for person_id in range(20, id_range):
+    for person_id in range(1, id_range):
         anketa_test = AnketaTest(person_id)
         anketa_test.test_api_anketa(username, password)
 

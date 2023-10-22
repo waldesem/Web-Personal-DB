@@ -34,17 +34,18 @@ class ContactsView(MethodView):
         group_id = db.session.query(Group.id).filter_by(group=group).scalar()
         
         # code below works only with postresql
-        query = Connect.query.search('%{}%'.format(response['search'])).\
-            filter(Connect.group_id == group_id).order_by(Connect.id.desc()). \
-            paginate(page=item, per_page=pagination, error_out=False)
-        
-        # query = db.session.query(Connect). \
-        #     filter(Connect.company.ilike('%{}%'.format(response['company'])),
-        #            Connect.group_id == group_id).order_by(Connect.id.desc()). \
-        #     paginate(page=item, per_page=pagination, error_out=False)
-        return [schema.dump(query, many=True),
-                {'has_next': int(query.has_next)},
-                {'has_prev': int(query.has_prev)},
+        if response['search']:
+            query = Connect.query.search('%{}%'.format(response['search']))    
+        else:
+            query = db.session.query(Connect)
+
+        result = query.order_by(Connect.id.desc()). \
+            filter(Connect.group_id == group_id). \
+                paginate(page=item, per_page=pagination, error_out=False)
+
+        return [schema.dump(result, many=True),
+                {'has_next': int(result.has_next)},
+                {'has_prev': int(result.has_prev)},
                 {'companies': list({company[0] for company in datalist})},
                 {'cities': list({city[1] for city in datalist})}]
 
