@@ -73,7 +73,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           storeAuth.setAccessToken(access_token);
           
           document.getElementById('openModal')?.click();
-          setTimeout(() => document.getElementById('closeModal')?.click(), 3000)
+          setTimeout(() => document.getElementById('closeModal')?.click(), 1000)
           storeLogin.getAuth();
         };
         break;
