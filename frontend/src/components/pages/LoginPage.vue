@@ -2,6 +2,7 @@
 
 import { alertStore } from '@store/alert';
 import LoginForm from '@components/forms/LoginForm.vue'
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAlert = alertStore();
 
@@ -11,16 +12,12 @@ storeAlert.alertMessage.textAlert = 'Авторизуйтесь для вход�
 </script>
 
 <template>
-  <div class="container py-5">
-    <div class="row">
-      <div class="col col-3"></div>
-      <div class="col col-6">
-        <div class="text-primary text-opacity-75 py-3">
-          <h2>StaffSec - кадровая безопасность</h2>
-        </div>
-        <LoginForm />
-      </div>
-      <div class="col col-3"></div>
+  <div class="row py-5">
+    <div class="col col-3"></div>
+    <div class="col col-6">
+      <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
+      <LoginForm />
     </div>
+    <div class="col col-3"></div>
   </div>
 </template>

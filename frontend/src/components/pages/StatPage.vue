@@ -19,6 +19,7 @@ import {
   PointElement, 
   LineElement
 } from 'chart.js';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
@@ -161,11 +162,7 @@ async function submitData(): Promise<void> {
 </script>
 
 <template>
-  <div class="container py-3">
-    <div class="py-5">
-      <h4>Статистика по региону {{ header }} c {{ stat.start }} по {{ stat.end }}</h4>
-    </div>
-    
+    <HeaderDiv :page-header="`Статистика по региону ${header} c ${stat.start} по ${stat.end}`" />
     <div class="form form-check" role="form">
       <input class="form-check-input" type="radio" id="bar" name="bar"
         v-model="chartRadio" value="bar">
@@ -261,5 +258,5 @@ async function submitData(): Promise<void> {
           </div>
       </form>
     </div>
-  </div>
+
 </template>

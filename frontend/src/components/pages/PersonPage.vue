@@ -8,6 +8,7 @@ import { profileStore } from '@/store/profile';
 import { loginStore } from '@/store/login';
 import { debounce, server } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
@@ -87,8 +88,7 @@ const searchPerson = debounce(getCandidates, 500);
 </script>
 
 <template>
-  <div class="container py-3">
-    <div class="py-5"><h4>{{ header }}</h4></div>
+    <HeaderDiv :page-header="header" />
     <div class="row">
       <div class="col-md-3">
         <form class="form form-check" role="form">
@@ -173,5 +173,5 @@ const searchPerson = debounce(getCandidates, 500);
         </ul>
       </nav>
     </div>
-  </div>
+
 </template>

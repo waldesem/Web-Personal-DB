@@ -1,9 +1,11 @@
 <template>
-  <router-view v-slot="{ Component }" >
-    <transition name="component-fade" mode="out-in">
-      <component :is="Component" :key="$route.fullPath"/>
-    </transition>
-  </router-view>
+  <div class="container py-3">
+    <router-view v-slot="{ Component }" >
+      <transition name="component-fade" mode="out-in">
+        <component :is="Component" :key="$route.fullPath"/>
+      </transition>
+    </router-view>
+  </div>
 </template>
 
 <style scoped>

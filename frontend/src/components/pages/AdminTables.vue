@@ -4,6 +4,7 @@ import { onBeforeMount, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router';
 import { authStore } from '@/store/token';
 import { server, debounce } from '@share/utilities';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAuth = authStore();
 
@@ -74,10 +75,7 @@ async function deleteItem(idItem: string): Promise<void>{
 </script>
 
 <template>
-  <div class="container py-3">
-    <div class="py-3">
-      <h4>Таблицы</h4>
-    </div>
+    <HeaderDiv :page-header="'Таблицы'" />
     <div class="row py-3">
       <div class="col-md-3">
         <form class="form form-check" role="form">
@@ -136,7 +134,6 @@ async function deleteItem(idItem: string): Promise<void>{
         </ul>
       </nav>
     </div>
-  </div>
 </template>
 
 <style scoped>

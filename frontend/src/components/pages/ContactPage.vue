@@ -7,6 +7,7 @@ import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { server, debounce, clearItem } from '@share/utilities';
 import ConnectForm from '@components/forms/ConnectForm.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAlert = alertStore();
 const storeContact = contactStore();
@@ -55,10 +56,7 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
 </script>
 
 <template>
-  <div class="container py-3">
-    <div class="py-5">
-      <h4>Контакты</h4>
-    </div>
+    <HeaderDiv :page-header="'Контакты'" />
     <form @input="searchContacts" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="search" name="search" type="search"
@@ -157,7 +155,7 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
         </ul>
       </nav>
     </div>
-  </div>
+
 </template>
 
 <style scoped>

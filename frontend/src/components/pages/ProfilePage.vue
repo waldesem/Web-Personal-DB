@@ -10,6 +10,7 @@ import RegistryTab from '@components/tabs/RegistryTab.vue';
 import PoligrafTab from '@components/tabs/PoligrafTab.vue';
 import InvestigateTab from '@components/tabs/InvestigateTab.vue';
 import InquiryTab from '@components/tabs/InquiryTab.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAlert = alertStore();
 const storeProfile = profileStore();
@@ -51,7 +52,6 @@ async function getProfile() {
 </script>
 
 <template>
-  <div class="container py-3">
     <div class="py-1">
       <div class="py-3">
         <div class="card" style="width: 16rem;">
@@ -67,15 +67,12 @@ async function getProfile() {
           </div>
         </div>
       </div>
-      <div class="py-2">
-        <h3>{{storeProfile.profile.resume['fullname']}}
-          &nbsp;
-          <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
-                              storeAlert.setAlert">
-            <i class="bi bi-printer" title="Версия для печати"></i>
-          </a>
-        </h3>
-      </div>
+      <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
+      &nbsp;
+      <a href="#" @click="storeProfile.printPdf = !storeProfile.printPdf;
+                          storeAlert.setAlert">
+        <i class="bi bi-printer" title="Версия для печати"></i>
+      </a>
     </div>
     <template v-if="!storeProfile.printPdf">
       <div v-if="!storeProfile.printPdf" class="nav nav-tabs nav-justified" role="tablist">
@@ -127,6 +124,5 @@ async function getProfile() {
       <h5>Запросы</h5>
       <InquiryTab />
     </template>
-  </div>
 
 </template>
