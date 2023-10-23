@@ -59,7 +59,6 @@ class IndexView(MethodView):
                             .join(Check, isouter=True) \
                             .filter_by(officer=current_user.fullname)
             case 'search':
-                # comment if not use Postgres
                 if json_data['search']:
                     query = Person.query.search('%{}%'.format(json_data['search'])) 
                 if self.location_id != 1:
@@ -67,16 +66,16 @@ class IndexView(MethodView):
             
             case 'extended':
                 persons_id = db.session.query(Tag.person_id). \
-                    filter(Tag.tag.ilike(json_data['search'])).all()
+                    filter(Tag.tag.match(json_data['search'])).all()
                 query = query.filter(Person.id.in_(persons_id))
             
-        query = query.paginate(page=page,
+        result = query.paginate(page=page,
                             per_page=self.pagination,
                             error_out=False)
         
-        has_next, has_prev = int(query.has_next), int(query.has_prev)
+        has_next, has_prev = int(result.has_next), int(result.has_prev)
         
-        return [self.schema.dump(query, many=True),
+        return [self.schema.dump(result, many=True),
                 {'has_next': has_next, "has_prev": has_prev}]
 
 bp.add_url_rule('/index/<flag>/<int:page>',
@@ -142,6 +141,7 @@ class ResumeView(MethodView):
             tags.tag = ' '.join(result)
         else:
             db.session.add(Tag(tag=' '.join(new_tags), person_id=person_id))
+        db.session.commit()
 
         return {'message': person_id}
 

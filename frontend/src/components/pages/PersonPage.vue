@@ -42,7 +42,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
 const header = computed(() => {
   const name = {
-    'search': "Результаты поиска", 
+    'search': "Результаты поиска",
+    'extended': 'Расширенный поиск',
     'officer': "Страница пользователя",
     'main': "Главная страница",
     'new': "Новые кандидаты"
