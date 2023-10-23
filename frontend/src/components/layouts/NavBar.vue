@@ -119,6 +119,12 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
                 </li>
               </ul>
           </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="#" 
+               data-bs-toggle="modal" data-bs-target="#modalApp">
+              О программе
+            </a>
+          </li>
         </ul>                                
         <li class="nav-item dropdown d-flex">
           <a href="#" class="nav-link active dropdown-toggle" role="button" 
@@ -163,9 +169,36 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
         </ul>
     </div>
   </div>
+
+  <div class="modal fade" id="modalApp" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-body py-5">
+          <div class="text-primary text-opacity-75 py-3">
+            <h1 class="text-center">StaffSec</h1>
+          </div>
+          <div class="text-secondary text-opacity-95 py-3">
+            <h3 class="text-center">Кадровая безопасность</h3>
+          </div>
+          <div class="text-secondary text-opacity-95 py-3">
+            <h5 class="text-center">Интерфейс базы данных кандидатов и сотрудников</h5>
+          </div>
+          <div class="progress" role="progressbar">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                style="width: 100%"></div>
+          </div>
+          <div class="py-3">
+            <p class="text-center text-secondary text-opacity-95 py-1">MIT License</p>
+            <p class="text-center text-secondary text-opacity-95 py-1">2023 Версия 0.1</p>
+          </div>
+        </div>  
+      </div>
+    </div>
+  </div>
+
 </template>
 
-<style>
+<style scoped>
   .envelope {
     font-size: 2rem; /* Adjust the value as needed */
   }
