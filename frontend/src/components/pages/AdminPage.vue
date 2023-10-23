@@ -113,7 +113,6 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
         </table>
       </div>
     </div>
-  </div>
 
     <div class="modal" id="modalUser" data-bs-backdrop="static" data-bs-keyboard="false" 
         tabindex="-1" aria-labelledby="modalWinLabel" aria-hidden="true">
@@ -239,6 +238,9 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
         </div>
       </div>
     </div>
+
+  </div>
+
     
 </template>
 

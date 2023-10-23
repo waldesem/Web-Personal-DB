@@ -23,7 +23,6 @@ const tableData = ref({
 
 onBeforeMount(() => {
   tableData.value.table = tablesList[0];
-  console.log(tableData.value.table);
   getItem();
 });
 
