@@ -104,9 +104,9 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
           </li>
 
           <li v-if="messages.length && storeLogin.pageIdentity !== 'login'" 
-              class="nav-item dropdown">
+              class="nav-item dropdown" title="Сообщения">
             <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
-              <i class="bi bi-envelope-fill"></i>
+              <i class="bi bi-envelope-fill" width="32" height="32"></i>
               <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
                 {{ messages.length }}
               </span>
@@ -128,7 +128,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
           </li>
 
           <li class="nav-item">
-            <a class="nav-link active" href="#" 
+            <a class="nav-link active" href="#" title="ChatBot"
                data-bs-toggle="modal" data-bs-target="#modalChat">
               <i class="bi bi-chat-dots-fill" width="32" height="32"></i>
             </a>
@@ -136,12 +136,12 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
 
           <li class="nav-item">
             <a class="nav-link active" href="#" 
-               data-bs-toggle="modal" data-bs-target="#modalApp">
-              О программе
+               data-bs-toggle="modal" data-bs-target="#modalApp" title="О программе">
+               <i class="bi bi-exclamation-circle-fill" width="32" height="32"></i>
             </a>
           </li>
         </ul>
-                                  
+
         <li class="nav-item dropdown d-flex">
           <a href="#" class="nav-link active dropdown-toggle" role="button" 
               data-bs-toggle="dropdown" :title="storeLogin.userData.fullName 
@@ -213,7 +213,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
   </div>
 
   <div class="modal fade" id="modalChat" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">StaffSecBot</h3>
