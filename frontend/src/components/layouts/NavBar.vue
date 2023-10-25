@@ -5,12 +5,14 @@ import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { profileStore } from '@/store/profile';
 import { adminStore } from '@/store/admin';
+import { chatStore } from '@/store/chatbot'
 import { server } from '@share/utilities';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
 const storeProfile = profileStore();
 const storeAdmin = adminStore();
+const storeChat = chatStore();
 
 const messages = ref([]);
 
@@ -20,16 +22,6 @@ if (!isStarted) {
   isStarted = true;
   setInterval(updateMessage, 1000000);
 };
-
-const chatDialog = ref([{}]);
-let textInput = '';
-
-function updateChat() {
-  chatDialog;
-  textInput = '';
-};
-
-const chatBot = '';
 
 /**
  * Updates the messages based on the provided flag ('new' or 'reply').
@@ -133,7 +125,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
           <li class="nav-item">
             <a class="nav-link active" href="#" title="ChatBot"
                data-bs-toggle="popover" data-bs-container="body" data-bs-placement="bottom"
-               :data-bs-content="chatBot" data-bs-html="true" data-sanitize="false">
+               :data-bs-content="storeChat.chatBot" data-bs-html="true" data-sanitize="false">
               <i class="bi bi-chat-dots-fill" width="32" height="32"></i>
             </a>
           </li>
@@ -213,29 +205,6 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
           </div>
         </div>  
       </div>
-    </div>
-  </div>
-
-  <div class="py-3">
-    <h3>StaffSecBot</h3>
-    <div class="py-3">
-      <div v-for="dialog, index in chatDialog.slice(-9)" :key="index" 
-        :class="`badge bg-${'info' ? Object.keys(dialog)[0] === 'chatbot' : 'success'} text-wrap`">
-        {{ Object.values(dialog)[0] }}
-      </div>
-      <form @submit.prevent="updateChat" class="form form-check" role="form">
-        <div class="row">
-          <div class="col-md-10">
-            <textarea class="form-control" id="chat" name="chat" required 
-                      v-model="textInput"></textarea>
-          </div>
-          <div class="col-md-2">
-            <button class="btn btn-outline-primary btn-sm" name="submit" type="submit">
-              Отправить
-            </button>
-          </div>
-        </div>
-      </form>
     </div>
   </div>
 
