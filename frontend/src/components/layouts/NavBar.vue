@@ -5,14 +5,14 @@ import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { profileStore } from '@/store/profile';
 import { adminStore } from '@/store/admin';
-import { chatStore } from '@/store/chatbot'
+//import { soketStore } from '@/store/socket'
 import { server } from '@share/utilities';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
 const storeProfile = profileStore();
 const storeAdmin = adminStore();
-const storeChat = chatStore();
+//const storeSocket = soketStore();
 
 const messages = ref([]);
 
@@ -21,6 +21,19 @@ if (!isStarted) {
   updateMessage();
   isStarted = true;
   setInterval(updateMessage, 1000000);
+};
+
+const chatDialog = ref([{}]);
+chatDialog.value.push({'chatBot': 'Чем могу помочь?'})
+const textInput =  ref('');
+
+function updateChat() {
+  if (textInput.value == '') {
+    return
+  };
+  chatDialog.value.push({'Вы': textInput.value});
+  chatDialog.value.push({'chatBot': 'Секундочку...'});
+  textInput.value = '';
 };
 
 /**
@@ -101,7 +114,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
           <li v-if="messages.length && storeLogin.pageIdentity !== 'login'" 
               class="nav-item dropdown" title="Сообщения">
             <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
-              <i class="bi bi-envelope-fill" width="32" height="32"></i>
+              <i class="bi bi-envelope-fill"></i>
               <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
                 {{ messages.length }}
               </span>
@@ -122,12 +135,31 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
               </ul>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link active" href="#" title="ChatBot"
-               data-bs-toggle="popover" data-bs-container="body" data-bs-placement="bottom"
-               :data-bs-content="storeChat.chatBot" data-bs-html="true" data-sanitize="false">
-              <i class="bi bi-chat-dots-fill" width="32" height="32"></i>
+          <li class="nav-item dropdown" title="ChatBot">
+            <a class="nav-link active dropdown-toggle" role="button"  data-bs-toggle="dropdown">
+              <i class="bi bi-chat-dots-fill"></i>
             </a>
+            <ul class="dropdown-menu">
+                <li>
+                  <h6 class="dropdown-header">StaffSecBot</h6>
+                </li>
+                <li class="dropdown-item">
+                  <div v-for="dialog, index in chatDialog" :key="index" 
+                      :class="`badge bg-${Object.keys(dialog)[0] === 'chatBot' ? 'info' : 'success'} text-wrap`">
+                    {{ `${Object.keys(dialog)[0]}: ${Object.values(dialog)[0]}` }}
+                  </div>
+                  <form @submit.prevent = "updateChat" class="form form-check" role="form">
+                    <div class="row">
+                      <div class="col-md-10">
+                        <input class="form-control" id="chat" name="chat" required v-model="textInput">
+                      </div>
+                      <div class="col-md-2">
+                        <button class="btn btn-outline-primary btn-sm" type="submit">Отправить</button>
+                      </div>
+                    </div>
+                  </form>
+                </li>
+              </ul>
           </li>
 
           <li class="nav-item">
