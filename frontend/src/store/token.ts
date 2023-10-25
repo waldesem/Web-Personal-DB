@@ -35,10 +35,12 @@ export const authStore = defineStore('authStore', () => {
                   headers: { 'Authorization': `Bearer ${localStorage.getItem('refresh_token')}` }
                 });
                 const { access_token } = response.data;
-                
-                localStorage.setItem('access_token', access_token);
-                accessToken = access_token;
-              
+                if (access_token){
+                  localStorage.setItem('access_token', access_token);
+                  accessToken = access_token;
+                } else {
+                  router.push({ name: 'login' });
+                };
               } catch (error) {
                 router.push({ name: 'login' });
                 return Promise.reject(error);

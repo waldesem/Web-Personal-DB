@@ -25,8 +25,11 @@ const chatDialog = ref([{}]);
 let textInput = '';
 
 function updateChat() {
-  chatDialog
+  chatDialog;
+  textInput = '';
 };
+
+const chatBot = '';
 
 /**
  * Updates the messages based on the provided flag ('new' or 'reply').
@@ -129,7 +132,8 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
 
           <li class="nav-item">
             <a class="nav-link active" href="#" title="ChatBot"
-               data-bs-toggle="modal" data-bs-target="#modalChat">
+               data-bs-toggle="popover" data-bs-container="body" data-bs-placement="bottom"
+               :data-bs-content="chatBot" data-bs-html="true" data-sanitize="false">
               <i class="bi bi-chat-dots-fill" width="32" height="32"></i>
             </a>
           </li>
@@ -212,30 +216,26 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
     </div>
   </div>
 
-  <div class="modal fade" id="modalChat" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 class="modal-title">StaffSecBot</h3>
-        </div>
-        <div class="modal-body py-5">
-          <div v-for="dialog, index in chatDialog.slice(-9)" :key="index" 
-            :class="`badge bg-${'info' ? Object.keys(dialog)[0] === 'chatbot' : 'success'} text-wrap`">
-            {{ Object.values(dialog)[0] }}
-          </div>
-          <form @submit.prevent="updateChat" class="form form-check" role="form">
-            <div class="row">
-              <div class="col-md-10">
-                <textarea class="form-control" id="chat" name="chat" required 
-                          v-model="textInput"></textarea>
-              </div>
-              <div class="col-md-2">
-                <button class="btn btn-outline-primary btn-sm" name="submit" type="submit">OK</button>
-              </div>
-            </div>
-          </form>
-        </div>
+  <div class="py-3">
+    <h3>StaffSecBot</h3>
+    <div class="py-3">
+      <div v-for="dialog, index in chatDialog.slice(-9)" :key="index" 
+        :class="`badge bg-${'info' ? Object.keys(dialog)[0] === 'chatbot' : 'success'} text-wrap`">
+        {{ Object.values(dialog)[0] }}
       </div>
+      <form @submit.prevent="updateChat" class="form form-check" role="form">
+        <div class="row">
+          <div class="col-md-10">
+            <textarea class="form-control" id="chat" name="chat" required 
+                      v-model="textInput"></textarea>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-primary btn-sm" name="submit" type="submit">
+              Отправить
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 

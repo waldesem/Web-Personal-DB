@@ -101,11 +101,13 @@ router.beforeEach(async (to, _from, next) => {
               headers: {'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`}
             });
             const { access_token } = response.data;
-
-            localStorage.setItem('access_token', access_token);
-            storeAuth.setAccessToken(access_token);
-            next();
-            
+            if (access_token){
+              localStorage.setItem('access_token', access_token);
+              storeAuth.setAccessToken(access_token);
+              next();
+            } else {
+              router.push({ name: 'login' });
+            };            
           } else {
             next();
           };

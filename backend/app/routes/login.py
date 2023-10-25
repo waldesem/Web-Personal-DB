@@ -166,7 +166,6 @@ class LoginView(MethodView):
     def delete(self):
         """
         A function that deletes the JWT token from the Redis blocklist.
-
         Returns:
             A tuple containing an empty string and the status code 401.
         """
@@ -187,15 +186,15 @@ class TokenView(MethodView):
     def post(self):
         """
         Generate a new access token for the authenticated user.
-
         Returns:
             dict: A dictionary containing the access token.
-                {
-                    'access_token': str
-                }
         """
-        access_token = create_access_token(identity=get_jwt_identity())
-        return {'access_token': access_token}
+        user = db.session.query(User). \
+            filter_by(username=current_user.username).one_or_none()
+        if not user.has_blocked:
+            access_token = create_access_token(identity=get_jwt_identity())
+            return {'access_token': access_token}
+        return {'access_token': ''}
 
 
 bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
