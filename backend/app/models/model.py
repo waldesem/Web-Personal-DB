@@ -151,7 +151,7 @@ class Person(db.Model):
     region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
     fullname = db.Column(db.String(255), nullable=False, index=True)
     previous = db.Column(db.String(255))
-    birthday = db.Column(db.Date, nullable=False, index=True)
+    birthday = db.Column(db.Date, nullable=False)
     birthplace = db.Column(db.Text)
     country = db.Column(db.String(255))
     snils = db.Column(db.String(11))

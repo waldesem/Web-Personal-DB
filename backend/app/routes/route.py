@@ -16,7 +16,7 @@ from PIL import Image
 from . import bp
 from .. import db
 from .login import r_g
-from ..utils.analysis import analyse_text
+from ..utils.analysis import analyse_text, update_tags
 from ..utils.utilities import CsvFile, ExcelFile, add_resume, create_folders
 from ..models.model import Tag, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
@@ -133,16 +133,7 @@ class ResumeView(MethodView):
         location_id = db.session.query(User.region_id). \
             filter_by(username=current_user.username).scalar()
         person_id = add_resume(json_data, location_id, action)
-        
-        new_tags = analyse_text(json_data)
-        tags = db.session.query(Tag).filter_by(person_id=person_id).first()
-        if tags:
-            result = new_tags.union(set(tags.tag.split(' ')))
-            tags.tag = ' '.join(result)
-        else:
-            db.session.add(Tag(tag=' '.join(new_tags), person_id=person_id))
-        db.session.commit()
-
+        update_tags(analyse_text(json_data), person_id)
         return {'message': person_id}
 
     @r_g.roles_required(Roles.user.name)
@@ -193,6 +184,7 @@ class StaffView(MethodView):
     def post(self, action, item_id, json_data):
         db.session.add(Staff(**json_data | {'person_id': item_id}))
         db.session.commit()
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @bp.input(StaffSchema)
@@ -229,6 +221,7 @@ class DocumentView(MethodView):
     def post(self, action, item_id, json_data):
         db.session.add(Document(**json_data | {'person_id': item_id}))
         db.session.commit()
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -265,6 +258,7 @@ class AddressView(MethodView):
     def post(self, action, item_id, json_data):
         db.session.add(Address(**json_data | {'person_id': item_id}))
         db.session.commit()
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -301,6 +295,7 @@ class ContactView(MethodView):
     def post(self, action, item_id, json_data):
         db.session.add(Contact(**json_data | {'person_id': item_id}))
         db.session.commit()
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -338,6 +333,7 @@ class WorkplaceView(MethodView):
         json_data['now_work'] = bool(json_data.pop('now_work')) if 'now_work' in json_data else False
         db.session.add(Workplace(**json_data | {'person_id': item_id}))
         db.session.commit()
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -452,8 +448,7 @@ class CheckView(MethodView):
         else:
             person.status = Status.poligraf.value if json_data['pfo'] \
                 else Status.result.value
-        tags = db.session.query(Tag).filter_by(person_id=check.person_id).first()
-        tags.update_tags(json_data)
+        update_tags(analyse_text(json_data), check.person_id)
         db.session.commit()
 
 
@@ -541,8 +536,7 @@ class InvestigationView(MethodView):
         db.session.add(Investigation(**json_data | {'person_id': item_id,
                                                     'officer': current_user.fullname}))
         db.session.commit()
-        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
-        tags.update_tags(json_data)
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -588,8 +582,7 @@ class PoligrafView(MethodView):
         db.session.add(Poligraf(**json_data | {'person_id': item_id,
                                                'officer': current_user.fullname}))
         db.session.commit()
-        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
-        tags.update_tags(json_data)
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @r_g.roles_required(Roles.user.value)
@@ -627,8 +620,7 @@ class InquiryView(MethodView):
         db.session.add(Inquiry(**json_data | {'person_id': item_id,
                                               'officer': current_user.fullname}))
         db.session.commit()
-        tags = db.session.query(Tag).filter_by(person_id=item_id).first()
-        tags.update_tags(json_data)
+        update_tags(analyse_text(json_data), item_id)
         return '', 201
 
     @bp.input(InquirySchema)

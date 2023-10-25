@@ -4,6 +4,8 @@ import string
 import spacy
 from spacy.lang.ru.stop_words import STOP_WORDS
 
+from .. import db
+from ..models.model import Tag
 
 nlp = spacy.load("ru_core_news_sm")
 
@@ -30,4 +32,16 @@ def analyse_text(data: dict):
     
     named = {token.text for token in doc.ents}
 
-    return lemmas.union(named).union(digital).union(dates)
+    return  lemmas.union(named).union(digital).union(dates)
+
+
+def update_tags(new_tags: set, person_id: string):
+    tags = db.session.query(Tag).filter_by(person_id=person_id).first()
+    
+    if tags:
+        result = new_tags.union(set(tags.tag.split(' ')))
+        tags.tag = ' '.join(result)
+    else:
+        db.session.add(Tag(tag=' '.join(new_tags), person_id=person_id))
+    
+    db.session.commit()
