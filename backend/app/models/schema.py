@@ -144,14 +144,7 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
         model = Connect
         ordered = True
         exclude = ('search_vector',) # only if use searchable sqlalchemy
-
-
-class TagSchema(ma.SQLAlchemyAutoSchema):
-    """ Create model for tag"""
-    class Meta:
-        model = Report
-        ordered = True
-
+        
 
 class AnketaSchema(ma.SQLAlchemySchema):
     """ Create schema for sending anketa"""

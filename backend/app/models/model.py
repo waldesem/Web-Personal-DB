@@ -402,17 +402,6 @@ class Connect(db.Model):
     search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile')) 
 
 
-class Tag(db.Model):
-    """ Create model for tags cloud"""
-
-    __tablename__ = 'tags'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
-                   autoincrement=True)
-    tag = db.Column(db.Text, index=True)
-    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-
-
 class OneS(db.Model):
     """ Create model for 1C database table"""
 

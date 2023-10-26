@@ -114,7 +114,7 @@ const searchPerson = debounce(getCandidates, 500);
           </div>
         </form>
       </div>
-      <div class="col-md-1" v-show="storeLogin.userData.region_id == '1'" >
+      <div disabled class="col-md-1" v-show="storeLogin.userData.region_id == '1'" >
         <input class="form-check-input" type="checkbox" id="checkbox" 
                title="Расширенный поиск" style="width: 30px; height: 30px;"
                v-model="personData.extendedSearch" value="search">

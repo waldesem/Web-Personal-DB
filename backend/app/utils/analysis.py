@@ -28,20 +28,8 @@ def analyse_text(data: dict):
     
     doc = nlp(txt)
 
-    lemmas = {token.lemma_ for token in doc if token.pos_ in ('PROPN', 'NOUN', 'VERB')}
+    lemmas = {token.lemma_ for token in doc if token.pos_}
     
     named = {token.text for token in doc.ents}
 
     return  lemmas.union(named).union(digital).union(dates)
-
-
-def update_tags(new_tags: set, person_id: string):
-    tags = db.session.query(Tag).filter_by(person_id=person_id).first()
-    
-    if tags:
-        result = new_tags.union(set(tags.tag.split(' ')))
-        tags.tag = ' '.join(result)
-    else:
-        db.session.add(Tag(tag=' '.join(new_tags), person_id=person_id))
-    
-    db.session.commit()
