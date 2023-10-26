@@ -10,7 +10,7 @@ const storeAuth = authStore();
 
 const tablesList = [
   'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
-  'relation', 'check', 'registry', 'poligraf','investigation', 'inquiry', 'tag'
+  'relation', 'check', 'registry', 'poligraf','investigation', 'inquiry'
 ];
 
 const tableData = ref({

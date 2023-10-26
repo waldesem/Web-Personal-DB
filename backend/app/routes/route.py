@@ -1,4 +1,3 @@
-import csv
 import json
 import os
 import requests
@@ -664,17 +663,6 @@ class InfoView(MethodView):
 
 
 bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
-
-
-class TagView(MethodView):
-        
-    @r_g.group_required(Groups.staffsec.name)
-    @bp.doc(hide=True)
-    def get(self, action, item_id):
-        return {'tags': db.session.query(Tag).filter_by(person_id=item_id).first()}
-
-bp.add_url_rule('/tag/<action>/<int:item_id>',
-                view_func=TagView.as_view('tag'))
 
 
 class FileView(MethodView):
