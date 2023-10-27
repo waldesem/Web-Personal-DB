@@ -1,10 +1,16 @@
 import re
 import string
+from datetime import datetime as dt
 
 import spacy
 from spacy.lang.ru.stop_words import STOP_WORDS
 
 
+templates = {
+    'anketa': 'Поиск: фамилия имя дата рождения паспорт серия номер инн снилс',
+    'check': 'Поиск: результат проверка кандидата'
+}
+    
 class Analysis:
 
     def __init__(self, text) -> None:
@@ -20,15 +26,17 @@ class Analysis:
         return txt
 
     def get_names(self):
-        return [token.text for token in self.doc.ents]
+        return [token.text for token in self.doc.ents if token.label_ == 'PERSON']
 
+    def get_company(self):
+        return [token.text for token in self.doc.ents if token.label_ == 'ORG'][0]
 
     def get_digits(self):
         lst_txt = self.text.split()
         return [digit for digit in lst_txt if digit.isdigit()]
 
 
-    def get_dates(self):
+    def get_date(self):
         lst_txt = self.text.split()
         return [d for d in lst_txt if re.match(r'\d\d.\d\d.\d\d\d\d', d) \
                 or re.match(r'\d\d\d\d-\d\d-\d\d', d)]
@@ -44,15 +52,82 @@ class Analysis:
 
     def get_similarity(self, template):
         template_nlp = self.nlp(template)
-        similar =  template_nlp.similarity(self.nlp)
+        return template_nlp.similarity(self.doc)
+
+    def get_values(self):
         names = []
-        if similar > 0.1:
-            names = self.get_names(self.text)
-        return names
+        digits = []
+        dates = []
+        names = self.get_names()
+        digits = self.get_digits()
+        dates = self.get_date()
+            
+        return {'names' : names, 'digits': digits, 'dates': dates}
+
+
+class Actions(Analysis):
+    
+    def __init__(self,  response):
+        self.response = response
+        self.names_string = ''
+        self.series_passport = ''
+        self.number_passport = ''
+        self.inn = ''
+        self.snils = ''
+        self.data_string = ''
+
+    def names_actions(self):
+        if self.response['names']:
+            self.names_string = ' '.join(self.response['names'])
+        return self.names_string 
+    
+    def digits_actions(self):
+        if len(self.response['digits']):
+            for digit in self.response['digits']:
+                match len(digit):
+                    case 4:
+                        self.series_passport = str(digit)
+                    case 6:
+                        self.number_passport = str(digit)
+                    case 11:
+                        self.inn = str(digit)
+                    case 12:
+                        self.snils = str(digit)
+        return {
+            'series_passport': self.series_passport,
+            'number_passport': self.number_passport,
+            'inn': self.inn,
+            'snils': self.snils
+            }
+                    
+    def dates_actions(self):
+        if self.response['dates']:
+            if re.match(r'\d\d.\d\d.\d\d\d\d', self. response['dates'][0]):
+                self.data_string = dt.strptime(self.response['dates'][0], '%d.%m.%Y')
+            else:
+                self.data_string = dt.strptime(self.response['dates'][0], '%Y-%m-%d')
+        return self.data_string 
+
 
 if __name__ == "__main__":
-    query = 'Поиск кандидата Петров Алексей'
-    template = 'Найти кандидата'
+    query = 'Петров Виктор дата рождения 11.09.1999 паспорт 4567 098765'
 
     analysis = Analysis(query)
-    print(analysis.get_similarity(template))
+    similars = {str(analysis.get_similarity(v)): k for k, v in templates.items()}
+    max_sim = max([float(sim) for sim in similars])
+    
+    if max_sim > 0.5:
+        template = templates[similars[str(max_sim)]]
+        results = analysis.get_values()
+        rules = Actions(results)
+        
+        name = rules.names_actions()
+        digits = rules.digits_actions()
+        data = rules.dates_actions()
+
+        print(name)
+        print(digits['series_passport'])
+        print(digits['number_passport'])
+        print(digits['inn'])
+        print(digits['snils'])
+        print(data)
