@@ -68,7 +68,7 @@ python-socketio==5.10.0
 pytz==2023.3.post1
 redis==5.0.0
 requests==2.31.0
-ru-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/ru_core_news_sm-3.7.0/ru_core_news_sm-3.7.0-py3-none-any.whl
+ru-core-news-md @ https://github.com/explosion/spacy-models/releases/download/ru_core_news_md-3.7.0/ru_core_news_md-3.7.0-py3-none-any.whl
 simple-websocket==1.0.0
 six==1.16.0
 smart-open==6.4.0

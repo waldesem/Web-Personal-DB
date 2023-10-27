@@ -14,9 +14,8 @@ templates = {
 class Analysis:
 
     def __init__(self, text) -> None:
-        self.nlp = spacy.load("ru_core_news_sm")
-        # nlp = spacy.load("ru_core_news_md")
-        self.text = text
+        self.nlp = spacy.load("ru_core_news_md")
+        self.text = text.lower()
         self.doc = self.nlp(self.text)
 
     def clear_text(self):
@@ -26,7 +25,7 @@ class Analysis:
         return txt
 
     def get_names(self):
-        return [token.text for token in self.doc.ents if token.label_ == 'PERSON']
+        return [ent.text for ent in self.doc.ents if ent.label_ == 'PER']
 
     def get_company(self):
         return [token.text for token in self.doc.ents if token.label_ == 'ORG'][0]
