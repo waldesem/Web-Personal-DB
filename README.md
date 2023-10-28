@@ -11,9 +11,12 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
-- SpaCy as NLP library for profile analysis.
-- OpenSearch as a search engine.
+- Flask-APScheduler as a tool that handles background tasks;
+- Flask-SocketIO as a tool that handles WebSocket communication with chatbot;
+- SpaCy as NLP library for chatbot queries analysis.
+<!--- OpenSearch as a search engine.-->
 - Vue3 as the frontend and Vite as Frontend Tooling
+- Socket.IO as a tool for WebSocket communication
 - Bootstrap 5 as the UI framework.
 
 ### Installation
@@ -48,7 +51,32 @@ CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
+<!--
+### OpenSearch
 
+Install the necessary packages.
+```
+sudo apt-get update && sudo apt-get -y install lsb-release ca-certificates curl gnupg2
+```
+Import the public GPG key. This key is used to verify that the APT repository is signed.
+```
+curl -o- https://artifacts.opensearch.org/publickeys/opensearch.pgp | sudo gpg --dearmor --batch --yes -o /usr/share/keyrings/opensearch-keyring
+```
+Create an APT repository for OpenSearch:
+```
+echo "deb [signed-by=/usr/share/keyrings/opensearch-keyring] https://artifacts.opensearch.org/releases/bundle/opensearch/2.x/apt stable main" | sudo tee /etc/apt/sources.list.d/opensearch-2.x.list
+```
+Update the package list and install OpenSearch
+```
+sudo apt-get update && sudo apt-get -y install opensearch
+```
+Once complete, enable OpenSearch, start it and verify that it is running.
+```
+sudo systemctl enable opensearch
+sudo systemctl start opensearch
+sudo systemctl status opensearch
+```
+-->
 ### Migration
 
 For migrate database enter commands:
