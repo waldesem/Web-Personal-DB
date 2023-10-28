@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { watch, ref } from 'vue';
+import { ref } from 'vue';
 import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { profileStore } from '@/store/profile';
@@ -15,25 +15,6 @@ const storeAdmin = adminStore();
 const storeSocket = socketStore();
 
 const textInput  = ref('');
-
-watch(() => storeSocket.chatDialog, () => {
-  scrollToBottom();
-})
-
-function scrollToBottom() {
-  const chatbot = document.getElementById('chatbot');
-  const chatcontent = document.getElementById('chatcontent');
-  if (chatcontent && chatbot) {
-    chatcontent.scrollTop = chatcontent.scrollHeight + chatbot.scrollHeight;
-  }
-};
-
-function updateChat() {
-  storeSocket.chatDialog.push({'Вы': textInput.value});
-  storeSocket.socket.emit("income", {'Вы': textInput.value});
-  textInput.value = '';
-};
-
 const messages = ref([]);
 
 let isStarted = false;
@@ -42,6 +23,21 @@ if (!isStarted) {
   isStarted = true;
   setInterval(updateMessage, 1000000);
 };
+
+function scrollToBottom() {
+  const chatcontent = document.getElementById('chatcontent');
+  if (chatcontent) {
+    chatcontent.scrollTop = chatcontent.scrollHeight;
+  }
+};
+
+function updateChat() {
+  storeSocket.socket.emit('incoming', textInput.value);
+  storeSocket.chatDialog.push({'Вы': textInput.value});
+  textInput.value = '';
+  scrollToBottom();
+};
+
 
 /**
  * Updates the messages based on the provided flag ('new' or 'reply').
@@ -274,7 +270,5 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
     width: 620px;
     height: 480px;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
   }
 </style>

@@ -19,7 +19,7 @@ export const socketStore = defineStore('socketStore', () => {
     chatDialog.value.push({'chatBot': 'До скорой встречи!'});
   });
   
-  socket.on("income", (args) => {
+  socket.on("incoming", (args) => {
     chatDialog.value.push(args);
   });
   
