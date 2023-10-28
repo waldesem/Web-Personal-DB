@@ -12,9 +12,9 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
 - Flask-APScheduler as a tool that handles background tasks;
-- Flask-SocketIO as a tool that handles WebSocket communication with chatbot;
+<!--- Flask-SocketIO as a tool that handles WebSocket communication with chatbot;
 - SpaCy as NLP library for chatbot queries analysis.
-<!--- OpenSearch as a search engine.-->
+- OpenSearch as a search engine.-->
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Socket.IO as a tool for WebSocket communication
 - Bootstrap 5 as the UI framework.

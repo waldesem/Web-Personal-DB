@@ -1,4 +1,4 @@
-import csv
+import json
 import os
 import re
 from datetime import datetime
@@ -76,55 +76,55 @@ class ExcelFile:
         self.wb.close()
 
 
-class CsvFile:
+class JsonFile:
     """ Create class for import data from csv files"""
 
     def __init__(self, file) -> None:
-        with open(file, newline='') as csvfile:
-            self.csv_dict = csv.DictReader(csvfile)
+        with open(file, 'r') as f:
+            self.json_dict = json.load(f)
 
         self.resume = {
-            'fullname': parse_cell(self.csv_dict['fullname']).title(),
-            'previous': parse_cell(self.csv_dict['previous']).title(),
-            'birthday': parse_date(parse_cell(self.csv_dict['birthday'])),
-            'birthplace': str(self.csv_dict['birthplace'].value).strip(),
-            'country': parse_cell(self.csv_dict['country']),
-            'snils': parse_cell(self.csv_dict['snils']).replace(" ", "").\
+            'fullname': parse_cell(self.json_dict['fullname']).title(),
+            'previous': parse_cell(self.json_dict['previous']).title(),
+            'birthday': parse_date(parse_cell(self.json_dict['birthday'])),
+            'birthplace': str(self.json_dict['birthplace'].value).strip(),
+            'country': parse_cell(self.json_dict['country']),
+            'snils': parse_cell(self.json_dict['snils']).replace(" ", "").\
                 replace("-", "")[:11],
-            'inn': parse_cell(self.csv_dict['inn'], 12),
-            'education': str(self.csv_dict['education'].value).strip()
+            'inn': parse_cell(self.json_dict['inn'], 12),
+            'education': str(self.json_dict['education'].value).strip()
         }
         self.passport = [
             {
                 'view': 'Паспорт гражданина России',
-                'series': parse_cell(self.csv_dict['series'], 4),
-                'number': parse_cell(self.csv_dict['number'], 6),
-                'issue': parse_date(parse_cell(self.csv_dict['issue']))
+                'series': parse_cell(self.json_dict['series'], 4),
+                'number': parse_cell(self.json_dict['number'], 6),
+                'issue': parse_date(parse_cell(self.json_dict['issue']))
             }
         ]
         self.addresses = [
             {
                 'view': "Адрес регистрации", 
-                'address': parse_cell(self.csv_dict['address'])
+                'address': parse_cell(self.json_dict['address'])
             }
         ]
         self.contacts = [
             {
-                'view': parse_cell(self.csv_dict['view']), 
-                'contact': parse_cell(self.csv_dict['contact']).replace(" ", "")
+                'view': parse_cell(self.json_dict['view']), 
+                'contact': parse_cell(self.json_dict['contact']).replace(" ", "")
             }
         ]
         self.workplaces = [
             {
-                'workplace': str(self.csv_dict[f'workplace'].value).strip(),
-                'address': str(self.csv_dict[f'address'].value).strip(),
-                'position': str(self.csv_dict[f'position'].value).strip()
+                'workplace': str(self.json_dict[f'workplace'].value).strip(),
+                'address': str(self.json_dict[f'address'].value).strip(),
+                'position': str(self.json_dict[f'position'].value).strip()
             }
         ]
         self.staff = [
             {
-                'position': str(self.csv_dict['position'].value).strip(),
-                'department': str(self.csv_dict['department'].value).strip()
+                'position': str(self.json_dict['position'].value).strip(),
+                'department': str(self.json_dict['department'].value).strip()
             }
         ]
 
