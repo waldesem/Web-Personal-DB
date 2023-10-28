@@ -7,6 +7,7 @@ from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 from flask_caching import Cache
 from flask_jwt_extended import JWTManager
+from flask_socketio import SocketIO
 from flask import send_from_directory
 
 from config import Config
@@ -15,6 +16,7 @@ ma = Marshmallow()
 db = SQLAlchemy()
 cache = Cache()
 jwt = JWTManager()
+socketio = SocketIO()
 
 
 def create_app(config_class=Config):
@@ -31,7 +33,8 @@ def create_app(config_class=Config):
     db.init_app(app)
     ma.init_app(app)
     jwt.init_app(app)
-    cache.init_app(app)  
+    cache.init_app(app)
+    socketio.init_app(app, cors_allowed_origins="*")
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
 

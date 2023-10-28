@@ -185,8 +185,6 @@ class Person(db.Model):
                                      cascade="all, delete, delete-orphan")
     relations= db.relationship('Relation', backref='persons', 
                                cascade="all, delete, delete-orphan")
-    tags= db.relationship('Tag', backref='tags', 
-                          cascade="all, delete, delete-orphan")
     ones = db.relationship('OneS', backref='ones', 
                            cascade="all, delete, delete-orphan")
     # comment if not use Postgres

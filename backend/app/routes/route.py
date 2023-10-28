@@ -16,7 +16,7 @@ from . import bp
 from .. import db
 from .login import r_g
 from ..utils.utilities import CsvFile, ExcelFile, add_resume, create_folders
-from ..models.model import Tag, User, Person, Staff, Document, Address, Contact, \
+from ..models.model import  User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \

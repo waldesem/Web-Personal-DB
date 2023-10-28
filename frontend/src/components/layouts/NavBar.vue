@@ -1,18 +1,38 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { watch, ref } from 'vue';
 import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { profileStore } from '@/store/profile';
 import { adminStore } from '@/store/admin';
-//import { soketStore } from '@/store/socket'
+import { socketStore } from '@store/socket'
 import { server } from '@share/utilities';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
 const storeProfile = profileStore();
 const storeAdmin = adminStore();
-//const storeSocket = soketStore();
+const storeSocket = socketStore();
+
+const textInput  = ref('');
+
+watch(() => storeSocket.chatDialog, () => {
+  scrollToBottom();
+})
+
+function scrollToBottom() {
+  const chatbot = document.getElementById('chatbot');
+  const chatcontent = document.getElementById('chatcontent');
+  if (chatcontent && chatbot) {
+    chatcontent.scrollTop = chatcontent.scrollHeight + chatbot.scrollHeight;
+  }
+};
+
+function updateChat() {
+  storeSocket.chatDialog.push({'Вы': textInput.value});
+  storeSocket.socket.emit("income", {'Вы': textInput.value});
+  textInput.value = '';
+};
 
 const messages = ref([]);
 
@@ -21,17 +41,6 @@ if (!isStarted) {
   updateMessage();
   isStarted = true;
   setInterval(updateMessage, 1000000);
-};
-
-const chatDialog = ref<Array<Object>>([]);
-chatDialog.value.push({'chatBot': 'Добрый день! Чем я могу помочь?'});
-
-const textInput  = ref('');
-
-function updateChat() {
-  chatDialog.value.push({'Вы': textInput.value});
-  chatDialog.value.push({'chatBot': 'Секундочку...'});
-  textInput.value = '';
 };
 
 /**
@@ -143,7 +152,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
                 <p class="dropdown-header text-center fs-5">StaffSecBot</p>
                 <hr class="dropdown-divider">
                 <div id="chatcontent">
-                  <div v-for="dialog, index in chatDialog" :key="index" 
+                  <div v-for="dialog, index in storeSocket.chatDialog" :key="index" 
                       :class="`${Object.keys(dialog)[0] === 'chatBot' ? 'px-3' : 'px-5'} py-2`">
                     <div :class="`p-3 bg-${Object.keys(dialog)[0] !== 'chatBot' ? 'danger' : 'success'} bg-opacity-75 border rounded text-wrap text-light`">
                       {{ `${Object.keys(dialog)[0]}: ${Object.values(dialog)[0]}` }}
@@ -266,6 +275,6 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
     height: 480px;
     overflow-y: auto;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
 </style>

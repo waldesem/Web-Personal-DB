@@ -8,7 +8,7 @@ from apiflask import HTTPBasicAuth
 from . import bp
 from .. import db
 from ..utils.utilities import add_resume, create_folders
-from ..models.model import Staff, Document, Contact, Tag, Workplace,Address,\
+from ..models.model import Staff, Document, Contact, Workplace,Address,\
       User, Person, Region, Check, Report, Status
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
 from ..models.classes import Roles
@@ -69,9 +69,6 @@ def anketa_in(json_data):
                                   user_id=user.id))
     db.session.commit()
         
-    tags = db.session.query(Tag).filter_by(person_id=person_id).first()
-    tags.update_tags(json_data['resume'])
-        
     return '', 201
 
 
@@ -115,8 +112,5 @@ def check_in(json_data):
                                 Материал проверки находится в {json_data["path"]}', 
                                 user_id=user.id))
         db.session.commit()
-    
-    tags = db.session.query(Tag).filter_by(person_id=candidate.id).first()
-    tags.update_tags(json_data)
 
     return '', 201

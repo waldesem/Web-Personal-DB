@@ -9,12 +9,12 @@ from . import bp
 from .. import db
 from .login import r_g
 from ..models.classes import Roles, Groups
-from ..models.model import Tag, User, Person, Staff, Document, Address, Contact, \
+from ..models.model import User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Role, Group
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-    InvestigationSchema, PoligrafSchema, RegistrySchema, TagSchema, \
+    InvestigationSchema, PoligrafSchema, RegistrySchema, \
     WorkplaceSchema, UserSchema
 
 
@@ -268,8 +268,7 @@ class TableView(MethodView):
         'registry': [Registry, RegistrySchema()],
         'poligraf': [Poligraf, PoligrafSchema()],
         'investigation': [Investigation, InvestigationSchema()],
-        'inquiry': [Inquiry, InquirySchema()],
-        'tag': [Tag, TagSchema()]
+        'inquiry': [Inquiry, InquirySchema()]
     }
 
     def post(self, item, page):
