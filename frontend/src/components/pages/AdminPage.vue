@@ -71,7 +71,7 @@ async function delRoleGroup(item: string, value: string): Promise<void> {
 </script>
 
 <template>
-  <div>
+  <div class="container py-3">
     <HeaderDiv :page-header="storeAdmin.userData.userAct === 'create' 
                               ? 'Добавить пользователя' 
                               : 'Список пользователей'" />

@@ -32,7 +32,6 @@ Flask-HTTPAuth==4.8.0
 Flask-JWT-Extended==4.5.3
 flask-marshmallow==0.15.0
 Flask-Migrate==4.0.5
-Flask-SocketIO==5.3.6
 Flask-SQLAlchemy==3.1.1
 greenlet==3.0.1
 gunicorn==21.2.0
@@ -64,8 +63,6 @@ pymorphy3==1.2.1
 pymorphy3-dicts-ru==2.4.417150.4580142
 python-dateutil==2.8.2
 python-dotenv==1.0.0
-python-engineio==4.8.0
-python-socketio==5.10.0
 pytz==2023.3.post1
 redis==5.0.1
 requests==2.31.0

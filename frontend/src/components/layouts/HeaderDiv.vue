@@ -7,7 +7,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="text-primary text-opacity-85 py-3">
+  <div class="text-primary text-opacity-85 py-5">
     <h3>{{ props.pageHeader }}</h3>
   </div>
 </template>

@@ -5,7 +5,7 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { profileStore } from '@/store/profile';
-import { loginStore } from '@/store/login';
+//import { loginStore } from '@/store/login';
 import { debounce, server } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
 import HeaderDiv from '@components/layouts/HeaderDiv.vue';
@@ -13,7 +13,7 @@ import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
-const storeLogin = loginStore();
+//const storeLogin = loginStore();
 
 const personData = ref({
   candidates: <Candidate[]>([]),
@@ -88,6 +88,7 @@ const searchPerson = debounce(getCandidates, 500);
 </script>
 
 <template>
+  <div class="container py-3">
     <HeaderDiv :page-header="header" />
     <div class="row">
       <div class="col-md-3">
@@ -114,11 +115,11 @@ const searchPerson = debounce(getCandidates, 500);
           </div>
         </form>
       </div>
-      <div disabled class="col-md-1" v-show="storeLogin.userData.region_id == '1'" >
+      <!-- <div class="col-md-1" v-show="storeLogin.userData.region_id == '1'" >
         <input class="form-check-input" type="checkbox" id="checkbox" 
                title="Расширенный поиск" style="width: 30px; height: 30px;"
                v-model="personData.extendedSearch" value="search">
-      </div>
+      </div-->
     </div>
     <div class="py-3">
       <table class="table table-hover table-responsive align-middle">
@@ -173,5 +174,5 @@ const searchPerson = debounce(getCandidates, 500);
         </ul>
       </nav>
     </div>
-
+  </div>
 </template>

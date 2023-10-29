@@ -75,6 +75,7 @@ async function deleteItem(idItem: string): Promise<void>{
 </script>
 
 <template>
+  <div class="container py-3">
     <HeaderDiv :page-header="'Таблицы'" />
     <div class="row py-3">
       <div class="col-md-3">
@@ -134,6 +135,7 @@ async function deleteItem(idItem: string): Promise<void>{
         </ul>
       </nav>
     </div>
+  </div>
 </template>
 
 <style scoped>

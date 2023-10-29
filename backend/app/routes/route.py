@@ -15,7 +15,7 @@ from PIL import Image
 from . import bp
 from .. import db
 from .login import r_g
-from ..utils.utilities import CsvFile, ExcelFile, add_resume, create_folders
+from ..utils.utilities import JsonFile, ExcelFile, add_resume, create_folders
 from ..models.model import  User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
@@ -62,10 +62,10 @@ class IndexView(MethodView):
                 if self.location_id != 1:
                     query = query.filter(Person.region_id == self.location_id)
             
-            case 'extended':
-                persons_id = db.session.query(Tag.person_id). \
-                    filter(Tag.tag.match(json_data['search'])).all()
-                query = query.filter(Person.id.in_(persons_id))
+            # case 'extended':
+            #     persons_id = db.session.query(Tag.person_id). \
+            #         filter(Tag.tag.match(json_data['search'])).all()
+            #     query = query.filter(Person.id.in_(persons_id))
             
         result = query.paginate(page=page,
                             per_page=self.pagination,
@@ -709,8 +709,8 @@ class FileView(MethodView):
                 anketa = ExcelFile(temp_path)
                 anketa.close()
             
-            elif temp_path.endswith('csv'):
-                anketa  = CsvFile(temp_path)
+            elif temp_path.endswith('json'):
+                anketa  = JsonFile(temp_path)
 
             person_id = add_resume(anketa.resume, location_id, 'create')
             models = [Staff, Document, Address, Contact, Workplace]
@@ -721,9 +721,6 @@ class FileView(MethodView):
                     if item:
                         db.session.add(models[count](**item | {'person_id': person_id}))
             db.session.commit()
-            
-            tags = db.session.query(Tag).filter_by(person_id=person_id).first()
-            tags.update_tags(anketa.resume)
 
             person = db.session.query(Person).get(person_id)
             if person.path:

@@ -52,6 +52,7 @@ async function getProfile() {
 </script>
 
 <template>
+  <div class="container py-3">
     <div class="py-1">
       <div class="py-3">
         <div class="card" style="width: 16rem;">
@@ -124,5 +125,5 @@ async function getProfile() {
       <h5>Запросы</h5>
       <InquiryTab />
     </template>
-
+  </div>
 </template>

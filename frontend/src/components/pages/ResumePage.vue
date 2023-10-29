@@ -17,15 +17,17 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Создать анкету'" />
-  <form class="form form-check" enctype="multipart/form-data" role="form" 
-          @change="storeProfile.submitFile($event, 'anketa')">
-      <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
-      <div class="col-lg-10">
-          <input class="form-control" id="file" type="file" accept=".xlsx, .csv" ref="file">
-      </div>
-      </div>
-  </form>
-  <ResumeForm />
+  <div class="container py-3">
+    <HeaderDiv :page-header="'Создать анкету'" />
+    <form class="form form-check" enctype="multipart/form-data" role="form" 
+            @change="storeProfile.submitFile($event, 'anketa')">
+        <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
+        <div class="col-lg-10">
+            <input class="form-control" id="file" type="file" accept=".xlsx, .csv" ref="file">
+        </div>
+        </div>
+    </form>
+    <ResumeForm />
+  </div>
 </template>

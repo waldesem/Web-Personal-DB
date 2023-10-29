@@ -56,6 +56,7 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
 </script>
 
 <template>
+  <div class="container py-3">
     <HeaderDiv :page-header="'Контакты'" />
     <form @input="searchContacts" class="form form-check" role="form">
       <div class="row py-3">
@@ -155,7 +156,7 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
         </ul>
       </nav>
     </div>
-
+  </div>
 </template>
 
 <style scoped>

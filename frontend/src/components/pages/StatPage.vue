@@ -162,6 +162,7 @@ async function submitData(): Promise<void> {
 </script>
 
 <template>
+  <div class="container py-3">
     <HeaderDiv :page-header="`Статистика по региону ${header} c ${stat.start} по ${stat.end}`" />
     <div class="form form-check" role="form">
       <input class="form-check-input" type="radio" id="bar" name="bar"
@@ -258,5 +259,5 @@ async function submitData(): Promise<void> {
           </div>
       </form>
     </div>
-
+  </div>
 </template>

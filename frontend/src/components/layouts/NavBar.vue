@@ -5,39 +5,50 @@ import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { profileStore } from '@/store/profile';
 import { adminStore } from '@/store/admin';
-import { socketStore } from '@store/socket'
 import { server } from '@share/utilities';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
 const storeProfile = profileStore();
 const storeAdmin = adminStore();
-const storeSocket = socketStore();
 
+const chatDialog = ref<Array<Object>>([]);
+chatDialog.value.push({'chatBot': 'Добро пожаловать в чат!'});
 const textInput  = ref('');
 const messages = ref([]);
 
 let isStarted = false;
-if (!isStarted) {
+if (!isStarted) { 
   updateMessage();
   isStarted = true;
   setInterval(updateMessage, 1000000);
 };
 
-function scrollToBottom() {
+function clearChat() {
+  chatDialog.value = [];
+  chatDialog.value.push({'chatBot': 'Добро пожаловать в чат!'});
+};
+
+async function updateChat() {
+  chatDialog.value.push({'Вы': textInput.value});
+  try {
+    const response = await storeAuth.axiosInstance.post(
+      `${server}/chat`, {
+        'data': textInput.value
+      }
+    );
+    chatDialog.value.push(response.data);
+  
+  } catch (error) {
+  chatDialog.value.push({'chatBot': error});
+  }
+  textInput.value = '';
+
   const chatcontent = document.getElementById('chatcontent');
   if (chatcontent) {
     chatcontent.scrollTop = chatcontent.scrollHeight;
   }
 };
-
-function updateChat() {
-  storeSocket.socket.emit('incoming', textInput.value);
-  storeSocket.chatDialog.push({'Вы': textInput.value});
-  textInput.value = '';
-  scrollToBottom();
-};
-
 
 /**
  * Updates the messages based on the provided flag ('new' or 'reply').
@@ -148,7 +159,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
                 <p class="dropdown-header text-center fs-5">StaffSecBot</p>
                 <hr class="dropdown-divider">
                 <div id="chatcontent">
-                  <div v-for="dialog, index in storeSocket.chatDialog" :key="index" 
+                  <div v-for="dialog, index in chatDialog" :key="index" 
                       :class="`${Object.keys(dialog)[0] === 'chatBot' ? 'px-3' : 'px-5'} py-2`">
                     <div :class="`p-3 bg-${Object.keys(dialog)[0] !== 'chatBot' ? 'danger' : 'success'} bg-opacity-75 border rounded text-wrap text-light`">
                       {{ `${Object.keys(dialog)[0]}: ${Object.values(dialog)[0]}` }}
@@ -162,7 +173,14 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
                         <input class="form-control" id="chat" name="chat" required v-model="textInput">
                       </div>
                       <div class="col-md-1">
-                        <button class="btn btn-outline-primary" type="submit">Отправить</button>
+                        <button class="btn btn-outline-primary" title="Отправить" type="submit">
+                          <i class="bi bi-send"></i>
+                        </button>
+                      </div>
+                      <div class="col-md-1">
+                        <button class="btn btn-outline-secondary" @click="clearChat" type="button" title="Очистить">
+                          <i class="bi bi-trash"></i>
+                        </button>
                       </div>
                     </div>
                   </form>
