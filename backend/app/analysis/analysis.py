@@ -6,6 +6,11 @@ import spacy
 from spacy.lang.ru.stop_words import STOP_WORDS
 
 
+from .. import db
+from ..models.schema import PersonSchema
+from ..models.model import  Person, Staff, Document, Address, Contact, \
+    Workplace, Check, Poligraf, Investigation, Inquiry
+
 templates = {
     'anketa': 'Поиск: фамилия имя дата рождения паспорт серия номер инн снилс',
     'check': 'Поиск: результат проверка кандидата'
@@ -17,6 +22,9 @@ class Analysis:
         self.nlp = spacy.load("ru_core_news_md")
         self.text = text.lower()
         self.doc = self.nlp(self.text)
+        self.names = []
+        self.digits = []
+        self.dates = []
 
     def clear_text(self):
         txt = self.text.replace('«', '').replace('»', '')
@@ -37,7 +45,7 @@ class Analysis:
 
     def get_date(self):
         lst_txt = self.text.split()
-        return [d for d in lst_txt if re.match(r'\d\d.\d\d.\d\d\d\d', d) \
+        return [d for d in lst_txt if re.match(r'\d\d\.\d\d\.\d\d\d\d', d) \
                 or re.match(r'\d\d\d\d-\d\d-\d\d', d)]
 
 
@@ -54,15 +62,15 @@ class Analysis:
         return template_nlp.similarity(self.doc)
 
     def get_values(self):
-        names = []
-        digits = []
-        dates = []
-        names = self.get_names()
-        digits = self.get_digits()
-        dates = self.get_date()
+        self.names = self.get_names()
+        self.digits = self.get_digits()
+        self.dates = self.get_date()
+        return {
+            'names': self.names,
+            'digits': self.digits,
+            'dates': self.dates
+        }
             
-        return {'names' : names, 'digits': digits, 'dates': dates}
-
 
 class Actions(Analysis):
     
@@ -88,9 +96,9 @@ class Actions(Analysis):
                         self.series_passport = str(digit)
                     case 6:
                         self.number_passport = str(digit)
-                    case 11:
-                        self.inn = str(digit)
                     case 12:
+                        self.inn = str(digit)
+                    case 11:
                         self.snils = str(digit)
         return {
             'series_passport': self.series_passport,
@@ -101,32 +109,39 @@ class Actions(Analysis):
                     
     def dates_actions(self):
         if self.response['dates']:
-            if re.match(r'\d\d.\d\d.\d\d\d\d', self. response['dates'][0]):
+            if re.match(r'\d\d\.\d\d\.\d\d\d\d', self. response['dates'][0]):
                 self.data_string = dt.strptime(self.response['dates'][0], '%d.%m.%Y')
             else:
                 self.data_string = dt.strptime(self.response['dates'][0], '%Y-%m-%d')
         return self.data_string 
 
 
-if __name__ == "__main__":
-    query = 'Петров Виктор дата рождения 11.09.1999 паспорт 4567 098765'
-
-    analysis = Analysis(query)
+def parse_data(json_data):
+    analysis = Analysis(json_data['data'])
     similars = {str(analysis.get_similarity(v)): k for k, v in templates.items()}
     max_sim = max([float(sim) for sim in similars])
-    
     if max_sim > 0.5:
-        template = templates[similars[str(max_sim)]]
-        results = analysis.get_values()
-        rules = Actions(results)
-        
-        name = rules.names_actions()
-        digits = rules.digits_actions()
-        data = rules.dates_actions()
+        template = similars[str(max_sim)]
+        match template:
+            case 'anketa':
+                results = analysis.get_values()
+                if results:
+                    rules = Actions(results)
+                    name = rules.names_actions()
+                    digits = rules.digits_actions()
+                    data = rules.dates_actions()
 
-        print(name)
-        print(digits['series_passport'])
-        print(digits['number_passport'])
-        print(digits['inn'])
-        print(digits['snils'])
-        print(data)
+                    query = db.session.query(Person).order_by(Person.id.desc())
+                    query = query.filter(
+                        Person.fullname.ilike('%{}%'.format(name)),
+                        Person.birthday == data.strftime('%Y-%m-%d') if data else True,
+                        Person.inn.ilike('%{}%'.format(digits['inn'])),
+                        Person.snils.ilike('%{}%'.format(digits['snils']))
+                        ).join(Document, isouter=True).filter(
+                            Document.series.ilike('%{}%'.format(digits['series_passport'])),
+                            Document.number.ilike('%{}%'.format(digits['number_passport']))
+                        ).limit(10).all()
+                    if query:
+                        result = [f'id {item.id} - {item.fullname}' for item in query]
+                        return ['anketa', result, len(query)]
+    return ['error', {}]
