@@ -187,8 +187,7 @@ class Person(db.Model):
                                cascade="all, delete, delete-orphan")
     ones = db.relationship('OneS', backref='ones', 
                            cascade="all, delete, delete-orphan")
-    # comment if not use Postgres
-    search_vector = db.Column(TSVectorType('previous', 'fullname', 'inn')) 
+    search_vector = db.Column(TSVectorType('previous', 'fullname', 'inn', 'snils')) 
     
     def has_status(self, status):
         """
@@ -407,7 +406,7 @@ class OneS(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    fullname = db.Column(db.String(255))
+    full_name = db.Column(db.String(255))
     birth_date = db.Column(db.Date)
     start_date = db.Column(db.Date)
     start_position = db.Column(db.Text)
