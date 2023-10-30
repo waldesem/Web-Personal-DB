@@ -8,6 +8,7 @@ const storeAuth = authStore();
 const chatDialog = ref<Array<Object>>([]);
 chatDialog.value.push({'chatBot': 'Добро пожаловать в чат!'});
 const textInput  = ref('');
+const spinner = ref(false)
 
 function clearChat() {
   chatDialog.value = [];
@@ -15,6 +16,7 @@ function clearChat() {
 };
 
 async function updateChat() {
+  spinner.value = true;
   chatDialog.value.push({'Вы': textInput.value});
   try {
     const response = await storeAuth.axiosInstance.post(
@@ -33,6 +35,7 @@ async function updateChat() {
   if (chatcontent) {
     chatcontent.scrollTop = chatcontent.scrollHeight;
   }
+  spinner.value = false;
 };
 
 </script>
@@ -58,15 +61,20 @@ async function updateChat() {
         <form @submit.prevent="updateChat" class="form form-check" role="form">
           <div class="row">
             <div class="col-md-9">
-              <input class="form-control" id="chat" name="chat" required v-model="textInput">
+              <input class="form-control" id="chat" name="chat" 
+                     required v-model="textInput">
             </div>
             <div class="col-md-1">
-              <button class="btn btn-outline-primary" title="Отправить" type="submit">
+              <button :disabled="spinner" class="btn btn-outline-primary btn-sm" 
+                       title="Отправить" type="submit">
                 <i class="bi bi-send"></i>
+                <span v-if="spinner" class="spinner-grow spinner-grow-sm text-primary"></span>
+                <span v-if="spinner" class="visually-hidden" role="status">Отправка...</span>
               </button>
             </div>
             <div class="col-md-1">
-              <button class="btn btn-outline-secondary btn-lg" @click="clearChat" type="button" title="Очистить">
+              <button :disabled="spinner" class="btn btn-outline-secondary btn-sm" 
+                      @click="clearChat" type="button" title="Очистить">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
