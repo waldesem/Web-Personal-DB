@@ -3,14 +3,12 @@
 import { ref } from 'vue';
 import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
-import { profileStore } from '@/store/profile';
 import { adminStore } from '@/store/admin';
 import { server } from '@share/utilities';
 import ChatButton from './ChatButton.vue';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
-const storeProfile = profileStore();
 const storeAdmin = adminStore();
 
 const messages = ref([]);
@@ -43,7 +41,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
 </script>
 
 <template>
-  <nav v-if="!storeProfile.printPdf" :class="storeLogin.pageIdentity ==='admins' 
+  <nav :class="storeLogin.pageIdentity ==='admins' 
           ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' 
           : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
     <div class="container">

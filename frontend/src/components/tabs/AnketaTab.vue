@@ -30,7 +30,7 @@ const storeClassify = classifyStore();
         <thead>
           <tr>
             <th width="25%">{{ `ID #${storeProfile.profile.resume['id']}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" @click="storeProfile.flag = 'resume'; 
                                   storeProfile.action = 'update';
                                   storeProfile.itemForm = storeProfile.profile.resume;
@@ -39,11 +39,13 @@ const storeClassify = classifyStore();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Категория</td><td>{{ storeProfile.profile.resume['category'] }}</td></tr>
+          <tr v-if="storeProfile.profile.resume['category']">
+            <td>Категория</td>
+            <td>{{ storeProfile.profile.resume['category'] }}</td>
+          </tr>
           <tr>
             <td>Регион</td>
             <td>
@@ -60,7 +62,7 @@ const storeClassify = classifyStore();
             <td>Фамилия Имя Отчество</td>
             <td>{{ storeProfile.profile.resume['fullname'] }}</td>
           </tr>
-          <tr>
+          <tr v-if="storeProfile.profile.resume['previous']">
             <td>Изменение имени</td>
             <td>{{ storeProfile.profile.resume['previous'] }}</td>
           </tr>
@@ -70,29 +72,39 @@ const storeClassify = classifyStore();
           </tr>
           <tr>
             <td>Место рождения</td>
-            <td>{{ storeProfile.profile.resume['birthplace'] }}</td>
+            <td>{{ storeProfile.profile.resume['birthplace'] 
+                    ? storeProfile.profile.resume['birthplace'] 
+                    : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>Гражданство</td>
-            <td>{{ storeProfile.profile.resume['country'] }}</td>
+            <td>{{ storeProfile.profile.resume['country'] 
+                    ? storeProfile.profile.resume['country'] 
+                    : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>СНИЛС</td>
-            <td>{{ storeProfile.profile.resume['snils'] }}</td>
+            <td>{{ storeProfile.profile.resume['snils']
+                    ? storeProfile.profile.resume['snils']
+                    : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>ИНН</td>
-            <td>{{ storeProfile.profile.resume['inn'] }}</td>
+            <td>{{ storeProfile.profile.resume['inn']
+                    ? storeProfile.profile.resume['inn']
+                    : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>Образование</td>
-            <td>{{ storeProfile.profile.resume['education'] }}</td>
+            <td>{{ storeProfile.profile.resume['education'] 
+                    ? storeProfile.profile.resume['education']
+                    : 'Данные отсутствуют' }}</td>
           </tr>
-          <tr>
+          <tr v-if="storeProfile.profile.resume['addition']">
             <td>Дополнительная информация</td>
             <td>{{ storeProfile.profile.resume['addition'] }}</td>
           </tr>
-          <tr>
+          <tr v-if="storeProfile.profile.resume['path']">
             <td>Материалы</td>
             <td>{{ storeProfile.profile.resume['path'] }}</td>
           </tr>
@@ -103,17 +115,17 @@ const storeClassify = classifyStore();
                 {{ storeProfile.profile.resume['status'] }}</a>
             </td>
           </tr>
-          <tr>
+          <tr v-if="storeProfile.profile.resume['create']">
             <td>Создан</td>
             <td>{{ new Date(String(storeProfile.profile.resume['create'])).
                   toLocaleDateString('ru-RU') }}</td>
           </tr>
-          <tr>
+          <tr v-if="storeProfile.profile.resume['update']">
             <td>Обновлен</td>
             <td>{{ new Date(String(storeProfile.profile.resume['update'])).
                   toLocaleDateString('ru-RU') }}</td>
           </tr>
-          <tr>
+          <tr v-if="storeProfile.profile.resume['request_id']">
             <td>Внешний id</td>
             <td>{{ storeProfile.profile.resume['request_id'] }}</td>
           </tr>
@@ -147,7 +159,7 @@ const storeClassify = classifyStore();
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" @click="storeProfile.deleteItem('staff', 'delete', tbl['id'].
                   toString())" title="Удалить">
                 <i class="bi bi-trash"></i>
@@ -160,12 +172,17 @@ const storeClassify = classifyStore();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Должность</td><td>{{ tbl['position'] }}</td></tr>
-          <tr><td>Департамент</td><td>{{ tbl['department'] }}</td></tr>
+          <tr>
+            <td>Должность</td>
+            <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Департамент</td>
+            <td>{{ tbl['department'] ? tbl['department'] : 'Данные отсутствуют' }}</td>
+          </tr>
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
@@ -192,11 +209,11 @@ const storeClassify = classifyStore();
     <template v-else>
       <table v-if="storeProfile.profile.docums && storeProfile.profile.docums.length" 
              v-for="tbl in storeProfile.profile.docums" 
-                :key="tbl['id']" class="table table-responsive">
+             :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" @click="storeProfile.deleteItem('document', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -208,23 +225,37 @@ const storeClassify = classifyStore();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Вид документа</td><td>{{ tbl['view'] }}</td></tr>
-          <tr><td>Серия</td><td>{{ tbl['series'] }}</td></tr>
-          <tr><td>Номер</td><td>{{ tbl['number'] }}</td></tr>
-          <tr><td>Кем выдан</td><td>{{ tbl['agency'] }}</td></tr>
-          <tr><td>Дата выдачи</td><td>{{ new Date(String(tbl['issue'])).
-                                        toLocaleDateString('ru-RU') }}</td>
+          <tr>
+            <td>Вид документа</td>
+            <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Серия</td>
+            <td>{{ tbl['series'] ? tbl['series'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Номер</td>
+            <td>{{ tbl['number'] ? tbl['number'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Кем выдан</td>
+            <td>{{ tbl['agency'] ? tbl['agency'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Дата выдачи</td>
+            <td>{{ tbl['issue'] ? new Date(String(tbl['issue'])).
+                                        toLocaleDateString('ru-RU') 
+                                : 'Данные отсутствуют' }}</td>
           </tr>
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
     </template>
     
-    <h6>Адрес
+    <h6>Адреса
       <a class="btn btn-link" @click="storeProfile.flag === 'address' 
                                 ? storeProfile.flag = '' 
                                 : storeProfile.flag = 'address'; 
@@ -248,8 +279,8 @@ const storeClassify = classifyStore();
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
-            <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th width="25%">{{ `#${tbl['id']}` }}</th>
+            <th>
               <a href="#" @click="storeProfile.deleteItem('address', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -261,13 +292,21 @@ const storeClassify = classifyStore();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Тип</td><td>{{ tbl['view'] }}</td></tr>
-          <tr><td>Регион</td><td>{{ tbl['region'] }}</td></tr>
-          <tr><td>Адрес</td><td>{{ tbl['address'] }}</td></tr>
+          <tr>
+            <td>Тип</td>
+            <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Регион</td>
+            <td>{{ tbl['region'] ? tbl['region'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Адрес</td>
+            <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
+          </tr>
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
@@ -298,7 +337,7 @@ const storeClassify = classifyStore();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" @click="storeProfile.deleteItem('contact', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -310,12 +349,17 @@ const storeClassify = classifyStore();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Вид</td><td>{{ tbl['view'] }}</td></tr>
-          <tr><td>Контакт</td><td>{{ tbl['contact'] }}</td></tr>
+          <tr>
+            <td>Вид</td>
+            <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Контакт</td>
+            <td>{{ tbl['contact'] ? tbl['contact'] : 'Данные отсутствуют' }}</td>
+          </tr>
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
@@ -346,7 +390,7 @@ const storeClassify = classifyStore();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" @click="storeProfile.deleteItem('workplace', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -358,7 +402,6 @@ const storeClassify = classifyStore();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -370,9 +413,18 @@ const storeClassify = classifyStore();
             <td>Работает по н.в.</td>
             <td>{{ tbl['now_work'] ? 'Работает' : 'Не работает' }}</td>
           </tr>
-          <tr><td>Организация</td><td>{{ tbl['workplace'] }}</td></tr>
-          <tr><td>Адрес</td><td>{{ tbl['address'] }}</td></tr>
-          <tr><td>Должность</td><td>{{ tbl['position'] }}</td></tr>
+          <tr>
+            <td>Организация</td>
+            <td>{{ tbl['workplace'] ? tbl['workplace'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Адрес</td>
+            <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
+          </tr>
+          <tr>
+            <td>Должность</td>
+            <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
+          </tr>
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
@@ -403,7 +455,7 @@ const storeClassify = classifyStore();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" @click="storeProfile.deleteItem('relation', 'delete', tbl['id'].toString())"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
@@ -415,17 +467,17 @@ const storeClassify = classifyStore();
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
           <tr><td>Тип связи</td><td>{{ tbl['relation'] }}</td></tr>
-          <tr>
+          <tr v-if="tbl['relation_id']">
             <td>Связь</td>
             <td>
-              <router-link v-if="tbl['relation_id']" 
-                :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }">
-                Связь ID #{{ tbl['relation_id'] }}
+              <router-link
+                :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }"
+                @click="storeProfile.candId = tbl['relation_id'].toString()">
+                ID #{{ tbl['relation_id'] }}
               </router-link>
             </td>
           </tr>
@@ -434,9 +486,8 @@ const storeClassify = classifyStore();
       <p v-else >Данные отсутствуют</p>
     </template>
 
-    <div v-if="!storeProfile.printPdf" class="py-3">
+    <div class="py-3">
       <div class='btn-group' role="group">
-        
         <button @click="storeProfile.getItem('resume', 'send')" 
             :disabled="(storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['new'] 
               && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['update']
@@ -446,14 +497,12 @@ const storeClassify = classifyStore();
           <span v-if="storeProfile.spinner" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
           <span v-if="storeProfile.spinner" role="status">Отправляется...</span>
         </button>
-        
         <button type="button" class="btn btn-outline-danger" 
           :disabled="storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish']
             || storeProfile.spinner" 
           @click="storeProfile.deleteItem('resume', 'delete', storeProfile.profile.resume['id'])">
           Удалить анкету
         </button>
-
       </div>
     </div>
   

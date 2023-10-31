@@ -21,7 +21,7 @@ const storeProfile = profileStore();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" :hidden="storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish'] 
                                 || storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['robot']"
                           @click="storeProfile.deleteItem(
@@ -40,111 +40,109 @@ const storeProfile = profileStore();
                           title="Изменить" >
                           <i class="bi bi-pencil-square"></i></a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>   
         <tbody>
           <tr>
             <td>Проверка по местам работы</td>
-            <td>{{ tbl['workplace' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['workplace'] ? tbl['workplace'] : '' }}</td>
           </tr>
           <tr>
             <td>Бывший работник МТСБ</td>
-            <td>{{ tbl['employee' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['employee'] ? tbl['employee'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка паспорта</td>
-            <td>{{ tbl['document' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['document'] ? tbl['document'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка ИНН</td>
-            <td>{{ tbl['inn' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['inn'] ? tbl['inn'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка ФССП</td>
-            <td>{{ tbl['debt' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['debt'] ? tbl['debt'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка банкротства</td>
-            <td>{{ tbl['bankruptcy' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['bankruptcy'] ? tbl['bankruptcy'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка БКИ</td>
-            <td>{{ tbl['bki' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['bki'] ? tbl['bki'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка судебных дел</td>
-            <td>{{ tbl['courts' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['courts'] ? tbl['courts'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка аффилированности</td>
-            <td>{{ tbl['affiliation' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['affiliation'] ? tbl['affiliation'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка по списку террористов</td>
-            <td>{{ tbl['terrorist' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['terrorist'] ? tbl['terrorist'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка нахождения в розыске</td>
-            <td>{{ tbl['mvd' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['mvd'] ? tbl['mvd'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка в открытых источниках</td>
-            <td>{{ tbl['internet' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['internet'] ? tbl['internet'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка Кронос</td>
-            <td>{{ tbl['cronos' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['cronos'] ? tbl['cronos'] : '' }}</td>
           </tr>
           <tr>
             <td>Проверка Крос</td>
-            <td>{{ tbl['cros' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['cros'] ? tbl['cros'] : '' }}</td>
           </tr>
           <tr>
             <td>Дополнительная информация</td>
-            <td>{{ tbl['addition' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['addition'] ? tbl['addition'] : '' }}</td>
           </tr>
-          <tr>
+          <tr v-if="tbl['path']">
             <td>Материалы проверки</td>
             <td>
-              <a :href="'file://' + tbl['path' as keyof typeof tbl]" target="_blank">
-                {{ tbl['path' as keyof typeof tbl] }}
+              <a :href="'file://' + tbl['path']" target="_blank">
+                {{ tbl['path'] }}
               </a>
             </td>
           </tr>
           <tr>
             <td>ПФО</td>
-            <td>{{ tbl['pfo' as keyof typeof tbl] ? "Назначено" : "Не назначено" }}</td>
+            <td>{{ tbl['pfo'] ? "Назначено" : "Не назначено" }}</td>
           </tr>
-          <tr>
+          <tr v-if="tbl['comments']">
             <td>Комментарии</td>
-            <td>{{ tbl['comments' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['comments'] }}</td>
           </tr>
-          <tr>
+          <tr v-if="tbl['conclusion']">
             <td>Результат проверки</td>
-            <td>{{ tbl['conclusion' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['conclusion'] }}</td>
           </tr>
-          <tr>
+          <tr v-if="tbl['officer']">
             <td>Сотрудник</td>
             <td>
               <a href="#" @click="storeProfile.getItem('check', 'self', tbl['id' as keyof typeof tbl].toString())">
-                {{ tbl['officer' as keyof typeof tbl] }}</a>
+                {{ tbl['officer'] }}</a>
             </td>
           </tr>
-          <tr>
+          <tr v-if="tbl['deadline']">
             <td>Дата</td>
-            <td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).toLocaleDateString('ru-RU') }}</td>
+            <td>{{ new Date(String(tbl['deadline'])).toLocaleDateString('ru-RU') }}</td>
           </tr>
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button v-if="!storeProfile.printPdf" 
+      <button class="btn btn-outline-primary" 
               @click="storeProfile.getItem('check', 'add')" 
               :disabled="![storeClassify.classifyItems.status['new'], 
                           storeClassify.classifyItems.status['update'], 
                           storeClassify.classifyItems.status['save'], 
-                          storeClassify.classifyItems.status['repeat']].includes(storeProfile.profile.resume['status'])" 
-        class="btn btn-outline-primary">Добавить проверку
+                          storeClassify.classifyItems.status['repeat']].includes(storeProfile.profile.resume['status'])">Добавить проверку
       </button>
     </div>
 

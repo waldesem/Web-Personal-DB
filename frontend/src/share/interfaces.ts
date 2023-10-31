@@ -88,6 +88,7 @@ interface Verification {
   cronos: string;
   cros: string;
   addition: string;
+  path: string,
   pfo: boolean;
   conclusion: string;
   comments: string;

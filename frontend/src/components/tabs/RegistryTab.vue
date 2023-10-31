@@ -44,14 +44,13 @@ const storeLogin = loginStore();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <button v-if="!storeProfile.printPdf" 
+      <button class="btn btn-outline-primary" type="button"
               :disabled="storeProfile.profile.resume['status'] !== 
                           classifyApp.classifyItems.status['result']
                          || !storeLogin.hasRole('superuser')" 
               @click="storeProfile.action = 'create'; 
                       storeProfile.flag = 'registry';
-                      storeProfile.itemForm = {}" 
-        class="btn btn-outline-primary" type="button">Добавить запись
+                      storeProfile.itemForm = {}">Добавить запись
       </button>
     </div>
   

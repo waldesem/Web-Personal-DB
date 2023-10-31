@@ -161,7 +161,6 @@ export const profileStore = defineStore('profileStore', () => {
   const action = ref('');
   const itemId = ref('');
   const spinner = ref(false);
-  const printPdf = ref(false);
   const urlImage = ref('');
 
   /**
@@ -435,7 +434,6 @@ export const profileStore = defineStore('profileStore', () => {
     itemForm, 
     itemId, 
     spinner, 
-    printPdf,
     urlImage,
     getItem, 
     submitFile, 

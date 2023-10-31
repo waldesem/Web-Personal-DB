@@ -21,7 +21,7 @@ const storeProfile = profileStore();
         <thead>
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-            <th v-if="!storeProfile.printPdf">
+            <th>
               <a href="#" @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].
                 toString(), 'investigation')"
                            title="Удалить">
@@ -35,7 +35,6 @@ const storeProfile = profileStore();
                 title="Изменить"><i class="bi bi-pencil-square"></i>
               </a>
             </th>
-            <th v-else></th>
           </tr>
         </thead>
         <tbody>
@@ -67,11 +66,11 @@ const storeProfile = profileStore();
         </tbody>
       </table>
       <p v-else >Данные отсутствуют</p>
-      <a v-if="!storeProfile.printPdf" 
-               @click="storeProfile.action = 'create';
-                       storeProfile.flag = 'investigation';
-                       storeProfile.itemForm = {}" 
-        class="btn btn-outline-primary" type="button">Добавить запись</a>
+      <a class="btn btn-outline-primary" type="button"
+         @click="storeProfile.action = 'create';
+                 storeProfile.flag = 'investigation';
+                 storeProfile.itemForm = {}">Добавить запись
+      </a>
     </div>
     
   </div>
