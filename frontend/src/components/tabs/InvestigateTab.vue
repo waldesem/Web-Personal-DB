@@ -40,28 +40,28 @@ const storeProfile = profileStore();
         <tbody>
           <tr>
             <td>Тема</td>
-            <td>{{ tbl['theme' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['theme'] ? tbl['theme'] : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>Информация</td>
-            <td>{{ tbl['info' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['info'] ? tbl['info'] : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>Сотрудник</td>
-            <td>{{ tbl['officer' as keyof typeof tbl] }}</td>
+            <td>{{ tbl['officer'] ? tbl['officer'] : 'Данные отсутствуют' }}</td>
           </tr>
-          <tr>
+          <tr v-if="tbl['path']">
             <td>Ссылка</td>
             <td>
-              <a :href="'file://' + tbl['path' as keyof typeof tbl]" target="_blank">
-                {{ tbl['path' as keyof typeof tbl] }}
+              <a :href="'file://' + tbl['path']" target="_blank">
+                {{ tbl['path'] }}
               </a>
             </td>
           </tr>
           <tr>
             <td>Дата</td>
-            <td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).
-              toLocaleDateString('ru-RU') }}</td>
+            <td>{{ tbl['deadline'] ? new Date(String(tbl['deadline'])).
+              toLocaleDateString('ru-RU') : 'Данные отсутствуют' }}</td>
           </tr>
         </tbody>
       </table>

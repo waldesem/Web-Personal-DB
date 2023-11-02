@@ -4,16 +4,12 @@ import { computed, onBeforeMount, ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
-import { profileStore } from '@/store/profile';
-//import { loginStore } from '@/store/login';
 import { debounce, server } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
 import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
-const storeProfile = profileStore();
-//const storeLogin = loginStore();
 
 const personData = ref({
   candidates: <Candidate[]>([]),
@@ -115,7 +111,7 @@ const searchPerson = debounce(getCandidates, 500);
           </div>
         </form>
       </div>
-      <!-- <div class="col-md-1" v-show="storeLogin.userData.region_id == '1'" >
+      <!-- <div class="col-md-1">
         <input class="form-check-input" type="checkbox" id="checkbox" 
                title="Расширенный поиск" style="width: 30px; height: 30px;"
                v-model="personData.extendedSearch" value="search">
@@ -140,8 +136,7 @@ const searchPerson = debounce(getCandidates, 500);
             <td>{{ storeClassify.classifyItems.regions[candidate.region_id] }}</td>
             <td>
               <router-link 
-                :to="{ name: 'profile', params: { group: 'staffsec', id: candidate.id } }" 
-                @click="storeProfile.candId = candidate.id.toString()">
+                :to="{ name: 'profile', params: { group: 'staffsec', id: candidate.id } }">
                 {{ candidate.fullname }}
               </router-link>
             </td>

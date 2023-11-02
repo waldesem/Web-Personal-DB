@@ -9,7 +9,6 @@ const storeClassify = classifyStore();
 
 </script>
 
-
 <template>
   <div class="conrainer">
 
@@ -314,25 +313,156 @@ const storeClassify = classifyStore();
       <h5>Согласования</h5>
     </div>
     <div>
-      
+      <table v-if="storeProfile.profile.register.length" 
+             v-for="tbl in storeProfile.profile.register" 
+              :key="tbl['id']" class="table table-responsive">
+        <thead>
+          <tr><th width="25%">{{ tbl['id'] }}</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr v-if="tbl['comments']">
+            <td>Комментарий</td>
+            <td>{{ tbl['comments'] }}</td>
+          </tr>
+          <tr v-if="tbl['decision']">
+            <td>Решение</td>
+            <td>{{ tbl['decision'] }}</td>
+          </tr>
+          <tr v-if="tbl['supervisor']">
+            <td>Согласующий</td>
+            <td>{{ tbl['supervisor'] }}</td>
+          </tr>
+          <tr>
+            <td>Дата</td>
+            <td>{{ tbl['deadline'] ? new Date(tbl['deadline']).toLocaleDateString('ru-RU') : '' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
     <div class="text-primary text-opacity-85 py-3">
       <h5>Полиграф</h5>
     </div>
     <div>
-      
+      <table v-if="storeProfile.profile.pfo.length" 
+             v-for="tbl in storeProfile.profile.pfo" 
+              :key="tbl['id' as keyof typeof tbl]" class="table table-responsive">
+        <thead>
+          <tr>
+            <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="tbl['theme']">
+            <td>Тема</td>
+            <td>{{ tbl['theme'] }}</td>
+          </tr>
+          <tr v-if="tbl['results']">
+            <td>Результат</td>
+            <td>{{ tbl['results'] }}</td>
+          </tr>
+          <tr v-if="tbl['path']">
+            <td>Ссылка</td>
+            <td>
+              <a :href="'file://' + tbl['path']" target="_blank">
+                {{ tbl['path'] }}
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td>Полиграфолог</td>
+            <td>{{ tbl['officer'] ? tbl['officer'] : 'Данные отсуствуют' }}</td>
+          </tr>
+          <tr v-if="tbl['deadline']">
+            <td>Дата</td>
+            <td>{{new Date(String(tbl['deadline'])).
+              toLocaleDateString('ru-RU') }}</td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <form class="form" enctype="multipart/form-data" role="form" 
+                    @change="storeProfile.submitFile($event, 'poligraf', tbl['id'].toString())">
+                <input class="form-control" id="file" type="file" ref="file" multiple>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
     <div class="text-primary text-opacity-85 py-3">
       <h5>Расследования</h5>
     </div>
     <div>
-      
+      <table v-if="storeProfile.profile.inquisition?.length" 
+             v-for="tbl in storeProfile.profile.inquisition" 
+              :key="tbl['id']" class="table table-responsive">
+        <thead>
+          <tr><th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr v-if="tbl['theme']">
+            <td>Тема</td>
+            <td>{{ tbl['theme'] }}</td>
+          </tr>
+          <tr v-if="tbl['info']">
+            <td>Информация</td>
+            <td>{{ tbl['info'] }}</td>
+          </tr>
+          <tr v-if="tbl['officer']">
+            <td>Сотрудник</td>
+            <td>{{ tbl['officer'] }}</td>
+          </tr>
+          <tr v-if="tbl['path']">
+            <td>Ссылка</td>
+            <td>
+              <a :href="'file://' + tbl['path']" target="_blank">
+                {{ tbl['path'] }}
+              </a>
+            </td>
+          </tr>
+          <tr v-if="tbl['deadline']">
+            <td>Дата</td>
+            <td>{{ tbl['deadline'] ? new Date(String(tbl['deadline'])).
+              toLocaleDateString('ru-RU') : 'Данные отсутствуют' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
     <div class="text-primary text-opacity-85 py-3">
       <h5>Запросы</h5>
     </div>
     <div>
-      
+      <table class="table table-responsive" v-for="tbl in storeProfile.profile.needs" 
+                                            :key="tbl['id' as keyof typeof tbl]" >
+        <thead>
+          <tr><th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th><th></th></tr>
+        </thead>        
+        <tbody>
+          <tr v-if="tbl['info']">
+            <td>Информация</td>
+            <td>{{ tbl['info'] }}</td>
+          </tr>
+          <tr v-if="tbl['initiator']">
+            <td>Иннициатор</td>
+            <td>{{ tbl['initiator'] }}</td>
+          </tr>
+          <tr v-if="tbl['source']">
+            <td>Источник</td>
+            <td>{{ tbl['source'] }}</td>
+          </tr>
+          <tr v-if="tbl['officer']">
+            <td>Сотрудник</td>
+            <td>{{ tbl['officer'] }}</td>
+          </tr>
+          <tr v-if="tbl['deadline']">
+            <td>Дата запроса</td>
+            <td>{{tbl['deadline'] ? new Date(String(tbl['deadline'])).
+              toLocaleDateString('ru-RU') : 'Данные отсутствуют' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
   </div>

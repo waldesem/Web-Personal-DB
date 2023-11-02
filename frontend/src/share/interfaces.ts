@@ -108,6 +108,7 @@ interface Pfo {
   id: string;
   theme: string;
   results: string;
+  path: string;
   officer: string;
   deadline: string;
 };
@@ -116,6 +117,7 @@ interface Inquisition {
   id: string;
   theme: string;
   info: string;
+  path: string;
   officer: string;
   deadline: string;
 };

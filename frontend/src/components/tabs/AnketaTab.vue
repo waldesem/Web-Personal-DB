@@ -475,8 +475,7 @@ const storeClassify = classifyStore();
             <td>Связь</td>
             <td>
               <router-link
-                :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }"
-                @click="storeProfile.candId = tbl['relation_id'].toString()">
+                :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }">
                 ID #{{ tbl['relation_id'] }}
               </router-link>
             </td>

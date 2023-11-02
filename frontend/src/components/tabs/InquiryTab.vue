@@ -46,24 +46,24 @@ const storeProfile = profileStore();
               <tbody>
                 <tr>
                   <td>Информация</td>
-                  <td>{{ tbl['info' as keyof typeof tbl] }}</td>
+                  <td>{{ tbl['info'] ? tbl['info'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Иннициатор</td>
-                  <td>{{ tbl['initiator' as keyof typeof tbl] }}</td>
+                  <td>{{ tbl['initiator'] ? tbl['initiator'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Источник</td>
-                  <td>{{ tbl['source' as keyof typeof tbl] }}</td>
+                  <td>{{ tbl['source'] ? tbl['source'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Сотрудник</td>
-                  <td>{{ tbl['officer' as keyof typeof tbl] }}</td>
+                  <td>{{ tbl['officer'] ? tbl['officer'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Дата запроса</td>
-                  <td>{{ new Date(String(tbl['deadline' as keyof typeof tbl])).
-                    toLocaleDateString('ru-RU') }}</td>
+                  <td>{{tbl['deadline'] ?  new Date(String(tbl['deadline'])).
+                    toLocaleDateString('ru-RU') : 'Данные отсутствуют' }}</td>
                 </tr>
               </tbody>
             </table>

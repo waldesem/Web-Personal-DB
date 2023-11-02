@@ -2,6 +2,7 @@
 
 import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { profileStore } from '@/store/profile';
 import AnketaTab from '@components/tabs/AnketaTab.vue';
 import CheckTab from '@components/tabs/CheckTab.vue';
@@ -13,6 +14,10 @@ import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const storeProfile = profileStore();
+
+const route = useRoute();
+
+storeProfile.candId = route.params.id.toString();
 
 onBeforeMount(async () => {
   Promise.all([

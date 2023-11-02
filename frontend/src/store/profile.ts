@@ -117,7 +117,8 @@ export const profileStore = defineStore('profileStore', () => {
       internet: '', 
       cronos: '', 
       cros: '', 
-      addition: '', 
+      addition: '',
+      path: '',
       pfo: false, 
       conclusion: '', 
       comments: '', 
@@ -134,6 +135,7 @@ export const profileStore = defineStore('profileStore', () => {
     pfo: [{
       id: '',
       theme: '',
+      path: '',
       results: '',
       officer: '',
       deadline: '',
@@ -142,6 +144,7 @@ export const profileStore = defineStore('profileStore', () => {
       id: '',
       theme: '',
       info: '',
+      path: '',
       officer: '',
       deadline: ''
     }],

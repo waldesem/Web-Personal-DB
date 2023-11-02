@@ -25,21 +25,21 @@ const storeLogin = loginStore();
           <tr><th width="25%">{{ tbl['id'] }}</th><th></th></tr>
         </thead>
         <tbody>
-          <tr>
+          <tr v-if="tbl['comments']">
             <td>Комментарий</td>
             <td>{{ tbl['comments'] }}</td>
           </tr>
-          <tr>
+          <tr v-if="tbl['decision']">
             <td>Решение</td>
             <td>{{ tbl['decision'] }}</td>
           </tr>
-          <tr>
+          <tr v-if="tbl['supervisor']">
             <td>Согласующий</td>
             <td>{{ tbl['supervisor'] }}</td>
           </tr>
           <tr>
             <td>Дата</td>
-            <td>{{ new Date(tbl['deadline']).toLocaleDateString('ru-RU') }}</td>
+            <td>{{ tbl['deadline'] ? new Date(tbl['deadline']).toLocaleDateString('ru-RU') : '' }}</td>
           </tr>
         </tbody>
       </table>
