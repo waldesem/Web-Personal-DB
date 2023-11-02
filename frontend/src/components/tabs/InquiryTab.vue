@@ -16,14 +16,14 @@ const storeProfile = profileStore();
     <div v-else class="accordion" id="accordionInquiry">
       <div class="accordion-item" v-if="storeProfile.profile.needs?.length" 
                                   v-for="tbl in storeProfile.profile.needs" 
-                                  :key="tbl['id' as keyof typeof tbl]" >
+                                  :key="tbl['id']" >
         <h6 class="accordion-header">
           <button class="accordion-button collapsed" type="button" data-bs-toogle="collapse" 
-                  :data-bs-target="`#${tbl['id' as keyof typeof tbl]}`">
-            {{ `#${tbl['id' as keyof typeof tbl]}` }}
+                  :data-bs-target="`#${tbl['id']}`">
+            {{ `#${tbl['id']}` }}
           </button>
         </h6>
-        <div :id="tbl['id' as keyof typeof tbl]" class="accordion-collapse collapse" 
+        <div :id="tbl['id']" class="accordion-collapse collapse" 
              data-bs-parent="#accordionInquiry">
           <div class="accordion-body">
             <table class="table table-responsive">
@@ -31,15 +31,16 @@ const storeProfile = profileStore();
                 <tr>
                   <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
                   <th>
-                    <a href="#" @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].toString(), 'inquiry')"
-                        title="Удалить">
-                      <i class="bi bi-trash"></i></a>
+                    <a href="#" title="Удалить"
+                       @click="storeProfile.deleteItem(tbl['id'].toString(), 'inquiry')">
+                      <i class="bi bi-trash"></i>
+                    </a>
                     &nbsp;
-                    <a href="#" @click="storeProfile.action = 'update';
-                                        storeProfile.flag = 'inquiry';
-                                        storeProfile.itemId = tbl['id' as keyof typeof tbl].toString(); 
-                                        storeProfile.itemForm = tbl"
-                      title="Изменить"><i class="bi bi-pencil-square"></i></a>
+                    <a href="#" title="Изменить"
+                       @click="storeProfile.openForm('inquiry', 'update', 
+                                                      tbl['id'].toString(), tbl)">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
                   </th>
                 </tr>
               </thead>        
@@ -62,8 +63,9 @@ const storeProfile = profileStore();
                 </tr>
                 <tr>
                   <td>Дата запроса</td>
-                  <td>{{tbl['deadline'] ?  new Date(String(tbl['deadline'])).
-                    toLocaleDateString('ru-RU') : 'Данные отсутствуют' }}</td>
+                  <td>{{tbl['deadline']
+                        ? new Date(String(tbl['deadline'])).toLocaleDateString('ru-RU') 
+                        : 'Данные отсутствуют' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -72,9 +74,7 @@ const storeProfile = profileStore();
       </div>
       <p v-else >Данные отсутствуют</p>
       <a class="btn btn-outline-primary" type="button"
-         @click="storeProfile.action = 'create'; 
-                 storeProfile.flag = 'inquiry';
-                 storeProfile.itemForm = {}">Добавить запись
+         @click="storeProfile.openForm('inquiry', 'create')">Добавить запись
       </a>
     </div>
   </div>

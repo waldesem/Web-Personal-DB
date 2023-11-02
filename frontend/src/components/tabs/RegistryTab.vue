@@ -26,20 +26,16 @@ const storeLogin = loginStore();
         </thead>
         <tbody>
           <tr v-if="tbl['comments']">
-            <td>Комментарий</td>
-            <td>{{ tbl['comments'] }}</td>
+            <td>Комментарий</td><td>{{ tbl['comments'] }}</td>
           </tr>
           <tr v-if="tbl['decision']">
-            <td>Решение</td>
-            <td>{{ tbl['decision'] }}</td>
+            <td>Решение</td><td>{{ tbl['decision'] }}</td>
           </tr>
           <tr v-if="tbl['supervisor']">
-            <td>Согласующий</td>
-            <td>{{ tbl['supervisor'] }}</td>
+            <td>Согласующий</td><td>{{ tbl['supervisor'] }}</td>
           </tr>
-          <tr>
-            <td>Дата</td>
-            <td>{{ tbl['deadline'] ? new Date(tbl['deadline']).toLocaleDateString('ru-RU') : '' }}</td>
+          <tr v-if="tbl['deadline']">
+            <td>Дата</td><td>{{ new Date(tbl['deadline']).toLocaleDateString('ru-RU') }}</td>
           </tr>
         </tbody>
       </table>
@@ -48,9 +44,7 @@ const storeLogin = loginStore();
               :disabled="storeProfile.profile.resume['status'] !== 
                           classifyApp.classifyItems.status['result']
                          || !storeLogin.hasRole('superuser')" 
-              @click="storeProfile.action = 'create'; 
-                      storeProfile.flag = 'registry';
-                      storeProfile.itemForm = {}">Добавить запись
+              @click="storeProfile.openForm('registry', 'create')">Добавить запись
       </button>
     </div>
   

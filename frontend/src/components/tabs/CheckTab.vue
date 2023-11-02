@@ -1,11 +1,29 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
 import { classifyStore } from '@store/classify';
 import { profileStore } from '@/store/profile';
 import CheckForm from '@components/forms/CheckForm.vue'
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
+
+const hiddenAddBtn = ref(false);
+const hiddenDelBtn = ref(false);
+const hiddenEditBtn = ref(false);
+
+hiddenDelBtn.value = storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish'] 
+                  || storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['robot'];
+
+hiddenEditBtn.value = storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['save'] 
+                    && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['cancel'] 
+                    && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['manual']
+
+hiddenAddBtn.value = ![storeClassify.classifyItems.status['new'], 
+                      storeClassify.classifyItems.status['update'], 
+                      storeClassify.classifyItems.status['save'], 
+                      storeClassify.classifyItems.status['repeat']].
+                        includes(storeProfile.profile.resume['status'])
 
 </script>
 
@@ -20,25 +38,21 @@ const storeProfile = profileStore();
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
-            <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
+            <th width="25%">{{ `#${tbl['id']}` }}</th>
             <th>
-              <a href="#" :hidden="storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish'] 
-                                || storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['robot']"
+              <a href="#" :hidden="hiddenDelBtn"
                           @click="storeProfile.deleteItem(
                             'check', 'delete', tbl['id' as keyof typeof tbl].toString()
                             )"
                            title="Удалить">
                           <i class="bi bi-trash"></i></a>
                           &nbsp;
-              <a href="#" :hidden="storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['save'] 
-                                  && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['cancel'] 
-                                  && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['manual']" 
-                          @click="storeProfile.action = 'update'; 
-                                  storeProfile.flag = 'check';
-                                  storeProfile.itemId = tbl['id' as keyof typeof tbl].toString(); 
-                                  storeProfile.itemForm = tbl"
+              <a href="#" :hidden="hiddenEditBtn" 
+                          @click="storeProfile.openForm('check', 'update', 
+                                                        tbl['id'].toString(), tbl)"
                           title="Изменить" >
-                          <i class="bi bi-pencil-square"></i></a>
+                <i class="bi bi-pencil-square"></i>
+              </a>
             </th>
           </tr>
         </thead>   
@@ -126,7 +140,7 @@ const storeProfile = profileStore();
           <tr v-if="tbl['officer']">
             <td>Сотрудник</td>
             <td>
-              <a href="#" @click="storeProfile.getItem('check', 'self', tbl['id' as keyof typeof tbl].toString())">
+              <a href="#" @click="storeProfile.getItem('check', 'self', tbl['id'].toString())">
                 {{ tbl['officer'] }}</a>
             </td>
           </tr>
@@ -139,10 +153,7 @@ const storeProfile = profileStore();
       <p v-else >Данные отсутствуют</p>
       <button class="btn btn-outline-primary" 
               @click="storeProfile.getItem('check', 'add')" 
-              :disabled="![storeClassify.classifyItems.status['new'], 
-                          storeClassify.classifyItems.status['update'], 
-                          storeClassify.classifyItems.status['save'], 
-                          storeClassify.classifyItems.status['repeat']].includes(storeProfile.profile.resume['status'])">Добавить проверку
+              :disabled="hiddenAddBtn">Добавить проверку
       </button>
     </div>
 

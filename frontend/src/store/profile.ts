@@ -302,6 +302,16 @@ export const profileStore = defineStore('profileStore', () => {
     spinner.value = false;
   };
   
+  function openForm (item: string, handle: string, idItem = '', formItem = {}) {
+    flag.value = item;
+    action.value = handle; 
+    if (handle == 'create') {
+      itemForm.value = {}
+    } else {
+      itemId.value = idItem; 
+      itemForm.value = formItem
+    };
+  };
 
   /**
    * Deletes an item.
@@ -439,6 +449,7 @@ export const profileStore = defineStore('profileStore', () => {
     spinner, 
     urlImage,
     getItem, 
+    openForm,
     submitFile, 
     cancelEdit,
     updateItem, 

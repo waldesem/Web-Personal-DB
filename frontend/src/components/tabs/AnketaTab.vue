@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { clearItem } from '@share/utilities'
@@ -14,6 +15,23 @@ import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
+
+const hiddenSendBtn = ref(false);
+const hiddenDelBtn = ref(false);
+
+hiddenSendBtn.value = (storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['new'] 
+                      && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['update']
+                      && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['repeat']) 
+                    || storeProfile.spinner
+
+hiddenDelBtn.value = storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish']
+                    || storeProfile.spinner
+
+function switchForm(item: string){
+  storeProfile.flag === item ? storeProfile.flag = '' : storeProfile.flag = item; 
+  storeProfile.flag === item ? storeProfile.action = 'create' : storeProfile.action = ''; 
+  clearItem(storeProfile.itemForm)
+};
 
 </script>
 
@@ -31,11 +49,10 @@ const storeClassify = classifyStore();
           <tr>
             <th width="25%">{{ `ID #${storeProfile.profile.resume['id']}` }}</th>
             <th>
-              <a href="#" @click="storeProfile.flag = 'resume'; 
-                                  storeProfile.action = 'update';
-                                  storeProfile.itemForm = storeProfile.profile.resume;
-                                  storeProfile.itemId = storeProfile.profile.resume['id']"
-                                  title="Изменить">
+              <a href="#" title="Изменить"
+                 @click="storeProfile.openForm('resume', 'update', 
+                                                storeProfile.profile.resume['id'],
+                                                storeProfile.profile.resume)">
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
@@ -49,11 +66,10 @@ const storeClassify = classifyStore();
           <tr>
             <td>Регион</td>
             <td>
-              <a href="#" @click="storeProfile.flag = 'resume'; 
-                                  storeProfile.action = 'location'; 
-                                  storeProfile.itemForm = storeProfile.profile.resume;
-                                  storeProfile.itemId = storeProfile.profile.resume['id']" 
-                data-bs-toggle="modal" data-bs-target="#modalWin">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#modalWin"
+                 @click="storeProfile.openForm('resume', 'location', 
+                                                storeProfile.profile.resume['id'], 
+                                                storeProfile.profile.resume)">
                 {{ storeClassify.classifyItems.regions[storeProfile.profile.resume['region_id']]}}
               </a>
             </td>
@@ -135,17 +151,10 @@ const storeClassify = classifyStore();
     </template>
         
     <h6>Должности
-      <a class="btn btn-link" @click="storeProfile.flag === 'staff' 
-                                        ? storeProfile.flag = '' 
-                                        : storeProfile.flag = 'staff'; 
-                                      storeProfile.flag === 'staff' 
-                                        ? storeProfile.action = 'create' 
-                                        : storeProfile.action = ''; 
-                                      clearItem(storeProfile.itemForm)" 
-          :title="storeProfile.flag === 'staff' 
-            ? 'Закрыть форму' : 'Добавить должность'">
-        <i :class="storeProfile.flag === 'staff' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      <a class="btn btn-link" :title="storeProfile.flag === 'staff' 
+                                      ? 'Закрыть форму' : 'Добавить должность'"
+         @click="switchForm('staff')">
+        <i :class="storeProfile.flag === 'staff' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'staff'">
@@ -165,10 +174,8 @@ const storeClassify = classifyStore();
                 <i class="bi bi-trash"></i>
               </a>
               &nbsp;
-              <a class="btn btn-link" @click= "storeProfile.flag = 'staff'; 
-                                      storeProfile.action = 'update'; 
-                                      storeProfile.itemId = tbl['id'].toString(); 
-                                      storeProfile.itemForm = tbl" title="Изменить">
+              <a class="btn btn-link" title="Изменить"
+                 @click= "storeProfile.openForm('staff', 'update', tbl['id'].toString(), tbl)">
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
@@ -189,17 +196,9 @@ const storeClassify = classifyStore();
     </template>
 
     <h6>Документы
-      <a class="btn btn-link" @click="storeProfile.flag === 'document' 
-                                ? storeProfile.flag = '' 
-                                : storeProfile.flag = 'document'; 
-                              storeProfile.flag === 'document' 
-                                ? storeProfile.action = 'create' 
-                                : storeProfile.action = ''; 
-                              clearItem(storeProfile.itemForm)" 
-          :title="storeProfile.flag === 'document' 
-              ? 'Закрыть форму' : 'Добавить документ'">
-        <i :class="storeProfile.flag === 'document' 
-              ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      <a class="btn btn-link" :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить документ'"
+         @click="switchForm('document')" >
+        <i :class="storeProfile.flag === 'document' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'document'">
@@ -214,14 +213,12 @@ const storeClassify = classifyStore();
           <tr>
             <th  width="25%">{{ `#${tbl['id']}` }}</th>
             <th>
-              <a href="#" @click="storeProfile.deleteItem('document', 'delete', tbl['id'].toString())"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
-                          <i class="bi bi-trash"></i></a>
+              <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить"
+                 @click="storeProfile.deleteItem('document', 'delete', tbl['id'].toString())">
+                <i class="bi bi-trash"></i></a>
               &nbsp;
-              <a class="btn btn-link" @click= "storeProfile.flag = 'document'; 
-                                      storeProfile.action = 'update'; 
-                                      storeProfile.itemId = tbl['id'].toString(); 
-                                      storeProfile.itemForm = tbl" title="Изменить">
+              <a class="btn btn-link" title="Изменить"
+                 @click= "storeProfile.openForm('document', 'update', tbl['id'].toString(), tbl)">
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
@@ -246,8 +243,7 @@ const storeClassify = classifyStore();
           </tr>
           <tr>
             <td>Дата выдачи</td>
-            <td>{{ tbl['issue'] ? new Date(String(tbl['issue'])).
-                                        toLocaleDateString('ru-RU') 
+            <td>{{ tbl['issue'] ? new Date(String(tbl['issue'])).toLocaleDateString('ru-RU') 
                                 : 'Данные отсутствуют' }}</td>
           </tr>
         </tbody>
@@ -256,17 +252,9 @@ const storeClassify = classifyStore();
     </template>
     
     <h6>Адреса
-      <a class="btn btn-link" @click="storeProfile.flag === 'address' 
-                                ? storeProfile.flag = '' 
-                                : storeProfile.flag = 'address'; 
-                              storeProfile.flag === 'address' 
-                                ? storeProfile.action = 'create' 
-                                : storeProfile.action = ''; 
-                              clearItem(storeProfile.itemForm)" 
-          :title="storeProfile.flag === 'document' 
-            ? 'Закрыть форму' : 'Добавить адрес'">
-        <i :class="storeProfile.flag === 'address' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      <a class="btn btn-link" @click="switchForm('address')" 
+          :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить адрес'">
+        <i :class="storeProfile.flag === 'address' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'address'">
@@ -285,10 +273,8 @@ const storeClassify = classifyStore();
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
-              <a class="btn btn-link" @click= "storeProfile.flag = 'address'; 
-                                      storeProfile.action = 'update'; 
-                                      storeProfile.itemId = tbl['id'].toString(); 
-                                      storeProfile.itemForm = tbl" title="Изменить">
+              <a class="btn btn-link" title="Изменить"
+                 @click= "storeProfile.openForm('address', 'update', tbl['id'].toString(), tbl)" >
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
@@ -313,17 +299,9 @@ const storeClassify = classifyStore();
     </template>
 
     <h6>Контакты
-      <a class="btn btn-link" @click="storeProfile.flag === 'contact' 
-                                      ? storeProfile.flag = '' 
-                                      : storeProfile.flag = 'contact'; 
-                                      storeProfile.flag === 'contact' 
-                                      ? storeProfile.action = 'create' 
-                                      : storeProfile.action = ''; 
-                                      clearItem(storeProfile.itemForm)" 
-                              :title="storeProfile.flag === 'contact' 
-                                      ? 'Закрыть форму' : 'Добавить контакт'">
-        <i :class="storeProfile.flag === 'contact' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      <a class="btn btn-link" @click="switchForm('contact')" 
+          :title="storeProfile.flag === 'contact' ? 'Закрыть форму' : 'Добавить контакт'">
+        <i :class="storeProfile.flag === 'contact' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'contact'">
@@ -342,10 +320,8 @@ const storeClassify = classifyStore();
                           data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
                           <i class="bi bi-trash"></i></a>
               &nbsp;
-              <a class="btn btn-link" @click= "storeProfile.flag = 'contact'; 
-                                      storeProfile.action = 'update'; 
-                                      storeProfile.itemId = tbl['id'].toString(); 
-                                      storeProfile.itemForm = tbl" title="Изменить">
+              <a class="btn btn-link" title="Изменить"
+                 @click= "storeProfile.openForm('contact', 'update', tbl['id'].toString(), tbl)" >
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
@@ -366,17 +342,9 @@ const storeClassify = classifyStore();
     </template>
 
     <h6>Работа
-      <a class="btn btn-link" @click="storeProfile.flag === 'workplace' 
-                                ? storeProfile.flag = '' 
-                                : storeProfile.flag = 'workplace'; 
-                              storeProfile.flag === 'workplace' 
-                                ? storeProfile.action = 'create' 
-                                : storeProfile.action = ''; 
-                              clearItem(storeProfile.itemForm)" 
-          :title="storeProfile.flag === 'workplace' 
-            ? 'Закрыть форму' : 'Добавить работу'">
-        <i :class="storeProfile.flag === 'workplace' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      <a class="btn btn-link" @click="switchForm('workplace')" 
+          :title="storeProfile.flag === 'workplace' ? 'Закрыть форму' : 'Добавить работу'">
+        <i :class="storeProfile.flag === 'workplace' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'workplace'">
@@ -391,14 +359,13 @@ const storeClassify = classifyStore();
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
             <th>
-              <a href="#" @click="storeProfile.deleteItem('workplace', 'delete', tbl['id'].toString())"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
-                          <i class="bi bi-trash"></i></a>
+              <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить"
+                 @click="storeProfile.deleteItem('workplace', 'delete', tbl['id'].toString())">
+                <i class="bi bi-trash"></i>
+              </a>
               &nbsp;
-              <a class="btn btn-link" @click= "storeProfile.flag = 'workplace'; 
-                                      storeProfile.action = 'update'; 
-                                      storeProfile.itemId = tbl['id'].toString(); 
-                                      storeProfile.itemForm = tbl" title="Изменить">
+              <a class="btn btn-link" title="Изменить"
+                 @click= "storeProfile.openForm('workplace', 'update', tbl['id'].toString(), tbl)" >
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
@@ -431,17 +398,9 @@ const storeClassify = classifyStore();
     </template>
 
     <h6>Связи
-      <a class="btn btn-link" @click="storeProfile.flag === 'relation' 
-                                ? storeProfile.flag = '' 
-                                : storeProfile.flag = 'relation'; 
-                              storeProfile.flag === 'relation' 
-                                ? storeProfile.action = 'create' 
-                                : storeProfile.action = ''; 
-                              clearItem(storeProfile.itemForm)" 
-          :title="storeProfile.flag === 'relation' 
-            ? 'Закрыть форму' : 'Добавить связь'">
-        <i :class="storeProfile.flag === 'relation' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      <a class="btn btn-link" @click="switchForm('relation')" 
+          :title="storeProfile.flag === 'relation' ? 'Закрыть форму' : 'Добавить связь'">
+        <i :class="storeProfile.flag === 'relation' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
     <template v-if="storeProfile.flag === 'relation'">
@@ -456,14 +415,13 @@ const storeClassify = classifyStore();
           <tr>
             <th width="25%">{{ `#${tbl['id']}` }}</th>
             <th>
-              <a href="#" @click="storeProfile.deleteItem('relation', 'delete', tbl['id'].toString())"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
-                          <i class="bi bi-trash"></i></a>
+              <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить"
+                 @click="storeProfile.deleteItem('relation', 'delete', tbl['id'].toString())">
+                <i class="bi bi-trash"></i>
+              </a>
               &nbsp;
-              <a class="btn btn-link" @click= "storeProfile.flag = 'relation'; 
-                                      storeProfile.action = 'update'; 
-                                      storeProfile.itemId = tbl['id'].toString(); 
-                                      storeProfile.itemForm = tbl" title="Изменить">
+              <a class="btn btn-link" title="Изменить"
+                 @click= "storeProfile.openForm('relation', 'update', tbl['id'].toString(), tbl)" >
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
@@ -487,18 +445,13 @@ const storeClassify = classifyStore();
 
     <div class="py-3">
       <div class='btn-group' role="group">
-        <button @click="storeProfile.getItem('resume', 'send')" 
-            :disabled="(storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['new'] 
-              && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['update']
-              && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['repeat']) 
-              || storeProfile.spinner" 
-            class="btn btn-outline-primary">{{ !storeProfile.spinner ? 'Отправить на проверку' : '' }}
-          <span v-if="storeProfile.spinner" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <button class="btn btn-outline-primary" :disabled="hiddenSendBtn"
+                @click="storeProfile.getItem('resume', 'send')" >
+            {{ !storeProfile.spinner ? 'Отправить на проверку' : '' }}
+          <span v-if="storeProfile.spinner" class="spinner-border spinner-border-sm"></span>
           <span v-if="storeProfile.spinner" role="status">Отправляется...</span>
         </button>
-        <button type="button" class="btn btn-outline-danger" 
-          :disabled="storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish']
-            || storeProfile.spinner" 
+        <button type="button" class="btn btn-outline-danger" :disabled="hiddenDelBtn" 
           @click="storeProfile.deleteItem('resume', 'delete', storeProfile.profile.resume['id'])">
           Удалить анкету
         </button>

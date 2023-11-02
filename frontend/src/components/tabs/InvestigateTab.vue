@@ -22,17 +22,15 @@ const storeProfile = profileStore();
           <tr>
             <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
             <th>
-              <a href="#" @click="storeProfile.deleteItem(tbl['id' as keyof typeof tbl].
-                toString(), 'investigation')"
-                           title="Удалить">
-                          <i class="bi bi-trash"></i></a>
-                          &nbsp;
-              <a href="#" @click="storeProfile.action = 'update'; 
-                                  storeProfile.flag = 'investigation';
-                                  storeProfile.itemId = tbl['id' as keyof typeof tbl].
-                                    toString(); 
-                                  storeProfile.itemForm = tbl"
-                title="Изменить"><i class="bi bi-pencil-square"></i>
+              <a href="#" title="Удалить"
+                 @click="storeProfile.deleteItem(tbl['id'].toString(), 
+                                                 'investigation')">
+                <i class="bi bi-trash"></i></a>
+                &nbsp;
+              <a href="#" title="Изменить" 
+                 @click="storeProfile.openForm('investigation', 'update', 
+                                                tbl['id'].toString(), tbl)">
+                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
           </tr>
@@ -67,9 +65,7 @@ const storeProfile = profileStore();
       </table>
       <p v-else >Данные отсутствуют</p>
       <a class="btn btn-outline-primary" type="button"
-         @click="storeProfile.action = 'create';
-                 storeProfile.flag = 'investigation';
-                 storeProfile.itemForm = {}">Добавить запись
+         @click="storeProfile.openForm('investigation', 'create')">Добавить запись
       </a>
     </div>
     

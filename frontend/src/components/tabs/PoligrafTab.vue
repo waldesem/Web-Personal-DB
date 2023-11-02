@@ -27,10 +27,7 @@ const storeProfile = profileStore();
                 <i class="bi bi-trash"></i>
               </a>
               &nbsp;
-              <a href="#" @click="storeProfile.action = 'update'; 
-                                  storeProfile.flag = 'poligraf';
-                                  storeProfile.itemId = tbl['id']; 
-                                  storeProfile.itemForm = tbl"
+              <a href="#" @click="storeProfile.openForm('poligraf', 'update', tbl['id'], tbl)"
                  title="Изменить" >
                 <i class="bi bi-pencil-square"></i></a>
             </th>
@@ -74,9 +71,7 @@ const storeProfile = profileStore();
       </table>
       <p v-else >Данные отсутствуют</p>
       <button class="btn btn-outline-primary" type="button"
-              @click="storeProfile.action = 'create'; 
-                      storeProfile.flag = 'poligraf';
-                      storeProfile.itemForm = {}">Добавить запись
+              @click="storeProfile.openForm('poligraf', 'create')">Добавить запись
       </button>
     </div>
   
