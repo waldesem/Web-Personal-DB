@@ -15,3 +15,33 @@ client = OpenSearch(
 )
 
 index_name = 'persons_index'
+
+
+def add_to_index(model):
+    payload = {}
+    for field in model.__searchable__:
+        payload[field] = getattr(model, field)
+    if model.__tablename__ == 'persons':
+        client(index=index_name, doc_type=index_name, 
+               id=model.id, body=payload)
+    else:
+        client(index=index_name, doc_type=index_name, 
+               id=model.person_id, body=payload)
+
+def remove_from_index(model):
+    client.delete(index=index_name, 
+                  doc_type=index_name, id=model.id)
+
+def query_index(query):
+    search = client.search(
+        index=index_name, doc_type=index_name,
+        body={
+            'query': {
+                'multi_match': {
+                    'query': query, 'fields': ['*']
+                    }
+                }
+            }
+        )
+    ids = [int(hit['_id']) for hit in search['hits']['hits']]
+    return ids

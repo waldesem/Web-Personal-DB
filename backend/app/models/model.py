@@ -143,6 +143,10 @@ class Person(db.Model):
     """ Create model for persons dates"""
     query_class = PersonQuery
 
+    __searchable__ = ['fullname', 'previous', 'birthday',
+                      'birthplace', 'country', 'snils',
+                      'inn', 'education', 'addition']
+
     __tablename__ = 'persons'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
@@ -203,6 +207,8 @@ class Person(db.Model):
 class Relation(db.Model):
     """ Create model for relations"""
 
+    __searchable__ = ['relation']
+
     __tablename__ = 'relations'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
@@ -215,6 +221,8 @@ class Relation(db.Model):
 class Staff(db.Model):
     """ Create model for staff"""
 
+    __searchable__ = ['position', 'department']
+
     __tablename__ = 'staffs'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
@@ -226,6 +234,8 @@ class Staff(db.Model):
 
 class Document(db.Model):
     """ Create model for Document dates"""
+
+    __searchable__ = ['series', 'number']
 
     __tablename__ = 'documents'
 
@@ -242,6 +252,8 @@ class Document(db.Model):
 class Address(db.Model): 
     """ Create model for addresses"""
 
+    __searchable__ = ['address']
+
     __tablename__ = 'addresses'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
@@ -254,6 +266,8 @@ class Address(db.Model):
 
 class Workplace(db.Model):
     """ Create model for workplaces"""
+
+    __searchable__ = ['workplace']
 
     __tablename__ = 'workplaces'
 
@@ -271,6 +285,8 @@ class Workplace(db.Model):
 class Contact(db.Model):  # создаем общий класс телефонного номера
     """ Create model for contacts"""
 
+    __searchable__ = ['contact']
+
     __tablename__ = 'contacts'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
@@ -282,6 +298,9 @@ class Contact(db.Model):  # создаем общий класс телефон�
 
 class Check(db.Model):  # модель данных проверки кандидатов
     """ Create model for persons checks"""
+
+    __searchable__ = ['workplace', 'affiliation', 'internet',
+                      'internet', 'cronos', 'cros', 'addition']
 
     __tablename__ = 'checks'
 
@@ -332,6 +351,8 @@ class Registry(db.Model):  # модель данных результаты ПФ
 class Poligraf(db.Model):  # модель данных результаты ПФО
     """ Create model for poligraf"""
 
+    __searchable__ = ['results']
+
     __tablename__ = 'poligrafs'
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
@@ -346,6 +367,8 @@ class Poligraf(db.Model):  # модель данных результаты ПФ
 
 class Investigation(db.Model):
     """ Create model for ivestigation"""
+    
+    __searchable__ = ['info']
 
     __tablename__ = 'investigations'
 
@@ -361,6 +384,8 @@ class Investigation(db.Model):
 
 class Inquiry(db.Model):
     """ Create model for persons inquiries"""
+
+    __searchable__ = ['info']
 
     __tablename__ = 'inquiries'
 
@@ -396,7 +421,7 @@ class Connect(db.Model):
     comment = db.Column(db.Text)
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
-    search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile')) 
+    search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile', 'phone')) 
 
 
 class OneS(db.Model):

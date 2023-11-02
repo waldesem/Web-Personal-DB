@@ -63,9 +63,8 @@ class IndexView(MethodView):
                     query = query.filter(Person.region_id == self.location_id)
             
             # case 'extended':
-            #     persons_id = db.session.query(Tag.person_id). \
-            #         filter(Tag.tag.match(json_data['search'])).all()
-            #     query = query.filter(Person.id.in_(persons_id))
+            #     if self.location_id != 1:
+            #       query = query.filter_by(region_id=self.location_id)
             
         result = query.paginate(page=page,
                             per_page=self.pagination,
