@@ -11,9 +11,9 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
-<!-- Flask-APScheduler as a tool that handles background tasks;
-- SpaCy as NLP library for chatbot queries analysis.
-- OpenSearch as a search engine.-->
+- Flask-APScheduler as a tool that handles background tasks;
+- Rasa and SpaCy as NLP library for chatbot queries analysis.
+- OpenSearch as a search engine.
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
 
@@ -49,8 +49,8 @@ CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
-<!--
-### OpenSearch
+
+### OpenSearch (in development now)
 
 Install the necessary packages.
 ```
@@ -76,7 +76,7 @@ sudo systemctl enable opensearch
 sudo systemctl start opensearch
 sudo systemctl status opensearch
 ```
--->
+
 ### Migration
 
 For migrate database enter commands:
