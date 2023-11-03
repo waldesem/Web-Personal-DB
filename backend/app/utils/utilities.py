@@ -3,77 +3,78 @@ import os
 import re
 from datetime import datetime
 
-import openpyxl
+# import openpyxl
 from flask import current_app
 from ..models.model import db, Person
 from ..models.classes import Status
 from datetime import datetime
 
+# deprecated code
 
-class ExcelFile:
-    """ Create class for import data from excel files"""
+# class ExcelFile:
+#     """ Create class for import data from excel files"""
 
-    def __init__(self, file) -> None:
-        self.file = file
-        self.wb = openpyxl.load_workbook(self.file, keep_vba=True)
-        self.sheet = self.wb.worksheets[0]
+#     def __init__(self, file) -> None:
+#         self.file = file
+#         self.wb = openpyxl.load_workbook(self.file, keep_vba=True)
+#         self.sheet = self.wb.worksheets[0]
 
-        self.resume = {
-            'fullname': parse_cell(self.sheet['K3']).title(),
-            'previous': parse_cell(self.sheet['S3']).title(),
-            'birthday': parse_date(parse_cell(self.sheet['L3'])),
-            'birthplace': str(self.sheet['M3'].value).strip(),
-            'country': parse_cell(self.sheet['T3']),
-            'snils': parse_cell(self.sheet['U3']).replace(" ", "").\
-                replace("-", "")[:11],
-            'inn': parse_cell(self.sheet['V3'], 12),
-            'education': str(self.sheet['X3'].value).strip()
-        }
-        self.passport = [
-            {
-                'view': 'Паспорт гражданина России',
-                'series': parse_cell(self.sheet['P3'], 4),
-                'number': parse_cell(self.sheet['Q3'], 6),
-                'issue': parse_date(parse_cell(self.sheet['R3'])),
-            }
-        ]
-        self.addresses = [
-            {
-                'view': "Адрес регистрации", 
-                'address': parse_cell(self.sheet['N3'])
-            },
-            {
-                'view': "Адрес проживания", 
-                'address': str(self.sheet['O3'].value).strip()
-            }
-        ]
-        self.contacts = [
-            {
-                'view': parse_cell(self.sheet['Y1']), 
-                'contact': parse_cell(self.sheet['Y3']).replace(" ", "")
-            },
-            {
-                'view': parse_cell(self.sheet['Z1']), 
-                'contact': parse_cell(self.sheet['Z3']).replace(" ", "")
-            }
-        ]
-        self.workplaces = [
-            {
-                'workplace': str(self.sheet[f'AB{i}'].value).strip(),
-                'address': str(self.sheet[f'AC{i}'].value).strip(),
-                'position': str(self.sheet[f'AD{i}'].value).strip()
-            } | parse_period(self.sheet[f'AA{i}'].value)
-            for i in range(3, 6) if self.sheet[f'AB{i}'].value
-        ]
-        self.staff = [
-            {
-                'position': str(self.sheet['C3'].value).strip(),
-                'department': str(self.sheet['D3'].value).strip()
-            }
-        ]
+#         self.resume = {
+#             'fullname': self.parse_cell(self.sheet['K3']).title(),
+#             'previous': self.parse_cell(self.sheet['S3']).title(),
+#             'birthday': parse_date(self.parse_cell(self.sheet['L3'])),
+#             'birthplace': str(self.sheet['M3'].value).strip(),
+#             'country': self.parse_cell(self.sheet['T3']),
+#             'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").\
+#                 replace("-", "")[:11],
+#             'inn': self.parse_cell(self.sheet['V3'], 12),
+#             'education': str(self.sheet['X3'].value).strip()
+#         }
+#         self.passport = [
+#             {
+#                 'view': 'Паспорт гражданина России',
+#                 'series': self.parse_cell(self.sheet['P3'], 4),
+#                 'number': self.parse_cell(self.sheet['Q3'], 6),
+#                 'issue': parse_date(self.parse_cell(self.sheet['R3'])),
+#             }
+#         ]
+#         self.addresses = [
+#             {
+#                 'view': "Адрес регистрации", 
+#                 'address': self.parse_cell(self.sheet['N3'])
+#             },
+#             {
+#                 'view': "Адрес проживания", 
+#                 'address': str(self.sheet['O3'].value).strip()
+#             }
+#         ]
+#         self.contacts = [
+#             {
+#                 'view': self.parse_cell(self.sheet['Y1']), 
+#                 'contact': self.parse_cell(self.sheet['Y3']).replace(" ", "")
+#             },
+#             {
+#                 'view': self.parse_cell(self.sheet['Z1']), 
+#                 'contact': self.parse_cell(self.sheet['Z3']).replace(" ", "")
+#             }
+#         ]
+#         self.workplaces = [
+#             {
+#                 'workplace': str(self.sheet[f'AB{i}'].value).strip(),
+#                 'address': str(self.sheet[f'AC{i}'].value).strip(),
+#                 'position': str(self.sheet[f'AD{i}'].value).strip()
+#             } | parse_period(self.sheet[f'AA{i}'].value)
+#             for i in range(3, 6) if self.sheet[f'AB{i}'].value
+#         ]
+#         self.staff = [
+#             {
+#                 'position': str(self.sheet['C3'].value).strip(),
+#                 'department': str(self.sheet['D3'].value).strip()
+#             }
+#         ]
 
-    def close(self):
-        self.wb.close()
+#     def close(self):
+#         self.wb.close()
 
 
 class JsonFile:
@@ -84,34 +85,34 @@ class JsonFile:
             self.json_dict = json.load(f)
 
         self.resume = {
-            'fullname': parse_cell(self.json_dict['fullname']).title(),
-            'previous': parse_cell(self.json_dict['previous']).title(),
-            'birthday': parse_date(parse_cell(self.json_dict['birthday'])),
+            'fullname': self.parse_cell(self.json_dict['fullname']).title(),
+            'previous': self.parse_cell(self.json_dict['previous']).title(),
+            'birthday': self.parse_date(self.parse_cell(self.json_dict['birthday'])),
             'birthplace': str(self.json_dict['birthplace'].value).strip(),
-            'country': parse_cell(self.json_dict['country']),
-            'snils': parse_cell(self.json_dict['snils']).replace(" ", "").\
+            'country': self.parse_cell(self.json_dict['country']),
+            'snils': self.parse_cell(self.json_dict['snils']).replace(" ", "").\
                 replace("-", "")[:11],
-            'inn': parse_cell(self.json_dict['inn'], 12),
+            'inn': self.parse_cell(self.json_dict['inn'], 12),
             'education': str(self.json_dict['education'].value).strip()
         }
         self.passport = [
             {
                 'view': 'Паспорт гражданина России',
-                'series': parse_cell(self.json_dict['series'], 4),
-                'number': parse_cell(self.json_dict['number'], 6),
-                'issue': parse_date(parse_cell(self.json_dict['issue']))
+                'series': self.parse_cell(self.json_dict['series'], 4),
+                'number': self.parse_cell(self.json_dict['number'], 6),
+                'issue': self.parse_date(self.parse_cell(self.json_dict['issue']))
             }
         ]
         self.addresses = [
             {
                 'view': "Адрес регистрации", 
-                'address': parse_cell(self.json_dict['address'])
+                'address': self.parse_cell(self.json_dict['address'])
             }
         ]
         self.contacts = [
             {
-                'view': parse_cell(self.json_dict['view']), 
-                'contact': parse_cell(self.json_dict['contact']).replace(" ", "")
+                'view': self.parse_cell(self.json_dict['view']), 
+                'contact': self.parse_cell(self.json_dict['contact']).replace(" ", "")
             }
         ]
         self.workplaces = [
@@ -129,30 +130,30 @@ class JsonFile:
         ]
 
 
-def parse_cell(cell, limit=255):
-    return str(cell.value).strip()[:limit]
+    def parse_cell(self, cell, limit=255):
+        return str(cell.value).strip()[:limit]
 
 
-def parse_date(data):
-    return datetime.strptime(data, '%d.%m.%Y').date() \
-            if re.match(r'\d\d.\d\d.\d\d\d\d', data) \
-                else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
+    def parse_date(self, data):
+        return datetime.strptime(data, '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', data) \
+                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
 
 
-def parse_period(cell):
-    """ Parse period from excel file """
-    lst = re.split(r'-', cell)
-    if len(lst) == 2:
-        start, end = lst[0].strip(), lst[1].strip()
-        start_date = parse_date(start)
-        end_date = datetime.strptime(end, '%d.%m.%Y').date() \
-            if re.match(r'\d\d.\d\d.\d\d\d\d', end) \
-                else datetime.now().date()
-    
-    elif len(lst) and len(lst) != 2:
-        start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
-        end_date = datetime.now().date()
-    return {'start_date': start_date, 'end_date': end_date}
+    def parse_period(self, cell):
+        """ Parse period from excel file """
+        lst = re.split(r'-', cell)
+        if len(lst) == 2:
+            start, end = lst[0].strip(), lst[1].strip()
+            start_date = self.parse_date(start)
+            end_date = datetime.strptime(end, '%d.%m.%Y').date() \
+                if re.match(r'\d\d.\d\d.\d\d\d\d', end) \
+                    else datetime.now().date()
+        
+        elif len(lst) and len(lst) != 2:
+            start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
+            end_date = datetime.now().date()
+        return {'start_date': start_date, 'end_date': end_date}
 
 
 def add_resume(resume: dict, location_id, action):

@@ -10,17 +10,17 @@ const storeProfile = profileStore();
 <template>
   <div class="py-3">
     <InquiryForm v-if="(storeProfile.action === 'update'
-                  || storeProfile.action === 'create') 
-                  && storeProfile.flag === 'inquiry'" />
+                        || storeProfile.action === 'create') 
+                      && storeProfile.flag === 'inquiry'" />
 
     <div v-else class="accordion" id="accordionInquiry">
       <div class="accordion-item" v-if="storeProfile.profile.needs?.length" 
                                   v-for="tbl in storeProfile.profile.needs" 
-                                  :key="tbl['id']" >
+                                   :key="tbl['id']" >
         <h6 class="accordion-header">
           <button class="accordion-button collapsed" type="button" data-bs-toogle="collapse" 
                   :data-bs-target="`#${tbl['id']}`">
-            {{ `#${tbl['id']}` }}
+            {{ `ID #${tbl['id']}` }}
           </button>
         </h6>
         <div :id="tbl['id']" class="accordion-collapse collapse" 
@@ -29,13 +29,13 @@ const storeProfile = profileStore();
             <table class="table table-responsive">
               <thead>
                 <tr>
-                  <th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th>
-                  <th>
+                  <th width="25%">
                     <a href="#" title="Удалить"
                        @click="storeProfile.deleteItem(tbl['id'].toString(), 'inquiry')">
                       <i class="bi bi-trash"></i>
                     </a>
-                    &nbsp;
+                  </th>
+                  <th>                    
                     <a href="#" title="Изменить"
                        @click="storeProfile.openForm('inquiry', 'update', 
                                                       tbl['id'].toString(), tbl)">
@@ -63,16 +63,17 @@ const storeProfile = profileStore();
                 </tr>
                 <tr>
                   <td>Дата запроса</td>
-                  <td>{{tbl['deadline']
-                        ? new Date(String(tbl['deadline'])).toLocaleDateString('ru-RU') 
-                        : 'Данные отсутствуют' }}</td>
+                  <td>{{ !tbl['deadline'] ? 'Данные отсутствуют'
+                        : new Date(String(tbl['deadline'])).toLocaleDateString('ru-RU') }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
       <p v-else >Данные отсутствуют</p>
+      
       <a class="btn btn-outline-primary" type="button"
          @click="storeProfile.openForm('inquiry', 'create')">Добавить запись
       </a>
