@@ -55,13 +55,13 @@ hiddenAddBtn.value = ![storeClassify.classifyItems.status['new'],
                 <tr>
                   <th width="25%">
                     <a :hidden="hiddenDelBtn" href="#" title="Удалить"
-                       @click="storeProfile.deleteItem(tbl['id'].toString(), 'inquiry')">
+                       @click="storeProfile.deleteItem(tbl['id'].toString(), 'check')">
                       <i class="bi bi-trash"></i>
                     </a>
                   </th>
                   <th>                    
                     <a :hidden="hiddenEditBtn" href="#" title="Изменить"
-                       @click="storeProfile.openForm('inquiry', 'update', 
+                       @click="storeProfile.openForm('check', 'update', 
                                                       tbl['id'].toString(), tbl)">
                       <i class="bi bi-pencil-square"></i>
                     </a>
@@ -71,63 +71,63 @@ hiddenAddBtn.value = ![storeClassify.classifyItems.status['new'],
               <tbody>
                 <tr>
                   <td>Проверка по местам работы</td>
-                  <td>{{ tbl['workplace'] ? tbl['workplace'] : '' }}</td>
+                  <td>{{ tbl['workplace'] ? tbl['workplace'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Бывший работник МТСБ</td>
-                  <td>{{ tbl['employee'] ? tbl['employee'] : '' }}</td>
+                  <td>{{ tbl['employee'] ? tbl['employee'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка паспорта</td>
-                  <td>{{ tbl['document'] ? tbl['document'] : '' }}</td>
+                  <td>{{ tbl['document'] ? tbl['document'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка ИНН</td>
-                  <td>{{ tbl['inn'] ? tbl['inn'] : '' }}</td>
+                  <td>{{ tbl['inn'] ? tbl['inn'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка ФССП</td>
-                  <td>{{ tbl['debt'] ? tbl['debt'] : '' }}</td>
+                  <td>{{ tbl['debt'] ? tbl['debt'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка банкротства</td>
-                  <td>{{ tbl['bankruptcy'] ? tbl['bankruptcy'] : '' }}</td>
+                  <td>{{ tbl['bankruptcy'] ? tbl['bankruptcy'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка БКИ</td>
-                  <td>{{ tbl['bki'] ? tbl['bki'] : '' }}</td>
+                  <td>{{ tbl['bki'] ? tbl['bki'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка судебных дел</td>
-                  <td>{{ tbl['courts'] ? tbl['courts'] : '' }}</td>
+                  <td>{{ tbl['courts'] ? tbl['courts'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка аффилированности</td>
-                  <td>{{ tbl['affiliation'] ? tbl['affiliation'] : '' }}</td>
+                  <td>{{ tbl['affiliation'] ? tbl['affiliation'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка по списку террористов</td>
-                  <td>{{ tbl['terrorist'] ? tbl['terrorist'] : '' }}</td>
+                  <td>{{ tbl['terrorist'] ? tbl['terrorist'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка нахождения в розыске</td>
-                  <td>{{ tbl['mvd'] ? tbl['mvd'] : '' }}</td>
+                  <td>{{ tbl['mvd'] ? tbl['mvd'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка в открытых источниках</td>
-                  <td>{{ tbl['internet'] ? tbl['internet'] : '' }}</td>
+                  <td>{{ tbl['internet'] ? tbl['internet'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка Кронос</td>
-                  <td>{{ tbl['cronos'] ? tbl['cronos'] : '' }}</td>
+                  <td>{{ tbl['cronos'] ? tbl['cronos'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Проверка Крос</td>
-                  <td>{{ tbl['cros'] ? tbl['cros'] : '' }}</td>
+                  <td>{{ tbl['cros'] ? tbl['cros'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr>
                   <td>Дополнительная информация</td>
-                  <td>{{ tbl['addition'] ? tbl['addition'] : '' }}</td>
+                  <td>{{ tbl['addition'] ? tbl['addition'] : 'Данные отсутствуют' }}</td>
                 </tr>
                 <tr v-if="tbl['path']">
                   <td>Материалы проверки</td>

@@ -28,9 +28,3 @@ watch(() => route.params.group,
   <router-view></router-view>
   <FooterDiv />
 </template>
-
-<style>
-.modal-backdrop {
-  opacity: 0.85 !important;
-}
-</style>

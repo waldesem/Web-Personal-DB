@@ -40,13 +40,13 @@ disableRegBtn.value = (storeProfile.profile.resume['status']
                 <tr>
                   <th width="25%">
                     <a href="#" title="Удалить"
-                       @click="storeProfile.deleteItem(tbl['id'].toString(), 'inquiry')">
+                       @click="storeProfile.deleteItem(tbl['id'].toString(), 'registry')">
                       <i class="bi bi-trash"></i>
                     </a>
                   </th>
                   <th>                    
                     <a href="#" title="Изменить"
-                       @click="storeProfile.openForm('inquiry', 'update', 
+                       @click="storeProfile.openForm('registry', 'update', 
                                                       tbl['id'].toString(), tbl)">
                       <i class="bi bi-pencil-square"></i>
                     </a>

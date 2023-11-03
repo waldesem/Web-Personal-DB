@@ -9,7 +9,7 @@ import redis
 from . import bp
 from ..routes.login import r_g
 from ..models.classes import Groups
-from ..analysis.analysis import parse_data
+from ..analysis.analysis import Analysis
 
 
 redis_chat = redis.StrictRedis(
@@ -27,20 +27,21 @@ class ChatView(MethodView):
         message = json_data['data']
         self.redis_chat(username, prefix, message)
         
-        query = parse_data(json_data)
-        if query[0] == 'error':
+        data_parse = Analysis(json_data)
+        query = data_parse.parse_data()
+
+        if query:
             return {
                 'chatBot': 'По вашему запросу ничего не найдено. \
                     Попробуйте изменить запрос'
                 }
         else:
-            match query[0]:
-                case 'anketa':
-                    response = f'По вашему запросу найдено: {(", ").join(query[1])}. \
-                        Показано {len(query[1])} результатов из {query[2]}'
+            response = f'По вашему запросу найдено: {query}. \
+                Показано 10 лучших результатов. Для уточнения \
+                    измените запрос или попробуйте другие параметры.'
 
-                    self.redis_chat('chatBot', prefix, response)
-                    return {'chatBot': f'{response}'}
+            self.redis_chat('chatBot', prefix, response)
+            return {'chatBot': f'{response}'}
     
     def redis_chat(self, username, prefix, message):
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

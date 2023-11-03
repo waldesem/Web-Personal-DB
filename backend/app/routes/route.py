@@ -15,7 +15,7 @@ from PIL import Image
 from . import bp
 from .. import db
 from .login import r_g
-from ..utils.utilities import JsonFile, ExcelFile, add_resume, create_folders
+from ..utils.utilities import JsonFile, add_resume, create_folders
 from ..models.model import  User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report
@@ -707,7 +707,7 @@ class FileView(MethodView):
             file.save(temp_path)
 
             if temp_path.endswith('xlsx'):
-                anketa = ExcelFile(temp_path)
+                anketa = JsonFile(temp_path)
                 anketa.close()
             
             elif temp_path.endswith('json'):

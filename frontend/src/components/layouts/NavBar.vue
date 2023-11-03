@@ -41,9 +41,8 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
 </script>
 
 <template>
-  <nav :class="storeLogin.pageIdentity ==='admins' 
-          ? 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-secondary' 
-          : 'navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary'">
+  <nav :class="`$navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none 
+              ${storeLogin.pageIdentity ==='admins' ? 'bg-secondary' : 'bg-primary'}`">
     <div class="container">
       <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
         {{ storeLogin.pageIdentity ? storeLogin.pageIdentity.toUpperCase() : '' }}</a>
