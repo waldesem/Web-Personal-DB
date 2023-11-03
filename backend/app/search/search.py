@@ -1,5 +1,6 @@
 from opensearchpy import OpenSearch
 
+
 host = 'localhost'
 port = 9200
 auth = ('admin', 'admin')

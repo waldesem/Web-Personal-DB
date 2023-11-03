@@ -45,7 +45,6 @@ class ChatView(MethodView):
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         if not redis_chat.hget(prefix, username):
-            print('create')
             redis_chat.hset(prefix, username, json.dumps(
                 [{
                     'message': message,

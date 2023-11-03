@@ -59,12 +59,14 @@ class IndexView(MethodView):
             case 'search':
                 if json_data['search']:
                     query = Person.query.search('%{}%'.format(json_data['search'])) 
-                if self.location_id != 1:
-                    query = query.filter(Person.region_id == self.location_id)
+                    if self.location_id != 1:
+                        query = query.filter(Person.region_id == self.location_id)
             
-            # case 'extended':
-            #     if self.location_id != 1:
-            #       query = query.filter_by(region_id=self.location_id)
+            case 'extended':
+                if json_data['search']:
+                    query = Person.opensearch(json_data['search']) 
+                    if self.location_id != 1:
+                        query = query.filter(Person.region_id == self.location_id)
             
         result = query.paginate(page=page,
                             per_page=self.pagination,
