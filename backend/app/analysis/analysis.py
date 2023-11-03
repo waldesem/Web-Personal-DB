@@ -7,9 +7,7 @@ from spacy.lang.ru.stop_words import STOP_WORDS
 
 
 from .. import db
-from ..models.schema import PersonSchema
-from ..models.model import  Person, Staff, Document, Address, Contact, \
-    Workplace, Check, Poligraf, Investigation, Inquiry
+from ..models.model import  Person, Document
 
 templates = {
     'anketa': 'Поиск: фамилия имя дата рождения паспорт серия номер инн снилс',

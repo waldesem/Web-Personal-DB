@@ -5,14 +5,20 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 ### The main technology stack used in this project includes:
 
 - Python3;
+- Postgesql
+- Redis
 - APIFlask a lightweight Python web API framework based on Flask and marshmallow-code projects;
 - Gunicorn as HTTP server;
 - Flask-JWT-Extended as a tool for authorization;
+- Flask-HTTPAuth
 - Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
 - Flask-APScheduler as a tool that handles background tasks;
-- Rasa and SpaCy as NLP library for chatbot queries analysis.
+- Flask_Searchable
+- Flask-Caching
+- Flask-Cors
+- Rasa and SpaCy as NLP library for chatbot and queries analysis.
 - OpenSearch as a search engine.
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.

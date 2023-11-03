@@ -143,7 +143,7 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Connect
         ordered = True
-        exclude = ('search_vector',) # only if use searchable sqlalchemy
+        exclude = ('search_vector',)
         
 
 class AnketaSchema(ma.SQLAlchemySchema):

@@ -26,8 +26,8 @@ class ChatView(MethodView):
         prefix = f'{username}_chat'
         message = json_data['data']
         self.redis_chat(username, prefix, message)
+        
         query = parse_data(json_data)
-
         if query[0] == 'error':
             return {
                 'chatBot': 'По вашему запросу ничего не найдено. \
@@ -36,7 +36,8 @@ class ChatView(MethodView):
         else:
             match query[0]:
                 case 'anketa':
-                    response = f'По вашему запросу найдено: {(", ").join(query[1])}. Показано {len(query[1])} результатов из {query[2]}'
+                    response = f'По вашему запросу найдено: {(", ").join(query[1])}. \
+                        Показано {len(query[1])} результатов из {query[2]}'
 
                     self.redis_chat('chatBot', prefix, response)
                     return {'chatBot': f'{response}'}
