@@ -41,7 +41,7 @@ async function updateChat() {
 </script>
 
 <template>
-  <div>
+  <div class="d-print-none">
     <a class="chatbot-button dropdown-toggle" role="button"  
       data-bs-toggle="dropdown" data-bs-auto-close="false">
       <i class="bi bi-chat-dots-fill fs-1"></i>
@@ -105,7 +105,6 @@ async function updateChat() {
     z-index: 9999;
     border-radius: 50%;
     padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     }
     

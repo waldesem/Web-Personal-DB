@@ -13,6 +13,7 @@ import AdminPage from '@components/pages/AdminPage.vue';
 import AdminTables from '@components/pages/AdminTables.vue'
 import ContactPage from '@components/pages/ContactPage.vue';
 import NotFound from '@components/pages/NotFound.vue';
+import PrintPage from '@/components/pages/PrintPage.vue';
 
 
 const router = createRouter({
@@ -45,6 +46,11 @@ const router = createRouter({
           path: 'profile/:id',
           name: 'profile',
           component: ProfilePage
+        },
+        {
+          path: 'print',
+          name: 'print',
+          component: PrintPage
         },
         {
           path: 'information',

@@ -74,8 +74,8 @@ Update the package list and install OpenSearch
 ```
 sudo apt-get update && sudo apt-get -y install opensearch
 ```
-Open file `sudo nano /etc/elasticsearch/elasticsearch.yml`
-and uncomment and change string `network.host: localhost`
+Open file `sudo nano /etc/opensearch/opensearch.yml`
+Uncomment and change string `network.host: localhost`
 Once complete, enable OpenSearch, start it and verify that it is running.
 ```
 sudo systemctl enable opensearch

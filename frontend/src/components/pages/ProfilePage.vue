@@ -57,13 +57,10 @@ async function getProfile() {
 
 <template>
   <div class="container py-3">
+    
     <div class="py-1">
       <PhotoCard />
       <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
-      &nbsp;
-      <router-link :to="{ name: 'print' }">
-        <i class="bi bi-printer" title="Версия для печати"></i>
-      </router-link>
     </div>
     <div class="nav nav-tabs nav-justified" role="tablist">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" 
@@ -99,5 +96,20 @@ async function getProfile() {
         <InquiryTab />
       </div>
     </div>
+    <router-link :to="{ name: 'print' }">
+      <i class="bi bi-printer fs-1" title="Версия для печати"></i>
+    </router-link>
   </div>
 </template>
+
+<style scoped>
+.bi-printer {
+    position: fixed;
+    top: 80px;
+    right: 40px;
+    z-index: 9999;
+    border-radius: 50%;
+    padding: 10px;
+    cursor: pointer;
+    }
+</style>

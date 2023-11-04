@@ -10,7 +10,7 @@ const storeClassify = classifyStore();
 </script>
 
 <template>
-  <div class="conrainer">
+  <div class="container">
 
     <div class="text-secondary text-end text-opacity-85 py-3">
       <h6>Для служебного пользования</h6>
@@ -23,7 +23,7 @@ const storeClassify = classifyStore();
             class="card-img-top" alt="...">
     </div>
     <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
-    <div class="fs-5 text-secondary text-end text-opacity-85">
+    <div class="fs-4 text-secondary text-opacity-95">
       <p v-if="storeProfile.profile.staffs[0]['position']">
         {{ storeProfile.profile.staffs[0]['position'] }}
       </p>
@@ -43,7 +43,7 @@ const storeClassify = classifyStore();
           </tr>
         </thead>
         <tbody>
-          <tr v-if="storeProfile.profile.resume['region_id']">
+          <tr v-if="storeProfile.profile.resume['region_id'] && storeProfile.profile.resume['region_id'] !== 'None'">
             <td>Регион</td>
             <td>
               {{ storeClassify.classifyItems.regions[storeProfile.profile.resume['region_id']]}}
@@ -53,7 +53,7 @@ const storeClassify = classifyStore();
             <td>Фамилия Имя Отчество</td>
             <td>{{ storeProfile.profile.resume['fullname'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['previous']">
+          <tr v-if="storeProfile.profile.resume['previous'] && storeProfile.profile.resume['previous'] !== 'None'">
             <td>Изменение имени</td>
             <td>{{ storeProfile.profile.resume['previous'] }}</td>
           </tr>
@@ -61,27 +61,27 @@ const storeClassify = classifyStore();
             <td>Дата рождения</td>
             <td>{{ storeProfile.profile.resume['birthday'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['birthplace']">
+          <tr v-if="storeProfile.profile.resume['birthplace'] && storeProfile.profile.resume['birthplace'] !== 'None'">
             <td>Место рождения</td>
             <td>{{ storeProfile.profile.resume['birthplace'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['country']">
+          <tr v-if="storeProfile.profile.resume['country'] && storeProfile.profile.resume['country'] !== 'None'">
             <td>Гражданство</td>
             <td>{{ storeProfile.profile.resume['country'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['snils']">
+          <tr v-if="storeProfile.profile.resume['snils'] && storeProfile.profile.resume['snils'] !== 'None'">
             <td>СНИЛС</td>
             <td>{{ storeProfile.profile.resume['snils'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['inn']">
+          <tr v-if="storeProfile.profile.resume['inn'] && storeProfile.profile.resume['inn'] !== 'None'">
             <td>ИНН</td>
             <td>{{ storeProfile.profile.resume['inn'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['education']">
+          <tr v-if="storeProfile.profile.resume['education'] && storeProfile.profile.resume['education'] !== 'None'">
             <td>Образование</td>
             <td>{{ storeProfile.profile.resume['education'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['addition']">
+          <tr v-if="storeProfile.profile.resume['addition'] && storeProfile.profile.resume['addition'] !== 'None'">
             <td>Дополнительная информация</td>
             <td>{{ storeProfile.profile.resume['addition'] }}</td>
           </tr>

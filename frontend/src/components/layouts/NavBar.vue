@@ -5,7 +5,6 @@ import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { adminStore } from '@/store/admin';
 import { server } from '@share/utilities';
-import ChatButton from './ChatButton.vue';
 
 const storeAuth = authStore();
 const storeLogin = loginStore();
@@ -41,7 +40,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
 </script>
 
 <template>
-  <nav :class="`$navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none 
+  <nav :class="`navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none 
               ${storeLogin.pageIdentity ==='admins' ? 'bg-secondary' : 'bg-primary'}`">
     <div class="container">
       <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
@@ -195,7 +194,7 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
       </div>
     </div>
   </div>
-  <chat-button />
+  
 </template>
 
 <style scoped>

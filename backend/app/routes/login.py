@@ -97,7 +97,7 @@ class LoginView(MethodView):
         """
         user = db.session.query(User). \
             filter_by(username=current_user.username).one_or_none()
-        if user and not user.has_blocked():
+        if user and not user.blocked:
             user.last_login = datetime.now()
             db.session.commit()
             return user
@@ -191,7 +191,7 @@ class TokenView(MethodView):
         """
         user = db.session.query(User). \
             filter_by(username=current_user.username).one_or_none()
-        if not user.has_blocked:
+        if not user.blocked:
             access_token = create_access_token(identity=get_jwt_identity())
             return {'access_token': access_token}
         return {'access_token': ''}

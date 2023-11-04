@@ -111,11 +111,11 @@ const searchPerson = debounce(getCandidates, 500);
           </div>
         </form>
       </div>
-      <!-- <div class="col-md-1">
+      <div class="col-md-1">
         <input class="form-check-input" type="checkbox" id="checkbox" 
                title="Расширенный поиск" style="width: 30px; height: 30px;"
                v-model="personData.extendedSearch" value="search">
-      </div-->
+      </div>
     </div>
     <div class="py-3">
       <table class="table table-hover table-responsive align-middle">

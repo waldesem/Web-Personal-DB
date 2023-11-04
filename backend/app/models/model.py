@@ -145,15 +145,6 @@ class User(db.Model):
         """
         return any(r.role == role for r in self.roles)
     
-    @cache.memoize(60)
-    def has_blocked(self):
-        """
-        A function that checks if the current user is blocked.
-        Returns:
-            bool: True if the user is blocked, False otherwise.
-        """
-        return self.blocked
-    
 
 class Report(db.Model):
     """ Create model for report"""

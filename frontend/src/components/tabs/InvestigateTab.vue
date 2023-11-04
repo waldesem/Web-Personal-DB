@@ -78,10 +78,12 @@ const storeProfile = profileStore();
       </div>
 
       <p v-else >Данные отсутствуют</p>
-
-      <a class="btn btn-outline-primary" type="button"
-         @click="storeProfile.openForm('investigation', 'create')">Добавить запись
-      </a>
+      
+      <div class="py-3">
+        <a class="btn btn-outline-primary" type="button"
+          @click="storeProfile.openForm('investigation', 'create')">Добавить запись
+        </a>
+      </div>
     </div>
     
   </div>
