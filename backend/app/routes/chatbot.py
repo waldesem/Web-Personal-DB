@@ -9,7 +9,7 @@ import redis
 from . import bp
 from ..routes.login import r_g
 from ..models.classes import Groups
-from ..analysis.analysis import Analysis
+from ..analysis.analysis import Matches
 
 
 redis_chat = redis.StrictRedis(
@@ -27,23 +27,27 @@ class ChatView(MethodView):
         message = json_data['data']
         self.redis_chat(username, prefix, message)
         
-        data_parse = Analysis(json_data)
-        query = data_parse.parse_data()
-
+        data_parse = Matches(json_data)
+        query = data_parse.get_matches()
         if query:
-            return {
-                'chatBot': 'По вашему запросу ничего не найдено. \
+            response = 'По вашему запросу ничего не найдено. \
                     Попробуйте изменить запрос'
-                }
         else:
-            response = f'По вашему запросу найдено: {query}. \
-                Показано 10 лучших результатов. Для уточнения \
-                    измените запрос или попробуйте другие параметры.'
+            response = f'По вашему запросу найдено: {query}'
 
-            self.redis_chat('chatBot', prefix, response)
-            return {'chatBot': f'{response}'}
+        self.redis_chat('chatBot', prefix, response)
+        return {'chatBot': f'{response}'}
     
     def redis_chat(self, username, prefix, message):
+        """
+        This function is responsible for managing the chat messages in Redis.
+        Parameters:
+            username (str): The username of the chat participant.
+            prefix (str): The prefix used to identify the chat.
+            message (str): The content of the chat message.
+        Returns:
+            None
+        """
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         if not redis_chat.hget(prefix, username):

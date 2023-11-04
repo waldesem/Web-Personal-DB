@@ -1,6 +1,7 @@
 import re
 import string
 from datetime import datetime as dt
+from enum import Enum
 
 import spacy
 from spacy.lang.ru.stop_words import STOP_WORDS
@@ -8,6 +9,15 @@ from spacy.lang.ru.stop_words import STOP_WORDS
 from ..models.model import  Person
 
 nlp = spacy.load("ru_core_news_md")
+
+
+class Intents(Enum):
+
+    DATABASE = 'Поиск в базе данных. \
+        Фамилия, дата рождения, инн, адрес электронной почты, номер телефона, \
+            серия и номер паспорта, снилс, инн, результат проверки, запросы, \
+                полиграф, расследования, аффилированное лицо.'
+    UNDEFINED = STOP_WORDS
 
 
 class Analysis:
@@ -70,11 +80,11 @@ class Analysis:
         if len(lemmas):
             self.lemmas = ' '.join(lemmas)
 
-    def get_similarity(self, template):
-        template_nlp = nlp(template)
-        return template_nlp.similarity(self.doc)
-
     def parse_data(self):
+        self.get_names()
+        self.get_digits()
+        self.get_date()
+        self.get_lemmas()
         summary = f"{self.names} {self.digits} {self.dates} {self.lemmas}"
         if summary:
             query = Person.opensearch(f"{self.names} {self.digits} \
@@ -82,3 +92,31 @@ class Analysis:
             if query:
                 return '; '.join([f'id {item.id} - {item.fullname}' for item in query])                       
         return ''
+
+
+class Matches():
+
+    def __init__(self, text) -> None:
+        self.analysis = Analysis(text)
+        self.similars = []
+        self.item = ''
+        self.result = ''
+
+    def get_matches(self):
+        for intent in Intents:
+            template_nlp = nlp(intent.value)
+            self.similars.append(template_nlp.similarity(self.analysis.doc))
+        self.item = Intents(self.similars.index(max(self.similars))).name
+
+        match self.item:
+            case Intents.DATABASE.name:
+                self.result = self.analysis.parse_data()
+
+            case Intents.UNDEFINED.name:
+                self.result = 'Невозможно определить запрос. \
+                                Много неинформативного текста.'
+            case _:
+                self.result = ''
+        
+        return self.result
+    
