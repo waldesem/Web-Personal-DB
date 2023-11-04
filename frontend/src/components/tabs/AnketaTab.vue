@@ -162,36 +162,50 @@ function switchForm(item: string){
     </template>
 
     <template v-else>
-      <table v-if="storeProfile.profile.staffs && storeProfile.profile.staffs.length" 
-             v-for="tbl in storeProfile.profile.staffs" 
-              :key="tbl['id']" class="table table-responsive">
-        <thead>
-          <tr>
-            <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
-              <a href="#" @click="storeProfile.deleteItem('staff', 'delete', tbl['id'].
-                  toString())" title="Удалить">
-                <i class="bi bi-trash"></i>
-              </a>
-              &nbsp;
-              <a class="btn btn-link" title="Изменить"
-                 @click= "storeProfile.openForm('staff', 'update', tbl['id'].toString(), tbl)">
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Должность</td>
-            <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Департамент</td>
-            <td>{{ tbl['department'] ? tbl['department'] : 'Данные отсутствуют' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="accordion" id="accordionStaff" v-if="storeProfile.profile.staffs.length">
+        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.staffs" 
+                                    :key="tbl['id']" >
+          <h6 class="accordion-header">
+            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
+                    :data-bs-target="`#collapse${tbl['id']}`">
+              {{ `ID #${tbl['id']}` }}
+            </button>
+          </h6>
+          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+              data-bs-parent="#accordionStaff">
+            <div class="accordion-body">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="25%">
+                      <a href="#" @click="storeProfile.deleteItem('staff', 'delete', tbl['id'].
+                          toString())" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </th>
+                    <th>
+                      <a class="btn btn-link" title="Изменить"
+                        @click= "storeProfile.openForm('staff', 'update', tbl['id'].toString(), tbl)">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Должность</td>
+                    <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Департамент</td>
+                    <td>{{ tbl['department'] ? tbl['department'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <p v-else >Данные отсутствуют</p>
     </template>
 
@@ -206,48 +220,63 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.profile.docums && storeProfile.profile.docums.length" 
-             v-for="tbl in storeProfile.profile.docums" 
-             :key="tbl['id']" class="table table-responsive">
-        <thead>
-          <tr>
-            <th  width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
-              <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить"
-                 @click="storeProfile.deleteItem('document', 'delete', tbl['id'].toString())">
-                <i class="bi bi-trash"></i></a>
-              &nbsp;
-              <a class="btn btn-link" title="Изменить"
-                 @click= "storeProfile.openForm('document', 'update', tbl['id'].toString(), tbl)">
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Вид документа</td>
-            <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Серия</td>
-            <td>{{ tbl['series'] ? tbl['series'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Номер</td>
-            <td>{{ tbl['number'] ? tbl['number'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Кем выдан</td>
-            <td>{{ tbl['agency'] ? tbl['agency'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Дата выдачи</td>
-            <td>{{ tbl['issue'] ? new Date(String(tbl['issue'])).toLocaleDateString('ru-RU') 
-                                : 'Данные отсутствуют' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="accordion" id="accordionDocument" v-if="storeProfile.profile.docums.length">
+        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.docums" 
+                                    :key="tbl['id']" >
+          <h6 class="accordion-header">
+            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
+                    :data-bs-target="`#collapse${tbl['id']}`">
+              {{ `ID #${tbl['id']}` }}
+            </button>
+          </h6>
+          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+              data-bs-parent="#accordionDocument">
+            <div class="accordion-body">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="25%">
+                      <a href="#" @click="storeProfile.deleteItem('document', 'delete', tbl['id'].
+                          toString())" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </th>
+                    <th>
+                      <a class="btn btn-link" title="Изменить"
+                        @click= "storeProfile.openForm('document', 'update', tbl['id'].toString(), tbl)">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Вид документа</td>
+                    <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Серия</td>
+                    <td>{{ tbl['series'] ? tbl['series'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Номер</td>
+                    <td>{{ tbl['number'] ? tbl['number'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Кем выдан</td>
+                    <td>{{ tbl['agency'] ? tbl['agency'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Дата выдачи</td>
+                    <td>{{ tbl['issue'] ? new Date(String(tbl['issue'])).toLocaleDateString('ru-RU') 
+                                        : 'Данные отсутствуют' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <p v-else >Данные отсутствуют</p>
     </template>
     
@@ -262,39 +291,54 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.profile.addrs && storeProfile.profile.addrs.length" 
-             v-for="tbl in storeProfile.profile.addrs" 
-              :key="tbl['id']" class="table table-responsive">
-        <thead>
-          <tr>
-            <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
-              <a href="#" @click="storeProfile.deleteItem('address', 'delete', tbl['id'].toString())"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
-                          <i class="bi bi-trash"></i></a>
-              &nbsp;
-              <a class="btn btn-link" title="Изменить"
-                 @click= "storeProfile.openForm('address', 'update', tbl['id'].toString(), tbl)" >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Тип</td>
-            <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Регион</td>
-            <td>{{ tbl['region'] ? tbl['region'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Адрес</td>
-            <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="accordion" id="accordionAddress" v-if="storeProfile.profile.addrs.length">
+        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.addrs" 
+                                    :key="tbl['id']" >
+          <h6 class="accordion-header">
+            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
+                    :data-bs-target="`#collapse${tbl['id']}`">
+              {{ `ID #${tbl['id']}` }}
+            </button>
+          </h6>
+          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+              data-bs-parent="#accordionAddress">
+            <div class="accordion-body">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="25%">
+                      <a href="#" @click="storeProfile.deleteItem('address', 'delete', tbl['id'].
+                          toString())" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </th>
+                    <th>
+                      <a class="btn btn-link" title="Изменить"
+                        @click= "storeProfile.openForm('address', 'update', tbl['id'].toString(), tbl)">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Тип</td>
+                    <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Регион</td>
+                    <td>{{ tbl['region'] ? tbl['region'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Адрес</td>
+                    <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <p v-else >Данные отсутствуют</p>
     </template>
 
@@ -309,35 +353,50 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.profile.conts && storeProfile.profile.conts.length" 
-             v-for="tbl in storeProfile.profile.conts" :key="tbl['id']" 
-                class="table table-responsive">
-        <thead>
-          <tr>
-            <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
-              <a href="#" @click="storeProfile.deleteItem('contact', 'delete', tbl['id'].toString())"
-                          data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить">
-                          <i class="bi bi-trash"></i></a>
-              &nbsp;
-              <a class="btn btn-link" title="Изменить"
-                 @click= "storeProfile.openForm('contact', 'update', tbl['id'].toString(), tbl)" >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Вид</td>
-            <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Контакт</td>
-            <td>{{ tbl['contact'] ? tbl['contact'] : 'Данные отсутствуют' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="accordion" id="accordionContact" v-if="storeProfile.profile.conts.length">
+        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.conts" 
+                                    :key="tbl['id']" >
+          <h6 class="accordion-header">
+            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
+                    :data-bs-target="`#collapse${tbl['id']}`">
+              {{ `ID #${tbl['id']}` }}
+            </button>
+          </h6>
+          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+              data-bs-parent="#accordionContact">
+            <div class="accordion-body">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="25%">
+                      <a href="#" @click="storeProfile.deleteItem('contact', 'delete', tbl['id'].
+                          toString())" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </th>
+                    <th>
+                      <a class="btn btn-link" title="Изменить"
+                        @click= "storeProfile.openForm('contact', 'update', tbl['id'].toString(), tbl)">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Вид</td>
+                    <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Контакт</td>
+                    <td>{{ tbl['contact'] ? tbl['contact'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <p v-else >Данные отсутствуют</p>
     </template>
 
@@ -352,48 +411,62 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.profile.works && storeProfile.profile.works.length" 
-             v-for="tbl in storeProfile.profile.works" 
-              :key="tbl['id']" class="table table-responsive">
-        <thead>
-          <tr>
-            <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
-              <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить"
-                 @click="storeProfile.deleteItem('workplace', 'delete', tbl['id'].toString())">
-                <i class="bi bi-trash"></i>
-              </a>
-              &nbsp;
-              <a class="btn btn-link" title="Изменить"
-                 @click= "storeProfile.openForm('workplace', 'update', tbl['id'].toString(), tbl)" >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Период</td>
-            <td>{{ tbl['start_date'] }} - {{ tbl['end_date'] }}</td>
-          </tr>
-          <tr>
-            <td>Работает по н.в.</td>
-            <td>{{ tbl['now_work'] ? 'Работает' : 'Не работает' }}</td>
-          </tr>
-          <tr>
-            <td>Организация</td>
-            <td>{{ tbl['workplace'] ? tbl['workplace'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Адрес</td>
-            <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Должность</td>
-            <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="accordion" id="accordionWork" v-if="storeProfile.profile.works.length">
+        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.works" 
+                                    :key="tbl['id']" >
+          <h6 class="accordion-header">
+            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
+                    :data-bs-target="`#collapse${tbl['id']}`">
+              {{ `ID #${tbl['id']}` }}
+            </button>
+          </h6>
+          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+              data-bs-parent="#accordionWork">
+            <div class="accordion-body">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="25%">
+                      <a href="#" @click="storeProfile.deleteItem('workplace', 'delete', tbl['id'].
+                          toString())" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </th>
+                    <th>
+                      <a class="btn btn-link" title="Изменить"
+                        @click= "storeProfile.openForm('workplace', 'update', tbl['id'].toString(), tbl)">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Период</td>
+                    <td>{{ tbl['start_date'] }} - {{ tbl['end_date'] }}</td>
+                  </tr>
+                  <tr>
+                    <td>Работает по н.в.</td>
+                    <td>{{ tbl['now_work'] ? 'Работает' : 'Не работает' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Организация</td>
+                    <td>{{ tbl['workplace'] ? tbl['workplace'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Адрес</td>
+                    <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                  <tr>
+                    <td>Должность</td>
+                    <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <p v-else >Данные отсутствуют</p>
     </template>
 
@@ -408,51 +481,68 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <table v-if="storeProfile.profile.relate && storeProfile.profile.relate.length" 
-             v-for="tbl in storeProfile.profile.relate" 
-              :key="tbl['id']" class="table table-responsive">
-        <thead>
-          <tr>
-            <th width="25%">{{ `#${tbl['id']}` }}</th>
-            <th>
-              <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Удалить"
-                 @click="storeProfile.deleteItem('relation', 'delete', tbl['id'].toString())">
-                <i class="bi bi-trash"></i>
-              </a>
-              &nbsp;
-              <a class="btn btn-link" title="Изменить"
-                 @click= "storeProfile.openForm('relation', 'update', tbl['id'].toString(), tbl)" >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Тип связи</td><td>{{ tbl['relation'] }}</td></tr>
-          <tr v-if="tbl['relation_id']">
-            <td>Связь</td>
-            <td>
-              <router-link
-                :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }">
-                ID #{{ tbl['relation_id'] }}
-              </router-link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="accordion" id="accordionRelation" v-if="storeProfile.profile.relate.length">
+        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.relate" 
+                                    :key="tbl['id']" >
+          <h6 class="accordion-header">
+            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
+                    :data-bs-target="`#collapse${tbl['id']}`">
+              {{ `ID #${tbl['id']}` }}
+            </button>
+          </h6>
+          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+              data-bs-parent="#accordionRelation">
+            <div class="accordion-body">
+              <table>
+                <thead>
+                  <tr>
+                    <th width="25%">
+                      <a href="#" @click="storeProfile.deleteItem('relation', 'delete', tbl['id'].
+                          toString())" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </th>
+                    <th>
+                      <a class="btn btn-link" title="Изменить"
+                        @click= "storeProfile.openForm('relation', 'update', tbl['id'].toString(), tbl)">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Тип связи</td><td>{{ tbl['relation'] }}</td></tr>
+                  <tr v-if="tbl['relation_id']">
+                    <td>Связь</td>
+                    <td>
+                      <router-link
+                        :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }">
+                        ID #{{ tbl['relation_id'] }}
+                      </router-link>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <p v-else >Данные отсутствуют</p>
     </template>
 
     <div class="py-3">
       <div class='btn-group' role="group">
-        <button class="btn btn-outline-primary" :disabled="hiddenSendBtn"
+        <button class="btn btn-outline-primary" 
+                :disabled="hiddenSendBtn"
                 @click="storeProfile.getItem('resume', 'send')" >
             {{ !storeProfile.spinner ? 'Отправить на проверку' : '' }}
           <span v-if="storeProfile.spinner" class="spinner-border spinner-border-sm"></span>
           <span v-if="storeProfile.spinner" role="status">Отправляется...</span>
         </button>
-        <button type="button" class="btn btn-outline-danger" :disabled="hiddenDelBtn" 
-          @click="storeProfile.deleteItem('resume', 'delete', storeProfile.profile.resume['id'])">
+        <button type="button" class="btn btn-outline-danger" 
+                :disabled="hiddenDelBtn" 
+                @click="storeProfile.deleteItem('resume', 'delete', 
+                                                storeProfile.profile.resume['id'])">
           Удалить анкету
         </button>
       </div>

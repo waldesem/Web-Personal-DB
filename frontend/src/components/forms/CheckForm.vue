@@ -1,10 +1,33 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@store/classify';
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
+
+const noNegative = ref(true);
+
+if (noNegative.value) {
+  Object.assign(storeProfile.itemForm, {
+    workplace: 'Негатива по местам работы не обнаружено', 
+    employee: 'В числе бывших работников МТСБ не обнаружен', 
+    document: 'Среди недействительных документов не обнаружен', 
+    inn: 'ИНН соответствует паспорту', 
+    debt: 'Задолженности не обнаружены', 
+    bankruptcy: 'Решений о признании банкротом не имеется', 
+    bki: 'Кредитная история не положительная', 
+    courts: 'Судебные дела не обнаружены', 
+    affiliation: 'Аффилированность не выявлена', 
+    terrorist: 'В списке террористов не обнаружен', 
+    mvd: 'В розыск не объявлен', 
+    internet: 'В открытых источниках негатив не обнаружен', 
+    cronos: 'В Кронос негатив не выявлен', 
+    cros: 'В Крос негатив не выявлен', 
+    addition: 'Дополнительная информация отсутствует', 
+  });
+};
 
 /**
  * Cancels the check.
@@ -20,7 +43,14 @@ const storeClassify = classifyStore();
 
 </script>
 
-<template v-if="storeProfile.action === 'update' && storeProfile.flag === 'check'">
+<template v-if="storeProfile.action === 'update'|| storeProfile.action === 'create' 
+             && storeProfile.flag === 'check'">
+
+  <div class="form-check form-switch">
+    <input class="form-check-checkbox" role="switch" id="checkbox" name="check" type="checkbox"
+           v-model="noNegative">
+    <label class="form-check-label" for="checkbox">Негатива нет</label>
+  </div>
 
   <form @submit.prevent="storeProfile.updateItem" 
       class="form form-check" role="form"  id="checkFormId">
