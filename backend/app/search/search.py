@@ -23,7 +23,7 @@ index_body = {
   }
 }
 
-client.indices.create(index_name, body=index_body)
+# client.indices.create(index_name, body=index_body)
 
 
 def add_to_index(model):

@@ -14,6 +14,7 @@ import AdminTables from '@components/pages/AdminTables.vue'
 import ContactPage from '@components/pages/ContactPage.vue';
 import NotFound from '@components/pages/NotFound.vue';
 import PrintPage from '@/components/pages/PrintPage.vue';
+import FileManager from '@/components/pages/FileManager.vue';
 
 
 const router = createRouter({
@@ -72,6 +73,11 @@ const router = createRouter({
           name: 'contacts',
           component: ContactPage
         },
+        {
+          path: 'manager',
+          name: 'manager',
+          component: FileManager
+        }
       ]
     },
     {

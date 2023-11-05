@@ -802,34 +802,54 @@ class FileManagementView(MethodView):
     def __init__(self):
         self.dirs = []
         self.files = []
-        self.base_path = current_app.config["BASE_PATH"]
-        self.current_path = self.base_path
+        self.current_path = current_app.config["BASE_PATH"].split('/')
     
     def get(self):
-        for item in os.listdir(self.current_path):
-            if os.path.isdir(os.path.join(self.current_path, item)):
+        for item in os.listdir(os.path.join('/', *self.current_path)):
+            if os.path.isdir(os.path.join('/', *self.current_path, item)):
                 self.dirs.append(item)
-            else:
+            elif os.path.isfile(os.path.join('/', *self.current_path, item)):
                 self.files.append(item)
-        return {'path': [splited for splited in self.current_path.split('/')], 
+        return {'path': self.current_path, 
                 'dirs': self.dirs, 
                 'files': self.files}
 
     def post(self, action):
         json_data = request.get_json()
-        self.current_path = os.path.join(json_data['path'])
         match action:
+            case 'open':
+                new_path = os.path.join('/', *json_data['path'], json_data['item'])
+                if os.path.isdir(new_path):
+                    self.current_path = json_data['path']
+                    self.current_path.append(json_data['item'])
+                    return self.get()
+
+            case 'download':
+                new_path = os.path.join('/', *json_data['path'], json_data['item'])
+                if os.path.isfile(new_path):
+                    return send_file(new_path, as_attachment=True)
+            
             case 'create':
-                os.mkdir(os.path.join(self.current_path, json_data['item']))
+                os.mkdir(os.path.join('/', *self.current_path, json_data['item']))
+                return '', 204
+            
+            case 'copy':
+                shutil.copy(os.path.join('/', *json_data['old'], json_data['item']),
+                            os.path.join('/', *self.current_path))
+                return '', 204
+            
+            case 'сut':
+                shutil.move(os.path.join('/', *json_data['old'], json_data['item']),
+                            os.path.join('/', *self.current_path))
                 return '', 204
             
             case 'rename':
-                os.rename(os.path.join(self.current_path, json_data['old']),
-                          os.path.join(self.current_path, json_data['new']))
+                os.rename(os.path.join('/', *self.current_path, json_data['old']),
+                          os.path.join('/', *self.current_path, json_data['new']))
                 return '', 204
 
             case 'delete':
-                items_paths = [os.path.join(self.current_path, item) \
+                items_paths = [os.path.join('/', *self.current_path, item) \
                                for item in json_data['items']] 
                 for item_path in items_paths:
                     if os.path.isdir(item_path):
@@ -839,7 +859,6 @@ class FileManagementView(MethodView):
                 return '', 204
             
 
-
-files_view = FileManagementView.as_view('files')
-bp.add_url_rule('/files', view_func=files_view, methods=['GET'])
-bp.add_url_rule('/resume/<action>', view_func=files_view, methods=['POST', 'PATCH'])
+files_view = FileManagementView.as_view('manager')
+bp.add_url_rule('/manager', view_func=files_view, methods=['GET'])
+bp.add_url_rule('/manager/<action>', view_func=files_view, methods=['POST', 'PATCH'])

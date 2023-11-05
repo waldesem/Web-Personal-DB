@@ -84,14 +84,19 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
                   Информация
                 </router-link>
             </li>
-          </template>
-
-          <li v-if="!['login', 'admins', undefined].includes(storeLogin.pageIdentity)" 
-                class="nav-item">
-            <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}" class="nav-link active">
+            
+            <li class="nav-item">
+              <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}"    class="nav-link active">
               Контакты
-            </router-link>
-          </li>
+              </router-link>
+            </li>
+
+            <li class="nav-item">
+              <router-link :to="{ name: 'manager', params: { group: 'staffsec' } }" class="nav-link active" href="#">
+                Файлы
+              </router-link>
+            </li>
+          </template>
 
           <li v-if="messages.length && storeLogin.pageIdentity !== 'login'" 
               class="nav-item dropdown" title="Сообщения">
