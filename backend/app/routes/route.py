@@ -792,3 +792,54 @@ class FileView(MethodView):
 
 bp.add_url_rule('/file/<action>/<int:item_id>',
                 view_func=FileView.as_view('file'))
+
+
+class FileManagementView(MethodView):
+
+    decorators = [r_g.group_required(Groups.staffsec.name),
+                  r_g.roles_required(Roles.user.name), bp.doc(hide=True)]
+    
+    def __init__(self):
+        self.dirs = []
+        self.files = []
+        self.base_path = current_app.config["BASE_PATH"]
+        self.current_path = self.base_path
+    
+    def get(self):
+        for item in os.listdir(self.current_path):
+            if os.path.isdir(os.path.join(self.current_path, item)):
+                self.dirs.append(item)
+            else:
+                self.files.append(item)
+        return {'path': [splited for splited in self.current_path.split('/')], 
+                'dirs': self.dirs, 
+                'files': self.files}
+
+    def post(self, action):
+        json_data = request.get_json()
+        self.current_path = os.path.join(json_data['path'])
+        match action:
+            case 'create':
+                os.mkdir(os.path.join(self.current_path, json_data['item']))
+                return '', 204
+            
+            case 'rename':
+                os.rename(os.path.join(self.current_path, json_data['old']),
+                          os.path.join(self.current_path, json_data['new']))
+                return '', 204
+
+            case 'delete':
+                items_paths = [os.path.join(self.current_path, item) \
+                               for item in json_data['items']] 
+                for item_path in items_paths:
+                    if os.path.isdir(item_path):
+                        shutil.rmtree(item_path)
+                    else:
+                        os.remove(item_path)
+                return '', 204
+            
+
+
+files_view = FileManagementView.as_view('files')
+bp.add_url_rule('/files', view_func=files_view, methods=['GET'])
+bp.add_url_rule('/resume/<action>', view_func=files_view, methods=['POST', 'PATCH'])
