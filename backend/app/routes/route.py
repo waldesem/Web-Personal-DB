@@ -830,9 +830,15 @@ class FileManagementView(MethodView):
 
 
     def post(self, action):
+        """
+        Handles different actions for the POST request.
+        Parameters:
+        - action (str): The action to be performed.
+        Returns:
+        - The result of the action.
+        """
         json_data = request.get_json()
         self.current_path = json_data['path']
-        
         match action:
             case 'open':
                 new_path = os.path.join(self.base_path, *self.current_path, json_data['item'])

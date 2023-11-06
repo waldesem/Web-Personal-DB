@@ -1,9 +1,11 @@
 <script setup lang="ts">
 
 import { profileStore } from '@/store/profile';
+import { fileManagerStore } from '@/store/fmanager';
 import PoligrafForm from '@components/forms/PoligrafForm.vue';
 
 const storeProfile = profileStore();
+const storeFmanager = fileManagerStore();
 
 </script>
 
@@ -57,9 +59,11 @@ const storeProfile = profileStore();
                   <tr v-if="tbl['path']">
                     <td>Ссылка</td>
                     <td>
-                      <a :href="'file://' + tbl['path']" target="_blank">
-                        {{ tbl['path'] }}
-                      </a>
+                      <router-link @click="storeFmanager.fileManager.path = tbl['path'].split('/')" 
+                                  :to="{ name: 'manager',  params: { group: 'staffsec' } }">
+                      
+                        {{ storeProfile.profile.resume['path'] }}
+                      </router-link>
                     </td>
                   </tr>
                   <tr>

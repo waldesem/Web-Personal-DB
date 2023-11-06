@@ -3,10 +3,12 @@
 import { ref } from 'vue';
 import { classifyStore } from '@store/classify';
 import { profileStore } from '@/store/profile';
+import { fileManagerStore } from '@store/fmanager';
 import CheckForm from '@components/forms/CheckForm.vue'
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
+const storeFmanager = fileManagerStore();
 
 const hiddenAddBtn = ref(false);
 const hiddenDelBtn = ref(false);
@@ -132,9 +134,11 @@ hiddenAddBtn.value = ![storeClassify.classifyItems.status['new'],
                   <tr v-if="tbl['path']">
                     <td>Материалы проверки</td>
                     <td>
-                      <a :href="'file://' + tbl['path']" target="_blank">
-                        {{ tbl['path'] }}
-                      </a>
+                      <router-link @click="storeFmanager.fileManager.path = tbl['path'].split('/')" 
+                                  :to="{ name: 'manager',  params: { group: 'staffsec' } }">
+                      
+                        {{ storeProfile.profile.resume['path'] }}
+                      </router-link>
                     </td>
                   </tr>
                   <tr>

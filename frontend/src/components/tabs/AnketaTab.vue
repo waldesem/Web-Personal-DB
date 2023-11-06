@@ -3,6 +3,7 @@
 import { ref } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
+import { fileManagerStore } from '@store/fmanager';
 import { clearItem } from '@share/utilities'
 import ResumeForm from '@components/forms/ResumeForm.vue';
 import RegionForm from '@components/forms/RegionForm.vue';
@@ -15,6 +16,7 @@ import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
+const storeFmanager = fileManagerStore();
 
 const hiddenSendBtn = ref(false);
 const hiddenDelBtn = ref(false);
@@ -122,7 +124,13 @@ function switchForm(item: string){
           </tr>
           <tr v-if="storeProfile.profile.resume['path']">
             <td>Материалы</td>
-            <td>{{ storeProfile.profile.resume['path'] }}</td>
+            <td>
+              <router-link @click="storeFmanager.fileManager.path = storeProfile.profile.resume['path'].split('/')" 
+                           :to="{ name: 'manager',  params: { group: 'staffsec' } }">
+              
+                {{ storeProfile.profile.resume['path'] }}
+              </router-link>
+            </td>
           </tr>
           <tr>
             <td>Статус</td>
