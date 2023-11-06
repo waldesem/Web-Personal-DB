@@ -802,61 +802,85 @@ class FileManagementView(MethodView):
     def __init__(self):
         self.dirs = []
         self.files = []
-        self.current_path = current_app.config["BASE_PATH"].split('/')
+        self.current_path = [] # 'Home'
+        self.base_path = current_app.config["BASE_PATH"] + '/'
     
     def get(self):
-        for item in os.listdir(os.path.join('/', *self.current_path)):
-            if os.path.isdir(os.path.join('/', *self.current_path, item)):
+        """
+        Retrieves the list of directories and files in the current path.
+        Parameters:
+            None
+        Returns:
+            dict: A dictionary containing the current path, list of directories, and list of files.
+                - 'path' (str): The current path.
+                - 'dirs' (list): A list of directories in the current path.
+                - 'files' (list): A list of files in the current path.
+        """
+        for item in os.listdir(os.path.join(self.base_path, *self.current_path)):
+            
+            if os.path.isdir(os.path.join(self.base_path, *self.current_path, item)):
                 self.dirs.append(item)
-            elif os.path.isfile(os.path.join('/', *self.current_path, item)):
+            
+            elif os.path.isfile(os.path.join(self.base_path, *self.current_path, item)):
                 self.files.append(item)
+
         return {'path': self.current_path, 
                 'dirs': self.dirs, 
                 'files': self.files}
 
+
     def post(self, action):
         json_data = request.get_json()
+        self.current_path = json_data['path']
+        
         match action:
             case 'open':
-                new_path = os.path.join('/', *json_data['path'], json_data['item'])
+                new_path = os.path.join(self.base_path, *self.current_path, json_data['item'])
                 if os.path.isdir(new_path):
-                    self.current_path = json_data['path']
                     self.current_path.append(json_data['item'])
                     return self.get()
 
             case 'download':
-                new_path = os.path.join('/', *json_data['path'], json_data['item'])
+                new_path = os.path.join(self.base_path, *self.current_path, json_data['item'])
                 if os.path.isfile(new_path):
                     return send_file(new_path, as_attachment=True)
             
             case 'create':
-                os.mkdir(os.path.join('/', *self.current_path, json_data['item']))
-                return '', 204
-            
-            case 'copy':
-                shutil.copy(os.path.join('/', *json_data['old'], json_data['item']),
-                            os.path.join('/', *self.current_path))
-                return '', 204
-            
-            case 'сut':
-                shutil.move(os.path.join('/', *json_data['old'], json_data['item']),
-                            os.path.join('/', *self.current_path))
-                return '', 204
+                new_path = os.path.join(self.base_path, *self.current_path, 'Новая папка')
+                if not os.path.isdir(new_path):
+                    os.mkdir(new_path)
+                return self.get()
             
             case 'rename':
-                os.rename(os.path.join('/', *self.current_path, json_data['old']),
-                          os.path.join('/', *self.current_path, json_data['new']))
-                return '', 204
+                new_path = os.path.join(self.base_path, *self.current_path, json_data['new'])
+                if not os.path.isdir(new_path):
+                    os.rename(os.path.join(self.base_path, *self.current_path, json_data['old']),
+                            os.path.join(new_path))
+                    return self.get()
+           
+            case 'copy':
+                if not any(item in self.current_path for item in json_data['new']):
+                    for item in json_data['new']:
+                        shutil.copy(os.path.join(self.base_path, *json_data['old'], item),
+                                    os.path.join(self.base_path, *self.current_path))
+                    return self.get()
+            
+            case 'сut':
+                if not any(item in self.current_path for item in json_data['new']):
+                    for item in json_data['new']:
+                        shutil.move(os.path.join(self.base_path, *json_data['old'], item),
+                                    os.path.join(self.base_path, *self.current_path))
+                    return self.get()
 
             case 'delete':
-                items_paths = [os.path.join('/', *self.current_path, item) \
+                items_paths = [os.path.join(self.base_path, *self.current_path, item) \
                                for item in json_data['items']] 
                 for item_path in items_paths:
                     if os.path.isdir(item_path):
                         shutil.rmtree(item_path)
                     else:
                         os.remove(item_path)
-                return '', 204
+                return self.get()
             
 
 files_view = FileManagementView.as_view('manager')

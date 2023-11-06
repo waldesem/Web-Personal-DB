@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { computed, onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { authStore } from '@store/token';
 import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 import { server } from '@share/utilities';
@@ -21,10 +21,6 @@ const fileManager = ref({
   copied: [],
 });
 
-const modalHeader = computed(() => {
-  fileManager.value.action === 'create' ? 'Создать папку' : 'Переименовать';
-});
-
 const modalValue = ref("");
 const fileItem = ref("");
 
@@ -32,9 +28,9 @@ async function getFoldersFiles() {
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/manager`);
     const { path, dirs, files }= response.data;
-    fileManager.value.path = path;
-    fileManager.value.folders = dirs;
-    fileManager.value.files = files;
+    
+    assignValue(path, dirs, files);
+    clearValue();
 
   } catch (error) {
     console.error(error);
@@ -47,10 +43,9 @@ async function openFolder(item: string) {
       'path': fileManager.value.path,
       'item': item
     });
-    const { path, dirs, files }= response.data;
-    fileManager.value.path = path;
-    fileManager.value.folders = dirs;
-    fileManager.value.files = files;
+    const { path, dirs, files } = response.data;
+    
+    assignValue(path, dirs, files);
 
   } catch (error) {
     console.error(error);
@@ -73,13 +68,34 @@ async function openFile(file: string) {
     link.href = fileItem.value;
     link.download = `${fileName}.${fileExtension}`;
     
-    // Trigger the download within a user interaction event
     link.dispatchEvent(new MouseEvent('click'));
 
   } catch (error) {
     console.error(error);
   }
-}
+};
+
+
+async function updateItem() {
+  try {
+    const response = fileManager.value.action === 'create'
+      ? await storeAuth.axiosInstance.post(`${server}/manager/${fileManager.value.action}`, {
+        'path': fileManager.value.path,
+        })
+      : await storeAuth.axiosInstance.post(`${server}/manager/${fileManager.value.action}`, {
+        'path': fileManager.value.path,
+        'old': fileManager.value.selected[0],
+        'new': modalValue.value
+      });
+    const { path, dirs, files } = response.data;
+    
+    assignValue(path, dirs, files);
+    clearValue();
+  
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 async function copyItem() {
   if (fileManager.value.selected.length === 0) {
@@ -87,29 +103,14 @@ async function copyItem() {
   };
   try {
     const response = await storeAuth.axiosInstance.post(`${server}/manager/${fileManager.value.action}`, {
-      'item': fileManager.value.selected,
-      'old': fileManager.value.copied
-      });
-    console.log(response.data);
-    getFoldersFiles();
-  
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-async function updateItem() {
-  try {
-    const response = fileManager.value.action === 'create'
-      ? await storeAuth.axiosInstance.post(`${server}/manager/${fileManager.value.action}`, {
-        'item': modalValue.value
-        })
-      : await storeAuth.axiosInstance.patch(`${server}/manager/${fileManager.value.action}`, {
-        'old': fileManager.value.selected[0],
-        'new': modalValue.value
-      });
-    console.log(response.data);
-    getFoldersFiles();
+      'path': fileManager.value.path,
+      'old': fileManager.value.copied,
+      'new': fileManager.value.selected,
+    });
+    const { path, dirs, files } = response.data;
+    
+    assignValue(path, dirs, files);
+    clearValue();
   
   } catch (error) {
     console.error(error);
@@ -123,15 +124,31 @@ async function deleteItem() {
   if (confirm("Вы действительно хотите удалить?")) {
     try {
       const response = await storeAuth.axiosInstance.post(`${server}/manager/delete`, {
+        'path': fileManager.value.path,
         'items': fileManager.value.selected
-        });
-      console.log(response.data);
-      getFoldersFiles();
+      });
+      const { path, dirs, files } = response.data;
+
+      assignValue(path, dirs, files);
+      clearValue();
    
     } catch (error) {
       console.error(error);
     }
   }
+};
+
+function assignValue(path: [], dirs: [], files: []) {
+  fileManager.value.path = path;
+  fileManager.value.folders = dirs;
+  fileManager.value.files = files;
+};
+
+function clearValue() {
+  modalValue.value = "";
+  fileManager.value.select = false;
+  fileManager.value.selected = [];
+  fileManager.value.copied = [];
 };
 
 </script>
@@ -146,8 +163,14 @@ async function deleteItem() {
       <div class="row border border-primary p-3">
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
-            @click="fileManager.action = 'create'"
-            data-bs-toggle="modal" data-bs-target="#modalItem"
+            @click="getFoldersFiles" >
+            <i class="bi bi-house" title="Дом"></i>
+          </button>
+        </div>
+
+        <div class="col-1">
+          <button type="button" class="btn btn-outline-primary" 
+            @click="fileManager.action = 'create'; updateItem()"
             :disabled="fileManager.select">
             <i class="bi bi-plus-square" title="Создать"></i>
           </button>
@@ -155,30 +178,35 @@ async function deleteItem() {
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-                  @click="fileManager.select = !fileManager.select">
+                  @click="fileManager.select = !fileManager.select;
+                  fileManager.selected = []">
             <i class="bi bi-check-square" title="Выбрать"></i>
           </button>
         </div>
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-            @click="fileManager.action = 'copy'; fileManager.copied = fileManager.selected"
-            :disabled="!fileManager.select || fileManager.selected.length === 0">
+                  @click="fileManager.action = 'copy'; 
+                          fileManager.copied = fileManager.selected;
+                          fileManager.select = false"
+                  :disabled="!fileManager.select || fileManager.selected.length === 0">
             <i class="bi bi-clipboard" title="Копировать"></i>
           </button>
         </div>
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-            @click="fileManager.action = 'сut'; fileManager.copied = fileManager.selected"
-            :disabled="!fileManager.select || fileManager.selected.length === 0">
+                  @click="fileManager.action = 'сut'; 
+                          fileManager.copied = fileManager.selected;
+                          fileManager.select = false"
+                  :disabled="!fileManager.select || fileManager.selected.length === 0">
             <i class="bi bi-scissors" title="Вырезать"></i>
           </button>
         </div>
           
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-                  :disabled="!fileManager.select || fileManager.selected.length === 0"
+                  :disabled="fileManager.select || fileManager.selected.length === 0"
                   @click="copyItem">
             <i class="bi bi-clipboard-fill" title="Вставить"></i>
           </button>
@@ -186,23 +214,24 @@ async function deleteItem() {
           
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
-            @click="fileManager.action = 'rename'"
-            :disabled="!fileManager.select || fileManager.selected.length !== 1"
-            data-bs-toggle="modal" data-bs-target="#modalItem">
+                  @click="fileManager.action = 'rename'"
+                  :disabled="!fileManager.select || fileManager.selected.length !== 1"
+                  data-bs-toggle="modal" data-bs-target="#modalItem">
             <i class="bi bi-pencil" title="Переменовать"></i>
           </button>
         </div>
           
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-            @click="deleteItem" :disabled="!fileManager.select || fileManager.selected.length === 0">
+                  :disabled="!fileManager.select || fileManager.selected.length === 0"
+                  @click="deleteItem">
             <i class="bi bi-trash" title="Удалить"></i>
           </button>
         </div>
       </div>
     
       <div class="py-3">
-        <nav aria-label="breadcrumb">
+        <nav aria-label="breadcrumb" :disabled="fileManager.select">
           <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page" 
                 v-for="item, idx in fileManager.path" :key="item">
@@ -215,11 +244,14 @@ async function deleteItem() {
       </div>
 
       <ul class="list-group">
-        <li class="list-group-item">
-          <a href="#" class="list-group-item list-group-item-action" title="Наверх"
-            @click="openFolder(fileManager.path[-1])">
+
+        <li class="list-group-item" v-if="fileManager.path.length">
+          <button type="button" href="#" class="list-group-item list-group-item-action" title="Наверх"
+                  @click="fileManager.path = fileManager.path.slice(0, -1);
+                          openFolder(fileManager.path[fileManager.path.length - 1])"
+                  :disabled="fileManager.select">
             <i class="bi bi-arrow-90deg-up"></i>
-          </a>
+          </button>
         </li>
 
         <li class="list-group-item" v-for="folder in fileManager.folders" :key="folder">
@@ -227,10 +259,11 @@ async function deleteItem() {
             <input class="form-check-input" type="checkbox" v-if="fileManager.select" 
                   :value="folder" v-model="fileManager.selected">
             &nbsp;
-            <a href="#" class="list-group-item-action" @click="openFolder(folder)">
+            <button type="button" class="list-group-item list-group-item-action btn btn-light" @click="openFolder(folder)"
+                    :disabled="fileManager.select">
               <i class="bi bi-folder"></i>
               {{ folder }}
-            </a>
+            </button>
           </div>
         </li>
 
@@ -239,32 +272,34 @@ async function deleteItem() {
             <input class="form-check-input" type="checkbox" v-if="fileManager.select"
                   :value="file" v-model="fileManager.selected">
             &nbsp; &nbsp;
-            <a href="#" class="list-group-item list-group-item-action"
-              @click="openFile(file)">
+            <button type="button" class="list-group-item list-group-item-action btn btn-light" 
+                    @click="openFile(file)"
+                    :disabled="fileManager.select">
               <i class="bi bi-file"></i>
               {{ file }}
-            </a>
+            </button>
           </div>
         </li>
+
       </ul>
     </div>
     
     <div class="modal fade" id="modalItem" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-      <div class="modal-dialog modal-sm">
+      <div class="modal-dialog modal-md">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalWinLabel">{{ modalHeader }}</h1>
+            <h1 class="modal-title fs-5" id="modalWinLabel">Переменовать</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             
             <form @submit.prevent="updateItem" class="form form-check" role="form">
-              <div class="mb-3 row">
-                <div class="col-10">
+              <div class="row">
+                <div class="col">
                   <input class="form-control" id="name" maxlength="250" name="name" type="text"
                   v-model="modalValue">
                 </div>
-                <div class="col-2">
+                <div class="col">
                   <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
                     Принять
                   </button>
@@ -283,8 +318,8 @@ async function deleteItem() {
 <style scoped>
 
 #fileManager {
-  height: 100vh;
-  max-height: 100vh;
+  height: 75vh;
+  max-height: 75vh;
   overflow-y: auto;
 }
 .list-group-item .item-wrapper {
