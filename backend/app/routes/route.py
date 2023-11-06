@@ -175,7 +175,7 @@ class StaffView(MethodView):
         schema = StaffSchema()
         return schema.dump(db.session.query(Staff). \
                            filter_by(person_id=item_id). \
-                           order_by(Staff.id.asc()).all(), many=True)
+                           order_by(Staff.id.desc()).all(), many=True)
 
     @bp.input(StaffSchema)
     @r_g.roles_required(Roles.user.value)
@@ -211,7 +211,7 @@ class DocumentView(MethodView):
         schema = DocumentSchema()
         return schema.dump(db.session.query(Document). \
                            filter_by(person_id=item_id). \
-                           order_by(Document.id.asc()).all(), many=True)
+                           order_by(Document.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(DocumentSchema)
@@ -247,7 +247,7 @@ class AddressView(MethodView):
         schema = AddressSchema()
         return schema.dump(db.session.query(Address). \
                            filter_by(person_id=item_id). \
-                           order_by(Address.id.asc()).all(), many=True)
+                           order_by(Address.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(AddressSchema)
@@ -283,7 +283,7 @@ class ContactView(MethodView):
         schema = ContactSchema()
         return schema.dump(db.session.query(Contact). \
                            filter_by(person_id=item_id). \
-                           order_by(Contact.id.asc()).all(), many=True)
+                           order_by(Contact.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(ContactSchema)
@@ -319,7 +319,7 @@ class WorkplaceView(MethodView):
         schema = WorkplaceSchema()
         return schema.dump(db.session.query(Workplace). \
                            filter_by(person_id=item_id). \
-                           order_by(Workplace.id.asc()).all(), many=True)
+                           order_by(Workplace.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
@@ -357,7 +357,7 @@ class RelationView(MethodView):
         schema = RelationSchema()
         return schema.dump(db.session.query(Relation). \
                            filter_by(person_id=item_id). \
-                           order_by(Relation.id.asc()).all(), many=True)
+                           order_by(Relation.id.desc()).all(), many=True)
 
     @r_g.roles_required(Roles.user.value)
     @bp.input(RelationSchema)

@@ -174,7 +174,7 @@ function switchForm(item: string){
           <div :id="`collapseStaff${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionStaff">
             <div class="accordion-body">
-              <table>
+              <table class="table table-responsive">
                 <thead>
                   <tr>
                     <th width="25%">
@@ -232,7 +232,7 @@ function switchForm(item: string){
           <div :id="`collapseDocument${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionDocument">
             <div class="accordion-body">
-              <table>
+              <table class="table table-responsive">
                 <thead>
                   <tr>
                     <th width="25%">
@@ -303,7 +303,7 @@ function switchForm(item: string){
           <div :id="`collapseAddress${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionAddress">
             <div class="accordion-body">
-              <table>
+              <table class="table table-responsive">
                 <thead>
                   <tr>
                     <th width="25%">
@@ -365,7 +365,7 @@ function switchForm(item: string){
           <div :id="`collapseContact${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionContact">
             <div class="accordion-body">
-              <table>
+              <table class="table table-responsive">
                 <thead>
                   <tr>
                     <th width="25%">
@@ -423,7 +423,7 @@ function switchForm(item: string){
           <div :id="`collapseWork${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionWork">
             <div class="accordion-body">
-              <table>
+              <table class="table table-responsive">
                 <thead>
                   <tr>
                     <th width="25%">
@@ -493,7 +493,7 @@ function switchForm(item: string){
           <div :id="`collapseRelation${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionRelation">
             <div class="accordion-body">
-              <table>
+              <table class="table table-responsive">
                 <thead>
                   <tr>
                     <th width="25%">
