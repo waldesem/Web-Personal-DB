@@ -839,6 +839,11 @@ class FileManagementView(MethodView):
                 if os.path.isdir(new_path):
                     self.current_path.append(json_data['item'])
                     return self.get()
+                
+            case 'parent':
+                new_path = os.path.join(self.base_path, *self.current_path)
+                if os.path.isdir(new_path):
+                    return self.get()
 
             case 'download':
                 new_path = os.path.join(self.base_path, *self.current_path, json_data['item'])
@@ -859,18 +864,21 @@ class FileManagementView(MethodView):
                     return self.get()
            
             case 'copy':
-                if not any(item in self.current_path for item in json_data['new']):
-                    for item in json_data['new']:
-                        shutil.copy(os.path.join(self.base_path, *json_data['old'], item),
-                                    os.path.join(self.base_path, *self.current_path))
-                    return self.get()
+                for item in json_data['new']:
+                    source = os.path.join(self.base_path, *json_data['old'], item)
+                    destination = os.path.join(self.base_path, *self.current_path, item)
+
+                    if os.path.isdir(source):
+                        shutil.copytree(source, destination)
+                    else:
+                        shutil.copy(source, destination)
+                return self.get()
             
             case 'сut':
-                if not any(item in self.current_path for item in json_data['new']):
-                    for item in json_data['new']:
-                        shutil.move(os.path.join(self.base_path, *json_data['old'], item),
-                                    os.path.join(self.base_path, *self.current_path))
-                    return self.get()
+                for item in json_data['new']:
+                    shutil.move(os.path.join(self.base_path, *json_data['old'], item),
+                                os.path.join(self.base_path, *self.current_path, item))
+                return self.get()
 
             case 'delete':
                 items_paths = [os.path.join(self.base_path, *self.current_path, item) \

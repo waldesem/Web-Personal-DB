@@ -52,6 +52,21 @@ async function openFolder(item: string) {
   }
 };
 
+async function openParent() {
+  try {
+    const response = await storeAuth.axiosInstance.post(`${server}/manager/parent`, {
+      'path': fileManager.value.path
+    });
+    const { path, dirs, files } = response.data;
+    
+    assignValue(path, dirs, files);
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
 async function openFile(file: string) {
   try {
     const response = await storeAuth.axiosInstance.post(`${server}/manager/download`, {
@@ -187,7 +202,7 @@ function clearValue() {
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
                   @click="fileManager.action = 'copy'; 
-                          fileManager.copied = fileManager.selected;
+                          fileManager.copied = fileManager.path;
                           fileManager.select = false"
                   :disabled="!fileManager.select || fileManager.selected.length === 0">
             <i class="bi bi-clipboard" title="Копировать"></i>
@@ -197,7 +212,7 @@ function clearValue() {
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
                   @click="fileManager.action = 'сut'; 
-                          fileManager.copied = fileManager.selected;
+                          fileManager.copied = fileManager.path;
                           fileManager.select = false"
                   :disabled="!fileManager.select || fileManager.selected.length === 0">
             <i class="bi bi-scissors" title="Вырезать"></i>
@@ -235,7 +250,7 @@ function clearValue() {
           <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page" 
                 v-for="item, idx in fileManager.path" :key="item">
-              <a href="#" @click="fileManager.path = fileManager.path.slice(0, idx-1); openFolder(item)">
+              <a href="#" @click="fileManager.path = fileManager.path.slice(0, idx); openFolder(item)">
                 {{ item }}
               </a>
             </li>
@@ -247,8 +262,7 @@ function clearValue() {
 
         <li class="list-group-item" v-if="fileManager.path.length">
           <button type="button" href="#" class="list-group-item list-group-item-action" title="Наверх"
-                  @click="fileManager.path = fileManager.path.slice(0, -1);
-                          openFolder(fileManager.path[fileManager.path.length - 1])"
+                  @click="fileManager.path = fileManager.path.slice(0, -1); openParent()"
                   :disabled="fileManager.select">
             <i class="bi bi-arrow-90deg-up"></i>
           </button>
