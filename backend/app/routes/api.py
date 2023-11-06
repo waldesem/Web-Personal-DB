@@ -4,6 +4,7 @@ import re
 
 import bcrypt
 from apiflask import HTTPBasicAuth
+from flask import current_app
 
 from . import bp
 from .. import db
@@ -91,11 +92,17 @@ def check_in(json_data):
     
     if candidate.status == Status.robot.value:
         if os.path.isdir(json_data['path']):
-            check_path = latest_check.path if os.path.isdir(latest_check.path) \
-                else create_folders(candidate.id, candidate["fullname"])
+            full_path = os.path.join(current_app.config["BASE_PATH"], latest_check.path)
+            check_path = full_path if os.path.isdir(full_path) \
+                else create_folders(candidate.id, candidate["fullname"], 'check')
+            
             try:
-                for file in os.listdir(json_data['path']):
-                    shutil.copyfile(file, check_path)
+                for item in os.listdir(json_data['path']):
+                    if os.path.isfile(os.path.join(json_data['path'], item)):
+                        shutil.copyfile(item, check_path)
+                    elif os.path.isdir(os.path.join(json_data['path'], item)):
+                        shutil.copytree(item, os.path.join(check_path, item))
+
             except FileNotFoundError as error:
                 db.session.add(Report(report=f'{error}', user_id=user.id))
             

@@ -10,11 +10,18 @@ from app.models.classes import Roles, Groups, Regions
 def register_cli(app):
     @app.cli.command('create')
     def create_default():
-
-        if not os.path.isdir(os.path.join(Config.BASE_PATH)):
-            os.mkdir(os.path.join(Config.BASE_PATH))
+        """Create default values"""
+        base_path = os.path.join(Config.BASE_PATH)
+        if not os.path.isdir(base_path):
+            os.mkdir(base_path)
             print('Directory BASE_PATH created')
-
+        
+        for letter in 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ':
+            letter_path = os.path.join(Config.BASE_PATH, letter)
+            if not os.path.isdir(letter_path):
+                os.mkdir(letter_path)
+        print(f'Alphabet directories created')
+        
         db.create_all()
 
         regions = db.session.query(Region.region).all()

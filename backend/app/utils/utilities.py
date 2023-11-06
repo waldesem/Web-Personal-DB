@@ -172,14 +172,17 @@ def add_resume(resume: dict, location_id, action):
             setattr(result, k, v)
         person_id = result.id
         
-        if result.path and not os.path.isdir(result.path):
+        if result.path and not os.path.isdir(os.path.join(current_app.config["BASE_PATH"], 
+                                                          result.path)):
             os.mkdir(result.path)
         elif not result.path:
             new_path = os.path.join(current_app.config["BASE_PATH"], 
+                                    resume['fullname'][0].upper(),
                                     f'{person_id}-{resume["fullname"]}')
             if not os.path.isdir(new_path):
                 os.mkdir(new_path)
-            result.path = new_path
+            result.path = os.path.join(resume['fullname'][0].upper(), 
+                                       f'{person_id}-{resume["fullname"]}')
     else:
         person = Person(**resume | {'region_id': location_id})
         db.session.add(person)
@@ -187,11 +190,14 @@ def add_resume(resume: dict, location_id, action):
         person_id = person.id
         
         path = os.path.join(current_app.config["BASE_PATH"], 
+                            resume['fullname'][0].upper(),
                             f'{person_id}-{resume["fullname"]}')
-        person.path = path
         if not os.path.isdir(path):
             os.mkdir(path)
         
+        person.path = os.path.join(resume['fullname'][0].upper(),
+                                   f'{person_id}-{resume["fullname"]}')
+
     db.session.commit()
     return person_id
 
@@ -200,7 +206,9 @@ def create_folders(person_id, fullname, folder_name):
     """
     Check if a folder exists for a given person and create it if it does not exist.
     """
-    url = os.path.join(current_app.config["BASE_PATH"], f'{person_id}-{fullname}')
+    url = os.path.join(current_app.config["BASE_PATH"], 
+                       fullname[0].upper(), 
+                       f'{person_id}-{fullname}')
     if not os.path.isdir(url):
         os.mkdir(url)
     folder = os.path.join(url, folder_name)
@@ -209,4 +217,6 @@ def create_folders(person_id, fullname, folder_name):
     subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
     if not os.path.isdir(subfolder):
         os.mkdir(subfolder)
-    return subfolder
+    return os.path.join(fullname[0].upper(), 
+                        f'{person_id}-{fullname}', 
+                        folder, subfolder)

@@ -153,7 +153,7 @@ class ResumeView(MethodView):
     def delete(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         try:
-            shutil.rmtree(person.path)
+            shutil.rmtree(os.path.join(current_app.config['BASE_PATH'], person.path))
         except Exception as e:
             print(e)
         db.session.delete(person)
@@ -451,7 +451,7 @@ class CheckView(MethodView):
     def delete(self, action, item_id):
         check = db.session.query(Check).get(item_id)
         try:
-            shutil.rmtree(check.path)
+            shutil.rmtree(os.path.join(current_app.config['BASE_PATH'], check.path))
         except Exception as e:
             print(e)
         person = db.session.query(Person).get(db.session.query(Check.person_id). \
@@ -542,11 +542,11 @@ class InvestigationView(MethodView):
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         invs = db.session.query(Investigation).get(item_id)
-        db.session.delete(invs)
         try:
-            shutil.rmtree(invs.path)
+            shutil.rmtree(os.path.join(current_app.config['BASE_PATH'], invs.path))
         except Exception as e:
             print(e)
+        db.session.delete(invs)
         db.session.commit()
         return ''
 
@@ -586,7 +586,12 @@ class PoligrafView(MethodView):
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Poligraf).get(item_id))
+        pfo = db.session.query(Poligraf).get(item_id)
+        try:
+            shutil.rmtree(os.path.join(current_app.config['BASE_PATH'], pfo.path))
+        except Exception as e:
+            print(e)
+        db.session.delete(pfo)
         db.session.commit()
         return ''
 
@@ -684,7 +689,8 @@ class FileView(MethodView):
             FileResponse: The file response containing the requested file, if it exists.
         """
         person = db.session.query(Person).get(item_id)
-        file_path = os.path.join(person.path, 'images', 'image.jpg')
+        file_path = os.path.join(current_app.config['BASE_PATH'], 
+                                 person.path, 'images', 'image.jpg')
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True)
         return abort(404)
@@ -715,33 +721,35 @@ class FileView(MethodView):
 
             person_id = add_resume(anketa.resume, location_id, 'create')
             models = [Staff, Document, Address, Contact, Workplace]
-            for count, items in enumerate([anketa.staff, anketa.passport, 
+            for idx, items in enumerate([anketa.staff, anketa.passport, 
                                            anketa.addresses, anketa.contacts, 
                                            anketa.workplaces]):
                 for item in items:
                     if item:
-                        db.session.add(models[count](**item | {'person_id': person_id}))
+                        db.session.add(models[idx](**item | {'person_id': person_id}))
             db.session.commit()
 
             person = db.session.query(Person).get(person_id)
             if person.path:
-                if not os.path.isdir(person.path):
-                    os.mkdir(os.path.join(person.path))
+                full_path = os.path.join(current_app.config["BASE_PATH"], person.path)
+                if not os.path.isdir(full_path):
+                    os.mkdir(full_path)
                 new_path = person.path
                 db.session.commit()
             else:
-                new_path = os.path.join(current_app.config["BASE_PATH"],
+                full_path = os.path.join(current_app.config["BASE_PATH"],
+                                        person.fullname[0].upper(),
                                         f'{person_id}-{person.fullname}')
-                person.path = new_path
-                db.session.commit()
-                if not os.path.isdir(new_path):
-                    os.mkdir(new_path)
-                person.path = new_path
+                
+                if not os.path.isdir(full_path):
+                    os.mkdir(full_path)
+                person.path = os.path.join(person.fullname[0].upper(), 
+                                           f'{person_id}-{person.fullname}')
                 db.session.commit()
 
             action_folder = create_folders(person_id, person.fullname, action)
 
-            save_path = os.path.join(action_folder, filename)
+            save_path = os.path.join(current_app.config["BASE_PATH"], action_folder, filename)
             if not os.path.isfile(save_path):
                 shutil.move(temp_path, save_path)
             return {'message': person_id}
@@ -766,7 +774,7 @@ class FileView(MethodView):
             if action == 'image':
                 im = Image.open(files[0])
                 rgb_im = im.convert('RGB')
-                images = os.path.join(folder, 'images')
+                images = os.path.join(current_app.config["BASE_PATH"], folder, 'images')
                 if not os.path.isdir(images):
                     os.mkdir(images)
                 image_path = os.path.join(images, 'image.jpg')
@@ -777,18 +785,9 @@ class FileView(MethodView):
                 for file in files:
                     filename = secure_filename(file.filename)
                     for file in files:
-                        file.save(os.path.join(folder,
+                        file.save(os.path.join(current_app.config["BASE_PATH"], folder,
                             f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
-            return {'message': item_id}
-    
-    @bp.output(EmptySchema, status_code=204)
-    def delete(self, action, item_id):
-        if action == 'image':
-            person = db.session.query(Person).get(item_id)
-            os.remove(person.path)
-            person.path = ''
-            db.session.commit()
-            return ''        
+            return {'message': item_id}   
 
 bp.add_url_rule('/file/<action>/<int:item_id>',
                 view_func=FileView.as_view('file'))
