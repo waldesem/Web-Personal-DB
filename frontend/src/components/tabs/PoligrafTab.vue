@@ -20,11 +20,11 @@ const storeProfile = profileStore();
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
             <button :class="`accordion-button ${idx !== 0 ? 'collapsed' : ''}`" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapse${tbl['id']}`">
+                    :data-bs-target="`#collapsePoligraf${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapse${tbl['id']}`" :class="`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`" 
+          <div :id="`collapsePoligraf${tbl['id']}`" :class="`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`" 
               data-bs-parent="#accordionPoligraf">
             <div class="accordion-body">
               <table class="table table-responsive">

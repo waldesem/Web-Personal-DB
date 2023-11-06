@@ -167,11 +167,11 @@ function switchForm(item: string){
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
             <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapse${tbl['id']}`">
+                    :data-bs-target="`#collapseStaff${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseStaff${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionStaff">
             <div class="accordion-body">
               <table>
@@ -225,11 +225,11 @@ function switchForm(item: string){
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
             <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapse${tbl['id']}`">
+                    :data-bs-target="`#collapseDocument${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseDocument${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionDocument">
             <div class="accordion-body">
               <table>
@@ -296,11 +296,11 @@ function switchForm(item: string){
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
             <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapse${tbl['id']}`">
+                    :data-bs-target="`#collapseAddress${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseAddress${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionAddress">
             <div class="accordion-body">
               <table>
@@ -358,11 +358,11 @@ function switchForm(item: string){
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
             <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapse${tbl['id']}`">
+                    :data-bs-target="`#collapseContact${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseContact${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionContact">
             <div class="accordion-body">
               <table>
@@ -416,11 +416,11 @@ function switchForm(item: string){
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
             <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapse${tbl['id']}`">
+                    :data-bs-target="`#collapseWork${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseWork${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionWork">
             <div class="accordion-body">
               <table>
@@ -486,11 +486,11 @@ function switchForm(item: string){
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
             <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapse${tbl['id']}`">
+                    :data-bs-target="`#collapseRelation${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapse${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseRelation${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionRelation">
             <div class="accordion-body">
               <table>
