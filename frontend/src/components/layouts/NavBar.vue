@@ -1,40 +1,19 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
-import { authStore } from '@/store/token';
 import { loginStore } from '@/store/login';
 import { adminStore } from '@/store/admin';
-import { server } from '@share/utilities';
+import { messageStore } from '@/store/messages';
+import { timeSince } from '@share/utilities';
 
-const storeAuth = authStore();
 const storeLogin = loginStore();
 const storeAdmin = adminStore();
-
-const messages = ref([]);
+const storeMessage = messageStore();
 
 let isStarted = false;
 if (!isStarted) { 
-  updateMessage();
+  storeMessage.updateMessages();
   isStarted = true;
-  setInterval(updateMessage, 1000000);
-};
-
-/**
- * Updates the messages based on the provided flag ('new' or 'reply').
- *
- * @param {string} flag - The flag to determine which messages to update. Default is 'new'.
- * @return {Promise<void>} - A promise that resolves when the message is successfully updated.
- */
-async function updateMessage(flag: string = 'new'): Promise<void> {
-  try {
-    const response = flag === 'new' 
-      ? await storeAuth.axiosInstance.get(`${server}/messages`)
-      : await storeAuth.axiosInstance.delete(`${server}/messages`);
-    messages.value = response.data;
-      
-  } catch (error) {
-    console.error(error);
-  }
+  setInterval(storeMessage.updateMessages, 1000000);
 };
 
 </script>
@@ -98,30 +77,36 @@ async function updateMessage(flag: string = 'new'): Promise<void> {
             </li>
           </template>
 
-          <li v-if="messages.length && storeLogin.pageIdentity !== 'login'" 
-              class="nav-item dropdown" title="Сообщения">
+          <li v-if="storeLogin.pageIdentity !== 'login'" class="nav-item dropdown">
             <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
-              <i class="bi bi-envelope-fill"></i>
+              Сообщения
               <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
-                {{ messages.length }}
+                {{ storeMessage.messages.length }}
               </span>
             </a>
               <ul class="dropdown-menu" id="messages">
                 <h6 class="dropdown-header">Новые сообщения</h6>
-                <li v-for="message in messages" :key="message['id']">
+                <li v-for="message in storeMessage.messages" :key="message['id']">
                   <a class="dropdown-item">
-                    <p>{{ `${new Date(message['create']).toLocaleString('ru-RU')}:`}}</p>
+                    <p>{{ timeSince(message['create']) }}</p>
                     <p>{{ message['report'] }}</p>
                   </a>
                 </li>
                 <div class="dropdown-divider"></div>
                 <li>
+                  <router-link class="dropdown-item" :to="{ name: 'messages', params: { group: 'staffsec' } }">
+                    Открыть сообщения
+                  </router-link>
+                </li>
+                <li>
                   <a class="dropdown-item" href="#" 
-                    @click="updateMessage('reply')">Очистить</a>
+                    @click="storeMessage.updateMessages('reply')">
+                    Отметить прочитанными
+                  </a>
                 </li>
               </ul>
           </li>
-
+              
           <li class="nav-item">
             <a class="nav-link active" href="#" 
                data-bs-toggle="modal" data-bs-target="#modalApp" title="О программе">
