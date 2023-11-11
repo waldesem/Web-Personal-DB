@@ -16,6 +16,7 @@ import NotFound from '@components/pages/NotFound.vue';
 import PrintPage from '@components/pages/PrintPage.vue';
 import FileManager from '@components/pages/FileManager.vue';
 import MessagePage from '@components/pages/MessagePage.vue';
+import UserPage from '@components/pages/UserPage.vue';
 
 
 const router = createRouter({
@@ -63,6 +64,11 @@ const router = createRouter({
           path: 'users',
           name: 'users',
           component: AdminPage
+        },
+        {
+          path: 'user/:id',
+          name: 'user',
+          component: UserPage
         },
         {
           path: 'table',
