@@ -3,9 +3,11 @@ from opensearchpy import OpenSearch
 
 host = 'localhost'
 port = 9200
+auth = ('admin', 'admin')
 
 client = OpenSearch(
     hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
     http_compress = True,
     use_ssl = False,
     verify_certs = False,
@@ -23,7 +25,7 @@ index_body = {
   }
 }
 
-# client.indices.create(index_name, body=index_body)
+client.indices.create(index_name, body=index_body)
 
 
 def add_to_index(model):
