@@ -143,7 +143,9 @@ class ResumeView(MethodView):
             filter_by(region_id=json_data['region_id']).all()
         if len(users):
             for user in users:
-                db.session.add(Report(report=f'Делегирована анкета #{person_id} \
+                db.session.add(Report(
+                    category='Важ',
+                    report=f'Делегирована анкета #{person_id} \
                                   от {current_user.fullname}', user_id=user.id))
         db.session.commit()
         return '', 201

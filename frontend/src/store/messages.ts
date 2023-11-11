@@ -6,29 +6,39 @@ import { server } from '@share/utilities'
 export const messageStore = defineStore('messageStore', () => {
 
   const storeAuth = authStore();
+  
+  const messageData = ref({
+    messages: [],
+    hasPrev: false,
+    hasNext: false,
+    currentPage: 1
+  });
 
-  const messages = ref([]);
-
-    /**
-   * Updates the messages based on the provided flag ('new' or 'reply').
-   *
-   * @param {string} flag - The flag to determine which messages to update. Default is 'new'.
-   * @return {Promise<void>} - A promise that resolves when the message is successfully updated.
-   */
-  async function updateMessages(flag: string = 'new'): Promise<void> {
+  async function updateMessages(action: string = 'new', page: number = 1): Promise<void> {
     try {
-      const response = flag === 'new' 
-        ? await storeAuth.axiosInstance.get(`${server}/messages`)
-        : await storeAuth.axiosInstance.delete(`${server}/messages`);
-      messages.value = response.data;
+      const response = ['new', 'all', 'read'].includes(action) 
+        ? await storeAuth.axiosInstance.get(`${server}/messages/${action}/${page}`)
+        : await storeAuth.axiosInstance.delete(`${server}/messages/all`);
         
+        const [ datas, has_prev, has_next ] = response.data;
+
+        Object.assign(messageData.value, {
+          messages: datas,
+          hasPrev: has_prev.has_prev,
+          hasNext: has_next.has_next,
+        });
+        
+      if (action === 'read') {
+        updateMessages('all');
+      };
+
     } catch (error) {
       console.error(error);
     }
   };
 
   return { 
-    messages,
+    messageData,
     updateMessages, 
   }
 });

@@ -41,7 +41,8 @@ if (!isStarted) {
               </a>
             </li>
             <li class="nav-item">
-              <router-link :to="{ name: 'table', params: { group: 'admins' } }" class="nav-link active" href="#">
+              <router-link :to="{ name: 'table', params: { group: 'admins' } }" 
+                           class="nav-link active" href="#">
                 Таблицы
               </router-link>
             </li>
@@ -49,29 +50,34 @@ if (!isStarted) {
 
           <template v-if="storeLogin.pageIdentity === 'staffsec'">
             <li class="nav-item">
-                <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" class="nav-link active">
+                <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" 
+                             class="nav-link active">
                   Кандидаты
                 </router-link>
             </li>
             <li class="nav-item">
-                <router-link :to="{ name: 'resume', params: { group: 'staffsec' } }" class="nav-link active">
+                <router-link :to="{ name: 'resume', params: { group: 'staffsec' } }" 
+                             class="nav-link active">
                   Создать
                 </router-link>
             </li>
             <li class="nav-item">
-                <router-link :to="{ name: 'information', params: { group: 'staffsec' } }" class="nav-link active">
+                <router-link :to="{ name: 'information', params: { group: 'staffsec' } }" 
+                             class="nav-link active">
                   Информация
                 </router-link>
             </li>
             
             <li class="nav-item">
-              <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}"    class="nav-link active">
+              <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}"    
+                           class="nav-link active">
               Контакты
               </router-link>
             </li>
 
             <li class="nav-item">
-              <router-link :to="{ name: 'manager', params: { group: 'staffsec' } }" class="nav-link active" href="#">
+              <router-link :to="{ name: 'manager', params: { group: 'staffsec' } }" 
+                           class="nav-link active" href="#">
                 Файлы
               </router-link>
             </li>
@@ -81,12 +87,12 @@ if (!isStarted) {
             <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
               Сообщения
               <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
-                {{ storeMessage.messages.length }}
+                {{ storeMessage.messageData.messages.length }}
               </span>
             </a>
               <ul class="dropdown-menu" id="messages">
                 <h6 class="dropdown-header">Новые сообщения</h6>
-                <li v-for="message in storeMessage.messages" :key="message['id']">
+                <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
                   <a class="dropdown-item">
                     <p>{{ timeSince(message['create']) }}</p>
                     <p>{{ message['report'] }}</p>
@@ -94,15 +100,10 @@ if (!isStarted) {
                 </li>
                 <div class="dropdown-divider"></div>
                 <li>
-                  <router-link class="dropdown-item" :to="{ name: 'messages', params: { group: 'staffsec' } }">
+                  <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
+                               class="dropdown-item" >
                     Открыть сообщения
                   </router-link>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="#" 
-                    @click="storeMessage.updateMessages('reply')">
-                    Отметить прочитанными
-                  </a>
                 </li>
               </ul>
           </li>

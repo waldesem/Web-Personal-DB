@@ -31,6 +31,8 @@ class Category(Enum):
     """ Category """
 
     candidate = 'Кандидат'
+    staff = 'Сотрудник'
+    suspicious = 'Проверяемый'
 
 
 class Status(Enum):

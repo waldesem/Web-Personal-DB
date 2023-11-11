@@ -8,12 +8,12 @@ const storeMessage = messageStore();
 </script>
 
 <template>
-<div v-if="storeMessage.messages.length" class="toast-container position-static">
+<div v-if="storeMessage.messageData.messages.length" class="toast-container position-static">
   <div class="toast" role="alert" aria-live="assertive" aria-atomic="true"
-          v-for="message in storeMessage.messages" :key="message['id']">
+          v-for="message in storeMessage.messageData.messages" :key="message['id']">
     <div class="toast-header">
       <img src="..." class="rounded me-2" alt="...">
-      <strong class="me-auto">Сообщение</strong>
+      <strong class="me-auto">{{ message['title']}}</strong>
       <small class="text-body-secondary">
         {{ timeSince(message['create']) }}
       </small>

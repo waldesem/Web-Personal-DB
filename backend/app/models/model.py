@@ -153,7 +153,7 @@ class Report(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    category = db.Column(db.String(255))
+    category = db.Column(db.String(255), default='important')
     title = db.Column(db.String(255))
     report = db.Column(db.Text)
     status = db.Column(db.String(255), default=Status.new.value)
@@ -172,7 +172,7 @@ class Person(SearchableMixin, db.Model):
 
     __searchable__ = ['fullname', 'previous', 'birthday',
                       'birthplace', 'country', 'snils',
-                      'inn', 'education', 'addition']
+                      'inn', 'education', 'marital', 'addition']
 
     __tablename__ = 'persons'
 
