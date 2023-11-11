@@ -1,4 +1,9 @@
-<!--template>
+<script setup lang="ts">
+
+</script>
+
+
+<template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Сообщения'" />
     <div class="py-3">

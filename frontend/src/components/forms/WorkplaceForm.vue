@@ -44,6 +44,12 @@ const storeProfile = profileStore();
         <input class="form-control" id="position" maxlength="250" name="position" type="text" v-model="storeProfile.itemForm['position']">
         </div>
     </div>
+    <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="position">Причина увольнения</label>
+        <div class="col-lg-10">
+        <input class="form-control" id="position" maxlength="250" name="position" type="text" v-model="storeProfile.itemForm['reason']">
+        </div>
+    </div>
     <div class=" row">
         <div class="offset-lg-2 col-lg-10">
             <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>

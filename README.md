@@ -254,9 +254,8 @@ npm run build
 ```
 This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
 
-
 ### License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+This project is licensed under the MIT License.
 
 ### Screenshots
 ![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/1.png?raw=true)

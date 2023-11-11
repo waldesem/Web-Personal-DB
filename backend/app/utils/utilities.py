@@ -1,159 +1,195 @@
-import json
 import os
-import re
+import json
 from datetime import datetime
 
-# import openpyxl
 from flask import current_app
 from ..models.model import db, Person
 from ..models.classes import Status
-from datetime import datetime
-
-# deprecated code
-
-# class ExcelFile:
-#     """ Create class for import data from excel files"""
-
-#     def __init__(self, file) -> None:
-#         self.file = file
-#         self.wb = openpyxl.load_workbook(self.file, keep_vba=True)
-#         self.sheet = self.wb.worksheets[0]
-
-#         self.resume = {
-#             'fullname': self.parse_cell(self.sheet['K3']).title(),
-#             'previous': self.parse_cell(self.sheet['S3']).title(),
-#             'birthday': parse_date(self.parse_cell(self.sheet['L3'])),
-#             'birthplace': str(self.sheet['M3'].value).strip(),
-#             'country': self.parse_cell(self.sheet['T3']),
-#             'snils': self.parse_cell(self.sheet['U3']).replace(" ", "").\
-#                 replace("-", "")[:11],
-#             'inn': self.parse_cell(self.sheet['V3'], 12),
-#             'education': str(self.sheet['X3'].value).strip()
-#         }
-#         self.passport = [
-#             {
-#                 'view': 'Паспорт гражданина России',
-#                 'series': self.parse_cell(self.sheet['P3'], 4),
-#                 'number': self.parse_cell(self.sheet['Q3'], 6),
-#                 'issue': parse_date(self.parse_cell(self.sheet['R3'])),
-#             }
-#         ]
-#         self.addresses = [
-#             {
-#                 'view': "Адрес регистрации", 
-#                 'address': self.parse_cell(self.sheet['N3'])
-#             },
-#             {
-#                 'view': "Адрес проживания", 
-#                 'address': str(self.sheet['O3'].value).strip()
-#             }
-#         ]
-#         self.contacts = [
-#             {
-#                 'view': self.parse_cell(self.sheet['Y1']), 
-#                 'contact': self.parse_cell(self.sheet['Y3']).replace(" ", "")
-#             },
-#             {
-#                 'view': self.parse_cell(self.sheet['Z1']), 
-#                 'contact': self.parse_cell(self.sheet['Z3']).replace(" ", "")
-#             }
-#         ]
-#         self.workplaces = [
-#             {
-#                 'workplace': str(self.sheet[f'AB{i}'].value).strip(),
-#                 'address': str(self.sheet[f'AC{i}'].value).strip(),
-#                 'position': str(self.sheet[f'AD{i}'].value).strip()
-#             } | parse_period(self.sheet[f'AA{i}'].value)
-#             for i in range(3, 6) if self.sheet[f'AB{i}'].value
-#         ]
-#         self.staff = [
-#             {
-#                 'position': str(self.sheet['C3'].value).strip(),
-#                 'department': str(self.sheet['D3'].value).strip()
-#             }
-#         ]
-
-#     def close(self):
-#         self.wb.close()
 
 
 class JsonFile:
-    """ Create class for import data from csv files"""
+    """ Create class for import data from json file"""
 
     def __init__(self, file) -> None:
-        with open(file, 'r') as f:
+        with open(file, 'r', newline='', encoding='utf-8-sig') as f:
             self.json_dict = json.load(f)
 
-        self.resume = {
-            'fullname': self.parse_cell(self.json_dict['fullname']).title(),
-            'previous': self.parse_cell(self.json_dict['previous']).title(),
-            'birthday': self.parse_date(self.parse_cell(self.json_dict['birthday'])),
-            'birthplace': str(self.json_dict['birthplace'].value).strip(),
-            'country': self.parse_cell(self.json_dict['country']),
-            'snils': self.parse_cell(self.json_dict['snils']).replace(" ", "").\
-                replace("-", "")[:11],
-            'inn': self.parse_cell(self.json_dict['inn'], 12),
-            'education': str(self.json_dict['education'].value).strip()
-        }
-        self.passport = [
-            {
-                'view': 'Паспорт гражданина России',
-                'series': self.parse_cell(self.json_dict['series'], 4),
-                'number': self.parse_cell(self.json_dict['number'], 6),
-                'issue': self.parse_date(self.parse_cell(self.json_dict['issue']))
+            self.resume = {
+                'fullname': self.parse_fullname(),
+                'previous': self.parse_previous(),
+                'birthday': self.parse_birthday(),
+                'birthplace': self.json_dict['birthplace'].strip() \
+                    if 'birthplace' in self.json_dict else 'Отсутствует',
+                'country': f"{self.json_dict['citizen'].strip() \
+                    if 'citizen' in self.json_dict else 'Отсутствует'}",
+                'ext_country': f"{self.json_dict['additionalCitizenship'] \
+                    if 'additionalCitizenship' in self.json_dict else ''}",
+                'snils': self.json_dict['snils'].strip() \
+                    if 'snils' in self.json_dict else 'Отсутствует',
+                'inn': self.json_dict['inn'].strip() \
+                    if 'inn' in self.json_dict else 'Отсутствует',
+                'marital': self.json_dict['maritalStatus'].strip() \
+                    if 'maritalStatus' in self.json_dict else 'Отсутствует',
+                'education': self.parse_education()
             }
-        ]
-        self.addresses = [
-            {
-                'view': "Адрес регистрации", 
-                'address': self.parse_cell(self.json_dict['address'])
-            }
-        ]
-        self.contacts = [
-            {
-                'view': self.parse_cell(self.json_dict['view']), 
-                'contact': self.parse_cell(self.json_dict['contact']).replace(" ", "")
-            }
-        ]
-        self.workplaces = [
-            {
-                'workplace': str(self.json_dict[f'workplace'].value).strip(),
-                'address': str(self.json_dict[f'address'].value).strip(),
-                'position': str(self.json_dict[f'position'].value).strip()
-            }
-        ]
-        self.staff = [
-            {
-                'position': str(self.json_dict['position'].value).strip(),
-                'department': str(self.json_dict['department'].value).strip()
-            }
-        ]
+            
+            self.workplaces = self.parse_workplace()
+            
+            self.passport = [
+                {
+                    'view': 'Паспорт',
+                    'series': self.json_dict['passportSerial'].strip() \
+                        if 'passportSerial' in self.json_dict else 'Отсутствует',
+                    'number': self.json_dict['passportNumber'].strip() \
+                        if 'passportNumber' in self.json_dict else 'Отсутствует',
+                    'issue': datetime.strptime(self.json_dict['passportIssueDate'], '%Y-%m-%d') \
+                        if 'passportIssueDate' in self.json_dict \
+                            else datetime.strptime('1900-01-01', '%Y-%m-%d'),
+                    'agency': self.json_dict['passportIssuedBy'].strip() \
+                        if 'passportIssuedBy' in self.json_dict else 'Отсутствует',
+                }
+            ]
+            self.addresses = [
+                {
+                    'view': "Адрес регистрации", 
+                    'address': self.json_dict['regAddress'].strip() \
+                        if 'regAddress' in self.json_dict else 'Отсутствует',
+                },
+                {
+                    'view': "Адрес проживания", 
+                    'address': self.json_dict['validAddress'].strip() \
+                        if 'validAddress' in self.json_dict else 'Отсутствует',
+                }
+            ]
+            self.contacts = [
+                {
+                    'view': 'Мобильный телефон', 
+                    'contact': self.json_dict['contactPhone'].strip() \
+                        if 'contactPhone' in self.json_dict else 'Отсутствует',
+                },
+                {
+                    'view': 'Электронная почта', 
+                    'contact': self.json_dict['email'].strip() \
+                        if 'email' in self.json_dict else 'Отсутствует',
+                }
+            ]
+            self.staff = [
+                {
+                    'position': self.json_dict['positionName'].strip() \
+                        if 'positionName' in self.json_dict else 'Отсутствует',
+                    'department': self.json_dict['department'].strip() \
+                        if 'department' in self.json_dict else 'Отсутствует'
+                }
+            ]
+            self.addition = self.parse_addition()
+            
 
+    def parse_fullname(self):
+        lastName = self.json_dict['lastName'].strip() \
+            if 'lastName' in self.json_dict else 'ОТСУТСТВУЕТ!!!'
+        firstName = self.json_dict['firstName'].strip() \
+            if 'firstName' in self.json_dict else 'ОТСУТСТВУЕТ!!!'
+        midName = self.json_dict['midName'].strip() \
+            if 'midName' in self.json_dict else ''
+        return f"{lastName} {firstName} {midName}".rstrip()
+    
+    def parse_birthday(self):
+        birthday = datetime.strptime(self.json_dict['birthday'], '%Y-%m-%d') \
+            if 'birthday' in self.json_dict else datetime.strptime('1900-01-01', '%Y-%m-%d')
+        return birthday
 
-    def parse_cell(self, cell, limit=255):
-        return str(cell.value).strip()[:limit]
+    def parse_previous(self):
+        if 'hasNameChanged' in self.json_dict:
+            if len(self.json_dict['nameWasChanged']):
+                previous = []
+                for item in self.json_dict['nameWasChanged']:
+                    firstNameBeforeChange = item['firstNameBeforeChange'].strip() \
+                        if 'firstNameBeforeChange' in item else ''
+                    lastNameBeforeChange = item['lastNameBeforeChange'].strip() \
+                        if 'lastNameBeforeChange' in item else ''
+                    midNameBeforeChange = item['midNameBeforeChange'].strip() \
+                        if 'midNameBeforeChange' in item else ''
+                    yearOfChange = str(item['yearOfChange']) \
+                        if 'yearOfChange' in item else 'Отсутствует'
+                    reason = str(item['reason']).strip() \
+                        if 'reason' in item else 'Причина неизвестна'
+                    previous.append(f"{yearOfChange} - {firstNameBeforeChange} "
+                                    f"{lastNameBeforeChange} {midNameBeforeChange}, "
+                                    f"{reason}".replace("  ", ""))
+                return '; '.join(previous)
+        return ''
+    
+    def parse_education(self):
+        if 'education' in self.json_dict:
+            if len(self.json_dict['education']):
+                education = []
+                for item in self.json_dict['education']:
+                    institutionName = item['institutionName'] \
+                        if 'institutionName' in item else 'Нет данных'
+                    endYear = item['endYear'] if 'specialty' in item else 'н.в.'
+                    specialty = item['specialty'] \
+                        if 'specialty' in item else 'неизвестно'
+                    education.append(f"{str(endYear)} - {institutionName}, "
+                                     f"{specialty}".replace("  ", ""))
+                return '; '.join(education)
+        return ''
+    
+    def parse_workplace(self):
+        if 'experience' in self.json_dict:
+            if len(self.json_dict['experience']):
+                experience = []
+                for item in self.json_dict['experience']:
+                    work = {
+                        'start_date': datetime.strptime(item['beginDate'], '%Y-%m-%d') \
+                            if 'beginDate' in item \
+                                else datetime.strptime('1900-01-01', '%Y-%m-%d'),
+                        'end_date': datetime.strptime(item['endDate'], '%Y-%m-%d') \
+                            if 'endDate' in item \
+                                else datetime.now().date(),
+                        'workplace': item['name'].strip() if 'name' in item else '',
+                        'address': item['address'].strip() if 'address' in item else '',
+                        'position': item['position'].strip() if 'position' in item else '',
+                        'reason': item['fireReason'].strip() if 'fireReason' in item else ''
+                    }
+                    experience.append(work)
+                return experience
+        return []
+    
+    def parse_addition(self):
+        public = []
+        if self.json_dict['hasPublicOfficeOrganizations']:
+            if len(self.json_dict['publicOfficeOrganizations']):
+                for item in self.json_dict['publicOfficeOrganizations']:
+                    public.append(f"{item['name'] if 'name' in item else ''}, "
+                                  f"{item['position'] if 'position' in item else ''}")
 
+        state = []
+        if self.json_dict['hasStateOrganizations']:
+            if len(self.json_dict['stateOrganizations']):
+                for item in self.json_dict['publicOfficeOrganizations']:
+                    state.append(f"{item['name'] if 'name' in item else ''}, "
+                                 f"{item['position'] if 'position' in item else ''}")
 
-    def parse_date(self, data):
-        return datetime.strptime(data, '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', data) \
-                    else datetime.strptime('2000-01-01', '%Y-%m-%d').date()
-
-
-    def parse_period(self, cell):
-        """ Parse period from excel file """
-        lst = re.split(r'-', cell)
-        if len(lst) == 2:
-            start, end = lst[0].strip(), lst[1].strip()
-            start_date = self.parse_date(start)
-            end_date = datetime.strptime(end, '%d.%m.%Y').date() \
-                if re.match(r'\d\d.\d\d.\d\d\d\d', end) \
-                    else datetime.now().date()
+        related = []
+        if self.json_dict['hasRelatedPersonsOrganizations']:
+            if len(self.json_dict['hasRelatedPersonsOrganizations']):
+                for item in self.json_dict['hasRelatedPersonsOrganizations']:
+                    related.append(f"{item['name'] if 'name' in item else ''}, "
+                                   f"{item['inn'] if 'inn' in item else ''}, "
+                                   f"{item['position'] if 'position' in item else ''}")
         
-        elif len(lst) and len(lst) != 2:
-            start_date = datetime.strptime('2000-01-01', '%Y-%m-%d').date()
-            end_date = datetime.now().date()
-        return {'start_date': start_date, 'end_date': end_date}
+        organization = []
+        if self.json_dict['hasOrganizations']:
+            if len(self.json_dict['organizations']):
+                for item in self.json_dict['organizations']:
+                    organization.append(f"{item['orgType'] if 'orgType' in item else ''} "
+                                        f"{item['inn'] if 'inn' in item else ''} "
+                                        f"{item['name'] if 'name' in item else ''} "
+                                        f"{item['workCombinationTime'] if 'workCombinationTime' in item else ''}")
+        
+        return (f"{'; '.join(public)}. {'; '.join(state)}. "
+                f"{'; '.join(related)}. {'; '.join(organization)}.")
+
 
 
 def add_resume(resume: dict, location_id, action):
@@ -220,3 +256,151 @@ def create_folders(person_id, fullname, folder_name):
     return os.path.join(fullname[0].upper(), 
                         f'{person_id}-{fullname}', 
                         folder, subfolder)
+
+
+json_struct = {
+  "positionName": "Главный инженер по разработке",
+  "department": "Группа разработки",
+  "statusDate": "2023-10-23T11:14:24Z",
+  "lastName": "Иванов",
+  "firstName": "Иван",
+  "midName": "Андреевич",
+  "hasNameChanged": True,
+  "nameWasChanged": [
+    {
+      "reason": "развод",
+      "firstNameBeforeChange": "Петр",
+      "lastNameBeforeChange": "Семенов",
+      "hasNoMidNameBeforeChange": True,
+      "yearOfChange": 2020,
+      "nameChangeDocument": "документ"
+    },
+    {
+      "reason": "усыновление/удочерение",
+      "firstNameBeforeChange": "Степан",
+      "lastNameBeforeChange": "Игоревич",
+      "midNameBeforeChange": "Васильев",
+      "yearOfChange": 2017,
+      "nameChangeDocument": "документ 2"
+    }
+  ],
+  "birthday": "1998-10-10",
+  "birthplace": "Москва",
+  "citizen": "Россия",
+  "hasAdditionalCitizenship": True,
+  "additionalCitizenship": "Австралия",
+  "maritalStatus": "незарегистрированный брак",
+  "regAddress": "Ленина 5",
+  "validAddress": "Ленина 5",
+  "contactPhone": "+70000000000",
+  "hasNoRussianContactPhone": True,
+  "email": "mail@pulse.com",
+  "hasInn": True,
+  "inn": "510189523890",
+  "hasSnils": True,
+  "snils": "36033751254",
+  "passportSerial": "1234",
+  "passportNumber": "566789",
+  "passportIssueDate": "2015-05-10",
+  "passportIssuedBy": "УФМС",
+  "education": [
+    {
+      "educationType": "высшее",
+      "institutionName": "МГУ",
+      "beginYear": 2017,
+      "endYear": 2020,
+      "specialty": "менеджмент"
+    },
+    {
+      "educationType": "MBA",
+      "institutionName": "МГИМО",
+      "beginYear": 2022,
+      "endYear": 2023,
+      "specialty": "экономика"
+    }
+  ],
+  "hasJob": True,
+  "experience": [
+    {
+      "beginDate": "1988-01-10",
+      "endDate": "1989-01-10",
+      "name": "ООО Мария",
+      "address": "Ленина 1",
+      "phone": "+70000000001",
+      "activityType": "продажи",
+      "position": "менеджер",
+      "isPositionMatchEmploymentContract": True,
+      "employmentContractPosition": "менеджер по продажам",
+      "fireReason": "по собственному желанию"
+    },
+    {
+      "beginDate": "1991-01-10",
+      "currentJob": True,
+      "name": "ПАО Александра",
+      "address": "Ленина 9",
+      "phone": "+70000000002",
+      "activityType": "продажи",
+      "position": "менеджер по обслуживанию"
+    }
+  ],
+  "hasPublicOfficeOrganizations": True,
+  "publicOfficeOrganizations": [
+    {
+      "name": "Учреждение А",
+      "position": "стажер"
+    },
+    {
+      "name": "Учреждение Б",
+      "position": "методолог"
+    }
+  ],
+  "hasStateOrganizations": True,
+  "stateOrganizations": [
+    {
+      "name": " Министерство А",
+      "position": "эксперт"
+    },
+    {
+      "name": " Министерство Б",
+      "position": "главный эксперт"
+    }
+  ],
+  "hasRelatedPersonsOrganizations": True,
+  "relatedPersonsOrganizations": [
+    {
+      "name": "Имя 1",
+      "inn": "3171083718",
+      "position": "специалист"
+    },
+    {
+      "name": "Имя 2",
+      "inn": "3171083718",
+      "position": "ведущий специалист"
+    }
+  ],
+  "hasMtsRelatedPersonsOrganizations": True,
+  "mtsRelatedPersonsOrganizations": [
+    {
+      "name": "Имя 3"
+    },
+    {
+      "name": "Имя 4"
+    }
+  ],
+  "hasOrganizations": True,
+  "organizations": [
+    {
+      "orgType": "самозанятость",
+      "inn": "510189523890",
+      "name": "ООО Смирнов",
+      "workCombinationTime": "договор"
+    },
+    {
+      "orgType": "ПАО",
+      "inn": "3171083718",
+      "name": "ОАО Иванов",
+      "workCombinationTime": "договор"
+    }
+  ]
+}
+

@@ -105,6 +105,13 @@ const storeLogin = loginStore();
         </div>
       </div>
       <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="ext_country">Двойное гражданство</label>
+        <div class="col-lg-10">
+          <input class="form-control" maxlength="50" id="ext_country" name="ext_country" type="text"
+                 v-model="storeProfile.itemForm['ext_country']" >
+        </div>
+      </div>
+      <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="snils">СНИЛС</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="11" minlength="11" id="snils" name="snils" type="text"
@@ -123,6 +130,13 @@ const storeLogin = loginStore();
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="education" name="education" type="text"
                  v-model="storeProfile.itemForm['education']" >
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label class="col-form-label col-lg-2" for="marital">Семенное положение</label>
+        <div class="col-lg-10">
+          <input class="form-control" maxlength="250" id="marital" name="marital" type="text"
+                 v-model="storeProfile.itemForm['marital']" >
         </div>
       </div>
       <div class="mb-3 row">

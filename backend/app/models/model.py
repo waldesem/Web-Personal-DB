@@ -153,6 +153,8 @@ class Report(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
+    category = db.Column(db.String(255))
+    title = db.Column(db.String(255))
     report = db.Column(db.Text)
     status = db.Column(db.String(255), default=Status.new.value)
     create = db.Column(db.DateTime, default=default_time)
@@ -183,9 +185,11 @@ class Person(SearchableMixin, db.Model):
     birthday = db.Column(db.Date, nullable=False)
     birthplace = db.Column(db.Text)
     country = db.Column(db.String(255))
+    ext_country = db.Column(db.String(255))
     snils = db.Column(db.String(11))
     inn = db.Column(db.String(12))
     education = db.Column(db.Text)
+    marital = db.Column(db.String(255))
     addition = db.Column(db.Text)
     path = db.Column(db.Text)
     status = db.Column(db.String(255), default=Status.new.value)
@@ -304,6 +308,7 @@ class Workplace(SearchableMixin, db.Model):
     workplace = db.Column(db.Text)
     address = db.Column(db.Text)
     position = db.Column(db.Text)
+    reason = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 

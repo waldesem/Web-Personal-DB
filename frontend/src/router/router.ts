@@ -13,8 +13,9 @@ import AdminPage from '@components/pages/AdminPage.vue';
 import AdminTables from '@components/pages/AdminTables.vue'
 import ContactPage from '@components/pages/ContactPage.vue';
 import NotFound from '@components/pages/NotFound.vue';
-import PrintPage from '@/components/pages/PrintPage.vue';
-import FileManager from '@/components/pages/FileManager.vue';
+import PrintPage from '@components/pages/PrintPage.vue';
+import FileManager from '@components/pages/FileManager.vue';
+import MessagePage from '@components/pages/MessagePage.vue';
 
 
 const router = createRouter({
@@ -77,6 +78,11 @@ const router = createRouter({
           path: 'manager',
           name: 'manager',
           component: FileManager
+        },
+        {
+          path: 'messages',
+          name: 'messages',
+          component: MessagePage
         }
       ]
     },

@@ -711,14 +711,8 @@ class FileView(MethodView):
                                      f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}\
                                         -{filename}')
             file.save(temp_path)
-
-            if temp_path.endswith('xlsx'):
-                anketa = JsonFile(temp_path)
-                anketa.close()
             
-            elif temp_path.endswith('json'):
-                anketa  = JsonFile(temp_path)
-
+            anketa  = JsonFile(temp_path)
             person_id = add_resume(anketa.resume, location_id, 'create')
             models = [Staff, Document, Address, Contact, Workplace]
             for idx, items in enumerate([anketa.staff, anketa.passport, 

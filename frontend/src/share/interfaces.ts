@@ -16,9 +16,11 @@ interface Resume {
   birthday: string;
   birthplace: string;
   country: string;
+  ext_country: string;
   snils: string;
   inn: string;
   education: string;
+  marital: string;
   addition: string;
   path: string;
   status: string;
@@ -56,6 +58,7 @@ interface Work {
   now_work: boolean;
   workplace: string;
   address: string;
+  reason: string;
   position: string;
 };
 
