@@ -59,7 +59,7 @@ async function getProfile() {
   <div class="container py-3">
     
     <div class="py-1">
-      <PhotoCard />
+      <PhotoCard :profileId="storeProfile.profile.resume['id']" :imageUrl="storeProfile.urlImage"/>
       <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
     </div>
     <div class="nav nav-tabs nav-justified" role="tablist">
