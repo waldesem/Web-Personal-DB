@@ -1,44 +1,58 @@
 from typing import List
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, SecretStr
 
 
-class RegionModel(BaseModel):
+class ModelBase(BaseModel):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def dump_model(self, instance):
+        dummped = instance.__dict__
+        del dummped['_sa_instance_state']
+        return self.model_dump(**dummped)
+    
+    def validate_data(self, data):
+        validated = self.model_validate(**data)
+        return validated.model_dump(**data)
+
+
+class RegionModel(ModelBase):
     id: int
     region: str 
     users: str
     persons: List[int]
    
        
-class GroupModel(BaseModel):
+class GroupModel(ModelBase):
     id: int
     group: str
-    connects: List[int]
 
 
-class RoleModel(BaseModel):
+class RoleModel(ModelBase):
     id: int
     role: str
 
 
-
-class UserViewModel(BaseModel):
+class UserViewModel(ModelBase):
     id: int
     fullname: str
     username: str
-    password: str
-    email: str
+    password: SecretStr
+    email: EmailStr
     pswd_create: datetime
     pswd_change: datetime
     last_login: datetime
     blocked: bool
     attempt: int
     region_id: int
-    group_id: List[int]
-    role_id: List[int]
+    group_id: List[str]
+    role_id: List[str]
 
-class ReportModel(BaseModel):
+
+class ReportModel(ModelBase):
     id: int
     category: str
     title: str
@@ -48,7 +62,7 @@ class ReportModel(BaseModel):
     user_id: int
 
 
-class PersonModel(BaseModel):
+class PersonModel(ModelBase):
     id: int
     category: str
     region_id: int
@@ -70,31 +84,31 @@ class PersonModel(BaseModel):
     request_id: int
     
 
-class RelationModel(BaseModel):
+class RelationModel(ModelBase):
     id: int
     relation: str
     relation_id: int
     person_id: int
     
 
-class StaffModel(BaseModel):
+class StaffModel(ModelBase):
     id: int
     position: str
     department: str
     person_id: int
 
 
-class DocumentModel(BaseModel):
+class DocumentModel(ModelBase):
     id: int
     view: str
     series: str
     number: str
     agency: str
-    issue: str
+    issue: datetime
     person_id: int
 
 
-class AddressModel(BaseModel):
+class AddressModel(ModelBase):
     id: int
     view: str
     region: str
@@ -102,11 +116,10 @@ class AddressModel(BaseModel):
     person_id: int
 
 
-class WorkplaceModel(BaseModel):
+class WorkplaceModel(ModelBase):
     id: int
     start_date: datetime
     end_date: datetime
-    now_work: bool
     workplace: str
     address: str
     position: str
@@ -114,14 +127,14 @@ class WorkplaceModel(BaseModel):
     person_id: int
 
 
-class ContactModel(BaseModel):
+class ContactModel(ModelBase):
     id: int
     view: str
     contact: str
     person_id: int
 
 
-class CheckModel(BaseModel):
+class CheckModel(ModelBase):
     id: int
     workplace: str
     employee: str
@@ -139,7 +152,7 @@ class CheckModel(BaseModel):
     cros: str
     addition: str
     path: str
-    pfo: str
+    pfo: bool
     comments: str
     conclusion: str
     officer: str
@@ -147,7 +160,7 @@ class CheckModel(BaseModel):
     person_id: int
 
 
-class RegistryModel(BaseModel):
+class RegistryModel(ModelBase):
     id: int
     comments: str
     decision: str
@@ -157,7 +170,7 @@ class RegistryModel(BaseModel):
     check_id: int
 
 
-class PoligrafModel(BaseModel):
+class PoligrafModel(ModelBase):
     id: int
     theme: str
     results: str
@@ -167,7 +180,7 @@ class PoligrafModel(BaseModel):
     person_id: int
 
 
-class InvestigationModel(BaseModel):
+class InvestigationModel(ModelBase):
     id: int
     theme: str
     info: str
@@ -177,8 +190,7 @@ class InvestigationModel(BaseModel):
     person_id: int
 
 
-
-class InquiryModel(BaseModel):
+class InquiryModel(ModelBase):
     id: int
     info: str
     initiator: str
@@ -188,7 +200,7 @@ class InquiryModel(BaseModel):
     person_id: int
 
 
-class ConnectModel(BaseModel):
+class ConnectModel(ModelBase):
     id: int
     company: str
     city: str
@@ -196,18 +208,18 @@ class ConnectModel(BaseModel):
     phone: str
     adding: str
     mobile: str
-    mail: str
+    mail: EmailStr
     comment: str
     data: datetime
     group_id: int
 
 
-class OneSModel(BaseModel):
+class OneSModel(ModelBase):
     id: int
     full_name: str
-    birth_date: str
+    birth_date: datetime
     start_date: datetime
-    start_position: str
     end_date: datetime
+    start_position: str
     end_position: str
     person_id: int

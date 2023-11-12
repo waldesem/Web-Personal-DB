@@ -18,14 +18,6 @@ const storeProfile = profileStore();
             <input class="form-control" id="end_date" name="end_date" type="date" v-model="storeProfile.itemForm['end_date']">
         </div>
     </div>
-    <div class="row">
-        <div class="offset-lg-2 col-lg-10">
-            <div class="mb-3 form-check">
-                <input class="form-check-input" id="now_work" name="now_work" v-model="storeProfile.itemForm['now_work']" type="checkbox" value="y">
-                <label class="form-check-label" for="now_work">Работает по н.в.</label>
-            </div>
-        </div>
-    </div>
     <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="workplace">Место работы</label>
         <div class="col-lg-10">

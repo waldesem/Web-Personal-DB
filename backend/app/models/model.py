@@ -6,10 +6,12 @@ from flask_sqlalchemy.query import Query
 
 from .. import db, cache
 from .classes import Category, Status
-from ..search.search import add_to_index, remove_from_index, query_index
+from ..search.search import Searching
 
 
 make_searchable(db.metadata)
+
+searching = Searching()
 
 
 def default_time():
@@ -22,9 +24,11 @@ def default_time():
 
 
 class SearchableMixin(object):
+
+
     @classmethod
     def opensearch(cls, expression):
-        ids = query_index(expression)
+        ids = searching.query_index(expression)
         return db.session.query(Person).filter(Person.id.in_(ids))
 
     @classmethod
@@ -39,19 +43,19 @@ class SearchableMixin(object):
     def after_commit(cls, session):
         for obj in session._changes['add']:
             if isinstance(obj, SearchableMixin):
-                add_to_index(obj)
+                searching.add_to_index(obj)
         for obj in session._changes['update']:
             if isinstance(obj, SearchableMixin):
-                add_to_index(obj)
+                searching.add_to_index(obj)
         for obj in session._changes['delete']:
             if isinstance(obj, SearchableMixin):
-                remove_from_index(obj)
+                searching.remove_from_index(obj)
         session._changes = None
 
     @classmethod
     def reindex(cls):
         for obj in cls.query:
-            add_to_index(cls.__tablename__, obj)
+            searching.add_to_index(cls.__tablename__, obj)
 
 
 class Region(db.Model):
@@ -304,7 +308,6 @@ class Workplace(SearchableMixin, db.Model):
                    autoincrement=True)
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
-    now_work = db.Column(db.Boolean, default=False)
     workplace = db.Column(db.Text)
     address = db.Column(db.Text)
     position = db.Column(db.Text)

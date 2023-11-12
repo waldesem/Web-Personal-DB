@@ -88,7 +88,6 @@ export const profileStore = defineStore('profileStore', () => {
       id: '',
       start_date: '',
       end_date: '',
-      now_work: false,
       workplace: '',
       address: '',
       position: '',

@@ -55,7 +55,6 @@ interface Work {
   id: string;
   start_date: string;
   end_date: string;
-  now_work: boolean;
   workplace: string;
   address: string;
   reason: string;
