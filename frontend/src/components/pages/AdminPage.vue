@@ -4,6 +4,7 @@ import { onBeforeMount } from 'vue';
 import { adminStore } from '@store/admin';
 import { debounce } from '@share/utilities';
 import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+import UserForm from '@components/forms/UserForm.vue';
 
 const storeAdmin = adminStore();
 
@@ -19,9 +20,7 @@ const searchUsers = debounce(storeAdmin.getUsers, 500);
 
 <template>
   <div class="container py-3">
-    <HeaderDiv :page-header="storeAdmin.userData.userAct === 'create' 
-                              ? 'Добавить пользователя' 
-                              : 'Список пользователей'" />
+    <HeaderDiv :page-header="'Список пользователей'" />
     <form @input="searchUsers" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="fullusername" name="fullusername" type="text" 
@@ -58,6 +57,12 @@ const searchUsers = debounce(storeAdmin.getUsers, 500);
         </table>
       </div>
     </div>
+    <button class="btn btn-outline-primary" type="button" 
+            data-bs-toggle="modal" data-bs-target="#modalUser"
+            @click="storeAdmin.userData.userAct = 'create'">
+      Создать пользователя
+    </button>
+    <UserForm />
   </div>
 </template>
 

@@ -1,13 +1,14 @@
 <script setup lang="ts">
 
+import { onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import { adminStore } from '@store/admin';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { classifyStore } from '@/store/classify';
 import { server } from '@share/utilities';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 import UserForm from '@components/forms/UserForm.vue'
-import { onBeforeMount } from 'vue';
 //import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const storeClassify = classifyStore();
@@ -76,11 +77,8 @@ storeAdmin.userAction('view', storeAdmin.userData.userId);
 
 <template>
   <div class="container py-3">
-  <HeaderDiv :page-header="'Профиль пользователя'" />
-
-    <UserForm v-if="['create', 'edit'].includes(storeAdmin.userData.userAct)" />
-
-    <div v-else class="py-3">
+    <HeaderDiv :page-header="'Профиль пользователя'" />
+    <div class="py-3">
       <!--PhotoCard :profileId="storeAdmin.profileData.id" :imageUrl="storeAdmin.profileData.image"/-->
       <table class="table table-responsive">
         <thead>
@@ -171,19 +169,24 @@ storeAdmin.userAction('view', storeAdmin.userData.userId);
         <button @click="storeAdmin.userAction('block')" class="btn btn-outline-primary">
           {{storeAdmin.profileData.blocked ? "Разблокировать" : 'Заблокировать' }}
         </button>
-        <button @click="storeAdmin.userData.userAct = 'edit';
-                storeAdmin.formData.fullname = storeAdmin.profileData.fullname;
-                storeAdmin.formData.email = storeAdmin.profileData.email;
-                storeAdmin.formData.username = storeAdmin.profileData.username;
-                storeAdmin.formData.region_id = storeAdmin.profileData.region_id;" 
-                class="btn btn-outline-primary">
-            Редактировать</button>
+        <button class="btn btn-outline-primary" type="button" 
+                data-bs-toggle="modal" data-bs-target="#modalUser"
+                @click="storeAdmin.userData.userAct = 'edit';
+                        storeAdmin.formData.fullname = storeAdmin.profileData.fullname;
+                        storeAdmin.formData.email = storeAdmin.profileData.email;
+                        storeAdmin.formData.username = storeAdmin.profileData.username;
+                        storeAdmin.formData.region_id = storeAdmin.profileData.region_id;">
+          Изменить пользователя
+        </button>
         <button @click="storeAdmin.userAction('drop')" class="btn btn-outline-primary">
-            Сбросить пароль</button>
+          Сбросить пароль
+        </button>
         <button @click="userDelete" class="btn btn-outline-primary" data-bs-dismiss="modal" >
-            Удалить</button>
+          Удалить
+        </button>
       </div>
     </div>
+    <UserForm />
   </div>
 </template>
 
