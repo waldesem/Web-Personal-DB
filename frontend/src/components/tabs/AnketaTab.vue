@@ -454,10 +454,6 @@ function switchForm(item: string){
                     <td>{{ tbl['start_date'] }} - {{ tbl['end_date'] }}</td>
                   </tr>
                   <tr>
-                    <td>Работает по н.в.</td>
-                    <td>{{ tbl['now_work'] ? 'Работает' : 'Не работает' }}</td>
-                  </tr>
-                  <tr>
                     <td>Организация</td>
                     <td>{{ tbl['workplace'] ? tbl['workplace'] : 'Данные отсутствуют' }}</td>
                   </tr>

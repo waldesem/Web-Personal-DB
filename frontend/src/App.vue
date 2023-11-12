@@ -3,10 +3,11 @@
 import { onBeforeMount, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
-import NavBar from '@components/layouts/NavBar.vue';
-import AlertMessage from '@components/layouts/AlertMessage.vue';
-import FooterDiv from '@components/layouts/FooterDiv.vue';
-import ChatButton from '@components/layouts/ChatButton.vue';
+
+const NavBar = () => import('@components/layouts/NavBar.vue');
+const AlertMessage = () => import('@components/layouts/AlertMessage.vue');
+const FooterDiv = () => import('@components/layouts/FooterDiv.vue');
+const ChatButton = () => import('@components/layouts/ChatButton.vue');
 
 const storeLogin = loginStore();
 const route = useRoute();

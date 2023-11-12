@@ -166,9 +166,6 @@ const storeClassify = classifyStore();
         <tbody>
           <tr>
             <td>Период</td><td>{{ tbl['start_date'] }} - {{ tbl['end_date'] }}</td></tr>
-          <tr>
-            <td>Работает по н.в.</td><td>{{ tbl['now_work'] ? 'Работает' : 'Не работает' }}</td>
-          </tr>
           <tr v-if="tbl['workplace']">
             <td>Организация</td><td>{{ tbl['workplace'] }}</td>
           </tr>
