@@ -17,7 +17,6 @@ from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     InvestigationSchema, PoligrafSchema, RegistrySchema, \
     WorkplaceSchema, UserSchema
 
-
 class UsersView(MethodView):
     
     decorators = [r_g.roles_required(Roles.admin.value), 
@@ -47,7 +46,6 @@ class UserView(MethodView):
 
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
 
-    @bp.output(UserSchema)
     def get(self, action, user_id):
         """
         Retrieves a user based on the specified action and user ID.
@@ -61,15 +59,17 @@ class UserView(MethodView):
             User: The retrieved user object if the action is 'view'.
             User: The updated user object if the action is 'block' or 'drop'.
         """
+        schema = UserSchema()
         user = db.session.query(User).get(user_id)
         match action:
             case 'view':
-                return user
+                # return user
+                return schema.dump(user)
             case 'block':
                 if user.username != current_user.username:
                     user.blocked = not user.blocked
                     db.session.commit()
-                return db.session.query(User).get(user_id)
+                return self.get('view', user_id)
             case 'drop':
                 setattr(user, 'password',
                         bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD']. \
@@ -77,7 +77,7 @@ class UserView(MethodView):
                                       bcrypt.gensalt()))
                 setattr(user, 'pswd_change', None)
                 db.session.commit()
-                return db.session.query(User).get(user_id)
+                return self.get('view', user_id)
 
     @bp.input(UserSchema)
     def post(self, json_data):

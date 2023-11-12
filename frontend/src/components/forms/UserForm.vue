@@ -86,7 +86,7 @@ async function submitUser(): Promise<void>{
               <label class="col-form-label col-lg-2" for="region">Регион</label>
               <div class="col-lg-10">
                 <select class="form-select" id="region" name="region" 
-                        v-model="storeAdmin.formData.region_id">
+                        v-model="storeAdmin.formData.region_id" required>
                   <option v-for="name, value in storeClassify.classifyItems.regions" 
                           :key="value" :value="value">
                     {{name}}

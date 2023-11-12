@@ -5,11 +5,10 @@ from pydantic import BaseModel, Field
 
 
 class RegionModel(BaseModel):
-    
-    id = int
-    region = str 
-    users = str
-    persons = List(int)
+    id: int
+    region: str 
+    users: str
+    persons: List[int]
    
        
 class GroupModel(BaseModel):
@@ -21,9 +20,10 @@ class GroupModel(BaseModel):
 class RoleModel(BaseModel):
     id: int
     role: str
-    
 
-class UserModel(BaseModel):
+
+
+class UserViewModel(BaseModel):
     id: int
     fullname: str
     username: str
@@ -35,7 +35,8 @@ class UserModel(BaseModel):
     blocked: bool
     attempt: int
     region_id: int
-
+    group_id: List[int]
+    role_id: List[int]
 
 class ReportModel(BaseModel):
     id: int
@@ -178,62 +179,35 @@ class InvestigationModel(BaseModel):
 
 
 class InquiryModel(BaseModel):
-
-    id = int
-    info = str
-    initiator = str
-    source = str
-    officer = str
-    deadline = datetime
-    person_id = int
+    id: int
+    info: str
+    initiator: str
+    source: str
+    officer: str
+    deadline: datetime
+    person_id: int
 
 
 class ConnectModel(BaseModel):
-
-    id = int
-    company = str
-    city = str
-    fullname = str
-    phone = str
-    adding = str
-    mobile = str
-    mail = str
-    comment = str
-    data = datetime
-    group_id = int
+    id: int
+    company: str
+    city: str
+    fullname: str
+    phone: str
+    adding: str
+    mobile: str
+    mail: str
+    comment: str
+    data: datetime
+    group_id: int
 
 
 class OneSModel(BaseModel):
-
-    id = int
-    full_name = str
-    birth_date = str
-    start_date = datetime
-    start_position = str
-    end_date = datetime
-    end_position = str
-    person_id = int
-
-
-class AnketaSchema():
-    resume = PersonModel()
-    document = DocumentModel()
-    address = AddressModel()
-
-
-class AnketaSchemaApi(BaseModel):
-    resume: PersonModel = Field(..., exclude=('region_id', 'addition', 'path', 
-                                              'status', 'create', 'update', 
-                                              'request_id'))
-    document: List[DocumentModel] = Field(..., exclude=('id',))
-    staff: List[StaffModel] = Field(..., exclude=('id',))
-    addresses: List[AddressModel] = Field(..., exclude=('id',))
-    workplaces: List[WorkplaceModel] = Field(..., exclude=('id',))
-    contacts: List[ContactModel] = Field(..., exclude=('id',))
-
-
-class CheckSchemaApi():
-    check: CheckModel = Field(..., exclude=('workplace', 'internet', 'cronos',
-                                             'cros', 'addition', 'pfo',
-                                             'comments', 'conclusion',
-                                             'officer', 'deadline',))
+    id: int
+    full_name: str
+    birth_date: str
+    start_date: datetime
+    start_position: str
+    end_date: datetime
+    end_position: str
+    person_id: int
