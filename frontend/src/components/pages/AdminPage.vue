@@ -57,11 +57,6 @@ const searchUsers = debounce(storeAdmin.getUsers, 500);
         </table>
       </div>
     </div>
-    <button class="btn btn-outline-primary" type="button" 
-            data-bs-toggle="modal" data-bs-target="#modalUser"
-            @click="storeAdmin.userData.userAct = 'create'">
-      Создать пользователя
-    </button>
     <UserForm />
   </div>
 </template>

@@ -9,7 +9,7 @@ client = OpenSearch(
     hosts = [{'host': host, 'port': port}],
     http_auth = auth,
     http_compress = True,
-    use_ssl = False,
+    use_ssl = True,
     verify_certs = False,
     ssl_assert_hostname = False,
     ssl_show_warn = False
@@ -25,8 +25,8 @@ index_body = {
   }
 }
 
-client.indices.create(index_name, body=index_body)
-
+if not client.indices.exists(index_name):
+    client.indices.create(index_name, body=index_body)
 
 def add_to_index(model):
     payload = {}

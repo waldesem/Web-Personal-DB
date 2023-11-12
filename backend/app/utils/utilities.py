@@ -20,10 +20,10 @@ class JsonFile:
                 'birthday': self.parse_birthday(),
                 'birthplace': self.json_dict['birthplace'].strip() \
                     if 'birthplace' in self.json_dict else 'Отсутствует',
-                'country': f"{self.json_dict['citizen'].strip() \
-                    if 'citizen' in self.json_dict else 'Отсутствует'}",
-                'ext_country': f"{self.json_dict['additionalCitizenship'] \
-                    if 'additionalCitizenship' in self.json_dict else ''}",
+                'country': self.json_dict['citizen'].strip() \
+                    if 'citizen' in self.json_dict else 'Отсутствует',
+                'ext_country': self.json_dict['additionalCitizenship'] \
+                    if 'additionalCitizenship' in self.json_dict else '',
                 'snils': self.json_dict['snils'].strip() \
                     if 'snils' in self.json_dict else 'Отсутствует',
                 'inn': self.json_dict['inn'].strip() \

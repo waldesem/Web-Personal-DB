@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { authStore } from '@/store/token';
+import { loginStore } from '@/store/login';
 import { server } from '@share/utilities';
 
 const storeAuth = authStore();
+const storeLogin = loginStore();
 
 const chatDialog = ref<Array<Object>>([]);
 chatDialog.value.push({'chatBot': 'Добро пожаловать в чат!'});
@@ -41,7 +43,7 @@ async function updateChat() {
 </script>
 
 <template>
-  <div class="d-print-none">
+  <div class="d-print-none" v-if="['admins', 'login'].includes(storeLogin.pageIdentity)">
     <a class="chatbot-button dropdown-toggle" role="button"  
       data-bs-toggle="dropdown" data-bs-auto-close="false">
       <i class="bi bi-chat-dots-fill fs-1"></i>

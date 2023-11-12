@@ -81,32 +81,32 @@ if (!isStarted) {
                 Файлы
               </router-link>
             </li>
-          </template>
 
-          <li v-if="storeLogin.pageIdentity !== 'login'" class="nav-item dropdown">
-            <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
-              Сообщения
-              <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
-                {{ storeMessage.messageData.messages.length }}
-              </span>
-            </a>
-              <ul class="dropdown-menu" id="messages">
-                <h6 class="dropdown-header">Новые сообщения</h6>
-                <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
-                  <a class="dropdown-item">
-                    <p>{{ timeSince(message['create']) }}</p>
-                    <p>{{ message['report'] }}</p>
-                  </a>
-                </li>
-                <div class="dropdown-divider"></div>
-                <li>
-                  <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
-                               class="dropdown-item" >
-                    Открыть сообщения
-                  </router-link>
-                </li>
-              </ul>
-          </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
+                Сообщения
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
+                  {{ storeMessage.messageData.messages.length }}
+                </span>
+              </a>
+                <ul class="dropdown-menu" id="messages">
+                  <h6 class="dropdown-header">Новые сообщения</h6>
+                  <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
+                    <a class="dropdown-item">
+                      <p>{{ timeSince(message['create']) }}</p>
+                      <p>{{ message['report'] }}</p>
+                    </a>
+                  </li>
+                  <div class="dropdown-divider"></div>
+                  <li>
+                    <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
+                                class="dropdown-item" >
+                      Открыть сообщения
+                    </router-link>
+                  </li>
+                </ul>
+            </li>
+          </template>
               
           <li class="nav-item">
             <a class="nav-link active" href="#" 
@@ -195,6 +195,9 @@ if (!isStarted) {
     max-height: 640px;
     overflow-y: auto;
     overflow-x: auto;
+  }
+  #messages::after {
+    display: none;
   }
 
 </style>
