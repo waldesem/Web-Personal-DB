@@ -34,12 +34,12 @@ export const adminStore = defineStore('adminStore', () => {
     attempt: ''
   });
 
-  let formData = {
+  const formData = ref({
     fullname: '',
     username: '',
     email: '',
     region_id: '',
-  };
+  });
 
   /**
    * Retrieves a list of users from the server.
@@ -73,10 +73,6 @@ export const adminStore = defineStore('adminStore', () => {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
       profileData.value = response.data;
-      
-      if (action !== 'view'){
-       userAction('view', userData.value.userId);
-      };
       
     } catch (error) {
       console.error(error);

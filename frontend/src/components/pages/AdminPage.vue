@@ -1,20 +1,24 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { adminStore } from '@store/admin';
 import { debounce } from '@share/utilities';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
-import UserForm from '@components/forms/UserForm.vue';
+
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+const UserForm = () => import('@components/forms/UserForm.vue');
 
 const storeAdmin = adminStore();
 
+const searchUsers = debounce(storeAdmin.getUsers, 500);
 
 onBeforeMount(async () => {
   storeAdmin.getUsers()
 });
 
-const searchUsers = debounce(storeAdmin.getUsers, 500);
-
+onBeforeRouteLeave(() => {
+  storeAdmin.userData.userList =[];
+});
 
 </script>
 

@@ -23,7 +23,7 @@ from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema, \
     WorkplaceSchema
-from ..models.classes import Category, Roles, Groups, Status
+from ..models.classes import Category, Reports, Roles, Groups, Status
 
 
 class IndexView(MethodView):
@@ -144,7 +144,7 @@ class ResumeView(MethodView):
         if len(users):
             for user in users:
                 db.session.add(Report(
-                    category='Важ',
+                    category=Reports.high.value,
                     report=f'Делегирована анкета #{person_id} \
                                   от {current_user.fullname}', user_id=user.id))
         db.session.commit()
@@ -326,7 +326,8 @@ class WorkplaceView(MethodView):
     @r_g.roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
     def post(self, action, item_id, json_data):
-        json_data['now_work'] = bool(json_data.pop('now_work')) if 'now_work' in json_data else False
+        json_data['now_work'] = bool(json_data.pop('now_work')) \
+            if 'now_work' in json_data else False
         db.session.add(Workplace(**json_data | {'person_id': item_id}))
         db.session.commit()
         return '', 201
@@ -334,7 +335,8 @@ class WorkplaceView(MethodView):
     @r_g.roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
     def patch(self, action, item_id, json_data):
-        json_data['now_work'] = bool(json_data.pop('now_work')) if 'now_work' in json_data else False
+        json_data['now_work'] = bool(json_data.pop('now_work')) \
+            if 'now_work' in json_data else False
         for k, v in json_data.items():
             setattr(db.session.query(Workplace).get(item_id), k, v)
         db.session.commit()
@@ -410,13 +412,15 @@ class CheckView(MethodView):
 
         if action == 'self':
             check = db.session.query(Check).get(item_id)
-            prev_officer = db.session.query(User).filter_by(fullname=check.officer).one_or_none()
-            new_officer = db.session.query(User).filter_by(fullname=current_user.fullname).one_or_none()
-            db.session.add(Report(report=f'Aнкета ID #{id} делегирована \
-                                  {current_user.fullname}', user_id=prev_officer.id))
+            prev_officer = db.session.query(User).\
+                filter_by(fullname=check.officer).one_or_none()
+            new_officer = db.session.query(User).\
+                filter_by(fullname=current_user.fullname).one_or_none()
+            db.session.add(Report(category=Reports.high.value, 
+                                  report=f'Aнкета ID #{id} делегирована {current_user.fullname}', user_id=prev_officer.id))
             check.officer = current_user.fullname
-            db.session.add(Report(report=f'Aнкета ID #{id} переделегирована \
-                                  {current_user.fullname}', user_id=new_officer.id))
+            db.session.add(Report(category=Reports.high.value, 
+                                  report=f'Aнкета ID #{id} переделегирована {current_user.fullname}', user_id=new_officer.id))
             db.session.commit()
             return '', 201
 

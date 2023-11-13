@@ -1,14 +1,15 @@
 <script setup lang="ts">
 
 import { onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router';
+import { onBeforeRouteLeave, useRoute } from 'vue-router';
 import { adminStore } from '@store/admin';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { classifyStore } from '@/store/classify';
 import { server } from '@share/utilities';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
-import UserForm from '@components/forms/UserForm.vue'
+
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+const UserForm = () => import('@components/forms/UserForm.vue');
 //import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const storeClassify = classifyStore();
@@ -22,6 +23,29 @@ storeAdmin.userData.userId = route.params.id.toString();
 onBeforeMount(async () => {
   storeAdmin.userAction('view', storeAdmin.userData.userId);
 });
+
+onBeforeRouteLeave (() => {
+  Object.assign(storeAdmin.profileData, {
+    id: '',
+    fullname: '',
+    region_id: '',
+    username: '',
+    email: '',
+    pswd_create: '',
+    pswd_change: '',
+    last_login: '',
+    roles: [],
+    groups: [],
+    blocked: '',
+    attempt: ''
+  });
+  Object.assign(storeAdmin.formData, {
+    fullname: '',
+    username: '',
+    email: '',
+    region_id: '',
+  });
+})
 
 async function userDelete(): Promise<void>{
 if (confirm("Вы действительно хотите удалить пользователя?")){

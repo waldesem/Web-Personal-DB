@@ -32,7 +32,6 @@ class Category(Enum):
 
     candidate = 'Кандидат'
     staff = 'Сотрудник'
-    suspicious = 'Проверяемый'
 
 
 class Status(Enum):
@@ -68,3 +67,10 @@ class Decisions(Enum):
     agreed = 'СОГЛАСОВАНО'
     with_comment = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
     denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
+
+
+class Reports(Enum):
+
+    high = "Важный"
+    middle = "Обычный"
+    low = "Низкий"

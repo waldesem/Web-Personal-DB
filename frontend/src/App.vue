@@ -9,8 +9,8 @@ const AlertMessage = () => import('@components/layouts/AlertMessage.vue');
 const FooterDiv = () => import('@components/layouts/FooterDiv.vue');
 const ChatButton = () => import('@components/layouts/ChatButton.vue');
 
-const storeLogin = loginStore();
 const route = useRoute();
+const storeLogin = loginStore();
 
 onBeforeMount(() => {
   storeLogin.getAuth()

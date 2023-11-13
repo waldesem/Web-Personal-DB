@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
@@ -12,34 +13,32 @@ export const loginStore = defineStore('loginStore', () => {
   const storeAlert = alertStore();
   const storeClasses = classifyStore();
 
-  let pageIdentity = 'login';
+  const pageIdentity = ref('login');
 
-  let userData = {
+  const userData = ref({
     fullName: '',
     userName: '',
     userRoles: [],
     userGroups: [],
     region_id: '',
-  };
+  });
   
   async function getAuth(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/login`);
-      const userResponse = response.data;
+      const { fullname, username, roles, groups, region_id } = response.data;
 
-      Object.assign(userData, {
-        fullName: userResponse['fullname'],
-        userName: userResponse['username'],
-        userRoles: userResponse['roles'],
-        userGroups: userResponse['groups'],
-        region_id: userResponse['region_id'],
-      });
+      assignUserData(fullname, username, roles, groups, region_id);
 
       hasRole('admin') 
-        ? router.push({ name: 'users', params: { group: 'admins' }}) 
-        : router.push({ name: 'persons', params: { 
-          group: userData.userGroups[0]['group'] } 
-        });
+        ? router.push({ name: 'users', params: { 
+          group: 'admins' 
+        }
+      }) 
+        : router.push({ name: 'persons', params: {
+          group: userData.value.userGroups[0]['group'] 
+        }
+      });
       
       storeClasses.getClassify();
       storeAlert.setAlert();
@@ -67,16 +66,21 @@ export const loginStore = defineStore('loginStore', () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     
-    router.push({ name: 'login' });
+    assignUserData();
 
-    Object.assign(userData, {
-      fullName: '',
-      userName: '',
-      userRoles: [],
-      userGroups: []
-    });
+    router.push({ name: 'login' });
   };
   
+  function assignUserData (name='', user='', roles=[], groups=[], id='') {
+    Object.assign(userData, {
+      fullName: name,
+      userName: user,
+      userRoles: roles,
+      userGroups: groups,
+      region_id: id
+    });
+  };
+
   /**
    * Determines if the user has a specific role.
    *
@@ -84,7 +88,7 @@ export const loginStore = defineStore('loginStore', () => {
    * @return {boolean} Returns true if the user has the specified role, false otherwise.
    */
   function hasRole(role: string): boolean {
-    return userData.userRoles.some((r: { role: any; }) => r.role === role);
+    return userData.value.userRoles.some((r: { role: any; }) => r.role === role);
   };
 
   /**
@@ -94,7 +98,7 @@ export const loginStore = defineStore('loginStore', () => {
    * @return {boolean} Returns true if the user belongs to the specified group, false otherwise.
    */
   function hasGroup(group: string): boolean {
-    return userData.userGroups.some((g: { group: any; }) => g.group === group);
+    return userData.value.userGroups.some((g: { group: any; }) => g.group === group);
   };
 
   return { 

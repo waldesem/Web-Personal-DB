@@ -10,7 +10,7 @@ import ResumePage from '@components/pages/ResumePage.vue';
 import ProfilePage from '@components/pages/ProfilePage.vue';
 import StatPage from '@components/pages/StatPage.vue';
 import AdminPage from '@components/pages/AdminPage.vue';
-import AdminTables from '@components/pages/AdminTables.vue'
+import TablesPage from '@components/pages/TablesPage.vue'
 import ContactPage from '@components/pages/ContactPage.vue';
 import NotFound from '@components/pages/NotFound.vue';
 import PrintPage from '@components/pages/PrintPage.vue';
@@ -73,7 +73,7 @@ const router = createRouter({
         {
           path: 'table',
           name: 'table',
-          component: AdminTables,
+          component: TablesPage,
         },
         {
           path: 'contacts',

@@ -4,9 +4,12 @@ import { onBeforeMount, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router';
 import { authStore } from '@/store/token';
 import { server, debounce } from '@share/utilities';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 
 const storeAuth = authStore();
+
+const searchItem = debounce(getItem, 500);
 
 const tablesList = [
   'resume', 'staff', 'document', 'address', 'contact', 'workplace', 
@@ -57,8 +60,6 @@ async function getItem(): Promise<void> {
   }
 };
 
-const searchItem = debounce(getItem, 500);
-
 async function deleteItem(idItem: string): Promise<void>{
   try {
     const response = await storeAuth.axiosInstance.delete(
@@ -70,7 +71,6 @@ async function deleteItem(idItem: string): Promise<void>{
     console.error(error);
   }
 };
-
 
 </script>
 

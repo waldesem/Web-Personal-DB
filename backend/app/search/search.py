@@ -21,11 +21,11 @@ class Searching:
 
         self.index_name = 'persons_index'
         self.index_body = {
-        'settings': {
-            'index': {
-            'number_of_shards': 4
+            'settings': {
+                'index': {
+                'number_of_shards': 4
+                }
             }
-        }
         }
         if not client.indices.exists(self.index_name):
             client.indices.create(self.index_name, body=self.index_body)
