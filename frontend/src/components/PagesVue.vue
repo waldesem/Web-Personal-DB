@@ -7,7 +7,6 @@
 </template>
 
 <style scoped>
-
 .component-fade-enter-active,
 .component-fade-leave-active {
   transition: opacity 0.2s ease-in-out;
@@ -17,5 +16,4 @@
 .component-fade-leave-to {
   opacity: 0;
 }
-
 </style>

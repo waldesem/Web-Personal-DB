@@ -28,6 +28,6 @@ watch(() => route.params.group,
   <NavBar />
   <AlertMessage />
   <router-view></router-view>
-  <chat-button />
+  <ChatButton />
   <FooterDiv />
 </template>

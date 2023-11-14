@@ -16,8 +16,10 @@ onBeforeMount(async () => {
   storeAdmin.getUsers()
 });
 
-onBeforeRouteLeave(() => {
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeAdmin.userData.userList =[];
+  storeAdmin.userData.searchUser = '';
+  next()
 });
 
 </script>

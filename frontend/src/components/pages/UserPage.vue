@@ -6,7 +6,7 @@ import { adminStore } from '@store/admin';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { classifyStore } from '@/store/classify';
-import { server } from '@share/utilities';
+import { server, clearItem } from '@share/utilities';
 
 const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 const UserForm = () => import('@components/forms/UserForm.vue');
@@ -24,7 +24,8 @@ onBeforeMount(async () => {
   storeAdmin.userAction('view', storeAdmin.userData.userId);
 });
 
-onBeforeRouteLeave (() => {
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  clearItem(storeAdmin.formData);
   Object.assign(storeAdmin.profileData, {
     id: '',
     fullname: '',
@@ -39,12 +40,7 @@ onBeforeRouteLeave (() => {
     blocked: '',
     attempt: ''
   });
-  Object.assign(storeAdmin.formData, {
-    fullname: '',
-    username: '',
-    email: '',
-    region_id: '',
-  });
+  next()
 })
 
 async function userDelete(): Promise<void>{
@@ -53,51 +49,39 @@ if (confirm("Вы действительно хотите удалить пол�
     const response = await storeAuth.axiosInstance.delete(
       `${server}/user/${storeAdmin.userData.userId}`
       );
-    console.log(response.status);
-
-    storeAlert.setAlert('alert-danger', 'Пользователь удалён');
-    storeAdmin.getUsers();
+    storeAdmin.profileData = response.data;
+    storeAlert.setAlert('alert-success', 'Пользователь удалён');
 
   } catch (error) {
-    console.error(error);
+    storeAlert.setAlert('alert-danger', error as string)
   }
 }
 };
 
-async function addGroupRole(item: string, value: string): Promise<void> {
-if (value !== '') {
-  try {
-    const response = await storeAuth.axiosInstance.get(
-      `${server}/${item}/${value}/${storeAdmin.userData.userId}`
-      );
-    console.log(response.status);
-  
-  } catch (error) {
-    console.error(error);
-    storeAlert.setAlert('alert-danger', 'Ошибка');
-  };
-  storeAdmin.userAction('view', storeAdmin.userData.userId);
-}
-};
+async function updateGroupRole(action: string, item: string, value: string): Promise<void> {
+  if (value !== '') {
+    try {
+      const response = action === 'add' 
+        ? await storeAuth.axiosInstance.get(
+          `${server}/${item}/${value}/${storeAdmin.userData.userId}`
+          )
+        : await storeAuth.axiosInstance.delete(
+          `${server}/${item}/${value}/${storeAdmin.userData.userId}`
+          );
+      storeAdmin.profileData = response.data;
+      
+      storeAlert.setAlert(
+        'alert-success', 
+        `${item === 'role' ? "Роль" : "Группа"} ${value} ${action === 'add' ? "добавлена" : "удалена"}`
+        );
 
-async function delRoleGroup(item: string, value: string): Promise<void> {
-
-try {
-  const response = await storeAuth.axiosInstance.delete(
-    `${server}/${item}/${value}/${storeAdmin.userData.userId}`
-    );
-  console.log(response.status);
-
-} catch (error) {
-  console.error(error);
-  storeAlert.setAlert('alert-danger', 'Ошибка удаления');
-}
-storeAdmin.userAction('view', storeAdmin.userData.userId);
+    } catch (error) {
+      storeAlert.setAlert('alert-danger', error as string);
+    };
+  }
 };
 
 </script>
-
-
 
 <template>
   <div class="container py-3">
@@ -141,7 +125,7 @@ storeAdmin.userAction('view', storeAdmin.userData.userId);
             <td>
               <ul v-for="(group, index) in storeAdmin.profileData.groups" :key=index>
                 <li>{{ storeClassify.classifyItems.groups[group['group']] }}
-                  <a href="#" @click="delRoleGroup('group', group['group'])">
+                  <a href="#" @click="updateGroupRole('delete', 'group', group['group'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
@@ -149,7 +133,7 @@ storeAdmin.userAction('view', storeAdmin.userData.userId);
               <form class="form form-check" role="form">
                 <select class="form-select" id="group" name="group" 
                         v-model="storeAdmin.userData.userGroup" 
-                        @change="addGroupRole('group', storeAdmin.userData.userGroup)">
+                        @change="updateGroupRole('add', 'group', storeAdmin.userData.userGroup)">
                   <option value="" selected>Добавить группу</option>
                   <option v-for="(val, name) in storeClassify.classifyItems.groups" 
                           :key="name" :value="name">
@@ -162,7 +146,7 @@ storeAdmin.userAction('view', storeAdmin.userData.userId);
             <td>
               <ul v-for="(role, index) in storeAdmin.profileData.roles" :key=index>
                 <li>{{ role['role'] }}
-                  <a href="#" @click="delRoleGroup('role',role['role'])">
+                  <a href="#" @click="updateGroupRole('delete', 'role',role['role'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
@@ -170,7 +154,7 @@ storeAdmin.userAction('view', storeAdmin.userData.userId);
               <form class="form form-check" role="form">
                 <select class="form-select" id="role" name="role" 
                     v-model="storeAdmin.userData.userRole" 
-                    @change="addGroupRole('role', storeAdmin.userData.userRole)">
+                    @change="updateGroupRole('add', 'role', storeAdmin.userData.userRole)">
                   <option value="" selected>Добавить роль</option>
                   <option v-for="(val, name) in storeClassify.classifyItems.roles" 
                           :key="name" :value="val">
@@ -196,16 +180,13 @@ storeAdmin.userAction('view', storeAdmin.userData.userId);
         <button class="btn btn-outline-primary" type="button" 
                 data-bs-toggle="modal" data-bs-target="#modalUser"
                 @click="storeAdmin.userData.userAct = 'edit';
-                        storeAdmin.formData.fullname = storeAdmin.profileData.fullname;
-                        storeAdmin.formData.email = storeAdmin.profileData.email;
-                        storeAdmin.formData.username = storeAdmin.profileData.username;
-                        storeAdmin.formData.region_id = storeAdmin.profileData.region_id;">
+                storeAdmin.formData = storeAdmin.profileData">
           Изменить пользователя
         </button>
-        <button @click="storeAdmin.userAction('drop')" class="btn btn-outline-primary">
+        <button @click="storeAdmin.userAction('drop')" type="button" class="btn btn-outline-primary">
           Сбросить пароль
         </button>
-        <button @click="userDelete" class="btn btn-outline-primary" data-bs-dismiss="modal" >
+        <button @click="userDelete" type="button" class="btn btn-outline-primary">
           Удалить
         </button>
       </div>

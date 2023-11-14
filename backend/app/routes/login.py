@@ -91,7 +91,6 @@ class LoginView(MethodView):
     def get(self):
         """
         Retrieves the current authenticated user from the database.
-
         Returns:
             User: The user object representing the current authenticated user.
         """
@@ -141,7 +140,6 @@ class LoginView(MethodView):
     def patch(self, json_data):
         """
         Patch method for updating user password.
-        
         Args:
             json_data (dict): The JSON data containing the username, password, and new password.
         

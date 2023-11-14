@@ -30,7 +30,7 @@ onBeforeMount(() => {
   getItem();
 });
 
-onBeforeRouteLeave(() => {
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   Object.assign(tableData.value, {
     table: '',
     tableItem: [],
@@ -38,7 +38,8 @@ onBeforeRouteLeave(() => {
     currentPage: 1,
     hasNext: 0,
     hasPrev: 0
-  })
+  });
+  next()
 });
 
 async function getItem(): Promise<void> {

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import { watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
 import { adminStore } from '@/store/admin';
 import { messageStore } from '@/store/messages';
@@ -8,13 +10,23 @@ import { timeSince } from '@share/utilities';
 const storeLogin = loginStore();
 const storeAdmin = adminStore();
 const storeMessage = messageStore();
+const route = useRoute();
+
 
 let isStarted = false;
-if (!isStarted) { 
-  storeMessage.updateMessages();
-  isStarted = true;
-  setInterval(storeMessage.updateMessages, 1000000);
-};
+
+watch(() => route.params.group,
+  newValue => {
+    let updTimer = setInterval(storeMessage.updateMessages, 1000000);
+    if (!isStarted && newValue && !['admins', 'login'].includes(newValue as string)) {
+      isStarted = true;
+      storeMessage.updateMessages();
+      updTimer;
+    } else {
+      isStarted = false;
+      clearInterval(updTimer)
+    }
+  });
 
 </script>
 

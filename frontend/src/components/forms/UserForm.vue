@@ -4,7 +4,7 @@ import { adminStore } from '@store/admin';
 import { classifyStore } from '@/store/classify';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
-import { server } from '@share/utilities';
+import { server, clearItem } from '@share/utilities';
 
 const storeAdmin = adminStore();
 const storeClassify = classifyStore();
@@ -22,23 +22,21 @@ async function submitUser(): Promise<void>{
     const response = storeAdmin.userData.userAct === 'edit' 
       ? await storeAuth.axiosInstance.patch(`${server}/user`, storeAdmin.formData)
       : await storeAuth.axiosInstance.post(`${server}/user`, storeAdmin.formData);
-    const { message } = response.data;
-
-    const resp = {
-      'Created': ['alert-success', 'Пользователь успешно создан'],
-      'Patched': ['alert-success', 'Пользователь успешно изменен'],
+    
+    if (storeAdmin.userData.userAct === 'edit') {
+      storeAdmin.profileData = response.data;
+      storeAlert.setAlert('alert-success', 'Пользователь успешно изменен')
+    } else {
+      storeAdmin.userData.userList = response.data;
+      //storeAdmin.getUsers();
+      storeAlert.setAlert('alert-success', 'Пользователь успешно создан')
     };
-    storeAlert.setAlert(resp[message as keyof typeof resp][0],
-                        resp[message as keyof typeof resp][1]);
-
-    storeAdmin.userData.userAct === 'edit' 
-      ? storeAdmin.userAction('view', storeAdmin.userData.userId) 
-      : storeAdmin.getUsers();
 
   } catch (error) {
     console.error(error);
     storeAlert.setAlert('alert-danger', 'Ошибка сохранения данных');
   };
+  clearItem(storeAdmin.formData);
 };
 
 </script>
@@ -49,7 +47,9 @@ async function submitUser(): Promise<void>{
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="modaUserLabel">
-            {{ storeAdmin.userData.userAct === 'edit' ? 'Изменить пользователя' : 'Создать пользователя'}}
+            {{ storeAdmin.userData.userAct === 'edit' 
+                ? 'Изменить пользователя' 
+                : 'Создать пользователя'}}
           </h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -62,7 +62,7 @@ async function submitUser(): Promise<void>{
                 <input autocomplete="fullname" class="form-control" minlength="1" maxlength="250" 
                       name="fullname" required type="text" placeholder="Петров Петр Петрович" 
                       pattern="[a-zA-Zа-яА-Я ]+"
-                      v-model="storeAdmin.formData.fullname">
+                      v-model="storeAdmin.formData['fullname']">
               </div>
             </div>
             <div class="mb-3 row">
@@ -71,7 +71,7 @@ async function submitUser(): Promise<void>{
                 <input :disabled="storeAdmin.userData.userAct === 'edit'" 
                         autocomplete="username" class="form-control" minlength="1" maxlength="250" 
                         name="username" required type="text" placeholder="PPetrov" pattern="[a-zA-Z]+"
-                        v-model="storeAdmin.formData.username">
+                        v-model="storeAdmin.formData['username']">
               </div>
             </div>
             <div class="mb-3 row">
@@ -79,14 +79,14 @@ async function submitUser(): Promise<void>{
               <div class="col-lg-10">
                 <input autocomplete="email" class="form-control" name="email" 
                     required type="email" placeholder="petrov@petrov.ru" 
-                    v-model="storeAdmin.formData.email">
+                    v-model="storeAdmin.formData['email']">
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-form-label col-lg-2" for="region">Регион</label>
               <div class="col-lg-10">
                 <select class="form-select" id="region" name="region" 
-                        v-model="storeAdmin.formData.region_id" required>
+                        v-model="storeAdmin.formData['region_id']" required>
                   <option v-for="name, value in storeClassify.classifyItems.regions" 
                           :key="value" :value="value">
                     {{name}}
@@ -100,9 +100,13 @@ async function submitUser(): Promise<void>{
                   <button class="btn btn-outline-primary" name="submit" type="submit" data-bs-dismiss="modal">
                     {{storeAdmin.userData.userAct === 'create' ? 'Создать' : 'Изменить'}}
                   </button>
-                  <button class="btn btn-outline-primary" name="reset" type="reset">Очистить</button>
+                  <button class="btn btn-outline-primary" name="reset" type="reset">
+                    Очистить
+                  </button>
                   <button class="btn btn-outline-primary" name="cancel" type="button" 
-                          @click="storeAdmin.userData.userAct = ''" data-bs-dismiss="modal" >Отмена</button>
+                          @click="storeAdmin.userData.userAct = ''" data-bs-dismiss="modal" >
+                    Отмена
+                  </button>
                 </div>
               </div>
             </div>

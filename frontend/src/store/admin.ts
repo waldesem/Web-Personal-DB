@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue'
 import { authStore } from '@/store/token';
+import { alertStore } from '@store/alert';
 import { server } from '@share/utilities';
 import { User } from '@share/interfaces';
 
@@ -8,6 +9,7 @@ import { User } from '@share/interfaces';
 export const adminStore = defineStore('adminStore', () => {
 
   const storeAuth = authStore();
+  const storeAlert = alertStore();
 
   const userData = ref({
     userList: <User[]>([]),
@@ -34,12 +36,7 @@ export const adminStore = defineStore('adminStore', () => {
     attempt: ''
   });
 
-  const formData = ref({
-    fullname: '',
-    username: '',
-    email: '',
-    region_id: '',
-  });
+  const formData: Record<string, any> = ref({});
 
   /**
    * Retrieves a list of users from the server.
@@ -73,7 +70,11 @@ export const adminStore = defineStore('adminStore', () => {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
       profileData.value = response.data;
-      
+      if (action === 'drop'){
+        storeAlert.setAlert('alert-success', 'Пароль сброшен');
+      } else if (action === 'block') {
+        storeAlert.setAlert('alert-success', 'Пользователь (за-/раз-)блокирован');
+      };
     } catch (error) {
       console.error(error);
     }

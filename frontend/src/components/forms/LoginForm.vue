@@ -5,30 +5,17 @@ import { ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { loginStore } from '@store/login';
 import { alertStore } from '@store/alert';
-import { authStore } from '@store/token'
-import { server } from '@share/utilities';
+import { server, clearItem } from '@share/utilities';
 
 const storeLogin = loginStore();
 const storeAlert = alertStore();
-const storeAuth = authStore();
 
-const action = ref('login');
+const formData: Record<string, any> = ref({}); 
+const formAction = ref('login');
 const hidePassword = ref(true);
 
-let loginData = {
-  username: '',
-  password: '',
-  new_pswd: '',
-  conf_pswd: ''
-};
-
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(loginData, {
-    username: '',
-    password: '',
-    new_pswd: '',
-    conf_pswd: ''
-  });
+  clearItem(formData.value)
   next()
 });
 
@@ -39,60 +26,52 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
  */
  async function submitLogin(): Promise<void> {
 
-  if (action.value === 'password') {
-    if (loginData.password === loginData.new_pswd) {
-    storeAlert.setAlert('alert-warning', 
-                        'Старый и новый пароли совпадают');
+  if (formAction.value === 'password') {
+    if (formData['password'] === formData['new_pswd']) {
+      storeAlert.setAlert('alert-warning', 'Старый и новый пароли совпадают');
       return
     };
-    if (loginData.conf_pswd !== loginData.new_pswd) {
-      storeAlert.setAlert('alert-warning', 
-                          'Новый пароль и подтверждение не совпадают');
+    if (formData['conf_pswd'] !== formData['new_pswd']) {
+      storeAlert.setAlert('alert-warning', 'Новый пароль и подтверждение не совпадают');
       return
     }
   };
   try {
-    const response = action.value === 'password'
-      ? await axios.patch(`${server}/login`, loginData)
-      : await axios.post(`${server}/login`, loginData);
+    const response = formAction.value === 'password'
+      ? await axios.patch(`${server}/login`, formData)
+      : await axios.post(`${server}/login`, formData);
     
     const { message, access_token, refresh_token } = response.data;
+    
+    hidePassword.value = true;
+    clearItem(formData.value)
 
     switch (message) {
       case 'Authenticated':
 
-        if (action.value === 'password') {
-          action.value = 'login';
-          storeAlert.setAlert('alert-success',
-                              'Пароль установлен. Войдите с новым паролем');
-        } else {
-          localStorage.setItem('access_token', access_token);
+        if (formAction.value === 'password') {
+          formAction.value = 'login';
+          storeAlert.alertMessage.attrAlert = 'alert-success';
+          storeAlert.alertMessage.textAlert = 'Войдите с новым паролем';
+        } else {          
           localStorage.setItem('refresh_token', refresh_token);
-          
-          storeAuth.setRefreshToken(refresh_token);
-          storeAuth.setAccessToken(access_token);
-          
+          localStorage.setItem('access_token', access_token);
           storeLogin.getAuth();
         };
         break;
 
       case 'Overdue':
-        action.value = 'password';
-        storeAlert.setAlert('alert-warning', 
-                            'Пароль просрочен. Измените пароль');
+        formAction.value = 'password';
+        storeAlert.setAlert('alert-warning', 'Пароль просрочен. Измените пароль');
         break;
 
       case 'Denied':
-        action.value = 'login';
-        storeAlert.setAlert('alert-danger', 
-                            'Неверный логин или пароль');
+        formAction.value = 'login';
+        storeAlert.setAlert('alert-danger', 'Неверный логин или пароль');
         break;
-    }
+    };
   } catch (error) {
-    console.error(error)
-    storeAlert.setAlert('alert-danger', 
-                        'Ошибка авторизации');
-    action.value = 'login';
+    storeAlert.setAlert('alert-warning', error as string);
     storeLogin.userLogout();
   };
 };
@@ -100,7 +79,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 </script>
 
 <template>
-  <h5>{{ action === 'login' ? 'Вход в систему' : 'Изменить пароль' }}</h5>
+  <h5>{{ formAction === 'login' ? 'Вход в систему' : 'Изменить пароль' }}</h5>
   <div class="py-3">
     <form @submit.prevent="submitLogin" class="form form-check" role="form">
       <div class="mb-3 row">
@@ -109,7 +88,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           <input autocomplete="username" class="form-control" required 
             id="username" name="username" type="text" minlength="4" maxlength="16" 
             placeholder="Логин пользователя" pattern="[a-zA-Z]+"
-            v-model.trim="loginData.username">
+            v-model.trim="formData['username']">
         </div>
       </div>
       <div class="mb-3 row">
@@ -120,19 +99,19 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                   id="password" name="password" minlength="8" maxlength="16" 
                   placeholder="Пароль пользователя" pattern="[0-9a-zA-Z]+"
                   :type="hidePassword ? 'password' : 'text'" 
-                  v-model.trim="loginData.password" >
+                  v-model.trim="formData['password']" >
             <span class="input-group-text">
               <a role="button" @click="hidePassword = !hidePassword">
                 <i :class="hidePassword ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
               </a>
             </span>
           </div>
-          <div v-show="action === 'login'" class="py-2">
-            <a @click="action = 'password'" href="#">Изменить пароль</a>
+          <div v-show="formAction === 'login'" class="py-2">
+            <a @click="formAction = 'password'" href="#">Изменить пароль</a>
           </div>
         </div>
       </div>
-      <div v-if="action === 'password'">
+      <div v-if="formAction === 'password'">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="new_pswd">Новый: </label>
           <div class="col-lg-6">
@@ -140,7 +119,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                   name="new_pswd" minlength="8" maxlength="16"
                   placeholder="От 8 до 16 символов: a-z, A-Z" pattern="[0-9a-zA-Z]+"
                   :type="hidePassword ? 'password' : 'text'"
-                  v-model.trim="loginData.new_pswd">
+                  v-model.trim="formData['new_pswd']">
           </div>
         </div>
         <div class="mb-3 row">
@@ -150,18 +129,18 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                   name="conf_pswd" minlength="8" maxlength="16" 
                   placeholder="Повторите новый пароль" pattern="[0-9a-zA-Z]+"
                   :type="hidePassword ? 'password' : 'text'"
-                  v-model.trim="loginData.conf_pswd">
+                  v-model.trim="formData['conf_pswd']">
           </div>
         </div>
       </div>
       <div class="row mb-3">
         <div class="offset-lg-2 col-lg-10">
             <button class="btn btn-primary btn-md" name="submit" type="submit">
-              {{ action === 'login' ? 'Войти' : 'Изменить' }}
+              {{ formAction === 'login' ? 'Войти' : 'Изменить' }}
             </button>              
               &nbsp;
-            <button v-show="action === 'password'" class="btn btn-secondary btn-md" 
-                    type="button" @click="action = 'login'">Отменить
+            <button v-show="formAction === 'password'" class="btn btn-secondary btn-md" 
+                    type="button" @click="formAction = 'login'">Отменить
             </button>
         </div>
       </div>

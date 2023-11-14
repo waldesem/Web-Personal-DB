@@ -106,30 +106,28 @@ class UserView(MethodView):
                                                        encode('utf-8'),
                                                        bcrypt.gensalt())))
             db.session.commit()
-            return {'message': 'Created'}, 201
+            return UsersView.post({'fullname': ''})
+            # return {'message': 'Created'}, 201
 
     @bp.input(UserSchema)
     def patch(self, json_data):
         """
         Patch a user's information.
-
         Args:
             json_data (dict): A dictionary containing the updated information for the user.
-
         Returns:
             tuple: A tuple containing a message indicating the success of the 
             patch operation and the HTTP status code.
-
         Raises:
             None
         """
-        user = db.session.query(User). \
-            filter_by(username=json_data['username']).one_or_none()
+        user = db.session.query(User).get(json_data['id']).one_or_none()
         if user:
             for k, v in json_data.items():
-                setattr(user, k, v)
+                if k in ['fullname', 'username', 'email', 'region']:
+                    setattr(user, k, v)
             db.session.commit()
-            return {'message': 'Patched'}, 201
+            return self.get('view', json_data['id'])
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, user_id):
@@ -148,7 +146,8 @@ class UserView(MethodView):
         if user.username != current_user.username:
             db.session.delete(user)
             db.session.commit()
-            return {'message': 'Deleted'}, 204
+            return UsersView.post({'fullname': ''})
+            # return {'message': 'Created'}, 201
 
 
 user_view = UserView.as_view('user')
@@ -181,7 +180,8 @@ class GroupView(MethodView):
         if not group:
             user.groups.append(item)
             db.session.commit()
-            return '', 201
+            return UserView.get('view', user_id)
+            # return '', 201
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
@@ -200,8 +200,8 @@ class GroupView(MethodView):
         if not (user.username == current_user.username and value == Groups.admins.name):
             user.groups.remove(item)
             db.session.commit()
-            return '', 204
-
+            return UserView.get('view', user_id)
+            # return '', 201
 
 bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('group'))
 
@@ -227,13 +227,13 @@ class RoleView(MethodView):
         if not response:
             user.roles.append(item)
             db.session.commit()
-            return '', 201
+            return UserView.get('view', user_id)
+            # return '', 201
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
         """
         Deletes a role from a user.
-
         Args:
             value (str): The role value to be deleted.
             user_id (int): The ID of the user.
@@ -246,8 +246,8 @@ class RoleView(MethodView):
         if not (user.username == current_user.username and value == Roles.admin.name):
             user.roles.remove(item)
             db.session.commit()
-            return '', 204
-
+            return UserView.get('view', user_id)
+            # return '', 201
 
 bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))
 

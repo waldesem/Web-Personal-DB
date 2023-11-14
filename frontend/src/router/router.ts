@@ -1,23 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authStore } from '@/store/token';
 import { server } from '@share/utilities';
 import axios from 'axios';
 import App from '@/App.vue';
-import PagesVue from '@/components/PagesVue.vue';
-import LoginPage from '@components/pages/LoginPage.vue';
-import PersonPage from '@components/pages/PersonPage.vue';
-import ResumePage from '@components/pages/ResumePage.vue';
-import ProfilePage from '@components/pages/ProfilePage.vue';
-import StatPage from '@components/pages/StatPage.vue';
-import AdminPage from '@components/pages/AdminPage.vue';
-import TablesPage from '@components/pages/TablesPage.vue'
-import ContactPage from '@components/pages/ContactPage.vue';
-import NotFound from '@components/pages/NotFound.vue';
-import PrintPage from '@components/pages/PrintPage.vue';
-import FileManager from '@components/pages/FileManager.vue';
-import MessagePage from '@components/pages/MessagePage.vue';
-import UserPage from '@components/pages/UserPage.vue';
 
+const PagesVue = () => import('@components/PagesVue.vue');
+const LoginPage = () => import('@components/pages/LoginPage.vue');
+const PersonPage = () => import('@components/pages/PersonPage.vue');
+const ResumePage = () => import('@components/pages/ResumePage.vue');
+const ProfilePage = () => import('@components/pages/ProfilePage.vue');
+const InfoPage = () => import('@components/pages/InfoPage.vue');
+const AdminPage = () => import('@components/pages/AdminPage.vue');
+const TablesPage = () => import('@components/pages/TablesPage.vue');
+const ContactPage = () => import('@components/pages/ContactPage.vue');
+const PrintPage = () => import('@components/pages/PrintPage.vue');
+const FilePage = () => import('@components/pages/FilePage.vue');
+const MessagePage = () => import('@components/pages/MessagePage.vue');
+const UserPage = () => import('@components/pages/UserPage.vue');
+const NotFound = () => import('@components/pages/NotFound.vue');
 
 const router = createRouter({
   routes: [
@@ -58,7 +57,7 @@ const router = createRouter({
         {
           path: 'information',
           name: 'information',
-          component: StatPage
+          component: InfoPage
         },
         {
           path: 'users',
@@ -83,7 +82,7 @@ const router = createRouter({
         {
           path: 'manager',
           name: 'manager',
-          component: FileManager
+          component: FilePage
         },
         {
           path: 'messages',
@@ -102,10 +101,9 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
+    
   const refresh_token = localStorage.getItem('refresh_token');
   const access_token = localStorage.getItem('access_token');
-
-  const storeAuth = authStore()
 
   if (to.name !== 'login') {
     if (refresh_token) {
@@ -128,7 +126,6 @@ router.beforeEach(async (to, _from, next) => {
             
             if (access_token){
               localStorage.setItem('access_token', access_token);
-              storeAuth.setAccessToken(access_token);
               next();
 
             } else {
