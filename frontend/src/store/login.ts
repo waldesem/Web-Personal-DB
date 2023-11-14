@@ -44,7 +44,7 @@ export const loginStore = defineStore('loginStore', () => {
       storeAlert.setAlert();
 
     } catch (error) {
-      console.error(error);
+      storeAlert.setAlert('alert-warning', error as string);
       userLogout();
     }
   };
@@ -60,7 +60,7 @@ export const loginStore = defineStore('loginStore', () => {
       console.log(response.data);
 
     } catch (error) {
-      console.error(error)
+      storeAlert.setAlert('alert-warning', error as string);
     };
 
     localStorage.removeItem('access_token');
