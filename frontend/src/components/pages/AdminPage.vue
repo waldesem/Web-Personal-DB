@@ -17,7 +17,7 @@ onBeforeMount(async () => {
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  storeAdmin.userData.userList =[];
+  storeAdmin.userData.userList = [];
   storeAdmin.userData.searchUser = '';
   next()
 });
@@ -30,7 +30,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     <form @input="searchUsers" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="fullusername" name="fullusername" type="text" 
-                v-model="storeAdmin.userData.searchUser">
+               v-model="storeAdmin.userData.searchUser">
       </div>
     </form>
     <div class="py-2">
@@ -51,7 +51,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <tr height="50px" v-for="user in storeAdmin.userData.userList" :key="user.id">
               <td width="5%">{{ user.id }}</td>
               <td>{{ user.fullname }}</td>
-              <td width="25%">
+              <td>
                 <router-link :to="{ name: 'user', params: { id: user.id } }">
                   {{ user.username }}
                 </router-link>

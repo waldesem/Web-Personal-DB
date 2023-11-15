@@ -26,7 +26,7 @@ watch(() => route.params.group,
       isStarted = false;
       clearInterval(updTimer)
     }
-  });
+  }, {immediate:true});
 
 </script>
 

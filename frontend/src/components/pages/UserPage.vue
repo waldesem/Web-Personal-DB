@@ -10,6 +10,8 @@ import { server, clearItem } from '@share/utilities';
 
 const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 const UserForm = () => import('@components/forms/UserForm.vue');
+const ButtonTypeButton = () => import('@components/elements/ButtonTypeButton.vue');
+
 //import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const storeClassify = classifyStore();
@@ -18,10 +20,11 @@ const storeAuth = authStore();
 const storeAdmin = adminStore();
 
 const route = useRoute();
+
 storeAdmin.userData.userId = route.params.id.toString();
 
 onBeforeMount(async () => {
-  storeAdmin.userAction('view', storeAdmin.userData.userId);
+  storeAdmin.userAction('view');
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
@@ -174,21 +177,30 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
         </tbody>
       </table>
       <div class="btn-group py-3" role="group">
-        <button @click="storeAdmin.userAction('block')" class="btn btn-outline-primary">
-          {{storeAdmin.profileData.blocked ? "Разблокировать" : 'Заблокировать' }}
-        </button>
         <button class="btn btn-outline-primary" type="button" 
                 data-bs-toggle="modal" data-bs-target="#modalUser"
                 @click="storeAdmin.userData.userAct = 'edit';
                 storeAdmin.formData = storeAdmin.profileData">
           Изменить пользователя
         </button>
-        <button @click="storeAdmin.userAction('drop')" type="button" class="btn btn-outline-primary">
+        <ButtonTypeButton :class="'primary'" 
+                          :name="storeAdmin.profileData.blocked ? 'Разблокировать' : 'Заблокировать'" 
+                          :func="storeAdmin.userAction('block')"/>
+        <ButtonTypeButton :class="'primary'" 
+                          :name="'Сбросить пароль'" 
+                          :func="storeAdmin.userAction('drop')"/>
+        <ButtonTypeButton :class="'primary'" 
+                          :name="'Удалить'" 
+                          :func="userDelete"/>
+        <!--button @click="storeAdmin.userAction('block')" class="btn btn-outline-primary">
+          {{storeAdmin.profileData.blocked ? "Разблокировать" : 'Заблокировать' }}
+        </button-->
+        <!--button @click="storeAdmin.userAction('drop')" type="button" class="btn btn-outline-primary">
           Сбросить пароль
-        </button>
-        <button @click="userDelete" type="button" class="btn btn-outline-primary">
+        </button-->
+        <!--button @click="userDelete" type="button" class="btn btn-outline-primary">
           Удалить
-        </button>
+        </button-->
       </div>
     </div>
     <UserForm />

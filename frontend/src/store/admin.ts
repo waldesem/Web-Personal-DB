@@ -53,7 +53,7 @@ export const adminStore = defineStore('adminStore', () => {
       userData.value.userList = response.data;
     
     } catch (error) {
-      console.error(error);
+      storeAlert.setAlert('alert-success', error as string)
     }
   };
 
@@ -65,18 +65,21 @@ export const adminStore = defineStore('adminStore', () => {
    * @return {Promise<void>} - A promise that resolves when the user data 
    * is fetched and the profile value is updated.
    */
-  async function userAction(action: String, id: string = userData.value.userId): Promise<void>{
-    userData.value.userId = id;
+  async function userAction(action: String): Promise<void>{
     try {
-      const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${id}`);
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/user/${action}/${userData.value.userId}`
+        );
       profileData.value = response.data;
+
       if (action === 'drop'){
         storeAlert.setAlert('alert-success', 'Пароль сброшен');
       } else if (action === 'block') {
-        storeAlert.setAlert('alert-success', 'Пользователь (за-/раз-)блокирован');
+        storeAlert.setAlert('alert-success', 
+          `Пользователь ${profileData.value.blocked ? 'разблокирован' : 'заблокирован'}`);
       };
     } catch (error) {
-      console.error(error);
+      storeAlert.setAlert('alert-success', error as string)
     }
   };
 

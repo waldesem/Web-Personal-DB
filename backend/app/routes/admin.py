@@ -9,13 +9,9 @@ from . import bp
 from .. import db
 from .login import r_g
 from ..models.classes import Roles, Groups
-from ..models.model import User, Person, Staff, Document, Address, Contact, \
-    Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
-    Role, Group
-from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
-    PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-    InvestigationSchema, PoligrafSchema, RegistrySchema, \
-    WorkplaceSchema, UserSchema
+from ..models.model import  User, Role, Group
+from ..models.schema import UserSchema, models_schemas
+
 
 class UsersView(MethodView):
     
@@ -37,7 +33,6 @@ class UsersView(MethodView):
         query = db.session.query(User).order_by(User.id.desc()). \
             filter(User.fullname.ilike('%{}%'.format(json_data['fullname']))).all()
         return schema.dump(query, many=True)
-
 
 bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
 
@@ -101,13 +96,10 @@ class UserView(MethodView):
                                 username=json_data['username'],
                                 region_id=json_data['region_id'],
                                 email=json_data['email'],
-                                password=bcrypt.hashpw(current_app. \
-                                                       config['DEFAULT_PASSWORD']. \
-                                                       encode('utf-8'),
+                                password=bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD'].encode('utf-8'),
                                                        bcrypt.gensalt())))
             db.session.commit()
             return UsersView.post({'fullname': ''})
-            # return {'message': 'Created'}, 201
 
     @bp.input(UserSchema)
     def patch(self, json_data):
@@ -147,8 +139,6 @@ class UserView(MethodView):
             db.session.delete(user)
             db.session.commit()
             return UsersView.post({'fullname': ''})
-            # return {'message': 'Created'}, 201
-
 
 user_view = UserView.as_view('user')
 bp.add_url_rule('/user', view_func=user_view, methods=['PATCH', 'POST'])
@@ -181,7 +171,6 @@ class GroupView(MethodView):
             user.groups.append(item)
             db.session.commit()
             return UserView.get('view', user_id)
-            # return '', 201
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
@@ -201,12 +190,12 @@ class GroupView(MethodView):
             user.groups.remove(item)
             db.session.commit()
             return UserView.get('view', user_id)
-            # return '', 201
 
 bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('group'))
 
 
 class RoleView(MethodView):
+
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
@@ -228,7 +217,6 @@ class RoleView(MethodView):
             user.roles.append(item)
             db.session.commit()
             return UserView.get('view', user_id)
-            # return '', 201
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
@@ -247,7 +235,6 @@ class RoleView(MethodView):
             user.roles.remove(item)
             db.session.commit()
             return UserView.get('view', user_id)
-            # return '', 201
 
 bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))
 
@@ -255,50 +242,27 @@ bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'
 class TableView(MethodView):
     
     decorators = [r_g.roles_required(Roles.admin.value), bp.doc(hide=True)]
-    mapped_item = {
-        'user': [User, UserSchema()],
-        'resume': [Person, PersonSchema()],
-        'staff': [Staff, StaffSchema()],
-        'document': [Document, DocumentSchema()],
-        'address': [Address, AddressSchema()],
-        'contact': [Contact, ContactSchema()],
-        'workplace': [Workplace, WorkplaceSchema()],
-        'relation': [Relation, RelationSchema()],
-        'check': [Check, CheckSchema()],
-        'registry': [Registry, RegistrySchema()],
-        'poligraf': [Poligraf, PoligrafSchema()],
-        'investigation': [Investigation, InvestigationSchema()],
-        'inquiry': [Inquiry, InquirySchema()]
-    }
 
     def post(self, item, page):
         pagination = 16
-        model = self.mapped_item[item][0]
-        schema = self.mapped_item[item][1]
+        model = models_schemas[item][0]
+        schema = models_schemas[item][1]
         json_data = request.get_json()
+        result = db.session.query(model).order_by(model.id.desc())
         if json_data['id']:
-            query = db.session.query(model). \
-                filter_by(id=json_data['id']). \
-                order_by(model.id.desc()).paginate(page=page,
-                                                per_page=pagination,
-                                                error_out=False)
-        else:
-            query = db.session.query(model). \
-                order_by(model.id.desc()).paginate(page=page,
-                                                per_page=pagination,
-                                                error_out=False)
+            result = result.filter_by(id=json_data['id'])
+        query = result.paginate(page=page,per_page=pagination, error_out=False)
         return [schema.dump(query, many=True),
                 {'has_next': int(query.has_next),
                  'has_prev': int(query.has_prev)}]
 
     def delete(self, item, item_id):
-        model = self.mapped_item[item][0]
-        table = db.session.query(model).filter_by(id=item_id).one_or_none()
-        if table:
-            db.session.delete(table)
+        model = models_schemas[item][0]
+        row = db.session.query(model).filter_by(id=item_id).one_or_none()
+        if row:
+            db.session.delete(row)
             db.session.commit()
         return ''
-
 
 table_view = TableView.as_view('table')
 bp.add_url_rule('/table/<item>/<int:page>',

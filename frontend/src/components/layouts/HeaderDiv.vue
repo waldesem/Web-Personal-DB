@@ -2,7 +2,7 @@
 
 const props = defineProps({
   pageHeader: String
-})
+});
 
 </script>
 

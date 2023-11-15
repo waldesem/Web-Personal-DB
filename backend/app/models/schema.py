@@ -2,7 +2,7 @@ from apiflask import Schema
 from marshmallow import fields
 
 from .. import ma
-from ..models.model import Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
+from ..models.model import OneS, Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
     Check, Registry, Poligraf, Investigation, Inquiry, Report, Region, Role, Group, Connect
 
 
@@ -138,13 +138,20 @@ class PoligrafSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class OneSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for 1C"""
+    class Meta:
+        model = OneS
+        ordered = True
+
+
 class ConnectSchema(ma.SQLAlchemyAutoSchema):
     """ Create schema for Connections """
     class Meta:
         model = Connect
         ordered = True
         exclude = ('search_vector',)
-        
+
 
 class AnketaSchema(ma.SQLAlchemySchema):
     """ Create schema for sending anketa"""
@@ -172,3 +179,25 @@ class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
         ordered = True
         exclude = ('workplace', 'internet', 'cronos', 'cros', 'addition', 
                    'pfo', 'comments', 'conclusion', 'officer', 'deadline',)
+
+
+models_schemas = {
+    'user': [User, UserSchema()],
+    'role': [Role, RoleSchema()],
+    'group': [Group, GroupSchema()],
+    'report': [Report, MessageSchema()],
+    'resume': [Person, PersonSchema()],
+    'staff': [Staff, StaffSchema()],
+    'document': [Document, DocumentSchema()],
+    'address': [Address, AddressSchema()],
+    'contact': [Contact, ContactSchema()],
+    'workplace': [Workplace, WorkplaceSchema()],
+    'relation': [Relation, RelationSchema()],
+    'check': [Check, CheckSchema()],
+    'registry': [Registry, RegistrySchema()],
+    'poligraf': [Poligraf, PoligrafSchema()],
+    'investigation': [Investigation, InvestigationSchema()],
+    'inquiry': [Inquiry, InquirySchema()],
+    'connect': [Connect, ConnectSchema],
+    'ones': [OneS, OneSchema]
+}

@@ -13,6 +13,7 @@ export const classifyStore = defineStore('classifyStore', () => {
     category: <Record<string, any>>({}),
     groups: <Record<string, any>>({}),
     roles: <Record<string, any>>({}),
+    tables: []
   };
 
   /**
@@ -32,7 +33,8 @@ export const classifyStore = defineStore('classifyStore', () => {
         classifyItems.decision, 
         classifyItems.category, 
         classifyItems.groups, 
-        classifyItems.roles 
+        classifyItems.roles,
+        classifyItems.tables
       ] = response.data;
 
     } catch (error) {

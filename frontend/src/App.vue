@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { onBeforeMount, watch } from 'vue';
+import { onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
 
@@ -12,15 +12,11 @@ const ChatButton = () => import('@components/layouts/ChatButton.vue');
 const route = useRoute();
 const storeLogin = loginStore();
 
+storeLogin.pageIdentity = route.params.group as string;
+
 onBeforeMount(() => {
   storeLogin.getAuth()
 });
-
-watch(() => route.params.group,
-  newValue => {
-    storeLogin.pageIdentity = newValue as string;
-  }
-);
 
 </script>
 
