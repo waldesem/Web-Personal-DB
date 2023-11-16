@@ -5,14 +5,15 @@ import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { fileManagerStore } from '@store/fmanager';
 import { clearItem } from '@share/utilities'
-import ResumeForm from '@components/forms/ResumeForm.vue';
-import RegionForm from '@components/forms/RegionForm.vue';
-import StaffForm from '@components/forms/StaffForm.vue';
-import DocumentForm from '@components/forms/DocumentForm.vue';
-import AddressForm from '@components/forms/AddressForm.vue';
-import ContactForm from '@components/forms/ContactForm.vue';
-import RelationForm from '@components/forms/RelationForm.vue';
-import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
+
+const ResumeForm = () => import('@components/forms/ResumeForm.vue');
+const RegionForm = () => import('@components/forms/RegionForm.vue');
+const StaffForm = () => import('@components/forms/StaffForm.vue');
+const DocumentForm = () => import('@components/forms/DocumentForm.vue');
+const AddressForm = () => import('@components/forms/AddressForm.vue');
+const ContactForm = () => import('@components/forms/ContactForm.vue');
+const RelationForm = () => import('@components/forms/RelationForm.vue');
+const WorkplaceForm = () => import('@components/forms/WorkplaceForm.vue');
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
@@ -68,7 +69,7 @@ function switchForm(item: string){
           <tr>
             <td>Регион</td>
             <td>
-              <a href="#" data-bs-toggle="modal" data-bs-target="#modalWin"
+              <a href="#" data-bs-toggle="modal" data-bs-target="#modalRegion"
                  @click="storeProfile.openForm('resume', 'location', 
                                                 storeProfile.profile.resume['id'], 
                                                 storeProfile.profile.resume)">

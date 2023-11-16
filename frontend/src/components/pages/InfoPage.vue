@@ -19,7 +19,8 @@ import {
   PointElement, 
   LineElement
 } from 'chart.js';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 
 const storeAuth = authStore();
 const storeLogin = loginStore();

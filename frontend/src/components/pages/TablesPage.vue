@@ -7,6 +7,7 @@ import { alertStore } from '@store/alert';
 import { classifyStore} from '@store/classify'
 import { server, debounce } from '@share/utilities';
 
+const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
 const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 
 const storeAuth = authStore();
@@ -41,10 +42,10 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   next()
 });
 
-async function getItem(): Promise<void> {
+async function getItem(page = tableData.value.currentPage): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.post(
-      `${server}/table/${tableData.value.table}/${tableData.value.currentPage}`, {
+      `${server}/table/${tableData.value.table}/${page}`, {
         'id': tableData.value.searchId
       }
     );
@@ -122,24 +123,10 @@ async function deleteItem(idItem: string): Promise<void>{
         </tbody>
       </table>
     </div>
-    <div class="py-3">  
-      <nav v-if="tableData.hasPrev || tableData.hasNext">
-        <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasPrev }">
-            <a class="page-link" href="#" 
-               @click.prevent="tableData.currentPage -= 1; getItem()">
-               Предыдущая
-            </a>
-          </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !tableData.hasNext }">
-            <a class="page-link" href="#" 
-              @click.prevent="tableData.currentPage += 1; getItem()">
-               Следующая
-              </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <PageSwitcher :has_prev = "tableData.hasNext"
+                  :has_next = "tableData.hasPrev"
+                  :switchPrev = "getItem(tableData.currentPage -1)"
+                  :switchNext = "getItem(tableData.currentPage +1)" />
   </div>
 </template>
 

@@ -4,7 +4,6 @@ import { profileStore } from '@/store/profile';
 
 const storeProfile = profileStore();
 
-
 </script>
 
 <template v-if="(storeProfile.action === 'update'

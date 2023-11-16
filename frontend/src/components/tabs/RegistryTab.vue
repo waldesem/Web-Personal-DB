@@ -4,7 +4,8 @@ import { ref } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { loginStore } from '@/store/login';
-import RegistryForm from '@components/forms/RegistryForm.vue';
+
+const RegistryForm = () => import('@components/forms/RegistryForm.vue');
 
 const storeProfile = profileStore();
 const classifyApp = classifyStore();
@@ -27,13 +28,15 @@ disableRegBtn.value = (storeProfile.profile.resume['status']
         <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.register" 
                                     :key="tbl['id']" >
           <h6 class="accordion-header">
-            <button :class="`accordion-button ${idx !== 0 ? 'collapsed' : ''}`" type="button" data-bs-toggle="collapse" 
+            <button :class="`accordion-button ${idx !== 0 ? 'collapsed' : ''}`" 
+                    type="button" data-bs-toggle="collapse" 
                     :data-bs-target="`#collapseRegistry${tbl['id']}`">
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapseRegistry${tbl['id']}`" :class="`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`" 
-              data-bs-parent="#accordionRegistry">
+          <div :id="`collapseRegistry${tbl['id']}`" 
+               :class="`accordion-collapse collapse ${idx === 0 ? 'show' : ''}`" 
+               data-bs-parent="#accordionRegistry">
             <div class="accordion-body">
               <table class="table table-responsive">
                 <thead>

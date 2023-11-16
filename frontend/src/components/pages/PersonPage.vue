@@ -6,7 +6,9 @@ import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { debounce, server } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
@@ -147,27 +149,9 @@ const searchPerson = debounce(getCandidates, 500);
         </tbody>
       </table>
     </div>
-    <div class="py-3">
-      <nav v-if="personData.has_prev || personData.has_next">
-        <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !personData.has_prev }">
-            <a class="page-link" href="#" 
-                v-on:click.prevent="getCandidates(
-                  personData.currentPath, personData.currentPage - 1
-                  )">
-                Предыдущая
-            </a>
-          </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !personData.has_next }">
-            <a class="page-link" href="#" 
-                v-on:click.prevent="getCandidates(
-                  personData.currentPath, personData.currentPage + 1
-                  )">
-                Следующая
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <PageSwitcher :has_prev = "personData.has_prev"
+                  :has_next = "personData.has_next"
+                  :switchPrev = "getCandidates(personData.currentPath, personData.currentPage-1)"
+                  :switchNext = "getCandidates(personData.currentPath, personData.currentPage+1)" />
   </div>
 </template>

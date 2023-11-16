@@ -2,7 +2,8 @@
 
 import { profileStore } from '@/store/profile';
 import { fileManagerStore } from '@store/fmanager';
-import InvestigationForm from '@components/forms/InvestigationForm.vue'
+
+const InvestigationForm = () => import('@components/forms/InvestigationForm.vue');
 
 const storeProfile = profileStore();
 const storeFmanager = fileManagerStore();

@@ -2,7 +2,8 @@
 
 import { profileStore } from '@/store/profile';
 import { fileManagerStore } from '@/store/fmanager';
-import PoligrafForm from '@components/forms/PoligrafForm.vue';
+
+const PoligrafForm = () => import('@components/forms/PoligrafForm.vue');
 
 const storeProfile = profileStore();
 const storeFmanager = fileManagerStore();

@@ -3,8 +3,10 @@
 import { onBeforeMount, ref } from 'vue';
 import { authStore } from '@store/token';
 import { fileManagerStore } from '@store/fmanager';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 import { server } from '@share/utilities';
+
+const ModalWin = () => import('@components/layouts/ModalWin.vue');
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 
 const storeAuth = authStore();
 const storeFileManager = fileManagerStore();
@@ -230,7 +232,7 @@ function clearValue() {
           <button type="button" class="btn btn-outline-primary" 
                   @click="storeFileManager.fileManager.action = 'rename'"
                   :disabled="!storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length !== 1"
-                  data-bs-toggle="modal" data-bs-target="#modalItem">
+                  data-bs-toggle="modal" data-bs-target="#modalFile">
             <i class="bi bi-pencil" title="Переменовать"></i>
           </button>
         </div>
@@ -296,48 +298,23 @@ function clearValue() {
 
       </ul>
     </div>
-    
-    <!-- <div class="p-3">
-      <nav>
-        <ul class="pagination pagination-md justify-content-center">
-          <li class="page-item" :disabled="pagination.hasPrev">
-            <a class="page-link" href="#">Предыдущая</a>
-          </li>
-          <li class="page-item" :disabled="pagination.hasNext">
-            <a class="page-link" href="#">Следующая</a>
-          </li>
-        </ul>
-      </nav>
-    </div> -->
-
-    <div class="modal fade" id="modalItem" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-      <div class="modal-dialog modal-md">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalWinLabel">Переменовать</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <modal-win :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">
+      <template v-slot:body>
+        <form @submit.prevent="updateItem" class="form form-check" role="form">
+          <div class="row">
+            <div class="col">
+              <input class="form-control" id="name" maxlength="250" name="name" type="text"
+              v-model="modalValue">
+            </div>
+            <div class="col">
+              <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
+                Принять
+              </button>
+            </div>
           </div>
-          <div class="modal-body">
-            
-            <form @submit.prevent="updateItem" class="form form-check" role="form">
-              <div class="row">
-                <div class="col">
-                  <input class="form-control" id="name" maxlength="250" name="name" type="text"
-                  v-model="modalValue">
-                </div>
-                <div class="col">
-                  <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
-                    Принять
-                  </button>
-                </div>
-              </div>
-            </form>
-      
-          </div>
-        </div>
-      </div>
-    </div>
-
+        </form>
+      </template>
+    </modal-win>
   </div>
 </template>
 

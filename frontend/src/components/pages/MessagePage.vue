@@ -2,6 +2,8 @@
 
 import { messageStore } from '@/store/messages';
 
+const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
+
 const storeMessage = messageStore();
 
 </script>
@@ -61,24 +63,13 @@ const storeMessage = messageStore();
         </table>
       </div>
     </div>
-    <div class="py-3">
-      <nav v-if="storeMessage.messageData.hasPrev || storeMessage.messageData.hasNext">
-        <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !storeMessage.messageData.hasPrev }">
-            <a class="page-link" href="#" 
-              @click.prevent="storeMessage.messageData.currentPage -= 1;
-                              storeMessage.updateMessages('all')">
-                Предыдущая</a>
-          </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !storeMessage.messageData.hasNext }">
-            <a class="page-link" href="#" 
-              @click.prevent="storeMessage.messageData.currentPage += 1;
-                              storeMessage.updateMessages('all')">
-                Следующая
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <PageSwitcher :has_prev = "storeMessage.messageData"
+                  :has_next = "storeMessage.messageData.hasPrev"
+                  :switchPrev = "storeMessage.updateMessages(
+                    'all', storeMessage.messageData.currentPage - 1
+                    )"
+                  :switchNext = "storeMessage.updateMessages(
+                    'all', storeMessage.messageData.currentPage + 1
+                    )" />
   </div>
 </template>

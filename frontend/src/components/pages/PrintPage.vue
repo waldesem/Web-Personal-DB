@@ -2,7 +2,7 @@
 
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();

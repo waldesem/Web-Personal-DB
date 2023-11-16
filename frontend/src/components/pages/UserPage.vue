@@ -10,7 +10,6 @@ import { server, clearItem } from '@share/utilities';
 
 const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 const UserForm = () => import('@components/forms/UserForm.vue');
-const ButtonTypeButton = () => import('@components/elements/ButtonTypeButton.vue');
 
 //import PhotoCard from '@components/layouts/PhotoCard.vue';
 
@@ -183,24 +182,15 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
                 storeAdmin.formData = storeAdmin.profileData">
           Изменить пользователя
         </button>
-        <ButtonTypeButton :class="'primary'" 
-                          :name="storeAdmin.profileData.blocked ? 'Разблокировать' : 'Заблокировать'" 
-                          :func="storeAdmin.userAction('block')"/>
-        <ButtonTypeButton :class="'primary'" 
-                          :name="'Сбросить пароль'" 
-                          :func="storeAdmin.userAction('drop')"/>
-        <ButtonTypeButton :class="'primary'" 
-                          :name="'Удалить'" 
-                          :func="userDelete"/>
-        <!--button @click="storeAdmin.userAction('block')" class="btn btn-outline-primary">
+        <button @click="storeAdmin.userAction('block')" class="btn btn-outline-primary">
           {{storeAdmin.profileData.blocked ? "Разблокировать" : 'Заблокировать' }}
-        </button-->
-        <!--button @click="storeAdmin.userAction('drop')" type="button" class="btn btn-outline-primary">
+        </button>
+        <button @click="storeAdmin.userAction('drop')" type="button" class="btn btn-outline-primary">
           Сбросить пароль
-        </button-->
-        <!--button @click="userDelete" type="button" class="btn btn-outline-primary">
+        </button>
+        <button @click="userDelete" type="button" class="btn btn-outline-primary">
           Удалить
-        </button-->
+        </button>
       </div>
     </div>
     <UserForm />

@@ -6,8 +6,11 @@ import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { server, debounce, clearItem } from '@share/utilities';
-import ConnectForm from '@components/forms/ConnectForm.vue';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+const ConnectForm = () => import('@components/forms/ConnectForm.vue');
+
+const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
 
 const storeAlert = alertStore();
 const storeContact = contactStore();
@@ -138,24 +141,14 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
         </tbody>
       </table>
     </div>
-    <div class="py-3">
-      <nav v-if="storeContact.responseData.hasPrev || storeContact.responseData.hasNext">
-        <ul class="pagination justify-content-center">
-          <li v-bind:class="{ 'page-item': true, disabled: !storeContact.responseData.hasPrev }">
-            <a class="page-link" href="#" 
-              @click.prevent="storeContact.contactsData.currentPage -= 1;
-                              storeContact.getContacts">
-                Предыдущая</a>
-          </li>
-          <li v-bind:class="{ 'page-item': true, disabled: !storeContact.responseData.hasNext }">
-            <a class="page-link" href="#" 
-              @click.prevent="storeContact.contactsData.currentPage += 1;
-                              storeContact.getContacts">
-                Следующая</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <PageSwitcher :has_prev = "storeContact.responseData.hasNext"
+                  :has_next = "storeContact.responseData.hasPrev"
+                  :switchPrev = "storeContact.getContacts(
+                    storeContact.contactsData.currentPage -1
+                    )"
+                  :switchNext = "storeContact.getContacts(
+                    storeContact.contactsData.currentPage +1
+                    )" />
   </div>
 </template>
 

@@ -4,6 +4,8 @@
 import { classifyStore } from '@/store/classify';
 import { profileStore } from '@/store/profile';
 
+const ModalWin = () => import('@components/layouts/ModalWin.vue');
+
 const storeClassify = classifyStore();
 
 const storeProfile = profileStore();
@@ -11,39 +13,29 @@ const storeProfile = profileStore();
 </script>
 
 <template>
-  <div class="modal fade" id="modalWin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="modalWinLabel">Изменить регион</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <modal-win :id="'modalRegion'" :title ="'Изменить регион'" :size="'modal-md'">
+    <template v-slot:body>
+      <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
+        <div class="mb-3 row">
+          <label class="col-form-label col-lg-2" for="region_id" >Регион</label>
+          <div class="col-lg-10">
+            <select class="form-select" required id="region_id" name="region_id" 
+                    v-model="storeProfile.itemForm['region_id']">
+              <option v-for="name, value in storeClassify.classifyItems.regions" 
+                    :key="value" :value="value">{{name}}</option>                
+            </select>
+          </div>
         </div>
-        <div class="modal-body">
-          
-          <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
-            <div class="mb-3 row">
-              <label class="col-form-label col-lg-2" for="region_id" >Регион</label>
-              <div class="col-lg-10">
-                <select class="form-select" required id="region_id" name="region_id" 
-                        v-model="storeProfile.itemForm['region_id']">
-                  <option v-for="name, value in storeClassify.classifyItems.regions" 
-                        :key="value" :value="value">{{name}}</option>                
-                </select>
-              </div>
-            </div>
-            <div class=" row">
-              <div class="offset-lg-2 col-lg-10">
-                <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
-                  Принять
-                </button>
-              </div>
-            </div>
-          </form>
-    
+        <div class=" row">
+          <div class="offset-lg-2 col-lg-10">
+            <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
+              Принять
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
+      </form>
+    </template>
+  </modal-win>
 </template>
 
 <style>

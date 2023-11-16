@@ -4,20 +4,30 @@ import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useRoute } from 'vue-router';
 import { profileStore } from '@/store/profile';
-import AnketaTab from '@components/tabs/AnketaTab.vue';
-import CheckTab from '@components/tabs/CheckTab.vue';
-import RegistryTab from '@components/tabs/RegistryTab.vue';
-import PoligrafTab from '@components/tabs/PoligrafTab.vue';
-import InvestigateTab from '@components/tabs/InvestigateTab.vue';
-import InquiryTab from '@components/tabs/InquiryTab.vue';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
-import PhotoCard from '@components/layouts/PhotoCard.vue';
+
+const AnketaTab = () => import('@components/tabs/AnketaTab.vue');
+const CheckTab = () => import('@components/tabs/CheckTab.vue');
+const RegistryTab = () => import('@components/tabs/RegistryTab.vue');
+const PoligrafTab = () => import('@components/tabs/PoligrafTab.vue');
+const InvestigateTab = () => import('@components/tabs/InvestigateTab.vue');
+const InquiryTab = () => import('@components/tabs/InquiryTab.vue');
+const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+const PhotoCard = () => import('@components/layouts/PhotoCard.vue');
 
 const storeProfile = profileStore();
 
 const route = useRoute();
 
 storeProfile.candId = route.params.id.toString();
+
+const tabsObject = {
+  anketaTab: ['Анкета', AnketaTab],
+  сheckTab: ['Проверки', CheckTab],
+  registryTab: ['Согласования', RegistryTab],
+  poligrafTab: ['Полиграф', PoligrafTab],
+  investigateTab: ['Расследования', InvestigateTab],
+  inquiryTab: ['Запросы', InquiryTab]
+};
 
 onBeforeMount(async () => {
   Promise.all([
@@ -52,29 +62,18 @@ async function getProfile() {
   ]);
 };
 
-
 </script>
 
 <template>
   <div class="container py-3">
-    
-    <div class="py-1">
-      <PhotoCard :profileId="storeProfile.profile.resume['id']" :imageUrl="storeProfile.urlImage"/>
-      <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
-    </div>
+    <PhotoCard :profileId="storeProfile.profile.resume['id']" :imageUrl="storeProfile.urlImage"/>
+    <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
     <div class="nav nav-tabs nav-justified" role="tablist">
-      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#anketaTab" 
-          type="button" role="tab">Анкета</button>
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#checkTab" 
-          type="button" role="tab">Проверки</button>
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registryTab" 
-          type="button" role="tab">Согласования</button>
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#poligrafTab" 
-          type="button" role="tab">Полиграф</button>
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#investigateTab" 
-          type="button" role="tab">Расследования</button>
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#inquiryTab" 
-          type="button" role="tab">Запросы</button>
+      <button v-for="(value, key) in tabsObject" :key="key"
+              class="nav-link active" type="button" role="tab" 
+              data-bs-toggle="tab" :data-bs-target="`#${key}`">
+        {{value[0]}}
+      </button>
     </div>
     <div class="tab-content">
       <div class="tab-pane fade show active py-1" role="tabpanel" id="anketaTab">
