@@ -1,100 +1,84 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { server } from '@share/utilities';
 import axios from 'axios';
-import App from '@/App.vue';
-
-const PagesVue = () => import('@components/PagesVue.vue');
-const LoginPage = () => import('@components/pages/LoginPage.vue');
-const PersonPage = () => import('@components/pages/PersonPage.vue');
-const ResumePage = () => import('@components/pages/ResumePage.vue');
-const ProfilePage = () => import('@components/pages/ProfilePage.vue');
-const InfoPage = () => import('@components/pages/InfoPage.vue');
-const AdminPage = () => import('@components/pages/AdminPage.vue');
-const TablesPage = () => import('@components/pages/TablesPage.vue');
-const ContactPage = () => import('@components/pages/ContactPage.vue');
-const PrintPage = () => import('@components/pages/PrintPage.vue');
-const FilePage = () => import('@components/pages/FilePage.vue');
-const MessagePage = () => import('@components/pages/MessagePage.vue');
-const UserPage = () => import('@components/pages/UserPage.vue');
-const NotFound = () => import('@components/pages/NotFound.vue');
 
 const router = createRouter({
   routes: [
     {
       path: '/',
-      component: App
+      component: () => import('@/App.vue')
     },
     {
       path: '/login/auth',
       name: 'login',
-      component: LoginPage,
+      component: () => import('@components/pages/LoginPage.vue')
     },
     {
       path: '/:group',
       name: 'group',
-      component: PagesVue,
+      component: () => import('@components/PagesVue.vue'),
       children: [
         {
           path: 'persons',
           name: 'persons',
-          component: PersonPage
+          component: () => import('@components/pages/PersonPage.vue'),
         },
         {
           path: 'resume',
           name: 'resume',
-          component: ResumePage
+          component: () => import('@components/pages/ResumePage.vue')
         },
         {
           path: 'profile/:id',
           name: 'profile',
-          component: ProfilePage
+          component: () => import('@components/pages/ProfilePage.vue')
         },
         {
           path: 'print',
           name: 'print',
-          component: PrintPage
+          component: () => import('@components/pages/PrintPage.vue')
         },
         {
           path: 'information',
           name: 'information',
-          component: InfoPage
+          component: () => import('@components/pages/InfoPage.vue')
         },
         {
           path: 'users',
           name: 'users',
-          component: AdminPage
+          component: () => import('@components/pages/AdminPage.vue')
         },
         {
           path: 'user/:id',
           name: 'user',
-          component: UserPage
+          component: () => import('@components/pages/UserPage.vue')
         },
         {
           path: 'table',
           name: 'table',
-          component: TablesPage,
+          component: () => import('@components/pages/TablesPage.vue')
         },
         {
           path: 'contacts',
           name: 'contacts',
-          component: ContactPage
+          component: () => import('@components/pages/ContactPage.vue')
         },
         {
           path: 'manager',
           name: 'manager',
-          component: FilePage
+          component: () => import('@components/pages/FilePage.vue')
         },
         {
           path: 'messages',
           name: 'messages',
-          component: MessagePage
+          component: () => import('@components/pages/MessagePage.vue')
         }
       ]
     },
     {
       path: '/:pathMatch(.*)*',  
       name: '404', 
-      component: NotFound
+      component: () => import('@components/pages/NotFound.vue')
     }
   ],
   history: createWebHistory()
