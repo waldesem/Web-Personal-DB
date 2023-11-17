@@ -1,0 +1,12 @@
+SECRET_KEY = 'SECRET_KEY'
+JWT_SECRET_KEY = 'JWT_SECRET_KEY'
+
+SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://flask:flask@localhost/personal'
+
+SMTP_SERVER = '0.0.0.0'
+SMTP_PORT = 587
+SMTP_USERNAME = 'your_username'
+SMTP_PASSWORD = 'your_password'
+SENDER_EMAIL = 'econsec@econsec.ru'
+
+SCHEDULER_API_ENABLED = True

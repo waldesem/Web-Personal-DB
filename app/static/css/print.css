@@ -1,7 +1,0 @@
-@media print {
-    .hidden-print { display: none }
-    * { background:#FFF !important; color:#000 !important }
-    @page { margin: 1cm }
-    img { max-width: 100% !important }
-    a[href^=http]:after { content:" <" attr(href) "> " }
-}
