@@ -18,11 +18,11 @@ from .login import r_g
 from ..utils.utilities import JsonFile, add_resume, create_folders
 from ..models.model import  User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
-    Status, Report
+    Status, Report, Affilation, OneS
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema, \
-    WorkplaceSchema
+    WorkplaceSchema, AffilationSchema, OneSchema
 from ..models.classes import Category, Reports, Roles, Groups, Status
 
 
@@ -161,7 +161,6 @@ class ResumeView(MethodView):
         db.session.delete(person)
         db.session.commit()
         return ''
-
 
 resume_view = ResumeView.as_view('resume')
 bp.add_url_rule('/resume/<action>',
@@ -309,7 +308,6 @@ class ContactView(MethodView):
         db.session.commit()
         return ''
 
-
 bp.add_url_rule('/contact/<action>/<int:item_id>',
                 view_func=ContactView.as_view('contact'))
 
@@ -348,7 +346,6 @@ class WorkplaceView(MethodView):
         db.session.delete(db.session.query(Workplace).get(item_id))
         db.session.commit()
         return ''
-
 
 bp.add_url_rule('/workplace/<action>/<int:item_id>',
                 view_func=WorkplaceView.as_view('workplace'))
@@ -391,6 +388,41 @@ class RelationView(MethodView):
 
 bp.add_url_rule('/relation/<action>/<int:item_id>',
                 view_func=RelationView.as_view('relation'))
+
+
+class AffilationView(MethodView):
+    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
+
+    def get(self, action, item_id):
+        schema = AffilationSchema()
+        return schema.dump(db.session.query(Affilation). \
+                           filter_by(person_id=item_id). \
+                           order_by(Affilation.id.desc()).all(), many=True)
+
+    @r_g.roles_required(Roles.user.value)
+    @bp.input(AffilationSchema)
+    def post(self, action, item_id, json_data):
+        db.session.add(Affilation(**json_data | {'person_id': item_id}))
+        db.session.commit()
+        return '', 201
+
+    @r_g.roles_required(Roles.user.value)
+    @bp.input(AffilationSchema)
+    def patch(self, action, item_id, json_data):
+        for k, v in json_data.items():
+            setattr(db.session.query(Affilation).get(item_id), k, v)
+        db.session.commit()
+        return '', 201
+
+    @r_g.roles_required(Roles.user.name)
+    @bp.output(EmptySchema, status_code=204)
+    def delete(self, action, item_id):
+        db.session.delete(db.session.query(Affilation).get(item_id))
+        db.session.commit()
+        return ''
+
+bp.add_url_rule('/affilation/<action>/<int:item_id>',
+                view_func=AffilationView.as_view('affilation'))
 
 
 class CheckView(MethodView):
@@ -638,9 +670,21 @@ class InquiryView(MethodView):
         db.session.commit()
         return ''
 
-
 bp.add_url_rule('/inquiry/<action>/<int:item_id>',
                 view_func=InquiryView.as_view('inquiry'))
+
+
+class OneView(MethodView):
+    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
+
+    def get(self, action, item_id):
+        schema = OneSchema()
+        return schema.dump(db.session.query(OneS). \
+                           filter_by(person_id=item_id). \
+                           order_by(OneS.id.desc()).all(), many=True)
+
+bp.add_url_rule('/ones/<action>/<int:item_id>',
+                view_func=OneView.as_view('ones'))
 
 
 class InfoView(MethodView):
@@ -720,10 +764,10 @@ class FileView(MethodView):
             
             anketa  = JsonFile(temp_path)
             person_id = add_resume(anketa.resume, location_id, 'create')
-            models = [Staff, Document, Address, Contact, Workplace]
+            models = [Staff, Document, Address, Contact, Workplace, Affilation]
             for idx, items in enumerate([anketa.staff, anketa.passport, 
                                            anketa.addresses, anketa.contacts, 
-                                           anketa.workplaces]):
+                                           anketa.workplaces, anketa.affilation]):
                 for item in items:
                     if item:
                         db.session.add(models[idx](**item | {'person_id': person_id}))

@@ -14,11 +14,13 @@ import {
   Work, 
   Staff, 
   Relation, 
+  Affilation,
   Verification, 
   Register, 
   Pfo, 
   Inquisition, 
-  Needs 
+  Needs,
+  OneS
 } from '@share/interfaces'
 
 
@@ -29,7 +31,6 @@ export const profileStore = defineStore('profileStore', () => {
   const classifyApp = classifyStore();
   const storeLogin = loginStore();
 
-
   const profile = ref<{
     resume: Resume;
     docums: Document[];
@@ -38,11 +39,13 @@ export const profileStore = defineStore('profileStore', () => {
     works: Work[];
     staffs: Staff[];
     relate: Relation[];
+    affilation: Affilation[];
     verification: Verification[];
     register: Register[];
     pfo: Pfo[];
     inquisition: Inquisition[];
-    needs: Needs[]
+    needs: Needs[],
+    ones: OneS[]
   }>({
     resume: {
       id: '',
@@ -103,6 +106,14 @@ export const profileStore = defineStore('profileStore', () => {
       relation: '',
       relation_id: ''
     }],
+    affilation: [{
+      id: '',
+      view: '',
+      name: '',
+      inn: '',
+      position: '',
+      deadline: ''
+    }],
     verification: [{
       id: '',
       workplace: '', 
@@ -157,16 +168,27 @@ export const profileStore = defineStore('profileStore', () => {
       source: '',
       officer: '',
       deadline: '',
+    }],
+    ones: [{
+      id: '',
+      full_name: '',
+      birth_date: '',
+      start_date: '',
+      end_date: '',
+      start_position: '',
+      end_position: ''
     }]
   });
 
-  const itemForm: Record<string, any> = ref({});
-  const candId = ref('');
-  const flag = ref('');
-  const action = ref('');
-  const itemId = ref('');
-  const spinner = ref(false);
-  const urlImage = ref('');
+  const dataProfile = ref({
+    itemForm: <Record<string, any>>({}),
+    candId: '',
+    itemId: '',
+    flag: '',
+    action: '',
+    urlImage: '',
+    spinner: false
+  });
 
   /**
    * Retrieves an item from the server.
@@ -177,7 +199,7 @@ export const profileStore = defineStore('profileStore', () => {
    * @return {Promise<void>} - A promise that resolves with no value.
    */
   async function getItem(
-    item: string, action: string = 'get', id: string = candId.value
+    item: string, action: string = 'get', id: string = dataProfile.value.candId
     ): Promise<void> {
 
     if (item === 'check' && action === 'add'){
@@ -227,6 +249,9 @@ export const profileStore = defineStore('profileStore', () => {
         case 'relation': 
           profile.value.relate = response.data;
           break;
+        case 'affilation': 
+          profile.value.affilation = response.data;
+          break;
         case 'check': 
           profile.value.verification = response.data;
           break;
@@ -242,6 +267,9 @@ export const profileStore = defineStore('profileStore', () => {
         case 'inquiry': 
           profile.value.needs = response.data;
           break;
+        case 'ones': 
+          profile.value.ones = response.data;
+          break;
         default:
            console.log(profile.value);
           break;
@@ -252,12 +280,12 @@ export const profileStore = defineStore('profileStore', () => {
       
       } else if (action === 'send'){
         storeAlert.setAlert('alert-success', 'Анкета отправлена на проверку');
-        spinner.value = false
+        dataProfile.value.spinner = false
         window.scrollTo(0, 0);
-        getItem('check', 'get', candId.value);
+        getItem('check', 'get', dataProfile.value.candId);
       
       } else if (item === 'check' && (action === 'add' || action === 'self')){
-        getItem('check', 'get', candId.value);
+        getItem('check', 'get', dataProfile.value.candId);
       }
 
     } catch (error) {
@@ -273,45 +301,47 @@ export const profileStore = defineStore('profileStore', () => {
    */
   async function updateItem(): Promise<void> {
 
-    flag.value === 'registry' 
-      ? spinner.value = true 
-      : spinner.value = false;
+    dataProfile.value.flag === 'registry' 
+      ? dataProfile.value.spinner = true 
+      : dataProfile.value.spinner = false;
 
       try {
-      const response = action.value === 'create' 
+      const response = dataProfile.value.action === 'create' 
         ? await storeAuth.axiosInstance.post(
-          `${server}/${flag.value}/${action.value}/${candId.value}`, itemForm.value
+          `${server}/${dataProfile.value.flag}/${dataProfile.value.action}/${dataProfile.value.candId}`, 
+          dataProfile.value.itemForm
           )
         : await storeAuth.axiosInstance.patch(
-          `${server}/${flag.value}/${action.value}/${itemId.value}`, itemForm.value
+          `${server}/${dataProfile.value.flag}/${dataProfile.value.action}/${dataProfile.value.itemId}`, 
+          dataProfile.value.itemForm
           );
 
       console.log(response.status);
 
       storeAlert.setAlert('alert-success', 'Данные успешно обновлены');
       
-      if (['registry', 'check', 'poligraf'].includes(flag.value)) {
-        getItem('resume', 'get', candId.value)
+      if (['registry', 'check', 'poligraf'].includes(dataProfile.value.flag)) {
+        getItem('resume', 'get', dataProfile.value.candId)
       };
-      getItem(flag.value, action.value, candId.value);
+      getItem(dataProfile.value.flag, dataProfile.value.action, dataProfile.value.candId);
 
     } catch (error) {
       storeAlert.setAlert('alert-danger', `Возникла ошибка ${error}`);
     }
-    clearItem(itemForm.value);
-    action.value = '';
-    flag.value = '';
-    spinner.value = false;
+    clearItem(dataProfile.value.itemForm);
+    dataProfile.value.action = '';
+    dataProfile.value.flag = '';
+    dataProfile.value.spinner = false;
   };
   
   function openForm (item: string, handle: string, idItem = '', formItem = {}) {
-    flag.value = item;
-    action.value = handle; 
+    dataProfile.value.flag = item;
+    dataProfile.value.action = handle; 
     if (handle == 'create') {
-      itemForm.value = {}
+      dataProfile.value.itemForm.value = {}
     } else {
-      itemId.value = idItem; 
-      itemForm.value = formItem
+      dataProfile.value.itemId = idItem; 
+      dataProfile.value.itemForm.value = formItem
     };
   };
 
@@ -324,7 +354,7 @@ export const profileStore = defineStore('profileStore', () => {
    * @return {Promise<void>} A promise that resolves when the item is deleted.
    */
   async function deleteItem(
-    item: string, action: string = 'delete', id: string = candId.value
+    item: string, action: string = 'delete', id: string = dataProfile.value.candId
     ): Promise<void> {
 
     if ([classifyApp.classifyItems.status['robot'], 
@@ -390,7 +420,7 @@ export const profileStore = defineStore('profileStore', () => {
 
         if (flag === 'anketa'){
           storeAlert.setAlert("alert-success", "Данные успешно загружены");
-          candId.value = message
+          dataProfile.value.candId = message
           router.push({ name: 'profile', params: { id: message } })
         
         } else if (flag === 'image'){
@@ -419,10 +449,10 @@ export const profileStore = defineStore('profileStore', () => {
   async function getImage(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(
-        `${server}/file/get/${candId.value}`, 
+        `${server}/file/get/${dataProfile.value.candId}`, 
           { responseType: 'blob' }
         );
-      urlImage.value = window.URL.createObjectURL(new Blob([response.data]));
+      dataProfile.value.urlImage = window.URL.createObjectURL(new Blob([response.data]));
     
     } catch (error) {
       console.error(error);
@@ -435,21 +465,15 @@ export const profileStore = defineStore('profileStore', () => {
    * @return {void} 
    */
   function cancelEdit(): void {
-    clearItem(itemForm.value);
-    action.value = '';
-    flag.value = '';
-    itemId.value = ''
+    clearItem(dataProfile.value.itemForm);
+    dataProfile.value.action = '';
+    dataProfile.value.flag = '';
+    dataProfile.value.itemId = ''
   };
 
   return {
-    candId, 
-    profile, 
-    flag, 
-    action, 
-    itemForm, 
-    itemId, 
-    spinner, 
-    urlImage,
+    profile,
+    dataProfile,
     getItem, 
     openForm,
     submitFile, 

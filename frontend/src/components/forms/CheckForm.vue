@@ -10,7 +10,7 @@ const storeClassify = classifyStore();
 const noNegative = ref(true);
 
 if (noNegative.value) {
-  Object.assign(storeProfile.itemForm, {
+  Object.assign(storeProfile.dataProfile.itemForm, {
     workplace: 'Негатива по местам работы не обнаружено', 
     employee: 'В числе бывших работников МТСБ не обнаружен', 
     document: 'Среди недействительных документов не обнаружен', 
@@ -36,7 +36,7 @@ if (noNegative.value) {
  */
  async function cancelCheck(): Promise<void> {
   if (storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['save']) {
-    storeProfile.getItem('resume', 'status', storeProfile.candId);
+    storeProfile.getItem('resume', 'status', storeProfile.dataProfile.candId);
   };
   storeProfile.cancelEdit();
 };
@@ -60,7 +60,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="workplace" name="workplace" 
-                  v-model="storeProfile.itemForm['workplace']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['workplace']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -69,7 +69,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="employee" name="employee" 
-                  v-model="storeProfile.itemForm['employee']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['employee']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -78,7 +78,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="document" name="document" 
-                  v-model="storeProfile.itemForm['document']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['document']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -87,7 +87,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="inn" name="inn" 
-                  v-model="storeProfile.itemForm['inn']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['inn']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -96,7 +96,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="debt" name="debt" 
-                  v-model="storeProfile.itemForm['debt']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['debt']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -105,7 +105,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="bankruptcy" name="bankruptcy" 
-                  v-model="storeProfile.itemForm['bankruptcy']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['bankruptcy']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -114,7 +114,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="bki" name="bki" 
-                  v-model="storeProfile.itemForm['bki']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['bki']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -123,7 +123,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="courts" name="courts" 
-                  v-model="storeProfile.itemForm['courts']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['courts']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -132,7 +132,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="affiliation" name="affiliation" 
-                  v-model="storeProfile.itemForm['affiliation']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['affiliation']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -141,7 +141,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="terrorist" name="terrorist" 
-                  v-model="storeProfile.itemForm['terrorist']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['terrorist']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -150,7 +150,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="mvd" name="mvd" 
-                  v-model="storeProfile.itemForm['mvd']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['mvd']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -159,7 +159,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="internet" name="internet" 
-                  v-model="storeProfile.itemForm['internet']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['internet']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -168,7 +168,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="cronos" name="cronos" 
-                  v-model="storeProfile.itemForm['cronos']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['cronos']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -177,7 +177,7 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="cros" name="cros" 
-                  v-model="storeProfile.itemForm['cros']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['cros']"></textarea>
       </div>
     </div>
     <div class="mb-3 row">
@@ -186,14 +186,14 @@ if (noNegative.value) {
       </label>
       <div class="col-lg-10">
         <textarea class="form-control" id="addition" name="addition" 
-                  v-model="storeProfile.itemForm['addition']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['addition']"></textarea>
       </div>
     </div>
     <div class=" row">
       <div class="offset-lg-2 col-lg-10">
         <div class="mb-3 form-check">
           <input class="form-check-input" id="pfo" name="pfo" 
-                  v-model="storeProfile.itemForm['pfo']" type="checkbox" value="y">
+                  v-model="storeProfile.dataProfile.itemForm['pfo']" type="checkbox" value="y">
           <label class="form-check-label" for="pfo">Полиграф</label>
         </div>
       </div>
@@ -203,7 +203,7 @@ if (noNegative.value) {
         Результат</label>
       <div class="col-lg-10">
         <select class="form-select" id="conclusion" name="conclusion" 
-                v-model="storeProfile.itemForm['conclusion']">
+                v-model="storeProfile.dataProfile.itemForm['conclusion']">
           <option v-for="(name, value) in storeClassify.classifyItems.conclusion" 
                   :key="value" :value="name">{{ name }}</option>
         </select>
@@ -213,7 +213,7 @@ if (noNegative.value) {
       <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
       <div class="col-lg-10">
         <input class="form-control" id="comments" name="comments" maxlength="250" 
-                v-model="storeProfile.itemForm['comments']" type="text">
+                v-model="storeProfile.dataProfile.itemForm['comments']" type="text">
       </div>
     </div>
     <div class=" row">

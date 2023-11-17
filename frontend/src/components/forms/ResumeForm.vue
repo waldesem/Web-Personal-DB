@@ -22,18 +22,18 @@ const storeLogin = loginStore();
    async function submitResume(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.post(
-        `${server}/resume/${storeProfile.action}`, storeProfile.itemForm
+        `${server}/resume/${storeProfile.dataProfile.action}`, storeProfile.dataProfile.itemForm
         );
       const { message } = response.data;
 
-      storeAlert.setAlert(storeProfile.action === "create" 
+      storeAlert.setAlert(storeProfile.dataProfile.action === "create" 
                             ? "alert-success" : "alert-info", 
-                            storeProfile.action === "create"
+                            storeProfile.dataProfile.action === "create"
                             ? 'Анкета успешно добавлена' 
                             : 'Анкета успешно обновлена');
 
-      if (storeProfile.action === 'create') {
-        storeProfile.candId = message
+      if (storeProfile.dataProfile.action === 'create') {
+        storeProfile.dataProfile.candId = message
         router.push({ name: 'profile', params: { id: message } });
       } else {
         storeProfile.getItem('resume');
@@ -62,7 +62,7 @@ const storeLogin = loginStore();
       <label class="col-form-label col-lg-2" for="category">Категория</label>
         <div class="col-lg-10">
           <select class="form-select" required id="category" name="category" 
-                  v-model="storeProfile.itemForm['category']">
+                  v-model="storeProfile.dataProfile.itemForm['category']">
             <option value="Кандидат">Кандидат</option>
             <option value="Проверяемое лицо">Проверяемое лицо</option>
           </select>
@@ -72,21 +72,21 @@ const storeLogin = loginStore();
         <label class="col-form-label col-lg-2" for="fullname">Полное ФИО*</label>
         <div class="col-lg-10">
             <input class="form-control" maxlength="250" id="fullname" name="fullname" type="text"
-                   v-model="storeProfile.itemForm['fullname']" required>
+                   v-model="storeProfile.dataProfile.itemForm['fullname']" required>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="previous">Изменение имени</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="previous" name="previous" type="text"
-                 v-model="storeProfile.itemForm['previous']">
+                 v-model="storeProfile.dataProfile.itemForm['previous']">
         </div>
         </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="birthday">Дата рождения*</label>
         <div class="col-lg-10">
           <input class="form-control" id="birthday" name="birthday" required type="date"
-                 v-model="storeProfile.itemForm['birthday']" 
+                 v-model="storeProfile.dataProfile.itemForm['birthday']" 
                  :max="new Date().toISOString().split('T')[0]">
         </div>
       </div>
@@ -94,56 +94,56 @@ const storeLogin = loginStore();
         <label class="col-form-label col-lg-2" for="birthplace">Место рождения</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="birthplace" name="birthplace" type="text"
-                 v-model="storeProfile.itemForm['birthplace']" >
+                 v-model="storeProfile.dataProfile.itemForm['birthplace']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="country">Гражданство</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="50" id="country" name="country" type="text"
-                 v-model="storeProfile.itemForm['country']" >
+                 v-model="storeProfile.dataProfile.itemForm['country']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="ext_country">Двойное гражданство</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="50" id="ext_country" name="ext_country" type="text"
-                 v-model="storeProfile.itemForm['ext_country']" >
+                 v-model="storeProfile.dataProfile.itemForm['ext_country']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="snils">СНИЛС</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="11" minlength="11" id="snils" name="snils" type="text"
-                 v-model="storeProfile.itemForm['snils']" pattern="\d{11}">
+                 v-model="storeProfile.dataProfile.itemForm['snils']" pattern="\d{11}">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="inn">ИНН</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="12" minlength="12" id="inn" name="inn" type="text"
-                 v-model="storeProfile.itemForm['inn']" pattern="\d{12}">
+                 v-model="storeProfile.dataProfile.itemForm['inn']" pattern="\d{12}">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="education">Образование</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="education" name="education" type="text"
-                 v-model="storeProfile.itemForm['education']" >
+                 v-model="storeProfile.dataProfile.itemForm['education']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="marital">Семенное положение</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="marital" name="marital" type="text"
-                 v-model="storeProfile.itemForm['marital']" >
+                 v-model="storeProfile.dataProfile.itemForm['marital']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="addition">Дополнительно</label>
         <div class="col-lg-10">
           <textarea class="form-control" id="addition" name="addition"
-                    v-model="storeProfile.itemForm['addition']" ></textarea>
+                    v-model="storeProfile.dataProfile.itemForm['addition']" ></textarea>
         </div>
       </div>
       <div class=" row">
@@ -151,7 +151,7 @@ const storeLogin = loginStore();
           <div class="btn-group" role="group">
             <button class="btn btn-outline-primary" type="submit">Принять</button>
             <button class="btn btn-outline-primary" type="reset">Очистить</button>
-            <button v-if="storeProfile.action !== 'update'" 
+            <button v-if="storeProfile.dataProfile.action !== 'update'" 
                     class="btn btn-outline-primary" type="button"       
                     @click="redirectMain">Отмена</button>
             <button v-else class="btn btn-outline-primary" type="button" 

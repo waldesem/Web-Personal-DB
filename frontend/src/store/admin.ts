@@ -57,14 +57,6 @@ export const adminStore = defineStore('adminStore', () => {
     }
   };
 
-  /**
-   * Fetches user data from the server based on the provided ID 
-   * and updates the profile value.
-   *
-   * @param {String} id - The ID of the user to fetch data for.
-   * @return {Promise<void>} - A promise that resolves when the user data 
-   * is fetched and the profile value is updated.
-   */
   async function userAction(action: String): Promise<void>{
     try {
       const response = await storeAuth.axiosInstance.get(

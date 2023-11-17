@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
-import { ref, watch } from 'vue'
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
 
@@ -11,7 +10,9 @@ const FooterDiv = () => import('@components/layouts/FooterDiv.vue');
 const ChatButton = () => import('@components/layouts/ChatButton.vue');
 
 const route = useRoute();
+
 const storeLogin = loginStore();
+
 const skipLink = ref()
 
 storeLogin.pageIdentity = route.params.group as string;
@@ -53,11 +54,5 @@ watch(
   left: 50%;
   margin-left: -72px;
   opacity: 0;
-}
-.skip-link:focus {
-  opacity: 1;
-  background-color: white;
-  padding: 0.5em;
-  border: 1px solid black;
 }
 </style>

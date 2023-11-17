@@ -12,7 +12,7 @@ const storeProfile = profileStore();
       <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
       <div class="col-lg-10">
         <select class="form-select" id="theme" name="theme" required 
-                v-model="storeProfile.itemForm['theme']">
+                v-model="storeProfile.dataProfile.itemForm['theme']">
           <option value="Проверка кандидата">Проверка кандидата</option>
           <option value="Служебная проверка">Служебная проверка</option>
           <option value="Служебное расследование">Служебное расследование</option>
@@ -24,7 +24,7 @@ const storeProfile = profileStore();
       <label class="col-form-label col-lg-2" for="results">Результат</label>
       <div class="col-lg-10">
         <textarea class="form-control" id="results" name="results" required 
-                  v-model="storeProfile.itemForm['results']"></textarea>
+                  v-model="storeProfile.dataProfile.itemForm['results']"></textarea>
       </div>
     </div>
     <div class=" row">

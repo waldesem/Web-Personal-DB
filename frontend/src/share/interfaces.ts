@@ -73,6 +73,15 @@ interface Relation {
   relation_id: string;
 };
 
+interface Affilation {
+  id: string,
+  view: string,
+  name: string,
+  inn: string,
+  position: string,
+  deadline: string
+};
+
 interface Verification {
   id: string;
   workplace: string;
@@ -133,6 +142,16 @@ interface Needs {
   deadline: string;
 };
 
+interface OneS {
+  id: string;
+  full_name: string;
+  birth_date: string;
+  start_date: string;
+  end_date: string;
+  start_position: string;
+  end_position: string
+};
+
 interface Group {
   id: string,
   group: string
@@ -180,12 +199,14 @@ export type {
   Contact, 
   Work, 
   Staff, 
-  Relation, 
+  Relation,
+  Affilation,
   Verification, 
   Register, 
   Pfo, 
   Inquisition, 
   Needs,
+  OneS,
   User,
   Message,
   Chart

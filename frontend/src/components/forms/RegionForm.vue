@@ -20,7 +20,7 @@ const storeProfile = profileStore();
           <label class="col-form-label col-lg-2" for="region_id" >Регион</label>
           <div class="col-lg-10">
             <select class="form-select" required id="region_id" name="region_id" 
-                    v-model="storeProfile.itemForm['region_id']">
+                    v-model="storeProfile.dataProfile.itemForm['region_id']">
               <option v-for="name, value in storeClassify.classifyItems.regions" 
                     :key="value" :value="value">{{name}}</option>                
             </select>

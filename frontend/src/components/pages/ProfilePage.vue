@@ -11,6 +11,7 @@ const RegistryTab = () => import('@components/tabs/RegistryTab.vue');
 const PoligrafTab = () => import('@components/tabs/PoligrafTab.vue');
 const InvestigateTab = () => import('@components/tabs/InvestigateTab.vue');
 const InquiryTab = () => import('@components/tabs/InquiryTab.vue');
+const OneTab = () => import('@components/tabs/OneTab.vue');
 const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 const PhotoCard = () => import('@components/layouts/PhotoCard.vue');
 
@@ -18,7 +19,7 @@ const storeProfile = profileStore();
 
 const route = useRoute();
 
-storeProfile.candId = route.params.id.toString();
+storeProfile.dataProfile.candId = route.params.id.toString();
 
 const tabsObject = {
   anketaTab: ['Анкета', AnketaTab],
@@ -26,7 +27,8 @@ const tabsObject = {
   registryTab: ['Согласования', RegistryTab],
   poligrafTab: ['Полиграф', PoligrafTab],
   investigateTab: ['Расследования', InvestigateTab],
-  inquiryTab: ['Запросы', InquiryTab]
+  inquiryTab: ['Запросы', InquiryTab],
+  oneTab: ['1C', OneTab]
 };
 
 onBeforeMount(async () => {
@@ -38,8 +40,8 @@ onBeforeMount(async () => {
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeProfile.cancelEdit();
-  storeProfile.urlImage = '';
-  storeProfile.candId = '';
+  storeProfile.dataProfile.urlImage = '';
+  storeProfile.dataProfile.candId = '';
   next();
 });
 
@@ -52,12 +54,14 @@ async function getProfile() {
       'address',
       'contact', 
       'workplace', 
-      'relation', 
+      'relation',
+      'affilation', 
       'check', 
       'registry', 
       'poligraf', 
       'investigation', 
-      'inquiry'
+      'inquiry',
+      'ones'
     ].map(async (item) => await storeProfile.getItem(item))
   ]);
 };
@@ -66,7 +70,8 @@ async function getProfile() {
 
 <template>
   <div class="container py-3">
-    <PhotoCard :profileId="storeProfile.profile.resume['id']" :imageUrl="storeProfile.urlImage"/>
+    <PhotoCard :profileId="storeProfile.profile.resume['id']" 
+               :imageUrl="storeProfile.dataProfile.urlImage"/>
     <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
     <div class="nav nav-tabs nav-justified" role="tablist">
       <button v-for="(value, key) in tabsObject" :key="key"
@@ -93,6 +98,9 @@ async function getProfile() {
       </div>
       <div class="tab-pane fade py-1" role="tabpanel" id="inquiryTab">
         <InquiryTab />
+      </div>
+      <div class="tab-pane fade py-1" role="tabpanel" id="oneTab">
+        <OneTab />
       </div>
     </div>
     <router-link :to="{ name: 'print' }">

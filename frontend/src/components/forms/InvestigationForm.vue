@@ -14,14 +14,14 @@ const storeProfile = profileStore();
       <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
       <div class="col-lg-10">
         <input class="form-control" id="theme" maxlength="250" name="theme" required type="text" 
-          v-model="storeProfile.itemForm['theme']">
+          v-model="storeProfile.dataProfile.itemForm['theme']">
       </div>
     </div>
     <div class="mb-3 row required">
       <label class="col-form-label col-lg-2" for="info">Информация</label>
       <div class="col-lg-10">
         <textarea class="form-control" id="info" name="info" required 
-          v-model="storeProfile.itemForm['info']"></textarea>
+          v-model="storeProfile.dataProfile.itemForm['info']"></textarea>
       </div>
     </div>
     <div class=" row">

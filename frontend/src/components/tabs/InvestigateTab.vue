@@ -13,9 +13,9 @@ const storeFmanager = fileManagerStore();
 <template>
   <div class="py-3">
 
-    <InvestigationForm v-if="(storeProfile.action === 'update' 
-                            || storeProfile.action === 'create') 
-                          && storeProfile.flag === 'investigation'" />
+    <InvestigationForm v-if="(storeProfile.dataProfile.action === 'update' 
+                            || storeProfile.dataProfile.action === 'create') 
+                          && storeProfile.dataProfile.flag === 'investigation'" />
     <div v-else>
       <div class="accordion" id="accordionInvestigation" v-if="storeProfile.profile.inquisition?.length" >
         <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.inquisition" 

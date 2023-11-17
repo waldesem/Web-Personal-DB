@@ -27,8 +27,8 @@ class Searching:
                 }
             }
         }
-        # if not client.indices.exists(self.index_name):
-        #     client.indices.create(self.index_name, body=self.index_body)
+        if not client.indices.exists(self.index_name):
+            client.indices.create(self.index_name, body=self.index_body)
 
     def add_to_index(self, model):
         payload = {}

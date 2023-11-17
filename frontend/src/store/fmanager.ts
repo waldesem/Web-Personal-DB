@@ -13,7 +13,6 @@ export const fileManagerStore = defineStore('fileManagerStore', () => {
     copied: Array<string>(),
   });
 
-
   return {
     fileManager
     }

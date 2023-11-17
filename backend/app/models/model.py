@@ -222,6 +222,8 @@ class Person(SearchableMixin, db.Model):
                                      cascade="all, delete, delete-orphan")
     relations= db.relationship('Relation', backref='persons', 
                                cascade="all, delete, delete-orphan")
+    affilation = db.relationship('Affilation', backref='affilation', 
+                           cascade="all, delete, delete-orphan")
     ones = db.relationship('OneS', backref='ones', 
                            cascade="all, delete, delete-orphan")
     search_vector = db.Column(TSVectorType('previous', 'fullname', 'inn', 'snils')) 
@@ -235,6 +237,23 @@ class Person(SearchableMixin, db.Model):
             bool: True if the current status matches any of the given status values, False otherwise.
         """
         return self.status in status
+
+
+class Affilation(SearchableMixin, db.Model):
+    """ Create model for affilation"""
+
+    __searchable__ = ['affilation']
+
+    __tablename__ = 'affilation'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
+                   autoincrement=True)
+    view = db.Column(db.String(255))
+    name = db.Column(db.Text)
+    inn = db.Column(db.String(255))
+    position = db.Column(db.Text)
+    deadline = db.Column(db.Text, default=default_time.date())
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
 class Relation(SearchableMixin, db.Model):
@@ -467,8 +486,8 @@ class OneS(db.Model):
     full_name = db.Column(db.String(255))
     birth_date = db.Column(db.Date)
     start_date = db.Column(db.Date)
-    start_position = db.Column(db.Text)
     end_date = db.Column(db.Date)
+    start_position = db.Column(db.Text)
     end_position = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 

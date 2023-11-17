@@ -16,8 +16,8 @@ const storeClassify = classifyStore();
       <h6>Для служебного пользования</h6>
     </div>
     <div class="card" style="width: 16rem;">
-      <img :src="storeProfile.urlImage 
-            ? storeProfile.urlImage 
+      <img :src="storeProfile.dataProfile.urlImage 
+            ? storeProfile.dataProfile.urlImage 
             : '/no-photo.png'" 
             style="width: 100%; height: auto;" 
             class="card-img-top" alt="...">

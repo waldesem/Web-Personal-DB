@@ -10,9 +10,9 @@ const storeProfile = profileStore();
 
 <template>
   <div class="py-3">
-    <InquiryForm v-if="(storeProfile.action === 'update'
-                        || storeProfile.action === 'create') 
-                      && storeProfile.flag === 'inquiry'" />
+    <InquiryForm v-if="(storeProfile.dataProfile.action === 'update'
+                        || storeProfile.dataProfile.action === 'create') 
+                      && storeProfile.dataProfile.flag === 'inquiry'" />
 
     <div v-else>
       <div class="accordion" id="accordionInquiry" v-if="storeProfile.profile.needs?.length" >

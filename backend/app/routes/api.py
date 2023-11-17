@@ -10,7 +10,7 @@ from . import bp
 from .. import db
 from ..utils.utilities import add_resume, create_folders
 from ..models.model import Staff, Document, Contact, Workplace,Address,\
-      User, Person, Region, Check, Report, Status
+      User, Person, Region, Check, Report, Status, Affilation
 from ..models.schema import CheckSchemaApi, AnketaSchemaApi
 from ..models.classes import Roles
 
@@ -55,10 +55,10 @@ def anketa_in(json_data):
                   
     person_id = add_resume(resume, location_id, 'api')
     
-    models = [Staff, Document, Address, Contact, Workplace]
+    models = [Staff, Document, Address, Contact, Workplace, Affilation]
     for count, items in enumerate([json_data['staff'], json_data['document'], 
                                    json_data['addresses'],json_data['contacts'], 
-                                   json_data['workplaces']]):
+                                   json_data['workplaces'], json_data['affilation']]):
         for item in items:
             if item:
                 db.session.add(models[count](**item | {'person_id': person_id}))

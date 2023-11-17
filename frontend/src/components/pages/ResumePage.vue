@@ -8,10 +8,10 @@ const ResumeForm = () => import('@components/forms/ResumeForm.vue');
 const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
 
 const storeProfile = profileStore();
-storeProfile.action = 'create';
+storeProfile.dataProfile.action = 'create';
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(storeProfile.itemForm);
+  clearItem(storeProfile.dataProfile.itemForm);
   next()
 });
 

@@ -13,9 +13,9 @@ const storeFmanager = fileManagerStore();
 <template>
   <div class="py-3">
     
-    <PoligrafForm v-if="(storeProfile.action === 'update' 
-                  || storeProfile.action === 'create') 
-                  && storeProfile.flag === 'poligraf'"/>
+    <PoligrafForm v-if="(storeProfile.dataProfile.action === 'update' 
+                  || storeProfile.dataProfile.action === 'create') 
+                  && storeProfile.dataProfile.flag === 'poligraf'"/>
     
     <div v-else>
       <div class="accordion" id="accordionPoligraf" v-if="storeProfile.profile.pfo?.length">

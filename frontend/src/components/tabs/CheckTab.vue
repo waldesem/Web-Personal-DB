@@ -37,8 +37,8 @@ hiddenAddBtn.value = ![storeClassify.classifyItems.status['new'],
 <template>
   <div class="py-3">
 
-    <CheckForm v-if="storeProfile.action === 'update' 
-                    && storeProfile.flag === 'check'" />
+    <CheckForm v-if="storeProfile.dataProfile.action === 'update' 
+                    && storeProfile.dataProfile.flag === 'check'" />
 
     <div v-else>
       <div class="accordion" id="accordionCheck" v-if="storeProfile.profile.verification?.length">

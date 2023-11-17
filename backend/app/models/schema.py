@@ -2,8 +2,9 @@ from apiflask import Schema
 from marshmallow import fields
 
 from .. import ma
-from ..models.model import OneS, Relation, User, Person, Staff, Document, Address, Contact, Workplace, \
-    Check, Registry, Poligraf, Investigation, Inquiry, Report, Region, Role, Group, Connect
+from ..models.model import OneS, Relation, User, Person, Affilation, Staff, \
+    Document, Address, Contact, Workplace, Check, Registry, Poligraf, \
+        Investigation, Inquiry, Report, Region, Role, Group, Connect
 
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
@@ -105,6 +106,13 @@ class ContactSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
+class AffilationSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for affilation"""
+    class Meta:
+        model = Affilation
+        ordered = True
+
+
 class CheckSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:
@@ -170,6 +178,7 @@ class AnketaSchemaApi(ma.SQLAlchemySchema):
     addresses = fields.List(fields.Nested(AddressSchema(), exclude=('id',)))
     workplaces = fields.List(fields.Nested(WorkplaceSchema(), exclude=('id',)))
     contacts = fields.List(fields.Nested(ContactSchema(), exclude=('id',)))
+    affilation = fields.List(fields.Nested(AffilationSchema(), exclude=('id',)))
 
 
 class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
@@ -193,6 +202,7 @@ models_schemas = {
     'contact': [Contact, ContactSchema()],
     'workplace': [Workplace, WorkplaceSchema()],
     'relation': [Relation, RelationSchema()],
+    'affilation': [Affilation, AffilationSchema()],
     'check': [Check, CheckSchema()],
     'registry': [Registry, RegistrySchema()],
     'poligraf': [Poligraf, PoligrafSchema()],

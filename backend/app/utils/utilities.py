@@ -81,7 +81,7 @@ class JsonFile:
                         if 'department' in self.json_dict else 'Отсутствует'
                 }
             ]
-            self.addition = self.parse_addition()
+            self.affilation = self.parse_affilation()
             
 
     def parse_fullname(self):
@@ -155,41 +155,50 @@ class JsonFile:
                 return experience
         return []
     
-    def parse_addition(self):
-        public = []
+    def parse_affilation(self):
+        affilation = []
         if self.json_dict['hasPublicOfficeOrganizations']:
             if len(self.json_dict['publicOfficeOrganizations']):
                 for item in self.json_dict['publicOfficeOrganizations']:
-                    public.append(f"{item['name'] if 'name' in item else ''}, "
-                                  f"{item['position'] if 'position' in item else ''}")
+                    public = {
+                        'view': 'Являлся государственным или муниципальным служащим',
+                        'name': f"{item['name'] if 'name' in item else ''}",
+                        'position': f"{item['position'] if 'position' in item else ''}"
+                    }
+                    affilation.append(public)
 
-        state = []
         if self.json_dict['hasStateOrganizations']:
             if len(self.json_dict['stateOrganizations']):
                 for item in self.json_dict['publicOfficeOrganizations']:
-                    state.append(f"{item['name'] if 'name' in item else ''}, "
-                                 f"{item['position'] if 'position' in item else ''}")
+                    state = {
+                        'view': 'Являлся государственным должностным лицом',
+                        'name': f"{item['name'] if 'name' in item else ''}",
+                        'position': f"{item['position'] if 'position' in item else ''}"
+                    }
+                    affilation.append(state)
 
-        related = []
         if self.json_dict['hasRelatedPersonsOrganizations']:
             if len(self.json_dict['hasRelatedPersonsOrganizations']):
                 for item in self.json_dict['hasRelatedPersonsOrganizations']:
-                    related.append(f"{item['name'] if 'name' in item else ''}, "
-                                   f"{item['inn'] if 'inn' in item else ''}, "
-                                   f"{item['position'] if 'position' in item else ''}")
+                    related = {
+                        'view': 'Связанные лица работают в госудраственных организациях',
+                        'name': f"{item['name'] if 'name' in item else ''}",
+                        'position': f"{item['position'] if 'position' in item else ''}",
+                        'inn': f"{item['inn'] if 'inn' in item else ''}"
+                    }
+                    affilation.append(related)
         
-        organization = []
         if self.json_dict['hasOrganizations']:
             if len(self.json_dict['organizations']):
                 for item in self.json_dict['organizations']:
-                    organization.append(f"{item['orgType'] if 'orgType' in item else ''} "
-                                        f"{item['inn'] if 'inn' in item else ''} "
-                                        f"{item['name'] if 'name' in item else ''} "
-                                        f"{item['workCombinationTime'] if 'workCombinationTime' in item else ''}")
-        
-        return (f"{'; '.join(public)}. {'; '.join(state)}. "
-                f"{'; '.join(related)}. {'; '.join(organization)}.")
-
+                    organization = {
+                        'view': 'Участвует в деятельности коммерческих организаций"',
+                        'name': f"{item['name'] if 'name' in item else ''}",
+                        'position': f"{item['workCombinationTime'] if 'workCombinationTime' in item else ''}",
+                        'inn': f"{item['inn'] if 'inn' in item else ''}"
+                    }
+                    affilation.append(organization)
+        return affilation
 
 
 def add_resume(resume: dict, location_id, action):

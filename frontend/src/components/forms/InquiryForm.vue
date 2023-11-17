@@ -14,21 +14,21 @@ const storeProfile = profileStore();
       <label class="col-form-label col-lg-2" for="info">Информация</label>
       <div class="col-lg-10">
         <textarea class="form-control" id="info" name="info" required 
-          v-model="storeProfile.itemForm['info']"></textarea>
+          v-model="storeProfile.dataProfile.itemForm['info']"></textarea>
       </div>
     </div>
     <div class="mb-3 row required">
       <label class="col-form-label col-lg-2" for="initiator">Инициатор</label>
       <div class="col-lg-10">
         <input class="form-control" id="initiator" maxlength="250" name="initiator" required type="text"  
-          v-model="storeProfile.itemForm['initiator']">
+          v-model="storeProfile.dataProfile.itemForm['initiator']">
       </div>
     </div>
     <div class="mb-3 row required">
       <label class="col-form-label col-lg-2" for="source">Источник</label>
       <div class="col-lg-10">
         <input class="form-control" id="source" maxlength="250" name="source" required type="text" 
-          v-model="storeProfile.itemForm['source']">
+          v-model="storeProfile.dataProfile.itemForm['source']">
       </div>
     </div>
     <div class=" row">

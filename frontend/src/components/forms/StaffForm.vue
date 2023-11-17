@@ -13,13 +13,13 @@ const storeProfile = profileStore();
     <div class="mb-3 row required">
         <label class="col-form-label col-lg-2" for="position">Должность</label>
         <div class="col-lg-10">
-        <input class="form-control" id="position" maxlength="250" name="position" required type="text" v-model="storeProfile.itemForm['position']">
+        <input class="form-control" id="position" maxlength="250" name="position" required type="text" v-model="storeProfile.dataProfile.itemForm['position']">
         </div>
     </div>
     <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="department">Деператамент/Кластер</label>
         <div class="col-lg-10">
-        <input class="form-control" id="department" maxlength="250" name="department" type="text" v-model="storeProfile.itemForm['department']">
+        <input class="form-control" id="department" maxlength="250" name="department" type="text" v-model="storeProfile.dataProfile.itemForm['department']">
         </div>
     </div>
     <div class=" row">

@@ -14,6 +14,7 @@ const AddressForm = () => import('@components/forms/AddressForm.vue');
 const ContactForm = () => import('@components/forms/ContactForm.vue');
 const RelationForm = () => import('@components/forms/RelationForm.vue');
 const WorkplaceForm = () => import('@components/forms/WorkplaceForm.vue');
+const AffilationForm = () => import('@components/forms/AffilationForm.vue');
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
@@ -22,18 +23,28 @@ const storeFmanager = fileManagerStore();
 const hiddenSendBtn = ref(false);
 const hiddenDelBtn = ref(false);
 
-hiddenSendBtn.value = (storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['new'] 
-                      && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['update']
-                      && storeProfile.profile.resume['status'] !== storeClassify.classifyItems.status['repeat']) 
-                    || storeProfile.spinner
+hiddenSendBtn.value = (storeProfile.profile.resume['status'] 
+                        !== storeClassify.classifyItems.status['new'] 
+                      && storeProfile.profile.resume['status'] 
+                        !== storeClassify.classifyItems.status['update']
+                      && storeProfile.profile.resume['status'] 
+                        !== storeClassify.classifyItems.status['repeat']) 
+                    || storeProfile.dataProfile.spinner
 
-hiddenDelBtn.value = storeProfile.profile.resume['status'] === storeClassify.classifyItems.status['finish']
-                    || storeProfile.spinner
+hiddenDelBtn.value = storeProfile.profile.resume['status']
+                       === storeClassify.classifyItems.status['finish']
+                    || storeProfile.dataProfile.spinner
 
 function switchForm(item: string){
-  storeProfile.flag === item ? storeProfile.flag = '' : storeProfile.flag = item; 
-  storeProfile.flag === item ? storeProfile.action = 'create' : storeProfile.action = ''; 
-  clearItem(storeProfile.itemForm)
+  storeProfile.dataProfile.flag === item 
+    ? storeProfile.dataProfile.flag = '' 
+    : storeProfile.dataProfile.flag = item;
+
+  storeProfile.dataProfile.flag === item 
+    ? storeProfile.dataProfile.action = 'create' 
+    : storeProfile.dataProfile.action = ''; 
+
+  clearItem(storeProfile.dataProfile.itemForm)
 };
 
 </script>
@@ -41,7 +52,8 @@ function switchForm(item: string){
 <template>
   <div class="p-3">
   
-    <template v-if="storeProfile.flag === 'resume' && storeProfile.action === 'update'" >
+    <template v-if="storeProfile.dataProfile.flag === 'resume' 
+                 && storeProfile.dataProfile.action === 'update'" >
       <ResumeForm />
     </template>
 
@@ -160,13 +172,14 @@ function switchForm(item: string){
     </template>
         
     <h6>Должности
-      <a class="btn btn-link" :title="storeProfile.flag === 'staff' 
+      <a class="btn btn-link" :title="storeProfile.dataProfile.flag === 'staff' 
                                       ? 'Закрыть форму' : 'Добавить должность'"
          @click="switchForm('staff')">
-        <i :class="storeProfile.flag === 'staff' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+        <i :class="storeProfile.dataProfile.flag === 'staff' 
+          ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
-    <template v-if="storeProfile.flag === 'staff'">
+    <template v-if="storeProfile.dataProfile.flag === 'staff'">
       <StaffForm />
     </template>
 
@@ -180,7 +193,8 @@ function switchForm(item: string){
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapseStaff${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseStaff${tbl['id']}`" class="accordion-collapse collapse" 
+               :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionStaff">
             <div class="accordion-body">
               <table class="table table-responsive">
@@ -219,12 +233,14 @@ function switchForm(item: string){
     </template>
 
     <h6>Документы
-      <a class="btn btn-link" :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить документ'"
+      <a class="btn btn-link" :title="storeProfile.dataProfile.flag === 'document' 
+                                      ? 'Закрыть форму' : 'Добавить документ'"
          @click="switchForm('document')" >
-        <i :class="storeProfile.flag === 'document' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+        <i :class="storeProfile.dataProfile.flag === 'document' 
+                              ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
-    <template v-if="storeProfile.flag === 'document'">
+    <template v-if="storeProfile.dataProfile.flag === 'document'">
       <DocumentForm />
     </template>
     
@@ -238,7 +254,8 @@ function switchForm(item: string){
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapseDocument${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseDocument${tbl['id']}`" class="accordion-collapse collapse" 
+               :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionDocument">
             <div class="accordion-body">
               <table class="table table-responsive">
@@ -291,11 +308,13 @@ function switchForm(item: string){
     
     <h6>Адреса
       <a class="btn btn-link" @click="switchForm('address')" 
-          :title="storeProfile.flag === 'document' ? 'Закрыть форму' : 'Добавить адрес'">
-        <i :class="storeProfile.flag === 'address' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+          :title="storeProfile.dataProfile.flag === 'document' 
+                  ? 'Закрыть форму' : 'Добавить адрес'">
+        <i :class="storeProfile.dataProfile.flag === 'address' 
+                  ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
-    <template v-if="storeProfile.flag === 'address'">
+    <template v-if="storeProfile.dataProfile.flag === 'address'">
       <AddressForm />
     </template>
     
@@ -309,7 +328,8 @@ function switchForm(item: string){
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapseAddress${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseAddress${tbl['id']}`" class="accordion-collapse collapse" 
+               :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionAddress">
             <div class="accordion-body">
               <table class="table table-responsive">
@@ -353,11 +373,13 @@ function switchForm(item: string){
 
     <h6>Контакты
       <a class="btn btn-link" @click="switchForm('contact')" 
-          :title="storeProfile.flag === 'contact' ? 'Закрыть форму' : 'Добавить контакт'">
-        <i :class="storeProfile.flag === 'contact' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+          :title="storeProfile.dataProfile.flag === 'contact' 
+            ? 'Закрыть форму' : 'Добавить контакт'">
+        <i :class="storeProfile.dataProfile.flag === 'contact' 
+            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
-    <template v-if="storeProfile.flag === 'contact'">
+    <template v-if="storeProfile.dataProfile.flag === 'contact'">
       <ContactForm />
     </template>
     
@@ -371,7 +393,8 @@ function switchForm(item: string){
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapseContact${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseContact${tbl['id']}`" class="accordion-collapse collapse" 
+               :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionContact">
             <div class="accordion-body">
               <table class="table table-responsive">
@@ -411,11 +434,13 @@ function switchForm(item: string){
 
     <h6>Работа
       <a class="btn btn-link" @click="switchForm('workplace')" 
-          :title="storeProfile.flag === 'workplace' ? 'Закрыть форму' : 'Добавить работу'">
-        <i :class="storeProfile.flag === 'workplace' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+          :title="storeProfile.dataProfile.flag === 'workplace' 
+            ? 'Закрыть форму' : 'Добавить работу'">
+        <i :class="storeProfile.dataProfile.flag === 'workplace' 
+            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
-    <template v-if="storeProfile.flag === 'workplace'">
+    <template v-if="storeProfile.dataProfile.flag === 'workplace'">
       <WorkplaceForm />
     </template>
     
@@ -429,7 +454,8 @@ function switchForm(item: string){
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapseWork${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseWork${tbl['id']}`" class="accordion-collapse collapse" 
+               :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionWork">
             <div class="accordion-body">
               <table class="table table-responsive">
@@ -475,13 +501,76 @@ function switchForm(item: string){
       <p v-else >Данные отсутствуют</p>
     </template>
 
-    <h6>Связи
-      <a class="btn btn-link" @click="switchForm('relation')" 
-          :title="storeProfile.flag === 'relation' ? 'Закрыть форму' : 'Добавить связь'">
-        <i :class="storeProfile.flag === 'relation' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+    <h6>Аффилированность
+      <a class="btn btn-link" @click="switchForm('affilation')" 
+          :title="storeProfile.dataProfile.flag === 'affilation' 
+            ? 'Закрыть форму' : 'Добавить участие'">
+        <i :class="storeProfile.dataProfile.flag === 'affilation' 
+            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
       </a>
     </h6>
-    <template v-if="storeProfile.flag === 'relation'">
+    <template v-if="storeProfile.dataProfile.flag === 'affilation'">
+      <AffilationForm />
+    </template>
+    
+    <template v-else>
+      <div class="accordion" id="accordionAffilate" v-if="storeProfile.profile.affilation.length">
+        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.affilation" 
+                                    :key="tbl['id']" >
+          <h6 class="accordion-header">
+            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
+                    :data-bs-target="`#collapseAffilate${tbl['id']}`">
+              {{ `ID #${tbl['id']}` }}
+            </button>
+          </h6>
+          <div class="accordion-collapse collapse" data-bs-parent="#accordionAffilate"
+                :id="`collapseAffilate${tbl['id']}`" 
+                :class="{ 'show': idx === 0}" >
+            <div class="accordion-body">
+              <table class="table table-responsive">
+                <thead>
+                  <tr>
+                    <th width="25%">
+                      <a href="#" @click="storeProfile.deleteItem('affilation', 'delete', tbl['id'].
+                          toString())" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </th>
+                    <th>
+                      <a class="btn btn-link" title="Изменить"
+                        @click= "storeProfile.openForm('affilation', 'update', tbl['id'].toString(), tbl)">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Тип участия</td><td>{{ tbl['view'] }}</td></tr>
+                  <tr><td>Организация</td><td>{{ tbl['name'] }}</td></tr>
+                  <tr><td>ИНН</td><td>{{ tbl['inn'] ? tbl['inn'] : 'Данных нет' }}</td></tr>
+                  <tr><td>Должность</td><td>{{ tbl['position'] }}</td></tr>
+                  <tr>
+                    <td>Дата декларации</td>
+                    <td>{{ new Date(tbl['deadline']).toLocaleDateString('ru-RU') }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p v-else >Данные отсутствуют</p>
+    </template>
+
+    <h6>Связи
+      <a class="btn btn-link" @click="switchForm('relation')" 
+          :title="storeProfile.dataProfile.flag === 'relation' 
+            ? 'Закрыть форму' : 'Добавить связь'">
+        <i :class="storeProfile.dataProfile.flag === 'relation' 
+            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
+      </a>
+    </h6>
+    <template v-if="storeProfile.dataProfile.flag === 'relation'">
       <RelationForm />
     </template>
     
@@ -495,7 +584,8 @@ function switchForm(item: string){
               {{ `ID #${tbl['id']}` }}
             </button>
           </h6>
-          <div :id="`collapseRelation${tbl['id']}`" class="accordion-collapse collapse" :class="{ 'show': idx === 0}" 
+          <div :id="`collapseRelation${tbl['id']}`" class="accordion-collapse collapse" 
+               :class="{ 'show': idx === 0}" 
               data-bs-parent="#accordionRelation">
             <div class="accordion-body">
               <table class="table table-responsive">
@@ -540,9 +630,9 @@ function switchForm(item: string){
         <button class="btn btn-outline-primary" 
                 :disabled="hiddenSendBtn"
                 @click="storeProfile.getItem('resume', 'send')" >
-            {{ !storeProfile.spinner ? 'Отправить на проверку' : '' }}
-          <span v-if="storeProfile.spinner" class="spinner-border spinner-border-sm"></span>
-          <span v-if="storeProfile.spinner" role="status">Отправляется...</span>
+            {{ !storeProfile.dataProfile.spinner ? 'Отправить на проверку' : '' }}
+          <span v-if="storeProfile.dataProfile.spinner" class="spinner-border spinner-border-sm"></span>
+          <span v-if="storeProfile.dataProfile.spinner" role="status">Отправляется...</span>
         </button>
         <button type="button" class="btn btn-outline-danger" 
                 :disabled="hiddenDelBtn" 

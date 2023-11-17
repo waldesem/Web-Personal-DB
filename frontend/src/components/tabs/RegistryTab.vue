@@ -20,8 +20,8 @@ disableRegBtn.value = (storeProfile.profile.resume['status']
 <template>
   <div class="py-3">
 
-    <RegistryForm v-if="storeProfile.action === 'create' 
-                     && storeProfile.flag === 'registry'" />
+    <RegistryForm v-if="storeProfile.dataProfile.action === 'create' 
+                     && storeProfile.dataProfile.flag === 'registry'" />
     
     <div v-else>
       <div class="accordion" id="accordionRegistry" v-if="storeProfile.profile.register?.length">
