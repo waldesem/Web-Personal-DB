@@ -4,9 +4,8 @@ import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { adminStore } from '@store/admin';
 import { debounce } from '@share/utilities';
-
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
-const UserForm = () => import('@components/forms/UserForm.vue');
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+import UserForm from '@components/forms/UserForm.vue';
 
 const storeAdmin = adminStore();
 

@@ -252,7 +252,7 @@ class Affilation(SearchableMixin, db.Model):
     name = db.Column(db.Text)
     inn = db.Column(db.String(255))
     position = db.Column(db.Text)
-    deadline = db.Column(db.Text, default=default_time.date())
+    deadline = db.Column(db.Text, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 

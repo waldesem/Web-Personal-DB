@@ -4,8 +4,7 @@ import { ref } from 'vue';
 import { classifyStore } from '@store/classify';
 import { profileStore } from '@/store/profile';
 import { fileManagerStore } from '@store/fmanager';
-
-const CheckForm = () => import('@components/forms/CheckForm.vue');
+import  CheckForm from '@components/forms/CheckForm.vue';
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();

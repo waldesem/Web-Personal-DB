@@ -13,7 +13,7 @@ export const loginStore = defineStore('loginStore', () => {
   const storeAlert = alertStore();
   const storeClasses = classifyStore();
 
-  const pageIdentity = ref('login');
+  const pageIdentity = ref('');
 
   const userData = ref({
     fullName: '',
@@ -24,6 +24,7 @@ export const loginStore = defineStore('loginStore', () => {
   });
   
   async function getAuth(): Promise<void> {
+    
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/login`);
       const { fullname, username, roles, groups, region_id } = response.data;
@@ -72,7 +73,7 @@ export const loginStore = defineStore('loginStore', () => {
   };
   
   function assignUserData (name='', user='', roles=[], groups=[], id='') {
-    Object.assign(userData, {
+    Object.assign(userData.value, {
       fullName: name,
       userName: user,
       userRoles: roles,

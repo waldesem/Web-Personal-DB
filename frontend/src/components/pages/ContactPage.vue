@@ -6,11 +6,9 @@ import { contactStore } from '@/store/contacts';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { server, debounce, clearItem } from '@share/utilities';
-
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
-const ConnectForm = () => import('@components/forms/ConnectForm.vue');
-
-const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+import ConnectForm from '@components/forms/ConnectForm.vue';
+import PageSwitcher from '@components/layouts/PageSwitcher.vue';
 
 const storeAlert = alertStore();
 const storeContact = contactStore();

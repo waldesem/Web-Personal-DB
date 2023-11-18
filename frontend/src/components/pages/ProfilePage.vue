@@ -4,16 +4,15 @@ import { onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useRoute } from 'vue-router';
 import { profileStore } from '@/store/profile';
-
-const AnketaTab = () => import('@components/tabs/AnketaTab.vue');
-const CheckTab = () => import('@components/tabs/CheckTab.vue');
-const RegistryTab = () => import('@components/tabs/RegistryTab.vue');
-const PoligrafTab = () => import('@components/tabs/PoligrafTab.vue');
-const InvestigateTab = () => import('@components/tabs/InvestigateTab.vue');
-const InquiryTab = () => import('@components/tabs/InquiryTab.vue');
-const OneTab = () => import('@components/tabs/OneTab.vue');
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
-const PhotoCard = () => import('@components/layouts/PhotoCard.vue');
+import AnketaTab from '@components/tabs/AnketaTab.vue';
+import CheckTab from '@components/tabs/CheckTab.vue';
+import RegistryTab from '@components/tabs/RegistryTab.vue';
+import PoligrafTab from '@components/tabs/PoligrafTab.vue';
+import InvestigateTab from '@components/tabs/InvestigateTab.vue';
+import InquiryTab from '@components/tabs/InquiryTab.vue';
+import OneTab from '@components/tabs/OneTab.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const storeProfile = profileStore();
 

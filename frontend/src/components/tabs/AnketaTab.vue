@@ -5,16 +5,15 @@ import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { fileManagerStore } from '@store/fmanager';
 import { clearItem } from '@share/utilities'
-
-const ResumeForm = () => import('@components/forms/ResumeForm.vue');
-const RegionForm = () => import('@components/forms/RegionForm.vue');
-const StaffForm = () => import('@components/forms/StaffForm.vue');
-const DocumentForm = () => import('@components/forms/DocumentForm.vue');
-const AddressForm = () => import('@components/forms/AddressForm.vue');
-const ContactForm = () => import('@components/forms/ContactForm.vue');
-const RelationForm = () => import('@components/forms/RelationForm.vue');
-const WorkplaceForm = () => import('@components/forms/WorkplaceForm.vue');
-const AffilationForm = () => import('@components/forms/AffilationForm.vue');
+import ResumeForm from '@components/forms/ResumeForm.vue';
+import RegionForm from '@components/forms/RegionForm.vue';
+import StaffForm from '@components/forms/StaffForm.vue';
+import DocumentForm from '@components/forms/DocumentForm.vue';
+import AddressForm from '@components/forms/AddressForm.vue';
+import ContactForm from '@components/forms/ContactForm.vue';
+import RelationForm from '@components/forms/RelationForm.vue';
+import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
+import AffilationForm from '@components/forms/AffilationForm.vue';
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();

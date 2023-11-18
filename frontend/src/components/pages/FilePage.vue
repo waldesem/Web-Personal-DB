@@ -4,9 +4,8 @@ import { onBeforeMount, ref } from 'vue';
 import { authStore } from '@store/token';
 import { fileManagerStore } from '@store/fmanager';
 import { server } from '@share/utilities';
-
-const ModalWin = () => import('@components/layouts/ModalWin.vue');
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+import ModalWin from '@components/layouts/ModalWin.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAuth = authStore();
 const storeFileManager = fileManagerStore();

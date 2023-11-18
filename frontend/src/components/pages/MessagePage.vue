@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
 import { messageStore } from '@/store/messages';
-
-const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
+import PageSwitcher from '@components/layouts/PageSwitcher.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeMessage = messageStore();
 
@@ -63,8 +63,8 @@ const storeMessage = messageStore();
         </table>
       </div>
     </div>
-    <PageSwitcher :has_prev = "storeMessage.messageData"
-                  :has_next = "storeMessage.messageData.hasPrev"
+    <PageSwitcher :has_prev = "storeMessage.messageData.hasPrev"
+                  :has_next = "storeMessage.messageData.hasNext"
                   :switchPrev = "storeMessage.updateMessages(
                     'all', storeMessage.messageData.currentPage - 1
                     )"

@@ -17,7 +17,7 @@ class ClassesView(MethodView):
                 {i.name: i.value for i in Category},
                 {i.name: i.value for i in Groups},
                 {i.name: i.value for i in Roles},
-                models_schemas.keys()]
+                {'tables': list(models_schemas.keys())}]
 
 
 bp.add_url_rule('/classes', view_func=ClassesView.as_view('classes'))

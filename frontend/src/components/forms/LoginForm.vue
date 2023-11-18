@@ -27,24 +27,22 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
  async function submitLogin(): Promise<void> {
 
   if (formAction.value === 'password') {
-    if (formData['password'] === formData['new_pswd']) {
+    if (formData.value['password'] === formData.value['new_pswd']) {
       storeAlert.setAlert('alert-warning', 'Старый и новый пароли совпадают');
       return
     };
-    if (formData['conf_pswd'] !== formData['new_pswd']) {
+    if (formData.value['conf_pswd'] !== formData.value['new_pswd']) {
       storeAlert.setAlert('alert-warning', 'Новый пароль и подтверждение не совпадают');
       return
     }
   };
   try {
     const response = formAction.value === 'password'
-      ? await axios.patch(`${server}/login`, formData)
-      : await axios.post(`${server}/login`, formData);
-    
+      ? await axios.patch(`${server}/login`, formData.value)
+      : await axios.post(`${server}/login`, formData.value);
     const { message, access_token, refresh_token } = response.data;
     
     hidePassword.value = true;
-    clearItem(formData.value)
 
     switch (message) {
       case 'Authenticated':
@@ -53,6 +51,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           formAction.value = 'login';
           storeAlert.alertMessage.attrAlert = 'alert-success';
           storeAlert.alertMessage.textAlert = 'Войдите с новым паролем';
+          clearItem(formData.value)
+          
         } else {          
           localStorage.setItem('refresh_token', refresh_token);
           localStorage.setItem('access_token', access_token);
@@ -68,6 +68,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       case 'Denied':
         formAction.value = 'login';
         storeAlert.setAlert('alert-danger', 'Неверный логин или пароль');
+        clearItem(formData.value)
         break;
     };
   } catch (error) {

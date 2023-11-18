@@ -1,9 +1,8 @@
 <script setup lang="ts">
 
 import { alertStore } from '@store/alert';
-
-const LoginForm = () => import('@components/forms/LoginForm.vue');
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+import LoginForm from '@components/forms/LoginForm.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAlert = alertStore();
 

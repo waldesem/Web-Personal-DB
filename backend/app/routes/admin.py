@@ -99,7 +99,8 @@ class UserView(MethodView):
                                 password=bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD'].encode('utf-8'),
                                                        bcrypt.gensalt())))
             db.session.commit()
-            return UsersView.post({'fullname': ''})
+            users = UsersView()
+            return users.post({'fullname': ''})
 
     @bp.input(UserSchema)
     def patch(self, json_data):
@@ -138,7 +139,8 @@ class UserView(MethodView):
         if user.username != current_user.username:
             db.session.delete(user)
             db.session.commit()
-            return UsersView.post({'fullname': ''})
+            users = UsersView()
+            return users.post({'fullname': ''})
 
 user_view = UserView.as_view('user')
 bp.add_url_rule('/user', view_func=user_view, methods=['PATCH', 'POST'])
@@ -253,8 +255,8 @@ class TableView(MethodView):
             result = result.filter_by(id=json_data['id'])
         query = result.paginate(page=page,per_page=pagination, error_out=False)
         return [schema.dump(query, many=True),
-                {'has_next': int(query.has_next),
-                 'has_prev': int(query.has_prev)}]
+                {'has_next': bool(query.has_next),
+                 'has_prev': bool(query.has_prev)}]
 
     def delete(self, item, item_id):
         model = models_schemas[item][0]

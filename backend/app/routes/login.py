@@ -124,6 +124,7 @@ class LoginView(MethodView):
                     db.session.commit()
                     if user.has_role(Roles.api.value):
                         return {'message': 'Overdue'}
+                    
                     return {'message': 'Authenticated',
                             'access_token': create_access_token(identity=user.username),
                             'refresh_token': create_refresh_token(identity=user.username)}

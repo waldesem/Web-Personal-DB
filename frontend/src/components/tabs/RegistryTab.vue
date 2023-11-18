@@ -4,8 +4,7 @@ import { ref } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { loginStore } from '@/store/login';
-
-const RegistryForm = () => import('@components/forms/RegistryForm.vue');
+import RegistryForm from '@components/forms/RegistryForm.vue';
 
 const storeProfile = profileStore();
 const classifyApp = classifyStore();

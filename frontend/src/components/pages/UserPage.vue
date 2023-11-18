@@ -7,10 +7,9 @@ import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { classifyStore } from '@/store/classify';
 import { server, clearItem } from '@share/utilities';
-
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
-const UserForm = () => import('@components/forms/UserForm.vue');
-
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+import UserForm from '@components/forms/UserForm.vue';
+import router from '@/router/router';
 //import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const storeClassify = classifyStore();
@@ -53,6 +52,7 @@ if (confirm("Вы действительно хотите удалить пол�
       );
     storeAdmin.profileData = response.data;
     storeAlert.setAlert('alert-success', 'Пользователь удалён');
+    router.push({ name: 'users' });
 
   } catch (error) {
     storeAlert.setAlert('alert-danger', error as string)

@@ -5,8 +5,7 @@ import { classifyStore } from '@/store/classify';
 import { alertStore } from '@store/alert';
 import { authStore } from '@/store/token';
 import { server, clearItem } from '@share/utilities';
-
-const ModalWin = () => import('@components/layouts/ModalWin.vue');
+import ModalWin from '@components/layouts/ModalWin.vue';
 
 const storeAdmin = adminStore();
 const storeClassify = classifyStore();
@@ -30,7 +29,7 @@ async function submitUser(): Promise<void>{
       storeAlert.setAlert('alert-success', 'Пользователь успешно изменен')
     } else {
       storeAdmin.userData.userList = response.data;
-      //storeAdmin.getUsers();
+      // storeAdmin.getUsers();
       storeAlert.setAlert('alert-success', 'Пользователь успешно создан')
     };
 
@@ -44,11 +43,10 @@ async function submitUser(): Promise<void>{
 </script>
 
 <template>
-  <modal-win :title ="storeAdmin.userData.userAct === 'edit'
+  <ModalWin :title ="storeAdmin.userData.userAct === 'edit'
                 ? 'Изменить пользователя' 
                 : 'Создать пользователя'" 
               :size="'modal-xl'" :id="'modalUser'">
-    <template v-slot:body>
       <form @submit.prevent="submitUser" class="form form-check" role="form">
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="fullname">Имя пользователя:</label>
@@ -105,6 +103,5 @@ async function submitUser(): Promise<void>{
           </div>
         </div>
       </form>
-    </template>
-  </modal-win>
+  </ModalWin>
 </template>

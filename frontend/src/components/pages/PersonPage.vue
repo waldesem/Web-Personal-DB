@@ -6,9 +6,8 @@ import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { debounce, server } from '@share/utilities';
 import { Candidate } from '@/share/interfaces';
-
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
-const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+import PageSwitcher from '@components/layouts/PageSwitcher.vue';
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();

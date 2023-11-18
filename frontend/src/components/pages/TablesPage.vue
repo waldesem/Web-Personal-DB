@@ -6,9 +6,8 @@ import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { classifyStore} from '@store/classify'
 import { server, debounce } from '@share/utilities';
-
-const PageSwitcher = () => import('@components/layouts/PageSwitcher.vue');
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+import PageSwitcher from '@components/layouts/PageSwitcher.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeAuth = authStore();
 const storeAlert = alertStore();
@@ -21,12 +20,12 @@ const tableData = ref({
   tableItem: [],
   searchId: '',
   currentPage: 1,
-  hasNext: 0,
-  hasPrev: 0
+  hasNext: false,
+  hasPrev: false
 });
 
 onBeforeMount(() => {
-  tableData.value.table = storeClassify.classifyItems.tables[0];
+  tableData.value.table = storeClassify.classifyItems.tables['tables'][0];
   getItem();
 });
 
@@ -36,8 +35,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     tableItem: [],
     searchId: '',
     currentPage: 1,
-    hasNext: 0,
-    hasPrev: 0
+    hasNext: false,
+    hasPrev: false
   });
   next()
 });
@@ -86,7 +85,7 @@ async function deleteItem(idItem: string): Promise<void>{
           <select class="form-select" id="region" name="region" 
               v-model="tableData.table" 
               @change="tableData.currentPage = 1; getItem()">
-            <option v-for="table, index in storeClassify.classifyItems.tables" 
+            <option v-for="table, index in storeClassify.classifyItems.tables['tables']" 
                           :key="index" :value="table">
               {{ table }}
             </option>
@@ -123,10 +122,11 @@ async function deleteItem(idItem: string): Promise<void>{
         </tbody>
       </table>
     </div>
-    <PageSwitcher :has_prev = "tableData.hasNext"
-                  :has_next = "tableData.hasPrev"
-                  :switchPrev = "getItem(tableData.currentPage -1)"
-                  :switchNext = "getItem(tableData.currentPage +1)" />
+    <PageSwitcher :has_prev = "tableData.hasPrev"
+                  :has_next = "tableData.hasNext"
+                  :switchPrev = "tableData.currentPage -1"
+                  :switchNext = "tableData.currentPage +1" 
+                  :switchPage = "getItem"/>
   </div>
 </template>
 

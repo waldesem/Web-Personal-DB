@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 </script>
 

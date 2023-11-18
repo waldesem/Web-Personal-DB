@@ -3,9 +3,8 @@
 import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
 import { clearItem } from '@share/utilities'
-
-const ResumeForm = () => import('@components/forms/ResumeForm.vue');
-const HeaderDiv = () => import('@components/layouts/HeaderDiv.vue');
+import ResumeForm from '@components/forms/ResumeForm.vue';
+import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
 const storeProfile = profileStore();
 storeProfile.dataProfile.action = 'create';
