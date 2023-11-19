@@ -1,170 +1,16 @@
 <script setup lang="ts">
 
-import { onBeforeMount, ref } from 'vue';
-import { authStore } from '@store/token';
+import { onBeforeMount, defineAsyncComponent } from 'vue';
 import { fileManagerStore } from '@store/fmanager';
-import { server } from '@share/utilities';
-import ModalWin from '@components/layouts/ModalWin.vue';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
-const storeAuth = authStore();
+const ModalWin = defineAsyncComponent(() => import('@components/layouts/ModalWin.vue'));
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+
 const storeFileManager = fileManagerStore();
 
 onBeforeMount(() => {
-  openFolder('');  
+  storeFileManager.openFolder('');  
 });
-
-// const pagination = ref({
-//   itemsOnPage: 12,
-//   currentPage: 1,
-//   hasNext: true,
-//   hasPrev: true
-// });
-
-const modalValue = ref("");
-const fileItem = ref("");
-
-async function getFoldersFiles() {
-  try {
-    const response = await storeAuth.axiosInstance.get(`${server}/manager`);
-    const { path, dirs, files }= response.data;
-    
-    assignValue(path, dirs, files);
-    clearValue();
-
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-async function openFolder(item: string) {
-  try {
-    const response = await storeAuth.axiosInstance.post(`${server}/manager/open`, {
-      'path': storeFileManager.fileManager.path,
-      'item': item
-    });
-    const { path, dirs, files } = response.data;
-    
-    assignValue(path, dirs, files);
-
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-async function openParent() {
-  try {
-    const response = await storeAuth.axiosInstance.post(`${server}/manager/parent`, {
-      'path': storeFileManager.fileManager.path
-    });
-    const { path, dirs, files } = response.data;
-    
-    assignValue(path, dirs, files);
-
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-
-async function openFile(file: string) {
-  try {
-    const response = await storeAuth.axiosInstance.post(`${server}/manager/download`, {
-      'path': storeFileManager.fileManager.path,
-      'item': file
-    }, { responseType: 'blob' });
-    
-    const fileName = file.split('/').pop();
-    const fileExtension = fileName?.split('.').pop();
-    
-    fileItem.value = window.URL.createObjectURL(new Blob([response.data]));
-
-    const link = document.createElement('a');
-    link.href = fileItem.value;
-    link.download = `${fileName}.${fileExtension}`;
-    
-    link.dispatchEvent(new MouseEvent('click'));
-
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-
-async function updateItem() {
-  try {
-    const response = storeFileManager.fileManager.action === 'create'
-      ? await storeAuth.axiosInstance.post(`${server}/manager/${storeFileManager.fileManager.action}`, {
-        'path': storeFileManager.fileManager.path,
-        })
-      : await storeAuth.axiosInstance.post(`${server}/manager/${storeFileManager.fileManager.action}`, {
-        'path': storeFileManager.fileManager.path,
-        'old': storeFileManager.fileManager.selected[0],
-        'new': modalValue.value
-      });
-    const { path, dirs, files } = response.data;
-    
-    assignValue(path, dirs, files);
-    clearValue();
-  
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-async function copyItem() {
-  if (storeFileManager.fileManager.selected.length === 0) {
-    return
-  };
-  try {
-    const response = await storeAuth.axiosInstance.post(`${server}/manager/${storeFileManager.fileManager.action}`, {
-      'path': storeFileManager.fileManager.path,
-      'old': storeFileManager.fileManager.copied,
-      'new': storeFileManager.fileManager.selected,
-    });
-    const { path, dirs, files } = response.data;
-    
-    assignValue(path, dirs, files);
-    clearValue();
-  
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-async function deleteItem() {
-  if (storeFileManager.fileManager.selected.length === 0) {
-    return
-  };
-  if (confirm("Вы действительно хотите удалить?")) {
-    try {
-      const response = await storeAuth.axiosInstance.post(`${server}/manager/delete`, {
-        'path': storeFileManager.fileManager.path,
-        'items': storeFileManager.fileManager.selected
-      });
-      const { path, dirs, files } = response.data;
-
-      assignValue(path, dirs, files);
-      clearValue();
-   
-    } catch (error) {
-      console.error(error);
-    }
-  }
-};
-
-function assignValue(path: [], dirs: [], files: []) {
-  storeFileManager.fileManager.path = path;
-  storeFileManager.fileManager.folders = dirs;
-  storeFileManager.fileManager.files = files;
-};
-
-function clearValue() {
-  modalValue.value = "";
-  storeFileManager.fileManager.select = false;
-  storeFileManager.fileManager.selected = [];
-  storeFileManager.fileManager.copied = [];
-};
 
 </script>
 
@@ -178,14 +24,15 @@ function clearValue() {
       <div class="row border border-primary p-3">
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
-            @click="getFoldersFiles" >
+            @click="storeFileManager.getFoldersFiles" >
             <i class="bi bi-house" title="Дом"></i>
           </button>
         </div>
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
-            @click="storeFileManager.fileManager.action = 'create'; updateItem()"
+            @click="storeFileManager.fileManager.action = 'create'; 
+                    storeFileManager.updateItem()"
             :disabled="storeFileManager.fileManager.select">
             <i class="bi bi-plus-square" title="Создать"></i>
           </button>
@@ -222,7 +69,7 @@ function clearValue() {
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
                   :disabled="storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length === 0"
-                  @click="copyItem">
+                  @click="storeFileManager.copyItem">
             <i class="bi bi-clipboard-fill" title="Вставить"></i>
           </button>
         </div>
@@ -239,7 +86,7 @@ function clearValue() {
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
                   :disabled="!storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length === 0"
-                  @click="deleteItem">
+                  @click="storeFileManager.deleteItem">
             <i class="bi bi-trash" title="Удалить"></i>
           </button>
         </div>
@@ -250,7 +97,8 @@ function clearValue() {
           <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page" 
                 v-for="item, idx in storeFileManager.fileManager.path" :key="item">
-              <a href="#" @click="storeFileManager.fileManager.path = storeFileManager.fileManager.path.slice(0, idx); openFolder(item)">
+              <a href="#" @click="storeFileManager.fileManager.path = storeFileManager.fileManager.path.slice(0, idx); 
+                                  storeFileManager.openFolder(item)">
                 {{ item }}
               </a>
             </li>
@@ -262,7 +110,8 @@ function clearValue() {
 
         <li class="list-group-item" v-if="storeFileManager.fileManager.path.length">
           <button type="button" href="#" class="list-group-item list-group-item-action" title="Наверх"
-                  @click="storeFileManager.fileManager.path = storeFileManager.fileManager.path.slice(0, -1); openParent()"
+                  @click="storeFileManager.fileManager.path = storeFileManager.fileManager.path.slice(0, -1); 
+                          storeFileManager.openParent()"
                   :disabled="storeFileManager.fileManager.select">
             <i class="bi bi-arrow-90deg-up"></i>
           </button>
@@ -273,7 +122,8 @@ function clearValue() {
             <input class="form-check-input" type="checkbox" v-if="storeFileManager.fileManager.select" 
                   :value="folder" v-model="storeFileManager.fileManager.selected">
             &nbsp;
-            <button type="button" class="list-group-item list-group-item-action btn btn-light" @click="openFolder(folder)"
+            <button type="button" class="list-group-item list-group-item-action btn btn-light" 
+                    @click="storeFileManager.openFolder(folder)"
                     :disabled="storeFileManager.fileManager.select">
               <i class="bi bi-folder"></i>
               {{ folder }}
@@ -287,7 +137,7 @@ function clearValue() {
                   :value="file" v-model="storeFileManager.fileManager.selected">
             &nbsp; &nbsp;
             <button type="button" class="list-group-item list-group-item-action btn btn-light" 
-                    @click="openFile(file)"
+                    @click="storeFileManager.openFile(file)"
                     :disabled="storeFileManager.fileManager.select">
               <i class="bi bi-file"></i>
               {{ file }}
@@ -299,11 +149,11 @@ function clearValue() {
     </div>
     <modal-win :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">
       <template v-slot:body>
-        <form @submit.prevent="updateItem" class="form form-check" role="form">
+        <form @submit.prevent="storeFileManager.updateItem" class="form form-check" role="form">
           <div class="row">
             <div class="col">
               <input class="form-control" id="name" maxlength="250" name="name" type="text"
-              v-model="modalValue">
+              v-model="storeFileManager.modalValue">
             </div>
             <div class="col">
               <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">

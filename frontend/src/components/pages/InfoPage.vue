@@ -1,13 +1,11 @@
 <script setup lang="ts">
 
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref, defineAsyncComponent } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { Bar, Line } from 'vue-chartjs';
-import { authStore } from '@store/token';
 import { loginStore } from '@store/login';
 import { classifyStore } from '@/store/classify';
-import { server } from '@share/utilities';
-import { Chart } from '@share/interfaces';
+import { informationStore } from '@/store/information';
 import {
   Chart as ChartJS, 
   Title, 
@@ -19,11 +17,12 @@ import {
   PointElement, 
   LineElement
 } from 'chart.js';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 
-const storeAuth = authStore();
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+
 const storeLogin = loginStore();
 const storeClassify = classifyStore();
+const storeInformation = informationStore();
 
 const chartRadio = ref('bar');
 const mapped_month = {
@@ -42,17 +41,17 @@ const mapped_month = {
 };
 
 onBeforeMount(async () => {
-  loaded.value = false;
-  submitData()
+  storeInformation.loaded = false;
+  storeInformation.submitData()
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  loaded.value = false;
+  storeInformation.loaded = false;
   next()
 });
 
 computed(() => {
-  header.value = storeClassify.classifyItems.regions[stat.value.region];
+  storeInformation.header = storeClassify.classifyItems.regions[storeInformation.stat.region];
 });
 
 ChartJS.register(
@@ -66,104 +65,11 @@ ChartJS.register(
   Legend
 );
 
-const todayDate = new Date();
-const header = ref('');
-const loaded = ref(false);
-const stat = ref({
-  region: 1,
-  checks: [], 
-  pfo: [],
-  start: new Date(
-    todayDate.getFullYear(), 
-    todayDate.getMonth(), 1
-    ).toISOString().slice(0,10),
-  end: todayDate.toISOString().slice(0,10)
-});
-const barData = ref<Chart>({
-  labels: [],
-  datasets: []
-});
-const summedBarData = ref({});
-const lineData = ref<Chart>({
-  labels: [],
-  datasets: []
-});
-const summedLineData = ref<Array<Record<string, number>>>([{}]);
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false
-};
-
-/**
- * Submits data to the server.
- *
- * @return {Promise<void>} A promise that resolves when the data is successfully submitted.
- */
-
-async function submitData(): Promise<void> {
-  const response = await storeAuth.axiosInstance.post(`${server}/information`, {
-    'start': stat.value.start, 'end': stat.value.end, 'region': stat.value.region 
-  });
-  const { candidates, poligraf } = response.data;
-  header.value = storeClassify.classifyItems.regions[stat.value.region];
-  
-  stat.value.pfo = poligraf;
-  stat.value.checks = candidates;
-
-  summedBarData.value = stat.value.checks
-    .filter((result: { [x: string]: any; }) => result['decision'])
-    .reduce((acc: { [x: string]: any; }, result: { [x: string]: any; }) => {
-      const decision = result['decision'];
-      const count = result['count'];
-      acc[decision] = (acc[decision] || 0) + count;
-      return acc;
-    }, {});
-
-  barData.value = {
-    labels: Object.keys(summedBarData.value),
-    datasets: [
-      {
-        label: 'Решения по кандидатам',
-        backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'], 
-        data: Object.values(summedBarData.value),
-      }
-    ]
-  };
-
-  //summedCountsByMonth: { [key: string]: number }[] = [];
-
-  stat.value.checks.forEach(result => {
-    const month = result['month'];
-    const count = result['count'];
-
-    const monthObj = summedLineData.value.find(obj => obj.hasOwnProperty(month));
-
-    if (monthObj) {
-      monthObj[month] += count;
-    } else {
-      summedLineData.value.push({ [month]: count });
-    }
-  });
-
-  lineData.value = {
-    labels: summedLineData.value.map(obj => Object.keys(obj)[0]),
-    datasets: [
-      {
-        label: 'Статистика по кандидатам',
-        data: summedLineData.value.map(obj => Object.values(obj)[0]),
-        backgroundColor: ['#f87979', '#fbc02d', '#2a9d8f', '#e9c46a', '#e76f51'],
-      }
-    ]
-  };
-
-  loaded.value = true;
-};
-
 </script>
 
 <template>
   <div class="container py-3">
-    <HeaderDiv :page-header="`Статистика по региону ${header} c ${stat.start} по ${stat.end}`" />
+    <HeaderDiv :page-header="`Статистика по региону ${storeInformation.header} c ${storeInformation.stat.start} по ${storeInformation.stat.end}`" />
     <div class="form form-check" role="form">
       <input class="form-check-input" type="radio" id="bar" name="bar"
         v-model="chartRadio" value="bar">
@@ -176,11 +82,15 @@ async function submitData(): Promise<void> {
     </div>
 
     <div v-if="chartRadio === 'bar'">
-      <Bar v-if="loaded" :data="barData" :options="chartOptions" />
+      <Bar v-if="storeInformation.loaded" 
+                :data="storeInformation.barData" 
+                :options="storeInformation.chartOptions" />
     </div>
     
     <div v-if="chartRadio === 'line'">
-      <Line v-if="loaded" :data="lineData" :options="chartOptions" />
+      <Line v-if="storeInformation.loaded" 
+                   :data="storeInformation.lineData" 
+                   :options="storeInformation.chartOptions" />
     </div>
 
     <div v-if="chartRadio === 'bar'" class="py-3">
@@ -188,9 +98,9 @@ async function submitData(): Promise<void> {
         <caption>Решения по кандидатам</caption>
         <thead><tr><th width="45%">Решение</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, index) in Object.keys(summedBarData)" 
+          <tr height="50px" v-for="(value, index) in Object.keys(storeInformation.summedBarData)" 
               :key="index">
-            <td >{{ value }}</td><td>{{Object.values(summedBarData)[index]}}</td>
+            <td >{{ value }}</td><td>{{Object.values(storeInformation.summedBarData)[index]}}</td>
           </tr>
         </tbody>
       </table>
@@ -201,14 +111,14 @@ async function submitData(): Promise<void> {
         <caption>Статистика по кандидатам</caption>
         <thead>
           <tr>
-            <th v-for="label, index in lineData.labels" :key="index">
+            <th v-for="label, index in storeInformation.lineData.labels" :key="index">
               {{ mapped_month[label as keyof typeof mapped_month] }}
             </th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td v-for="check, index in summedLineData.map(obj => Object.values(obj)[0])" :key="index">
+            <td v-for="check, index in storeInformation.summedLineData.map(obj => Object.values(obj)[0])" :key="index">
               {{ check }}
             </td>
           </tr>
@@ -221,7 +131,7 @@ async function submitData(): Promise<void> {
         <caption>Статистика по полиграфу</caption>
         <thead><tr><th width="45%">Критерий</th><th>Количество</th></tr></thead>
         <tbody>
-          <tr height="50px" v-for="(value, name, index) in stat.pfo" :key="index">
+          <tr height="50px" v-for="(value, name, index) in storeInformation.stat.pfo" :key="index">
             <td >{{name}}</td><td>{{value}}</td>
           </tr>
         </tbody>
@@ -229,14 +139,14 @@ async function submitData(): Promise<void> {
     </div>
     
     <div class="py-3">
-      <form @submit.prevent="submitData" class="form form-check" role="form">
+      <form @submit.prevent="storeInformation.submitData" class="form form-check" role="form">
           <div class="mb-3 row required">
             <label class="col-form-label col-md-2" for="region">Регион</label>
             <div class="col-md-2">
               <select :disabled="storeLogin.userData.region_id != '1'"
-                      @change="submitData" 
+                      @change="storeInformation.submitData" 
                       class="form-select" id="region" name="region" 
-                      v-model="stat.region">
+                      v-model="storeInformation.stat.region">
                 <option :value="storeLogin.userData.region_id" selected>
                   {{ storeClassify.classifyItems.regions[storeLogin.userData.region_id] }}</option>
                 <option v-for="name, value in storeClassify.classifyItems.regions" 
@@ -246,11 +156,11 @@ async function submitData(): Promise<void> {
             <label class="col-form-label col-md-1" for="start">Период:</label>
             <div class="col-md-2">
               <input class="form-control" id="start" name="start" required type="date" 
-                  v-model="stat.start">
+                  v-model="storeInformation.stat.start">
             </div>
             <div class="col-md-2">
               <input class="form-control" name="end" required type="date" 
-                  v-model=stat.end>
+                  v-model=storeInformation.stat.end>
             </div>
             <div class="col-md-2">
               <button class="btn btn-primary btn-md" name="submit" type="submit">

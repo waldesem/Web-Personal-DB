@@ -1,18 +1,15 @@
 <script setup lang="ts">
 
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, defineAsyncComponent } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { contactStore } from '@/store/contacts';
-import { alertStore } from '@store/alert';
-import { authStore } from '@/store/token';
-import { server, debounce, clearItem } from '@share/utilities';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
-import ConnectForm from '@components/forms/ConnectForm.vue';
-import PageSwitcher from '@components/layouts/PageSwitcher.vue';
+import { debounce, clearItem } from '@share/utilities';
 
-const storeAlert = alertStore();
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+const ConnectForm = defineAsyncComponent(() => import('@components/forms/ConnectForm.vue'));
+const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/PageSwitcher.vue'));
+
 const storeContact = contactStore();
-const storeAuth = authStore();
 
 const searchContacts = debounce(storeContact.getContacts, 500);
 
@@ -30,29 +27,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   clearItem(storeContact.itemForm);
   next()
 });
-
-/**
- * Deletes a contact.
- *
- * @param {string} contactId - the ID of the contact to delete
- * @return {Promise<void>} a Promise that resolves when the contact is deleted
- */
-async function deleteContact(contactId: string=storeContact.contactsData.itemId): Promise<void> {
-  if (confirm("Вы действительно хотите удалить контакт?")) {
-    try {
-      const response = await storeAuth.axiosInstance.delete(`${server}/connect/${contactId}`);
-      console.log(response.status);
-      storeAlert.setAlert('alert-success', `Контакт с ID ${contactId} удален`);
-      storeContact.contactsData.currentPage = 1; // reset page
-      storeContact.getContacts();
-
-    } catch (error) {
-      console.log(error)
-      
-      storeAlert.setAlert('alert-danger', `Ошибка при удалении контакта с ID ${contactId}`);
-    }
-  }
-};
 
 </script>
 
@@ -123,7 +97,7 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
                     </td>
                     <td width="5%">
                       <a href="#" title="Удалить" 
-                          @click="deleteContact(contact['id'])">
+                          @click="storeContact.deleteContact(contact['id'])">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>
@@ -141,12 +115,9 @@ async function deleteContact(contactId: string=storeContact.contactsData.itemId)
     </div>
     <PageSwitcher :has_prev = "storeContact.responseData.hasNext"
                   :has_next = "storeContact.responseData.hasPrev"
-                  :switchPrev = "storeContact.getContacts(
-                    storeContact.contactsData.currentPage -1
-                    )"
-                  :switchNext = "storeContact.getContacts(
-                    storeContact.contactsData.currentPage +1
-                    )" />
+                  :switchPrev = "storeContact.contactsData.currentPage -1"
+                  :switchNext = "storeContact.contactsData.currentPage +1"
+                  :switchPage = "storeContact.getContacts" />
   </div>
 </template>
 
