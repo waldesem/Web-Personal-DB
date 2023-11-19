@@ -1,8 +1,10 @@
 <script setup lang="ts">
 
+import { defineAsyncComponent } from 'vue';
 import { alertStore } from '@store/alert';
-import LoginForm from '@components/forms/LoginForm.vue';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+
+const LoginForm = defineAsyncComponent(() => import('@components/forms/LoginForm.vue'));
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 
 const storeAlert = alertStore();
 
@@ -11,8 +13,9 @@ storeAlert.alertMessage.textAlert = 'Авторизуйтесь для вход�
 
 </script>
 
+
 <template>
-  <div class="container py-3">
+  <div class="container py-5">
     <div class="row py-5">
       <div class="col col-3"></div>
       <div class="col col-6">
@@ -23,3 +26,10 @@ storeAlert.alertMessage.textAlert = 'Авторизуйтесь для вход�
     </div>
   </div>
 </template>
+
+
+<style scoped>
+.container {
+  height: 75vh;
+}
+</style>

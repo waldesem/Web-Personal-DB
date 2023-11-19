@@ -1,11 +1,12 @@
 <script setup lang="ts">
 
-import { onBeforeMount } from 'vue';
+import { defineAsyncComponent, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { adminStore } from '@store/admin';
 import { debounce } from '@share/utilities';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
-import UserForm from '@components/forms/UserForm.vue';
+
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+const UserForm = defineAsyncComponent(() => import('@components/forms/UserForm.vue'));
 
 const storeAdmin = adminStore();
 

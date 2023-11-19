@@ -1,12 +1,14 @@
 <script setup lang="ts">
 
 import { onBeforeMount, watch } from 'vue';
-import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
-import NavBar from '@components/layouts/NavBar.vue';
-import AlertMessage from '@components/layouts/AlertMessage.vue';
-import FooterDiv from '@components/layouts/FooterDiv.vue';
-import ChatButton from '@components/layouts/ChatButton.vue';
+import { defineAsyncComponent } from 'vue';
+import { useRoute } from 'vue-router';
+
+const NavBar = defineAsyncComponent(() => import('@components/layouts/NavBar.vue'));
+const AlertMessage = defineAsyncComponent(() => import('@components/layouts/AlertMessage.vue'));
+const FooterDiv = defineAsyncComponent(() => import('@components/layouts/FooterDiv.vue'));
+const ChatButton = defineAsyncComponent(() => import('@components/layouts/ChatButton.vue'));
 
 const route = useRoute();
 
@@ -15,13 +17,15 @@ const storeLogin = loginStore();
 watch(() => route.params.group,
   newValue => {
     storeLogin.pageIdentity = newValue as string
-  }, {immediate: true});
-  
+  }, { immediate: true });
+
+
 onBeforeMount(() => {
   storeLogin.getAuth()
 });
 
 </script>
+
 
 <template>
   <NavBar />

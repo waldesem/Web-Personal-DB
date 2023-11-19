@@ -1,9 +1,10 @@
+import axios from 'axios';
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { classifyStore } from '@store/classify';
-import { server } from '@share/utilities';
+import { server, clearItem } from '@share/utilities';
 import router from '@router/router';
 
 
@@ -12,8 +13,15 @@ export const loginStore = defineStore('loginStore', () => {
   const storeAuth = authStore();
   const storeAlert = alertStore();
   const storeClasses = classifyStore();
+  const storeLogin = loginStore();
 
-  const pageIdentity = ref('');
+  const pageIdentity = ref('login');
+
+  const formData = ref({
+    data: <Record<string, any>>{},
+    action: 'login',
+    password: false,
+  });
 
   const userData = ref({
     fullName: '',
@@ -102,12 +110,70 @@ export const loginStore = defineStore('loginStore', () => {
     return userData.value.userGroups.some((g: { group: any; }) => g.group === group);
   };
 
+  /**
+   * Submits data to the server.
+   *
+   * @return {Promise<void>} - A promise that resolves when the data is submitted.
+   */
+  async function submitLogin(): Promise<void> {
+
+    if (formData.value.action === 'password') {
+      if (formData.value['password'] === formData.value.data['new_pswd']) {
+        storeAlert.setAlert('alert-warning', 'Старый и новый пароли совпадают');
+        return
+      };
+      if (formData.value.data['conf_pswd'] !== formData.value.data['new_pswd']) {
+        storeAlert.setAlert('alert-warning', 'Новый пароль и подтверждение не совпадают');
+        return
+      }
+    };
+    try {
+      const response = formData.value.action === 'password'
+        ? await axios.patch(`${server}/login`, formData.value.data)
+        : await axios.post(`${server}/login`, formData.value.data);
+      const { message, access_token, refresh_token } = response.data;
+      
+      switch (message) {
+        case 'Authenticated':
+          if (formData.value.action === 'password') {
+            formData.value.action = 'login';
+            storeAlert.alertMessage.attrAlert = 'alert-success';
+            storeAlert.alertMessage.textAlert = 'Войдите с новым паролем';
+            clearItem(formData.value)
+            
+          } else {          
+            localStorage.setItem('refresh_token', refresh_token);
+            localStorage.setItem('access_token', access_token);
+            storeLogin.getAuth();
+          };
+          break;
+
+        case 'Overdue':
+          formData.value.action = 'password';
+          storeAlert.setAlert('alert-warning', 'Пароль просрочен. Измените пароль');
+          break;
+
+        case 'Denied':
+          formData.value.action = 'login';
+          storeAlert.setAlert('alert-danger', 'Неверный логин или пароль');
+          break;
+      };
+    } catch (error) {
+      storeAlert.setAlert('alert-warning', error as string);
+      storeLogin.userLogout();
+      clearItem(formData.value)
+    };
+  };
+
+
   return { 
     userData, 
-    pageIdentity, 
+    pageIdentity,
+    formData,
     getAuth, 
     userLogout, 
     hasRole, 
-    hasGroup
+    hasGroup,
+    submitLogin
   }
 });

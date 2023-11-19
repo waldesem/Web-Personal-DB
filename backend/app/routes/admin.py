@@ -58,7 +58,6 @@ class UserView(MethodView):
         user = db.session.query(User).get(user_id)
         match action:
             case 'view':
-                # return user
                 return schema.dump(user)
             case 'block':
                 if user.username != current_user.username:
@@ -136,7 +135,7 @@ class UserView(MethodView):
                   a successful deletion.
         """
         user = db.session.query(User).get(user_id)
-        if user.username != current_user.username:
+        if user.username != current_user.username and user.username != 'admin':
             db.session.delete(user)
             db.session.commit()
             users = UsersView()
@@ -172,7 +171,8 @@ class GroupView(MethodView):
         if not group:
             user.groups.append(item)
             db.session.commit()
-            return UserView.get('view', user_id)
+            userview = UserView()
+            return userview.get('view', user_id)
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
@@ -191,7 +191,8 @@ class GroupView(MethodView):
         if not (user.username == current_user.username and value == Groups.admins.name):
             user.groups.remove(item)
             db.session.commit()
-            return UserView.get('view', user_id)
+            userview = UserView()
+            return userview.get('view', user_id)
 
 bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('group'))
 
@@ -218,8 +219,9 @@ class RoleView(MethodView):
         if not response:
             user.roles.append(item)
             db.session.commit()
-            return UserView.get('view', user_id)
-
+            userview = UserView()
+            return userview.get('view', user_id)
+        
     @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
         """
@@ -236,7 +238,8 @@ class RoleView(MethodView):
         if not (user.username == current_user.username and value == Roles.admin.name):
             user.roles.remove(item)
             db.session.commit()
-            return UserView.get('view', user_id)
+            userview = UserView()
+            return userview.get('view', user_id)
 
 bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))
 
@@ -261,7 +264,8 @@ class TableView(MethodView):
     def delete(self, item, item_id):
         model = models_schemas[item][0]
         row = db.session.query(model).filter_by(id=item_id).one_or_none()
-        if row:
+        if not item == 'user' and (row.username == current_user.username 
+                                   or row.username == 'admin'):
             db.session.delete(row)
             db.session.commit()
         return ''

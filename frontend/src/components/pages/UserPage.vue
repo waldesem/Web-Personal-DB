@@ -1,20 +1,16 @@
 <script setup lang="ts">
 
-import { onBeforeMount } from 'vue';
+import { defineAsyncComponent, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave, useRoute } from 'vue-router';
 import { adminStore } from '@store/admin';
-import { alertStore } from '@store/alert';
-import { authStore } from '@/store/token';
 import { classifyStore } from '@/store/classify';
-import { server, clearItem } from '@share/utilities';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
-import UserForm from '@components/forms/UserForm.vue';
-import router from '@/router/router';
+import { clearItem } from '@share/utilities';
 //import PhotoCard from '@components/layouts/PhotoCard.vue';
 
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+const UserForm = defineAsyncComponent(() => import('@components/forms/UserForm.vue'));
+
 const storeClassify = classifyStore();
-const storeAlert = alertStore();
-const storeAuth = authStore();
 const storeAdmin = adminStore();
 
 const route = useRoute();
@@ -44,45 +40,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   next()
 })
 
-async function userDelete(): Promise<void>{
-if (confirm("Вы действительно хотите удалить пользователя?")){
-  try {
-    const response = await storeAuth.axiosInstance.delete(
-      `${server}/user/${storeAdmin.userData.userId}`
-      );
-    storeAdmin.profileData = response.data;
-    storeAlert.setAlert('alert-success', 'Пользователь удалён');
-    router.push({ name: 'users' });
-
-  } catch (error) {
-    storeAlert.setAlert('alert-danger', error as string)
-  }
-}
-};
-
-async function updateGroupRole(action: string, item: string, value: string): Promise<void> {
-  if (value !== '') {
-    try {
-      const response = action === 'add' 
-        ? await storeAuth.axiosInstance.get(
-          `${server}/${item}/${value}/${storeAdmin.userData.userId}`
-          )
-        : await storeAuth.axiosInstance.delete(
-          `${server}/${item}/${value}/${storeAdmin.userData.userId}`
-          );
-      storeAdmin.profileData = response.data;
-      
-      storeAlert.setAlert(
-        'alert-success', 
-        `${item === 'role' ? "Роль" : "Группа"} ${value} ${action === 'add' ? "добавлена" : "удалена"}`
-        );
-
-    } catch (error) {
-      storeAlert.setAlert('alert-danger', error as string);
-    };
-  }
-};
-
 </script>
 
 <template>
@@ -100,12 +57,10 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
             <td>{{storeAdmin.profileData.fullname }}</td>
           </tr>
           <tr>
-            <td>Логин</td>
-            <td>{{ storeAdmin.profileData.username }}</td>
+            <td>Логин</td><td>{{ storeAdmin.profileData.username }}</td>
           </tr>
           <tr>
-            <td>E-mail</td>
-            <td>{{ storeAdmin.profileData.email }}</td>
+            <td>E-mail</td><td>{{ storeAdmin.profileData.email }}</td>
           </tr>
           <tr>
             <td>Регион</td>
@@ -127,7 +82,7 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
             <td>
               <ul v-for="(group, index) in storeAdmin.profileData.groups" :key=index>
                 <li>{{ storeClassify.classifyItems.groups[group['group']] }}
-                  <a href="#" @click="updateGroupRole('delete', 'group', group['group'])">
+                  <a href="#" @click="storeAdmin.updateGroupRole('delete', 'group', group['group'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
@@ -135,7 +90,7 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
               <form class="form form-check" role="form">
                 <select class="form-select" id="group" name="group" 
                         v-model="storeAdmin.userData.userGroup" 
-                        @change="updateGroupRole('add', 'group', storeAdmin.userData.userGroup)">
+                        @change="storeAdmin.updateGroupRole('add', 'group', storeAdmin.userData.userGroup)">
                   <option value="" selected>Добавить группу</option>
                   <option v-for="(val, name) in storeClassify.classifyItems.groups" 
                           :key="name" :value="name">
@@ -148,7 +103,7 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
             <td>
               <ul v-for="(role, index) in storeAdmin.profileData.roles" :key=index>
                 <li>{{ role['role'] }}
-                  <a href="#" @click="updateGroupRole('delete', 'role',role['role'])">
+                  <a href="#" @click="storeAdmin.updateGroupRole('delete', 'role',role['role'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
@@ -156,7 +111,7 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
               <form class="form form-check" role="form">
                 <select class="form-select" id="role" name="role" 
                     v-model="storeAdmin.userData.userRole" 
-                    @change="updateGroupRole('add', 'role', storeAdmin.userData.userRole)">
+                    @change="storeAdmin.updateGroupRole('add', 'role', storeAdmin.userData.userRole)">
                   <option value="" selected>Добавить роль</option>
                   <option v-for="(val, name) in storeClassify.classifyItems.roles" 
                           :key="name" :value="val">
@@ -188,7 +143,7 @@ async function updateGroupRole(action: string, item: string, value: string): Pro
         <button @click="storeAdmin.userAction('drop')" type="button" class="btn btn-outline-primary">
           Сбросить пароль
         </button>
-        <button @click="userDelete" type="button" class="btn btn-outline-primary">
+        <button @click="storeAdmin.userDelete" type="button" class="btn btn-outline-primary">
           Удалить
         </button>
       </div>
