@@ -3,26 +3,26 @@
 import { defineAsyncComponent, onBeforeMount } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore} from '@store/classify'
-import { adminStore } from '@store/admin';
+import { tableStore } from '@store/tables';
 import {  debounce } from '@share/utilities';
 
 const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/PageSwitcher.vue'));
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 
 const storeClassify = classifyStore();
-const storeAdmin = adminStore();
+const storeTable = tableStore();
 
-const searchItem = debounce(storeAdmin.getItem, 500);
+const searchItem = debounce(storeTable.tableData.getItem, 500);
 
 onBeforeMount(() => {
   if (storeClassify.classifyItems.tables['tables'].length) {
-    storeAdmin.tableData.table = storeClassify.classifyItems.tables['tables'][0];
-    storeAdmin.getItem();
+    storeTable.tableData.table = storeClassify.classifyItems.tables['tables'][0];
+    storeTable.tableData.getItem(1);
   }
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(storeAdmin.tableData, {
+  Object.assign(storeTable.tableData.table, {
     table: '',
     tableItem: [],
     searchId: '',
@@ -41,9 +41,10 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     <div class="row py-3">
       <div class="col-md-3">
         <form class="form form-check" role="form">
-          <select class="form-select" id="region" name="region" 
-                  v-model="storeAdmin.tableData.table" 
-                  @change="storeAdmin.tableData.currentPage = 1; storeAdmin.getItem()">
+          <select v-if="storeClassify.classifyItems.tables['tables'].length"
+                  class="form-select" id="region" name="region" 
+                  v-model="storeTable.tableData.table" 
+                  @change="storeTable.tableData.getItem(1)">
             <option v-for="table, index in storeClassify.classifyItems.tables['tables']" 
                           :key="index" :value="table">
               {{ table }}
@@ -54,15 +55,15 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       <div class="col-md-8">
         <form @input="searchItem" class="form form-check" role="form">
           <input class="form-control" id="name" name="name" placeholder="Поиск ID" type="text" 
-                 v-model="storeAdmin.tableData.searchId">
+                 v-model="storeTable.tableData.search">
         </form>
       </div>
     </div>
-    <div v-if="storeAdmin.tableData.tableItem.length" class="table-responsive py-3">
+    <div v-if="storeTable.tableData.item.length" class="table-responsive py-3">
       <table class="table table-hover align-middle">
         <thead> 
           <tr>
-            <th v-for="key, index in Object.keys(storeAdmin.tableData.tableItem[0])" 
+            <th v-for="key, index in Object.keys(storeTable.tableData.item[0])" 
                       :key="index">
               {{ key }}
             </th>
@@ -70,10 +71,10 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row, index in storeAdmin.tableData.tableItem" :key="index">
+          <tr v-for="row, index in storeTable.tableData.item" :key="index">
             <td v-for="val, index in Object.values(row)" :key="index">{{ val }}</td>
             <td>
-              <a href="#" @click="storeAdmin.deleteItem(row['id'])" title="Удалить">
+              <a href="#" @click="storeTable.tableData.deleteItem(row['id'])" title="Удалить">
                 <i class="bi bi-trash"></i>
               </a>
             </td>
@@ -81,11 +82,11 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         </tbody>
       </table>
     </div>
-    <PageSwitcher :has_prev = "storeAdmin.tableData.hasPrev"
-                  :has_next = "storeAdmin.tableData.hasNext"
-                  :switchPrev = "storeAdmin.tableData.currentPage -1"
-                  :switchNext = "storeAdmin.tableData.currentPage +1" 
-                  :switchPage = "storeAdmin.getItem"/>
+    <PageSwitcher :has_prev = "storeTable.tableData.hasPrev"
+                  :has_next = "storeTable.tableData.hasNext"
+                  :switchPrev = "storeTable.tableData.currentPage -1"
+                  :switchNext = "storeTable.tableData.currentPage +1" 
+                  :switchPage = "storeTable.tableData.getItem"/>
   </div>
 </template>
 

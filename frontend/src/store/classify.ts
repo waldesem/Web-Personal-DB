@@ -1,11 +1,12 @@
-import { defineStore } from 'pinia'
 import axios from 'axios';
+import { ref } from 'vue';
+import { defineStore } from 'pinia'
 import { server } from '@share/utilities';
 
 
 export const classifyStore = defineStore('classifyStore', () => {
 
-  const classifyItems = {
+  const classData = ref({
     status: <Record<string, any>>({}),
     regions: <Record<string, any>>({}),
     conclusion: <Record<string, any>>({}),
@@ -14,36 +15,25 @@ export const classifyStore = defineStore('classifyStore', () => {
     groups: <Record<string, any>>({}),
     roles: <Record<string, any>>({}),
     tables: <Record<string, any>>({}),
-  };
-
-  /**
-   * Retrieves the classification data from the server
-   * and updates the corresponding variables with the response.
-   *
-   * @return {Promise<void>} A promise that resolves once the data 
-   * is retrieved and variables are updated.
-   */
-  async function getClassify(): Promise<void> {
-    try {
-      const response = await axios.get(`${server}/classes`);
-      [ 
-        classifyItems.status, 
-        classifyItems.regions, 
-        classifyItems.conclusion, 
-        classifyItems.decision, 
-        classifyItems.category, 
-        classifyItems.groups, 
-        classifyItems.roles,
-        classifyItems.tables
-      ] = response.data;
-      
-    } catch (error) {
-      console.error(error)
+    getClasses: async function (): Promise<void> {
+      try {
+        const response = await axios.get(`${server}/classes`);
+        [ 
+          this.status, 
+          this.regions, 
+          this.conclusion, 
+          this.decision, 
+          this.category, 
+          this.groups, 
+          this.roles,
+          this.tables
+        ] = response.data;
+      } catch (error) {
+        console.error(error)
+      }
     }
-  };
-  
+  });
   return {
-    classifyItems,
-    getClassify 
+    classData,
   }
 });

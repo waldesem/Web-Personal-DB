@@ -1,27 +1,29 @@
 <script setup lang="ts">
 
 import { onBeforeMount, watch } from 'vue';
-import { loginStore } from '@/store/login';
 import { defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
+import { loginStore } from '@/store/login';
+import { identityStore } from '@store/identity';
 
 const NavBar = defineAsyncComponent(() => import('@components/layouts/NavBar.vue'));
 const AlertMessage = defineAsyncComponent(() => import('@components/layouts/AlertMessage.vue'));
 const FooterDiv = defineAsyncComponent(() => import('@components/layouts/FooterDiv.vue'));
 const ChatButton = defineAsyncComponent(() => import('@components/layouts/ChatButton.vue'));
 
-const route = useRoute();
-
 const storeLogin = loginStore();
+const storeIdentity = identityStore();
+
+const route = useRoute();
 
 watch(() => route.params.group,
   newValue => {
-    storeLogin.pageIdentity = newValue as string
+    storeIdentity.pageIdentity = newValue as string
   }, { immediate: true });
 
 
 onBeforeMount(() => {
-  storeLogin.getAuth()
+  storeLogin.userData.getAuth()
 });
 
 </script>

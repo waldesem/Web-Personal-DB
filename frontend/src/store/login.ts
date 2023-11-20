@@ -10,18 +10,11 @@ import router from '@router/router';
 
 export const loginStore = defineStore('loginStore', () => {
 
-  const storeAuth = authStore();
   const storeAlert = alertStore();
   const storeClasses = classifyStore();
-  const storeLogin = loginStore();
-
-  const pageIdentity = ref('login');
-
-  const formData = ref({
-    data: <Record<string, any>>{},
-    action: 'login',
-    password: false,
-  });
+  const storeAuth = authStore();
+  
+  const auth = storeAuth.axiosInstance;
 
   const userData = ref({
     fullName: '',
@@ -29,151 +22,114 @@ export const loginStore = defineStore('loginStore', () => {
     userRoles: [],
     userGroups: [],
     region_id: '',
-  });
-  
-  async function getAuth(): Promise<void> {
+    action: 'login',
+    hidden: true,
+    form: <Record<string, any>>{},  
     
-    try {
-      const response = await storeAuth.axiosInstance.get(`${server}/login`);
-      const { fullname, username, roles, groups, region_id } = response.data;
-
-      assignUserData(fullname, username, roles, groups, region_id);
-
-      hasRole('admin') 
-        ? router.push({ name: 'users', params: { 
-          group: 'admins' 
-        }
-      }) 
-        : router.push({ name: 'persons', params: {
-          group: userData.value.userGroups[0]['group'] 
-        }
-      });
-      
-      storeClasses.getClassify();
-      storeAlert.setAlert();
-
-    } catch (error) {
-      storeAlert.setAlert('alert-warning', error as string);
-      userLogout();
-    }
-  };
-
-  /**
-   * Logs the user out by sending a GET request to the server's logout endpoint.
-   *
-   * @return {Promise<void>} Promise that resolves when the user is successfully logged out.
-   */
-  async function userLogout(): Promise<void>{
-    try {
-      const response = await storeAuth.axiosInstance.delete(`${server}/login`);
-      console.log(response.data);
-
-    } catch (error) {
-      storeAlert.setAlert('alert-warning', error as string);
-    };
-
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    
-    assignUserData();
-
-    router.push({ name: 'login' });
-  };
-  
-  function assignUserData (name='', user='', roles=[], groups=[], id='') {
-    Object.assign(userData.value, {
-      fullName: name,
-      userName: user,
-      userRoles: roles,
-      userGroups: groups,
-      region_id: id
-    });
-  };
-
-  /**
-   * Determines if the user has a specific role.
-   *
-   * @param {string} role - The role to check.
-   * @return {boolean} Returns true if the user has the specified role, false otherwise.
-   */
-  function hasRole(role: string): boolean {
-    return userData.value.userRoles.some((r: { role: any; }) => r.role === role);
-  };
-
-  /**
-   * Determines if the user belongs to a specific group.
-   *
-   * @param {string} group - The name of the group to check.
-   * @return {boolean} Returns true if the user belongs to the specified group, false otherwise.
-   */
-  function hasGroup(group: string): boolean {
-    return userData.value.userGroups.some((g: { group: any; }) => g.group === group);
-  };
-
-  /**
-   * Submits data to the server.
-   *
-   * @return {Promise<void>} - A promise that resolves when the data is submitted.
-   */
-  async function submitLogin(): Promise<void> {
-
-    if (formData.value.action === 'password') {
-      if (formData.value['password'] === formData.value.data['new_pswd']) {
-        storeAlert.setAlert('alert-warning', 'Старый и новый пароли совпадают');
-        return
-      };
-      if (formData.value.data['conf_pswd'] !== formData.value.data['new_pswd']) {
-        storeAlert.setAlert('alert-warning', 'Новый пароль и подтверждение не совпадают');
-        return
+    getAuth: async function (): Promise<void> {
+      try {
+        const response = await auth.get(`${server}/login`);
+        const { fullname, username, roles, groups, region_id } = response.data;
+        this.assignUserData(fullname, username, roles, groups, region_id);
+        this.hasRole('admin') 
+          ? router.push({ name: 'users', params: {group: 'admins'}}) 
+          : router.push({ name: 'persons', params: {
+            group: userData.value.userGroups[0]['group'] 
+          }
+        });
+        storeClasses.classData.getClasses();
+        storeAlert.alertMessage.setAlert();
+      } catch (error) {
+        storeAlert.alertMessage.setAlert('alert-warning', error as string);
+        this.userLogout();
       }
-    };
-    try {
-      const response = formData.value.action === 'password'
-        ? await axios.patch(`${server}/login`, formData.value.data)
-        : await axios.post(`${server}/login`, formData.value.data);
-      const { message, access_token, refresh_token } = response.data;
-      
-      switch (message) {
-        case 'Authenticated':
-          if (formData.value.action === 'password') {
-            formData.value.action = 'login';
-            storeAlert.alertMessage.attrAlert = 'alert-success';
-            storeAlert.alertMessage.textAlert = 'Войдите с новым паролем';
-            clearItem(formData.value)
-            
-          } else {          
-            localStorage.setItem('refresh_token', refresh_token);
-            localStorage.setItem('access_token', access_token);
-            storeLogin.getAuth();
-          };
-          break;
+    },
 
-        case 'Overdue':
-          formData.value.action = 'password';
-          storeAlert.setAlert('alert-warning', 'Пароль просрочен. Измените пароль');
-          break;
-
-        case 'Denied':
-          formData.value.action = 'login';
-          storeAlert.setAlert('alert-danger', 'Неверный логин или пароль');
-          break;
+    submitLogin: async function (): Promise<void> {
+      if (this.action === 'password') {
+        if (this.form['password'] === this.form['new_pswd']) {
+          storeAlert.alertMessage.setAlert('alert-warning', 'Старый и новый пароли совпадают');
+          return
+        };
+        if (this.form['conf_pswd'] !== this.form['new_pswd']) {
+          storeAlert.alertMessage.setAlert('alert-warning', 'Новый пароль и подтверждение не совпадают');
+          return
+        }
       };
-    } catch (error) {
-      storeAlert.setAlert('alert-warning', error as string);
-      storeLogin.userLogout();
-      clearItem(formData.value)
-    };
-  };
+      try {
+        const response = this.action === 'password'
+          ? await axios.patch(`${server}/login`, this.form)
+          : await axios.post(`${server}/login`, this.form);
+        const { message, access_token, refresh_token } = response.data;
+        
+        switch (message) {
+          case 'Authenticated':
+            if (this.action === 'password') {
+              this.action = 'login';
+              storeAlert.alertMessage.attr = 'alert-success';
+              storeAlert.alertMessage.text = 'Войдите с новым паролем';
+              delete this.form['new_pswd']
+              delete this.form['conf_pswd']
+            } else {          
+              localStorage.setItem('refresh_token', refresh_token);
+              localStorage.setItem('access_token', access_token);
+              this.getAuth();
+            };
+            break;
 
+          case 'Overdue':
+            this.action = 'password';
+            storeAlert.alertMessage.setAlert('alert-warning', 'Пароль просрочен. Измените пароль');
+            break;
 
+          case 'Denied':
+            this.action = 'login';
+            storeAlert.alertMessage.setAlert('alert-danger', 'Неверный логин или пароль');
+            break;
+        };
+      } catch (error) {
+        storeAlert.alertMessage.setAlert('alert-warning', error as string);
+        this.userLogout();
+        clearItem(this.form)
+      };
+    },
+
+    userLogout: async function (): Promise<void>{
+      try {
+        const response = await auth.delete(`${server}/login`);
+        console.log(response.data);
+
+      } catch (error) {
+        storeAlert.alertMessage.setAlert('alert-warning', error as string);
+      };
+
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      
+      this.assignUserData();
+
+      router.push({ name: 'login' });
+    },
+
+    hasRole: function (role: string): boolean {
+      return this.userRoles.some((r: { role: any; }) => r.role === role);
+    },
+
+    hasGroup: function (group: string): boolean {
+      return this.userGroups.some((g: { group: any; }) => g.group === group);
+    },
+
+    assignUserData(name = '', user = '', roles = [], groups = [], id = '') {
+      Object.assign(this, {
+        fullName: name,
+        userName: user,
+        userRoles: roles,
+        userGroups: groups,
+        region_id: id
+      });
+    }
+  });
   return { 
-    userData, 
-    pageIdentity,
-    formData,
-    getAuth, 
-    userLogout, 
-    hasRole, 
-    hasGroup,
-    submitLogin
+    userData
   }
 });

@@ -1,25 +1,28 @@
 <script setup lang="ts">
 
-import { profileStore } from '@/store/profile';
-
-const storeProfile = profileStore();
-
 const props = defineProps({
-  profileId: String,
-  imageUrl: String
+  url: String,
+  param: {
+    type: Array<String>,
+    required: true
+  },
+  func: {
+    type: Function,
+    required: true
+  }
 });
 
 </script>
 
 <template>
   <div class="card" style="width: 16rem;">
-    <img :src="props.imageUrl 
-          ? props.imageUrl 
+    <img :src="props.url 
+          ? props.url 
           : '/no-photo.png'" 
           style="width: 100%; height: auto;" 
           class="card-img-top" alt="...">
     <div class="card-body">
-      <form @change="storeProfile.submitFile($event, 'image', props.profileId)" class="form">
+      <form @change="props.func($event, ...props.param)" class="form">
         <input class="form-control form-control-sm" id="formImage" type="file">                  
       </form>
     </div>

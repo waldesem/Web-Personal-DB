@@ -1,28 +1,22 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { Message } from '@share/interfaces'
 
 export const alertStore = defineStore('alertStore', () => {
 
-  const alertMessage = ref<Message>({
-    attrAlert: '',
-    textAlert: ''
+  const alertMessage = ({
+    attr: '',
+    text: '',
+    setAlert: function(attr: string = '', text: string = '') {
+      Object.assign(this, {
+        attr: attr,
+        text: text
+      });
+      setTimeout(() => {
+        this.setAlert();
+      }, 10000);
+    }
   });
-
-  const setAlert = (attr: string = '', text: string = '') => {
-    Object.assign(alertMessage.value, {
-      attrAlert: attr,
-      textAlert: text
-    });
-    
-    setTimeout(() => {
-      setAlert();
-    }, 10000);
-  };
-
   return { 
-    alertMessage, 
-    setAlert 
+    alertMessage 
   }
 });
 

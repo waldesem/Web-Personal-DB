@@ -1,15 +1,19 @@
 <script setup lang="ts">
 
-import { watch } from 'vue';
+import { defineAsyncComponent, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
-import { adminStore } from '@/store/admin';
+import { adminStore } from '@/store/admins';
 import { messageStore } from '@/store/messages';
+import { identityStore } from '@store/identity';
 import { timeSince } from '@share/utilities';
+
+const MessagesVue = defineAsyncComponent(() => import('@components/layouts/MessagesVue.vue'));
 
 const storeLogin = loginStore();
 const storeAdmin = adminStore();
 const storeMessage = messageStore();
+const storeIdentity = identityStore();
 
 const route = useRoute();
 
@@ -33,14 +37,14 @@ watch(() => route.params.group,
 
 <template>
   <nav :class="`navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none 
-              ${storeLogin.pageIdentity ==='admins' ? 'bg-secondary' : 'bg-primary'}`">
+              ${storeIdentity.pageIdentity ==='admins' ? 'bg-secondary' : 'bg-primary'}`">
     <div class="container">
       <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
-        {{ storeLogin.pageIdentity ? storeLogin.pageIdentity.toUpperCase() : '' }}</a>
+        {{ storeIdentity.pageIdentity ? storeIdentity.pageIdentity.toUpperCase() : '' }}</a>
       <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           
-          <template v-if="storeLogin.pageIdentity === 'admins'">
+          <template v-if="storeIdentity.pageIdentity === 'admins'">
             <li class="nav-item">
               <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">
                 Пользователи
@@ -49,7 +53,7 @@ watch(() => route.params.group,
             <li class="nav-item">
               <a class="nav-link active" href="#"
                 data-bs-toggle="modal" data-bs-target="#modalUser"
-                @click="storeAdmin.userData.userAct = 'create'">
+                @click="storeAdmin.userData.action = 'create'">
                  Создать
               </a>
             </li>
@@ -61,7 +65,7 @@ watch(() => route.params.group,
             </li>
           </template>
 
-          <template v-if="storeLogin.pageIdentity === 'staffsec'">
+          <template v-if="storeIdentity.pageIdentity === 'staffsec'">
             <li class="nav-item">
                 <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" 
                              class="nav-link active">
@@ -107,7 +111,7 @@ watch(() => route.params.group,
                   <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
                     <a class="dropdown-item">
                       <p>{{ timeSince(message['create']) }}</p>
-                      <p>{{ message['report'] }}</p>
+                      <p>{{ message['title'] }}</p>
                     </a>
                   </li>
                   <div class="dropdown-divider"></div>
@@ -133,7 +137,7 @@ watch(() => route.params.group,
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a class="dropdown-item" href="#" @click="storeLogin.userLogout">Выход</a>
+              <a class="dropdown-item" href="#" @click="storeLogin.userData.userLogout">Выход</a>
             </li>
           </ul>
         </li>
@@ -149,12 +153,12 @@ watch(() => route.params.group,
     </div>
     <div class="offcanvas-body">
         <ul>
-          <li v-if="storeLogin.hasGroup('admins')" class="mb-4">
+          <li v-if="storeLogin.userData.hasGroup('admins')" class="mb-4">
             <router-link :to="{ name: 'users', params: { group: 'admins' } }">
               Администраторы
             </router-link>
           </li>
-          <li v-if="storeLogin.hasGroup('staffsec')" class="mb-4">
+          <li v-if="storeLogin.userData.hasGroup('staffsec')" class="mb-4">
             <router-link :to="{ name: 'persons', params: { group: 'staffsec' } }">
               Центр кадровой безопасности
             </router-link>
@@ -165,6 +169,7 @@ watch(() => route.params.group,
         </ul>
     </div>
   </div>
+  <MessagesVue />
 </template>
 
 <style scoped>

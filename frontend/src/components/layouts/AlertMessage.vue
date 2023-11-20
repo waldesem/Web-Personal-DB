@@ -8,8 +8,8 @@ const storeAlert = alertStore();
 
 <template>
   <div class="container py-3">
-    <div class="alert" :class="storeAlert.alertMessage.attrAlert" role="info" fade show>
-      {{storeAlert.alertMessage.textAlert}}
+    <div class="alert" :class="storeAlert.alertMessage.attr" role="info" fade show>
+      {{storeAlert.alertMessage.text}}
     </div>
   </div>
 </template>

@@ -177,11 +177,6 @@ interface User {
   attempt: string
 };
 
-interface Message {
-  attrAlert: string,
-  textAlert: string
-};
-
 interface Chart {
   labels: string[];
   datasets: {
@@ -208,6 +203,5 @@ export type {
   Needs,
   OneS,
   User,
-  Message,
   Chart
 };

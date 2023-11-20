@@ -23,15 +23,15 @@ const hiddenSendBtn = ref(false);
 const hiddenDelBtn = ref(false);
 
 hiddenSendBtn.value = (storeProfile.profile.resume['status'] 
-                        !== storeClassify.classifyItems.status['new'] 
+                        !== storeClassify.classData.status['new'] 
                       && storeProfile.profile.resume['status'] 
-                        !== storeClassify.classifyItems.status['update']
+                        !== storeClassify.classData.status['update']
                       && storeProfile.profile.resume['status'] 
-                        !== storeClassify.classifyItems.status['repeat']) 
+                        !== storeClassify.classData.status['repeat']) 
                     || storeProfile.dataProfile.spinner
 
 hiddenDelBtn.value = storeProfile.profile.resume['status']
-                       === storeClassify.classifyItems.status['finish']
+                       === storeClassify.classData.status['finish']
                     || storeProfile.dataProfile.spinner
 
 function switchForm(item: string){
@@ -84,7 +84,7 @@ function switchForm(item: string){
                  @click="storeProfile.openForm('resume', 'location', 
                                                 storeProfile.profile.resume['id'], 
                                                 storeProfile.profile.resume)">
-                {{ storeClassify.classifyItems.regions[storeProfile.profile.resume['region_id']]}}
+                {{ storeClassify.classData.regions[storeProfile.profile.resume['region_id']]}}
               </a>
             </td>
           </tr>

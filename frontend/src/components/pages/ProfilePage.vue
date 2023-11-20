@@ -69,8 +69,9 @@ async function getProfile() {
 
 <template>
   <div class="container py-3">
-    <PhotoCard :profileId="storeProfile.profile.resume['id']" 
-               :imageUrl="storeProfile.dataProfile.urlImage"/>
+    <PhotoCard :url="storeProfile.dataProfile.urlImage"
+               :param="['image', storeProfile.profile.resume.id]"
+               :func="storeProfile.submitFile"/>
     <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
     <div class="nav nav-tabs nav-justified" role="tablist">
       <button v-for="(value, key) in tabsObject" :key="key"
