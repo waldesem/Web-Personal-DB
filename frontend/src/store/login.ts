@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { classifyStore } from '@store/classify';
-import { server, clearItem } from '@share/utilities';
+import { server, clearItem } from '@utilities/utils';
 import router from '@router/router';
 
 

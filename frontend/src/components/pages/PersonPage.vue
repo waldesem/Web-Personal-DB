@@ -1,42 +1,16 @@
 <script setup lang="ts">
 
-import { computed, onBeforeMount, ref } from 'vue';
+import { computed, defineAsyncComponent, onBeforeMount, ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
-import { debounce, server } from '@share/utilities';
-import { Candidate } from '@/share/interfaces';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
-import PageSwitcher from '@components/layouts/PageSwitcher.vue';
+import { debounce, server } from '@utilities/utils';
+
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/PageSwitcher.vue'));
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
-
-const personData = ref({
-  candidates: <Candidate[]>([]),
-  has_prev: false,
-  has_next: false,
-  searchData: '',
-  extendedSearch: false,
-  currentPage: 1,
-  currentPath: 'new'
-});
-
-onBeforeMount(() => {
-  getCandidates();
-});
-
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(personData.value, {
-    has_prev: false,
-    has_next: false,
-    searchData: '',
-    extendedSearch: false,
-    currentPage: 1,
-    currentPath: 'new'
-  });
-  next()
-});
 
 const header = computed(() => {
   const name = {
@@ -46,41 +20,61 @@ const header = computed(() => {
     'main': "Главная страница",
     'new': "Новые кандидаты"
   }
-  return name[personData.value.currentPath as keyof typeof name]
+  return name[personData.value.path as keyof typeof name]
 });
 
-/**
- * Retrieves candidates from the specified URL and updates the data store.
- *
- * @param {string} url - The URL to retrieve candidates from.
- * @return {Promise<void>} - A promise that resolves when the candidates are 
- * retrieved and the data store is updated.
- */
-async function getCandidates(
-    url: string=personData.value.currentPath,
-    page: number = personData.value.currentPage
-  ): Promise<void> {
-  
-    personData.value.currentPage = page;
-    personData.value.currentPath = url;
-
-  try {
-    const response = await storeAuth.axiosInstance.post(
-      `${server}/index/${url}/${page}`, 
-        {'search': personData.value.searchData}
-      );
-    const [ datas, metadata ] = response.data;
-    
-    personData.value.candidates = datas;
-    personData.value.has_prev = metadata.has_prev;
-    personData.value.has_next = metadata.has_next;
-
-  } catch (error) {
-    console.error(error);
-  }
+interface Candidate {
+  id: number;
+  fullname: string;
+  region_id: number;
+  birthday: string;
+  status: string;
+  create: string;
 };
 
-const searchPerson = debounce(getCandidates, 500);
+const personData = ref({
+  candidates: <Candidate[]>([]),
+  prev: false,
+  next: false,
+  search: '',
+  extsearch: false,
+  page: 1,
+  path: 'new',
+  getCandidates: async function (page: number, url: string): Promise<void> {
+    this.page = page;
+    this.path = url;
+    try {
+      const response = await storeAuth.axiosInstance.post(
+        `${server}/index/${url}/${page}`, {'search': this.search}
+      );
+      const [ datas, metadata ] = response.data;
+      this.candidates = datas;
+      this.prev = metadata.has_prev;
+      this.next = metadata.has_next;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+});
+
+onBeforeMount(() => {
+  personData.value.getCandidates(personData.value.page, personData.value.path );
+});
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  Object.assign(personData.value, {
+    candidates: [],
+    prev: false,
+    next: false,
+    search: '',
+    extsearch: false,
+    page: 1,
+    path: 'new'
+  });
+  next()
+});
+
+const searchPerson = debounce(personData.value.getCandidates, 500);
 
 </script>
 
@@ -92,9 +86,9 @@ const searchPerson = debounce(getCandidates, 500);
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="action">Действия</label>
           <select class="form-select" id="region" name="region" 
-                  v-model="personData.currentPath" 
-                  @change="personData.searchData = ''; 
-                  getCandidates(personData.currentPath, 1)">
+                  v-model="personData.path" 
+                  @change="personData.search = ''; 
+                  personData.getCandidates(1, personData.path)">
             <option value="" selected>Выберите действие</option>
             <option value="new">Новые кандидаты</option>
             <option value="main">Все кандидаты</option>
@@ -103,11 +97,11 @@ const searchPerson = debounce(getCandidates, 500);
         </form>
       </div>
       <div class="col-md-8">
-        <form @input="searchPerson(personData.extendedSearch ? 'extended' : 'search')" 
+        <form @input="searchPerson(1, personData.extsearch ? 'extended' : 'search')" 
               class="form form-check" role="form">
           <div class="row">
             <input class="form-control" id="search" maxlength="250" minlength="3" 
-                  v-model="personData.searchData" 
+                  v-model="personData.search" 
                   name="search" placeholder="поиск по имени и ИНН" type="text">
           </div>
         </form>
@@ -115,7 +109,7 @@ const searchPerson = debounce(getCandidates, 500);
       <div class="col-md-1">
         <input class="form-check-input" type="checkbox" id="checkbox" 
                title="Расширенный поиск" style="width: 30px; height: 30px;"
-               v-model="personData.extendedSearch" value="search">
+               v-model="personData.extsearch" value="search">
       </div>
     </div>
     <div class="py-3">
@@ -134,7 +128,7 @@ const searchPerson = debounce(getCandidates, 500);
           <tr v-for="candidate in personData.candidates" 
               :key="candidate.id" height="50px">
             <td>{{ candidate["id"] }}</td>
-            <td>{{ storeClassify.classifyItems.regions[candidate.region_id] }}</td>
+            <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
             <td>
               <router-link 
                 :to="{ name: 'profile', params: { group: 'staffsec', id: candidate.id } }">
@@ -148,9 +142,11 @@ const searchPerson = debounce(getCandidates, 500);
         </tbody>
       </table>
     </div>
-    <PageSwitcher :has_prev = "personData.has_prev"
-                  :has_next = "personData.has_next"
-                  :switchPrev = "getCandidates(personData.currentPath, personData.currentPage-1)"
-                  :switchNext = "getCandidates(personData.currentPath, personData.currentPage+1)" />
+    <PageSwitcher :has_prev = "personData.prev"
+                  :has_next = "personData.next"
+                  :switchPrev = "personData.page-1"
+                  :switchNext = "personData.page+1"
+                  :option = "personData.path, "
+                  :switchPage="personData.getCandidates" />
   </div>
 </template>

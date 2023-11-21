@@ -3,7 +3,7 @@
 import { onBeforeMount, defineAsyncComponent } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { contactStore } from '@/store/contacts';
-import { debounce, clearItem } from '@share/utilities';
+import { debounce, clearItem } from '@utilities/utils';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 const ConnectForm = defineAsyncComponent(() => import('@components/forms/ConnectForm.vue'));
@@ -11,22 +11,21 @@ const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/Page
 
 const storeContact = contactStore();
 
-const searchContacts = debounce(storeContact.getContacts, 500);
-
 onBeforeMount(() => {
-  storeContact.getContacts()
+  storeContact.contactData.getContacts(1)
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(storeContact.contactsData, {
-    itemAction: '',
-    itemId: '',
-    searchData: '',
-    currentPage: 1
+  Object.assign(storeContact.contactData, {
+    action: '',
+    search: '',
+    page: 1
   })
-  clearItem(storeContact.itemForm);
+  clearItem(storeContact.contactData.form);
   next()
 });
+
+const searchContacts = debounce(storeContact.contactData.getContacts, 500);
 
 </script>
 
@@ -37,7 +36,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       <div class="row py-3">
         <input class="form-control" id="search" name="search" type="search"
                placeholder="Поиск по организации, имени, номеру мобильного телефона" 
-               v-model="storeContact.contactsData.searchData">
+               v-model="storeContact.contactData.search">
       </div>
     </form>
     <div class="py-3">
@@ -55,28 +54,28 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <th width="10%">Примечание</th>
             <th width="5%">Дата</th>
             <th width="5%">
-              <a role="button" @click="storeContact.contactsData.itemAction === 'create' 
-                                      ? storeContact.contactsData.itemAction = '' 
-                                      : storeContact.contactsData.itemAction = 'create'" 
-                               :title="storeContact.contactsData.itemAction === 'create' 
+              <a role="button" @click="storeContact.contactData.action === 'create' 
+                                      ? storeContact.contactData.action = '' 
+                                      : storeContact.contactData.action = 'create'" 
+                               :title="storeContact.contactData.action === 'create' 
                                       ? 'Отмена' : 'Добавить контакт'">
-                <i :class="storeContact.contactsData.itemAction === 'create' 
+                <i :class="storeContact.contactData.action === 'create' 
                           ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
               </a>
             </th>
             <th width="5%"></th>
           </tr>
         </thead>
-        <tbody v-if="storeContact.responseData.contacts">
-          <tr v-if="storeContact.contactsData.itemAction === 'create'">
+        <tbody v-if="storeContact.contactData.contacts">
+          <tr v-if="storeContact.contactData.action === 'create'">
             <td colspan="9"><ConnectForm/></td>
           </tr>
           <tr>
             <td colspan="12">
-              <table v-for="contact in storeContact.responseData.contacts" :key="contact['id']" 
+              <table v-for="contact in storeContact.contactData.contacts" :key="contact['id']" 
                      class="table table-hover align-middle text-center">
                 <tbody>
-                  <tr v-if="storeContact.contactsData.itemId !== contact['id']">
+                  <tr v-if="storeContact.contactData.id !== contact['id']">
                     <td width="5%">{{ contact["id"] }}</td>
                     <td width="10%">{{ contact["company"] }}</td>
                     <td width="10%">{{ contact["city"] }}</td>
@@ -89,21 +88,21 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                     <td width="5%">{{ contact["data"] }}</td>
                     <td width="5%">
                       <a class="btn btn-link" title="Изменить"
-                          @click="storeContact.contactsData.itemAction='edit'; 
-                                  storeContact.contactsData.itemId=contact['id'];
-                                  storeContact.itemForm=contact">
+                          @click="storeContact.contactData.action='edit'; 
+                                  storeContact.contactData.id=contact['id'];
+                                  storeContact.contactData.form=contact">
                         <i class="bi bi-pencil-square"></i>
                       </a>
                     </td>
                     <td width="5%">
                       <a href="#" title="Удалить" 
-                          @click="storeContact.deleteContact(contact['id'])">
+                          @click="storeContact.contactData.deleteContact(contact['id'])">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>
                   </tr>
-                  <tr v-if="storeContact.contactsData.itemAction === 'edit' 
-                      && storeContact.contactsData.itemId === contact['id']" >
+                  <tr v-if="storeContact.contactData.action === 'edit' 
+                      && storeContact.contactData.id === contact['id']" >
                     <td colspan="9"><ConnectForm /></td>
                   </tr>
                 </tbody>
@@ -113,11 +112,11 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         </tbody>
       </table>
     </div>
-    <PageSwitcher :has_prev = "storeContact.responseData.hasNext"
-                  :has_next = "storeContact.responseData.hasPrev"
-                  :switchPrev = "storeContact.contactsData.currentPage -1"
-                  :switchNext = "storeContact.contactsData.currentPage +1"
-                  :switchPage = "storeContact.getContacts" />
+    <PageSwitcher :has_prev = "storeContact.contactData.next"
+                  :has_next = "storeContact.contactData.prev"
+                  :switchPrev = "storeContact.contactData.page -1"
+                  :switchNext = "storeContact.contactData.page +1"
+                  :switchPage = "storeContact.contactData.getContacts" />
   </div>
 </template>
 

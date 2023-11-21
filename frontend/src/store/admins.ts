@@ -2,8 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { server, clearItem } from '@share/utilities';
-import { User } from '@share/interfaces';
+import { server, clearItem } from '@utilities/utils';
 import router from '@/router/router';
 
 
@@ -14,7 +13,32 @@ export const adminStore = defineStore('adminStore', () => {
 
   const auth = storeAuth.axiosInstance;
 
-  const userData = ref({
+  interface Group {
+    id: string,
+    group: string
+  };
+
+  interface Role {
+    id: string,
+    role: string
+  };
+
+  interface User {
+    id: string,
+    fullname: string,
+    username: string,
+    email: string,
+    region_id: string,
+    pswd_create: string,
+    pswd_change: string,
+    last_login: string,
+    roles: Role[],
+    groups: Group[],
+    blocked: string,
+    attempt: string
+  };
+
+  const dataUsers = ref({
     id: '',
     action: '',
     flag: '',
@@ -43,7 +67,7 @@ export const adminStore = defineStore('adminStore', () => {
           this.profile = response.data;
           storeAlert.alertMessage.setAlert('alert-success', 'Пользователь успешно изменен')
         } else {
-          userData.value.users = response.data;
+          dataUsers.value.users = response.data;
           storeAlert.alertMessage.setAlert('alert-success', 'Пользователь успешно создан')
         };
   
@@ -103,6 +127,6 @@ export const adminStore = defineStore('adminStore', () => {
     }
   });
   return {
-    userData
+    dataUsers
   };
 });

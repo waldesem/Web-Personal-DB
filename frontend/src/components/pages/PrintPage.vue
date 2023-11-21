@@ -46,7 +46,7 @@ const storeClassify = classifyStore();
           <tr v-if="storeProfile.profile.resume['region_id'] && storeProfile.profile.resume['region_id'] !== 'None'">
             <td>Регион</td>
             <td>
-              {{ storeClassify.classifyItems.regions[storeProfile.profile.resume['region_id']]}}
+              {{ storeClassify.classData.regions[storeProfile.profile.resume['region_id']]}}
             </td>
           </tr>
           <tr>

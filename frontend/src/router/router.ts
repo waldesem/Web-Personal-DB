@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { server } from '@share/utilities';
+import { server } from '@utilities/utils';
 import axios from 'axios';
 
 const router = createRouter({
@@ -66,7 +66,8 @@ const router = createRouter({
         {
           path: 'manager',
           name: 'manager',
-          component: () => import('@components/pages/FilePage.vue')
+          component: () => import('@components/pages/FilePage.vue'),
+          props: true
         },
         {
           path: 'messages',

@@ -2,7 +2,7 @@
 
 import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
-import { clearItem } from '@share/utilities'
+import { clearItem } from '@utilities/utils'
 import ResumeForm from '@components/forms/ResumeForm.vue';
 import HeaderDiv from '@components/layouts/HeaderDiv.vue';
 

@@ -18,7 +18,6 @@ function debounce(
   };
 };
 
-
 function clearItem(item: Object): void {
   Object.keys(item).forEach(key => {
     delete item[key as keyof typeof item];

@@ -1,16 +1,158 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
 import { onBeforeMount, defineAsyncComponent } from 'vue';
-import { fileManagerStore } from '@store/fmanager';
+import { authStore } from '@/store/token';
+import { server } from '@/utilities/utils';
 
 const ModalWin = defineAsyncComponent(() => import('@components/layouts/ModalWin.vue'));
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 
-const storeFileManager = fileManagerStore();
+const storeAuth = authStore();
+
+const props = defineProps({
+  path: Array
+});
 
 onBeforeMount(() => {
-  storeFileManager.openFolder('');  
+  fileManager.value.openFolder(props.path);  
 });
+
+const auth = storeAuth.axiosInstance;
+  
+  const fileManager = ref({
+    path: Array<string>(),
+    folders: Array<string>(),
+    files: Array<string>(),
+    action: '',
+    select: false,
+    selected: Array<string>(),
+    copied: Array<string>(),
+    form: '',
+    item: '',
+    getFoldersFiles: async function () {
+    try {
+      const response = await auth.get(`${server}/manager`);
+      const { path, dirs, files }= response.data;
+      this.assignValue(path, dirs, files);
+      this.clearValue();
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  openFolder: async function (item: string) {
+    try {
+      const response = await auth.post(`${server}/manager/open`, {
+        'path': this.path,
+        'item': item
+      });
+      const { path, dirs, files } = response.data;
+      this.assignValue(path, dirs, files);
+    } catch (error) {
+      console.error(error);
+    }
+  }, 
+
+  openParent: async function () {
+    try {
+      const response = await auth.post(`${server}/manager/parent`, {
+        'path': this.path
+      });
+      const { path, dirs, files } = response.data;
+      this.assignValue(path, dirs, files);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  openFile: async function (file: string) {
+    try {
+      const response = await auth.post(`${server}/manager/download`, {
+        'path': this.path,
+        'item': file
+      }, { responseType: 'blob' });
+      
+      const fileName = file.split('/').pop();
+      const fileExtension = fileName?.split('.').pop();
+      
+      this.item = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = this.item;
+      link.download = `${fileName}.${fileExtension}`;
+      link.dispatchEvent(new MouseEvent('click'));
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  updateItem: async function () {
+    try {
+      const response = this.action === 'create'
+        ? await auth.post(`${server}/manager/${this.action}`, {
+          'path': this.path,
+          })
+        : await auth.post(`${server}/manager/${this.action}`, {
+          'path': this.path,
+          'old': this.selected[0],
+          'new': this.form
+        });
+      const { path, dirs, files } = response.data;
+      this.assignValue(path, dirs, files);
+      this.clearValue();
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  copyItem: async function () {
+    if (this.selected.length) {
+      try {
+        const response = await auth.post(`${server}/manager/${this.action}`, {
+          'path': this.path,
+          'old': this.copied,
+          'new': this.selected,
+        });
+        const { path, dirs, files } = response.data;
+        this.assignValue(path, dirs, files);
+        this.clearValue();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  },
+
+  deleteItem: async function () {
+    if (this.selected.length) {
+      if (confirm("Вы действительно хотите удалить?")) {
+        try {
+          const response = await auth.post(`${server}/manager/delete`, {
+            'path': this.path,
+            'items': this.selected
+          });
+          const { path, dirs, files } = response.data;
+          this.assignValue(path, dirs, files);
+          this.clearValue();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+  },
+
+  assignValue: function (path: [], dirs: [], files: []) {
+    this.path = path;
+    this.folders = dirs;
+    this.files = files;
+  },
+
+  clearValue: function () {
+    this.form = "";
+    this.select = false;
+    this.selected = [];
+    this.copied = [];
+  }
+  });
 
 </script>
 
@@ -24,60 +166,60 @@ onBeforeMount(() => {
       <div class="row border border-primary p-3">
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
-            @click="storeFileManager.getFoldersFiles" >
+            @click="fileManager.getFoldersFiles" >
             <i class="bi bi-house" title="Дом"></i>
           </button>
         </div>
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
-            @click="storeFileManager.fileManager.action = 'create'; 
-                    storeFileManager.updateItem()"
-            :disabled="storeFileManager.fileManager.select">
+            @click="fileManager.action = 'create'; 
+                    fileManager.updateItem()"
+            :disabled="fileManager.select">
             <i class="bi bi-plus-square" title="Создать"></i>
           </button>
         </div>
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-                  @click="storeFileManager.fileManager.select = !storeFileManager.fileManager.select;
-                  storeFileManager.fileManager.selected = []">
+                  @click="fileManager.select = !fileManager.select;
+                  fileManager.selected = []">
             <i class="bi bi-check-square" title="Выбрать"></i>
           </button>
         </div>
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-                  @click="storeFileManager.fileManager.action = 'copy'; 
-                          storeFileManager.fileManager.copied = storeFileManager.fileManager.path;
-                          storeFileManager.fileManager.select = false"
-                  :disabled="!storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length === 0">
+                  @click="fileManager.action = 'copy'; 
+                          fileManager.copied = fileManager.path;
+                          fileManager.select = false"
+                  :disabled="!fileManager.select || fileManager.selected.length === 0">
             <i class="bi bi-clipboard" title="Копировать"></i>
           </button>
         </div>
 
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-                  @click="storeFileManager.fileManager.action = 'сut'; 
-                          storeFileManager.fileManager.copied = storeFileManager.fileManager.path;
-                          storeFileManager.fileManager.select = false"
-                  :disabled="!storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length === 0">
+                  @click="fileManager.action = 'сut'; 
+                          fileManager.copied = fileManager.path;
+                          fileManager.select = false"
+                  :disabled="!fileManager.select || fileManager.selected.length === 0">
             <i class="bi bi-scissors" title="Вырезать"></i>
           </button>
         </div>
           
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-                  :disabled="storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length === 0"
-                  @click="storeFileManager.copyItem">
+                  :disabled="fileManager.select || fileManager.selected.length === 0"
+                  @click="fileManager.copyItem">
             <i class="bi bi-clipboard-fill" title="Вставить"></i>
           </button>
         </div>
           
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
-                  @click="storeFileManager.fileManager.action = 'rename'"
-                  :disabled="!storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length !== 1"
+                  @click="fileManager.action = 'rename'"
+                  :disabled="!fileManager.select || fileManager.selected.length !== 1"
                   data-bs-toggle="modal" data-bs-target="#modalFile">
             <i class="bi bi-pencil" title="Переменовать"></i>
           </button>
@@ -85,20 +227,20 @@ onBeforeMount(() => {
           
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary"
-                  :disabled="!storeFileManager.fileManager.select || storeFileManager.fileManager.selected.length === 0"
-                  @click="storeFileManager.deleteItem">
+                  :disabled="!fileManager.select || fileManager.selected.length === 0"
+                  @click="fileManager.deleteItem">
             <i class="bi bi-trash" title="Удалить"></i>
           </button>
         </div>
       </div>
     
       <div class="py-3">
-        <nav aria-label="breadcrumb" :disabled="storeFileManager.fileManager.select">
+        <nav aria-label="breadcrumb" :disabled="fileManager.select">
           <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page" 
-                v-for="item, idx in storeFileManager.fileManager.path" :key="item">
-              <a href="#" @click="storeFileManager.fileManager.path = storeFileManager.fileManager.path.slice(0, idx); 
-                                  storeFileManager.openFolder(item)">
+                v-for="item, idx in fileManager.path" :key="item">
+              <a href="#" @click="fileManager.path = fileManager.path.slice(0, idx); 
+                                  fileManager.openFolder(item)">
                 {{ item }}
               </a>
             </li>
@@ -108,37 +250,37 @@ onBeforeMount(() => {
 
       <ul class="list-group">
 
-        <li class="list-group-item" v-if="storeFileManager.fileManager.path.length">
+        <li class="list-group-item" v-if="fileManager.path.length">
           <button type="button" href="#" class="list-group-item list-group-item-action" title="Наверх"
-                  @click="storeFileManager.fileManager.path = storeFileManager.fileManager.path.slice(0, -1); 
-                          storeFileManager.openParent()"
-                  :disabled="storeFileManager.fileManager.select">
+                  @click="fileManager.path = fileManager.path.slice(0, -1); 
+                          fileManager.openParent()"
+                  :disabled="fileManager.select">
             <i class="bi bi-arrow-90deg-up"></i>
           </button>
         </li>
 
-        <li class="list-group-item" v-for="folder in storeFileManager.fileManager.folders" :key="folder">
+        <li class="list-group-item" v-for="folder in fileManager.folders" :key="folder">
           <div class="item-wrapper fs-6">
-            <input class="form-check-input" type="checkbox" v-if="storeFileManager.fileManager.select" 
-                  :value="folder" v-model="storeFileManager.fileManager.selected">
+            <input class="form-check-input" type="checkbox" v-if="fileManager.select" 
+                  :value="folder" v-model="fileManager.selected">
             &nbsp;
             <button type="button" class="list-group-item list-group-item-action btn btn-light" 
-                    @click="storeFileManager.openFolder(folder)"
-                    :disabled="storeFileManager.fileManager.select">
+                    @click="fileManager.openFolder(folder)"
+                    :disabled="fileManager.select">
               <i class="bi bi-folder"></i>
               {{ folder }}
             </button>
           </div>
         </li>
 
-        <li class="list-group-item" v-for="file in storeFileManager.fileManager.files" :key="file">
+        <li class="list-group-item" v-for="file in fileManager.files" :key="file">
           <div class="item-wrapper">
-            <input class="form-check-input" type="checkbox" v-if="storeFileManager.fileManager.select"
-                  :value="file" v-model="storeFileManager.fileManager.selected">
+            <input class="form-check-input" type="checkbox" v-if="fileManager.select"
+                  :value="file" v-model="fileManager.selected">
             &nbsp; &nbsp;
             <button type="button" class="list-group-item list-group-item-action btn btn-light" 
-                    @click="storeFileManager.openFile(file)"
-                    :disabled="storeFileManager.fileManager.select">
+                    @click="fileManager.openFile(file)"
+                    :disabled="fileManager.select">
               <i class="bi bi-file"></i>
               {{ file }}
             </button>
@@ -149,11 +291,11 @@ onBeforeMount(() => {
     </div>
     <modal-win :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">
       <template v-slot:body>
-        <form @submit.prevent="storeFileManager.updateItem" class="form form-check" role="form">
+        <form @submit.prevent="fileManager.updateItem" class="form form-check" role="form">
           <div class="row">
             <div class="col">
               <input class="form-control" id="name" maxlength="250" name="name" type="text"
-              v-model="storeFileManager.modalValue">
+              v-model="fileManager.form">
             </div>
             <div class="col">
               <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">

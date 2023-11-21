@@ -4,7 +4,7 @@ import { defineAsyncComponent, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave, useRoute } from 'vue-router';
 import { adminStore } from '@store/admins';
 import { classifyStore } from '@/store/classify';
-import { clearItem } from '@share/utilities';
+import { clearItem } from '@utilities/utils';
 //import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
@@ -15,15 +15,15 @@ const storeAdmin = adminStore();
 
 const route = useRoute();
 
-storeAdmin.userData.id = route.params.id.toString();
+storeAdmin.dataUsers.id = route.params.id.toString();
 
 onBeforeMount(async () => {
-  storeAdmin.userData.userAction('view');
+  storeAdmin.dataUsers.userAction('view');
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(storeAdmin.userData.form);
-  Object.assign(storeAdmin.userData.profile, {
+  clearItem(storeAdmin.dataUsers.form);
+  Object.assign(storeAdmin.dataUsers.profile, {
     id: '',
     fullname: '',
     region_id: '',
@@ -49,50 +49,50 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       <!--PhotoCard :profileId="storeAdmin.profileData.id" :imageUrl="storeAdmin.profileData.image"/-->
       <table class="table table-responsive">
         <thead>
-          <tr><th colspan="2"># {{ storeAdmin.userData.id }}</th></tr>
+          <tr><th colspan="2"># {{ storeAdmin.dataUsers.id }}</th></tr>
         </thead>
         <tbody>
           <tr>
             <td width="35%">Имя пользователя</td>
-            <td>{{storeAdmin.userData.profile.fullname }}</td>
+            <td>{{storeAdmin.dataUsers.profile.fullname }}</td>
           </tr>
           <tr>
-            <td>Логин</td><td>{{ storeAdmin.userData.profile.username }}</td>
+            <td>Логин</td><td>{{ storeAdmin.dataUsers.profile.username }}</td>
           </tr>
           <tr>
-            <td>E-mail</td><td>{{ storeAdmin.userData.profile.email }}</td>
+            <td>E-mail</td><td>{{ storeAdmin.dataUsers.profile.email }}</td>
           </tr>
           <tr>
             <td>Регион</td>
-            <td>{{ storeClassify.classifyItems.regions[storeAdmin.userData.profile.region_id] }}</td>
+            <td>{{ storeClassify.classData.regions[storeAdmin.dataUsers.profile.region_id] }}</td>
           </tr>
           <tr>
             <td>Создан</td>
-            <td>{{ new Date(storeAdmin.userData.profile.pswd_create).toLocaleString('ru-RU') }}</td>
+            <td>{{ new Date(storeAdmin.dataUsers.profile.pswd_create).toLocaleString('ru-RU') }}</td>
           </tr>
           <tr>
             <td>Изменен</td>
-            <td>{{ new Date(storeAdmin.userData.profile.pswd_change).toLocaleString('ru-RU') }}</td>
+            <td>{{ new Date(storeAdmin.dataUsers.profile.pswd_change).toLocaleString('ru-RU') }}</td>
           </tr>
           <tr>
             <td>Вход</td>
-            <td>{{ new Date(storeAdmin.userData.profile.last_login).toLocaleString('ru-RU')}}</td>
+            <td>{{ new Date(storeAdmin.dataUsers.profile.last_login).toLocaleString('ru-RU')}}</td>
           </tr>
           <tr><td>Группы</td>
             <td>
-              <ul v-for="(group, index) in storeAdmin.userData.profile.groups" :key=index>
-                <li>{{ storeClassify.classifyItems.groups[group['group']] }}
-                  <a href="#" @click="storeAdmin.userData.updateGroupRole('delete', 'group', group['group'])">
+              <ul v-for="(group, index) in storeAdmin.dataUsers.profile.groups" :key=index>
+                <li>{{ storeClassify.classData.groups[group['group']] }}
+                  <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'group', group['group'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
               </ul>
               <form class="form form-check" role="form">
                 <select class="form-select" id="group" name="group" 
-                        v-model="storeAdmin.userData.group" 
-                        @change="storeAdmin.userData.updateGroupRole('add', 'group', storeAdmin.userData.group)">
+                        v-model="storeAdmin.dataUsers.group" 
+                        @change="storeAdmin.dataUsers.updateGroupRole('add', 'group', storeAdmin.dataUsers.group)">
                   <option value="" selected>Добавить группу</option>
-                  <option v-for="(val, name) in storeClassify.classifyItems.groups" 
+                  <option v-for="(val, name) in storeClassify.classData.groups" 
                           :key="name" :value="name">
                     {{ val }}</option>
                 </select>
@@ -101,19 +101,19 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           </tr>
           <tr><td>Роли</td>
             <td>
-              <ul v-for="(role, index) in storeAdmin.userData.profile.roles" :key=index>
+              <ul v-for="(role, index) in storeAdmin.dataUsers.profile.roles" :key=index>
                 <li>{{ role['role'] }}
-                  <a href="#" @click="storeAdmin.userData.updateGroupRole('delete', 'role',role['role'])">
+                  <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'role',role['role'])">
                     <i class="bi bi-dash-circle"></i>
                   </a>
                 </li>
               </ul>
               <form class="form form-check" role="form">
                 <select class="form-select" id="role" name="role" 
-                    v-model="storeAdmin.userData.role" 
-                    @change="storeAdmin.userData.updateGroupRole('add', 'role', storeAdmin.userData.role)">
+                    v-model="storeAdmin.dataUsers.role" 
+                    @change="storeAdmin.dataUsers.updateGroupRole('add', 'role', storeAdmin.dataUsers.role)">
                   <option value="" selected>Добавить роль</option>
-                  <option v-for="(val, name) in storeClassify.classifyItems.roles" 
+                  <option v-for="(val, name) in storeClassify.classData.roles" 
                           :key="name" :value="val">
                     {{ val }}</option>
                 </select>
@@ -122,28 +122,28 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           </tr>
           <tr>
             <td>Попыток входа</td>
-            <td>{{ storeAdmin.userData.profile.attempt }}</td>
+            <td>{{ storeAdmin.dataUsers.profile.attempt }}</td>
           </tr>
           <tr>
             <td>Блокировка</td>
-            <td>{{ storeAdmin.userData.profile.blocked ? 'Заблокирован' : 'Разблокирован' }}</td>
+            <td>{{ storeAdmin.dataUsers.profile.blocked ? 'Заблокирован' : 'Разблокирован' }}</td>
           </tr>
         </tbody>
       </table>
       <div class="btn-group py-3" role="group">
         <button class="btn btn-outline-primary" type="button" 
                 data-bs-toggle="modal" data-bs-target="#modalUser"
-                @click="storeAdmin.userData.action = 'edit';
-                storeAdmin.userData.form = storeAdmin.userData.profile">
+                @click="storeAdmin.dataUsers.action = 'edit';
+                storeAdmin.dataUsers.form = storeAdmin.dataUsers.profile">
           Изменить пользователя
         </button>
-        <button @click="storeAdmin.userData.userAction('block')" class="btn btn-outline-primary">
-          {{storeAdmin.userData.profile.blocked ? "Разблокировать" : 'Заблокировать' }}
+        <button @click="storeAdmin.dataUsers.userAction('block')" class="btn btn-outline-primary">
+          {{storeAdmin.dataUsers.profile.blocked ? "Разблокировать" : 'Заблокировать' }}
         </button>
-        <button @click="storeAdmin.userData.userAction('drop')" type="button" class="btn btn-outline-primary">
+        <button @click="storeAdmin.dataUsers.userAction('drop')" type="button" class="btn btn-outline-primary">
           Сбросить пароль
         </button>
-        <button @click="storeAdmin.userData.userDelete" type="button" class="btn btn-outline-primary">
+        <button @click="storeAdmin.dataUsers.userDelete" type="button" class="btn btn-outline-primary">
           Удалить
         </button>
       </div>

@@ -6,7 +6,7 @@ import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { loginStore } from '@/store/login';
 import router from '@/router/router';
-import { server } from '@share/utilities';
+import { server } from '@utilities/utils';
 
 const storeProfile = profileStore();
 const storeAuth = authStore()

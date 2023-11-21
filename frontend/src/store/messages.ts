@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { authStore } from '@store/token';
-import { server } from '@share/utilities'
+import { server } from '@utilities/utils'
 
 export const messageStore = defineStore('messageStore', () => {
 

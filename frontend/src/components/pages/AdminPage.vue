@@ -3,22 +3,22 @@
 import { defineAsyncComponent, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { adminStore } from '@store/admins';
-import { debounce } from '@share/utilities';
+import { debounce } from '@utilities/utils';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 const UserForm = defineAsyncComponent(() => import('@components/forms/UserForm.vue'));
 
 const storeAdmin = adminStore();
 
-const searchUsers = debounce(storeAdmin.userData.getUsers, 500);
+const searchUsers = debounce(storeAdmin.dataUsers.getUsers, 500);
 
 onBeforeMount(async () => {
-  storeAdmin.userData.getUsers()
+  storeAdmin.dataUsers.getUsers()
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  storeAdmin.userData.users = [];
-  storeAdmin.userData.search = '';
+  storeAdmin.dataUsers.users = [];
+  storeAdmin.dataUsers.search = '';
   next()
 });
 
@@ -30,7 +30,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     <form @input="searchUsers" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="fullusername" name="fullusername" type="text" 
-               v-model="storeAdmin.userData.search">
+               v-model="storeAdmin.dataUsers.search">
       </div>
     </form>
     <div class="py-2">
@@ -48,7 +48,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       <div class="overflow">
         <table class="table table-responsive align-middle" >
           <tbody>
-            <tr height="50px" v-for="user in storeAdmin.userData.users" :key="user.id">
+            <tr height="50px" v-for="user in storeAdmin.dataUsers.users" :key="user.id">
               <td width="5%">{{ user.id }}</td>
               <td>{{ user.fullname }}</td>
               <td>

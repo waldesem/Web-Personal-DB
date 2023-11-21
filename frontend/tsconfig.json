@@ -8,7 +8,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@store/*": ["./src/store/*"],
-      "@share/*": ["./src/share/*"],
+      "@utilities/*": ["./src/utilities/*"],
       "@router/*": ["./src/router/*"],
       "@components/*": ["./src/components/*"]
     },

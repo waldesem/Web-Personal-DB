@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { fileManagerStore } from '@store/fmanager';
-import { clearItem } from '@share/utilities'
+import { clearItem } from '@utilities/utils'
 import ResumeForm from '@components/forms/ResumeForm.vue';
 import RegionForm from '@components/forms/RegionForm.vue';
 import StaffForm from '@components/forms/StaffForm.vue';
@@ -137,9 +137,10 @@ function switchForm(item: string){
           <tr v-if="storeProfile.profile.resume['path']">
             <td>Материалы</td>
             <td>
-              <router-link @click="storeFmanager.fileManager.path = storeProfile.profile.resume['path'].split('/')" 
-                           :to="{ name: 'manager',  params: { group: 'staffsec' } }">
-              
+              <router-link :to="{ name: 'manager',  params: { 
+                  group: 'staffsec',  
+                  path: storeProfile.profile.resume['path'].split('/')
+                } }">
                 {{ storeProfile.profile.resume['path'] }}
               </router-link>
             </td>

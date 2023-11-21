@@ -3,483 +3,438 @@ import { defineStore } from 'pinia';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { loginStore } from './login';
-import { server, clearItem } from '@share/utilities';
+import { identityStore } from './identity';
+import { server, clearItem } from '@utilities/utils';
 import router from '@/router/router';
-import {
-  Resume, 
-  Document, 
-  Address, 
-  Contact, 
-  Work, 
-  Staff, 
-  Relation, 
-  Affilation,
-  Verification, 
-  Register, 
-  Pfo, 
-  Inquisition, 
-  Needs,
-  OneS
-} from '@share/interfaces'
-
 
 export const profileStore = defineStore('profileStore', () => {
   
   const storeAuth = authStore()
   const storeAlert = alertStore();
   const classifyApp = classifyStore();
-  const storeLogin = loginStore();
-
-  const profile = ref<{
-    resume: Resume;
-    docums: Document[];
-    addrs: Address[];
-    conts: Contact[];
-    works: Work[];
-    staffs: Staff[];
-    relate: Relation[];
-    affilation: Affilation[];
-    verification: Verification[];
-    register: Register[];
-    pfo: Pfo[];
-    inquisition: Inquisition[];
-    needs: Needs[],
-    ones: OneS[]
-  }>({
-    resume: {
-      id: '',
-      category: '',
-      region_id: '',
-      fullname: '',
-      previous: '',
-      birthday: '',
-      birthplace: '',
-      country: '',
-      ext_country: '',
-      snils: '',
-      inn: '',
-      education: '',
-      marital: '',
-      addition: '',
-      path: '',
-      status: '',
-      create: '',
-      update: '',
-      request_id: '',
-    },
-    docums: [{
-      id: '',
-      view: '',
-      series: '',
-      number: '',
-      agency: '',
-      issue: '',
-    }],
-    addrs: [{
-      id: '',
-      view: '',
-      region: '',
-      address: '',
-    }],
-    conts: [{
-      id: '',
-      view: '',
-      contact: '',
-    }],
-    works: [{
-      id: '',
-      start_date: '',
-      end_date: '',
-      workplace: '',
-      address: '',
-      position: '',
-      reason: '',
-    }],
-    staffs: [{
-      id: '',
-      position: '',
-      department: ''
-    }],
-    relate: [{
-      id: '',
-      relation: '',
-      relation_id: ''
-    }],
-    affilation: [{
-      id: '',
-      view: '',
-      name: '',
-      inn: '',
-      position: '',
-      deadline: ''
-    }],
-    verification: [{
-      id: '',
-      workplace: '', 
-      employee: '', 
-      document: '', 
-      inn: '', 
-      debt: '', 
-      bankruptcy: '', 
-      bki: '', 
-      courts: '', 
-      affiliation: '', 
-      terrorist: '', 
-      mvd: '', 
-      internet: '', 
-      cronos: '', 
-      cros: '', 
-      addition: '',
-      path: '',
-      pfo: false, 
-      conclusion: '', 
-      comments: '', 
-      deadline: '', 
-      officer: '',
-    }],
-    register: [{
-      id: '',
-      comments: '',
-      decision: '',
-      supervisor: '',
-      deadline: '',
-    }],
-    pfo: [{
-      id: '',
-      theme: '',
-      path: '',
-      results: '',
-      officer: '',
-      deadline: '',
-    }],
-    inquisition: [{
-      id: '',
-      theme: '',
-      info: '',
-      path: '',
-      officer: '',
-      deadline: ''
-    }],
-    needs: [{
-      id: '',
-      info: '',
-      initiator: '',
-      source: '',
-      officer: '',
-      deadline: '',
-    }],
-    ones: [{
-      id: '',
-      full_name: '',
-      birth_date: '',
-      start_date: '',
-      end_date: '',
-      start_position: '',
-      end_position: ''
-    }]
-  });
+  const storeIdentity = identityStore();
+  
+  interface Resume {
+    id: string;
+    category: string;
+    region_id: string;
+    fullname: string;
+    previous: string;
+    birthday: string;
+    birthplace: string;
+    country: string;
+    ext_country: string;
+    snils: string;
+    inn: string;
+    education: string;
+    marital: string;
+    addition: string;
+    path: string;
+    status: string;
+    create: string;
+    update: string;
+    request_id: string;
+  };
+  
+  interface Document {
+    id: string;
+    view: string;
+    series: string;
+    number: string;
+    agency: string;
+    issue: string;
+  };
+  
+  interface Address {
+    id: string;
+    view: string;
+    region: string;
+    address: string;
+  };
+  
+  interface Contact {
+    id: string;
+    view: string;
+    contact: string;
+  };
+  
+  interface Work {
+    id: string;
+    start_date: string;
+    end_date: string;
+    workplace: string;
+    address: string;
+    reason: string;
+    position: string;
+  };
+  
+  interface Staff {
+    id: string;
+    position: string;
+    department: string;
+  };
+  
+  interface Relation {
+    id: string;
+    relation: string;
+    relation_id: string;
+  };
+  
+  interface Affilation {
+    id: string,
+    view: string,
+    name: string,
+    inn: string,
+    position: string,
+    deadline: string
+  };
+  
+  interface Verification {
+    id: string;
+    workplace: string;
+    employee: string;
+    document: string;
+    inn: string;
+    debt: string;
+    bankruptcy: string;
+    bki: string;
+    courts: string;
+    affiliation: string;
+    terrorist: string;
+    mvd: string;
+    internet: string;
+    cronos: string;
+    cros: string;
+    addition: string;
+    path: string,
+    pfo: boolean;
+    conclusion: string;
+    comments: string;
+    deadline: string;
+    officer: string;
+  };
+  
+  interface Register {
+    id: string;
+    comments: string;
+    decision: string;
+    supervisor: string;
+    deadline: string;
+  };
+  
+  interface Pfo {
+    id: string;
+    theme: string;
+    results: string;
+    path: string;
+    officer: string;
+    deadline: string;
+  };
+  
+  interface Inquisition {
+    id: string;
+    theme: string;
+    info: string;
+    path: string;
+    officer: string;
+    deadline: string;
+  };
+  
+  interface Needs {
+    id: string;
+    info: string;
+    initiator: string;
+    source: string;
+    officer: string;
+    deadline: string;
+  };
+  
+  interface OneS {
+    id: string;
+    full_name: string;
+    birth_date: string;
+    start_date: string;
+    end_date: string;
+    start_position: string;
+    end_position: string
+  };
 
   const dataProfile = ref({
-    itemForm: <Record<string, any>>({}),
     candId: '',
     itemId: '',
     flag: '',
     action: '',
-    urlImage: '',
-    spinner: false
-  });
+    url: '',
+    spinner: false,
+    resume: <Resume>({}),
+    docums: Array<Document>(),
+    addrs: Array<Address>(),
+    conts: Array<Contact>(),
+    works: Array<Work>(),
+    staffs: Array<Staff>(),
+    relate: Array<Relation>(),
+    affilation: Array<Affilation>(),
+    verification: Array<Verification>(),
+    register: Array<Register>(),
+    pfo: Array<Pfo>(),
+    inquisition: Array<Inquisition>(),
+    needs: Array<Needs>(),
+    ones: Array<OneS>(),
+    form: <Record<string, any>>({}),
 
-  /**
-   * Retrieves an item from the server.
-   *
-   * @param {string} item - The item to retrieve.
-   * @param {string} [action='get'] - The action to perform on the item.
-   * @param {string} [id=candId.value] - The ID of the item.
-   * @return {Promise<void>} - A promise that resolves with no value.
-   */
-  async function getItem(
-    item: string, action: string = 'get', id: string = dataProfile.value.candId
-    ): Promise<void> {
-
-    if (item === 'check' && action === 'add'){
-      if (profile.value.resume['status'] === classifyApp.classifyItems.status['save'] || 
-          profile.value.resume['status'] === classifyApp.classifyItems.status['manual'] ||
-          profile.value.resume['status'] === classifyApp.classifyItems.status['robot']) {
-        
-        storeAlert.setAlert('alert-warning', 'Нельзя добавить проверку к текущему статусу');
-        return
-      };
-    };
+    getProfile: async function () {
+      await Promise.all([
+        [
+          'resume', 
+          'staff', 
+          'document', 
+          'address',
+          'contact', 
+          'workplace', 
+          'relation',
+          'affilation', 
+          'check', 
+          'registry', 
+          'poligraf', 
+          'investigation', 
+          'inquiry',
+          'ones'
+        ].map(async (item) => await this.getItem(item, 'view', this.candId))
+      ]);
+    },
     
-    if (item === 'check' && action === 'self'){
-      if (!confirm('Вы действительно делегировать анкету себе?')) {
-      return
-      };
-    };
-    if (item === 'resume' && action === 'status'){
-      if (!confirm('Вы действительно хотите изменить статус резюме]?')) {
-      return
-      };
-    };
-
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/${item}/${action}/${id}`
-        );
-      switch (item){
-        case 'resume':
-          profile.value.resume = response.data;
-          break;
-        case 'staff': 
-          profile.value.staffs = response.data;
-          break;
-        case 'document': 
-          profile.value.docums = response.data;
-          break;
-        case 'address': 
-          profile.value.addrs = response.data;
-          break;
-        case 'contact': 
-          profile.value.conts = response.data;
-          break;
-        case 'workplace': 
-          profile.value.works = response.data;
-          break;
-        case 'relation': 
-          profile.value.relate = response.data;
-          break;
-        case 'affilation': 
-          profile.value.affilation = response.data;
-          break;
-        case 'check': 
-          profile.value.verification = response.data;
-          break;
-        case 'registry': 
-          profile.value.register = response.data;
-          break;
-        case 'poligraf': 
-          profile.value.pfo = response.data;
-          break;
-        case 'investigation':
-          profile.value.inquisition = response.data;
-           break;
-        case 'inquiry': 
-          profile.value.needs = response.data;
-          break;
-        case 'ones': 
-          profile.value.ones = response.data;
-          break;
-        default:
-           console.log(profile.value);
-          break;
-      };
-
-      if (action === 'status'){
-        storeAlert.setAlert('alert-info', 'Статус анкеты обновлен');
-      
-      } else if (action === 'send'){
-        storeAlert.setAlert('alert-success', 'Анкета отправлена на проверку');
-        dataProfile.value.spinner = false
-        window.scrollTo(0, 0);
-        getItem('check', 'get', dataProfile.value.candId);
-      
-      } else if (item === 'check' && (action === 'add' || action === 'self')){
-        getItem('check', 'get', dataProfile.value.candId);
-      }
-
-    } catch (error) {
-      console.error(error)
-      storeAlert.setAlert('alert-danger', `Ошибка обработки ${error}`);
-    }
-  };
-
-  /**
-   * Updates an item.
-   *
-   * @return {Promise<void>} A promise that resolves with no value.
-   */
-  async function updateItem(): Promise<void> {
-
-    dataProfile.value.flag === 'registry' 
-      ? dataProfile.value.spinner = true 
-      : dataProfile.value.spinner = false;
-
-      try {
-      const response = dataProfile.value.action === 'create' 
-        ? await storeAuth.axiosInstance.post(
-          `${server}/${dataProfile.value.flag}/${dataProfile.value.action}/${dataProfile.value.candId}`, 
-          dataProfile.value.itemForm
-          )
-        : await storeAuth.axiosInstance.patch(
-          `${server}/${dataProfile.value.flag}/${dataProfile.value.action}/${dataProfile.value.itemId}`, 
-          dataProfile.value.itemForm
-          );
-
-      console.log(response.status);
-
-      storeAlert.setAlert('alert-success', 'Данные успешно обновлены');
-      
-      if (['registry', 'check', 'poligraf'].includes(dataProfile.value.flag)) {
-        getItem('resume', 'get', dataProfile.value.candId)
-      };
-      getItem(dataProfile.value.flag, dataProfile.value.action, dataProfile.value.candId);
-
-    } catch (error) {
-      storeAlert.setAlert('alert-danger', `Возникла ошибка ${error}`);
-    }
-    clearItem(dataProfile.value.itemForm);
-    dataProfile.value.action = '';
-    dataProfile.value.flag = '';
-    dataProfile.value.spinner = false;
-  };
+    getItem: async function (
+      item: string, action: string, id: string): Promise<void> {
   
-  function openForm (item: string, handle: string, idItem = '', formItem = {}) {
-    dataProfile.value.flag = item;
-    dataProfile.value.action = handle; 
-    if (handle == 'create') {
-      dataProfile.value.itemForm.value = {}
-    } else {
-      dataProfile.value.itemId = idItem; 
-      dataProfile.value.itemForm.value = formItem
-    };
-  };
-
-  /**
-   * Deletes an item.
-   *
-   * @param {string} item - The item to delete.
-   * @param {string} action - The action to perform on the item. Default is 'delete'.
-   * @param {string} id - The ID of the item. Default is the value of candId.
-   * @return {Promise<void>} A promise that resolves when the item is deleted.
-   */
-  async function deleteItem(
-    item: string, action: string = 'delete', id: string = dataProfile.value.candId
-    ): Promise<void> {
-
-    if ([classifyApp.classifyItems.status['robot'], 
-        classifyApp.classifyItems.status['finish']].includes(profile.value.resume['status']) 
-      && (item === 'check' || item === 'resume')) {
-
-      storeAlert.setAlert('alert-warning', 'Нельзя удалить запись с текущим статусом');
-      return
-    };
-
-    if (confirm(`Вы действительно хотите удалить запись?`)) {
+      if (item === 'check' && action === 'add'){
+        if (this.resume['status'] === classifyApp.classData.status['save'] || 
+            this.resume['status'] === classifyApp.classData.status['manual'] ||
+            this.resume['status'] === classifyApp.classData.status['robot']) {
+          
+          storeAlert.alertMessage.setAlert('alert-warning', 
+                                            'Нельзя добавить проверку к текущему статусу');
+          return
+        };
+      };
+      if (item === 'check' && action === 'self'){
+        if (!confirm('Вы действительно делегировать анкету себе?')) {
+        return
+        };
+      };
+      if (item === 'resume' && action === 'status'){
+        if (!confirm('Вы действительно хотите изменить статус резюме]?')) {
+        return
+        };
+      };
       try {
-        const response = await storeAuth.axiosInstance.delete(
+        const response = await storeAuth.axiosInstance.get(
           `${server}/${item}/${action}/${id}`
           );
-        console.log(response.status);
-        item === 'resume' 
-          ? router.push({ name: 'persons', params: { group: storeLogin.pageIdentity } }) 
-          : getItem(item);
-
-         storeAlert.setAlert('alert-info', `Запись с ID ${id} удалена`);
-      
-        } catch (error) {
-        console.error(error)
-      }
-    }
-  };
-
-  /**
-   * Submits a file for upload.
-   *
-   * @param {Event} event - The event object.
-   * @return {Promise<void>} A promise that resolves when the file is successfully uploaded.
-   */
-  async function submitFile(
-    event: Event, flag: string, idItem: string = '0'
-    ): Promise<void> {
-
-    const inputElement = event.target as HTMLInputElement;
-    
-    if (inputElement && inputElement.files && inputElement.files.length > 0) {
-
-      const file = inputElement.files[0];
-      const maxSizeInBytes = 1024 * 1024; // 1MB
-      
-      if (file.size > maxSizeInBytes) {
-        storeAlert.setAlert(
-          'alert-warning', 
-          'File size exceeds the limit. Please select a smaller file.'
-          );
-        inputElement.value = ''; // Reset the input field
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('file', inputElement.files[0]);
-      
-      try {
-        const response = await storeAuth.axiosInstance.post(
-          `${server}/file/${flag}/${idItem}`, formData
-          );
-        const { message } = response.data;
-
-        if (flag === 'anketa'){
-          storeAlert.setAlert("alert-success", "Данные успешно загружены");
-          dataProfile.value.candId = message
-          router.push({ name: 'profile', params: { id: message } })
-        
-        } else if (flag === 'image'){
-          getImage();
-          
-        } else {
-          storeAlert.setAlert("alert-success", 
-                              "Файл или файлы успешно загружен/добавлены");
-          getItem(flag, 'get', idItem);
+        switch (item){
+          case 'resume':
+            this.resume = response.data;
+            break;
+          case 'staff': 
+            this.staffs = response.data;
+            break;
+          case 'document': 
+            this.docums = response.data;
+            break;
+          case 'address': 
+            this.addrs = response.data;
+            break;
+          case 'contact': 
+            this.conts = response.data;
+            break;
+          case 'workplace': 
+            this.works = response.data;
+            break;
+          case 'relation': 
+            this.relate = response.data;
+            break;
+          case 'affilation': 
+            this.affilation = response.data;
+            break;
+          case 'check': 
+            this.verification = response.data;
+            break;
+          case 'registry': 
+            this.register = response.data;
+            break;
+          case 'poligraf': 
+            this.pfo = response.data;
+            break;
+          case 'investigation':
+            this.inquisition = response.data;
+             break;
+          case 'inquiry': 
+            this.needs = response.data;
+            break;
+          case 'ones': 
+            this.ones = response.data;
+            break;
+          default:
+             console.log('OK');
+            break;
         };
+  
+        if (action === 'status'){
+          storeAlert.alertMessage.setAlert('alert-info', 'Статус анкеты обновлен');
+        
+        } else if (action === 'send'){
+          storeAlert.alertMessage.setAlert('alert-success', 'Анкета отправлена на проверку');
+          this.spinner = false
+          window.scrollTo(0, 0);
+          this.getItem('check', 'get', this.candId);
+        
+        } else if (item === 'check' && (action === 'add' || action === 'self')){
+          this.getItem('check', 'get', this.candId);
+        }
+  
+      } catch (error) {
+        console.error(error)
+        storeAlert.alertMessage.setAlert('alert-danger', `Ошибка обработки ${error}`);
+      }
+    },
+  
+    updateItem: async function(): Promise<void> {
+      this.flag === 'registry' ? this.spinner = true : this.spinner = false;
+        try {
+        const response = this.action === 'create' 
+          ? await storeAuth.axiosInstance.post(
+            `${server}/${this.flag}/${this.action}/${this.candId}`, 
+            this.form
+            )
+          : await storeAuth.axiosInstance.patch(
+            `${server}/${this.flag}/${this.action}/${this.itemId}`, 
+            this.form
+            );
+  
+        console.log(response.status);
+  
+        storeAlert.alertMessage.setAlert('alert-success', 'Данные успешно обновлены');
+        
+        if (['registry', 'check', 'poligraf'].includes(this.flag)) {
+          this.getItem('resume', 'get', this.candId)
+        };
+        this.getItem(this.flag, this.action, this.candId);
+  
+      } catch (error) {
+        storeAlert.alertMessage.setAlert('alert-danger', `Возникла ошибка ${error}`);
+      }
+      clearItem(this.form);
+      this.action = '';
+      this.flag = '';
+      this.spinner = false;
+    },
+    
+    deleteItem: async function (
+      item: string, action: string = 'delete', id: string): Promise<void> {
+      if ([classifyApp.classData.status['robot'], 
+           classifyApp.classData.status['finish']].includes(this.resume['status']) 
+          && (item === 'check' || item === 'resume')) {
+        storeAlert.alertMessage.setAlert('alert-warning', 
+                                         'Нельзя удалить запись с текущим статусом');
+        return
+      };
+      if (confirm(`Вы действительно хотите удалить запись?`)) {
+        try {
+          const response = await storeAuth.axiosInstance.delete(
+            `${server}/${item}/${action}/${id}`
+            );
+          console.log(response.status);
+          item === 'resume' 
+            ? router.push({ name: 'persons', params: { group: storeIdentity.pageIdentity } }) 
+            : this.getItem(item, 'view', this.candId);
+  
+           storeAlert.alertMessage.setAlert('alert-info', `Запись с ID ${id} удалена`);
+        
+          } catch (error) {
+          console.error(error)
+        }
+      }
+    },
+  
+    submitFile: async function (
+      event: Event, flag: string, idItem: string = '0'
+      ): Promise<void> {
+  
+      const inputElement = event.target as HTMLInputElement;
+      if (inputElement && inputElement.files && inputElement.files.length > 0) {
+  
+        const file = inputElement.files[0];
+        const maxSizeInBytes = 1024 * 1024; // 1MB
+        
+        if (file.size > maxSizeInBytes) {
+          storeAlert.alertMessage.setAlert(
+            'alert-warning', 
+            'File size exceeds the limit. Please select a smaller file.'
+          );
+          inputElement.value = ''; // Reset the input field
+          return;
+        }
+        const formData = new FormData();
+        formData.append('file', inputElement.files[0]);
+
+        try {
+          const response = await storeAuth.axiosInstance.post(
+            `${server}/file/${flag}/${idItem}`, formData
+            );
+          const { message } = response.data;
+
+          if (flag === 'anketa'){
+            storeAlert.alertMessage.setAlert("alert-success", "Данные успешно загружены");
+            this.candId = message
+            router.push({ name: 'profile', params: { id: message } })
+          
+          } else if (flag === 'image'){
+            this.getImage();
+            
+          } else {
+            storeAlert.alertMessage.setAlert("alert-success", 
+                                "Файл или файлы успешно загружен/добавлены");
+            this.getItem(flag, 'get', idItem);
+          };
+        
+        } catch (error) {
+          console.error(error);
+        }
       
+      } else {
+        storeAlert.alertMessage.setAlert("alert-warning", "Ошибка при загрузке файла");
+      }
+    },
+    
+    getImage: async function (): Promise<void> {
+      try {
+        const response = await storeAuth.axiosInstance.get(
+          `${server}/file/get/${this.candId}`, 
+            { responseType: 'blob' }
+          );
+          this.url = window.URL.createObjectURL(new Blob([response.data]));
       } catch (error) {
         console.error(error);
       }
+    },
     
-    } else {
-      storeAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
-    }
-  };
-  
-  /**
-   * Retrieves an image from the server and assigns it to the urlImage variable.
-   *
-   * @return {Promise<void>} A Promise that resolves when the image has been retrieved and assigned.
-   */
-  async function getImage(): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/file/get/${dataProfile.value.candId}`, 
-          { responseType: 'blob' }
-        );
-      dataProfile.value.urlImage = window.URL.createObjectURL(new Blob([response.data]));
-    
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  
-  /**
-   * Cancels the current edit operation.
-   *
-   * @return {void} 
-   */
-  function cancelEdit(): void {
-    clearItem(dataProfile.value.itemForm);
-    dataProfile.value.action = '';
-    dataProfile.value.flag = '';
-    dataProfile.value.itemId = ''
-  };
+    openForm: function  (item: string, handle: string, idItem = '', form = {}) {
+      this.flag = item;
+      this.action = handle; 
+      if (handle == 'create') {
+        this.form = {}
+      } else {
+        this.itemId = idItem; 
+        this.form = form
+      };
+    },
 
-  return {
-    profile,
-    dataProfile,
-    getItem, 
-    openForm,
-    submitFile, 
-    cancelEdit,
-    updateItem, 
-    deleteItem, 
-    getImage
-  };
+    cancelEdit: function (): void {
+      clearItem(this.form);
+      this.action = '';
+      this.flag = '';
+      this.itemId = ''
+    }
+  });
+
+  return { dataProfile }
 })

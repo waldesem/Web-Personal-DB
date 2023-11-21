@@ -6,7 +6,7 @@ import { loginStore } from '@/store/login';
 import { adminStore } from '@/store/admins';
 import { messageStore } from '@/store/messages';
 import { identityStore } from '@store/identity';
-import { timeSince } from '@share/utilities';
+import { timeSince } from '@utilities/utils';
 
 const MessagesVue = defineAsyncComponent(() => import('@components/layouts/MessagesVue.vue'));
 

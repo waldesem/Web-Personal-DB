@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { server } from '@share/utilities';
+import { server } from '@utilities/utils';
 
 </script>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { messageStore } from '@/store/messages';
-import { timeSince } from '@share/utilities';
+import { timeSince } from '@utilities/utils';
 
 const storeMessage = messageStore();
 
