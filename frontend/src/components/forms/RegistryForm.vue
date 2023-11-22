@@ -9,20 +9,20 @@ const storeProfile = profileStore();
 </script>
 
 <template v-if="storeProfile.action === 'create' && storeProfile.flag === 'registry'">
-    <form @submit.prevent="storeProfile.updateItem()" class="form form-check" role="form">
+    <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
         <div class="col-lg-10">
           <textarea class="form-control" id="comments" name="comments" 
-                    v-model="storeProfile.dataProfile.itemForm['comments']"></textarea>
+                    v-model="storeProfile.dataProfile.form['comments']"></textarea>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="decision">Решение</label>
         <div class="col-lg-10">
           <select class="form-select" id="decision" name="decision" 
-                  v-model="storeProfile.dataProfile.itemForm['decision']">
-            <option v-for="(name, value) in storeClassify.classifyItems.decision" 
+                  v-model="storeProfile.dataProfile.form['decision']">
+            <option v-for="(name, value) in storeClassify.classData.decision" 
                     :key="value" :value="name">
                     {{ name }}
             </option>
@@ -41,7 +41,7 @@ const storeProfile = profileStore();
             <button v-if="!storeProfile.dataProfile.spinner" class="btn btn-outline-primary" 
                     type="reset">Очистить</button>
             <button v-if="!storeProfile.dataProfile.spinner" class="btn btn-outline-primary" 
-                    type="button" @click="storeProfile.cancelEdit">Отмена</button>
+                    type="button" @click="storeProfile.dataProfile.cancelEdit">Отмена</button>
           </div>
         </div>
       </div>

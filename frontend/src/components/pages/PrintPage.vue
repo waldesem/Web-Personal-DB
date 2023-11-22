@@ -16,83 +16,83 @@ const storeClassify = classifyStore();
       <h6>Для служебного пользования</h6>
     </div>
     <div class="card" style="width: 16rem;">
-      <img :src="storeProfile.dataProfile.urlImage 
-            ? storeProfile.dataProfile.urlImage 
+      <img :src="storeProfile.dataProfile.url 
+            ? storeProfile.dataProfile.url 
             : '/no-photo.png'" 
             style="width: 100%; height: auto;" 
             class="card-img-top" alt="...">
     </div>
-    <HeaderDiv :page-header="storeProfile.profile.resume['fullname']" />
+    <HeaderDiv :page-header="storeProfile.dataProfile.resume['fullname']" />
     <div class="fs-4 text-secondary text-opacity-95">
-      <p v-if="storeProfile.profile.staffs[0]['position']">
-        {{ storeProfile.profile.staffs[0]['position'] }}
+      <p v-if="storeProfile.dataProfile.staffs[0]['position']">
+        {{ storeProfile.dataProfile.staffs[0]['position'] }}
       </p>
-      <p v-if="storeProfile.profile.staffs[0]['department']">
-        {{ storeProfile.profile.staffs[0]['department'] }}
+      <p v-if="storeProfile.dataProfile.staffs[0]['department']">
+        {{ storeProfile.dataProfile.staffs[0]['department'] }}
       </p>
     </div>
     <div class="text-primary text-opacity-85 py-3">
       <h5>Анкета</h5>
     </div>
     <div>
-      <table v-if="storeProfile.profile.resume" class="table table-responsive">
+      <table v-if="storeProfile.dataProfile.resume" class="table table-responsive">
         <thead>
           <tr>
-            <th width="25%">{{ `ID #${storeProfile.profile.resume['id']}` }}</th>
+            <th width="25%">{{ `ID #${storeProfile.dataProfile.resume['id']}` }}</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr v-if="storeProfile.profile.resume['region_id'] && storeProfile.profile.resume['region_id'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['region_id'] && storeProfile.dataProfile.resume['region_id'] !== 'None'">
             <td>Регион</td>
             <td>
-              {{ storeClassify.classData.regions[storeProfile.profile.resume['region_id']]}}
+              {{ storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']]}}
             </td>
           </tr>
           <tr>
             <td>Фамилия Имя Отчество</td>
-            <td>{{ storeProfile.profile.resume['fullname'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['fullname'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['previous'] && storeProfile.profile.resume['previous'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['previous'] && storeProfile.dataProfile.resume['previous'] !== 'None'">
             <td>Изменение имени</td>
-            <td>{{ storeProfile.profile.resume['previous'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['previous'] }}</td>
           </tr>
           <tr>
             <td>Дата рождения</td>
-            <td>{{ storeProfile.profile.resume['birthday'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['birthday'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['birthplace'] && storeProfile.profile.resume['birthplace'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['birthplace'] && storeProfile.dataProfile.resume['birthplace'] !== 'None'">
             <td>Место рождения</td>
-            <td>{{ storeProfile.profile.resume['birthplace'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['birthplace'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['country'] && storeProfile.profile.resume['country'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['country'] && storeProfile.dataProfile.resume['country'] !== 'None'">
             <td>Гражданство</td>
-            <td>{{ storeProfile.profile.resume['country'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['country'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['snils'] && storeProfile.profile.resume['snils'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['snils'] && storeProfile.dataProfile.resume['snils'] !== 'None'">
             <td>СНИЛС</td>
-            <td>{{ storeProfile.profile.resume['snils'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['snils'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['inn'] && storeProfile.profile.resume['inn'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['inn'] && storeProfile.dataProfile.resume['inn'] !== 'None'">
             <td>ИНН</td>
-            <td>{{ storeProfile.profile.resume['inn'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['inn'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['education'] && storeProfile.profile.resume['education'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['education'] && storeProfile.dataProfile.resume['education'] !== 'None'">
             <td>Образование</td>
-            <td>{{ storeProfile.profile.resume['education'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['education'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['addition'] && storeProfile.profile.resume['addition'] !== 'None'">
+          <tr v-if="storeProfile.dataProfile.resume['addition'] && storeProfile.dataProfile.resume['addition'] !== 'None'">
             <td>Дополнительная информация</td>
-            <td>{{ storeProfile.profile.resume['addition'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['addition'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['update']">
+          <tr v-if="storeProfile.dataProfile.resume['update']">
             <td>Обновлен</td>
-            <td>{{ new Date(String(storeProfile.profile.resume['update'])).
+            <td>{{ new Date(String(storeProfile.dataProfile.resume['update'])).
                   toLocaleDateString('ru-RU') }}</td>
           </tr>
           <tr v-else>
             <td>Создан</td>
-            <td>{{ new Date(String(storeProfile.profile.resume['create'])).
+            <td>{{ new Date(String(storeProfile.dataProfile.resume['create'])).
                   toLocaleDateString('ru-RU') }}</td>
           </tr>
         </tbody>
@@ -101,8 +101,8 @@ const storeClassify = classifyStore();
       <div class="text-primary text-opacity-85 py-3">
         <h6>Документы</h6>
       </div>
-      <table v-if="storeProfile.profile.docums && storeProfile.profile.docums.length" 
-             v-for="tbl in storeProfile.profile.docums" 
+      <table v-if="storeProfile.dataProfile.docums && storeProfile.dataProfile.docums.length" 
+             v-for="tbl in storeProfile.dataProfile.docums" 
              :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ `#${tbl['id']}` }}</th><th></th></tr>
@@ -124,8 +124,8 @@ const storeClassify = classifyStore();
       <div class="text-primary text-opacity-85 py-3">
         <h6>Адрреса</h6>
       </div>
-      <table v-if="storeProfile.profile.addrs && storeProfile.profile.addrs.length" 
-             v-for="tbl in storeProfile.profile.addrs" 
+      <table v-if="storeProfile.dataProfile.addrs && storeProfile.dataProfile.addrs.length" 
+             v-for="tbl in storeProfile.dataProfile.addrs" 
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ `#${tbl['id']}` }}</th><th></th></tr>
@@ -141,8 +141,8 @@ const storeClassify = classifyStore();
       <div class="text-primary text-opacity-85 py-3">
         <h6>Контакты</h6>
       </div>
-      <table v-if="storeProfile.profile.conts && storeProfile.profile.conts.length" 
-             v-for="tbl in storeProfile.profile.conts" :key="tbl['id']" 
+      <table v-if="storeProfile.dataProfile.conts && storeProfile.dataProfile.conts.length" 
+             v-for="tbl in storeProfile.dataProfile.conts" :key="tbl['id']" 
                 class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ `#${tbl['id']}` }}</th><th></th></tr>
@@ -157,8 +157,8 @@ const storeClassify = classifyStore();
       <div class="text-primary text-opacity-85 py-3">
         <h6>Место работы</h6>
       </div>
-      <table v-if="storeProfile.profile.works && storeProfile.profile.works.length" 
-             v-for="tbl in storeProfile.profile.works" 
+      <table v-if="storeProfile.dataProfile.works && storeProfile.dataProfile.works.length" 
+             v-for="tbl in storeProfile.dataProfile.works" 
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ `#${tbl['id']}` }}</th><th></th></tr>
@@ -182,8 +182,8 @@ const storeClassify = classifyStore();
       <div class="text-primary text-opacity-85 py-3">
         <h6>Связи</h6>
       </div>
-      <table v-if="storeProfile.profile.relate && storeProfile.profile.relate.length" 
-             v-for="tbl in storeProfile.profile.relate" 
+      <table v-if="storeProfile.dataProfile.relate && storeProfile.dataProfile.relate.length" 
+             v-for="tbl in storeProfile.dataProfile.relate" 
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ `#${tbl['id']}` }}</th><th></th></tr>
@@ -201,8 +201,8 @@ const storeClassify = classifyStore();
       <h5>Проверки</h5>
     </div>
     <div>
-      <table v-if="storeProfile.profile.verification?.length" 
-             v-for="tbl in storeProfile.profile.verification" 
+      <table v-if="storeProfile.dataProfile.verification?.length" 
+             v-for="tbl in storeProfile.dataProfile.verification" 
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr>
@@ -292,10 +292,7 @@ const storeClassify = classifyStore();
           </tr>
           <tr v-if="tbl['officer']">
             <td>Сотрудник</td>
-            <td>
-              <a href="#" @click="storeProfile.getItem('check', 'self', tbl['id' as keyof typeof tbl].toString())">
-                {{ tbl['officer'] }}</a>
-            </td>
+            <td>{{ tbl['officer'] }}</td>
           </tr>
           <tr v-if="tbl['deadline']">
             <td>Дата</td>
@@ -303,15 +300,14 @@ const storeClassify = classifyStore();
           </tr>
         </tbody>
       </table>
-      <p v-else >Данные отсутствуют</p>
     </div>
 
     <div class="text-primary text-opacity-85 py-3">
       <h5>Согласования</h5>
     </div>
     <div>
-      <table v-if="storeProfile.profile.register.length" 
-             v-for="tbl in storeProfile.profile.register" 
+      <table v-if="storeProfile.dataProfile.register.length" 
+             v-for="tbl in storeProfile.dataProfile.register" 
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ tbl['id'] }}</th><th></th></tr>
@@ -341,8 +337,8 @@ const storeClassify = classifyStore();
       <h5>Полиграф</h5>
     </div>
     <div>
-      <table v-if="storeProfile.profile.pfo.length" 
-             v-for="tbl in storeProfile.profile.pfo" 
+      <table v-if="storeProfile.dataProfile.pfo.length" 
+             v-for="tbl in storeProfile.dataProfile.pfo" 
               :key="tbl['id' as keyof typeof tbl]" class="table table-responsive">
         <thead>
           <tr>
@@ -375,14 +371,6 @@ const storeClassify = classifyStore();
             <td>{{new Date(String(tbl['deadline'])).
               toLocaleDateString('ru-RU') }}</td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <form class="form" enctype="multipart/form-data" role="form" 
-                    @change="storeProfile.submitFile($event, 'poligraf', tbl['id'].toString())">
-                <input class="form-control" id="file" type="file" ref="file" multiple>
-              </form>
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -391,8 +379,8 @@ const storeClassify = classifyStore();
       <h5>Расследования</h5>
     </div>
     <div>
-      <table v-if="storeProfile.profile.inquisition?.length" 
-             v-for="tbl in storeProfile.profile.inquisition" 
+      <table v-if="storeProfile.dataProfile.inquisition?.length" 
+             v-for="tbl in storeProfile.dataProfile.inquisition" 
               :key="tbl['id']" class="table table-responsive">
         <thead>
           <tr><th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th><th></th></tr>
@@ -431,7 +419,7 @@ const storeClassify = classifyStore();
       <h5>Запросы</h5>
     </div>
     <div>
-      <table class="table table-responsive" v-for="tbl in storeProfile.profile.needs" 
+      <table class="table table-responsive" v-for="tbl in storeProfile.dataProfile.needs" 
                                             :key="tbl['id' as keyof typeof tbl]" >
         <thead>
           <tr><th width="25%">{{ `#${tbl['id' as keyof typeof tbl]}` }}</th><th></th></tr>

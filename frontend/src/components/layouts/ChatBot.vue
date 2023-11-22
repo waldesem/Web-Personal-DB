@@ -2,11 +2,9 @@
 
 import { ref } from 'vue';
 import { authStore } from '@/store/token';
-import { identityStore } from '@/store/identity';
 import { server } from '@utilities/utils';
 
 const storeAuth = authStore();
-const storeIdentity = identityStore()
 
 const chatBot = ref({
   dialog: <Array<Object>>[{'chatBot': 'Добро пожаловать в чат!'}],
@@ -47,7 +45,7 @@ const chatBot = ref({
 </script>
 
 <template>
-  <div class="d-print-none" v-if="['admins', 'login'].includes(storeIdentity.pageIdentity)">
+  <div class="d-print-none">
     <a class="chatbot-button dropdown-toggle" role="button"  
       data-bs-toggle="dropdown" data-bs-auto-close="false">
       <i class="bi bi-chat-dots-fill fs-1"></i>

@@ -1,26 +1,27 @@
 <script setup lang="ts">
 
-import { onBeforeMount, watch } from 'vue';
+import { onBeforeMount, watch, ref, provide } from 'vue';
 import { defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { loginStore } from '@/store/login';
-import { identityStore } from '@store/identity';
 
 const NavBar = defineAsyncComponent(() => import('@components/layouts/NavBar.vue'));
 const AlertMessage = defineAsyncComponent(() => import('@components/layouts/AlertMessage.vue'));
 const FooterDiv = defineAsyncComponent(() => import('@components/layouts/FooterDiv.vue'));
-const ChatButton = defineAsyncComponent(() => import('@components/layouts/ChatButton.vue'));
+const ChatBot = defineAsyncComponent(() => import('@components/layouts/ChatBot.vue'));
 
 const storeLogin = loginStore();
-const storeIdentity = identityStore();
 
 const route = useRoute();
 
+const pageIdentity = ref('')
+
+provide('pageIdentity', pageIdentity)
+
 watch(() => route.params.group,
   newValue => {
-    storeIdentity.pageIdentity = newValue as string
+    pageIdentity.value = newValue as string
   }, { immediate: true });
-
 
 onBeforeMount(() => {
   storeLogin.userData.getAuth()
@@ -33,6 +34,6 @@ onBeforeMount(() => {
   <NavBar />
   <AlertMessage />
   <router-view></router-view>
-  <ChatButton />
+  <ChatBot />
   <FooterDiv />
 </template>

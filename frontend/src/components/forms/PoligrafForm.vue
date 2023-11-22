@@ -7,12 +7,12 @@ const storeProfile = profileStore();
 </script>
 
 <template>
-  <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
+  <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
       <div class="col-lg-10">
         <select class="form-select" id="theme" name="theme" required 
-                v-model="storeProfile.dataProfile.itemForm['theme']">
+                v-model="storeProfile.dataProfile.form['theme']">
           <option value="Проверка кандидата">Проверка кандидата</option>
           <option value="Служебная проверка">Служебная проверка</option>
           <option value="Служебное расследование">Служебное расследование</option>
@@ -24,7 +24,7 @@ const storeProfile = profileStore();
       <label class="col-form-label col-lg-2" for="results">Результат</label>
       <div class="col-lg-10">
         <textarea class="form-control" id="results" name="results" required 
-                  v-model="storeProfile.dataProfile.itemForm['results']"></textarea>
+                  v-model="storeProfile.dataProfile.form['results']"></textarea>
       </div>
     </div>
     <div class=" row">
@@ -33,7 +33,7 @@ const storeProfile = profileStore();
           <button class="btn btn-outline-primary" type="submit">Принять</button>
           <button class="btn btn-outline-primary" type="reset">Очистить</button>
           <button class="btn btn-outline-primary" type="button" 
-                  @click="storeProfile.cancelEdit">Отмена</button>
+                  @click="storeProfile.dataProfile.cancelEdit">Отмена</button>
         </div>
       </div>
     </div>

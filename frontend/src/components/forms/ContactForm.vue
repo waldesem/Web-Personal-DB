@@ -6,10 +6,10 @@ import { profileStore } from '@/store/profile';
 const storeProfile = profileStore();
 
 const view = computed(() => {
-  if (storeProfile.dataProfile.itemForm['view'] === 'Телефон') {
+  if (storeProfile.dataProfile.form['view'] === 'Телефон') {
     return 'tel';
 
-  } else if (storeProfile.dataProfile.itemForm['view'] === 'E-mail') {
+  } else if (storeProfile.dataProfile.form['view'] === 'E-mail') {
     return 'email';
 
   } else {
@@ -20,12 +20,12 @@ const view = computed(() => {
 </script>
 
 <template>
-  <form @submit.prevent="storeProfile.updateItem" class="form form-check" role="form">
+  <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
     <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="view">Выбрать</label>
       <div class="col-lg-10">
         <select class="form-select" id="view" name="view" 
-                v-model="storeProfile.dataProfile.itemForm['view']">
+                v-model="storeProfile.dataProfile.form['view']">
           <option value="Телефон">Телефон</option>
           <option value="E-mail">E-mail</option>
           <option value="Другое">Другое</option>
@@ -36,7 +36,7 @@ const view = computed(() => {
       <label class="col-form-label col-lg-2" for="contact">Контакт</label>
       <div class="col-lg-10">
         <input class="form-control" id="contact" maxlength="250" name="contact" 
-              required :type="view" v-model="storeProfile.dataProfile.itemForm['contact']">
+              required :type="view" v-model="storeProfile.dataProfile.form['contact']">
       </div>
     </div>
     <div class=" row">

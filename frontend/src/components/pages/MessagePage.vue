@@ -65,11 +65,9 @@ const storeMessage = messageStore();
     </div>
     <PageSwitcher :has_prev = "storeMessage.messageData.hasPrev"
                   :has_next = "storeMessage.messageData.hasNext"
-                  :switchPrev = "storeMessage.updateMessages(
-                    'all', storeMessage.messageData.currentPage - 1
-                    )"
-                  :switchNext = "storeMessage.updateMessages(
-                    'all', storeMessage.messageData.currentPage + 1
-                    )" />
+                  :switchPrev = "storeMessage.messageData.currentPage - 1"
+                  :switchNext = "storeMessage.messageData.currentPage + 1"
+                  :switchPage= "storeMessage.updateMessages" 
+                  :option="'all'"/>
   </div>
 </template>

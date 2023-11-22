@@ -5,10 +5,10 @@ import { onBeforeRouteLeave, useRoute } from 'vue-router';
 import { adminStore } from '@store/admins';
 import { classifyStore } from '@/store/classify';
 import { clearItem } from '@utilities/utils';
-//import PhotoCard from '@components/layouts/PhotoCard.vue';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 const UserForm = defineAsyncComponent(() => import('@components/forms/UserForm.vue'));
+//const PhotoCard = defineAsyncComponent(() => import('@components/layouts/PhotoCard.vue'));
 
 const storeClassify = classifyStore();
 const storeAdmin = adminStore();

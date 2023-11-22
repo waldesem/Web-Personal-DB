@@ -3,16 +3,16 @@ import { defineStore } from 'pinia';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { identityStore } from './identity';
 import { server, clearItem } from '@utilities/utils';
 import router from '@/router/router';
 
 export const profileStore = defineStore('profileStore', () => {
   
-  const storeAuth = authStore()
+  const storeAuth = authStore();
   const storeAlert = alertStore();
   const classifyApp = classifyStore();
-  const storeIdentity = identityStore();
+
+  const auth = storeAuth.axiosInstance;
   
   interface Resume {
     id: string;
@@ -107,7 +107,6 @@ export const profileStore = defineStore('profileStore', () => {
     cros: string;
     addition: string;
     path: string,
-    pfo: boolean;
     conclusion: string;
     comments: string;
     deadline: string;
@@ -126,7 +125,6 @@ export const profileStore = defineStore('profileStore', () => {
     id: string;
     theme: string;
     results: string;
-    path: string;
     officer: string;
     deadline: string;
   };
@@ -135,7 +133,6 @@ export const profileStore = defineStore('profileStore', () => {
     id: string;
     theme: string;
     info: string;
-    path: string;
     officer: string;
     deadline: string;
   };
@@ -227,9 +224,7 @@ export const profileStore = defineStore('profileStore', () => {
         };
       };
       try {
-        const response = await storeAuth.axiosInstance.get(
-          `${server}/${item}/${action}/${id}`
-          );
+        const response = await auth.get(`${server}/${item}/${action}/${id}`);
         switch (item){
           case 'resume':
             this.resume = response.data;
@@ -301,14 +296,8 @@ export const profileStore = defineStore('profileStore', () => {
       this.flag === 'registry' ? this.spinner = true : this.spinner = false;
         try {
         const response = this.action === 'create' 
-          ? await storeAuth.axiosInstance.post(
-            `${server}/${this.flag}/${this.action}/${this.candId}`, 
-            this.form
-            )
-          : await storeAuth.axiosInstance.patch(
-            `${server}/${this.flag}/${this.action}/${this.itemId}`, 
-            this.form
-            );
+          ? await auth.post(`${server}/${this.flag}/${this.action}/${this.candId}`, this.form)
+          : await auth.patch(`${server}/${this.flag}/${this.action}/${this.itemId}`, this.form);
   
         console.log(response.status);
   
@@ -339,21 +328,39 @@ export const profileStore = defineStore('profileStore', () => {
       };
       if (confirm(`Вы действительно хотите удалить запись?`)) {
         try {
-          const response = await storeAuth.axiosInstance.delete(
-            `${server}/${item}/${action}/${id}`
-            );
+          const response = await auth.delete(`${server}/${item}/${action}/${id}`);
           console.log(response.status);
           item === 'resume' 
-            ? router.push({ name: 'persons', params: { group: storeIdentity.pageIdentity } }) 
+            ? router.push({ name: 'persons', params: { group: 'staffsec' } }) 
             : this.getItem(item, 'view', this.candId);
   
            storeAlert.alertMessage.setAlert('alert-info', `Запись с ID ${id} удалена`);
-        
           } catch (error) {
           console.error(error)
         }
       }
     },
+
+    submitResume: async function (): Promise<void> {
+    try {
+      const response = await auth.post(`${server}/resume/${this.action}`, this.form);
+      const { message } = response.data;
+      storeAlert.alertMessage.setAlert(this.action === "create" 
+                                        ? "alert-success" : "alert-info", 
+                                        this.action === "create"
+                                        ? 'Анкета успешно добавлена' 
+                                        : 'Анкета успешно обновлена');
+      if (this.action === 'create') {
+        this.candId = message
+        router.push({ name: 'profile', params: { id: message } });
+      } else {
+        this.getItem('resume', 'view', this.candId);
+      };
+        this.cancelEdit();
+    } catch (error) {
+      console.error(error);
+    }
+  },
   
     submitFile: async function (
       event: Event, flag: string, idItem: string = '0'
@@ -377,9 +384,7 @@ export const profileStore = defineStore('profileStore', () => {
         formData.append('file', inputElement.files[0]);
 
         try {
-          const response = await storeAuth.axiosInstance.post(
-            `${server}/file/${flag}/${idItem}`, formData
-            );
+          const response = await auth.post(`${server}/file/${flag}/${idItem}`, formData);
           const { message } = response.data;
 
           if (flag === 'anketa'){
@@ -407,10 +412,7 @@ export const profileStore = defineStore('profileStore', () => {
     
     getImage: async function (): Promise<void> {
       try {
-        const response = await storeAuth.axiosInstance.get(
-          `${server}/file/get/${this.candId}`, 
-            { responseType: 'blob' }
-          );
+        const response = await auth.get(`${server}/file/get/${this.candId}`, {responseType: 'blob'});
           this.url = window.URL.createObjectURL(new Blob([response.data]));
       } catch (error) {
         console.error(error);

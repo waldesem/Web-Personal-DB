@@ -1,16 +1,16 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { identityStore } from '@store/identity';
 import { clearItem, server } from '@utilities/utils';
 
 
 export const contactStore = defineStore('contactStore', () => {
 
   const storeAuth = authStore();
-  const storeIdentity = identityStore();
   const storeAlert = alertStore();
+  
+  const pageIdentity = inject('pageIdentity') as string;
 
   const contactData = ref({
     contacts: [],
@@ -26,7 +26,7 @@ export const contactStore = defineStore('contactStore', () => {
     getContacts: async function (page: number): Promise<void> {
       try {
         const response = await storeAuth.axiosInstance.post(
-          `${server}/connects/${storeIdentity.pageIdentity}/${page}`, {
+          `${server}/connects/${pageIdentity}/${page}`, {
             'search': this.search
           }
         );
@@ -48,7 +48,7 @@ export const contactStore = defineStore('contactStore', () => {
       try {
         const response = action === 'create'
           ? await storeAuth.axiosInstance.post(
-            `${server}/connect/${storeIdentity.pageIdentity}`, this.form.value
+            `${server}/connect/${pageIdentity}`, this.form.value
             )
           : await storeAuth.axiosInstance.patch(`${server}/connect/${id}`, this.form);
         const { item_id } = response.data;

@@ -11,11 +11,15 @@ const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderD
 const storeAuth = authStore();
 
 const props = defineProps({
-  path: Array
+  path: {
+    type: Array<string>,
+    required: true
+  }
 });
 
 onBeforeMount(() => {
-  fileManager.value.openFolder(props.path);  
+  fileManager.value.path = props.path.slice(0, -1);
+  fileManager.value.openFolder(props.path[-1]);  
 });
 
 const auth = storeAuth.axiosInstance;
@@ -289,23 +293,21 @@ const auth = storeAuth.axiosInstance;
 
       </ul>
     </div>
-    <modal-win :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">
-      <template v-slot:body>
-        <form @submit.prevent="fileManager.updateItem" class="form form-check" role="form">
-          <div class="row">
-            <div class="col">
-              <input class="form-control" id="name" maxlength="250" name="name" type="text"
-              v-model="fileManager.form">
-            </div>
-            <div class="col">
-              <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
-                Принять
-              </button>
-            </div>
+    <ModalWin :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">
+      <form @submit.prevent="fileManager.updateItem" class="form form-check" role="form">
+        <div class="row">
+          <div class="col">
+            <input class="form-control" id="name" maxlength="250" name="name" type="text"
+            v-model="fileManager.form">
           </div>
-        </form>
-      </template>
-    </modal-win>
+          <div class="col">
+            <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
+              Принять
+            </button>
+          </div>
+        </div>
+      </form>
+    </ModalWin>
   </div>
 </template>
 

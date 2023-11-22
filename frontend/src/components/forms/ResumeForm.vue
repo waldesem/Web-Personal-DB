@@ -1,68 +1,20 @@
 <script setup lang="ts">
-// компонент формы добавления или редактирования резюе
 
 import { profileStore } from '@/store/profile';
-import { authStore } from '@/store/token';
-import { alertStore } from '@store/alert';
-import { loginStore } from '@/store/login';
-import router from '@/router/router';
-import { server } from '@utilities/utils';
 
 const storeProfile = profileStore();
-const storeAuth = authStore()
-const storeAlert = alertStore();
-const storeLogin = loginStore();
-
-  /**
-   * Submits the data to the server to create a new resume.
-   *
-   * @return {Promise<void>} A promise that resolves when the data has been 
-   * successfully submitted.
-   */
-   async function submitResume(): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.post(
-        `${server}/resume/${storeProfile.dataProfile.action}`, storeProfile.dataProfile.itemForm
-        );
-      const { message } = response.data;
-
-      storeAlert.setAlert(storeProfile.dataProfile.action === "create" 
-                            ? "alert-success" : "alert-info", 
-                            storeProfile.dataProfile.action === "create"
-                            ? 'Анкета успешно добавлена' 
-                            : 'Анкета успешно обновлена');
-
-      if (storeProfile.dataProfile.action === 'create') {
-        storeProfile.dataProfile.candId = message
-        router.push({ name: 'profile', params: { id: message } });
-      } else {
-        storeProfile.getItem('resume');
-      };
-      storeProfile.cancelEdit();
-      
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  /**
-   * Redirects to the main page.
-   *
-   * @return {void} No return value.
-   */
-   function redirectMain(): void {
-    router.push({ name: 'persons', params: { group: storeLogin.pageIdentity } })
-  };
 
 </script>
+
+
 <template>
   <div class="py-3">
-    <form @submit.prevent="submitResume" class="form form-check" role="form">
+    <form @submit.prevent="storeProfile.dataProfile.submitResume" class="form form-check" role="form">
       <div class="mb-3 row">
       <label class="col-form-label col-lg-2" for="category">Категория</label>
         <div class="col-lg-10">
           <select class="form-select" required id="category" name="category" 
-                  v-model="storeProfile.dataProfile.itemForm['category']">
+                  v-model="storeProfile.dataProfile.form['category']">
             <option value="Кандидат">Кандидат</option>
             <option value="Проверяемое лицо">Проверяемое лицо</option>
           </select>
@@ -72,21 +24,21 @@ const storeLogin = loginStore();
         <label class="col-form-label col-lg-2" for="fullname">Полное ФИО*</label>
         <div class="col-lg-10">
             <input class="form-control" maxlength="250" id="fullname" name="fullname" type="text"
-                   v-model="storeProfile.dataProfile.itemForm['fullname']" required>
+                   v-model="storeProfile.dataProfile.form['fullname']" required>
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="previous">Изменение имени</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="previous" name="previous" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['previous']">
+                 v-model="storeProfile.dataProfile.form['previous']">
         </div>
         </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="birthday">Дата рождения*</label>
         <div class="col-lg-10">
           <input class="form-control" id="birthday" name="birthday" required type="date"
-                 v-model="storeProfile.dataProfile.itemForm['birthday']" 
+                 v-model="storeProfile.dataProfile.form['birthday']" 
                  :max="new Date().toISOString().split('T')[0]">
         </div>
       </div>
@@ -94,56 +46,56 @@ const storeLogin = loginStore();
         <label class="col-form-label col-lg-2" for="birthplace">Место рождения</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="birthplace" name="birthplace" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['birthplace']" >
+                 v-model="storeProfile.dataProfile.form['birthplace']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="country">Гражданство</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="50" id="country" name="country" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['country']" >
+                 v-model="storeProfile.dataProfile.form['country']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="ext_country">Двойное гражданство</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="50" id="ext_country" name="ext_country" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['ext_country']" >
+                 v-model="storeProfile.dataProfile.form['ext_country']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="snils">СНИЛС</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="11" minlength="11" id="snils" name="snils" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['snils']" pattern="\d{11}">
+                 v-model="storeProfile.dataProfile.form['snils']" pattern="\d{11}">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="inn">ИНН</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="12" minlength="12" id="inn" name="inn" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['inn']" pattern="\d{12}">
+                 v-model="storeProfile.dataProfile.form['inn']" pattern="\d{12}">
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="education">Образование</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="education" name="education" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['education']" >
+                 v-model="storeProfile.dataProfile.form['education']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="marital">Семенное положение</label>
         <div class="col-lg-10">
           <input class="form-control" maxlength="250" id="marital" name="marital" type="text"
-                 v-model="storeProfile.dataProfile.itemForm['marital']" >
+                 v-model="storeProfile.dataProfile.form['marital']" >
         </div>
       </div>
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="addition">Дополнительно</label>
         <div class="col-lg-10">
           <textarea class="form-control" id="addition" name="addition"
-                    v-model="storeProfile.dataProfile.itemForm['addition']" ></textarea>
+                    v-model="storeProfile.dataProfile.form['addition']" ></textarea>
         </div>
       </div>
       <div class=" row">
@@ -151,11 +103,13 @@ const storeLogin = loginStore();
           <div class="btn-group" role="group">
             <button class="btn btn-outline-primary" type="submit">Принять</button>
             <button class="btn btn-outline-primary" type="reset">Очистить</button>
-            <button v-if="storeProfile.dataProfile.action !== 'update'" 
-                    class="btn btn-outline-primary" type="button"       
-                    @click="redirectMain">Отмена</button>
+            <router-link v-if="storeProfile.dataProfile.action !== 'update'" 
+                    class="btn btn-outline-primary" type="button"
+                    :to="{ name: 'persons', params: { group: 'staffsec' }}">
+                    Отмена
+            </router-link>
             <button v-else class="btn btn-outline-primary" type="button" 
-                    @click="storeProfile.cancelEdit">Отмена</button>
+                    @click="storeProfile.dataProfile.cancelEdit">Отмена</button>
           </div>
         </div>
       </div>

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 
-import { defineAsyncComponent, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineAsyncComponent, inject } from 'vue';
 import { loginStore } from '@/store/login';
 import { adminStore } from '@/store/admins';
 import { messageStore } from '@/store/messages';
-import { identityStore } from '@store/identity';
 import { timeSince } from '@utilities/utils';
 
 const MessagesVue = defineAsyncComponent(() => import('@components/layouts/MessagesVue.vue'));
@@ -13,38 +11,27 @@ const MessagesVue = defineAsyncComponent(() => import('@components/layouts/Messa
 const storeLogin = loginStore();
 const storeAdmin = adminStore();
 const storeMessage = messageStore();
-const storeIdentity = identityStore();
 
-const route = useRoute();
-
+const pageIdentity = inject('pageIdentity') as string;
 
 let isStarted = false;
-
-watch(() => route.params.group,
-  newValue => {
-    let updTimer = setInterval(storeMessage.updateMessages, 1000000);
-    if (!isStarted && newValue && !['admins', 'login'].includes(newValue as string)) {
-      isStarted = true;
-      storeMessage.updateMessages();
-      updTimer;
-    } else {
-      isStarted = false;
-      clearInterval(updTimer)
-    }
-  }, {immediate:true});
+if (!isStarted) {
+  isStarted = true;
+  setInterval(storeMessage.updateMessages, 1000000);
+};
 
 </script>
 
 <template>
   <nav :class="`navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none 
-              ${storeIdentity.pageIdentity ==='admins' ? 'bg-secondary' : 'bg-primary'}`">
+              ${pageIdentity ==='admins' ? 'bg-secondary' : 'bg-primary'}`">
     <div class="container">
       <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
-        {{ storeIdentity.pageIdentity ? storeIdentity.pageIdentity.toUpperCase() : '' }}</a>
+        {{ pageIdentity ? pageIdentity.toUpperCase() : '' }}</a>
       <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           
-          <template v-if="storeIdentity.pageIdentity === 'admins'">
+          <template v-if="pageIdentity === 'admins'">
             <li class="nav-item">
               <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">
                 Пользователи
@@ -53,7 +40,7 @@ watch(() => route.params.group,
             <li class="nav-item">
               <a class="nav-link active" href="#"
                 data-bs-toggle="modal" data-bs-target="#modalUser"
-                @click="storeAdmin.userData.action = 'create'">
+                @click="storeAdmin.dataUsers.action = 'create'">
                  Создать
               </a>
             </li>
@@ -65,7 +52,7 @@ watch(() => route.params.group,
             </li>
           </template>
 
-          <template v-if="storeIdentity.pageIdentity === 'staffsec'">
+          <template v-if="pageIdentity === 'staffsec'">
             <li class="nav-item">
                 <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" 
                              class="nav-link active">
@@ -93,7 +80,7 @@ watch(() => route.params.group,
             </li>
 
             <li class="nav-item">
-              <router-link :to="{ name: 'manager', params: { group: 'staffsec' } }" 
+              <router-link :to="{ name: 'manager', params: { group: 'staffsec', path: [''] } }" 
                            class="nav-link active" href="#">
                 Файлы
               </router-link>

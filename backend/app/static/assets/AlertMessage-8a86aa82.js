@@ -1,1 +1,0 @@
-import{d as s,k as a,o as r,c as o,b as n,t as l,u as t,n as c}from"./index-1e5f1f68.js";const i={class:"container py-3"},m=s({__name:"AlertMessage",setup(_){const e=a();return(p,d)=>(r(),o("div",i,[n("div",{class:c(["alert",t(e).alertMessage.attrAlert]),role:"info",fade:"",show:""},l(t(e).alertMessage.textAlert),3)]))}});export{m as default};

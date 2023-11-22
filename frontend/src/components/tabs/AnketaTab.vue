@@ -3,7 +3,6 @@
 import { ref } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
-import { fileManagerStore } from '@store/fmanager';
 import { clearItem } from '@utilities/utils'
 import ResumeForm from '@components/forms/ResumeForm.vue';
 import RegionForm from '@components/forms/RegionForm.vue';
@@ -14,23 +13,29 @@ import ContactForm from '@components/forms/ContactForm.vue';
 import RelationForm from '@components/forms/RelationForm.vue';
 import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
 import AffilationForm from '@components/forms/AffilationForm.vue';
+import StaffAccord from '@components/tabs/accordions/StaffAccord.vue';
+import DocumentAccord from '@components/tabs/accordions/DocumentAccord.vue';
+import AddressAccord from '@components/tabs/accordions/AddressAccord.vue';
+import ContactAccord from '@components/tabs/accordions/ContactAccord.vue';
+import RelationAccord from '@components/tabs/accordions/RelationAccord.vue';
+import WorkplaceAccord from '@components/tabs/accordions/WorkplaceAccord.vue';
+import AffilationAccord from '@components/tabs/accordions/AffilationAccord.vue';
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
-const storeFmanager = fileManagerStore();
 
 const hiddenSendBtn = ref(false);
 const hiddenDelBtn = ref(false);
 
-hiddenSendBtn.value = (storeProfile.profile.resume['status'] 
+hiddenSendBtn.value = (storeProfile.dataProfile.resume['status'] 
                         !== storeClassify.classData.status['new'] 
-                      && storeProfile.profile.resume['status'] 
+                      && storeProfile.dataProfile.resume['status'] 
                         !== storeClassify.classData.status['update']
-                      && storeProfile.profile.resume['status'] 
+                      && storeProfile.dataProfile.resume['status'] 
                         !== storeClassify.classData.status['repeat']) 
                     || storeProfile.dataProfile.spinner
 
-hiddenDelBtn.value = storeProfile.profile.resume['status']
+hiddenDelBtn.value = storeProfile.dataProfile.resume['status']
                        === storeClassify.classData.status['finish']
                     || storeProfile.dataProfile.spinner
 
@@ -43,7 +48,7 @@ function switchForm(item: string){
     ? storeProfile.dataProfile.action = 'create' 
     : storeProfile.dataProfile.action = ''; 
 
-  clearItem(storeProfile.dataProfile.itemForm)
+  clearItem(storeProfile.dataProfile.form)
 };
 
 </script>
@@ -58,113 +63,113 @@ function switchForm(item: string){
 
     <template v-else>
       <RegionForm />
-      <table v-if="storeProfile.profile.resume" class="table table-responsive">
+      <table v-if="storeProfile.dataProfile.resume" class="table table-responsive">
         <thead>
           <tr>
-            <th width="25%">{{ `ID #${storeProfile.profile.resume['id']}` }}</th>
+            <th width="25%">{{ `ID #${storeProfile.dataProfile.resume['id']}` }}</th>
             <th>
               <a href="#" title="Изменить"
-                 @click="storeProfile.openForm('resume', 'update', 
-                                                storeProfile.profile.resume['id'],
-                                                storeProfile.profile.resume)">
+                 @click="storeProfile.dataProfile.openForm('resume', 'update', 
+                                                storeProfile.dataProfile.resume['id'],
+                                                storeProfile.dataProfile.resume)">
                 <i class="bi bi-pencil-square"></i>
               </a>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-if="storeProfile.profile.resume['category']">
+          <tr v-if="storeProfile.dataProfile.resume['category']">
             <td>Категория</td>
-            <td>{{ storeProfile.profile.resume['category'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['category'] }}</td>
           </tr>
           <tr>
             <td>Регион</td>
             <td>
               <a href="#" data-bs-toggle="modal" data-bs-target="#modalRegion"
-                 @click="storeProfile.openForm('resume', 'location', 
-                                                storeProfile.profile.resume['id'], 
-                                                storeProfile.profile.resume)">
-                {{ storeClassify.classData.regions[storeProfile.profile.resume['region_id']]}}
+                 @click="storeProfile.dataProfile.openForm('resume', 'location', 
+                                                storeProfile.dataProfile.resume['id'], 
+                                                storeProfile.dataProfile.resume)">
+                {{ storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']]}}
               </a>
             </td>
           </tr>
           <tr>
             <td>Фамилия Имя Отчество</td>
-            <td>{{ storeProfile.profile.resume['fullname'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['fullname'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['previous']">
+          <tr v-if="storeProfile.dataProfile.resume['previous']">
             <td>Изменение имени</td>
-            <td>{{ storeProfile.profile.resume['previous'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['previous'] }}</td>
           </tr>
           <tr>
             <td>Дата рождения</td>
-            <td>{{ storeProfile.profile.resume['birthday'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['birthday'] }}</td>
           </tr>
           <tr>
             <td>Место рождения</td>
-            <td>{{ storeProfile.profile.resume['birthplace'] 
-                    ? storeProfile.profile.resume['birthplace'] 
+            <td>{{ storeProfile.dataProfile.resume['birthplace'] 
+                    ? storeProfile.dataProfile.resume['birthplace'] 
                     : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>Гражданство</td>
-            <td>{{ storeProfile.profile.resume['country'] 
-                    ? storeProfile.profile.resume['country'] 
+            <td>{{ storeProfile.dataProfile.resume['country'] 
+                    ? storeProfile.dataProfile.resume['country'] 
                     : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>СНИЛС</td>
-            <td>{{ storeProfile.profile.resume['snils']
-                    ? storeProfile.profile.resume['snils']
+            <td>{{ storeProfile.dataProfile.resume['snils']
+                    ? storeProfile.dataProfile.resume['snils']
                     : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>ИНН</td>
-            <td>{{ storeProfile.profile.resume['inn']
-                    ? storeProfile.profile.resume['inn']
+            <td>{{ storeProfile.dataProfile.resume['inn']
+                    ? storeProfile.dataProfile.resume['inn']
                     : 'Данные отсутствуют' }}</td>
           </tr>
           <tr>
             <td>Образование</td>
-            <td>{{ storeProfile.profile.resume['education'] 
-                    ? storeProfile.profile.resume['education']
+            <td>{{ storeProfile.dataProfile.resume['education'] 
+                    ? storeProfile.dataProfile.resume['education']
                     : 'Данные отсутствуют' }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['addition']">
+          <tr v-if="storeProfile.dataProfile.resume['addition']">
             <td>Дополнительная информация</td>
-            <td>{{ storeProfile.profile.resume['addition'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['addition'] }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['path']">
+          <tr v-if="storeProfile.dataProfile.resume['path']">
             <td>Материалы</td>
             <td>
               <router-link :to="{ name: 'manager',  params: { 
                   group: 'staffsec',  
-                  path: storeProfile.profile.resume['path'].split('/')
+                  path: storeProfile.dataProfile.resume['path'].split('/')
                 } }">
-                {{ storeProfile.profile.resume['path'] }}
+                {{ storeProfile.dataProfile.resume['path'] }}
               </router-link>
             </td>
           </tr>
           <tr>
             <td>Статус</td>
             <td>
-              <a href="#" @click="storeProfile.getItem('resume', 'status')">
-                {{ storeProfile.profile.resume['status'] }}</a>
+              <a href="#" @click="storeProfile.dataProfile.getItem('resume', 'status', storeProfile.dataProfile.candId)">
+                {{ storeProfile.dataProfile.resume['status'] }}</a>
             </td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['create']">
+          <tr v-if="storeProfile.dataProfile.resume['create']">
             <td>Создан</td>
-            <td>{{ new Date(String(storeProfile.profile.resume['create'])).
+            <td>{{ new Date(String(storeProfile.dataProfile.resume['create'])).
                   toLocaleDateString('ru-RU') }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['update']">
+          <tr v-if="storeProfile.dataProfile.resume['update']">
             <td>Обновлен</td>
-            <td>{{ new Date(String(storeProfile.profile.resume['update'])).
+            <td>{{ new Date(String(storeProfile.dataProfile.resume['update'])).
                   toLocaleDateString('ru-RU') }}</td>
           </tr>
-          <tr v-if="storeProfile.profile.resume['request_id']">
+          <tr v-if="storeProfile.dataProfile.resume['request_id']">
             <td>Внешний id</td>
-            <td>{{ storeProfile.profile.resume['request_id'] }}</td>
+            <td>{{ storeProfile.dataProfile.resume['request_id'] }}</td>
           </tr>
         </tbody>
       </table>
@@ -184,52 +189,7 @@ function switchForm(item: string){
     </template>
 
     <template v-else>
-      <div class="accordion" id="accordionStaff" v-if="storeProfile.profile.staffs.length">
-        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.staffs" 
-                                    :key="tbl['id']" >
-          <h6 class="accordion-header">
-            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapseStaff${tbl['id']}`">
-              {{ `ID #${tbl['id']}` }}
-            </button>
-          </h6>
-          <div :id="`collapseStaff${tbl['id']}`" class="accordion-collapse collapse" 
-               :class="{ 'show': idx === 0}" 
-              data-bs-parent="#accordionStaff">
-            <div class="accordion-body">
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th width="25%">
-                      <a href="#" @click="storeProfile.deleteItem('staff', 'delete', tbl['id'].
-                          toString())" title="Удалить">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a class="btn btn-link" title="Изменить"
-                        @click= "storeProfile.openForm('staff', 'update', tbl['id'].toString(), tbl)">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Должность</td>
-                    <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Департамент</td>
-                    <td>{{ tbl['department'] ? tbl['department'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-else >Данные отсутствуют</p>
+      <StaffAccord :store="storeProfile.dataProfile"/>
     </template>
 
     <h6>Документы
@@ -245,65 +205,7 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <div class="accordion" id="accordionDocument" v-if="storeProfile.profile.docums.length">
-        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.docums" 
-                                    :key="tbl['id']" >
-          <h6 class="accordion-header">
-            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapseDocument${tbl['id']}`">
-              {{ `ID #${tbl['id']}` }}
-            </button>
-          </h6>
-          <div :id="`collapseDocument${tbl['id']}`" class="accordion-collapse collapse" 
-               :class="{ 'show': idx === 0}" 
-              data-bs-parent="#accordionDocument">
-            <div class="accordion-body">
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th width="25%">
-                      <a href="#" @click="storeProfile.deleteItem('document', 'delete', tbl['id'].
-                          toString())" title="Удалить">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a class="btn btn-link" title="Изменить"
-                        @click= "storeProfile.openForm('document', 'update', tbl['id'].toString(), tbl)">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Вид документа</td>
-                    <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Серия</td>
-                    <td>{{ tbl['series'] ? tbl['series'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Номер</td>
-                    <td>{{ tbl['number'] ? tbl['number'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Кем выдан</td>
-                    <td>{{ tbl['agency'] ? tbl['agency'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Дата выдачи</td>
-                    <td>{{ tbl['issue'] ? new Date(String(tbl['issue'])).toLocaleDateString('ru-RU') 
-                                        : 'Данные отсутствуют' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-else >Данные отсутствуют</p>
+      <DocumentAccord :store="storeProfile.dataProfile"/>
     </template>
     
     <h6>Адреса
@@ -319,56 +221,7 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <div class="accordion" id="accordionAddress" v-if="storeProfile.profile.addrs.length">
-        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.addrs" 
-                                    :key="tbl['id']" >
-          <h6 class="accordion-header">
-            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapseAddress${tbl['id']}`">
-              {{ `ID #${tbl['id']}` }}
-            </button>
-          </h6>
-          <div :id="`collapseAddress${tbl['id']}`" class="accordion-collapse collapse" 
-               :class="{ 'show': idx === 0}" 
-              data-bs-parent="#accordionAddress">
-            <div class="accordion-body">
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th width="25%">
-                      <a href="#" @click="storeProfile.deleteItem('address', 'delete', tbl['id'].
-                          toString())" title="Удалить">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a class="btn btn-link" title="Изменить"
-                        @click= "storeProfile.openForm('address', 'update', tbl['id'].toString(), tbl)">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Тип</td>
-                    <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Регион</td>
-                    <td>{{ tbl['region'] ? tbl['region'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Адрес</td>
-                    <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-else >Данные отсутствуют</p>
+      <AddressAccord :store="storeProfile.dataProfile"/>
     </template>
 
     <h6>Контакты
@@ -384,52 +237,7 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <div class="accordion" id="accordionContact" v-if="storeProfile.profile.conts.length">
-        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.conts" 
-                                    :key="tbl['id']" >
-          <h6 class="accordion-header">
-            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapseContact${tbl['id']}`">
-              {{ `ID #${tbl['id']}` }}
-            </button>
-          </h6>
-          <div :id="`collapseContact${tbl['id']}`" class="accordion-collapse collapse" 
-               :class="{ 'show': idx === 0}" 
-              data-bs-parent="#accordionContact">
-            <div class="accordion-body">
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th width="25%">
-                      <a href="#" @click="storeProfile.deleteItem('contact', 'delete', tbl['id'].
-                          toString())" title="Удалить">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a class="btn btn-link" title="Изменить"
-                        @click= "storeProfile.openForm('contact', 'update', tbl['id'].toString(), tbl)">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Вид</td>
-                    <td>{{ tbl['view'] ? tbl['view'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Контакт</td>
-                    <td>{{ tbl['contact'] ? tbl['contact'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-else >Данные отсутствуют</p>
+      <ContactAccord :store="storeProfile.dataProfile"/>
     </template>
 
     <h6>Работа
@@ -445,60 +253,7 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <div class="accordion" id="accordionWork" v-if="storeProfile.profile.works.length">
-        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.works" 
-                                    :key="tbl['id']" >
-          <h6 class="accordion-header">
-            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapseWork${tbl['id']}`">
-              {{ `ID #${tbl['id']}` }}
-            </button>
-          </h6>
-          <div :id="`collapseWork${tbl['id']}`" class="accordion-collapse collapse" 
-               :class="{ 'show': idx === 0}" 
-              data-bs-parent="#accordionWork">
-            <div class="accordion-body">
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th width="25%">
-                      <a href="#" @click="storeProfile.deleteItem('workplace', 'delete', tbl['id'].
-                          toString())" title="Удалить">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a class="btn btn-link" title="Изменить"
-                        @click= "storeProfile.openForm('workplace', 'update', tbl['id'].toString(), tbl)">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Период</td>
-                    <td>{{ tbl['start_date'] }} - {{ tbl['end_date'] }}</td>
-                  </tr>
-                  <tr>
-                    <td>Организация</td>
-                    <td>{{ tbl['workplace'] ? tbl['workplace'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Адрес</td>
-                    <td>{{ tbl['address'] ? tbl['address'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                  <tr>
-                    <td>Должность</td>
-                    <td>{{ tbl['position'] ? tbl['position'] : 'Данные отсутствуют' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-else >Данные отсутствуют</p>
+      <WorkplaceAccord :store="storeProfile.dataProfile"/>
     </template>
 
     <h6>Аффилированность
@@ -514,52 +269,7 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <div class="accordion" id="accordionAffilate" v-if="storeProfile.profile.affilation.length">
-        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.affilation" 
-                                    :key="tbl['id']" >
-          <h6 class="accordion-header">
-            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapseAffilate${tbl['id']}`">
-              {{ `ID #${tbl['id']}` }}
-            </button>
-          </h6>
-          <div class="accordion-collapse collapse" data-bs-parent="#accordionAffilate"
-                :id="`collapseAffilate${tbl['id']}`" 
-                :class="{ 'show': idx === 0}" >
-            <div class="accordion-body">
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th width="25%">
-                      <a href="#" @click="storeProfile.deleteItem('affilation', 'delete', tbl['id'].
-                          toString())" title="Удалить">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a class="btn btn-link" title="Изменить"
-                        @click= "storeProfile.openForm('affilation', 'update', tbl['id'].toString(), tbl)">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>Тип участия</td><td>{{ tbl['view'] }}</td></tr>
-                  <tr><td>Организация</td><td>{{ tbl['name'] }}</td></tr>
-                  <tr><td>ИНН</td><td>{{ tbl['inn'] ? tbl['inn'] : 'Данных нет' }}</td></tr>
-                  <tr><td>Должность</td><td>{{ tbl['position'] }}</td></tr>
-                  <tr>
-                    <td>Дата декларации</td>
-                    <td>{{ new Date(tbl['deadline']).toLocaleDateString('ru-RU') }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-else >Данные отсутствуют</p>
+      <AffilationAccord :store="storeProfile.dataProfile"/>
     </template>
 
     <h6>Связи
@@ -575,69 +285,22 @@ function switchForm(item: string){
     </template>
     
     <template v-else>
-      <div class="accordion" id="accordionRelation" v-if="storeProfile.profile.relate.length">
-        <div class="accordion-item" v-for="tbl, idx in storeProfile.profile.relate" 
-                                    :key="tbl['id']" >
-          <h6 class="accordion-header">
-            <button class="accordion-button" :class="{'collapsed': idx > 0 }" type="button" data-bs-toggle="collapse" 
-                    :data-bs-target="`#collapseRelation${tbl['id']}`">
-              {{ `ID #${tbl['id']}` }}
-            </button>
-          </h6>
-          <div :id="`collapseRelation${tbl['id']}`" class="accordion-collapse collapse" 
-               :class="{ 'show': idx === 0}" 
-              data-bs-parent="#accordionRelation">
-            <div class="accordion-body">
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th width="25%">
-                      <a href="#" @click="storeProfile.deleteItem('relation', 'delete', tbl['id'].
-                          toString())" title="Удалить">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a class="btn btn-link" title="Изменить"
-                        @click= "storeProfile.openForm('relation', 'update', tbl['id'].toString(), tbl)">
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td>Тип связи</td><td>{{ tbl['relation'] }}</td></tr>
-                  <tr v-if="tbl['relation_id']">
-                    <td>Связь</td>
-                    <td>
-                      <router-link
-                        :to="{ name: 'profile', params: { group: 'staffsec', id: String(tbl['relation_id']) } }">
-                        ID #{{ tbl['relation_id'] }}
-                      </router-link>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-else >Данные отсутствуют</p>
+      <RelationAccord :store="storeProfile.dataProfile"/>
     </template>
 
     <div class="py-3">
       <div class='btn-group' role="group">
         <button class="btn btn-outline-primary" 
                 :disabled="hiddenSendBtn"
-                @click="storeProfile.getItem('resume', 'send')" >
+                @click="storeProfile.dataProfile.getItem('resume', 'send', storeProfile.dataProfile.candId)" >
             {{ !storeProfile.dataProfile.spinner ? 'Отправить на проверку' : '' }}
           <span v-if="storeProfile.dataProfile.spinner" class="spinner-border spinner-border-sm"></span>
           <span v-if="storeProfile.dataProfile.spinner" role="status">Отправляется...</span>
         </button>
         <button type="button" class="btn btn-outline-danger" 
                 :disabled="hiddenDelBtn" 
-                @click="storeProfile.deleteItem('resume', 'delete', 
-                                                storeProfile.profile.resume['id'])">
+                @click="storeProfile.dataProfile.deleteItem('resume', 'delete', 
+                                                storeProfile.dataProfile.resume['id'])">
           Удалить анкету
         </button>
       </div>
