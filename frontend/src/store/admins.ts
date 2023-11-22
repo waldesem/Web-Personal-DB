@@ -11,8 +11,6 @@ export const adminStore = defineStore('adminStore', () => {
   const storeAlert = alertStore();
   const storeAuth = authStore();
 
-  const auth = storeAuth.axiosInstance;
-
   interface Group {
     id: string,
     group: string
@@ -50,7 +48,7 @@ export const adminStore = defineStore('adminStore', () => {
     form: <Record<string, any>>({}),
     getUsers: async function(){
       try {
-        const response = await auth.post(`${server}/users`, {'fullname': this.search});
+        const response = await storeAuth.axiosInstance.post(`${server}/users`, {'fullname': this.search});
         this.users = response.data;
       } catch (error) {
         storeAlert.alertMessage.setAlert('alert-success', error as string)
@@ -60,8 +58,8 @@ export const adminStore = defineStore('adminStore', () => {
     submitUser: async function(): Promise<void>{
       try {  
         const response = this.action === 'edit' 
-          ? await auth.patch(`${server}/user`, this.form)
-          : await auth.post(`${server}/user`, this.form);
+          ? await storeAuth.axiosInstance.patch(`${server}/user`, this.form)
+          : await storeAuth.axiosInstance.post(`${server}/user`, this.form);
         
         if (this.action === 'edit') {
           this.profile = response.data;
@@ -80,7 +78,7 @@ export const adminStore = defineStore('adminStore', () => {
 
     userAction: async function(action: String): Promise<void>{
       try {
-        const response = await auth.get(`${server}/user/${action}/${this.id}`);
+        const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${this.id}`);
         this.profile = response.data;
   
         if (action === 'drop'){
@@ -97,7 +95,7 @@ export const adminStore = defineStore('adminStore', () => {
     userDelete: async function(): Promise<void>{
       if (confirm("Вы действительно хотите удалить пользователя?")){
         try {
-          const response = await auth.delete(`${server}/user/${this.id}`);
+          const response = await storeAuth.axiosInstance.delete(`${server}/user/${this.id}`);
           this.profile = response.data;
           storeAlert.alertMessage.setAlert('alert-success', 'Пользователь удалён');
           router.push({ name: 'users' });
@@ -112,8 +110,8 @@ export const adminStore = defineStore('adminStore', () => {
       if (value !== '') {
         try {
           const response = action === 'add' 
-            ? await auth.get(`${server}/${item}/${value}/${this.id}`)
-            : await auth.delete(`${server}/${item}/${value}/${this.id}`);
+            ? await storeAuth.axiosInstance.get(`${server}/${item}/${value}/${this.id}`)
+            : await storeAuth.axiosInstance.delete(`${server}/${item}/${value}/${this.id}`);
           this.profile = response.data;
           
           storeAlert.alertMessage.setAlert(

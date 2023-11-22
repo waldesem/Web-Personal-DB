@@ -14,7 +14,6 @@ export const loginStore = defineStore('loginStore', () => {
   const storeClasses = classifyStore();
   const storeAuth = authStore();
   
-  const auth = storeAuth.axiosInstance;
 
   const userData = ref({
     fullName: '',
@@ -28,7 +27,7 @@ export const loginStore = defineStore('loginStore', () => {
     
     getAuth: async function (): Promise<void> {
       try {
-        const response = await auth.get(`${server}/login`);
+        const response = await storeAuth.axiosInstance.get(`${server}/login`);
         const { fullname, username, roles, groups, region_id } = response.data;
         this.assignUserData(fullname, username, roles, groups, region_id);
         this.hasRole('admin') 
@@ -96,7 +95,7 @@ export const loginStore = defineStore('loginStore', () => {
 
     userLogout: async function (): Promise<void>{
       try {
-        const response = await auth.delete(`${server}/login`);
+        const response = await storeAuth.axiosInstance.delete(`${server}/login`);
         console.log(response.data);
 
       } catch (error) {

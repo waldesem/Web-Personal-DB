@@ -21,8 +21,6 @@ onBeforeMount(() => {
   fileManager.value.path = props.path.slice(0, -1);
   fileManager.value.openFolder(props.path[-1]);  
 });
-
-const auth = storeAuth.axiosInstance;
   
   const fileManager = ref({
     path: Array<string>(),
@@ -36,7 +34,7 @@ const auth = storeAuth.axiosInstance;
     item: '',
     getFoldersFiles: async function () {
     try {
-      const response = await auth.get(`${server}/manager`);
+      const response = await storeAuth.axiosInstance.get(`${server}/manager`);
       const { path, dirs, files }= response.data;
       this.assignValue(path, dirs, files);
       this.clearValue();
@@ -47,7 +45,7 @@ const auth = storeAuth.axiosInstance;
 
   openFolder: async function (item: string) {
     try {
-      const response = await auth.post(`${server}/manager/open`, {
+      const response = await storeAuth.axiosInstance.post(`${server}/manager/open`, {
         'path': this.path,
         'item': item
       });
@@ -60,7 +58,7 @@ const auth = storeAuth.axiosInstance;
 
   openParent: async function () {
     try {
-      const response = await auth.post(`${server}/manager/parent`, {
+      const response = await storeAuth.axiosInstance.post(`${server}/manager/parent`, {
         'path': this.path
       });
       const { path, dirs, files } = response.data;
@@ -72,7 +70,7 @@ const auth = storeAuth.axiosInstance;
 
   openFile: async function (file: string) {
     try {
-      const response = await auth.post(`${server}/manager/download`, {
+      const response = await storeAuth.axiosInstance.post(`${server}/manager/download`, {
         'path': this.path,
         'item': file
       }, { responseType: 'blob' });
@@ -93,10 +91,10 @@ const auth = storeAuth.axiosInstance;
   updateItem: async function () {
     try {
       const response = this.action === 'create'
-        ? await auth.post(`${server}/manager/${this.action}`, {
+        ? await storeAuth.axiosInstance.post(`${server}/manager/${this.action}`, {
           'path': this.path,
           })
-        : await auth.post(`${server}/manager/${this.action}`, {
+        : await storeAuth.axiosInstance.post(`${server}/manager/${this.action}`, {
           'path': this.path,
           'old': this.selected[0],
           'new': this.form
@@ -112,7 +110,7 @@ const auth = storeAuth.axiosInstance;
   copyItem: async function () {
     if (this.selected.length) {
       try {
-        const response = await auth.post(`${server}/manager/${this.action}`, {
+        const response = await storeAuth.axiosInstance.post(`${server}/manager/${this.action}`, {
           'path': this.path,
           'old': this.copied,
           'new': this.selected,
@@ -130,7 +128,7 @@ const auth = storeAuth.axiosInstance;
     if (this.selected.length) {
       if (confirm("Вы действительно хотите удалить?")) {
         try {
-          const response = await auth.post(`${server}/manager/delete`, {
+          const response = await storeAuth.axiosInstance.post(`${server}/manager/delete`, {
             'path': this.path,
             'items': this.selected
           });
