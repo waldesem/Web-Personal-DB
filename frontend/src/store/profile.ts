@@ -104,7 +104,7 @@ export const profileStore = defineStore('profileStore', () => {
     cronos: string;
     cros: string;
     addition: string;
-    path: string,
+    pfo: string,
     conclusion: string;
     comments: string;
     deadline: string;

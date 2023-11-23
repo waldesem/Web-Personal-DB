@@ -1,41 +1,32 @@
 <script setup lang="ts">
 
+import { defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
+
+const TextLabel = defineAsyncComponent(() => import('@components/elements/TextLabel.vue'));
+const SelectDiv = defineAsyncComponent(() => import('@components/elements/SelectDiv.vue'));
+const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeProfile = profileStore();
 
+const selected_item = {
+  candidate: "Проверка кандидата",
+  check: "Служебная проверка",
+  investigation: "Служебное расследование"
+}
 </script>
 
 <template>
   <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="theme">Тема проверки</label>
-      <div class="col-lg-10">
-        <select class="form-select" id="theme" name="theme" required 
-                v-model="storeProfile.dataProfile.form['theme']">
-          <option value="Проверка кандидата">Проверка кандидата</option>
-          <option value="Служебная проверка">Служебная проверка</option>
-          <option value="Служебное расследование">Служебное расследование</option>
-          <option value="Другое">Другое</option>
-        </select>
-      </div>
-    </div>
-    <div class="mb-3 row required">
-      <label class="col-form-label col-lg-2" for="results">Результат</label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="results" name="results" required 
-                  v-model="storeProfile.dataProfile.form['results']"></textarea>
-      </div>
-    </div>
-    <div class=" row">
-      <div class="offset-lg-2 col-lg-10">
-        <div class="btn-group" role="group">
+    <SelectDiv :name="'theme'" :label="'Тема проверки'" :select="selected_item"
+               :model="storeProfile.dataProfile.form['theme']"/>
+    <TextLabel :name="'results'" :label="'Результат'"
+               :model="storeProfile.dataProfile.form['results']"/>
+    <BtnGroupForm>
           <button class="btn btn-outline-primary" type="submit">Принять</button>
           <button class="btn btn-outline-primary" type="reset">Очистить</button>
           <button class="btn btn-outline-primary" type="button" 
                   @click="storeProfile.dataProfile.cancelEdit">Отмена</button>
-        </div>
-      </div>
-    </div>
+    </BtnGroupForm>
   </form>
 </template>

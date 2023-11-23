@@ -5,9 +5,10 @@ import { classifyStore } from '@/store/classify';
 import { profileStore } from '@/store/profile';
 
 const ModalWin = defineAsyncComponent(() => import('@components/layouts/ModalWin.vue'));
+const SelectDiv = defineAsyncComponent(() => import('@components/elements/SelectDiv.vue'));
+const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeClassify = classifyStore();
-
 const storeProfile = profileStore();
 
 </script>
@@ -15,30 +16,12 @@ const storeProfile = profileStore();
 <template>
   <ModalWin :id="'modalRegion'" :title ="'Изменить регион'" :size="'modal-md'">
     <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="region_id" >Регион</label>
-        <div class="col-lg-10">
-          <select class="form-select" required id="region_id" name="region_id" 
-                  v-model="storeProfile.dataProfile.form['region_id']">
-            <option v-for="name, value in storeClassify.classData.regions" 
-                  :key="value" :value="value">{{name}}</option>                
-          </select>
-        </div>
-      </div>
-      <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-          <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">
-            Принять
-          </button>
-        </div>
-      </div>
+      <SelectDiv :name="'region_id'" :label="'Регион'" :select="storeClassify.classData.regions"
+                 :model="storeProfile.dataProfile.form['region_id']"/>
+      <BtnGroupForm>
+        <button class="btn btn-primary btn-md" data-bs-dismiss="modal" name="submit" type="submit">Принять</button>
+        <button class="btn btn-primary btn-md" name="reset" type="reset">Очистить</button>
+      </BtnGroupForm>
     </form>
   </ModalWin>
 </template>
-
-<style>
-  html,
-  body {
-      scrollbar-gutter: stable;
-  }
-</style>

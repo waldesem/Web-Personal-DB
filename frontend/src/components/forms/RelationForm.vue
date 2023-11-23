@@ -1,32 +1,25 @@
 <script setup lang="ts">
-// компонент для отображения формы добавления и редактирования данных 
  
+import { defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
+
+const InputLabel = defineAsyncComponent(() => import('@components/elements/InputLabel.vue'));
+const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeProfile = profileStore();
 
-</script>
 
+</script>
+ 
 <template>
-   <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="relation">Тип связи</label>
-        <div class="col-lg-10">
-        <input class="form-control" id="relation" maxlength="250" name="relation" type="text" 
-               v-model="storeProfile.dataProfile.form['relation']" required>
-        </div>
-    </div>
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="relation_id">ID связи</label>
-        <div class="col-lg-10">
-        <input class="form-control" id="relation_id" maxlength="25" name="relation_id" type="text" 
-               v-model="storeProfile.dataProfile.form['relation_id']" required>
-        </div>
-    </div>
-    <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-            <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>
-        </div>
-    </div>
-    </form>
+  <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
+    <InputLabel :name="'relation'" :label="'Тип связи'" :need="true"
+                :model="storeProfile.dataProfile.form['relation']" />
+    <InputLabel :name="'relation_id'" :label="'ID связи'" :need="true"
+                :model="storeProfile.dataProfile.form['relation_id']" />
+    <BtnGroupForm>
+      <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>
+      <button class="btn btn-outline-primary btn-md" name="reset" type="reset">Очистить</button>
+    </BtnGroupForm>
+  </form>
 </template>

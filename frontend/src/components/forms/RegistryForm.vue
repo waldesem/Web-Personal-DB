@@ -1,7 +1,12 @@
 <script setup lang="ts">
 
+import { defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
+
+const TextLabel = defineAsyncComponent(() => import('@components/elements/TextLabel.vue'));
+const SelectDiv = defineAsyncComponent(() => import('@components/elements/SelectDiv.vue'));
+const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
@@ -9,41 +14,22 @@ const storeProfile = profileStore();
 </script>
 
 <template v-if="storeProfile.action === 'create' && storeProfile.flag === 'registry'">
-    <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
-        <div class="col-lg-10">
-          <textarea class="form-control" id="comments" name="comments" 
-                    v-model="storeProfile.dataProfile.form['comments']"></textarea>
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="decision">Решение</label>
-        <div class="col-lg-10">
-          <select class="form-select" id="decision" name="decision" 
-                  v-model="storeProfile.dataProfile.form['decision']">
-            <option v-for="(name, value) in storeClassify.classData.decision" 
-                    :key="value" :value="name">
-                    {{ name }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-          <div class="btn-group" role="group" :disabled="storeProfile.dataProfile.spinner">              
-            <button class="btn btn-outline-primary" type="submit">
-                {{ !storeProfile.dataProfile.spinner ? 'Принять' : '' }}
-              <span v-if="storeProfile.dataProfile.spinner" class="spinner-border spinner-border-sm" 
-                    aria-hidden="true"></span>
-              <span v-if="storeProfile.dataProfile.spinner" role="status">Отправляется...</span>
-            </button>
-            <button v-if="!storeProfile.dataProfile.spinner" class="btn btn-outline-primary" 
-                    type="reset">Очистить</button>
-            <button v-if="!storeProfile.dataProfile.spinner" class="btn btn-outline-primary" 
-                    type="button" @click="storeProfile.dataProfile.cancelEdit">Отмена</button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </template>
+  <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
+    <TextLabel :name="'comments'" :label="'Комментарий'"
+               :model="storeProfile.dataProfile.form['comments']"/>
+    <SelectDiv :name="'decision'" :label="'Решение'" :select="storeClassify.classData.decision"
+               :model="storeProfile.dataProfile.form['decision']"/>
+    <BtnGroupForm :disable="storeProfile.dataProfile.spinner">     
+      <button class="btn btn-outline-primary" type="submit">
+          {{ !storeProfile.dataProfile.spinner ? 'Принять' : '' }}
+        <span v-if="storeProfile.dataProfile.spinner" class="spinner-border spinner-border-sm"></span>
+        <span v-if="storeProfile.dataProfile.spinner" role="status">Отправляется...</span>
+      </button>
+      <button v-if="!storeProfile.dataProfile.spinner" 
+                    class="btn btn-outline-primary" type="reset">Очистить</button>
+      <button v-if="!storeProfile.dataProfile.spinner" 
+                    class="btn btn-outline-primary" type="button" 
+                    @click="storeProfile.dataProfile.cancelEdit">Отмена</button>
+    </BtnGroupForm>
+  </form>
+</template>

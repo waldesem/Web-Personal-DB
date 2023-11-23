@@ -30,7 +30,7 @@ const storeProfile = profileStore();
       </div>
     </div>
     <div class="mb-3 row required">
-      <label class="col-form-label col-lg-2" for="position">Организация</label>
+      <label class="col-form-label col-lg-2" for="name">Организация</label>
       <div class="col-lg-10">
         <input class="form-control" id="name" name="name" required type="text"  
               v-model="storeProfile.dataProfile.form['name']">

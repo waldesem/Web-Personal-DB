@@ -8,8 +8,8 @@ const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderD
 
 const storeAlert = alertStore();
 
-storeAlert.alertMessage.attrAlert = 'alert-info';
-storeAlert.alertMessage.textAlert = 'Авторизуйтесь для входа в систему';
+storeAlert.alertMessage.attr = 'alert-info';
+storeAlert.alertMessage.text = 'Авторизуйтесь для входа в систему';
 
 </script>
 

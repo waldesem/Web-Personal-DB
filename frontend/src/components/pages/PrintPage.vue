@@ -1,8 +1,11 @@
 <script setup lang="ts">
 
+import { defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
-import HeaderDiv from '@components/layouts/HeaderDiv.vue';
+
+const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+const RowDiv = defineAsyncComponent(() => import('@components/elements/RowDiv.vue'));
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
@@ -35,90 +38,73 @@ const storeClassify = classifyStore();
       <h5>Анкета</h5>
     </div>
     <div>
-      <table v-if="storeProfile.dataProfile.resume" class="table table-responsive">
-        <thead>
-          <tr>
-            <th width="25%">{{ `ID #${storeProfile.dataProfile.resume['id']}` }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="storeProfile.dataProfile.resume['region_id'] && storeProfile.dataProfile.resume['region_id'] !== 'None'">
-            <td>Регион</td>
-            <td>
-              {{ storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']]}}
-            </td>
-          </tr>
-          <tr>
-            <td>Фамилия Имя Отчество</td>
-            <td>{{ storeProfile.dataProfile.resume['fullname'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['previous'] && storeProfile.dataProfile.resume['previous'] !== 'None'">
-            <td>Изменение имени</td>
-            <td>{{ storeProfile.dataProfile.resume['previous'] }}</td>
-          </tr>
-          <tr>
-            <td>Дата рождения</td>
-            <td>{{ storeProfile.dataProfile.resume['birthday'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['birthplace'] && storeProfile.dataProfile.resume['birthplace'] !== 'None'">
-            <td>Место рождения</td>
-            <td>{{ storeProfile.dataProfile.resume['birthplace'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['country'] && storeProfile.dataProfile.resume['country'] !== 'None'">
-            <td>Гражданство</td>
-            <td>{{ storeProfile.dataProfile.resume['country'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['snils'] && storeProfile.dataProfile.resume['snils'] !== 'None'">
-            <td>СНИЛС</td>
-            <td>{{ storeProfile.dataProfile.resume['snils'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['inn'] && storeProfile.dataProfile.resume['inn'] !== 'None'">
-            <td>ИНН</td>
-            <td>{{ storeProfile.dataProfile.resume['inn'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['education'] && storeProfile.dataProfile.resume['education'] !== 'None'">
-            <td>Образование</td>
-            <td>{{ storeProfile.dataProfile.resume['education'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['addition'] && storeProfile.dataProfile.resume['addition'] !== 'None'">
-            <td>Дополнительная информация</td>
-            <td>{{ storeProfile.dataProfile.resume['addition'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['update']">
-            <td>Обновлен</td>
-            <td>{{ new Date(String(storeProfile.dataProfile.resume['update'])).
-                  toLocaleDateString('ru-RU') }}</td>
-          </tr>
-          <tr v-else>
-            <td>Создан</td>
-            <td>{{ new Date(String(storeProfile.dataProfile.resume['create'])).
-                  toLocaleDateString('ru-RU') }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-if="storeProfile.dataProfile.resume" class="d-flex justify-content-start">
+        <RowDiv :label="'ID'" 
+                :value="storeProfile.dataProfile.resume['id']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['region_id']"
+                :label="'Регион'"
+                :value="storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']]"/>
+        <RowDiv :label="'Фамилия Имя Отчество'"
+                :value="storeProfile.dataProfile.resume['fullname']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['previous']"
+                :label="'Изменение имени'"
+                :value="storeProfile.dataProfile.resume['previous']"/>
+        <RowDiv :label="'Дата рождения'"
+                :value="storeProfile.dataProfile.resume['birthday']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['birthplace']"
+                :label="'Место рождения'"
+                :value="storeProfile.dataProfile.resume['birthplace']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['country']"
+                :label="'Гражданство'"
+                :value="storeProfile.dataProfile.resume['country']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['snils']"
+                :label="'СНИЛС'"
+                :value="storeProfile.dataProfile.resume['snils']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['inn']"
+                :label="'ИНН'"
+                :value="storeProfile.dataProfile.resume['inn']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['education']"
+                :label="'Образование'"
+                :value="storeProfile.dataProfile.resume['education']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['addition']"
+                :label="'Дополнительная информация'"
+                :value="storeProfile.dataProfile.resume['addition']"/>
+        <RowDiv v-if="storeProfile.dataProfile.resume['update']"
+                :label="'Обновлен'"
+                :value="new Date(String(storeProfile.dataProfile.resume['update'])).
+                        toLocaleDateString('ru-RU')"/>
+        <RowDiv v-else
+                :label="'Создан'"
+                :value="new Date(String(storeProfile.dataProfile.resume['create'])).
+                        toLocaleDateString('ru-RU')"/>
+      </div>
 
       <div class="text-primary text-opacity-85 py-3">
         <h6>Документы</h6>
       </div>
-      <table v-if="storeProfile.dataProfile.docums && storeProfile.dataProfile.docums.length" 
+      <div v-if="storeProfile.dataProfile.docums && storeProfile.dataProfile.docums.length" 
              v-for="tbl in storeProfile.dataProfile.docums" 
-             :key="tbl['id']" class="table table-responsive">
-        <thead>
-          <tr><th width="25%">{{ `#${tbl['id']}` }}</th><th></th></tr>
-        </thead>
-        <tbody>
-          <tr v-if="tbl['view']"><td>Вид документа</td><td>{{ tbl['view'] }}</td></tr>
-          <tr v-if="tbl['series']"><td>Серия</td><td>{{ tbl['series'] }}</td></tr>
-          <tr v-if="tbl['number']"><td>Номер</td><td>{{ tbl['number'] }}</td></tr>
-          <tr v-if="tbl['agency']"><td>Кем выдан</td><td>{{ tbl['agency'] }}</td></tr>
-          <tr v-if="tbl['issue']">
-            <td>Дата выдачи</td>
-            <td>{{ new Date(String(tbl['issue'])).
-                                        toLocaleDateString('ru-RU') }}</td>
-          </tr>
-        </tbody>
-      </table>
+                    :key="tbl['id']" 
+                    class="d-flex justify-content-start">
+        <RowDiv :label="'#'"
+                    :value="tbl['id']"/>
+        <RowDiv v-if="tbl['view']"
+                    :label="'Вид документа'"
+                    :value="tbl['view']"/>
+        <RowDiv v-if="tbl['series']"
+                    :label="'Серия'"
+                    :value="tbl['series']"/>
+        <RowDiv v-if="tbl['number']"
+                    :label="'Номер'"
+                    :value="tbl['number']"/>
+        <RowDiv v-if="tbl['agency']"
+                    :label="'Кем выдан'"
+                    :value="tbl['agency']"/>
+        <RowDiv v-if="tbl['issue']"
+                    :label="'Дата выдачи'"
+                    :value="new Date(String(tbl['issue'])).
+                              toLocaleDateString('ru-RU')"/>
+      </div>
       <p v-else >Данные отсутствуют</p>
 
       <div class="text-primary text-opacity-85 py-3">
@@ -266,18 +252,6 @@ const storeClassify = classifyStore();
             <td>Проверка Крос</td>
             <td>{{ tbl['cros'] }}</td>
           </tr>
-          <tr v-if="tbl['addition']">
-            <td>Дополнительная информация</td>
-            <td>{{ tbl['addition']}}</td>
-          </tr>
-          <tr v-if="tbl['path']">
-            <td>Материалы проверки</td>
-            <td>
-              <a :href="'file://' + tbl['path']" target="_blank">
-                {{ tbl['path'] }}
-              </a>
-            </td>
-          </tr>
           <tr>
             <td>ПФО</td>
             <td>{{ tbl['pfo'] ? "Назначено" : "Не назначено" }}</td>
@@ -354,14 +328,6 @@ const storeClassify = classifyStore();
             <td>Результат</td>
             <td>{{ tbl['results'] }}</td>
           </tr>
-          <tr v-if="tbl['path']">
-            <td>Ссылка</td>
-            <td>
-              <a :href="'file://' + tbl['path']" target="_blank">
-                {{ tbl['path'] }}
-              </a>
-            </td>
-          </tr>
           <tr>
             <td>Полиграфолог</td>
             <td>{{ tbl['officer'] ? tbl['officer'] : 'Данные отсуствуют' }}</td>
@@ -397,14 +363,6 @@ const storeClassify = classifyStore();
           <tr v-if="tbl['officer']">
             <td>Сотрудник</td>
             <td>{{ tbl['officer'] }}</td>
-          </tr>
-          <tr v-if="tbl['path']">
-            <td>Ссылка</td>
-            <td>
-              <a :href="'file://' + tbl['path']" target="_blank">
-                {{ tbl['path'] }}
-              </a>
-            </td>
           </tr>
           <tr v-if="tbl['deadline']">
             <td>Дата</td>

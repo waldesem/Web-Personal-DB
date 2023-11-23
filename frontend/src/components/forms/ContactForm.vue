@@ -1,48 +1,42 @@
 <script setup lang="ts">
 
 import { computed } from 'vue';
+import { defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
+
+const InputLabel = defineAsyncComponent(() => import('@components/elements/InputLabel.vue'));
+const SelectDiv = defineAsyncComponent(() => import('@components/elements/SelectDiv.vue'));
+const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeProfile = profileStore();
 
 const view = computed(() => {
   if (storeProfile.dataProfile.form['view'] === 'Телефон') {
     return 'tel';
-
   } else if (storeProfile.dataProfile.form['view'] === 'E-mail') {
     return 'email';
-
   } else {
     return 'text';
   }
 });
 
+const selected_item = {
+  phone: 'Телефон',
+  email: 'E-mail',
+  other: 'Другое'
+};
+
 </script>
 
 <template>
   <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="view">Выбрать</label>
-      <div class="col-lg-10">
-        <select class="form-select" id="view" name="view" 
-                v-model="storeProfile.dataProfile.form['view']">
-          <option value="Телефон">Телефон</option>
-          <option value="E-mail">E-mail</option>
-          <option value="Другое">Другое</option>
-        </select>
-      </div>
-    </div>
-    <div class="mb-3 row required">
-      <label class="col-form-label col-lg-2" for="contact">Контакт</label>
-      <div class="col-lg-10">
-        <input class="form-control" id="contact" maxlength="250" name="contact" 
-              required :type="view" v-model="storeProfile.dataProfile.form['contact']">
-      </div>
-    </div>
-    <div class=" row">
-      <div class="offset-lg-2 col-lg-10">
-        <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>
-      </div>
-    </div>
+    <SelectDiv :name="'view'" :label="'Выбрать'" :select="selected_item"
+               :model="storeProfile.dataProfile.form['view']"/>
+    <InputLabel :name="'contact'" :label="'Контакт'" :typeof="view" :need="true"
+                :model="storeProfile.dataProfile.form['contact']"/>
+    <BtnGroupForm>
+      <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>
+      <button class="btn btn-outline-primary btn-md" name="reset" type="reset">Очистить</button>
+    </BtnGroupForm>
   </form>
 </template>

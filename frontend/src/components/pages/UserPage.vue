@@ -7,6 +7,8 @@ import { classifyStore } from '@/store/classify';
 import { clearItem } from '@utilities/utils';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+const RowDiv = defineAsyncComponent(() => import('@components/elements/RowDiv.vue'));
+const RowDivSlot = defineAsyncComponent(() => import('@components/elements/RowDivSlot.vue'));
 const UserForm = defineAsyncComponent(() => import('@components/forms/UserForm.vue'));
 //const PhotoCard = defineAsyncComponent(() => import('@components/layouts/PhotoCard.vue'));
 
@@ -38,7 +40,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     attempt: ''
   });
   next()
-})
+}); 
 
 </script>
 
@@ -47,89 +49,66 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     <HeaderDiv :page-header="'Профиль пользователя'" />
     <div class="py-3">
       <!--PhotoCard :profileId="storeAdmin.profileData.id" :imageUrl="storeAdmin.profileData.image"/-->
-      <table class="table table-responsive">
-        <thead>
-          <tr><th colspan="2"># {{ storeAdmin.dataUsers.id }}</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td width="35%">Имя пользователя</td>
-            <td>{{storeAdmin.dataUsers.profile.fullname }}</td>
-          </tr>
-          <tr>
-            <td>Логин</td><td>{{ storeAdmin.dataUsers.profile.username }}</td>
-          </tr>
-          <tr>
-            <td>E-mail</td><td>{{ storeAdmin.dataUsers.profile.email }}</td>
-          </tr>
-          <tr>
-            <td>Регион</td>
-            <td>{{ storeClassify.classData.regions[storeAdmin.dataUsers.profile.region_id] }}</td>
-          </tr>
-          <tr>
-            <td>Создан</td>
-            <td>{{ new Date(storeAdmin.dataUsers.profile.pswd_create).toLocaleString('ru-RU') }}</td>
-          </tr>
-          <tr>
-            <td>Изменен</td>
-            <td>{{ new Date(storeAdmin.dataUsers.profile.pswd_change).toLocaleString('ru-RU') }}</td>
-          </tr>
-          <tr>
-            <td>Вход</td>
-            <td>{{ new Date(storeAdmin.dataUsers.profile.last_login).toLocaleString('ru-RU')}}</td>
-          </tr>
-          <tr><td>Группы</td>
-            <td>
-              <ul v-for="(group, index) in storeAdmin.dataUsers.profile.groups" :key=index>
-                <li>{{ storeClassify.classData.groups[group['group']] }}
-                  <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'group', group['group'])">
-                    <i class="bi bi-dash-circle"></i>
-                  </a>
-                </li>
-              </ul>
-              <form class="form form-check" role="form">
-                <select class="form-select" id="group" name="group" 
-                        v-model="storeAdmin.dataUsers.group" 
-                        @change="storeAdmin.dataUsers.updateGroupRole('add', 'group', storeAdmin.dataUsers.group)">
-                  <option value="" selected>Добавить группу</option>
-                  <option v-for="(val, name) in storeClassify.classData.groups" 
-                          :key="name" :value="name">
-                    {{ val }}</option>
-                </select>
-              </form>
-            </td>
-          </tr>
-          <tr><td>Роли</td>
-            <td>
-              <ul v-for="(role, index) in storeAdmin.dataUsers.profile.roles" :key=index>
-                <li>{{ role['role'] }}
-                  <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'role',role['role'])">
-                    <i class="bi bi-dash-circle"></i>
-                  </a>
-                </li>
-              </ul>
-              <form class="form form-check" role="form">
-                <select class="form-select" id="role" name="role" 
-                    v-model="storeAdmin.dataUsers.role" 
-                    @change="storeAdmin.dataUsers.updateGroupRole('add', 'role', storeAdmin.dataUsers.role)">
-                  <option value="" selected>Добавить роль</option>
-                  <option v-for="(val, name) in storeClassify.classData.roles" 
-                          :key="name" :value="val">
-                    {{ val }}</option>
-                </select>
-              </form>
-            </td>
-          </tr>
-          <tr>
-            <td>Попыток входа</td>
-            <td>{{ storeAdmin.dataUsers.profile.attempt }}</td>
-          </tr>
-          <tr>
-            <td>Блокировка</td>
-            <td>{{ storeAdmin.dataUsers.profile.blocked ? 'Заблокирован' : 'Разблокирован' }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="d-flex justify-content-start">
+        <RowDiv :label="'ID'" 
+                :value="storeAdmin.dataUsers.profile.id"/>
+        <RowDiv :label="'Имя пользователя'" 
+                :value="storeAdmin.dataUsers.profile.fullname"/>
+        <RowDiv :label="'Логин'" 
+                :value="storeAdmin.dataUsers.profile.username"/>
+        <RowDiv :label="'E-mail'" 
+                :value="storeAdmin.dataUsers.profile.email"/>
+        <RowDiv :label="'Регион'" 
+                :value="storeClassify.classData.regions[storeAdmin.dataUsers.profile.region_id]"/>
+        <RowDiv :label="'Создан'" 
+                :value="new Date(storeAdmin.dataUsers.profile.pswd_create).toLocaleString('ru-RU')"/>
+        <RowDiv :label="'Изменен'" 
+                :value="new Date(storeAdmin.dataUsers.profile.pswd_change).toLocaleString('ru-RU')"/>
+        <RowDiv :label="'Вход'" 
+                :value="new Date(storeAdmin.dataUsers.profile.last_login).toLocaleString('ru-RU')"/>
+        <RowDiv :label="'Попыток входа'" 
+                :value="storeAdmin.dataUsers.profile.attempt"/>
+        <RowDiv :label="'Блокировка'" 
+                :value="storeAdmin.dataUsers.profile.blocked ? 'Заблокирован' : 'Разблокирован'"/>                                                                                
+        <RowDivSlot :label="'Группы'">
+          <ul v-for="(group, index) in storeAdmin.dataUsers.profile.groups" :key=index>
+            <li>{{ storeClassify.classData.groups[group['group']] }}
+              <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'group', group['group'])">
+                <i class="bi bi-dash-circle"></i>
+              </a>
+            </li>
+          </ul>
+          <form class="form form-check" role="form">
+            <select class="form-select" id="group" name="group" 
+                    v-model="storeAdmin.dataUsers.group" 
+                    @change="storeAdmin.dataUsers.updateGroupRole('add', 'group', storeAdmin.dataUsers.group)">
+              <option value="" selected>Добавить группу</option>
+              <option v-for="(val, name) in storeClassify.classData.groups" 
+                      :key="name" :value="name">
+                {{ val }}</option>
+            </select>
+          </form>
+        </RowDivSlot>
+        <RowDivSlot :label="'Роли'">
+          <ul v-for="(role, index) in storeAdmin.dataUsers.profile.roles" :key=index>
+            <li>{{ role['role'] }}
+              <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'role',role['role'])">
+                <i class="bi bi-dash-circle"></i>
+              </a>
+            </li>
+          </ul>
+          <form class="form form-check" role="form">
+            <select class="form-select" id="role" name="role" 
+                v-model="storeAdmin.dataUsers.role" 
+                @change="storeAdmin.dataUsers.updateGroupRole('add', 'role', storeAdmin.dataUsers.role)">
+              <option value="" selected>Добавить роль</option>
+              <option v-for="(val, name) in storeClassify.classData.roles" 
+                      :key="name" :value="val">
+                {{ val }}</option>
+            </select>
+          </form>
+        </RowDivSlot>
+      </div>
       <div class="btn-group py-3" role="group">
         <button class="btn btn-outline-primary" type="button" 
                 data-bs-toggle="modal" data-bs-target="#modalUser"

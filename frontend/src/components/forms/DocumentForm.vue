@@ -1,52 +1,36 @@
 <script setup lang="ts">
-// компонент для отображения формы добавления и редактирования данных 
- 
+
+import { defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
+
+const InputLabel = defineAsyncComponent(() => import('@components/elements/InputLabel.vue'));
+const SelectDiv = defineAsyncComponent(() => import('@components/elements/SelectDiv.vue'));
+const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeProfile = profileStore();
 
+const selected_item = {
+  passport: "Паспорт гражданина России",
+  foreign: "Иностранный докумен",
+  others: "Другое"
+};
 </script>
 
 <template>
-   <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="view">Выбрать</label>
-        <div class="col-lg-10">
-        <select class="form-select" id="view" name="view" v-model="storeProfile.dataProfile.form['view']">
-            <option value="Паспорт гражданина России">Паспорт гражданина России</option>
-            <option value="Иностранный документ">Иностранный документ</option>
-            <option value="Другое">Другое</option>
-        </select>
-        </div>
-    </div>
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="series">Серия документа</label>
-        <div class="col-lg-10">
-        <input class="form-control" id="series" maxlength="25" name="series" type="text" v-model="storeProfile.dataProfile.form['series']">
-        </div>
-    </div>
-    <div class="mb-3 row required">
-        <label class="col-form-label col-lg-2" for="number">Номер документа</label>
-        <div class="col-lg-10">
-        <input class="form-control" id="number" maxlength="25" name="number" required type="text" v-model="storeProfile.dataProfile.form['number']">
-        </div>
-    </div>
-    <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="agency">Орган выдавший</label>
-        <div class="col-lg-10">
-        <input class="form-control" id="agency" maxlength="250" name="agency" type="text" v-model="storeProfile.dataProfile.form['agency']">
-        </div>
-    </div>
-    <div class="mb-3 row required">
-        <label class="col-form-label col-lg-2" for="issue">Дата выдачи</label>
-        <div class="col-lg-10">
-        <input class="form-control" id="issue" name="issue" required type="date" v-model="storeProfile.dataProfile.form['issue']" :max="new Date().toISOString().split('T')[0]">
-        </div>
-    </div>
-    <div class=" row">
-        <div class="offset-lg-2 col-lg-10">
-            <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>
-        </div>
-    </div>
-    </form>
+  <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
+    <SelectDiv :name="'view'" :label="'Выбрать'" :select="selected_item"
+               :model="storeProfile.dataProfile.form['view']"/>
+    <InputLabel :name="'series'" :label="'Серия документа'"
+                :model="storeProfile.dataProfile.form['series']"/>
+    <InputLabel :name="'number'" :label="'Номер документа'" :need="true"
+                :model="storeProfile.dataProfile.form['number']"/>
+    <InputLabel :name="'agency'" :label="'Орган выдавший'"
+                :model="storeProfile.dataProfile.form['agency']"/>
+    <InputLabel :name="'issue'" :label="'Дата выдачи'" :typeof="'date'"
+                :model="storeProfile.dataProfile.form['issue']"/>
+    <BtnGroupForm>
+      <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>
+      <button class="btn btn-outline-primary btn-md" name="reset" type="reset">Очистить</button>
+    </BtnGroupForm>>
+  </form>
 </template>
