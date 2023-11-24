@@ -20,7 +20,7 @@ const storeProfile = profileStore();
     <div v-else>
       <div v-if="storeProfile.dataProfile.needs.length">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.needs" :key="idx" 
-                          :id="item['id']" :idx="idx" :label="'Запросы'">
+                          :id="item['id']" :idx="idx">
           <InquiryDiv :item="item" 
                       :deleteItem="storeProfile.dataProfile.deleteItem"
                       :openForm="storeProfile.dataProfile.openForm"/>

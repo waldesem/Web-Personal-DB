@@ -20,7 +20,7 @@ const storeProfile = profileStore();
     <div v-else>
       <div v-if="storeProfile.dataProfile.inquisition.length">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.inquisition" :key="idx" 
-                          :id="item['id']" :idx="idx" :label="item['id']">
+                          :id="item['id']" :idx="idx">
           <InvestigateDiv :item="item" 
                           :deleteItem="storeProfile.dataProfile.deleteItem"
                           :openForm="storeProfile.dataProfile.openForm"

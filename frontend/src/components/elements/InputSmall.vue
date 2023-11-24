@@ -3,7 +3,8 @@
 const props = defineProps({
   need: {
     type: Boolean,
-    default: false},
+    default: false
+  },
   pattern: {
     type: String,
     default: '.*'
@@ -25,10 +26,10 @@ const props = defineProps({
             :name="props.name"
             :required="props.need"
             :pattern="props.pattern"
-            :placeholder="props.label"
+            :placeholder="props.place"
             :list="props.lst"
             v-model="props.model">
-    <datalist v-if="['companies', 'cities'].includes(props.lst)" id="props.lst">
+    <datalist v-if="props.lst" :id="props.lst">
       <option v-for="item in selects" :value="item"></option>
     </datalist>
   </div>

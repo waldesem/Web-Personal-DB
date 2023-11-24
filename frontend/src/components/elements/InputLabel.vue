@@ -29,7 +29,15 @@ const props = defineProps({
         return new Date().toISOString().split('T')[0];
       }
     }
-  },  
+  },
+  min: {
+    type: String,
+    default: '0'
+  },
+  clsInput: {
+    type: String,
+    default: 'col-lg-10'
+  },
   name: String,
   label: String,
   model: String
@@ -42,10 +50,11 @@ const props = defineProps({
     <label class="col-form-label col-lg-2" :for="props.name">
       {{ props.label }}
     </label>
-    <div class="col-lg-10">
+    <div :class="props.clsInput">
       <input class="form-control" 
             :disabled="props.disable"
             :max="props.max"
+            :min="props.min"
             :id="props.name" 
             :name="props.name"
             :type="props.typeof"

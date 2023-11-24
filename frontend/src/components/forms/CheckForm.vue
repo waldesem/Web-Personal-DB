@@ -1,8 +1,12 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@store/classify';
+
+const TextLabel = defineAsyncComponent(() => import('@components/elements/TextLabel.vue'));
+const SelectDiv = defineAsyncComponent(() => import('@components/elements/SelectDiv.vue'));
+const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
@@ -43,9 +47,8 @@ if (noNegative.value) {
 
 </script>
 
-<template v-if="storeProfile.action === 'update'|| storeProfile.action === 'create' 
-             && storeProfile.flag === 'check'">
-
+<template v-if="(storeProfile.action === 'update' || storeProfile.action === 'create')
+               && storeProfile.flag === 'check'">
   <div class="form-check form-switch">
     <input class="form-check-checkbox" role="switch" id="checkbox" name="check" type="checkbox"
            v-model="noNegative">
@@ -53,142 +56,37 @@ if (noNegative.value) {
   </div>
 
   <form @submit.prevent="storeProfile.dataProfile.updateItem" 
-      class="form form-check" role="form"  id="checkFormId">
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="workplace">
-        Проверка по месту работы
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="workplace" name="workplace" 
-                  v-model="storeProfile.dataProfile.form['workplace']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="employee">
-        Проверка по кадровому учету
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="employee" name="employee" 
-                  v-model="storeProfile.dataProfile.form['employee']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="document">
-        Проверка документов
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="document" name="document" 
-                  v-model="storeProfile.dataProfile.form['document']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="inn">
-        Проверка ИНН
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="inn" name="inn" 
-                  v-model="storeProfile.dataProfile.form['inn']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="debt">
-        Проверка задолженностей
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="debt" name="debt" 
-                  v-model="storeProfile.dataProfile.form['debt']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="bankruptcy">
-        Проверка банкротства
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="bankruptcy" name="bankruptcy" 
-                  v-model="storeProfile.dataProfile.form['bankruptcy']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="bki">
-        Проверка кредитной истории
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="bki" name="bki" 
-                  v-model="storeProfile.dataProfile.form['bki']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="courts">
-        Проверка по решениям судов
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="courts" name="courts" 
-                  v-model="storeProfile.dataProfile.form['courts']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="affiliation">
-        Проверка аффилированности
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="affiliation" name="affiliation" 
-                  v-model="storeProfile.dataProfile.form['affiliation']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="terrorist">
-        Проверка списка террористов
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="terrorist" name="terrorist" 
-                  v-model="storeProfile.dataProfile.form['terrorist']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="mvd">
-        Проверка учетам МВД
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="mvd" name="mvd" 
-                  v-model="storeProfile.dataProfile.form['mvd']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="internet">
-        Проверка по открытым источникам
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="internet" name="internet" 
-                  v-model="storeProfile.dataProfile.form['internet']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="cronos">
-        Проверка Кронос
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="cronos" name="cronos" 
-                  v-model="storeProfile.dataProfile.form['cronos']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="cros">
-        Проверка Крос
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="cros" name="cros" 
-                  v-model="storeProfile.dataProfile.form['cros']"></textarea>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="addition">
-        Дополнительная информация
-      </label>
-      <div class="col-lg-10">
-        <textarea class="form-control" id="addition" name="addition" 
-                  v-model="storeProfile.dataProfile.form['addition']"></textarea>
-      </div>
-    </div>
+        class="form form-check" role="form"  id="checkFormId">
+    <TextLabel :name="'workplace'" :label="'Проверка по местам работы'"
+                :model="storeProfile.dataProfile.form['workplace']"/>
+    <TextLabel :name="'employee'" :label="'Проверка по кадровому учету'"
+                :model="storeProfile.dataProfile.form['employee']"/>
+    <TextLabel :name="'document'" :label="'Проверка документов'"
+                :model="storeProfile.dataProfile.form['document']"/>
+    <TextLabel :name="'inn'" :label="'Проверка ИНН'"
+                :model="storeProfile.dataProfile.form['inn']"/>
+    <TextLabel :name="'debt'" :label="'Проверка задолженностей'"
+                :model="storeProfile.dataProfile.form['debt']"/>
+    <TextLabel :name="'bankruptcy'" :label="'Проверка решений о признании банкротом'"
+                :model="storeProfile.dataProfile.form['bankruptcy']"/>
+    <TextLabel :name="'bki'" :label="'Проверка кредитной истории'"
+                :model="storeProfile.dataProfile.form['bki']"/>
+    <TextLabel :name="'courts'" :label="'Проверка судебных дел'"
+                :model="storeProfile.dataProfile.form['courts']"/>
+    <TextLabel :name="'affiliation'" :label="'Проверка аффилированности'"
+                :model="storeProfile.dataProfile.form['affiliation']"/>
+    <TextLabel :name="'terrorist'" :label="'Проверка в списке террористов'"
+                :model="storeProfile.dataProfile.form['terrorist']"/>
+    <TextLabel :name="'mvd'" :label="'Проверка в розыск'"
+                :model="storeProfile.dataProfile.form['mvd']"/>
+    <TextLabel :name="'internet'" :label="'Проверка в открытых источниках'"
+                :model="storeProfile.dataProfile.form['internet']"/>
+    <TextLabel :name="'cronos'" :label="'Проверка в Кронос'"
+                :model="storeProfile.dataProfile.form['cronos']"/>
+    <TextLabel :name="'cros'" :label="'Проверка в Крос'"
+                :model="storeProfile.dataProfile.form['cros']"/>
+    <TextLabel :name="'addition'" :label="'Дополнительная информация'"
+                :model="storeProfile.dataProfile.form['addition']"/>
     <div class=" row">
       <div class="offset-lg-2 col-lg-10">
         <div class="mb-3 form-check">
@@ -198,33 +96,16 @@ if (noNegative.value) {
         </div>
       </div>
     </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="conclusion">
-        Результат</label>
-      <div class="col-lg-10">
-        <select class="form-select" id="conclusion" name="conclusion" 
-                v-model="storeProfile.dataProfile.form['conclusion']">
-          <option v-for="(name, value) in storeClassify.classData.conclusion" 
-                  :key="value" :value="name">{{ name }}</option>
-        </select>
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label class="col-form-label col-lg-2" for="comments">Комментарий</label>
-      <div class="col-lg-10">
-        <input class="form-control" id="comments" name="comments" maxlength="250" 
-                v-model="storeProfile.dataProfile.form['comments']" type="text">
-      </div>
-    </div>
-    <div class=" row">
-      <div class="offset-lg-2 col-lg-10">
-        <div class="btn-group" role="group">
-          <button class="btn btn-outline-primary" type="submit">Принять</button>
-          <button class="btn btn-outline-primary" type="reset">Очистить</button>
-          <button class="btn btn-outline-primary" type="button" 
-                  @click="cancelCheck">Отмена</button>
-        </div>
-      </div>
-    </div>
+    <SelectDiv :name="'conclusion'" :label="'Результат'"
+               :select="storeClassify.classData.conclusion"
+               :model="storeProfile.dataProfile.form['conclusion']"/>
+    <TextLabel :name="'comments'" :label="'Комментарий'"
+                :model="storeProfile.dataProfile.form['comments']"/>
+    <BtnGroupForm>
+      <button class="btn btn-outline-primary" type="submit">Принять</button>
+      <button class="btn btn-outline-primary" type="reset">Очистить</button>
+      <button class="btn btn-outline-primary" type="button" 
+              @click="cancelCheck">Отмена</button>
+    </BtnGroupForm>
   </form>
 </template>

@@ -21,8 +21,14 @@ const props = defineProps({
     type: Object,
     required: true
   },
-  hiddenDelBtn: Boolean,
-  hiddeEditBtn: Boolean
+  hiddenDelBtn: {
+    type: Boolean,
+    default: false
+  },
+  hiddeEditBtn: {
+    type: Boolean,
+    default: false
+  }
 });
 
 </script>

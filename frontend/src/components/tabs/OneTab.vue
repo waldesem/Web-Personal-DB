@@ -14,7 +14,7 @@ const storeProfile = profileStore();
   <div class="py-3">
     <div v-if="storeProfile.dataProfile.ones?.length" >
       <CollapseDiv v-for="item, idx in storeProfile.dataProfile.ones" :key="idx" 
-                          :id="item['id']" :idx="idx" :label="item['id']">
+                          :id="item['id']" :idx="idx">
         <OneDiv :item="item" />
       </CollapseDiv>
     </div>

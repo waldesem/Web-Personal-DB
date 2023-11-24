@@ -14,6 +14,12 @@ const ContactDiv = defineAsyncComponent(() => import('@components/tabs/divs/Cont
 const RelationDiv = defineAsyncComponent(() => import('@components/tabs/divs/RelationDiv.vue'));
 const WorkplaceDiv = defineAsyncComponent(() => import('@components/tabs/divs/WorkplaceDiv.vue'));
 const AffilationDiv = defineAsyncComponent(() => import('@components/tabs/divs/AffilationDiv.vue'));
+const CheckDiv = defineAsyncComponent(() => import('@components/tabs/divs/CheckDiv.vue'));
+const InquiryDiv = defineAsyncComponent(() => import('@components/tabs/divs/InquiryDiv.vue'));
+const InvestigateDiv = defineAsyncComponent(() => import('@components/tabs/divs/InvestigateDiv.vue'));
+const RegistryDiv = defineAsyncComponent(() => import('@components/tabs/divs/RegistryDiv.vue'));
+const PoligrafDiv = defineAsyncComponent(() => import('@components/tabs/divs/PoligrafDiv.vue'));
+const OneDiv = defineAsyncComponent(() => import('@components/tabs/divs/OneDiv.vue'));
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
@@ -108,10 +114,59 @@ const storeClassify = classifyStore();
       </div>
     </div>
     <h6>Проверки</h6>
+    <div v-if="storeProfile.dataProfile.verification" class="py-2">
+      <div v-for="item in storeProfile.dataProfile.verification" :key="item['id']">
+        <RowDivSlot :label="'ID'" :value="item['id']"/>
+          <CheckDiv :item="item"
+                    :deleteItem="storeProfile.dataProfile.deleteItem"
+                    :openForm="storeProfile.dataProfile.openForm"
+                    :submitFile="storeProfile.dataProfile.submitFile"/>
+      </div>
+    </div>
     <h6>Согласования</h6>
+    <div v-if="storeProfile.dataProfile.register" class="py-2">
+      <div v-for="item in storeProfile.dataProfile.register" :key="item['id']">
+        <RowDivSlot :label="'ID'" :value="item['id']"/>
+          <RegistryDiv :item="item"
+                       :deleteItem="storeProfile.dataProfile.deleteItem"
+                       :openForm="storeProfile.dataProfile.openForm"/>
+      </div>
+    </div>
     <h6>Полиграф</h6>
+    <div v-if="storeProfile.dataProfile.pfo" class="py-2">
+      <div v-for="item in storeProfile.dataProfile.pfo" :key="item['id']">
+        <RowDivSlot :label="'ID'" :value="item['id']"/>
+          <PoligrafDiv :item="item"
+                       :deleteItem="storeProfile.dataProfile.deleteItem"
+                       :openForm="storeProfile.dataProfile.openForm"
+                       :submitFile="storeProfile.dataProfile.submitFile"/>
+      </div>
+    </div>
     <h6>Расследования</h6>
+    <div v-if="storeProfile.dataProfile.inquisition" class="py-2">
+      <div v-for="item in storeProfile.dataProfile.inquisition" :key="item['id']">
+        <RowDivSlot :label="'ID'" :value="item['id']"/>
+          <InvestigateDiv :item="item"
+                     :deleteItem="storeProfile.dataProfile.deleteItem"
+                     :openForm="storeProfile.dataProfile.openForm"
+                     :submitFile="storeProfile.dataProfile.submitFile"/>
+      </div>
+    </div>
     <h6>Запросы</h6>
+    <div v-if="storeProfile.dataProfile.needs" class="py-2"> 
+      <div v-for="item in storeProfile.dataProfile.needs" :key="item['id']">
+        <RowDivSlot :label="'ID'" :value="item['id']"/>
+          <InquiryDiv :item="item"  
+                      :deleteItem="storeProfile.dataProfile.deleteItem"
+                      :openForm="storeProfile.dataProfile.openForm"/>
+      </div>
+    </div>
     <h6>1С</h6>
+    <div v-if="storeProfile.dataProfile.ones" class="py-2">
+      <div v-for="item in storeProfile.dataProfile.ones" :key="item['id']">
+        <RowDivSlot :label="'ID'" :value="item['id']"/>
+          <OneDiv :item="item"/>
+      </div>
+    </div>
   </div>
 </template>

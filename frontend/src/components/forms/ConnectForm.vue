@@ -16,66 +16,34 @@ const storeContact = contactStore();
       )" 
         class="form form-check">
     <div class="row">
-       <InputSmall :cls="'col-md-3'" :name="'company'" place="'Организация'" :need="true" 
-                             :lst="'companies'" :selects="storeContact.contactData.companies"
-                             :model="storeContact.contactData.form['company']"/>
-      
-      <div class="col-md-3">
-        <input class="form-control form-control-sm" list="companies" id="company" 
-               maxlength="250" name="company" placeholder="Название" type="text" 
-               v-model="storeContact.contactData.form['company']" required>
-        <datalist id="companies">
-          <option v-for="company in storeContact.contactData.companies" :value="company"></option>
-        </datalist>
-      </div>
-      <div class="col-md-3">
-        <input class="form-control form-control-sm" id="city" list="cities" 
-               maxlength="255" name="city" placeholder="Город" type="text" 
-               v-model="storeContact.contactData.form['city']" required>
-        <datalist id="cities">
-          <option v-for="city in storeContact.contactData.cities" :value="city"></option>
-        </datalist>
-      </div>
-      <div class="col-md-2">
-        <input class="form-control form-control-sm" id="fullname" maxlength="255" 
-               name="fullname" placeholder="Имя" type="text" 
-               v-model="storeContact.contactData.form['fullname']" required>
-      </div>
-      <div class="col-md-2">
-        <input class="form-control form-control-sm" id="phone" maxlength="255" 
-               name="phone" placeholder="Телефон" type="tel" 
-               v-model="storeContact.contactData.form['phone']">
-      </div>
-      <div class="col-md-2">
-        <input class="form-control form-control-sm" id="adding" maxlength="255" 
-               name="adding" placeholder="Добав." type="tel" 
-               v-model="storeContact.contactData.form['adding']">
-      </div>
+      <InputSmall :cls="'col-md-3'" :name="'company'" place="'Организация'" :need="true" 
+                  :lst="'companies'" :selects="storeContact.contactData.companies"
+                  :model="storeContact.contactData.form['company']"/>
+      <InputSmall :cls="'col-md-3'" :name="'city'" place="'Город'" :need="true"
+                  :lst="'cities'" :selects="storeContact.contactData.cities"
+                  :model="storeContact.contactData.form['city']"/>
+      <InputSmall :cls="'col-md-2'" :name="'fullname'" place="'Имя'" :need="true"
+                  :model="storeContact.contactData.form['fullname']"/>
+      <InputSmall :cls="'col-md-2'" :name="'phone'" place="'Телефон'" :pattern="'[0-9()]+'"
+                  :model="storeContact.contactData.form['phone']"/>
+      <InputSmall :cls="'col-md-2'" :name="'adding'" place="'Добав'" :pattern="'[0-9]+'"
+                  :model="storeContact.contactData.form['adding']"/>    
     </div>
     <div class="row py-2">
-      <div class="col-md-3">
-        <input class="form-control form-control-sm" id="mobile" maxlength="255" 
-               name="mobile" placeholder="Мобильный" type="tel" 
-               v-model="storeContact.contactData.form['mobile']">
-      </div>
-      <div class="col-md-3">
-        <input class="form-control form-control-sm" id="mail" maxlength="255" 
-               name="mail" placeholder="Почта" type="email" 
-               v-model="storeContact.contactData.form['mail']">
-      </div>
-      <div class="col-md-3">
-        <input class="form-control form-control-sm" id="comment" maxlength="255" 
-               name="comment" placeholder="Комментарий" type="text" 
-               v-model="storeContact.contactData.form['comment']">
-      </div>
+      <InputSmall :cls="'col-md-3'" :name="'mobile'" place="'Мобильный'" :pattern="'[0-9]+'"
+                  :model="storeContact.contactData.form['mobile']"/>
+      <InputSmall :cls="'col-md-2'" :name="'mail'" place="'Почта'" 
+                  :pattern="'[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'"
+                  :model="storeContact.contactData.form['mail']"/>
+      <InputSmall :cls="'col-md-3'" :name="'comment'" place="'Комментарий'"
+                  :model="storeContact.contactData.form['comment']"/>
       <div class="col-md-1">
         <button class="btn btn-outline-primary btn-sm" type="submit">Принять</button>
       </div>
       <div class="col-md-1">
         <button class="btn btn-outline-primary btn-sm" 
                 @click="storeContact.contactData.action = '';
-                        storeContact.contactData.id= ''">
-            Отмена
+                        storeContact.contactData.id= ''">Отмена
         </button>
       </div>
     </div>

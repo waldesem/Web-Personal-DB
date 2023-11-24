@@ -1,19 +1,24 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
+
 const props = defineProps({
   id: String,
-  idx: Number,
-  label: String,
+  idx: Number
 });
+
+const toggle = ref(true);
 
 </script>
 
 
 <template>
-  <a class="btn btn-primary" data-bs-toggle="collapse" :href="`#${props.id}`">
-    {{props.label}}
+  <a class="link-primary" role="button" data-bs-toggle="collapse" :href="`#${props.id}`"
+     @click="toggle = !toggle">
+    <i class="bi" :class="toggle ? 'bi-plus-circle' : 'bi-dash-circle'"></i>
+      {{'ID #' + props.id}}
   </a>
-  <div class="collapse" :class="idx===0 ? 'show' : ''" :id="`${props.id}`">
+  <div class="collapse" :class="{'show': props.idx == 0}" :id="props.id">
     <div class="card card-body">
       <slot></slot>
     </div>

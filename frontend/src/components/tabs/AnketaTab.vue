@@ -15,16 +15,15 @@ const ContactDiv = defineAsyncComponent(() => import('@components/tabs/divs/Cont
 const RelationDiv = defineAsyncComponent(() => import('@components/tabs/divs/RelationDiv.vue'));
 const WorkplaceDiv = defineAsyncComponent(() => import('@components/tabs/divs/WorkplaceDiv.vue'));
 const AffilationDiv = defineAsyncComponent(() => import('@components/tabs/divs/AffilationDiv.vue'));
-
-import ResumeForm from '@components/forms/ResumeForm.vue';
-import RegionForm from '@components/forms/RegionForm.vue';
-import StaffForm from '@components/forms/StaffForm.vue';
-import DocumentForm from '@components/forms/DocumentForm.vue';
-import AddressForm from '@components/forms/AddressForm.vue';
-import ContactForm from '@components/forms/ContactForm.vue';
-import RelationForm from '@components/forms/RelationForm.vue';
-import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
-import AffilationForm from '@components/forms/AffilationForm.vue';
+const ResumeForm = defineAsyncComponent(() => import('@components/forms/ResumeForm.vue'));
+const RegionForm = defineAsyncComponent(() => import('@components/forms/RegionForm.vue'));
+const StaffForm = defineAsyncComponent(() => import('@components/forms/StaffForm.vue'));
+const DocumentForm = defineAsyncComponent(() => import('@components/forms/DocumentForm.vue'));
+const AddressForm = defineAsyncComponent(() => import('@components/forms/AddressForm.vue'));
+const ContactForm = defineAsyncComponent(() => import('@components/forms/ContactForm.vue'));
+const RelationForm = defineAsyncComponent(() => import('@components/forms/RelationForm.vue'));
+const WorkplaceForm = defineAsyncComponent(() => import('@components/forms/WorkplaceForm.vue'));
+const AffilationForm = defineAsyncComponent(() => import('@components/forms/AffilationForm.vue'));
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
@@ -89,7 +88,7 @@ function switchForm(item: string){
     <template v-else>
       <div v-if="storeProfile.dataProfile.staffs">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.needs" :key="idx" 
-                            :id="item['id']" :idx="idx" :label="item['id']">
+                            :id="item['id']" :idx="idx">
           <StaffDiv :item="item"
                     :deleteItem="storeProfile.dataProfile.deleteItem"
                     :openForm="storeProfile.dataProfile.openForm"/>
@@ -109,7 +108,7 @@ function switchForm(item: string){
     <template v-else>
       <div v-if="storeProfile.dataProfile.docums">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.docums" :key="idx" 
-                            :id="item['id']" :idx="idx" :label="item['id']">
+                            :id="item['id']" :idx="idx">
           <DocumentDiv :item="item"
                        :deleteItem="storeProfile.dataProfile.deleteItem"
                        :openForm="storeProfile.dataProfile.openForm"/>    
@@ -129,7 +128,7 @@ function switchForm(item: string){
     <template v-else>
       <div v-if="storeProfile.dataProfile.addrs">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.addrs" :key="idx" 
-                            :id="item['id']" :idx="idx" :label="item['id']">
+                            :id="item['id']" :idx="idx">
           <AddressDiv :item="item"
                       :deleteItem="storeProfile.dataProfile.deleteItem"
                       :openForm="storeProfile.dataProfile.openForm"/>  
@@ -149,7 +148,7 @@ function switchForm(item: string){
     <template v-else>
       <div v-if="storeProfile.dataProfile.conts">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.conts" :key="idx" 
-                            :id="item['id']" :idx="idx" :label="item['id']">
+                            :id="item['id']" :idx="idx">
           <ContactDiv :item="item"
                       :deleteItem="storeProfile.dataProfile.deleteItem"
                       :openForm="storeProfile.dataProfile.openForm"/> 
@@ -169,7 +168,7 @@ function switchForm(item: string){
     <template v-else>
       <div v-if="storeProfile.dataProfile.works">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.works" :key="idx" 
-                            :id="item['id']" :idx="idx" :label="item['id']">
+                            :id="item['id']" :idx="idx">
           <WorkplaceDiv :item="item"
                         :deleteItem="storeProfile.dataProfile.deleteItem"
                         :openForm="storeProfile.dataProfile.openForm"/>
@@ -189,7 +188,7 @@ function switchForm(item: string){
     <template v-else>
       <div v-if="storeProfile.dataProfile.affilation">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.affilation" :key="idx" 
-                            :id="item['id']" :idx="idx" :label="item['id']">
+                            :id="item['id']" :idx="idx">
           <AffilationDiv :item="item"
                         :deleteItem="storeProfile.dataProfile.deleteItem"
                         :openForm="storeProfile.dataProfile.openForm"/>
@@ -209,7 +208,7 @@ function switchForm(item: string){
     <template v-else>
       <div v-if="storeProfile.dataProfile.relate">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.relate" :key="idx" 
-                            :id="item['id']" :idx="idx" :label="item['id']">
+                            :id="item['id']" :idx="idx">
           <RelationDiv :item="item"
                        :deleteItem="storeProfile.dataProfile.deleteItem"
                        :openForm="storeProfile.dataProfile.openForm"/>
