@@ -1,10 +1,12 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import { classifyStore } from '@store/classify';
 import { profileStore } from '@/store/profile';
-import  CheckForm from '@components/forms/CheckForm.vue';
-import  CheckAccord from '@components/tabs/accordions/CheckAccord.vue';
+
+const CheckForm = defineAsyncComponent(() => import('@components/forms/CheckForm.vue'));
+const CollapseDiv = defineAsyncComponent(() => import('@components/elements/CollapseDiv.vue'));
+const CheckDiv = defineAsyncComponent(() => import('@components/tabs/divs/CheckDiv.vue'));
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
@@ -34,19 +36,23 @@ hiddenAddBtn.value = ![storeClassify.classData.status['new'],
 
 <template>
   <div class="py-3">
-
     <CheckForm v-if="storeProfile.dataProfile.action === 'update' 
-                    && storeProfile.dataProfile.flag === 'check'" />
-
+                      && storeProfile.dataProfile.flag === 'check'" />
     <div v-else>
-      <CheckAccord :store="storeProfile.dataProfile" 
-                   :hiddenDelBtn="hiddenDelBtn" 
-                   :hiddeEditBtn="hiddenEditBtn"/>
+      <div v-if="storeProfile.dataProfile.verification.length">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.verification" :key="idx" 
+                          :id="item['id']" :idx="idx" :label="item['id']">
+          <CheckDiv :item="item" :hiddenDelBtn="hiddenDelBtn" :hiddeEditBtn="hiddenEditBtn"
+                    :deleteItem="storeProfile.dataProfile.deleteItem"
+                    :openForm="storeProfile.dataProfile.openForm"
+                    :submitFile="storeProfile.dataProfile.submitFile"/>
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
       <div class="py-3">
-        <button class="btn btn-outline-primary" 
-                @click="storeProfile.dataProfile.getItem('check', 'add', storeProfile.dataProfile.candId)" 
-                :disabled="hiddenAddBtn">Добавить проверку
-        </button>
+        <a class="btn btn-outline-primary" type="button"
+          @click="storeProfile.dataProfile.openForm('check', 'create')">Добавить запись
+        </a>
       </div>
     </div>
   </div>

@@ -1,9 +1,21 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { clearItem } from '@utilities/utils'
+
+const SwitchBtnForm = defineAsyncComponent(() => import('@components/elements/SwitchBtnForm.vue'));
+const CollapseDiv = defineAsyncComponent(() => import('@components/elements/CollapseDiv.vue'));
+const ResumeDiv = defineAsyncComponent(() => import('@components/tabs/divs/ResumeDiv.vue'));
+const StaffDiv = defineAsyncComponent(() => import('@components/tabs/divs/StaffDiv.vue'));
+const DocumentDiv = defineAsyncComponent(() => import('@components/tabs/divs/DocumentDiv.vue'));
+const AddressDiv = defineAsyncComponent(() => import('@components/tabs/divs/AddressDiv.vue'));
+const ContactDiv = defineAsyncComponent(() => import('@components/tabs/divs/ContactDiv.vue'));
+const RelationDiv = defineAsyncComponent(() => import('@components/tabs/divs/RelationDiv.vue'));
+const WorkplaceDiv = defineAsyncComponent(() => import('@components/tabs/divs/WorkplaceDiv.vue'));
+const AffilationDiv = defineAsyncComponent(() => import('@components/tabs/divs/AffilationDiv.vue'));
+
 import ResumeForm from '@components/forms/ResumeForm.vue';
 import RegionForm from '@components/forms/RegionForm.vue';
 import StaffForm from '@components/forms/StaffForm.vue';
@@ -13,13 +25,6 @@ import ContactForm from '@components/forms/ContactForm.vue';
 import RelationForm from '@components/forms/RelationForm.vue';
 import WorkplaceForm from '@components/forms/WorkplaceForm.vue';
 import AffilationForm from '@components/forms/AffilationForm.vue';
-import StaffAccord from '@components/tabs/accordions/StaffAccord.vue';
-import DocumentAccord from '@components/tabs/accordions/DocumentAccord.vue';
-import AddressAccord from '@components/tabs/accordions/AddressAccord.vue';
-import ContactAccord from '@components/tabs/accordions/ContactAccord.vue';
-import RelationAccord from '@components/tabs/accordions/RelationAccord.vue';
-import WorkplaceAccord from '@components/tabs/accordions/WorkplaceAccord.vue';
-import AffilationAccord from '@components/tabs/accordions/AffilationAccord.vue';
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
@@ -63,229 +68,154 @@ function switchForm(item: string){
 
     <template v-else>
       <RegionForm />
-      <table v-if="storeProfile.dataProfile.resume" class="table table-responsive">
-        <thead>
-          <tr>
-            <th width="25%">{{ `ID #${storeProfile.dataProfile.resume['id']}` }}</th>
-            <th>
-              <a href="#" title="Изменить"
-                 @click="storeProfile.dataProfile.openForm('resume', 'update', 
-                                                storeProfile.dataProfile.resume['id'],
-                                                storeProfile.dataProfile.resume)">
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="storeProfile.dataProfile.resume['category']">
-            <td>Категория</td>
-            <td>{{ storeProfile.dataProfile.resume['category'] }}</td>
-          </tr>
-          <tr>
-            <td>Регион</td>
-            <td>
-              <a href="#" data-bs-toggle="modal" data-bs-target="#modalRegion"
-                 @click="storeProfile.dataProfile.openForm('resume', 'location', 
-                                                storeProfile.dataProfile.resume['id'], 
-                                                storeProfile.dataProfile.resume)">
-                {{ storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']]}}
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td>Фамилия Имя Отчество</td>
-            <td>{{ storeProfile.dataProfile.resume['fullname'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['previous']">
-            <td>Изменение имени</td>
-            <td>{{ storeProfile.dataProfile.resume['previous'] }}</td>
-          </tr>
-          <tr>
-            <td>Дата рождения</td>
-            <td>{{ storeProfile.dataProfile.resume['birthday'] }}</td>
-          </tr>
-          <tr>
-            <td>Место рождения</td>
-            <td>{{ storeProfile.dataProfile.resume['birthplace'] 
-                    ? storeProfile.dataProfile.resume['birthplace'] 
-                    : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Гражданство</td>
-            <td>{{ storeProfile.dataProfile.resume['country'] 
-                    ? storeProfile.dataProfile.resume['country'] 
-                    : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>СНИЛС</td>
-            <td>{{ storeProfile.dataProfile.resume['snils']
-                    ? storeProfile.dataProfile.resume['snils']
-                    : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>ИНН</td>
-            <td>{{ storeProfile.dataProfile.resume['inn']
-                    ? storeProfile.dataProfile.resume['inn']
-                    : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr>
-            <td>Образование</td>
-            <td>{{ storeProfile.dataProfile.resume['education'] 
-                    ? storeProfile.dataProfile.resume['education']
-                    : 'Данные отсутствуют' }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['addition']">
-            <td>Дополнительная информация</td>
-            <td>{{ storeProfile.dataProfile.resume['addition'] }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['path']">
-            <td>Материалы</td>
-            <td>
-              <router-link :to="{ name: 'manager',  params: { 
-                  group: 'staffsec',  
-                  path: storeProfile.dataProfile.resume['path'].split('/')
-                } }">
-                {{ storeProfile.dataProfile.resume['path'] }}
-              </router-link>
-            </td>
-          </tr>
-          <tr>
-            <td>Статус</td>
-            <td>
-              <a href="#" @click="storeProfile.dataProfile.getItem('resume', 'status', storeProfile.dataProfile.candId)">
-                {{ storeProfile.dataProfile.resume['status'] }}</a>
-            </td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['create']">
-            <td>Создан</td>
-            <td>{{ new Date(String(storeProfile.dataProfile.resume['create'])).
-                  toLocaleDateString('ru-RU') }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['update']">
-            <td>Обновлен</td>
-            <td>{{ new Date(String(storeProfile.dataProfile.resume['update'])).
-                  toLocaleDateString('ru-RU') }}</td>
-          </tr>
-          <tr v-if="storeProfile.dataProfile.resume['request_id']">
-            <td>Внешний id</td>
-            <td>{{ storeProfile.dataProfile.resume['request_id'] }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <ResumeDiv v-if="storeProfile.dataProfile.resume"
+                      :item="storeProfile.dataProfile.resume"
+                      :regions="storeClassify.classData.regions"
+                      :deleteItem="storeProfile.dataProfile.deleteItem"
+                      :openForm="storeProfile.dataProfile.openForm"
+                      :getItem="storeProfile.dataProfile.getItem"/>
+        
       <p v-else >Данные отсутствуют</p>
     </template>
         
     <h6>Должности
-      <a class="btn btn-link" :title="storeProfile.dataProfile.flag === 'staff' 
-                                      ? 'Закрыть форму' : 'Добавить должность'"
-         @click="switchForm('staff')">
-        <i :class="storeProfile.dataProfile.flag === 'staff' 
-          ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-      </a>
+      <SwitchBtnForm :item="'staff'" :switchForm="switchForm" 
+                     :flag="storeProfile.dataProfile.flag"/>
     </h6>
     <template v-if="storeProfile.dataProfile.flag === 'staff'">
       <StaffForm />
     </template>
 
     <template v-else>
-      <StaffAccord :store="storeProfile.dataProfile"/>
+      <div v-if="storeProfile.dataProfile.staffs">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.needs" :key="idx" 
+                            :id="item['id']" :idx="idx" :label="item['id']">
+          <StaffDiv :item="item"
+                    :deleteItem="storeProfile.dataProfile.deleteItem"
+                    :openForm="storeProfile.dataProfile.openForm"/>
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
     </template>
 
     <h6>Документы
-      <a class="btn btn-link" :title="storeProfile.dataProfile.flag === 'document' 
-                                      ? 'Закрыть форму' : 'Добавить документ'"
-         @click="switchForm('document')" >
-        <i :class="storeProfile.dataProfile.flag === 'document' 
-                              ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-      </a>
+      <SwitchBtnForm :item="'document'" :switchForm="switchForm" 
+                     :flag="storeProfile.dataProfile.flag"/>
     </h6>
     <template v-if="storeProfile.dataProfile.flag === 'document'">
       <DocumentForm />
     </template>
     
     <template v-else>
-      <DocumentAccord :store="storeProfile.dataProfile"/>
-    </template>
-    
+      <div v-if="storeProfile.dataProfile.docums">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.docums" :key="idx" 
+                            :id="item['id']" :idx="idx" :label="item['id']">
+          <DocumentDiv :item="item"
+                       :deleteItem="storeProfile.dataProfile.deleteItem"
+                       :openForm="storeProfile.dataProfile.openForm"/>    
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
+    </template>    
+
     <h6>Адреса
-      <a class="btn btn-link" @click="switchForm('address')" 
-          :title="storeProfile.dataProfile.flag === 'document' 
-                  ? 'Закрыть форму' : 'Добавить адрес'">
-        <i :class="storeProfile.dataProfile.flag === 'address' 
-                  ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-      </a>
+      <SwitchBtnForm :item="'address'" :switchForm="switchForm" 
+                     :flag="storeProfile.dataProfile.flag"/>
     </h6>
     <template v-if="storeProfile.dataProfile.flag === 'address'">
       <AddressForm />
     </template>
     
     <template v-else>
-      <AddressAccord :store="storeProfile.dataProfile"/>
+      <div v-if="storeProfile.dataProfile.addrs">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.addrs" :key="idx" 
+                            :id="item['id']" :idx="idx" :label="item['id']">
+          <AddressDiv :item="item"
+                      :deleteItem="storeProfile.dataProfile.deleteItem"
+                      :openForm="storeProfile.dataProfile.openForm"/>  
+        </CollapseDiv>
+      </div>  
+      <p v-else >Данные отсутствуют</p>
     </template>
 
     <h6>Контакты
-      <a class="btn btn-link" @click="switchForm('contact')" 
-          :title="storeProfile.dataProfile.flag === 'contact' 
-            ? 'Закрыть форму' : 'Добавить контакт'">
-        <i :class="storeProfile.dataProfile.flag === 'contact' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-      </a>
+      <SwitchBtnForm :item="'contact'" :switchForm="switchForm" 
+                     :flag="storeProfile.dataProfile.flag"/>
     </h6>
     <template v-if="storeProfile.dataProfile.flag === 'contact'">
       <ContactForm />
     </template>
     
     <template v-else>
-      <ContactAccord :store="storeProfile.dataProfile"/>
+      <div v-if="storeProfile.dataProfile.conts">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.conts" :key="idx" 
+                            :id="item['id']" :idx="idx" :label="item['id']">
+          <ContactDiv :item="item"
+                      :deleteItem="storeProfile.dataProfile.deleteItem"
+                      :openForm="storeProfile.dataProfile.openForm"/> 
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
     </template>
 
     <h6>Работа
-      <a class="btn btn-link" @click="switchForm('workplace')" 
-          :title="storeProfile.dataProfile.flag === 'workplace' 
-            ? 'Закрыть форму' : 'Добавить работу'">
-        <i :class="storeProfile.dataProfile.flag === 'workplace' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-      </a>
+      <SwitchBtnForm :item="'workplace'" :switchForm="switchForm" 
+                     :flag="storeProfile.dataProfile.flag"/>
     </h6>
     <template v-if="storeProfile.dataProfile.flag === 'workplace'">
       <WorkplaceForm />
     </template>
     
     <template v-else>
-      <WorkplaceAccord :store="storeProfile.dataProfile"/>
+      <div v-if="storeProfile.dataProfile.works">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.works" :key="idx" 
+                            :id="item['id']" :idx="idx" :label="item['id']">
+          <WorkplaceDiv :item="item"
+                        :deleteItem="storeProfile.dataProfile.deleteItem"
+                        :openForm="storeProfile.dataProfile.openForm"/>
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
     </template>
 
     <h6>Аффилированность
-      <a class="btn btn-link" @click="switchForm('affilation')" 
-          :title="storeProfile.dataProfile.flag === 'affilation' 
-            ? 'Закрыть форму' : 'Добавить участие'">
-        <i :class="storeProfile.dataProfile.flag === 'affilation' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-      </a>
+      <SwitchBtnForm :item="'affilation'" :switchForm="switchForm" 
+                     :flag="storeProfile.dataProfile.flag"/>
     </h6>
     <template v-if="storeProfile.dataProfile.flag === 'affilation'">
       <AffilationForm />
     </template>
     
     <template v-else>
-      <AffilationAccord :store="storeProfile.dataProfile"/>
+      <div v-if="storeProfile.dataProfile.affilation">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.affilation" :key="idx" 
+                            :id="item['id']" :idx="idx" :label="item['id']">
+          <AffilationDiv :item="item"
+                        :deleteItem="storeProfile.dataProfile.deleteItem"
+                        :openForm="storeProfile.dataProfile.openForm"/>
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
     </template>
 
     <h6>Связи
-      <a class="btn btn-link" @click="switchForm('relation')" 
-          :title="storeProfile.dataProfile.flag === 'relation' 
-            ? 'Закрыть форму' : 'Добавить связь'">
-        <i :class="storeProfile.dataProfile.flag === 'relation' 
-            ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-      </a>
+      <SwitchBtnForm :item="'relation'" :switchForm="switchForm" 
+                     :flag="storeProfile.dataProfile.flag"/>
     </h6>
     <template v-if="storeProfile.dataProfile.flag === 'relation'">
       <RelationForm />
     </template>
     
     <template v-else>
-      <RelationAccord :store="storeProfile.dataProfile"/>
+      <div v-if="storeProfile.dataProfile.relate">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.relate" :key="idx" 
+                            :id="item['id']" :idx="idx" :label="item['id']">
+          <RelationDiv :item="item"
+                       :deleteItem="storeProfile.dataProfile.deleteItem"
+                       :openForm="storeProfile.dataProfile.openForm"/>
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
     </template>
 
     <div class="py-3">
@@ -305,6 +235,5 @@ function switchForm(item: string){
         </button>
       </div>
     </div>
-  
   </div>
 </template>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 
+import { defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
-import InquiryForm from '@components/forms/InquiryForm.vue';
-import InquiryAccord from '@components/tabs/accordions/InquiryAccord.vue';
+
+const InquiryForm = defineAsyncComponent(() => import('@components/forms/InquiryForm.vue'));
+const CollapseDiv = defineAsyncComponent(() => import('@components/elements/CollapseDiv.vue'));
+const InquiryDiv = defineAsyncComponent(() => import('@components/tabs/divs/InquiryDiv.vue'));
 
 const storeProfile = profileStore();
 
@@ -15,7 +18,15 @@ const storeProfile = profileStore();
                       && storeProfile.dataProfile.flag === 'inquiry'" />
 
     <div v-else>
-      <InquiryAccord :store="storeProfile.dataProfile"/>
+      <div v-if="storeProfile.dataProfile.needs.length">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.needs" :key="idx" 
+                          :id="item['id']" :idx="idx" :label="'Запросы'">
+          <InquiryDiv :item="item" 
+                      :deleteItem="storeProfile.dataProfile.deleteItem"
+                      :openForm="storeProfile.dataProfile.openForm"/>
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
       <div class="py-3">
         <a class="btn btn-outline-primary" type="button"
           @click="storeProfile.dataProfile.openForm('inquiry', 'create')">Добавить запись

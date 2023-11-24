@@ -1,10 +1,14 @@
 <script setup lang="ts">
 
+import { defineAsyncComponent } from 'vue';
 import { contactStore } from '@/store/contacts';
+
+const InputSmall = defineAsyncComponent(() => import('@components/elements/InputSmall.vue'));
 
 const storeContact = contactStore();
 
 </script>
+
 
 <template>
   <form @submit.prevent="storeContact.contactData.updateContact(
@@ -12,6 +16,10 @@ const storeContact = contactStore();
       )" 
         class="form form-check">
     <div class="row">
+       <InputSmall :cls="'col-md-3'" :name="'company'" place="'Организация'" :need="true" 
+                             :lst="'companies'" :selects="storeContact.contactData.companies"
+                             :model="storeContact.contactData.form['company']"/>
+      
       <div class="col-md-3">
         <input class="form-control form-control-sm" list="companies" id="company" 
                maxlength="250" name="company" placeholder="Название" type="text" 

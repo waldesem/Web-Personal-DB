@@ -1,11 +1,13 @@
 <script setup lang="ts">
  
-import { ref } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import { profileStore } from '@/store/profile';
 import { classifyStore } from '@/store/classify';
 import { loginStore } from '@/store/login';
-import RegistryForm from '@components/forms/RegistryForm.vue';
-import RegistryAccord from '@components/tabs/accordions/RegistryAccord.vue';
+
+const RegistryForm = defineAsyncComponent(() => import('@components/forms/RegistryForm.vue'));
+const CollapseDiv = defineAsyncComponent(() => import('@components/elements/CollapseDiv.vue'));
+const RegistryDiv = defineAsyncComponent(() => import('@components/tabs/divs/RegistryDiv.vue'));
 
 const storeProfile = profileStore();
 const classifyApp = classifyStore();
@@ -19,17 +21,20 @@ disableRegBtn.value = (storeProfile.dataProfile.resume['status']
 
 <template>
   <div class="py-3">
-
     <RegistryForm v-if="storeProfile.dataProfile.action === 'create' 
                      && storeProfile.dataProfile.flag === 'registry'" />
-    
     <div v-else>
-      <RegistryAccord :store="storeProfile.dataProfile"></RegistryAccord>
+      <div v-if="storeProfile.dataProfile.register.length">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.register" :key="idx" 
+                           :id="item['id']" :idx="idx" :label="item['id']">
+          <RegistryDiv :item="item" />
+        </CollapseDiv>
+      </div>
+      <p v-else >Данные отсутствуют</p>
       <div class="py-3">
-        <button class="btn btn-outline-primary" type="button"
-                :disabled="disableRegBtn" 
-                @click="storeProfile.dataProfile.openForm('registry', 'create')">Добавить запись
-        </button>
+        <a class="btn btn-outline-primary" type="button"
+          @click="storeProfile.dataProfile.openForm('registry', 'create')">Добавить запись
+        </a>
       </div>
     </div>
   </div>
