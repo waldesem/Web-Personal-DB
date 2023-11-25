@@ -49,7 +49,7 @@ hiddenAddBtn.value = ![storeClassify.classData.status['new'],
         </CollapseDiv>
       </div>
       <p v-else >Данные отсутствуют</p>
-      <div class="py-3">
+      <div class="d-print-none py-3">
         <a class="btn btn-outline-primary" type="button"
           @click="storeProfile.dataProfile.openForm('check', 'create')">Добавить запись
         </a>

@@ -24,6 +24,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
 </script>
 
+
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Список пользователей'" />
@@ -33,7 +34,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                v-model="storeAdmin.dataUsers.search">
       </div>
     </form>
-    <div class="py-2">
+    <div class="overflow py-2">
       <table class="table table-responsive align-middle">
         <thead>
           <tr height="50px">
@@ -44,11 +45,10 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <th width="20%">Вход</th>
           </tr>
         </thead>
-      </table>
-      <div class="overflow">
-        <table class="table table-responsive align-middle" >
-          <tbody>
-            <tr height="50px" v-for="user in storeAdmin.dataUsers.users" :key="user.id">
+        <tbody>
+          <tr height="50px" v-for="user in storeAdmin.dataUsers.users" :key="user.id">
+            <td colspan="5">
+              <tr >
               <td width="5%">{{ user.id }}</td>
               <td>{{ user.fullname }}</td>
               <td>
@@ -59,13 +59,15 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
               <td width="20%">{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>
               <td width="20%">{{ new Date(user.last_login).toLocaleString('ru-RU') }}</td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <UserForm />
   </div>
 </template>
+
 
 <style scoped>
 .overflow {

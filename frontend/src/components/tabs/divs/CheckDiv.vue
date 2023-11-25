@@ -34,7 +34,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <RowDivSlot :slotOne="true" :slotTwo="true" class="d-print-none">
+  <RowDivSlot :slotOne="true" :slotTwo="true"  :print="true">
     <template v-slot:divOne>
       <a :hidden="hiddenDelBtn" href="#" title="Удалить"
          @click="props.deleteItem(props.item['id'].toString(), 'check')">
@@ -70,7 +70,7 @@ const props = defineProps({
   <RowDivSlot :label="'Сотрудник'" :value="props.item['officer']"/>
   <RowDivSlot :label="'Дата'" :value="new Date(String(item['deadline'])).
                                           toLocaleDateString('ru-RU')"/>
-  <RowDivSlot :slotOne="true" class="d-print-none">
+  <RowDivSlot :slotOne="true"  :print="true">
     <form class="form" enctype="multipart/form-data" role="form" 
           @change="props.submitFile($event, 'check', item['id'].toString())">
       <input class="form-control" id="file" type="file" ref="file" multiple>

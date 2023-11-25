@@ -23,7 +23,7 @@ const props = defineProps({
 
 
 <template>
-  <RowDivSlot :slotOne="true" :slotTwo="true" class="d-print-none">
+  <RowDivSlot :slotOne="true" :slotTwo="true"  :print="true">
     <template v-slot:divOne>
       <a href="#" title="Удалить"
         @click="props.deleteItem(props.item['id'].toString(), 'inquiry')">

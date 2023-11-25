@@ -23,10 +23,10 @@ const props = defineProps({
   max: {
     type: [String, Number],
     default: (props: any) => {
-      if (props.typeof === 'text') {
-        return '255';
-      } else if (props.typeof === 'date') {
+      if (props.typeof === 'date') {
         return new Date().toISOString().split('T')[0];
+      } else {
+        return '255'; ;
       }
     }
   },

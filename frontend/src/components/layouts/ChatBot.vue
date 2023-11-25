@@ -15,11 +15,7 @@ const chatBot = ref({
     this.spinner = true;
     this.dialog.push({'Вы': this.input});
     try {
-      const response = await storeAuth.axiosInstance.post(
-        `${server}/chat`, {
-          'data': this.input
-        }
-      );
+      const response = await storeAuth.axiosInstance.post(`${server}/chat`, {'data': this.input});
       this.dialog.push(response.data);
     
     } catch (error) {
@@ -47,7 +43,7 @@ const chatBot = ref({
 <template>
   <div class="d-print-none">
     <a class="chatbot-button dropdown-toggle" role="button"  
-      data-bs-toggle="dropdown" data-bs-auto-close="false">
+        data-bs-toggle="dropdown" data-bs-auto-close="false">
       <i class="bi bi-chat-dots-fill fs-1"></i>
     </a>
     <div class="dropdown-menu" id="chatbot">
@@ -56,7 +52,8 @@ const chatBot = ref({
       <div id="chatcontent">
         <div v-for="dialog, index in chatBot.dialog" :key="index" 
             :class="`${Object.keys(dialog)[0] === 'chatBot' ? 'px-3' : 'px-5'} py-2`">
-          <div :class="`p-3 bg-${Object.keys(dialog)[0] !== 'chatBot' ? 'danger' : 'success'} bg-opacity-75 border rounded text-wrap text-light`">
+          <div class="bg-opacity-75 border rounded text-wrap text-light p-3" 
+              :class="`bg-${Object.keys(dialog)[0] !== 'chatBot' ? 'danger' : 'success'}`">
             {{ `${Object.keys(dialog)[0]}: ${Object.values(dialog)[0]}` }}
           </div>
         </div>
@@ -65,8 +62,7 @@ const chatBot = ref({
         <form @submit.prevent="chatBot.updateChat" class="form form-check" role="form">
           <div class="row">
             <div class="col-md-9">
-              <input class="form-control" id="chat" name="chat" 
-                     required v-model="chatBot.input">
+              <input class="form-control" id="chat" name="chat" required v-model="chatBot.input">
             </div>
             <div class="col-md-1">
               <button :disabled="chatBot.spinner" class="btn btn-outline-primary btn-sm" 

@@ -23,8 +23,8 @@ if (!isStarted) {
 </script>
 
 <template>
-  <nav :class="`navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none 
-              ${pageIdentity ==='admins' ? 'bg-secondary' : 'bg-primary'}`">
+  <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none" 
+       :class="{'bg-secondary': pageIdentity ==='admins', 'bg-primary': pageIdentity ==='staffsec'}">
     <div class="container">
       <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
         {{ pageIdentity ? pageIdentity.toUpperCase() : '' }}</a>
@@ -38,10 +38,9 @@ if (!isStarted) {
               </router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="#"
-                data-bs-toggle="modal" data-bs-target="#modalUser"
-                @click="storeAdmin.dataUsers.action = 'create'">
-                 Создать
+              <a class="nav-link active" href="#" data-bs-toggle="modal" data-bs-target="#modalUser"
+                  @click="storeAdmin.dataUsers.action = 'create'">
+                Создать
               </a>
             </li>
             <li class="nav-item">
@@ -54,16 +53,16 @@ if (!isStarted) {
 
           <template v-if="pageIdentity === 'staffsec'">
             <li class="nav-item">
-                <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" 
-                             class="nav-link active">
-                  Кандидаты
-                </router-link>
+              <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" 
+                            class="nav-link active">
+                Кандидаты
+              </router-link>
             </li>
             <li class="nav-item">
-                <router-link :to="{ name: 'resume', params: { group: 'staffsec' } }" 
-                             class="nav-link active">
+              <router-link :to="{ name: 'resume', params: { group: 'staffsec' } }" 
+                            class="nav-link active">
                   Создать
-                </router-link>
+              </router-link>
             </li>
             <li class="nav-item">
                 <router-link :to="{ name: 'information', params: { group: 'staffsec' } }" 
@@ -75,7 +74,7 @@ if (!isStarted) {
             <li class="nav-item">
               <router-link :to="{name: 'contacts', params: { group: 'staffsec' }}"    
                            class="nav-link active">
-              Контакты
+                  Контакты
               </router-link>
             </li>
 
@@ -104,7 +103,7 @@ if (!isStarted) {
                   <div class="dropdown-divider"></div>
                   <li>
                     <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
-                                class="dropdown-item" >
+                                 class="dropdown-item" >
                       Открыть сообщения
                     </router-link>
                   </li>
@@ -115,11 +114,10 @@ if (!isStarted) {
 
         <li class="nav-item dropdown d-flex">
           <a href="#" class="nav-link active dropdown-toggle" role="button" 
-              data-bs-toggle="dropdown" :title="storeLogin.userData.fullName 
-                  ? storeLogin.userData.fullName : ''">
+              data-bs-toggle="dropdown" :title="storeLogin.userData.fullName ? storeLogin.userData.fullName : ''">
             {{ storeLogin.userData.fullName 
-                ? storeLogin.userData.fullName.split(' ').map(item => item.charAt(0)).join('') 
-                : '' }}
+              ? storeLogin.userData.fullName.split(' ').map(item => item.charAt(0)).join('') 
+              : '' }}
             <i class="bi bi-person-circle"></i>
           </a>
           <ul class="dropdown-menu">
@@ -139,21 +137,21 @@ if (!isStarted) {
       </h5>
     </div>
     <div class="offcanvas-body">
-        <ul>
-          <li v-if="storeLogin.userData.hasGroup('admins')" class="mb-4">
-            <router-link :to="{ name: 'users', params: { group: 'admins' } }">
-              Администраторы
-            </router-link>
-          </li>
-          <li v-if="storeLogin.userData.hasGroup('staffsec')" class="mb-4">
-            <router-link :to="{ name: 'persons', params: { group: 'staffsec' } }">
-              Центр кадровой безопасности
-            </router-link>
-          </li>
-          <li v-else class="mb-4">
-            <p>Центр кадровой безопасности</p>
-          </li>
-        </ul>
+      <ul>
+        <li v-if="storeLogin.userData.hasGroup('admins')" class="mb-4">
+          <router-link :to="{ name: 'users', params: { group: 'admins' } }">
+            Администраторы
+          </router-link>
+        </li>
+        <li v-if="storeLogin.userData.hasGroup('staffsec')" class="mb-4">
+          <router-link :to="{ name: 'persons', params: { group: 'staffsec' } }">
+            Центр кадровой безопасности
+          </router-link>
+        </li>
+        <li v-else class="mb-4">
+          <p>Центр кадровой безопасности</p>
+        </li>
+      </ul>
     </div>
   </div>
   <MessagesVue />

@@ -40,6 +40,7 @@ const tableData = ref({
   currentPage: 1,
   hasNext: false,
   hasPrev: false,
+
   getItem: async function(page: number): Promise<void> {
     this.currentPage = page;
     try {
@@ -78,6 +79,7 @@ const searchItem = debounce(tableData.value.getItem, 500);
 
 </script>
 
+
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Таблицы'" />
@@ -106,10 +108,7 @@ const searchItem = debounce(tableData.value.getItem, 500);
       <table class="table table-hover align-middle">
         <thead> 
           <tr>
-            <th v-for="key, index in Object.keys(tableData.item[0])" 
-                      :key="index">
-              {{ key }}
-            </th>
+            <th v-for="key, index in Object.keys(tableData.item[0])" :key="index">{{key}}</th>
             <th width="5%">action</th>
           </tr>
         </thead>
@@ -132,6 +131,7 @@ const searchItem = debounce(tableData.value.getItem, 500);
                   :switchPage = "tableData.getItem"/>
   </div>
 </template>
+
 
 <style scoped>
 table td

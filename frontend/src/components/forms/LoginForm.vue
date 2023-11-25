@@ -14,8 +14,7 @@ const storeLogin = loginStore();
   <div class="border border-primary rounded p-5 ">
     <h5>{{ storeLogin.userData.action === 'login' ? 'Вход в систему' : 'Изменить пароль' }}</h5>
     <div class="py-3">
-      <form @submit.prevent="storeLogin.userData.submitLogin" 
-            class="form form-check" role="form">
+      <form @submit.prevent="storeLogin.userData.submitLogin" class="form form-check" role="form">
         <InputLabel :label="'Логин'" :name="'username'" :need="true"
                     :max="'16'" :min="'3'" :clsInput="'col-lg-6'"
                     :place="'Логин'" :pattern="'[a-zA-Z]+'"
@@ -28,7 +27,7 @@ const storeLogin = loginStore();
                     id="password" name="password" minlength="8" maxlength="16" 
                     placeholder="Пароль" pattern="[0-9a-zA-Z]+"
                     :type="storeLogin.userData.hidden ? 'password' : 'text'" 
-                    v-model.trim="storeLogin.userData.form['password']" >
+                    v-model="storeLogin.userData.form['password']" >
               <span class="input-group-text">
                 <a role="button" @click="storeLogin.userData.hidden = !storeLogin.userData.hidden">
                   <i :class="storeLogin.userData.hidden ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>

@@ -217,7 +217,7 @@ function switchForm(item: string){
       <p v-else >Данные отсутствуют</p>
     </template>
 
-    <div class="py-3">
+    <div class="d-print-none py-3">
       <div class='btn-group' role="group">
         <button class="btn btn-outline-primary" 
                 :disabled="hiddenSendBtn"

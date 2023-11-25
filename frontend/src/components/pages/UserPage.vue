@@ -2,8 +2,8 @@
 
 import { defineAsyncComponent, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave, useRoute } from 'vue-router';
-import { adminStore } from '@store/admins';
 import { classifyStore } from '@/store/classify';
+import { adminStore } from '@store/admins';
 import { clearItem } from '@utilities/utils';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
@@ -42,6 +42,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 }); 
 
 </script>
+
 
 <template>
   <div class="container py-3">
@@ -82,10 +83,12 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
               <select class="form-select" id="group" name="group" 
                       v-model="storeAdmin.dataUsers.group" 
                       @change="storeAdmin.dataUsers.updateGroupRole('add', 'group', storeAdmin.dataUsers.group)">
-                <option value="" selected>Добавить группу</option>
-                <option v-for="(val, name) in storeClassify.classData.groups" 
-                        :key="name" :value="name">
-                  {{ val }}</option>
+                <option value="" selected>
+                  Добавить группу
+                </option>
+                <option v-for="(val, name) in storeClassify.classData.groups" :key="name" :value="name">
+                  {{ val }}
+                </option>
               </select>
             </form>
           </template>
@@ -93,7 +96,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         <RowDivSlot :label="'Роли'" :slotTwo="true">
           <template v-slot:divTwo>
             <ul v-for="(role, index) in storeAdmin.dataUsers.profile.roles" :key=index>
-              <li>{{ role['role'] }}
+              <li>{{ storeClassify.classData.roles[role['role']] }}
                 <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'role',role['role'])">
                   <i class="bi bi-dash-circle"></i>
                 </a>
@@ -103,9 +106,10 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
               <select class="form-select" id="role" name="role" 
                   v-model="storeAdmin.dataUsers.role" 
                   @change="storeAdmin.dataUsers.updateGroupRole('add', 'role', storeAdmin.dataUsers.role)">
-                <option value="" selected>Добавить роль</option>
-                <option v-for="(val, name) in storeClassify.classData.roles" 
-                        :key="name" :value="val">
+                <option value="" selected>
+                  Добавить роль
+                </option>
+                <option v-for="(val, name) in storeClassify.classData.roles" :key="name" :value="val">
                   {{ val }}</option>
               </select>
             </form>
@@ -134,8 +138,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   </div>
 </template>
 
-<style scoped>
 
+<style scoped>
 ul, li {
 padding: 0;
 list-style: none;

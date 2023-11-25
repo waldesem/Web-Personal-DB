@@ -34,11 +34,6 @@ const router = createRouter({
           component: () => import('@components/pages/ProfilePage.vue')
         },
         {
-          path: 'print',
-          name: 'print',
-          component: () => import('@components/pages/PrintPage.vue')
-        },
-        {
           path: 'information',
           name: 'information',
           component: () => import('@components/pages/InfoPage.vue')

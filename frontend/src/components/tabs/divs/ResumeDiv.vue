@@ -30,7 +30,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <RowDivSlot :slotOne="true" :slotTwo="true" class="d-print-none">
+  <RowDivSlot :slotOne="true" :slotTwo="true" :print="true">
     <template v-slot:divOne>
       <a href="#" title="Изменить"
          @click="props.openForm('resume', 'update', props.item['id'], props.item)">
@@ -55,7 +55,7 @@ const props = defineProps({
   <RowDivSlot :label="'ИНН'" :value="props.item['inn']"/>
   <RowDivSlot :label="'Образование'" :value="props.item['education']"/>
   <RowDivSlot :label="'Дополнительная информация'" :value="props.item['addition']"/>
-  <RowDivSlot :label="'Материалы'" :value="props.item['path']" :slotTwo="true" class="d-print-none">
+  <RowDivSlot :label="'Материалы'" :value="props.item['path']" :slotTwo="true" :print="true">
     <router-link :to="{name: 'manager', params: {group: 'staffsec', path: props.item['path'].split('/')}}">
       {{ props.item['path'] }}
     </router-link>

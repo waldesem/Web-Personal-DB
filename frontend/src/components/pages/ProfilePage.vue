@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { defineAsyncComponent, onBeforeMount } from 'vue';
+import { defineAsyncComponent, onBeforeMount, ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useRoute } from 'vue-router';
 import { profileStore } from '@/store/profile';
@@ -31,6 +31,8 @@ const tabsObject = {
   oneTab: ['1C', OneTab]
 };
 
+const printPage = ref(false);
+
 onBeforeMount(async () => {
   Promise.all([
     await storeProfile.dataProfile.getProfile(),
@@ -56,7 +58,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
     <HeaderDiv :page-header="storeProfile.dataProfile.resume['fullname']" />
 
-    <div class="nav nav-tabs nav-justified" role="tablist">
+    <div v-if="!printPage" class="nav nav-tabs nav-justified" role="tablist">
       <button v-for="(value, key) in tabsObject" :key="key"
               class="nav-link active" type="button" role="tab" 
               data-bs-toggle="tab" :data-bs-target="`#${key}`">
@@ -64,7 +66,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       </button>
     </div>
 
-    <div class="tab-content">
+    <div v-if="!printPage" class="tab-content">
       <div v-for="(value, key) in tabsObject" :key="key" :id="key"
           class="tab-pane fade py-1" role="tabpanel" 
           :class="key === 'anketaTab' ? 'show active' : ''" >
@@ -72,9 +74,18 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       </div>
     </div>
 
-    <router-link :to="{ name: 'print' }">
+    <div v-if="printPage">
+      <div v-for="(value, key) in tabsObject" :key="key" :id="key">
+        <component :is="value[1]"></component>
+      </div>
+    </div>
+
+    <a href="#" class="d-print-none" @click="printPage = !printPage">
       <i class="bi bi-printer fs-1" title="Версия для печати"></i>
-    </router-link>
+    </a>
+    <!-- <router-link :to="{ name: 'print' }">
+      <i class="bi bi-printer fs-1" title="Версия для печати"></i>
+    </router-link> -->
 
   </div>
 </template>
