@@ -22,16 +22,20 @@ const storeClassify = classifyStore();
     <form @submit.prevent="storeAdmin.dataUsers.submitUser" class="form form-check" role="form">
       <InputLabel :name="'fullname'" :label="'Имя пользователя:'" :need="true" 
                   :pattern="'[a-zA-Zа-яА-Я ]+'"
+                  @input-event="storeAdmin.dataUsers.form['fullname'] = $event.target.value"
                   :model="storeAdmin.dataUsers.form['fullname']"/>
       <InputLabel :name="'username'" :label="'Учетная запись:'" :need="true" 
                   :pattern="'[a-zA-Z]+'" 
                   :disable="storeAdmin.dataUsers.action === 'edit'"
+                  @input-event="storeAdmin.dataUsers.form['username'] = $event.target.value"
                   :model="storeAdmin.dataUsers.form['username']"/>
       <InputLabel :name="'email'" :label="'Электронная почта:'" :need="true" 
                   :typeof="'email'"
+                  @input-event="storeAdmin.dataUsers.form['email'] = $event.target.value"
                   :model="storeAdmin.dataUsers.form['email']"/>
       <SelectDiv :name="'region'" :label="'Регион'" 
                  :select="storeClassify.classData.regions"
+                 @input-event="storeAdmin.dataUsers.form['region_id'] = $event.target.value"
                  :model="storeAdmin.dataUsers.form['region_id']" />
 
       <BtnGroupForm>

@@ -4,7 +4,6 @@ import { defineAsyncComponent } from 'vue';
 import { loginStore } from '@/store/login';
 
 const InputLabel = defineAsyncComponent(() => import('@components/elements/InputLabel.vue'));
-const BtnGroupForm = defineAsyncComponent(() => import('@components/elements/BtnGroupForm.vue'));
 
 const storeLogin = loginStore();
 
@@ -18,7 +17,8 @@ const storeLogin = loginStore();
         <InputLabel :label="'Логин'" :name="'username'" :need="true"
                     :max="'16'" :min="'3'" :clsInput="'col-lg-6'"
                     :place="'Логин'" :pattern="'[a-zA-Z]+'"
-                    :model="storeLogin.userData.form['username']"/>
+                    @input-event="storeLogin.userData.form['username'] = $event.target.value" 
+                    v-model="storeLogin.userData.form['username']" />
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="password">Пароль: </label>
           <div class="col-lg-6">
@@ -43,15 +43,17 @@ const storeLogin = loginStore();
           <InputLabel :label="'Новый'" :name="'new_pswd'" :need="true"
                       :max="'16'" :min="'8'" :clsInput="'col-lg-6'"
                       :place="'Новый пароль'" :pattern="'[0-9a-zA-Z]+'"
-                      :type="storeLogin.userData.hidden ? 'password' : 'text'"
-                      :model="storeLogin.userData.form['new_pswd']"/>
+                      :typeof="storeLogin.userData.hidden ? 'password' : 'text'" 
+                      @input-event="storeLogin.userData.form['new_pswd'] = $event.target.value"
+                      v-model="storeLogin.userData.form['new_pswd']"/>
           <InputLabel :label="'Повтор'" :name="'conf_pswd'" :need="true" 
                       :max="'16'" :min="'8'" :clsInput="'col-lg-6'"
                       :place="'Повторите новый пароль'" :pattern="'[0-9a-zA-Z]+'" 
-                      :type="storeLogin.userData.hidden ? 'password' : 'text'"
-                      :model="storeLogin.userData.form['conf_pswd']"/>
+                      :typeof="storeLogin.userData.hidden ? 'password' : 'text'" 
+                      @input-event="storeLogin.userData.form['conf_pswd'] = $event.target.value"
+                      v-model="storeLogin.userData.form['conf_pswd']"/>
         </div>
-        <BtnGroupForm>
+        <div class="offset-lg-2 col-lg-10">
           <button class="btn btn-primary btn-md" name="submit" type="submit">
             {{ storeLogin.userData.action === 'login' ? 'Войти' : 'Изменить' }}
           </button>              
@@ -61,7 +63,7 @@ const storeLogin = loginStore();
                   type="button" @click="storeLogin.userData.action = 'login'">
             Отменить
           </button>
-        </BtnGroupForm>
+        </div>
       </form>
     </div>
   </div>

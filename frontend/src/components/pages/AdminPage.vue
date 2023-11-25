@@ -10,7 +10,10 @@ const UserForm = defineAsyncComponent(() => import('@components/forms/UserForm.v
 
 const storeAdmin = adminStore();
 
-const searchUsers = debounce(storeAdmin.dataUsers.getUsers, 500);
+const searchUsers = debounce(() => {
+  storeAdmin.dataUsers.getUsers() 
+  }, 500
+);
 
 onBeforeMount(async () => {
   storeAdmin.dataUsers.getUsers()
@@ -28,7 +31,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Список пользователей'" />
-    <form @input="searchUsers" class="form form-check" role="form">
+    <form @input.prevent="searchUsers" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="fullusername" name="fullusername" type="text" 
                v-model="storeAdmin.dataUsers.search">
@@ -46,19 +49,23 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           </tr>
         </thead>
         <tbody>
-          <tr height="50px" v-for="user in storeAdmin.dataUsers.users" :key="user.id">
+          <tr >
             <td colspan="5">
-              <tr >
-              <td width="5%">{{ user.id }}</td>
-              <td>{{ user.fullname }}</td>
-              <td>
-                <router-link :to="{ name: 'user', params: { id: user.id } }">
-                  {{ user.username }}
-                </router-link>
-              </td>
-              <td width="20%">{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>
-              <td width="20%">{{ new Date(user.last_login).toLocaleString('ru-RU') }}</td>
-            </tr>
+              <table class="table table-hover table-responsive align-middle no-bottom-border">
+                <tbody>
+                  <tr height="50px" v-for="user in storeAdmin.dataUsers.users" :key="user.id">
+                    <td width="5%">{{ user.id }}</td>
+                    <td>{{ user.fullname }}</td>
+                    <td width="25%">
+                      <router-link :to="{ name: 'user', params: { id: user.id } }">
+                        {{ user.username }}
+                      </router-link>
+                    </td>
+                    <td width="20%">{{ new Date(user.pswd_create).toLocaleString('ru-RU') }}</td>
+                    <td width="20%">{{ new Date(user.last_login).toLocaleString('ru-RU') }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
           </tr>
         </tbody>
@@ -73,5 +80,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 .overflow {
   height: 75vh;
   overflow-y: auto;
+}
+.no-bottom-border td {
+  border-bottom: none;
 }
 </style>

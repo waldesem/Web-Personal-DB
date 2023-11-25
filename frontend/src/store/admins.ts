@@ -46,6 +46,7 @@ export const adminStore = defineStore('adminStore', () => {
     users: <User[]>([]),
     profile: <User>({}),
     form: <Record<string, any>>({}),
+
     getUsers: async function(){
       try {
         const response = await storeAuth.axiosInstance.post(`${server}/users`, {'fullname': this.search});

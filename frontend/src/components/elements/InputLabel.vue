@@ -40,7 +40,10 @@ const props = defineProps({
   },
   name: String,
   label: String,
-  model: String
+  model: {
+    type: [String, Number],
+    default: ''
+  },
 });
 
 </script>
@@ -61,8 +64,9 @@ const props = defineProps({
             :required="props.need"
             :pattern="props.pattern"
             :autocomplete="props.name"
-            :placeholder="props.label"
-            v-model="props.model">
+            :value="props.model"
+            @input="$emit('input-event', $event)" />
+
     </div>
   </div>
 </template>

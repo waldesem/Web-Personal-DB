@@ -113,7 +113,7 @@ class UserView(MethodView):
         Raises:
             None
         """
-        user = db.session.query(User).get(json_data['id']).one_or_none()
+        user = db.session.query(User).get(json_data['id'])
         if user:
             for k, v in json_data.items():
                 if k in ['fullname', 'username', 'email', 'region']:
@@ -222,7 +222,6 @@ class RoleView(MethodView):
             userview = UserView()
             return userview.get('view', user_id)
         
-    @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
         """
         Deletes a role from a user.

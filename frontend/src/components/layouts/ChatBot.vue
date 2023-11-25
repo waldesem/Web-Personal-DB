@@ -1,10 +1,12 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { authStore } from '@/store/token';
 import { server } from '@utilities/utils';
 
 const storeAuth = authStore();
+
+const pageIdentity = inject('pageIdentity') as string;
 
 const chatBot = ref({
   dialog: <Array<Object>>[{'chatBot': 'Добро пожаловать в чат!'}],
@@ -41,7 +43,7 @@ const chatBot = ref({
 </script>
 
 <template>
-  <div class="d-print-none">
+  <div v-if="pageIdentity === 'staffsec'" class="d-print-none">
     <a class="chatbot-button dropdown-toggle" role="button"  
         data-bs-toggle="dropdown" data-bs-auto-close="false">
       <i class="bi bi-chat-dots-fill fs-1"></i>
@@ -85,7 +87,7 @@ const chatBot = ref({
   </div>
 </template>
 
-<style>
+<style scoped>
   #chatbot{
     width: 640px;
     height: 640px;

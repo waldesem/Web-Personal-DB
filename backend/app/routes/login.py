@@ -113,6 +113,7 @@ class LoginView(MethodView):
             tuple: A tuple containing the access token and refresh token if the login is successful, 
                    otherwise an empty string and the appropriate status code.
         """
+        print(json_data)
         user = db.session.query(User). \
             filter_by(username=json_data['username']).one_or_none()
         if user and not user.blocked:

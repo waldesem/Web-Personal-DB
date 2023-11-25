@@ -7,7 +7,10 @@ const props = defineProps({
   },
   name: String,
   label: String,
-  model: String,
+  model: {
+    type: [String, Number],
+    default: ''
+  },
   select: Object
 });
 
@@ -22,9 +25,10 @@ const props = defineProps({
     <select class="form-select" 
             :required="props.isneed"
             :id="props.name"
-            :name="props.name" 
-            v-model="props.name">
-      <option v-for="key, value in props.select" :key="key"
+            :name="props.name"
+            :value="props.model"
+            @input="$emit('input-event', $event)">
+      <option v-for="value, key in props.select" :key="key"
               :value="key">{{value}}</option>
     </select>
   </div>

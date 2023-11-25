@@ -75,7 +75,10 @@ const tableData = ref({
   }
 });
 
-const searchItem = debounce(tableData.value.getItem, 500);
+const searchItem = debounce(() => {
+  tableData.value.getItem(1); 
+  }, 500
+);
 
 </script>
 

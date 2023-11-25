@@ -49,7 +49,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     <HeaderDiv :page-header="'Профиль пользователя'" />
     <div class="py-3">
       <!--PhotoCard :profileId="storeAdmin.profileData.id" :imageUrl="storeAdmin.profileData.image"/-->
-      <div class="d-flex justify-content-start">
+      <div>
         <RowDivSlot :label="'ID'" 
                     :value="storeAdmin.dataUsers.profile.id"/>
         <RowDivSlot :label="'Имя пользователя'" 
@@ -80,7 +80,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
               </li>
             </ul>
             <form class="form form-check" role="form">
-              <select class="form-select" id="group" name="group" 
+              <select class="form-select" id="group" name="group" style="width: 30%;"
                       v-model="storeAdmin.dataUsers.group" 
                       @change="storeAdmin.dataUsers.updateGroupRole('add', 'group', storeAdmin.dataUsers.group)">
                 <option value="" selected>
@@ -103,7 +103,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
               </li>
             </ul>
             <form class="form form-check" role="form">
-              <select class="form-select" id="role" name="role" 
+              <select class="form-select" id="role" name="role" style="width: 30%;"
                   v-model="storeAdmin.dataUsers.role" 
                   @change="storeAdmin.dataUsers.updateGroupRole('add', 'role', storeAdmin.dataUsers.role)">
                 <option value="" selected>
@@ -141,7 +141,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
 <style scoped>
 ul, li {
-padding: 0;
-list-style: none;
-}
+  padding-left: 0;
+};
 </style>

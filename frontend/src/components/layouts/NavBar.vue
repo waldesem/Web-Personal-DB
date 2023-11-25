@@ -24,7 +24,7 @@ if (!isStarted) {
 
 <template>
   <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none" 
-       :class="{'bg-secondary': pageIdentity ==='admins', 'bg-primary': pageIdentity ==='staffsec'}">
+       :class="`${pageIdentity ==='admins' ? 'bg-secondary': 'bg-primary'}`">
     <div class="container">
       <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
         {{ pageIdentity ? pageIdentity.toUpperCase() : '' }}</a>
@@ -84,6 +84,7 @@ if (!isStarted) {
                 Файлы
               </router-link>
             </li>
+          </template>
 
             <li class="nav-item dropdown">
               <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
@@ -109,7 +110,6 @@ if (!isStarted) {
                   </li>
                 </ul>
             </li>
-          </template>
         </ul>
 
         <li class="nav-item dropdown d-flex">

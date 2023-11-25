@@ -14,7 +14,7 @@ const props = defineProps({
     default: ''
   },
   value: {
-    type: String,
+    type: [String, Number],
     default: ''
   },
   print: {
@@ -26,11 +26,11 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="row" :class="{'d-print-none': props.print}">
-    <div class="col-md-4">{{props.label}}  
+  <div class="row mb-3" :class="{'d-print-none': props.print}">
+    <div class="col-md-3">{{props.label}}  
       <slot v-if="slotOne" name="divOne"></slot>
     </div>
-    <div class="col-md-8">{{props.value}}
+    <div class="col-md-9">{{props.value}}
       <slot v-if="slotTwo" name="divTwo"></slot>
     </div>
   </div>
