@@ -1,22 +1,13 @@
 <script setup lang="ts">
 
 import { defineAsyncComponent } from 'vue';
+import { profileStore } from '@/store/profile';
 
 const RowDivSlot = defineAsyncComponent(() => import('@components/elements/RowDivSlot.vue'));
 
+const storeProfile = profileStore();
+
 const props = defineProps({
-  deleteItem: {
-    type: Function,
-    required: true
-  },
-  openForm: {
-    type: Function,
-    required: true
-  },
-  submitFile: {
-    type: Function,
-    required: true
-  },
   item: {
     type: Object,
     required: true
@@ -37,13 +28,13 @@ const props = defineProps({
   <RowDivSlot :slotOne="true" :slotTwo="true"  :print="true">
     <template v-slot:divOne>
       <a :hidden="hiddenDelBtn" href="#" title="Удалить"
-         @click="props.deleteItem(props.item['id'].toString(), 'check')">
+         @click="storeProfile.dataProfile.deleteItem(props.item['id'].toString(), 'check')">
         <i class="bi bi-trash"></i>
       </a>
     </template>
     <template v-slot:divTwo>
       <a :hidden="hiddeEditBtn" href="#" title="Изменить"
-         @click="props.openForm('check', 'update', 
+         @click="storeProfile.dataProfile.openForm('check', 'update', 
                                         props.item['id'].toString(), props.item)">
         <i class="bi bi-pencil-square"></i>
       </a>
@@ -72,7 +63,7 @@ const props = defineProps({
                                           toLocaleDateString('ru-RU')"/>
   <RowDivSlot :slotOne="true"  :print="true">
     <form class="form" enctype="multipart/form-data" role="form" 
-          @change="props.submitFile($event, 'check', item['id'].toString())">
+          @change="storeProfile.dataProfile.submitFile($event, 'check', item['id'].toString())">
       <input class="form-control" id="file" type="file" ref="file" multiple>
     </form>
   </RowDivSlot>

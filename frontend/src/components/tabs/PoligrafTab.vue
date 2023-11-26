@@ -19,11 +19,8 @@ const storeProfile = profileStore();
     <div v-else>
       <div v-if="storeProfile.dataProfile.pfo.length">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.pfo" :key="idx" 
-                          :id="item['id']" :idx="idx">
-          <PoligrafDiv :item="item" 
-                        :deleteItem="storeProfile.dataProfile.deleteItem"
-                        :openForm="storeProfile.dataProfile.openForm"
-                        :submitFile="storeProfile.dataProfile.submitFile"/>
+            :id="'poligraf' + idx" :idx="idx" :label="'Полиграф #' + (idx + 1)">
+          <PoligrafDiv :item="item" />
         </CollapseDiv>
       </div>
       <p v-else >Данные отсутствуют</p>

@@ -12,15 +12,15 @@ const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/Page
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 
+const mapped_items = {
+  'search': "Результаты поиска",
+  'officer': "Страница пользователя",
+  'main': "Все кандидаты",
+  'new': "Новые кандидаты"
+}
+
 const header = computed(() => {
-  const name = {
-    'search': "Результаты поиска",
-    'extended': 'Расширенный поиск',
-    'officer': "Страница пользователя",
-    'main': "Главная страница",
-    'new': "Новые кандидаты"
-  }
-  return name[personData.value.path as keyof typeof name]
+  return mapped_items[personData.value.path as keyof typeof mapped_items];
 });
 
 interface Candidate {
@@ -37,9 +37,9 @@ const personData = ref({
   prev: false,
   next: false,
   search: '',
-  extsearch: false,
   page: 1,
   path: 'new',
+
   getCandidates: async function (page: number, url: string): Promise<void> {
     this.page = page;
     this.path = url;
@@ -63,18 +63,17 @@ onBeforeMount(() => {
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   Object.assign(personData.value, {
-    candidates: [],
-    prev: false,
-    next: false,
     search: '',
-    extsearch: false,
     page: 1,
     path: 'new'
   });
   next()
 });
 
-const searchPerson = debounce(personData.value.getCandidates, 500);
+const searchPerson = debounce(() => {
+  personData.value.getCandidates(1, 'search'); 
+  }, 500
+);
 
 </script>
 
@@ -85,31 +84,25 @@ const searchPerson = debounce(personData.value.getCandidates, 500);
       <div class="col-md-3">
         <form class="form form-check" role="form">
           <label class="visually-hidden" for="action">Действия</label>
-          <select class="form-select" id="region" name="region" 
+          <select class="form-select" id="action" name="action" 
                   v-model="personData.path" 
-                  @change="personData.search = ''; 
-                  personData.getCandidates(1, personData.path)">
-            <option value="" selected>Выберите действие</option>
-            <option value="new">Новые кандидаты</option>
-            <option value="main">Все кандидаты</option>
-            <option value="officer">Мои анкеты</option>
+                  @change="personData.getCandidates(1, personData.path)">
+            <option v-for="value, key in mapped_items" :key="key"
+                          :value="key" :selected="key === 'new'">
+              {{ value }}
+            </option>
           </select>
         </form>
       </div>
-      <div class="col-md-8">
-        <form @input="searchPerson(1, personData.extsearch ? 'extended' : 'search')" 
+      <div class="col-md-9">
+        <form @input="searchPerson(1, 'search')" 
               class="form form-check" role="form">
           <div class="row">
             <input class="form-control" id="search" maxlength="250" minlength="3" 
                   v-model="personData.search" 
-                  name="search" placeholder="поиск по имени и ИНН" type="text">
+                  name="search" placeholder="поиск по имени, ИНН, СНИЛС" type="text">
           </div>
         </form>
-      </div>
-      <div class="col-md-1">
-        <input class="form-check-input" type="checkbox" id="checkbox" 
-               title="Расширенный поиск" style="width: 30px; height: 30px;"
-               v-model="personData.extsearch" value="search">
       </div>
     </div>
     <div class="py-3">
@@ -146,7 +139,7 @@ const searchPerson = debounce(personData.value.getCandidates, 500);
                   :has_next = "personData.next"
                   :switchPrev = "personData.page-1"
                   :switchNext = "personData.page+1"
-                  :option = "personData.path, "
-                  :switchPage="personData.getCandidates" />
+                  :option = "personData.path"
+                  :switchPage = "personData.getCandidates" />
   </div>
 </template>

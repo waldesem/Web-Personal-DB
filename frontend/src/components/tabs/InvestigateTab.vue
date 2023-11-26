@@ -20,11 +20,8 @@ const storeProfile = profileStore();
     <div v-else>
       <div v-if="storeProfile.dataProfile.inquisition.length">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.inquisition" :key="idx" 
-                          :id="item['id']" :idx="idx">
-          <InvestigateDiv :item="item" 
-                          :deleteItem="storeProfile.dataProfile.deleteItem"
-                          :openForm="storeProfile.dataProfile.openForm"
-                          :submitFile="storeProfile.dataProfile.submitFile"/>
+            :id="'investigation' + idx" :idx="idx" :label="'Расследование #' + (idx + 1)">
+          <InvestigateDiv :item="item" />
         </CollapseDiv>
       </div>
       <p v-else >Данные отсутствуют</p>

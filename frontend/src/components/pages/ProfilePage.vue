@@ -7,13 +7,13 @@ import { profileStore } from '@/store/profile';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 const PhotoCard = defineAsyncComponent(() => import('@components/layouts/PhotoCard.vue'));
-const AnketaTab = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
-const CheckTab = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
-const RegistryTab = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
-const PoligrafTab = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
-const InvestigateTab = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
-const InquiryTab = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
-const OneTab = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
+const AnketaTab = defineAsyncComponent(() => import('@components/tabs/AnketaTab.vue'));
+const CheckTab = defineAsyncComponent(() => import('@components/tabs/CheckTab.vue'));
+const RegistryTab = defineAsyncComponent(() => import('@components/tabs/RegistryTab.vue'));
+const PoligrafTab = defineAsyncComponent(() => import('@components/tabs/PoligrafTab.vue'));
+const InvestigateTab = defineAsyncComponent(() => import('@components/tabs/InvestigateTab.vue'));
+const InquiryTab = defineAsyncComponent(() => import('@components/tabs/InquiryTab.vue'));
+const OneTab = defineAsyncComponent(() => import('@components/tabs/OneTab.vue'));
 
 const storeProfile = profileStore();
 
@@ -42,8 +42,6 @@ onBeforeMount(async () => {
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeProfile.dataProfile.cancelEdit();
-  storeProfile.dataProfile.url = '';
-  storeProfile.dataProfile.candId = '';
   next();
 });
 
@@ -60,8 +58,9 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
     <div v-if="!printPage" class="nav nav-tabs nav-justified" role="tablist">
       <button v-for="(value, key) in tabsObject" :key="key"
-              class="nav-link active" type="button" role="tab" 
-              data-bs-toggle="tab" :data-bs-target="`#${key}`">
+              class="nav-link" :class="{'active': key === 'anketaTab'}"
+              data-bs-toggle="tab" :data-bs-target="`#${key}`"
+              type="button" role="tab">
         {{value[0]}}
       </button>
     </div>
@@ -69,7 +68,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     <div v-if="!printPage" class="tab-content">
       <div v-for="(value, key) in tabsObject" :key="key" :id="key"
           class="tab-pane fade py-1" role="tabpanel" 
-          :class="key === 'anketaTab' ? 'show active' : ''" >
+          :class="{' show active': key === 'anketaTab'}" >
         <component :is="value[1]"></component>
       </div>
     </div>
@@ -83,9 +82,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     <a href="#" class="d-print-none" @click="printPage = !printPage">
       <i class="bi bi-printer fs-1" title="Версия для печати"></i>
     </a>
-    <!-- <router-link :to="{ name: 'print' }">
-      <i class="bi bi-printer fs-1" title="Версия для печати"></i>
-    </router-link> -->
 
   </div>
 </template>

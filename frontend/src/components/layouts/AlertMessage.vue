@@ -8,8 +8,7 @@ const storeAlert = alertStore();
 
 <template>
   <div class="container py-3">
-    <div v-if="storeAlert.alertMessage.show" 
-        class="alert" role="info" fade show
+    <div class="alert" role="info" fade show
         :class="storeAlert.alertMessage.attr">
       {{storeAlert.alertMessage.text}}
     </div>

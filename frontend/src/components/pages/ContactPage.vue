@@ -3,7 +3,7 @@
 import { onBeforeMount, defineAsyncComponent } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { contactStore } from '@/store/contacts';
-import { debounce, clearItem } from '@utilities/utils';
+import { debounce, clearForm } from '@utilities/utils';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 const ConnectForm = defineAsyncComponent(() => import('@components/forms/ConnectForm.vue'));
@@ -21,7 +21,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     search: '',
     page: 1
   })
-  clearItem(storeContact.contactData.form);
+  clearForm(storeContact.contactData.form);
   next()
 });
 

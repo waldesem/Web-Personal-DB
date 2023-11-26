@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { classifyStore } from '@store/classify';
-import { server, clearItem } from '@utilities/utils';
+import { server, clearForm } from '@utilities/utils';
 import router from '@router/router';
 
 
@@ -32,10 +32,7 @@ export const loginStore = defineStore('loginStore', () => {
         this.assignUserData(fullname, username, roles, groups, region_id);
         this.hasRole('admin') 
           ? router.push({ name: 'users', params: {group: 'admins'}}) 
-          : router.push({ name: 'persons', params: {
-            group: userData.value.userGroups[0]['group'] 
-          }
-        });
+          : router.push({ name: 'persons', params: {group: this.userGroups[0]['group'] }});
         storeClasses.classData.getClasses();
         storeAlert.alertMessage.setAlert();
       } catch (error) {
@@ -89,7 +86,7 @@ export const loginStore = defineStore('loginStore', () => {
       } catch (error) {
         storeAlert.alertMessage.setAlert('alert-warning', error as string);
         this.userLogout();
-        clearItem(this.form)
+        clearForm(this.form)
       };
     },
 

@@ -1,18 +1,13 @@
 <script setup lang="ts">
 
 import { defineAsyncComponent } from 'vue';
+import { profileStore } from '@/store/profile';
 
 const RowDivSlot = defineAsyncComponent(() => import('@components/elements/RowDivSlot.vue'));
 
+const storeProfile = profileStore();
+
 const props = defineProps({
-  deleteItem: {
-    type: Function,
-    required: true
-  },
-  openForm: {
-    type: Function,
-    required: true
-  },
   item: {
     type: Object,
     required: true
@@ -26,13 +21,13 @@ const props = defineProps({
   <RowDivSlot :slotOne="true" :slotTwo="true"  :print="true">
     <template v-slot:divOne>
       <a href="#" title="Удалить"
-        @click="props.deleteItem(props.item['id'].toString(), 'inquiry')">
+        @click="storeProfile.dataProfile.deleteItem(props.item['id'].toString(), 'inquiry')">
         <i class="bi bi-trash"></i>
       </a>
     </template>
     <template v-slot:divTwo>
       <a href="#" title="Изменить"
-        @click="props.openForm('inquiry', 'update', props.item['id'].toString(), props.item)">
+        @click="storeProfile.dataProfile.openForm('inquiry', 'update', props.item['id'].toString(), props.item)">
         <i class="bi bi-pencil-square"></i>
       </a>
     </template>

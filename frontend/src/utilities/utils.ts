@@ -15,7 +15,7 @@ function debounce(func: (...args: any[]) => void, delay: number): (...args: any[
   };
 };
 
-function clearItem(item: Object): void {
+function clearForm(item: Object): void {
   Object.keys(item).forEach(key => {
     delete item[key as keyof typeof item];
   });
@@ -53,5 +53,5 @@ export {
   server, 
   debounce,
   timeSince,
-  clearItem 
+  clearForm 
 };

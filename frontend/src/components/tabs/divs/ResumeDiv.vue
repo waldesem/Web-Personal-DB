@@ -1,31 +1,13 @@
 <script setup lang="ts">
 
 import { defineAsyncComponent } from 'vue';
+import { profileStore } from '@/store/profile';
+import { classifyStore } from '@/store/classify';
 
 const RowDivSlot = defineAsyncComponent(() => import('@components/elements/RowDivSlot.vue'));
 
-const props = defineProps({
-  deleteItem: {
-    type: Function,
-    required: true
-  },
-  openForm: {
-    type: Function,
-    required: true
-  },
-  getItem: {
-    type: Function,
-    required: true
-  },
-  item: {
-    type: Object,
-    required: true
-  },
-  regions: {
-    type: Object,
-    required: true
-  }
-});
+const storeProfile = profileStore();
+const storeClassify = classifyStore();
 
 </script>
 
@@ -33,41 +15,41 @@ const props = defineProps({
   <RowDivSlot :slotOne="true" :slotTwo="true" :print="true">
     <template v-slot:divOne>
       <a href="#" title="Изменить"
-         @click="props.openForm('resume', 'update', props.item['id'], props.item)">
+         @click="storeProfile.dataProfile.openForm('resume', 'update', storeProfile.dataProfile.resume['id'], storeProfile.dataProfile.resume)">
         <i class="bi bi-pencil-square"></i>
       </a>
     </template>
   </RowDivSlot>
-  <RowDivSlot :label="'Категория'" :value="props.item['category']"/>
+  <RowDivSlot :label="'Категория'" :value="storeProfile.dataProfile.resume['category']"/>
   <RowDivSlot :label="'Регион'" :slotTwo="true">
     <a href="#" data-bs-toggle="modal" data-bs-target="#modalRegion"
-       @click="props.openForm('resume', 'location', props.item['id'], props.item)">
-        {{ props.regions[props.item['region_id']] }}
+       @click="storeProfile.dataProfile.openForm('resume', 'location', storeProfile.dataProfile.resume['id'], storeProfile.dataProfile.resume)">
+        {{ storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']] }}
     </a>
   </RowDivSlot>
-  <RowDivSlot :label="'Фамилия Имя Отчество'" :value="props.item['fullname']"/>
-  <RowDivSlot :label="'Изменение имени'" :value="props.item['previous']"/>
-  <RowDivSlot :label="'Дата рождения'" :value="props.item['birthday']"/>
-  <RowDivSlot :label="'Место рождения'" :value="props.item['birthplace']"/>
-  <RowDivSlot :label="'Гражданство'" :value="props.item['country']"/>
-  <RowDivSlot :label="'Второе гражданство'" :value="props.item['ext_country']"/>
-  <RowDivSlot :label="'СНИЛС'" :value="props.item['snils']"/>
-  <RowDivSlot :label="'ИНН'" :value="props.item['inn']"/>
-  <RowDivSlot :label="'Образование'" :value="props.item['education']"/>
-  <RowDivSlot :label="'Дополнительная информация'" :value="props.item['addition']"/>
-  <RowDivSlot :label="'Материалы'" :value="props.item['path']" :slotTwo="true" :print="true">
-    <router-link :to="{name: 'manager', params: {group: 'staffsec', path: props.item['path'].split('/')}}">
-      {{ props.item['path'] }}
+  <RowDivSlot :label="'Фамилия Имя Отчество'" :value="storeProfile.dataProfile.resume['fullname']"/>
+  <RowDivSlot :label="'Изменение имени'" :value="storeProfile.dataProfile.resume['previous']"/>
+  <RowDivSlot :label="'Дата рождения'" :value="storeProfile.dataProfile.resume['birthday']"/>
+  <RowDivSlot :label="'Место рождения'" :value="storeProfile.dataProfile.resume['birthplace']"/>
+  <RowDivSlot :label="'Гражданство'" :value="storeProfile.dataProfile.resume['country']"/>
+  <RowDivSlot :label="'Второе гражданство'" :value="storeProfile.dataProfile.resume['ext_country']"/>
+  <RowDivSlot :label="'СНИЛС'" :value="storeProfile.dataProfile.resume['snils']"/>
+  <RowDivSlot :label="'ИНН'" :value="storeProfile.dataProfile.resume['inn']"/>
+  <RowDivSlot :label="'Образование'" :value="storeProfile.dataProfile.resume['education']"/>
+  <RowDivSlot :label="'Дополнительная информация'" :value="storeProfile.dataProfile.resume['addition']"/>
+  <RowDivSlot :label="'Материалы'" :value="storeProfile.dataProfile.resume['path']" :slotTwo="true" :print="true">
+    <router-link :to="{name: 'manager', params: {group: 'staffsec', path: storeProfile.dataProfile.resume['path'].split('/')}}">
+      {{ storeProfile.dataProfile.resume['path'] }}
     </router-link>
   </RowDivSlot>
   <RowDivSlot :label="'Статус'" :slotTwo="true">
-    <a href="#" @click="props.getItem('resume', 'status', props.item['id'])">
-      {{ props.item['status'] }}
+    <a href="#" @click="storeProfile.dataProfile.getItem('resume', 'status', storeProfile.dataProfile.resume['id'])">
+      {{ storeProfile.dataProfile.resume['status'] }}
     </a>
   </RowDivSlot>
-  <RowDivSlot :label="'Создан'" :value="new Date(String(props.item['create'])).
+  <RowDivSlot :label="'Создан'" :value="new Date(String(storeProfile.dataProfile.resume['create'])).
                                               toLocaleDateString('ru-RU')"/>
-  <RowDivSlot :label="'Обновлен'" :value="new Date(String(props.item['update'])).
+  <RowDivSlot :label="'Обновлен'" :value="new Date(String(storeProfile.dataProfile.resume['update'])).
                                               toLocaleDateString('ru-RU')"/>
-  <RowDivSlot :label="'Внешний ID'" :value="props.item['request_id']"/>
+  <RowDivSlot :label="'Внешний ID'" :value="storeProfile.dataProfile.resume['request_id']"/>
 </template>

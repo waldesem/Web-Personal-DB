@@ -62,17 +62,11 @@ class IndexView(MethodView):
                     if self.location_id != 1:
                         query = query.filter(Person.region_id == self.location_id)
             
-            case 'extended':
-                if json_data['search']:
-                    query = Person.opensearch(json_data['search']) 
-                    if self.location_id != 1:
-                        query = query.filter(Person.region_id == self.location_id)
-            
         result = query.paginate(page=page,
                             per_page=self.pagination,
                             error_out=False)
         
-        has_next, has_prev = int(result.has_next), int(result.has_prev)
+        has_next, has_prev = bool(result.has_next), bool(result.has_prev)
         
         return [self.schema.dump(result, many=True),
                 {'has_next': has_next, "has_prev": has_prev}]

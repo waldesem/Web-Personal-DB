@@ -26,7 +26,7 @@ disableRegBtn.value = (storeProfile.dataProfile.resume['status']
     <div v-else>
       <div v-if="storeProfile.dataProfile.register.length">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.register" :key="idx" 
-                           :id="item['id']" :idx="idx">
+            :id="'registry' + idx" :idx="idx" :label="'Согласование #' + (idx + 1)">
           <RegistryDiv :item="item" />
         </CollapseDiv>
       </div>

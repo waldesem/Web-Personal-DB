@@ -79,37 +79,37 @@ if (!isStarted) {
             </li>
 
             <li class="nav-item">
-              <router-link :to="{ name: 'manager', params: { group: 'staffsec', path: [''] } }" 
-                           class="nav-link active" href="#">
+              <router-link :to="{ name: 'manager', params: { group: 'staffsec'} }" 
+                           class="nav-link active" href="#" v-bind:props="{ path: ['']  }">
                 Файлы
               </router-link>
             </li>
           </template>
 
-            <li class="nav-item dropdown">
-              <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
-                Сообщения
-                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
-                  {{ storeMessage.messageData.messages.length }}
-                </span>
-              </a>
-                <ul class="dropdown-menu" id="messages">
-                  <h6 class="dropdown-header">Новые сообщения</h6>
-                  <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
-                    <a class="dropdown-item">
-                      <p>{{ timeSince(message['create']) }}</p>
-                      <p>{{ message['title'] }}</p>
-                    </a>
-                  </li>
-                  <div class="dropdown-divider"></div>
-                  <li>
-                    <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
-                                 class="dropdown-item" >
-                      Открыть сообщения
-                    </router-link>
-                  </li>
-                </ul>
-            </li>
+          <li v-if="pageIdentity && pageIdentity !== 'login'" class="nav-item dropdown">
+            <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
+              Сообщения
+              <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
+                {{ storeMessage.messageData.messages.length }}
+              </span>
+            </a>
+              <ul class="dropdown-menu" id="messages">
+                <h6 class="dropdown-header">Новые сообщения</h6>
+                <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
+                  <a class="dropdown-item">
+                    <p>{{ timeSince(message['create']) }}</p>
+                    <p>{{ message['title'] }}</p>
+                  </a>
+                </li>
+                <div class="dropdown-divider"></div>
+                <li>
+                  <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
+                                class="dropdown-item" >
+                    Открыть сообщения
+                  </router-link>
+                </li>
+              </ul>
+          </li>
         </ul>
 
         <li class="nav-item dropdown d-flex">

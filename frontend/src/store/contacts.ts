@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { inject, ref } from 'vue';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { clearItem, server } from '@utilities/utils';
+import { clearForm, server } from '@utilities/utils';
 
 
 export const contactStore = defineStore('contactStore', () => {
@@ -61,7 +61,7 @@ export const contactStore = defineStore('contactStore', () => {
                                   alert[action as keyof typeof alert][1]);
         this.getContacts(this.page);
         this.action = '';
-        clearItem(this.form);
+        clearForm(this.form);
       } catch (error) {
         console.log(error)
       }

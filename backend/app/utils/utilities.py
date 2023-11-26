@@ -178,8 +178,8 @@ class JsonFile:
                     affilation.append(state)
 
         if self.json_dict['hasRelatedPersonsOrganizations']:
-            if len(self.json_dict['hasRelatedPersonsOrganizations']):
-                for item in self.json_dict['hasRelatedPersonsOrganizations']:
+            if len(self.json_dict['relatedPersonsOrganizations']):
+                for item in self.json_dict['relatedPersonsOrganizations']:
                     related = {
                         'view': 'Связанные лица работают в госудраственных организациях',
                         'name': f"{item['name'] if 'name' in item else ''}",

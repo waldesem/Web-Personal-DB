@@ -30,7 +30,7 @@ const toggleForm = ref({
         @mouseover="toggleForm.handleMouse" 
         @mouseout="toggleForm.handleMouse">
       <img :src="props.url ? props.url : '/no-photo.png'" 
-            style="width: 100%; height: auto; opacity: 0.5;" class="card-img-top" alt="...">
+            style="width: 100%; height: auto;" class="card-img-top" alt="...">
       <form :class="{ 'form-visible': toggleForm.showForm }" 
           @change="props.func($event, ...props.param)" class="form">
         <input class="form-control form-control-sm" id="formImage" type="file">                  

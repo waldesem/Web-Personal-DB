@@ -6,12 +6,9 @@ from flask_sqlalchemy.query import Query
 
 from .. import db, cache
 from .classes import Category, Status
-from ..search.search import Searching
 
 
 make_searchable(db.metadata)
-
-searching = Searching()
 
 
 def default_time():
@@ -21,41 +18,6 @@ def default_time():
     :rtype: datetime
     """
     return datetime.now()
-
-
-class SearchableMixin(object):
-
-
-    @classmethod
-    def opensearch(cls, expression):
-        ids = searching.query_index(expression)
-        return db.session.query(Person).filter(Person.id.in_(ids))
-
-    @classmethod
-    def before_commit(cls, session):
-        session._changes = {
-            'add': list(session.new),
-            'update': list(session.dirty),
-            'delete': list(session.deleted)
-        }
-
-    @classmethod
-    def after_commit(cls, session):
-        for obj in session._changes['add']:
-            if isinstance(obj, SearchableMixin):
-                searching.add_to_index(obj)
-        for obj in session._changes['update']:
-            if isinstance(obj, SearchableMixin):
-                searching.add_to_index(obj)
-        for obj in session._changes['delete']:
-            if isinstance(obj, SearchableMixin):
-                searching.remove_from_index(obj)
-        session._changes = None
-
-    @classmethod
-    def reindex(cls):
-        for obj in cls.query:
-            searching.add_to_index(cls.__tablename__, obj)
 
 
 class Region(db.Model):
@@ -170,7 +132,7 @@ class PersonQuery(Query, SearchQueryMixin):
     pass
    
 
-class Person(SearchableMixin, db.Model):
+class Person(db.Model):
     """ Create model for persons dates"""
     query_class = PersonQuery
 
@@ -239,7 +201,7 @@ class Person(SearchableMixin, db.Model):
         return self.status in status
 
 
-class Affilation(SearchableMixin, db.Model):
+class Affilation(db.Model):
     """ Create model for affilation"""
 
     __searchable__ = ['affilation']
@@ -256,7 +218,7 @@ class Affilation(SearchableMixin, db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Relation(SearchableMixin, db.Model):
+class Relation(db.Model):
     """ Create model for relations"""
 
     __searchable__ = ['relation']
@@ -270,7 +232,7 @@ class Relation(SearchableMixin, db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Staff(SearchableMixin, db.Model):
+class Staff(db.Model):
     """ Create model for staff"""
 
     __searchable__ = ['position', 'department']
@@ -284,7 +246,7 @@ class Staff(SearchableMixin, db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Document(SearchableMixin, db.Model):
+class Document(db.Model):
     """ Create model for Document dates"""
 
     __searchable__ = ['series', 'number']
@@ -301,7 +263,7 @@ class Document(SearchableMixin, db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Address(SearchableMixin, db.Model): 
+class Address(db.Model): 
     """ Create model for addresses"""
 
     __searchable__ = ['address']
@@ -316,7 +278,7 @@ class Address(SearchableMixin, db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Workplace(SearchableMixin, db.Model):
+class Workplace(db.Model):
     """ Create model for workplaces"""
 
     __searchable__ = ['workplace']
@@ -334,7 +296,7 @@ class Workplace(SearchableMixin, db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Contact(SearchableMixin, db.Model):  # создаем общий класс телефонного номера
+class Contact(db.Model):  # создаем общий класс телефонного номера
     """ Create model for contacts"""
 
     __searchable__ = ['contact']
@@ -348,7 +310,7 @@ class Contact(SearchableMixin, db.Model):  # создаем общий клас�
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Check(SearchableMixin, db.Model):  # модель данных проверки кандидатов
+class Check(db.Model):  # модель данных проверки кандидатов
     """ Create model for persons checks"""
 
     __searchable__ = ['workplace', 'affiliation', 'internet',
@@ -399,7 +361,7 @@ class Registry(db.Model):  # модель данных результаты ПФ
     check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
 
 
-class Poligraf(SearchableMixin, db.Model):  # модель данных результаты ПФО
+class Poligraf(db.Model):  # модель данных результаты ПФО
     """ Create model for poligraf"""
 
     __searchable__ = ['results']
@@ -415,7 +377,7 @@ class Poligraf(SearchableMixin, db.Model):  # модель данных резу
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Investigation(SearchableMixin, db.Model):
+class Investigation(db.Model):
     """ Create model for ivestigation"""
     
     __searchable__ = ['info']
@@ -431,7 +393,7 @@ class Investigation(SearchableMixin, db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Inquiry(SearchableMixin, db.Model):
+class Inquiry(db.Model):
     """ Create model for persons inquiries"""
 
     __searchable__ = ['info']
@@ -487,9 +449,5 @@ class OneS(db.Model):
     start_position = db.Column(db.Text)
     end_position = db.Column(db.Text)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-
-
-db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
-db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
 db.configure_mappers()

@@ -17,35 +17,45 @@ const select_items = {
 
 </script>
 
-
 <template>
   <div class="py-3">
     <form @submit.prevent="storeProfile.dataProfile.submitResume" class="form form-check" role="form">
       <SelectDiv :name="'category'" :label="'Категория'" :select="select_items"
+                 @input-event="storeProfile.dataProfile.form['category'] = $event.target.value"
                  :model="storeProfile.dataProfile.form['category']" />
-      <InputLabel :isneed="true" :name="'fullname'" :label="'Полное ФИО*'" 
-                  :pattern="'[a-zA-Zа-я-АЯ -]+'"
+      <InputLabel :isneed="true" :name="'fullname'" :label="'Полное ФИО*'"
+                  @input-event="storeProfile.dataProfile.form['fullname'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['fullname']"/>
       <TextLabel :name="'previous'" :label="'Изменение имени'"
+                  @input-event="storeProfile.dataProfile.form['previous'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['previous']"/>
       <InputLabel :isneed="true" :name="'birthday'" :label="'Дата рождения*'" 
-                  :typeof="'date'"
+                  :typeof="'date'" 
+                  @input-event="storeProfile.dataProfile.form['birthday'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['previous']"/>
       <TextLabel :name="'birthplace'" :label="'Место рождения'" 
+                  @input-event="storeProfile.dataProfile.form['birthplace'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['birthplace']"/>
       <InputLabel :name="'country'" :label="'Гражданство'" :max="'255'"
+                  @input-event="storeProfile.dataProfile.form['country'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['country']"/>
       <InputLabel :name="'ext_country'" :label="'Двойное гражданство'" :max="'255'"
+                  @input-event="storeProfile.dataProfile.form['ext_country'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['ext_country']"/>
-      <InputLabel :name="'snils'" :label="'СНИЛС'" :max="'11'" :pattern="'\d{11}'"
+      <InputLabel :name="'snils'" :label="'СНИЛС'" :pattern="'[0-9]{11}'"
+                  @input-event="storeProfile.dataProfile.form['snils'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['snils']"/>
-      <InputLabel :name="'inn'" :label="'ИНН'" :max="'12'" :pattern="'\d{12}'"
+      <InputLabel :name="'inn'" :label="'ИНН'" :max="'12'" :pattern="'[0-9]{12}'"
+                  @input-event="storeProfile.dataProfile.form['inn'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['inn']"/>
       <TextLabel :name="'education'" :label="'Образование'" 
+                  @input-event="storeProfile.dataProfile.form['education'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['education']"/>   
       <InputLabel :name="'marital'" :label="'Семейнное положение'" :max="'255'"
+                  @input-event="storeProfile.dataProfile.form['marital'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['marital']"/>
       <TextLabel :name="'addition'" :label="'Дополнительно'" 
+                  @input-event="storeProfile.dataProfile.form['addition'] = $event.target.value"
                   :model="storeProfile.dataProfile.form['addition']"/>
 
       <BtnGroupForm>

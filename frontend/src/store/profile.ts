@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { classifyStore } from '@store/classify';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { server, clearItem } from '@utilities/utils';
+import { server, clearForm } from '@utilities/utils';
 import router from '@/router/router';
 
 export const profileStore = defineStore('profileStore', () => {
@@ -309,14 +309,14 @@ export const profileStore = defineStore('profileStore', () => {
       } catch (error) {
         storeAlert.alertMessage.setAlert('alert-danger', `Возникла ошибка ${error}`);
       }
-      clearItem(this.form);
+      clearForm(this.form);
       this.action = '';
       this.flag = '';
       this.spinner = false;
     },
     
     deleteItem: async function (
-      item: string, action: string = 'delete', id: string): Promise<void> {
+      item: string, id: string, action: string = 'delete'): Promise<void> {
       if ([classifyApp.classData.status['robot'], 
            classifyApp.classData.status['finish']].includes(this.resume['status']) 
           && (item === 'check' || item === 'resume')) {
@@ -429,7 +429,7 @@ export const profileStore = defineStore('profileStore', () => {
     },
 
     cancelEdit: function (): void {
-      clearItem(this.form);
+      clearForm(this.form);
       this.action = '';
       this.flag = '';
       this.itemId = ''

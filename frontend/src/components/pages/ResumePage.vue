@@ -3,7 +3,7 @@
 import { defineAsyncComponent } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { profileStore } from '@/store/profile';
-import { clearItem } from '@utilities/utils'
+import { clearForm } from '@utilities/utils'
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 const ResumeForm = defineAsyncComponent(() => import('@components/forms/ResumeForm.vue'));
@@ -12,7 +12,7 @@ const storeProfile = profileStore();
 storeProfile.dataProfile.action = 'create';
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(storeProfile.dataProfile.form);
+  clearForm(storeProfile.dataProfile.form);
   next()
 });
 

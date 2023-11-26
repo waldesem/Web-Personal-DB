@@ -17,8 +17,7 @@ const storeLogin = loginStore();
         <InputLabel :label="'Логин'" :name="'username'" :need="true"
                     :max="'16'" :min="'3'" :clsInput="'col-lg-6'"
                     :place="'Логин'" :pattern="'[a-zA-Z]+'"
-                    @input-event="storeLogin.userData.form['username'] = $event.target.value" 
-                    v-model="storeLogin.userData.form['username']" />
+                    @input-event="storeLogin.userData.form['username'] = $event.target.value"/>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="password">Пароль: </label>
           <div class="col-lg-6">
@@ -44,14 +43,12 @@ const storeLogin = loginStore();
                       :max="'16'" :min="'8'" :clsInput="'col-lg-6'"
                       :place="'Новый пароль'" :pattern="'[0-9a-zA-Z]+'"
                       :typeof="storeLogin.userData.hidden ? 'password' : 'text'" 
-                      @input-event="storeLogin.userData.form['new_pswd'] = $event.target.value"
-                      v-model="storeLogin.userData.form['new_pswd']"/>
+                      @input-event="storeLogin.userData.form['new_pswd'] = $event.target.value"/>
           <InputLabel :label="'Повтор'" :name="'conf_pswd'" :need="true" 
                       :max="'16'" :min="'8'" :clsInput="'col-lg-6'"
                       :place="'Повторите новый пароль'" :pattern="'[0-9a-zA-Z]+'" 
                       :typeof="storeLogin.userData.hidden ? 'password' : 'text'" 
-                      @input-event="storeLogin.userData.form['conf_pswd'] = $event.target.value"
-                      v-model="storeLogin.userData.form['conf_pswd']"/>
+                      @input-event="storeLogin.userData.form['conf_pswd'] = $event.target.value"/>
         </div>
         <div class="offset-lg-2 col-lg-10">
           <button class="btn btn-primary btn-md" name="submit" type="submit">

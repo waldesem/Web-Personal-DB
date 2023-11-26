@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia';
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
-import { server, clearItem } from '@utilities/utils';
+import { server, clearForm } from '@utilities/utils';
 import router from '@/router/router';
 
 
@@ -74,7 +74,7 @@ export const adminStore = defineStore('adminStore', () => {
         console.error(error);
         storeAlert.alertMessage.setAlert('alert-danger', 'Ошибка сохранения данных');
       };
-      clearItem(this.form);
+      clearForm(this.form);
     },
 
     userAction: async function(action: String): Promise<void>{

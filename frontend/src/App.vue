@@ -8,7 +8,6 @@ import { loginStore } from '@/store/login';
 const NavBar = defineAsyncComponent(() => import('@components/layouts/NavBar.vue'));
 const AlertMessage = defineAsyncComponent(() => import('@components/layouts/AlertMessage.vue'));
 const FooterDiv = defineAsyncComponent(() => import('@components/layouts/FooterDiv.vue'));
-const ChatBot = defineAsyncComponent(() => import('@components/layouts/ChatBot.vue'));
 
 const storeLogin = loginStore();
 
@@ -34,6 +33,12 @@ onBeforeMount(() => {
   <NavBar />
   <AlertMessage />
   <router-view></router-view>
-  <ChatBot />
   <FooterDiv />
 </template>
+
+
+<style>
+html, body {
+  scrollbar-gutter: stable;
+}
+</style>

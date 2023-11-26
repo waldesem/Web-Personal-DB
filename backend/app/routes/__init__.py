@@ -18,5 +18,3 @@ from app.routes import message
 
 from app.routes import classify
 
-from app.routes import chatbot
-

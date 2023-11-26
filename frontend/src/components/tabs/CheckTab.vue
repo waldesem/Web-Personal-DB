@@ -41,11 +41,8 @@ hiddenAddBtn.value = ![storeClassify.classData.status['new'],
     <div v-else>
       <div v-if="storeProfile.dataProfile.verification.length">
         <CollapseDiv v-for="item, idx in storeProfile.dataProfile.verification" :key="idx" 
-                          :id="item['id']" :idx="idx">
-          <CheckDiv :item="item" :hiddenDelBtn="hiddenDelBtn" :hiddeEditBtn="hiddenEditBtn"
-                    :deleteItem="storeProfile.dataProfile.deleteItem"
-                    :openForm="storeProfile.dataProfile.openForm"
-                    :submitFile="storeProfile.dataProfile.submitFile"/>
+            :id="'check' + idx" :idx="idx" :label="'Проверка #' + (idx + 1)">
+          <CheckDiv :item="item" :hiddenDelBtn="hiddenDelBtn" :hiddeEditBtn="hiddenEditBtn" />
         </CollapseDiv>
       </div>
       <p v-else >Данные отсутствуют</p>

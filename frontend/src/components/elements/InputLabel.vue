@@ -14,7 +14,11 @@ const props = defineProps({
   },
   place: {
     type: String,
-    default: (props: any) => props.label
+    default: (props: any) => {
+      if (props.typeof === 'text') {
+        return props.label
+      }
+    }
   },
   pattern: {
     type: String,
@@ -63,10 +67,10 @@ const props = defineProps({
             :type="props.typeof"
             :required="props.need"
             :pattern="props.pattern"
+            :placeholder="props.place"
             :autocomplete="props.name"
             :value="props.model"
             @input="$emit('input-event', $event)" />
-
     </div>
   </div>
 </template>

@@ -4,7 +4,7 @@ import { defineAsyncComponent, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave, useRoute } from 'vue-router';
 import { classifyStore } from '@/store/classify';
 import { adminStore } from '@store/admins';
-import { clearItem } from '@utilities/utils';
+import { clearForm } from '@utilities/utils';
 
 const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderDiv.vue'));
 const RowDivSlot = defineAsyncComponent(() => import('@components/elements/RowDivSlot.vue'));
@@ -23,21 +23,7 @@ onBeforeMount(async () => {
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearItem(storeAdmin.dataUsers.form);
-  Object.assign(storeAdmin.dataUsers.profile, {
-    id: '',
-    fullname: '',
-    region_id: '',
-    username: '',
-    email: '',
-    pswd_create: '',
-    pswd_change: '',
-    last_login: '',
-    roles: [],
-    groups: [],
-    blocked: '',
-    attempt: ''
-  });
+  clearForm(storeAdmin.dataUsers.form);
   next()
 }); 
 
