@@ -435,19 +435,4 @@ class Connect(db.Model):
     search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile', 'phone')) 
 
 
-class OneS(db.Model):
-    """ Create model for 1C database table"""
-
-    __tablename__ = 'ones'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
-                   autoincrement=True)
-    full_name = db.Column(db.String(255))
-    birth_date = db.Column(db.Date)
-    start_date = db.Column(db.Date)
-    end_date = db.Column(db.Date)
-    start_position = db.Column(db.Text)
-    end_position = db.Column(db.Text)
-    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-
 db.configure_mappers()

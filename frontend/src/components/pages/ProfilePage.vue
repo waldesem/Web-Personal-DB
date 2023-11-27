@@ -13,7 +13,6 @@ const RegistryTab = defineAsyncComponent(() => import('@components/tabs/Registry
 const PoligrafTab = defineAsyncComponent(() => import('@components/tabs/PoligrafTab.vue'));
 const InvestigateTab = defineAsyncComponent(() => import('@components/tabs/InvestigateTab.vue'));
 const InquiryTab = defineAsyncComponent(() => import('@components/tabs/InquiryTab.vue'));
-const OneTab = defineAsyncComponent(() => import('@components/tabs/OneTab.vue'));
 
 const storeProfile = profileStore();
 
@@ -27,8 +26,7 @@ const tabsObject = {
   registryTab: ['Согласования', RegistryTab],
   poligrafTab: ['Полиграф', PoligrafTab],
   investigateTab: ['Расследования', InvestigateTab],
-  inquiryTab: ['Запросы', InquiryTab],
-  oneTab: ['1C', OneTab]
+  inquiryTab: ['Запросы', InquiryTab]
 };
 
 const printPage = ref(false);

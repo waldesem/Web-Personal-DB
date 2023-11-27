@@ -144,16 +144,6 @@ export const profileStore = defineStore('profileStore', () => {
     deadline: string;
   };
   
-  interface OneS {
-    id: string;
-    full_name: string;
-    birth_date: string;
-    start_date: string;
-    end_date: string;
-    start_position: string;
-    end_position: string
-  };
-
   const dataProfile = ref({
     candId: '',
     itemId: '',
@@ -174,7 +164,6 @@ export const profileStore = defineStore('profileStore', () => {
     pfo: Array<Pfo>(),
     inquisition: Array<Inquisition>(),
     needs: Array<Needs>(),
-    ones: Array<OneS>(),
     form: <Record<string, any>>({}),
 
     getProfile: async function () {
@@ -193,7 +182,6 @@ export const profileStore = defineStore('profileStore', () => {
           'poligraf', 
           'investigation', 
           'inquiry',
-          'ones'
         ].map(async (item) => await this.getItem(item, 'view', this.candId))
       ]);
     },
@@ -263,11 +251,8 @@ export const profileStore = defineStore('profileStore', () => {
           case 'inquiry': 
             this.needs = response.data;
             break;
-          case 'ones': 
-            this.ones = response.data;
-            break;
           default:
-             console.log('OK');
+             console.log(response.data);
             break;
         };
   

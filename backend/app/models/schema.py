@@ -2,7 +2,7 @@ from apiflask import Schema
 from marshmallow import fields
 
 from .. import ma
-from ..models.model import OneS, Relation, User, Person, Affilation, Staff, \
+from ..models.model import Relation, User, Person, Affilation, Staff, \
     Document, Address, Contact, Workplace, Check, Registry, Poligraf, \
         Investigation, Inquiry, Report, Region, Role, Group, Connect
 
@@ -145,14 +145,6 @@ class PoligrafSchema(ma.SQLAlchemyAutoSchema):
         model = Poligraf
         ordered = True
 
-
-class OneSchema(ma.SQLAlchemyAutoSchema):
-    """ Create model for 1C"""
-    class Meta:
-        model = OneS
-        ordered = True
-
-
 class ConnectSchema(ma.SQLAlchemyAutoSchema):
     """ Create schema for Connections """
     class Meta:
@@ -208,6 +200,5 @@ models_schemas = {
     'poligraf': [Poligraf, PoligrafSchema()],
     'investigation': [Investigation, InvestigationSchema()],
     'inquiry': [Inquiry, InquirySchema()],
-    'connect': [Connect, ConnectSchema],
-    'ones': [OneS, OneSchema]
-}
+    'connect': [Connect, ConnectSchema]
+    }

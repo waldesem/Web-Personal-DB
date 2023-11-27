@@ -6,7 +6,7 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 
 - Python3;
 - Postgesql as database;
-- Redis as caching service and chatBbot database;
+- Redis as caching service;
 - APIFlask a lightweight Python web API framework based on Flask and marshmallow-code projects;
 - Gunicorn as HTTP server;
 - Flask-JWT-Extended as a tool for authorization;
@@ -14,11 +14,9 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
-- Flask-APScheduler as a tool that handles background tasks;
 - Flask_Searchable as a tool that handles search engine
 - Flask-Caching as a tool that handles caching
 - Flask-Cors as a tool that handles CORS
-- OpenSearch as a search engine.
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
 
@@ -200,13 +198,6 @@ On your Windows machine, open File Explorer and enter the IP address or hostname
 ```
 Replace `server_ip_address` with the actual IP address of your Linux server.
 You will be prompted for to enter a username and password for the Samba user that will have access to the shared directory.
-
-### Doker (not tested yet)
-To build the docker image run the following command in your terminal:
-```
-docker build -t staffsec .
-docker run --add-host host.docker.internal:host-gateway -p 5000:5000 staffsec
-```
 
 ### Node Development (optional)
 

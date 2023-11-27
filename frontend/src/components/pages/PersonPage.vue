@@ -75,6 +75,17 @@ const searchPerson = debounce(() => {
   }, 500
 );
 
+function openCollapse () {
+  let pressed = false;
+  if (!pressed){
+    const collapseBtn = document.getElementById('collapseBtn') as HTMLButtonElement;
+    if (collapseBtn) {
+      collapseBtn.click()
+    }
+    pressed = !pressed
+  }
+};
+
 </script>
 
 <template>
@@ -95,7 +106,7 @@ const searchPerson = debounce(() => {
         </form>
       </div>
       <div class="col-md-9">
-        <form @input="searchPerson(1, 'search')" 
+        <form @input="searchPerson(1, 'search'), openCollapse" 
               class="form form-check" role="form">
           <div class="row">
             <input class="form-control" id="search" maxlength="250" minlength="3" 
@@ -103,6 +114,15 @@ const searchPerson = debounce(() => {
                   name="search" placeholder="поиск по имени, ИНН, СНИЛС" type="text">
           </div>
         </form>
+      </div>
+    </div>
+    <button class="d-none" id="collapseBtn" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSearch"></button>
+    <div class="collapse" id="collapseExample">
+      <div class="card card-body">
+        Для поиска записей содержащих “star” и “wars” используйте запрос 'star wars'
+        Для поиска записей содержащих “star” или “wars” используйте 'star or wars'
+        Для поиска записей содержащих “star”, но не содержащих “wars” используйте 'star -wars'
+        Для поиска записей содержащих фразу целиком заключите ее в двойные кавычки '"star wars"'
       </div>
     </div>
     <div class="py-3">
