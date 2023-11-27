@@ -9,7 +9,6 @@ const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderD
 const PhotoCard = defineAsyncComponent(() => import('@components/layouts/PhotoCard.vue'));
 const AnketaTab = defineAsyncComponent(() => import('@components/tabs/AnketaTab.vue'));
 const CheckTab = defineAsyncComponent(() => import('@components/tabs/CheckTab.vue'));
-const RegistryTab = defineAsyncComponent(() => import('@components/tabs/RegistryTab.vue'));
 const PoligrafTab = defineAsyncComponent(() => import('@components/tabs/PoligrafTab.vue'));
 const InvestigateTab = defineAsyncComponent(() => import('@components/tabs/InvestigateTab.vue'));
 const InquiryTab = defineAsyncComponent(() => import('@components/tabs/InquiryTab.vue'));
@@ -23,7 +22,6 @@ storeProfile.dataProfile.candId = route.params.id.toString();
 const tabsObject = {
   anketaTab: ['Анкета', AnketaTab],
   сheckTab: ['Проверки', CheckTab],
-  registryTab: ['Согласования', RegistryTab],
   poligrafTab: ['Полиграф', PoligrafTab],
   investigateTab: ['Расследования', InvestigateTab],
   inquiryTab: ['Запросы', InquiryTab]

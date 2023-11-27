@@ -111,14 +111,6 @@ export const profileStore = defineStore('profileStore', () => {
     officer: string;
   };
   
-  interface Register {
-    id: string;
-    comments: string;
-    decision: string;
-    supervisor: string;
-    deadline: string;
-  };
-  
   interface Pfo {
     id: string;
     theme: string;
@@ -160,7 +152,6 @@ export const profileStore = defineStore('profileStore', () => {
     relate: Array<Relation>(),
     affilation: Array<Affilation>(),
     verification: Array<Verification>(),
-    register: Array<Register>(),
     pfo: Array<Pfo>(),
     inquisition: Array<Inquisition>(),
     needs: Array<Needs>(),
@@ -178,7 +169,6 @@ export const profileStore = defineStore('profileStore', () => {
           'relation',
           'affilation', 
           'check', 
-          'registry', 
           'poligraf', 
           'investigation', 
           'inquiry',
@@ -239,9 +229,6 @@ export const profileStore = defineStore('profileStore', () => {
           case 'check': 
             this.verification = response.data;
             break;
-          case 'registry': 
-            this.register = response.data;
-            break;
           case 'poligraf': 
             this.pfo = response.data;
             break;
@@ -286,7 +273,7 @@ export const profileStore = defineStore('profileStore', () => {
   
         storeAlert.alertMessage.setAlert('alert-success', 'Данные успешно обновлены');
         
-        if (['registry', 'check', 'poligraf'].includes(this.flag)) {
+        if (['check', 'poligraf'].includes(this.flag)) {
           this.getItem('resume', 'get', this.candId)
         };
         this.getItem(this.flag, this.action, this.candId);

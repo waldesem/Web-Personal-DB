@@ -7,6 +7,153 @@ from faker import Faker
 fake = Faker("ru-RU")
 
 
+JSON_TEST = {
+  "positionName": "Главный инженер по разработке",
+  "department": "Группа разработки",
+  "statusDate": "2023-10-23T11:14:24Z",
+  "lastName": "Иванов",
+  "firstName": "Иван",
+  "midName": "Андреевич",
+  "hasNameChanged": True,
+  "nameWasChanged": [
+    {
+      "reason": "развод",
+      "firstNameBeforeChange": "Петр",
+      "lastNameBeforeChange": "Семенов",
+      "hasNoMidNameBeforeChange": True,
+      "yearOfChange": 2020,
+      "nameChangeDocument": "документ"
+    },
+    {
+      "reason": "усыновление/удочерение",
+      "firstNameBeforeChange": "Степан",
+      "lastNameBeforeChange": "Игоревич",
+      "midNameBeforeChange": "Васильев",
+      "yearOfChange": 2017,
+      "nameChangeDocument": "документ 2"
+    }
+  ],
+  "birthday": "1998-10-10",
+  "birthplace": "Москва",
+  "citizen": "Россия",
+  "hasAdditionalCitizenship": True,
+  "additionalCitizenship": "Австралия",
+  "maritalStatus": "незарегистрированный брак",
+  "regAddress": "Ленина 5",
+  "validAddress": "Ленина 5",
+  "contactPhone": "+70000000000",
+  "hasNoRussianContactPhone": True,
+  "email": "mail@pulse.com",
+  "hasInn": True,
+  "inn": "510189523890",
+  "hasSnils": True,
+  "snils": "36033751254",
+  "passportSerial": "1234",
+  "passportNumber": "566789",
+  "passportIssueDate": "2015-05-10",
+  "passportIssuedBy": "УФМС",
+  "education": [
+    {
+      "educationType": "высшее",
+      "institutionName": "МГУ",
+      "beginYear": 2017,
+      "endYear": 2020,
+      "specialty": "менеджмент"
+    },
+    {
+      "educationType": "MBA",
+      "institutionName": "МГИМО",
+      "beginYear": 2022,
+      "endYear": 2023,
+      "specialty": "экономика"
+    }
+  ],
+  "hasJob": True,
+  "experience": [
+    {
+      "beginDate": "1988-01-10",
+      "endDate": "1989-01-10",
+      "name": "ООО Мария",
+      "address": "Ленина 1",
+      "phone": "+70000000001",
+      "activityType": "продажи",
+      "position": "менеджер",
+      "isPositionMatchEmploymentContract": True,
+      "employmentContractPosition": "менеджер по продажам",
+      "fireReason": "по собственному желанию"
+    },
+    {
+      "beginDate": "1991-01-10",
+      "currentJob": True,
+      "name": "ПАО Александра",
+      "address": "Ленина 9",
+      "phone": "+70000000002",
+      "activityType": "продажи",
+      "position": "менеджер по обслуживанию"
+    }
+  ],
+  "hasPublicOfficeOrganizations": True,
+  "publicOfficeOrganizations": [
+    {
+      "name": "Учреждение А",
+      "position": "стажер"
+    },
+    {
+      "name": "Учреждение Б",
+      "position": "методолог"
+    }
+  ],
+  "hasStateOrganizations": True,
+  "stateOrganizations": [
+    {
+      "name": " Министерство А",
+      "position": "эксперт"
+    },
+    {
+      "name": " Министерство Б",
+      "position": "главный эксперт"
+    }
+  ],
+  "hasRelatedPersonsOrganizations": True,
+  "relatedPersonsOrganizations": [
+    {
+      "name": "Имя 1",
+      "inn": "3171083718",
+      "position": "специалист"
+    },
+    {
+      "name": "Имя 2",
+      "inn": "3171083718",
+      "position": "ведущий специалист"
+    }
+  ],
+  "hasMtsRelatedPersonsOrganizations": True,
+  "mtsRelatedPersonsOrganizations": [
+    {
+      "name": "Имя 3"
+    },
+    {
+      "name": "Имя 4"
+    }
+  ],
+  "hasOrganizations": True,
+  "organizations": [
+    {
+      "orgType": "самозанятость",
+      "inn": "510189523890",
+      "name": "ООО Смирнов",
+      "workCombinationTime": "договор"
+    },
+    {
+      "orgType": "ПАО",
+      "inn": "3171083718",
+      "name": "ОАО Иванов",
+      "workCombinationTime": "договор"
+    }
+  ]
+}
+
+
 class AnketaTest:
 
     def __init__(self, request_id):

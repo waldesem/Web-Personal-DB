@@ -3,7 +3,7 @@ from marshmallow import fields
 
 from .. import ma
 from ..models.model import Relation, User, Person, Affilation, Staff, \
-    Document, Address, Contact, Workplace, Check, Registry, Poligraf, \
+    Document, Address, Contact, Workplace, Check, Poligraf, \
         Investigation, Inquiry, Report, Region, Role, Group, Connect
 
 
@@ -120,13 +120,6 @@ class CheckSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
 
 
-class RegistrySchema(ma.SQLAlchemyAutoSchema):
-    """ Create schema for registry"""
-    class Meta:
-        model = Registry
-        ordered = True
-
-
 class InquirySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Inquiry
@@ -145,6 +138,7 @@ class PoligrafSchema(ma.SQLAlchemyAutoSchema):
         model = Poligraf
         ordered = True
 
+
 class ConnectSchema(ma.SQLAlchemyAutoSchema):
     """ Create schema for Connections """
     class Meta:
@@ -158,19 +152,6 @@ class AnketaSchema(ma.SQLAlchemySchema):
     resume = PersonSchema()
     document = DocumentSchema()
     address = AddressSchema()
-
-
-class AnketaSchemaApi(ma.SQLAlchemySchema):
-    """ Create schema to get anketa from /api/v1/anketa"""
-    resume = fields.Nested(PersonSchema(), 
-                           exclude = ('region_id', 'addition', 'path', 'status', 
-                                      'create', 'update', 'request_id',))
-    document = fields.List(fields.Nested(DocumentSchema(), exclude=('id',)))
-    staff = fields.List(fields.Nested(StaffSchema(), exclude=('id',)))
-    addresses = fields.List(fields.Nested(AddressSchema(), exclude=('id',)))
-    workplaces = fields.List(fields.Nested(WorkplaceSchema(), exclude=('id',)))
-    contacts = fields.List(fields.Nested(ContactSchema(), exclude=('id',)))
-    affilation = fields.List(fields.Nested(AffilationSchema(), exclude=('id',)))
 
 
 class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
@@ -196,7 +177,6 @@ models_schemas = {
     'relation': [Relation, RelationSchema()],
     'affilation': [Affilation, AffilationSchema()],
     'check': [Check, CheckSchema()],
-    'registry': [Registry, RegistrySchema()],
     'poligraf': [Poligraf, PoligrafSchema()],
     'investigation': [Investigation, InvestigationSchema()],
     'inquiry': [Inquiry, InquirySchema()],

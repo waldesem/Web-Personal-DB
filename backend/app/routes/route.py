@@ -1,4 +1,3 @@
-import json
 import os
 import requests
 import shutil
@@ -15,13 +14,13 @@ from PIL import Image
 from . import bp
 from .. import db
 from .login import r_g
-from ..utils.utilities import JsonFile, add_resume, create_folders
+from ..utils.jsonparser import JsonFile
 from ..models.model import  User, Person, Staff, Document, Address, Contact, \
-    Workplace, Check, Registry, Poligraf, Investigation, Inquiry, Relation, \
+    Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
     Status, Report, Affilation
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-    InvestigationSchema, PoligrafSchema, RegistrySchema, AnketaSchema, \
+    InvestigationSchema, PoligrafSchema, AnketaSchema, \
     WorkplaceSchema, AffilationSchema
 from ..models.classes import Category, Reports, Roles, Groups, Status
 
@@ -105,12 +104,8 @@ class ResumeView(MethodView):
                                              timeout=5)
                     response.raise_for_status()
                     if response.status_code == 200:
-                        check_path = create_folders(person_id,
-                                                    person.fullname,
-                                                    'check')
                         person.status = Status.robot.value
                         db.session.add(Check(officer=current_user.fullname,
-                                             path=check_path,
                                              person_id=person_id))
                         db.session.commit()
                         return db.session.query(Person).get(person_id)
@@ -125,7 +120,7 @@ class ResumeView(MethodView):
     def post(self, action, json_data):
         location_id = db.session.query(User.region_id). \
             filter_by(username=current_user.username).scalar()
-        person_id = add_resume(json_data, location_id, action)
+        person_id = self.add_resume(json_data, location_id, action)
         return {'message': person_id}
 
     @r_g.roles_required(Roles.user.name)
@@ -155,6 +150,72 @@ class ResumeView(MethodView):
         db.session.delete(person)
         db.session.commit()
         return ''
+
+    def add_resume(self, resume: dict, location_id, action):
+        """
+        Adds a resume to the database.
+        """
+        result = db.session.query(Person).\
+            filter(Person.fullname.ilike(resume['fullname']),
+                Person.birthday==resume['birthday']).one_or_none()
+        if result:
+            if action == "create" or action == 'api':
+                resume.update({'status': Status.repeat.value, 'region_id': location_id})
+            else:
+                resume.update({'status': Status.update.value, 'region_id': location_id})
+            for k, v in resume.items():
+                setattr(result, k, v)
+            person_id = result.id
+            
+            if result.path and not os.path.isdir(os.path.join(current_app.config["BASE_PATH"], 
+                                                            result.path)):
+                os.mkdir(result.path)
+            elif not result.path:
+                new_path = os.path.join(current_app.config["BASE_PATH"], 
+                                        resume['fullname'][0].upper(),
+                                        f'{person_id}-{resume["fullname"]}')
+                if not os.path.isdir(new_path):
+                    os.mkdir(new_path)
+                result.path = os.path.join(resume['fullname'][0].upper(), 
+                                        f'{person_id}-{resume["fullname"]}')
+        else:
+            person = Person(**resume | {'region_id': location_id})
+            db.session.add(person)
+            db.session.flush()
+            person_id = person.id
+            
+            path = os.path.join(current_app.config["BASE_PATH"], 
+                                resume['fullname'][0].upper(),
+                                f'{person_id}-{resume["fullname"]}')
+            if not os.path.isdir(path):
+                os.mkdir(path)
+            
+            person.path = os.path.join(resume['fullname'][0].upper(),
+                                    f'{person_id}-{resume["fullname"]}')
+
+        db.session.commit()
+        return person_id
+    
+    def create_folders(self, person_id, fullname, folder_name):
+        """
+        Check if a folder exists for a given person and create it if it does not exist.
+        """
+        url = os.path.join(current_app.config["BASE_PATH"], 
+                        fullname[0].upper(), 
+                        f'{person_id}-{fullname}')
+        if not os.path.isdir(url):
+            os.mkdir(url)
+        folder = os.path.join(url, folder_name)
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+        if folder_name == 'image':
+            return folder
+        subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
+        if not os.path.isdir(subfolder):
+            os.mkdir(subfolder)
+        return os.path.join(fullname[0].upper(), 
+                            f'{person_id}-{fullname}', 
+                            folder, subfolder)
 
 resume_view = ResumeView.as_view('resume')
 bp.add_url_rule('/resume/<action>',
@@ -428,10 +489,8 @@ class CheckView(MethodView):
             if person.has_status([Status.new.value,
                                   Status.update.value,
                                   Status.repeat.value]):
-                check_path = create_folders(item_id, person.fullname, 'check')
                 person.status = Status.manual.value
                 db.session.add(Check(officer=current_user.fullname,
-                                     path=check_path,
                                      person_id=item_id))
                 db.session.commit()
                 return '', 201
@@ -496,53 +555,6 @@ class CheckView(MethodView):
 
 bp.add_url_rule('/check/<action>/<int:item_id>',
                 view_func=CheckView.as_view('check'))
-
-
-class RegistryView(MethodView):
-    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
-
-    def add_to_db(self, query, item, check_id, person_id):
-        db.session.add(Registry(**item | {'check_id': check_id,
-                                          'person_id': person_id}))
-        query.status = Status.cancel.value \
-            if item['decision'] == Status.cancel.value \
-            else Status.finish.value
-        db.session.commit()
-
-    def get(self, action, item_id):
-        schema = RegistrySchema()
-        return schema.dump(db.session.query(Registry). \
-                           filter_by(person_id=item_id). \
-                           order_by(Registry.id.desc()).all(), many=True)
-
-    @r_g.roles_required(Roles.superuser.value)
-    @bp.input(RegistrySchema)
-    def post(self, action, item_id, json_data):
-        check_id = db.session.query(Check.id).filter_by(person_id=item_id). \
-            order_by(Check.id.desc()).scalar()
-        reg = {'supervisor': current_user.fullname} | json_data
-        person = db.session.query(Person).get(item_id)
-        if person.request_id and person.request_id != 'NULL':
-            try:
-                response = requests.post(url='https://httpbin.org/post',
-                                         json=json.dumps({"id": person.request_id}
-                                                         | reg), timeout=5)
-                response.raise_for_status()
-                if response.status_code == 200:
-                    self.add_to_db(person, reg, check_id, item_id)
-                    return '', 201
-                else:
-                    return '', response.status_code
-            except Exception as e:
-                print(e)
-                return '', 404
-        self.add_to_db(person, reg, check_id, item_id)
-        
-        return '', 201
-
-
-bp.add_url_rule('/registry/<action>/<int:item_id>',
-                view_func=RegistryView.as_view('registry'))
 
 
 class InvestigationView(MethodView):
@@ -675,14 +687,13 @@ class InfoView(MethodView):
         response = request.get_json()
 
         candidates = db.session.query(
-            extract('month', Registry.deadline).label('month'),
-            Registry.decision,
-            func.count(Registry.id)
+            extract('month', Check.deadline).label('month'),
+            Check.conclusion,
+            func.count(Check.id)
         ). \
-            join(Check, Check.id == Registry.check_id). \
             join(Person, Person.id == Check.person_id). \
-            group_by(Registry.decision, extract('month', Registry.deadline)). \
-            filter(and_(Registry.deadline.between(response['start'],
+            group_by(Check.conclusion, extract('month', Check.deadline)). \
+            filter(and_(Check.deadline.between(response['start'],
                                                   response['end']), 
                         Person.region_id == int(response['region']))).all()
 
@@ -731,6 +742,7 @@ class FileView(MethodView):
         if not request.files['file'].filename:
             return {'result': False, 'item_id': item_id}
 
+        resume_view = ResumeView()
         if action == 'anketa':
             location_id = db.session.query(User.region_id). \
                 filter_by(username=current_user.username).scalar()
@@ -744,7 +756,8 @@ class FileView(MethodView):
             file.save(temp_path)
             
             anketa  = JsonFile(temp_path)
-            person_id = add_resume(anketa.resume, location_id, 'create')
+            resume = ResumeView()
+            person_id = resume.add_resume(anketa.resume, location_id, 'create')
             models = [Staff, Document, Address, Contact, Workplace, Affilation]
             for idx, items in enumerate([anketa.staff, anketa.passport, 
                                            anketa.addresses, anketa.contacts, 
@@ -759,8 +772,6 @@ class FileView(MethodView):
                 full_path = os.path.join(current_app.config["BASE_PATH"], person.path)
                 if not os.path.isdir(full_path):
                     os.mkdir(full_path)
-                new_path = person.path
-                db.session.commit()
             else:
                 full_path = os.path.join(current_app.config["BASE_PATH"],
                                         person.fullname[0].upper(),
@@ -772,7 +783,7 @@ class FileView(MethodView):
                                            f'{person_id}-{person.fullname}')
                 db.session.commit()
 
-            action_folder = create_folders(person_id, person.fullname, action)
+            action_folder = resume_view.create_folders(person_id, person.fullname, action)
 
             save_path = os.path.join(current_app.config["BASE_PATH"], action_folder, filename)
             if not os.path.isfile(save_path):
@@ -784,18 +795,13 @@ class FileView(MethodView):
                 'check': Check,
                 'investigation': Investigation,
                 'poligraf': Poligraf,
-                'inquiry': Inquiry,
                 'image': Person
             }
             files = request.files.getlist('file')
             model = model_mapping.get(action)
             item = db.session.query(model).filter_by(id=item_id).scalar()
-            folder = item.path
-            if not folder:
-                person = db.session.query(Person).get(item.person_id)
-                folder = create_folders(person.id, person.fullname, action)
-                item.path = folder
-                db.session.commit()
+            person = db.session.query(Person).get(item.person_id)
+            folder = resume_view.create_folders(person.id, person.fullname, action)
             if action == 'image':
                 im = Image.open(files[0])
                 rgb_im = im.convert('RGB')

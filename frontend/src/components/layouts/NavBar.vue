@@ -129,31 +129,6 @@ if (!isStarted) {
       </div>
     </div>
   </nav>
-
-  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasLabel">
-        Деператамент экономической безопасности
-      </h5>
-    </div>
-    <div class="offcanvas-body">
-      <ul>
-        <li v-if="storeLogin.userData.hasGroup('admins')" class="mb-4">
-          <router-link :to="{ name: 'users', params: { group: 'admins' } }">
-            Администраторы
-          </router-link>
-        </li>
-        <li v-if="storeLogin.userData.hasGroup('staffsec')" class="mb-4">
-          <router-link :to="{ name: 'persons', params: { group: 'staffsec' } }">
-            Центр кадровой безопасности
-          </router-link>
-        </li>
-        <li v-else class="mb-4">
-          <p>Центр кадровой безопасности</p>
-        </li>
-      </ul>
-    </div>
-  </div>
   <MessagesVue />
 </template>
 

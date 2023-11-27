@@ -253,8 +253,10 @@ class TableView(MethodView):
         schema = models_schemas[item][1]
         json_data = request.get_json()
         result = db.session.query(model).order_by(model.id.desc())
-        if json_data['id']:
+        if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
             result = result.filter_by(id=json_data['id'])
+        else:
+            result = result.filter_by(person_id=json_data['id'])
         query = result.paginate(page=page,per_page=pagination, error_out=False)
         return [schema.dump(query, many=True),
                 {'has_next': bool(query.has_next),

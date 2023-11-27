@@ -186,8 +186,6 @@ class Person(db.Model):
                                cascade="all, delete, delete-orphan")
     affilation = db.relationship('Affilation', backref='affilation', 
                            cascade="all, delete, delete-orphan")
-    ones = db.relationship('OneS', backref='ones', 
-                           cascade="all, delete, delete-orphan")
     search_vector = db.Column(TSVectorType('previous', 'fullname', 'inn', 'snils')) 
     
     def has_status(self, status):
@@ -344,21 +342,6 @@ class Check(db.Model):  # модель данных проверки канди�
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     registries = db.relationship('Registry', backref='checks', 
                                  cascade="all, delete, delete-orphan")
-
-
-class Registry(db.Model):  # модель данных результаты ПФО
-    """ Create model for poligraf"""
-
-    __tablename__ = 'registries'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
-                   autoincrement=True)
-    comments = db.Column(db.Text)
-    decision = db.Column(db.String(255))
-    supervisor = db.Column(db.String(255))
-    deadline = db.Column(db.DateTime, default=default_time)
-    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-    check_id = db.Column(db.Integer, db.ForeignKey('checks.id'))
 
 
 class Poligraf(db.Model):  # модель данных результаты ПФО
