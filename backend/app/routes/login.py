@@ -11,7 +11,7 @@ from flask_jwt_extended import current_user, \
 from . import bp
 from .. import jwt, db
 from ..models.model import User
-from ..models.schema import LoginSchema, UserSchema
+from ..models.schema import LoginSchema, PasswordSchema, UserSchema
 from ..models.classes import Roles
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -84,8 +84,7 @@ r_g = RoleGroupRequire()
 class LoginView(MethodView):
     """Login view"""
 
-    decorators = [bp.doc(hide=True)]
-
+    @bp.doc(hide=True)
     @jwt_required()
     @bp.output(UserSchema)
     def get(self):
@@ -100,7 +99,7 @@ class LoginView(MethodView):
             user.last_login = datetime.now()
             db.session.commit()
             return user
-
+            
     @bp.input(LoginSchema)
     def post(self, json_data):
         """
@@ -136,8 +135,9 @@ class LoginView(MethodView):
                     user.blocked = True
                 db.session.commit()
         return {'message': 'Denied'}
-
-    @bp.input(LoginSchema)
+        
+    @bp.doc(hide=True)
+    @bp.input(PasswordSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.
@@ -160,7 +160,8 @@ class LoginView(MethodView):
                 db.session.commit()
                 return {'message': 'Authenticated'}
         return {'message': 'Denied'}
-
+        
+    @bp.doc(hide=True)
     @jwt_required(verify_type=False)
     def delete(self):
         """

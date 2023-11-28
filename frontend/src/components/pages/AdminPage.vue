@@ -30,7 +30,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
 <template>
   <div class="container py-3">
-    <HeaderDiv :page-header="'Список пользователей'" />
+    <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
     <form @input.prevent="searchUsers" class="form form-check" role="form">
       <div class="row py-3">
         <input class="form-control" id="fullusername" name="fullusername" type="text" 
@@ -71,14 +71,21 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         </tbody>
       </table>
     </div>
+    <button class="btn btn-outline-secondary" 
+          data-bs-toggle="modal" data-bs-target="#modalUser"
+          @click="storeAdmin.dataUsers.action = 'create'">
+      Добавить пользователя 
+    </button>
+
     <UserForm />
+    
   </div>
 </template>
 
 
 <style scoped>
 .overflow {
-  height: 75vh;
+  max-height: 75vh;
   overflow-y: auto;
 }
 .no-bottom-border td {

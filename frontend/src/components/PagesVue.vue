@@ -6,6 +6,7 @@
   </router-view>
 </template>
 
+
 <style scoped>
 .component-fade-enter-active,
 .component-fade-leave-active {

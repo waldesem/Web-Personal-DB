@@ -10,7 +10,6 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - APIFlask a lightweight Python web API framework based on Flask and marshmallow-code projects;
 - Gunicorn as HTTP server;
 - Flask-JWT-Extended as a tool for authorization;
-- Flask-HTTPAuth as a tool for basic authorization;
 - Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
@@ -152,52 +151,6 @@ Add rule in your firewall:
 sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
 ```
-
-### Samba Configuration for Opening Files on Windows from Ubuntu Server
-
-Install Samba on your Linux server if it is not already installed.
-```
-sudo apt install samba
-```
-Open the Samba configuration file using a text editor:
-```
-sudo nano /etc/samba/smb.conf
-```
-In the Samba configuration file, add the following lines to the configuration file to define a share:
-```
-[persons]
-path = /root/Web-Personal-DB/persons  # See a BASE_PATH from config.py
-writable = yes
-guest ok = no
-valid users = @smbgroup
-create mask = 0664
-directory mask = 0775
-```
-Save the changes to the Samba configuration file and exit the text editor.
-Then you must create samba group and account for unix user that will have access to the shared directory.
-```
-sudo adduser username smbgroup
-```
-Set a password for the Samba user that will have access to the shared directory. 
-You can do this by running the following command, replacing `username` with the desired username:
-```
-sudo smbpasswd -a username
-```
-Start the Samba service:
-```
-sudo systemctl start smbd
-sudo systemctl enable smbd
-sudo service smbd restart # or sudo service smbd reload
-sudo ufw allow Samba
-sudo ufw reload
-```
-
-On your Windows machine, open File Explorer and enter the IP address or hostname of the Linux server in the address bar, using the following format:
-```
-\\server_ip_address\persons
-```
-Replace `server_ip_address` with the actual IP address of your Linux server.
-You will be prompted for to enter a username and password for the Samba user that will have access to the shared directory.
 
 ### Node Development (optional)
 

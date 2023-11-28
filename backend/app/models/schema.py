@@ -43,6 +43,10 @@ class LoginSchema(Schema):
     """ Create model for login"""
     username = fields.String()
     password = fields.String()
+
+ 
+class PasswordSchema(LoginSchema):
+    """ Create model for login"""
     new_pswd = fields.String()
     conf_pswd = fields.String()
  
@@ -76,7 +80,7 @@ class DocumentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Document
         ordered = True
-
+exclude = ('search_vector',) # only if use searchable sqlalchemy
 
 class AddressSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for address"""
@@ -147,21 +151,35 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
         exclude = ('search_vector',)
 
 
-class AnketaSchema(ma.SQLAlchemySchema):
+class AnketaSchemaApi(ma.SQLAlchemySchema):
     """ Create schema for sending anketa"""
-    resume = PersonSchema()
-    document = DocumentSchema()
-    address = AddressSchema()
+    id = fields.String()
+    fullname = fields.String()
+    birthday = fields.String()
+    birthplace = fields.String()
+    snils = fields.String()
+    inn = fields.String()
+    series = fields.String()
+    number = fields.String()
+    agency = fields.String()
+    issue = fields.String()
+    address = fields.String()
 
 
 class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
     """ Create schema for check /api/v1/check """
-    class Meta:
-        model = Check
-        ordered = True
-        exclude = ('workplace', 'internet', 'cronos', 'cros', 'addition', 
-                   'pfo', 'comments', 'conclusion', 'officer', 'deadline',)
-
+    id = fields.String()
+    employee = fields.String()
+    document = fields.String()
+    inn = fields.String()
+    debt = fields.String()
+    bankruptcy = fields.String()
+    bki = fields.String()
+    courts = fields.String()
+    affiliation = fields.String()
+    terrorist = fields.String()
+    mvd = fields.String()
+        
 
 models_schemas = {
     'user': [User, UserSchema()],

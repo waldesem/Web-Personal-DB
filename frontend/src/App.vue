@@ -23,7 +23,6 @@ watch(() => route.params.group,
   }, { immediate: true });
 
 onBeforeMount(() => {
-  pageIdentity.value = route.params.group.toString();
   storeLogin.userData.getAuth();
 });
 

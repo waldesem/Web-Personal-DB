@@ -15,14 +15,12 @@ storeAlert.alertMessage.text = 'Авторизуйтесь для входа в 
 
 
 <template>
-  <div class="container py-5">
-    <div class="row py-5">
-      <div class="col col-3"></div>
-      <div class="col col-6">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="align-middle col col-6">
         <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
         <LoginForm />
       </div>
-      <div class="col col-3"></div>
     </div>
   </div>
 </template>

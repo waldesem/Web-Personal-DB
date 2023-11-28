@@ -32,7 +32,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
 <template>
   <div class="container py-3">
-    <HeaderDiv :page-header="'Профиль пользователя'" />
+    <HeaderDiv :page-header="storeAdmin.dataUsers.profile.fullname" :cls="'text-secondary'"/>
     <div class="py-3">
       <!--PhotoCard :profileId="storeAdmin.profileData.id" :imageUrl="storeAdmin.profileData.image"/-->
       <div>
@@ -103,19 +103,19 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         </RowDivSlot>
       </div>
       <div class="btn-group py-3" role="group">
-        <button class="btn btn-outline-primary" type="button" 
+        <button class="btn btn-outline-secondary" type="button" 
                 data-bs-toggle="modal" data-bs-target="#modalUser"
                 @click="storeAdmin.dataUsers.action = 'edit';
                 storeAdmin.dataUsers.form = storeAdmin.dataUsers.profile">
           Изменить пользователя
         </button>
-        <button @click="storeAdmin.dataUsers.userAction('block')" class="btn btn-outline-primary">
+        <button @click="storeAdmin.dataUsers.userAction('block')" class="btn btn-outline-secondary">
           {{storeAdmin.dataUsers.profile.blocked ? "Разблокировать" : 'Заблокировать' }}
         </button>
-        <button @click="storeAdmin.dataUsers.userAction('drop')" type="button" class="btn btn-outline-primary">
+        <button @click="storeAdmin.dataUsers.userAction('drop')" type="button" class="btn btn-outline-secondary">
           Сбросить пароль
         </button>
-        <button @click="storeAdmin.dataUsers.userDelete" type="button" class="btn btn-outline-primary">
+        <button @click="storeAdmin.dataUsers.userDelete" type="button" class="btn btn-outline-secondary">
           Удалить
         </button>
       </div>

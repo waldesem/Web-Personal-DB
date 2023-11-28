@@ -32,6 +32,7 @@ class Category(Enum):
 
     candidate = 'Кандидат'
     staff = 'Сотрудник'
+    top = 'ТОП'
 
 
 class Status(Enum):

@@ -2,14 +2,12 @@
 
 import { defineAsyncComponent, inject } from 'vue';
 import { loginStore } from '@/store/login';
-import { adminStore } from '@/store/admins';
 import { messageStore } from '@/store/messages';
 import { timeSince } from '@utilities/utils';
 
 const MessagesVue = defineAsyncComponent(() => import('@components/layouts/MessagesVue.vue'));
 
 const storeLogin = loginStore();
-const storeAdmin = adminStore();
 const storeMessage = messageStore();
 
 const pageIdentity = inject('pageIdentity') as string;
@@ -22,12 +20,12 @@ if (!isStarted) {
 
 </script>
 
+
 <template>
-  <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none" 
+  <nav v-if="pageIdentity" class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none" 
        :class="`${pageIdentity ==='admins' ? 'bg-secondary': 'bg-primary'}`">
     <div class="container">
-      <a class="navbar-brand" data-bs-toggle="offcanvas" href="#offcanvasMenu">
-        {{ pageIdentity ? pageIdentity.toUpperCase() : '' }}</a>
+      <a class="navbar-brand">{{ pageIdentity ? pageIdentity.toUpperCase() : '' }}</a>
       <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           
@@ -37,12 +35,7 @@ if (!isStarted) {
                 Пользователи
               </router-link>
             </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="#" data-bs-toggle="modal" data-bs-target="#modalUser"
-                  @click="storeAdmin.dataUsers.action = 'create'">
-                Создать
-              </a>
-            </li>
+            
             <li class="nav-item">
               <router-link :to="{ name: 'table', params: { group: 'admins' } }" 
                            class="nav-link active" href="#">
@@ -84,34 +77,35 @@ if (!isStarted) {
                 Файлы
               </router-link>
             </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
+                Сообщения
+                <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
+                  {{ storeMessage.messageData.messages.length }}
+                </span>
+              </a>
+                <ul class="dropdown-menu" id="messages">
+                  <h6 class="dropdown-header">Новые сообщения</h6>
+                  <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
+                    <a class="dropdown-item">
+                      <p>{{ timeSince(message['create']) }}</p>
+                      <p>{{ message['title'] }}</p>
+                    </a>
+                  </li>
+                  <div class="dropdown-divider"></div>
+                  <li>
+                    <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
+                                  class="dropdown-item" >
+                      Открыть сообщения
+                    </router-link>
+                  </li>
+                </ul>
+            </li>
           </template>
 
-          <li v-if="pageIdentity && pageIdentity !== 'login'" class="nav-item dropdown">
-            <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" href="#">
-              Сообщения
-              <span class="position-absolute translate-middle badge rounded-pill text-bg-success">
-                {{ storeMessage.messageData.messages.length }}
-              </span>
-            </a>
-              <ul class="dropdown-menu" id="messages">
-                <h6 class="dropdown-header">Новые сообщения</h6>
-                <li v-for="message in storeMessage.messageData.messages" :key="message['id']">
-                  <a class="dropdown-item">
-                    <p>{{ timeSince(message['create']) }}</p>
-                    <p>{{ message['title'] }}</p>
-                  </a>
-                </li>
-                <div class="dropdown-divider"></div>
-                <li>
-                  <router-link :to="{ name: 'messages', params: { group: 'staffsec' } }"
-                                class="dropdown-item" >
-                    Открыть сообщения
-                  </router-link>
-                </li>
-              </ul>
-          </li>
         </ul>
-
+        
         <li class="nav-item dropdown d-flex">
           <a href="#" class="nav-link active dropdown-toggle" role="button" 
               data-bs-toggle="dropdown" :title="storeLogin.userData.fullName ? storeLogin.userData.fullName : ''">
@@ -129,11 +123,13 @@ if (!isStarted) {
       </div>
     </div>
   </nav>
+  
   <MessagesVue />
+  
 </template>
 
-<style scoped>
 
+<style scoped>
   #messages {
     max-width: 640px;
     max-height: 640px;
@@ -143,5 +139,4 @@ if (!isStarted) {
   #messages::after {
     display: none;
   }
-
 </style>

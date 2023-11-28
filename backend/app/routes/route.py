@@ -20,8 +20,8 @@ from ..models.model import  User, Person, Staff, Document, Address, Contact, \
     Status, Report, Affilation
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
-    InvestigationSchema, PoligrafSchema, AnketaSchema, \
-    WorkplaceSchema, AffilationSchema
+    InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
+    WorkplaceSchema, AffilationSchema, CheckSchemaApi
 from ..models.classes import Category, Reports, Roles, Groups, Status
 
 
@@ -48,7 +48,7 @@ class IndexView(MethodView):
                                                         Status.update.value,
                                                         Status.repeat.value]),
                                     Person.region_id == self.location_id,
-                                    Person.category == Category.candidate.value)
+                                    Person.category == Category.candidate.name)
             case 'officer':
                 query = query.filter(Person.status.notin_([Status.finish.value,
                                                             Status.result.value,
@@ -88,7 +88,7 @@ class ResumeView(MethodView):
             if person.has_status([Status.new.value,
                                   Status.update.value,
                                   Status.repeat.value]):
-                anketa_schema = AnketaSchema()
+                anketa_schema = AnketaSchemaApi()
                 serial = anketa_schema.dump(dict(
                     resume=person,
                     document=db.session.query(Document). \
@@ -195,27 +195,6 @@ class ResumeView(MethodView):
 
         db.session.commit()
         return person_id
-    
-    def create_folders(self, person_id, fullname, folder_name):
-        """
-        Check if a folder exists for a given person and create it if it does not exist.
-        """
-        url = os.path.join(current_app.config["BASE_PATH"], 
-                        fullname[0].upper(), 
-                        f'{person_id}-{fullname}')
-        if not os.path.isdir(url):
-            os.mkdir(url)
-        folder = os.path.join(url, folder_name)
-        if not os.path.isdir(folder):
-            os.mkdir(folder)
-        if folder_name == 'image':
-            return folder
-        subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
-        if not os.path.isdir(subfolder):
-            os.mkdir(subfolder)
-        return os.path.join(fullname[0].upper(), 
-                            f'{person_id}-{fullname}', 
-                            folder, subfolder)
 
 resume_view = ResumeView.as_view('resume')
 bp.add_url_rule('/resume/<action>',
@@ -481,8 +460,9 @@ bp.add_url_rule('/affilation/<action>/<int:item_id>',
 
 
 class CheckView(MethodView):
-    decorators = [r_g.group_required(Groups.staffsec.name), bp.doc(hide=True)]
-
+    
+    @r_g.group_required(Groups.staffsec.name)
+    @bp.doc(hide=True)
     def get(self, action, item_id):
         if action == 'add':
             person = db.session.query(Person).get(item_id)
@@ -514,8 +494,52 @@ class CheckView(MethodView):
                            filter_by(person_id=item_id). \
                            order_by(Check.id.desc()).all(), many=True)
 
+    @r_g.roles_required(Roles.api.name)
+    @bp.doc(hide=False)
+    @bp.input(CheckSchemaApi)
+    def post(json_data):
+        candidate = db.session.query(Person).get(json_data['id'])
+        del json_data['id']
+        latest_check = db.session.query(Check).filter_by(person_id=candidate.id).\
+            order_by(Check.id.desc()).first()
+        user = db.session.query(User).filter_by(fullname=latest_check.officer).one_or_none()
+        
+        if candidate.status == Status.robot.value:
+            if os.path.isdir(json_data['path']):
+                file_view = FileView()
+                full_path = os.path.join(current_app.config["BASE_PATH"], latest_check.path)
+                check_path = full_path if os.path.isdir(full_path) \
+                    else file_view.create_folders(candidate.id, candidate["fullname"], 'check')
+                
+                try:
+                    for item in os.listdir(json_data['path']):
+                        if os.path.isfile(os.path.join(json_data['path'], item)):
+                            shutil.copyfile(item, check_path)
+                        elif os.path.isdir(os.path.join(json_data['path'], item)):
+                            shutil.copytree(item, os.path.join(check_path, item))
+
+                except FileNotFoundError as error:
+                    db.session.add(Report(report=f'{error}', user_id=user.id))
+                
+            for k, v in json_data.items():
+                setattr(latest_check, k, v)
+            db.session.add(Report(report=f'Проверка кандидата \
+                                    {candidate.fullname} окончена', user_id=user.id))
+            candidate.status = Status.reply.value
+            db.session.commit()   
+
+        else:
+            db.session.add(Report(report=f'Результат проверки \
+                                {candidate.fullname} не может быть записан. \
+                                    Материал проверки находится в {json_data["path"]}', 
+                                    user_id=user.id))
+            db.session.commit()
+
+        return '', 201
+    
     @r_g.roles_required(Roles.user.value)
     @bp.input(CheckSchema)
+    @bp.doc(hide=True)
     def patch(self, action, item_id, json_data):
         json_data['pfo'] = bool(json_data.pop('pfo')) if 'pfo' in json_data else False
         if action == 'create':
@@ -533,12 +557,11 @@ class CheckView(MethodView):
             person.status = Status.poligraf.value if json_data['pfo'] \
                 else Status.result.value
         db.session.commit()
-
-
         return '', 201
 
     @r_g.roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
+    @bp.doc(hide=True)
     def delete(self, action, item_id):
         check = db.session.query(Check).get(item_id)
         try:
@@ -756,8 +779,7 @@ class FileView(MethodView):
             file.save(temp_path)
             
             anketa  = JsonFile(temp_path)
-            resume = ResumeView()
-            person_id = resume.add_resume(anketa.resume, location_id, 'create')
+            person_id = resume_view.add_resume(anketa.resume, location_id, 'create')
             models = [Staff, Document, Address, Contact, Workplace, Affilation]
             for idx, items in enumerate([anketa.staff, anketa.passport, 
                                            anketa.addresses, anketa.contacts, 
@@ -783,7 +805,7 @@ class FileView(MethodView):
                                            f'{person_id}-{person.fullname}')
                 db.session.commit()
 
-            action_folder = resume_view.create_folders(person_id, person.fullname, action)
+            action_folder = self.create_folders(person_id, person.fullname, action)
 
             save_path = os.path.join(current_app.config["BASE_PATH"], action_folder, filename)
             if not os.path.isfile(save_path):
@@ -801,7 +823,7 @@ class FileView(MethodView):
             model = model_mapping.get(action)
             item = db.session.query(model).filter_by(id=item_id).scalar()
             person = db.session.query(Person).get(item.person_id)
-            folder = resume_view.create_folders(person.id, person.fullname, action)
+            folder = self.create_folders(person.id, person.fullname, action)
             if action == 'image':
                 im = Image.open(files[0])
                 rgb_im = im.convert('RGB')
@@ -820,5 +842,26 @@ class FileView(MethodView):
                             f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return {'message': item_id}   
 
+    def create_folders(self, person_id, fullname, folder_name):
+        """
+        Check if a folder exists for a given person and create it if it does not exist.
+        """
+        url = os.path.join(current_app.config["BASE_PATH"], 
+                        fullname[0].upper(), 
+                        f'{person_id}-{fullname}')
+        if not os.path.isdir(url):
+            os.mkdir(url)
+        folder = os.path.join(url, folder_name)
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
+        if folder_name == 'image':
+            return folder
+        subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
+        if not os.path.isdir(subfolder):
+            os.mkdir(subfolder)
+        return os.path.join(fullname[0].upper(), 
+                            f'{person_id}-{fullname}', 
+                            folder, subfolder)
+                            
 bp.add_url_rule('/file/<action>/<int:item_id>',
                 view_func=FileView.as_view('file'))

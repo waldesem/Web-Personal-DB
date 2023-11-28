@@ -32,6 +32,11 @@ onBeforeMount(() => {
     copied: Array<string>(),
     form: '',
     item: '',
+    rows: 10,
+    get cols () {
+      return Math.ceil((this.folders.length + this.files.length) / this.rows)
+    },
+
     getFoldersFiles: async function () {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/manager`);
@@ -154,7 +159,29 @@ onBeforeMount(() => {
     this.selected = [];
     this.copied = [];
   }
-  });
+});
+
+function fileType(file: string) {
+  if (file.endsWith('pdf')){
+    return 'bi-file-pdf'
+  } else if (file.endsWith('docx')){
+    return 'bi-file-word'
+  } else if (file.endsWith('doc')){
+    return 'bi-file-word-fill'
+  } else if (file.endsWith('xlsx')){
+    return 'bi-file-excel'
+  } else if (file.endsWith('xlsm')){
+    return 'bi-file-excel-fill'
+  } else if (file.endsWith('png')){
+    return 'bi-filetype-png'
+  } else if (file.endsWith('jpg')){
+    return 'bi-filetype-jpg'
+  } else if (file.endsWith('bmp')){
+    return 'bi-filetype-bmp'
+  } else {
+    return 'bi-file'
+  }
+};
 
 </script>
 
@@ -250,6 +277,14 @@ onBeforeMount(() => {
         </nav>
       </div>
 
+      <table>
+        <tbody>
+          <tr v-for="_ in fileManager.rows">
+            <td v-for="_ in fileManager.cols"></td>
+          </tr>
+        </tbody>
+      </table>
+
       <ul class="list-group">
 
         <li class="list-group-item" v-if="fileManager.path.length">
@@ -283,7 +318,7 @@ onBeforeMount(() => {
             <button type="button" class="list-group-item list-group-item-action btn btn-light" 
                     @click="fileManager.openFile(file)"
                     :disabled="fileManager.select">
-              <i class="bi bi-file"></i>
+              <i class="bi" :class="fileType"></i>
               {{ file }}
             </button>
           </div>
@@ -291,6 +326,7 @@ onBeforeMount(() => {
 
       </ul>
     </div>
+    
     <ModalWin :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">
       <form @submit.prevent="fileManager.updateItem" class="form form-check" role="form">
         <div class="row">

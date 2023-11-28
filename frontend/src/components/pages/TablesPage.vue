@@ -108,16 +108,18 @@ const searchItem = debounce(() => {
       </div>
     </div>
     <div v-if="tableData.item.length" class="table-responsive py-3">
-      <table class="table table-hover align-middle">
+      <table class="table table-secondary table-hover align-middle">
         <thead> 
           <tr>
-            <th v-for="key, index in Object.keys(tableData.item[0])" :key="index">{{key}}</th>
+            <th v-for="key, index in Object.keys(tableData.item[0])" 
+                       :key="index">{{key}}</th>
             <th width="5%">action</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="row, index in tableData.item" :key="index">
-            <td v-for="val, index in Object.values(row)" :key="index">{{ val }}</td>
+            <td v-for="val, index in Object.values(row)" 
+                      :key="index">{{ val }}</td>
             <td>
               <a href="#" @click="tableData.deleteItem(row['id'])" title="Удалить">
                 <i class="bi bi-trash"></i>

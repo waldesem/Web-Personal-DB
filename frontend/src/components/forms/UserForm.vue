@@ -39,14 +39,14 @@ const storeClassify = classifyStore();
                  :model="storeAdmin.dataUsers.form['region_id']" />
 
       <BtnGroupForm>
-        <button class="btn btn-outline-primary" name="submit" type="submit" 
+        <button class="btn btn-outline-secondary" name="submit" type="submit" 
                 data-bs-dismiss="modal">
           {{storeAdmin.dataUsers.action === 'create' ? 'Создать' : 'Изменить'}}
         </button>
-        <button class="btn btn-outline-primary" name="reset" type="reset">
+        <button class="btn btn-outline-secondary" name="reset" type="reset">
           Очистить
         </button>
-        <button class="btn btn-outline-primary" name="cancel" type="button"
+        <button class="btn btn-outline-secondary" name="cancel" type="button"
                 data-bs-dismiss="modal" 
                 @click="storeAdmin.dataUsers.action = ''" >
           Отмена

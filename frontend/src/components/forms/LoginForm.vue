@@ -15,12 +15,12 @@ const storeLogin = loginStore();
     <div class="py-3">
       <form @submit.prevent="storeLogin.userData.submitLogin" class="form form-check" role="form">
         <InputLabel :label="'Логин'" :name="'username'" :need="true"
-                    :max="'16'" :min="'3'" :clsInput="'col-lg-6'"
+                    :max="'16'" :min="'3'" :clsInput="'col-lg-8'"
                     :place="'Логин'" :pattern="'[a-zA-Z]+'"
                     @input-event="storeLogin.userData.form['username'] = $event.target.value"/>
         <div class="mb-3 row">
           <label class="col-form-label col-lg-2" for="password">Пароль: </label>
-          <div class="col-lg-6">
+          <div class="col-lg-8">
             <div class="input-group">
               <input autocomplete="current-password" class="form-control" required 
                     id="password" name="password" minlength="8" maxlength="16" 
@@ -34,7 +34,9 @@ const storeLogin = loginStore();
               </span>
             </div>
             <div v-show="storeLogin.userData.action === 'login'" class="py-2">
-              <a @click="storeLogin.userData.action = 'password'" href="#">Изменить пароль</a>
+              <a class="link-primary" href="#" @click="storeLogin.userData.action = 'password'">
+                Изменить пароль
+              </a>
             </div>
           </div>
         </div>

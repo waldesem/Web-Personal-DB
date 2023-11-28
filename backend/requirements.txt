@@ -21,7 +21,6 @@ DAWG-Python==0.7.2
 docopt==0.6.2
 docopt-ng==0.9.0
 et-xmlfile==1.1.0
-Faker==19.13.0
 Flask==2.3.3
 Flask-Caching==2.1.0
 Flask-Cors==4.0.0

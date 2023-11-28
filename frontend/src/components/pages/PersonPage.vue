@@ -71,20 +71,9 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 });
 
 const searchPerson = debounce(() => {
-  personData.value.getCandidates(1, 'search'); 
+  personData.value.getCandidates(1, 'search')
   }, 500
 );
-
-function openCollapse () {
-  let pressed = false;
-  if (!pressed){
-    const collapseBtn = document.getElementById('collapseBtn') as HTMLButtonElement;
-    if (collapseBtn) {
-      collapseBtn.click()
-    }
-    pressed = !pressed
-  }
-};
 
 </script>
 
@@ -94,7 +83,7 @@ function openCollapse () {
     <div class="row">
       <div class="col-md-3">
         <form class="form form-check" role="form">
-          <label class="visually-hidden" for="action">Действия</label>
+          <label class="visually-hidden" for="action"></label>
           <select class="form-select" id="action" name="action" 
                   v-model="personData.path" 
                   @change="personData.getCandidates(1, personData.path)">
@@ -106,27 +95,22 @@ function openCollapse () {
         </form>
       </div>
       <div class="col-md-9">
-        <form @input="searchPerson(1, 'search'), openCollapse" 
+        <form @input="searchPerson(1, 'search')" 
               class="form form-check" role="form">
           <div class="row">
             <input class="form-control" id="search" maxlength="250" minlength="3" 
                   v-model="personData.search" 
-                  name="search" placeholder="поиск по имени, ИНН, СНИЛС" type="text">
+                  name="search" placeholder="поиск по имени, ИНН, СНИЛС" type="text"
+                  title="Для поиска записей содержащих “Петров” и “Сергей” используйте запрос: Петров Сергей
+                         Для поиска записей содержащих “Петров” или “Сергей” используйте запрос: Петров or Сергей
+                         Для поиска записей содержащих “Петров”, но не “Сергей” используйте запрос: Петров -Сергей
+                         Для поиска записей содержащих фразу целиком заключите ее в двойные кавычки">
           </div>
         </form>
       </div>
     </div>
-    <button class="d-none" id="collapseBtn" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSearch"></button>
-    <div class="collapse" id="collapseExample">
-      <div class="card card-body">
-        Для поиска записей содержащих “star” и “wars” используйте запрос 'star wars'
-        Для поиска записей содержащих “star” или “wars” используйте 'star or wars'
-        Для поиска записей содержащих “star”, но не содержащих “wars” используйте 'star -wars'
-        Для поиска записей содержащих фразу целиком заключите ее в двойные кавычки '"star wars"'
-      </div>
-    </div>
     <div class="py-3">
-      <table class="table table-hover table-responsive align-middle">
+      <table class="table-primary table-hover table-responsive align-middle">
         <thead> 
           <tr height="50px">
             <th width="5%">#</th>
@@ -157,9 +141,9 @@ function openCollapse () {
     </div>
     <PageSwitcher :has_prev = "personData.prev"
                   :has_next = "personData.next"
-                  :switchPrev = "personData.page-1"
-                  :switchNext = "personData.page+1"
+                  :switchPrev = "personData.page - 1"
+                  :switchNext = "personData.page + 1"
                   :option = "personData.path"
-                  :switchPage = "personData.getCandidates" />
+                  :switchPage = "personData.getCandidates"/>
   </div>
 </template>
