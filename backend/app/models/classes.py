@@ -8,7 +8,6 @@ class Regions(Enum):
     WEST_REGION = 'Региональный центр Запад'
     URAL_REGION = 'Региональный центр Урал'
     EAST_REGION = 'Региональный центр Восток'
-    NULL = "Null"
 
 
 class Groups(Enum):
@@ -32,7 +31,7 @@ class Category(Enum):
 
     candidate = 'Кандидат'
     staff = 'Сотрудник'
-    top = 'ТОП'
+    vip = 'ВИП'
 
 
 class Status(Enum):
@@ -46,7 +45,6 @@ class Status(Enum):
     robot = 'Робот'
     reply = 'Обработан'
     poligraf = 'ПФО'
-    result = 'Результат'
     finish = 'Окончено'
     cancel = 'Отменено'
     error = 'Ошибка'
@@ -60,18 +58,3 @@ class Conclusions(Enum):
     denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
     saved = "СОХРАНЕН"
     canceled = 'ОТМЕНЕНО'
-   
-
-class Decisions(Enum):
-    """ Decisions """
-
-    agreed = 'СОГЛАСОВАНО'
-    with_comment = 'СОГЛАСОВАНО С КОММЕНТАРИЕМ'
-    denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
-
-
-class Reports(Enum):
-
-    high = "Важный"
-    middle = "Обычный"
-    low = "Низкий"

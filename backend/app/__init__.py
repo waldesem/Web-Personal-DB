@@ -46,10 +46,6 @@ def create_app(config_class=Config):
     @app.get('/<path:path>')
     @app.doc(hide=True)
     def main(path=''):
-        """
-        Get the file from the specified path in the static folder and return it, 
-        or return the index.html file if the path is not found.
-        """
         if path and os.path.exists(os.path.join(app.static_folder, path)):
             return send_from_directory(app.static_folder, path)
         

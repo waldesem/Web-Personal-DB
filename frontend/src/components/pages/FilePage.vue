@@ -1,7 +1,8 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, h } from 'vue';
 import { onBeforeMount, defineAsyncComponent } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { authStore } from '@/store/token';
 import { server } from '@/utilities/utils';
 
@@ -21,7 +22,12 @@ onBeforeMount(() => {
   fileManager.value.path = props.path.slice(0, -1);
   fileManager.value.openFolder(props.path[-1]);  
 });
-  
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  fileManager.value.clearValue();
+  next()
+});
+
   const fileManager = ref({
     path: Array<string>(),
     folders: Array<string>(),
@@ -32,9 +38,9 @@ onBeforeMount(() => {
     copied: Array<string>(),
     form: '',
     item: '',
-    rows: 10,
-    get cols () {
-      return Math.ceil((this.folders.length + this.files.length) / this.rows)
+    cols: 10,
+    get rows () {
+      return Math.ceil((this.folders.length + this.files.length) / this.cols)
     },
 
     getFoldersFiles: async function () {
@@ -158,10 +164,39 @@ onBeforeMount(() => {
     this.select = false;
     this.selected = [];
     this.copied = [];
+  },
+
+  listContent: function(item: string, func: Function, cls: any){
+    return h('div', {
+      class: 'item-wrapper fs-6' 
+      }, [
+        h('input', {
+          class: 'form-check-input',
+          type: 'checkbox',
+          vIf: this.select,
+          value: item,
+          'v-model': this.selected,
+        }),
+        ' ',
+        h('a', {
+          href: '#',
+          class: ['list-group-item', 'list-group-item-action'],
+          onClick: () => func(item),
+          disabled: this.select,
+        }, [
+          h('i', { class: `bi ${cls}` }),
+          ' ',
+          item,
+        ]),
+    ])
   }
 });
 
-function fileType(file: string) {
+function strInt(row: number, col: number){
+  return parseInt(row.toString() + col.toString()) 
+};
+
+function fileType(file: string): string {
   if (file.endsWith('pdf')){
     return 'bi-file-pdf'
   } else if (file.endsWith('docx')){
@@ -193,13 +228,23 @@ function fileType(file: string) {
     <div class="border border-primary p-5" id="fileManager">
 
       <div class="row border border-primary p-3">
+
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
             @click="fileManager.getFoldersFiles" >
             <i class="bi bi-house" title="Дом"></i>
           </button>
         </div>
-
+        
+        <div class="col-1" :disabled="!fileManager.path.length">
+          <button type="button" class="btn btn-outline-primary" title="Выше"
+                  @click="fileManager.path = fileManager.path.slice(0, -1); 
+                          fileManager.openParent()"
+                  :disabled="fileManager.select">
+            <i class="bi bi-arrow-90deg-up"></i>
+          </button>
+        </div>
+        
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
             @click="fileManager.action = 'create'; 
@@ -279,22 +324,24 @@ function fileType(file: string) {
 
       <table>
         <tbody>
-          <tr v-for="_ in fileManager.rows">
-            <td v-for="_ in fileManager.cols"></td>
+          <tr v-for="row in fileManager.rows">
+            <td v-for="col in fileManager.cols">
+              <div v-html="fileManager.listContent(
+                fileManager.folders[strInt(row, col)], fileManager.openFolder, 'bi-folder'
+                ) 
+                  ? (strInt(row, col) <= fileManager.folders.length)
+                  : fileManager.listContent(
+                      fileManager.files[strInt(row, col) - fileManager.folders.length], fileManager.openFile, fileType
+                  )
+                    ? (strInt(row, col) <= fileManager.folders.length + fileManager.files.length)
+                    : ''">
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
 
-      <ul class="list-group">
-
-        <li class="list-group-item" v-if="fileManager.path.length">
-          <button type="button" href="#" class="list-group-item list-group-item-action" title="Наверх"
-                  @click="fileManager.path = fileManager.path.slice(0, -1); 
-                          fileManager.openParent()"
-                  :disabled="fileManager.select">
-            <i class="bi bi-arrow-90deg-up"></i>
-          </button>
-        </li>
+      <!-- <ul class="list-group">
 
         <li class="list-group-item" v-for="folder in fileManager.folders" :key="folder">
           <div class="item-wrapper fs-6">
@@ -324,7 +371,7 @@ function fileType(file: string) {
           </div>
         </li>
 
-      </ul>
+      </ul> -->
     </div>
     
     <ModalWin :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">

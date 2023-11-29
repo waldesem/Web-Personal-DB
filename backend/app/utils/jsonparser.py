@@ -1,6 +1,9 @@
+import re
 import json
 from datetime import datetime
 
+from app import db
+from ..models.model import Region
 
 class JsonFile:
     """ Create class for import data from json file"""
@@ -10,6 +13,7 @@ class JsonFile:
             self.json_dict = json.load(f)
 
             self.resume = {
+                'region_id': self.parse_region() if self.parse_region() else 1,
                 'fullname': self.parse_fullname(),
                 'previous': self.parse_previous(),
                 'birthday': self.parse_birthday(),
@@ -77,8 +81,14 @@ class JsonFile:
                 }
             ]
             self.affilation = self.parse_affilation()
-            
-
+    
+    def parse_region(self):
+        regions = {rgn[1]: rgn[0] for rgn in db.session.query(Region.id, 
+                                                          Region.region).all()}
+        if 'department' in self.json_dict:
+            divisions = re.split(r'/', self.json_dict['department'].strip())
+            return [regions.get(div.strip(), 1) for div in divisions][0]
+    
     def parse_fullname(self):
         lastName = self.json_dict['lastName'].strip() \
             if 'lastName' in self.json_dict else 'ОТСУТСТВУЕТ!!!'

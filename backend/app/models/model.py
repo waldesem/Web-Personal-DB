@@ -28,7 +28,6 @@ class Region(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
     region = db.Column(db.String(255), unique=True)
-    users = db.relationship('User', backref='users')
     persons = db.relationship('Person', backref='persons')
    
     
@@ -81,7 +80,6 @@ class User(db.Model):
     last_login = db.Column(db.DateTime)
     blocked = db.Column(db.Boolean(), default=False)
     attempt = db.Column(db.Integer(), default=0)
-    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
     reports = db.relationship('Report', backref='users', 
                               cascade="all, delete, delete-orphan")
     roles = db.relationship('Role', secondary=user_roles, 

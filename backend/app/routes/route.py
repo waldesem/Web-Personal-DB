@@ -40,9 +40,6 @@ class IndexView(MethodView):
         query = db.session.query(Person).order_by(Person.id.desc())
         
         match flag:
-            case 'main':
-                if self.location_id != 1:
-                    query = query.filter_by(region_id=self.location_id)
             case 'new':
                 query = query.filter(Person.status.in_([Status.new.value,
                                                         Status.update.value,
@@ -58,9 +55,7 @@ class IndexView(MethodView):
             case 'search':
                 if json_data['search']:
                     query = Person.query.search('%{}%'.format(json_data['search'])) 
-                    if self.location_id != 1:
-                        query = query.filter(Person.region_id == self.location_id)
-            
+                    
         result = query.paginate(page=page,
                             per_page=self.pagination,
                             error_out=False)
