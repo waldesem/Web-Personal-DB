@@ -46,7 +46,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     getFoldersFiles: async function () {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/manager`);
-      const { path, dirs, files }= response.data;
+      const { path, dirs, files } = response.data;
       this.assignValue(path, dirs, files);
       this.clearValue();
     } catch (error) {
@@ -54,9 +54,9 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     }
   },
 
-  openFolder: async function (item: string) {
+  openFolder: async function (flag: string, item: string = '') {
     try {
-      const response = await storeAuth.axiosInstance.post(`${server}/manager/open`, {
+      const response = await storeAuth.axiosInstance.post(`${server}/manager/${flag}`, {
         'path': this.path,
         'item': item
       });
@@ -66,18 +66,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       console.error(error);
     }
   }, 
-
-  openParent: async function () {
-    try {
-      const response = await storeAuth.axiosInstance.post(`${server}/manager/parent`, {
-        'path': this.path
-      });
-      const { path, dirs, files } = response.data;
-      this.assignValue(path, dirs, files);
-    } catch (error) {
-      console.error(error);
-    }
-  },
 
   openFile: async function (file: string) {
     try {
@@ -181,7 +169,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         h('a', {
           href: '#',
           class: ['list-group-item', 'list-group-item-action'],
-          onClick: () => func(item),
+          onClick: () => func('open', item),
           disabled: this.select,
         }, [
           h('i', { class: `bi ${cls}` }),
@@ -192,9 +180,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   }
 });
 
-function strInt(row: number, col: number){
-  return parseInt(row.toString() + col.toString()) 
-};
+const strInt = (row: number, col: number) => parseInt(row.toString() + col.toString());
 
 function fileType(file: string): string {
   if (file.endsWith('pdf')){
@@ -203,6 +189,8 @@ function fileType(file: string): string {
     return 'bi-file-word'
   } else if (file.endsWith('doc')){
     return 'bi-file-word-fill'
+  } else if (file.endsWith('rtf')){
+    return 'bi-earmark-word'
   } else if (file.endsWith('xlsx')){
     return 'bi-file-excel'
   } else if (file.endsWith('xlsm')){
@@ -213,6 +201,10 @@ function fileType(file: string): string {
     return 'bi-filetype-jpg'
   } else if (file.endsWith('bmp')){
     return 'bi-filetype-bmp'
+  } else if (file.endsWith('zip')){
+    return 'bi-file-zip'
+  } else if (file.endsWith('msg')){
+    return 'bi-envelope-paper'
   } else {
     return 'bi-file'
   }
@@ -232,14 +224,14 @@ function fileType(file: string): string {
         <div class="col-1">
           <button type="button" class="btn btn-outline-primary" 
             @click="fileManager.getFoldersFiles" >
-            <i class="bi bi-house" title="Дом"></i>
+            <i class="bi bi-house" title="Домой"></i>
           </button>
         </div>
         
         <div class="col-1" :disabled="!fileManager.path.length">
-          <button type="button" class="btn btn-outline-primary" title="Выше"
+          <button type="button" class="btn btn-outline-primary" title="Родитель"
                   @click="fileManager.path = fileManager.path.slice(0, -1); 
-                          fileManager.openParent()"
+                          fileManager.openFolder('parent')"
                   :disabled="fileManager.select">
             <i class="bi bi-arrow-90deg-up"></i>
           </button>
@@ -250,7 +242,7 @@ function fileType(file: string): string {
             @click="fileManager.action = 'create'; 
                     fileManager.updateItem()"
             :disabled="fileManager.select">
-            <i class="bi bi-plus-square" title="Создать"></i>
+            <i class="bi bi-plus-square" title="Создать папку"></i>
           </button>
         </div>
 
@@ -314,7 +306,7 @@ function fileType(file: string): string {
             <li class="breadcrumb-item active" aria-current="page" 
                 v-for="item, idx in fileManager.path" :key="item">
               <a href="#" @click="fileManager.path = fileManager.path.slice(0, idx); 
-                                  fileManager.openFolder(item)">
+                                  fileManager.openFolder('open', item)">
                 {{ item }}
               </a>
             </li>
