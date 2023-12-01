@@ -26,7 +26,7 @@ class Roles(Enum):
     api = 'api'
 
 
-class Category(Enum):
+class Categories(Enum):
     """ Category """
 
     candidate = 'Кандидат'
@@ -34,7 +34,7 @@ class Category(Enum):
     vip = 'ВИП'
 
 
-class Status(Enum):
+class Statuses(Enum):
     """ Status """
 
     new = 'Новый'

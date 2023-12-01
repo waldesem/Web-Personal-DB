@@ -1,22 +1,22 @@
 # StaffSec (in development now)
 
-StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
+<!--StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 
 ### The main technology stack used in this project includes:
 
 - Python3;
 - Postgesql as database;
 - Redis as caching service;
-- APIFlask a lightweight Python web API framework based on Flask and marshmallow-code projects;
+- APIFlask a lightweight Python web API framework based on Flask;
 - Gunicorn as HTTP server;
+- SQLAlchemy as tool that adds support for SQLAlchemy;
+- Alembic as a tool that handles SQLAlchemy database migrations;
+- Flask-Marshmallow as integration layer for Flask and marshmallow;
 - Flask-JWT-Extended as a tool for authorization;
-- Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
-- Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
-- Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
-- Flask_Searchable as a tool that handles search engine
-- Flask-Caching as a tool that handles caching
-- Flask-Cors as a tool that handles CORS
-- Vue3 as the frontend and Vite as Frontend Tooling
+- Flask_Searchable as a tool that handles search engine;
+- Flask-Caching as a tool that handles caching;
+- Flask-Cors as a tool that handles CORS;
+- Vue3 as the frontend and Vite as Frontend Tooling;
 - Bootstrap 5 as the UI framework.
 
 ### Installation
@@ -178,3 +178,4 @@ This project is licensed under the MIT License.
 ![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/2.png?raw=true)
 ![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/3.png?raw=true)
 ![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/4.png?raw=true)
+-->

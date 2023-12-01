@@ -395,4 +395,11 @@ function fileType(file: string): string {
   display: flex;
   align-items: center;
 }
+tr { 
+  display: block; 
+  float: left; 
+} 
+th, td { 
+  display: block; 
+}
 </style>
