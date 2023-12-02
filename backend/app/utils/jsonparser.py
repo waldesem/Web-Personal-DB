@@ -2,8 +2,9 @@ import re
 import json
 from datetime import datetime
 
-from app import db
-from ..models.model import Region
+from sqlalchemy import select
+
+from ..models.model import async_session, Region
 
 class JsonFile:
     """ Create class for import data from json file"""
@@ -82,12 +83,14 @@ class JsonFile:
             ]
             self.affilation = self.parse_affilation()
     
-    def parse_region(self):
-        regions = {rgn[1]: rgn[0] for rgn in db.session.query(Region.id, 
-                                                          Region.region).all()}
-        if 'department' in self.json_dict:
-            divisions = re.split(r'/', self.json_dict['department'].strip())
-            return [regions.get(div.strip(), 1) for div in divisions][0]
+    async def parse_region(self):
+        async with async_session() as session:
+            regions = await {rgn[1]: rgn[0] for rgn \
+                             in session.execute(select(Region.id, 
+                                                       Region.region)).all()}
+            if 'department' in self.json_dict:
+                divisions = re.split(r'/', self.json_dict['department'].strip())
+                return [regions.get(div.strip(), 1) for div in divisions][0]
     
     def parse_fullname(self):
         lastName = self.json_dict['lastName'].strip() \

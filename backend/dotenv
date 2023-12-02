@@ -1,5 +1,4 @@
 SECRET_KEY = 'SECRET_KEY'
 JWT_SECRET_KEY = 'JWT_SECRET_KEY'
 
-SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://flask:flask@localhost/personal'
-SQLALCHEMY_ASYNC_DATABASE_URI = 'postgresql+asyncpg://flask:flask@localhost/personal'
+SQLALCHEMY_DATABASE_URI = 'postgresql+asyncpg://flask:flask@localhost/personal'

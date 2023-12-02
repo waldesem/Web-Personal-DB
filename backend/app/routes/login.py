@@ -5,8 +5,9 @@ import bcrypt
 import redis
 from flask import current_app, abort
 from flask.views import MethodView
-from flask_jwt_extended import current_user, \
-    create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
+from flask_jwt_extended import current_user, create_access_token, \
+    create_refresh_token, get_jwt, jwt_required, get_jwt_identity
+from sqlalchemy import select
 
 from . import bp
 from .. import jwt
@@ -33,11 +34,11 @@ async def roles_required(*roles):
         @jwt_required()
         async def wrapper(*args, **kwargs):
             async with async_session() as session:
-                user = await session.execute(User). \
+                user = await session.execute(select(User)). \
                     filter_by(username=get_jwt_identity()).one_or_none()
-                if user is not None and any(user.has_role(role)
+                if await user is not None and any(user.has_role(role)
                                             for role in roles):
-                    return func(*args, **kwargs)
+                    return await func(*args, **kwargs)
                 else:
                     abort(404)
         return wrapper
@@ -57,7 +58,7 @@ async def group_required(*groups):
         @jwt_required()
         async def wrapper(*args, **kwargs):
             async with async_session() as session:
-                user = await session.execute(User). \
+                user = await session.execute(select(User)). \
                     filter_by(username=get_jwt_identity()).one_or_none()
                 if user is not None and any(user.has_group(group)
                                             for group in groups):

@@ -1,16 +1,16 @@
 from datetime import datetime
 
-import asyncpg
 from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean, \
       Text, Date, ForeignKey, Table
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, configure_mappers, sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, declarative_base, configure_mappers, relationship
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 from flask import current_app
 
 from .. import cache
-from .classes import Categories, Statuses
+from ..models.classes import Statuses
+
 
 engine = create_async_engine(current_app.config['SQLALCHEMY_ASYNC_DATABASE_URI'])
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
@@ -108,7 +108,6 @@ class Report(Base):
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    category = Column(String(255), default='important')
     title = Column(String(255))
     report = Column(Text)
     status = Column(String(255), default=Statuses.new.value)
@@ -124,7 +123,7 @@ class Person(Base):
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    category = Column(String(255), default=Categories.candidate.value)
+    category_id = Column(Integer, ForeignKey('categories.id'))
     region_id = Column(Integer, ForeignKey('regions.id'))
     fullname = Column(String(255), nullable=False, index=True)
     previous = Column(Text)
@@ -138,10 +137,12 @@ class Person(Base):
     marital = Column(String(255))
     addition = Column(Text)
     path = Column(Text)
-    status = Column(String(255), default=Statuses.new.value)
+    status_id = Column(Integer, ForeignKey('statuses.id'))
     create = Column(DateTime, default=default_time)
     update = Column(DateTime, onupdate=default_time)
     request_id = Column(Integer)
+    categories = relationship('Category', back_populates='reports')
+    statuses = relationship('Status', back_populates='persons')
     documents = relationship('Document', back_populates='persons', 
                                 cascade="all, delete, delete-orphan")
     addresses = relationship('Address', back_populates='persons', 

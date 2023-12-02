@@ -2,9 +2,9 @@ from apiflask import Schema
 from marshmallow import fields
 
 from .. import ma
-from ..models.model import Relation, User, Person, Affilation, Staff, \
-    Document, Address, Contact, Workplace, Check, Poligraf, \
-        Investigation, Inquiry, Report, Region, Role, Group, Connect
+from ..models.model import Category, Conclusion, Relation, Status, User, Person, \
+    Affilation, Staff, Document, Address, Contact, Workplace, Check, Poligraf, \
+    Investigation, Inquiry, Report, Region, Role, Group, Connect
 
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
@@ -29,13 +29,6 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = User
-        ordered = True
-    
-
-class LocationSchema(ma.SQLAlchemyAutoSchema):
-    """ Create model for location"""
-    class Meta:
-        model = Region 
         ordered = True
 
 
@@ -67,6 +60,27 @@ class PersonSchema(ma.SQLAlchemyAutoSchema):
         ordered = True
         exclude = ('search_vector',) # only if use searchable sqlalchemy
         
+
+class LocationSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for location"""
+    class Meta:
+        model = Region 
+        ordered = True
+
+
+class CategorySchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for category"""
+    class Meta:
+        model = Category 
+        ordered = True
+
+
+class StatusSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for status"""
+    class Meta:
+        model = Status 
+        ordered = True
+
 
 class RelationSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for relation"""
@@ -121,6 +135,13 @@ class CheckSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:
         model = Check
+        ordered = True
+
+
+class ConclusionSchema(ma.SQLAlchemyAutoSchema):
+    """ Create model for conclusion"""
+    class Meta:
+        model = Conclusion 
         ordered = True
 
 
