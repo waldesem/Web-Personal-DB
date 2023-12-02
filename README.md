@@ -56,9 +56,9 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 
 For migrate database enter commands:
 ```
-flask db init       # run this command for the first time if migration folder is not exist
-flask db migrate    # after change db schema
-flask db upgrade    # after change db schema
+alembic init migrations                         # run this command to create migration folder and alembic.ini
+alembic revision --autogenerate -m "initial"    # generate an initial migration script
+alembic upgrade head                            # apply all migrations
 ```
 
 ### Usage

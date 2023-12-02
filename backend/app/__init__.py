@@ -25,8 +25,6 @@ def create_app(config_class=Config):
     ma.init_app(app)
     jwt.init_app(app)
     cache.init_app(app)
-    # migrate = Migrate()
-    # migrate.init_app(app, db, render_as_batch=True)
 
     from app.routes import bp as route_bp
     app.register_blueprint(route_bp)

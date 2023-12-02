@@ -16,8 +16,8 @@ class MessagesView(MethodView):
         self.pagination = 16
         self.schema = MessageSchema()
         async with async_session() as session:
-            self.messages = await session.execute(select(Report)).\
-                filter(Report.user_id == current_user.id)
+            query = select(Report).filter(Report.user_id == current_user.id)
+            self.messages = await session.execute(query)
 
     async def get(self, action, page=1):
         """
@@ -25,31 +25,28 @@ class MessagesView(MethodView):
 
         Returns:
             A serialized representation of the messages.
-        """            
-        if action == 'new':
-            async with async_session() as session:
-                self.messages = self.messages.\
-                    filter(Report.status == Statuses.new.value).all()
+        """
+        async with async_session() as session:
+            if action == 'new':
+                self.messages = self.messages.filter(Report.status == Statuses.new.value).all()
                 return self.schema.dump(self.messages, many=True)
+        
+            elif action == 'all':
+                self.messages = self.messages.group_by(Report.status).order_by(Report.status, Report.create.desc())
+                
+            elif action == 'read':
+                self.messages = self.messages.filter(Report.status == Statuses.new.value)
+                for message in self.messages:
+                    message.status = Statuses.finish.value
+                await session.commit()
 
-        elif action == 'all':
-            self.messages = self.messages.group_by(Report.status).\
-                order_by(Report.status, Report.create.desc())
-        elif action == 'read':
-            self.messages = self.messages.filter(Report.status == Statuses.new.value)
-            for message in self.messages:
-                message.status = Statuses.finish.value
-            await session.commit()
+            result = self.messages.paginate(page=page, per_page=self.pagination, error_out=False)
+            has_next, has_prev = int(result.has_next), int(result.has_prev)
         
-        result = self.messages.paginate(page=page,
-                    per_page=self.pagination,
-                    error_out=False)
-        
-        has_next, has_prev = int(result.has_next), int(result.has_prev)
-        
-        return [self.schema.dump(result, many=True),
-                {'has_next': has_next, "has_prev": has_prev}]
-
+        return [
+            self.schema.dump(result, many=True),
+            {'has_next': has_next, "has_prev": has_prev}
+        ]
 
     @bp.output(EmptySchema, status_code=204)
     async def delete(self, action):
@@ -65,6 +62,5 @@ class MessagesView(MethodView):
                 await session.delete(message)
             await session.commit()
             return self.get(action)
-
-
+        
 bp.add_url_rule('/messages/action', view_func=MessagesView.as_view('messages'))

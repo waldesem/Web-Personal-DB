@@ -1,3 +1,4 @@
+import asyncio
 import os
 import shutil
 
@@ -5,13 +6,13 @@ from flask import request, current_app, send_file
 from flask.views import MethodView
 
 from . import bp
-from .login import r_g
+from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
 
 class FileManagementView(MethodView):
 
-    decorators = [r_g.group_required(Groups.staffsec.name),
-                  r_g.roles_required(Roles.user.name), bp.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.name),
+                  roles_required(Roles.user.name), bp.doc(hide=True)]
     
     def __init__(self):
         self.dirs = []
@@ -19,7 +20,7 @@ class FileManagementView(MethodView):
         self.current_path = [] # 'Home'
         self.base_path = current_app.config["BASE_PATH"] + '/'
     
-    def get(self):
+    async def get(self):
         """
         Retrieves the list of directories and files in the current path.
         Parameters:
@@ -30,18 +31,14 @@ class FileManagementView(MethodView):
                 - 'dirs' (list): A list of directories in the current path.
                 - 'files' (list): A list of files in the current path.
         """
-        for item in os.listdir(os.path.join(self.base_path, *self.current_path)):
-            
-            if os.path.isdir(os.path.join(self.base_path, *self.current_path, item)):
-                self.dirs.append(item)
-            
-            elif os.path.isfile(os.path.join(self.base_path, *self.current_path, item)):
-                self.files.append(item)
-
+        path = os.path.join(self.base_path, *self.current_path)
+        # items = os.listdir(path)
+        items = await asyncio.to_thread(os.scandir, path)
+        self.dirs = [item for item in items if os.path.isdir(os.path.join(path, item))]
+        self.files = [item for item in items if os.path.isfile(os.path.join(path, item))]
         return {'path': self.current_path, 
                 'dirs': self.dirs, 
                 'files': self.files}
-
 
     def post(self, action):
         """

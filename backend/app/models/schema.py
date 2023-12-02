@@ -61,7 +61,7 @@ class PersonSchema(ma.SQLAlchemyAutoSchema):
         exclude = ('search_vector',) # only if use searchable sqlalchemy
         
 
-class LocationSchema(ma.SQLAlchemyAutoSchema):
+class RegionSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for location"""
     class Meta:
         model = Region 
