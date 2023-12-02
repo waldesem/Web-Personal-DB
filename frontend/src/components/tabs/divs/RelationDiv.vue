@@ -16,7 +16,6 @@ const props = defineProps({
 
 </script>
 
-</script>
 
 <template>
   <RowDivSlot :slotOne="true" :slotTwo="true" :print="true">

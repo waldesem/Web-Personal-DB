@@ -1,11 +1,9 @@
 <script setup lang="ts">
 
-import { defineAsyncComponent, inject } from 'vue';
+import { inject } from 'vue';
 import { loginStore } from '@/store/login';
 import { messageStore } from '@/store/messages';
 import { timeSince } from '@utilities/utils';
-
-const MessagesVue = defineAsyncComponent(() => import('@components/layouts/MessagesVue.vue'));
 
 const storeLogin = loginStore();
 const storeMessage = messageStore();
@@ -123,9 +121,7 @@ if (!isStarted) {
       </div>
     </div>
   </nav>
-  
-  <MessagesVue />
-  
+    
 </template>
 
 

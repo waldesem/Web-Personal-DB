@@ -128,5 +128,5 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 <style scoped>
 ul, li {
   padding-left: 0;
-};
+}
 </style>

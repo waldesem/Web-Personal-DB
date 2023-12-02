@@ -7,7 +7,7 @@ from apiflask import abort, EmptySchema
 from flask import request, current_app, send_file
 from flask.views import MethodView
 from flask_jwt_extended import current_user
-from sqlalchemy import and_, extract, func
+from sqlalchemy import select, and_, extract, func
 from werkzeug.utils import secure_filename
 from PIL import Image
 

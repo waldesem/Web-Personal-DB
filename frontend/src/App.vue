@@ -7,6 +7,7 @@ import { loginStore } from '@/store/login';
 
 const NavBar = defineAsyncComponent(() => import('@components/layouts/NavBar.vue'));
 const AlertMessage = defineAsyncComponent(() => import('@components/layouts/AlertMessage.vue'));
+//const MessagesDiv = defineAsyncComponent(() => import('@components/layouts/MessagesDiv.vue'));
 const FooterDiv = defineAsyncComponent(() => import('@components/layouts/FooterDiv.vue'));
 
 const storeLogin = loginStore();
@@ -33,6 +34,7 @@ onBeforeMount(() => {
   <NavBar />
   <AlertMessage />
   <router-view></router-view>
+  <!-- <MessagesDiv /> -->
   <FooterDiv />
 </template>
 
