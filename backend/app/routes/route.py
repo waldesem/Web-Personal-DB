@@ -1,3 +1,4 @@
+import asyncio
 import os
 import requests
 import shutil
@@ -10,18 +11,20 @@ from flask_jwt_extended import current_user
 from sqlalchemy import select, and_, extract, func
 from werkzeug.utils import secure_filename
 from PIL import Image
+import aiohttp
+
 
 from . import bp
 from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
-from ..models.model import  User, Person, Staff, Document, Address, Contact, \
+from ..models.model import  Category, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
-    Status, Report, Affilation
+    Status, Report, Affilation, async_session
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
     WorkplaceSchema, AffilationSchema, CheckSchemaApi
-from ..models.classes import Roles, Groups
+from ..models.classes import Categories, Roles, Groups, Statuses
 
 
 class IndexView(MethodView):
@@ -29,35 +32,38 @@ class IndexView(MethodView):
 
     async def __init__(self) -> None:
         self.pagination = 16
-        self.location_id = session.execute(User.region_id). \
-            filter_by(username=current_user.username).scalar()
         self.schema = PersonSchema()
 
     async def post(self, flag, page):
         json_data = request.get_json()
-
-        query = session.execute(Person).order_by(Person.id.desc())
-        
+        async with async_session() as session:
+            query = await session.execute(select(Person)).order_by(Person.id.desc())
+            categories = await session.execute(select(Category)).all()
+            statuses = await session.execute(select(Status)).all()
         match flag:
             case 'new':
-                query = query.filter(Person.status.in_([Status.new.value,
-                                                        Status.update.value,
-                                                        Status.repeat.value]),
-                                    Person.region_id == self.location_id,
-                                    Person.category == Category.candidate.name)
+                query = query.filter(Person.status.in_([
+                    statuses.filter_by(status=Statuses.new.value).first().id,
+                    statuses.filter_by(status=Statuses.repeat.value).first().id,
+                    statuses.filter_by(status=Statuses.update.value).first().id
+                    ]),
+                    Person.category == categories.filter_by(category=Categories.candidate.name).\
+                        filter_by(category=Categories.candidate.name
+                    ))
             case 'officer':
-                query = query.filter(Person.status.notin_([Status.finish.value,
-                                                            Status.result.value,
-                                                            Status.cancel.value])) \
-                            .join(Check, isouter=True) \
-                            .filter_by(officer=current_user.fullname)
+                query = query.filter(Person.status.notin_([
+                    statuses.filter_by(status=Statuses.finish.value).first().id,
+                    statuses.filter_by(status=Statuses.cancel.value).first().id
+                    ])) \
+                    .join(Check, isouter=True) \
+                    .filter_by(officer=current_user.fullname)
             case 'search':
                 if json_data['search']:
-                    query = Person.query.search('%{}%'.format(json_data['search'])) 
+                    query = await Person.query.search('%{}%'.format(json_data['search'])) 
                     
         result = query.paginate(page=page,
-                            per_page=self.pagination,
-                            error_out=False)
+                                per_page=self.pagination,
+                                error_out=False)
         
         has_next, has_prev = bool(result.has_next), bool(result.has_prev)
         
@@ -68,133 +74,175 @@ bp.add_url_rule('/index/<flag>/<int:page>',
                 view_func=IndexView.as_view('index'))
 
 
+class PersonView(MethodView):
+
+    decorators = [group_required(Groups.staffsec.name), bp.doc(hide=True)]
+
+    async def get(self, person_id):
+        views = [
+            ResumeView(), StaffView(), DocumentView(), ContactView(),
+            AddressView(), WorkplaceView(), AffilationView(), RelationView(),
+            CheckView(), PoligrafView(), InvestigationView(), InquiryView()
+        ]
+        
+        results = await asyncio.gather(
+            *[view.get(view_name, person_id) for view, view_name in zip(views, [
+                'resume', 'staffs', 'documents', 'contacts', 'addresses', 'works',
+                'affilations', 'relations', 'checks', 'poligafs', 'investigations', 'inquiries'
+            ])]
+        )
+        return {'person': results}
+    
+bp.add_url_rule('/person/<int:person_id>', PersonView.as_view('person'))
+
+
 class ResumeView(MethodView):
+    
     decorators = [group_required(Groups.staffsec.name), bp.doc(hide=True)]
 
     @bp.output(PersonSchema)
     async def get(self, action, person_id):
-        person = session.execute(Person).get(person_id)
-        if action == 'status':
-            person.status = Status.update.value
-            db.session.commit()
-            return session.execute(Person).get(person_id)
-        elif action == 'send':
-            if person.has_status([Status.new.value,
-                                  Status.update.value,
-                                  Status.repeat.value]):
-                anketa_schema = AnketaSchemaApi()
-                serial = anketa_schema.dump(dict(
-                    resume=person,
-                    document=session.execute(Document). \
-                        filter_by(person_id=person_id). \
-                        order_by(Document.id.desc()).first(),
-                    address=session.execute(Address). \
-                        filter(Address.person_id == person_id,
-                               Address.view.ilike("%регистрац%")). \
-                        order_by(Address.id.desc()).first()))
-                try:
-                    response = requests.post(url='https://httpbin.org/post',
-                                             json=serial,
-                                             timeout=5)
-                    response.raise_for_status()
-                    if response.status_code == 200:
-                        person.status = Status.robot.value
-                        db.session.add(Check(officer=current_user.fullname,
-                                             person_id=person_id))
-                        db.session.commit()
-                        return session.execute(Person).get(person_id)
-                    return abort(response.status_code)
-                except requests.exceptions.RequestException as e:
-                    print(e)
-            return abort(404)
-        return person
+        async with async_session() as session:
+            person = await session.get(Person, person_id)
+            statuses = await session.execute(select(Status)).all()
+            
+            if action == 'status':
+                person.status_id = statuses.filter_by(status=Statuses.new.value).first().id
+                await session.commit()
+                return session.execute(select(Person).filter_by(id=person_id)).first()
+            
+            elif action == 'send':
+                status_ids = [
+                    status.id for status in statuses 
+                        if status.status in [Statuses.new.value, 
+                                            Statuses.update.value, 
+                                            Statuses.repeat.value]
+                ]
+                if person.has_status(status_ids):
+                    anketa_schema = AnketaSchemaApi()
+                    document = await session.execute(select(Document)). \
+                            filter_by(person_id=person_id). \
+                            order_by(Document.id.desc()).first(),
+                    address = await session.execute(select(Address)). \
+                            filter(Address.person_id == person_id,
+                                Address.view.ilike("%регистрац%")). \
+                            order_by(Address.id.desc()).first()
+                    serial = anketa_schema.dump(
+                        id=person.id,
+                        fullname=person.fullname,
+                        birthday=person.birthday,
+                        birthplace=person.birthplace,
+                        snils=person.snils,
+                        inn=person.inn,
+                        series=document.series,
+                        number=document.number,
+                        agency=document.agency,
+                        issue=document.agency,
+                        address=address.address
+                        )
+                    try:
+                        async with aiohttp.ClientSession() as client_session:
+                            async with client_session.post(url='https://httpbin.org/post', 
+                                                           json=serial, 
+                                                           timeout=5) as response:
+                                response.raise_for_status()
+                                
+                                if response.status == 200:
+                                    person.status_id = next((
+                                        status.id for status in statuses \
+                                            if status.status == Statuses.robot.value
+                                    ), None)
+                                    await session.add(Check(officer=current_user.fullname, 
+                                                            person_id=person_id))
+                                    await session.commit()
+                                    return session.execute(select(Person))\
+                                        .filter_by(id=person_id).first()
+                                
+                                return abort(response.status)
+                    
+                    except aiohttp.ClientError as e:
+                        print(e)
+                return abort(404)
+            
+            elif action == 'delegate':
+                async with async_session() as session:
+                    check = session.execute(select(Check)
+                                            .filter_by(person_id=person_id)
+                                            .order_by(Check.id.desc())).first()
+                    old_officer_id = await session.execute(
+                        select(User).filter_by(fullname=check.officer)
+                        ).scalar()
+                    check.officer = current_user.fullname
+                    await session.add(Report(
+                        category=Statuses.new.value,
+                        report=f'Анкета #{person_id} делегирована'
+                                f'{current_user.fullname}', user_id=old_officer_id))
+                    await session.commit()
+                    return '', 201
+            return person
+        
 
     @roles_required(Roles.user.name, Roles.api.name)
     @bp.input(PersonSchema)
     async def post(self, action, json_data):
-        location_id = session.execute(User.region_id). \
-            filter_by(username=current_user.username).scalar()
-        person_id = self.add_resume(json_data, location_id, action)
+        person_id = await self.add_resume(json_data, action)
         return {'message': person_id}
-
-    @roles_required(Roles.user.name)
-    @bp.input(PersonSchema)
-    async def patch(self, action, person_id, json_data):
-        person = session.execute(Person).get(person_id)
-        person.region_id = json_data['region_id']
-        users = session.execute(User). \
-            filter_by(region_id=json_data['region_id']).all()
-        if len(users):
-            for user in users:
-                db.session.add(Report(
-                    category=Reports.high.value,
-                    report=f'Делегирована анкета #{person_id} \
-                                  от {current_user.fullname}', user_id=user.id))
-        db.session.commit()
-        return '', 201
 
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, person_id):
-        person = session.execute(Person).get(person_id)
-        try:
-            shutil.rmtree(os.path.join(current_app.config['BASE_PATH'], person.path))
-        except Exception as e:
-            print(e)
-        db.session.delete(person)
-        db.session.commit()
-        return ''
+        async with async_session() as session:
+            person = await session.get(Person, person_id)
+            try:
+                shutil.rmtree(os.path.join(current_app.config['BASE_PATH'], person.path))
+            except Exception as e:
+                print(e)
+            await session.delete(person)
+            await session.commit()
+            return ''
 
-    async def add_resume(self, resume: dict, location_id, action):
+    async def add_resume(self, resume: dict, action):
         """
         Adds a resume to the database.
         """
-        result = session.execute(Person).\
-            filter(Person.fullname.ilike(resume['fullname']),
-                Person.birthday==resume['birthday']).one_or_none()
-        if result:
-            if action == "create" or action == 'api':
-                resume.update({'status': Status.repeat.value, 'region_id': location_id})
-            else:
-                resume.update({'status': Status.update.value, 'region_id': location_id})
-            for k, v in resume.items():
-                setattr(result, k, v)
-            person_id = result.id
-            
-            if result.path and not os.path.isdir(os.path.join(current_app.config["BASE_PATH"], 
-                                                            result.path)):
-                os.mkdir(result.path)
-            elif not result.path:
-                new_path = os.path.join(current_app.config["BASE_PATH"], 
-                                        resume['fullname'][0].upper(),
-                                        f'{person_id}-{resume["fullname"]}')
-                if not os.path.isdir(new_path):
-                    os.mkdir(new_path)
-                result.path = os.path.join(resume['fullname'][0].upper(), 
-                                        f'{person_id}-{resume["fullname"]}')
-        else:
-            person = Person(**resume | {'region_id': location_id})
-            db.session.add(person)
-            db.session.flush()
+        async with async_session() as session:
+            person = await session.execute(
+                select(Person).filter(Person.fullname.ilike(resume['fullname']),
+                                      Person.birthday==resume['birthday'])
+                ).one_or_none()
+        if person:
+            statuses = await session.execute(select(Status)).scalars().all()
+            status_id = statuses.filter_by(status=Statuses.new.value).first().id \
+                if action in ["create", "api"] \
+                    else statuses.filter_by(status=Statuses.update.value).first().id
+            person.update(resume)
+            person.status_id = status_id
             person_id = person.id
-            
-            path = os.path.join(current_app.config["BASE_PATH"], 
-                                resume['fullname'][0].upper(),
-                                f'{person_id}-{resume["fullname"]}')
-            if not os.path.isdir(path):
-                os.mkdir(path)
-            
-            person.path = os.path.join(resume['fullname'][0].upper(),
-                                    f'{person_id}-{resume["fullname"]}')
+        else:
+            person = Person(**resume)
+            await session.add(person)
+            await session.flush()
+            person_id = person.id
 
-        db.session.commit()
+        person.path = self.make_folder(resume['fullname'], person_id)
+        await session.commit()
         return person_id
+    
+    def make_folder(self, fullname, person_id):
+        """
+        Check if a folder exists for a given person and create it if it does not exist.
+        """
+        person_path = os.path.join(fullname[0].upper(), person_id, fullname)
+        url = os.path.join(current_app.config["BASE_PATH"], person_path)
+        if not os.path.isdir(url):
+            os.mkdir(url)
+        return person_path
 
 resume_view = ResumeView.as_view('resume')
 bp.add_url_rule('/resume/<action>',
                 view_func=resume_view, methods=['POST'])
 bp.add_url_rule('/resume/<action>/<int:person_id>',
-                view_func=resume_view, methods=['GET', 'PATCH', 'DELETE'])
+                view_func=resume_view, methods=['GET', 'DELETE'])
 
 
 class StaffView(MethodView):
