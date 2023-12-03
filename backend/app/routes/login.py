@@ -21,7 +21,7 @@ jwt_redis_blocklist = redis.StrictRedis(
 )
 
 
-async def roles_required(*roles):
+def roles_required(*roles):
     """
     This function is a decorator that checks if the user has the required roles 
     to access a given route.
@@ -50,7 +50,7 @@ async def roles_required(*roles):
     return decorator
 
 
-async def group_required(*groups):
+def group_required(*groups):
     """
     Decorator that checks if the user is a member of any of the specified groups 
     before allowing access to the decorated endpoint.

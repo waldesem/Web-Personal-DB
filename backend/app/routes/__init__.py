@@ -1,6 +1,6 @@
-from apiflask import APIBlueprint
+from quart import Blueprint
 
-bp = APIBlueprint('route', __name__)
+bp = Blueprint('route', __name__)
 
 from app.routes import route
 

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean, \
@@ -6,19 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, configure_mappers, relationship
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
-from flask import current_app
 
 from .. import cache
 from ..models.classes import Statuses
 
 
-engine = create_async_engine(current_app.config['SQLALCHEMY_ASYNC_DATABASE_URI'])
+engine = create_async_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'))
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 Base = declarative_base()
 make_searchable(Base.metadata)
 configure_mappers()
-
 
 def default_time():
     return datetime.now()
@@ -26,18 +25,20 @@ def default_time():
 
 user_groups = Table(
     'user_groups',
-    Column('user_id', Integer(), ForeignKey('users.id')),
-    Column('group_id', Integer(), ForeignKey('groups.id'))
+    Base.metadata,
+    Column('user_id', ForeignKey('users.id')),
+    Column('group_id', ForeignKey('groups.id'))
 )
     
     
 user_roles = Table(
     'user_roles',
-    Column('user_id', Integer(), ForeignKey('users.id')),
-    Column('role_id', Integer(), ForeignKey('roles.id'))
+    Base.metadata,
+    Column('user_id', ForeignKey('users.id')),
+    Column('role_id', ForeignKey('roles.id'))
 )
-        
-        
+       
+
 class Group(Base):
     """ Create model for groups"""
 
@@ -45,6 +46,7 @@ class Group(Base):
 
     id = Column(Integer, primary_key=True)
     group = Column(String(255), unique=True)
+    users = relationship('User', secondary=user_groups, back_populates='groups')
 
 
 class Role(Base):
@@ -54,7 +56,8 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True)
     role = Column(String(255), unique=True)
-    
+    users = relationship('User', secondary=user_roles, back_populates='roles')
+
 
 class User(Base):
     """ Create model for users"""
@@ -73,11 +76,11 @@ class User(Base):
     blocked = Column(Boolean(), default=False)
     attempt = Column(Integer(), default=0)
     region_id = Column(Integer, ForeignKey('regions.id'))
-    reports = relationship('Report', back_populates='users', 
-                            cascade="all, delete, delete-orphan")
     roles = relationship('Role', secondary=user_roles, back_populates='users')
     groups = relationship('Group', secondary=user_groups, back_populates='users')
-   
+    messages = relationship('Message', back_populates='users', 
+                            cascade="all, delete, delete-orphan")
+    
     @cache.memoize(60)
     def has_group(self, group):
         """
@@ -101,10 +104,10 @@ class User(Base):
         return any(r.role == role for r in self.roles)
     
 
-class Report(Base):
-    """ Create model for report"""
+class Message(Base):
+    """ Create model for messages"""
 
-    __tablename__ = 'reports'
+    __tablename__ = 'messages'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
@@ -113,7 +116,7 @@ class Report(Base):
     status = Column(String(255), default=Statuses.new.value)
     create = Column(DateTime, default=default_time)
     user_id = Column(Integer, ForeignKey('users.id'))
-    users = relationship('User', back_populates='reports')
+    users = relationship('User', back_populates='messages')
 
 
 class Person(Base):
@@ -141,7 +144,8 @@ class Person(Base):
     create = Column(DateTime, default=default_time)
     update = Column(DateTime, onupdate=default_time)
     request_id = Column(Integer)
-    categories = relationship('Category', back_populates='reports')
+    regions = relationship('Region', back_populates='persons')
+    categories = relationship('Category', back_populates='persons')
     statuses = relationship('Status', back_populates='persons')
     documents = relationship('Document', back_populates='persons', 
                                 cascade="all, delete, delete-orphan")
@@ -155,17 +159,15 @@ class Person(Base):
                              cascade="all, delete, delete-orphan")
     checks = relationship('Check', back_populates='persons', 
                              cascade="all, delete, delete-orphan")
-    registries = relationship('Registry', back_populates='persons', 
-                                 cascade="all, delete, delete-orphan")
     poligrafs = relationship('Poligraf', back_populates='persons', 
                                 cascade="all, delete, delete-orphan")
     inquiries = relationship('Inquiry', back_populates='persons', 
                                 cascade="all, delete, delete-orphan")
     investigations = relationship('Investigation', back_populates='persons', 
                                      cascade="all, delete, delete-orphan")
-    relations= relationship('Relation', back_populates='persons', 
+    relations = relationship('Relation', back_populates='persons', 
                                cascade="all, delete, delete-orphan")
-    affilations = relationship('Affilation', back_populates='affilation', 
+    affilations = relationship('Affilation', back_populates='persons', 
                            cascade="all, delete, delete-orphan")
     search_vector = Column(TSVectorType('previous', 'fullname', 'inn', 'snils')) 
     
@@ -184,8 +186,7 @@ class Category(Base):
 
     __tablename__ = 'categories'
     
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
-                   autoincrement=True)
+    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     category = Column(String(255))
     persons = relationship('Person', back_populates='categories')
 
@@ -238,6 +239,9 @@ class Document(Base):
     issue = Column(Date)
     person_id = Column(Integer, ForeignKey('persons.id'))
     persons = relationship('Person', back_populates='documents')
+    search_vector = Column(TSVectorType('series', 'number')) 
+
+combined_search_vector = Person.search_vector | Document.search_vector
 
 
 class Address(Base): 
@@ -285,9 +289,9 @@ class Workplace(Base):
     
 
 class Affilation(Base):
-    """ Create model for affilation"""
+    """ Create model for affilations"""
 
-    __tablename__ = 'affilation'
+    __tablename__ = 'affilations'
 
     id = Column(Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
@@ -352,7 +356,7 @@ class Conclusion(Base):
     id = Column(Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
     conclusion = Column(String(255))
-    conclusions = relationship('Check', back_populates='conclusions')   
+    checks = relationship('Check', back_populates='conclusions')   
 
 
 class Poligraf(Base):  # модель данных результаты ПФО
@@ -417,4 +421,5 @@ class Connect(Base):
     mail = Column(String(255))
     comment = Column(Text)
     data = Column(Date, default=default_time, onupdate=default_time)
-    search_vector = Column(TSVectorType('company', 'fullname', 'mobile', 'phone')) 
+    search_vector = Column(TSVectorType('company', 'fullname', 'mobile', 'phone'))
+

@@ -1,4 +1,3 @@
-from apiflask import EmptySchema
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask.views import MethodView
@@ -99,7 +98,6 @@ class ConnnectView(MethodView):
             await session.commit()
             return {'item_id': item}
 
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, item):
         """
         Deletes an item from the database.

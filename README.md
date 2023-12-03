@@ -7,7 +7,7 @@
 - Python3;
 - Postgesql as database;
 - Redis as caching service;
-- APIFlask a lightweight Python web API framework based on Flask;
+- Quart is a Fast Python web microframework on base of Flask;
 - Gunicorn as HTTP server;
 - SQLAlchemy as tool that adds support for SQLAlchemy;
 - Alembic as a tool that handles SQLAlchemy database migrations;

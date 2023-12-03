@@ -1,10 +1,9 @@
-from apiflask import Schema
-from marshmallow import fields
+from marshmallow import Schema, fields
 
 from .. import ma
 from ..models.model import Category, Conclusion, Relation, Status, User, Person, \
     Affilation, Staff, Document, Address, Contact, Workplace, Check, Poligraf, \
-    Investigation, Inquiry, Report, Region, Role, Group, Connect
+    Investigation, Inquiry, Message, Region, Role, Group, Connect
 
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
@@ -47,7 +46,7 @@ class PasswordSchema(LoginSchema):
 class MessageSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for message"""
     class Meta:
-        model = Report
+        model = Message
         ordered = True
 
 
@@ -58,7 +57,7 @@ class PersonSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Person
         ordered = True
-        exclude = ('search_vector',) # only if use searchable sqlalchemy
+        exclude = ('search_vector',)
         
 
 class RegionSchema(ma.SQLAlchemyAutoSchema):
@@ -94,7 +93,7 @@ class DocumentSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Document
         ordered = True
-exclude = ('search_vector',) # only if use searchable sqlalchemy
+        exclude = ('search_vector',)
 
 class AddressSchema(ma.SQLAlchemyAutoSchema):
     """ Create model for address"""
@@ -206,7 +205,7 @@ models_schemas = {
     'user': [User, UserSchema()],
     'role': [Role, RoleSchema()],
     'group': [Group, GroupSchema()],
-    'report': [Report, MessageSchema()],
+    'message': [Message, MessageSchema()],
     'resume': [Person, PersonSchema()],
     'staff': [Staff, StaffSchema()],
     'document': [Document, DocumentSchema()],

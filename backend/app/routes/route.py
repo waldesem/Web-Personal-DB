@@ -3,9 +3,8 @@ import os
 import shutil
 from datetime import datetime
 
-from apiflask import abort, EmptySchema
-from flask import request, current_app, send_file
-from flask.views import MethodView
+from quart import request, current_app, send_file, abort
+from quart.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select, and_, extract, func
 from werkzeug.utils import secure_filename
@@ -17,7 +16,7 @@ from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
 from ..models.model import  Category, Conclusion, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
-    Status, Report, Affilation, async_session
+    Status, Message, Affilation, async_session, combined_search_vector
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
@@ -57,8 +56,9 @@ class IndexView(MethodView):
                     .filter_by(officer=current_user.fullname)
             case 'search':
                 if json_data['search']:
-                    query = await Person.query.search('%{}%'.format(json_data['search'])) 
-                    
+                    query = await session.execute(select(Person).join(Category), 
+                                                  '%{}%'.format(json_data['search']), 
+                                                  vector=combined_search_vector)
         result = query.paginate(page=page,
                                 per_page=self.pagination,
                                 error_out=False)
@@ -171,7 +171,6 @@ class ResumeView(MethodView):
         return {'message': person_id}
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, person_id):
         async with async_session() as session:
             person = await session.get(Person, person_id)
@@ -256,7 +255,6 @@ class StaffView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             staff = await session.get(Staff, person_id=item_id)
@@ -298,7 +296,6 @@ class DocumentView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             document = await session.get(Document, item_id)
@@ -340,7 +337,6 @@ class AddressView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             Address = await session.get(Address, item_id)
@@ -382,7 +378,6 @@ class ContactView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             Contact = await session.get(Contact, item_id)
@@ -428,7 +423,6 @@ class WorkplaceView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             Workplace = await session.get(Workplace, item_id)
@@ -472,7 +466,6 @@ class RelationView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             relaton = await session.get(Relation, item_id)
@@ -513,7 +506,6 @@ class AffilationView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             affilation = await session.get(Affilation, item_id)
@@ -559,7 +551,7 @@ class CheckView(MethodView):
                     select(User).filter_by(fullname=check.officer)
                     ).scalar()
                 check.officer = current_user.fullname
-                await session.add(Report(
+                await session.add(Message(
                     category=Statuses.new.value,
                     report=f'Анкета делегирована {current_user.fullname}', 
                             user_id=old_officer_id))
@@ -597,16 +589,16 @@ class CheckView(MethodView):
                                 shutil.copytree(item, os.path.join(check_path, item))
 
                     except FileNotFoundError as error:
-                        await session.add(Report(report=f'{error}', user_id=user.id))
+                        await session.add(Message(report=f'{error}', user_id=user.id))
 
                 await latest_check.update(**json_data)
-                await session.add(Report(report=f'Проверка кандидата \
+                await session.add(Message(report=f'Проверка кандидата \
                                         {candidate.fullname} окончена', user_id=user.id))
                 candidate.status_id = self.statuses.filter(Status.status == Statuses.reply.value).first().id
                 await session.commit()
 
             else:
-                await session.add(Report(
+                await session.add(Message(
                     report=f'Результат проверки'
                            f'{candidate.fullname} не может быть записан.'
                            f'Материал проверки находится в {json_data["path"]}', 
@@ -649,7 +641,6 @@ class CheckView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     @bp.doc(hide=True)
     async def delete(self, action, item_id):
         async with async_session() as session:
@@ -697,7 +688,6 @@ class InvestigationView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             investigation = await session.get(Investigation, item_id)
@@ -747,7 +737,6 @@ class PoligrafView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             pfo = await session.get(Poligraf, item_id)
@@ -790,7 +779,6 @@ class InquiryView(MethodView):
             return '', 201
 
     @roles_required(Roles.user.name)
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action, item_id):
         async with async_session() as session:
             pfo = await session.get(Inquiry, item_id)

@@ -1,10 +1,9 @@
-from apiflask import EmptySchema
 from flask_jwt_extended import jwt_required, current_user
 from flask.views import MethodView
 from sqlalchemy import select
 
 from . import bp
-from ..models.model import Report, async_session
+from ..models.model import Message, async_session
 from ..models.schema import MessageSchema
 from ..models.classes import Statuses
 
@@ -16,7 +15,7 @@ class MessagesView(MethodView):
         self.pagination = 16
         self.schema = MessageSchema()
         async with async_session() as session:
-            query = select(Report).filter(Report.user_id == current_user.id)
+            query = select(Message).filter(Message.user_id == current_user.id)
             self.messages = await session.execute(query)
 
     async def get(self, action, page=1):
@@ -28,14 +27,14 @@ class MessagesView(MethodView):
         """
         async with async_session() as session:
             if action == 'new':
-                self.messages = self.messages.filter(Report.status == Statuses.new.value).all()
+                self.messages = self.messages.filter(Message.status == Statuses.new.value).all()
                 return self.schema.dump(self.messages, many=True)
         
             elif action == 'all':
-                self.messages = self.messages.group_by(Report.status).order_by(Report.status, Report.create.desc())
+                self.messages = self.messages.group_by(Message.status).order_by(Message.status, Message.create.desc())
                 
             elif action == 'read':
-                self.messages = self.messages.filter(Report.status == Statuses.new.value)
+                self.messages = self.messages.filter(Message.status == Statuses.new.value)
                 for message in self.messages:
                     message.status = Statuses.finish.value
                 await session.commit()
@@ -48,7 +47,6 @@ class MessagesView(MethodView):
             {'has_next': has_next, "has_prev": has_prev}
         ]
 
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, action):
         """
         Deletes the current instance of the resource from the database.

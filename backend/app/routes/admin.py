@@ -1,4 +1,3 @@
-from apiflask import EmptySchema
 from flask import current_app, request
 import bcrypt
 
@@ -104,7 +103,6 @@ class UserView(MethodView):
             return self.get('view', json_data['id'])
         
 
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, user_id):
         """
         Delete a user by their ID.
@@ -142,7 +140,6 @@ class GroupView(MethodView):
                 await session.commit()
                 return UsersView().get('view', user_id)
 
-    @bp.output(EmptySchema, status_code=204)
     async def delete(self, value, user_id):
         """
         Deletes a group from a user's list of groups.
