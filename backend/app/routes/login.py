@@ -202,7 +202,7 @@ bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
 
     
 @jwt.token_in_blocklist_loader
-async def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     """
     Check if a token is revoked.
     Parameters:
@@ -211,12 +211,12 @@ async def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     Returns:
         bool: True if the token is revoked, False otherwise.
     """
-    token_in_redis = await jwt_redis_blocklist.exists(jwt_payload["jti"])
+    token_in_redis = jwt_redis_blocklist.exists(jwt_payload["jti"])
     return token_in_redis
 
 
 @jwt.user_identity_loader
-async def user_identity_lookup(user):
+def user_identity_lookup(user):
     return user
 
 
@@ -231,5 +231,5 @@ async def user_lookup_callback(_jwt_header, jwt_data):
         User: The user found based on the JWT data, or None if not found.
     """
     async with async_session() as session:
-        query = session.execute(User).filter_by(username=jwt_data["sub"])
-        return await query.one_or_none()
+        query = await session.execute(User).filter_by(username=jwt_data["sub"])
+        return query.one_or_none()

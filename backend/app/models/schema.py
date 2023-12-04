@@ -1,4 +1,6 @@
-from marshmallow import Schema, fields
+from apiflask import Schema
+from marshmallow import fields
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
 
 from .. import ma
 from ..models.model import Category, Conclusion, Relation, Status, User, Person, \
@@ -6,29 +8,29 @@ from ..models.model import Category, Conclusion, Relation, Status, User, Person,
     Investigation, Inquiry, Message, Region, Role, Group, Connect
 
 
-class RoleSchema(ma.SQLAlchemyAutoSchema):
+class RoleSchema(SQLAlchemyAutoSchema):
     """ Create model for role"""
     class Meta:
         model = Role
         ordered = True
 
 
-class GroupSchema(ma.SQLAlchemyAutoSchema):
+class GroupSchema(SQLAlchemyAutoSchema):
     """ Create model for group"""
     class Meta:
         model = Group
         ordered = True
         
 
-class UserSchema(ma.SQLAlchemyAutoSchema):
+class UserSchema(SQLAlchemyAutoSchema):
     """ Create model for user"""
-    region_id = ma.auto_field()
     roles = ma.Nested('RoleSchema', many=True)
     groups = ma.Nested('GroupSchema', many=True)
 
     class Meta:
         model = User
         ordered = True
+        include_fk = True
 
 
 class LoginSchema(Schema):
@@ -43,127 +45,127 @@ class PasswordSchema(LoginSchema):
     conf_pswd = fields.String()
  
 
-class MessageSchema(ma.SQLAlchemyAutoSchema):
+class MessageSchema(SQLAlchemyAutoSchema):
     """ Create model for message"""
     class Meta:
         model = Message
         ordered = True
 
 
-class PersonSchema(ma.SQLAlchemyAutoSchema):
+class PersonSchema(SQLAlchemyAutoSchema):
     """ Create model for person"""
-    region_id = ma.auto_field()
 
     class Meta:
         model = Person
         ordered = True
+        include_fk = True
         exclude = ('search_vector',)
         
 
-class RegionSchema(ma.SQLAlchemyAutoSchema):
+class RegionSchema(SQLAlchemyAutoSchema):
     """ Create model for location"""
     class Meta:
         model = Region 
         ordered = True
 
 
-class CategorySchema(ma.SQLAlchemyAutoSchema):
+class CategorySchema(SQLAlchemyAutoSchema):
     """ Create model for category"""
     class Meta:
         model = Category 
         ordered = True
 
 
-class StatusSchema(ma.SQLAlchemyAutoSchema):
+class StatusSchema(SQLAlchemyAutoSchema):
     """ Create model for status"""
     class Meta:
         model = Status 
         ordered = True
 
 
-class RelationSchema(ma.SQLAlchemyAutoSchema):
+class RelationSchema(SQLAlchemyAutoSchema):
     """ Create model for relation"""
     class Meta:
         model = Relation
         ordered = True
 
 
-class DocumentSchema(ma.SQLAlchemyAutoSchema):
+class DocumentSchema(SQLAlchemyAutoSchema):
     """ Create model for document"""
     class Meta:
         model = Document
         ordered = True
         exclude = ('search_vector',)
 
-class AddressSchema(ma.SQLAlchemyAutoSchema):
+class AddressSchema(SQLAlchemyAutoSchema):
     """ Create model for address"""
     class Meta:
         model = Address
         ordered = True
 
 
-class StaffSchema(ma.SQLAlchemyAutoSchema):
+class StaffSchema(SQLAlchemyAutoSchema):
     """ Create model for staff"""
     class Meta:
         model = Staff
         ordered = True
 
 
-class WorkplaceSchema(ma.SQLAlchemyAutoSchema):
+class WorkplaceSchema(SQLAlchemyAutoSchema):
     """ Create model for workplace"""
     class Meta:
         model = Workplace
         ordered = True
 
 
-class ContactSchema(ma.SQLAlchemyAutoSchema):
+class ContactSchema(SQLAlchemyAutoSchema):
     """ Create model for contact"""
     class Meta:
         model = Contact
         ordered = True
 
 
-class AffilationSchema(ma.SQLAlchemyAutoSchema):
+class AffilationSchema(SQLAlchemyAutoSchema):
     """ Create model for affilation"""
     class Meta:
         model = Affilation
         ordered = True
 
 
-class CheckSchema(ma.SQLAlchemyAutoSchema):
+class CheckSchema(SQLAlchemyAutoSchema):
     """ Create model for check"""
     class Meta:
         model = Check
         ordered = True
 
 
-class ConclusionSchema(ma.SQLAlchemyAutoSchema):
+class ConclusionSchema(SQLAlchemyAutoSchema):
     """ Create model for conclusion"""
     class Meta:
         model = Conclusion 
         ordered = True
 
 
-class InquirySchema(ma.SQLAlchemyAutoSchema):
+class InquirySchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Inquiry
         ordered = True
 
 
-class InvestigationSchema(ma.SQLAlchemyAutoSchema):
+class InvestigationSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Investigation
         ordered = True
 
 
-class PoligrafSchema(ma.SQLAlchemyAutoSchema):
+class PoligrafSchema(SQLAlchemyAutoSchema):
     """ Create model for poligraf"""
     class Meta:
         model = Poligraf
         ordered = True
 
 
-class ConnectSchema(ma.SQLAlchemyAutoSchema):
+class ConnectSchema(SQLAlchemyAutoSchema):
     """ Create schema for Connections """
     class Meta:
         model = Connect
@@ -171,7 +173,7 @@ class ConnectSchema(ma.SQLAlchemyAutoSchema):
         exclude = ('search_vector',)
 
 
-class AnketaSchemaApi(ma.SQLAlchemySchema):
+class AnketaSchemaApi(SQLAlchemySchema):
     """ Create schema for sending anketa"""
     id = fields.String()
     fullname = fields.String()
@@ -186,7 +188,7 @@ class AnketaSchemaApi(ma.SQLAlchemySchema):
     address = fields.String()
 
 
-class CheckSchemaApi(ma.SQLAlchemyAutoSchema):
+class CheckSchemaApi(SQLAlchemySchema):
     """ Create schema for check /api/v1/check """
     id = fields.String()
     employee = fields.String()

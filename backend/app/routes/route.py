@@ -3,8 +3,8 @@ import os
 import shutil
 from datetime import datetime
 
-from quart import request, current_app, send_file, abort
-from quart.views import MethodView
+from flask import request, current_app, send_file, abort
+from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select, and_, extract, func
 from werkzeug.utils import secure_filename
