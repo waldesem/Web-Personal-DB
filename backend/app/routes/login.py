@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import wraps
 
 import bcrypt
-import redis
+import redis.asyncio as redis
 from flask import current_app, abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user, create_access_token, \
@@ -16,9 +16,13 @@ from ..models.model import async_session, User
 from ..models.schema import LoginSchema, PasswordSchema, UserSchema
 from ..models.classes import Roles
 
+
 jwt_redis_blocklist = redis.StrictRedis(
-    host="localhost", port=6379, db=0, decode_responses=True
-)
+    host="localhost",
+    port=6379, 
+    db=0, 
+    decode_responses=True
+    )
 
 
 def roles_required(*roles):
@@ -32,20 +36,23 @@ def roles_required(*roles):
         decorator (function): The decorator function that wraps the original 
         function and performs the role check.
     """
-    async def decorator(func):
+    def decorator(func):
         @wraps(func)
         @jwt_required()
         async def wrapper(*args, **kwargs):
             async with async_session() as session:
+                
                 user = await session.execute(
                     select(User)
                     .filter_by(username=get_jwt_identity())
                     .options(selectinload(User.roles))
                 ).scalar_one_or_none()
-                if user is not None and any(user.has_role(role) for role in roles):
+                
+                if user and any(user.has_role(role) for role in roles):
                     return await func(*args, **kwargs)
                 else:
-                    abort(404)
+                    return await abort(404)
+                    
         return wrapper
     return decorator
 
@@ -60,21 +67,23 @@ def group_required(*groups):
         A decorated wrapper function that checks if the user has the required 
         group membership before allowing access to the decorated endpoint.
     """
-    async def decorator(func):
+    def decorator(func):
         @wraps(func)
         @jwt_required()
         async def wrapper(*args, **kwargs):
             async with async_session() as session:
+                
                 user = await session.execute(
                     select(User)
                     .filter_by(username=get_jwt_identity())
                     .options(selectinload(User.groups))
                 ).scalar_one_or_none()
-                if user is not None and any(user.has_group(group)
-                                            for group in groups):
+                
+                if user and any(user.has_group(group) for group in groups):                            
                     return await func(*args, **kwargs)
                 else:
-                    abort(404)
+                    return abort(404)
+                    
         return wrapper
     return decorator
 
@@ -92,9 +101,10 @@ class LoginView(MethodView):
             User: The user object representing the current authenticated user.
         """
         async with async_session() as session:
-            user = session.query(User). \
-                filter(User.username == current_user.username, 
-                       User.blocked == False).one_or_none()
+            user = session.execute(
+                select(User)
+                .filter(User.username == current_user.username, not User.blocked)
+            ).one_or_none()
             if user:
                 user.last_login = datetime.now()
                 await session.commit()
@@ -110,11 +120,14 @@ class LoginView(MethodView):
             dict: A dictionary containing the access and refresh tokens.
         """
         async with async_session() as session:
-            user = await session.query(User). \
-                filter_by(username=json_data['username']).one_or_none()
+            user = await session.execute(
+                select(User)
+                .filter_by(username=json_data['username'])
+            ).one_or_none()
             if user and not user.blocked:
                 if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                     delta_change = datetime.now() - user.pswd_create
+                    
                     if user.pswd_change and delta_change.days < 365:
                         user.last_login = datetime.now()
                         user.attempt = 0
@@ -142,23 +155,23 @@ class LoginView(MethodView):
     async def patch(self, json_data):
         """
         Patch method for updating user password.
-        Args:
-            json_data (dict): The JSON data containing the username, password, and new password.
-        Returns:
-            tuple: A tuple containing an empty string and the HTTP status code.
         """
         async with async_session() as session:
-            user = await session.execute(User).\
-                filter_by(username=json_data['username']).one_or_none()
+            user = await session.execute(
+                select(User)
+                .filter_by(username=json_data['username'])
+            ).one_or_none()
             
             if user is None or not bcrypt.checkpw(
-                json_data['password'].encode('utf-8'), user.password
+                json_data['password'].encode('utf-8'), 
+                user.password
             ):
                 return {'message': 'Denied'}
             
             user.password = bcrypt.hashpw(
-                json_data['new_pswd'].encode('utf-8'), bcrypt.gensalt()
-            )
+                json_data['new_pswd'].encode('utf-8'), 
+                bcrypt.gensalt()
+                )
             user.pswd_change = datetime.now()
             await session.commit()
             
@@ -190,19 +203,14 @@ class TokenView(MethodView):
         Returns:
             dict: A dictionary containing the access token.
         """
-        async with async_session() as session:
-            user = await session.execute(User). \
-                filter(User.username == current_user.username). \
-                filter(User.blocked == False). \
-                one_or_none()
-            access_token = create_access_token(identity=get_jwt_identity()) if user else ''
-            return {'access_token': access_token}
+        access_token = await create_access_token(identity=get_jwt_identity())
+        return {'access_token': access_token}
 
 bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
 
     
 @jwt.token_in_blocklist_loader
-def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+async def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     """
     Check if a token is revoked.
     Parameters:
@@ -211,7 +219,7 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     Returns:
         bool: True if the token is revoked, False otherwise.
     """
-    token_in_redis = jwt_redis_blocklist.exists(jwt_payload["jti"])
+    token_in_redis = await jwt_redis_blocklist.exists(jwt_payload["jti"])
     return token_in_redis
 
 
@@ -231,5 +239,9 @@ async def user_lookup_callback(_jwt_header, jwt_data):
         User: The user found based on the JWT data, or None if not found.
     """
     async with async_session() as session:
-        query = await session.execute(User).filter_by(username=jwt_data["sub"])
+        query = await session.execute(
+            select(User)
+            .filter_by(username=jwt_data["sub"])
+            )
         return query.one_or_none()
+    

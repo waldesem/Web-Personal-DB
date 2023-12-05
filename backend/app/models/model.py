@@ -1,27 +1,32 @@
 import os
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean, \
       Text, Date, ForeignKey, Table
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker, declarative_base, configure_mappers, relationship
-from sqlalchemy_searchable import make_searchable
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, configure_mappers, relationship, mapped_column
+# from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 
 from .. import cache
 from ..models.classes import Statuses
 
 
-engine = create_async_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'))
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+engine = create_async_engine(
+    os.environ.get('SQLALCHEMY_DATABASE_URI'), 
+    echo=True,
+)
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
-Base = declarative_base()
-make_searchable(Base.metadata)
-configure_mappers()
 
 def default_time():
     return datetime.now()
 
+
+class Base(DeclarativeBase):
+    __abstract__ = True
+    
 
 user_groups = Table(
     'user_groups',
@@ -44,10 +49,12 @@ class Group(Base):
 
     __tablename__ = 'groups'
 
-    id = Column(Integer, primary_key=True)
-    group = Column(String(255), unique=True)
-    users = relationship('User', secondary=user_groups, back_populates='groups')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    group: Mapped[str] = mapped_column(String(255), unique=True)
+    users: Mapped[List['User']] = relationship(secondary=user_groups, back_populates='groups')
 
+    def __repr__(self) -> str:
+        return f'Group(id={self.id!r}, group={self.group!r})'
 
 class Role(Base):
     """ Create model for roles"""
@@ -75,7 +82,6 @@ class User(Base):
     last_login = Column(DateTime)
     blocked = Column(Boolean(), default=False)
     attempt = Column(Integer(), default=0)
-    region_id = Column(Integer, ForeignKey('regions.id'))
     roles = relationship('Role', secondary=user_roles, back_populates='users')
     groups = relationship('Group', secondary=user_groups, back_populates='users')
     messages = relationship('Message', back_populates='users', 
@@ -240,9 +246,7 @@ class Document(Base):
     person_id = Column(Integer, ForeignKey('persons.id'))
     persons = relationship('Person', back_populates='documents')
     search_vector = Column(TSVectorType('series', 'number')) 
-
-combined_search_vector = Person.search_vector | Document.search_vector
-
+    
 
 class Address(Base): 
     """ Create model for addresses"""
@@ -423,3 +427,5 @@ class Connect(Base):
     data = Column(Date, default=default_time, onupdate=default_time)
     search_vector = Column(TSVectorType('company', 'fullname', 'mobile', 'phone'))
 
+# make_searchable(Base.metadata)
+configure_mappers()

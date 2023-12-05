@@ -16,7 +16,7 @@ from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
 from ..models.model import  Category, Conclusion, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
-    Status, Message, Affilation, async_session, combined_search_vector
+    Status, Message, Affilation, async_session
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
@@ -57,8 +57,7 @@ class IndexView(MethodView):
             case 'search':
                 if json_data['search']:
                     query = await session.execute(select(Person).join(Category), 
-                                                  '%{}%'.format(json_data['search']), 
-                                                  vector=combined_search_vector)
+                                                  '%{}%'.format(json_data['search']))
         result = query.paginate(page=page,
                                 per_page=self.pagination,
                                 error_out=False)
@@ -91,7 +90,7 @@ class PersonView(MethodView):
         )
         return {'person': results}
     
-bp.add_url_rule('/person/<int:person_id>', PersonView.as_view('person'))
+bp.add_url_rule('/person/<int:person_id>', view_func=PersonView.as_view('person'))
 
 
 class ResumeView(MethodView):
