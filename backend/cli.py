@@ -3,12 +3,12 @@ import bcrypt
 import os
 
 from sqlalchemy.sql import select
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from config import Config
-from app.models.model import engine, async_session, \
+from app.models.model import engine, \
     Base, User, Role, Group, Region, Status, Conclusion
 from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions 
-
 
 def register_cli(app):
     @app.cli.command('create')
@@ -43,7 +43,8 @@ async def init_models():
         await conn.run_sync(Base.metadata.drop_all)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
+    
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
     async with async_session() as session:
 
         reqions_query = await session.execute(select(Region.region))

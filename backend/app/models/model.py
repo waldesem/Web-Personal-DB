@@ -4,9 +4,8 @@ from typing import List
 
 from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean, \
       Text, Date, ForeignKey, Table
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, configure_mappers, relationship, mapped_column
-# from sqlalchemy_searchable import make_searchable
+from sqlalchemy.ext.asyncio import AsyncAttrs, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
 from sqlalchemy_utils.types import TSVectorType
 
 from .. import cache
@@ -17,14 +16,13 @@ engine = create_async_engine(
     os.environ.get('SQLALCHEMY_DATABASE_URI'), 
     echo=True,
 )
-async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 def default_time():
     return datetime.now()
 
 
-class Base(DeclarativeBase):
+class Base(DeclarativeBase, AsyncAttrs):
     __abstract__ = True
     
 
@@ -51,19 +49,27 @@ class Group(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     group: Mapped[str] = mapped_column(String(255), unique=True)
-    users: Mapped[List['User']] = relationship(secondary=user_groups, back_populates='groups')
+    users: Mapped[List['User']] = relationship(
+        secondary=user_groups, back_populates='groups'
+        )
 
     def __repr__(self) -> str:
         return f'Group(id={self.id!r}, group={self.group!r})'
+
 
 class Role(Base):
     """ Create model for roles"""
 
     __tablename__ = 'roles'
 
-    id = Column(Integer, primary_key=True)
-    role = Column(String(255), unique=True)
-    users = relationship('User', secondary=user_roles, back_populates='roles')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    role: Mapped[str] = mapped_column(String(255), unique=True)
+    users: Mapped[List['User']] = relationship(
+        secondary=user_roles, back_populates='roles'
+        )
+
+    def __repr__(self) -> str:
+        return f'ROle(id={self.id!r}, role={self.role!r})'
 
 
 class User(Base):
@@ -82,32 +88,26 @@ class User(Base):
     last_login = Column(DateTime)
     blocked = Column(Boolean(), default=False)
     attempt = Column(Integer(), default=0)
-    roles = relationship('Role', secondary=user_roles, back_populates='users')
-    groups = relationship('Group', secondary=user_groups, back_populates='users')
+    roles = relationship('Role', secondary=user_roles, back_populates='users', 
+                         lazy='joined')
+    groups = relationship('Group', secondary=user_groups, back_populates='users', 
+                          lazy='joined')
     messages = relationship('Message', back_populates='users', 
                             cascade="all, delete, delete-orphan")
     
-    @cache.memoize(60)
-    def has_group(self, group):
+    # @cache.memoize(60)
+    async def has_group(self, group):
         """
         Checks if the given group exists in the list of groups.
-        Parameters:
-            group (str): The name of the group to check.
-        Returns:
-            bool: True if the group exists, False otherwise.
         """
         return any(g.group == group for g in self.groups)
     
-    @cache.memoize(60)
+    # @cache.memoize(60)
     def has_role(self, role):
         """
         A function that checks if the user has a specific role.
-        Parameters:
-            role (str): The role to check for.
-        Returns:
-            bool: True if the user has the specified role, False otherwise.
         """
-        return any(r.role == role for r in self.roles)
+        return  any(r.role == role for r in self.roles)
     
 
 class Message(Base):
@@ -426,6 +426,3 @@ class Connect(Base):
     comment = Column(Text)
     data = Column(Date, default=default_time, onupdate=default_time)
     search_vector = Column(TSVectorType('company', 'fullname', 'mobile', 'phone'))
-
-# make_searchable(Base.metadata)
-configure_mappers()

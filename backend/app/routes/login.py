@@ -9,10 +9,11 @@ from flask_jwt_extended import current_user, create_access_token, \
     create_refresh_token, get_jwt, jwt_required, get_jwt_identity
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import bp
 from .. import jwt
-from ..models.model import async_session, User
+from ..models.model import  engine, User
 from ..models.schema import LoginSchema, PasswordSchema, UserSchema
 from ..models.classes import Roles
 
@@ -29,30 +30,25 @@ def roles_required(*roles):
     """
     This function is a decorator that checks if the user has the required roles 
     to access a given route.
-    Parameters:
-        *roles (str): Variable number of roles that the user must have. 
-        Each role is a string.
-    Returns:
-        decorator (function): The decorator function that wraps the original 
-        function and performs the role check.
-    """
+     """
     def decorator(func):
         @wraps(func)
         @jwt_required()
         async def wrapper(*args, **kwargs):
-            async with async_session() as session:
-                
-                user = await session.execute(
-                    select(User)
-                    .filter_by(username=get_jwt_identity())
-                    .options(selectinload(User.roles))
-                ).scalar_one_or_none()
-                
-                if user and any(user.has_role(role) for role in roles):
-                    return await func(*args, **kwargs)
-                else:
-                    return await abort(404)
-                    
+            async with AsyncSession(engine) as session:
+                async with session.begin():
+                    user_query = await session.execute(
+                        select(User)
+                        .filter_by(username=get_jwt_identity())
+                        .options(selectinload(User.roles))
+                    )
+                    await engine.dispose()
+                    user = user_query.scalar_one_or_none()
+                    print(user)
+                    if user and any(user.has_role(role) for role in roles):
+                        return func(*args, **kwargs)
+                    else:
+                        return abort(404)
         return wrapper
     return decorator
 
@@ -61,29 +57,24 @@ def group_required(*groups):
     """
     Decorator that checks if the user is a member of any of the specified groups 
     before allowing access to the decorated endpoint.
-    Parameters:
-        * groups: A variable number of group names to check membership against.
-    Returns:
-        A decorated wrapper function that checks if the user has the required 
-        group membership before allowing access to the decorated endpoint.
-    """
+     """
     def decorator(func):
         @wraps(func)
         @jwt_required()
         async def wrapper(*args, **kwargs):
-            async with async_session() as session:
-                
-                user = await session.execute(
-                    select(User)
-                    .filter_by(username=get_jwt_identity())
-                    .options(selectinload(User.groups))
-                ).scalar_one_or_none()
-                
-                if user and any(user.has_group(group) for group in groups):                            
-                    return await func(*args, **kwargs)
-                else:
-                    return abort(404)
-                    
+            async with AsyncSession(engine) as session:
+                async with session.begin():
+                    user_query = await session.execute(
+                        select(User)
+                        .filter_by(username=get_jwt_identity())
+                        .options(selectinload(User.groups))
+                    )
+                    await engine.dispose()
+                    user = user_query.scalar_one_or_none()
+                    if user and any(user.has_group(group) for group in groups):                            
+                        return func(*args, **kwargs)
+                    else:
+                        return abort(404)
         return wrapper
     return decorator
 
@@ -97,58 +88,64 @@ class LoginView(MethodView):
     async def get(self):
         """
         Retrieves the current authenticated user from the database.
-        Returns:
-            User: The user object representing the current authenticated user.
-        """
-        async with async_session() as session:
-            user = session.execute(
-                select(User)
-                .filter(User.username == current_user.username, not User.blocked)
-            ).one_or_none()
-            if user:
-                user.last_login = datetime.now()
-                await session.commit()
-            return user
+         """
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                user_query = await session.execute(
+                    select(User)
+                    .filter_by(username=current_user.username) 
+                    .filter(not User.blocked)
+                )
+                user = user_query.scalar_one_or_none()
+                if user:
+                    user.last_login = datetime.now()
+                    await session.commit()
+                await engine.dispose()
+                return user
             
     @bp.input(LoginSchema)
     async def post(self, json_data):
-        """
-        Post method for the given API endpoint.
-        Args:
-            json_data (dict): The JSON data received in the request.
-        Returns:
-            dict: A dictionary containing the access and refresh tokens.
-        """
-        async with async_session() as session:
-            user = await session.execute(
-                select(User)
-                .filter_by(username=json_data['username'])
-            ).one_or_none()
-            if user and not user.blocked:
-                if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
-                    delta_change = datetime.now() - user.pswd_create
-                    
-                    if user.pswd_change and delta_change.days < 365:
-                        user.last_login = datetime.now()
-                        user.attempt = 0
-                        await session.commit()
-
-                        if user.has_role(Roles.api.value):
-                            return {'message': 'Overdue'}
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                user_query = await session.execute(
+                    select(User)
+                    .filter_by(username=json_data['username'])
+                )
+                user = user_query.scalar_one_or_none()
+                if user and not user.blocked:
+                    if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
+                        delta_change = datetime.now() - user.pswd_create
                         
-                        return {
-                            'message': 'Authenticated',
-                            'access_token': create_access_token(identity=user.username),
-                            'refresh_token': create_refresh_token(identity=user.username)
-                            }
-                    return {'message': 'Overdue'}
-                else:
-                    if user.attempt < 9:
-                        user.attempt += 1
+                        if user.pswd_change and delta_change.days < 365:
+                            user.last_login = datetime.now()
+                            user.attempt = 0
+
+                            if  user.has_role(Roles.api.value):
+                                await session.commit()
+                                await engine.dispose()
+                                return {'message': 'Overdue'}
+                            
+                            access_token = create_access_token(identity=user.username)
+                            refresh_token = create_refresh_token(identity=user.username)
+                            await session.commit()
+                            await engine.dispose()
+                            return {
+                                'message': 'Authenticated',
+                                'access_token': access_token,
+                                'refresh_token': refresh_token
+                                }
+                        else:
+                            await session.commit()
+                            await engine.dispose()
+                            return {'message': 'Overdue'}
                     else:
-                        user.blocked = True
-                    await session.commit()
-            return {'message': 'Denied'}
+                        if user.attempt < 9:
+                            user.attempt += 1
+                        else:
+                            user.blocked = True
+                        await session.commit()
+                        await engine.dispose()
+                return {'message': 'Denied'}
 
     @bp.doc(hide=True)
     @bp.input(PasswordSchema)
@@ -156,26 +153,28 @@ class LoginView(MethodView):
         """
         Patch method for updating user password.
         """
-        async with async_session() as session:
-            user = await session.execute(
-                select(User)
-                .filter_by(username=json_data['username'])
-            ).one_or_none()
-            
-            if user is None or not bcrypt.checkpw(
-                json_data['password'].encode('utf-8'), 
-                user.password
-            ):
-                return {'message': 'Denied'}
-            
-            user.password = bcrypt.hashpw(
-                json_data['new_pswd'].encode('utf-8'), 
-                bcrypt.gensalt()
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                user_query = await session.execute(
+                    select(User)
+                    .filter_by(username=json_data['username'])
                 )
-            user.pswd_change = datetime.now()
-            await session.commit()
-            
-            return {'message': 'Authenticated'}
+                user = user_query.scalar_one_or_none()
+                
+                if user is None or not bcrypt.checkpw(
+                    json_data['password'].encode('utf-8'), 
+                    user.password
+                    ):
+                    return {'message': 'Denied'}
+                
+                user.password = bcrypt.hashpw(
+                    json_data['new_pswd'].encode('utf-8'), 
+                    bcrypt.gensalt()
+                    )
+                user.pswd_change = datetime.now()
+                await session.commit()
+                await engine.dispose()
+                return {'message': 'Authenticated'}
 
     @bp.doc(hide=True)
     @jwt_required(verify_type=False)
@@ -238,10 +237,12 @@ async def user_lookup_callback(_jwt_header, jwt_data):
     Returns:
         User: The user found based on the JWT data, or None if not found.
     """
-    async with async_session() as session:
-        query = await session.execute(
-            select(User)
-            .filter_by(username=jwt_data["sub"])
-            )
-        return query.one_or_none()
+    async with AsyncSession(engine) as session:
+        async with session.begin():
+            query = await session.execute(
+                select(User)
+                .filter_by(username=jwt_data["sub"])
+                )
+            await engine.dispose()
+            return query.scalar_one_or_none()
     

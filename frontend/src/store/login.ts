@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 import { authStore } from '@/store/token';
 import { alertStore } from '@store/alert';
 import { classifyStore } from '@store/classify';
-import { server, clearForm } from '@utilities/utils';
+import { server } from '@utilities/utils';
 import router from '@router/router';
 
 
@@ -42,6 +42,7 @@ export const loginStore = defineStore('loginStore', () => {
     },
 
     submitLogin: async function (): Promise<void> {
+
       if (this.action === 'password') {
         if (this.form['password'] === this.form['new_pswd']) {
           storeAlert.alertMessage.setAlert('alert-warning', 'Старый и новый пароли совпадают');
@@ -52,12 +53,13 @@ export const loginStore = defineStore('loginStore', () => {
           return
         }
       };
+
       try {
         const response = this.action === 'password'
           ? await axios.patch(`${server}/login`, this.form)
           : await axios.post(`${server}/login`, this.form);
         const { message, access_token, refresh_token } = response.data;
-        
+
         switch (message) {
           case 'Authenticated':
             if (this.action === 'password') {
@@ -66,7 +68,7 @@ export const loginStore = defineStore('loginStore', () => {
               storeAlert.alertMessage.text = 'Войдите с новым паролем';
               delete this.form['new_pswd']
               delete this.form['conf_pswd']
-            } else {          
+            } else {     
               localStorage.setItem('refresh_token', refresh_token);
               localStorage.setItem('access_token', access_token);
               this.getAuth();
@@ -86,7 +88,7 @@ export const loginStore = defineStore('loginStore', () => {
       } catch (error) {
         storeAlert.alertMessage.setAlert('alert-warning', error as string);
         this.userLogout();
-        clearForm(this.form)
+        //clearForm(this.form)
       };
     },
 
