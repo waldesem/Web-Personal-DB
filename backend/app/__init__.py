@@ -40,7 +40,7 @@ def create_app(config_class=Config):
         return await app.send_static_file('index.html')
 
     @app.errorhandler(BadRequest)
-    async def handle_bad_request(e):
-        return await e, 400
+    def handle_bad_request(e):
+        return e, 400
     
     return app

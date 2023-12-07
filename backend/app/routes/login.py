@@ -1,12 +1,13 @@
+import asyncio
 from datetime import datetime
 from functools import wraps
 
 import bcrypt
-import redis.asyncio as redis
+import redis
 from flask import current_app, abort
 from flask.views import MethodView
-from flask_jwt_extended import current_user, create_access_token, \
-    create_refresh_token, get_jwt, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, \
+    get_jwt, jwt_required, get_jwt_identity
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,20 +36,11 @@ def roles_required(*roles):
         @wraps(func)
         @jwt_required()
         async def wrapper(*args, **kwargs):
-            async with AsyncSession(engine) as session:
-                async with session.begin():
-                    user_query = await session.execute(
-                        select(User)
-                        .filter_by(username=get_jwt_identity())
-                        .options(selectinload(User.roles))
-                    )
-                    await engine.dispose()
-                    user = user_query.scalar_one_or_none()
-                    print(user)
-                    if user and any(user.has_role(role) for role in roles):
-                        return func(*args, **kwargs)
-                    else:
-                        return abort(404)
+            user = await get_user(User.roles)
+            if user and any(user.has_role(role) for role in roles):
+                return await func(*args, **kwargs)
+            else:
+                return await abort(404)
         return wrapper
     return decorator
 
@@ -62,21 +54,26 @@ def group_required(*groups):
         @wraps(func)
         @jwt_required()
         async def wrapper(*args, **kwargs):
-            async with AsyncSession(engine) as session:
-                async with session.begin():
-                    user_query = await session.execute(
-                        select(User)
-                        .filter_by(username=get_jwt_identity())
-                        .options(selectinload(User.groups))
-                    )
-                    await engine.dispose()
-                    user = user_query.scalar_one_or_none()
-                    if user and any(user.has_group(group) for group in groups):                            
-                        return func(*args, **kwargs)
-                    else:
-                        return abort(404)
+            user = await get_user(User.groups)      
+            if user and any(user.has_group(group) for group in groups): 
+                return func(*args, **kwargs)
+            else:
+                return abort(404)
         return wrapper
     return decorator
+
+
+async def get_user(model_attr):
+    async with AsyncSession(engine) as session:
+        async with session.begin():
+            user_query = await session.execute(
+                select(User)
+                .filter_by(username=get_jwt_identity())
+                .options(selectinload(model_attr))
+            )
+            await session.close()
+            await engine.dispose()
+            return user_query.scalar_one_or_none()
 
 
 class LoginView(MethodView):
@@ -93,23 +90,25 @@ class LoginView(MethodView):
             async with session.begin():
                 user_query = await session.execute(
                     select(User)
-                    .filter_by(username=current_user.username) 
-                    .filter(not User.blocked)
+                    .filter_by(username=get_jwt_identity()) 
+                    .filter(User.blocked == False)
+                    .options(selectinload(User.groups))
+                    .options(selectinload(User.roles))
                 )
                 user = user_query.scalar_one_or_none()
                 if user:
                     user.last_login = datetime.now()
-                    await session.commit()
+                await session.close()
                 await engine.dispose()
                 return user
             
     @bp.input(LoginSchema)
     async def post(self, json_data):
         async with AsyncSession(engine) as session:
-            async with session.begin():
                 user_query = await session.execute(
                     select(User)
                     .filter_by(username=json_data['username'])
+                    .options(selectinload(User.roles))
                 )
                 user = user_query.scalar_one_or_none()
                 if user and not user.blocked:
@@ -119,23 +118,18 @@ class LoginView(MethodView):
                         if user.pswd_change and delta_change.days < 365:
                             user.last_login = datetime.now()
                             user.attempt = 0
-
-                            if  user.has_role(Roles.api.value):
-                                await session.commit()
+                            
+                            if user.has_role(Roles.api.value):
                                 await engine.dispose()
                                 return {'message': 'Overdue'}
-                            
-                            access_token = create_access_token(identity=user.username)
-                            refresh_token = create_refresh_token(identity=user.username)
-                            await session.commit()
+                                
                             await engine.dispose()
                             return {
                                 'message': 'Authenticated',
-                                'access_token': access_token,
-                                'refresh_token': refresh_token
+                                'access_token': create_access_token(identity=user.username),
+                                'refresh_token': create_refresh_token(identity=user.username)
                                 }
                         else:
-                            await session.commit()
                             await engine.dispose()
                             return {'message': 'Overdue'}
                     else:
@@ -143,7 +137,6 @@ class LoginView(MethodView):
                             user.attempt += 1
                         else:
                             user.blocked = True
-                        await session.commit()
                         await engine.dispose()
                 return {'message': 'Denied'}
 
@@ -181,8 +174,6 @@ class LoginView(MethodView):
     async def delete(self):
         """
         A function that deletes the JWT token from the Redis blocklist.
-        Returns:
-            A tuple containing an empty string and the status code 401.
         """
         access_expires = await current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
         await jwt_redis_blocklist.set(get_jwt()["jti"], "", ex=access_expires)
@@ -196,29 +187,22 @@ class TokenView(MethodView):
 
     @jwt_required(refresh=True)
     @bp.doc(hide=True)
-    async def post(self):
+    def post(self):
         """
         Generate a new access token for the authenticated user.
-        Returns:
-            dict: A dictionary containing the access token.
         """
-        access_token = await create_access_token(identity=get_jwt_identity())
+        access_token = create_access_token(identity=get_jwt_identity())
         return {'access_token': access_token}
 
 bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
 
     
 @jwt.token_in_blocklist_loader
-async def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     """
     Check if a token is revoked.
-    Parameters:
-        jwt_header (Any): The JWT header.
-        jwt_payload (dict): The JWT payload.
-    Returns:
-        bool: True if the token is revoked, False otherwise.
     """
-    token_in_redis = await jwt_redis_blocklist.exists(jwt_payload["jti"])
+    token_in_redis = jwt_redis_blocklist.exists(jwt_payload["jti"])
     return token_in_redis
 
 
@@ -231,18 +215,13 @@ def user_identity_lookup(user):
 async def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.
-    Parameters:
-        _jwt_header (dict): The JWT header.
-        jwt_data (dict): The JWT data.
-    Returns:
-        User: The user found based on the JWT data, or None if not found.
     """
     async with AsyncSession(engine) as session:
         async with session.begin():
-            query = await session.execute(
+            user = await session.execute(
                 select(User)
                 .filter_by(username=jwt_data["sub"])
                 )
             await engine.dispose()
-            return query.scalar_one_or_none()
+            return user.scalar_one_or_none()
     

@@ -6,7 +6,6 @@ from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean, 
       Text, Date, ForeignKey, Table
 from sqlalchemy.ext.asyncio import AsyncAttrs, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
-from sqlalchemy_utils.types import TSVectorType
 
 from .. import cache
 from ..models.classes import Statuses
@@ -49,9 +48,7 @@ class Group(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     group: Mapped[str] = mapped_column(String(255), unique=True)
-    users: Mapped[List['User']] = relationship(
-        secondary=user_groups, back_populates='groups'
-        )
+    users: Mapped[List['User']] = relationship(secondary=user_groups, back_populates='groups', lazy='selectin')
 
     def __repr__(self) -> str:
         return f'Group(id={self.id!r}, group={self.group!r})'
@@ -64,9 +61,7 @@ class Role(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     role: Mapped[str] = mapped_column(String(255), unique=True)
-    users: Mapped[List['User']] = relationship(
-        secondary=user_roles, back_populates='roles'
-        )
+    users: Mapped[List['User']] = relationship(secondary=user_roles, back_populates='roles', lazy='selectin')
 
     def __repr__(self) -> str:
         return f'ROle(id={self.id!r}, role={self.role!r})'
@@ -88,10 +83,8 @@ class User(Base):
     last_login = Column(DateTime)
     blocked = Column(Boolean(), default=False)
     attempt = Column(Integer(), default=0)
-    roles = relationship('Role', secondary=user_roles, back_populates='users', 
-                         lazy='joined')
-    groups = relationship('Group', secondary=user_groups, back_populates='users', 
-                          lazy='joined')
+    roles = relationship('Role', secondary=user_roles, back_populates='users', lazy='selectin')
+    groups = relationship('Group', secondary=user_groups, back_populates='users', lazy='selectin')
     messages = relationship('Message', back_populates='users', 
                             cascade="all, delete, delete-orphan")
     
@@ -175,7 +168,6 @@ class Person(Base):
                                cascade="all, delete, delete-orphan")
     affilations = relationship('Affilation', back_populates='persons', 
                            cascade="all, delete, delete-orphan")
-    search_vector = Column(TSVectorType('previous', 'fullname', 'inn', 'snils')) 
     
     def has_status(self, status):
         """
@@ -245,7 +237,6 @@ class Document(Base):
     issue = Column(Date)
     person_id = Column(Integer, ForeignKey('persons.id'))
     persons = relationship('Person', back_populates='documents')
-    search_vector = Column(TSVectorType('series', 'number')) 
     
 
 class Address(Base): 
@@ -425,4 +416,3 @@ class Connect(Base):
     mail = Column(String(255))
     comment = Column(Text)
     data = Column(Date, default=default_time, onupdate=default_time)
-    search_vector = Column(TSVectorType('company', 'fullname', 'mobile', 'phone'))

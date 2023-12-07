@@ -59,7 +59,6 @@ class PersonSchema(SQLAlchemyAutoSchema):
         model = Person
         ordered = True
         include_fk = True
-        exclude = ('search_vector',)
         
 
 class RegionSchema(SQLAlchemyAutoSchema):
@@ -95,7 +94,6 @@ class DocumentSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Document
         ordered = True
-        exclude = ('search_vector',)
 
 class AddressSchema(SQLAlchemyAutoSchema):
     """ Create model for address"""
@@ -170,7 +168,6 @@ class ConnectSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Connect
         ordered = True
-        exclude = ('search_vector',)
 
 
 class AnketaSchemaApi(SQLAlchemySchema):
