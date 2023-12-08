@@ -11,10 +11,7 @@ from .. import cache
 from ..models.classes import Statuses
 
 
-engine = create_async_engine(
-    os.environ.get('SQLALCHEMY_DATABASE_URI'), 
-    echo=True,
-)
+engine = create_async_engine(os.environ.get('SQLALCHEMY_DATABASE_URI')) #, echo=True,)
 
 
 def default_time():
@@ -87,20 +84,6 @@ class User(Base):
     groups = relationship('Group', secondary=user_groups, back_populates='users', lazy='selectin')
     messages = relationship('Message', back_populates='users', 
                             cascade="all, delete, delete-orphan")
-    
-    # @cache.memoize(60)
-    async def has_group(self, group):
-        """
-        Checks if the given group exists in the list of groups.
-        """
-        return any(g.group == group for g in self.groups)
-    
-    # @cache.memoize(60)
-    def has_role(self, role):
-        """
-        A function that checks if the user has a specific role.
-        """
-        return  any(r.role == role for r in self.roles)
     
 
 class Message(Base):

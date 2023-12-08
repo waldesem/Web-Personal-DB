@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from functools import wraps
 
@@ -16,7 +15,6 @@ from . import bp
 from .. import jwt
 from ..models.model import  engine, User
 from ..models.schema import LoginSchema, PasswordSchema, UserSchema
-from ..models.classes import Roles
 
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -25,55 +23,6 @@ jwt_redis_blocklist = redis.StrictRedis(
     db=0, 
     decode_responses=True
     )
-
-
-def roles_required(*roles):
-    """
-    This function is a decorator that checks if the user has the required roles 
-    to access a given route.
-     """
-    def decorator(func):
-        @wraps(func)
-        @jwt_required()
-        async def wrapper(*args, **kwargs):
-            user = await get_user(User.roles)
-            if user and any(user.has_role(role) for role in roles):
-                return await func(*args, **kwargs)
-            else:
-                return await abort(404)
-        return wrapper
-    return decorator
-
-
-def group_required(*groups):
-    """
-    Decorator that checks if the user is a member of any of the specified groups 
-    before allowing access to the decorated endpoint.
-     """
-    def decorator(func):
-        @wraps(func)
-        @jwt_required()
-        async def wrapper(*args, **kwargs):
-            user = await get_user(User.groups)      
-            if user and any(user.has_group(group) for group in groups): 
-                return func(*args, **kwargs)
-            else:
-                return abort(404)
-        return wrapper
-    return decorator
-
-
-async def get_user(model_attr):
-    async with AsyncSession(engine) as session:
-        async with session.begin():
-            user_query = await session.execute(
-                select(User)
-                .filter_by(username=get_jwt_identity())
-                .options(selectinload(model_attr))
-            )
-            await session.close()
-            await engine.dispose()
-            return user_query.scalar_one_or_none()
 
 
 class LoginView(MethodView):
@@ -108,7 +57,6 @@ class LoginView(MethodView):
                 user_query = await session.execute(
                     select(User)
                     .filter_by(username=json_data['username'])
-                    .options(selectinload(User.roles))
                 )
                 user = user_query.scalar_one_or_none()
                 if user and not user.blocked:
@@ -118,11 +66,6 @@ class LoginView(MethodView):
                         if user.pswd_change and delta_change.days < 365:
                             user.last_login = datetime.now()
                             user.attempt = 0
-                            
-                            if user.has_role(Roles.api.value):
-                                await engine.dispose()
-                                return {'message': 'Overdue'}
-                                
                             await engine.dispose()
                             return {
                                 'message': 'Authenticated',
@@ -137,10 +80,9 @@ class LoginView(MethodView):
                             user.attempt += 1
                         else:
                             user.blocked = True
-                        await engine.dispose()
+                await engine.dispose()
                 return {'message': 'Denied'}
 
-    @bp.doc(hide=True)
     @bp.input(PasswordSchema)
     async def patch(self, json_data):
         """
@@ -158,6 +100,7 @@ class LoginView(MethodView):
                     json_data['password'].encode('utf-8'), 
                     user.password
                     ):
+                    await engine.dispose()
                     return {'message': 'Denied'}
                 
                 user.password = bcrypt.hashpw(
@@ -165,18 +108,16 @@ class LoginView(MethodView):
                     bcrypt.gensalt()
                     )
                 user.pswd_change = datetime.now()
-                await session.commit()
                 await engine.dispose()
                 return {'message': 'Authenticated'}
 
-    @bp.doc(hide=True)
     @jwt_required(verify_type=False)
-    async def delete(self):
+    def delete(self):
         """
         A function that deletes the JWT token from the Redis blocklist.
         """
-        access_expires = await current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
-        await jwt_redis_blocklist.set(get_jwt()["jti"], "", ex=access_expires)
+        access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+        jwt_redis_blocklist.set(get_jwt()["jti"], "", ex=access_expires)
         return {'message': 'Denied'}
 
 bp.add_url_rule('/login', view_func=LoginView.as_view('login'))
@@ -186,7 +127,6 @@ class TokenView(MethodView):
     """Token view"""
 
     @jwt_required(refresh=True)
-    @bp.doc(hide=True)
     def post(self):
         """
         Generate a new access token for the authenticated user.
@@ -196,7 +136,58 @@ class TokenView(MethodView):
 
 bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
 
-    
+
+def roles_required(*roles):
+    """
+    This function is a decorator that checks if the user has the required roles 
+    to access a given route.
+     """
+    def decorator(func):
+        @wraps(func)
+        @jwt_required()
+        async def wrapper(*args, **kwargs):
+            user = await get_user(User.roles)
+            user_roles = [user.role for user in user.roles]
+            if user and any(r == item for item in user_roles for r in roles):
+                return await func(*args, **kwargs)
+            else:
+                return await abort(404)
+        return wrapper
+    return decorator
+
+
+def group_required(*groups):
+    """
+    Decorator that checks if the user is a member of any of the specified groups 
+    before allowing access to the decorated endpoint.
+     """
+    def decorator(func):
+        @wraps(func)
+        @jwt_required()
+        async def wrapper(*args, **kwargs):
+            user = await get_user(User.groups)      
+            user_groups = [user.group for user in user.groups]
+            if user and any(g == item for item in user_groups for g in groups):
+                return await func(*args, **kwargs)
+            else:
+                return await abort(404)
+        return wrapper
+    return decorator
+
+
+async def get_user(model_attr):
+    async with AsyncSession(engine) as session:
+        async with session.begin():
+            user = await session.execute(
+                select(User)
+                .filter_by(username=get_jwt_identity())
+                .options(selectinload(model_attr))
+            )
+            await session.close()
+            await engine.dispose()
+            return user.scalar_one_or_none()
+
+
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     """
@@ -212,10 +203,16 @@ def user_identity_lookup(user):
 
 
 @jwt.user_lookup_loader
-async def user_lookup_callback(_jwt_header, jwt_data):
+def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.
     """
+    async def load_collback():
+        return await user_lookup(jwt_data)
+    return load_collback
+
+
+async def user_lookup(jwt_data):
     async with AsyncSession(engine) as session:
         async with session.begin():
             user = await session.execute(
@@ -224,4 +221,4 @@ async def user_lookup_callback(_jwt_header, jwt_data):
                 )
             await engine.dispose()
             return user.scalar_one_or_none()
-    
+

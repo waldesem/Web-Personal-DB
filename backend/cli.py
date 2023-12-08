@@ -10,6 +10,7 @@ from app.models.model import engine, \
     Base, User, Role, Group, Region, Status, Conclusion
 from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions 
 
+
 def register_cli(app):
     @app.cli.command('create')
     def init_default():
@@ -43,7 +44,11 @@ async def init_models():
         await conn.run_sync(Base.metadata.drop_all)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+    await engine.dispose()
+    await fill_models()
+
+
+async def fill_models():
     async_session = async_sessionmaker(engine, expire_on_commit=False)
     async with async_session() as session:
 
