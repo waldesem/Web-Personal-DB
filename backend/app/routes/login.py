@@ -221,4 +221,3 @@ async def user_lookup(jwt_data):
                 )
             await engine.dispose()
             return user.scalar_one_or_none()
-
