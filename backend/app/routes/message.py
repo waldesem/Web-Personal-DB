@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import bp
 from ..models.model import Message, engine
-from ..models.schema import MessageSchema, Pagination
+from ..models.schema import MessageSchema
 from ..models.classes import Statuses
+from ..models.paginate import Pagination
 
 
 class MessagesView(MethodView):
@@ -48,7 +49,7 @@ class MessagesView(MethodView):
 
                 pagination = Pagination(messages, self.pagination, page)
                 return [
-                    self.schema.dump(pagination, many=True),
+                    self.schema.dump(pagination.paginate(), many=True),
                     {
                         'has_next': pagination.has_next(), 
                         "has_prev": pagination.has_prev()

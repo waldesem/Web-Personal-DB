@@ -5,7 +5,7 @@ from datetime import datetime
 
 from flask import request, current_app, send_file, abort
 from flask.views import MethodView
-from flask_jwt_extended import current_user
+from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import select, and_, extract, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from werkzeug.utils import secure_filename
@@ -23,50 +23,79 @@ from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
     WorkplaceSchema, AffilationSchema, CheckSchemaApi
 from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
+from ..models.paginate import Pagination
 
 
 class IndexView(MethodView):
     decorators = [group_required(Groups.staffsec.name), bp.doc(hide=True)]
 
     async def __init__(self) -> None:
+        """
+        Initializes a new instance of the class.
+        """
         self.pagination = 16
         self.schema = PersonSchema()
 
     async def post(self, flag, page):
         json_data = request.get_json()
-        async with async_session() as session:
-            query = await session.execute(select(Person)).order_by(Person.id.desc())
-            categories = await session.execute(select(Category)).all()
-            statuses = await session.execute(select(Status)).all()
-        match flag:
-            case 'new':
-                query = query.filter(Person.status.in_([
-                    statuses.filter_by(status=Statuses.new.value).first().id,
-                    statuses.filter_by(status=Statuses.repeat.value).first().id,
-                    statuses.filter_by(status=Statuses.update.value).first().id
-                    ]),
-                    Person.category == categories.filter_by(category=Categories.candidate.name).\
-                        filter_by(category=Categories.candidate.name
-                    ))
-            case 'officer':
-                query = query.filter(Person.status.notin_([
-                    statuses.filter_by(status=Statuses.finish.value).first().id,
-                    statuses.filter_by(status=Statuses.cancel.value).first().id
-                    ])) \
-                    .join(Check, isouter=True) \
-                    .filter_by(officer=current_user.fullname)
-            case 'search':
-                if json_data['search']:
-                    query = await session.execute(select(Person).join(Category), 
-                                                  '%{}%'.format(json_data['search']))
-        result = query.paginate(page=page,
-                                per_page=self.pagination,
-                                error_out=False)
-        
-        has_next, has_prev = bool(result.has_next), bool(result.has_prev)
-        
-        return [self.schema.dump(result, many=True),
-                {'has_next': has_next, "has_prev": has_prev}]
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                categories_query = await session.execute(select(Category))
+                categories = {category.category: category.id 
+                              for category in categories_query.scalars()}
+                statuses_query = await session.execute(select(Status))
+                statuses = {status.status: status.id 
+                            for status in statuses_query.scalars()}
+            match flag:
+                case 'new':
+                    query = await session.execute(
+                        select(Person)
+                        .order_by(Person.id.desc())
+                        .filter(
+                            Person.status_id.in_(
+                                [
+                                    statuses.get(Statuses.new.value),
+                                    statuses.get(Statuses.update.value),
+                                    statuses.get(Statuses.repeat.value),
+                                ]
+                            ),
+                            Person.category_id ==  categories.get(Categories.candidate.name)
+                            )
+                    )
+                case 'officer':
+                    query = await session.execute(
+                        select(Person)
+                        .order_by(Person.id.desc())
+                        .filter(
+                            Person.status_id.notin_(
+                                [
+                                    statuses.get(Statuses.finish.value),
+                                    statuses.get(Statuses.cancel.value)
+                                ]
+                            )
+                        ) 
+                        .join(Check, isouter=True) \
+                        .filter_by(officer=get_jwt_identity())
+                    )
+                case 'search':
+                    query = await session.execute(
+                        select(Person)
+                        .filter(
+                            Person.fullname.ilike(
+                                '%{}%'.format(json_data['search'])
+                            )
+                        )
+                        .order_by(Person.id.desc())
+                    )                      
+            pagination = Pagination(query.scalars(), self.pagination, page)
+            
+            return [
+                self.schema.dump(pagination.paginate(), many=True),
+                {
+                    'has_next': pagination.has_next(), 
+                    "has_prev": pagination.has_prev()
+                }
+            ]
 
 bp.add_url_rule('/index/<flag>/<int:page>',
                 view_func=IndexView.as_view('index'))

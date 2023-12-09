@@ -11,7 +11,8 @@ from . import bp
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
 from ..models.model import  User, Role, Group, engine
-from ..models.schema import UserSchema, Pagination, models_schemas
+from ..models.schema import UserSchema, models_schemas
+from ..models.paginate import Pagination
 
 
 class UsersView(MethodView):

@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import bp
 from ..models.model import Group, Connect, engine
-from ..models.schema import ConnectSchema, Pagination
+from ..models.schema import ConnectSchema
+from ..models.paginate import Pagination
 
 
 class ContactsView(MethodView):
