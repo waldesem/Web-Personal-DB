@@ -1,401 +1,426 @@
-import os
 from datetime import datetime
-from typing import List
+from sqlalchemy_searchable import SearchQueryMixin, make_searchable
+from sqlalchemy_utils.types import TSVectorType
+from flask_sqlalchemy.query import Query
 
-from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean, \
-      Text, Date, ForeignKey, Table
-from sqlalchemy.ext.asyncio import AsyncAttrs, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
-
-from .. import cache
+from .. import db, cache
 from ..models.classes import Statuses
 
 
-engine = create_async_engine(os.environ.get('SQLALCHEMY_DATABASE_URI')) #, echo=True,)
+make_searchable(db.metadata)
 
 
 def default_time():
     return datetime.now()
 
 
-class Base(DeclarativeBase, AsyncAttrs):
-    __abstract__ = True
-    
-
-user_groups = Table(
+user_groups = db.Table(
     'user_groups',
-    Base.metadata,
-    Column('user_id', ForeignKey('users.id')),
-    Column('group_id', ForeignKey('groups.id'))
+    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
+    db.Column('group_id', db.Integer(), db.ForeignKey('groups.id'))
 )
     
     
-user_roles = Table(
+user_roles = db.Table(
     'user_roles',
-    Base.metadata,
-    Column('user_id', ForeignKey('users.id')),
-    Column('role_id', ForeignKey('roles.id'))
+    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
+    db.Column('role_id', db.Integer(), db.ForeignKey('roles.id'))
 )
        
 
-class Group(Base):
+class Group(db.Model):
     """ Create model for groups"""
 
     __tablename__ = 'groups'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    group: Mapped[str] = mapped_column(String(255), unique=True)
-    users: Mapped[List['User']] = relationship(secondary=user_groups, back_populates='groups', lazy='selectin')
-
-    def __repr__(self) -> str:
-        return f'Group(id={self.id!r}, group={self.group!r})'
+    id = db.Column(db.Integer, primary_key=True)
+    group = db.Column(db.String(255), unique=True)
 
 
-class Role(Base):
+class Role(db.Model):
     """ Create model for roles"""
 
     __tablename__ = 'roles'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    role: Mapped[str] = mapped_column(String(255), unique=True)
-    users: Mapped[List['User']] = relationship(secondary=user_roles, back_populates='roles', lazy='selectin')
-
-    def __repr__(self) -> str:
-        return f'ROle(id={self.id!r}, role={self.role!r})'
+    id = db.Column(db.Integer, primary_key=True)
+    role = db.Column(db.String(255), unique=True)
 
 
-class User(Base):
+class User(db.Model):
     """ Create model for users"""
 
     __tablename__ = 'users'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    fullname = Column(String(255))
-    username = Column(String(255), unique=True)
-    password = Column(LargeBinary)
-    email = Column(String(255), unique=True)
-    pswd_create = Column(DateTime, default=default_time)
-    pswd_change = Column(DateTime)
-    last_login = Column(DateTime)
-    blocked = Column(Boolean(), default=False)
-    attempt = Column(Integer(), default=0)
-    roles = relationship('Role', secondary=user_roles, back_populates='users', lazy='selectin')
-    groups = relationship('Group', secondary=user_groups, back_populates='users', lazy='selectin')
-    messages = relationship('Message', back_populates='users', 
-                            cascade="all, delete, delete-orphan")
+    fullname = db.Column(db.String(255))
+    username = db.Column(db.String(255), unique=True)
+    password = db.Column(db.LargeBinary)
+    email = db.Column(db.String(255), unique=True)
+    pswd_create = db.Column(db.DateTime, default=default_time)
+    pswd_change = db.Column(db.DateTime)
+    last_login = db.Column(db.DateTime)
+    blocked = db.Column(db.Boolean(), default=False)
+    attempt = db.Column(db.Integer(), default=0)
+    messages = db.relationship('Message', backref='users', 
+                              cascade="all, delete, delete-orphan")
+    roles = db.relationship('Role', secondary=user_roles, 
+                            backref=db.backref('users', lazy='dynamic'))
+    groups = db.relationship('Group', secondary=user_groups, 
+                             backref=db.backref('users', lazy='dynamic'))
+    
+    @cache.memoize(60)
+    def has_group(self, group):
+        """
+        Checks if the given group exists in the list of groups.
+        Parameters:
+            group (str): The name of the group to check.
+        Returns:
+            bool: True if the group exists, False otherwise.
+        """
+        return any(g.group == group for g in self.groups)
+    
+    @cache.memoize(60)
+    def has_role(self, role):
+        """
+        A function that checks if the user has a specific role.
+        Parameters:
+            role (str): The role to check for.
+        Returns:
+            bool: True if the user has the specified role, False otherwise.
+        """
+        return any(r.role == role for r in self.roles)
     
 
-class Message(Base):
+class Message(db.Model):
     """ Create model for messages"""
 
     __tablename__ = 'messages'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    title = Column(String(255))
-    report = Column(Text)
-    status = Column(String(255), default=Statuses.new.value)
-    create = Column(DateTime, default=default_time)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    users = relationship('User', back_populates='messages')
+    title = db.Column(db.String(255))
+    report = db.Column(db.Text)
+    status = db.Column(db.String(255), default=Statuses.new.value)
+    create = db.Column(db.DateTime, default=default_time)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
-class Person(Base):
+class PersonQuery(Query, SearchQueryMixin):
+    """ Class for searchable Connect table (only postgresql)"""
+    pass
+
+
+class Person(db.Model):
     """ Create model for persons dates"""
 
     __tablename__ = 'persons'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    category_id = Column(Integer, ForeignKey('categories.id'))
-    region_id = Column(Integer, ForeignKey('regions.id'))
-    fullname = Column(String(255), nullable=False, index=True)
-    previous = Column(Text)
-    birthday = Column(Date, nullable=False)
-    birthplace = Column(Text)
-    country = Column(String(255))
-    ext_country = Column(String(255))
-    snils = Column(String(11))
-    inn = Column(String(12))
-    education = Column(Text)
-    marital = Column(String(255))
-    addition = Column(Text)
-    path = Column(Text)
-    status_id = Column(Integer, ForeignKey('statuses.id'))
-    create = Column(DateTime, default=default_time)
-    update = Column(DateTime, onupdate=default_time)
-    request_id = Column(Integer)
-    regions = relationship('Region', back_populates='persons')
-    categories = relationship('Category', back_populates='persons')
-    statuses = relationship('Status', back_populates='persons')
-    documents = relationship('Document', back_populates='persons', 
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    region_id = db.Column(db.Integer, db.ForeignKey('regions.id'))
+    fullname = db.Column(db.String(255), nullable=False, index=True)
+    previous = db.Column(db.Text)
+    birthday = db.Column(db.Date, nullable=False)
+    birthplace = db.Column(db.Text)
+    country = db.Column(db.String(255))
+    ext_country = db.Column(db.String(255))
+    snils = db.Column(db.String(11))
+    inn = db.Column(db.String(12))
+    education = db.Column(db.Text)
+    marital = db.Column(db.String(255))
+    addition = db.Column(db.Text)
+    path = db.Column(db.Text)
+    status_id = db.Column(db.Integer, db.ForeignKey('statuses.id'))
+    create = db.Column(db.DateTime, default=default_time)
+    update = db.Column(db.DateTime, onupdate=default_time)
+    search_vector = db.Column(TSVectorType('previous', 'fullname', 'inn', 'snils')) 
+    documents = db.relationship('Document', backref='persons', 
                                 cascade="all, delete, delete-orphan")
-    addresses = relationship('Address', back_populates='persons', 
+    addresses = db.relationship('Address', backref='persons', 
                                 cascade="all, delete, delete-orphan")
-    workplaces = relationship('Workplace', back_populates='persons', 
+    workplaces = db.relationship('Workplace', backref='persons', 
                                  cascade="all, delete, delete-orphan")
-    contacts = relationship('Contact', back_populates='persons', 
+    contacts = db.relationship('Contact', backref='persons', 
                                cascade="all, delete, delete-orphan")
-    staffs = relationship('Staff', back_populates='persons', 
+    staffs = db.relationship('Staff', backref='persons', 
                              cascade="all, delete, delete-orphan")
-    checks = relationship('Check', back_populates='persons', 
+    checks = db.relationship('Check', backref='persons', 
                              cascade="all, delete, delete-orphan")
-    poligrafs = relationship('Poligraf', back_populates='persons', 
+    robots = db.relationship('Robot', backref='persons',
+                             cascade="all, delete, delete-orphan")
+    poligrafs = db.relationship('Poligraf', backref='persons', 
                                 cascade="all, delete, delete-orphan")
-    inquiries = relationship('Inquiry', back_populates='persons', 
+    inquiries = db.relationship('Inquiry', backref='persons', 
                                 cascade="all, delete, delete-orphan")
-    investigations = relationship('Investigation', back_populates='persons', 
+    investigations = db.relationship('Investigation', backref='persons', 
                                      cascade="all, delete, delete-orphan")
-    relations = relationship('Relation', back_populates='persons', 
+    relations = db.relationship('Relation', backref='persons', 
                                cascade="all, delete, delete-orphan")
-    affilations = relationship('Affilation', back_populates='persons', 
+    affilations = db.relationship('Affilation', backref='persons', 
                            cascade="all, delete, delete-orphan")
-    
+
     def has_status(self, status):
         """
         Check if the current status of the object matches any of the given status values.
-        Args:
-            status (list): A list of status values to check against.
-        Returns:
-            bool: True if the current status matches any of the given status values, False otherwise.
         """
-        return self.status in status
+        return db.session.query(Status).filter(Status.status.in_(status)).first()
+    
+    def has_category(self, category):
+        """
+        Check if the current category of the object matches any of the given category values.
+        """
+        return db.session.query(Category).filter(Category.category.in_(category)).first()
+    
+    def has_region(self, region):
+        """
+        Check if the current region of the object matches any of the given region values.
+        """
+        return db.session.query(Region).filter(Region.region.in_(region)).first()
 
 
-class Category(Base):
+class Category(db.Model):
 
     __tablename__ = 'categories'
     
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    category = Column(String(255))
-    persons = relationship('Person', back_populates='categories')
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    category = db.Column(db.String(255))
+    persons = db.relationship('Person', backref='categories')
 
 
-class Status(Base):
+class Status(db.Model):
     
     __tablename__ = 'statuses'
     
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    status = Column(String(255))
-    persons = relationship('Person', back_populates='statuses')
+    status = db.Column(db.String(255))
+    persons = db.relationship('Person', backref='statuses')
 
 
-class Region(Base):
+class Region(db.Model):
     """ Create model for regions"""
 
     __tablename__ = 'regions'
     
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    region = Column(String(255), unique=True)
-    persons = relationship('Person', back_populates='regions')
+    region = db.Column(db.String(255), unique=True)
+    persons = db.relationship('Person', backref='regions')
    
 
-class Staff(Base):
+class Staff(db.Model):
     """ Create model for staff"""
 
     __tablename__ = 'staffs'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    position = Column(Text)
-    department = Column(Text)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='staffs')
+    position = db.Column(db.Text)
+    department = db.Column(db.Text)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Document(Base):
+class Document(db.Model):
     """ Create model for Document dates"""
 
     __tablename__ = 'documents'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    view = Column(String(255))
-    series = Column(String(255))
-    number = Column(String(255))
-    agency = Column(Text)
-    issue = Column(Date)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='documents')
+    view = db.Column(db.String(255))
+    series = db.Column(db.String(255))
+    number = db.Column(db.String(255))
+    agency = db.Column(db.Text)
+    issue = db.Column(db.Date)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Address(Base): 
+class Address(db.Model): 
     """ Create model for addresses"""
 
     __tablename__ = 'addresses'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    view = Column(String(255))
-    region = Column(String(255))
-    address = Column(Text)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='addresses')
+    view = db.Column(db.String(255))
+    region = db.Column(db.String(255))
+    address = db.Column(db.Text)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Contact(Base):  # создаем общий класс телефонного номера
+class Contact(db.Model):  # создаем общий класс телефонного номера
     """ Create model for contacts"""
 
     __tablename__ = 'contacts'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    view = Column(String(255))
-    contact = Column(String(255))
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='contacts')
+    view = db.Column(db.String(255))
+    contact = db.Column(db.String(255))
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Workplace(Base):
+class Workplace(db.Model):
     """ Create model for workplaces"""
 
     __tablename__ = 'workplaces'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    start_date = Column(Date)
-    end_date = Column(Date)
-    workplace = Column(String(255))
-    address = Column(Text)
-    position = Column(Text)
-    reason = Column(Text)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='workplaces')
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    workplace = db.Column(db.String(255))
+    address = db.Column(db.Text)
+    position = db.Column(db.Text)
+    reason = db.Column(db.Text)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Affilation(Base):
+class Affilation(db.Model):
     """ Create model for affilations"""
 
     __tablename__ = 'affilations'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    view = Column(String(255))
-    name = Column(Text)
-    inn = Column(String(255))
-    position = Column(Text)
-    deadline = Column(Text, default=default_time)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='affilations')
+    view = db.Column(db.String(255))
+    name = db.Column(db.Text)
+    inn = db.Column(db.String(255))
+    position = db.Column(db.Text)
+    deadline = db.Column(db.Text, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Relation(Base):
+class Relation(db.Model):
     """ Create model for relations"""
 
     __tablename__ = 'relations'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    relation = Column(String(255))
-    relation_id = Column(Integer)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='relations')
+    relation = db.Column(db.String(255))
+    relation_id = db.Column(db.Integer)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
     
-class Check(Base):  # модель данных проверки кандидатов
+class Check(db.Model):  # модель данных проверки кандидатов
     """ Create model for persons checks"""
 
     __tablename__ = 'checks'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    workplace = Column(Text)
-    employee = Column(Text)
-    document = Column(Text)
-    inn = Column(Text)
-    debt = Column(Text)
-    bankruptcy = Column(Text)
-    bki = Column(Text)
-    courts = Column(Text)
-    affiliation = Column(Text)
-    terrorist = Column(Text)
-    mvd = Column(Text)
-    internet = Column(Text)
-    cronos = Column(Text)
-    cros = Column(Text)
-    addition = Column(Text)
-    pfo = Column(Boolean, default=False)
-    comments = Column(Text)
-    conclusion = Column(Integer, ForeignKey('conclusions.id'))
-    officer = Column(String(255))
-    deadline = Column(DateTime, default=default_time, 
+    workplace = db.Column(db.Text)
+    employee = db.Column(db.Text)
+    document = db.Column(db.Text)
+    inn = db.Column(db.Text)
+    debt = db.Column(db.Text)
+    bankruptcy = db.Column(db.Text)
+    bki = db.Column(db.Text)
+    courts = db.Column(db.Text)
+    affiliation = db.Column(db.Text)
+    terrorist = db.Column(db.Text)
+    mvd = db.Column(db.Text)
+    internet = db.Column(db.Text)
+    cronos = db.Column(db.Text)
+    cros = db.Column(db.Text)
+    addition = db.Column(db.Text)
+    pfo = db.Column(db.Boolean, default=False)
+    comments = db.Column(db.Text)
+    conclusion = db.Column(db.Integer, db.ForeignKey('conclusions.id'))
+    officer = db.Column(db.String(255))
+    deadline = db.Column(db.DateTime, default=default_time, 
                          onupdate=default_time)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='checks')   
-    conclusions = relationship('Conclusion', back_populates='checks')   
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
-class Conclusion(Base):
+
+class Robot(db.Model):
+    """ Create model for robots"""
+
+    __tablename__ = 'robots'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
+                   autoincrement=True)
+    robot = db.Column(db.String(255))
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+
+
+class Conclusion(db.Model):
     
     __tablename__ = 'conclusions'
     
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    conclusion = Column(String(255))
-    checks = relationship('Check', back_populates='conclusions')   
+    conclusion = db.Column(db.String(255))
+    checks = db.relationship('Check', backref='conclusions')   
 
 
-class Poligraf(Base):  # модель данных результаты ПФО
+class Poligraf(db.Model):  # модель данных результаты ПФО
     """ Create model for poligraf"""
 
     __tablename__ = 'poligrafs'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    theme = Column(String(255))
-    results = Column(Text)
-    officer = Column(String(255))
-    deadline = Column(Date, default=default_time)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='poligrafs')   
+    theme = db.Column(db.String(255))
+    results = db.Column(db.Text)
+    officer = db.Column(db.String(255))
+    deadline = db.Column(db.Date, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Investigation(Base):
+class Investigation(db.Model):
     """ Create model for ivestigation"""
     
     __tablename__ = 'investigations'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    theme = Column(String(255))
-    info = Column(Text)
-    officer = Column(String(255))
-    deadline = Column(Date, default=default_time, onupdate=default_time)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='investigations') 
+    theme = db.Column(db.String(255))
+    info = db.Column(db.Text)
+    officer = db.Column(db.String(255))
+    deadline = db.Column(db.Date, default=default_time, onupdate=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Inquiry(Base):
+class Inquiry(db.Model):
     """ Create model for persons inquiries"""
 
     __tablename__ = 'inquiries'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    info = Column(Text)
-    initiator = Column(String(255))
-    source = Column(String(255))
-    officer = Column(String(255))
-    deadline = Column(Date, default=default_time)
-    person_id = Column(Integer, ForeignKey('persons.id'))
-    persons = relationship('Person', back_populates='inquiries')   
+    info = db.Column(db.Text)
+    initiator = db.Column(db.String(255))
+    source = db.Column(db.String(255))
+    officer = db.Column(db.String(255))
+    deadline = db.Column(db.Date, default=default_time)
+    person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Connect(Base):
+class ConnectQuery(Query, SearchQueryMixin):
+    """ Class for searchable Connect table (only postgresql)"""
+    pass
+
+
+class Connect(db.Model):
     """ Create model for persons connects"""
     
     __tablename__ = 'connects'
 
-    id = Column(Integer, nullable=False, unique=True, primary_key=True, 
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    company = Column(String(255))
-    city = Column(String(255))
-    fullname = Column(String(255))
-    phone = Column(String(255))
-    adding = Column(String(255))
-    mobile = Column(String(255))
-    mail = Column(String(255))
-    comment = Column(Text)
-    data = Column(Date, default=default_time, onupdate=default_time)
+    company = db.Column(db.String(255))
+    city = db.Column(db.String(255))
+    fullname = db.Column(db.String(255))
+    phone = db.Column(db.String(255))
+    adding = db.Column(db.String(255))
+    mobile = db.Column(db.String(255))
+    mail = db.Column(db.String(255))
+    comment = db.Column(db.Text)
+    data = db.Column(db.Date, default=default_time, onupdate=default_time)
+    search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile', 'phone')) 
+
+db.configure_mappers()

@@ -1,32 +1,30 @@
 # StaffSec (in development now)
 
-<!--StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
-
+<!--# StaffSec (in development now)
+StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 ### The main technology stack used in this project includes:
-
 - Python3;
 - Postgesql as database;
 - Redis as caching service;
-- Quart is a Fast Python web microframework on base of Flask;
+- APIFlask a lightweight Python web API framework based on Flask and marshmallow-code projects;
 - Gunicorn as HTTP server;
-- SQLAlchemy as tool that adds support for SQLAlchemy;
-- Alembic as a tool that handles SQLAlchemy database migrations;
-- Flask-Marshmallow as integration layer for Flask and marshmallow;
 - Flask-JWT-Extended as a tool for authorization;
-- Flask_Searchable as a tool that handles search engine;
-- Flask-Caching as a tool that handles caching;
-- Flask-Cors as a tool that handles CORS;
-- Vue3 as the frontend and Vite as Frontend Tooling;
+- Flask-HTTPAuth as a tool for basic authorization;
+- Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
+- Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
+- Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
+- Flask_Searchable as a tool that handles search engine
+- Flask-Caching as a tool that handles caching
+- Flask-Cors as a tool that handles CORS
+- Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
 
 ### Installation
-
 To use this project, you will need to have Python 3.10 or higher installed on your local machine. You must install Python if you don't have it already.
 Check your Python version with the following command:
 ```
 python3 --version
 ```
-
 Once you have Python installed, you can install the required Python packages by running the following command in your terminal:
 ```
 sudo apt install python3 python3-pip python3-venv
@@ -36,7 +34,6 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-
 To Use a PostgreSQL Database in a Flask Application install PostgreSQL (Ubuntu example)
 ```
 sudo apt-get -y install postgresql
@@ -53,16 +50,14 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 ```
 
 ### Migration
-
 For migrate database enter commands:
 ```
-alembic init migrations                         # run this command to create migration folder and alembic.ini
-alembic revision --autogenerate -m "initial"    # generate an initial migration script
-alembic upgrade head                            # apply all migrations
+flask db init       # run this command for the first time if migration folder is not exist
+flask db migrate    # after change db schema
+flask db upgrade    # after change db schema
 ```
 
 ### Usage
-
 To start the application at http://localhost:5000 run the following command in your terminal:
 ```
 flask create       # create default tables and populate them with data from the classes.py file
@@ -71,14 +66,12 @@ flask run
 Admin user on default has name 'admin'.
 Default password for all app users is `88888888`
 Change it in first login to application.
-
 To start the app with Gunicorn server:
 ```
 gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
 ```
 
 ### Gunicorn Service
-
 For create systemd service run the following command in your terminal:
 ```
 sudo nano /etc/systemd/system/staffsec.service
@@ -105,7 +98,6 @@ sudo systemctl status staffsec
 ```
 
 ### Nginx
-
 Nginx configuration:
 Open the file '/etc/nginx/sites-available/staffsec' and add the following line:
 ```
@@ -127,7 +119,6 @@ server {
         proxy_set_header X-Forwarded-Port $server_port;
         proxy_redirect off;
     }
-
     location /samba {
         proxy_pass http://0.0.0.0:445;
         proxy_set_header Host $host;
