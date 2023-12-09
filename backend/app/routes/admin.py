@@ -123,7 +123,7 @@ class GroupView(MethodView):
 
     @bp.output(EmptySchema)
     @roles_required(Roles.admin.name)
-    async def get(self, value, user_id):
+    async def get(self, group, user_id):
         """
         Retrieves a user's group from the database and adds it to the user's 
         list of groups if it does not already exist.
@@ -133,15 +133,15 @@ class GroupView(MethodView):
                 user = await session.get(User, user_id)
                 item = await session.scalar(
                     select(Group)
-                    .filter_by(group=value))
-                if not value not in [user.group for user in user.groups]:
+                    .filter_by(group=group))
+                if not group not in [user.group for user in user.groups]:
                     user.groups.append(item)
                 await engine.dispose()
                 return "", 204
 
     @bp.output(EmptySchema)
     @roles_required(Roles.admin.name)
-    async def delete(self, value, user_id):
+    async def delete(self, group, user_id):
         """
         Deletes a group from a user's list of groups.
         """
@@ -150,38 +150,38 @@ class GroupView(MethodView):
                 user = await session.get(User, user_id)
                 item = await session.scalar(
                     select(Group)
-                    .filter_by(group=value)
+                    .filter_by(group=group)
                     )
-                if not (user.username == get_jwt_identity() and value == Groups.admins.name):
+                if not (user.username == get_jwt_identity() and group == Groups.admins.name):
                     user.groups.remove(item)
                 await engine.dispose()
                 return "", 204
 
-bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('group'))
+bp.add_url_rule('/group/<group>/<int:user_id>', view_func=GroupView.as_view('group'))
 
 
 class RoleView(MethodView):
 
     @bp.output(EmptySchema)
     @roles_required(Roles.admin.name)
-    async def get(self, value, user_id):
+    async def get(self, role, user_id):
         """
-        Get a user's role based on the value and user ID.
+        Get a user's role based on the role and user ID.
         """
         async with AsyncSession(engine) as session:
             async with session.begin():
                 user = await session.get(User, user_id)
                 item = await session.scalar(
                     select(Role)
-                    .filter_by(role=value))
-                if value not in [user.role for user in user.roles]:
+                    .filter_by(role=role))
+                if role not in [user.role for user in user.roles]:
                     user.roles.append(item)
                 await engine.dispose()
                 return "", 204
     
     @bp.output(EmptySchema)
     @roles_required(Roles.admin.name)
-    async def delete(self, value, user_id):
+    async def delete(self, role, user_id):
         """
         Deletes a role from a user.
         """
@@ -190,18 +190,41 @@ class RoleView(MethodView):
                 user = await session.get(User, user_id)
                 item = await session.scalar(
                     select(Role)
-                    .filter_by(role=value)
+                    .filter_by(role=role)
                     )
-                if not (user.username == get_jwt_identity() and value == Roles.admin.name):
+                if not (user.username == get_jwt_identity() and role == Roles.admin.name):
                     user.roles.remove(item)
                 await engine.dispose()
                 return "", 204
             
-bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))
+bp.add_url_rule('/role/<role>/<int:user_id>', view_func=RoleView.as_view('role'))
 
 
 class TableView(MethodView):
     
+    @group_required(Groups.admins.name)
+    async def get(self, item, page):
+        model = models_schemas[item][0]
+        schema = models_schemas[item][1]
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
+                    query = await session.execute(
+                        select(model)
+                    )
+                else:
+                    query = await session.execute(
+                        select(model)
+                    )
+                pagination = Pagination(query.scalars(), 16, page)
+                result = pagination.paginate()
+                await engine.dispose()
+                return [
+                    schema.dump(result, many=True),
+                        {'has_next': pagination.has_next(),
+                        'has_prev': pagination.has_prev()}
+                    ]
+            
     @group_required(Groups.admins.name)
     async def post(self, item, page):
         model = models_schemas[item][0]
@@ -212,7 +235,7 @@ class TableView(MethodView):
                 if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
                     query = await session.execute(
                         select(model)
-                        .filter_by(id=json_data['id'])
+                        .filter_by(id=int(json_data['id']))
                     )
                 else:
                     query = await session.execute(

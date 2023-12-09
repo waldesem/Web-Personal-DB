@@ -1,4 +1,3 @@
-import asyncio
 import os
 import shutil
 
@@ -12,7 +11,8 @@ from ..models.classes import Roles, Groups
 class FileManagementView(MethodView):
 
     decorators = [group_required(Groups.staffsec.name),
-                  roles_required(Roles.user.name), bp.doc(hide=True)]
+                  roles_required(Roles.user.name), 
+                  bp.doc(hide=True)]
     
     def __init__(self):
         self.dirs = []
@@ -23,8 +23,6 @@ class FileManagementView(MethodView):
     async def get(self):
         """
         Retrieves the list of directories and files in the current path.
-        Parameters:
-            None
         Returns:
             dict: A dictionary containing the current path, list of directories, and list of files.
                 - 'path' (str): The current path.
@@ -32,10 +30,10 @@ class FileManagementView(MethodView):
                 - 'files' (list): A list of files in the current path.
         """
         path = os.path.join(self.base_path, *self.current_path)
-        # items = os.listdir(path)
-        items = await asyncio.to_thread(os.scandir, path)
+        items = os.listdir(path)
         self.dirs = [item for item in items if os.path.isdir(os.path.join(path, item))]
         self.files = [item for item in items if os.path.isfile(os.path.join(path, item))]
+        print(self.current_path, self.dirs, self.files)
         return {'path': self.current_path, 
                 'dirs': self.dirs, 
                 'files': self.files}
