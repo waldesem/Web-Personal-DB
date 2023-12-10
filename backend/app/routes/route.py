@@ -770,6 +770,22 @@ class InquiryView(MethodView):
 bp.add_url_rule('/inquiry/<action>/<int:item_id>',
                 view_func=InquiryView.as_view('inquiry'))
 
+class InfoView(MethodView):
+    @group_required(Groups.staffsec.name)
+    @bp.doc(hide=True)
+    def post(self):
+        response = request.get_json()
+        candidates = db.session.execute(
+            select(Check.conclusion, func.count(Check.id))
+            .join(Person)
+            .group_by(Check.conclusion)
+            .filter(Person.region_id == response['region_id'])
+            .filter(Check.deadline.between(response['start'], response['end']))
+            ).all()
+        return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates))}
+    
+bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
+
 
 class FileView(MethodView):
 
