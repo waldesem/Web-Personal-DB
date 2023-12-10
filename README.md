@@ -1,6 +1,6 @@
 # StaffSec (in development now)
 
-<!--# StaffSec (in development now)
+# StaffSec (in development now)
 StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 ### The main technology stack used in this project includes:
 - Python3;
@@ -9,7 +9,6 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - APIFlask a lightweight Python web API framework based on Flask and marshmallow-code projects;
 - Gunicorn as HTTP server;
 - Flask-JWT-Extended as a tool for authorization;
-- Flask-HTTPAuth as a tool for basic authorization;
 - Flask-SQLAlchemy as tool that adds support for SQLAlchemy;
 - Flask-Marshmallow as integration layer for Flask and marshmallow (an object serialization/deserialization library);
 - Flask-Migrate as a tool that handles SQLAlchemy database migrations using Alembic;
@@ -169,4 +168,3 @@ This project is licensed under the MIT License.
 ![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/2.png?raw=true)
 ![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/3.png?raw=true)
 ![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/4.png?raw=true)
--->

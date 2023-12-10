@@ -1,4 +1,5 @@
 from datetime import datetime
+from sqlalchemy import select
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable
 from sqlalchemy_utils.types import TSVectorType
 from flask_sqlalchemy.query import Query
@@ -113,6 +114,7 @@ class PersonQuery(Query, SearchQueryMixin):
 
 class Person(db.Model):
     """ Create model for persons dates"""
+    query_class = PersonQuery
 
     __tablename__ = 'persons'
 
@@ -161,26 +163,32 @@ class Person(db.Model):
     affilations = db.relationship('Affilation', backref='persons', 
                            cascade="all, delete, delete-orphan")
 
-    def has_status(self, status):
+    def has_status(self, *args):
         """
         Check if the current status of the object matches any of the given status values.
         """
-        return self.status_id == (db.session
-                                  .query(Status)
-                                  .filter(Status.status.in_(status))
-                                  .one_or_none())
+        return any(self.status_id == [db.session.execute(
+            select(Status)
+            .filter(Status.status.in_(status))
+            ).scalar_one_or_none() for status in args])
     
-    def has_category(self, category):
+    def has_category(self, *args):
         """
         Check if the current category of the object matches any of the given category values.
         """
-        return db.session.query(Category).filter(Category.category.in_(category)).first()
+        return any(self.category_id == [db.session.execute(
+            select(Category)
+            .filter(Category.category.in_(category))
+            ).scalar_one_or_none() for category in args])  
     
-    def has_region(self, region):
+    def has_region(self, *args):
         """
         Check if the current region of the object matches any of the given region values.
         """
-        return db.session.query(Region).filter(Region.region.in_(region)).first()
+        return any(self.region_id == [db.session.execute(
+            select(Region)
+            .filter(Region.region.in_(region))
+            ).scalar_one_or_none() for region in args])
 
 
 class Category(db.Model):
@@ -191,6 +199,12 @@ class Category(db.Model):
     category = db.Column(db.String(255))
     persons = db.relationship('Person', backref='categories')
 
+    def get_id(self, category):
+        return db.session.execute(
+            select(Category)
+            .filter(Category.category == category)
+            ).scalar_one_or_none().id
+
 
 class Status(db.Model):
     
@@ -200,6 +214,12 @@ class Status(db.Model):
                    autoincrement=True)
     status = db.Column(db.String(255))
     persons = db.relationship('Person', backref='statuses')
+
+    def get_id(self, status):
+        return db.session.execute(
+            select(Status)
+            .filter(Status.status == status)
+            ).scalar_one_or_none().id
 
 
 class Region(db.Model):
@@ -212,6 +232,12 @@ class Region(db.Model):
     region = db.Column(db.String(255), unique=True)
     persons = db.relationship('Person', backref='regions')
    
+    def get_id(self, region):
+            return db.session.execute(
+                select(Region)
+                .filter(Region.region == region)
+                ).scalar_one_or_none().id
+
 
 class Staff(db.Model):
     """ Create model for staff"""
@@ -225,8 +251,16 @@ class Staff(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
+
+class DocumentQuery(Query, SearchQueryMixin):
+    """ Class for searchable Connect table (only postgresql)"""
+    pass
+
+
 class Document(db.Model):
     """ Create model for Document dates"""
+
+    query_class = DocumentQuery
 
     __tablename__ = 'documents'
 
@@ -237,6 +271,7 @@ class Document(db.Model):
     number = db.Column(db.String(255))
     agency = db.Column(db.Text)
     issue = db.Column(db.Date)
+    search_vector = db.Column(TSVectorType('series', 'number',))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
@@ -380,6 +415,11 @@ class Conclusion(db.Model):
     conclusion = db.Column(db.String(255))
     checks = db.relationship('Check', backref='conclusions')   
 
+    def get_id(self, conclusion):
+        return db.session.execute(
+            select(Conclusion)
+            .filter(Conclusion.conclusion == conclusion)
+            ).scalar_one_or_none().id
 
 class Poligraf(db.Model):  # модель данных результаты ПФО
     """ Create model for poligraf"""
@@ -431,6 +471,8 @@ class ConnectQuery(Query, SearchQueryMixin):
 
 class Connect(db.Model):
     """ Create model for persons connects"""
+
+    query_class = ConnectQuery
     
     __tablename__ = 'connects'
 
@@ -447,4 +489,7 @@ class Connect(db.Model):
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile', 'phone')) 
 
-db.configure_mappers()
+
+combined_search_vector = Person.search_vector | Document.search_vector
+
+db.configure_mappers()  # very important!

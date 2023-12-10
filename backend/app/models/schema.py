@@ -59,6 +59,7 @@ class PersonSchema(SQLAlchemyAutoSchema):
         model = Person
         ordered = True
         include_fk = True
+        exclude = ('search_vector',)
         
 
 class RegionSchema(SQLAlchemyAutoSchema):
@@ -94,6 +95,8 @@ class DocumentSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Document
         ordered = True
+        exclude = ('search_vector',)
+
 
 class AddressSchema(SQLAlchemyAutoSchema):
     """ Create model for address"""
@@ -182,6 +185,7 @@ class ConnectSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Connect
         ordered = True
+        exclude = ('search_vector',)
 
 
 class AnketaSchemaApi(SQLAlchemySchema):
@@ -197,21 +201,6 @@ class AnketaSchemaApi(SQLAlchemySchema):
     agency = fields.String()
     issue = fields.String()
     address = fields.String()
-
-
-class CheckSchemaApi(SQLAlchemySchema):
-    """ Create schema for check /api/v1/check """
-    id = fields.String()
-    employee = fields.String()
-    document = fields.String()
-    inn = fields.String()
-    debt = fields.String()
-    bankruptcy = fields.String()
-    bki = fields.String()
-    courts = fields.String()
-    affiliation = fields.String()
-    terrorist = fields.String()
-    mvd = fields.String()
         
 
 models_schemas = {

@@ -2,9 +2,11 @@ from apiflask import EmptySchema
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask.views import MethodView
+from sqlalchemy import select
 
 from . import bp
-from ..models.model import db, Group, Connect
+from .. import db
+from ..models.model import Connect
 from ..models.schema import ConnectSchema
 
 
@@ -29,15 +31,13 @@ class ContactsView(MethodView):
         pagination = 16
         schema = ConnectSchema()
         response = request.get_json()
-        datalist = db.session.query(Connect.company, Connect.city).all()
-        group_id = db.session.query(Group.id).filter_by(group=group).scalar()
+        datalist = db.session.execute(select(Connect.company, Connect.city)).scalars()
         if response['search']:
             query = Connect.query.search('%{}%'.format(response['search']))    
         else:
             query = db.session.query(Connect)
 
         result = query.order_by(Connect.id.desc()). \
-            filter(Connect.group_id == group_id). \
                 paginate(page=item, per_page=pagination, error_out=False)
 
         return [schema.dump(result, many=True),
@@ -62,8 +62,7 @@ class ConnnectView(MethodView):
         Returns:
             dict: A dictionary containing the ID of the created connection.
         """
-        group_id = db.session.query(Group.id).filter_by(group=group).scalar()
-        connect = Connect(**json_data | {"group_id": group_id})
+        connect = Connect(**json_data)
         db.session.add(connect)
         db.session.flush()
         item = connect.id

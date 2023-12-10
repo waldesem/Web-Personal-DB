@@ -1,4 +1,3 @@
-import asyncio
 import os
 import shutil
 from datetime import datetime
@@ -7,7 +6,7 @@ from apiflask import EmptySchema
 from flask import request, current_app, send_file, abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user
-from sqlalchemy import select, and_, extract, func
+from sqlalchemy import select, func
 from werkzeug.utils import secure_filename
 from PIL import Image
 import requests
@@ -16,13 +15,13 @@ from . import bp
 from .. import db
 from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
-from ..models.model import  Category, Conclusion, User, Person, Staff, Document, Address, Contact, \
+from ..models.model import  Conclusion, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
-    Status, Message, Affilation, Risk, Robot
+    Status, Message, Affilation, Robot, combined_search_vector
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
-    WorkplaceSchema, AffilationSchema, CheckSchemaApi, RiskSchema, RobotSchema
+    WorkplaceSchema, AffilationSchema, RobotSchema
 from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 
 
@@ -38,19 +37,21 @@ class IndexView(MethodView):
         match flag:
             case 'new':
                 query = query.filter(
-                    Person.status_id.in_([Statuses.new.value,
-                                          Statuses.update.value,
-                                          Statuses.repeat.value]),
-                    Person.category_id == Categories.candidate.value)
+                    Person.has_status(Statuses.new.value,
+                                      Statuses.update.value,
+                                      Statuses.repeat.value),
+                    Person.has_category(Categories.candidate.value)
+                    )
             case 'officer':
                 query = (query
-                         .filter(Person.has_status(Statuses.finish.value) or 
-                                 Person.has_status(Statuses.cancel.value))
+                         .filter(Person.has_status(Statuses.finish.value, 
+                                                   Statuses.cancel.value))
                          .join(Check, isouter=True) \
                          .filter_by(officer=current_user.fullname))
             case 'search':
                 if json_data['search']:
-                    query = Person.query.search('%{}%'.format(json_data['search'])) 
+                    query = Person.query.search('%{}%'.format(json_data['search']), 
+                                                vector=combined_search_vector) 
             
         result = query.paginate(page=page, per_page=16, error_out=False)       
         return [
@@ -71,10 +72,11 @@ class PersonView(MethodView):
         views = [
             ResumeView(), StaffView(), DocumentView(), ContactView(),
             AddressView(), WorkplaceView(), AffilationView(), RelationView(),
-            CheckView(), PoligrafView(), InvestigationView(), InquiryView()
+            CheckView(), RobotView(), PoligrafView(), InvestigationView(), InquiryView()
         ]
         items = ['resume', 'staffs', 'documents', 'contacts', 'addresses', 'works',
-                 'affilations', 'relations', 'checks', 'poligafs', 'investigations', 'inquiries']
+                 'affilations', 'relations', 'checks', 'robots', 'poligafs', 
+                 'investigations', 'inquiries']
         results = []
         results.extend(*[{item: view.get('view', person_id)} for view, item in zip(views, items)])
     
@@ -93,17 +95,14 @@ class ResumeView(MethodView):
         person = db.session.query(Person).get(person_id)
         
         if action == 'status':
-            person.status_id = (db.session
-                                .query(Status)
-                                .filter_by(status=Statuses.update.value)
-                                .one_or_none().id)
+            person.status_id = Status.get_id(Statuses.update.value)
             db.session.commit()
             return db.session.query(Person).get(person_id)
         
         elif action == 'send':
-            if (person.has_status(Statuses.new.value) or
-                person.has_status(Statuses.update.value) or
-                person.has_status([Statuses.repeat.value])):
+            if (person.has_status(Statuses.new.value, 
+                                   Statuses.update.value, 
+                                   Statuses.repeat.value)):
 
                 docum = (db.session
                             .query(Document)
@@ -117,11 +116,18 @@ class ResumeView(MethodView):
                            .order_by(Address.id.desc())
                            .one_or_none())
                 serial = AnketaSchemaApi().dump(
-                    dict(
-                        resume=person,
-                        document=docum,
-                        address=addr)
-                        )
+                    {'id': person_id,
+                     'fullname': person.fullname,
+                     'birthday': person.birthday,
+                     'birthplace': person.birthplace,
+                     'snils': person.snils,
+                     'inn': person.inn,
+                     'series': docum.series,
+                     'number': docum.number,
+                     'agency': docum.agency,
+                     'issue': docum.issue,
+                     'address': addr.address,
+                     'user_id': current_user.id})  
                 try:
                     response = requests.post(
                         url='https://httpbin.org/post',
@@ -130,10 +136,7 @@ class ResumeView(MethodView):
                         )
                     response.raise_for_status()
                     if response.status_code == 200:
-                        person.status_id = (db.session
-                                            .query(Status)
-                                            .filter_by(status=Statuses.robot.value)
-                                            .one_or_none().id)
+                        person.status_id = Status.get_id(Statuses.robot.value)
                         db.session.add(
                             Check(officer=current_user.fullname,
                                   person_id=person_id)
@@ -174,12 +177,9 @@ class ResumeView(MethodView):
                           Person.birthday==resume['birthday'])
                   .one_or_none())
         if person:
-            statuses = db.session.query(Status)
-            status_id = (statuses
-                         .filter_by(status=Statuses.new.value).first().id 
-                            if action in ["create", "api"] else 
-                        statuses
-                         .filter_by(status=Statuses.update.value).first().id)
+            status_id = Status.get_id(Statuses.new.value) \
+                if action in ["create", "api"] \
+                    else Status.get_id(Statuses.update.value) 
             person.update(**resume)
             person.status_id = status_id
             person_id = person.id
@@ -209,17 +209,18 @@ bp.add_url_rule('/resume/<action>',
 bp.add_url_rule('/resume/<action>/<int:person_id>',
                 view_func=resume_view, methods=['GET', 'DELETE'])
 
+
 class StaffView(MethodView):
 
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
-        return StaffSchema().dump(db.session
-                           .query(Staff)
-                           .filter_by(person_id=item_id)
-                           .order_by(Staff.id.desc())
-                           .all(), many=True)
+        return StaffSchema().dump(db.session.execute(
+            select(Staff)
+            .filter_by(person_id=item_id)
+            .order_by(Staff.id.desc())
+            ).all(), many=True)
     
     @bp.input(StaffSchema)
     @roles_required(Roles.user.value)
@@ -253,11 +254,11 @@ class DocumentView(MethodView):
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
-        return DocumentSchema().dump(db.session
-                                     .query(Document)
-                                     .filter_by(person_id=item_id)
-                                     .order_by(Document.id.desc())
-                                     .all(), many=True)
+        return DocumentSchema().dump(db.session.execute(
+            select(Document)
+            .filter_by(person_id=item_id)
+            .order_by(Document.id.desc())
+            ).all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(DocumentSchema)
@@ -291,12 +292,12 @@ class AddressView(MethodView):
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
-        return AddressSchema().dump(db.session
-                                    .query(Address)
-                                    .filter_by(person_id=item_id)
-                                    .order_by(Address.id.desc())
-                                    .all(), many=True)
-    
+        return AddressSchema().dump(db.session.execute(
+            select(Address)
+            .filter_by(person_id=item_id)
+            .order_by(Address.id.desc())
+            ).all(), many=True)
+                                    
     @roles_required(Roles.user.value)
     @bp.input(AddressSchema)
     def post(self, action, item_id, json_data):
@@ -329,11 +330,11 @@ class ContactView(MethodView):
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
-        return ContactSchema().dump(db.session
-                                    .query(Contact)
-                                    .filter_by(person_id=item_id)
-                                    .order_by(Contact.id.desc())
-                                    .all(), many=True)
+        return ContactSchema().dump(db.session.execute(
+            select(Contact)
+            .filter_by(person_id=item_id)
+            .order_by(Contact.id.desc())
+            ).all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(ContactSchema)
@@ -367,11 +368,11 @@ class WorkplaceView(MethodView):
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
-        return WorkplaceSchema().dump(db.session
-                                      .query(Workplace)
-                                      .filter_by(person_id=item_id)
-                                      .order_by(Workplace.id.desc())
-                                      .all(), many=True)
+        return WorkplaceSchema().dump(db.session.execute(
+            select(Workplace)
+            .filter_by(person_id=item_id)
+            .order_by(Workplace.id.desc())
+            ).all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
@@ -408,11 +409,11 @@ class RelationView(MethodView):
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
-        return RelationSchema().dump(db.session
-                                     .query(Relation)
-                                     .filter_by(person_id=item_id)
-                                     .order_by(Relation.id.desc())
-                                     .all(), many=True)
+        return RelationSchema().dump(db.session.execute(
+            select(Relation)
+            .filter_by(person_id=item_id)
+            .order_by(Relation.id.desc())
+            ).all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(RelationSchema)
@@ -449,12 +450,11 @@ class AffilationView(MethodView):
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
-        schema = AffilationSchema()
-        return schema.dump(db.session
-                           .query(Affilation)
-                           .filter_by(person_id=item_id)
-                           .order_by(Affilation.id.desc())
-                           .all(), many=True)
+        return AffilationSchema().dump(db.session.execute(
+            select(Affilation)
+            .filter_by(person_id=item_id)
+            .order_by(Affilation.id.desc())
+            ).all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(AffilationSchema)
@@ -487,13 +487,10 @@ class CheckView(MethodView):
     def get(self, action, item_id):
         if action == 'add':
             person = db.session.query(Person).get(item_id)
-            if (person.has_status(Statuses.new.value) or
-                person.has_status(Statuses.update.value) or 
-                person.has_status(Statuses.repeat.value)):
-                person.status_id = (db.session
-                                    .query(Status)
-                                    .filter_by(status=Statuses.manual.value)
-                                    .one_or_none().id)
+            if (person.has_status(Statuses.new.value, 
+                                  Statuses.update.value, 
+                                  Statuses.repeat.value)):
+                person.status_id = Status.get_id(Statuses.manual.value)
                 db.session.add(Check(
                     officer=current_user.fullname, person_id=item_id)
                     )
@@ -538,25 +535,11 @@ class CheckView(MethodView):
             person = db.session.query(Person).get(check.person_id)
             for k, v in json_data.items():
                 setattr(check, k, v)
-        save_id = (db.session
-                   .query(Conclusion)
-                   .filter_by(status=Conclusions.saved.value)
-                   .one_or_none().id)
-        if json_data['conclusion_id'] == save_id:
-            person.status_id = (db.session
-                                .query(Status)
-                                .filter(Status.status == Statuses.save.value)
-                                .one_or_none().id)
+        if json_data['conclusion_id'] == Conclusion.get_id(Conclusions.saved.value):
+            person.status_id = Status.get_id(Statuses.save.value)
         else:
-            pfo_id = (db.session
-                  .query(Status)
-                  .filter_by(status=Statuses.poligraf.value)
-                  .one_or_none().id)
-            finish_id = (db.session
-                         .query(Status)
-                         .filter_by(status=Statuses.finish.value)
-                         .one_or_none().id)
-            person.status_id = pfo_id if json_data['pfo'] else finish_id
+            person.status_id = Status.get_id(Statuses.poligraf.value) \
+                if json_data['pfo'] else Status.get_id(Statuses.finish.value)
         db.session.commit()
         return '', 201
     
@@ -564,13 +547,8 @@ class CheckView(MethodView):
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         check = db.session.query(Check).get(item_id)
-        try:
-            shutil.rmtree(os.path.join(current_app.config['BASE_PATH'], check.path))
-        except Exception as e:
-            print(e)
-        person = db.session.query(Person).get(db.session.query(Check.person_id). \
-                                              filter_by(id=item_id).one_or_none())
-        person.status = Status.update.value
+        person = db.session.query(Person).get(check.person_id)
+        person.status = Status.get_id(Statuses.update.value)
         db.session.delete(check)
         db.session.commit()
         return ''
@@ -583,33 +561,34 @@ class RobotView(MethodView):
     """
     The RobotView class is a subclass of the MethodView class from the flask.views module.
     """
-    decorators = [group_required(Groups.api.name), 
-                  roles_required(Roles.api.name)]
-
+   
+    @group_required(Groups.staffsec.name)
+    @roles_required(Roles.user.name)
+    @bp.doc(hide=True)
+    def get(self, action, item_id):
+        return RobotSchema().dump(db.session.execute(
+            select(Robot)
+            .filter_by(person_id=item_id)
+            .order_by(Robot.id.desc())
+            ).all(), many=True)
+    
+    @group_required(Groups.api.name)
+    @roles_required(Roles.api.name)
     @bp.doc(hide=False)
     @bp.input(RobotSchema)
     def post(self, json_data):
         candidate = db.session.get(Person, json_data['id'])
         del json_data['id']
-        latest_check = db.session.execute(
-            select(Check)
-            .filter_by(person_id=candidate.id)
-            .order_by(Check.id.desc())
-            ).first()
-        user = db.session.execute(
-            select(User)
-            .filter_by(fullname=latest_check.officer)
-            ).one_or_none()
+        user_id = json_data.pop('user_id')
         if candidate.status_id == db.session.execute(
             select(Status)
             .filter(Status.status == Statuses.robot.value)
             ).first().id:
             if os.path.isdir(json_data['path']):
                 file_view = FileView()
-                full_path = os.path.join(current_app.config["BASE_PATH"], latest_check.path)
-                check_path = full_path if os.path.isdir(full_path) \
-                    else file_view.create_folders(candidate.id, candidate["fullname"], 'check')
-                
+                check_path = file_view.create_folders(
+                    candidate.id, candidate["fullname"], 'robot'
+                    )
                 try:
                     for item in os.listdir(json_data['path']):
                         if os.path.isfile(os.path.join(json_data['path'], item)):
@@ -618,13 +597,12 @@ class RobotView(MethodView):
                             shutil.copytree(item, os.path.join(check_path, item))
 
                 except FileNotFoundError as error:
-                    db.session.add(Message(report=f'{error}', user_id=user.id))
+                    db.session.add(Message(report=f'{error}', user_id=user_id))
 
-            for k, v in json_data.items():
-                setattr(latest_check, k, v)
+            db.session.add(Robot(**json_data | {'person_id': candidate.id}))
             db.session.add(Message(
-                report=f'Проверка кандидата {candidate.fullname} окончена', 
-                user_id=user.id)
+                report=f'Автоматическая проверка {candidate.fullname} окончена', 
+                user_id=user_id)
                 )
             candidate.status_id = db.session.execute(
                 select(Status)
@@ -636,10 +614,19 @@ class RobotView(MethodView):
             db.session.add(Message(
                 report=f'Результат проверки {candidate.fullname} не может быть записан.'
                        f'Материал проверки находится в {json_data["path"]}', 
-                user_id=user.id))
+                user_id=user_id))
             db.session.commit()
 
         return '', 201
+
+    @group_required(Groups.staffsec.name)
+    @roles_required(Roles.user.name)
+    @bp.output(EmptySchema, status_code=204)
+    @bp.doc(hide=True)
+    def delete(self, action, item_id):
+        db.session.delete(db.session.query(Robot).get(item_id))
+        db.session.commit()
+        return ''
 
 bp.add_url_rule('/robot/<int:item_id>', view_func=RobotView.as_view('robot'))
 
@@ -702,10 +689,7 @@ class PoligrafView(MethodView):
     def post(self, action, item_id, json_data):
         person = db.session.query(Person).get(item_id)
         if person.has_status(Statuses.poligraf.value):
-            person.status_id = db.session.execute(
-                select(Status)
-                .filter(Status.status == Statuses.finish.value)
-                ).one_or_none().id
+            person.status_id = Status.get_id(Statuses.finish.value)
         db.session.add(Poligraf(
             **json_data | {'person_id': item_id, 'officer': current_user.fullname}
             ))
