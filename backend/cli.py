@@ -2,8 +2,8 @@ import bcrypt
 import os
 from app import db
 from config import Config
-from app.models.model import User, Region, Role, Group, Status, Conclusion, Category
-from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions, Categories
+from app.models.model import User, Region, Role, Group, Status, Conclusion, Category, Risk
+from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions, Categories, Risks
 
 
 def register_cli(app):
@@ -46,6 +46,12 @@ def register_cli(app):
             if item.value not in [cat[0] for cat in category_query]:
                 db.session.add(Category(category=item.value))
                 print(f'Category {item.value} created')
+
+        risk_query = db.session.query(Risk.risk).all()
+        for item in Risks:
+            if item.value not in [risk[0] for risk in risk_query]:
+                db.session.add(Risk(risk=item.value))
+                print(f'Risk {item.value} created')
                 
         groups = db.session.query(Group.group).all()
         for grp in Groups:

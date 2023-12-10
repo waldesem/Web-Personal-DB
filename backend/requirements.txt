@@ -35,6 +35,8 @@ Flask-Cors==4.0.0
 Flask-HTTPAuth==4.8.0
 Flask-JWT-Extended==4.5.3
 flask-marshmallow==0.15.0
+Flask-Migrate==4.0.5
+Flask-SQLAlchemy==3.1.1
 frozenlist==1.4.0
 greenlet==3.0.1
 gunicorn==21.2.0
@@ -57,6 +59,7 @@ Pillow==10.1.0
 preshed==3.0.9
 priority==2.0.0
 psutil==5.9.5
+psycopg2-binary==2.9.9
 PyJWT==2.8.0
 python-dateutil==2.8.2
 python-dotenv==1.0.0

@@ -1,119 +1,111 @@
-from flask import current_app, request
 import bcrypt
-
 from apiflask import EmptySchema
-from flask_jwt_extended import get_jwt_identity
+from flask import current_app, request
+from flask_jwt_extended import current_user
 from flask.views import MethodView
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import bp
+from .. import db
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
-from ..models.model import  User, Role, Group, engine
+from ..models.model import  User, Role, Group
 from ..models.schema import UserSchema, models_schemas
-from ..models.paginate import Pagination
 
 
 class UsersView(MethodView):
     
-    @bp.input(UserSchema)
-    @group_required(Groups.admins.name)
-    async def post(self, json_data):
+    decorators = [group_required(Groups.admins.name), 
+                  bp.input(UserSchema),
+                  bp.doc(hide=True)]
+    
+    def post(self, json_data):
         """
-        Endpoint to handle POST requests for searching users.
+        Endpoint to handle POST requests for creating new users.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                users = await session.execute(
-                    select(User)
-                    .order_by(User.id.desc())
-                    .filter(User.fullname.ilike('%{}%'.format(json_data['fullname'])))
-                    )
-                await engine.dispose()
-                return UserSchema().dump(users.scalars(), many=True)
-
+        fullname = json_data['fullname']
+        query = (db.session
+                 .query(User)
+                 .order_by(User.id.desc())
+                 .filter(User.fullname.ilike('%{}%'.format(fullname)))
+                 .all())
+        return UserSchema().dump(query, many=True)
+    
 bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
 
 
 class UserView(MethodView):
 
-    @bp.output(UserSchema)
-    @group_required(Groups.admins.name)
-    async def get(self, action, user_id):
+    decorators = [group_required(Groups.admins.name),
+                  bp.doc(hide=True)]
+    
+    def get(self, action, user_id):
         """
         Retrieves a user based on the specified action and user ID.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.get(User, user_id)
-                if action != 'view':
-                    if action == 'block':
-                        if user.username != get_jwt_identity():
-                            user.blocked = not user.blocked
-                    elif action == 'drop':
-                        user.password = bcrypt.hashpw(
-                            current_app.config['DEFAULT_PASSWORD'].encode('utf-8'),
-                            bcrypt.gensalt()
-                        )
-                    user = await session.get(User, user_id)
-                await engine.dispose()
-                return user
-
+        user = db.session.query(User).get(user_id)
+        match action:
+            case 'view':
+                return UserSchema().dump(user)
+            case 'block':
+                if user.username != current_user.username:
+                    user.blocked = not user.blocked
+                    db.session.commit()
+                return self.get('view', user_id)
+            case 'drop':
+                new_pswd = bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD']. \
+                                         encode('utf-8'), bcrypt.gensalt())
+                setattr(user, 'password', new_pswd)
+                setattr(user, 'pswd_change', None)
+                db.session.commit()
+                return self.get('view', user_id)
+    
+    @roles_required(Roles.admin.value)
     @bp.input(UserSchema)
-    @bp.output(EmptySchema)             
-    @roles_required(Roles.admin.name)
-    async def post(self, json_data):
+    def post(self, json_data):
         """
         Creates a new user based on the provided JSON data.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.execute(
-                    select(User)
-                    .filter_by(username=json_data['username'])
-                    )
-                if not user.scalar_one_or_none():
-                    new_user = User(
-                        fullname=json_data['fullname'],
-                        username=json_data['username'],
-                        email=json_data['email'],
-                        password=bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD'].encode('utf-8'),
-                                               bcrypt.gensalt())
-                    )
-                    session.add(new_user)
-                await engine.dispose()
-                return "", 204
-
+        if not (db.session
+                .query(User)
+                .filter_by(username=json_data['username'])
+                .one_or_none()):
+            new_pswd = bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD']. \
+                                     encode('utf-8'), bcrypt.gensalt())
+            db.session.add(User(
+                fullname=json_data['fullname'],
+                username=json_data['username'],
+                region_id=json_data['region_id'],
+                email=json_data['email'],
+                password=new_pswd)
+            )
+            db.session.commit()
+            return UsersView().post({'fullname': ''})
+        
     @bp.input(UserSchema)
-    @bp.output(EmptySchema)
-    @roles_required(Roles.admin.name)
-    async def patch(self, json_data):
+    def patch(self, json_data):
         """
         Patch a user's information.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.get(User, json_data['id'])
-                for k, v in json_data.items():
+        user = db.session.query(User).get(json_data['id'])
+        if user:
+            for k, v in json_data.items():
+                if k in ['fullname', 'username', 'email', 'region']:
                     setattr(user, k, v)
-                await  engine.dispose()
-                return "", 204
-
-    @bp.output(EmptySchema)
-    @roles_required(Roles.admin.name)
-    async def delete(self, user_id):
+            db.session.commit()
+            return self.get('view', json_data['id'])
+    
+    @roles_required(Roles.admin.value)
+    @bp.output(EmptySchema, status_code=204)
+    def delete(self, user_id):
         """
         Delete a user by their ID.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.get(User, user_id)
-                if user.username not in [get_jwt_identity(), 'admin']:
-                    await session.delete(user)
-                await engine.dispose()
-                return "", 204
-
+        user = db.session.query(User).get(user_id)
+        if user.username != current_user.username and user.username != 'admin':
+            db.session.delete(user)
+            db.session.commit()
+            return UsersView().post({'fullname': ''})
+        
 user_view = UserView.as_view('user')
 bp.add_url_rule('/user', view_func=user_view, methods=['PATCH', 'POST'])
 bp.add_url_rule('/user/<int:user_id>', view_func=user_view, methods=['DELETE'])
@@ -122,150 +114,115 @@ bp.add_url_rule('/user/<action>/<int:user_id>', view_func=user_view, methods=['G
 
 class GroupView(MethodView):
 
-    @bp.output(EmptySchema)
-    @roles_required(Roles.admin.name)
-    async def get(self, group, user_id):
+    decorators = [roles_required(Roles.admin.value), 
+                  bp.doc(hide=True)]
+
+    def get(self, value, user_id):
         """
         Retrieves a user's group from the database and adds it to the user's 
         list of groups if it does not already exist.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.get(User, user_id)
-                item = await session.scalar(
-                    select(Group)
-                    .filter_by(group=group))
-                if not group not in [user.group for user in user.groups]:
-                    user.groups.append(item)
-                await engine.dispose()
-                return "", 204
-
-    @bp.output(EmptySchema)
-    @roles_required(Roles.admin.name)
-    async def delete(self, group, user_id):
+        user = db.session.query(User).get(user_id)
+        item = (db.session
+                .query(Group)
+                .filter_by(group=value)
+                .one_or_none())
+        group = user.has_group(value)
+        if not group:
+            user.groups.append(item)
+            db.session.commit()
+            return UserView().get('view', user_id)
+        
+    @bp.output(EmptySchema, status_code=204)
+    def delete(self, value, user_id):
         """
         Deletes a group from a user's list of groups.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.get(User, user_id)
-                item = await session.scalar(
-                    select(Group)
-                    .filter_by(group=group)
-                    )
-                if not (user.username == get_jwt_identity() and group == Groups.admins.name):
-                    user.groups.remove(item)
-                await engine.dispose()
-                return "", 204
-
-bp.add_url_rule('/group/<group>/<int:user_id>', view_func=GroupView.as_view('group'))
+        user = db.session.query(User).get(user_id)
+        item = (db.session
+                .query(Group)
+                .filter_by(group=value)
+                .one_or_none())
+        if not (user.username == current_user.username and value == Groups.admins.name):
+            user.groups.remove(item)
+            db.session.commit()
+            return UserView().get('view', user_id)
+        
+bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('group'))
 
 
 class RoleView(MethodView):
 
-    @bp.output(EmptySchema)
-    @roles_required(Roles.admin.name)
-    async def get(self, role, user_id):
+    decorators = [roles_required(Roles.admin.value), 
+                  bp.doc(hide=True)]
+
+    def get(self, value, user_id):
         """
-        Get a user's role based on the role and user ID.
+        Get a user's role based on the value and user ID.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.get(User, user_id)
-                item = await session.scalar(
-                    select(Role)
-                    .filter_by(role=role))
-                if role not in [user.role for user in user.roles]:
-                    user.roles.append(item)
-                await engine.dispose()
-                return "", 204
-    
-    @bp.output(EmptySchema)
-    @roles_required(Roles.admin.name)
-    async def delete(self, role, user_id):
+        user = db.session.query(User).get(user_id)
+        item = (db.session
+                .query(Role)
+                .filter_by(role=value)
+                .one_or_none())
+        response = user.has_role(value)
+        if not response:
+            user.roles.append(item)
+            db.session.commit()
+            return UserView().get('view', user_id)
+        
+    def delete(self, value, user_id):
         """
         Deletes a role from a user.
         """
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                user = await session.get(User, user_id)
-                item = await session.scalar(
-                    select(Role)
-                    .filter_by(role=role)
-                    )
-                if not (user.username == get_jwt_identity() and role == Roles.admin.name):
-                    user.roles.remove(item)
-                await engine.dispose()
-                return "", 204
-            
-bp.add_url_rule('/role/<role>/<int:user_id>', view_func=RoleView.as_view('role'))
+        user = db.session.query(User).get(user_id)
+        item = (db.session
+                .query(Role)
+                .filter_by(role=value)
+                .one_or_none())
+        if not (user.username == current_user.username and value == Roles.admin.name):
+            user.roles.remove(item)
+            db.session.commit()
+            return UserView().get('view', user_id)
+        
+bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))
 
 
 class TableView(MethodView):
     
-    @group_required(Groups.admins.name)
-    async def get(self, item, page):
-        model = models_schemas[item][0]
-        schema = models_schemas[item][1]
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
-                    query = await session.execute(
-                        select(model)
-                    )
-                else:
-                    query = await session.execute(
-                        select(model)
-                    )
-                pagination = Pagination(query.scalars(), 16, page)
-                result = pagination.paginate()
-                await engine.dispose()
-                return [
-                    schema.dump(result, many=True),
-                        {'has_next': pagination.has_next(),
-                        'has_prev': pagination.has_prev()}
-                    ]
-            
-    @group_required(Groups.admins.name)
-    async def post(self, item, page):
+    decorators = [group_required(Groups.admins.name), 
+                  bp.doc(hide=True)]
+
+    def post(self, item, page):
+        pagination = 16
         model = models_schemas[item][0]
         schema = models_schemas[item][1]
         json_data = request.get_json()
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
-                    query = await session.execute(
-                        select(model)
-                        .filter_by(id=int(json_data['id']))
-                    )
-                else:
-                    query = await session.execute(
-                        select(model)
-                        .filter_by(person_id=json_data['id'])
-                    )
-                pagination = Pagination(query, 16, page)
-                result = pagination.paginate()
-                await engine.dispose()
-                return [
-                    schema.dump(result, many=True),
-                        {'has_next': pagination.has_next(),
-                        'has_prev': pagination.has_prev()}
-                    ]
-            
-    @bp.output(EmptySchema)
-    @group_required(Groups.admins.name)
-    async def delete(self, item, item_id, page):
-        model = models_schemas[item][0]
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                row = await session.get(model, item_id)
-                if not item == 'user' \
-                    and (row.username == get_jwt_identity() 
-                         or row.username == 'admin'):
-                    session.delete(row)
-                await engine.dispose()
-                return "", 204
+        result = (db.session
+                  .query(model)
+                  .order_by(model.id.desc()))
+        if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
+            result = result.filter_by(id=json_data['id'])
+        else:
+            result = result.filter_by(person_id=json_data['id'])
 
+        query = result.paginate(page=page, per_page=pagination, error_out=False)
+        return [schema.dump(query, many=True),
+                {'has_next': bool(query.has_next),
+                 'has_prev': bool(query.has_prev)}]
+    
+    def delete(self, item, item_id, page):
+        model = models_schemas[item][0]
+        row = (db.session
+               .query(model)
+               .filter_by(id=item_id)
+               .one_or_none())
+        if not item == 'user' and (row.username == current_user.username 
+                                   or row.username == 'admin'):
+            db.session.delete(row)
+            db.session.commit()
+        return self.post(item, page)
+    
 table_view = TableView.as_view('table')
 bp.add_url_rule('/table/<item>/<int:page>',
                 view_func=table_view, methods=['GET', 'POST'])

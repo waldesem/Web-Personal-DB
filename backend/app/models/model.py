@@ -165,7 +165,10 @@ class Person(db.Model):
         """
         Check if the current status of the object matches any of the given status values.
         """
-        return db.session.query(Status).filter(Status.status.in_(status)).first()
+        return self.status_id == (db.session
+                                  .query(Status)
+                                  .filter(Status.status.in_(status))
+                                  .one_or_none())
     
     def has_category(self, category):
         """
@@ -343,8 +346,29 @@ class Robot(db.Model):
 
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
-    robot = db.Column(db.String(255))
+    employee = db.Column(db.Text)
+    document = db.Column(db.Text)
+    inn = db.Column(db.Text)
+    debt = db.Column(db.Text)
+    bankruptcy = db.Column(db.Text)
+    bki = db.Column(db.Text)
+    courts = db.Column(db.Text)
+    affiliation = db.Column(db.Text)
+    terrorist = db.Column(db.Text)
+    mvd = db.Column(db.Text)
+    risk_factor = db.Column(db.Integer, db.ForeignKey('risks.id'))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
+
+
+class Risk(db.Model):
+    """ Create model for risks"""
+
+    __tablename__ = 'risks'
+
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
+                   autoincrement=True)
+    risk = db.Column(db.Text)
+    robots = db.relationship('Robot', backref='risks')
 
 
 class Conclusion(db.Model):
