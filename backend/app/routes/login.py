@@ -7,6 +7,7 @@ from flask import current_app, abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user, \
     create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
+from sqlalchemy import select 
 
 from . import bp
 from .. import jwt, db
@@ -23,36 +24,32 @@ jwt_redis_blocklist = redis.StrictRedis(
 class LoginView(MethodView):
     """Login view"""
 
-    decorators = [bp.doc(hide=True)]
-
     @bp.doc(hide=True)
     @jwt_required()
     @bp.output(UserSchema)
     def get(self):
         """
         Retrieves the current authenticated user from the database.
-        Returns:
-            User: The user object representing the current authenticated user.
         """
-        user = db.session.query(User). \
-            filter_by(username=current_user.username).one_or_none()
+        user = db.session.execute(
+            select(User)
+            .filter_by(username=current_user.username)
+            ).one_or_none()
         if user and not user.blocked:
             user.last_login = datetime.now()
             db.session.commit()
             return user
+        return abort
             
     @bp.input(LoginSchema)
     def post(self, json_data):
         """
         Post method for the given API endpoint.
-        Args:
-            json_data (dict): The JSON data received in the request.
-        Returns:
-            tuple: A tuple containing the access token and refresh token if the login is successful, 
-                   otherwise an empty string and the appropriate status code.
         """
-        user = db.session.query(User). \
-            filter_by(username=json_data['username']).one_or_none()
+        user = db.session.execute(
+            select(User).l
+            .filter_by(username=json_data['username'])
+            ).one_or_none()
         if user and not user.blocked:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 delta_change = datetime.now() - user.pswd_create
@@ -76,22 +73,15 @@ class LoginView(MethodView):
         return {'message': 'Denied'}
 
     @bp.input(LoginSchema)
-    @bp.doc(hide=True)
     @bp.input(PasswordSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.
-        Args:
-            json_data (dict): The JSON data containing the username, password, and new password.
-        
-        Returns:
-            tuple: A tuple containing an empty string and the HTTP status code.
-        
-        Raises:
-            None
         """
-        user = db.session.query(User). \
-            filter_by(username=json_data['username']).one_or_none()
+        user = db.session.execute(
+            select(User)
+            .filter_by(username=json_data['username'])
+            ).one_or_none()
         if user:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 user.password = bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'),
@@ -119,17 +109,18 @@ bp.add_url_rule('/login', view_func=LoginView.as_view('login'))
 
 
 class TokenView(MethodView):
+    
     """Token view"""
+    
     @jwt_required(refresh=True)
-    @bp.doc(hide=True)
     def post(self):
         """
         Generate a new access token for the authenticated user.
-        Returns:
-            dict: A dictionary containing the access token.
         """
-        user = db.session.query(User). \
-            filter_by(username=current_user.username).one_or_none()
+        user = db.session.execute(
+            select(User)
+            .filter_by(username=current_user.username)
+            ).one_or_none()
         if not user.blocked:
             access_token = create_access_token(identity=get_jwt_identity())
             return {'access_token': access_token}
@@ -141,20 +132,16 @@ bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
 def roles_required(*roles):
     """
     A decorator that checks if the authenticated user has the required roles.
-    Parameters:
-        *roles: Variable length argument list of strings representing the roles required.
-    Returns:
-        A decorated function that is executed only if the user has the required roles.
-        Otherwise, a 404 error is raised.
     """
     def decorator(func):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = db.session.query(User). \
-                filter_by(username=get_jwt_identity()).one_or_none()
-            if user is not None and any(user.has_role(role)
-                                        for role in roles):
+            user = db.session.execute(
+                select(User)
+                .filter_by(username=get_jwt_identity())
+                ).one_or_none()
+            if user is not None and user.has_role(roles):
                 return func(*args, **kwargs)
             else:
                 abort(404)
@@ -165,19 +152,16 @@ def roles_required(*roles):
 def group_required(*groups):
     """
     Decorator that checks if the user is a member of any of the specified groups before allowing access to the decorated endpoint.
-    Parameters:
-        * groups: A variable number of group names to check membership against.
-    Returns:
-        A decorated wrapper function that checks if the user has the required group membership before allowing access to the decorated endpoint.
     """
     def decorator(func):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = db.session.query(User). \
-                filter_by(username=get_jwt_identity()).one_or_none()
-            if user is not None and any(user.has_group(group)
-                                        for group in groups):
+            user = db.session.execute(
+                select(User)
+                .filter_by(username=get_jwt_identity())
+                ).one_or_none()
+            if user is not None and user.has_group(groups):
                 return func(*args, **kwargs)
             else:
                 abort(404)
@@ -189,11 +173,6 @@ def group_required(*groups):
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     """
     Check if a token is revoked.
-    Parameters:
-        jwt_header (Any): The JWT header.
-        jwt_payload (dict): The JWT payload.
-    Returns:
-        bool: True if the token is revoked, False otherwise.
     """
     jti = jwt_payload["jti"]
     token_in_redis = jwt_redis_blocklist.get(jti)
@@ -204,12 +183,6 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
 def user_identity_lookup(user):
     """
     A function that acts as a user identity loader for the JWT framework.
-    
-    Parameters:
-        user (Any): The user object to be used for user identity.
-    
-    Returns:
-        Any: The user object.
     """
     return user
 
@@ -218,13 +191,9 @@ def user_identity_lookup(user):
 def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.
-    
-    Parameters:
-        _jwt_header (dict): The JWT header.
-        jwt_data (dict): The JWT data.
-    
-    Returns:
-        User: The user found based on the JWT data, or None if not found.
     """
     identity = jwt_data["sub"]
-    return db.session.query(User).filter_by(username=identity).one_or_none()
+    return db.session.execute(
+        select(User)
+        .filter_by(username=identity)
+        ).one_or_none()

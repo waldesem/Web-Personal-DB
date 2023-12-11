@@ -3,6 +3,7 @@ from apiflask import EmptySchema
 from flask import current_app, request
 from flask_jwt_extended import current_user
 from flask.views import MethodView
+from sqlalchemy import select 
 
 from . import bp
 from .. import db
@@ -23,11 +24,11 @@ class UsersView(MethodView):
         Endpoint to handle POST requests for creating new users.
         """
         fullname = json_data['fullname']
-        query = (db.session
-                 .query(User)
+        query = db.session.execute(
+                 select(User)
                  .order_by(User.id.desc())
                  .filter(User.fullname.ilike('%{}%'.format(fullname)))
-                 .all())
+                 ).all()
         return UserSchema().dump(query, many=True)
     
 bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
@@ -42,7 +43,7 @@ class UserView(MethodView):
         """
         Retrieves a user based on the specified action and user ID.
         """
-        user = db.session.query(User).get(user_id)
+        user = db.session.get(User, user_id)
         match action:
             case 'view':
                 return UserSchema().dump(user)
@@ -65,10 +66,10 @@ class UserView(MethodView):
         """
         Creates a new user based on the provided JSON data.
         """
-        if not (db.session
-                .query(User)
+        if not db.session.execute(
+                select(User)
                 .filter_by(username=json_data['username'])
-                .one_or_none()):
+                ).one_or_none():
             new_pswd = bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD']. \
                                      encode('utf-8'), bcrypt.gensalt())
             db.session.add(User(
@@ -86,7 +87,7 @@ class UserView(MethodView):
         """
         Patch a user's information.
         """
-        user = db.session.query(User).get(json_data['id'])
+        user = db.session.get(User, json_data['id'])
         if user:
             for k, v in json_data.items():
                 if k in ['fullname', 'username', 'email', 'region']:
@@ -100,7 +101,7 @@ class UserView(MethodView):
         """
         Delete a user by their ID.
         """
-        user = db.session.query(User).get(user_id)
+        user = db.session.get(User, user_id)
         if user.username != current_user.username and user.username != 'admin':
             db.session.delete(user)
             db.session.commit()
@@ -122,11 +123,11 @@ class GroupView(MethodView):
         Retrieves a user's group from the database and adds it to the user's 
         list of groups if it does not already exist.
         """
-        user = db.session.query(User).get(user_id)
-        item = (db.session
-                .query(Group)
+        user = db.session.get(User, user_id)
+        item = db.session.execute(
+                select(Group)
                 .filter_by(group=value)
-                .one_or_none())
+                ).one_or_none()
         group = user.has_group(value)
         if not group:
             user.groups.append(item)
@@ -138,11 +139,11 @@ class GroupView(MethodView):
         """
         Deletes a group from a user's list of groups.
         """
-        user = db.session.query(User).get(user_id)
-        item = (db.session
-                .query(Group)
+        user = db.session.get(User, user_id)
+        item = db.session.execute(
+                select(Group)
                 .filter_by(group=value)
-                .one_or_none())
+                ).one_or_none()
         if not (user.username == current_user.username and value == Groups.admins.name):
             user.groups.remove(item)
             db.session.commit()
@@ -152,19 +153,19 @@ bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('gro
 
 
 class RoleView(MethodView):
-
+    """
+    Get a user's role based on the value and user ID.
+    """
+    
     decorators = [roles_required(Roles.admin.value), 
                   bp.doc(hide=True)]
 
     def get(self, value, user_id):
-        """
-        Get a user's role based on the value and user ID.
-        """
-        user = db.session.query(User).get(user_id)
-        item = (db.session
-                .query(Role)
+        user = db.session.get(User, user_id)
+        item = db.session.execute(
+                select(Role)
                 .filter_by(role=value)
-                .one_or_none())
+                ).one_or_none()
         response = user.has_role(value)
         if not response:
             user.roles.append(item)
@@ -175,11 +176,11 @@ class RoleView(MethodView):
         """
         Deletes a role from a user.
         """
-        user = db.session.query(User).get(user_id)
-        item = (db.session
-                .query(Role)
+        user = db.session.get(User, user_id)
+        item = db.session.execute( 
+                select(Role)
                 .filter_by(role=value)
-                .one_or_none())
+               ).one_or_none()
         if not (user.username == current_user.username and value == Roles.admin.name):
             user.roles.remove(item)
             db.session.commit()
@@ -194,29 +195,26 @@ class TableView(MethodView):
                   bp.doc(hide=True)]
 
     def post(self, item, page):
-        pagination = 16
         model = models_schemas[item][0]
         schema = models_schemas[item][1]
         json_data = request.get_json()
-        result = (db.session
-                  .query(model)
-                  .order_by(model.id.desc()))
+        query = select(model).order_by(model.id.desc())
         if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
-            result = result.filter_by(id=json_data['id'])
+            query = query.filter_by(id=json_data['id'])
         else:
-            result = result.filter_by(person_id=json_data['id'])
-
-        query = result.paginate(page=page, per_page=pagination, error_out=False)
-        return [schema.dump(query, many=True),
-                {'has_next': bool(query.has_next),
-                 'has_prev': bool(query.has_prev)}]
+            query = query.filter_by(person_id=json_data['id'])
+        query = query.paginate(page=page, per_page=16, error_out=False)
+        result = db.session.execute(query)
+        return [schema.dump(result, many=True),
+                {'has_next': bool(result.has_next),
+                 'has_prev': bool(result.has_prev)}]
     
     def delete(self, item, item_id, page):
         model = models_schemas[item][0]
-        row = (db.session
-               .query(model)
+        row = db.session.execute(
+               select(model)
                .filter_by(id=item_id)
-               .one_or_none())
+               ).one_or_none()
         if not item == 'user' and (row.username == current_user.username 
                                    or row.username == 'admin'):
             db.session.delete(row)

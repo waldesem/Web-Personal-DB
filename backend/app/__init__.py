@@ -7,7 +7,6 @@ from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 from flask_caching import Cache
 from flask_jwt_extended import JWTManager
-from flask import send_from_directory
 from werkzeug.exceptions import BadRequest
 from config import Config
 
@@ -24,7 +23,7 @@ def create_app(config_class=Config):
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
     app.config.from_object(config_class)
-    app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
+    # app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
     app.json.sort_keys = False
     
     CORS(app, resources={r"/*": {"origins": "*"}})
@@ -49,9 +48,6 @@ def create_app(config_class=Config):
         Get the file from the specified path in the static folder and return it, 
         or return the index.html file if the path is not found.
         """
-        if path and os.path.exists(os.path.join(app.static_folder, path)):
-            return send_from_directory(app.static_folder, path)
-
         return app.send_static_file('index.html')
     
     @app.errorhandler(BadRequest)

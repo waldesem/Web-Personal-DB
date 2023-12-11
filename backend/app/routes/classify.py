@@ -1,4 +1,5 @@
 from flask.views import MethodView
+from sqlalchemy import select
 
 from . import bp
 from .. import db
@@ -17,9 +18,9 @@ class ClassesView(MethodView):
         data = {}
         tables = ['Category', 'Conclusion', 'Role', 'Group', 'Status', 'Region']
         for table in tables:
-            result = db.session.query(eval(table)).all()
+            result = db.session.execute(select(eval(table))).all()
             schema = eval(table + 'Schema')(many=True)
-            data[table.lower()] = schema.dump(result.scalars())
+            data[table.lower()] = schema.dump(result)
         data['tables'] = list(models_schemas.keys())
         return data
         
