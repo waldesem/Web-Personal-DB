@@ -6,7 +6,8 @@ import redis
 from flask import current_app, abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user, \
-    create_access_token, create_refresh_token, get_jwt, jwt_required, get_jwt_identity
+    create_access_token, create_refresh_token, get_jwt, \
+        jwt_required, get_jwt_identity
 from sqlalchemy import select 
 
 from . import bp

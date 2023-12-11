@@ -1,5 +1,3 @@
-import os
-
 from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -47,10 +45,6 @@ def create_app(config_class=Config):
     @app.get('/<path:path>')
     @app.doc(hide=True)
     def main(path=''):
-        """
-        Get the file from the specified path in the static folder and return it, 
-        or return the index.html file if the path is not found.
-        """
         return app.send_static_file('index.html')
     
     @app.errorhandler(BadRequest)

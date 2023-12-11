@@ -1,12 +1,14 @@
-import bcrypt
 import os
 
+import bcrypt
 from sqlalchemy import select
 
 from app import db
 from config import Config
-from app.models.model import User, Region, Role, Group, Status, Conclusion, Category, Risk
-from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions, Categories, Risks
+from app.models.model import User, Region, Role, Group, \
+    Status, Conclusion, Category, Risk
+from app.models.classes import Roles, Groups, Regions, \
+    Statuses, Conclusions, Categories, Risks
 
 
 def register_cli(app):
