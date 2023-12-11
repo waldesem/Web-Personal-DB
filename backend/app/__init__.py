@@ -23,8 +23,11 @@ def create_app(config_class=Config):
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
     app.config.from_object(config_class)
-    # app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
     app.json.sort_keys = False
+    # app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
+    # for local use, download redoc.standalone.js 
+    # from https://github.com/Redocly/redoc/blob/master/redoc/static/redoc.standalone.js
+    # and save it in the static folder or in frontend/public
     
     CORS(app, resources={r"/*": {"origins": "*"}})
     db.init_app(app)
