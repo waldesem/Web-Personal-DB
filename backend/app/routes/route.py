@@ -1,3 +1,5 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import os
 import shutil
 from datetime import datetime
@@ -77,9 +79,14 @@ class PersonView(MethodView):
         items = ['resume', 'staffs', 'documents', 'contacts', 'addresses', 'works',
                  'affilations', 'relations', 'checks', 'robots', 'poligafs', 
                  'investigations', 'inquiries']
+        queries = await asyncio.gather(
+            *[asyncio.get_running_loop().run_in_executor(
+                ThreadPoolExecutor(), view.get, 'api', person_id
+                ) for view in views]
+            )
         results = []
-        results.extend(*[{item: view.get('view', person_id)} for view, item in zip(views, items)])
-    
+        for item, query in zip(items, queries):
+            results.extend({item: query})
         return {'person': results}
     
 bp.add_url_rule('/person/<int:person_id>', view_func=PersonView.as_view('person'))
@@ -91,7 +98,7 @@ class ResumeView(MethodView):
                   bp.doc(hide=True)]
 
     @bp.output(PersonSchema)
-    def get(self, action, person_id):
+    async def get(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         
         if action == 'status':
@@ -215,7 +222,7 @@ class StaffView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return StaffSchema().dump(db.session.execute(
             select(Staff)
             .filter_by(person_id=item_id)
@@ -253,7 +260,7 @@ class DocumentView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return DocumentSchema().dump(db.session.execute(
             select(Document)
             .filter_by(person_id=item_id)
@@ -291,7 +298,7 @@ class AddressView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return AddressSchema().dump(db.session.execute(
             select(Address)
             .filter_by(person_id=item_id)
@@ -329,7 +336,7 @@ class ContactView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return ContactSchema().dump(db.session.execute(
             select(Contact)
             .filter_by(person_id=item_id)
@@ -367,7 +374,7 @@ class WorkplaceView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return WorkplaceSchema().dump(db.session.execute(
             select(Workplace)
             .filter_by(person_id=item_id)
@@ -408,7 +415,7 @@ class RelationView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return RelationSchema().dump(db.session.execute(
             select(Relation)
             .filter_by(person_id=item_id)
@@ -449,7 +456,7 @@ class AffilationView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return AffilationSchema().dump(db.session.execute(
             select(Affilation)
             .filter_by(person_id=item_id)
@@ -484,7 +491,7 @@ bp.add_url_rule('/affilation/<action>/<int:item_id>',
 
 class CheckView(MethodView):
 
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         if action == 'add':
             person = db.session.query(Person).get(item_id)
             if (person.has_status(Statuses.new.value, 
@@ -565,7 +572,7 @@ class RobotView(MethodView):
     @group_required(Groups.staffsec.name)
     @roles_required(Roles.user.name)
     @bp.doc(hide=True)
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return RobotSchema().dump(db.session.execute(
             select(Robot)
             .filter_by(person_id=item_id)
@@ -636,7 +643,7 @@ class InvestigationView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
 
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return InvestigationSchema().dump(db.session.execute(
             select(Investigation)
             .filter_by(person_id=item_id)
@@ -677,7 +684,7 @@ class PoligrafView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return PoligrafSchema().dump(db.session.execute(
             select(Poligraf)
             .filter_by(person_id=item_id)
@@ -721,7 +728,7 @@ class InquiryView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    def get(self, action, item_id):
+    async def get(self, action, item_id):
         return InquirySchema().dump(db.session.execute(
             select(Inquiry)
             .filter_by(person_id=item_id)
