@@ -1,5 +1,3 @@
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import os
 import shutil
 from datetime import datetime
@@ -77,19 +75,15 @@ class PersonView(MethodView):
             ResumeView(), StaffView(), DocumentView(), ContactView(),
             AddressView(), WorkplaceView(), AffilationView(), RelationView(),
             CheckView(), RobotView(), PoligrafView(), InvestigationView(), InquiryView()
-        ]
-        items = ['resume', 'staffs', 'documents', 'contacts', 'addresses', 'works',
-                 'affilations', 'relations', 'checks', 'robots', 'poligafs', 
-                 'investigations', 'inquiries']
-        queries = await asyncio.gather(
-            *[asyncio.get_running_loop().run_in_executor(
-                ThreadPoolExecutor(), view.get, 'api', person_id
-                ) for view in views]
-            )
-        results = []
-        for item, query in zip(items, queries):
-            results.extend({item: query})
-        return {'person': results}
+            ]
+        items = [
+            'resume', 'staffs', 'documents', 'contacts', 'addresses', 'works', 
+            'affilations', 'relations', 'checks', 'robots', 'poligafs', 
+            'investigations', 'inquiries'
+            ]
+        return {item: query 
+                   for item, query in zip(items, [view.get('api', person_id) 
+                                                  for view in views])}
     
 bp.add_url_rule('/person/<int:person_id>', view_func=PersonView.as_view('person'))
 

@@ -58,11 +58,3 @@ class Conclusions(Enum):
     denied = 'ОТКАЗАНО В СОГЛАСОВАНИИ'
     saved = "СОХРАНЕН"
     canceled = 'ОТМЕНЕНО'
-
-
-class Risks(Enum):
-    """ Risks """
-
-    low = 'Низкий'
-    medium = 'Средний'
-    high = 'Высокий'

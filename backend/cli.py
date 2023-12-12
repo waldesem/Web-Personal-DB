@@ -6,9 +6,9 @@ from sqlalchemy import select
 from app import db
 from config import Config
 from app.models.model import User, Region, Role, Group, \
-    Status, Conclusion, Category, Risk
+    Status, Conclusion, Category
 from app.models.classes import Roles, Groups, Regions, \
-    Statuses, Conclusions, Categories, Risks
+    Statuses, Conclusions, Categories
 
 
 def register_cli(app):
@@ -26,6 +26,7 @@ def register_cli(app):
                 os.mkdir(letter_path)
         print(f'Alphabet directories created')
         
+        db.drop_all()
         db.create_all()
 
         regions = db.session.execute(select(Region.region)).all()
@@ -52,12 +53,6 @@ def register_cli(app):
                 db.session.add(Category(category=item.value))
                 print(f'Category {item.value} created')
 
-        risk_query = db.session.execute(select(Risk.risk)).all()
-        for item in Risks:
-            if item.value not in [risk[0] for risk in risk_query]:
-                db.session.add(Risk(risk=item.value))
-                print(f'Risk {item.value} created')
-                
         groups = db.session.execute(select(Group.group)).all()
         for grp in Groups:
             if grp.name not in [gr[0] for gr in groups]:
@@ -70,6 +65,8 @@ def register_cli(app):
                 db.session.add(Role(role=actor.value))
                 print(f'Role {actor.value} created')
 
+        db.session.flush()
+
         if not db.session.execute(
             select(User)
             .filter_by(username=Roles.admin.name)
@@ -79,10 +76,18 @@ def register_cli(app):
                              password=bcrypt.hashpw('88888888'.encode('utf-8'),
                                                     bcrypt.gensalt()),  # admin
                              email='admin@admin.admin')
-            new_admin.roles.append(db.session.query(Role).
-                                   filter_by(role=Roles.admin.value).first())
-            new_admin.groups.append(db.session.query(Group).
-                                    filter_by(group=Groups.admins.name).first())
+            
+            db.session.add(new_admin)
+            db.session.flush()
+
+            new_admin.roles.append(db.session.execute(
+                select(Role)
+                .filter_by(role=Roles.admin.value)
+            ).scalar_one_or_none())
+            new_admin.groups.append(db.session.execute(
+                select(Group)
+                .filter_by(group=Groups.admins.name)
+            ).scalar_one_or_none())
             db.session.add(new_admin)
             print('Admin created')
 

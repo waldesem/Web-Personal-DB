@@ -70,27 +70,25 @@ class User(db.Model):
     groups = db.relationship('Group', secondary=user_groups, 
                              backref=db.backref('users', lazy='dynamic'))
     
-    @cache.memoize(60)
-    def has_group(self, group):
-        """
-        Checks if the given group exists in the list of groups.
-        Parameters:
-            group (str): The name of the group to check.
-        Returns:
-            bool: True if the group exists, False otherwise.
-        """
-        return any(g.group == group for g in self.groups)
+    def get_user(self, user_name):
+        return  db.session.execute(
+            select(User)
+            .filter_by(username=user_name)
+            ).scalar_one_or_none()
     
     @cache.memoize(60)
-    def has_role(self, role):
+    def has_group(self, *groups):
+        """
+        Checks if the given group exists in the list of groups.
+        """
+        return any(g.group in groups for g in self.groups)
+    
+    @cache.memoize(60)
+    def has_role(self, *roles):
         """
         A function that checks if the user has a specific role.
-        Parameters:
-            role (str): The role to check for.
-        Returns:
-            bool: True if the user has the specified role, False otherwise.
         """
-        return any(r.role == role for r in self.roles)
+        return any(r.role in roles for r in self.roles)
     
 
 class Message(db.Model):
@@ -391,19 +389,7 @@ class Robot(db.Model):
     affiliation = db.Column(db.Text)
     terrorist = db.Column(db.Text)
     mvd = db.Column(db.Text)
-    risk_factor = db.Column(db.Integer, db.ForeignKey('risks.id'))
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
-
-
-class Risk(db.Model):
-    """ Create model for risks"""
-
-    __tablename__ = 'risks'
-
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
-                   autoincrement=True)
-    risk = db.Column(db.Text)
-    robots = db.relationship('Robot', backref='risks')
 
 
 class Conclusion(db.Model):

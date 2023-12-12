@@ -5,7 +5,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
 from .. import ma
 from ..models.model import Category, Conclusion, Relation, Status, User, Person, \
     Affilation, Staff, Document, Address, Contact, Workplace, Check, Poligraf, \
-    Investigation, Inquiry, Message, Region, Role, Group, Connect, Risk, Robot
+    Investigation, Inquiry, Message, Region, Role, Group, Connect, Robot
 
 
 class RoleSchema(SQLAlchemyAutoSchema):
@@ -146,13 +146,6 @@ class RobotSchema(SQLAlchemyAutoSchema):
         model = Robot
         ordered = True
 
-
-class RiskSchema(SQLAlchemyAutoSchema):
-    """ Create model for risk"""
-    class Meta:
-        model = Risk
-        ordered = True
-        
 
 class ConclusionSchema(SQLAlchemyAutoSchema):
     """ Create model for conclusion"""

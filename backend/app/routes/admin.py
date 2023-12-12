@@ -15,10 +15,10 @@ from ..models.schema import UserSchema, models_schemas
 
 class UsersView(MethodView):
     
-    decorators = [group_required(Groups.admins.name), 
+    decorators = [group_required(Groups.admins.name),
                   bp.input(UserSchema),
                   bp.doc(hide=True)]
-    
+
     def post(self, json_data):
         """
         Endpoint to handle POST requests for creating new users.
@@ -28,7 +28,7 @@ class UsersView(MethodView):
                  select(User)
                  .order_by(User.id.desc())
                  .filter(User.fullname.ilike('%{}%'.format(fullname)))
-                 ).all()
+                 ).scalars().all()
         return UserSchema().dump(query, many=True)
     
 bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
@@ -191,7 +191,7 @@ bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'
 
 class TableView(MethodView):
     
-    decorators = [group_required(Groups.admins.name), 
+    decorators = [
                   bp.doc(hide=True)]
 
     def post(self, item, page):
@@ -200,11 +200,11 @@ class TableView(MethodView):
         json_data = request.get_json()
         query = select(model).order_by(model.id.desc())
         if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
-            query = query.filter_by(id=json_data['id'])
+            query = query.filter_by(id=json_data['id']) if json_data['id'] else query
         else:
-            query = query.filter_by(person_id=json_data['id'])
-        query = query.paginate(page=page, per_page=16, error_out=False)
+            query = query.filter_by(person_id=json_data['id']) if json_data['id'] else query
         result = db.session.execute(query)
+        result = db.paginate(result, page=page, per_page=16, error_out=False)
         return [schema.dump(result, many=True),
                 {'has_next': bool(result.has_next),
                  'has_prev': bool(result.has_prev)}]

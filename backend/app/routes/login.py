@@ -26,16 +26,13 @@ class LoginView(MethodView):
     """Login view"""
 
     @bp.doc(hide=True)
-    @jwt_required()
     @bp.output(UserSchema)
+    @jwt_required()
     def get(self):
         """
         Retrieves the current authenticated user from the database.
         """
-        user = db.session.execute(
-            select(User)
-            .filter_by(username=current_user.username)
-            ).one_or_none()
+        user = User().get_user(current_user.username)
         if user and not user.blocked:
             user.last_login = datetime.now()
             db.session.commit()
@@ -47,10 +44,7 @@ class LoginView(MethodView):
         """
         Post method for the given API endpoint.
         """
-        user = db.session.execute(
-            select(User).l
-            .filter_by(username=json_data['username'])
-            ).one_or_none()
+        user = User().get_user(json_data['username'])
         if user and not user.blocked:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 delta_change = datetime.now() - user.pswd_create
@@ -73,16 +67,12 @@ class LoginView(MethodView):
                 db.session.commit()
         return {'message': 'Denied'}
 
-    @bp.input(LoginSchema)
     @bp.input(PasswordSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.
         """
-        user = db.session.execute(
-            select(User)
-            .filter_by(username=json_data['username'])
-            ).one_or_none()
+        user = User().get_user(json_data['username'])
         if user:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 user.password = bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'),
@@ -118,11 +108,7 @@ class TokenView(MethodView):
         """
         Generate a new access token for the authenticated user.
         """
-        user = db.session.execute(
-            select(User)
-            .filter_by(username=current_user.username)
-            ).one_or_none()
-        if not user.blocked:
+        if not User().get_user(current_user.username).blocked:
             access_token = create_access_token(identity=get_jwt_identity())
             return {'access_token': access_token}
         return {'access_token': ''}
@@ -138,11 +124,8 @@ def roles_required(*roles):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = db.session.execute(
-                select(User)
-                .filter_by(username=get_jwt_identity())
-                ).one_or_none()
-            if user is not None and user.has_role(roles):
+            user = User().get_user(get_jwt_identity())
+            if user is not None and user.has_role(*roles):
                 return func(*args, **kwargs)
             else:
                 abort(404)
@@ -152,17 +135,15 @@ def roles_required(*roles):
 
 def group_required(*groups):
     """
-    Decorator that checks if the user is a member of any of the specified groups before allowing access to the decorated endpoint.
+    Decorator that checks if the user is a member of any of the specified groups 
+    before allowing access to the decorated endpoint.
     """
     def decorator(func):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = db.session.execute(
-                select(User)
-                .filter_by(username=get_jwt_identity())
-                ).one_or_none()
-            if user is not None and user.has_group(groups):
+            user = User().get_user(get_jwt_identity())
+            if user is not None and user.has_group(*groups):
                 return func(*args, **kwargs)
             else:
                 abort(404)
@@ -193,8 +174,4 @@ def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.
     """
-    identity = jwt_data["sub"]
-    return db.session.execute(
-        select(User)
-        .filter_by(username=identity)
-        ).one_or_none()
+    return User().get_user(jwt_data["sub"])

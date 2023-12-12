@@ -17,7 +17,6 @@ jwt = JWTManager()
 def create_app(config_class=Config):
     """
     Initializes and configures a Flask application.
-    :return: The Flask application instance.
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
     app.config.from_object(config_class)
@@ -50,3 +49,5 @@ def create_app(config_class=Config):
     @app.errorhandler(BadRequest)
     def handle_bad_request(e):
         return e, 400
+    
+    return app
