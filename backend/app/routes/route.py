@@ -34,23 +34,25 @@ class IndexView(MethodView):
 
     def post(self, flag, page):
         json_data = request.get_json()
-        query = db.session.query(Person).order_by(Person.id.desc())
         
-        match flag:
-            case 'new':
-                query = query.filter(
-                    Person.has_status(Statuses.new.value,
-                                      Statuses.update.value,
-                                      Statuses.repeat.value),
-                    Person.has_category(Categories.candidate.value)
-                    )
-            case 'officer':
-                query = (query
-                         .filter(Person.has_status(Statuses.finish.value, 
-                                                   Statuses.cancel.value))
-                         .join(Check, isouter=True) \
-                         .filter_by(officer=current_user.fullname))
-            case 'search':
+        if flag == "search":
+            query = db.session.query(Person).order_by(Person.id.desc())
+            match flag:
+                case 'new':
+                    query = query.filter(
+                        Person.has_status(Statuses.new.value,
+                                        Statuses.update.value,
+                                        Statuses.repeat.value),
+                        Person.has_category(Categories.candidate.value)
+                        )
+                case 'officer':
+                    query = (query
+                            .filter(Person.has_status(Statuses.finish.value, 
+                                                    Statuses.cancel.value))
+                            .join(Check, isouter=True) \
+                            .filter_by(officer=current_user.fullname))
+                            
+        else:
                 if json_data['search']:
                     query = Person.query.search('%{}%'.format(json_data['search']), 
                                                 vector=combined_search_vector) 
@@ -98,7 +100,7 @@ class ResumeView(MethodView):
                   bp.doc(hide=True)]
 
     @bp.output(PersonSchema)
-    async def get(self, action, person_id):
+    def get(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         
         if action == 'status':
@@ -111,17 +113,17 @@ class ResumeView(MethodView):
                                    Statuses.update.value, 
                                    Statuses.repeat.value)):
 
-                docum = (db.session
-                            .query(Document)
+                docum = db.session.execute(
+                            select(Document)
                             .filter_by(person_id=person_id)
-                            .order_by(Document.id.desc())
-                            .one_or_none())
-                addr = (db.session
-                           .query(Address)
+                            .order_by(Document.id.desc()
+                            ).one_or_none())
+                addr = db.session.execute(
+                           select(Address)
                            .filter(Address.person_id == person_id,
                                   Address.view.ilike("%регистрац%"))
-                           .order_by(Address.id.desc())
-                           .one_or_none())
+                           .order_by(Address.id.desc()
+                           ).one_or_none())
                 serial = AnketaSchemaApi().dump(
                     {'id': person_id,
                      'fullname': person.fullname,
@@ -134,7 +136,8 @@ class ResumeView(MethodView):
                      'agency': docum.agency,
                      'issue': docum.issue,
                      'address': addr.address,
-                     'user_id': current_user.id})  
+                     'user_id': current_user.id}
+                )  
                 try:
                     response = requests.post(
                         url='https://httpbin.org/post',
@@ -149,7 +152,7 @@ class ResumeView(MethodView):
                                   person_id=person_id)
                                   )
                         db.session.commit()
-                        return db.session.query(Person).get(person_id)
+                        return db.session.get(Person, person_id)
                     
                     return abort(response.status_code)
                 except requests.exceptions.RequestException as e:
@@ -178,21 +181,23 @@ class ResumeView(MethodView):
         """
         Adds a resume to the database.
         """
-        person = (db.session
-                  .query(Person)
+        person = db.session.execute(
+                  select(Person)
                   .filter(Person.fullname.ilike(resume['fullname']),
                           Person.birthday==resume['birthday'])
-                  .one_or_none())
+                  ).one_or_none()
         if person:
             status_id = Status.get_id(Statuses.new.value) \
                 if action in ["create", "api"] \
                     else Status.get_id(Statuses.update.value) 
-            person.update(**resume)
+            for k, v in resume.items():
+                setattr(person, k, v)
             person.status_id = status_id
             person_id = person.id
         else:
             person = Person(**resume)
             await db.session.add(person)
+            person.status_id = Status.get_id(Statuses.new.value)
             await db.session.flush()
             person_id = person.id
 
@@ -222,7 +227,7 @@ class StaffView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return StaffSchema().dump(db.session.execute(
             select(Staff)
             .filter_by(person_id=item_id)
@@ -240,14 +245,14 @@ class StaffView(MethodView):
     @roles_required(Roles.user.value)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Staff).get(item_id), k, v)
+            setattr(db.session.get(Staff, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Staff).get(item_id))
+        db.session.delete(db.session.get(Staff, item_id))
         db.session.commit()
         return ''
     
@@ -260,7 +265,7 @@ class DocumentView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return DocumentSchema().dump(db.session.execute(
             select(Document)
             .filter_by(person_id=item_id)
@@ -278,14 +283,14 @@ class DocumentView(MethodView):
     @bp.input(DocumentSchema)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Document).get(item_id), k, v)
+            setattr(db.session.get(Document, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Document).get(item_id))
+        db.session.delete(db.session.get(Document, item_id))
         db.session.commit()
         return ''
     
@@ -298,7 +303,7 @@ class AddressView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return AddressSchema().dump(db.session.execute(
             select(Address)
             .filter_by(person_id=item_id)
@@ -316,14 +321,14 @@ class AddressView(MethodView):
     @bp.input(AddressSchema)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Address).get(item_id), k, v)
+            setattr(db.session.get(Address, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Address).get(item_id))
+        db.session.delete(db.session.get(Address, item_id))
         db.session.commit()
         return ''
     
@@ -336,7 +341,7 @@ class ContactView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return ContactSchema().dump(db.session.execute(
             select(Contact)
             .filter_by(person_id=item_id)
@@ -354,14 +359,14 @@ class ContactView(MethodView):
     @bp.input(ContactSchema)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Contact).get(item_id), k, v)
+            setattr(db.session.get(Contact, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Contact).get(item_id))
+        db.session.delete(db.session.get(Contact, item_id))
         db.session.commit()
         return ''
     
@@ -374,7 +379,7 @@ class WorkplaceView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return WorkplaceSchema().dump(db.session.execute(
             select(Workplace)
             .filter_by(person_id=item_id)
@@ -396,14 +401,14 @@ class WorkplaceView(MethodView):
         json_data['now_work'] = bool(json_data.pop('now_work')) \
             if 'now_work' in json_data else False
         for k, v in json_data.items():
-            setattr(db.session.query(Workplace).get(item_id), k, v)
+            setattr(db.session.get(Workplace, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Workplace).get(item_id))
+        db.session.delete(db.session.get(Workplace, item_id))
         db.session.commit()
         return ''
     
@@ -415,7 +420,7 @@ class RelationView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return RelationSchema().dump(db.session.execute(
             select(Relation)
             .filter_by(person_id=item_id)
@@ -436,14 +441,14 @@ class RelationView(MethodView):
     @bp.input(RelationSchema)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Relation).get(item_id), k, v)
+            setattr(db.session.get(Relation, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Relation).get(item_id))
+        db.session.delete(db.session.get(Relation, item_id))
         db.session.commit()
         return ''
     
@@ -456,7 +461,7 @@ class AffilationView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return AffilationSchema().dump(db.session.execute(
             select(Affilation)
             .filter_by(person_id=item_id)
@@ -474,14 +479,14 @@ class AffilationView(MethodView):
     @bp.input(AffilationSchema)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Affilation).get(item_id), k, v)
+            setattr(db.session.get(Affilation, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Affilation).get(item_id))
+        db.session.delete(db.session.get(Affilation, item_id))
         db.session.commit()
         return ''
     
@@ -491,9 +496,9 @@ bp.add_url_rule('/affilation/<action>/<int:item_id>',
 
 class CheckView(MethodView):
 
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         if action == 'add':
-            person = db.session.query(Person).get(item_id)
+            person = db.session.get(Person, item_id)
             if (person.has_status(Statuses.new.value, 
                                   Statuses.update.value, 
                                   Statuses.repeat.value)):
@@ -506,21 +511,17 @@ class CheckView(MethodView):
             
         if action == 'self':
             check = db.session.query(Check).get(item_id)
-            prev_officer = (db.session
-                            .query(User)
+            prev_officer = db.session.execute(
+                            select(User)
                             .filter_by(fullname=check.officer)
-                            .one_or_none())
-            new_officer = (db.session
-                           .query(User)
-                           .filter_by(fullname=current_user.fullname)
-                           .one_or_none())
+                            ).one_or_none()
             db.session.add(Message(message=f'Aнкета ID #{id} делегирована '
                                             f'{current_user.fullname}', 
                                    user_id=prev_officer.id))
             check.officer = current_user.fullname
             db.session.add(Message(message=f'Aнкета ID #{id} переделегирована '
                                             f'{current_user.fullname}', 
-                                   user_id=new_officer.id))
+                                   user_id=current_user.id))
             db.session.commit()
             return '', 201
         schema = CheckSchema()
@@ -534,12 +535,12 @@ class CheckView(MethodView):
     def patch(self, action, item_id, json_data):
         json_data['pfo'] = bool(json_data.pop('pfo')) if 'pfo' in json_data else False
         if action == 'create':
-            person = db.session.query(Person).get(item_id)
+            person = db.session.get(Person, item_id)
             db.session.add(Check(**json_data | {'person_id': item_id,
                                                 'officer': current_user.fullname}))
         else:
-            check = db.session.query(Check).get(item_id)
-            person = db.session.query(Person).get(check.person_id)
+            check = db.session.get(Check, item_id)
+            person = db.session.get(Person, check.person_id)
             for k, v in json_data.items():
                 setattr(check, k, v)
         if json_data['conclusion_id'] == Conclusion.get_id(Conclusions.saved.value):
@@ -553,8 +554,8 @@ class CheckView(MethodView):
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        check = db.session.query(Check).get(item_id)
-        person = db.session.query(Person).get(check.person_id)
+        check = db.session.get(Check, item_id)
+        person = db.session.get(Person, check.person_id)
         person.status = Status.get_id(Statuses.update.value)
         db.session.delete(check)
         db.session.commit()
@@ -572,7 +573,7 @@ class RobotView(MethodView):
     @group_required(Groups.staffsec.name)
     @roles_required(Roles.user.name)
     @bp.doc(hide=True)
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return RobotSchema().dump(db.session.execute(
             select(Robot)
             .filter_by(person_id=item_id)
@@ -611,10 +612,7 @@ class RobotView(MethodView):
                 report=f'Автоматическая проверка {candidate.fullname} окончена', 
                 user_id=user_id)
                 )
-            candidate.status_id = db.session.execute(
-                select(Status)
-                .filter(Status.status == Statuses.reply.value)
-                ).first().id
+            candidate.status_id = Status.get_id(Statuses.reply.value)
             db.session.commit()
 
         else:
@@ -631,7 +629,7 @@ class RobotView(MethodView):
     @bp.output(EmptySchema, status_code=204)
     @bp.doc(hide=True)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Robot).get(item_id))
+        db.session.delete(db.session.get(Robot, item_id))
         db.session.commit()
         return ''
 
@@ -643,7 +641,7 @@ class InvestigationView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
 
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return InvestigationSchema().dump(db.session.execute(
             select(Investigation)
             .filter_by(person_id=item_id)
@@ -663,14 +661,14 @@ class InvestigationView(MethodView):
     @bp.input(InvestigationSchema)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Investigation).get(item_id), k, v)
+            setattr(db.session.get(Investigation, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        invs = db.session.query(Investigation).get(item_id)
+        invs = db.session.get(Investigation, item_id)
         db.session.delete(invs)
         db.session.commit()
         return ''
@@ -684,7 +682,7 @@ class PoligrafView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return PoligrafSchema().dump(db.session.execute(
             select(Poligraf)
             .filter_by(person_id=item_id)
@@ -694,7 +692,7 @@ class PoligrafView(MethodView):
     @roles_required(Roles.user.value)
     @bp.input(PoligrafSchema)
     def post(self, action, item_id, json_data):
-        person = db.session.query(Person).get(item_id)
+        person = db.session.get(Person, item_id)
         if person.has_status(Statuses.poligraf.value):
             person.status_id = Status.get_id(Statuses.finish.value)
         db.session.add(Poligraf(
@@ -707,14 +705,14 @@ class PoligrafView(MethodView):
     @bp.input(PoligrafSchema)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Poligraf).get(item_id), k, v)
+            setattr(db.session.get(Poligraf, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        pfo = db.session.query(Poligraf).get(item_id)
+        pfo = db.session.get(Poligraf, item_id)
         db.session.delete(pfo)
         db.session.commit()
         return ''
@@ -728,7 +726,7 @@ class InquiryView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
-    async def get(self, action, item_id):
+    def get(self, action, item_id):
         return InquirySchema().dump(db.session.execute(
             select(Inquiry)
             .filter_by(person_id=item_id)
@@ -747,14 +745,14 @@ class InquiryView(MethodView):
     @roles_required(Roles.user.value)
     def patch(self, action, item_id, json_data):
         for k, v in json_data.items():
-            setattr(db.session.query(Inquiry).get(item_id), k, v)
+            setattr(db.session.get(Inquiry, item_id), k, v)
         db.session.commit()
         return '', 201
     
     @roles_required(Roles.user.name)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
-        db.session.delete(db.session.query(Inquiry).get(item_id))
+        db.session.delete(db.session.get(Inquiry, item_id))
         db.session.commit()
         return ''
     
