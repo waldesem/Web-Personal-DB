@@ -99,7 +99,8 @@ class UserView(MethodView):
         Delete a user by their ID.
         """
         user = db.session.get(User, user_id)
-        if user.username != current_user.username and user.username != 'admin':
+        if user.username != current_user.username and \
+                user.username != 'superadmin':
             db.session.delete(user)
             db.session.commit()
             return UsersView().post({'fullname': ''})
@@ -150,6 +151,8 @@ class RoleView(MethodView):
                   bp.doc(hide=True)]
 
     def get(self, value, user_id):
+        if value == 'superadmin':
+            return UserView().get('view', user_id)
         user = db.session.get(User, user_id)
         role = Role().get_role(value)
         if not user.has_role(value):
@@ -161,6 +164,8 @@ class RoleView(MethodView):
         """
         Deletes a role from a user.
         """
+        if value == 'superadmin':
+            return UserView().get('view', user_id)
         user = db.session.get(User, user_id)
         role = Role().get_role(value)
         if not (user.username == current_user.username and value == 'admin'):

@@ -29,67 +29,27 @@ def register_cli(app):
         db.drop_all()
         db.create_all()
 
-        regions = db.session.execute(select(Region.region)).all()
-        for reg in Regions:
-            if reg.value not in [rgn[0] for rgn in regions]:
-                db.session.add(Region(region=reg.value))
-                print(f'Region {reg.value} created')
-
-        statuses = db.session.execute(select(Status.status)).all()
-        for item in Statuses:
-            if item.value not in [stat[0] for stat in statuses]:
-                db.session.add(Status(status=item.value))
-                print(f'Status {item.value} created')
-
-        conclusion_query = db.session.execute(select(Conclusion.conclusion)).all()
-        for item in Conclusions:
-            if item.value not in [concl[0] for concl in conclusion_query]:
-                db.session.add(Conclusion(conclusion=item.value))
-                print(f'Conclusion {item.value} created')
-
-        category_query = db.session.query(Category.category).all()
-        for item in Categories:
-            if item.value not in [cat[0] for cat in category_query]:
-                db.session.add(Category(category=item.value))
-                print(f'Category {item.value} created')
-
-        groups = db.session.execute(select(Group.group)).all()
-        for grp in Groups:
-            if grp.name not in [gr[0] for gr in groups]:
-                db.session.add(Group(group=grp.name))
-                print(f'Group {grp.name} created')
-
-        roles = db.session.execute(select(Role.role)).all()
-        for actor in Roles:
-            if actor.value not in [rl[0] for rl in roles]:
-                db.session.add(Role(role=actor.value))
-                print(f'Role {actor.value} created')
+        db.session.add_all([Region(region=reg.value) for reg in Regions])
+        db.session.add_all([Status(status=item.value) for item in Statuses])
+        db.session.add_all([Conclusion(conclusion=item.value) for item in Conclusions])
+        db.session.add_all([Category(category=item.value) for item in Categories])
+        db.session.add_all([Group(group=grp.name) for grp in Groups])
+        db.session.add_all([Role(role=actor.value) for actor in Roles])
 
         db.session.flush()
 
-        if not db.session.execute(
-            select(User)
-            .filter_by(username=Roles.admin.name)
-            ).one_or_none():
-            new_admin = User(fullname='Administrator',
-                             username=Roles.admin.value,
-                             password=bcrypt.hashpw('88888888'.encode('utf-8'),
-                                                    bcrypt.gensalt()),  # admin
-                             email='admin@admin.admin')
-            
-            db.session.add(new_admin)
-            db.session.flush()
+        superadmin = User(fullname='Administrator',
+                            username=Roles.superadmin.value,
+                            password=bcrypt.hashpw('88888888'.encode('utf-8'),
+                                                bcrypt.gensalt()),
+                            email='admin@admin.admin')
+        
+        db.session.add(superadmin)
+        db.session.flush()
 
-            new_admin.roles.append(db.session.execute(
-                select(Role)
-                .filter_by(role=Roles.admin.value)
-            ).scalar_one_or_none())
-            new_admin.groups.append(db.session.execute(
-                select(Group)
-                .filter_by(group=Groups.admins.name)
-            ).scalar_one_or_none())
-            db.session.add(new_admin)
-            print('Admin created')
+        superadmin.roles.append(Role().get_role(Roles.superadmin.value))
+        superadmin.groups.append(Group().get_group(Groups.admins.name))
+        db.session.add(superadmin)
 
         db.session.commit()
         print('Default values created')

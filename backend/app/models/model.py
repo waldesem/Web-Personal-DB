@@ -5,7 +5,7 @@ from sqlalchemy_utils.types import TSVectorType
 from flask_sqlalchemy.query import Query
 
 from .. import db, cache
-from ..models.classes import Statuses
+from ..models.classes import Categories, Statuses
 
 
 make_searchable(db.metadata)
@@ -61,6 +61,7 @@ class Role(Base):
                 select(Role)
                 .filter_by(role=role)
                 ).scalar_one_or_none()
+
 
 class User(Base):
     """ Create model for users"""
@@ -121,6 +122,54 @@ class Message(Base):
     status = db.Column(db.String(255), default=Statuses.new.name)
     create = db.Column(db.DateTime, default=default_time)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+
+class Category(Base):
+
+    __tablename__ = 'categories'
+    
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    category = db.Column(db.String(255))
+    persons = db.relationship('Person', backref='categories')
+
+    def get_id(self, category):
+        return db.session.execute(
+            select(Category.id)
+            .filter(Category.category == category)
+            ).scalar()
+
+
+class Status(Base):
+    
+    __tablename__ = 'statuses'
+    
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
+                   autoincrement=True)
+    status = db.Column(db.String(255))
+    persons = db.relationship('Person', backref='statuses')
+
+    def get_id(self, status):
+        return db.session.execute(
+            select(Status.id)
+            .filter(Status.status == status)
+            ).scalar()
+
+
+class Region(Base):
+    """ Create model for regions"""
+
+    __tablename__ = 'regions'
+    
+    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
+                   autoincrement=True)
+    region = db.Column(db.String(255), unique=True)
+    persons = db.relationship('Person', backref='regions')
+   
+    def get_id(self, region):
+        return db.session.execute(
+            select(Region.id)
+            .filter(Region.region == region)
+            ).scalar()
 
 
 class PersonQuery(Query, SearchQueryMixin):
@@ -205,54 +254,6 @@ class Person(Base):
             select(Region)
             .filter(Region.region.in_(region))
             ).scalar_one_or_none() for region in args])
-
-
-class Category(Base):
-
-    __tablename__ = 'categories'
-    
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
-    category = db.Column(db.String(255))
-    persons = db.relationship('Person', backref='categories')
-
-    def get_id(self, category):
-        return db.session.execute(
-            select(Category.id)
-            .filter(Category.category == category)
-            ).scalar()
-
-
-class Status(Base):
-    
-    __tablename__ = 'statuses'
-    
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
-                   autoincrement=True)
-    status = db.Column(db.String(255))
-    persons = db.relationship('Person', backref='statuses')
-
-    def get_id(self, status):
-        return db.session.execute(
-            select(Status.id)
-            .filter(Status.status == status)
-            ).scalar()
-
-
-class Region(Base):
-    """ Create model for regions"""
-
-    __tablename__ = 'regions'
-    
-    id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
-                   autoincrement=True)
-    region = db.Column(db.String(255), unique=True)
-    persons = db.relationship('Person', backref='regions')
-   
-    def get_id(self, region):
-        return db.session.execute(
-            select(Region.id)
-            .filter(Region.region == region)
-            ).scalar()
 
 
 class Staff(Base):
