@@ -14,7 +14,7 @@ make_searchable(db.metadata)
 def default_time():
     return datetime.now()
 
-
+                
 user_groups = db.Table(
     'user_groups',
     db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
@@ -29,16 +29,26 @@ user_roles = db.Table(
 )
        
 
-class Group(db.Model):
+class Base(db.Model):
+    
+    __abstract__ = True
+
+
+class Group(Base):
     """ Create model for groups"""
 
     __tablename__ = 'groups'
 
     id = db.Column(db.Integer, primary_key=True)
     group = db.Column(db.String(255), unique=True)
+    
+    def get_group(self, group):
+        return db.session.execute(
+                select(Group)
+                .filter_by(group=group)
+                ).scalar_one_or_none()
 
-
-class Role(db.Model):
+class Role(Base):
     """ Create model for roles"""
 
     __tablename__ = 'roles'
@@ -46,8 +56,13 @@ class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String(255), unique=True)
 
+    def get_role(self, role):
+        return db.session.execute(
+                select(Role)
+                .filter_by(role=role)
+                ).scalar_one_or_none()
 
-class User(db.Model):
+class User(Base):
     """ Create model for users"""
 
     __tablename__ = 'users'
@@ -70,7 +85,10 @@ class User(db.Model):
     groups = db.relationship('Group', secondary=user_groups, 
                              backref=db.backref('users', lazy='dynamic'))
     
-    def get_user(self, user_name):
+
+    @staticmethod
+    @cache.memoize(60)
+    def get_user(user_name):
         return  db.session.execute(
             select(User)
             .filter_by(username=user_name)
@@ -91,7 +109,7 @@ class User(db.Model):
         return any(r.role in roles for r in self.roles)
     
 
-class Message(db.Model):
+class Message(Base):
     """ Create model for messages"""
 
     __tablename__ = 'messages'
@@ -99,8 +117,8 @@ class Message(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
     title = db.Column(db.String(255))
-    report = db.Column(db.Text)
-    status = db.Column(db.String(255), default=Statuses.new.value)
+    message = db.Column(db.Text)
+    status = db.Column(db.String(255), default=Statuses.new.name)
     create = db.Column(db.DateTime, default=default_time)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
@@ -110,7 +128,7 @@ class PersonQuery(Query, SearchQueryMixin):
     pass
 
 
-class Person(db.Model):
+class Person(Base):
     """ Create model for persons dates"""
     query_class = PersonQuery
 
@@ -161,14 +179,14 @@ class Person(db.Model):
     affilations = db.relationship('Affilation', backref='persons', 
                            cascade="all, delete, delete-orphan")
 
-    def has_status(self, *args):
+    def has_status(self, *statuses):
         """
         Check if the current status of the object matches any of the given status values.
         """
         return any(self.status_id == [db.session.execute(
             select(Status)
-            .filter(Status.status.in_(status))
-            ).scalar_one_or_none() for status in args])
+            .filter_by(status=status)
+            ).scalar_one_or_none().id for status in statuses])
     
     def has_category(self, *args):
         """
@@ -177,7 +195,7 @@ class Person(db.Model):
         return any(self.category_id == [db.session.execute(
             select(Category)
             .filter(Category.category.in_(category))
-            ).scalar_one_or_none() for category in args])  
+            ).scalar_one_or_none().id for category in args])  
     
     def has_region(self, *args):
         """
@@ -189,7 +207,7 @@ class Person(db.Model):
             ).scalar_one_or_none() for region in args])
 
 
-class Category(db.Model):
+class Category(Base):
 
     __tablename__ = 'categories'
     
@@ -199,12 +217,12 @@ class Category(db.Model):
 
     def get_id(self, category):
         return db.session.execute(
-            select(Category)
+            select(Category.id)
             .filter(Category.category == category)
-            ).scalar_one_or_none().id
+            ).scalar()
 
 
-class Status(db.Model):
+class Status(Base):
     
     __tablename__ = 'statuses'
     
@@ -215,12 +233,12 @@ class Status(db.Model):
 
     def get_id(self, status):
         return db.session.execute(
-            select(Status)
+            select(Status.id)
             .filter(Status.status == status)
-            ).scalar_one_or_none().id
+            ).scalar()
 
 
-class Region(db.Model):
+class Region(Base):
     """ Create model for regions"""
 
     __tablename__ = 'regions'
@@ -231,13 +249,13 @@ class Region(db.Model):
     persons = db.relationship('Person', backref='regions')
    
     def get_id(self, region):
-            return db.session.execute(
-                select(Region)
-                .filter(Region.region == region)
-                ).scalar_one_or_none().id
+        return db.session.execute(
+            select(Region.id)
+            .filter(Region.region == region)
+            ).scalar()
 
 
-class Staff(db.Model):
+class Staff(Base):
     """ Create model for staff"""
 
     __tablename__ = 'staffs'
@@ -249,13 +267,12 @@ class Staff(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-
 class DocumentQuery(Query, SearchQueryMixin):
     """ Class for searchable Connect table (only postgresql)"""
     pass
 
 
-class Document(db.Model):
+class Document(Base):
     """ Create model for Document dates"""
 
     query_class = DocumentQuery
@@ -273,7 +290,7 @@ class Document(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Address(db.Model): 
+class Address(Base): 
     """ Create model for addresses"""
 
     __tablename__ = 'addresses'
@@ -286,7 +303,7 @@ class Address(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Contact(db.Model):  # создаем общий класс телефонного номера
+class Contact(Base):  # создаем общий класс телефонного номера
     """ Create model for contacts"""
 
     __tablename__ = 'contacts'
@@ -298,7 +315,7 @@ class Contact(db.Model):  # создаем общий класс телефон�
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Workplace(db.Model):
+class Workplace(Base):
     """ Create model for workplaces"""
 
     __tablename__ = 'workplaces'
@@ -314,7 +331,7 @@ class Workplace(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Affilation(db.Model):
+class Affilation(Base):
     """ Create model for affilations"""
 
     __tablename__ = 'affilations'
@@ -329,7 +346,7 @@ class Affilation(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Relation(db.Model):
+class Relation(Base):
     """ Create model for relations"""
 
     __tablename__ = 'relations'
@@ -341,7 +358,7 @@ class Relation(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
     
-class Check(db.Model):  # модель данных проверки кандидатов
+class Check(Base):  # модель данных проверки кандидатов
     """ Create model for persons checks"""
 
     __tablename__ = 'checks'
@@ -372,7 +389,7 @@ class Check(db.Model):  # модель данных проверки канди�
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Robot(db.Model):
+class Robot(Base):
     """ Create model for robots"""
 
     __tablename__ = 'robots'
@@ -389,10 +406,11 @@ class Robot(db.Model):
     affiliation = db.Column(db.Text)
     terrorist = db.Column(db.Text)
     mvd = db.Column(db.Text)
+    deadline = db.Column(db.DateTime, default=default_time)
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Conclusion(db.Model):
+class Conclusion(Base):
     
     __tablename__ = 'conclusions'
     
@@ -407,7 +425,8 @@ class Conclusion(db.Model):
             .filter(Conclusion.conclusion == conclusion)
             ).scalar_one_or_none().id
 
-class Poligraf(db.Model):  # модель данных результаты ПФО
+
+class Poligraf(Base):  # модель данных результаты ПФО
     """ Create model for poligraf"""
 
     __tablename__ = 'poligrafs'
@@ -421,7 +440,7 @@ class Poligraf(db.Model):  # модель данных результаты ПФ
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
 
 
-class Investigation(db.Model):
+class Investigation(Base):
     """ Create model for ivestigation"""
     
     __tablename__ = 'investigations'
@@ -435,7 +454,7 @@ class Investigation(db.Model):
     person_id = db.Column(db.Integer, db.ForeignKey('persons.id'))
     
 
-class Inquiry(db.Model):
+class Inquiry(Base):
     """ Create model for persons inquiries"""
 
     __tablename__ = 'inquiries'
@@ -455,7 +474,7 @@ class ConnectQuery(Query, SearchQueryMixin):
     pass
 
 
-class Connect(db.Model):
+class Connect(Base):
     """ Create model for persons connects"""
 
     query_class = ConnectQuery

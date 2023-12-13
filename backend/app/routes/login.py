@@ -8,12 +8,10 @@ from flask.views import MethodView
 from flask_jwt_extended import current_user, \
     create_access_token, create_refresh_token, get_jwt, \
         jwt_required, get_jwt_identity
-from sqlalchemy import select 
 
 from . import bp
 from .. import jwt, db
 from ..models.model import User
-from ..models.schema import LoginSchema, UserSchema
 from ..models.schema import LoginSchema, PasswordSchema, UserSchema
 from ..models.classes import Roles
 
@@ -32,7 +30,7 @@ class LoginView(MethodView):
         """
         Retrieves the current authenticated user from the database.
         """
-        user = User().get_user(current_user.username)
+        user = User.get_user(current_user.username)
         if user and not user.blocked:
             user.last_login = datetime.now()
             db.session.commit()
@@ -44,7 +42,7 @@ class LoginView(MethodView):
         """
         Post method for the given API endpoint.
         """
-        user = User().get_user(json_data['username'])
+        user = User.get_user(json_data['username'])
         if user and not user.blocked:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 delta_change = datetime.now() - user.pswd_create
@@ -72,7 +70,7 @@ class LoginView(MethodView):
         """
         Patch method for updating user password.
         """
-        user = User().get_user(json_data['username'])
+        user = User.get_user(json_data['username'])
         if user:
             if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
                 user.password = bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'),
@@ -108,7 +106,7 @@ class TokenView(MethodView):
         """
         Generate a new access token for the authenticated user.
         """
-        if not User().get_user(current_user.username).blocked:
+        if not User.get_user(current_user.username).blocked:
             access_token = create_access_token(identity=get_jwt_identity())
             return {'access_token': access_token}
         return {'access_token': ''}
@@ -124,7 +122,7 @@ def roles_required(*roles):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = User().get_user(get_jwt_identity())
+            user = User.get_user(get_jwt_identity())
             if user is not None and user.has_role(*roles):
                 return func(*args, **kwargs)
             else:
@@ -142,7 +140,7 @@ def group_required(*groups):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = User().get_user(get_jwt_identity())
+            user = User.get_user(get_jwt_identity())
             if user is not None and user.has_group(*groups):
                 return func(*args, **kwargs)
             else:
@@ -174,4 +172,4 @@ def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.
     """
-    return User().get_user(jwt_data["sub"])
+    return User.get_user(jwt_data["sub"])

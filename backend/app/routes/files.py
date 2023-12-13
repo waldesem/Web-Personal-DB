@@ -33,7 +33,6 @@ class FileManagementView(MethodView):
         items = os.listdir(path)
         self.dirs = [item for item in items if os.path.isdir(os.path.join(path, item))]
         self.files = [item for item in items if os.path.isfile(os.path.join(path, item))]
-        print(self.current_path, self.dirs, self.files)
         return {'path': self.current_path, 
                 'dirs': self.dirs, 
                 'files': self.files}

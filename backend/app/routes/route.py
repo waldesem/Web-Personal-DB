@@ -15,47 +15,50 @@ from . import bp
 from .. import db
 from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
-from ..models.model import  Conclusion, User, Person, Staff, Document, Address, Contact, \
+from ..models.model import  Category, Conclusion, User, Person, Staff, Document, Address, Contact, \
     Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
     Status, Message, Affilation, Robot, combined_search_vector
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
-    WorkplaceSchema, AffilationSchema, RobotSchema
+    WorkplaceSchema, AffilationSchema, RobotSchema, SearchSchema
 from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 
 
 class IndexView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
-                  bp.doc(hide=True)]
+    # decorators = [group_required(Groups.staffsec.name), 
+    #               bp.doc(hide=True)]
 
-    def post(self, flag, page):
-        json_data = request.get_json()
-        
-        if flag == "search":
-            query = db.session.query(Person).order_by(Person.id.desc())
+    @bp.input(SearchSchema)
+    def post(self, flag, page, json_data):
+        query = select(Person).order_by(Person.id.desc())  
+        if flag != "search":
             match flag:
                 case 'new':
                     query = query.filter(
-                        Person.has_status(Statuses.new.value,
-                                        Statuses.update.value,
-                                        Statuses.repeat.value),
-                        Person.has_category(Categories.candidate.value)
+                        Person.status_id.in_([
+                            Status().get_id(Statuses.new.name),
+                            Status().get_id(Statuses.update.name),
+                            Status().get_id(Statuses.repeat.name)
+                            ]),
+                        Person.category_id == Category().get_id(Categories.candidate.name)
                         )
                 case 'officer':
-                    query = (query
-                            .filter(Person.has_status(Statuses.finish.value, 
-                                                    Statuses.cancel.value))
-                            .join(Check, isouter=True) \
-                            .filter_by(officer=current_user.fullname))
-                            
+                    query = query.filter(
+                        Person.status_id.in_([
+                            Status().get_id(Statuses.finish.name), 
+                            Status().get_id(Statuses.cancel.name)
+                            ])
+                        ).join(Check, isouter=True) \
+                        .filter_by(officer=current_user.fullname)
         else:
-                if json_data['search']:
-                    query = Person.query.search('%{}%'.format(json_data['search']), 
-                                                vector=combined_search_vector) 
+            if json_data['search']:
+                print('ok')
+                query = Person.query.search('%{}%'.format(json_data['search']), 
+                                            vector=combined_search_vector) 
             
-        result = query.paginate(page=page, per_page=16, error_out=False)       
+        result = db.paginate(query, page=page, per_page=16, error_out=False)       
         return [
             PersonSchema().dump(result, many=True),
             {'has_next': bool(result.has_next), "has_prev": bool(result.has_prev)}
@@ -90,9 +93,8 @@ bp.add_url_rule('/person/<int:person_id>', view_func=PersonView.as_view('person'
 
 class ResumeView(MethodView):
     
-    decorators = [group_required(Groups.staffsec.name), 
-                  bp.doc(hide=True)]
-
+    @roles_required(Roles.user.name)
+    @bp.doc(hide=True)
     @bp.output(PersonSchema)
     def get(self, action, person_id):
         person = db.session.query(Person).get(person_id)
@@ -154,7 +156,7 @@ class ResumeView(MethodView):
             return abort(404)
         return person
     
-    @roles_required(Roles.user.name, Roles.api.name)
+    #@roles_required(Roles.user.name, Roles.api.name)
     @bp.input(PersonSchema)
     def post(self, action, json_data):
         person_id = self.add_resume(json_data, action)
@@ -171,28 +173,28 @@ class ResumeView(MethodView):
         db.session.commit()
         return ''
 
-    async def add_resume(self, resume: dict, action):
+    def add_resume(self, resume: dict, action):
         """
         Adds a resume to the database.
         """
         person = db.session.execute(
-                  select(Person)
-                  .filter(Person.fullname.ilike(resume['fullname']),
-                          Person.birthday==resume['birthday'])
-                  ).one_or_none()
+            select(Person)
+            .filter(Person.fullname.ilike(resume['fullname']),
+                    Person.birthday==resume['birthday'])
+            ).one_or_none()
         if person:
-            status_id = Status.get_id(Statuses.new.value) \
+            status_id = Status().get_id(Statuses.new.value) \
                 if action in ["create", "api"] \
-                    else Status.get_id(Statuses.update.value) 
+                    else Status().get_id(Statuses.update.value) 
             for k, v in resume.items():
                 setattr(person, k, v)
             person.status_id = status_id
             person_id = person.id
         else:
             person = Person(**resume)
-            await db.session.add(person)
-            person.status_id = Status.get_id(Statuses.new.value)
-            await db.session.flush()
+            db.session.add(person)
+            person.status_id = Status().get_id(Statuses.new.value)
+            db.session.flush()
             person_id = person.id
 
         person.path = self.make_folder(resume['fullname'], person_id)
@@ -203,7 +205,7 @@ class ResumeView(MethodView):
         """
         Check if a folder exists for a given person and create it if it does not exist.
         """
-        person_path = os.path.join(fullname[0].upper(), person_id, fullname)
+        person_path = os.path.join(fullname[0].upper(), f"{person_id}-{fullname}")
         url = os.path.join(current_app.config["BASE_PATH"], person_path)
         if not os.path.isdir(url):
             os.mkdir(url)
@@ -772,9 +774,9 @@ bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
 
 class FileView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name),
-                  roles_required(Roles.user.name),
-                  bp.doc(hide=True)]
+    # decorators = [group_required(Groups.staffsec.name),
+    #               roles_required(Roles.user.name),
+    #               bp.doc(hide=True)]
 
     def get(self, action, item_id):
         """
@@ -788,10 +790,9 @@ class FileView(MethodView):
         return abort(404)
 
     def post(self, action, item_id=0):
-
         if not request.files['file'].filename:
             return {'result': False, 'item_id': item_id}
-
+        
         resume_view = ResumeView()
         if action == 'anketa':
             file = request.files['file']

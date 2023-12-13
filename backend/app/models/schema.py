@@ -194,7 +194,12 @@ class AnketaSchemaApi(SQLAlchemySchema):
     agency = fields.String()
     issue = fields.String()
     address = fields.String()
-        
+
+
+class SearchSchema(Schema):
+
+    search = fields.String()
+
 
 models_schemas = {
     'user': [User, UserSchema()],

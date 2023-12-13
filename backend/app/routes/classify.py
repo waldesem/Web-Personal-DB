@@ -16,9 +16,9 @@ class ClassesView(MethodView):
     @bp.doc(hide=True)
     async def get(self):
         tables = ['Category', 'Conclusion', 'Role', 'Group', 'Status', 'Region']
-        queries = [db.session.execute(select(eval(table))).all() for table in tables]
+        queries = [db.session.execute(select(eval(table))).scalars().all() for table in tables]
         schemas = [eval(table + 'Schema')() for table in tables]
-        results = [schema.dump(result) for result, schema in zip(queries, schemas)]
+        results = [schema.dump(query, many=True) for query, schema in zip(queries, schemas)]
         data = {table.lower(): result for table, result in zip(tables, results)}
         data['tables'] = list(models_schemas.keys())
         return data

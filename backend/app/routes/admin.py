@@ -9,8 +9,8 @@ from . import bp
 from .. import db
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
-from ..models.model import  User, Role, Group
-from ..models.schema import UserSchema, models_schemas
+from ..models.model import User, Role, Group
+from ..models.schema import SearchSchema, UserSchema, models_schemas
 
 
 class UsersView(MethodView):
@@ -35,10 +35,10 @@ bp.add_url_rule('/users', view_func=UsersView.as_view('users'))
 
 
 class UserView(MethodView):
+                  
+    decorators = [bp.doc(hide=True)]
 
-    decorators = [group_required(Groups.admins.name),
-                  bp.doc(hide=True)]
-    
+    @group_required(Groups.admins.name)
     def get(self, action, user_id):
         """
         Retrieves a user based on the specified action and user ID.
@@ -66,22 +66,19 @@ class UserView(MethodView):
         """
         Creates a new user based on the provided JSON data.
         """
-        if not db.session.execute(
-                select(User)
-                .filter_by(username=json_data['username'])
-                ).one_or_none():
+        if not User.get_user(json_data['username']):
             new_pswd = bcrypt.hashpw(current_app.config['DEFAULT_PASSWORD']. \
                                      encode('utf-8'), bcrypt.gensalt())
             db.session.add(User(
                 fullname=json_data['fullname'],
                 username=json_data['username'],
-                region_id=json_data['region_id'],
                 email=json_data['email'],
                 password=new_pswd)
             )
             db.session.commit()
             return UsersView().post({'fullname': ''})
         
+    @roles_required(Roles.admin.value)
     @bp.input(UserSchema)
     def patch(self, json_data):
         """
@@ -115,8 +112,7 @@ bp.add_url_rule('/user/<action>/<int:user_id>', view_func=user_view, methods=['G
 
 class GroupView(MethodView):
 
-    decorators = [roles_required(Roles.admin.value), 
-                  bp.doc(hide=True)]
+    decorators = [bp.doc(hide=True), roles_required(Roles.admin.value)]
 
     def get(self, value, user_id):
         """
@@ -124,13 +120,9 @@ class GroupView(MethodView):
         list of groups if it does not already exist.
         """
         user = db.session.get(User, user_id)
-        item = db.session.execute(
-                select(Group)
-                .filter_by(group=value)
-                ).one_or_none()
-        group = user.has_group(value)
-        if not group:
-            user.groups.append(item)
+        group = Group().get_group(value)
+        if not user.has_group(value):
+            user.groups.append(group)
             db.session.commit()
             return UserView().get('view', user_id)
         
@@ -140,12 +132,9 @@ class GroupView(MethodView):
         Deletes a group from a user's list of groups.
         """
         user = db.session.get(User, user_id)
-        item = db.session.execute(
-                select(Group)
-                .filter_by(group=value)
-                ).one_or_none()
-        if not (user.username == current_user.username and value == Groups.admins.name):
-            user.groups.remove(item)
+        group = Group().get_group(value)
+        if not (user.username == current_user.username and value == 'admin'):
+            user.groups.remove(group)
             db.session.commit()
             return UserView().get('view', user_id)
         
@@ -162,13 +151,9 @@ class RoleView(MethodView):
 
     def get(self, value, user_id):
         user = db.session.get(User, user_id)
-        item = db.session.execute(
-                select(Role)
-                .filter_by(role=value)
-                ).one_or_none()
-        response = user.has_role(value)
-        if not response:
-            user.roles.append(item)
+        role = Role().get_role(value)
+        if not user.has_role(value):
+            user.roles.append(role)
             db.session.commit()
             return UserView().get('view', user_id)
         
@@ -177,12 +162,9 @@ class RoleView(MethodView):
         Deletes a role from a user.
         """
         user = db.session.get(User, user_id)
-        item = db.session.execute( 
-                select(Role)
-                .filter_by(role=value)
-               ).one_or_none()
-        if not (user.username == current_user.username and value == Roles.admin.name):
-            user.roles.remove(item)
+        role = Role().get_role(value)
+        if not (user.username == current_user.username and value == 'admin'):
+            user.roles.remove(role)
             db.session.commit()
             return UserView().get('view', user_id)
         
@@ -191,35 +173,36 @@ bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'
 
 class TableView(MethodView):
     
-    decorators = [
-                  bp.doc(hide=True)]
+    decorators = [bp.doc(hide=True)]
 
-    def post(self, item, page):
+    @bp.input(SearchSchema)
+    @group_required(Groups.admins.name)
+    def post(self, item, page, json_data):
         model = models_schemas[item][0]
         schema = models_schemas[item][1]
-        json_data = request.get_json()
         query = select(model).order_by(model.id.desc())
         if item in ['user', 'role', 'group', 'report', 'resume', 'connect']:
-            query = query.filter_by(id=json_data['id']) if json_data['id'] else query
+            query = query.filter_by(id=json_data['search']) if json_data['search'] else query
         else:
-            query = query.filter_by(person_id=json_data['id']) if json_data['id'] else query
-        result = db.session.execute(query)
-        result = db.paginate(result, page=page, per_page=16, error_out=False)
-        return [schema.dump(result, many=True),
-                {'has_next': bool(result.has_next),
-                 'has_prev': bool(result.has_prev)}]
+            query = query.filter_by(person_id=json_data['search']) if json_data['search'] else query
+        result = db.paginate(query, page=page, per_page=16, error_out=False)
+        return [
+            schema.dump(result, many=True), 
+            {
+                'has_next': result.has_next,
+                'has_prev': result.has_prev
+            }
+        ]
     
+    @roles_required(Roles.admin.name)
     def delete(self, item, item_id, page):
         model = models_schemas[item][0]
-        row = db.session.execute(
-               select(model)
-               .filter_by(id=item_id)
-               ).one_or_none()
+        row = db.session.get(model, item_id)
         if not item == 'user' and (row.username == current_user.username 
                                    or row.username == 'admin'):
             db.session.delete(row)
             db.session.commit()
-        return self.post(item, page)
+        return self.post(item, page, {'search': ''})
     
 table_view = TableView.as_view('table')
 bp.add_url_rule('/table/<item>/<int:page>',

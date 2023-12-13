@@ -1,6 +1,7 @@
 from apiflask import EmptySchema
 from flask_jwt_extended import jwt_required, current_user
 from flask.views import MethodView
+from sqlalchemy import select
 
 from . import bp
 from .. import db
@@ -13,59 +14,44 @@ class MessagesView(MethodView):
 
     decorators = [jwt_required(), bp.doc(hide=True)]
 
-    def __init__(self) -> None:
-        """
-        Initializes a new instance of the class.
-        Returns:
-            None
-        """
-        self.pagination = 16
-        self.schema = MessageSchema()
-        self.messages = db.session.query(Message).\
-            filter(Message.user_id == current_user.id).all()
-
     def get(self, action, page=1):
         """
         Get the serialized representation of the messages.
-        Returns:
-            A serialized representation of the messages.
         """
+        messages = select(Message).filter_by(user_id=current_user.id)
         if action == 'new':
-            self.messages = self.messages.\
-                filter(Message.status == Statuses.new.value).all()
-            return self.schema.dump(self.messages, many=True)
-
+            messages = messages.filter_by(status=Statuses.new.name)
         elif action == 'all':
-            self.messages = self.messages
-            self.messages = self.messages.group_by(Message.status).\
-                order_by(Message.status, Message.create.desc())
-        elif action == 'read':
-            for message in self.messages:
-                message.status = Statuses.finish.value
+            messages = messages.order_by(Message.status, Message.create.desc())
+        elif action == 'read' and len(messages):
+            for message in messages:
+                message.status = Statuses.reply.name
             db.session.commit()
-
-        result = self.messages.paginate(page=page,
-                    per_page=self.pagination,
-                    error_out=False)
-
-        has_next, has_prev = int(result.has_next), int(result.has_prev)
-
-        return [self.schema.dump(result, many=True),
-                {'has_next': has_next, "has_prev": has_prev}]
+            messages = select(Message).filter_by(user_id=current_user.id)
+        result = db.paginate(messages, page=page, per_page=16, error_out=False)
+        return [
+            MessageSchema().dump(messages, many=True), 
+            {
+                'has_next': result.has_next, 
+                "has_prev": result.has_prev
+            }
+        ]
 
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action):
         """
         Deletes the current instance of the resource from the database.
-        Returns:
-            str: An empty string indicating a successful deletion.
-        Raises:
-            None
-        """
-        for message in self.messages:
+         """
+        messages = db.session.execute(
+             select(Message)
+             .filter_by(user_id=current_user.id)
+        ).scalars()
+        for message in messages:
             db.session.delete(message)
         db.session.commit()
         return self.get(action)
 
-bp.add_url_rule('/messages/action', view_func=MessagesView.as_view('messages'))
+messages_view = MessagesView.as_view('messages')
+bp.add_url_rule('/messages/<action>', view_func=messages_view, methods=['GET'])
+bp.add_url_rule('/messages', view_func=messages_view, methods=['DELETE'])
