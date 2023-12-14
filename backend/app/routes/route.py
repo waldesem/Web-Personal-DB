@@ -1,8 +1,8 @@
 import os
 import shutil
 from datetime import datetime
-from apiflask import EmptySchema
 
+from apiflask import EmptySchema
 from flask import request, current_app, send_file, abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user
@@ -15,8 +15,8 @@ from . import bp
 from .. import db
 from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
-from ..models.model import  Category, Conclusion, User, Person, Staff, Document, Address, Contact, \
-    Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
+from ..models.model import  Category, Conclusion, User, Person, Staff, Document, \
+    Address, Contact, Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
     Status, Message, Affilation, Robot, combined_search_vector
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
@@ -27,8 +27,8 @@ from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 
 class IndexView(MethodView):
 
-    # decorators = [group_required(Groups.staffsec.name), 
-    #               bp.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.name), 
+                  bp.doc(hide=True)]
 
     @bp.input(SearchSchema)
     def post(self, flag, page, json_data):
@@ -73,7 +73,7 @@ class PersonView(MethodView):
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
 
-    async def get(self, person_id):
+    def get(self, person_id):
         views = [
             ResumeView(), StaffView(), DocumentView(), ContactView(),
             AddressView(), WorkplaceView(), AffilationView(), RelationView(),
@@ -85,7 +85,7 @@ class PersonView(MethodView):
             'investigations', 'inquiries'
             ]
         return {item: query 
-                   for item, query in zip(items, [view.get('api', person_id) 
+                   for item, query in zip(items, [view.get('view', person_id) 
                                                   for view in views])}
     
 bp.add_url_rule('/person/<int:person_id>', view_func=PersonView.as_view('person'))
@@ -95,14 +95,13 @@ class ResumeView(MethodView):
     
     @roles_required(Roles.user.name)
     @bp.doc(hide=True)
-    @bp.output(PersonSchema)
     def get(self, action, person_id):
         person = db.session.query(Person).get(person_id)
         
         if action == 'status':
             person.status_id = Status.get_id(Statuses.update.value)
             db.session.commit()
-            return db.session.query(Person).get(person_id)
+            return PersonSchema().dump(db.session.query(Person).get(person_id))
         
         elif action == 'send':
             if (person.has_status(Statuses.new.value, 
@@ -148,15 +147,15 @@ class ResumeView(MethodView):
                                   person_id=person_id)
                                   )
                         db.session.commit()
-                        return db.session.get(Person, person_id)
+                        return PersonSchema().dump(db.session.get(Person, person_id))
                     
                     return abort(response.status_code)
                 except requests.exceptions.RequestException as e:
                     print(e)
             return abort(404)
-        return person
+        return PersonSchema().dump(person)
     
-    #@roles_required(Roles.user.name, Roles.api.name)
+    @roles_required(Roles.user.name, Roles.api.name)
     @bp.input(PersonSchema)
     def post(self, action, json_data):
         person_id = self.add_resume(json_data, action)
@@ -228,7 +227,7 @@ class StaffView(MethodView):
             select(Staff)
             .filter_by(person_id=item_id)
             .order_by(Staff.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @bp.input(StaffSchema)
     @roles_required(Roles.user.value)
@@ -266,7 +265,7 @@ class DocumentView(MethodView):
             select(Document)
             .filter_by(person_id=item_id)
             .order_by(Document.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(DocumentSchema)
@@ -304,7 +303,7 @@ class AddressView(MethodView):
             select(Address)
             .filter_by(person_id=item_id)
             .order_by(Address.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
                                     
     @roles_required(Roles.user.value)
     @bp.input(AddressSchema)
@@ -342,7 +341,7 @@ class ContactView(MethodView):
             select(Contact)
             .filter_by(person_id=item_id)
             .order_by(Contact.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(ContactSchema)
@@ -380,7 +379,7 @@ class WorkplaceView(MethodView):
             select(Workplace)
             .filter_by(person_id=item_id)
             .order_by(Workplace.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(WorkplaceSchema)
@@ -413,6 +412,7 @@ bp.add_url_rule('/workplace/<action>/<int:item_id>',
 
 
 class RelationView(MethodView):
+    
     decorators = [group_required(Groups.staffsec.name), 
                   bp.doc(hide=True)]
     
@@ -421,7 +421,7 @@ class RelationView(MethodView):
             select(Relation)
             .filter_by(person_id=item_id)
             .order_by(Relation.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(RelationSchema)
@@ -462,7 +462,7 @@ class AffilationView(MethodView):
             select(Affilation)
             .filter_by(person_id=item_id)
             .order_by(Affilation.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(AffilationSchema)
@@ -492,6 +492,9 @@ bp.add_url_rule('/affilation/<action>/<int:item_id>',
 
 class CheckView(MethodView):
 
+    decorators = [bp.doc(hide=True)]
+
+    @group_required(Groups.staffsec.value)
     def get(self, action, item_id):
         if action == 'add':
             person = db.session.get(Person, item_id)
@@ -521,9 +524,11 @@ class CheckView(MethodView):
             db.session.commit()
             return '', 201
         schema = CheckSchema()
-        return schema.dump(db.session.query(Check). \
-                           filter_by(person_id=item_id). \
-                           order_by(Check.id.desc()).all(), many=True)
+        return schema.dump(db.session.execute(
+            select(Check)
+            .filter_by(person_id=item_id)
+            .order_by(Check.id.desc())
+            ).scalars().all(), many=True)
 
 
     @roles_required(Roles.user.value)
@@ -566,15 +571,14 @@ class RobotView(MethodView):
     The RobotView class is a subclass of the MethodView class from the flask.views module.
     """
    
-    @group_required(Groups.staffsec.name)
-    @roles_required(Roles.user.name)
+    #@group_required(Groups.staffsec.name)
     @bp.doc(hide=True)
     def get(self, action, item_id):
         return RobotSchema().dump(db.session.execute(
             select(Robot)
             .filter_by(person_id=item_id)
             .order_by(Robot.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @group_required(Groups.api.name)
     @roles_required(Roles.api.name)
@@ -584,10 +588,7 @@ class RobotView(MethodView):
         candidate = db.session.get(Person, json_data['id'])
         del json_data['id']
         user_id = json_data.pop('user_id')
-        if candidate.status_id == db.session.execute(
-            select(Status)
-            .filter(Status.status == Statuses.robot.value)
-            ).first().id:
+        if candidate.has_status(Statuses.robot.value):
             if os.path.isdir(json_data['path']):
                 file_view = FileView()
                 check_path = file_view.create_folders(
@@ -599,7 +600,6 @@ class RobotView(MethodView):
                             shutil.copyfile(item, check_path)
                         elif os.path.isdir(os.path.join(json_data['path'], item)):
                             shutil.copytree(item, os.path.join(check_path, item))
-
                 except FileNotFoundError as error:
                     db.session.add(Message(report=f'{error}', user_id=user_id))
 
@@ -608,7 +608,7 @@ class RobotView(MethodView):
                 report=f'Автоматическая проверка {candidate.fullname} окончена', 
                 user_id=user_id)
                 )
-            candidate.status_id = Status.get_id(Statuses.reply.value)
+            candidate.status_id = Status().get_id(Statuses.reply.value)
             db.session.commit()
 
         else:
@@ -617,7 +617,7 @@ class RobotView(MethodView):
                        f'Материал проверки находится в {json_data["path"]}', 
                 user_id=user_id))
             db.session.commit()
-
+        
         return '', 201
 
     @group_required(Groups.staffsec.name)
@@ -634,15 +634,15 @@ bp.add_url_rule('/robot/<int:item_id>', view_func=RobotView.as_view('robot'))
 
 class InvestigationView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
-                  bp.doc(hide=True)]
+    # decorators = [group_required(Groups.staffsec.name), 
+    #               bp.doc(hide=True)]
 
     def get(self, action, item_id):
         return InvestigationSchema().dump(db.session.execute(
             select(Investigation)
             .filter_by(person_id=item_id)
             .order_by(Investigation.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(InvestigationSchema)
@@ -675,15 +675,15 @@ bp.add_url_rule('/investigation/<action>/<int:item_id>',
 
 class PoligrafView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
-                  bp.doc(hide=True)]
+    # decorators = [group_required(Groups.staffsec.name), 
+    #               bp.doc(hide=True)]
     
     def get(self, action, item_id):
         return PoligrafSchema().dump(db.session.execute(
             select(Poligraf)
             .filter_by(person_id=item_id)
             .order_by(Poligraf.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @roles_required(Roles.user.value)
     @bp.input(PoligrafSchema)
@@ -719,15 +719,15 @@ bp.add_url_rule('/poligraf/<action>/<int:item_id>',
 
 class InquiryView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
-                  bp.doc(hide=True)]
+    # decorators = [group_required(Groups.staffsec.name), 
+    #               bp.doc(hide=True)]
     
     def get(self, action, item_id):
         return InquirySchema().dump(db.session.execute(
             select(Inquiry)
             .filter_by(person_id=item_id)
             .order_by(Inquiry.id.desc())
-            ).all(), many=True)
+            ).scalars().all(), many=True)
     
     @bp.input(InquirySchema)
     @roles_required(Roles.user.value)
@@ -774,9 +774,9 @@ bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
 
 class FileView(MethodView):
 
-    # decorators = [group_required(Groups.staffsec.name),
-    #               roles_required(Roles.user.name),
-    #               bp.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.name),
+                  roles_required(Roles.user.name),
+                  bp.doc(hide=True)]
 
     def get(self, action, item_id):
         """
@@ -804,13 +804,7 @@ class FileView(MethodView):
             
             anketa  = JsonFile(temp_path)
             person_id = resume_view.add_resume(anketa.resume, 'create')
-            models = [Staff, Document, Address, Contact, Workplace, Affilation]
-            items_lists = [anketa.staff, anketa.passport, anketa.addresses, 
-                            anketa.contacts, anketa.workplaces, anketa.affilation]
-            for model, items in zip(models, items_lists):
-                for item in items:
-                    if item:
-                        db.session.add(model(**item | {'person_id': person_id}))
+            self.fill_items(anketa, person_id)
 
             person = db.session.get(Person, person_id)
             if person.path:
@@ -858,7 +852,17 @@ class FileView(MethodView):
                             f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}'))
             return {'message': item_id}   
 
-    async def create_folders(self, person_id, fullname, folder_name):
+    def fill_items(self, anketa, person_id):
+        models = [Staff, Document, Address, Contact, Workplace, Affilation]
+        items_lists = [anketa.staff, anketa.passport, anketa.addresses, 
+                        anketa.contacts, anketa.workplaces, anketa.affilation]
+        for model, items in zip(models, items_lists):
+            for item in items:
+                if item:
+                    db.session.add(model(**item | {'person_id': person_id}))
+        db.session.commit()
+
+    def create_folders(self, person_id, fullname, folder_name):
         """
         Check if a folder exists for a given person and create it if it does not exist.
         """

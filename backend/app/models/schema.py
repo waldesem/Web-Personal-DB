@@ -42,7 +42,6 @@ class LoginSchema(Schema):
 class PasswordSchema(LoginSchema):
     """ Create model for login"""
     new_pswd = fields.String()
-    conf_pswd = fields.String()
  
 
 class MessageSchema(SQLAlchemyAutoSchema):
@@ -215,6 +214,7 @@ models_schemas = {
     'relation': [Relation, RelationSchema()],
     'affilation': [Affilation, AffilationSchema()],
     'check': [Check, CheckSchema()],
+    'robot': [Robot, RobotSchema()],
     'poligraf': [Poligraf, PoligrafSchema()],
     'investigation': [Investigation, InvestigationSchema()],
     'inquiry': [Inquiry, InquirySchema()],

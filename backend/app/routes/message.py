@@ -6,7 +6,7 @@ from sqlalchemy import select
 from . import bp
 from .. import db
 from ..models.classes import Statuses
-from ..models.model import Message
+from ..models.model import Message, User
 from ..models.schema import MessageSchema
 
 
@@ -18,16 +18,12 @@ class MessagesView(MethodView):
         """
         Get the serialized representation of the messages.
         """
-        messages = select(Message).filter_by(user_id=current_user.id)
+        messages = select(Message).filter_by(user_id=current_user.id)\
+            .order_by(Message.create.desc())
         if action == 'new':
-            messages = messages.filter_by(status=Statuses.new.name)
-        elif action == 'all':
-            messages = messages.order_by(Message.status, Message.create.desc())
+            messages = messages.filter(Message.status == Statuses.new.name)
         elif action == 'read' and len(messages):
-            for message in messages:
-                message.status = Statuses.reply.name
-            db.session.commit()
-            messages = select(Message).filter_by(user_id=current_user.id)
+            self.read_messages(messages)
         result = db.paginate(messages, page=page, per_page=16, error_out=False)
         return [
             MessageSchema().dump(messages, many=True), 
@@ -37,6 +33,13 @@ class MessagesView(MethodView):
             }
         ]
 
+    def read_messages(self, messages):
+        unread = messages.filter(Message.status == Statuses.new.name)
+        results = db.session.execute(unread).scalars().all()
+        for message in results:
+            message.status = Statuses.reply.name
+        db.session.commit()
+        self.get('all')
 
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action):
@@ -46,7 +49,7 @@ class MessagesView(MethodView):
         messages = db.session.execute(
              select(Message)
              .filter_by(user_id=current_user.id)
-        ).scalars()
+            ).all()
         for message in messages:
             db.session.delete(message)
         db.session.commit()

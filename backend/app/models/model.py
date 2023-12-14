@@ -5,7 +5,7 @@ from sqlalchemy_utils.types import TSVectorType
 from flask_sqlalchemy.query import Query
 
 from .. import db, cache
-from ..models.classes import Categories, Statuses
+from ..models.classes import Statuses
 
 
 make_searchable(db.metadata)
@@ -133,10 +133,14 @@ class Category(Base):
     persons = db.relationship('Person', backref='categories')
 
     def get_id(self, category):
+        print(db.session.execute(
+            select(Category.id)
+            .filter(Category.category == category)
+            ).scalar_one_or_none())
         return db.session.execute(
             select(Category.id)
             .filter(Category.category == category)
-            ).scalar()
+            ).scalar_one_or_none()
 
 
 class Status(Base):
@@ -152,7 +156,7 @@ class Status(Base):
         return db.session.execute(
             select(Status.id)
             .filter(Status.status == status)
-            ).scalar()
+            ).scalar_one_or_none()
 
 
 class Region(Base):
@@ -169,7 +173,7 @@ class Region(Base):
         return db.session.execute(
             select(Region.id)
             .filter(Region.region == region)
-            ).scalar()
+            ).scalar_one_or_none()
 
 
 class PersonQuery(Query, SearchQueryMixin):

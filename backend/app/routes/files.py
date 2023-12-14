@@ -8,6 +8,7 @@ from . import bp
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
 
+
 class FileManagementView(MethodView):
 
     decorators = [group_required(Groups.staffsec.name),
@@ -17,18 +18,13 @@ class FileManagementView(MethodView):
     def __init__(self):
         self.dirs = []
         self.files = []
-        self.current_path = [] # 'Home'
+        self.current_path = []
         self.base_path = current_app.config["BASE_PATH"] + '/'
     
     async def get(self):
         """
         Retrieves the list of directories and files in the current path.
-        Returns:
-            dict: A dictionary containing the current path, list of directories, and list of files.
-                - 'path' (str): The current path.
-                - 'dirs' (list): A list of directories in the current path.
-                - 'files' (list): A list of files in the current path.
-        """
+         """
         path = os.path.join(self.base_path, *self.current_path)
         items = os.listdir(path)
         self.dirs = [item for item in items if os.path.isdir(os.path.join(path, item))]
@@ -40,11 +36,7 @@ class FileManagementView(MethodView):
     def post(self, action):
         """
         Handles different actions for the POST request.
-        Parameters:
-        - action (str): The action to be performed.
-        Returns:
-        - The result of the action.
-        """
+         """
         json_data = request.get_json()
         self.current_path = json_data['path']
         match action:

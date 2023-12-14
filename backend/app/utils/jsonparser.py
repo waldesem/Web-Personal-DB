@@ -2,10 +2,9 @@ import re
 import json
 from datetime import datetime
 
-from sqlalchemy import select
+from ..models.model import Region, Status, Category
+from ..models.classes import Statuses, Categories
 
-from .. import db
-from ..models.model import Region
 
 class JsonFile:
     """ Create class for import data from json file"""
@@ -15,7 +14,9 @@ class JsonFile:
             self.json_dict = json.load(f)
 
             self.resume = {
-                'region_id': self.parse_region() if self.parse_region() else 1,
+                'region_id': self.parse_region(),
+                'category_id': Category().get_id(Categories.candidate.name),
+                'status_id': Status().get_id(Statuses.new.name),
                 'fullname': self.parse_fullname(),
                 'previous': self.parse_previous(),
                 'birthday': self.parse_birthday(),
@@ -69,10 +70,15 @@ class JsonFile:
             ]
             self.affilation = self.parse_affilation()
     
-    async def parse_region(self):
+    def parse_region(self):
         if 'department' in self.json_dict:
             divisions = re.split(r'/', self.json_dict['department'].strip())
-            return Region.get_id([div.strip for div in divisions][0])
+            for div in divisions:
+                region_id = Region().get_id(div)
+                if region_id:
+                    return region_id
+                else:
+                    return 1
     
     def parse_fullname(self):
         lastName = self.json_dict.get('lastName').strip()
@@ -91,7 +97,7 @@ class JsonFile:
                 for item in self.json_dict['nameWasChanged']:
                     firstNameBeforeChange = item.get('firstNameBeforeChange', '').strip()
                     lastNameBeforeChange = item.get('lastNameBeforeChange', '').strip()
-                    midNameBeforeChange = item.get('midNameBeforeChange').strip()
+                    midNameBeforeChange = item.get('midNameBeforeChange', '').strip()
                     yearOfChange = str(item.get('yearOfChange', '')).strip()
                     reason = str(item.get('reason', '')).strip()
                     previous.append(f"{yearOfChange} - {firstNameBeforeChange} "
@@ -106,7 +112,7 @@ class JsonFile:
                 education = []
                 for item in self.json_dict['education']:
                     institutionName = item.get('institutionName').strip()
-                    endYear = item.get('endYear', 'н.в.').strip()
+                    endYear = item.get('endYear', 'н.в.')
                     specialty = item.get('specialty').strip()
                     education.append(f"{str(endYear)} - {institutionName}, "
                                      f"{specialty}".replace("  ", ""))
@@ -120,7 +126,8 @@ class JsonFile:
                 for item in self.json_dict['experience']:
                     work = {
                         'start_date': datetime.strptime(item.get('beginDate', '1900-01-01'), '%Y-%m-%d'),
-                        'end_date': datetime.strptime(item.get('endDate', datetime.now().date()), '%Y-%m-%d'),
+                        'end_date': datetime.strptime(item['endDate'], '%Y-%m-%d') \
+                            if 'endDate' in item else datetime.now(),
                         'workplace': item.get('name', '').strip(),
                         'address': item.get('address', '').strip(),
                         'position': item.get('position', '').strip(),
