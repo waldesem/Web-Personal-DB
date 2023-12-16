@@ -88,9 +88,8 @@ class User(Base):
     
 
     @staticmethod
-    @cache.memoize(60)
     def get_user(user_name):
-        return  db.session.execute(
+        return db.session.execute(
             select(User)
             .filter_by(username=user_name)
             ).scalar_one_or_none()

@@ -52,6 +52,7 @@ export const loginStore = defineStore('loginStore', () => {
           storeAlert.alertMessage.setAlert('alert-warning', 'Новый пароль и подтверждение не совпадают');
           return
         }
+        delete this.form['conf_pswd'];
       };
 
       try {

@@ -15,8 +15,8 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 
 onBeforeMount(() => {
-  if (storeClassify.classData.tables['tables'].length) {
-    tableData.value.table = storeClassify.classData.tables['tables'][0];
+  if (storeClassify.classData.tables.length) {
+    tableData.value.table = storeClassify.classData.tables[0];
     tableData.value.getItem(1);
   }
 });
@@ -46,7 +46,7 @@ const tableData = ref({
     try {
       const response = await storeAuth.axiosInstance.post(
         `${server}/table/${this.table}/${page}`, {
-          'id': this.search
+          'search': this.search
         }
       );
       const [ datas, metadata ] = response.data;
@@ -89,11 +89,11 @@ const searchItem = debounce(() => {
     <div class="row py-3">
       <div class="col-md-3">
         <form class="form form-check" role="form">
-          <select v-if="storeClassify.classData.tables['tables'].length"
+          <select v-if="storeClassify.classData.tables.length"
                   class="form-select" id="region" name="region" 
                   v-model="tableData.table" 
                   @change="tableData.getItem(1)">
-            <option v-for="table, index in storeClassify.classData.tables['tables']" 
+            <option v-for="table, index in storeClassify.classData.tables" 
                           :key="index" :value="table">
               {{ table }}
             </option>
@@ -108,7 +108,7 @@ const searchItem = debounce(() => {
       </div>
     </div>
     <div v-if="tableData.item.length" class="table-responsive py-3">
-      <table class="table table-secondary table-hover align-middle">
+      <table class="table align-middle">
         <thead> 
           <tr>
             <th v-for="key, index in Object.keys(tableData.item[0])" 

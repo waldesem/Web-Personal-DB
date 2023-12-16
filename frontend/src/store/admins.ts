@@ -81,7 +81,6 @@ export const adminStore = defineStore('adminStore', () => {
       try {
         const response = await storeAuth.axiosInstance.get(`${server}/user/${action}/${this.id}`);
         this.profile = response.data;
-  
         if (action === 'drop'){
           storeAlert.alertMessage.setAlert('alert-success', 'Пароль сброшен');
         } else if (action === 'block') {

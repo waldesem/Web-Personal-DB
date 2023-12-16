@@ -41,14 +41,14 @@ def register_cli(app):
 
         superadmin = User(fullname='Administrator',
                             username=Roles.superadmin.name,
-                            password=bcrypt.hashpw('88888888'.encode('utf-8'),
+                            password=bcrypt.hashpw(Config.DEFAULT_PASSWORD.encode('utf-8'),
                                                 bcrypt.gensalt()),
                             email='admin@admin.admin')
         
         db.session.add(superadmin)
         db.session.flush()
 
-        superadmin.roles.append(Role().get_role(Roles.superadmin.name))
+        superadmin.roles.append(Role().get_role(Roles.admin.name))
         superadmin.groups.append(Group().get_group(Groups.admins.name))
         db.session.add(superadmin)
 

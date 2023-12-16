@@ -60,7 +60,7 @@ class UserView(MethodView):
                 db.session.commit()
                 return self.get('view', user_id)
     
-    @roles_required(Roles.admin.value)
+    @roles_required(Roles.admin.name)
     @bp.input(UserSchema)
     def post(self, json_data):
         """
@@ -121,11 +121,10 @@ class GroupView(MethodView):
         list of groups if it does not already exist.
         """
         user = db.session.get(User, user_id)
-        group = Group().get_group(value)
-        if not user.has_group(value):
-            user.groups.append(group)
+        if value not in user.groups:
+            user.groups.append(db.session.get(Group, value))
             db.session.commit()
-            return UserView().get('view', user_id)
+        return UserView().get('view', user_id)
         
     @bp.output(EmptySchema, status_code=204)
     def delete(self, value, user_id):
@@ -133,11 +132,11 @@ class GroupView(MethodView):
         Deletes a group from a user's list of groups.
         """
         user = db.session.get(User, user_id)
-        group = Group().get_group(value)
-        if not (user.username == current_user.username and value == 'admin'):
+        group = db.session.get(Group, value)
+        if not (user.username == current_user.username):
             user.groups.remove(group)
             db.session.commit()
-            return UserView().get('view', user_id)
+        return UserView().get('view', user_id)
         
 bp.add_url_rule('/group/<value>/<int:user_id>', view_func=GroupView.as_view('group'))
 
@@ -146,32 +145,26 @@ class RoleView(MethodView):
     """
     Get a user's role based on the value and user ID.
     """
-    
     decorators = [roles_required(Roles.admin.value), 
                   bp.doc(hide=True)]
 
     def get(self, value, user_id):
-        if value == 'superadmin':
-            return UserView().get('view', user_id)
         user = db.session.get(User, user_id)
-        role = Role().get_role(value)
-        if not user.has_role(value):
-            user.roles.append(role)
+        if value not in user.roles:
+            user.roles.append(db.session.get(Role, value))
             db.session.commit()
-            return UserView().get('view', user_id)
+        return UserView().get('view', user_id)
         
     def delete(self, value, user_id):
         """
         Deletes a role from a user.
         """
-        if value == 'superadmin':
-            return UserView().get('view', user_id)
         user = db.session.get(User, user_id)
-        role = Role().get_role(value)
-        if not (user.username == current_user.username and value == 'admin'):
+        role = db.session.get(Role, value)
+        if not (user.username == current_user.username):
             user.roles.remove(role)
             db.session.commit()
-            return UserView().get('view', user_id)
+        return UserView().get('view', user_id)
         
 bp.add_url_rule('/role/<value>/<int:user_id>', view_func=RoleView.as_view('role'))
 

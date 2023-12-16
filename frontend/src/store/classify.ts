@@ -8,24 +8,33 @@ export const classifyStore = defineStore('classifyStore', () => {
 
   const classData = ref({
     status: <Record<string, any>>({}),
-    regions: <Record<string, any>>({}),
+    regions: <Record<string, any>>([{}]),
     conclusion: <Record<string, any>>({}),
     category: <Record<string, any>>({}),
     groups: <Record<string, any>>({}),
     roles: <Record<string, any>>({}),
-    tables: <Record<string, any>>({}),
+    tables: Array<string>(),
     getClasses: async function (): Promise<void> {
       try {
         const response = await axios.get(`${server}/classes`);
-        [ 
-          this.status, 
-          this.regions, 
-          this.conclusion, 
-          this.category, 
-          this.groups, 
-          this.roles,
-          this.tables
-        ] = response.data;
+        const {
+          category,
+          conclusion,
+          role,
+          group,
+          status,
+          region,
+          tables
+        } = response.data;
+        Object.assign(classData.value, {
+          category: category,
+          conclusion: conclusion,
+          roles: role,
+          groups: group,
+          status: status,
+          regions: region,
+          tables: tables
+        })
       } catch (error) {
         console.error(error)
       }

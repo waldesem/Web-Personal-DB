@@ -59,8 +59,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         <RowDivSlot :label="'Группы'" :slotTwo="true">
           <template v-slot:divTwo>
             <ul v-for="(group, index) in storeAdmin.dataUsers.profile.groups" :key=index>
-              <li>{{ storeClassify.classData.groups[group['group']] }}
-                <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'group', group['group'])">
+              <li>{{ group['group'] }}
+                <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'group', group['id'])">
                   <i class="bi bi-dash-circle"></i>
                 </a>
               </li>
@@ -72,8 +72,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                 <option value="" selected>
                   Добавить группу
                 </option>
-                <option v-for="(val, name) in storeClassify.classData.groups" :key="name" :value="name">
-                  {{ val }}
+                <option v-for="(group, index) in storeClassify.classData.groups" :key="index" :value="group['id']">
+                  {{ group['group'] }}
                 </option>
               </select>
             </form>
@@ -82,8 +82,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         <RowDivSlot :label="'Роли'" :slotTwo="true">
           <template v-slot:divTwo>
             <ul v-for="(role, index) in storeAdmin.dataUsers.profile.roles" :key=index>
-              <li>{{ storeClassify.classData.roles[role['role']] }}
-                <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'role',role['role'])">
+              <li>{{ role['role'] }}
+                <a href="#" @click="storeAdmin.dataUsers.updateGroupRole('delete', 'role', role['id'])">
                   <i class="bi bi-dash-circle"></i>
                 </a>
               </li>
@@ -95,8 +95,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                 <option value="" selected>
                   Добавить роль
                 </option>
-                <option v-for="(val, name) in storeClassify.classData.roles" :key="name" :value="val">
-                  {{ val }}</option>
+                <option v-for="(role, index) in storeClassify.classData.roles" :key="index" :value="role['id']">
+                  {{ role['role'] }}</option>
               </select>
             </form>
           </template>
