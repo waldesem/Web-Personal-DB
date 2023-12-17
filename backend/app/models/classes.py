@@ -20,7 +20,6 @@ class Groups(Enum):
 class Roles(Enum):
     """ Roles """
 
-    superadmin = 'superadmin'
     admin = 'admin'
     user = 'user'
     api = 'api'

@@ -30,20 +30,20 @@ def register_cli(app):
         db.drop_all()
         db.create_all()
 
-        db.session.add_all([Region(region=reg.name) for reg in Regions])
-        db.session.add_all([Status(status=item.name) for item in Statuses])
-        db.session.add_all([Conclusion(conclusion=item.name) for item in Conclusions])
-        db.session.add_all([Category(category=item.name) for item in Categories])
-        db.session.add_all([Group(group=grp.name) for grp in Groups])
-        db.session.add_all([Role(role=actor.name) for actor in Roles])
+        db.session.add_all([Region(region=reg.value) for reg in Regions])
+        db.session.add_all([Status(status=item.value) for item in Statuses])
+        db.session.add_all([Conclusion(conclusion=item.value) for item in Conclusions])
+        db.session.add_all([Category(category=item.value) for item in Categories])
+        db.session.add_all([Group(group=grp.value) for grp in Groups])
+        db.session.add_all([Role(role=actor.value) for actor in Roles])
 
         db.session.flush()
 
-        superadmin = User(fullname='Administrator',
-                            username=Roles.superadmin.name,
-                            password=bcrypt.hashpw(Config.DEFAULT_PASSWORD.encode('utf-8'),
-                                                bcrypt.gensalt()),
-                            email='admin@admin.admin')
+        superadmin = User(
+            fullname='Superadmin',
+            username='superadmin',
+            password=bcrypt.hashpw(Config.DEFAULT_PASSWORD.encode('utf-8'), 
+                                   bcrypt.gensalt()))
         
         db.session.add(superadmin)
         db.session.flush()

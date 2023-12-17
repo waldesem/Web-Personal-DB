@@ -1,5 +1,3 @@
-from apiflask import EmptySchema
-from flask import request
 from flask_jwt_extended import jwt_required
 from flask.views import MethodView
 from sqlalchemy import select

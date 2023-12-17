@@ -30,11 +30,13 @@ export const loginStore = defineStore('loginStore', () => {
         const response = await storeAuth.axiosInstance.get(`${server}/login`);
         const { fullname, username, roles, groups, region_id } = response.data;
         this.assignUserData(fullname, username, roles, groups, region_id);
+        
         this.hasRole('admin') 
           ? router.push({ name: 'users', params: {group: 'admins'}}) 
           : router.push({ name: 'persons', params: {group: this.userGroups[0]['group'] }});
         storeClasses.classData.getClasses();
         storeAlert.alertMessage.setAlert();
+
       } catch (error) {
         storeAlert.alertMessage.setAlert('alert-warning', error as string);
         this.userLogout();
@@ -89,7 +91,7 @@ export const loginStore = defineStore('loginStore', () => {
       } catch (error) {
         storeAlert.alertMessage.setAlert('alert-warning', error as string);
         this.userLogout();
-        //clearForm(this.form)
+        //  clearForm(this.form)
       };
     },
 

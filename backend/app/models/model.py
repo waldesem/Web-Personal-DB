@@ -132,10 +132,6 @@ class Category(Base):
     persons = db.relationship('Person', backref='categories')
 
     def get_id(self, category):
-        print(db.session.execute(
-            select(Category.id)
-            .filter(Category.category == category)
-            ).scalar_one_or_none())
         return db.session.execute(
             select(Category.id)
             .filter(Category.category == category)
@@ -499,6 +495,6 @@ class Connect(Base):
     search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile', 'phone')) 
 
 
-combined_search_vector = Person.search_vector | Document.search_vector
+# combined_search_vector = Person.search_vector | Document.search_vector
 
 db.configure_mappers()  # very important!

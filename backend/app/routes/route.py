@@ -17,7 +17,7 @@ from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
 from ..models.model import  Category, Conclusion, User, Person, Staff, Document, \
     Address, Contact, Workplace, Check, Poligraf, Investigation, Inquiry, Relation, \
-    Status, Message, Affilation, Robot, combined_search_vector
+    Status, Message, Affilation, Robot #, combined_search_vector
 from ..models.schema import RelationSchema, StaffSchema, AddressSchema, \
     PersonSchema, ContactSchema, DocumentSchema, CheckSchema, InquirySchema, \
     InvestigationSchema, PoligrafSchema, AnketaSchemaApi, \
@@ -53,15 +53,14 @@ class IndexView(MethodView):
                         ).join(Check, isouter=True) \
                         .filter_by(officer=current_user.fullname)
         else:
-            if json_data['search']:
-                print('ok')
-                query = Person.query.search('%{}%'.format(json_data['search']), 
-                                            vector=combined_search_vector) 
+            if json_data.get('search', ''):
+                query = Person.query.search('%{}%'.format(json_data['search'])) #,vector=combined_search_vector) 
             
         result = db.paginate(query, page=page, per_page=16, error_out=False)       
         return [
             PersonSchema().dump(result, many=True),
-            {'has_next': bool(result.has_next), "has_prev": bool(result.has_prev)}
+            {'has_next': bool(result.has_next), 
+             "has_prev": bool(result.has_prev)}
             ]
     
 bp.add_url_rule('/index/<flag>/<int:page>',

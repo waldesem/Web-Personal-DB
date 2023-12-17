@@ -25,7 +25,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   Object.assign(tableData.value.table, {
     table: '',
     tableItem: [],
-    searchId: '',
+    search: '',
     currentPage: 1,
     hasNext: false,
     hasPrev: false

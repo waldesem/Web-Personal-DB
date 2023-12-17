@@ -27,14 +27,15 @@ export const classifyStore = defineStore('classifyStore', () => {
           tables
         } = response.data;
         Object.assign(classData.value, {
-          category: category,
-          conclusion: conclusion,
-          roles: role,
-          groups: group,
-          status: status,
-          regions: region,
+          category: {...category},
+          conclusion: {...conclusion},
+          roles: {...role},
+          groups: {...group},
+          status: {...status},
+          regions: [...region],
           tables: tables
         })
+        console.log(classData.value)
       } catch (error) {
         console.error(error)
       }

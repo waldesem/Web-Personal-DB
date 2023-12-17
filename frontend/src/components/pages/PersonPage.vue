@@ -12,6 +12,11 @@ const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/Page
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 
+const merged_regions: { [key: string]: string } = {};
+storeClassify.classData.regions.forEach((element: { id: string; name: string; }) => {
+  merged_regions[element['id']] = element['region' as keyof typeof element];
+});
+
 const mapped_items = {
   'search': "Результаты поиска",
   'officer': "Страница пользователя",
@@ -70,10 +75,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   next()
 });
 
-const searchPerson = debounce(() => {
-  personData.value.getCandidates(1, 'search')
-  }, 500
-);
+const searchPerson = debounce(personData.value.getCandidates, 500);
 
 </script>
 
@@ -95,17 +97,12 @@ const searchPerson = debounce(() => {
         </form>
       </div>
       <div class="col-md-9">
-        <form @input="searchPerson(1, 'search')" 
-              class="form form-check" role="form">
-          <div class="row">
-            <input class="form-control" id="search" maxlength="250" minlength="3" 
-                  v-model="personData.search" 
-                  name="search" placeholder="поиск по имени, ИНН, СНИЛС" type="text"
-                  title="Для поиска записей содержащих “Петров” и “Сергей” используйте запрос: Петров Сергей
-                         Для поиска записей содержащих “Петров” или “Сергей” используйте запрос: Петров or Сергей
-                         Для поиска записей содержащих “Петров”, но не “Сергей” используйте запрос: Петров -Сергей
-                         Для поиска записей содержащих фразу целиком заключите ее в двойные кавычки">
-          </div>
+        <form @input.prevent="searchPerson(1, 'search')" class="form form-check" role="form">
+          <input class="form-control" id="person" name="person" type="text" 
+                maxlength="250" minlength="3" placeholder="поиск по имени, ИНН, СНИЛС"
+                v-model="personData.search" 
+
+                title="Для поиска записей содержащих “Петров” и “Сергей” используйте запрос: 'Петров Сергей' Для поиска записей содержащих “Петров” или “Сергей” используйте запрос: 'Петров or Сергей' Для поиска записей содержащих “Петров”, но не “Сергей” используйте запрос: 'Петров -Сергей' Для поиска записей содержащих фразу целиком заключите ее в двойные кавычки">
         </form>
       </div>
     </div>
@@ -125,7 +122,7 @@ const searchPerson = debounce(() => {
           <tr v-for="candidate in personData.candidates" 
               :key="candidate.id" height="50px">
             <td>{{ candidate["id"] }}</td>
-            <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
+            <td>{{ merged_regions[candidate.region_id] }}</td>
             <td>
               <router-link 
                 :to="{ name: 'profile', params: { group: 'staffsec', id: candidate.id } }">
