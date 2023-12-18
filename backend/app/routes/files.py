@@ -11,8 +11,8 @@ from ..models.classes import Roles, Groups
 
 class FileManagementView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name),
-                  roles_required(Roles.user.name), 
+    decorators = [group_required(Groups.staffsec.value),
+                  roles_required(Roles.user.value), 
                   bp.doc(hide=True)]
     
     def __init__(self):

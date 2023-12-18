@@ -15,7 +15,7 @@ from ..models.schema import SearchSchema, UserSchema, models_schemas
 
 class UsersView(MethodView):
     
-    decorators = [group_required(Groups.admins.name),
+    decorators = [group_required(Groups.admins.value),
                   bp.input(UserSchema),
                   bp.doc(hide=True)]
 
@@ -38,7 +38,7 @@ class UserView(MethodView):
                   
     decorators = [bp.doc(hide=True)]
 
-    @group_required(Groups.admins.name)
+    @group_required(Groups.admins._value_)
     def get(self, action, user_id):
         """
         Retrieves a user based on the specified action and user ID.
@@ -174,7 +174,7 @@ class TableView(MethodView):
     decorators = [bp.doc(hide=True)]
 
     @bp.input(SearchSchema)
-    @group_required(Groups.admins.name)
+    @group_required(Groups.admins.value)
     def post(self, item, page, json_data):
         model = models_schemas[item][0]
         schema = models_schemas[item][1]
@@ -192,7 +192,7 @@ class TableView(MethodView):
             }
         ]
     
-    @roles_required(Roles.admin.name)
+    @roles_required(Roles.admin.value)
     def delete(self, item, item_id, page):
         model = models_schemas[item][0]
         row = db.session.get(model, item_id)

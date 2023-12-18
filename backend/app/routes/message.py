@@ -6,7 +6,7 @@ from sqlalchemy import select
 from . import bp
 from .. import db
 from ..models.classes import Statuses
-from ..models.model import Message, User
+from ..models.model import Message
 from ..models.schema import MessageSchema
 
 
