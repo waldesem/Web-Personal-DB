@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { ref, h } from 'vue';
+import { ref } from 'vue';
 import { onBeforeMount, defineAsyncComponent } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { authStore } from '@/store/token';
@@ -14,13 +14,13 @@ const storeAuth = authStore();
 const props = defineProps({
   path: {
     type: Array<string>,
-    required: true
+    default: () => ['']
   }
 });
 
 onBeforeMount(() => {
   fileManager.value.path = props.path.slice(0, -1);
-  fileManager.value.openFolder(props.path[-1]);  
+  fileManager.value.openFolder();  
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
@@ -54,13 +54,14 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     }
   },
 
-  openFolder: async function (flag: string, item: string = '') {
+  openFolder: async function (flag: string= 'open', item: string = '') {
     try {
       const response = await storeAuth.axiosInstance.post(`${server}/manager/${flag}`, {
         'path': this.path,
         'item': item
       });
       const { path, dirs, files } = response.data;
+
       this.assignValue(path, dirs, files);
     } catch (error) {
       console.error(error);
@@ -154,33 +155,34 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     this.copied = [];
   },
 
-  listContent: function(item: string, func: Function, cls: any){
-    return h('div', {
-      class: 'item-wrapper fs-6' 
-      }, [
-        h('input', {
-          class: 'form-check-input',
-          type: 'checkbox',
-          vIf: this.select,
-          value: item,
-          'v-model': this.selected,
-        }),
-        ' ',
-        h('a', {
-          href: '#',
-          class: ['list-group-item', 'list-group-item-action'],
-          onClick: () => func('open', item),
-          disabled: this.select,
-        }, [
-          h('i', { class: `bi ${cls}` }),
-          ' ',
-          item,
-        ]),
-    ])
-  }
+  // listContent: function(item: string, func: Function, cls: any){
+  //   return h('div', {
+  //     class: 'item-wrapper fs-6' 
+  //   }, [
+  //     h('input', {
+  //       class: 'form-check-input',
+  //       type: 'checkbox',
+  //       'v-if': this.select,
+  //       value: item,
+  //       'v-model': this.selected,
+  //     }),
+
+  //     h('a', {
+  //       href: '#',
+  //       class: ['list-group-item', 'list-group-item-action'],
+  //       '@click': () => func('open', item),
+  //       'v-bind:disabled': this.select,
+  //     }, [
+  //       h('i', { class: `bi ${cls}` }),
+  //       item,
+  //     ]),
+  //   ]);
+  // }
 });
 
-const strInt = (row: number, col: number) => parseInt(row.toString() + col.toString());
+// function strInt (row: number, col: number) {
+//   return parseInt(row.toString() + col.toString())
+// };
 
 function fileType(file: string): string {
   if (file.endsWith('pdf')){
@@ -314,7 +316,7 @@ function fileType(file: string): string {
         </nav>
       </div>
 
-      <table>
+      <!-- <table>
         <tbody>
           <tr v-for="row in fileManager.rows">
             <td v-for="col in fileManager.cols">
@@ -331,9 +333,9 @@ function fileType(file: string): string {
             </td>
           </tr>
         </tbody>
-      </table>
+      </table> -->
 
-      <!-- <ul class="list-group">
+      <ul class="list-group">
 
         <li class="list-group-item" v-for="folder in fileManager.folders" :key="folder">
           <div class="item-wrapper fs-6">
@@ -341,7 +343,7 @@ function fileType(file: string): string {
                   :value="folder" v-model="fileManager.selected">
             &nbsp;
             <button type="button" class="list-group-item list-group-item-action btn btn-light" 
-                    @click="fileManager.openFolder(folder)"
+                    @click="fileManager.openFolder('open', folder)"
                     :disabled="fileManager.select">
               <i class="bi bi-folder"></i>
               {{ folder }}
@@ -357,13 +359,13 @@ function fileType(file: string): string {
             <button type="button" class="list-group-item list-group-item-action btn btn-light" 
                     @click="fileManager.openFile(file)"
                     :disabled="fileManager.select">
-              <i class="bi" :class="fileType"></i>
+              <i class="bi" :class="fileType(file)"></i>
               {{ file }}
             </button>
           </div>
         </li>
 
-      </ul> -->
+      </ul>
     </div>
     
     <ModalWin :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">

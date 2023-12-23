@@ -85,7 +85,7 @@ const searchItem = debounce(() => {
 
 <template>
   <div class="container py-3">
-    <HeaderDiv :page-header="'Таблицы'" />
+    <HeaderDiv :page-header="'Таблицы'" :cls="'text-secondary'" />
     <div class="row py-3">
       <div class="col-md-3">
         <form class="form form-check" role="form">

@@ -1,6 +1,6 @@
 import bcrypt
 from apiflask import EmptySchema
-from flask import current_app, request
+from flask import current_app
 from flask_jwt_extended import current_user
 from flask.views import MethodView
 from sqlalchemy import select 
@@ -15,7 +15,7 @@ from ..models.schema import SearchSchema, UserSchema, models_schemas
 
 class UsersView(MethodView):
     
-    decorators = [group_required(Groups.admins.name),
+    decorators = [group_required(Groups.admins.value),
                   bp.input(UserSchema),
                   bp.doc(hide=True)]
 
@@ -38,7 +38,7 @@ class UserView(MethodView):
                   
     decorators = [bp.doc(hide=True)]
 
-    @group_required(Groups.admins.name)
+    @group_required(Groups.admins.value)
     def get(self, action, user_id):
         """
         Retrieves a user based on the specified action and user ID.
@@ -60,7 +60,7 @@ class UserView(MethodView):
                 db.session.commit()
                 return self.get('view', user_id)
     
-    @roles_required(Roles.admin.name)
+    @roles_required(Roles.admin.value)
     @bp.input(UserSchema)
     def post(self, json_data):
         """
@@ -76,7 +76,7 @@ class UserView(MethodView):
                 password=new_pswd)
             )
             db.session.commit()
-            return UsersView().post({'fullname': ''})
+        return UsersView().post({'fullname': ''})
         
     @roles_required(Roles.admin.value)
     @bp.input(UserSchema)
@@ -90,7 +90,7 @@ class UserView(MethodView):
                 if k in ['fullname', 'username', 'email', 'region']:
                     setattr(user, k, v)
             db.session.commit()
-            return self.get('view', json_data['id'])
+        return self.get('view', json_data['id'])
     
     @roles_required(Roles.admin.value)
     @bp.output(EmptySchema, status_code=204)
@@ -99,11 +99,10 @@ class UserView(MethodView):
         Delete a user by their ID.
         """
         user = db.session.get(User, user_id)
-        if user.username != current_user.username and \
-                user.username != 'superadmin':
+        if user.username != current_user.username:
             db.session.delete(user)
             db.session.commit()
-            return UsersView().post({'fullname': ''})
+        return UsersView().post({'fullname': ''})
         
 user_view = UserView.as_view('user')
 bp.add_url_rule('/user', view_func=user_view, methods=['PATCH', 'POST'])
@@ -161,7 +160,7 @@ class RoleView(MethodView):
         """
         user = db.session.get(User, user_id)
         role = db.session.get(Role, value)
-        if not (user.username == current_user.username):
+        if user.username != current_user.username:
             user.roles.remove(role)
             db.session.commit()
         return UserView().get('view', user_id)
@@ -174,7 +173,7 @@ class TableView(MethodView):
     decorators = [bp.doc(hide=True)]
 
     @bp.input(SearchSchema)
-    @group_required(Groups.admins.name)
+    @group_required(Groups.admins.value)
     def post(self, item, page, json_data):
         model = models_schemas[item][0]
         schema = models_schemas[item][1]
@@ -192,7 +191,7 @@ class TableView(MethodView):
             }
         ]
     
-    @roles_required(Roles.admin.name)
+    @roles_required(Roles.admin.value)
     def delete(self, item, item_id, page):
         model = models_schemas[item][0]
         row = db.session.get(model, item_id)

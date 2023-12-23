@@ -18,7 +18,7 @@ export const messageStore = defineStore('messageStore', () => {
     try {
       const response = ['new', 'all', 'read'].includes(action) 
         ? await storeAuth.axiosInstance.get(`${server}/messages/${action}/${page}`)
-        : await storeAuth.axiosInstance.delete(`${server}/messages/all`);
+        : await storeAuth.axiosInstance.delete(`${server}/messages/${action}`);
         
         const [ datas, has_prev, has_next ] = response.data;
 

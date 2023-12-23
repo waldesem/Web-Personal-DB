@@ -27,12 +27,12 @@ from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 
 class IndexView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
+                  bp.input(SearchSchema), 
                   bp.doc(hide=True)]
 
-    @bp.input(SearchSchema)
     def post(self, flag, page, json_data):
-        query = select(Person).order_by(Person.id.desc())  
+        query = select(Person).order_by(Person.id.desc())
         if flag != "search":
             match flag:
                 case 'new':
@@ -53,8 +53,8 @@ class IndexView(MethodView):
                         ).join(Check, isouter=True) \
                         .filter_by(officer=current_user.fullname)
         else:
-            if json_data.get('search', ''):
-                query = Person.query.search('%{}%'.format(json_data['search'])) #,vector=combined_search_vector) 
+            if json_data['search']:
+                query = Person.query.search('%{}%'.format(json_data['search']))
             
         result = db.paginate(query, page=page, per_page=16, error_out=False)       
         return [

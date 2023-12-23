@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { defineAsyncComponent } from 'vue';
+import { defineAsyncComponent, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { messageStore } from '@/store/messages';
 
@@ -8,6 +8,10 @@ const HeaderDiv = defineAsyncComponent(() => import('@components/layouts/HeaderD
 const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/PageSwitcher.vue'));
 
 const storeMessage = messageStore();
+
+onBeforeMount(async () => {
+  await storeMessage.updateMessages('all');
+});
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeMessage.messageData.messages = [];
@@ -31,7 +35,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
         </a>
       </p>
       </div>
-      <div class="col">
+      <div class="col text-end">
         <p>
           <a href="#" class="link-danger" @click="storeMessage.updateMessages('delete')">
             Удалить все сообщения

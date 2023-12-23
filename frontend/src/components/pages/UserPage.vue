@@ -24,6 +24,13 @@ onBeforeMount(async () => {
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   clearForm(storeAdmin.dataUsers.form);
+  Object.assign(storeAdmin.dataUsers, {
+    id: '',
+    action: '',
+    search: '',
+    role: '',
+    group: ''
+  });
   next()
 }); 
 
@@ -44,8 +51,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                     :value="storeAdmin.dataUsers.profile.username"/>
         <RowDivSlot :label="'E-mail'" 
                     :value="storeAdmin.dataUsers.profile.email"/>
-        <RowDivSlot :label="'Регион'" 
-                    :value="storeClassify.classData.regions[storeAdmin.dataUsers.profile.region_id]"/>
         <RowDivSlot :label="'Создан'" 
                     :value="new Date(storeAdmin.dataUsers.profile.pswd_create).toLocaleString('ru-RU')"/>
         <RowDivSlot :label="'Изменен'" 

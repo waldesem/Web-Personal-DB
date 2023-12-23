@@ -6,7 +6,7 @@ from sqlalchemy import select
 from . import bp
 from .. import db
 from ..models.classes import Statuses
-from ..models.model import Message, User
+from ..models.model import Message
 from ..models.schema import MessageSchema
 
 
@@ -22,11 +22,11 @@ class MessagesView(MethodView):
             .order_by(Message.create.desc())
         if action == 'new':
             messages = messages.filter(Message.status == Statuses.new.name)
-        elif action == 'read' and len(messages):
+        elif action == 'read':
             self.read_messages(messages)
         result = db.paginate(messages, page=page, per_page=16, error_out=False)
         return [
-            MessageSchema().dump(messages, many=True), 
+            MessageSchema().dump(result, many=True), 
             {
                 'has_next': result.has_next, 
                 "has_prev": result.has_prev
@@ -36,9 +36,10 @@ class MessagesView(MethodView):
     def read_messages(self, messages):
         unread = messages.filter(Message.status == Statuses.new.name)
         results = db.session.execute(unread).scalars().all()
-        for message in results:
-            message.status = Statuses.reply.name
-        db.session.commit()
+        if len(results):
+            for message in results:
+                message.status = Statuses.reply.name
+            db.session.commit()
         self.get('all')
 
     @bp.output(EmptySchema, status_code=204)
@@ -50,11 +51,12 @@ class MessagesView(MethodView):
              select(Message)
              .filter_by(user_id=current_user.id)
             ).all()
-        for message in messages:
-            db.session.delete(message)
-        db.session.commit()
-        return self.get(action)
+        if len(messages):
+            for message in messages:
+                db.session.delete(message)
+            db.session.commit()
+        return self.get('all')
 
 messages_view = MessagesView.as_view('messages')
-bp.add_url_rule('/messages/<action>', view_func=messages_view, methods=['GET'])
-bp.add_url_rule('/messages', view_func=messages_view, methods=['DELETE'])
+bp.add_url_rule('/messages/<action>/<int:page>', view_func=messages_view, methods=['GET'])
+bp.add_url_rule('/messages/<action>', view_func=messages_view, methods=['DELETE'])

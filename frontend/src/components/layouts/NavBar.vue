@@ -27,7 +27,7 @@ if (!isStarted) {
       <div class="navbar-nav mr-auto collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           
-          <template v-if="pageIdentity === 'admins'">
+          <template v-if="pageIdentity.toLowerCase() === 'admins'">
             <li class="nav-item">
               <router-link :to="{ name: 'users', params: { group: 'admins' } }" class="nav-link active" href="#">
                 Пользователи
@@ -42,7 +42,7 @@ if (!isStarted) {
             </li>
           </template>
 
-          <template v-if="pageIdentity === 'staffsec'">
+          <template v-if="pageIdentity.toLowerCase() === 'staffsec'">
             <li class="nav-item">
               <router-link :to="{ name: 'persons', params: { group: 'staffsec' }}" 
                             class="nav-link active">
@@ -71,7 +71,7 @@ if (!isStarted) {
 
             <li class="nav-item">
               <router-link :to="{ name: 'manager', params: { group: 'staffsec'} }" 
-                           class="nav-link active" href="#" v-bind:props="{ path: ['']  }">
+                           class="nav-link active" href="#">
                 Файлы
               </router-link>
             </li>

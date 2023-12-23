@@ -48,8 +48,8 @@ def register_cli(app):
         db.session.add(superadmin)
         db.session.flush()
 
-        superadmin.roles.append(Role().get_role(Roles.admin.name))
-        superadmin.groups.append(Group().get_group(Groups.admins.name))
+        superadmin.roles.append(Role().get_role(Roles.admin.value))
+        superadmin.groups.append(Group().get_group(Groups.admins.value))
         db.session.add(superadmin)
 
         db.session.commit()

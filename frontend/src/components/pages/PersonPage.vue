@@ -12,11 +12,6 @@ const PageSwitcher = defineAsyncComponent(() => import('@components/layouts/Page
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 
-const merged_regions: { [key: string]: string } = {};
-storeClassify.classData.regions.forEach((element: { id: string; name: string; }) => {
-  merged_regions[element['id']] = element['region' as keyof typeof element];
-});
-
 const mapped_items = {
   'search': "Результаты поиска",
   'officer': "Страница пользователя",
@@ -48,6 +43,8 @@ const personData = ref({
   getCandidates: async function (page: number, url: string): Promise<void> {
     this.page = page;
     this.path = url;
+    const searchForm = {'search': this.search};
+    console.log(searchForm)
     try {
       const response = await storeAuth.axiosInstance.post(
         `${server}/index/${url}/${page}`, {'search': this.search}
@@ -75,7 +72,10 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   next()
 });
 
-const searchPerson = debounce(personData.value.getCandidates, 500);
+const searchPerson = debounce(() => {
+  personData.value.getCandidates(1, 'search')
+  }, 500
+);
 
 </script>
 
@@ -97,8 +97,8 @@ const searchPerson = debounce(personData.value.getCandidates, 500);
         </form>
       </div>
       <div class="col-md-9">
-        <form @input.prevent="searchPerson(1, 'search')" class="form form-check" role="form">
-          <input class="form-control" id="person" name="person" type="text" 
+        <form @input.prevent="searchPerson" class="form form-check" role="form">
+          <input class="form-control" id="data" name="data" type="text" 
                 maxlength="250" minlength="3" placeholder="поиск по имени, ИНН, СНИЛС"
                 v-model="personData.search" 
 
@@ -107,7 +107,7 @@ const searchPerson = debounce(personData.value.getCandidates, 500);
       </div>
     </div>
     <div class="py-3">
-      <table class="table-primary table-hover table-responsive align-middle">
+      <table class="table table-responsive align-middle">
         <thead> 
           <tr height="50px">
             <th width="5%">#</th>
@@ -122,7 +122,7 @@ const searchPerson = debounce(personData.value.getCandidates, 500);
           <tr v-for="candidate in personData.candidates" 
               :key="candidate.id" height="50px">
             <td>{{ candidate["id"] }}</td>
-            <td>{{ merged_regions[candidate.region_id] }}</td>
+            <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
             <td>
               <router-link 
                 :to="{ name: 'profile', params: { group: 'staffsec', id: candidate.id } }">

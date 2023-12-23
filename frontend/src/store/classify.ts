@@ -26,16 +26,24 @@ export const classifyStore = defineStore('classifyStore', () => {
           region,
           tables
         } = response.data;
+
         Object.assign(classData.value, {
-          category: {...category},
-          conclusion: {...conclusion},
-          roles: {...role},
-          groups: {...group},
-          status: {...status},
-          regions: [...region],
+          category: category,
+          conclusion: conclusion,
+          roles: role,
+          groups: group,
+          status: status.reduce((acc: { [x: string]: any; }, 
+                                item: { id: string | number; status: any; }) => {
+            acc[item.id] = item.status;
+            return acc;
+          }),
+          regions: region.reduce((acc: { [x: string]: any; },
+                                 item: { id: string | number; region: any; }) => {
+            acc[item.id] = item.region;
+            return acc;
+          }, {} as { [key: string]: string }),
           tables: tables
         })
-        console.log(classData.value)
       } catch (error) {
         console.error(error)
       }
