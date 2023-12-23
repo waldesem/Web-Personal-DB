@@ -13,7 +13,6 @@ from . import bp
 from .. import jwt, db
 from ..models.model import User
 from ..models.schema import LoginSchema, PasswordSchema, UserSchema
-from ..models.classes import Roles
 
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -49,10 +48,7 @@ class LoginView(MethodView):
                 if user.pswd_change and delta_change.days < 365:
                     user.last_login = datetime.now()
                     user.attempt = 0
-                    db.session.commit()
-                    if user.has_role(Roles.api.value):
-                        return {'message': 'Overdue'}
-                    
+                    db.session.commit()                    
                     return {'message': 'Authenticated',
                             'access_token': create_access_token(identity=user.username),
                             'refresh_token': create_refresh_token(identity=user.username)}
