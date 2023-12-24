@@ -39,8 +39,11 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     form: '',
     item: '',
     cols: 10,
-    get rows () {
-      return Math.ceil((this.folders.length + this.files.length) / this.cols)
+    get rowsFolders () {
+      return Math.ceil(this.folders.length / this.cols)
+    },
+    get rowsFiles () {
+      return Math.ceil(this.files.length / this.cols)
     },
 
     getFoldersFiles: async function () {
@@ -154,63 +157,50 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
     this.selected = [];
     this.copied = [];
   },
-
-  // listContent: function(item: string, func: Function, cls: any){
-  //   return h('div', {
-  //     class: 'item-wrapper fs-6' 
-  //   }, [
-  //     h('input', {
-  //       class: 'form-check-input',
-  //       type: 'checkbox',
-  //       'v-if': this.select,
-  //       value: item,
-  //       'v-model': this.selected,
-  //     }),
-
-  //     h('a', {
-  //       href: '#',
-  //       class: ['list-group-item', 'list-group-item-action'],
-  //       '@click': () => func('open', item),
-  //       'v-bind:disabled': this.select,
-  //     }, [
-  //       h('i', { class: `bi ${cls}` }),
-  //       item,
-  //     ]),
-  //   ]);
-  // }
 });
 
-// function strInt (row: number, col: number) {
-//   return parseInt(row.toString() + col.toString())
-// };
+function strInt (row: number, col: number) {
+  return parseInt(row.toString() + col.toString())
+};
+
+console.log(strInt(0, 1));
 
 function fileType(file: string): string {
-  if (file.endsWith('pdf')){
-    return 'bi-file-pdf'
-  } else if (file.endsWith('docx')){
-    return 'bi-file-word'
-  } else if (file.endsWith('doc')){
-    return 'bi-file-word-fill'
-  } else if (file.endsWith('rtf')){
-    return 'bi-earmark-word'
-  } else if (file.endsWith('xlsx')){
-    return 'bi-file-excel'
-  } else if (file.endsWith('xlsm')){
-    return 'bi-file-excel-fill'
-  } else if (file.endsWith('png')){
-    return 'bi-filetype-png'
-  } else if (file.endsWith('jpg')){
-    return 'bi-filetype-jpg'
-  } else if (file.endsWith('bmp')){
-    return 'bi-filetype-bmp'
-  } else if (file.endsWith('zip')){
-    return 'bi-file-zip'
-  } else if (file.endsWith('msg')){
-    return 'bi-envelope-paper'
-  } else {
-    return 'bi-file'
+  const fileExtension = file.split('.').pop();
+  
+  switch (fileExtension) {
+    case 'txt':
+      return 'bi-file-text';
+    case 'json':
+      return 'bi-file-code';
+    case 'html':
+      return 'bi-file-code';
+    case 'pdf':
+      return 'bi-file-pdf';
+    case 'docx':
+      return 'bi-file-word';
+    case 'doc':
+      return 'bi-file-word-fill';
+    case 'rtf':
+      return 'bi-earmark-word';
+    case 'xlsx':
+      return 'bi-file-excel';
+    case 'xlsm':
+      return 'bi-file-excel-fill';
+    case 'png':
+      return 'bi-filetype-png';
+    case 'jpg':
+      return 'bi-filetype-jpg';
+    case 'bmp':
+      return 'bi-filetype-bmp';
+    case 'zip':
+      return 'bi-file-zip';
+    case 'msg':
+      return 'bi-envelope-paper';
+    default:
+      return 'bi-file';
   }
-};
+}
 
 </script>
 
@@ -316,56 +306,40 @@ function fileType(file: string): string {
         </nav>
       </div>
 
-      <!-- <table>
-        <tbody>
-          <tr v-for="row in fileManager.rows">
-            <td v-for="col in fileManager.cols">
-              <div v-html="fileManager.listContent(
-                fileManager.folders[strInt(row, col)], fileManager.openFolder, 'bi-folder'
-                ) 
-                  ? (strInt(row, col) <= fileManager.folders.length)
-                  : fileManager.listContent(
-                      fileManager.files[strInt(row, col) - fileManager.folders.length], fileManager.openFile, fileType
-                  )
-                    ? (strInt(row, col) <= fileManager.folders.length + fileManager.files.length)
-                    : ''">
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table> -->
-
-      <ul class="list-group">
-
-        <li class="list-group-item" v-for="folder in fileManager.folders" :key="folder">
-          <div class="item-wrapper fs-6">
-            <input class="form-check-input" type="checkbox" v-if="fileManager.select" 
-                  :value="folder" v-model="fileManager.selected">
-            &nbsp;
-            <button type="button" class="list-group-item list-group-item-action btn btn-light" 
-                    @click="fileManager.openFolder('open', folder)"
-                    :disabled="fileManager.select">
-              <i class="bi bi-folder"></i>
-              {{ folder }}
-            </button>
+      <div>
+        <div v-for="row in Array.from(Array(fileManager.rowsFolders).keys())" class="row">
+          <div v-for="col in Array.from(Array(fileManager.cols).keys())" class="col">
+            <div v-if="(strInt(row, col) < fileManager.folders.length)" class="item-wrapper fs-6">
+              <input class="form-check-input" type="checkbox" v-if="fileManager.select" 
+                    :value="fileManager.folders[strInt(row, col)]" v-model="fileManager.selected">
+              &nbsp;
+              <a type="button" class="btn btn-link btn-lg text-decoration-none" 
+                      @click="fileManager.openFolder('open', fileManager.folders[strInt(row, col)])"
+                      :disabled="fileManager.select">
+                <i class="bi bi-folder"></i>
+                {{ fileManager.folders[strInt(row, col)] }}
+            </a>
+            </div>
           </div>
-        </li>
+        </div>
 
-        <li class="list-group-item" v-for="file in fileManager.files" :key="file">
-          <div class="item-wrapper">
-            <input class="form-check-input" type="checkbox" v-if="fileManager.select"
-                  :value="file" v-model="fileManager.selected">
-            &nbsp; &nbsp;
-            <button type="button" class="list-group-item list-group-item-action btn btn-light" 
-                    @click="fileManager.openFile(file)"
-                    :disabled="fileManager.select">
-              <i class="bi" :class="fileType(file)"></i>
-              {{ file }}
-            </button>
+        <div v-for="row in Array.from(Array(fileManager.rowsFiles).keys())" class="row">
+          <div v-for="col in Array.from(Array(fileManager.cols).keys())" class="col">
+            <div v-if="(strInt(row, col) < fileManager.files.length)" class="item-wrapper">
+              <input class="form-check-input" type="checkbox" v-if="fileManager.select"
+                    :value="fileManager.files[strInt(row, col)]"
+                    v-model="fileManager.selected">
+              &nbsp;
+              <a type="button" class="btn btn-link text-decoration-none" 
+                      @click="fileManager.openFile(fileManager.files[strInt(row, col)])"
+                      :disabled="fileManager.select">
+                <i :class="fileType(fileManager.files[strInt(row, col)])"></i>
+                {{ fileManager.files[strInt(row, col)] }}
+            </a>
+            </div>
           </div>
-        </li>
-
-      </ul>
+        </div>
+      </div>
     </div>
     
     <ModalWin :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">
@@ -393,15 +367,8 @@ function fileType(file: string): string {
   max-height: 75vh;
   overflow-y: auto;
 }
-.list-group-item .item-wrapper {
+.item-wrapper {
   display: flex;
   align-items: center;
-}
-tr { 
-  display: block; 
-  float: left; 
-} 
-th, td { 
-  display: block; 
 }
 </style>
