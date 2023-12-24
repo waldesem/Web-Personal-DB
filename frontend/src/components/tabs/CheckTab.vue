@@ -7,6 +7,7 @@ import { profileStore } from '@/store/profile';
 const CheckForm = defineAsyncComponent(() => import('@components/forms/CheckForm.vue'));
 const CollapseDiv = defineAsyncComponent(() => import('@components/elements/CollapseDiv.vue'));
 const CheckDiv = defineAsyncComponent(() => import('@components/tabs/divs/CheckDiv.vue'));
+const RobotDiv = defineAsyncComponent(() => import('@components/tabs/divs/RobotDiv.vue'));
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
@@ -50,6 +51,12 @@ hiddenAddBtn.value = ![storeClassify.classData.status['new'],
         <a class="btn btn-outline-primary" type="button"
           @click="storeProfile.dataProfile.openForm('check', 'create')">Добавить запись
         </a>
+      </div>
+      <div v-if="storeProfile.dataProfile.robot.length">
+        <CollapseDiv v-for="item, idx in storeProfile.dataProfile.robot" :key="idx" 
+            :id="'check' + idx" :idx="idx" :label="'Робот #' + (idx + 1)">
+          <RobotDiv :item="item" />
+        </CollapseDiv>
       </div>
     </div>
   </div>

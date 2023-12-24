@@ -17,13 +17,11 @@ const props = defineProps({
 </script>
 
 <template>
-  <RowDivSlot :slotOne="true" :slotTwo="true" :print="true">
-    <template v-slot:divOne>
+  <RowDivSlot :slotTwo="true" :print="true">
+    <template v-slot:divTwo>
       <a href="#" @click="storeProfile.dataProfile.deleteItem('workplace', props.item['id'].toString())" title="Удалить">
         <i class="bi bi-trash"></i>
       </a>
-    </template>
-    <template v-slot:divTwo>
       <a class="btn btn-link" title="Изменить"
         @click= "storeProfile.dataProfile.openForm('workplace', 'update', props.item['id'].toString(), props.item)">
         <i class="bi bi-pencil-square"></i>

@@ -15,9 +15,11 @@ const storeProfile = profileStore();
 <template>
   <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
     <InputLabel :name="'position'" :label="'Должность'" :need="true"
-                :model="storeProfile.dataProfile.form['position']"/>
+                :model="storeProfile.dataProfile.form['position']"
+                @input-event="storeProfile.dataProfile.form['position'] = $event.target.value"/>
     <TextLabel :name="'department'" :label="'Подраздление'"
-                :model="storeProfile.dataProfile.form['department']"/>
+                :model="storeProfile.dataProfile.form['department']"
+                @input-event="storeProfile.dataProfile.form['department'] = $event.target.value"/>
 
     <BtnGroupForm>
       <button class="btn btn-outline-primary btn-md" name="submit" type="submit">Принять</button>

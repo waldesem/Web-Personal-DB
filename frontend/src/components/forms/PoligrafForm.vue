@@ -19,9 +19,11 @@ const selected_item = {
 <template>
   <form @submit.prevent="storeProfile.dataProfile.updateItem" class="form form-check" role="form">
     <SelectDiv :name="'theme'" :label="'Тема проверки'" :select="selected_item"
-               :model="storeProfile.dataProfile.form['theme']"/>
+               :model="storeProfile.dataProfile.form['theme']"
+               @input-event="storeProfile.dataProfile.form['theme'] = $event.target.value"/>
     <TextLabel :name="'results'" :label="'Результат'"
-               :model="storeProfile.dataProfile.form['results']"/>
+               :model="storeProfile.dataProfile.form['results']"
+               @input-event="storeProfile.dataProfile.form['results'] = $event.target.value"/>
     <BtnGroupForm>
           <button class="btn btn-outline-primary" type="submit">Принять</button>
           <button class="btn btn-outline-primary" type="reset">Очистить</button>

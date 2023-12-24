@@ -159,12 +159,6 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   },
 });
 
-function strInt (row: number, col: number) {
-  return parseInt(row.toString() + col.toString())
-};
-
-console.log(strInt(0, 1));
-
 function fileType(file: string): string {
   const fileExtension = file.split('.').pop();
   
@@ -209,7 +203,7 @@ function fileType(file: string): string {
     
     <HeaderDiv page-header="Файловый менеджер" />
 
-    <div class="border border-primary p-5" id="fileManager">
+    <div class="border border-primary p-5">
 
       <div class="row border border-primary p-3">
 
@@ -306,40 +300,35 @@ function fileType(file: string): string {
         </nav>
       </div>
 
-      <div>
-        <div v-for="row in Array.from(Array(fileManager.rowsFolders).keys())" class="row">
-          <div v-for="col in Array.from(Array(fileManager.cols).keys())" class="col">
-            <div v-if="(strInt(row, col) < fileManager.folders.length)" class="item-wrapper fs-6">
-              <input class="form-check-input" type="checkbox" v-if="fileManager.select" 
-                    :value="fileManager.folders[strInt(row, col)]" v-model="fileManager.selected">
-              &nbsp;
-              <a type="button" class="btn btn-link btn-lg text-decoration-none" 
-                      @click="fileManager.openFolder('open', fileManager.folders[strInt(row, col)])"
-                      :disabled="fileManager.select">
-                <i class="bi bi-folder"></i>
-                {{ fileManager.folders[strInt(row, col)] }}
+      <div id="fileManager">
+        <div v-for="folder, idx in fileManager.folders" :key="idx"  class="row">
+          <div class="item-wrapper fs-6">
+            <input class="form-check-input" type="checkbox" v-if="fileManager.select" 
+                  :value="folder" v-model="fileManager.selected">
+            &nbsp;
+            <a type="button" class="btn btn-link btn-lg text-decoration-none" 
+                    @click="fileManager.openFolder('open', folder)"
+                    :disabled="fileManager.select">
+              <i class="bi bi-folder"></i>
+              {{ folder }}
             </a>
-            </div>
-          </div>
-        </div>
-
-        <div v-for="row in Array.from(Array(fileManager.rowsFiles).keys())" class="row">
-          <div v-for="col in Array.from(Array(fileManager.cols).keys())" class="col">
-            <div v-if="(strInt(row, col) < fileManager.files.length)" class="item-wrapper">
-              <input class="form-check-input" type="checkbox" v-if="fileManager.select"
-                    :value="fileManager.files[strInt(row, col)]"
-                    v-model="fileManager.selected">
-              &nbsp;
-              <a type="button" class="btn btn-link text-decoration-none" 
-                      @click="fileManager.openFile(fileManager.files[strInt(row, col)])"
-                      :disabled="fileManager.select">
-                <i :class="fileType(fileManager.files[strInt(row, col)])"></i>
-                {{ fileManager.files[strInt(row, col)] }}
-            </a>
-            </div>
           </div>
         </div>
       </div>
+      <div v-for="file, idx in fileManager.files" :key="idx"  class="row">
+        <div class="item-wrapper fs-6">
+          <input class="form-check-input" type="checkbox" v-if="fileManager.select" 
+                :value="file" v-model="fileManager.selected">
+          &nbsp;
+          <a type="button" class="btn btn-link btn-lg text-decoration-none" 
+                  @click="fileManager.openFolder(file)"
+                  :disabled="fileManager.select">
+            <i :class="fileType(file)"></i>
+            {{ file }}
+          </a>
+        </div>
+      </div>
+
     </div>
     
     <ModalWin :id="'modalFile'" :title ="'Переменовать'" :size="'modal-md'">

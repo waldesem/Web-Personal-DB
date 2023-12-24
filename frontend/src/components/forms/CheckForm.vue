@@ -58,35 +58,50 @@ if (noNegative.value) {
   <form @submit.prevent="storeProfile.dataProfile.updateItem" 
         class="form form-check" role="form"  id="checkFormId">
     <TextLabel :name="'workplace'" :label="'Проверка по местам работы'"
-                :model="storeProfile.dataProfile.form['workplace']"/>
+                :model="storeProfile.dataProfile.form['workplace']"
+                @input-event="storeProfile.dataProfile.form['workplace'] = $event.target.value"/>
     <TextLabel :name="'employee'" :label="'Проверка по кадровому учету'"
-                :model="storeProfile.dataProfile.form['employee']"/>
+                :model="storeProfile.dataProfile.form['employee']"
+                @input-event="storeProfile.dataProfile.form['employee'] = $event.target.value"/>
     <TextLabel :name="'document'" :label="'Проверка документов'"
-                :model="storeProfile.dataProfile.form['document']"/>
+                :model="storeProfile.dataProfile.form['document']"
+                @input-event="storeProfile.dataProfile.form['document'] = $event.target.value"/>
     <TextLabel :name="'inn'" :label="'Проверка ИНН'"
-                :model="storeProfile.dataProfile.form['inn']"/>
+                :model="storeProfile.dataProfile.form['inn']"
+                @input-event="storeProfile.dataProfile.form['inn'] = $event.target.value"/>
     <TextLabel :name="'debt'" :label="'Проверка задолженностей'"
-                :model="storeProfile.dataProfile.form['debt']"/>
+                :model="storeProfile.dataProfile.form['debt']"
+                @input-event="storeProfile.dataProfile.form['debt'] = $event.target.value"/>
     <TextLabel :name="'bankruptcy'" :label="'Проверка решений о признании банкротом'"
-                :model="storeProfile.dataProfile.form['bankruptcy']"/>
+                :model="storeProfile.dataProfile.form['bankruptcy']"
+                @input-event="storeProfile.dataProfile.form['bankruptcy'] = $event.target.value"/>
     <TextLabel :name="'bki'" :label="'Проверка кредитной истории'"
-                :model="storeProfile.dataProfile.form['bki']"/>
+                :model="storeProfile.dataProfile.form['bki']"
+                @input-event="storeProfile.dataProfile.form['bki'] = $event.target.value"/>
     <TextLabel :name="'courts'" :label="'Проверка судебных дел'"
-                :model="storeProfile.dataProfile.form['courts']"/>
+                :model="storeProfile.dataProfile.form['courts']"
+                @input-event="storeProfile.dataProfile.form['courts'] = $event.target.value"/>
     <TextLabel :name="'affiliation'" :label="'Проверка аффилированности'"
-                :model="storeProfile.dataProfile.form['affiliation']"/>
+                :model="storeProfile.dataProfile.form['affiliation']"
+                @input-event="storeProfile.dataProfile.form['affiliation'] = $event.target.value"/>
     <TextLabel :name="'terrorist'" :label="'Проверка в списке террористов'"
-                :model="storeProfile.dataProfile.form['terrorist']"/>
+                :model="storeProfile.dataProfile.form['terrorist']"
+                @input-event="storeProfile.dataProfile.form['terrorist'] = $event.target.value"/>
     <TextLabel :name="'mvd'" :label="'Проверка в розыск'"
-                :model="storeProfile.dataProfile.form['mvd']"/>
+                :model="storeProfile.dataProfile.form['mvd']"
+                @input-event="storeProfile.dataProfile.form['mvd'] = $event.target.value"/>
     <TextLabel :name="'internet'" :label="'Проверка в открытых источниках'"
-                :model="storeProfile.dataProfile.form['internet']"/>
+                :model="storeProfile.dataProfile.form['internet']"
+                @input-event="storeProfile.dataProfile.form['internet'] = $event.target.value"/>
     <TextLabel :name="'cronos'" :label="'Проверка в Кронос'"
-                :model="storeProfile.dataProfile.form['cronos']"/>
+                :model="storeProfile.dataProfile.form['cronos']"
+                @input-event="storeProfile.dataProfile.form['cronos'] = $event.target.value"/>
     <TextLabel :name="'cros'" :label="'Проверка в Крос'"
-                :model="storeProfile.dataProfile.form['cros']"/>
+                :model="storeProfile.dataProfile.form['cros']"
+                @input-event="storeProfile.dataProfile.form['cros'] = $event.target.value"/>
     <TextLabel :name="'addition'" :label="'Дополнительная информация'"
-                :model="storeProfile.dataProfile.form['addition']"/>
+                :model="storeProfile.dataProfile.form['addition']"
+                @input-event="storeProfile.dataProfile.form['addition'] = $event.target.value"/>
     <div class=" row">
       <div class="offset-lg-2 col-lg-10">
         <div class="mb-3 form-check">
@@ -98,9 +113,11 @@ if (noNegative.value) {
     </div>
     <SelectDiv :name="'conclusion'" :label="'Результат'"
                :select="storeClassify.classData.conclusion"
-               :model="storeProfile.dataProfile.form['conclusion']"/>
+               :model="storeProfile.dataProfile.form['conclusion']"
+               @input-event="storeProfile.dataProfile.form['conclusion'] = $event.target.value"/>
     <TextLabel :name="'comments'" :label="'Комментарий'"
-                :model="storeProfile.dataProfile.form['comments']"/>
+                :model="storeProfile.dataProfile.form['comments']"
+                @input-event="storeProfile.dataProfile.form['comments'] = $event.target.value"/>
     <BtnGroupForm>
       <button class="btn btn-outline-primary" type="submit">Принять</button>
       <button class="btn btn-outline-primary" type="reset">Очистить</button>

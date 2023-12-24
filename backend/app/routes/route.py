@@ -38,17 +38,17 @@ class IndexView(MethodView):
                 case 'new':
                     query = query.filter(
                         Person.status_id.in_([
-                            Status().get_id(Statuses.new.name),
-                            Status().get_id(Statuses.update.name),
-                            Status().get_id(Statuses.repeat.name)
+                            Status().get_id(Statuses.new.value),
+                            Status().get_id(Statuses.update.value),
+                            Status().get_id(Statuses.repeat.value)
                             ]),
-                        Person.category_id == Category().get_id(Categories.candidate.name)
+                        Person.category_id == Category().get_id(Categories.candidate.value)
                         )
                 case 'officer':
                     query = query.filter(
                         Person.status_id.in_([
-                            Status().get_id(Statuses.finish.name), 
-                            Status().get_id(Statuses.cancel.name)
+                            Status().get_id(Statuses.finish.value), 
+                            Status().get_id(Statuses.cancel.value)
                             ])
                         ).join(Check, isouter=True) \
                         .filter_by(officer=current_user.fullname)
@@ -69,7 +69,7 @@ bp.add_url_rule('/index/<flag>/<int:page>',
 
 class PersonView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
 
     def get(self, person_id):
@@ -80,7 +80,7 @@ class PersonView(MethodView):
             ]
         items = [
             'resume', 'staffs', 'documents', 'contacts', 'addresses', 'works', 
-            'affilations', 'relations', 'checks', 'robots', 'poligafs', 
+            'affilations', 'relations', 'checks', 'robots', 'poligrafs', 
             'investigations', 'inquiries'
             ]
         return {item: query 
@@ -92,7 +92,7 @@ bp.add_url_rule('/person/<int:person_id>', view_func=PersonView.as_view('person'
 
 class ResumeView(MethodView):
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.doc(hide=True)
     def get(self, action, person_id):
         person = db.session.query(Person).get(person_id)
@@ -154,13 +154,13 @@ class ResumeView(MethodView):
             return abort(404)
         return PersonSchema().dump(person)
     
-    @roles_required(Roles.user.name, Roles.api.name)
+    @roles_required(Roles.user.value, Roles.api.value)
     @bp.input(PersonSchema)
     def post(self, action, json_data):
         person_id = self.add_resume(json_data, action)
         return {'message': person_id}
 
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     def delete(self, action, person_id):
         person = db.session.get(Person, person_id)
         try:
@@ -218,7 +218,7 @@ bp.add_url_rule('/resume/<action>/<int:person_id>',
 
 class StaffView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
@@ -243,7 +243,7 @@ class StaffView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Staff, item_id))
@@ -256,7 +256,7 @@ bp.add_url_rule('/staff/<action>/<int:item_id>',
 
 class DocumentView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
@@ -281,7 +281,7 @@ class DocumentView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Document, item_id))
@@ -294,7 +294,7 @@ bp.add_url_rule('/document/<action>/<int:item_id>',
 
 class AddressView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
@@ -319,7 +319,7 @@ class AddressView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Address, item_id))
@@ -332,7 +332,7 @@ bp.add_url_rule('/address/<action>/<int:item_id>',
 
 class ContactView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
@@ -357,7 +357,7 @@ class ContactView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Contact, item_id))
@@ -370,7 +370,7 @@ bp.add_url_rule('/contact/<action>/<int:item_id>',
 
 class WorkplaceView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
@@ -399,7 +399,7 @@ class WorkplaceView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Workplace, item_id))
@@ -412,7 +412,7 @@ bp.add_url_rule('/workplace/<action>/<int:item_id>',
 
 class RelationView(MethodView):
     
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
@@ -440,7 +440,7 @@ class RelationView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Relation, item_id))
@@ -453,7 +453,7 @@ bp.add_url_rule('/relation/<action>/<int:item_id>',
 
 class AffilationView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name), 
+    decorators = [group_required(Groups.staffsec.value), 
                   bp.doc(hide=True)]
     
     def get(self, action, item_id):
@@ -478,7 +478,7 @@ class AffilationView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Affilation, item_id))
@@ -551,7 +551,7 @@ class CheckView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         check = db.session.get(Check, item_id)
@@ -570,7 +570,7 @@ class RobotView(MethodView):
     The RobotView class is a subclass of the MethodView class from the flask.views module.
     """
    
-    #@group_required(Groups.staffsec.name)
+    #@group_required(Groups.staffsec.value)
     @bp.doc(hide=True)
     def get(self, action, item_id):
         return RobotSchema().dump(db.session.execute(
@@ -579,11 +579,11 @@ class RobotView(MethodView):
             .order_by(Robot.id.desc())
             ).scalars().all(), many=True)
     
-    @group_required(Groups.api.name)
-    @roles_required(Roles.api.name)
+    @group_required(Groups.api.value)
+    @roles_required(Roles.api.value)
     @bp.doc(hide=False)
     @bp.input(RobotSchema)
-    def post(self, json_data):
+    def post(self, action, json_data):
         candidate = db.session.get(Person, json_data['id'])
         del json_data['id']
         user_id = json_data.pop('user_id')
@@ -619,8 +619,8 @@ class RobotView(MethodView):
         
         return '', 201
 
-    @group_required(Groups.staffsec.name)
-    @roles_required(Roles.user.name)
+    @group_required(Groups.staffsec.value)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     @bp.doc(hide=True)
     def delete(self, action, item_id):
@@ -628,13 +628,13 @@ class RobotView(MethodView):
         db.session.commit()
         return ''
 
-bp.add_url_rule('/robot/<int:item_id>', view_func=RobotView.as_view('robot'))
+bp.add_url_rule('/robot/<action>/<int:item_id>', view_func=RobotView.as_view('robot'))
 
 
 class InvestigationView(MethodView):
 
-    # decorators = [group_required(Groups.staffsec.name), 
-    #               bp.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), 
+                  bp.doc(hide=True)]
 
     def get(self, action, item_id):
         return InvestigationSchema().dump(db.session.execute(
@@ -660,7 +660,7 @@ class InvestigationView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         invs = db.session.get(Investigation, item_id)
@@ -674,8 +674,8 @@ bp.add_url_rule('/investigation/<action>/<int:item_id>',
 
 class PoligrafView(MethodView):
 
-    # decorators = [group_required(Groups.staffsec.name), 
-    #               bp.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), 
+                  bp.doc(hide=True)]
     
     def get(self, action, item_id):
         return PoligrafSchema().dump(db.session.execute(
@@ -704,7 +704,7 @@ class PoligrafView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         pfo = db.session.get(Poligraf, item_id)
@@ -718,8 +718,8 @@ bp.add_url_rule('/poligraf/<action>/<int:item_id>',
 
 class InquiryView(MethodView):
 
-    # decorators = [group_required(Groups.staffsec.name), 
-    #               bp.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), 
+                  bp.doc(hide=True)]
     
     def get(self, action, item_id):
         return InquirySchema().dump(db.session.execute(
@@ -744,7 +744,7 @@ class InquiryView(MethodView):
         db.session.commit()
         return '', 201
     
-    @roles_required(Roles.user.name)
+    @roles_required(Roles.user.value)
     @bp.output(EmptySchema, status_code=204)
     def delete(self, action, item_id):
         db.session.delete(db.session.get(Inquiry, item_id))
@@ -755,7 +755,7 @@ bp.add_url_rule('/inquiry/<action>/<int:item_id>',
                 view_func=InquiryView.as_view('inquiry'))
 
 class InfoView(MethodView):
-    @group_required(Groups.staffsec.name)
+    @group_required(Groups.staffsec.value)
     @bp.doc(hide=True)
     def post(self):
         response = request.get_json()
@@ -773,8 +773,8 @@ bp.add_url_rule('/information', view_func=InfoView.as_view('information'))
 
 class FileView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.name),
-                  roles_required(Roles.user.name),
+    decorators = [group_required(Groups.staffsec.value),
+                  roles_required(Roles.user.value),
                   bp.doc(hide=True)]
 
     def get(self, action, item_id):

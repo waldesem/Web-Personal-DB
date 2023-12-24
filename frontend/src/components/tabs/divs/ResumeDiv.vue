@@ -12,8 +12,8 @@ const storeClassify = classifyStore();
 </script>
 
 <template>
-  <RowDivSlot :slotOne="true" :slotTwo="true" :print="true">
-    <template v-slot:divOne>
+  <RowDivSlot :slotTwo="true" :print="true">
+    <template v-slot:slotTwo>
       <a href="#" title="Изменить"
          @click="storeProfile.dataProfile.openForm('resume', 'update', storeProfile.dataProfile.resume['id'], storeProfile.dataProfile.resume)">
         <i class="bi bi-pencil-square"></i>
@@ -22,10 +22,12 @@ const storeClassify = classifyStore();
   </RowDivSlot>
   <RowDivSlot :label="'Категория'" :value="storeProfile.dataProfile.resume['category']"/>
   <RowDivSlot :label="'Регион'" :slotTwo="true">
-    <a href="#" data-bs-toggle="modal" data-bs-target="#modalRegion"
-       @click="storeProfile.dataProfile.openForm('resume', 'location', storeProfile.dataProfile.resume['id'], storeProfile.dataProfile.resume)">
-        {{ storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']] }}
-    </a>
+    <template v-slot:slotTwo>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#modalRegion"
+        @click="storeProfile.dataProfile.openForm('resume', 'location', storeProfile.dataProfile.resume['id'], storeProfile.dataProfile.resume)">
+          {{ storeClassify.classData.regions[storeProfile.dataProfile.resume['region_id']] }}
+      </a>
+    </template>
   </RowDivSlot>
   <RowDivSlot :label="'Фамилия Имя Отчество'" :value="storeProfile.dataProfile.resume['fullname']"/>
   <RowDivSlot :label="'Изменение имени'" :value="storeProfile.dataProfile.resume['previous']"/>
@@ -37,15 +39,19 @@ const storeClassify = classifyStore();
   <RowDivSlot :label="'ИНН'" :value="storeProfile.dataProfile.resume['inn']"/>
   <RowDivSlot :label="'Образование'" :value="storeProfile.dataProfile.resume['education']"/>
   <RowDivSlot :label="'Дополнительная информация'" :value="storeProfile.dataProfile.resume['addition']"/>
-  <RowDivSlot :label="'Материалы'" :value="storeProfile.dataProfile.resume['path']" :slotTwo="true" :print="true">
-    <router-link :to="{name: 'manager', params: {group: 'staffsec', path: storeProfile.dataProfile.resume['path'].split('/')}}">
+  <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
+    <template v-slot:divTwo>
+    <router-link :to="{name: 'manager', params: {group: 'staffsec'}, query: {path: storeProfile.dataProfile.resume['path'].split('/')}}">
       {{ storeProfile.dataProfile.resume['path'] }}
     </router-link>
+    </template>
   </RowDivSlot>
   <RowDivSlot :label="'Статус'" :slotTwo="true">
-    <a href="#" @click="storeProfile.dataProfile.getItem('resume', 'status', storeProfile.dataProfile.resume['id'])">
-      {{ storeProfile.dataProfile.resume['status'] }}
-    </a>
+    <template v-slot:divTwo>
+      <a href="#" @click="storeProfile.dataProfile.getItem('resume', 'status', storeProfile.dataProfile.resume['id'])">
+        {{ storeProfile.dataProfile.resume['status'] }}
+      </a>
+    </template>
   </RowDivSlot>
   <RowDivSlot :label="'Создан'" :value="new Date(String(storeProfile.dataProfile.resume['create'])).
                                               toLocaleDateString('ru-RU')"/>

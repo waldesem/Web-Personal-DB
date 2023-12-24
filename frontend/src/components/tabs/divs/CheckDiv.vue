@@ -25,14 +25,12 @@ const props = defineProps({
 </script>
 
 <template>
-  <RowDivSlot :slotOne="true" :slotTwo="true"  :print="true">
-    <template v-slot:divOne>
+  <RowDivSlot :slotTwo="true"  :print="true">
+    <template v-slot:divTwo>
       <a :hidden="hiddenDelBtn" href="#" title="Удалить"
          @click="storeProfile.dataProfile.deleteItem(props.item['id'].toString(), 'check')">
         <i class="bi bi-trash"></i>
-      </a>
-    </template>
-    <template v-slot:divTwo>
+      </a>&nbsp; &nbsp; &nbsp;
       <a :hidden="hiddeEditBtn" href="#" title="Изменить"
          @click="storeProfile.dataProfile.openForm('check', 'update', 
                                         props.item['id'].toString(), props.item)">

@@ -110,6 +110,21 @@ export const profileStore = defineStore('profileStore', () => {
     deadline: string;
     officer: string;
   };
+
+  interface Robot {
+    id: string;
+    employee: string;
+    document: string;
+    inn: string;
+    debt: string;
+    bankruptcy: string;
+    bki: string;
+    courts: string;
+    affiliation: string;
+    terrorist: string;
+    mvd: string;
+    deadline: string;
+  }
   
   interface Pfo {
     id: string;
@@ -152,30 +167,52 @@ export const profileStore = defineStore('profileStore', () => {
     relate: Array<Relation>(),
     affilation: Array<Affilation>(),
     verification: Array<Verification>(),
+    robot: Array<Robot>(),
     pfo: Array<Pfo>(),
     inquisition: Array<Inquisition>(),
     needs: Array<Needs>(),
     form: <Record<string, any>>({}),
 
-    getProfile: async function () {
-      await Promise.all([
-        [
-          'resume', 
-          'staff', 
-          'document', 
-          'address',
-          'contact', 
-          'workplace', 
-          'relation',
-          'affilation', 
-          'check', 
-          'poligraf', 
-          'investigation', 
-          'inquiry',
-        ].map(async (item) => await this.getItem(item, 'view', this.candId))
-      ]);
-    },
+    // getProfile: async function () {
+    //   await Promise.all([
+    //     [
+    //       'resume', 
+    //       'staff', 
+    //       'document', 
+    //       'address',
+    //       'contact', 
+    //       'workplace', 
+    //       'relation',
+    //       'affilation', 
+    //       'check', 
+    //       'robot',
+    //       'poligraf', 
+    //       'investigation', 
+    //       'inquiry',
+    //     ].map(async (item) => await this.getItem(item, 'view', this.candId))
+    //   ]);
+    // },
     
+    getProfile: async function () {
+      const response = await storeAuth.axiosInstance.get(`${server}/person/${this.candId}`);
+      const { resume, staffs, documents, addresses, contacts, workplaces, 
+        relations, affilations, checks, robots, poligrafs, investigations, inquiries }
+        = response.data;
+        this.resume = resume;
+        this.staffs = staffs;
+        this.docums = documents;
+        this.addrs = addresses;
+        this.conts = contacts;
+        this.works = workplaces;
+        this.relate = relations;
+        this.affilation = affilations;
+        this.verification = checks;
+        this.robot = robots;
+        this.pfo = poligrafs;
+        this.inquisition = investigations;
+        this.needs = inquiries;
+    },
+
     getItem: async function (
       item: string, action: string, id: string): Promise<void> {
   
@@ -229,6 +266,9 @@ export const profileStore = defineStore('profileStore', () => {
           case 'check': 
             this.verification = response.data;
             break;
+          case 'robot':
+            this.robot = response.data;
+            break;
           case 'poligraf': 
             this.pfo = response.data;
             break;
@@ -242,7 +282,6 @@ export const profileStore = defineStore('profileStore', () => {
              console.log(response.data);
             break;
         };
-  
         if (action === 'status'){
           storeAlert.alertMessage.setAlert('alert-info', 'Статус анкеты обновлен');
         
@@ -401,10 +440,9 @@ export const profileStore = defineStore('profileStore', () => {
     },
 
     cancelEdit: function (): void {
-      clearForm(this.form);
+      //clearForm(this.form);
       this.action = '';
       this.flag = '';
-      this.itemId = ''
     }
   });
 

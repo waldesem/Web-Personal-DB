@@ -62,7 +62,7 @@ const router = createRouter({
           path: 'manager',
           name: 'manager',
           component: () => import('@components/pages/FilePage.vue'),
-          props: true
+          props: route => ({ path: route.query.path })
         },
         {
           path: 'messages',

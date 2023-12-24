@@ -43,8 +43,6 @@ const personData = ref({
   getCandidates: async function (page: number, url: string): Promise<void> {
     this.page = page;
     this.path = url;
-    const searchForm = {'search': this.search};
-    console.log(searchForm)
     try {
       const response = await storeAuth.axiosInstance.post(
         `${server}/index/${url}/${page}`, {'search': this.search}
