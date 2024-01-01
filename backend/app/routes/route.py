@@ -570,7 +570,7 @@ class RobotView(MethodView):
     The RobotView class is a subclass of the MethodView class from the flask.views module.
     """
    
-    #@group_required(Groups.staffsec.value)
+    @group_required(Groups.staffsec.value)
     @bp.doc(hide=True)
     def get(self, action, item_id):
         return RobotSchema().dump(db.session.execute(

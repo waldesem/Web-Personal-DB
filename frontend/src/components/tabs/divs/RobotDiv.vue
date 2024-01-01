@@ -15,13 +15,11 @@ const props = defineProps({
 
 <template>
   <RowDivSlot :label="'Проверка по кадровым данным<'" :value="props.item['employee']"/>
-  <RowDivSlot :label="'Проверка паспорта'" :value="props.item['document']"/>
   <RowDivSlot :label="'Проверка ИНН'" :value="props.item['inn']"/>
   <RowDivSlot :label="'Проверка ФССП'" :value="props.item['debt']"/>
   <RowDivSlot :label="'Проверка банкротства'" :value="props.item['bankruptcy']"/>
   <RowDivSlot :label="'Проверка БКИ'" :value="props.item['bki']"/>
   <RowDivSlot :label="'Проверка судебных дел'" :value="props.item['courts']"/>
-  <RowDivSlot :label="'Проверка аффилированности'" :value="props.item['affiliation']"/>
   <RowDivSlot :label="'Проверка по списку террористов'" :value="props.item['terrorist']"/>
   <RowDivSlot :label="'Проверка нахождения в розыске'" :value="props.item['mvd']"/>
   <RowDivSlot :label="'Дата'" :value="new Date(String(item['deadline'])).

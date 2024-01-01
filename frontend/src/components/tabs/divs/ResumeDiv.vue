@@ -53,9 +53,9 @@ const storeClassify = classifyStore();
       </a>
     </template>
   </RowDivSlot>
-  <RowDivSlot :label="'Создан'" :value="new Date(String(storeProfile.dataProfile.resume['create'])).
+  <RowDivSlot :label="'Создан'" :value="new Date(String(storeProfile.dataProfile.resume['created'])).
                                               toLocaleDateString('ru-RU')"/>
-  <RowDivSlot :label="'Обновлен'" :value="new Date(String(storeProfile.dataProfile.resume['update'])).
+  <RowDivSlot :label="'Обновлен'" :value="new Date(String(storeProfile.dataProfile.resume['updated'])).
                                               toLocaleDateString('ru-RU')"/>
   <RowDivSlot :label="'Внешний ID'" :value="storeProfile.dataProfile.resume['request_id']"/>
 </template>

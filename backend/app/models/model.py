@@ -119,7 +119,7 @@ class Message(Base):
     title = db.Column(db.String(255))
     message = db.Column(db.Text)
     status = db.Column(db.String(255), default=Statuses.new.name)
-    create = db.Column(db.DateTime, default=default_time)
+    created = db.Column(db.DateTime, default=default_time)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
@@ -199,9 +199,9 @@ class Person(Base):
     addition = db.Column(db.Text)
     path = db.Column(db.Text)
     status_id = db.Column(db.Integer, db.ForeignKey('statuses.id'))
-    create = db.Column(db.DateTime, default=default_time)
-    update = db.Column(db.DateTime, onupdate=default_time)
-    search_vector = db.Column(TSVectorType('previous', 'fullname', 'inn', 'snils')) 
+    created = db.Column(db.DateTime, default=default_time)
+    updated = db.Column(db.DateTime, onupdate=default_time)
+    search_vector = db.Column(TSVectorType('previous', 'fullname', 'birthday', 'inn', 'snils')) 
     documents = db.relationship('Document', backref='persons', 
                                 cascade="all, delete, delete-orphan")
     addresses = db.relationship('Address', backref='persons', 
@@ -397,13 +397,11 @@ class Robot(Base):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True, 
                    autoincrement=True)
     employee = db.Column(db.Text)
-    document = db.Column(db.Text)
     inn = db.Column(db.Text)
     debt = db.Column(db.Text)
     bankruptcy = db.Column(db.Text)
     bki = db.Column(db.Text)
     courts = db.Column(db.Text)
-    affiliation = db.Column(db.Text)
     terrorist = db.Column(db.Text)
     mvd = db.Column(db.Text)
     deadline = db.Column(db.DateTime, default=default_time)
@@ -494,7 +492,5 @@ class Connect(Base):
     data = db.Column(db.Date, default=default_time, onupdate=default_time)
     search_vector = db.Column(TSVectorType('company', 'fullname', 'mobile', 'phone')) 
 
-
-# combined_search_vector = Person.search_vector | Document.search_vector
 
 db.configure_mappers()  # very important!
