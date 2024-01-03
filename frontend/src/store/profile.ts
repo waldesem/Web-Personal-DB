@@ -29,8 +29,8 @@ export const profileStore = defineStore('profileStore', () => {
     addition: string;
     path: string;
     status: string;
-    create: string;
-    update: string;
+    created: string;
+    updated: string;
     request_id: string;
   };
   

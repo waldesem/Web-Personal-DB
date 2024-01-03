@@ -62,7 +62,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <td width="15%">{{ message['title'] }}</td>
             <td>{{ message['report'] }}</td>
             <td width="15%">{{ message['status'] }}</td>
-            <td width="10%">{{ message['create'] }}</td>
+            <td width="10%">{{ message['created'] }}</td>
           </tr>
         </tbody>
       </table>
