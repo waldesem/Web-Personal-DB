@@ -46,7 +46,7 @@ class IndexView(MethodView):
                         )
                 case 'officer':
                     query = query.filter(
-                        Person.status_id.in_([
+                        Person.status_id.notin_([
                             Status().get_id(Statuses.finish.value), 
                             Status().get_id(Statuses.cancel.value)
                             ])

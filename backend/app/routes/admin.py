@@ -203,6 +203,6 @@ class TableView(MethodView):
     
 table_view = TableView.as_view('table')
 bp.add_url_rule('/table/<item>/<int:page>',
-                view_func=table_view, methods=['GET', 'POST'])
+                view_func=table_view, methods=['POST'])
 bp.add_url_rule('/table/<item>/<int:item_id>',
-                view_func=table_view, methods=['DELETE', 'PATCH'])
+                view_func=table_view, methods=['DELETE'])
