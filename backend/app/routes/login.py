@@ -5,9 +5,13 @@ import bcrypt
 import redis
 from flask import current_app, abort
 from flask.views import MethodView
-from flask_jwt_extended import current_user, \
-    create_access_token, create_refresh_token, get_jwt, \
-        jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt,
+    jwt_required,
+    get_jwt_identity,
+)
 
 from . import bp
 from .. import jwt, db
@@ -19,6 +23,7 @@ jwt_redis_blocklist = redis.StrictRedis(
     host="localhost", port=6379, db=0, decode_responses=True
 )
 
+
 class LoginView(MethodView):
     """Login view"""
 
@@ -29,53 +34,58 @@ class LoginView(MethodView):
         """
         Retrieves the current authenticated user from the database.
         """
-        user = User.get_user(current_user.username)
+        user = User.get_user(get_jwt_identity())
         if user and not user.blocked:
             user.last_login = datetime.now()
             db.session.commit()
             return user
-        return abort
-            
+        return abort(401)
+
     @bp.input(LoginSchema)
     def post(self, json_data):
         """
         Post method for the given API endpoint.
         """
-        user = User.get_user(json_data['username'])
+        user = User.get_user(json_data["username"])
         if user and not user.blocked:
-            if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
+            if bcrypt.checkpw(json_data["password"].encode("utf-8"), user.password):
                 delta_change = datetime.now() - user.pswd_create
                 if user.pswd_change and delta_change.days < 365:
                     user.last_login = datetime.now()
                     user.attempt = 0
-                    db.session.commit()                    
-                    return {'message': 'Authenticated',
-                            'access_token': create_access_token(identity=user.username),
-                            'refresh_token': create_refresh_token(identity=user.username)}
-                return {'message': 'Overdue'}
+                    db.session.commit()
+                    return {
+                        "message": "Authenticated",
+                        "access_token": create_access_token(identity=user.username),
+                        "refresh_token": create_refresh_token(identity=user.username),
+                    }
+                return {"message": "Overdue"}
             else:
                 if user.attempt < 9:
                     user.attempt = user.attempt + 1
                 else:
                     user.blocked = True
                 db.session.commit()
-        return {'message': 'Denied'}
+        return {"message": "Denied"}
 
     @bp.input(PasswordSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.
         """
-        user = User.get_user(json_data['username'])
-        if user:
-            if bcrypt.checkpw(json_data['password'].encode('utf-8'), user.password):
-                user.password = bcrypt.hashpw(json_data['new_pswd'].encode('utf-8'),
-                                              bcrypt.gensalt())
-                user.pswd_change = datetime.now()
-                db.session.commit()
-                return {'message': 'Authenticated'}
-        return {'message': 'Denied'}
-
+        user = User.get_user(json_data["username"])
+        if (
+            user
+            and not user.blocked
+            and bcrypt.checkpw(json_data["password"].encode("utf-8"), user.password)
+        ):
+            user.password = bcrypt.hashpw(
+                json_data["new_pswd"].encode("utf-8"), bcrypt.gensalt()
+            )
+            user.pswd_change = datetime.now()
+            db.session.commit()
+            return {"message": "Changed"}
+        return {"message": "Denied"}
 
     @bp.doc(hide=True)
     @jwt_required(verify_type=False)
@@ -88,32 +98,36 @@ class LoginView(MethodView):
         jti = get_jwt()["jti"]
         access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
         jwt_redis_blocklist.set(jti, "", ex=access_expires)
-        return {'message': 'Denied'}
-    
-bp.add_url_rule('/login', view_func=LoginView.as_view('login'))
+        return {"message": "Denied"}
+
+
+bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
 
 
 class TokenView(MethodView):
-    
+
     """Token view"""
-    
+
     @jwt_required(refresh=True)
     def post(self):
         """
         Generate a new access token for the authenticated user.
         """
-        if not User.get_user(current_user.username).blocked:
+        user = User.get_user(get_jwt_identity())
+        if user and not user.blocked:
             access_token = create_access_token(identity=get_jwt_identity())
-            return {'access_token': access_token}
-        return {'access_token': ''}
-    
-bp.add_url_rule('/refresh', view_func=TokenView.as_view('refresh'))
+            return {"access_token": access_token}
+        return {"access_token": ""}
+
+
+bp.add_url_rule("/refresh", view_func=TokenView.as_view("refresh"))
 
 
 def roles_required(*roles):
     """
     A decorator that checks if the authenticated user has the required roles.
     """
+
     def decorator(func):
         @wraps(func)
         @jwt_required()
@@ -123,15 +137,18 @@ def roles_required(*roles):
                 return func(*args, **kwargs)
             else:
                 abort(404)
+
         return wrapper
+
     return decorator
-    
+
 
 def group_required(*groups):
     """
-    Decorator that checks if the user is a member of any of the specified groups 
+    Decorator that checks if the user is a member of any of the specified groups
     before allowing access to the decorated endpoint.
     """
+
     def decorator(func):
         @wraps(func)
         @jwt_required()
@@ -141,7 +158,9 @@ def group_required(*groups):
                 return func(*args, **kwargs)
             else:
                 abort(404)
+
         return wrapper
+
     return decorator
 
 

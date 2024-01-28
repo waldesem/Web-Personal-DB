@@ -1,4 +1,4 @@
-# StaffSec (in development now)
+# StaffSec
 
 StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 
@@ -17,6 +17,8 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 - Flask-Cors as a tool that handles CORS
 - Vue3 as the frontend and Vite as Frontend Tooling
 - Bootstrap 5 as the UI framework.
+
+For experimental implementation of backend on Golang see [GO-Personal-DB](https://github.com/waldesem/GO-Personal-DB)
 
 ### Installation
 To use this project, you will need to have Python 3.10 or higher installed on your local machine. You must install Python if you don't have it already.

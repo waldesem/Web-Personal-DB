@@ -1,6 +1,6 @@
 from apiflask import APIBlueprint
 
-bp = APIBlueprint('route', __name__)
+bp = APIBlueprint("route", __name__)
 
 from app.routes import route
 
@@ -15,4 +15,3 @@ from app.routes import message
 from app.routes import classify
 
 from app.routes import files
-

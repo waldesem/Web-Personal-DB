@@ -4,7 +4,7 @@ from multiprocessing import cpu_count
 from os import environ
 
 # The address to bind to (e.g., "0.0.0.0:5000" or "unix:/tmp/gunicorn.sock")
-bind = environ.get('BIND', '0.0.0.0:5000')
+bind = environ.get("BIND", "0.0.0.0:5000")
 
 # The number of worker processes
 workers = cpu_count() * 2 + 1

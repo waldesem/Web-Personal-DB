@@ -9,7 +9,6 @@ from ..models.schema import ConnectSchema, SearchSchema
 
 
 class ContactsView(MethodView):
-
     decorators = [jwt_required(), bp.doc(hide=True)]
 
     @bp.input(SearchSchema)
@@ -20,25 +19,26 @@ class ContactsView(MethodView):
         schema = ConnectSchema()
         companies = db.session.execute(select(Connect.company)).scalars()
         cities = db.session.execute(select(Connect.city)).scalars()
-        if json_data['search']:
-            query = Connect.query.search('%{}%'.format(json_data['search']))
+        if json_data["search"]:
+            query = Connect.query.search("%{}%".format(json_data["search"]))
         else:
             query = select(Connect)
         result = query.order_by(Connect.id.desc())
-        result = db.paginate(query, page=page, per_page=16, error_out=False) 
-        return [schema.dump(result, many=True),
-                {'has_next': result.has_next},
-                {'has_prev': result.has_prev},
-                {'companies': list({company for company in companies})},
-                {'cities': list({city for city in cities})}]
+        result = db.paginate(query, page=page, per_page=16, error_out=False)
+        return [
+            schema.dump(result, many=True),
+            {"has_next": result.has_next},
+            {"has_prev": result.has_prev},
+            {"companies": list({company for company in companies})},
+            {"cities": list({city for city in cities})},
+        ], 200
 
-bp.add_url_rule('/connects/<int:page>', view_func=ContactsView.as_view('connects'))
+
+bp.add_url_rule("/connects/<int:page>", view_func=ContactsView.as_view("connects"))
 
 
 class ConnnectView(MethodView):
-
-    decorators = [jwt_required(), 
-                  bp.doc(hide=True)]
+    decorators = [jwt_required(), bp.doc(hide=True)]
 
     @bp.input(ConnectSchema)
     def post(self, json_data):
@@ -48,8 +48,8 @@ class ConnnectView(MethodView):
         connect = Connect(**json_data)
         db.session.add(connect)
         db.session.commit()
-        return ContactsView().post(1, {'search': ''})
-    
+        return {"message": "Created"}, 201
+
     @bp.input(ConnectSchema)
     def patch(self, item_id, page, json_data):
         """
@@ -59,8 +59,8 @@ class ConnnectView(MethodView):
         for k, v in json_data.items():
             setattr(resp, k, v)
         db.session.commit()
-        return ContactsView().post(page, {'search': ''})
-    
+        return {"message": "Updated"}, 201
+
     def delete(self, page, item_id):
         """
         Deletes an item from the database.
@@ -68,9 +68,13 @@ class ConnnectView(MethodView):
         resp = db.session.get(Connect, item_id)
         db.session.delete(resp)
         db.session.commit()
-        return ContactsView().post(page, {'search': ''})
-    
-contacts_view = ConnnectView.as_view('connect')
-bp.add_url_rule('/connect', view_func=contacts_view, methods=['POST'])
-bp.add_url_rule('/connect/<int:page>/<int:item_id>', 
-                view_func=contacts_view, methods=['PATCH', 'DELETE'])
+        return {"message": "Deleted"}, 204
+
+
+contacts_view = ConnnectView.as_view("connect")
+bp.add_url_rule("/connect", view_func=contacts_view, methods=["POST"])
+bp.add_url_rule(
+    "/connect/<int:page>/<int:item_id>",
+    view_func=contacts_view,
+    methods=["PATCH", "DELETE"],
+)
