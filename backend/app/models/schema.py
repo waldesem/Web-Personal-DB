@@ -86,7 +86,7 @@ class PersonSchema(SQLAlchemyAutoSchema):
         model = Person
         ordered = True
         include_fk = True
-        exclude = ("search_vector",)
+        exclude = ("search_vector", "deleted",)
 
 
 class RegionSchema(SQLAlchemyAutoSchema):

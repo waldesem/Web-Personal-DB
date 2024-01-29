@@ -22,3 +22,5 @@ class Config:
     BASE_PATH = os.path.abspath(os.path.join("..", "persons"))
 
     DEFAULT_PASSWORD = "8" * 8
+
+    PAGINATION = 16
