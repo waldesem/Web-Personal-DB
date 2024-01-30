@@ -11,16 +11,20 @@ from flask_jwt_extended import (
     get_jwt,
     jwt_required,
     get_jwt_identity,
+    current_user,
 )
 
 from . import bp
-from .. import jwt, db
+from .. import jwt, db, cache
 from ..models.model import User
 from ..models.schema import LoginSchema, PasswordSchema, UserSchema
 
 
 jwt_redis_blocklist = redis.StrictRedis(
-    host="localhost", port=6379, db=0, decode_responses=True
+    host=current_app.config["REDIS_HOST"],
+    port=current_app.config["REDIS_PORT"],
+    db=0,
+    decode_responses=True,
 )
 
 
@@ -35,7 +39,7 @@ class LoginView(MethodView):
         Retrieves the current authenticated user from the database.
         """
         user = User.get_user(get_jwt_identity())
-        if user and not user.blocked:
+        if user and not user.blocked and not user.deleted:
             user.last_login = datetime.now()
             db.session.commit()
             return user
@@ -56,8 +60,8 @@ class LoginView(MethodView):
                     db.session.commit()
                     return {
                         "message": "Authenticated",
-                        "access_token": create_access_token(identity=user.username),
-                        "refresh_token": create_refresh_token(identity=user.username),
+                        "access_token": create_access_token(identity=user),
+                        "refresh_token": create_refresh_token(identity=user),
                     }
                 return {"message": "Overdue"}
             else:
@@ -66,7 +70,7 @@ class LoginView(MethodView):
                 else:
                     user.blocked = True
                 db.session.commit()
-        return {"message": "Denied"}
+        return {"message": "Denied"}, 401
 
     @bp.input(PasswordSchema)
     def patch(self, json_data):
@@ -92,8 +96,6 @@ class LoginView(MethodView):
     def delete(self):
         """
         A function that deletes the JWT token from the Redis blocklist.
-        Returns:
-            A tuple containing an empty string and the status code 401.
         """
         jti = get_jwt()["jti"]
         access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
@@ -105,7 +107,6 @@ bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
 
 
 class TokenView(MethodView):
-
     """Token view"""
 
     @jwt_required(refresh=True)
@@ -113,9 +114,9 @@ class TokenView(MethodView):
         """
         Generate a new access token for the authenticated user.
         """
-        user = User.get_user(get_jwt_identity())
-        if user and not user.blocked:
-            access_token = create_access_token(identity=get_jwt_identity())
+        user = db.session.get(User, current_user.id)
+        if user and not user.blocked and not user.deleted:
+            access_token = create_access_token(identity=user)
             return {"access_token": access_token}
         return {"access_token": ""}
 
@@ -123,6 +124,7 @@ class TokenView(MethodView):
 bp.add_url_rule("/refresh", view_func=TokenView.as_view("refresh"))
 
 
+@cache.memoize()
 def roles_required(*roles):
     """
     A decorator that checks if the authenticated user has the required roles.
@@ -132,8 +134,9 @@ def roles_required(*roles):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = User.get_user(get_jwt_identity())
-            if user is not None and user.has_role(*roles):
+            # user = User.get_user(get_jwt_identity())
+            # if user is not None and user.has_role(*roles):
+            if any(r.role in roles for r in current_user.roles):
                 return func(*args, **kwargs)
             else:
                 abort(404)
@@ -143,18 +146,19 @@ def roles_required(*roles):
     return decorator
 
 
+@cache.memoize()
 def group_required(*groups):
     """
     Decorator that checks if the user is a member of any of the specified groups
-    before allowing access to the decorated endpoint.
     """
 
     def decorator(func):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            user = User.get_user(get_jwt_identity())
-            if user is not None and user.has_group(*groups):
+            # user = User.get_user(get_jwt_identity())
+            # if user is not None and user.has_group(*groups):
+            if any(g.group in groups for g in current_user.groups):
                 return func(*args, **kwargs)
             else:
                 abort(404)
@@ -174,6 +178,7 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     return token_in_redis is not None
 
 
+@cache.memoize()
 @jwt.user_identity_loader
 def user_identity_lookup(user):
     """
@@ -182,9 +187,10 @@ def user_identity_lookup(user):
     return user
 
 
+@cache.memoize()
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.
     """
-    return User.get_user(jwt_data["sub"])
+    return db.session.get(User, jwt_data["sub"])

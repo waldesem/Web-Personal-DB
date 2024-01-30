@@ -124,12 +124,11 @@ class GroupView(MethodView):
         list of groups if it does not already exist.
         """
         user = db.session.get(User, user_id)
-        if user and  value not in user.groups:
+        if user and value not in user.groups:
             user.groups.append(db.session.get(Group, value))
             db.session.commit()
             return {"message": "Added"}, 200
         return {"message": "Denied"}, 403
-
 
     @bp.output(EmptySchema)
     def delete(self, value, user_id):
@@ -162,7 +161,7 @@ class RoleView(MethodView):
 
     def get(self, value, user_id):
         user = db.session.get(User, user_id)
-        if user and  value not in user.roles:
+        if user and value not in user.roles:
             user.roles.append(db.session.get(Role, value))
             db.session.commit()
             return {"message": "Added"}, 200
@@ -177,7 +176,7 @@ class RoleView(MethodView):
         if (
             user
             and role
-            and user.username != get_jwt_identity() 
+            and user.username != get_jwt_identity()
             and value != Roles.admin.value
         ):
             user.roles.remove(role)
@@ -201,7 +200,10 @@ class TableView(MethodView):
         if search_data:
             query = query.filter_by(id=search_data)
         result = db.paginate(
-            query, page=num, per_page=current_app.config["PAGINATION"], error_out=False
+            query,
+            page=num,
+            per_page=current_app.config["PAGINATION"],
+            error_out=False,
         )
         return [
             schema.dump(result, many=True),

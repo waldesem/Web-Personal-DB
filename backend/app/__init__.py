@@ -14,12 +14,12 @@ cache = Cache()
 jwt = JWTManager()
 
 
-def create_app(config_class=Config):
+def create_app(config=Config):
     """
     Initializes and configures a Flask application.
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
-    app.config.from_object(config_class)
+    app.config.from_object(config)
     app.json.sort_keys = False
     # app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
     # for local use, download redoc.standalone.js
@@ -45,6 +45,7 @@ def create_app(config_class=Config):
     @app.get("/", defaults={"path": ""})
     @app.get("/<path:path>")
     @app.doc(hide=True)
+    @cache.cached()
     def main(path=""):
         return app.send_static_file("index.html")
 

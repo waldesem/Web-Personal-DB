@@ -66,7 +66,7 @@ class LoginSchema(Schema):
 
 
 class PasswordSchema(LoginSchema):
-    """Create model for login"""
+    """Create model for password"""
 
     new_pswd = fields.String()
 

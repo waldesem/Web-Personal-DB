@@ -1,3 +1,4 @@
+from flask import current_app
 from flask_jwt_extended import jwt_required
 from flask.views import MethodView
 from sqlalchemy import select
@@ -24,7 +25,12 @@ class ContactsView(MethodView):
         else:
             query = select(Connect)
         result = query.order_by(Connect.id.desc())
-        result = db.paginate(query, page=page, per_page=16, error_out=False)
+        result = db.paginate(
+            query, 
+            page=page, 
+            per_page=current_app.config["RAGINATION"], 
+            error_out=False
+            )
         return [
             schema.dump(result, many=True),
             {"has_next": result.has_next},
@@ -51,7 +57,7 @@ class ConnnectView(MethodView):
         return {"message": "Created"}, 201
 
     @bp.input(ConnectSchema)
-    def patch(self, item_id, page, json_data):
+    def patch(self, item_id, json_data):
         """
         Patch an item in the Connect table.
         """
@@ -61,7 +67,7 @@ class ConnnectView(MethodView):
         db.session.commit()
         return {"message": "Updated"}, 201
 
-    def delete(self, page, item_id):
+    def delete(self, item_id):
         """
         Deletes an item from the database.
         """
@@ -74,7 +80,7 @@ class ConnnectView(MethodView):
 contacts_view = ConnnectView.as_view("connect")
 bp.add_url_rule("/connect", view_func=contacts_view, methods=["POST"])
 bp.add_url_rule(
-    "/connect/<int:page>/<int:item_id>",
+    "/connect/<int:item_id>",
     view_func=contacts_view,
     methods=["PATCH", "DELETE"],
 )

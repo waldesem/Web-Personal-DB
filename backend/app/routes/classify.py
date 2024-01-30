@@ -2,7 +2,7 @@ from flask.views import MethodView
 from sqlalchemy import select
 
 from . import bp
-from .. import db
+from .. import db, cache
 from ..models.model import Category, Conclusion, Role, Group, Status, Region
 from ..models.schema import (
     models_schemas,
@@ -21,6 +21,7 @@ class ClassesView(MethodView):
     """
 
     @bp.doc(hide=True)
+    @cache.cached()
     async def get(self):
         tables = ["Category", "Conclusion", "Role", "Group", "Status", "Region"]
         queries = [

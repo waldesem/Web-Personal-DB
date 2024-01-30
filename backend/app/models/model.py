@@ -7,7 +7,7 @@ from flask_sqlalchemy.query import Query
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import sqlalchemy as sa
 
-from .. import db, cache
+from .. import db #, cache
 from ..models.classes import Statuses
 
 
@@ -105,19 +105,19 @@ class User(Base):
             select(User).filter_by(username=user_name)
         ).scalar_one_or_none()
 
-    @cache.memoize(60)
-    def has_group(self, *groups):
-        """
-        Checks if the given group exists in the list of groups.
-        """
-        return any(g.group in groups for g in self.groups)
+    # @cache.memoize(60)
+    # def has_group(self, *groups):
+    #     """
+    #     Checks if the given group exists in the list of groups.
+    #     """
+    #     return any(g.group in groups for g in self.groups)
 
-    @cache.memoize(60)
-    def has_role(self, *roles):
-        """
-        A function that checks if the user has a specific role.
-        """
-        return any(r.role in roles for r in self.roles)
+    # @cache.memoize(60)
+    # def has_role(self, *roles):
+    #     """
+    #     A function that checks if the user has a specific role.
+    #     """
+    #     return any(r.role in roles for r in self.roles)
 
 
 class Message(Base):
