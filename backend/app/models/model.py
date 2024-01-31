@@ -48,7 +48,8 @@ class Group(Base):
 
     def get_group(self, group):
         return db.session.execute(
-            select(Group).filter_by(group=group)
+            select(Group)
+            .filter_by(group=group)
         ).scalar_one_or_none()
 
 
@@ -64,7 +65,8 @@ class Role(Base):
 
     def get_role(self, role):
         return db.session.execute(
-            select(Role).filter_by(role=role)
+            select(Role)
+            .filter_by(role=role)
         ).scalar_one_or_none()
 
 
@@ -86,10 +88,8 @@ class User(Base):
     blocked: Mapped[bool] = mapped_column(sa.Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(sa.Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(sa.Integer(), default=0)
-    search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("fullname", "username", "email")
-    )
-    messages: Mapped[List["Message"]] = relationship(
+    messages: Mapped[List["Message"]] = relationship(back_populates="users")
+    persons: Mapped[List["Person"]] = relationship(
         back_populates="users", cascade="all, delete, delete-orphan"
     )
     roles: Mapped[List["Role"]] = relationship(
@@ -98,11 +98,15 @@ class User(Base):
     groups: Mapped[List["Group"]] = relationship(
         back_populates="users", secondary=user_groups, lazy="dynamic"
     )
-
+    search_vector: Mapped[TSVectorType] = mapped_column(
+        TSVectorType("fullname", "username", "email")
+    )
+    
     @staticmethod
     def get_user(user_name):
         return db.session.execute(
-            select(User).filter_by(username=user_name)
+            select(User)
+            .filter_by(username=user_name)
         ).scalar_one_or_none()
 
     # @cache.memoize(60)
@@ -146,7 +150,8 @@ class Category(Base):
 
     def get_id(self, category):
         return db.session.execute(
-            select(Category.id).filter(Category.category == category)
+            select(Category.id)
+            .filter(Category.category == category)
         ).scalar_one_or_none()
 
 
@@ -200,6 +205,8 @@ class Person(Base):
     )
     category_id: Mapped[int] = mapped_column(sa.ForeignKey("categories.id"))
     region_id: Mapped[int] = mapped_column(sa.ForeignKey("regions.id"))
+    status_id: Mapped[int] = mapped_column(sa.ForeignKey("statuses.id"))
+    user_id: Mapped[int] = mapped_column(sa.ForeignKey("users.id"))
     fullname: Mapped[str] = mapped_column(sa.String(255), nullable=False, index=True)
     previous: Mapped[str] = mapped_column(sa.Text, nullable=True)
     birthday: Mapped[datetime] = mapped_column(sa.Date, nullable=False, index=True)
@@ -212,15 +219,11 @@ class Person(Base):
     marital: Mapped[str] = mapped_column(sa.String(255), nullable=True)
     addition: Mapped[str] = mapped_column(sa.Text, nullable=True)
     path: Mapped[str] = mapped_column(sa.Text, nullable=True)
-    status_id: Mapped[int] = mapped_column(sa.ForeignKey("statuses.id"))
     created: Mapped[datetime] = mapped_column(
         sa.Date, default=default_time, nullable=True
     )
     updated: Mapped[datetime] = mapped_column(
         sa.Date, onupdate=default_time, nullable=True
-    )
-    search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("previous", "fullname", "birthday", "inn", "snils")
     )
     staffs: Mapped[List["Staff"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
@@ -258,6 +261,9 @@ class Person(Base):
     investigations: Mapped[List["Investigation"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
+    search_vector: Mapped[TSVectorType] = mapped_column(
+        TSVectorType("previous", "fullname", "birthday", "inn", "snils")
+    )
     categories: Mapped["Category"] = relationship(back_populates="persons")
     statuses: Mapped["Status"] = relationship(back_populates="persons")
     regions: Mapped["Region"] = relationship(back_populates="persons")
@@ -269,9 +275,10 @@ class Person(Base):
         return any(
             self.status_id
             == [
-                db.session.execute(select(Status).filter_by(status=status))
-                .scalar_one_or_none()
-                .id
+                db.session.execute(
+                    select(Status)
+                    .filter_by(status=status))
+                    .scalar_one_or_none().id
                 for status in statuses
             ]
         )
@@ -452,7 +459,7 @@ class Check(Base):
     addition: Mapped[str] = mapped_column(sa.Text, nullable=True)
     pfo: Mapped[bool] = mapped_column(sa.Boolean, nullable=True)
     comments: Mapped[str] = mapped_column(sa.Text, nullable=True)
-    conclusion: Mapped[int] = mapped_column(sa.ForeignKey("conclusions.id"))
+    conclusion_id: Mapped[int] = mapped_column(sa.ForeignKey("conclusions.id"))
     officer: Mapped[str] = mapped_column(sa.String(255), nullable=True)
     deadline: Mapped[datetime] = mapped_column(
         sa.Date, default=default_time, onupdate=default_time
