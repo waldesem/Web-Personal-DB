@@ -978,18 +978,19 @@ bp.add_url_rule(
 
 
 class InfoView(MethodView):
+
     @group_required(Groups.staffsec.value)
     @bp.doc(hide=True)
     def post(self):
         response = request.get_json()
         candidates = db.session.execute(
-            select(Check.conclusion, func.count(Check.id))
+            select(Check.conclusion_id, func.count(Check.id))
             .join(Person)
-            .group_by(Check.conclusion)
+            .group_by(Check.conclusion_id)
             .filter(Person.region_id == response["region_id"])
             .filter(Check.deadline.between(response["start"], response["end"]))
         ).all()
-        return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates))}
+        return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates))}, 200
 
 
 bp.add_url_rule("/information", view_func=InfoView.as_view("information"))
@@ -1002,7 +1003,7 @@ class FileView(MethodView):
         bp.doc(hide=True),
     ]
 
-    def get(self, action, item_id):
+    def get(self, item_id):
         """
         Retrieves a file from the server and sends it as a response.
         """
@@ -1014,8 +1015,9 @@ class FileView(MethodView):
             return send_file(file_path, as_attachment=True)
         return abort(404)
 
-    def post(self, action, item_id=0):
-        if not request.files["file"].filename:
+    def post(self, item_id=0):
+        action = request.args.get("action")
+        if not request.files["file"].filename and action:
             return {"result": False, "item_id": item_id}
 
         if action == "anketa":
@@ -1047,7 +1049,10 @@ class FileView(MethodView):
                 current_app.config["BASE_PATH"], action_folder, filename
             )
             if not os.path.isfile(save_path):
-                shutil.move(temp_path, save_path)
+                try:
+                    shutil.move(temp_path, save_path)
+                except Exception as e:
+                    print(e)
             return {"message": person_id}
 
         else:
@@ -1123,4 +1128,4 @@ class FileView(MethodView):
         )
 
 
-bp.add_url_rule("/file/<action>/<int:item_id>", view_func=FileView.as_view("file"))
+bp.add_url_rule("/file/<int:item_id>", view_func=FileView.as_view("file"))
