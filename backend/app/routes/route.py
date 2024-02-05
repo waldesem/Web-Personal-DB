@@ -18,7 +18,6 @@ from ..utils.jsonparser import JsonFile
 from ..models.model import (
     Category,
     Conclusion,
-    User,
     Person,
     Staff,
     Document,
@@ -50,7 +49,6 @@ from ..models.schema import (
     WorkplaceSchema,
     AffilationSchema,
     RobotSchema,
-    SearchSchema,
 )
 from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 
@@ -58,7 +56,6 @@ from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 class IndexView(MethodView):
     decorators = [
         group_required(Groups.staffsec.value),
-        bp.input(SearchSchema),
         bp.doc(hide=True),
     ]
 

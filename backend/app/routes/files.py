@@ -117,4 +117,4 @@ class FileManagementView(MethodView):
 
 files_view = FileManagementView.as_view("manager")
 bp.add_url_rule("/manager", view_func=files_view, methods=["GET"])
-bp.add_url_rule("/manager/<action>", view_func=files_view, methods=["POST", "PATCH"])
+bp.add_url_rule("/manager/<action>", view_func=files_view, methods=["POST"])

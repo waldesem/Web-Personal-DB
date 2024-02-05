@@ -239,10 +239,6 @@ class AnketaSchemaApi(SQLAlchemySchema):
     address = fields.String()
 
 
-class SearchSchema(Schema):
-    search = fields.String()
-
-
 models_schemas = {
     "user": [User, UserSchema()],
     "role": [Role, RoleSchema()],

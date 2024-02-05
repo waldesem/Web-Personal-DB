@@ -10,7 +10,6 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt,
     jwt_required,
-    get_jwt_identity,
     current_user,
 )
 
@@ -38,7 +37,7 @@ class LoginView(MethodView):
         """
         Retrieves the current authenticated user from the database.
         """
-        user = User.get_user(get_jwt_identity())
+        user = User.get_user(current_user.username)
         if user and not user.blocked and not user.deleted:
             user.last_login = datetime.now()
             db.session.commit()
@@ -128,13 +127,10 @@ def roles_required(*roles):
     """
     A decorator that checks if the authenticated user has the required roles.
     """
-
     def decorator(func):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            # user = User.get_user(get_jwt_identity())
-            # if user is not None and user.has_role(*roles):
             if any(r.role in roles for r in current_user.roles):
                 return func(*args, **kwargs)
             else:
@@ -149,13 +145,10 @@ def group_required(*groups):
     """
     Decorator that checks if the user is a member of any of the specified groups
     """
-
     def decorator(func):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            # user = User.get_user(get_jwt_identity())
-            # if user is not None and user.has_group(*groups):
             if any(g.group in groups for g in current_user.groups):
                 return func(*args, **kwargs)
             else:

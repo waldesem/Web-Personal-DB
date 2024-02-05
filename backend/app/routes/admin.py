@@ -125,7 +125,7 @@ class GroupView(MethodView):
         """
         user = db.session.get(User, user_id)
         if user and value not in user.groups:
-            user.groups.append(db.session.get(Group, value))
+            user.groups.append(Group.get_group(value))
             db.session.commit()
             return {"message": "Added"}, 200
         return {"message": "Denied"}, 403
@@ -162,7 +162,7 @@ class RoleView(MethodView):
     def get(self, value, user_id):
         user = db.session.get(User, user_id)
         if user and value not in user.roles:
-            user.roles.append(db.session.get(Role, value))
+            user.roles.append(Role.get_role(value))
             db.session.commit()
             return {"message": "Added"}, 200
         return {"message": "Denied"}, 403
