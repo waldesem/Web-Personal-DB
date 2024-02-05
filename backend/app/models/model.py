@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import List
 from sqlalchemy import select
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable
@@ -7,7 +7,7 @@ from flask_sqlalchemy.query import Query
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import sqlalchemy as sa
 
-from .. import db #, cache
+from .. import db  # , cache
 from ..models.classes import Statuses
 
 
@@ -45,11 +45,12 @@ class Group(Base):
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
     group: Mapped[str] = mapped_column(sa.String(255), unique=True)
-
+    users: Mapped[List["User"]] = relationship(
+        back_populates="groups", secondary=user_groups, lazy="dynamic"
+    )
     def get_group(self, group):
         return db.session.execute(
-            select(Group)
-            .filter_by(group=group)
+            select(Group).filter_by(group=group)
         ).scalar_one_or_none()
 
 
@@ -62,11 +63,12 @@ class Role(Base):
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
     role: Mapped[str] = mapped_column(sa.String(255), unique=True)
-
+    users: Mapped[List["User"]] = relationship(
+        back_populates="roles", secondary=user_roles, lazy="dynamic"
+    )
     def get_role(self, role):
         return db.session.execute(
-            select(Role)
-            .filter_by(role=role)
+            select(Role).filter_by(role=role)
         ).scalar_one_or_none()
 
 
@@ -78,20 +80,18 @@ class User(Base):
     id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
-    fullname: Mapped[str] = mapped_column(sa.String(255))
+    fullname: Mapped[str] = mapped_column(sa.String(255), nullable=True)
     username: Mapped[str] = mapped_column(sa.String(255), unique=True)
     password: Mapped[str] = mapped_column(sa.LargeBinary)
-    email: Mapped[str] = mapped_column(sa.String(255), unique=True)
-    pswd_create: Mapped[datetime] = mapped_column(sa.DateTime, default=default_time)
-    pswd_change: Mapped[datetime] = mapped_column(sa.DateTime)
-    last_login: Mapped[datetime] = mapped_column(sa.DateTime)
+    email: Mapped[str] = mapped_column(sa.String(255), nullable=True, unique=True)
+    pswd_create: Mapped[datetime] = mapped_column(sa.DateTime, nullable=True, default=default_time)
+    pswd_change: Mapped[datetime] = mapped_column(sa.DateTime, nullable=True)
+    last_login: Mapped[datetime] = mapped_column(sa.DateTime, nullable=True)
     blocked: Mapped[bool] = mapped_column(sa.Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(sa.Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(sa.Integer(), default=0)
     messages: Mapped[List["Message"]] = relationship(back_populates="users")
-    persons: Mapped[List["Person"]] = relationship(
-        back_populates="users", cascade="all, delete, delete-orphan"
-    )
+    persons: Mapped[List["Person"]] = relationship(back_populates="users")
     roles: Mapped[List["Role"]] = relationship(
         back_populates="users", secondary=user_roles, lazy="dynamic"
     )
@@ -101,12 +101,11 @@ class User(Base):
     search_vector: Mapped[TSVectorType] = mapped_column(
         TSVectorType("fullname", "username", "email")
     )
-    
+
     @staticmethod
     def get_user(user_name):
         return db.session.execute(
-            select(User)
-            .filter_by(username=user_name)
+            select(User).filter_by(username=user_name)
         ).scalar_one_or_none()
 
     # @cache.memoize(60)
@@ -137,6 +136,7 @@ class Message(Base):
     status: Mapped[str] = mapped_column(sa.String(255), default=Statuses.new.name)
     created: Mapped[datetime] = mapped_column(sa.DateTime, default=default_time)
     user_id: Mapped[int] = mapped_column(sa.ForeignKey("users.id"))
+    users: Mapped["User"] = relationship(back_populates="messages")
 
 
 class Category(Base):
@@ -150,8 +150,7 @@ class Category(Base):
 
     def get_id(self, category):
         return db.session.execute(
-            select(Category.id)
-            .filter(Category.category == category)
+            select(Category.id).filter(Category.category == category)
         ).scalar_one_or_none()
 
 
@@ -176,7 +175,7 @@ class Region(Base):
     __tablename__ = "regions"
 
     id: Mapped[int] = mapped_column(
-        nullable=True, unique=True, primary_key=True, autoincrement=True
+        nullable=False, unique=True, primary_key=True, autoincrement=True
     )
     region: Mapped[str] = mapped_column(sa.String(255))
     persons: Mapped[List["Person"]] = relationship(back_populates="regions")
@@ -203,13 +202,13 @@ class Person(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    category_id: Mapped[int] = mapped_column(sa.ForeignKey("categories.id"))
-    region_id: Mapped[int] = mapped_column(sa.ForeignKey("regions.id"))
-    status_id: Mapped[int] = mapped_column(sa.ForeignKey("statuses.id"))
-    user_id: Mapped[int] = mapped_column(sa.ForeignKey("users.id"))
+    category_id: Mapped[int] = mapped_column(sa.ForeignKey("categories.id"), nullable=True)
+    region_id: Mapped[int] = mapped_column(sa.ForeignKey("regions.id"), nullable=True)
+    status_id: Mapped[int] = mapped_column(sa.ForeignKey("statuses.id"), nullable=True)
+    user_id: Mapped[int] = mapped_column(sa.ForeignKey("users.id"), nullable=True)
     fullname: Mapped[str] = mapped_column(sa.String(255), nullable=False, index=True)
     previous: Mapped[str] = mapped_column(sa.Text, nullable=True)
-    birthday: Mapped[datetime] = mapped_column(sa.Date, nullable=False, index=True)
+    birthday: Mapped[date] = mapped_column(sa.Date, nullable=False)
     birthplace: Mapped[str] = mapped_column(sa.Text, nullable=True)
     country: Mapped[str] = mapped_column(sa.String(255), nullable=True)
     ext_country: Mapped[str] = mapped_column(sa.String(255), nullable=True)
@@ -220,10 +219,10 @@ class Person(Base):
     addition: Mapped[str] = mapped_column(sa.Text, nullable=True)
     path: Mapped[str] = mapped_column(sa.Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        sa.Date, default=default_time, nullable=True
+        sa.DateTime, default=default_time, nullable=True
     )
     updated: Mapped[datetime] = mapped_column(
-        sa.Date, onupdate=default_time, nullable=True
+        sa.DateTime, onupdate=default_time, nullable=True
     )
     staffs: Mapped[List["Staff"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
@@ -262,11 +261,12 @@ class Person(Base):
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
     search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("previous", "fullname", "birthday", "inn", "snils")
+        TSVectorType("previous", "fullname", "inn", "snils",)
     )
     categories: Mapped["Category"] = relationship(back_populates="persons")
     statuses: Mapped["Status"] = relationship(back_populates="persons")
     regions: Mapped["Region"] = relationship(back_populates="persons")
+    users: Mapped["User"] = relationship(back_populates="persons")
 
     def has_status(self, *statuses):
         """
@@ -275,10 +275,9 @@ class Person(Base):
         return any(
             self.status_id
             == [
-                db.session.execute(
-                    select(Status)
-                    .filter_by(status=status))
-                    .scalar_one_or_none().id
+                db.session.execute(select(Status).filter_by(status=status))
+                .scalar_one_or_none()
+                .id
                 for status in statuses
             ]
         )
@@ -433,6 +432,7 @@ class Relation(Base):
     relation: Mapped[str] = mapped_column(sa.String(255), nullable=True)
     relation_id: Mapped[int] = mapped_column(sa.Integer, nullable=True)
     person_id: Mapped[int] = mapped_column(sa.ForeignKey("persons.id"))
+    persons: Mapped[List["Person"]] = relationship(back_populates="relations")
 
 
 class Check(Base):
@@ -523,6 +523,7 @@ class Poligraf(Base):  # модель данных результаты ПФО
     officer: Mapped[str] = mapped_column(sa.String(255))
     deadline: Mapped[datetime] = mapped_column(sa.Date, default=default_time)
     person_id: Mapped[int] = mapped_column(sa.ForeignKey("persons.id"))
+    persons: Mapped[List["Person"]] = relationship(back_populates="poligrafs")
 
 
 class Investigation(Base):
@@ -538,6 +539,7 @@ class Investigation(Base):
     officer: Mapped[str] = mapped_column(sa.String(255))
     deadline: Mapped[datetime] = mapped_column(sa.Date, default=default_time)
     person_id: Mapped[int] = mapped_column(sa.ForeignKey("persons.id"))
+    persons: Mapped[List["Person"]] = relationship(back_populates="investigations")
 
 
 class Inquiry(Base):

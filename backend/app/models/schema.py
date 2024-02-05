@@ -55,7 +55,7 @@ class UserSchema(SQLAlchemyAutoSchema):
         model = User
         ordered = True
         include_fk = True
-        exclude = ("search_vector",)
+        exclude = ("search_vector", "deleted",)
 
 
 class LoginSchema(Schema):
@@ -86,7 +86,7 @@ class PersonSchema(SQLAlchemyAutoSchema):
         model = Person
         ordered = True
         include_fk = True
-        exclude = ("search_vector", "deleted",)
+        exclude = ("search_vector",)
 
 
 class RegionSchema(SQLAlchemyAutoSchema):

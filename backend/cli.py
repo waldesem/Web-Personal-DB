@@ -63,7 +63,7 @@ def register_cli(app):
                 region_id=Region().get_id(Regions.MAIN_OFFICE.value),
                 fullname="Бендер Остап Ибрагимович",
                 previous="Остап Сулейман",
-                birthday=datetime.now().date() - 120,
+                birthday=datetime.now().date(),
                 birthplace="Неизвестно",
                 country="Россия",
                 ext_country="Турция",
@@ -71,7 +71,7 @@ def register_cli(app):
                 inn="123456789012",
                 education="Частная гимназия Илиади",
                 marital="женат",
-                addition="великий комбинаторЫ",
+                addition="великий комбинатор",
                 path=Config.BASE_PATH,
                 status_id=Status().get_id(Statuses.new.value),
             )

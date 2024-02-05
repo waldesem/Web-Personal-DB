@@ -21,8 +21,8 @@ from ..models.schema import LoginSchema, PasswordSchema, UserSchema
 
 
 jwt_redis_blocklist = redis.StrictRedis(
-    host=current_app.config["REDIS_HOST"],
-    port=current_app.config["REDIS_PORT"],
+    host="localhost",
+    port=6379,
     db=0,
     decode_responses=True,
 )
@@ -124,7 +124,6 @@ class TokenView(MethodView):
 bp.add_url_rule("/refresh", view_func=TokenView.as_view("refresh"))
 
 
-@cache.memoize()
 def roles_required(*roles):
     """
     A decorator that checks if the authenticated user has the required roles.
@@ -146,7 +145,6 @@ def roles_required(*roles):
     return decorator
 
 
-@cache.memoize()
 def group_required(*groups):
     """
     Decorator that checks if the user is a member of any of the specified groups
