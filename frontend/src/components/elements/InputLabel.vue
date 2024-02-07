@@ -1,55 +1,54 @@
 <script setup lang="ts">
-
 const props = defineProps({
   need: {
     type: Boolean,
-    default: false},
+    default: false,
+  },
   typeof: {
     type: String,
-    default: "text"
+    default: "text",
   },
   disable: {
     type: Boolean,
-    default: false
+    default: false,
   },
   place: {
     type: String,
     default: (props: any) => {
-      if (props.typeof === 'text') {
-        return props.label
+      if (props.typeof === "text") {
+        return props.label;
       }
-    }
+    },
   },
   pattern: {
     type: String,
-    default: '.*'
+    default: ".*",
   },
   max: {
     type: [String, Number],
     default: (props: any) => {
-      if (props.typeof === 'date') {
-        return new Date().toISOString().split('T')[0];
+      if (props.typeof === "date") {
+        return new Date().toISOString().split("T")[0];
       } else {
-        return '255'; ;
+        return "255";
       }
-    }
+    },
   },
   min: {
     type: String,
-    default: '0'
+    default: "0",
   },
   clsInput: {
     type: String,
-    default: 'col-lg-10'
+    default: "col-lg-10",
   },
   name: String,
   label: String,
   model: {
     type: [String, Number],
-    default: ''
+    default: "",
   },
 });
-
 </script>
 
 <template>
@@ -58,19 +57,21 @@ const props = defineProps({
       {{ props.label }}
     </label>
     <div :class="props.clsInput">
-      <input class="form-control" 
-            :disabled="props.disable"
-            :max="props.max"
-            :min="props.min"
-            :id="props.name" 
-            :name="props.name"
-            :type="props.typeof"
-            :required="props.need"
-            :pattern="props.pattern"
-            :placeholder="props.place"
-            :autocomplete="props.name"
-            :value="props.model"
-            @input="$emit('input-event', $event)" />
+      <input
+        class="form-control"
+        :disabled="props.disable"
+        :max="props.max"
+        :min="props.min"
+        :id="props.name"
+        :name="props.name"
+        :type="props.typeof"
+        :required="props.need"
+        :pattern="props.pattern"
+        :placeholder="props.place"
+        :autocomplete="props.name"
+        :value="props.model"
+        @input="$emit('input-event', $event)"
+      />
     </div>
   </div>
 </template>

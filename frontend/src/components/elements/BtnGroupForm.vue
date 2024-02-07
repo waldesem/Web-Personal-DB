@@ -1,12 +1,10 @@
 <script setup lang="ts">
-
 const props = defineProps({
   disable: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
-
 </script>
 
 <template>

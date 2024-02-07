@@ -1,11 +1,10 @@
 <template>
-  <router-view v-slot="{ Component }" >
+  <router-view v-slot="{ Component }">
     <transition name="component-fade" mode="out-in">
-      <component :is="Component" :key="$route.fullPath"/>
+      <component :is="Component" :key="$route.fullPath" />
     </transition>
   </router-view>
 </template>
-
 
 <style scoped>
 .component-fade-enter-active,

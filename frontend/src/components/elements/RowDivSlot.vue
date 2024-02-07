@@ -1,36 +1,36 @@
 <script setup lang="ts">
-
 const props = defineProps({
   slotOne: {
     type: Boolean,
-    default: false
+    default: false,
   },
   slotTwo: {
     type: Boolean,
-    default: false
+    default: false,
   },
   label: {
     type: String,
-    default: ''
+    default: "",
   },
   value: {
     type: [String, Number],
-    default: ''
+    default: "",
   },
   print: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
-
 </script>
 
 <template>
-  <div class="row mb-3" :class="{'d-print-none': props.print}">
-    <div class="col-md-3">{{props.label}}  
+  <div class="row mb-3" :class="{ 'd-print-none': props.print }">
+    <div class="col-md-3">
+      {{ props.label }}
       <slot v-if="slotOne" name="divOne"></slot>
     </div>
-    <div class="col-md-9">{{props.value}}
+    <div class="col-md-9">
+      {{ props.value }}
       <slot v-if="slotTwo" name="divTwo"></slot>
     </div>
   </div>

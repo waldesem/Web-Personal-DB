@@ -1,13 +1,11 @@
 <script setup lang="ts">
-
 const props = defineProps({
   pageHeader: String,
   cls: {
     type: String,
-    default: 'text-primary'
-  }
+    default: "text-primary",
+  },
 });
-
 </script>
 
 <template>
