@@ -45,6 +45,14 @@ class GroupSchema(SQLAlchemyAutoSchema):
         ordered = True
 
 
+class NewUserSchema(SQLAlchemySchema):
+    """Create model for new user"""
+
+    fullname = fields.String()
+    username = fields.String()
+    email = fields.String()
+
+
 class UserSchema(SQLAlchemyAutoSchema):
     """Create model for user"""
 

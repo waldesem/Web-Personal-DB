@@ -4,13 +4,14 @@ from flask import request, current_app
 from flask_jwt_extended import get_jwt_identity
 from flask.views import MethodView
 from sqlalchemy import select
+from sqlalchemy_searchable import search
 
 from . import bp
 from .. import db
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
 from ..models.model import User, Role, Group
-from ..models.schema import UserSchema, models_schemas
+from ..models.schema import NewUserSchema, UserSchema, models_schemas
 
 
 class UsersView(MethodView):
@@ -20,18 +21,18 @@ class UsersView(MethodView):
         """
         Endpoint to handle requests for getting users.
         """
-        search_data = request.args("search")
+        search_data = request.args["search"] if request.args.get("search") else ""
         query = (
             db.session.execute(
                 select(User)
                 .order_by(User.id.desc())
                 .filter_by(deleted=False)
-                .search("%{}%".format(search_data))
             )
             .scalars()
             .all()
         )
-        return UserSchema().dump(query, many=True), 200
+        result = search(query, search_data)
+        return UserSchema().dump(result, many=True), 200
 
 
 bp.add_url_rule("/users", view_func=UsersView.as_view("users"))
@@ -44,7 +45,7 @@ class UserView(MethodView):
         """
         Retrieves a user based on the specified action and user ID.
         """
-        action_data = request.args.get("action")
+        action_data = request.args["action"]
         user = db.session.get(User, user_id)
         if user and action_data:
             match action_data:
@@ -63,7 +64,7 @@ class UserView(MethodView):
             return {"message": action_data}, 200
         return {"message": "Denied"}, 403
 
-    @bp.input(UserSchema)
+    @bp.input(NewUserSchema)
     def post(self, json_data):
         """
         Creates a new user based on the provided JSON data.
@@ -84,7 +85,7 @@ class UserView(MethodView):
             return {"message": "Created"}, 201
         return {"message": "Denied"}, 403
 
-    @bp.input(UserSchema)
+    @bp.input(NewUserSchema)
     def patch(self, json_data):
         """
         Patch a user's information.
@@ -116,7 +117,7 @@ bp.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "
 
 
 class GroupView(MethodView):
-    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
+    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
         """
@@ -124,8 +125,9 @@ class GroupView(MethodView):
         list of groups if it does not already exist.
         """
         user = db.session.get(User, user_id)
+        print(user.groups)
         if user and value not in user.groups:
-            user.groups.append(Group.get_group(value))
+            user.groups.append(db.session.get(Group, value))
             db.session.commit()
             return {"message": "Added"}, 200
         return {"message": "Denied"}, 403
@@ -157,12 +159,12 @@ class RoleView(MethodView):
     Get a user's role based on the value and user ID.
     """
 
-    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
+    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
         user = db.session.get(User, user_id)
         if user and value not in user.roles:
-            user.roles.append(Role.get_role(value))
+            user.roles.append(db.session.get(Role, value))
             db.session.commit()
             return {"message": "Added"}, 200
         return {"message": "Denied"}, 403

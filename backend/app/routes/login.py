@@ -50,7 +50,7 @@ class LoginView(MethodView):
         Post method for the given API endpoint.
         """
         user = User.get_user(json_data["username"])
-        if user and not user.blocked:
+        if user and not user.blocked and not user.deleted:
             if bcrypt.checkpw(json_data["password"].encode("utf-8"), user.password):
                 delta_change = datetime.now() - user.pswd_create
                 if user.pswd_change and delta_change.days < 365:
@@ -59,8 +59,8 @@ class LoginView(MethodView):
                     db.session.commit()
                     return {
                         "message": "Authenticated",
-                        "access_token": create_access_token(identity=user),
-                        "refresh_token": create_refresh_token(identity=user),
+                        "access_token": create_access_token(identity=user.id),
+                        "refresh_token": create_refresh_token(identity=user.id),
                     }
                 return {"message": "Overdue"}
             else:

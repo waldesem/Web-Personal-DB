@@ -47,8 +47,10 @@ export const adminStore = defineStore("adminStore", () => {
 
     getUsers: async function () {
       try {
-        const response = await storeAuth.axiosInstance.post(`${server}/users`, {
-          fullname: this.search,
+        const response = await storeAuth.axiosInstance.get(`${server}/users`, {
+          params: {
+            fullname: this.search,
+          }
         });
         this.users = response.data;
       } catch (error) {
@@ -84,12 +86,17 @@ export const adminStore = defineStore("adminStore", () => {
         );
       }
       clearForm(this.form);
+      this.getUsers();
     },
 
     userAction: async function (action: String): Promise<void> {
       try {
         const response = await storeAuth.axiosInstance.get(
-          `${server}/user/${action}/${this.id}`
+          `${server}/user/${this.id}`, {
+            params: {
+              action: action,
+            }
+          }
         );
         this.profile = response.data;
         if (action === "drop") {
@@ -119,6 +126,7 @@ export const adminStore = defineStore("adminStore", () => {
             "Пользователь удалён"
           );
           router.push({ name: "users" });
+          this.getUsers();
         } catch (error) {
           storeAlert.alertMessage.setAlert("alert-danger", error as string);
         }
@@ -141,6 +149,7 @@ export const adminStore = defineStore("adminStore", () => {
                   `${server}/${item}/${value}/${this.id}`
                 );
           this.profile = response.data;
+          this.userAction("view");
 
           storeAlert.alertMessage.setAlert(
             "alert-success",
