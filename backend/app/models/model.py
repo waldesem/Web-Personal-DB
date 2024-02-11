@@ -4,7 +4,6 @@ from typing import List
 from sqlalchemy import select
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
-from flask_sqlalchemy.query import Query
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import (
     Column,
