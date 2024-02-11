@@ -2,7 +2,7 @@ from datetime import date, datetime
 from typing import List
 
 from sqlalchemy import select
-from sqlalchemy_searchable import SearchQueryMixin, make_searchable
+from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 from flask_sqlalchemy.query import Query
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -60,12 +60,6 @@ class Group(Base):
         back_populates="groups", secondary=user_groups, lazy="dynamic"
     )
 
-    @staticmethod
-    def get_group(group):
-        return db.session.execute(
-            select(Group).filter_by(group=group)
-        ).scalar_one_or_none()
-
 
 class Role(Base):
     """Create model for roles"""
@@ -79,12 +73,6 @@ class Role(Base):
     users: Mapped[List["User"]] = relationship(
         back_populates="roles", secondary=user_roles, lazy="dynamic"
     )
-
-    @staticmethod
-    def get_role(role):
-        return db.session.execute(
-            select(Role).filter_by(role=role)
-        ).scalar_one_or_none()
 
 
 class User(Base):
@@ -192,16 +180,8 @@ class Region(Base):
         ).scalar_one_or_none()
 
 
-class PersonQuery(Query, SearchQueryMixin):
-    """Class for searchable Connect table (only postgresql)"""
-
-    pass
-
-
 class Person(Base):
     """Create model for persons dates"""
-
-    query_class = PersonQuery
 
     __tablename__ = "persons"
 
@@ -340,16 +320,8 @@ class Staff(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="staffs")
 
 
-class DocumentQuery(Query, SearchQueryMixin):
-    """Class for searchable Connect table (only postgresql)"""
-
-    pass
-
-
 class Document(Base):
     """Create model for Document dates"""
-
-    query_class = DocumentQuery
 
     __tablename__ = "documents"
 
@@ -574,16 +546,8 @@ class Inquiry(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="inquiries")
 
 
-class ConnectQuery(Query, SearchQueryMixin):
-    """Class for searchable Connect table (only postgresql)"""
-
-    pass
-
-
 class Connect(Base):
     """Create model for persons connects"""
-
-    query_class = ConnectQuery
 
     __tablename__ = "connects"
 
@@ -604,6 +568,3 @@ class Connect(Base):
     search_vector: Mapped[TSVectorType] = mapped_column(
         TSVectorType("company", "fullname", "mobile", "phone")
     )
-
-
-db.configure_mappers()  # very important!

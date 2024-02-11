@@ -8,7 +8,7 @@ from sqlalchemy_searchable import search
 
 from . import bp
 from .. import db
-from .login import roles_required, group_required
+from .login import group_required
 from ..models.classes import Roles, Groups
 from ..models.model import User, Role, Group
 from ..models.schema import NewUserSchema, UserSchema, models_schemas
@@ -23,15 +23,11 @@ class UsersView(MethodView):
         """
         search_data = request.args["search"] if request.args.get("search") else ""
         query = (
-            db.session.execute(
-                select(User)
-                .order_by(User.id.desc())
-                .filter_by(deleted=False)
-            )
-            .scalars()
-            .all()
+            search(select(User), search_data)
+            .order_by(User.id.asc())
+            .filter_by(deleted=False)
         )
-        result = search(query, search_data)
+        result = db.session.scalars(query).all()
         return UserSchema().dump(result, many=True), 200
 
 
@@ -46,11 +42,9 @@ class UserView(MethodView):
         Retrieves a user based on the specified action and user ID.
         """
         action_data = request.args["action"]
-        user = db.session.get(User, user_id)
-        if user and action_data:
+        if action_data != "view":
+            user = db.session.get(User, user_id)
             match action_data:
-                case "view":
-                    return UserSchema().dump(user), 200
                 case "block":
                     if user.username != get_jwt_identity():
                         user.blocked = not user.blocked
@@ -61,8 +55,8 @@ class UserView(MethodView):
                     )
                     user.pswd_change = None
             db.session.commit()
-            return {"message": action_data}, 200
-        return {"message": "Denied"}, 403
+        user = db.session.get(User, user_id)
+        return UserSchema().dump(user), 200
 
     @bp.input(NewUserSchema)
     def post(self, json_data):

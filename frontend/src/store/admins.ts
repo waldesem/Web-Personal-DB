@@ -49,7 +49,7 @@ export const adminStore = defineStore("adminStore", () => {
       try {
         const response = await storeAuth.axiosInstance.get(`${server}/users`, {
           params: {
-            fullname: this.search,
+            search: this.search,
           }
         });
         this.users = response.data;
@@ -110,7 +110,7 @@ export const adminStore = defineStore("adminStore", () => {
           );
         }
       } catch (error) {
-        storeAlert.alertMessage.setAlert("alert-success", error as string);
+        storeAlert.alertMessage.setAlert("alert-danger", error as string);
       }
     },
 
@@ -153,7 +153,7 @@ export const adminStore = defineStore("adminStore", () => {
 
           storeAlert.alertMessage.setAlert(
             "alert-success",
-            `${item === "role" ? "Роль" : "Группа"} ${value} ${
+            `${item === "role" ? "Роль" : "Группа"} ${
               action === "add" ? "добавлена" : "удалена"
             }`
           );

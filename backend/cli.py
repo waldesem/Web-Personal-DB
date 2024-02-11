@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 import bcrypt
+from sqlalchemy import select
 
 from app import db
 from config import Config
@@ -53,8 +54,16 @@ def register_cli(app):
         db.session.add(superadmin)
         db.session.flush()
 
-        superadmin.roles.append(Role().get_role(Roles.admin.value))
-        superadmin.groups.append(Group().get_group(Groups.admins.value))
+        superadmin.roles.append(
+            db.session.execute(
+                select(Group).filter_by(group=(Roles.admin.value))
+            ).scalar_one_or_none()
+        )
+        superadmin.groups.append(
+            db.session.execute(
+                select(Group).filter_by(group=(Groups.admins.value))
+            ).scalar_one_or_none()
+        )
         db.session.add(superadmin)
 
         db.session.add(

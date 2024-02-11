@@ -47,10 +47,12 @@ const tableData = ref({
   getItem: async function (page: number): Promise<void> {
     this.currentPage = page;
     try {
-      const response = await storeAuth.axiosInstance.post(
+      const response = await storeAuth.axiosInstance.get(
         `${server}/table/${this.table}/${page}`,
         {
-          search: this.search,
+          params: {
+            search: this.search,
+          }
         }
       );
       const [datas, metadata] = response.data;
