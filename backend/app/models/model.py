@@ -488,7 +488,7 @@ class Conclusion(Base):
     def get_id(conclusion):
         return (
             db.session.execute(
-                select(Conclusion.id).filter(Conclusion.conclusion == conclusion)
+                select(Conclusion.id).filter(Conclusion.conclusion.ilike(conclusion))
             )
             .scalar_one_or_none()
         )

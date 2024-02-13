@@ -65,7 +65,7 @@ class LoginView(MethodView):
                 return {"message": "Overdue"}
             else:
                 if user.attempt < 9:
-                    user.attempt = user.attempt + 1
+                    user.attempt += 1
                 else:
                     user.blocked = True
                 db.session.commit()

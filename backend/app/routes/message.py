@@ -1,5 +1,5 @@
 from apiflask import EmptySchema
-from flask import current_app, request
+from flask import current_app
 from flask_jwt_extended import jwt_required, current_user
 from flask.views import MethodView
 from sqlalchemy import select
@@ -8,17 +8,18 @@ from . import bp
 from .. import db
 from ..models.classes import Statuses
 from ..models.model import Message
-from ..models.schema import MessageSchema
+from ..models.schema import MessageSchema, ActionSchema
 
 
 class MessagesView(MethodView):
     decorators = [jwt_required(), bp.doc(hide=True)]
 
-    def get(self, action, page=1):
+    @bp.input(ActionSchema, location="query")
+    def get(self, page, query_data):
         """
         Get the serialized representation of the messages.
         """
-        action = request.args.get("action")
+        action = query_data.get("action")
         messages = (
             select(Message)
             .filter_by(user_id=current_user.id)
@@ -27,10 +28,10 @@ class MessagesView(MethodView):
         if action == "new":
             messages = messages.filter(Message.status == Statuses.new.name)
         elif action == "read":
-            self.read_messages(messages)
+            self.mark_readed(messages)
         result = db.paginate(
             messages,
-            page=page,
+            page=page if page else 1,
             per_page=current_app.config["PAGINATION"],
             error_out=False,
         )
@@ -39,14 +40,14 @@ class MessagesView(MethodView):
             {"has_next": result.has_next, "has_prev": result.has_prev},
         ]
 
-    def read_messages(self, messages):
+    def mark_readed(self, messages):
         unreaded = messages.filter(Message.status == Statuses.new.name)
         results = db.session.execute(unreaded).scalars().all()
         if len(results):
             for result in results:
                 result.status = Statuses.reply.name
             db.session.commit()
-        self.get("all")
+        self.get(1, {"action": "all"})
 
     @bp.output(EmptySchema)
     def delete(self):

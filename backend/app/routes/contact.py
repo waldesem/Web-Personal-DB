@@ -1,4 +1,4 @@
-from flask import current_app, request
+from flask import current_app
 from flask_jwt_extended import jwt_required
 from flask.views import MethodView
 from sqlalchemy import select
@@ -6,20 +6,21 @@ from sqlalchemy import select
 from . import bp
 from .. import db
 from ..models.model import Connect
-from ..models.schema import ConnectSchema
+from ..models.schema import ConnectSchema, SearchSchema
 
 
 class ContactsView(MethodView):
     decorators = [jwt_required(), bp.doc(hide=True)]
 
-    def post(self, page):
+    @bp.input(SearchSchema, location="query")
+    def post(self, page, query_data):
         """
         Retrieves a paginated list of Connect objects based on the specified group and item.
         """
         schema = ConnectSchema()
         companies = db.session.execute(select(Connect.company)).scalars()
         cities = db.session.execute(select(Connect.city)).scalars()
-        search_data = request.args.get("search")
+        search_data = query_data.get("search")
         if search_data:
             query = Connect.query.search("%{}%".format(search_data))
         else:

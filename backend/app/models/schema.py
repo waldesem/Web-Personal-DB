@@ -29,6 +29,14 @@ from ..models.model import (
 )
 
 
+class SearchSchema(Schema):
+    search = fields.String(default="")
+
+
+class ActionSchema(Schema):
+    action = fields.String()
+
+
 class RoleSchema(SQLAlchemyAutoSchema):
     """Create model for role"""
 
@@ -48,6 +56,7 @@ class GroupSchema(SQLAlchemyAutoSchema):
 class NewUserSchema(SQLAlchemySchema):
     """Create model for new user"""
 
+    id = fields.String()
     fullname = fields.String()
     username = fields.String()
     email = fields.String()

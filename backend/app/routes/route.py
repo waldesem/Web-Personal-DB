@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime
 
 from apiflask import EmptySchema
-from flask import request, current_app, send_file, abort
+from flask import current_app, request, send_file, abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select, func
@@ -49,6 +49,8 @@ from ..models.schema import (
     WorkplaceSchema,
     AffilationSchema,
     RobotSchema,
+    SearchSchema,
+    ActionSchema,
 )
 from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 
@@ -59,8 +61,9 @@ class IndexView(MethodView):
         bp.doc(hide=True),
     ]
 
-    def get(self, flag, page):
-        search_data = request.args.get("search")
+    @bp.input(SearchSchema, location="query")
+    def get(self, flag, page, query_data):
+        search_data = query_data.get("search")
         query = select(Person).order_by(Person.id.desc())
         if flag != "search":
             match flag:
@@ -144,10 +147,12 @@ bp.add_url_rule("/person/<int:person_id>", view_func=PersonView.as_view("person"
 
 
 class ResumeView(MethodView):
+
     @roles_required(Groups.staffsec.value)
+    @bp.input(ActionSchema, location="query")
     @bp.doc(hide=True)
-    def get(self, person_id):
-        action = request.args.get("action")
+    def get(self, person_id, query_data):
+        action = query_data.get("action")
         person = db.session.get(Person, person_id)
         if person:
             if action == "status":
@@ -650,8 +655,9 @@ class CheckView(MethodView):
     decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
-    def get(self, item_id):
-        action = request.args.get("action")
+    @bp.input(ActionSchema, location="query")
+    def get(self, item_id, query_data):
+        action = query_data.get("action")
         if action == "self":
             person = db.session.get(Person, item_id)
             if person.user_id != current_user.id:
@@ -680,9 +686,10 @@ class CheckView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp.input(CheckSchema)
-    def post(self, item_id, json_data):
-        action = request.args.get("action")
+    @bp.input(ActionSchema, location="query")
+    @bp.input(CheckSchema, location="json")
+    def post(self, item_id, json_data, query_data):
+        action = query_data.get("action")
         json_data["pfo"] = bool(json_data.pop("pfo")) if "pfo" in json_data else False
         if action == "update":
             check = db.session.get(Check, item_id)
@@ -1012,8 +1019,9 @@ class FileView(MethodView):
             return send_file(file_path, as_attachment=True)
         return abort(404)
 
-    def post(self, item_id=0):
-        action = request.args.get("action")
+    @bp.input(ActionSchema, location="query")
+    def post(self, query_data, item_id=0):
+        action = query_data.get("action")
         if not request.files["file"].filename and action:
             return {"result": False, "item_id": item_id}
 

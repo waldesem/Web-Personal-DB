@@ -1,6 +1,6 @@
 import bcrypt
 from apiflask import EmptySchema
-from flask import request, current_app
+from flask import abort, current_app
 from flask_jwt_extended import get_jwt_identity
 from flask.views import MethodView
 from sqlalchemy import select
@@ -11,19 +11,26 @@ from .. import db
 from .login import group_required
 from ..models.classes import Roles, Groups
 from ..models.model import User, Role, Group
-from ..models.schema import NewUserSchema, UserSchema, models_schemas
+from ..models.schema import (
+    ActionSchema,
+    SearchSchema,
+    NewUserSchema,
+    UserSchema,
+    models_schemas,
+)
 
 
 class UsersView(MethodView):
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
-    def get(self):
+    @bp.input(SearchSchema, location="query")
+    def get(self, query_data):
         """
         Endpoint to handle requests for getting users.
         """
-        search_data = request.args["search"] if request.args.get("search") else ""
+        search_data = query_data.get("search")
         query = (
-            search(select(User), search_data)
+            search(select(User), search_data if search_data else "")
             .order_by(User.id.asc())
             .filter_by(deleted=False)
         )
@@ -37,11 +44,12 @@ bp.add_url_rule("/users", view_func=UsersView.as_view("users"))
 class UserView(MethodView):
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
-    def get(self, user_id):
+    @bp.input(ActionSchema, location="query")
+    def get(self, user_id, query_data):
         """
         Retrieves a user based on the specified action and user ID.
         """
-        action_data = request.args["action"]
+        action_data = query_data.get("action")
         if action_data != "view":
             user = db.session.get(User, user_id)
             match action_data:
@@ -53,7 +61,10 @@ class UserView(MethodView):
                         current_app.config["DEFAULT_PASSWORD"].encode("utf-8"),
                         bcrypt.gensalt(),
                     )
+                    user.attempt = 0
                     user.pswd_change = None
+                case _:
+                    return abort, 404
             db.session.commit()
         user = db.session.get(User, user_id)
         return UserSchema().dump(user), 200
@@ -119,7 +130,6 @@ class GroupView(MethodView):
         list of groups if it does not already exist.
         """
         user = db.session.get(User, user_id)
-        print(user.groups)
         if user and value not in user.groups:
             user.groups.append(db.session.get(Group, value))
             db.session.commit()
@@ -187,12 +197,13 @@ bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"
 class TableView(MethodView):
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
-    def get(self, item, num):
+    @bp.input(SearchSchema, location="query")
+    def get(self, item, num, query_data):
         model = models_schemas[item][0]
         schema = models_schemas[item][1]
 
         query = select(model).order_by(model.id.desc())
-        search_data = request.args.get("search")
+        search_data = query_data.get("search")
         if search_data:
             query = query.filter_by(id=search_data)
         result = db.paginate(
