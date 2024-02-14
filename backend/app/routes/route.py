@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime
 
 from apiflask import EmptySchema
-from flask import current_app, request, send_file, abort
+from flask import request, send_file, abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select, func
@@ -11,10 +11,12 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 import requests
 
+from config import Config
 from . import bp
 from .. import db
 from .login import roles_required, group_required
 from ..utils.jsonparser import JsonFile
+from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 from ..models.model import (
     Category,
     Conclusion,
@@ -35,6 +37,7 @@ from ..models.model import (
     Robot,
 )
 from ..models.schema import (
+    InfoSchema,
     RelationSchema,
     StaffSchema,
     AddressSchema,
@@ -52,7 +55,6 @@ from ..models.schema import (
     SearchSchema,
     ActionSchema,
 )
-from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 
 
 class IndexView(MethodView):
@@ -221,7 +223,7 @@ class ResumeView(MethodView):
     def delete(self, person_id):
         person = db.session.get(Person, person_id)
         try:
-            shutil.rmtree(os.path.join(current_app.config["BASE_PATH"], person.path))
+            shutil.rmtree(os.path.join(Config.BASE_PATH, person.path))
         except Exception as e:
             print(e)
         db.session.delete(person)
@@ -229,7 +231,7 @@ class ResumeView(MethodView):
         return "", 204
 
     @roles_required(Roles.user.value, Roles.api.value)
-    @group_required(Groups.staffsec.value, Groups.api.value)
+    @group_required(Groups.staffsec.value, Groups.rest.value)
     @bp.input(PersonSchema)
     def post(self, action, json_data):
         person_id = ResumeView.add_resume(json_data, action)
@@ -275,7 +277,7 @@ class ResumeView(MethodView):
         Check if a folder exists for a given person and create it if it does not exist.
         """
         person_path = os.path.join(fullname[0].upper(), f"{person_id}-{fullname}")
-        url = os.path.join(current_app.config["BASE_PATH"], person_path)
+        url = os.path.join(Config.BASE_PATH, person_path)
         if not os.path.isdir(url):
             os.mkdir(url)
         return person_path
@@ -748,7 +750,7 @@ class RobotView(MethodView):
             many=True,
         ), 200
 
-    @group_required(Groups.api.value)
+    @group_required(Groups.rest.value)
     @roles_required(Roles.api.value)
     @bp.input(RobotSchema)
     def post(self, json_data):
@@ -984,15 +986,15 @@ bp.add_url_rule(
 class InfoView(MethodView):
 
     @group_required(Groups.staffsec.value)
+    @bp.input(InfoSchema)
     @bp.doc(hide=True)
-    def post(self):
-        response = request.get_json()
+    def post(self, json_data):
         candidates = db.session.execute(
             select(Check.conclusion_id, func.count(Check.id))
             .join(Person)
             .group_by(Check.conclusion_id)
-            .filter(Person.region_id == response["region_id"])
-            .filter(Check.deadline.between(response["start"], response["end"]))
+            .filter(Person.region_id == json_data["region_id"])
+            .filter(Check.deadline.between(json_data["start"], json_data["end"]))
         ).all()
         return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates))}, 200
 
@@ -1013,7 +1015,7 @@ class FileView(MethodView):
         """
         person = db.session.get(Person, item_id)
         file_path = os.path.join(
-            current_app.config["BASE_PATH"], person.path, "images", "image.jpg"
+            Config.BASE_PATH, person.path, "images", "image.jpg"
         )
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True)
@@ -1029,7 +1031,7 @@ class FileView(MethodView):
             file = request.files["file"]
             filename = secure_filename(file.filename)
             temp_path = os.path.join(
-                current_app.config["BASE_PATH"],
+                Config.BASE_PATH,
                 f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}\
                                         -{filename}',
             )
@@ -1041,7 +1043,7 @@ class FileView(MethodView):
 
             person = db.session.get(Person, person_id)
             if person.path:
-                full_path = os.path.join(current_app.config["BASE_PATH"], person.path)
+                full_path = os.path.join(Config.BASE_PATH, person.path)
                 if not os.path.isdir(full_path):
                     os.mkdir(full_path)
             else:
@@ -1051,7 +1053,7 @@ class FileView(MethodView):
             action_folder = FileView.create_folders(person_id, person.fullname, action)
 
             save_path = os.path.join(
-                current_app.config["BASE_PATH"], action_folder, filename
+                Config.BASE_PATH, action_folder, filename
             )
             if not os.path.isfile(save_path):
                 try:
@@ -1075,7 +1077,7 @@ class FileView(MethodView):
             if action == "image":
                 im = Image.open(files[0])
                 rgb_im = im.convert("RGB")
-                images = os.path.join(current_app.config["BASE_PATH"], folder, "images")
+                images = os.path.join(Config.BASE_PATH, folder, "images")
                 if not os.path.isdir(images):
                     os.mkdir(images)
                 image_path = os.path.join(images, "image.jpg")
@@ -1088,7 +1090,7 @@ class FileView(MethodView):
                     for file in files:
                         file.save(
                             os.path.join(
-                                current_app.config["BASE_PATH"],
+                                Config.BASE_PATH,
                                 folder,
                                 f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}',
                             )
@@ -1117,7 +1119,7 @@ class FileView(MethodView):
         Check if a folder exists for a given person and create it if it does not exist.
         """
         url = os.path.join(
-            current_app.config["BASE_PATH"],
+            Config.BASE_PATH,
             ResumeView.make_folder(fullname, person_id),
         )
         folder = os.path.join(url, folder_name)

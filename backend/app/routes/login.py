@@ -3,7 +3,7 @@ from functools import wraps
 import bcrypt
 
 import redis
-from flask import current_app, abort
+from flask import abort
 from flask.views import MethodView
 from flask_jwt_extended import (
     create_access_token,
@@ -13,6 +13,7 @@ from flask_jwt_extended import (
     current_user,
 )
 
+from config import Config
 from . import bp
 from .. import jwt, db, cache
 from ..models.model import User
@@ -97,7 +98,7 @@ class LoginView(MethodView):
         A function that deletes the JWT token from the Redis blocklist.
         """
         jti = get_jwt()["jti"]
-        access_expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+        access_expires = Config.JWT_ACCESS_TOKEN_EXPIRES
         jwt_redis_blocklist.set(jti, "", ex=access_expires)
         return {"message": "Denied"}
 

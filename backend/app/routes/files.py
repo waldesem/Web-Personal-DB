@@ -1,9 +1,10 @@
 import os
 import shutil
 
-from flask import request, current_app, send_file
+from flask import request, send_file
 from flask.views import MethodView
 
+from config import Config
 from . import bp
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
@@ -20,7 +21,7 @@ class FileManagementView(MethodView):
         self.dirs = []
         self.files = []
         self.current_path = []
-        self.base_path = current_app.config["BASE_PATH"] + "/"
+        self.base_path = Config.BASE_PATH + "/"
 
     def get(self):
         """

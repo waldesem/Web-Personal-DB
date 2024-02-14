@@ -1,14 +1,12 @@
 from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_cors import CORS
-from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 from flask_caching import Cache
 from flask_jwt_extended import JWTManager
 from werkzeug.exceptions import BadRequest
 from config import Config
 
-ma = Marshmallow()
 db = SQLAlchemy()
 cache = Cache()
 jwt = JWTManager()
@@ -28,7 +26,6 @@ def create_app(config=Config):
 
     CORS(app, resources={r"/*": {"origins": "*"}})
     db.init_app(app)
-    ma.init_app(app)
     jwt.init_app(app)
     cache.init_app(app)
     migrate = Migrate()

@@ -172,26 +172,6 @@ export const profileStore = defineStore("profileStore", () => {
     needs: Array<Needs>(),
     form: <Record<string, any>>{},
 
-    // getProfile: async function () {
-    //   await Promise.all([
-    //     [
-    //       'resume',
-    //       'staff',
-    //       'document',
-    //       'address',
-    //       'contact',
-    //       'workplace',
-    //       'relation',
-    //       'affilation',
-    //       'check',
-    //       'robot',
-    //       'poligraf',
-    //       'investigation',
-    //       'inquiry',
-    //     ].map(async (item) => await this.getItem(item, 'view', this.candId))
-    //   ]);
-    // },
-
     getProfile: async function () {
       const response = await storeAuth.axiosInstance.get(
         `${server}/person/${this.candId}`

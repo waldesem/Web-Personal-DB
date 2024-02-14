@@ -141,7 +141,7 @@ class Category(Base):
     @staticmethod
     def get_id(category):
         return db.session.execute(
-            select(Category.id).filter(Category.category == category)
+            select(Category.id).filter(Category.category.like(category))
         ).scalar_one_or_none()
 
 
@@ -157,7 +157,7 @@ class Status(Base):
     @staticmethod
     def get_id(status):
         return db.session.execute(
-            select(Status.id).filter(Status.status == status)
+            select(Status.id).filter(Status.status.like(status))
         ).scalar_one_or_none()
 
 
@@ -175,7 +175,7 @@ class Region(Base):
     @staticmethod
     def get_id(region):
         return db.session.execute(
-            select(Region.id).filter(Region.region == region)
+            select(Region.id).filter(Region.region.like(region))
         ).scalar_one_or_none()
 
 
@@ -265,45 +265,12 @@ class Person(Base):
         return any(
             self.status_id
             == [
-                db.session.execute(select(Status).filter_by(status=status))
+                db.session.execute(select(self.id).filter(Status.status.like(status)))
                 .scalar_one_or_none()
-                .id
                 for status in statuses
             ]
         )
-
-    @staticmethod
-    def has_category(*args):
-        """
-        Check if the current category of the object matches any of the given category values.
-        """
-        return any(
-            Person.category_id
-            == [
-                db.session.execute(
-                    select(Category).filter(Category.category.in_(category))
-                )
-                .scalar_one_or_none()
-                .id
-                for category in args
-            ]
-        )
-
-    @staticmethod
-    def has_region(*args):
-        """
-        Check if the current region of the object matches any of the given region values.
-        """
-        return any(
-            Person.region_id
-            == [
-                db.session.execute(
-                    select(Region).filter(Region.region.in_(region))
-                ).scalar_one_or_none()
-                for region in args
-            ]
-        )
-
+    
 
 class Staff(Base):
     """Create model for staff"""
@@ -494,7 +461,7 @@ class Conclusion(Base):
         )
 
 
-class Poligraf(Base):  # модель данных результаты ПФО
+class Poligraf(Base):
     """Create model for poligraf"""
 
     __tablename__ = "poligrafs"

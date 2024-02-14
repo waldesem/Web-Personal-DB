@@ -1,10 +1,12 @@
-from datetime import datetime
 import os
+from datetime import datetime
+
 import bcrypt
 from sqlalchemy import select
 
 from app import db
 from config import Config
+from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions, Categories
 from app.models.model import (
     Person,
     User,
@@ -15,16 +17,14 @@ from app.models.model import (
     Conclusion,
     Category,
 )
-from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions, Categories
 
 
 def register_cli(app):
     @app.cli.command("create")
     def create_default():
         """Create default values"""
-        base_path = os.path.join(Config.BASE_PATH)
-        if not os.path.isdir(base_path):
-            os.mkdir(base_path)
+        if not os.path.isdir(Config.BASE_PATH):
+            os.mkdir(Config.BASE_PATH)
             print("Directory BASE_PATH created")
 
         for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ":

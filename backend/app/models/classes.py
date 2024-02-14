@@ -16,7 +16,7 @@ class Groups(Enum):
 
     admins = "Admins"
     staffsec = "StaffSec"
-    api = "API"
+    rest = "REST"
 
 
 class Roles(Enum):
@@ -24,7 +24,7 @@ class Roles(Enum):
 
     admin = "admin"
     user = "user"
-    api = "api"
+    api = "API"
 
 
 class Categories(Enum):

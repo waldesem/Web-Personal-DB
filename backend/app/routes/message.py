@@ -1,9 +1,9 @@
 from apiflask import EmptySchema
-from flask import current_app
-from flask_jwt_extended import jwt_required, current_user
 from flask.views import MethodView
+from flask_jwt_extended import jwt_required, current_user
 from sqlalchemy import select
 
+from config import Config
 from . import bp
 from .. import db
 from ..models.classes import Statuses
@@ -32,7 +32,7 @@ class MessagesView(MethodView):
         result = db.paginate(
             messages,
             page=page if page else 1,
-            per_page=current_app.config["PAGINATION"],
+            per_page=Config.PAGINATION,
             error_out=False,
         )
         return [

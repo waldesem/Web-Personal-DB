@@ -1,11 +1,12 @@
 import bcrypt
 from apiflask import EmptySchema
-from flask import abort, current_app
-from flask_jwt_extended import get_jwt_identity
+from flask import abort
 from flask.views import MethodView
+from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import select
 from sqlalchemy_searchable import search
 
+from config import Config
 from . import bp
 from .. import db
 from .login import group_required
@@ -58,7 +59,7 @@ class UserView(MethodView):
                         user.blocked = not user.blocked
                 case "drop":
                     user.password = bcrypt.hashpw(
-                        current_app.config["DEFAULT_PASSWORD"].encode("utf-8"),
+                        Config.DEFAULT_PASSWORD.encode("utf-8"),
                         bcrypt.gensalt(),
                     )
                     user.attempt = 0
@@ -81,7 +82,7 @@ class UserView(MethodView):
                     username=json_data["username"],
                     email=json_data["email"],
                     password=bcrypt.hashpw(
-                        current_app.config["DEFAULT_PASSWORD"].encode("utf-8"),
+                        Config.DEFAULT_PASSWORD.encode("utf-8"),
                         bcrypt.gensalt(),
                     ),
                 )
@@ -209,7 +210,7 @@ class TableView(MethodView):
         result = db.paginate(
             query,
             page=num,
-            per_page=current_app.config["PAGINATION"],
+            per_page=Config.PAGINATION,
             error_out=False,
         )
         return [

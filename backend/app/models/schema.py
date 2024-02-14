@@ -1,8 +1,7 @@
 from apiflask import Schema
-from marshmallow import fields
+from apiflask.fields import String, Date, Nested
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
 
-from .. import ma
 from ..models.model import (
     Category,
     Conclusion,
@@ -30,11 +29,11 @@ from ..models.model import (
 
 
 class SearchSchema(Schema):
-    search = fields.String(default="")
+    search = String(default="")
 
 
 class ActionSchema(Schema):
-    action = fields.String()
+    action = String()
 
 
 class RoleSchema(SQLAlchemyAutoSchema):
@@ -56,17 +55,17 @@ class GroupSchema(SQLAlchemyAutoSchema):
 class NewUserSchema(SQLAlchemySchema):
     """Create model for new user"""
 
-    id = fields.String()
-    fullname = fields.String()
-    username = fields.String()
-    email = fields.String()
+    id = String()
+    fullname = String()
+    username = String()
+    email = String()
 
 
 class UserSchema(SQLAlchemyAutoSchema):
     """Create model for user"""
 
-    roles = ma.Nested("RoleSchema", many=True)
-    groups = ma.Nested("GroupSchema", many=True)
+    roles = Nested("RoleSchema", many=True)
+    groups = Nested("GroupSchema", many=True)
 
     class Meta:
         model = User
@@ -78,14 +77,14 @@ class UserSchema(SQLAlchemyAutoSchema):
 class LoginSchema(Schema):
     """Create model for login"""
 
-    username = fields.String()
-    password = fields.String()
+    username = String()
+    password = String()
 
 
 class PasswordSchema(LoginSchema):
     """Create model for password"""
 
-    new_pswd = fields.String()
+    new_pswd = String()
 
 
 class MessageSchema(SQLAlchemyAutoSchema):
@@ -240,20 +239,27 @@ class ConnectSchema(SQLAlchemyAutoSchema):
         exclude = ("search_vector",)
 
 
+class InfoSchema(SQLAlchemySchema):
+
+    region_id = String()
+    start = Date()
+    end = Date()
+
+
 class AnketaSchemaApi(SQLAlchemySchema):
     """Create schema for sending anketa"""
 
-    id = fields.String()
-    fullname = fields.String()
-    birthday = fields.String()
-    birthplace = fields.String()
-    snils = fields.String()
-    inn = fields.String()
-    series = fields.String()
-    number = fields.String()
-    agency = fields.String()
-    issue = fields.String()
-    address = fields.String()
+    id = String()
+    fullname = String()
+    birthday = String()
+    birthplace = String()
+    snils = String()
+    inn = String()
+    series = String()
+    number = String()
+    agency = String()
+    issue = String()
+    address = String()
 
 
 models_schemas = {

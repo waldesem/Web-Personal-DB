@@ -1,23 +1,22 @@
-from flask import current_app
-from flask_jwt_extended import jwt_required
 from flask.views import MethodView
+from flask_jwt_extended import jwt_required
 from sqlalchemy import select
 
+from config import Config
 from . import bp
 from .. import db
 from ..models.model import Connect
 from ..models.schema import ConnectSchema, SearchSchema
 
 
-class ContactsView(MethodView):
+class ConnnectView(MethodView):
     decorators = [jwt_required(), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
-    def post(self, page, query_data):
+    def get(self, page, query_data):
         """
         Retrieves a paginated list of Connect objects based on the specified group and item.
         """
-        schema = ConnectSchema()
         companies = db.session.execute(select(Connect.company)).scalars()
         cities = db.session.execute(select(Connect.city)).scalars()
         search_data = query_data.get("search")
@@ -29,23 +28,16 @@ class ContactsView(MethodView):
         result = db.paginate(
             query, 
             page=page, 
-            per_page=current_app.config["RAGINATION"], 
+            per_page=Config.PAGINATION, 
             error_out=False
             )
         return [
-            schema.dump(result, many=True),
+            ConnectSchema().dump(result, many=True),
             {"has_next": result.has_next},
             {"has_prev": result.has_prev},
             {"companies": list({company for company in companies})},
             {"cities": list({city for city in cities})},
         ], 200
-
-
-bp.add_url_rule("/connects/<int:page>", view_func=ContactsView.as_view("connects"))
-
-
-class ConnnectView(MethodView):
-    decorators = [jwt_required(), bp.doc(hide=True)]
 
     @bp.input(ConnectSchema)
     def post(self, json_data):
@@ -79,6 +71,7 @@ class ConnnectView(MethodView):
 
 
 contacts_view = ConnnectView.as_view("connect")
+bp.add_url_rule("/connect/<int:page>", contacts_view, methods=["GET"])
 bp.add_url_rule("/connect", view_func=contacts_view, methods=["POST"])
 bp.add_url_rule(
     "/connect/<int:item_id>",

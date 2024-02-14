@@ -46,7 +46,7 @@ const select_items = {
         @input-event="
           storeProfile.dataProfile.form['fullname'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['fullname']"
+        :model="storeProfile.dataProfile.form['fullname'].toUpperCase()"
       />
       <TextLabel
         :name="'previous'"
