@@ -1,7 +1,6 @@
 from datetime import date, datetime
 from typing import List
 
-from sqlalchemy import select
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,9 +14,10 @@ from sqlalchemy import (
     DateTime,
     Text,
     Boolean,
+    select,
 )
 
-from .. import db
+from .. import db, cache
 from ..models.classes import Statuses
 
 
@@ -47,7 +47,6 @@ user_roles = db.Table(
 
 
 class Group(Base):
-    """Create model for groups"""
 
     __tablename__ = "groups"
 
@@ -61,7 +60,6 @@ class Group(Base):
 
 
 class Role(Base):
-    """Create model for roles"""
 
     __tablename__ = "roles"
 
@@ -75,7 +73,6 @@ class Role(Base):
 
 
 class User(Base):
-    """Create model for users"""
 
     __tablename__ = "users"
 
@@ -107,6 +104,7 @@ class User(Base):
     )
 
     @staticmethod
+    @cache.cached()
     def get_user(user_name):
         return db.session.execute(
             select(User).filter_by(username=user_name)
@@ -114,7 +112,6 @@ class User(Base):
 
 
 class Message(Base):
-    """Create model for messages"""
 
     __tablename__ = "messages"
 
@@ -130,6 +127,7 @@ class Message(Base):
 
 
 class Category(Base):
+
     __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(
@@ -139,6 +137,7 @@ class Category(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="categories")
 
     @staticmethod
+    @cache.cached()
     def get_id(category):
         return db.session.execute(
             select(Category.id).filter(Category.category.like(category))
@@ -146,6 +145,7 @@ class Category(Base):
 
 
 class Status(Base):
+
     __tablename__ = "statuses"
 
     id: Mapped[int] = mapped_column(
@@ -155,6 +155,7 @@ class Status(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="statuses")
 
     @staticmethod
+    @cache.cached()
     def get_id(status):
         return db.session.execute(
             select(Status.id).filter(Status.status.like(status))
@@ -162,7 +163,6 @@ class Status(Base):
 
 
 class Region(Base):
-    """Create model for regions"""
 
     __tablename__ = "regions"
 
@@ -173,6 +173,7 @@ class Region(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="regions")
 
     @staticmethod
+    @cache.cached()
     def get_id(region):
         return db.session.execute(
             select(Region.id).filter(Region.region.like(region))
@@ -180,7 +181,6 @@ class Region(Base):
 
 
 class Person(Base):
-    """Create model for persons dates"""
 
     __tablename__ = "persons"
 
@@ -192,13 +192,13 @@ class Person(Base):
     status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"), nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     fullname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    previous: Mapped[str] = mapped_column(Text, nullable=True)
+    previous: Mapped[str] = mapped_column(Text, nullable=True, index=True)
     birthday: Mapped[date] = mapped_column(Date, nullable=False)
     birthplace: Mapped[str] = mapped_column(Text, nullable=True)
     country: Mapped[str] = mapped_column(String(255), nullable=True)
     ext_country: Mapped[str] = mapped_column(String(255), nullable=True)
     snils: Mapped[str] = mapped_column(String(11), nullable=True)
-    inn: Mapped[str] = mapped_column(String(12), nullable=True)
+    inn: Mapped[str] = mapped_column(String(12), nullable=True, index=True)
     education: Mapped[str] = mapped_column(Text, nullable=True)
     marital: Mapped[str] = mapped_column(String(255), nullable=True)
     addition: Mapped[str] = mapped_column(Text, nullable=True)
@@ -245,19 +245,19 @@ class Person(Base):
     investigations: Mapped[List["Investigation"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
+    categories: Mapped["Category"] = relationship(back_populates="persons")
+    statuses: Mapped["Status"] = relationship(back_populates="persons")
+    regions: Mapped["Region"] = relationship(back_populates="persons")
+    users: Mapped["User"] = relationship(back_populates="persons")
     search_vector: Mapped[TSVectorType] = mapped_column(
         TSVectorType(
             "previous",
             "fullname",
             "inn",
-            "snils",
         )
     )
-    categories: Mapped["Category"] = relationship(back_populates="persons")
-    statuses: Mapped["Status"] = relationship(back_populates="persons")
-    regions: Mapped["Region"] = relationship(back_populates="persons")
-    users: Mapped["User"] = relationship(back_populates="persons")
 
+    @cache.cached()
     def has_status(self, *statuses):
         """
         Check if the current status of the object matches any of the given status values.
@@ -265,15 +265,15 @@ class Person(Base):
         return any(
             self.status_id
             == [
-                db.session.execute(select(self.id).filter(Status.status.like(status)))
-                .scalar_one_or_none()
+                db.session.execute(
+                    select(self.id).filter(Status.status.like(status))
+                ).scalar_one_or_none()
                 for status in statuses
             ]
         )
-    
+
 
 class Staff(Base):
-    """Create model for staff"""
 
     __tablename__ = "staffs"
 
@@ -287,7 +287,6 @@ class Staff(Base):
 
 
 class Document(Base):
-    """Create model for Document dates"""
 
     __tablename__ = "documents"
 
@@ -301,13 +300,9 @@ class Document(Base):
     issue: Mapped[datetime] = mapped_column(Date, nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="documents")
-    search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("series", "number")
-    )
 
 
 class Address(Base):
-    """Create model for addresses"""
 
     __tablename__ = "addresses"
 
@@ -336,7 +331,6 @@ class Contact(Base):
 
 
 class Workplace(Base):
-    """Create model for workplaces"""
 
     __tablename__ = "workplaces"
 
@@ -354,7 +348,6 @@ class Workplace(Base):
 
 
 class Affilation(Base):
-    """Create model for affilations"""
 
     __tablename__ = "affilations"
 
@@ -373,7 +366,6 @@ class Affilation(Base):
 
 
 class Relation(Base):
-    """Create model for relations"""
 
     __tablename__ = "relations"
 
@@ -387,7 +379,6 @@ class Relation(Base):
 
 
 class Check(Base):
-    """Create model for persons checks"""
 
     __tablename__ = "checks"
 
@@ -421,7 +412,6 @@ class Check(Base):
 
 
 class Robot(Base):
-    """Create model for robots"""
 
     __tablename__ = "robots"
 
@@ -443,6 +433,7 @@ class Robot(Base):
 
 
 class Conclusion(Base):
+
     __tablename__ = "conclusions"
 
     id: Mapped[int] = mapped_column(
@@ -452,17 +443,14 @@ class Conclusion(Base):
     checks: Mapped[List["Check"]] = relationship(back_populates="conclusions")
 
     @staticmethod
+    @cache.cached()
     def get_id(conclusion):
-        return (
-            db.session.execute(
-                select(Conclusion.id).filter(Conclusion.conclusion.ilike(conclusion))
-            )
-            .scalar_one_or_none()
-        )
+        return db.session.execute(
+            select(Conclusion.id).filter(Conclusion.conclusion.ilike(conclusion))
+        ).scalar_one_or_none()
 
 
 class Poligraf(Base):
-    """Create model for poligraf"""
 
     __tablename__ = "poligrafs"
 
@@ -478,7 +466,6 @@ class Poligraf(Base):
 
 
 class Investigation(Base):
-    """Create model for ivestigation"""
 
     __tablename__ = "investigations"
 
@@ -494,7 +481,6 @@ class Investigation(Base):
 
 
 class Inquiry(Base):
-    """Create model for persons inquiries"""
 
     __tablename__ = "inquiries"
 
@@ -513,19 +499,18 @@ class Inquiry(Base):
 
 
 class Connect(Base):
-    """Create model for persons connects"""
 
     __tablename__ = "connects"
 
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    company: Mapped[str] = mapped_column(String(255), nullable=True)
+    company: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     city: Mapped[str] = mapped_column(String(255), nullable=True)
-    fullname: Mapped[str] = mapped_column(String(255), nullable=True)
-    phone: Mapped[str] = mapped_column(String(255), nullable=True)
+    fullname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
+    phone: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     adding: Mapped[str] = mapped_column(String(255), nullable=True)
-    mobile: Mapped[str] = mapped_column(String(255), nullable=True)
+    mobile: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     mail: Mapped[str] = mapped_column(String(255), nullable=True)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     data: Mapped[datetime] = mapped_column(

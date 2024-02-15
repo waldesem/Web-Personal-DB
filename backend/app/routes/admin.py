@@ -8,7 +8,7 @@ from sqlalchemy_searchable import search
 
 from config import Config
 from . import bp
-from .. import db
+from .. import db, cache
 from .login import group_required
 from ..models.classes import Roles, Groups
 from ..models.model import User, Role, Group
@@ -25,6 +25,7 @@ class UsersView(MethodView):
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
+    @cache.cached()
     def get(self, query_data):
         """
         Endpoint to handle requests for getting users.
@@ -46,6 +47,7 @@ class UserView(MethodView):
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     @bp.input(ActionSchema, location="query")
+    @cache.cached()
     def get(self, user_id, query_data):
         """
         Retrieves a user based on the specified action and user ID.
@@ -199,6 +201,7 @@ class TableView(MethodView):
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
+    @cache.cached()
     def get(self, item, num, query_data):
         model = models_schemas[item][0]
         schema = models_schemas[item][1]

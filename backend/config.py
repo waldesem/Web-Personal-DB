@@ -13,14 +13,18 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=600)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
-    CACHE_TYPE = "SimpleCache"
-    CACHE_DEFAULT_TIMEOUT = 60
+    CACHE_TYPE = "RedisCache"
+    CACHE_DEFAULT_TIMEOUT = 300
+    CACHE_REDIS_HOST = "localhost" 
+    CACHE_REDIS_PORT = 6379
+    CACHE_REDIS_DB = 0
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    REDIS_HOST = "localhost" 
-    REDIS_PORT = 6379
+    JWT_REDIS_HOST = "localhost" 
+    JWT_REDIS_PORT = 6379
+    JWT_REDIS_DB = 1
 
     BASE_PATH = os.path.abspath(os.path.join("..", "persons"))
 

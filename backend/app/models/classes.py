@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class Regions(Enum):
-    """Regions"""
 
     MAIN_OFFICE = "Главный офис"
     SOUTH_REGION = "Региональный центр Юг"
@@ -12,7 +11,6 @@ class Regions(Enum):
 
 
 class Groups(Enum):
-    """Groups"""
 
     admins = "Admins"
     staffsec = "StaffSec"
@@ -20,7 +18,6 @@ class Groups(Enum):
 
 
 class Roles(Enum):
-    """Roles"""
 
     admin = "admin"
     user = "user"
@@ -28,7 +25,6 @@ class Roles(Enum):
 
 
 class Categories(Enum):
-    """Category"""
 
     candidate = "Кандидат"
     staff = "Сотрудник"
@@ -36,7 +32,6 @@ class Categories(Enum):
 
 
 class Statuses(Enum):
-    """Status"""
 
     new = "Новый"
     repeat = "Повторный"
@@ -52,7 +47,6 @@ class Statuses(Enum):
 
 
 class Conclusions(Enum):
-    """Conclusions"""
 
     agreed = "СОГЛАСОВАНО"
     with_comment = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"

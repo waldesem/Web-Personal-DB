@@ -21,9 +21,9 @@ from ..models.schema import LoginSchema, PasswordSchema, UserSchema
 
 
 jwt_redis_blocklist = redis.StrictRedis(
-    host="localhost",
-    port=6379,
-    db=0,
+    host=Config.JWT_REDIS_HOST,
+    port=Config.JWT_REDIS_PORT,
+    db=Config.JWT_REDIS_DB,
     decode_responses=True,
 )
 
@@ -34,6 +34,7 @@ class LoginView(MethodView):
     @bp.doc(hide=True)
     @bp.output(UserSchema)
     @jwt_required()
+    @cache.cached(timeout=60)
     def get(self):
         """
         Retrieves the current authenticated user from the database.
@@ -100,6 +101,7 @@ class LoginView(MethodView):
         jti = get_jwt()["jti"]
         access_expires = Config.JWT_ACCESS_TOKEN_EXPIRES
         jwt_redis_blocklist.set(jti, "", ex=access_expires)
+        cache.clear()
         return {"message": "Denied"}
 
 
@@ -170,8 +172,8 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     return token_in_redis is not None
 
 
-@cache.memoize()
 @jwt.user_identity_loader
+@cache.cached()
 def user_identity_lookup(user):
     """
     A function that acts as a user identity loader for the JWT framework.
@@ -179,8 +181,8 @@ def user_identity_lookup(user):
     return user
 
 
-@cache.memoize()
 @jwt.user_lookup_loader
+@cache.cached()
 def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.
