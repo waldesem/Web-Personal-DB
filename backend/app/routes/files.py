@@ -6,7 +6,6 @@ from flask.views import MethodView
 
 from config import Config
 from . import bp
-from .. import cache
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups
 
@@ -24,7 +23,6 @@ class FileManagementView(MethodView):
         self.current_path = []
         self.base_path = Config.BASE_PATH + "/"
 
-    @cache.cached()
     def get(self):
         """
         Retrieves the list of directories and files in the current path.

@@ -13,9 +13,9 @@ import requests
 
 from config import Config
 from . import bp
-from .. import db, cache
+from .. import db
 from .login import roles_required, group_required
-from ..utils.jsonparser import JsonFile
+from ..utils.jsonparser import parse_json
 from ..models.classes import Categories, Conclusions, Roles, Groups, Statuses
 from ..models.model import (
     Category,
@@ -58,13 +58,13 @@ from ..models.schema import (
 
 
 class IndexView(MethodView):
+
     decorators = [
         group_required(Groups.staffsec.value),
         bp.doc(hide=True),
     ]
 
     @bp.input(SearchSchema, location="query")
-    @cache.cached()
     def get(self, flag, page, query_data):
         search_data = query_data.get("search")
         query = select(Person).order_by(Person.id.desc())
@@ -107,9 +107,9 @@ bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index")
 
 
 class PersonView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, person_id):
         views = [
             ResumeView(),
@@ -155,7 +155,6 @@ class ResumeView(MethodView):
     @roles_required(Groups.staffsec.value)
     @bp.input(ActionSchema, location="query")
     @bp.doc(hide=True)
-    @cache.cached()
     def get(self, person_id, query_data):
         action = query_data.get("action")
         person = db.session.get(Person, person_id)
@@ -300,9 +299,9 @@ bp.add_url_rule(
 
 
 class StaffView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, item_id):
         return (
             StaffSchema().dump(
@@ -349,9 +348,9 @@ bp.add_url_rule("/staff/<int:item_id>", view_func=StaffView.as_view("staff"))
 
 
 class DocumentView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, item_id):
         return (
             DocumentSchema().dump(
@@ -400,9 +399,9 @@ bp.add_url_rule("/document/<int:item_id>", view_func=DocumentView.as_view("docum
 
 
 class AddressView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, item_id):
         return (
             AddressSchema().dump(
@@ -451,9 +450,9 @@ bp.add_url_rule("/address/<int:item_id>", view_func=AddressView.as_view("address
 
 
 class ContactView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, item_id):
         return ContactSchema().dump(
             db.session.execute(
@@ -497,9 +496,9 @@ bp.add_url_rule("/contact/<int:item_id>", view_func=ContactView.as_view("contact
 
 
 class WorkplaceView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, item_id):
         return (
             WorkplaceSchema().dump(
@@ -556,9 +555,9 @@ bp.add_url_rule(
 
 
 class RelationView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, item_id):
         return (
             RelationSchema().dump(
@@ -614,9 +613,9 @@ bp.add_url_rule("/relation/<int:item_id>", view_func=RelationView.as_view("relat
 
 
 class AffilationView(MethodView):
+
     decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
-    @cache.cached()
     def get(self, item_id):
         return AffilationSchema().dump(
             db.session.execute(
@@ -664,11 +663,11 @@ bp.add_url_rule(
 
 
 class CheckView(MethodView):
+
     decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
     @bp.input(ActionSchema, location="query")
-    @cache.cached()
     def get(self, item_id, query_data):
         action = query_data.get("action")
         if action == "self":
@@ -749,7 +748,6 @@ class RobotView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @bp.doc(hide=True)
-    @cache.cached()
     def get(self, item_id):
         return RobotSchema().dump(
             db.session.execute(
@@ -823,10 +821,10 @@ bp.add_url_rule("/robot/<int:item_id>", view_func=RobotView.as_view("robot"))
 
 
 class InvestigationView(MethodView):
+
     decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
-    @cache.cached()
     def get(self, item_id):
         return InvestigationSchema().dump(
             db.session.execute(
@@ -882,10 +880,10 @@ bp.add_url_rule(
 
 
 class PoligrafView(MethodView):
+
     decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
-    @cache.cached()
     def get(self, item_id):
         return PoligrafSchema().dump(
             db.session.execute(
@@ -945,10 +943,10 @@ bp.add_url_rule(
 
 
 class InquiryView(MethodView):
+
     decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
-    @cache.cached()
     def get(self, item_id):
         return InquirySchema().dump(
             db.session.execute(
@@ -1003,7 +1001,6 @@ class InfoView(MethodView):
     @group_required(Groups.staffsec.value)
     @bp.input(InfoSchema, location="query")
     @bp.doc(hide=True)
-    @cache.cached()
     def get(self, json_data):
         candidates = db.session.execute(
             select(Check.conclusion_id, func.count(Check.id))
@@ -1025,7 +1022,6 @@ class FileView(MethodView):
         bp.doc(hide=True),
     ]
 
-    @cache.cached()
     def get(self, item_id):
         """
         Retrieves a file from the server and sends it as a response.
@@ -1054,7 +1050,7 @@ class FileView(MethodView):
             )
             file.save(temp_path)
 
-            anketa = JsonFile(temp_path)
+            anketa = parse_json(temp_path)
             person_id = ResumeView.add_resume(anketa.resume, "create")
             self.fill_items(anketa, person_id)
 

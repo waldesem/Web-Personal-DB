@@ -21,7 +21,7 @@ class ClassesView(MethodView):
     """
 
     @bp.doc(hide=True)
-    @cache.memoize()
+    @cache.cached()
     async def get(self):
         tables = ["Category", "Conclusion", "Role", "Group", "Status", "Region"]
         queries = [

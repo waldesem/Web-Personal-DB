@@ -34,7 +34,6 @@ class LoginView(MethodView):
     @bp.doc(hide=True)
     @bp.output(UserSchema)
     @jwt_required()
-    @cache.cached(timeout=60)
     def get(self):
         """
         Retrieves the current authenticated user from the database.

@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from config import Config
 from . import bp
-from .. import db, cache
+from .. import db
 from ..models.model import Connect
 from ..models.schema import ConnectSchema, SearchSchema
 
@@ -13,7 +13,6 @@ class ConnnectView(MethodView):
     decorators = [jwt_required(), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
-    @cache.cached()
     def get(self, page, query_data):
         """
         Retrieves a paginated list of Connect objects based on the specified group and item.
@@ -72,7 +71,7 @@ class ConnnectView(MethodView):
 
 
 contacts_view = ConnnectView.as_view("connect")
-bp.add_url_rule("/connect/<int:page>", contacts_view, methods=["GET"])
+bp.add_url_rule("/connect/<int:page>", view_func=contacts_view, methods=["GET"])
 bp.add_url_rule("/connect", view_func=contacts_view, methods=["POST"])
 bp.add_url_rule(
     "/connect/<int:item_id>",

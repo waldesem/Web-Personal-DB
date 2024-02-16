@@ -56,7 +56,7 @@ def register_cli(app):
 
         superadmin.roles.append(
             db.session.execute(
-                select(Group).filter_by(group=(Roles.admin.value))
+                select(Role).filter_by(role=(Roles.admin.value))
             ).scalar_one_or_none()
         )
         superadmin.groups.append(

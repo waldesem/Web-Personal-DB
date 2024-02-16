@@ -143,7 +143,6 @@ class DocumentSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Document
         ordered = True
-        exclude = ("search_vector",)
 
 
 class AddressSchema(SQLAlchemyAutoSchema):

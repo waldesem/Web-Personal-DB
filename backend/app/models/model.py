@@ -17,7 +17,7 @@ from sqlalchemy import (
     select,
 )
 
-from .. import db, cache
+from .. import db
 from ..models.classes import Statuses
 
 
@@ -104,7 +104,6 @@ class User(Base):
     )
 
     @staticmethod
-    @cache.cached()
     def get_user(user_name):
         return db.session.execute(
             select(User).filter_by(username=user_name)
@@ -137,7 +136,6 @@ class Category(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="categories")
 
     @staticmethod
-    @cache.cached()
     def get_id(category):
         return db.session.execute(
             select(Category.id).filter(Category.category.like(category))
@@ -155,7 +153,6 @@ class Status(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="statuses")
 
     @staticmethod
-    @cache.cached()
     def get_id(status):
         return db.session.execute(
             select(Status.id).filter(Status.status.like(status))
@@ -173,7 +170,6 @@ class Region(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="regions")
 
     @staticmethod
-    @cache.cached()
     def get_id(region):
         return db.session.execute(
             select(Region.id).filter(Region.region.like(region))
@@ -257,7 +253,6 @@ class Person(Base):
         )
     )
 
-    @cache.cached()
     def has_status(self, *statuses):
         """
         Check if the current status of the object matches any of the given status values.
@@ -443,7 +438,6 @@ class Conclusion(Base):
     checks: Mapped[List["Check"]] = relationship(back_populates="conclusions")
 
     @staticmethod
-    @cache.cached()
     def get_id(conclusion):
         return db.session.execute(
             select(Conclusion.id).filter(Conclusion.conclusion.ilike(conclusion))

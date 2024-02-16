@@ -5,17 +5,17 @@ from sqlalchemy import select
 
 from config import Config
 from . import bp
-from .. import db, cache
+from .. import db
 from ..models.classes import Statuses
 from ..models.model import Message
 from ..models.schema import MessageSchema, ActionSchema
 
 
 class MessagesView(MethodView):
+
     decorators = [jwt_required(), bp.doc(hide=True)]
 
     @bp.input(ActionSchema, location="query")
-    @cache.cached()
     def get(self, page, query_data):
         """
         Get the serialized representation of the messages.

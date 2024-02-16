@@ -8,7 +8,7 @@ from sqlalchemy_searchable import search
 
 from config import Config
 from . import bp
-from .. import db, cache
+from .. import db
 from .login import group_required
 from ..models.classes import Roles, Groups
 from ..models.model import User, Role, Group
@@ -22,10 +22,10 @@ from ..models.schema import (
 
 
 class UsersView(MethodView):
+
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
-    @cache.cached()
     def get(self, query_data):
         """
         Endpoint to handle requests for getting users.
@@ -44,10 +44,10 @@ bp.add_url_rule("/users", view_func=UsersView.as_view("users"))
 
 
 class UserView(MethodView):
+
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     @bp.input(ActionSchema, location="query")
-    @cache.cached()
     def get(self, user_id, query_data):
         """
         Retrieves a user based on the specified action and user ID.
@@ -125,6 +125,7 @@ bp.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "
 
 
 class GroupView(MethodView):
+
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
@@ -198,10 +199,10 @@ bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"
 
 
 class TableView(MethodView):
+
     decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
-    @cache.cached()
     def get(self, item, num, query_data):
         model = models_schemas[item][0]
         schema = models_schemas[item][1]

@@ -55,15 +55,11 @@ flask db upgrade    # after change db schema
 To start the application at http://localhost:5000 run the following command in your terminal:
 ```
 flask create       # create default tables and populate them with data from the classes.py file
-flask run
+gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
 ```
 Admin user on default has name 'admin'.
 Default password for all app users is `88888888`
 Change it in first login to application.
-To start the app with Gunicorn server:
-```
-gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
-```
 
 ### Gunicorn Service
 For create systemd service run the following command in your terminal:
