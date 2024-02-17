@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
 
-bp_resume = APIBlueprint("route", __name__)
+bp_resume = APIBlueprint("resume", __name__)
 
-from .resume import resume
+from ..resume import resume

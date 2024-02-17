@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
 
-bp_classify = APIBlueprint("route", __name__)
+bp_classify = APIBlueprint("classify", __name__)
 
-from .classify import classify
+from ..classes import classify

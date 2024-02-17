@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
 
-bp_contact = APIBlueprint("route", __name__)
+bp_contact = APIBlueprint("contact", __name__)
 
-from .contact import contact
+from ..contacts import contact

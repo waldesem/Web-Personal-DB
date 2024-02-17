@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
 
-bp_checks = APIBlueprint("route", __name__)
+bp_checks = APIBlueprint("checks", __name__)
 
-from .checks import checks
+from ..checks import checks

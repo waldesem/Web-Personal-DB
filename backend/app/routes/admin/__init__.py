@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
 
-bp_admin = APIBlueprint("route", __name__)
+bp_admin = APIBlueprint("admin", __name__)
 
-from .admin import admin
+from ..admin import admin

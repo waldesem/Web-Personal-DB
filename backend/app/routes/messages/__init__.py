@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
 
-bp_message = APIBlueprint("route", __name__)
+bp_message = APIBlueprint("message", __name__)
 
-from .message import message
+from ..messages import message

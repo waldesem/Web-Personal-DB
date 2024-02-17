@@ -151,7 +151,7 @@ class ResumeView(MethodView):
         if action == "create":
             person.status_id = Status().get_id(Statuses.manual.value)
 
-        person.path = os.path.join(resume["fullname"][0].upper(), f"{person_id}-{resume["fullname"]}")
+        person.path = os.path.join(resume["fullname"][0].upper(), f"{person_id}-{resume['fullname']}")
         url = os.path.join(Config.BASE_PATH, person.path)
         if not os.path.isdir(url):
             os.mkdir(url)

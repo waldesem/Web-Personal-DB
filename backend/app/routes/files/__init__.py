@@ -1,5 +1,5 @@
 from apiflask import APIBlueprint
 
-bp_files = APIBlueprint("route", __name__)
+bp_files = APIBlueprint("files", __name__)
 
-from .files import files
+from ..files import files
