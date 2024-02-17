@@ -47,9 +47,13 @@ const personData = ref({
     this.page = page;
     this.path = url;
     try {
-      const response = await storeAuth.axiosInstance.post(
+      const response = await storeAuth.axiosInstance.get(
         `${server}/index/${url}/${page}`,
-        { search: this.search }
+        {
+          params: {
+            search: this.search,
+          },
+        }
       );
       const [datas, metadata] = response.data;
       this.candidates = datas;

@@ -52,7 +52,7 @@ class GroupSchema(SQLAlchemyAutoSchema):
         ordered = True
 
 
-class NewUserSchema(SQLAlchemySchema):
+class AdminUserSchema(SQLAlchemySchema):
     """Create model for new user"""
 
     fullname = String()

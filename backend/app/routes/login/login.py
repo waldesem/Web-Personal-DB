@@ -14,10 +14,10 @@ from flask_jwt_extended import (
 )
 
 from config import Config
-from . import bp
-from .. import jwt, db, cache
-from ..models.model import User
-from ..models.schema import LoginSchema, PasswordSchema, UserSchema
+from . import bp_login
+from ... import jwt, db, cache
+from ...models.model import User
+from ...models.schema import LoginSchema, PasswordSchema, UserSchema
 
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -31,8 +31,8 @@ jwt_redis_blocklist = redis.StrictRedis(
 class LoginView(MethodView):
     """Login view"""
 
-    @bp.doc(hide=True)
-    @bp.output(UserSchema)
+    @bp_login.doc(hide=True)
+    @bp_login.output(UserSchema)
     @jwt_required()
     def get(self):
         """
@@ -45,7 +45,7 @@ class LoginView(MethodView):
             return user
         return abort(401)
 
-    @bp.input(LoginSchema)
+    @bp_login.input(LoginSchema)
     def post(self, json_data):
         """
         Post method for the given API endpoint.
@@ -72,7 +72,7 @@ class LoginView(MethodView):
                 db.session.commit()
         return {"message": "Denied"}, 401
 
-    @bp.input(PasswordSchema)
+    @bp_login.input(PasswordSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.
@@ -91,7 +91,7 @@ class LoginView(MethodView):
             return {"message": "Changed"}
         return {"message": "Denied"}
 
-    @bp.doc(hide=True)
+    @bp_login.doc(hide=True)
     @jwt_required(verify_type=False)
     def delete(self):
         """
@@ -104,7 +104,7 @@ class LoginView(MethodView):
         return {"message": "Denied"}
 
 
-bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
+bp_login.add_url_rule("/login", view_func=LoginView.as_view("login"))
 
 
 class TokenView(MethodView):
@@ -122,8 +122,7 @@ class TokenView(MethodView):
         return {"access_token": ""}
 
 
-bp.add_url_rule("/refresh", view_func=TokenView.as_view("refresh"))
-
+bp_login.add_url_rule("/refresh", view_func=TokenView.as_view("refresh"))
 
 def roles_required(*roles):
     """
@@ -141,7 +140,6 @@ def roles_required(*roles):
         return wrapper
 
     return decorator
-
 
 def group_required(*groups):
     """
@@ -171,6 +169,7 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     return token_in_redis is not None
 
 
+@cache.memoize()
 @jwt.user_identity_loader
 def user_identity_lookup(user):
     """
@@ -178,6 +177,7 @@ def user_identity_lookup(user):
     """
     return user.id
 
+@cache.memoize()
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     """

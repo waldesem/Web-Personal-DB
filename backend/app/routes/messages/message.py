@@ -4,18 +4,18 @@ from flask_jwt_extended import jwt_required, current_user
 from sqlalchemy import select
 
 from config import Config
-from . import bp
-from .. import db
-from ..models.classes import Statuses
-from ..models.model import Message
-from ..models.schema import MessageSchema, ActionSchema
+from . import bp_message
+from ... import db
+from ...models.classes import Statuses
+from ...models.model import Message
+from ...models.schema import MessageSchema, ActionSchema
 
 
 class MessagesView(MethodView):
 
-    decorators = [jwt_required(), bp.doc(hide=True)]
+    decorators = [jwt_required(), bp_message.doc(hide=True)]
 
-    @bp.input(ActionSchema, location="query")
+    @bp_message.input(ActionSchema, location="query")
     def get(self, page, query_data):
         """
         Get the serialized representation of the messages.
@@ -50,7 +50,7 @@ class MessagesView(MethodView):
             db.session.commit()
         self.get(1, {"action": "all"})
 
-    @bp.output(EmptySchema)
+    @bp_message.output(EmptySchema)
     def delete(self):
         """
         Deletes the current instance of the resource from the database.
@@ -68,5 +68,5 @@ class MessagesView(MethodView):
 
 
 messages_view = MessagesView.as_view("messages")
-bp.add_url_rule("/messages/<int:page>", view_func=messages_view, methods=["GET"])
-bp.add_url_rule("/messages", view_func=messages_view, methods=["DELETE"])
+bp_message.add_url_rule("/messages/<int:page>", view_func=messages_view, methods=["GET"])
+bp_message.add_url_rule("/messages", view_func=messages_view, methods=["DELETE"])

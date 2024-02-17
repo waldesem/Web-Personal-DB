@@ -13,7 +13,7 @@ const PageSwitcher = defineAsyncComponent(
 const storeMessage = messageStore();
 
 onBeforeMount(async () => {
-  await storeMessage.updateMessages("all");
+  await storeMessage.messageData.updateMessages("all");
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
@@ -34,7 +34,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           <a
             href="#"
             class="link-info"
-            @click="storeMessage.updateMessages('read')"
+            @click="storeMessage.messageData.updateMessages('read')"
           >
             Отметить все прочитанными
           </a>
@@ -45,7 +45,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           <a
             href="#"
             class="link-danger"
-            @click="storeMessage.updateMessages('delete')"
+            @click="storeMessage.messageData.updateMessages('delete')"
           >
             Удалить все сообщения
           </a>
@@ -84,7 +84,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       :has_next="storeMessage.messageData.hasNext"
       :switchPrev="storeMessage.messageData.currentPage - 1"
       :switchNext="storeMessage.messageData.currentPage + 1"
-      :switchPage="storeMessage.updateMessages"
+      :switchPage="storeMessage.messageData.updateMessages"
       :option="'all'"
     />
   </div>

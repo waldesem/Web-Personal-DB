@@ -11,37 +11,36 @@ export const messageStore = defineStore("messageStore", () => {
     hasPrev: false,
     hasNext: false,
     currentPage: 1,
-  });
 
-  async function updateMessages(
-    action: string = "new",
-    page: number = 1
-  ): Promise<void> {
-    try {
-      const response = ["new", "all", "read"].includes(action)
-        ? await storeAuth.axiosInstance.get(
-            `${server}/messages/${action}/${page}`
-          )
-        : await storeAuth.axiosInstance.delete(`${server}/messages/${action}`);
+    updateMessages: async function (
+      action: string = "new",
+      page: number = 1
+    ): Promise<void> {
+      try {
+        const response = ["new", "all", "read"].includes(action)
+          ? await storeAuth.axiosInstance.get(`${server}/messages/${page}`, {
+              params: { action },
+            })
+          : await storeAuth.axiosInstance.delete(
+              `${server}/messages/${action}`
+            );
 
-      const [datas, has_prev, has_next] = response.data;
+        const [datas, has_prev, has_next] = response.data;
 
-      Object.assign(messageData.value, {
-        messages: datas,
-        hasPrev: has_prev.has_prev,
-        hasNext: has_next.has_next,
-      });
+        this.messages = datas;
+        this.hasPrev = has_prev.has_prev;
+        this.hasNext = has_next.has_next;
 
-      if (action === "read") {
-        updateMessages("all");
+        if (action === "read") {
+          this.updateMessages("all");
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }
+    },
+  });
 
   return {
     messageData,
-    updateMessages,
   };
 });

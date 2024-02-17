@@ -24,7 +24,6 @@ export const adminStore = defineStore("adminStore", () => {
     fullname: string;
     username: string;
     email: string;
-    region_id: string;
     pswd_create: string;
     pswd_change: string;
     last_login: string;
