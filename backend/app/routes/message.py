@@ -24,7 +24,7 @@ class MessagesView(MethodView):
         messages = (
             select(Message)
             .filter_by(user_id=current_user.id)
-            .order_by(Message.created.desc().all())
+            .order_by(Message.created.desc()).all()
         )
         if action == "new":
             messages = messages.filter(Message.status == Statuses.new.name)

@@ -98,6 +98,14 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
               : 'Разблокирован'
           "
         />
+        <RowDivSlot
+          :label="'Активность'"
+          :value="
+            storeAdmin.dataUsers.profile.deleted
+              ? 'Удален'
+              : 'Активен'
+          "
+        />
         <RowDivSlot :label="'Группы'" :slotTwo="true">
           <template v-slot:divTwo>
             <ul
@@ -205,7 +213,12 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           data-bs-target="#modalUser"
           @click="
             storeAdmin.dataUsers.action = 'edit';
-            storeAdmin.dataUsers.form = storeAdmin.dataUsers.profile;
+            storeAdmin.dataUsers.form['fullname'] =
+              storeAdmin.dataUsers.profile.fullname;
+            storeAdmin.dataUsers.form['username'] =
+              storeAdmin.dataUsers.profile.username;
+            storeAdmin.dataUsers.form['email'] =
+              storeAdmin.dataUsers.profile.email;
           "
         >
           Изменить пользователя
@@ -233,6 +246,14 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           class="btn btn-outline-secondary"
         >
           Удалить
+        </button>
+        <button
+          @click="storeAdmin.dataUsers.userAction('restore')"
+          type="button"
+          class="btn btn-outline-secondary"
+          :disabled="!storeAdmin.dataUsers.profile.deleted"
+        >
+          Восстановить
         </button>
       </div>
     </div>

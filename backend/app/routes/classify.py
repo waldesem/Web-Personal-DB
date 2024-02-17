@@ -22,7 +22,7 @@ class ClassesView(MethodView):
 
     @bp.doc(hide=True)
     @cache.cached()
-    async def get(self):
+    def get(self):
         tables = ["Category", "Conclusion", "Role", "Group", "Status", "Region"]
         queries = [
             db.session.execute(select(eval(table))).scalars().all() for table in tables

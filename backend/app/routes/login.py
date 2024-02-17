@@ -60,8 +60,8 @@ class LoginView(MethodView):
                     db.session.commit()
                     return {
                         "message": "Authenticated",
-                        "access_token": create_access_token(identity=user.id),
-                        "refresh_token": create_refresh_token(identity=user.id),
+                        "access_token": create_access_token(identity=user),
+                        "refresh_token": create_refresh_token(identity=user),
                     }
                 return {"message": "Overdue"}
             else:
@@ -172,16 +172,13 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
 
 
 @jwt.user_identity_loader
-@cache.cached()
 def user_identity_lookup(user):
     """
     A function that acts as a user identity loader for the JWT framework.
     """
-    return user
-
+    return user.id
 
 @jwt.user_lookup_loader
-@cache.cached()
 def user_lookup_callback(_jwt_header, jwt_data):
     """
     Look up a user based on JWT data.

@@ -55,7 +55,6 @@ class GroupSchema(SQLAlchemyAutoSchema):
 class NewUserSchema(SQLAlchemySchema):
     """Create model for new user"""
 
-    id = String()
     fullname = String()
     username = String()
     email = String()
@@ -71,7 +70,7 @@ class UserSchema(SQLAlchemyAutoSchema):
         model = User
         ordered = True
         include_fk = True
-        exclude = ("search_vector", "deleted",)
+        exclude = ("search_vector",)
 
 
 class LoginSchema(Schema):

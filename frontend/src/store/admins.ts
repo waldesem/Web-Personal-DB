@@ -30,7 +30,8 @@ export const adminStore = defineStore("adminStore", () => {
     last_login: string;
     roles: Role[];
     groups: Group[];
-    blocked: string;
+    blocked: boolean;
+    deleted: boolean;
     attempt: string;
   }
 
@@ -65,18 +66,19 @@ export const adminStore = defineStore("adminStore", () => {
             ? await storeAuth.axiosInstance.patch(`${server}/user`, this.form)
             : await storeAuth.axiosInstance.post(`${server}/user`, this.form);
 
-        if (this.action === "edit") {
-          this.profile = response.data;
+          const { message } = response.data;
+        if (message === "Changed") {
           storeAlert.alertMessage.setAlert(
             "alert-success",
             "Пользователь успешно изменен"
           );
+          this.userAction("view");
         } else {
-          dataUsers.value.users = response.data;
           storeAlert.alertMessage.setAlert(
             "alert-success",
             "Пользователь успешно создан"
           );
+          this.getUsers();
         }
       } catch (error) {
         console.error(error);
@@ -86,7 +88,6 @@ export const adminStore = defineStore("adminStore", () => {
         );
       }
       clearForm(this.form);
-      this.getUsers();
     },
 
     userAction: async function (action: String): Promise<void> {
@@ -108,7 +109,12 @@ export const adminStore = defineStore("adminStore", () => {
               this.profile.blocked ? "заблокирован" : "разблокирован"
             }`
           );
-        }
+        } else if (action === "restore") {
+          storeAlert.alertMessage.setAlert(
+            "alert-success",
+            "Пользователь восстановлен"
+          )
+        };
       } catch (error) {
         storeAlert.alertMessage.setAlert("alert-danger", error as string);
       }

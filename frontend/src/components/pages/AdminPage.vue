@@ -48,14 +48,15 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           <tr height="50px">
             <th width="5%">#</th>
             <th>Имя пользователя</th>
-            <th width="25%">Логин</th>
-            <th width="20%">Создан</th>
-            <th width="20%">Вход</th>
+            <th width="20%">Логин</th>
+            <th width="15%">Блокировка</th>
+            <th width="15%">Создан</th>
+            <th width="15%">Вход</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td colspan="5">
+            <td colspan="6">
               <table
                 class="table table-hover table-responsive align-middle no-bottom-border"
               >
@@ -67,17 +68,18 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                   >
                     <td width="5%">{{ user.id }}</td>
                     <td>{{ user.fullname }}</td>
-                    <td width="25%">
+                    <td width="20%">
                       <router-link
                         :to="{ name: 'user', params: { id: user.id } }"
                       >
                         {{ user.username }}
                       </router-link>
                     </td>
-                    <td width="20%">
+                    <td width="15%">{{ user.blocked }}</td>
+                    <td width="15%">
                       {{ new Date(user.pswd_create).toLocaleString("ru-RU") }}
                     </td>
-                    <td width="20%">
+                    <td width="15%">
                       {{ new Date(user.last_login).toLocaleString("ru-RU") }}
                     </td>
                   </tr>
