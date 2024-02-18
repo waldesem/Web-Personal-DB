@@ -173,37 +173,32 @@ export const profileStore = defineStore("profileStore", () => {
     form: <Record<string, any>>{},
 
     getProfile: async function () {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/person/${this.candId}`
-      );
-      const {
-        resume,
-        staffs,
-        documents,
-        addresses,
-        contacts,
-        workplaces,
-        relations,
-        affilations,
-        checks,
-        robots,
-        poligrafs,
-        investigations,
-        inquiries,
-      } = response.data;
-      this.resume = resume;
-      this.staffs = staffs;
-      this.docums = documents;
-      this.addrs = addresses;
-      this.conts = contacts;
-      this.works = workplaces;
-      this.relate = relations;
-      this.affilation = affilations;
-      this.verification = checks;
-      this.robot = robots;
-      this.pfo = poligrafs;
-      this.inquisition = investigations;
-      this.needs = inquiries;
+      await Promise.all([
+        [
+          'resume', 
+          'staff', 
+          'document', 
+          'resume',
+          'staff',
+          'document',
+          'address',
+          'contact', 
+          'workplace', 
+          'contact',
+          'workplace',
+          'relation',
+          'affilation', 
+          'check', 
+          'affilation',
+          'check',
+          'robot',
+          'poligraf', 
+          'investigation', 
+          'poligraf',
+          'investigation',
+          'inquiry',
+        ].map(async (item) => await this.getItem(item, 'view', this.candId))
+      ]);
     },
 
     getItem: async function (
@@ -236,7 +231,12 @@ export const profileStore = defineStore("profileStore", () => {
       }
       try {
         const response = await storeAuth.axiosInstance.get(
-          `${server}/${item}/${action}/${id}`
+          `${server}/${item}/${id}`,
+          {
+            params: {
+              action: action,
+            },
+          }
         );
         switch (item) {
           case "resume":

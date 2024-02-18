@@ -11,7 +11,10 @@ const props = defineProps({
   cls: String,
   place: String,
   name: String,
-  model: String,
+  model: {
+    type: [String, Number],
+    default: "",
+  },
   lst: String,
   selects: Array,
 });
@@ -29,7 +32,8 @@ const props = defineProps({
       :pattern="props.pattern"
       :placeholder="props.place"
       :list="props.lst"
-      v-model="props.model"
+      :value="props.model"
+      @input="$emit('input-event', $event)"
     />
     <datalist v-if="props.lst" :id="props.lst">
       <option v-for="item in selects" :value="item"></option>

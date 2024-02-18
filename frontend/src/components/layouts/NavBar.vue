@@ -12,7 +12,7 @@ const pageIdentity = inject("pageIdentity") as string;
 let isStarted = false;
 if (!isStarted) {
   isStarted = true;
-  setInterval(storeMessage.updateMessages, 1000000);
+  setInterval(storeMessage.messageData.updateMessages, 1000000);
 }
 </script>
 

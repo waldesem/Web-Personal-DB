@@ -22,10 +22,12 @@ export const contactStore = defineStore("contactStore", () => {
 
     getContacts: async function (page: number): Promise<void> {
       try {
-        const response = await storeAuth.axiosInstance.post(
-          `${server}/connects/${page}`,
+        const response = await storeAuth.axiosInstance.get(
+          `${server}/connect/${page}`,
           {
-            search: this.search,
+            params: {
+              search: this.search,
+            },
           }
         );
         const [datas, has_prev, has_next, companies, cities] = response.data;
@@ -41,40 +43,34 @@ export const contactStore = defineStore("contactStore", () => {
       }
     },
 
-    updateContact: async function (
-      event: Event,
-      action: string,
-      id: string
-    ): Promise<void> {
-      event.preventDefault();
+    updateContact: async function (): Promise<void> {
       try {
         const response =
-          action === "create"
-            ? await storeAuth.axiosInstance.post(
-                `${server}/connect/`,
-                this.form.value
-              )
+          this.action === "create"
+            ? await storeAuth.axiosInstance.post(`${server}/connect`, this.form)
             : await storeAuth.axiosInstance.patch(
-                `${server}/connect/${id}`,
+                `${server}/connect/${this.id}`,
                 this.form
               );
-        const { item_id } = response.data;
+        console.log(response.status);
 
         const alert = {
-          create: ["alert-success", `Создан контакт ID ${item_id}`],
-          edit: ["alert-info", `Контакт ID ${item_id} обновлен`],
+          create: ["alert-success", "Контакт добавлен"],
+          edit: ["alert-info", "Контакт обновлен"],
         };
         storeAlert.alertMessage.setAlert(
-          alert[action as keyof typeof alert][0],
-          alert[action as keyof typeof alert][1]
+          alert[this.action as keyof typeof alert][0],
+          alert[this.action as keyof typeof alert][1]
         );
         this.getContacts(this.page);
         this.action = "";
+        this.id = "";
         clearForm(this.form);
       } catch (error) {
         console.log(error);
       }
     },
+
     deleteContact: async function (id: string): Promise<void> {
       if (confirm("Вы действительно хотите удалить контакт?")) {
         try {

@@ -45,7 +45,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           <a
             href="#"
             class="link-danger"
-            @click="storeMessage.messageData.updateMessages('delete')"
+            @click="storeMessage.messageData.deleteMessage()"
           >
             Удалить все сообщения
           </a>

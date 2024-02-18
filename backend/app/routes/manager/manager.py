@@ -27,8 +27,8 @@ class FileManagementView(MethodView):
         """
         Retrieves the list of directories and files in the current path.
         """
-        items = os.listdir(path)
         path = os.path.join(self.base_path, *self.current_path)
+        items = os.listdir(path)
         self.dirs = [
             item for item in items if os.path.isdir(os.path.join(path, item))
         ]
@@ -45,7 +45,7 @@ class FileManagementView(MethodView):
         """
         Handles different actions for the POST request.
         """
-        json_data = request.get_json()
+        json_data = request.get_json()  
         self.current_path = json_data["path"]
         match action:
             case "open":

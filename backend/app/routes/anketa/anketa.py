@@ -124,7 +124,9 @@ class DocumentView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule("/document/<int:item_id>", view_func=DocumentView.as_view("document"))
+bp_anketa.add_url_rule(
+    "/document/<int:item_id>", view_func=DocumentView.as_view("document")
+)
 
 
 class AddressView(MethodView):
@@ -175,7 +177,9 @@ class AddressView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule("/address/<int:item_id>", view_func=AddressView.as_view("address"))
+bp_anketa.add_url_rule(
+    "/address/<int:item_id>", view_func=AddressView.as_view("address")
+)
 
 
 class ContactView(MethodView):
@@ -221,7 +225,9 @@ class ContactView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule("/contact/<int:item_id>", view_func=ContactView.as_view("contact"))
+bp_anketa.add_url_rule(
+    "/contact/<int:item_id>", view_func=ContactView.as_view("contact")
+)
 
 
 class WorkplaceView(MethodView):
@@ -338,7 +344,9 @@ class RelationView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule("/relation/<int:item_id>", view_func=RelationView.as_view("relation"))
+bp_anketa.add_url_rule(
+    "/relation/<int:item_id>", view_func=RelationView.as_view("relation")
+)
 
 
 class AffilationView(MethodView):

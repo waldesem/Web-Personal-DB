@@ -35,7 +35,7 @@ from ...models.schema import (
 
 class ResumeView(MethodView):
 
-    @roles_required(Groups.staffsec.value)
+    @group_required(Groups.staffsec.value)
     @bp_resume.input(ActionSchema, location="query")
     @bp_resume.doc(hide=True)
     def get(self, person_id, query_data):

@@ -19,7 +19,6 @@ class Config:
     CACHE_REDIS_HOST = "localhost" 
     CACHE_REDIS_PORT = 6379
     CACHE_REDIS_DB = 0
-    # CACHE_REDIS_URL = "redis://localhost:6379/0"
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False

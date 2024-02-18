@@ -30,7 +30,8 @@ export const classifyStore = defineStore("classifyStore", () => {
             ) => {
               acc[item.id] = item.status;
               return acc;
-            }
+            },
+            {} as { [key: string]: string }
           ),
           regions: region.reduce(
             (

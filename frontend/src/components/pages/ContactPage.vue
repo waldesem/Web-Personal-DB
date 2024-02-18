@@ -30,13 +30,15 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   next();
 });
 
-const searchContacts = debounce(storeContact.contactData.getContacts, 500);
+const searchContacts = debounce(() => {
+  storeContact.contactData.getContacts(1);  ;
+}, 500);
 </script>
 
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Контакты'" />
-    <form @input="searchContacts" class="form form-check" role="form">
+    <form @input.prevent="searchContacts" class="form form-check" role="form">
       <div class="row py-3">
         <input
           class="form-control"
@@ -65,11 +67,9 @@ const searchContacts = debounce(storeContact.contactData.getContacts, 500);
             <th width="5%">
               <a
                 role="button"
-                @click="
-                  storeContact.contactData.action === 'create'
-                    ? (storeContact.contactData.action = '')
-                    : (storeContact.contactData.action = 'create')
-                "
+                @click="storeContact.contactData.action === ''
+                  ? storeContact.contactData.action = 'create'
+                  : storeContact.contactData.action = ''"
                 :title="
                   storeContact.contactData.action === 'create'
                     ? 'Отмена'
@@ -97,7 +97,7 @@ const searchContacts = debounce(storeContact.contactData.getContacts, 500);
               <table
                 v-for="contact in storeContact.contactData.contacts"
                 :key="contact['id']"
-                class="table table-hover align-middle text-center"
+                class="table align-middle text-center"
               >
                 <tbody>
                   <tr v-if="storeContact.contactData.id !== contact['id']">

@@ -17,23 +17,33 @@ export const messageStore = defineStore("messageStore", () => {
       page: number = 1
     ): Promise<void> {
       try {
-        const response = ["new", "all", "read"].includes(action)
-          ? await storeAuth.axiosInstance.get(`${server}/messages/${page}`, {
-              params: { action },
-            })
-          : await storeAuth.axiosInstance.delete(
-              `${server}/messages/${action}`
-            );
+        const response = await storeAuth.axiosInstance.get(
+          `${server}/messages/${page}`,
+          {
+            params: { action },
+          }
+        );
 
-        const [datas, has_prev, has_next] = response.data;
-
-        this.messages = datas;
-        this.hasPrev = has_prev.has_prev;
-        this.hasNext = has_next.has_next;
+        const [datas, metadata] = response.data;
 
         if (action === "read") {
           this.updateMessages("all");
+        } else {
+          this.messages = datas;
+          this.hasPrev = metadata.has_prev;
+          this.hasNext = metadata.has_next;
         }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    deleteMessage: async function (): Promise<void> {
+      try {
+        const response = await storeAuth.axiosInstance.delete(
+          `${server}/messages`
+        );
+        console.log(response.status);
+        this.updateMessages("all");
       } catch (error) {
         console.error(error);
       }

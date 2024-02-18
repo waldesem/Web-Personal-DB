@@ -1,13 +1,14 @@
 from flask.views import MethodView
 from flask_jwt_extended import current_user
+from sqlalchemy_searchable import search
 from sqlalchemy import select, func
 
-from . import bp_persons
+from . import bp_index
 from ... import db
 from ..login.login import group_required
 from ...models.classes import Categories, Groups, Statuses
-from .. resume.resume import ResumeView
-from .. anketa.anketa import (
+from ..resume.resume import ResumeView
+from ..anketa.anketa import (
     StaffView,
     DocumentView,
     ContactView,
@@ -16,7 +17,7 @@ from .. anketa.anketa import (
     AffilationView,
     RelationView,
 )
-from .. checks.checks import(
+from ..checks.checks import(
     CheckView,
     RobotView,
     PoligrafView,
@@ -40,10 +41,10 @@ class IndexView(MethodView):
 
     decorators = [
         group_required(Groups.staffsec.value),
-        bp_persons.doc(hide=True),
+        bp_index.doc(hide=True),
     ]
 
-    @bp_persons.input(SearchSchema, location="query")
+    @bp_index.input(SearchSchema, location="query")
     def get(self, flag, page, query_data):
         search_data = query_data.get("search")
         query = select(Person).order_by(Person.id.desc())
@@ -73,7 +74,7 @@ class IndexView(MethodView):
                     )
         else:
             if search_data:
-                query = Person.query.search("%{}%".format(search_data))
+                query = search(query,"%{}%".format(search_data))
 
         result = db.paginate(query, page=page, per_page=16, error_out=False)
         return [
@@ -82,58 +83,14 @@ class IndexView(MethodView):
         ]
 
 
-bp_persons.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
-
-
-class PersonView(MethodView):
-
-    decorators = [group_required(Groups.staffsec.value), bp_persons.doc(hide=True)]
-
-    def get(self, person_id):
-        views = [
-            ResumeView(),
-            StaffView(),
-            DocumentView(),
-            ContactView(),
-            AddressView(),
-            WorkplaceView(),
-            AffilationView(),
-            RelationView(),
-            CheckView(),
-            RobotView(),
-            PoligrafView(),
-            InvestigationView(),
-            InquiryView(),
-        ]
-        items = [
-            "resume",
-            "staffs",
-            "documents",
-            "contacts",
-            "addresses",
-            "works",
-            "affilations",
-            "relations",
-            "checks",
-            "robots",
-            "poligrafs",
-            "investigations",
-            "inquiries",
-        ]
-        return {
-            item: query
-            for item, query in zip(items, [view.get(person_id) for view in views])
-        }
-
-
-bp_persons.add_url_rule("/person/<int:person_id>", view_func=PersonView.as_view("person"))
+bp_index.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
 
 
 class InfoView(MethodView):
 
     @group_required(Groups.staffsec.value)
-    @bp_persons.input(InfoSchema, location="query")
-    @bp_persons.doc(hide=True)
+    @bp_index.input(InfoSchema, location="query")
+    @bp_index.doc(hide=True)
     def get(self, json_data):
         candidates = db.session.execute(
             select(Check.conclusion_id, func.count(Check.id))
@@ -145,4 +102,4 @@ class InfoView(MethodView):
         return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates))}, 200
 
 
-bp_persons.add_url_rule("/information", view_func=InfoView.as_view("information"))
+bp_index.add_url_rule("/information", view_func=InfoView.as_view("information"))

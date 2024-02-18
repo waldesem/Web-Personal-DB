@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required
+from sqlalchemy_searchable import search
 from sqlalchemy import select
 
 from config import Config
@@ -10,6 +11,7 @@ from ...models.schema import ConnectSchema, SearchSchema
 
 
 class ConnnectView(MethodView):
+
     decorators = [jwt_required(), bp_contact.doc(hide=True)]
 
     @bp_contact.input(SearchSchema, location="query")
@@ -20,11 +22,9 @@ class ConnnectView(MethodView):
         companies = db.session.execute(select(Connect.company)).scalars()
         cities = db.session.execute(select(Connect.city)).scalars()
         search_data = query_data.get("search")
+        query = select(Connect).order_by(Connect.id.desc())
         if search_data:
-            query = Connect.query.search("%{}%".format(search_data))
-        else:
-            query = select(Connect)
-        result = query.order_by(Connect.id.desc())
+            query = search(query,"%{}%".format(search_data))
         result = db.paginate(
             query, 
             page=page, 
@@ -44,8 +44,7 @@ class ConnnectView(MethodView):
         """
         Create a new connection.
         """
-        connect = Connect(**json_data)
-        db.session.add(connect)
+        db.session.add(Connect(**json_data))
         db.session.commit()
         return {"message": "Created"}, 201
 

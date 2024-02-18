@@ -11,13 +11,7 @@ const storeContact = contactStore();
 
 <template>
   <form
-    @submit.prevent="
-      storeContact.contactData.updateContact(
-        $event,
-        storeContact.contactData.action,
-        storeContact.contactData.id
-      )
-    "
+    @submit.prevent="storeContact.contactData.updateContact"
     class="form form-check"
   >
     <div class="row">
@@ -59,7 +53,6 @@ const storeContact = contactStore();
         :cls="'col-md-2'"
         :name="'phone'"
         place="Телефон"
-        :pattern="'[0-9()]+'"
         :model="storeContact.contactData.form['phone']"
         @input-event="
           storeContact.contactData.form['phone'] = $event.target.value
@@ -69,7 +62,6 @@ const storeContact = contactStore();
         :cls="'col-md-2'"
         :name="'adding'"
         place="Добав"
-        :pattern="'[0-9]+'"
         :model="storeContact.contactData.form['adding']"
         @input-event="
           storeContact.contactData.form['adding'] = $event.target.value
@@ -81,7 +73,6 @@ const storeContact = contactStore();
         :cls="'col-md-3'"
         :name="'mobile'"
         place="Мобильный"
-        :pattern="'[0-9]+'"
         :model="storeContact.contactData.form['mobile']"
         @input-event="
           storeContact.contactData.form['mobile'] = $event.target.value
@@ -91,7 +82,6 @@ const storeContact = contactStore();
         :cls="'col-md-2'"
         :name="'mail'"
         place="Почта"
-        :pattern="'[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'"
         :model="storeContact.contactData.form['mail']"
         @input-event="
           storeContact.contactData.form['mail'] = $event.target.value

@@ -24,12 +24,17 @@ class MessagesView(MethodView):
         messages = (
             select(Message)
             .filter_by(user_id=current_user.id)
-            .order_by(Message.created.desc()).all()
+            .order_by(Message.created.desc())
         )
         if action == "new":
             messages = messages.filter(Message.status == Statuses.new.name)
         elif action == "read":
-            self.mark_readed(messages)
+            unreaded = messages.filter(Message.status == Statuses.new.name)
+            results = db.session.execute(unreaded).scalars().all()
+            if len(results):
+                for result in results:
+                    result.status = Statuses.reply.name
+            db.session.commit()  
         result = db.paginate(
             messages,
             page=page if page else 1,
@@ -40,15 +45,6 @@ class MessagesView(MethodView):
             MessageSchema().dump(result, many=True),
             {"has_next": result.has_next, "has_prev": result.has_prev},
         ]
-
-    def mark_readed(self, messages):
-        unreaded = messages.filter(Message.status == Statuses.new.name)
-        results = db.session.execute(unreaded).scalars().all()
-        if len(results):
-            for result in results:
-                result.status = Statuses.reply.name
-            db.session.commit()
-        self.get(1, {"action": "all"})
 
     @bp_message.output(EmptySchema)
     def delete(self):
@@ -64,7 +60,8 @@ class MessagesView(MethodView):
                 db.session.delete(message)
             db.session.commit()
             return {"message": "Deleted"}, 204
-        return {"message": "Denied"}, 403
+        else:
+            return {"message": "Empty"}, 201
 
 
 messages_view = MessagesView.as_view("messages")

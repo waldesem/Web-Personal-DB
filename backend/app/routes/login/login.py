@@ -117,9 +117,8 @@ class TokenView(MethodView):
         """
         user = db.session.get(User, current_user.id)
         if user and not user.blocked and not user.deleted:
-            access_token = create_access_token(identity=user)
-            return {"access_token": access_token}
-        return {"access_token": ""}
+            return {"access_token": create_access_token(identity=user)}
+        return {"access_token": ""}, 401
 
 
 bp_login.add_url_rule("/refresh", view_func=TokenView.as_view("refresh"))

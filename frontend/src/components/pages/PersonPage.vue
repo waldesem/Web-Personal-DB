@@ -31,8 +31,8 @@ interface Candidate {
   fullname: string;
   region_id: number;
   birthday: string;
-  status: string;
-  create: string;
+  status_id: string;
+  created: string;
 }
 
 const personData = ref({
@@ -117,7 +117,7 @@ const searchPerson = debounce(() => {
             type="text"
             maxlength="250"
             minlength="3"
-            placeholder="поиск по имени, ИНН, СНИЛС"
+            placeholder="поиск по ФИО, ИНН"
             v-model="personData.search"
             title="Для поиска записей содержащих “Петров” и “Сергей” используйте запрос: 'Петров Сергей' Для поиска записей содержащих “Петров” или “Сергей” используйте запрос: 'Петров or Сергей' Для поиска записей содержащих “Петров”, но не “Сергей” используйте запрос: 'Петров -Сергей' Для поиска записей содержащих фразу целиком заключите ее в двойные кавычки"
           />
@@ -157,9 +157,9 @@ const searchPerson = debounce(() => {
             <td>
               {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
             </td>
-            <td>{{ candidate.status }}</td>
+            <td>{{ storeClassify.classData.status[candidate.status_id] }}</td>
             <td>
-              {{ new Date(candidate.create).toLocaleDateString("ru-RU") }}
+              {{ new Date(candidate.created).toLocaleDateString("ru-RU") }}
             </td>
           </tr>
         </tbody>
