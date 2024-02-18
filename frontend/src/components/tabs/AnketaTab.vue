@@ -69,18 +69,21 @@ const hiddenSendBtn = ref(false);
 const hiddenDelBtn = ref(false);
 
 hiddenSendBtn.value =
-  (storeProfile.dataProfile.resume["status"] !==
-    storeClassify.classData.status["new"] &&
-    storeProfile.dataProfile.resume["status"] !==
-      storeClassify.classData.status["update"] &&
-    storeProfile.dataProfile.resume["status"] !==
-      storeClassify.classData.status["repeat"]) ||
+  (storeClassify.classData.status[
+    storeProfile.dataProfile.resume["status_id"]
+  ] !== "new" &&
+    storeClassify.classData.status[
+      storeProfile.dataProfile.resume["status_id"]
+    ] !== "update" &&
+    storeClassify.classData.status[
+      storeProfile.dataProfile.resume["status_id"]
+    ] !== "repeat") ||
   storeProfile.dataProfile.spinner;
 
 hiddenDelBtn.value =
-  storeProfile.dataProfile.resume["status"] ===
-    storeClassify.classData.status["finish"] ||
-  storeProfile.dataProfile.spinner;
+  storeClassify.classData.status[
+    storeProfile.dataProfile.resume["status_id"]
+  ] === "finish" || storeProfile.dataProfile.spinner;
 
 function switchForm(item: string) {
   storeProfile.dataProfile.flag === item
@@ -124,7 +127,7 @@ function switchForm(item: string) {
       <StaffForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.staffs">
+      <div v-if="storeProfile.dataProfile.staffs.length">
         <CollapseDiv
           v-for="(item, idx) in storeProfile.dataProfile.staffs"
           :key="idx"
@@ -150,7 +153,7 @@ function switchForm(item: string) {
       <DocumentForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.docums">
+      <div v-if="storeProfile.dataProfile.docums.length">
         <CollapseDiv
           v-for="(item, idx) in storeProfile.dataProfile.docums"
           :key="idx"
@@ -176,7 +179,7 @@ function switchForm(item: string) {
       <AddressForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.addrs">
+      <div v-if="storeProfile.dataProfile.addrs.length">
         <CollapseDiv
           v-for="(item, idx) in storeProfile.dataProfile.addrs"
           :key="idx"
@@ -202,7 +205,7 @@ function switchForm(item: string) {
       <ContactForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.conts">
+      <div v-if="storeProfile.dataProfile.conts.length">
         <CollapseDiv
           v-for="(item, idx) in storeProfile.dataProfile.conts"
           :key="idx"
@@ -228,7 +231,7 @@ function switchForm(item: string) {
       <WorkplaceForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.works">
+      <div v-if="storeProfile.dataProfile.works.length">
         <CollapseDiv
           v-for="(item, idx) in storeProfile.dataProfile.works"
           :key="idx"
@@ -254,7 +257,7 @@ function switchForm(item: string) {
       <AffilationForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.affilation">
+      <div v-if="storeProfile.dataProfile.affilation.length">
         <CollapseDiv
           v-for="(item, idx) in storeProfile.dataProfile.affilation"
           :key="idx"
@@ -280,7 +283,7 @@ function switchForm(item: string) {
       <RelationForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.relate">
+      <div v-if="storeProfile.dataProfile.relate.length">
         <CollapseDiv
           v-for="(item, idx) in storeProfile.dataProfile.relate"
           :key="idx"

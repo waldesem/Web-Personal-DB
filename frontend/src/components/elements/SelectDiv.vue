@@ -34,11 +34,11 @@ const props = defineProps({
         @input="$emit('input-event', $event)"
       >
         <option
-          v-for="(value, index) in props.select"
-          :key="index"
-          :value="value[props.selectValue as string]"
+          v-for="(key, value) in props.select"
+          :key="key"
+          :value="value"
         >
-          {{ value[props.selectName as string] }}
+          {{key }}
         </option>
       </select>
     </div>

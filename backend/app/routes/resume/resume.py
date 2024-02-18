@@ -114,7 +114,7 @@ class ResumeView(MethodView):
         db.session.delete(person)
         db.session.commit()
         return "", 204
-
+    
     @roles_required(Roles.user.value, Roles.api.value)
     @group_required(Groups.staffsec.value, Groups.rest.value)
     @bp_resume.input(PersonSchema)

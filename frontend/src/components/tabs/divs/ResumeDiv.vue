@@ -12,8 +12,8 @@ const storeClassify = classifyStore();
 </script>
 
 <template>
-  <RowDivSlot :slotTwo="true" :print="true">
-    <template v-slot:slotTwo>
+  <RowDivSlot :slotTwo="true">
+    <template v-slot:divTwo>
       <a
         href="#"
         title="Изменить"
@@ -32,11 +32,15 @@ const storeClassify = classifyStore();
   </RowDivSlot>
   <RowDivSlot
     :label="'Категория'"
-    :value="storeProfile.dataProfile.resume['category']"
+    :value="
+      storeClassify.classData.category[
+        storeProfile.dataProfile.resume['category_id']
+      ]
+    "
   />
   <RowDivSlot :label="'Регион'" :slotTwo="true">
-    <template v-slot:slotTwo>
-      <a
+    <template v-slot:divTwo>
+      <!-- <a
         href="#"
         data-bs-toggle="modal"
         data-bs-target="#modalRegion"
@@ -48,13 +52,13 @@ const storeClassify = classifyStore();
             storeProfile.dataProfile.resume
           )
         "
-      >
+      > -->
         {{
           storeClassify.classData.regions[
             storeProfile.dataProfile.resume["region_id"]
           ]
         }}
-      </a>
+      <!-- </a> -->
     </template>
   </RowDivSlot>
   <RowDivSlot
@@ -119,7 +123,11 @@ const storeClassify = classifyStore();
           )
         "
       >
-        {{ storeProfile.dataProfile.resume["status"] }}
+        {{
+          storeClassify.classData.status[
+            storeProfile.dataProfile.resume["status_id"]
+          ]
+        }}
       </a>
     </template>
   </RowDivSlot>

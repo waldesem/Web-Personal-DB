@@ -9,9 +9,6 @@ const ModalWin = defineAsyncComponent(
 const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
-);
 
 const storeClassify = classifyStore();
 const storeProfile = profileStore();
@@ -20,9 +17,9 @@ const storeProfile = profileStore();
 <template>
   <ModalWin :id="'modalRegion'" :title="'Изменить регион'" :size="'modal-md'">
     <form
-      @submit.prevent="storeProfile.dataProfile.updateItem"
+      @change.prevent="storeProfile.dataProfile.updateItem"
       class="form form-check"
-      role="form"
+      role="form"  data-bs-dismiss="modal"
     >
       <SelectDiv
         :name="'region_id'"
@@ -33,19 +30,6 @@ const storeProfile = profileStore();
           storeProfile.dataProfile.form['region_id'] = $event.target.value
         "
       />
-      <BtnGroupForm>
-        <button
-          class="btn btn-primary btn-md"
-          data-bs-dismiss="modal"
-          name="submit"
-          type="submit"
-        >
-          Принять
-        </button>
-        <button class="btn btn-primary btn-md" name="reset" type="reset">
-          Очистить
-        </button>
-      </BtnGroupForm>
     </form>
   </ModalWin>
 </template>

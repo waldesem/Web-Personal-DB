@@ -13,7 +13,7 @@ export const profileStore = defineStore("profileStore", () => {
 
   interface Resume {
     id: string;
-    category: string;
+    category_id: string;
     region_id: string;
     fullname: string;
     previous: string;
@@ -27,7 +27,7 @@ export const profileStore = defineStore("profileStore", () => {
     marital: string;
     addition: string;
     path: string;
-    status: string;
+    status_id: string;
     created: string;
     updated: string;
     request_id: string;
@@ -208,9 +208,9 @@ export const profileStore = defineStore("profileStore", () => {
     ): Promise<void> {
       if (item === "check" && action === "add") {
         if (
-          this.resume["status"] === classifyApp.classData.status["save"] ||
-          this.resume["status"] === classifyApp.classData.status["manual"] ||
-          this.resume["status"] === classifyApp.classData.status["robot"]
+          classifyApp.classData.status[this.resume["status_id"]] === "save" ||
+          classifyApp.classData.status[this.resume["status_id"]] === "manual" ||
+          classifyApp.classData.status[this.resume["status_id"]] === "robot"
         ) {
           storeAlert.alertMessage.setAlert(
             "alert-warning",
@@ -354,9 +354,8 @@ export const profileStore = defineStore("profileStore", () => {
     ): Promise<void> {
       if (
         [
-          classifyApp.classData.status["robot"],
-          classifyApp.classData.status["finish"],
-        ].includes(this.resume["status"]) &&
+          "robot","finish",
+        ].includes(classifyApp.classData.status[this.resume["status_id"]]) &&
         (item === "check" || item === "resume")
       ) {
         storeAlert.alertMessage.setAlert(

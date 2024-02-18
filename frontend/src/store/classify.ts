@@ -12,6 +12,7 @@ export const classifyStore = defineStore("classifyStore", () => {
     groups: <Record<string, any>>{},
     roles: <Record<string, any>>{},
     tables: Array<string>(),
+
     getClasses: async function (): Promise<void> {
       try {
         const response = await axios.get(`${server}/classes`);
@@ -19,35 +20,33 @@ export const classifyStore = defineStore("classifyStore", () => {
           response.data;
 
         Object.assign(classData.value, {
-          category: category,
-          conclusion: conclusion,
+          category: this.reduceItems(category, "category"),
+          conclusion: this.reduceItems(conclusion, "conclusion"),
+          status: this.reduceItems(status, "status"),
+          regions: this.reduceItems(region, "region"),
           roles: role,
           groups: group,
-          status: status.reduce(
-            (
-              acc: { [x: string]: any },
-              item: { id: string | number; status: any }
-            ) => {
-              acc[item.id] = item.status;
-              return acc;
-            },
-            {} as { [key: string]: string }
-          ),
-          regions: region.reduce(
-            (
-              acc: { [x: string]: any },
-              item: { id: string | number; region: any }
-            ) => {
-              acc[item.id] = item.region;
-              return acc;
-            },
-            {} as { [key: string]: string }
-          ),
           tables: tables,
         });
       } catch (error) {
         console.error(error);
       }
+    },
+
+    reduceItems: function (
+      items: Record<string, any>,
+      value: string
+    ): Record<string, any> {
+      return items.reduce(
+        (
+          acc: { [x: string]: any },
+          item: { id: string | number; [x: string]: any }
+        ) => {
+          acc[item.id] = item[value];
+          return acc;
+        },
+        {} as { [key: string]: string }
+      );
     },
   });
   return {

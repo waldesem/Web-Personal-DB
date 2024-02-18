@@ -20,7 +20,7 @@ export const messageStore = defineStore("messageStore", () => {
         const response = await storeAuth.axiosInstance.get(
           `${server}/messages/${page}`,
           {
-            params: { action },
+            params: { action: action },
           }
         );
 
