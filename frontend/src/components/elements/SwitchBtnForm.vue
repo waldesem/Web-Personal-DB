@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps({
-  item: String,
+  subj: String,
   flag: String,
   switchForm: {
     type: Function,
@@ -12,12 +12,12 @@ const props = defineProps({
 <template>
   <a
     class="btn btn-link"
-    @click="props.switchForm(props.item)"
-    :title="props.flag === props.item ? 'Закрыть форму' : 'Добавить информацию'"
+    @click="props.switchForm(props.subj)"
+    :title="props.flag === props.subj ? 'Закрыть форму' : 'Добавить информацию'"
   >
     <i
       :class="
-        props.flag === props.item ? 'bi bi-dash-circle' : 'bi bi-plus-circle'
+        props.flag === props.subj ? 'bi bi-dash-circle' : 'bi bi-plus-circle'
       "
     ></i>
   </a>

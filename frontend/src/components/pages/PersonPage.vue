@@ -4,6 +4,7 @@ import { onBeforeRouteLeave } from "vue-router";
 import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/token";
 import { debounce, server } from "@utilities/utils";
+import { Candidate } from "@/store/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -25,15 +26,6 @@ const mapped_items = {
 const header = computed(() => {
   return mapped_items[personData.value.path as keyof typeof mapped_items];
 });
-
-interface Candidate {
-  id: number;
-  fullname: string;
-  region_id: number;
-  birthday: string;
-  status_id: string;
-  created: string;
-}
 
 const personData = ref({
   candidates: <Candidate[]>[],

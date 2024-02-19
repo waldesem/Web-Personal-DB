@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, ref, onBeforeMount } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { useRoute } from "vue-router";
 import { profileStore } from "@/store/profile";
@@ -30,7 +30,9 @@ const storeProfile = profileStore();
 
 const route = useRoute();
 
-storeProfile.dataProfile.candId = route.params.id.toString();
+onBeforeMount(() => {
+  storeProfile.dataProfile.candId = route.params.id.toString();
+});
 
 const tabsObject = {
   anketaTab: ["Анкета", AnketaTab],
@@ -42,13 +44,6 @@ const tabsObject = {
 
 const printPage = ref(false);
 
-onBeforeMount(async () => {
-  Promise.all([
-    await storeProfile.dataProfile.getProfile(),
-    await storeProfile.dataProfile.getImage(),
-  ]);
-});
-
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   storeProfile.dataProfile.cancelEdit();
   next();
@@ -59,11 +54,11 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   <div class="container py-3">
     <PhotoCard
       :url="storeProfile.dataProfile.url"
-      :param="['image', storeProfile.dataProfile.resume.id]"
+      :param="['image', storeProfile.dataResume.resume.id]"
       :func="storeProfile.dataProfile.submitFile"
     />
 
-    <HeaderDiv :page-header="storeProfile.dataProfile.resume['fullname']" />
+    <HeaderDiv :page-header="storeProfile.dataResume.resume['fullname']" />
 
     <div v-if="!printPage" class="nav nav-tabs nav-justified" role="tablist">
       <button

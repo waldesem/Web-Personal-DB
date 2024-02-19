@@ -70,27 +70,27 @@ const hiddenDelBtn = ref(false);
 
 hiddenSendBtn.value =
   (storeClassify.classData.status[
-    storeProfile.dataProfile.resume["status_id"]
+    storeProfile.dataResume.resume["status_id"]
   ] !== "new" &&
     storeClassify.classData.status[
-      storeProfile.dataProfile.resume["status_id"]
+      storeProfile.dataResume.resume["status_id"]
     ] !== "update" &&
     storeClassify.classData.status[
-      storeProfile.dataProfile.resume["status_id"]
+      storeProfile.dataResume.resume["status_id"]
     ] !== "repeat") ||
   storeProfile.dataProfile.spinner;
 
 hiddenDelBtn.value =
   storeClassify.classData.status[
-    storeProfile.dataProfile.resume["status_id"]
+    storeProfile.dataResume.resume["status_id"]
   ] === "finish" || storeProfile.dataProfile.spinner;
 
 function switchForm(item: string) {
-  storeProfile.dataProfile.flag === item
-    ? (storeProfile.dataProfile.flag = "")
-    : (storeProfile.dataProfile.flag = item);
+  storeProfile.dataProfile.item === item
+    ? (storeProfile.dataProfile.item = "")
+    : (storeProfile.dataProfile.item = item);
 
-  storeProfile.dataProfile.flag === item
+  storeProfile.dataProfile.item === item
     ? (storeProfile.dataProfile.action = "create")
     : (storeProfile.dataProfile.action = "");
 
@@ -102,7 +102,7 @@ function switchForm(item: string) {
   <div class="py-3">
     <template
       v-if="
-        storeProfile.dataProfile.flag === 'resume' &&
+        storeProfile.dataProfile.item === 'resume' &&
         storeProfile.dataProfile.action === 'update'
       "
     >
@@ -111,7 +111,7 @@ function switchForm(item: string) {
 
     <template v-else>
       <RegionForm />
-      <ResumeDiv v-if="storeProfile.dataProfile.resume" />
+      <ResumeDiv v-if="storeProfile.dataResume.resume" />
       <p v-else>Данные отсутствуют</p>
     </template>
 
@@ -120,16 +120,16 @@ function switchForm(item: string) {
       <SwitchBtnForm
         :item="'staff'"
         :switchForm="switchForm"
-        :flag="storeProfile.dataProfile.flag"
+        :subj="storeProfile.dataProfile.item"
       />
     </h6>
-    <template v-if="storeProfile.dataProfile.flag === 'staff'">
+    <template v-if="storeProfile.dataProfile.item === 'staff'">
       <StaffForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.staffs.length">
+      <div v-if="storeProfile.dataAnketa.staffs.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.staffs"
+          v-for="(item, idx) in storeProfile.dataAnketa.staffs"
           :key="idx"
           :id="'staff' + idx"
           :idx="idx"
@@ -146,16 +146,16 @@ function switchForm(item: string) {
       <SwitchBtnForm
         :item="'document'"
         :switchForm="switchForm"
-        :flag="storeProfile.dataProfile.flag"
+        :subj="storeProfile.dataProfile.item"
       />
     </h6>
-    <template v-if="storeProfile.dataProfile.flag === 'document'">
+    <template v-if="storeProfile.dataProfile.item === 'document'">
       <DocumentForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.docums.length">
+      <div v-if="storeProfile.dataAnketa.docums.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.docums"
+          v-for="(item, idx) in storeProfile.dataAnketa.docums"
           :key="idx"
           :id="'docum' + idx"
           :idx="idx"
@@ -172,16 +172,16 @@ function switchForm(item: string) {
       <SwitchBtnForm
         :item="'address'"
         :switchForm="switchForm"
-        :flag="storeProfile.dataProfile.flag"
+        :subj="storeProfile.dataProfile.item"
       />
     </h6>
-    <template v-if="storeProfile.dataProfile.flag === 'address'">
+    <template v-if="storeProfile.dataProfile.item === 'address'">
       <AddressForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.addrs.length">
+      <div v-if="storeProfile.dataAnketa.addrs.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.addrs"
+          v-for="(item, idx) in storeProfile.dataAnketa.addrs"
           :key="idx"
           :id="'addr' + idx"
           :idx="idx"
@@ -198,16 +198,16 @@ function switchForm(item: string) {
       <SwitchBtnForm
         :item="'contact'"
         :switchForm="switchForm"
-        :flag="storeProfile.dataProfile.flag"
+        :subj="storeProfile.dataProfile.item"
       />
     </h6>
-    <template v-if="storeProfile.dataProfile.flag === 'contact'">
+    <template v-if="storeProfile.dataProfile.item === 'contact'">
       <ContactForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.conts.length">
+      <div v-if="storeProfile.dataAnketa.conts.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.conts"
+          v-for="(item, idx) in storeProfile.dataAnketa.conts"
           :key="idx"
           :id="'cont' + idx"
           :idx="idx"
@@ -224,16 +224,16 @@ function switchForm(item: string) {
       <SwitchBtnForm
         :item="'workplace'"
         :switchForm="switchForm"
-        :flag="storeProfile.dataProfile.flag"
+        :subj="storeProfile.dataProfile.item"
       />
     </h6>
-    <template v-if="storeProfile.dataProfile.flag === 'workplace'">
+    <template v-if="storeProfile.dataProfile.item === 'workplace'">
       <WorkplaceForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.works.length">
+      <div v-if="storeProfile.dataAnketa.works.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.works"
+          v-for="(item, idx) in storeProfile.dataAnketa.works"
           :key="idx"
           :id="'work' + idx"
           :idx="idx"
@@ -250,16 +250,16 @@ function switchForm(item: string) {
       <SwitchBtnForm
         :item="'affilation'"
         :switchForm="switchForm"
-        :flag="storeProfile.dataProfile.flag"
+        :subj="storeProfile.dataProfile.item"
       />
     </h6>
-    <template v-if="storeProfile.dataProfile.flag === 'affilation'">
+    <template v-if="storeProfile.dataProfile.item === 'affilation'">
       <AffilationForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.affilation.length">
+      <div v-if="storeProfile.dataAnketa.affilation.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.affilation"
+          v-for="(item, idx) in storeProfile.dataAnketa.affilation"
           :key="idx"
           :id="'affil' + idx"
           :idx="idx"
@@ -276,16 +276,16 @@ function switchForm(item: string) {
       <SwitchBtnForm
         :item="'relation'"
         :switchForm="switchForm"
-        :flag="storeProfile.dataProfile.flag"
+        :subj="storeProfile.dataProfile.item"
       />
     </h6>
-    <template v-if="storeProfile.dataProfile.flag === 'relation'">
+    <template v-if="storeProfile.dataProfile.item === 'relation'">
       <RelationForm />
     </template>
     <template v-else>
-      <div v-if="storeProfile.dataProfile.relate.length">
+      <div v-if="storeProfile.dataAnketa.relate.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.relate"
+          v-for="(item, idx) in storeProfile.dataAnketa.relate"
           :key="idx"
           :id="'relate' + idx"
           :idx="idx"
@@ -302,13 +302,7 @@ function switchForm(item: string) {
         <button
           class="btn btn-outline-primary"
           :disabled="hiddenSendBtn"
-          @click="
-            storeProfile.dataProfile.getItem(
-              'resume',
-              'send',
-              storeProfile.dataProfile.candId
-            )
-          "
+          @click="storeProfile.dataResume.getResume('send')"
         >
           {{ !storeProfile.dataProfile.spinner ? "Отправить на проверку" : "" }}
           <span
@@ -323,13 +317,7 @@ function switchForm(item: string) {
           type="button"
           class="btn btn-outline-danger"
           :disabled="hiddenDelBtn"
-          @click="
-            storeProfile.dataProfile.deleteItem(
-              'resume',
-              'delete',
-              storeProfile.dataProfile.resume['id']
-            )
-          "
+          @click="storeProfile.dataResume.deleteResume"
         >
           Удалить анкету
         </button>

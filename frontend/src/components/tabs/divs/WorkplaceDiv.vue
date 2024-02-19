@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, onBeforeMount } from "vue";
 import { profileStore } from "@/store/profile";
 
 const RowDivSlot = defineAsyncComponent(
@@ -14,6 +14,10 @@ const props = defineProps({
     required: true,
   },
 });
+
+onBeforeMount(() => {
+  storeProfile.dataAnketa.getItem("workplace");
+});
 </script>
 
 <template>
@@ -22,7 +26,7 @@ const props = defineProps({
       <a
         href="#"
         @click="
-          storeProfile.dataProfile.deleteItem(
+          storeProfile.dataAnketa.deleteItem(
             'workplace',
             props.item['id'].toString()
           )

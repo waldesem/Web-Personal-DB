@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
+import { profileStore } from "@/store/profile";
+
+const storeProfile = profileStore();
 
 const props = defineProps({
   url: String,
@@ -11,6 +14,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+});
+
+onBeforeMount(() => {
+  storeProfile.dataProfile.getImage()
 });
 
 const toggleForm = ref({

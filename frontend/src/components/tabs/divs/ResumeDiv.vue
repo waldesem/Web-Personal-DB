@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, onBeforeMount } from "vue";
 import { profileStore } from "@/store/profile";
 import { classifyStore } from "@/store/classify";
 
@@ -9,6 +9,10 @@ const RowDivSlot = defineAsyncComponent(
 
 const storeProfile = profileStore();
 const storeClassify = classifyStore();
+
+onBeforeMount(() => {
+  storeProfile.dataResume.getResume();
+});
 </script>
 
 <template>
@@ -21,8 +25,8 @@ const storeClassify = classifyStore();
           storeProfile.dataProfile.openForm(
             'resume',
             'update',
-            storeProfile.dataProfile.resume['id'],
-            storeProfile.dataProfile.resume
+            storeProfile.dataResume.resume['id'],
+            storeProfile.dataResume.resume
           )
         "
       >
@@ -34,69 +38,52 @@ const storeClassify = classifyStore();
     :label="'Категория'"
     :value="
       storeClassify.classData.category[
-        storeProfile.dataProfile.resume['category_id']
+        storeProfile.dataResume.resume['category_id']
       ]
     "
   />
-  <RowDivSlot :label="'Регион'" :slotTwo="true">
-    <template v-slot:divTwo>
-      <!-- <a
-        href="#"
-        data-bs-toggle="modal"
-        data-bs-target="#modalRegion"
-        @click="
-          storeProfile.dataProfile.openForm(
-            'resume',
-            'location',
-            storeProfile.dataProfile.resume['id'],
-            storeProfile.dataProfile.resume
-          )
-        "
-      > -->
-        {{
-          storeClassify.classData.regions[
-            storeProfile.dataProfile.resume["region_id"]
-          ]
-        }}
-      <!-- </a> -->
-    </template>
-  </RowDivSlot>
+  <RowDivSlot 
+    :label="'Регион'"
+    :value="storeClassify.classData.regions[
+      storeProfile.dataResume.resume['region_id']
+      ]"
+  />
   <RowDivSlot
     :label="'Фамилия Имя Отчество'"
-    :value="storeProfile.dataProfile.resume['fullname']"
+    :value="storeProfile.dataResume.resume['fullname']"
   />
   <RowDivSlot
     :label="'Изменение имени'"
-    :value="storeProfile.dataProfile.resume['previous']"
+    :value="storeProfile.dataResume.resume['previous']"
   />
   <RowDivSlot
     :label="'Дата рождения'"
-    :value="storeProfile.dataProfile.resume['birthday']"
+    :value="storeProfile.dataResume.resume['birthday']"
   />
   <RowDivSlot
     :label="'Место рождения'"
-    :value="storeProfile.dataProfile.resume['birthplace']"
+    :value="storeProfile.dataResume.resume['birthplace']"
   />
   <RowDivSlot
     :label="'Гражданство'"
-    :value="storeProfile.dataProfile.resume['country']"
+    :value="storeProfile.dataResume.resume['country']"
   />
   <RowDivSlot
     :label="'Второе гражданство'"
-    :value="storeProfile.dataProfile.resume['ext_country']"
+    :value="storeProfile.dataResume.resume['ext_country']"
   />
   <RowDivSlot
     :label="'СНИЛС'"
-    :value="storeProfile.dataProfile.resume['snils']"
+    :value="storeProfile.dataResume.resume['snils']"
   />
-  <RowDivSlot :label="'ИНН'" :value="storeProfile.dataProfile.resume['inn']" />
+  <RowDivSlot :label="'ИНН'" :value="storeProfile.dataResume.resume['inn']" />
   <RowDivSlot
     :label="'Образование'"
-    :value="storeProfile.dataProfile.resume['education']"
+    :value="storeProfile.dataResume.resume['education']"
   />
   <RowDivSlot
     :label="'Дополнительная информация'"
-    :value="storeProfile.dataProfile.resume['addition']"
+    :value="storeProfile.dataResume.resume['addition']"
   />
   <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
     <template v-slot:divTwo>
@@ -104,10 +91,10 @@ const storeClassify = classifyStore();
         :to="{
           name: 'manager',
           params: { group: 'staffsec' },
-          query: { path: storeProfile.dataProfile.resume['path'].split('/') },
+          query: { path: storeProfile.dataResume.resume['path'].split('/') },
         }"
       >
-        {{ storeProfile.dataProfile.resume["path"] }}
+        {{ storeProfile.dataResume.resume["path"] }}
       </router-link>
     </template>
   </RowDivSlot>
@@ -115,17 +102,11 @@ const storeClassify = classifyStore();
     <template v-slot:divTwo>
       <a
         href="#"
-        @click="
-          storeProfile.dataProfile.getItem(
-            'resume',
-            'status',
-            storeProfile.dataProfile.resume['id']
-          )
-        "
+        @click="storeProfile.dataResume.getResume('status')"
       >
         {{
           storeClassify.classData.status[
-            storeProfile.dataProfile.resume["status_id"]
+            storeProfile.dataResume.resume["status_id"]
           ]
         }}
       </a>
@@ -135,7 +116,7 @@ const storeClassify = classifyStore();
     :label="'Создан'"
     :value="
       new Date(
-        String(storeProfile.dataProfile.resume['created'])
+        String(storeProfile.dataResume.resume['created'])
       ).toLocaleDateString('ru-RU')
     "
   />
@@ -143,12 +124,12 @@ const storeClassify = classifyStore();
     :label="'Обновлен'"
     :value="
       new Date(
-        String(storeProfile.dataProfile.resume['updated'])
+        String(storeProfile.dataResume.resume['updated'])
       ).toLocaleDateString('ru-RU')
     "
   />
   <RowDivSlot
     :label="'Внешний ID'"
-    :value="storeProfile.dataProfile.resume['request_id']"
+    :value="storeProfile.dataResume.resume['request_id']"
   />
 </template>
