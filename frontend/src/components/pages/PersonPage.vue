@@ -4,7 +4,6 @@ import { onBeforeRouteLeave } from "vue-router";
 import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/token";
 import { debounce, server } from "@utilities/utils";
-import { Candidate } from "@/store/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -15,6 +14,15 @@ const PageSwitcher = defineAsyncComponent(
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
+
+interface Candidate {
+  id: number;
+  fullname: string;
+  region_id: number;
+  birthday: string;
+  status_id: string;
+  created: string;
+}
 
 const mapped_items = {
   search: "Результаты поиска",

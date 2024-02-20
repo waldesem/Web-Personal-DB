@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { defineAsyncComponent, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@utilities/utils";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
@@ -12,12 +14,69 @@ const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const storeProfile = profileStore();
+const storeAuth = authStore();
+const storeAlert = alertStore();
+
+const emit = defineEmits(["deactivate"]);
+
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  staff: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+const staffForm = ref({
+  form: <Record<string, any>>{},
+
+  clearForm: function (): void {
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+  },
+
+  updateItem: async function (): Promise<void> {
+    try {
+      const response =
+        props.action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/staff/${props.candId}`,
+              this.form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/staff/${props.itemId}`,
+              this.form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      props.getItem();
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
+    }
+    this.clearForm();
+  },
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="staffForm.updateItem;"
     class="form form-check"
     role="form"
   >
@@ -25,18 +84,14 @@ const storeProfile = profileStore();
       :name="'position'"
       :label="'Должность'"
       :need="true"
-      :model="storeProfile.dataProfile.form['position']"
-      @input-event="
-        storeProfile.dataProfile.form['position'] = $event.target.value
-      "
+      :model="props.staff['position']"
+      @input-event="staffForm.form['position'] = $event.target.value"
     />
     <TextLabel
       :name="'department'"
       :label="'Подраздление'"
-      :model="storeProfile.dataProfile.form['department']"
-      @input-event="
-        storeProfile.dataProfile.form['department'] = $event.target.value
-      "
+      :model="props.staff['department']"
+      @input-event="staffForm.form['department'] = $event.target.value"
     />
 
     <BtnGroupForm>

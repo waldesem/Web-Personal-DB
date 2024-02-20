@@ -40,9 +40,6 @@ const ResumeForm = defineAsyncComponent(
 const RegionForm = defineAsyncComponent(
   () => import("@components/forms/RegionForm.vue")
 );
-const StaffForm = defineAsyncComponent(
-  () => import("@components/forms/StaffForm.vue")
-);
 const DocumentForm = defineAsyncComponent(
   () => import("@components/forms/DocumentForm.vue")
 );
@@ -115,31 +112,7 @@ function switchForm(item: string) {
       <p v-else>Данные отсутствуют</p>
     </template>
 
-    <h6>
-      Должности
-      <SwitchBtnForm
-        :item="'staff'"
-        :switchForm="switchForm"
-        :subj="storeProfile.dataProfile.item"
-      />
-    </h6>
-    <template v-if="storeProfile.dataProfile.item === 'staff'">
-      <StaffForm />
-    </template>
-    <template v-else>
-      <div v-if="storeProfile.dataAnketa.staffs.length">
-        <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataAnketa.staffs"
-          :key="idx"
-          :id="'staff' + idx"
-          :idx="idx"
-          :label="'Должность #' + (idx + 1)"
-        >
-          <StaffDiv :item="item" />
-        </CollapseDiv>
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
+    <StaffDiv />
 
     <h6>
       Документы

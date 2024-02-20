@@ -118,12 +118,12 @@ export const profileStore = defineStore("profileStore", () => {
         if (!confirm("Вы действительно хотите изменить статус резюме?")) {
           return;
         }
-      }
+      };
       if (action === "send") {
         if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
           return;
         }
-      }
+      };
       try {
         const response = await storeAuth.axiosInstance.get(
           `${server}/resume/${dataProfile.value.candId}`,

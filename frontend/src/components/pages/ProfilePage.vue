@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onBeforeMount } from "vue";
+import { defineAsyncComponent, ref, onBeforeMount, provide } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { useRoute } from "vue-router";
 import { profileStore } from "@/store/profile";
@@ -33,6 +33,7 @@ const route = useRoute();
 onBeforeMount(() => {
   storeProfile.dataProfile.candId = route.params.id.toString();
 });
+provide("candId", storeProfile.dataProfile.candId);
 
 const tabsObject = {
   anketaTab: ["Анкета", AnketaTab],

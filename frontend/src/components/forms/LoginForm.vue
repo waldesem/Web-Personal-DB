@@ -1,26 +1,107 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { loginStore } from "@/store/login";
+import axios from "axios";
+import { defineAsyncComponent, ref } from "vue";
+import { onBeforeRouteLeave } from "vue-router";
+import { alertStore } from "@store/alert";
+import { userStore } from '@store/user'
+import { server } from "@utilities/utils";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
 
-const storeLogin = loginStore();
+const storeAlert = alertStore();
+const storeUser = userStore();
+
+onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
+  Object.keys(loginData.value.form).forEach((key) => {
+    delete loginData.value.form[key as keyof typeof loginData.value.form];
+  });
+  next();
+});
+
+const loginData = ref({
+  action: "login",
+  hidden: true,
+  form: <Record<string, any>>{},
+
+  submitLogin: async function (): Promise<void> {
+    if (this.action === "password") {
+      if (this.form["password"] === this.form["new_pswd"]) {
+        storeAlert.alertMessage.setAlert(
+          "alert-warning",
+          "Старый и новый пароли совпадают"
+        );
+        return;
+      }
+      if (this.form["conf_pswd"] !== this.form["new_pswd"]) {
+        storeAlert.alertMessage.setAlert(
+          "alert-warning",
+          "Новый пароль и подтверждение не совпадают"
+        );
+        return;
+      }
+      delete this.form["conf_pswd"];
+    }
+
+    try {
+      const response =
+        this.action === "password"
+          ? await axios.patch(`${server}/login`, this.form)
+          : await axios.post(`${server}/login`, this.form);
+      const { message, access_token, refresh_token } = response.data;
+
+      switch (message) {
+        case "Changed":
+          this.action = "login";
+          storeAlert.alertMessage.attr = "alert-success";
+          storeAlert.alertMessage.text = "Войдите с новым паролем";
+          delete this.form["new_pswd"];
+          delete this.form["conf_pswd"];
+          break
+          
+        case "Authenticated":
+          localStorage.setItem("refresh_token", refresh_token);
+          localStorage.setItem("access_token", access_token);
+          storeUser.userData.getAuth();
+          break;
+
+        case "Overdue":
+          this.action = "password";
+          storeAlert.alertMessage.setAlert(
+            "alert-warning",
+            "Пароль просрочен. Измените пароль"
+          );
+          break;
+
+        case "Denied":
+          this.action = "login";
+          storeAlert.alertMessage.setAlert(
+            "alert-danger",
+            "Неверный логин или пароль"
+          );
+          break;
+      }
+    } catch (error) {
+      storeAlert.alertMessage.setAlert("alert-warning", error as string);
+      storeUser.userData.userLogout();
+    }
+  },
+})
 </script>
 
 <template>
   <div class="border border-primary rounded p-5">
     <h5>
       {{
-        storeLogin.userData.action === "login"
+        loginData.action === "login"
           ? "Вход в систему"
           : "Изменить пароль"
       }}
     </h5>
     <div class="py-3">
       <form
-        @submit.prevent="storeLogin.userData.submitLogin"
+        @submit.prevent="loginData.submitLogin"
         class="form form-check"
         role="form"
       >
@@ -34,7 +115,7 @@ const storeLogin = loginStore();
           :place="'Логин'"
           :pattern="'[a-zA-Z]+'"
           @input-event="
-            storeLogin.userData.form['username'] = $event.target.value
+            loginData.form['username'] = $event.target.value
           "
         />
         <div class="mb-3 row">
@@ -51,19 +132,19 @@ const storeLogin = loginStore();
                 maxlength="16"
                 placeholder="Пароль"
                 pattern="[0-9a-zA-Z]+"
-                :type="storeLogin.userData.hidden ? 'password' : 'text'"
-                v-model="storeLogin.userData.form['password']"
+                :type="loginData.hidden ? 'password' : 'text'"
+                v-model="loginData.form['password']"
               />
               <span class="input-group-text">
                 <a
                   role="button"
                   @click="
-                    storeLogin.userData.hidden = !storeLogin.userData.hidden
+                    loginData.hidden = !loginData.hidden
                   "
                 >
                   <i
                     :class="
-                      storeLogin.userData.hidden
+                      loginData.hidden
                         ? 'bi bi-eye'
                         : 'bi bi-eye-slash'
                     "
@@ -71,18 +152,18 @@ const storeLogin = loginStore();
                 </a>
               </span>
             </div>
-            <div v-show="storeLogin.userData.action === 'login'" class="py-2">
+            <div v-show="loginData.action === 'login'" class="py-2">
               <a
                 class="link-primary"
                 href="#"
-                @click="storeLogin.userData.action = 'password'"
+                @click="loginData.action = 'password'"
               >
                 Изменить пароль
               </a>
             </div>
           </div>
         </div>
-        <div v-if="storeLogin.userData.action === 'password'">
+        <div v-if="loginData.action === 'password'">
           <InputLabel
             :label="'Новый'"
             :name="'new_pswd'"
@@ -92,9 +173,9 @@ const storeLogin = loginStore();
             :clsInput="'col-lg-6'"
             :place="'Новый пароль'"
             :pattern="'[0-9a-zA-Z]+'"
-            :typeof="storeLogin.userData.hidden ? 'password' : 'text'"
+            :typeof="loginData.hidden ? 'password' : 'text'"
             @input-event="
-              storeLogin.userData.form['new_pswd'] = $event.target.value
+              loginData.form['new_pswd'] = $event.target.value
             "
           />
           <InputLabel
@@ -106,22 +187,22 @@ const storeLogin = loginStore();
             :clsInput="'col-lg-6'"
             :place="'Повторите новый пароль'"
             :pattern="'[0-9a-zA-Z]+'"
-            :typeof="storeLogin.userData.hidden ? 'password' : 'text'"
+            :typeof="loginData.hidden ? 'password' : 'text'"
             @input-event="
-              storeLogin.userData.form['conf_pswd'] = $event.target.value
+              loginData.form['conf_pswd'] = $event.target.value
             "
           />
         </div>
         <div class="offset-lg-2 col-lg-10">
           <button class="btn btn-primary btn-md" name="submit" type="submit">
-            {{ storeLogin.userData.action === "login" ? "Войти" : "Изменить" }}
+            {{ loginData.action === "login" ? "Войти" : "Изменить" }}
           </button>
           &nbsp;
           <button
-            v-show="storeLogin.userData.action === 'password'"
+            v-show="loginData.action === 'password'"
             class="btn btn-secondary btn-md"
             type="button"
-            @click="storeLogin.userData.action = 'login'"
+            @click="loginData.action = 'login'"
           >
             Отменить
           </button>

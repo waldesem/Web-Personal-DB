@@ -184,3 +184,4 @@ if (!isStarted) {
   display: none;
 }
 </style>
+@/store/auth

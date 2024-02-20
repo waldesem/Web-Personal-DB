@@ -2,7 +2,7 @@
 import { onBeforeMount, watch, ref, provide } from "vue";
 import { defineAsyncComponent } from "vue";
 import { useRoute } from "vue-router";
-import { loginStore } from "@/store/login";
+import { userStore } from "@/store/user";
 
 const NavBar = defineAsyncComponent(
   () => import("@components/layouts/NavBar.vue")
@@ -17,7 +17,7 @@ const FooterDiv = defineAsyncComponent(
   () => import("@components/layouts/FooterDiv.vue")
 );
 
-const storeLogin = loginStore();
+const storeUser = userStore();
 
 const route = useRoute();
 
@@ -34,7 +34,7 @@ watch(
 );
 
 onBeforeMount(() => {
-  storeLogin.userData.getAuth();
+  storeUser.userData.getAuth();
 });
 </script>
 
@@ -52,3 +52,4 @@ body {
   scrollbar-gutter: stable;
 }
 </style>
+@/store/auth

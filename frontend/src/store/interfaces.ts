@@ -1,12 +1,3 @@
-export interface Candidate {
-  id: number;
-  fullname: string;
-  region_id: number;
-  birthday: string;
-  status_id: string;
-  created: string;
-};
-
 export interface Resume {
   id: string;
   category_id: string;
@@ -59,12 +50,6 @@ export interface Work {
   address: string;
   reason: string;
   position: string;
-};
-
-export interface Staff {
-  id: string;
-  position: string;
-  department: string;
 };
 
 export interface Relation {
