@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { inject } from "vue";
-import { loginStore } from "@/store/login";
-import { messageStore } from "@/store/messages";
-import { timeSince } from "@utilities/utils";
+import { userStore } from "@/store/user";
 
-const storeLogin = loginStore();
-const storeMessage = messageStore();
+const storeUser = userStore();
 
 const pageIdentity = inject("pageIdentity") as string;
-
-let isStarted = false;
-if (!isStarted) {
-  isStarted = true;
-  setInterval(storeMessage.messageData.updateMessages, 1000000);
-}
+const messages = inject("messagesCount") as string;
 </script>
 
 <template>
@@ -78,7 +70,6 @@ if (!isStarted) {
                 Информация
               </router-link>
             </li>
-
             <li class="nav-item">
               <router-link
                 :to="{ name: 'contacts', params: { group: 'staffsec' } }"
@@ -87,7 +78,6 @@ if (!isStarted) {
                 Контакты
               </router-link>
             </li>
-
             <li class="nav-item">
               <router-link
                 :to="{ name: 'manager', params: { group: 'staffsec' } }"
@@ -97,42 +87,18 @@ if (!isStarted) {
                 Файлы
               </router-link>
             </li>
-
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link active dropdown-toggle"
-                role="button"
-                data-bs-toggle="dropdown"
-                href="#"
+            <li class="nav-item">
+              <router-link
+                :to="{ name: 'messages', params: { group: 'staffsec' } }"
+                class="dropdown-item"
               >
                 Сообщения
                 <span
                   class="position-absolute translate-middle badge rounded-pill text-bg-success"
                 >
-                  {{ storeMessage.messageData.messages.length }}
+                  {{ messages }}
                 </span>
-              </a>
-              <ul class="dropdown-menu" id="messages">
-                <h6 class="dropdown-header">Новые сообщения</h6>
-                <li
-                  v-for="message in storeMessage.messageData.messages"
-                  :key="message['id']"
-                >
-                  <a class="dropdown-item">
-                    <p>{{ timeSince(message["create"]) }}</p>
-                    <p>{{ message["title"] }}</p>
-                  </a>
-                </li>
-                <div class="dropdown-divider"></div>
-                <li>
-                  <router-link
-                    :to="{ name: 'messages', params: { group: 'staffsec' } }"
-                    class="dropdown-item"
-                  >
-                    Открыть сообщения
-                  </router-link>
-                </li>
-              </ul>
+              </router-link>
             </li>
           </template>
         </ul>
@@ -144,12 +110,12 @@ if (!isStarted) {
             role="button"
             data-bs-toggle="dropdown"
             :title="
-              storeLogin.userData.fullName ? storeLogin.userData.fullName : ''
+              storeUser.userData.fullName ? storeUser.userData.fullName : ''
             "
           >
             {{
-              storeLogin.userData.fullName
-                ? storeLogin.userData.fullName
+              storeUser.userData.fullName
+                ? storeUser.userData.fullName
                     .split(" ")
                     .map((item) => item.charAt(0))
                     .join("")
@@ -162,7 +128,7 @@ if (!isStarted) {
               <a
                 class="dropdown-item"
                 href="#"
-                @click="storeLogin.userData.userLogout"
+                @click="storeUser.userData.userLogout"
                 >Выход</a
               >
             </li>
@@ -172,16 +138,3 @@ if (!isStarted) {
     </div>
   </nav>
 </template>
-
-<style scoped>
-#messages {
-  max-width: 640px;
-  max-height: 640px;
-  overflow-y: auto;
-  overflow-x: auto;
-}
-#messages::after {
-  display: none;
-}
-</style>
-@/store/auth

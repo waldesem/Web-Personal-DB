@@ -52,4 +52,3 @@ body {
   scrollbar-gutter: stable;
 }
 </style>
-@/store/auth

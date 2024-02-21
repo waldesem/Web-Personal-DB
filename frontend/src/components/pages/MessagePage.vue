@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
-import { messageStore } from "@/store/messages";
+import { defineAsyncComponent, onBeforeMount, ref, provide } from "vue";
+import { authStore } from "@store/token";
+import { server } from "@utilities/utils";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -10,19 +10,67 @@ const PageSwitcher = defineAsyncComponent(
   () => import("@components/layouts/PageSwitcher.vue")
 );
 
-const storeMessage = messageStore();
+const storeAuth = authStore();
 
 onBeforeMount(async () => {
-  await storeMessage.messageData.updateMessages("all");
+  await messageData.value.updateMessages("all");
 });
 
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  storeMessage.messageData.messages = [];
-  storeMessage.messageData.currentPage = 1;
-  storeMessage.messageData.hasNext = false;
-  storeMessage.messageData.hasPrev = false;
-  next();
+const messageData = ref({
+  isStarted: false,
+  messages: [],
+  hasPrev: false,
+  hasNext: false,
+  currentPage: 1,
+
+  updateMessages: async function (
+    action: string = "new",
+    page: number = 1
+  ): Promise<void> {
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/messages/${page}`,
+        {
+          params: { action: action },
+        }
+      );
+
+      const [datas, metadata] = response.data;
+
+      if (action === "read") {
+        this.updateMessages("all");
+      } else {
+        this.messages = datas;
+        this.hasPrev = metadata.has_prev;
+        this.hasNext = metadata.has_next;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  deleteMessage: async function (): Promise<void> {
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/messages`
+      );
+      console.log(response.status);
+      this.updateMessages("all");
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  updateCount: function () {
+    if (!this.isStarted) {
+      this.isStarted = true;
+      setInterval(this.updateMessages, 1000000);
+    }
+  },
 });
+
+messageData.value.updateCount();
+provide(messageData.value.messages, "messagesCount");
 </script>
 
 <template>
@@ -34,7 +82,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           <a
             href="#"
             class="link-info"
-            @click="storeMessage.messageData.updateMessages('read')"
+            @click="messageData.updateMessages('read')"
           >
             Отметить все прочитанными
           </a>
@@ -42,11 +90,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       </div>
       <div class="col text-end">
         <p>
-          <a
-            href="#"
-            class="link-danger"
-            @click="storeMessage.messageData.deleteMessage()"
-          >
+          <a href="#" class="link-danger" @click="messageData.deleteMessage()">
             Удалить все сообщения
           </a>
         </p>
@@ -64,11 +108,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
             <th width="10%">Дата</th>
           </tr>
         </thead>
-        <tbody v-if="storeMessage.messageData.messages.length">
-          <tr
-            v-for="message in storeMessage.messageData.messages"
-            :key="message['id']"
-          >
+        <tbody v-if="messageData.messages.length">
+          <tr v-for="message in messageData.messages" :key="message['id']">
             <td width="5%">{{ `#${message["id"]}` }}</td>
             <td width="15%">{{ message["category"] }}</td>
             <td width="15%">{{ message["title"] }}</td>
@@ -80,11 +121,11 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       </table>
     </div>
     <PageSwitcher
-      :has_prev="storeMessage.messageData.hasPrev"
-      :has_next="storeMessage.messageData.hasNext"
-      :switchPrev="storeMessage.messageData.currentPage - 1"
-      :switchNext="storeMessage.messageData.currentPage + 1"
-      :switchPage="storeMessage.messageData.updateMessages"
+      :has_prev="messageData.hasPrev"
+      :has_next="messageData.hasNext"
+      :switchPrev="messageData.currentPage - 1"
+      :switchNext="messageData.currentPage + 1"
+      :switchPage="messageData.updateMessages"
       :option="'all'"
     />
   </div>
