@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
-import { adminStore } from "@store/admins";
-import { debounce } from "@utilities/utils";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server, debounce } from "@utilities/utils";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -11,20 +11,63 @@ const UserForm = defineAsyncComponent(
   () => import("@components/forms/UserForm.vue")
 );
 
-const storeAdmin = adminStore();
+const storeAlert = alertStore();
+const storeAuth = authStore();
+
+interface Group {
+  id: string;
+  group: string;
+}
+
+interface Role {
+  id: string;
+  role: string;
+}
+
+interface User {
+  id: string;
+  fullname: string;
+  username: string;
+  email: string;
+  pswd_create: string;
+  pswd_change: string;
+  last_login: string;
+  roles: Role[];
+  groups: Group[];
+  blocked: boolean;
+  deleted: boolean;
+  attempt: string;
+}
 
 const searchUsers = debounce(() => {
-  storeAdmin.dataUsers.getUsers();
+  dataUsers.value.getUsers();
 }, 500);
 
 onBeforeMount(async () => {
-  storeAdmin.dataUsers.getUsers();
+  dataUsers.value.getUsers();
 });
 
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  storeAdmin.dataUsers.users = [];
-  storeAdmin.dataUsers.search = "";
-  next();
+const dataUsers = ref({
+  action: "",
+  search: "",
+  users: <User[]>[],
+
+  getUsers: async function () {
+    try {
+      const response = await storeAuth.axiosInstance.get(`${server}/users`, {
+        params: {
+          search: this.search,
+        }
+      });
+      this.users = response.data;
+    } catch (error) {
+      storeAlert.alertMessage.setAlert("alert-success", error as string);
+    }
+  },
+
+  deactivateAction: function (){
+    this.action = ""
+  }
 });
 </script>
 
@@ -38,7 +81,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
           id="fullusername"
           name="fullusername"
           type="text"
-          v-model="storeAdmin.dataUsers.search"
+          v-model="dataUsers.search"
         />
       </div>
     </form>
@@ -63,7 +106,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
                 <tbody>
                   <tr
                     height="50px"
-                    v-for="user in storeAdmin.dataUsers.users"
+                    v-for="user in dataUsers.users"
                     :key="user.id"
                   >
                     <td width="5%">{{ user.id }}</td>
@@ -94,12 +137,16 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       class="btn btn-outline-secondary"
       data-bs-toggle="modal"
       data-bs-target="#modalUser"
-      @click="storeAdmin.dataUsers.action = 'create'"
+      @click="dataUsers.action = 'create'"
     >
       Добавить пользователя
     </button>
-
-    <UserForm />
+    <UserForm
+      :action="dataUsers.action"
+      :item="{}"
+      :getUsers="dataUsers.getUsers"
+      @deactivate="dataUsers.deactivateAction"
+    />
   </div>
 </template>
 

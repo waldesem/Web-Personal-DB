@@ -36,13 +36,6 @@ const props = defineProps({
 const staffForm = ref({
   form: <Record<string, any>>{},
 
-  clearForm: function (): void {
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-    emit("deactivate");
-  },
-
   updateItem: async function (): Promise<void> {
     try {
       const response =
@@ -69,8 +62,11 @@ const staffForm = ref({
         `Возникла ошибка ${error}`
       );
     }
-    this.clearForm();
-  },
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
 });
 </script>
 

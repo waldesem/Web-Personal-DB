@@ -8,7 +8,6 @@ const props = defineProps({
     type: String,
     default: ".*",
   },
-  cls: String,
   place: String,
   name: String,
   model: {
@@ -21,7 +20,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div :class="cls">
+  <div>
     <input
       class="form-control"
       max="255"

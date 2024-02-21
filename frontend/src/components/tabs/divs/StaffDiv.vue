@@ -67,7 +67,7 @@ const staff = ref({
     }
   },
 
-  deActivate: function () {
+  deactivateForm: function () {
     this.action = "";
   },
 });
@@ -92,7 +92,7 @@ const staff = ref({
       :action="staff.action"
       :cand-id="candId"
       :content="staff.item"
-      @deactivate="staff.deActivate"
+      @deactivate="staff.deactivateForm"
     />
   </template>
   <template v-else>

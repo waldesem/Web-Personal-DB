@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { onBeforeMount, defineAsyncComponent } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
-import { contactStore } from "@/store/contacts";
-import { debounce, clearForm } from "@utilities/utils";
+import { onBeforeMount, defineAsyncComponent, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@/store/alert";
+import { debounce, server } from "@utilities/utils";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -14,25 +14,80 @@ const PageSwitcher = defineAsyncComponent(
   () => import("@components/layouts/PageSwitcher.vue")
 );
 
-const storeContact = contactStore();
+const storeAuth = authStore();
+const storeAlert = alertStore();
 
 onBeforeMount(() => {
-  storeContact.contactData.getContacts(1);
-});
-
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(storeContact.contactData, {
-    action: "",
-    search: "",
-    page: 1,
-  });
-  clearForm(storeContact.contactData.form);
-  next();
+  contactData.value.getContacts();
 });
 
 const searchContacts = debounce(() => {
-  storeContact.contactData.getContacts(1);  ;
+  contactData.value.getContacts();  ;
 }, 500);
+
+const contactData = ref({
+  contacts: [],
+  companies: [],
+  cities: [],
+  page: 1,
+  prev: false,
+  next: false,
+  id: "",
+  action: "",
+  search: "",
+  item: <Record<string, any>>{},
+
+  getContacts: async function (page: number = 1): Promise<void> {
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/connect/${page}`,
+        {
+          params: {
+            search: this.search,
+          },
+        }
+      );
+      const [datas, has_prev, has_next, companies, cities] = response.data;
+      Object.assign(this, {
+        contacts: datas,
+        companies: companies.companies,
+        cities: cities.cities,
+        prev: has_prev.has_prev,
+        next: has_next.has_next,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  deleteContact: async function (id: string): Promise<void> {
+    if (confirm("Вы действительно хотите удалить контакт?")) {
+      try {
+        const response = await storeAuth.axiosInstance.delete(
+          `${server}/connect/${id}`
+        );
+        console.log(response.status);
+        storeAlert.alertMessage.setAlert(
+          "alert-success",
+          `Контакт с ID ${id} удален`
+        );
+        this.getContacts(this.page);
+      } catch (error) {
+        console.log(error);
+        storeAlert.alertMessage.setAlert(
+          "alert-danger",
+          `Ошибка при удалении контакта с ID ${id}`
+        );
+      }
+    }
+  },
+
+  deactivateForm: function (page: number){
+    this.action = "";
+    this.id = "";
+    this.page = page
+  }
+});
 </script>
 
 <template>
@@ -46,10 +101,23 @@ const searchContacts = debounce(() => {
           name="search"
           type="search"
           placeholder="Поиск по организации, имени, номеру мобильного телефона"
-          v-model="storeContact.contactData.search"
+          v-model="contactData.search"
         />
       </div>
     </form>
+    <div v-if="contactData.action !== ''">
+      <ConnectForm
+        :id="contactData.id"
+        :page="contactData.page"
+        :action="contactData.action"
+        :companies="contactData.companies"
+        :cities="contactData.cities"
+        :item="contactData.item"
+        :getContacts="contactData.getContacts"
+        @deactivate="contactData.deactivateForm"
+      >
+      </ConnectForm>
+    </div>
     <div class="py-3">
       <table class="table align-middle text-center no-bottom-border">
         <thead>
@@ -67,18 +135,18 @@ const searchContacts = debounce(() => {
             <th width="5%">
               <a
                 role="button"
-                @click="storeContact.contactData.action === ''
-                  ? storeContact.contactData.action = 'create'
-                  : storeContact.contactData.action = ''"
+                @click="contactData.action === ''
+                  ? contactData.action = 'create'
+                  : contactData.action = ''"
                 :title="
-                  storeContact.contactData.action === 'create'
+                  contactData.action === 'create'
                     ? 'Отмена'
                     : 'Добавить контакт'
                 "
               >
                 <i
                   :class="
-                    storeContact.contactData.action === 'create'
+                    contactData.action === 'create'
                       ? 'bi bi-dash-circle'
                       : 'bi bi-plus-circle'
                   "
@@ -88,19 +156,16 @@ const searchContacts = debounce(() => {
             <th width="5%"></th>
           </tr>
         </thead>
-        <tbody v-if="storeContact.contactData.contacts">
-          <tr v-if="storeContact.contactData.action === 'create'">
-            <td colspan="9"><ConnectForm /></td>
-          </tr>
+        <tbody v-if="contactData.contacts.length > 0">
           <tr>
             <td colspan="12">
               <table
-                v-for="contact in storeContact.contactData.contacts"
+                v-for="contact in contactData.contacts"
                 :key="contact['id']"
                 class="table align-middle text-center"
               >
                 <tbody>
-                  <tr v-if="storeContact.contactData.id !== contact['id']">
+                  <tr v-if="contactData.id !== contact['id']">
                     <td width="5%">{{ contact["id"] }}</td>
                     <td width="10%">{{ contact["company"] }}</td>
                     <td width="10%">{{ contact["city"] }}</td>
@@ -116,9 +181,9 @@ const searchContacts = debounce(() => {
                         class="btn btn-link"
                         title="Изменить"
                         @click="
-                          storeContact.contactData.action = 'edit';
-                          storeContact.contactData.id = contact['id'];
-                          storeContact.contactData.form = contact;
+                          contactData.action = 'edit';
+                          contactData.id = contact['id'];
+                          contactData.item = contact;
                         "
                       >
                         <i class="bi bi-pencil-square"></i>
@@ -129,20 +194,12 @@ const searchContacts = debounce(() => {
                         href="#"
                         title="Удалить"
                         @click="
-                          storeContact.contactData.deleteContact(contact['id'])
+                          contactData.deleteContact(contact['id'])
                         "
                       >
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>
-                  </tr>
-                  <tr
-                    v-if="
-                      storeContact.contactData.action === 'edit' &&
-                      storeContact.contactData.id === contact['id']
-                    "
-                  >
-                    <td colspan="9"><ConnectForm /></td>
                   </tr>
                 </tbody>
               </table>
@@ -152,11 +209,11 @@ const searchContacts = debounce(() => {
       </table>
     </div>
     <PageSwitcher
-      :has_prev="storeContact.contactData.next"
-      :has_next="storeContact.contactData.prev"
-      :switchPrev="storeContact.contactData.page - 1"
-      :switchNext="storeContact.contactData.page + 1"
-      :switchPage="storeContact.contactData.getContacts"
+      :has_prev="contactData.next"
+      :has_next="contactData.prev"
+      :switchPrev="contactData.page - 1"
+      :switchNext="contactData.page + 1"
+      :switchPage="contactData.getContacts"
     />
   </div>
 </template>
