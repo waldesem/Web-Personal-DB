@@ -5,27 +5,145 @@ import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
 import { server, clearForm } from "@utilities/utils";
 import router from "@/router/router";
-import {
-  Resume,
-  Staff,
-  Document,
-  Contact,
-  Work,
-  Address,
-  Affilation,
-  Relation,
-  Verification,
-  Pfo,
-  Robot,
-  Inquisition,
-  Needs,
-} from "@store/interfaces";
 
 export const profileStore = defineStore("profileStore", () => {
   const storeAuth = authStore();
   const storeAlert = alertStore();
   const classifyApp = classifyStore();
 
+  interface Resume {
+    id: string;
+    category_id: string;
+    region_id: string;
+    fullname: string;
+    previous: string;
+    birthday: string;
+    birthplace: string;
+    country: string;
+    ext_country: string;
+    snils: string;
+    inn: string;
+    education: string;
+    marital: string;
+    addition: string;
+    path: string;
+    status_id: string;
+    created: string;
+    updated: string;
+    request_id: string;
+  };
+  
+  interface Document {
+    id: string;
+    view: string;
+    series: string;
+    number: string;
+    agency: string;
+    issue: string;
+  };
+  
+  interface Address {
+    id: string;
+    view: string;
+    region: string;
+    address: string;
+  };
+  
+  interface Contact {
+    id: string;
+    view: string;
+    contact: string;
+  };
+  
+  interface Work {
+    id: string;
+    start_date: string;
+    end_date: string;
+    workplace: string;
+    address: string;
+    reason: string;
+    position: string;
+  };
+  
+  interface Relation {
+    id: string;
+    relation: string;
+    relation_id: string;
+  };
+  
+  interface Affilation {
+    id: string;
+    view: string;
+    name: string;
+    inn: string;
+    position: string;
+    deadline: string;
+  };
+  
+  interface Verification {
+    id: string;
+    workplace: string;
+    employee: string;
+    document: string;
+    inn: string;
+    debt: string;
+    bankruptcy: string;
+    bki: string;
+    courts: string;
+    affiliation: string;
+    terrorist: string;
+    mvd: string;
+    internet: string;
+    cronos: string;
+    cros: string;
+    addition: string;
+    pfo: string;
+    conclusion: string;
+    comments: string;
+    deadline: string;
+    officer: string;
+  };
+  
+  interface Robot {
+    id: string;
+    employee: string;
+    document: string;
+    inn: string;
+    debt: string;
+    bankruptcy: string;
+    bki: string;
+    courts: string;
+    affiliation: string;
+    terrorist: string;
+    mvd: string;
+    deadline: string;
+  };
+  
+  interface Pfo {
+    id: string;
+    theme: string;
+    results: string;
+    officer: string;
+    deadline: string;
+  };
+  
+  interface Inquisition {
+    id: string;
+    theme: string;
+    info: string;
+    officer: string;
+    deadline: string;
+  };
+  
+  interface Needs {
+    id: string;
+    info: string;
+    initiator: string;
+    source: string;
+    officer: string;
+    deadline: string;
+  };
+  
   const dataProfile = ref({
     candId: "",
     itemId: "",
@@ -258,7 +376,6 @@ export const profileStore = defineStore("profileStore", () => {
     addrs: Array<Address>(),
     conts: Array<Contact>(),
     works: Array<Work>(),
-    staffs: Array<Staff>(),
     relate: Array<Relation>(),
     affilation: Array<Affilation>(),
     form: <Record<string, any>>{},
@@ -269,9 +386,6 @@ export const profileStore = defineStore("profileStore", () => {
           `${server}/${dataProfile.value.item}/${dataProfile.value.candId}`
         );
         switch (item) {
-          case "staff":
-            this.staffs = response.data;
-            break;
           case "document":
             this.docums = response.data;
             break;
