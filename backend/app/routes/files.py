@@ -7,25 +7,24 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 
 from config import Config
-from . import bp_files
-from ... import db
-from ...utils.folders import create_folders
-from ..login.login import roles_required, group_required
-from ...models.classes import Roles, Groups
-from ...models.model import (
+from . import bp
+from .. import db
+from ..utils.folders import create_folders
+from .login import roles_required, group_required
+from ..models.classes import Roles, Groups
+from ..models.model import (
     Person,
     Check,
     Poligraf,
     Investigation,
 )
-from ...models.schema import ActionSchema
 
 
 class FileView(MethodView):
     decorators = [
         group_required(Groups.staffsec.value),
         roles_required(Roles.user.value),
-        bp_files.doc(hide=True),
+        bp.doc(hide=True),
     ]
 
     def get(self, item_id):
@@ -38,10 +37,8 @@ class FileView(MethodView):
             return send_file(file_path, as_attachment=True)
         return abort(404)
 
-    @bp_files.input(ActionSchema, location="query")
-    def post(self, query_data, item_id=0):
-        action = query_data.get("action")
-        if not request.files["file"].filename and action:
+    def post(self, item, item_id):
+        if not request.files["file"].filename:
             return {"result": False, "item_id": item_id}
 
         model_mapping = {
@@ -51,11 +48,11 @@ class FileView(MethodView):
             "image": Person,
         }
         files = request.files.getlist("file")
-        model = model_mapping.get(action)
+        model = model_mapping.get(item)
         item = db.session.get(model, item_id)
         person = db.session.get(Person, item.person_id)
-        folder = create_folders(person.id, person.fullname, action)
-        if action == "image":
+        folder = create_folders(person.id, person.fullname, item)
+        if item == "image":
             im = Image.open(files[0])
             rgb_im = im.convert("RGB")
             images = os.path.join(Config.BASE_PATH, folder, "images")
@@ -79,4 +76,4 @@ class FileView(MethodView):
         return {"message": item_id}
 
 
-bp_files.add_url_rule("/file/<int:item_id>", view_func=FileView.as_view("file"))
+bp.add_url_rule("/file/<action>/<int:item_id>", view_func=FileView.as_view("file"))

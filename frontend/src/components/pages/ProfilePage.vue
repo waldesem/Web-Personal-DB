@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, onBeforeMount, provide } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
 import { useRoute } from "vue-router";
-import { profileStore } from "@/store/profile";
 
-const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
-);
 const PhotoCard = defineAsyncComponent(
   () => import("@components/layouts/PhotoCard.vue")
 );
@@ -26,14 +21,17 @@ const InquiryTab = defineAsyncComponent(
   () => import("@components/tabs/InquiryTab.vue")
 );
 
-const storeProfile = profileStore();
-
 const route = useRoute();
 
 onBeforeMount(() => {
-  storeProfile.dataProfile.candId = route.params.id.toString();
+  dataProfile.value.candId = route.params.id.toString();
 });
-provide("candId", storeProfile.dataProfile.candId);
+
+const dataProfile = ref({
+  candId: route.params.id.toString()
+});
+
+provide("candId", dataProfile.value.candId);
 
 const tabsObject = {
   anketaTab: ["Анкета", AnketaTab],
@@ -45,18 +43,11 @@ const tabsObject = {
 
 const printPage = ref(false);
 
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  storeProfile.dataProfile.cancelEdit();
-  next();
-});
 </script>
 
 <template>
   <div class="container py-3">
     <PhotoCard />
-    
-    <HeaderDiv :page-header="storeProfile.dataResume.resume['fullname']" />
-
     <div v-if="!printPage" class="nav nav-tabs nav-justified" role="tablist">
       <button
         v-for="(value, key) in tabsObject"

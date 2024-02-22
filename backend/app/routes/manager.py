@@ -5,16 +5,16 @@ from flask import request, send_file
 from flask.views import MethodView
 
 from config import Config
-from . import bp_manager
-from ..login.login import roles_required, group_required
-from ...models.classes import Roles, Groups
+from . import bp
+from .login import roles_required, group_required
+from ..models.classes import Roles, Groups
 
 
 class FileManagementView(MethodView):
     decorators = [
         group_required(Groups.staffsec.value),
         roles_required(Roles.user.value),
-        bp_manager.doc(hide=True),
+        bp.doc(hide=True),
     ]
 
     def __init__(self):
@@ -117,5 +117,5 @@ class FileManagementView(MethodView):
 
 
 files_view = FileManagementView.as_view("manager")
-bp_manager.add_url_rule("/manager", view_func=files_view, methods=["GET"])
-bp_manager.add_url_rule("/manager/<action>", view_func=files_view, methods=["POST"])
+bp.add_url_rule("/manager", view_func=files_view, methods=["GET"])
+bp.add_url_rule("/manager/<action>", view_func=files_view, methods=["POST"])

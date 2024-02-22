@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { authStore } from "@store/token";
 import { server } from "@utilities/utils";
 
-const PageSwitcher = defineAsyncComponent(
-  () => import("@components/layouts/PageSwitcher.vue")
-);
 const MessagesToast = defineAsyncComponent(
   () => import("@components/layouts/MessagesToast.vue")
 );
@@ -13,15 +10,9 @@ const MessagesToast = defineAsyncComponent(
 const storeAuth = authStore();
 
 interface Message {
-  title: string
   message: string
-  status: string
   created: string
 }
-
-onBeforeMount(async () => {
-  await messageData.value.updateMessages("all");
-});
 
 const messageData = ref({
   isStarted: false,
@@ -30,27 +21,13 @@ const messageData = ref({
   hasNext: false,
   currentPage: 1,
 
-  updateMessages: async function (
-    action: string = "new",
-    page: number = 1
-  ): Promise<void> {
+  updateMessages: async function (): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(
-        `${server}/messages/${page}`,
-        {
-          params: { action: action },
-        }
+        `${server}/messages`
       );
-
-      const [datas, metadata] = response.data;
-
-      if (action === "read") {
-        this.updateMessages("all");
-      } else {
-        this.messages = datas;
-        this.hasPrev = metadata.has_prev;
-        this.hasNext = metadata.has_next;
-      }
+      const { messages } = response.data;
+      this.messages = messages;
     } catch (error) {
       console.error(error);
     }
@@ -62,7 +39,7 @@ const messageData = ref({
         `${server}/messages`
       );
       console.log(response.status);
-      this.updateMessages("all");
+      this.updateMessages();
     } catch (error) {
       console.error(error);
     }
@@ -81,65 +58,52 @@ messageData.value.updateCount();
 
 <template>
   <li class="nav-item dropdown">
-    Сообщения
-    <span
-      class="position-absolute translate-middle badge rounded-pill text-bg-success"
+    <a
+      href="#"
+      class="nav-link active dropdown-toggle"
+      role="button"
+      data-bs-toggle="dropdown"
+      data-bs-auto-close="outside"
     >
-      {{ messageData.messages.length }}
-    </span>
-    <MessagesToast :messages="messageData.messages"/>
-    <div>
-      <div class="row justify-content-between">
-        <div class="col">
-          <p>
-            <a
-              href="#"
-              class="link-info"
-              @click="messageData.updateMessages('read')"
-            >
-              Отметить все прочитанными
-            </a>
-          </p>
-        </div>
-        <div class="col text-end">
-          <p>
-            <a href="#" class="link-danger" @click="messageData.deleteMessage()">
-              Удалить все сообщения
-            </a>
-          </p>
-        </div>
+      Сообщения
+      <span
+        class="position-absolute translate-middle badge rounded-pill text-bg-success"
+      >
+        {{ messageData.messages.length }}
+      </span>
+    </a>
+    <div class="dropdown-menu">
+      <MessagesToast :messages="messageData.messages"/>
+      <div class="col text-end">
+        <p>
+          <a href="#" class="link-danger" @click="messageData.deleteMessage()">
+            Удалить сообщения
+          </a>
+        </p>
       </div>
       <div class="py-2">
         <table class="table table-responsive align-middle">
           <thead>
             <tr>
-              <th width="5%">#</th>
-              <th width="15%">Категория</th>
-              <th width="15%">Тема</th>
+              <th width="20%">Дата</th>
               <th>Сообщение</th>
-              <th width="15%">Статус</th>
-              <th width="10%">Дата</th>
             </tr>
           </thead>
           <tbody v-if="messageData.messages.length">
             <tr v-for="message, index in messageData.messages" :key="index">
-              <td width="15%">{{ message["title"] }}</td>
+              <td width="30%">{{ message["created"] }}</td>
               <td>{{ message["message"] }}</td>
-              <td width="15%">{{ message["status"] }}</td>
-              <td width="15%">{{ message["created"] }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <PageSwitcher
-        :has_prev="messageData.hasPrev"
-        :has_next="messageData.hasNext"
-        :switchPrev="messageData.currentPage - 1"
-        :switchNext="messageData.currentPage + 1"
-        :switchPage="messageData.updateMessages"
-        :option="'all'"
-      />
     </div>
   </li>
 </template>
-@/utilities/token
+
+<style scoped>
+.dropdown {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+</style>

@@ -3,34 +3,17 @@ from flask_jwt_extended import current_user
 from sqlalchemy_searchable import search
 from sqlalchemy import select, func
 
-from . import bp_index
-from ... import db
-from ..login.login import group_required
-from ...models.classes import Categories, Groups, Statuses
-from ..resume.resume import ResumeView
-from ..anketa.anketa import (
-    StaffView,
-    DocumentView,
-    ContactView,
-    AddressView,
-    WorkplaceView,
-    AffilationView,
-    RelationView,
-)
-from ..checks.checks import(
-    CheckView,
-    RobotView,
-    PoligrafView,
-    InvestigationView,
-    InquiryView,
-)
-from ...models.model import (
+from . import bp
+from .. import db
+from .login import group_required
+from ..models.classes import Categories, Groups, Statuses
+from ..models.model import (
     Category,
     Person,
     Check,
     Status,
 )
-from ...models.schema import (
+from ..models.schema import (
     InfoSchema,
     PersonSchema,
     SearchSchema,
@@ -41,10 +24,10 @@ class IndexView(MethodView):
 
     decorators = [
         group_required(Groups.staffsec.value),
-        bp_index.doc(hide=True),
+        bp.doc(hide=True),
     ]
 
-    @bp_index.input(SearchSchema, location="query")
+    @bp.input(SearchSchema, location="query")
     def get(self, flag, page, query_data):
         search_data = query_data.get("search")
         query = select(Person).order_by(Person.id.desc())
@@ -83,14 +66,14 @@ class IndexView(MethodView):
         ]
 
 
-bp_index.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
+bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
 
 
 class InfoView(MethodView):
 
     @group_required(Groups.staffsec.value)
-    @bp_index.input(InfoSchema, location="query")
-    @bp_index.doc(hide=True)
+    @bp.input(InfoSchema, location="query")
+    @bp.doc(hide=True)
     def get(self, json_data):
         candidates = db.session.execute(
             select(Check.conclusion_id, func.count(Check.id))
@@ -102,4 +85,4 @@ class InfoView(MethodView):
         return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates))}, 200
 
 
-bp_index.add_url_rule("/information", view_func=InfoView.as_view("information"))
+bp.add_url_rule("/information", view_func=InfoView.as_view("information"))

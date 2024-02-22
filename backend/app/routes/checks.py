@@ -7,12 +7,12 @@ from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select
 
-from . import bp_checks
-from ... import db
-from ...utils.folders import create_folders
-from ..login.login import roles_required, group_required
-from ...models.classes import Categories, Conclusions, Roles, Groups, Statuses
-from ...models.model import (
+from . import bp
+from .. import db
+from ..utils.folders import create_folders
+from .login import roles_required, group_required
+from ..models.classes import Conclusions, Roles, Groups, Statuses
+from ..models.model import (
     Conclusion,
     Person,
     Check,
@@ -23,7 +23,7 @@ from ...models.model import (
     Message,
     Robot,
 )
-from ...models.schema import (
+from ..models.schema import (
     CheckSchema,
     InquirySchema,
     InvestigationSchema,
@@ -34,10 +34,10 @@ from ...models.schema import (
 
 class CheckView(MethodView):
 
-    decorators = [bp_checks.doc(hide=True)]
+    decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
-    @bp_checks.input(ActionSchema, location="query")
+    @bp.input(ActionSchema, location="query")
     def get(self, item_id, query_data):
         action = query_data.get("action")
         if action == "self":
@@ -68,8 +68,8 @@ class CheckView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.input(ActionSchema, location="query")
-    @bp_checks.input(CheckSchema, location="json")
+    @bp.input(ActionSchema, location="query")
+    @bp.input(CheckSchema, location="json")
     def post(self, item_id, json_data, query_data):
         action = query_data.get("action")
         json_data["pfo"] = bool(json_data.pop("pfo")) if "pfo" in json_data else False
@@ -97,7 +97,7 @@ class CheckView(MethodView):
         return "", 201
 
     @roles_required(Roles.user.value)
-    @bp_checks.output(EmptySchema, status_code=204)
+    @bp.output(EmptySchema, status_code=204)
     def delete(self, item_id):
         check = db.session.get(Check, item_id)
         person = db.session.get(Person, check.person_id)
@@ -108,7 +108,7 @@ class CheckView(MethodView):
         return "", 204
 
 
-bp_checks.add_url_rule("/check//<int:item_id>", view_func=CheckView.as_view("check"))
+bp.add_url_rule("/check//<int:item_id>", view_func=CheckView.as_view("check"))
 
 
 class RobotView(MethodView):
@@ -117,7 +117,7 @@ class RobotView(MethodView):
     """
 
     @group_required(Groups.staffsec.value)
-    @bp_checks.doc(hide=True)
+    @bp.doc(hide=True)
     def get(self, item_id):
         return RobotSchema().dump(
             db.session.execute(
@@ -132,7 +132,7 @@ class RobotView(MethodView):
 
     @group_required(Groups.rest.value)
     @roles_required(Roles.api.value)
-    @bp_checks.input(RobotSchema)
+    @bp.input(RobotSchema)
     def post(self, json_data):
         user_id = json_data.pop("user_id")
         robot_path = json_data.pop("path")
@@ -176,8 +176,8 @@ class RobotView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.output(EmptySchema, status_code=204)
-    @bp_checks.doc(hide=True)
+    @bp.output(EmptySchema, status_code=204)
+    @bp.doc(hide=True)
     def delete(self, item_id):
         robot = db.session.get(Robot, item_id)
         if robot:
@@ -187,12 +187,12 @@ class RobotView(MethodView):
         return abort(403)
 
 
-bp_checks.add_url_rule("/robot/<int:item_id>", view_func=RobotView.as_view("robot"))
+bp.add_url_rule("/robot/<int:item_id>", view_func=RobotView.as_view("robot"))
 
 
 class InvestigationView(MethodView):
 
-    decorators = [bp_checks.doc(hide=True)]
+    decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
     def get(self, item_id):
@@ -209,7 +209,7 @@ class InvestigationView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.input(InvestigationSchema)
+    @bp.input(InvestigationSchema)
     def post(self, item_id, json_data):
         db.session.add(
             Investigation(
@@ -221,7 +221,7 @@ class InvestigationView(MethodView):
     
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.input(InvestigationSchema)
+    @bp.input(InvestigationSchema)
     def patch(self, item_id, json_data):
         invs = db.session.get(Investigation, item_id)
         if invs:
@@ -233,7 +233,7 @@ class InvestigationView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         invs = db.session.get(Investigation, item_id)
         if invs:
@@ -243,7 +243,7 @@ class InvestigationView(MethodView):
         return abort(403)
 
 
-bp_checks.add_url_rule(
+bp.add_url_rule(
     "/investigation/<int:item_id>",
     view_func=InvestigationView.as_view("investigation"),
 )
@@ -251,7 +251,7 @@ bp_checks.add_url_rule(
 
 class PoligrafView(MethodView):
 
-    decorators = [bp_checks.doc(hide=True)]
+    decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
     def get(self, item_id):
@@ -268,7 +268,7 @@ class PoligrafView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.input(PoligrafSchema)
+    @bp.input(PoligrafSchema)
     def post(self, item_id, json_data):
         person = db.session.get(Person, item_id)
         if person:
@@ -285,7 +285,7 @@ class PoligrafView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.input(PoligrafSchema)
+    @bp.input(PoligrafSchema)
     def patch(self, item_id, json_data):
         pfo = db.session.get(Poligraf, item_id)
         if pfo:
@@ -297,7 +297,7 @@ class PoligrafView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         pfo = db.session.get(Poligraf, item_id)
         if pfo:
@@ -307,14 +307,14 @@ class PoligrafView(MethodView):
         return abort(403)
 
 
-bp_checks.add_url_rule(
+bp.add_url_rule(
     "/poligraf/<int:item_id>", view_func=PoligrafView.as_view("poligraf")
 )
 
 
 class InquiryView(MethodView):
 
-    decorators = [bp_checks.doc(hide=True)]
+    decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
     def get(self, item_id):
@@ -328,7 +328,7 @@ class InquiryView(MethodView):
         ), 200
 
     @group_required(Groups.staffsec.value)
-    @bp_checks.input(InquirySchema)
+    @bp.input(InquirySchema)
     @roles_required(Roles.user.value)
     def post(self, item_id, json_data):
         db.session.add(
@@ -341,7 +341,7 @@ class InquiryView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.input(InquirySchema)
+    @bp.input(InquirySchema)
     def patch(self, item_id, json_data):
         inq = db.session.get(Inquiry, item_id)
         if inq:
@@ -352,7 +352,7 @@ class InquiryView(MethodView):
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp_checks.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         inq = db.session.get(Inquiry, item_id)
         if inq:
@@ -361,6 +361,6 @@ class InquiryView(MethodView):
             return "", 204
         return abort(403)
 
-bp_checks.add_url_rule(
+bp.add_url_rule(
     "/inquiry/<int:item_id>", view_func=InquiryView.as_view("inquiry")
 )

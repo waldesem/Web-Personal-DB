@@ -139,4 +139,3 @@ computed(() => {
     </div>
   </div>
 </template>
-@/utilities/token

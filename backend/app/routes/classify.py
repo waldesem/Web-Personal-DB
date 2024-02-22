@@ -1,10 +1,10 @@
 from flask.views import MethodView
 from sqlalchemy import select
 
-from . import bp_classify
-from ... import db, cache
-from ...models.model import Category, Conclusion, Role, Group, Status, Region
-from ...models.schema import (
+from . import bp
+from .. import db, cache
+from ..models.model import Category, Conclusion, Role, Group, Status, Region
+from ..models.schema import (
     models_schemas,
     CategorySchema,
     ConclusionSchema,
@@ -20,7 +20,7 @@ class ClassesView(MethodView):
     It provides methods for retrieving all the tables in the database.
     """
 
-    @bp_classify.doc(hide=True)
+    @bp.doc(hide=True)
     @cache.cached()
     def get(self):
         tables = ["Category", "Conclusion", "Role", "Group", "Status", "Region"]
@@ -36,4 +36,4 @@ class ClassesView(MethodView):
         return data
 
 
-bp_classify.add_url_rule("/classes", view_func=ClassesView.as_view("classes"))
+bp.add_url_rule("/classes", view_func=ClassesView.as_view("classes"))

@@ -10,13 +10,13 @@ from sqlalchemy import select
 from werkzeug.utils import secure_filename
 
 from config import Config
-from . import bp_resume
-from ... import db
-from ...utils.jsonparser import parse_json
-from ...utils.folders import create_folders
-from ..login.login import roles_required, group_required
-from ...models.classes import Roles, Groups, Statuses
-from ...models.model import (
+from . import bp
+from .. import db
+from ..utils.jsonparser import parse_json
+from ..utils.folders import create_folders
+from .login import roles_required, group_required
+from ..models.classes import Roles, Groups, Statuses
+from ..models.model import (
     Person,
     Document,
     Address,
@@ -26,7 +26,7 @@ from ...models.model import (
     Contact,
     Affilation,
 )
-from ...models.schema import (
+from ..models.schema import (
     AnketaSchemaApi,
     PersonSchema,
     ActionSchema,
@@ -36,8 +36,8 @@ from ...models.schema import (
 class ResumeView(MethodView):
 
     @group_required(Groups.staffsec.value)
-    @bp_resume.input(ActionSchema, location="query")
-    @bp_resume.doc(hide=True)
+    @bp.input(ActionSchema, location="query")
+    @bp.doc(hide=True)
     def get(self, person_id, query_data):
         action = query_data.get("action")
         person = db.session.get(Person, person_id)
@@ -104,7 +104,7 @@ class ResumeView(MethodView):
 
     @roles_required(Roles.user.value)
     @group_required(Groups.staffsec.value)
-    @bp_resume.doc(hide=True)
+    @bp.doc(hide=True)
     def delete(self, person_id):
         person = db.session.get(Person, person_id)
         try:
@@ -117,7 +117,7 @@ class ResumeView(MethodView):
     
     @roles_required(Roles.user.value, Roles.api.value)
     @group_required(Groups.staffsec.value, Groups.rest.value)
-    @bp_resume.input(PersonSchema)
+    @bp.input(PersonSchema)
     def post(self, action, json_data):
         person_id = ResumeView.add_resume(json_data, action)
         return {"message": person_id}
@@ -160,12 +160,12 @@ class ResumeView(MethodView):
         return person_id
 
 resume_view = ResumeView.as_view("resume")
-bp_resume.add_url_rule(
+bp.add_url_rule(
     "/resume/<action>",
     view_func=resume_view,
     methods=["POST"],
 )
-bp_resume.add_url_rule(
+bp.add_url_rule(
     "/resume/<int:person_id>",
     view_func=resume_view,
     methods=["GET", "DELETE"],
@@ -176,10 +176,10 @@ class JsonView(MethodView):
     decorators = [
         group_required(Groups.staffsec.value),
         roles_required(Roles.user.value),
-        bp_resume.doc(hide=True),
+        bp.doc(hide=True),
     ]
 
-    @bp_resume.input(ActionSchema, location="query")
+    @bp.input(ActionSchema, location="query")
     def post(self, query_data, item_id=0):
         action = query_data.get("action")
         if not request.files["file"].filename and action:
@@ -238,4 +238,4 @@ class JsonView(MethodView):
                     db.session.add(model(**item | {"person_id": person_id}))
         db.session.commit()
 
-bp_resume.add_url_rule("/json", view_func=JsonView.as_view("json"))
+bp.add_url_rule("/json", view_func=JsonView.as_view("json"))

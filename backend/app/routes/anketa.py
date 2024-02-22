@@ -3,11 +3,11 @@ from flask import abort
 from flask.views import MethodView
 from sqlalchemy import select
 
-from . import bp_anketa
-from ... import db
-from ..login.login import roles_required, group_required
-from ...models.classes import Roles, Groups
-from ...models.model import (
+from . import bp
+from .. import db
+from .login import roles_required, group_required
+from ..models.classes import Roles, Groups
+from ..models.model import (
     Staff,
     Document,
     Address,
@@ -16,7 +16,7 @@ from ...models.model import (
     Relation,
     Affilation,
 )
-from ...models.schema import (
+from ..models.schema import (
     RelationSchema,
     StaffSchema,
     AddressSchema,
@@ -29,7 +29,7 @@ from ...models.schema import (
 
 class StaffView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.value), bp_anketa.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
     def get(self, item_id):
         return (
@@ -44,14 +44,14 @@ class StaffView(MethodView):
             200,
         )
 
-    @bp_anketa.input(StaffSchema)
+    @bp.input(StaffSchema)
     @roles_required(Roles.user.value)
     def post(self, item_id, json_data):
         db.session.add(Staff(**json_data | {"person_id": item_id}))
         db.session.commit()
         return "", 201
 
-    @bp_anketa.input(StaffSchema)
+    @bp.input(StaffSchema)
     @roles_required(Roles.user.value)
     def patch(self, item_id, json_data):
         staff = db.session.get(Staff, item_id)
@@ -63,7 +63,7 @@ class StaffView(MethodView):
         return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp_anketa.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         staff = db.session.get(Staff, item_id)
         if staff:
@@ -73,12 +73,12 @@ class StaffView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule("/staff/<int:item_id>", view_func=StaffView.as_view("staff"))
+bp.add_url_rule("/staff/<int:item_id>", view_func=StaffView.as_view("staff"))
 
 
 class DocumentView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.value), bp_anketa.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
     def get(self, item_id):
         return (
@@ -96,14 +96,14 @@ class DocumentView(MethodView):
         )
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(DocumentSchema)
+    @bp.input(DocumentSchema)
     def post(self, item_id, json_data):
         db.session.add(Document(**json_data | {"person_id": item_id}))
         db.session.commit()
         return "", 201
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(DocumentSchema)
+    @bp.input(DocumentSchema)
     def patch(self, item_id, json_data):
         docum = db.session.get(Document, item_id)
         if docum:
@@ -114,7 +114,7 @@ class DocumentView(MethodView):
         return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp_anketa.output(EmptySchema, status_code=204)
+    @bp.output(EmptySchema, status_code=204)
     def delete(self, item_id):
         docum = db.session.get(Document, item_id)
         if docum:
@@ -124,14 +124,14 @@ class DocumentView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule(
+bp.add_url_rule(
     "/document/<int:item_id>", view_func=DocumentView.as_view("document")
 )
 
 
 class AddressView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.value), bp_anketa.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
     def get(self, item_id):
         return (
@@ -149,14 +149,14 @@ class AddressView(MethodView):
         )
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(AddressSchema)
+    @bp.input(AddressSchema)
     def post(self, item_id, json_data):
         db.session.add(Address(**json_data | {"person_id": item_id}))
         db.session.commit()
         return "", 201
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(AddressSchema)
+    @bp.input(AddressSchema)
     def patch(self, item_id, json_data):
         addr = db.session.get(Address, item_id)
         if addr:
@@ -167,7 +167,7 @@ class AddressView(MethodView):
         return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp_anketa.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         addr = db.session.get(Address, item_id)
         if addr:
@@ -177,14 +177,14 @@ class AddressView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule(
+bp.add_url_rule(
     "/address/<int:item_id>", view_func=AddressView.as_view("address")
 )
 
 
 class ContactView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.value), bp_anketa.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
     def get(self, item_id):
         return ContactSchema().dump(
@@ -197,14 +197,14 @@ class ContactView(MethodView):
         )
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(ContactSchema)
+    @bp.input(ContactSchema)
     def post(self, item_id, json_data):
         db.session.add(Contact(**json_data | {"person_id": item_id}))
         db.session.commit()
         return "", 201
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(ContactSchema)
+    @bp.input(ContactSchema)
     def patch(self, item_id, json_data):
         cont = db.session.get(Contact, item_id)
         if cont:
@@ -215,7 +215,7 @@ class ContactView(MethodView):
         return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp_anketa.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         cont = db.session.get(Contact, item_id)
         if cont:
@@ -225,14 +225,14 @@ class ContactView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule(
+bp.add_url_rule(
     "/contact/<int:item_id>", view_func=ContactView.as_view("contact")
 )
 
 
 class WorkplaceView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.value), bp_anketa.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
     def get(self, item_id):
         return (
@@ -250,7 +250,7 @@ class WorkplaceView(MethodView):
         )
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(WorkplaceSchema)
+    @bp.input(WorkplaceSchema)
     def post(self, item_id, json_data):
         json_data["now_work"] = (
             bool(json_data.pop("now_work")) if "now_work" in json_data else False
@@ -260,7 +260,7 @@ class WorkplaceView(MethodView):
         return "", 201
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(WorkplaceSchema)
+    @bp.input(WorkplaceSchema)
     def patch(self, item_id, json_data):
         json_data["now_work"] = (
             bool(json_data.pop("now_work")) if "now_work" in json_data else False
@@ -274,7 +274,7 @@ class WorkplaceView(MethodView):
         return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp_anketa.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         work = db.session.get(Workplace, item_id)
         if work:
@@ -284,14 +284,14 @@ class WorkplaceView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule(
+bp.add_url_rule(
     "/workplace/<int:item_id>", view_func=WorkplaceView.as_view("workplace")
 )
 
 
 class RelationView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.value), bp_anketa.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
     def get(self, item_id):
         return (
@@ -309,7 +309,7 @@ class RelationView(MethodView):
         )
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(RelationSchema)
+    @bp.input(RelationSchema)
     def post(self, item_id, json_data):
         db.session.add(Relation(**json_data | {"person_id": item_id}))
         db.session.add(
@@ -323,7 +323,7 @@ class RelationView(MethodView):
         return "", 201
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(RelationSchema)
+    @bp.input(RelationSchema)
     def patch(self, item_id, json_data):
         rel = db.session.get(Relation, item_id)
         if rel:
@@ -334,7 +334,7 @@ class RelationView(MethodView):
         return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp_anketa.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         rel = db.session.get(Relation, item_id)
         if rel:
@@ -344,14 +344,14 @@ class RelationView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule(
+bp.add_url_rule(
     "/relation/<int:item_id>", view_func=RelationView.as_view("relation")
 )
 
 
 class AffilationView(MethodView):
 
-    decorators = [group_required(Groups.staffsec.value), bp_anketa.doc(hide=True)]
+    decorators = [group_required(Groups.staffsec.value), bp.doc(hide=True)]
 
     def get(self, item_id):
         return AffilationSchema().dump(
@@ -366,14 +366,14 @@ class AffilationView(MethodView):
         )
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(AffilationSchema)
+    @bp.input(AffilationSchema)
     def post(self, item_id, json_data):
         db.session.add(Affilation(**json_data | {"person_id": item_id}))
         db.session.commit()
         return "", 201
 
     @roles_required(Roles.user.value)
-    @bp_anketa.input(AffilationSchema)
+    @bp.input(AffilationSchema)
     def patch(self, item_id, json_data):
         affil = db.session.get(Affilation, item_id)
         if affil:
@@ -384,7 +384,7 @@ class AffilationView(MethodView):
         return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp_anketa.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, item_id):
         affil = db.session.get(Affilation, item_id)
         if affil:
@@ -394,6 +394,6 @@ class AffilationView(MethodView):
         return abort(403)
 
 
-bp_anketa.add_url_rule(
+bp.add_url_rule(
     "/affilation/<int:item_id>", view_func=AffilationView.as_view("affilation")
 )

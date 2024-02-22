@@ -30,30 +30,11 @@ def create_app(config=Config):
     migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
 
-    from app.routes.admin import bp_admin as admin_bp
-    from app.routes.anketa import bp_anketa as anketa_bp
-    from app.routes.checks import bp_checks as checks_bp
-    from app.routes.classes import bp_classify as classify_bp
-    from app.routes.contacts import bp_contact as contacts_bp
-    from app.routes.files import bp_files as files_bp
-    from app.routes.login import bp_login as login_bp
-    from app.routes.manager import bp_manager as manager_bp
-    from app.routes.messages import bp_message as message_bp
-    from app.routes.index import bp_index as index_bp
-    from app.routes.resume import bp_resume as resume_bp
-    from cli import register_cli
+    from app.routes import bp as route_bp
 
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(anketa_bp)
-    app.register_blueprint(checks_bp)
-    app.register_blueprint(classify_bp)
-    app.register_blueprint(contacts_bp)
-    app.register_blueprint(files_bp)
-    app.register_blueprint(login_bp)
-    app.register_blueprint(manager_bp)
-    app.register_blueprint(message_bp)
-    app.register_blueprint(index_bp)
-    app.register_blueprint(resume_bp)
+    app.register_blueprint(route_bp)
+
+    from cli import register_cli
 
     register_cli(app)
 

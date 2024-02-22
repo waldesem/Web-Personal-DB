@@ -4,17 +4,17 @@ from sqlalchemy_searchable import search
 from sqlalchemy import select
 
 from config import Config
-from . import bp_contact
-from ... import db
-from ...models.model import Connect
-from ...models.schema import ConnectSchema, SearchSchema
+from . import bp
+from .. import db
+from ..models.model import Connect
+from ..models.schema import ConnectSchema, SearchSchema
 
 
 class ConnnectView(MethodView):
 
-    decorators = [jwt_required(), bp_contact.doc(hide=True)]
+    decorators = [jwt_required(), bp.doc(hide=True)]
 
-    @bp_contact.input(SearchSchema, location="query")
+    @bp.input(SearchSchema, location="query")
     def get(self, page, query_data):
         """
         Retrieves a paginated list of Connect objects based on the specified group and item.
@@ -39,7 +39,7 @@ class ConnnectView(MethodView):
             {"cities": list({city for city in cities})},
         ], 200
 
-    @bp_contact.input(ConnectSchema)
+    @bp.input(ConnectSchema)
     def post(self, json_data):
         """
         Create a new connection.
@@ -48,7 +48,7 @@ class ConnnectView(MethodView):
         db.session.commit()
         return {"message": "Created"}, 201
 
-    @bp_contact.input(ConnectSchema)
+    @bp.input(ConnectSchema)
     def patch(self, item_id, json_data):
         """
         Patch an item in the Connect table.
@@ -70,9 +70,9 @@ class ConnnectView(MethodView):
 
 
 contacts_view = ConnnectView.as_view("connect")
-bp_contact.add_url_rule("/connect/<int:page>", view_func=contacts_view, methods=["GET"])
-bp_contact.add_url_rule("/connect", view_func=contacts_view, methods=["POST"])
-bp_contact.add_url_rule(
+bp.add_url_rule("/connect/<int:page>", view_func=contacts_view, methods=["GET"])
+bp.add_url_rule("/connect", view_func=contacts_view, methods=["POST"])
+bp.add_url_rule(
     "/connect/<int:item_id>",
     view_func=contacts_view,
     methods=["PATCH", "DELETE"],

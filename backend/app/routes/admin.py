@@ -7,12 +7,12 @@ from sqlalchemy import select
 from sqlalchemy_searchable import search
 
 from config import Config
-from . import bp_admin
-from ... import db
-from ..login.login import group_required
-from ...models.classes import Roles, Groups
-from ...models.model import User, Role, Group
-from ...models.schema import (
+from . import bp
+from .. import db
+from .login import group_required
+from .. models.classes import Roles, Groups
+from ..models.model import User, Role, Group
+from ..models.schema import (
     ActionSchema,
     SearchSchema,
     AdminUserSchema,
@@ -23,9 +23,9 @@ from ...models.schema import (
 
 class UsersView(MethodView):
 
-    decorators = [group_required(Groups.admins.value), bp_admin.doc(hide=True)]
+    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
-    @bp_admin.input(SearchSchema, location="query")
+    @bp.input(SearchSchema, location="query")
     def get(self, query_data):
         """
         Endpoint to handle requests for getting users.
@@ -39,14 +39,14 @@ class UsersView(MethodView):
         return UserSchema().dump(result, many=True), 200
 
 
-bp_admin.add_url_rule("/users", view_func=UsersView.as_view("users"))
+bp.add_url_rule("/users", view_func=UsersView.as_view("users"))
 
 
 class UserView(MethodView):
 
-    decorators = [group_required(Groups.admins.value), bp_admin.doc(hide=True)]
+    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
-    @bp_admin.input(ActionSchema, location="query")
+    @bp.input(ActionSchema, location="query")
     def get(self, user_id, query_data):
         """
         Retrieves a user based on the specified action and user ID.
@@ -73,7 +73,7 @@ class UserView(MethodView):
         user = db.session.get(User, user_id)
         return UserSchema().dump(user), 200
 
-    @bp_admin.input(AdminUserSchema)
+    @bp.input(AdminUserSchema)
     def post(self, json_data):
         """
         Creates a new user based on the provided JSON data.
@@ -94,7 +94,7 @@ class UserView(MethodView):
             return {"message": "Created"}, 201
         return {"message": "Denied"}, 403
 
-    @bp_admin.input(AdminUserSchema)
+    @bp.input(AdminUserSchema)
     def patch(self, json_data):
         """
         Patch a user's information.
@@ -107,7 +107,7 @@ class UserView(MethodView):
             return {"message": "Changed"}, 201
         return {"message": "Denied"}, 403
 
-    @bp_admin.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, user_id):
         """
         Delete a user by their ID.
@@ -121,13 +121,13 @@ class UserView(MethodView):
 
 
 user_view = UserView.as_view("user")
-bp_admin.add_url_rule("/user", view_func=user_view, methods=["PATCH", "POST"])
-bp_admin.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "GET"])
+bp.add_url_rule("/user", view_func=user_view, methods=["PATCH", "POST"])
+bp.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "GET"])
 
 
 class GroupView(MethodView):
 
-    decorators = [group_required(Groups.admins.value), bp_admin.doc(hide=True)]
+    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
         """
@@ -142,7 +142,7 @@ class GroupView(MethodView):
             return {"message": "Added"}, 200
         return {"message": "Denied"}, 403
 
-    @bp_admin.output(EmptySchema)
+    @bp.output(EmptySchema)
     def delete(self, value, user_id):
         """
         Deletes a group from a user's list of groups.
@@ -161,7 +161,7 @@ class GroupView(MethodView):
         return {"message": "Denied"}, 403
 
 
-bp_admin.add_url_rule("/group/<value>/<int:user_id>", view_func=GroupView.as_view("group"))
+bp.add_url_rule("/group/<value>/<int:user_id>", view_func=GroupView.as_view("group"))
 
 
 class RoleView(MethodView):
@@ -169,7 +169,7 @@ class RoleView(MethodView):
     Get a user's role based on the value and user ID.
     """
 
-    decorators = [group_required(Groups.admins.value), bp_admin.doc(hide=True)]
+    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
         user = db.session.get(User, user_id)
@@ -198,14 +198,14 @@ class RoleView(MethodView):
         return {"message": "Denied"}, 403
 
 
-bp_admin.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"))
+bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"))
 
 
 class TableView(MethodView):
 
-    decorators = [group_required(Groups.admins.value), bp_admin.doc(hide=True)]
+    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
 
-    @bp_admin.input(SearchSchema, location="query")
+    @bp.input(SearchSchema, location="query")
     def get(self, item, num, query_data):
         model = models_schemas[item][0]
         schema = models_schemas[item][1]
@@ -235,4 +235,4 @@ class TableView(MethodView):
         return {"message": "Denied"}, 403
 
 
-bp_admin.add_url_rule("/table/<item>/<int:num>", view_func=TableView.as_view("table"))
+bp.add_url_rule("/table/<item>/<int:num>", view_func=TableView.as_view("table"))

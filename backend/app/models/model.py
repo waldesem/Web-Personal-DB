@@ -117,9 +117,7 @@ class Message(Base):
     id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
-    title: Mapped[str] = mapped_column(String(255))
     message: Mapped[str] = mapped_column(Text)
-    status: Mapped[str] = mapped_column(String(255), default=Statuses.new.name)
     created: Mapped[datetime] = mapped_column(DateTime, default=default_time)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     users: Mapped["User"] = relationship(back_populates="messages")

@@ -6,7 +6,7 @@ import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@store/classify";
 import { server } from "@utilities/utils";
-import router from "@router/router";
+import { router } from "@router/router";
 
 const NavBar = defineAsyncComponent(
   () => import("@components/layouts/NavBar.vue")

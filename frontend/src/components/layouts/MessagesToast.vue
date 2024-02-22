@@ -2,9 +2,7 @@
 import { timeSince } from "@utilities/utils";
 
 interface Message {
-  title: string
   message: string
-  status: string
   created: string
 }
 
@@ -30,7 +28,6 @@ const props = defineProps({
       :key="index"
     >
       <div class="toast-header">
-        <strong class="me-auto">{{ message["title"] }}</strong>
         <small class="text-body-secondary">
           {{ timeSince(message["created"]) }}
         </small>
@@ -42,7 +39,7 @@ const props = defineProps({
         ></button>
       </div>
       <div class="toast-body">
-        {{ message["title"] }}
+        {{ message["message"] }}
       </div>
     </div>
   </div>
