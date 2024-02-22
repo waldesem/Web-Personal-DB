@@ -3,15 +3,14 @@ import axios from "axios";
 import { defineAsyncComponent, ref } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { alertStore } from "@store/alert";
-import { userStore } from '@store/user'
 import { server } from "@utilities/utils";
+import router from "@/router/router";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
 
 const storeAlert = alertStore();
-const storeUser = userStore();
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   Object.keys(loginData.value.form).forEach((key) => {
@@ -63,7 +62,7 @@ const loginData = ref({
         case "Authenticated":
           localStorage.setItem("refresh_token", refresh_token);
           localStorage.setItem("access_token", access_token);
-          storeUser.userData.getAuth();
+          router.push({name: "auth"});
           break;
 
         case "Overdue":
@@ -84,7 +83,6 @@ const loginData = ref({
       }
     } catch (error) {
       storeAlert.alertMessage.setAlert("alert-warning", error as string);
-      storeUser.userData.userLogout();
     }
   },
 })

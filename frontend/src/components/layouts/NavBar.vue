@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { inject } from "vue";
-import { userStore } from "@/store/user";
+import { defineAsyncComponent, inject } from "vue";
 
-const storeUser = userStore();
+const MessageDiv = defineAsyncComponent(
+  () => import("@components/layouts/MessageDiv.vue")
+);
 
 const pageIdentity = inject("pageIdentity") as string;
-const messages = inject("messagesCount") as string;
+
+const props = defineProps({
+  fullName: String,
+  userLogout: {
+    type: Function,
+    required: true,
+  }
+});
 </script>
 
 <template>
@@ -87,19 +95,7 @@ const messages = inject("messagesCount") as string;
                 Файлы
               </router-link>
             </li>
-            <li class="nav-item">
-              <router-link
-                :to="{ name: 'messages', params: { group: 'staffsec' } }"
-                class="dropdown-item"
-              >
-                Сообщения
-                <span
-                  class="position-absolute translate-middle badge rounded-pill text-bg-success"
-                >
-                  {{ messages }}
-                </span>
-              </router-link>
-            </li>
+            <MessageDiv />
           </template>
         </ul>
 
@@ -110,12 +106,12 @@ const messages = inject("messagesCount") as string;
             role="button"
             data-bs-toggle="dropdown"
             :title="
-              storeUser.userData.fullName ? storeUser.userData.fullName : ''
+              props.fullName ? props.fullName : ''
             "
           >
             {{
-              storeUser.userData.fullName
-                ? storeUser.userData.fullName
+              props.fullName
+                ? props.fullName
                     .split(" ")
                     .map((item) => item.charAt(0))
                     .join("")
@@ -128,7 +124,7 @@ const messages = inject("messagesCount") as string;
               <a
                 class="dropdown-item"
                 href="#"
-                @click="storeUser.userData.userLogout"
+                @click="props.userLogout"
                 >Выход</a
               >
             </li>

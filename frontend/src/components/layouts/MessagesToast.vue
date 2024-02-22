@@ -1,13 +1,24 @@
 <script setup lang="ts">
-import { messageStore } from "@store/messages";
 import { timeSince } from "@utilities/utils";
 
-const storeMessage = messageStore();
+interface Message {
+  title: string
+  message: string
+  status: string
+  created: string
+}
+
+const props = defineProps({
+  messages: {
+    type: Array as () => Array<Message>,
+    default: () => [{}]
+  },
+});
 </script>
 
 <template>
   <div
-    v-if="storeMessage.messageData.messages.length"
+    v-if="props.messages.length"
     class="toast-container position-static"
   >
     <div
@@ -15,14 +26,13 @@ const storeMessage = messageStore();
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
-      v-for="message in storeMessage.messageData.messages"
-      :key="message['id']"
+      v-for="(message, index) in props.messages"
+      :key="index"
     >
       <div class="toast-header">
-        <!-- <img src="..." class="rounded me-2" alt="..."> -->
         <strong class="me-auto">{{ message["title"] }}</strong>
         <small class="text-body-secondary">
-          {{ timeSince(message["create"]) }}
+          {{ timeSince(message["created"]) }}
         </small>
         <button
           type="button"
@@ -32,7 +42,7 @@ const storeMessage = messageStore();
         ></button>
       </div>
       <div class="toast-body">
-        {{ message["report"] }}
+        {{ message["title"] }}
       </div>
     </div>
   </div>

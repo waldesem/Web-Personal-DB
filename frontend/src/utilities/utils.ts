@@ -17,12 +17,6 @@ function debounce(
   };
 }
 
-function clearForm(item: Object): void {
-  Object.keys(item).forEach((key) => {
-    delete item[key as keyof typeof item];
-  });
-}
-
 function timeSince(date: string) {
   const seconds: number = Math.floor(
     ((new Date() as any) - (new Date(date) as any)) / 1000
@@ -52,4 +46,4 @@ function timeSince(date: string) {
   return Math.floor(seconds) + " секунд назад";
 }
 
-export { server, debounce, timeSince, clearForm };
+export { server, debounce, timeSince };

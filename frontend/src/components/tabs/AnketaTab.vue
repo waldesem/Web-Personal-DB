@@ -37,9 +37,6 @@ const AffilationDiv = defineAsyncComponent(
 const ResumeForm = defineAsyncComponent(
   () => import("@components/forms/ResumeForm.vue")
 );
-const RegionForm = defineAsyncComponent(
-  () => import("@components/forms/RegionForm.vue")
-);
 const DocumentForm = defineAsyncComponent(
   () => import("@components/forms/DocumentForm.vue")
 );

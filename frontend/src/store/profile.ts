@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { classifyStore } from "@store/classify";
-import { authStore } from "@/store/token";
+import { authStore } from "@/utilities/token";
 import { alertStore } from "@store/alert";
 import { server, clearForm } from "@utilities/utils";
 import router from "@/router/router";

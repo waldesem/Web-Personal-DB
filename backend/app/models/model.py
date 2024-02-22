@@ -257,15 +257,12 @@ class Person(Base):
         """
         Check if the current status of the object matches any of the given status values.
         """
-        return any(
-            self.status_id
-            == [
-                db.session.execute(
-                    select(self.id).filter(Status.status.like(status))
-                ).scalar_one_or_none()
-                for status in statuses
-            ]
-        )
+        results = db.session.execute(select(self)).all()
+        for result in results:
+            for status in statuses:
+                if self.id == result.id and result.status == status:
+                    return True
+        return False
 
 
 class Staff(Base):

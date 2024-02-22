@@ -6,6 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
+      name: "auth",
       component: () => import("@/App.vue"),
     },
     {
@@ -63,11 +64,6 @@ const router = createRouter({
           name: "manager",
           component: () => import("@components/pages/FilePage.vue"),
           props: (route) => ({ path: route.query.path }),
-        },
-        {
-          path: "messages",
-          name: "messages",
-          component: () => import("@components/pages/MessagePage.vue"),
         },
       ],
     },
