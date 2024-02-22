@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { server } from "@utilities/utils";
 import axios from "axios";
 
-const router = createRouter({
+export const router = createRouter({
   routes: [
     {
       path: "/",
@@ -122,5 +122,3 @@ router.beforeEach(async (to, _from, next) => {
     next();
   }
 });
-
-export default router;

@@ -1,10 +1,10 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
 import { classifyStore } from "@store/classify";
-import { authStore } from "@/utilities/token";
+import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
-import { server, clearForm } from "@utilities/utils";
-import router from "@/router/router";
+import { server } from "@utilities/utils";
+import { router } from "@/router/router";
 
 export const profileStore = defineStore("profileStore", () => {
   const storeAuth = authStore();
@@ -152,18 +152,6 @@ export const profileStore = defineStore("profileStore", () => {
     url: "",
     spinner: false,
     form: <Record<string, any>>{},
-
-    getImage: async function (): Promise<void> {
-      try {
-        const response = await storeAuth.axiosInstance.get(
-          `${server}/file/get/${this.candId}`,
-          { responseType: "blob" }
-        );
-        this.url = window.URL.createObjectURL(new Blob([response.data]));
-      } catch (error) {
-        console.error(error);
-      }
-    },
 
     submitFile: async function (
       event: Event,

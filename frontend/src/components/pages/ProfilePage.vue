@@ -53,12 +53,8 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
 
 <template>
   <div class="container py-3">
-    <PhotoCard
-      :url="storeProfile.dataProfile.url"
-      :param="['image', storeProfile.dataResume.resume.id]"
-      :func="storeProfile.dataProfile.submitFile"
-    />
-
+    <PhotoCard />
+    
     <HeaderDiv :page-header="storeProfile.dataResume.resume['fullname']" />
 
     <div v-if="!printPage" class="nav nav-tabs nav-justified" role="tablist">

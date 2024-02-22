@@ -137,7 +137,7 @@ const userForm = ref({
           name="cancel"
           type="button"
           data-bs-dismiss="modal"
-          @click="emit("deactivate")"
+          @click="emit('deactivate')"
         >
           Отмена
         </button>

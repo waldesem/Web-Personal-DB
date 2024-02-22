@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
-import { profileStore } from "@/store/profile";
-import { clearForm } from "@utilities/utils";
+import { defineAsyncComponent, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@/utilities/utils";
+import { router } from "@/router/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -11,13 +12,41 @@ const ResumeForm = defineAsyncComponent(
   () => import("@components/forms/ResumeForm.vue")
 );
 
-const storeProfile = profileStore();
-storeProfile.dataProfile.action = "create";
+const storeAuth = authStore();
+const storeAlert = alertStore();
 
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  clearForm(storeProfile.dataProfile.form);
-  next();
-});
+const dataJson = ref({
+  formData: new FormData(),
+
+  submitFile: async function (
+    event: Event,
+  ): Promise<void> {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement && inputElement.files && inputElement.files.length > 0) {
+      this.formData.append("file", inputElement.files[0]);
+      try {
+        const response = await storeAuth.axiosInstance.post(
+          `${server}/file/anketa`,
+          this.formData
+        );
+        const { message } = response.data;
+        router.push({ name: "profile", params: { id: message } });
+
+        storeAlert.alertMessage.setAlert(
+          "alert-success",
+          "Файл успешно загружен"
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      storeAlert.alertMessage.setAlert(
+        "alert-warning",
+        "Ошибка при загрузке файла"
+      );
+    }
+  },
+})
 </script>
 
 <template>
@@ -27,7 +56,7 @@ onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
       class="form form-check"
       enctype="multipart/form-data"
       role="form"
-      @change="storeProfile.dataProfile.submitFile($event, 'anketa')"
+      @change="dataJson.submitFile($event)"
     >
       <div class="mb-3 row">
         <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>

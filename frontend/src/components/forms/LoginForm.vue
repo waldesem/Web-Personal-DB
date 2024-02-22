@@ -4,7 +4,7 @@ import { defineAsyncComponent, ref } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
-import router from "@/router/router";
+import { router } from "@/router/router";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
