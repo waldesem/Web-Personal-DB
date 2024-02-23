@@ -4,15 +4,12 @@ import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
-import { router } from "@/router/router";
 
 export const profileStore = defineStore("profileStore", () => {
   const storeAuth = authStore();
   const storeAlert = alertStore();
   const classifyApp = classifyStore();
 
-
-  
   interface Verification {
     id: string;
     workplace: string;
@@ -37,20 +34,7 @@ export const profileStore = defineStore("profileStore", () => {
     officer: string;
   };
   
-  interface Robot {
-    id: string;
-    employee: string;
-    document: string;
-    inn: string;
-    debt: string;
-    bankruptcy: string;
-    bki: string;
-    courts: string;
-    affiliation: string;
-    terrorist: string;
-    mvd: string;
-    deadline: string;
-  };
+
   
   interface Pfo {
     id: string;

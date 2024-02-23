@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
@@ -27,12 +27,48 @@ const props = defineProps({
   action: String,
   resume: {
     type: Object as () => Record<string, any>,
-    default: () => {},
+    default: {},
   },
   getItem: {
     type: Function,
-    required: true,
+    default: () => {},
   },
+});
+
+const resumeForm = ref({
+  form: <Record<string, any>>{},
+
+  submitResume: async function (): Promise<void> {
+    try {
+      const response =
+        props.action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/resume`,
+              this.form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/resume/${props.candId}`,
+              this.form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      props.getItem();
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
+    }
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
 });
 
 const select_items = {
@@ -44,7 +80,7 @@ const select_items = {
 <template>
   <div class="py-3">
     <form
-      @submit.prevent="storeProfile.dataProfile.submitResume"
+      @submit.prevent="resumeForm.submitResume"
       class="form form-check"
       role="form"
     >
@@ -53,26 +89,26 @@ const select_items = {
         :label="'Категория'"
         :select="select_items"
         @input-event="
-          storeProfile.dataProfile.form['category'] = $event.target.value
+          resumeForm.form['category'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['category']"
+        :model="props.resume['category']"
       />
       <InputLabel
         :isneed="true"
         :name="'fullname'"
         :label="'Полное ФИО*'"
         @input-event="
-          storeProfile.dataProfile.form['fullname'] = $event.target.value
+          resumeForm.form['fullname'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['fullname'].toUpperCase()"
+        :model="props.resume['fullname'].toUpperCase()"
       />
       <TextLabel
         :name="'previous'"
         :label="'Изменение имени'"
         @input-event="
-          storeProfile.dataProfile.form['previous'] = $event.target.value
+          resumeForm.form['previous'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['previous']"
+        :model="props.resume['previous']"
       />
       <InputLabel
         :isneed="true"
@@ -80,44 +116,44 @@ const select_items = {
         :label="'Дата рождения*'"
         :typeof="'date'"
         @input-event="
-          storeProfile.dataProfile.form['birthday'] = $event.target.value
+          resumeForm.form['birthday'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['previous']"
+        :model="props.resume['previous']"
       />
       <TextLabel
         :name="'birthplace'"
         :label="'Место рождения'"
         @input-event="
-          storeProfile.dataProfile.form['birthplace'] = $event.target.value
+          resumeForm.form['birthplace'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['birthplace']"
+        :model="props.resume['birthplace']"
       />
       <InputLabel
         :name="'country'"
         :label="'Гражданство'"
         :max="'255'"
         @input-event="
-          storeProfile.dataProfile.form['country'] = $event.target.value
+          resumeForm.form['country'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['country']"
+        :model="props.resume['country']"
       />
       <InputLabel
         :name="'ext_country'"
         :label="'Двойное гражданство'"
         :max="'255'"
         @input-event="
-          storeProfile.dataProfile.form['ext_country'] = $event.target.value
+          resumeForm.form['ext_country'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['ext_country']"
+        :model="props.resume['ext_country']"
       />
       <InputLabel
         :name="'snils'"
         :label="'СНИЛС'"
         :pattern="'[0-9]{11}'"
         @input-event="
-          storeProfile.dataProfile.form['snils'] = $event.target.value
+          resumeForm.form['snils'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['snils']"
+        :model="props.resume['snils']"
       />
       <InputLabel
         :name="'inn'"
@@ -125,41 +161,41 @@ const select_items = {
         :max="'12'"
         :pattern="'[0-9]{12}'"
         @input-event="
-          storeProfile.dataProfile.form['inn'] = $event.target.value
+          resumeForm.form['inn'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['inn']"
+        :model="props.resume['inn']"
       />
       <TextLabel
         :name="'education'"
         :label="'Образование'"
         @input-event="
-          storeProfile.dataProfile.form['education'] = $event.target.value
+          resumeForm.form['education'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['education']"
+        :model="props.resume['education']"
       />
       <InputLabel
         :name="'marital'"
         :label="'Семейнное положение'"
         :max="'255'"
         @input-event="
-          storeProfile.dataProfile.form['marital'] = $event.target.value
+          resumeForm.form['marital'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['marital']"
+        :model="props.resume['marital']"
       />
       <TextLabel
         :name="'addition'"
         :label="'Дополнительно'"
         @input-event="
-          storeProfile.dataProfile.form['addition'] = $event.target.value
+          resumeForm.form['addition'] = $event.target.value
         "
-        :model="storeProfile.dataProfile.form['addition']"
+        :model="props.resume['addition']"
       />
 
       <BtnGroupForm>
         <button class="btn btn-outline-primary" type="submit">Принять</button>
         <button class="btn btn-outline-primary" type="reset">Очистить</button>
         <router-link
-          v-if="storeProfile.dataProfile.action !== 'update'"
+          v-if="props.action === 'create'"
           class="btn btn-outline-primary"
           type="button"
           :to="{ name: 'persons', params: { group: 'staffsec' } }"
@@ -170,7 +206,7 @@ const select_items = {
           v-else
           class="btn btn-outline-primary"
           type="button"
-          @click="storeProfile.dataProfile.cancelEdit"
+          @click="emit('deactivate')"
         >
           Отмена
         </button>

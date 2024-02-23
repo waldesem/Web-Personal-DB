@@ -33,7 +33,59 @@ const storeProfile = profileStore();
           :idx="idx"
           :label="'Расследование #' + (idx + 1)"
         >
-          <InvestigateDiv :item="item" />
+          <RowDivSlot :slotTwo="true" :print="true">
+            <template v-slot:divTwo>
+              <a
+                href="#"
+                title="Удалить"
+                @click="
+                  storeProfile.dataProfile.deleteItem(
+                    props.item['id'].toString(),
+                    'investigation'
+                  )
+                "
+              >
+                <i class="bi bi-trash"></i> </a
+              >&nbsp; &nbsp; &nbsp;
+              <a
+                href="#"
+                title="Изменить"
+                @click="
+                  storeProfile.dataProfile.openForm(
+                    'investigation',
+                    'update',
+                    props.item['id'].toString(),
+                    props.item
+                  )
+                "
+              >
+                <i class="bi bi-pencil-square"></i>
+              </a>
+            </template>
+          </RowDivSlot>
+          <RowDivSlot :label="'Тема'" :value="props.item['theme']" />
+          <RowDivSlot :label="'Информация'" :value="props.item['info']" />
+          <RowDivSlot :label="'Сотрудник'" :value="props.item['officer']" />
+          <RowDivSlot
+            :label="'Дата'"
+            :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
+          />
+          <RowDivSlot :slotOne="true">
+            <form
+              class="form"
+              enctype="multipart/form-data"
+              role="form"
+              @change="
+                storeProfile.dataProfile.submitFile(
+                  $event,
+                  'investigation',
+                  props.item['id'].toString()
+                )
+              "
+            >
+              <input class="form-control" id="file" type="file" ref="file" multiple />
+            </form>
+          </RowDivSlot>
         </CollapseDiv>
       </div>
       <p v-else>Данные отсутствуют</p>
