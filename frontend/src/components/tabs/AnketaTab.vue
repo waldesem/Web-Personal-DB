@@ -78,12 +78,12 @@ const dataResume = ref({
       if (!confirm("Вы действительно хотите изменить статус резюме?")) {
         return;
       }
-    };
+    }
     if (action === "send") {
       if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
         return;
       }
-    };
+    }
     try {
       const response = await storeAuth.axiosInstance.get(
         `${server}/resume/${candId}`,
@@ -165,7 +165,7 @@ const dataResume = ref({
         :cand-id="candId"
         :content="dataResume.resume"
         @deactivate="dataResume.deactivateForm"
-    />/>
+      />
     </template>
 
     <template v-else>
@@ -175,35 +175,67 @@ const dataResume = ref({
             <a
               class="btn btn-link"
               title="Изменить"
-              @click="dataResume.item = 'update'">
+              @click="dataResume.item = 'update'"
+            >
               <i class="bi bi-pencil-square"></i>
             </a>
           </template>
         </RowDivSlot>
-        <RowDivSlot :label="'Категория'" :value="storeClassify.classData.category[
-          dataResume.resume['category_id']
-          ]
-          " />
-        <RowDivSlot :label="'Регион'" :value="storeClassify.classData.regions[
-          dataResume.resume['region_id']
-        ]" />
-        <RowDivSlot :label="'Фамилия Имя Отчество'" :value="dataResume.resume['fullname']" />
-        <RowDivSlot :label="'Изменение имени'" :value="dataResume.resume['previous']" />
-        <RowDivSlot :label="'Дата рождения'" :value="dataResume.resume['birthday']" />
-        <RowDivSlot :label="'Место рождения'" :value="dataResume.resume['birthplace']" />
-        <RowDivSlot :label="'Гражданство'" :value="dataResume.resume['country']" />
-        <RowDivSlot :label="'Второе гражданство'" :value="dataResume.resume['ext_country']" />
+        <RowDivSlot
+          :label="'Категория'"
+          :value="
+            storeClassify.classData.category[dataResume.resume['category_id']]
+          "
+        />
+        <RowDivSlot
+          :label="'Регион'"
+          :value="
+            storeClassify.classData.regions[dataResume.resume['region_id']]
+          "
+        />
+        <RowDivSlot
+          :label="'Фамилия Имя Отчество'"
+          :value="dataResume.resume['fullname']"
+        />
+        <RowDivSlot
+          :label="'Изменение имени'"
+          :value="dataResume.resume['previous']"
+        />
+        <RowDivSlot
+          :label="'Дата рождения'"
+          :value="dataResume.resume['birthday']"
+        />
+        <RowDivSlot
+          :label="'Место рождения'"
+          :value="dataResume.resume['birthplace']"
+        />
+        <RowDivSlot
+          :label="'Гражданство'"
+          :value="dataResume.resume['country']"
+        />
+        <RowDivSlot
+          :label="'Второе гражданство'"
+          :value="dataResume.resume['ext_country']"
+        />
         <RowDivSlot :label="'СНИЛС'" :value="dataResume.resume['snils']" />
         <RowDivSlot :label="'ИНН'" :value="dataResume.resume['inn']" />
-        <RowDivSlot :label="'Образование'" :value="dataResume.resume['education']" />
-        <RowDivSlot :label="'Дополнительная информация'" :value="dataResume.resume['addition']" />
+        <RowDivSlot
+          :label="'Образование'"
+          :value="dataResume.resume['education']"
+        />
+        <RowDivSlot
+          :label="'Дополнительная информация'"
+          :value="dataResume.resume['addition']"
+        />
         <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
           <template v-slot:divTwo>
-            <router-link :to="{
-              name: 'manager',
-              params: { group: 'staffsec' },
-              query: { path: dataResume.resume['path'].split('/') },
-            }">
+            <router-link
+              :to="{
+                name: 'manager',
+                params: { group: 'staffsec' },
+                query: { path: dataResume.resume['path'].split('/') },
+              }"
+            >
               {{ dataResume.resume["path"] }}
             </router-link>
           </template>
@@ -212,26 +244,34 @@ const dataResume = ref({
           <template v-slot:divTwo>
             <a href="#" @click="dataResume.getResume('status')">
               {{
-                storeClassify.classData.status[
-                  dataResume.resume["status_id"]
-                ]
+                storeClassify.classData.status[dataResume.resume["status_id"]]
               }}
             </a>
           </template>
         </RowDivSlot>
-        <RowDivSlot :label="'Создан'" :value="new Date(
-          String(dataResume.resume['created'])
-        ).toLocaleDateString('ru-RU')
-          " />
-        <RowDivSlot :label="'Обновлен'" :value="new Date(
-          String(dataResume.resume['updated'])
-        ).toLocaleDateString('ru-RU')
-          " />
-        <RowDivSlot :label="'Внешний ID'" :value="dataResume.resume['request_id']" />
+        <RowDivSlot
+          :label="'Создан'"
+          :value="
+            new Date(String(dataResume.resume['created'])).toLocaleDateString(
+              'ru-RU'
+            )
+          "
+        />
+        <RowDivSlot
+          :label="'Обновлен'"
+          :value="
+            new Date(String(dataResume.resume['updated'])).toLocaleDateString(
+              'ru-RU'
+            )
+          "
+        />
+        <RowDivSlot
+          :label="'Внешний ID'"
+          :value="dataResume.resume['request_id']"
+        />
       </div>
       <p v-else>Данные отсутствуют</p>
     </template>
-
 
     <StaffDiv />
     <DocumentDiv />
@@ -243,23 +283,35 @@ const dataResume = ref({
 
     <div class="d-print-none py-3">
       <div class="btn-group" role="group">
-        <button class="btn btn-outline-primary" :disabled="(storeClassify.classData.status[
-          dataResume.resume['status_id']
-        ] !== 'new' &&
-          storeClassify.classData.status[
-          dataResume.resume['status_id']
-          ] !== 'update' &&
-          storeClassify.classData.status[
-          dataResume.resume['status_id']
-          ] !== 'repeat') ||
-          dataResume.spinner" @click="dataResume.getResume('send')">
+        <button
+          class="btn btn-outline-primary"
+          :disabled="
+            (storeClassify.classData.status[dataResume.resume['status_id']] !==
+              'new' &&
+              storeClassify.classData.status[dataResume.resume['status_id']] !==
+                'update' &&
+              storeClassify.classData.status[dataResume.resume['status_id']] !==
+                'repeat') ||
+            dataResume.spinner
+          "
+          @click="dataResume.getResume('send')"
+        >
           {{ !dataResume.spinner ? "Отправить на проверку" : "" }}
-          <span v-if="dataResume.spinner" class="spinner-border spinner-border-sm"></span>
+          <span
+            v-if="dataResume.spinner"
+            class="spinner-border spinner-border-sm"
+          ></span>
           <span v-if="dataResume.spinner" role="status">Отправляется...</span>
         </button>
-        <button type="button" class="btn btn-outline-danger" :disabled="storeClassify.classData.status[
-          dataResume.resume['status_id']
-        ] === 'finish' || dataResume.spinner" @click="dataResume.deleteResume">
+        <button
+          type="button"
+          class="btn btn-outline-danger"
+          :disabled="
+            storeClassify.classData.status[dataResume.resume['status_id']] ===
+              'finish' || dataResume.spinner
+          "
+          @click="dataResume.deleteResume"
+        >
           Удалить анкету
         </button>
       </div>

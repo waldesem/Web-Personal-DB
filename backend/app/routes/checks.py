@@ -37,23 +37,7 @@ class CheckView(MethodView):
     decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
-    @bp.input(ActionSchema, location="query")
-    def get(self, item_id, query_data):
-        action = query_data.get("action")
-        if action == "self":
-            person = db.session.get(Person, item_id)
-            if person.user_id != current_user.id:
-                db.session.add(
-                    Message(
-                        message=f"Aнкета ID #{id} делегирована " 
-                        f"{current_user.fullname}",
-                        user_id=person.user_id,
-                    )
-                )
-                person.user_id = current_user.id
-                db.session.commit()
-                return {"message": "self"}, 201
-            
+    def get(self, item_id):
         return CheckSchema().dump(
             db.session.execute(
                 select(Check)

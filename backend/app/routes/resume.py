@@ -17,6 +17,7 @@ from ..utils.folders import create_folders
 from .login import roles_required, group_required
 from ..models.classes import Roles, Groups, Statuses
 from ..models.model import (
+    Message,
     Person,
     Document,
     Address,
@@ -46,7 +47,19 @@ class ResumeView(MethodView):
                 person.status_id = Status.get_id(Statuses.update.value)
                 db.session.commit()
                 return self.get(person_id), 201
-
+            
+            if action == "self":
+                if person.user_id and person.user_id != current_user.id:
+                    db.session.add(
+                        Message(
+                            message=f"Aнкета ID #{person_id} делегирована " 
+                            f"{current_user.fullname}",
+                            user_id=person.user_id,
+                        )
+                    )
+                    person.user_id = current_user.id
+                    db.session.commit()
+                    return {"message": "self"}, 201
             elif action == "send":
                 if person.has_status(
                     Statuses.new.value,
