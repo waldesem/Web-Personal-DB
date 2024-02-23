@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@utilities/utils";
 
 const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
@@ -14,8 +16,24 @@ const TextLabel = defineAsyncComponent(
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
+const storeAuth = authStore();
+const storeAlert = alertStore();
 
-const storeProfile = profileStore();
+const emit = defineEmits(["deactivate"]);
+
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  resume: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+});
 
 const select_items = {
   candidate: "Кандидат",

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { defineAsyncComponent, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@utilities/utils";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
@@ -12,60 +14,112 @@ const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const storeProfile = profileStore();
+const storeAuth = authStore();
+const storeAlert = alertStore();
 
-const selected_item = {
-  passport: "Паспорт гражданина России",
-  foreign: "Иностранный докумен",
-  others: "Другое",
-};
+const emit = defineEmits(["deactivate"]);
+
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  docs: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+const docForm = ref({
+  form: <Record<string, any>>{},
+  selected_item: {
+    passport: "Паспорт гражданина России",
+    foreign: "Иностранный докумен",
+    others: "Другое",
+  },
+
+  updateItem: async function (): Promise<void> {
+    try {
+      const response =
+        props.action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/document/${props.candId}`,
+              this.form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/document/${props.itemId}`,
+              this.form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      props.getItem();
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
+    }
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="docForm.updateItem"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="'view'"
       :label="'Выбрать'"
-      :select="selected_item"
-      :model="storeProfile.dataProfile.form['view']"
-      @input-event="storeProfile.dataProfile.form['view'] = $event.target.value"
+      :select="docForm.selected_item"
+      :model="props.docs['view']"
+      @input-event="docForm.form['view'] = $event.target.value"
     />
     <InputLabel
       :name="'series'"
       :label="'Серия документа'"
-      :model="storeProfile.dataProfile.form['series']"
+      :model="props.docs['series']"
       @input-event="
-        storeProfile.dataProfile.form['series'] = $event.target.value
+        docForm.form['series'] = $event.target.value
       "
     />
     <InputLabel
       :name="'number'"
       :label="'Номер документа'"
       :need="true"
-      :model="storeProfile.dataProfile.form['number']"
+      :model="props.docs['number']"
       @input-event="
-        storeProfile.dataProfile.form['number'] = $event.target.value
+        docForm.form['number'] = $event.target.value
       "
     />
     <InputLabel
       :name="'agency'"
       :label="'Орган выдавший'"
-      :model="storeProfile.dataProfile.form['agency']"
+      :model="props.docs['agency']"
       @input-event="
-        storeProfile.dataProfile.form['agency'] = $event.target.value
+        docForm.form['agency'] = $event.target.value
       "
     />
     <InputLabel
       :name="'issue'"
       :label="'Дата выдачи'"
       :typeof="'date'"
-      :model="storeProfile.dataProfile.form['issue']"
+      :model="props.docs['issue']"
       @input-event="
-        storeProfile.dataProfile.form['issue'] = $event.target.value
+        docForm.form['issue'] = $event.target.value
       "
     />
     <BtnGroupForm>

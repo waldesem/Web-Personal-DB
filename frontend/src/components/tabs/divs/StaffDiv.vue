@@ -30,16 +30,17 @@ onBeforeMount(() => {
 
 const staff = ref({
   action: "",
+  isForm: false,
   itemId: "",
   item: <Staff>{},
-  staffs: Array<Staff>(),
+  items: Array<Staff>(),
 
   getItem: async function (): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(
         `${server}/staff/${candId}`
       );
-      this.staffs = response.data;
+      this.items = response.data;
     } catch (error) {
       console.error(error);
       storeAlert.alertMessage.setAlert(
@@ -68,6 +69,7 @@ const staff = ref({
   },
 
   deactivateForm: function () {
+    this.isForm = false;
     this.action = "";
   },
 });
@@ -78,15 +80,17 @@ const staff = ref({
     Должности
     <a
       class="btn btn-link"
-      @click="staff.action = 'create'"
-      :title="staff.action !== '' ? 'Закрыть форму' : 'Добавить информацию'"
+      @click="
+        staff.isForm = !staff.isForm;
+        staff.action = staff.isForm ? 'create' : '';"
+      :title="staff.isForm ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="staff.action !== '' ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="staff.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="staff.action !== ''">
+  <template v-if="staff.isForm">
     <StaffForm
       :get-item="staff.getItem"
       :action="staff.action"
@@ -96,9 +100,9 @@ const staff = ref({
     />
   </template>
   <template v-else>
-    <div v-if="staff.staffs.length > 0">
+    <div v-if="staff.items.length > 0">
       <CollapseDiv
-        v-for="(item, idx) in staff.staffs"
+        v-for="(item, idx) in staff.items"
         :key="idx"
         :id="'staff' + idx"
         :idx="idx"
@@ -117,6 +121,7 @@ const staff = ref({
               class="btn btn-link"
               title="Изменить"
               @click="
+                staff.isForm = true;
                 staff.action = 'update';
                 staff.item = item;
                 staff.itemId = item['id'].toString();
@@ -133,4 +138,3 @@ const staff = ref({
     <p v-else>Данные отсутствуют</p>
   </template>
 </template>
-@/utilities/token

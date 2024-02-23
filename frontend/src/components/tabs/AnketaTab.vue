@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { ref, defineAsyncComponent, inject, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
-import { clearForm } from "@utilities/utils";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@utilities/utils";
+import { router } from "@/router/router";
 
-const SwitchBtnForm = defineAsyncComponent(
-  () => import("@components/elements/SwitchBtnForm.vue")
-);
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/elements/CollapseDiv.vue")
-);
-const ResumeDiv = defineAsyncComponent(
-  () => import("@components/tabs/divs/ResumeDiv.vue")
+const ResumeForm = defineAsyncComponent(
+  () => import("@components/forms/ResumeForm.vue")
 );
 const StaffDiv = defineAsyncComponent(
   () => import("@components/tabs/divs/StaffDiv.vue")
@@ -34,261 +30,236 @@ const WorkplaceDiv = defineAsyncComponent(
 const AffilationDiv = defineAsyncComponent(
   () => import("@components/tabs/divs/AffilationDiv.vue")
 );
-const ResumeForm = defineAsyncComponent(
-  () => import("@components/forms/ResumeForm.vue")
-);
-const DocumentForm = defineAsyncComponent(
-  () => import("@components/forms/DocumentForm.vue")
-);
-const AddressForm = defineAsyncComponent(
-  () => import("@components/forms/AddressForm.vue")
-);
-const ContactForm = defineAsyncComponent(
-  () => import("@components/forms/ContactForm.vue")
-);
-const RelationForm = defineAsyncComponent(
-  () => import("@components/forms/RelationForm.vue")
-);
-const WorkplaceForm = defineAsyncComponent(
-  () => import("@components/forms/WorkplaceForm.vue")
-);
-const AffilationForm = defineAsyncComponent(
-  () => import("@components/forms/AffilationForm.vue")
+const RowDivSlot = defineAsyncComponent(
+  () => import("@components/elements/RowDivSlot.vue")
 );
 
-const storeProfile = profileStore();
 const storeClassify = classifyStore();
+const storeAuth = authStore();
+const storeAlert = alertStore();
 
-const hiddenSendBtn = ref(false);
-const hiddenDelBtn = ref(false);
-
-hiddenSendBtn.value =
-  (storeClassify.classData.status[
-    storeProfile.dataResume.resume["status_id"]
-  ] !== "new" &&
-    storeClassify.classData.status[
-      storeProfile.dataResume.resume["status_id"]
-    ] !== "update" &&
-    storeClassify.classData.status[
-      storeProfile.dataResume.resume["status_id"]
-    ] !== "repeat") ||
-  storeProfile.dataProfile.spinner;
-
-hiddenDelBtn.value =
-  storeClassify.classData.status[
-    storeProfile.dataResume.resume["status_id"]
-  ] === "finish" || storeProfile.dataProfile.spinner;
-
-function switchForm(item: string) {
-  storeProfile.dataProfile.item === item
-    ? (storeProfile.dataProfile.item = "")
-    : (storeProfile.dataProfile.item = item);
-
-  storeProfile.dataProfile.item === item
-    ? (storeProfile.dataProfile.action = "create")
-    : (storeProfile.dataProfile.action = "");
-
-  clearForm(storeProfile.dataProfile.form);
+interface Resume {
+  id: string;
+  category_id: string;
+  region_id: string;
+  fullname: string;
+  previous: string;
+  birthday: string;
+  birthplace: string;
+  country: string;
+  ext_country: string;
+  snils: string;
+  inn: string;
+  education: string;
+  marital: string;
+  addition: string;
+  path: string;
+  status_id: string;
+  created: string;
+  updated: string;
+  request_id: string;
 }
+
+const candId = inject("candId") as string;
+
+onBeforeMount(() => {
+  dataResume.value.getResume();
+});
+
+const dataResume = ref({
+  resume: <Resume>{},
+  action: "",
+  item: "",
+  spinner: false,
+  form: <Record<string, any>>{},
+
+  getResume: async function (action = "view"): Promise<void> {
+    if (action === "status") {
+      if (!confirm("Вы действительно хотите изменить статус резюме?")) {
+        return;
+      }
+    };
+    if (action === "send") {
+      if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
+        return;
+      }
+    };
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/resume/${candId}`,
+        {
+          params: {
+            action: action,
+          },
+        }
+      );
+      this.resume = response.data;
+
+      if (action === "status") {
+        storeAlert.alertMessage.setAlert(
+          "alert-info",
+          "Статус анкеты обновлен"
+        );
+      }
+      if (action === "send") {
+        storeAlert.alertMessage.setAlert(
+          "alert-success",
+          "Анкета отправлена на проверку"
+        );
+        this.spinner = false;
+        window.scrollTo(0, 0);
+      }
+    } catch (error) {
+      console.error(error);
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Ошибка обработки ${error}`
+      );
+    }
+  },
+
+  deleteResume: async function (): Promise<void> {
+    if (
+      ["robot", "finish"].includes(
+        storeClassify.classData.status[this.resume["status_id"]]
+      )
+    ) {
+      storeAlert.alertMessage.setAlert(
+        "alert-warning",
+        "Нельзя удалить запись с текущим статусом"
+      );
+      return;
+    }
+
+    if (confirm(`Вы действительно хотите удалить анкету?`)) {
+      try {
+        const response = await storeAuth.axiosInstance.delete(
+          `${server}/resume`
+        );
+        console.log(response.status);
+        router.push({ name: "persons", params: { group: "staffsec" } });
+
+        storeAlert.alertMessage.setAlert(
+          "alert-info",
+          `Запись с ID ${candId} удалена`
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  },
+
+  deactivateForm: function () {
+    this.action = "";
+    this.item = "";
+  },
+});
 </script>
 
 <template>
   <div class="py-3">
-    <template
-      v-if="
-        storeProfile.dataProfile.item === 'resume' &&
-        storeProfile.dataProfile.action === 'update'
-      "
-    >
-      <ResumeForm />
+    <template v-if="dataResume.item === 'resume'">
+      <ResumeForm
+        :get-item="dataResume.getResume"
+        :action="dataResume.action"
+        :cand-id="candId"
+        :content="dataResume.resume"
+        @deactivate="dataResume.deactivateForm"
+    />/>
     </template>
 
     <template v-else>
-      <RegionForm />
-      <ResumeDiv v-if="storeProfile.dataResume.resume" />
+      <div v-if="dataResume.resume">
+        <RowDivSlot :slotTwo="true" :print="true">
+          <template v-slot:divTwo>
+            <a
+              class="btn btn-link"
+              title="Изменить"
+              @click="dataResume.item = 'update'">
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </template>
+        </RowDivSlot>
+        <RowDivSlot :label="'Категория'" :value="storeClassify.classData.category[
+          dataResume.resume['category_id']
+          ]
+          " />
+        <RowDivSlot :label="'Регион'" :value="storeClassify.classData.regions[
+          dataResume.resume['region_id']
+        ]" />
+        <RowDivSlot :label="'Фамилия Имя Отчество'" :value="dataResume.resume['fullname']" />
+        <RowDivSlot :label="'Изменение имени'" :value="dataResume.resume['previous']" />
+        <RowDivSlot :label="'Дата рождения'" :value="dataResume.resume['birthday']" />
+        <RowDivSlot :label="'Место рождения'" :value="dataResume.resume['birthplace']" />
+        <RowDivSlot :label="'Гражданство'" :value="dataResume.resume['country']" />
+        <RowDivSlot :label="'Второе гражданство'" :value="dataResume.resume['ext_country']" />
+        <RowDivSlot :label="'СНИЛС'" :value="dataResume.resume['snils']" />
+        <RowDivSlot :label="'ИНН'" :value="dataResume.resume['inn']" />
+        <RowDivSlot :label="'Образование'" :value="dataResume.resume['education']" />
+        <RowDivSlot :label="'Дополнительная информация'" :value="dataResume.resume['addition']" />
+        <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
+          <template v-slot:divTwo>
+            <router-link :to="{
+              name: 'manager',
+              params: { group: 'staffsec' },
+              query: { path: dataResume.resume['path'].split('/') },
+            }">
+              {{ dataResume.resume["path"] }}
+            </router-link>
+          </template>
+        </RowDivSlot>
+        <RowDivSlot :label="'Статус'" :slotTwo="true">
+          <template v-slot:divTwo>
+            <a href="#" @click="dataResume.getResume('status')">
+              {{
+                storeClassify.classData.status[
+                  dataResume.resume["status_id"]
+                ]
+              }}
+            </a>
+          </template>
+        </RowDivSlot>
+        <RowDivSlot :label="'Создан'" :value="new Date(
+          String(dataResume.resume['created'])
+        ).toLocaleDateString('ru-RU')
+          " />
+        <RowDivSlot :label="'Обновлен'" :value="new Date(
+          String(dataResume.resume['updated'])
+        ).toLocaleDateString('ru-RU')
+          " />
+        <RowDivSlot :label="'Внешний ID'" :value="dataResume.resume['request_id']" />
+      </div>
       <p v-else>Данные отсутствуют</p>
     </template>
+
 
     <StaffDiv />
-
-    <h6>
-      Документы
-      <SwitchBtnForm
-        :item="'document'"
-        :switchForm="switchForm"
-        :subj="storeProfile.dataProfile.item"
-      />
-    </h6>
-    <template v-if="storeProfile.dataProfile.item === 'document'">
-      <DocumentForm />
-    </template>
-    <template v-else>
-      <div v-if="storeProfile.dataAnketa.docums.length">
-        <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataAnketa.docums"
-          :key="idx"
-          :id="'docum' + idx"
-          :idx="idx"
-          :label="'Документ #' + (idx + 1)"
-        >
-          <DocumentDiv :item="item" />
-        </CollapseDiv>
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
-
-    <h6>
-      Адреса
-      <SwitchBtnForm
-        :item="'address'"
-        :switchForm="switchForm"
-        :subj="storeProfile.dataProfile.item"
-      />
-    </h6>
-    <template v-if="storeProfile.dataProfile.item === 'address'">
-      <AddressForm />
-    </template>
-    <template v-else>
-      <div v-if="storeProfile.dataAnketa.addrs.length">
-        <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataAnketa.addrs"
-          :key="idx"
-          :id="'addr' + idx"
-          :idx="idx"
-          :label="'Адрес #' + (idx + 1)"
-        >
-          <AddressDiv :item="item" />
-        </CollapseDiv>
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
-
-    <h6>
-      Контакты
-      <SwitchBtnForm
-        :item="'contact'"
-        :switchForm="switchForm"
-        :subj="storeProfile.dataProfile.item"
-      />
-    </h6>
-    <template v-if="storeProfile.dataProfile.item === 'contact'">
-      <ContactForm />
-    </template>
-    <template v-else>
-      <div v-if="storeProfile.dataAnketa.conts.length">
-        <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataAnketa.conts"
-          :key="idx"
-          :id="'cont' + idx"
-          :idx="idx"
-          :label="'Контакт #' + (idx + 1)"
-        >
-          <ContactDiv :item="item" />
-        </CollapseDiv>
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
-
-    <h6>
-      Работа
-      <SwitchBtnForm
-        :item="'workplace'"
-        :switchForm="switchForm"
-        :subj="storeProfile.dataProfile.item"
-      />
-    </h6>
-    <template v-if="storeProfile.dataProfile.item === 'workplace'">
-      <WorkplaceForm />
-    </template>
-    <template v-else>
-      <div v-if="storeProfile.dataAnketa.works.length">
-        <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataAnketa.works"
-          :key="idx"
-          :id="'work' + idx"
-          :idx="idx"
-          :label="'Работа #' + (idx + 1)"
-        >
-          <WorkplaceDiv :item="item" />
-        </CollapseDiv>
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
-
-    <h6>
-      Аффилированность
-      <SwitchBtnForm
-        :item="'affilation'"
-        :switchForm="switchForm"
-        :subj="storeProfile.dataProfile.item"
-      />
-    </h6>
-    <template v-if="storeProfile.dataProfile.item === 'affilation'">
-      <AffilationForm />
-    </template>
-    <template v-else>
-      <div v-if="storeProfile.dataAnketa.affilation.length">
-        <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataAnketa.affilation"
-          :key="idx"
-          :id="'affil' + idx"
-          :idx="idx"
-          :label="'Аффилированность #' + (idx + 1)"
-        >
-          <AffilationDiv :item="item" />
-        </CollapseDiv>
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
-
-    <h6>
-      Связи
-      <SwitchBtnForm
-        :item="'relation'"
-        :switchForm="switchForm"
-        :subj="storeProfile.dataProfile.item"
-      />
-    </h6>
-    <template v-if="storeProfile.dataProfile.item === 'relation'">
-      <RelationForm />
-    </template>
-    <template v-else>
-      <div v-if="storeProfile.dataAnketa.relate.length">
-        <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataAnketa.relate"
-          :key="idx"
-          :id="'relate' + idx"
-          :idx="idx"
-          :label="'Связь #' + (idx + 1)"
-        >
-          <RelationDiv :item="item" />
-        </CollapseDiv>
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
+    <DocumentDiv />
+    <AddressDiv />
+    <ContactDiv />
+    <RelationDiv />
+    <WorkplaceDiv />
+    <AffilationDiv />
 
     <div class="d-print-none py-3">
       <div class="btn-group" role="group">
-        <button
-          class="btn btn-outline-primary"
-          :disabled="hiddenSendBtn"
-          @click="storeProfile.dataResume.getResume('send')"
-        >
-          {{ !storeProfile.dataProfile.spinner ? "Отправить на проверку" : "" }}
-          <span
-            v-if="storeProfile.dataProfile.spinner"
-            class="spinner-border spinner-border-sm"
-          ></span>
-          <span v-if="storeProfile.dataProfile.spinner" role="status"
-            >Отправляется...</span
-          >
+        <button class="btn btn-outline-primary" :disabled="(storeClassify.classData.status[
+          dataResume.resume['status_id']
+        ] !== 'new' &&
+          storeClassify.classData.status[
+          dataResume.resume['status_id']
+          ] !== 'update' &&
+          storeClassify.classData.status[
+          dataResume.resume['status_id']
+          ] !== 'repeat') ||
+          dataResume.spinner" @click="dataResume.getResume('send')">
+          {{ !dataResume.spinner ? "Отправить на проверку" : "" }}
+          <span v-if="dataResume.spinner" class="spinner-border spinner-border-sm"></span>
+          <span v-if="dataResume.spinner" role="status">Отправляется...</span>
         </button>
-        <button
-          type="button"
-          class="btn btn-outline-danger"
-          :disabled="hiddenDelBtn"
-          @click="storeProfile.dataResume.deleteResume"
-        >
+        <button type="button" class="btn btn-outline-danger" :disabled="storeClassify.classData.status[
+          dataResume.resume['status_id']
+        ] === 'finish' || dataResume.spinner" @click="dataResume.deleteResume">
           Удалить анкету
         </button>
       </div>

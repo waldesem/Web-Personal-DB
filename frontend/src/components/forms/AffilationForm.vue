@@ -1,62 +1,113 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { defineAsyncComponent, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@utilities/utils";
 
-const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
-);
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
+const TextLabel = defineAsyncComponent(
+  () => import("@components/elements/TextLabel.vue")
 );
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const storeProfile = profileStore();
+const storeAuth = authStore();
+const storeAlert = alertStore();
 
-const selected_item = {
-  state: "Являлся государственным/муниципальным служащим",
-  official: "Являлся государственным должностным лицом",
-  relatives: "Связанные лица работают в государственных организациях",
-  commercial: "Участвует в деятельности коммерческих организаций",
-};
+const emit = defineEmits(["deactivate"]);
+
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  affils: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+const affilationForm = ref({
+  form: <Record<string, any>>{},
+  selected_item: {
+    state: "Являлся государственным/муниципальным служащим",
+    official: "Являлся государственным должностным лицом",
+    relatives: "Связанные лица работают в государственных организациях",
+    commercial: "Участвует в деятельности коммерческих организаций",
+  },
+
+  updateItem: async function (): Promise<void> {
+    try {
+      const response =
+        props.action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/affiliation/${props.candId}`,
+              this.form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/affiliation/${props.itemId}`,
+              this.form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      props.getItem();
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
+    }
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="affilationForm.updateItem"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="'view'"
       :label="'Тип участия'"
-      :select="selected_item"
-      :model="storeProfile.dataProfile.form['view']"
-      @input-event="storeProfile.dataProfile.form['view'] = $event.target.value"
+      :select="affilationForm.selected_item"
+      :model="props.affils['view']"
+      @input-event="affilationForm.form['view'] = $event.target.value"
     />
     <TextLabel
       :name="'name'"
       :label="'Организация'"
-      :model="storeProfile.dataProfile.form['name']"
-      @input-event="storeProfile.dataProfile.form['name'] = $event.target.value"
+      :model="props.affils['name']"
+      @input-event="affilationForm.form['name'] = $event.target.value"
     />
     <InputLabel
       :name="'inn'"
       :label="'ИНН'"
       :need="true"
-      :model="storeProfile.dataProfile.form['inn']"
-      @input-event="storeProfile.dataProfile.form['inn'] = $event.target.value"
+      :model="props.affils['inn']"
+      @input-event="affilationForm.form['inn'] = $event.target.value"
     />
     <TextLabel
       :name="'position'"
       :label="'Должность'"
-      :model="storeProfile.dataProfile.form['position']"
+      :model="props.affils['position']"
       @input-event="
-        storeProfile.dataProfile.form['position'] = $event.target.value
+        affilationForm.form['position'] = $event.target.value
       "
     />
     <BtnGroupForm>

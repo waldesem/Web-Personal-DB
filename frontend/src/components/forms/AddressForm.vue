@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { defineAsyncComponent, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@utilities/utils";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
@@ -8,50 +10,99 @@ const InputLabel = defineAsyncComponent(
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
-);
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const storeProfile = profileStore();
+const storeAuth = authStore();
+const storeAlert = alertStore();
 
-const selected_item = {
-  registration: "Адрес регистрации",
-  live: "Адрес проживания",
-  others: "Другое",
-};
+const emit = defineEmits(["deactivate"]);
+
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  addrs: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+const addressForm = ref({
+  form: <Record<string, any>>{},
+  selected_item: {
+    registration: "Адрес регистрации",
+    live: "Адрес проживания",
+    others: "Другое",
+  },
+
+  updateItem: async function (): Promise<void> {
+    try {
+      const response =
+        props.action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/address/${props.candId}`,
+              this.form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/address/${props.itemId}`,
+              this.form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      props.getItem();
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
+    }
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="addressForm.updateItem"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="''"
       :label="''"
-      :select="selected_item"
-      :model="storeProfile.dataProfile.form['view']"
-      @input-event="storeProfile.dataProfile.form['view'] = $event.target.value"
+      :select="addressForm.selected_item"
+      :model="props.addrs['view']"
+      @input-event="addressForm.form['view'] = $event.target.value"
     />
     <InputLabel
       :name="'region'"
       :label="'Регион'"
       :need="true"
-      :model="storeProfile.dataProfile.form['region']"
+      :model="props.addrs['region']"
       @input-event="
-        storeProfile.dataProfile.form['region'] = $event.target.value
+        addressForm.form['region'] = $event.target.value
       "
     />
     <TextLabel
       :name="'address'"
       :label="'Полный адрес'"
-      :model="storeProfile.dataProfile.form['address']"
+      :model="props.addrs['address']"
       @input-event="
-        storeProfile.dataProfile.form['address'] = $event.target.value
+        addressForm.form['address'] = $event.target.value
       "
     />
     <BtnGroupForm>

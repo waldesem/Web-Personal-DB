@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { defineAsyncComponent, ref } from "vue";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { server } from "@utilities/utils";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
@@ -12,12 +14,65 @@ const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const storeProfile = profileStore();
+const storeAuth = authStore();
+const storeAlert = alertStore();
+
+const emit = defineEmits(["deactivate"]);
+
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  work: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+const workForm = ref({
+  form: <Record<string, any>>{},
+
+  updateItem: async function (): Promise<void> {
+    try {
+      const response =
+        props.action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/workplace/${props.candId}`,
+              this.form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/workplace/${props.itemId}`,
+              this.form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      props.getItem();
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
+    }
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="workForm.updateItem"
     class="form form-check"
     role="form"
   >
@@ -25,51 +80,51 @@ const storeProfile = profileStore();
       :name="'start_date'"
       :label="'Начало работы'"
       :typeof="'date'"
-      :model="storeProfile.dataProfile.form['start_date']"
+      :model="props.work['start_date']"
       @input-event="
-        storeProfile.dataProfile.form['start_date'] = $event.target.value
+        workForm.form['start_date'] = $event.target.value
       "
     />
     <InputLabel
       :name="'end_date'"
       :label="'Окончание работы'"
       :typeof="'date'"
-      :model="storeProfile.dataProfile.form['end_date']"
+      :model="props.work['end_date']"
       @input-event="
-        storeProfile.dataProfile.form['end_date'] = $event.target.value
+        workForm.form['end_date'] = $event.target.value
       "
     />
     <InputLabel
       :name="'workplace'"
       :label="'Место работы'"
       :need="true"
-      :model="storeProfile.dataProfile.form['workplace']"
+      :model="props.work['workplace']"
       @input-event="
-        storeProfile.dataProfile.form['workplace'] = $event.target.value
+        workForm.form['workplace'] = $event.target.value
       "
     />
     <TextLabel
       :name="'address'"
       :label="'Адрес организации'"
-      :model="storeProfile.dataProfile.form['address']"
+      :model="props.work['address']"
       @input-event="
-        storeProfile.dataProfile.form['address'] = $event.target.value
+        workForm.form['address'] = $event.target.value
       "
     />
     <TextLabel
       :name="'position'"
       :label="'Должность'"
-      :model="storeProfile.dataProfile.form['position']"
+      :model="props.work['position']"
       @input-event="
-        storeProfile.dataProfile.form['position'] = $event.target.value
+        workForm.form['position'] = $event.target.value
       "
     />
     <TextLabel
       :name="'reason'"
       :label="'Причина увольнения'"
-      :model="storeProfile.dataProfile.form['reason']"
+      :model="props.work['reason']"
       @input-event="
-        storeProfile.dataProfile.form['reason'] = $event.target.value
+        workForm.form['reason'] = $event.target.value
       "
     />
     <BtnGroupForm>
