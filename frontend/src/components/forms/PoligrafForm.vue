@@ -1,47 +1,74 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { ref, defineAsyncComponent } from "vue";
 
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
 );
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const storeProfile = profileStore();
+const emit = defineEmits(["deactivate"]);
 
-const selected_item = {
-  candidate: "Проверка кандидата",
-  check: "Служебная проверка",
-  investigation: "Служебное расследование",
-};
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  poligraf: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+const poligrafForm = ref({
+  form: <Record<string, any>>{},
+  selected_item: {
+    candidate: "Проверка кандидата",
+    check: "Служебная проверка",
+    investigation: "Служебное расследование",
+  },
+
+  updateItem: function () {
+    const itemId = props.action === "create" ? props.candId : props.itemId;
+    props.updateItem(props.action, "check", itemId, poligrafForm.value.form);
+
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="poligrafForm.updateItem"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="'theme'"
       :label="'Тема проверки'"
-      :select="selected_item"
-      :model="storeProfile.dataProfile.form['theme']"
+      :select="poligrafForm.selected_item"
+      :model="props.poligraf['theme']"
       @input-event="
-        storeProfile.dataProfile.form['theme'] = $event.target.value
+        poligrafForm.form['theme'] = $event.target.value
       "
     />
     <TextLabel
       :name="'results'"
       :label="'Результат'"
-      :model="storeProfile.dataProfile.form['results']"
+      :model="props.poligraf['results']"
       @input-event="
-        storeProfile.dataProfile.form['results'] = $event.target.value
+        poligrafForm.form['results'] = $event.target.value
       "
     />
     <BtnGroupForm>
@@ -50,7 +77,7 @@ const selected_item = {
       <button
         class="btn btn-outline-primary"
         type="button"
-        @click="storeProfile.dataProfile.cancelEdit"
+        @click="emit('deactivate')"
       >
         Отмена
       </button>

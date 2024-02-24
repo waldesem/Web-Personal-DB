@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref, inject } from "vue";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
+import { defineAsyncComponent, onBeforeMount } from "vue";
+import { Robot } from "@/interfaces/interface";
 
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
@@ -11,71 +9,31 @@ const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
 
-const candId = inject("candId") as string;
-const storeAuth = authStore();
-const storeAlert = alertStore();
-
-interface Robot {
-  id: string;
-  employee: string;
-  document: string;
-  inn: string;
-  debt: string;
-  bankruptcy: string;
-  bki: string;
-  courts: string;
-  affiliation: string;
-  terrorist: string;
-  mvd: string;
-  deadline: string;
-}
-
 onBeforeMount(() => {
-  robot.value.getItem();
+  props.getItem("check");
+  props.getItem("robot");
 });
 
-const robot = ref({
-  items: Array<Robot>(),
-
-  getItem: async function (): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/robot/${candId}`
-      );
-      this.items = response.data;
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Ошибка: ${error}`
-      );
-    }
+const props = defineProps({
+  robots:  {
+    type: Array as () => Robot[],
+    default: () => {},
   },
-
-  deleteItem: async function (id: string): Promise<void> {
-    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/robot/${id}`
-      );
-      console.log(response.status);
-      this.getItem();
-
-      storeAlert.alertMessage.setAlert(
-        "alert-info",
-        `Запись с ID ${id} удалена`
-      );
-    } catch (error) {
-      console.error(error);
-    }
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
   },
 });
 </script>
 
 <template>
-  <div v-if="robot.items.length">
+  <div v-if="props.robots.length">
     <CollapseDiv
-      v-for="(item, idx) in robot.items"
+      v-for="(item, idx) in props.robots"
       :key="idx"
       :id="'check' + idx"
       :idx="idx"

@@ -32,43 +32,36 @@ from ..models.schema import (
     ActionSchema,
 )
 
+
 class CheckView(MethodView):
 
     decorators = [bp.doc(hide=True)]
 
     @group_required(Groups.staffsec.value)
     def get(self, item_id):
-        return CheckSchema().dump(
-            db.session.execute(
-                select(Check)
-                .filter_by(person_id=item_id)
-                .order_by(Check.id.desc())
-            )
-            .scalars()
-            .all(),
-            many=True,
-        ), 200
-
+        return (
+            CheckSchema().dump(
+                db.session.execute(
+                    select(Check).filter_by(person_id=item_id).order_by(Check.id.desc())
+                )
+                .scalars()
+                .all(),
+                many=True,
+            ),
+            200,
+        )
 
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
-    @bp.input(ActionSchema, location="query")
-    @bp.input(CheckSchema, location="json")
-    def post(self, item_id, json_data, query_data):
-        action = query_data.get("action")
+    @bp.input(CheckSchema)
+    def post(self, item_id, json_data):
         json_data["pfo"] = bool(json_data.pop("pfo")) if "pfo" in json_data else False
-        if action == "update":
-            check = db.session.get(Check, item_id)
-            person = db.session.get(Person, check.person_id)
-            for k, v in json_data.items():
-                setattr(check, k, v)
-        else:
-            person = db.session.get(Person, item_id)
-            db.session.add(
-                Check(**json_data | {"person_id": item_id, "officer": current_user.fullname})
-                )
-            db.session.commit()
-
+        db.session.add(
+            Check(
+                **json_data | {"person_id": item_id, "officer": current_user.fullname}
+            )
+        )
+        person = db.session.get(Person, item_id)
         if json_data["conclusion_id"] == Conclusion.get_id(Conclusions.saved.value):
             person.status_id = Status.get_id(Statuses.save.value)
         else:
@@ -77,7 +70,18 @@ class CheckView(MethodView):
                 if json_data["pfo"]
                 else Status.get_id(Statuses.finish.value)
             )
-            person.user_id = 0
+            person.user_id = ""
+        db.session.commit()
+        return "", 201
+
+    @group_required(Groups.staffsec.value)
+    @roles_required(Roles.user.value)
+    @bp.input(CheckSchema)
+    def patch(self, item_id, json_data):
+        check = db.session.get(Check, item_id)
+        for k, v in json_data.items():
+            setattr(check, k, v)
+        db.session.commit()
         return "", 201
 
     @roles_required(Roles.user.value)
@@ -86,7 +90,7 @@ class CheckView(MethodView):
         check = db.session.get(Check, item_id)
         person = db.session.get(Person, check.person_id)
         person.status = Status.get_id(Statuses.update.value)
-        person.user_id = 0
+        person.user_id = ""
         db.session.delete(check)
         db.session.commit()
         return "", 204
@@ -103,16 +107,17 @@ class RobotView(MethodView):
     @group_required(Groups.staffsec.value)
     @bp.doc(hide=True)
     def get(self, item_id):
-        return RobotSchema().dump(
-            db.session.execute(
-                select(Robot)
-                .filter_by(person_id=item_id)
-                .order_by(Robot.id.desc())
-            )
-            .scalars()
-            .all(),
-            many=True,
-        ), 200
+        return (
+            RobotSchema().dump(
+                db.session.execute(
+                    select(Robot).filter_by(person_id=item_id).order_by(Robot.id.desc())
+                )
+                .scalars()
+                .all(),
+                many=True,
+            ),
+            200,
+        )
 
     @group_required(Groups.rest.value)
     @roles_required(Roles.api.value)
@@ -121,7 +126,7 @@ class RobotView(MethodView):
         user_id = json_data.pop("user_id")
         robot_path = json_data.pop("path")
         candidate = db.session.get(Person, json_data["id"])
-        
+
         del json_data["id"]
 
         if candidate.has_status(Statuses.robot.value):
@@ -151,7 +156,7 @@ class RobotView(MethodView):
             db.session.add(
                 Message(
                     report=f"Результат проверки {candidate.fullname} не может быть записан."
-                    f'Материал проверки находится в {robot_path}',
+                    f"Материал проверки находится в {robot_path}",
                     user_id=user_id,
                 )
             )
@@ -202,7 +207,7 @@ class InvestigationView(MethodView):
         )
         db.session.commit()
         return "", 201
-    
+
     @group_required(Groups.staffsec.value)
     @roles_required(Roles.user.value)
     @bp.input(InvestigationSchema)
@@ -260,7 +265,8 @@ class PoligrafView(MethodView):
                 person.status_id = Status.get_id(Statuses.finish.value)
             db.session.add(
                 Poligraf(
-                    **json_data | {"person_id": item_id, "officer": current_user.fullname}
+                    **json_data
+                    | {"person_id": item_id, "officer": current_user.fullname}
                 )
             )
             db.session.commit()
@@ -291,9 +297,7 @@ class PoligrafView(MethodView):
         return abort(403)
 
 
-bp.add_url_rule(
-    "/poligraf/<int:item_id>", view_func=PoligrafView.as_view("poligraf")
-)
+bp.add_url_rule("/poligraf/<int:item_id>", view_func=PoligrafView.as_view("poligraf"))
 
 
 class InquiryView(MethodView):
@@ -302,14 +306,19 @@ class InquiryView(MethodView):
 
     @group_required(Groups.staffsec.value)
     def get(self, item_id):
-        return InquirySchema().dump(
-            db.session.execute(
-                select(Inquiry).filter_by(person_id=item_id).order_by(Inquiry.id.desc())
-            )
-            .scalars()
-            .all(),
-            many=True,
-        ), 200
+        return (
+            InquirySchema().dump(
+                db.session.execute(
+                    select(Inquiry)
+                    .filter_by(person_id=item_id)
+                    .order_by(Inquiry.id.desc())
+                )
+                .scalars()
+                .all(),
+                many=True,
+            ),
+            200,
+        )
 
     @group_required(Groups.staffsec.value)
     @bp.input(InquirySchema)
@@ -345,6 +354,5 @@ class InquiryView(MethodView):
             return "", 204
         return abort(403)
 
-bp.add_url_rule(
-    "/inquiry/<int:item_id>", view_func=InquiryView.as_view("inquiry")
-)
+
+bp.add_url_rule("/inquiry/<int:item_id>", view_func=InquiryView.as_view("inquiry"))

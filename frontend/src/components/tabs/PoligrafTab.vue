@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { Pfo } from "@/interfaces/interface";
 
 const PoligrafForm = defineAsyncComponent(
   () => import("@components/forms/PoligrafForm.vue")
@@ -8,26 +8,63 @@ const PoligrafForm = defineAsyncComponent(
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const PoligrafDiv = defineAsyncComponent(
-  () => import("@components/tabs/divs/InvestigateDiv.vue")
+const RowDivSlot = defineAsyncComponent(
+  () => import("@components/elements/RowDivSlot.vue")
 );
 
-const storeProfile = profileStore();
+onBeforeMount(() => {
+  props.getItem("poligraf");
+});
+
+const props = defineProps({
+  candId: String,
+  userId: String,
+  poligrafs:  {
+    type: Array as () => Pfo[],
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
+  },
+  submitFile: {
+    type: Function,
+    required: true,
+  },
+});
+
+const poligraf = ref({
+  action: "",
+  isForm: false,
+  itemId: "",
+  item: <Pfo>{},
+});
 </script>
 
 <template>
   <div class="py-3">
+    <template v-if="poligraf.isForm">
     <PoligrafForm
-      v-if="
-        (storeProfile.dataProfile.action === 'update' ||
-          storeProfile.dataProfile.action === 'create') &&
-        storeProfile.dataProfile.flag === 'poligraf'
-      "
+      :get-item="props.getItem"
+      :action="poligraf.action"
+      :cand-id="candId"
+      :content="poligraf.item"
+      :update-item="props.updateItem"
+      @deactivate="poligraf.isForm = false; poligraf.action = '';"
     />
+    </template>
     <div v-else>
-      <div v-if="storeProfile.dataProfile.pfo.length">
+      <div v-if="props.poligrafs.length > 0">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.pfo"
+          v-for="(item, idx) in props.poligrafs"
           :key="idx"
           :id="'poligraf' + idx"
           :idx="idx"
@@ -38,34 +75,27 @@ const storeProfile = profileStore();
               <a
                 href="#"
                 title="Удалить"
-                @click="
-                  storeProfile.dataProfile.deleteItem(
-                    props.item['id'].toString(),
-                    'poligraf'
-                  )
-                "
+                @click="props.deleteItem(item['id'].toString())"
               >
-                <i class="bi bi-trash"></i> </a
-              >&nbsp; &nbsp; &nbsp;
+                <i class="bi bi-trash"></i>
+              </a>
               <a
                 href="#"
                 title="Изменить"
                 @click="
-                  storeProfile.dataProfile.openForm(
-                    'poligraf',
-                    'update',
-                    props.item['id'].toString(),
-                    props.item
-                  )
+                  poligraf.isForm = true;
+                  poligraf.action = 'update';
+                  poligraf.item = item;
+                  poligraf.itemId = item['id'].toString();
                 "
               >
                 <i class="bi bi-pencil-square"></i>
               </a>
             </template>
           </RowDivSlot>
-          <RowDivSlot :label="'Тема'" :value="props.item['theme']" />
-          <RowDivSlot :label="'Результат'" :value="props.item['results']" />
-          <RowDivSlot :label="'Сотрудник'" :value="props.item['officer']" />
+          <RowDivSlot :label="'Тема'" :value="item['theme']" />
+          <RowDivSlot :label="'Результат'" :value="item['results']" />
+          <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
           <RowDivSlot
             :label="'Дата'"
             :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
@@ -76,10 +106,10 @@ const storeProfile = profileStore();
               enctype="multipart/form-data"
               role="form"
               @change="
-                storeProfile.dataProfile.submitFile(
-                  $event,
-                  'poligraf',
-                  props.item['id'].toString()
+                  props.submitFile(
+                    $event,
+                    item['id'].toString(),
+                    'poligraf'
                 )
               "
             >
@@ -93,7 +123,10 @@ const storeProfile = profileStore();
         <a
           class="btn btn-outline-primary"
           type="button"
-          @click="storeProfile.dataProfile.openForm('poligraf', 'create')"
+          @click="
+            poligraf.isForm = true;
+            poligraf.action = 'create';
+          "
           >Добавить запись
         </a>
       </div>

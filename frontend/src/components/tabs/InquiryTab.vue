@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { Needs } from "@/interfaces/interface";
 
 const InquiryForm = defineAsyncComponent(
   () => import("@components/forms/InquiryForm.vue")
@@ -12,23 +12,59 @@ const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
 
-const storeProfile = profileStore();
+onBeforeMount(() => {
+  props.getItem("poligraf");
+});
+
+const props = defineProps({
+  candId: String,
+  userId: String,
+  needs:  {
+    type: Array as () => Needs[],
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
+  },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
+  submitFile: {
+    type: Function,
+    required: true,
+  },
+});
+
+const need = ref({
+  action: "",
+  isForm: false,
+  itemId: "",
+  item: <Needs>{},
+});
 </script>
 
 <template>
   <div class="py-3">
+    <template v-if="need.isForm">
     <InquiryForm
-      v-if="
-        (storeProfile.dataProfile.action === 'update' ||
-          storeProfile.dataProfile.action === 'create') &&
-        storeProfile.dataProfile.flag === 'inquiry'
-      "
+      :get-item="props.getItem"
+      :action="need.action"
+      :cand-id="candId"
+      :content="need.item"
+      :update-item="props.updateItem"
+      @deactivate="need.isForm = false; need.action = '';"
     />
-
+    </template>
     <div v-else>
-      <div v-if="storeProfile.dataProfile.needs.length">
+      <div v-if="props.needs.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.needs"
+          v-for="(item, idx) in props.needs"
           :key="idx"
           :id="'inquiry' + idx"
           :idx="idx"
@@ -39,36 +75,29 @@ const storeProfile = profileStore();
               <a
                 href="#"
                 title="Удалить"
-                @click="
-                  storeProfile.dataProfile.deleteItem(
-                    'inquiry',
-                    props.item['id'].toString()
-                  )
-                "
+                @click="props.deleteItem(item['id'].toString())"
               >
-                <i class="bi bi-trash"></i> </a
-              >&nbsp; &nbsp; &nbsp;
+                <i class="bi bi-trash"></i>
+              </a>
               <a
                 href="#"
                 title="Изменить"
                 @click="
-                  storeProfile.dataProfile.openForm(
-                    'inquiry',
-                    'update',
-                    props.item['id'].toString(),
-                    props.item
-                  )
+                  need.isForm = true;
+                  need.action = 'update';
+                  need.item = item;
+                  need.itemId = item['id'].toString();
                 "
               >
                 <i class="bi bi-pencil-square"></i>
               </a>
             </template>
           </RowDivSlot>
-          <RowDivSlot :label="'Информация'" :value="props.item['info']" />
-          <RowDivSlot :label="'Иннициатор'" :value="props.item['initiator']" />
-          <RowDivSlot :label="'Источник'" :value="props.item['source']" />
-          <RowDivSlot :label="'Сотрудник'" :value="props.item['officer']" />
-          <RowDivSlot :label="'Дата запроса'" :value="props.item['deadline']" />
+          <RowDivSlot :label="'Информация'" :value="item['info']" />
+          <RowDivSlot :label="'Иннициатор'" :value="item['initiator']" />
+          <RowDivSlot :label="'Источник'" :value="item['source']" />
+          <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
+          <RowDivSlot :label="'Дата запроса'" :value="item['deadline']" />
         </CollapseDiv>
       </div>
       <p v-else>Данные отсутствуют</p>
@@ -76,7 +105,10 @@ const storeProfile = profileStore();
         <a
           class="btn btn-outline-primary"
           type="button"
-          @click="storeProfile.dataProfile.openForm('inquiry', 'create')"
+          @click="
+            need.isForm = true;
+            need.action = 'create';
+          "
           >Добавить запись
         </a>
       </div>

@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { ref, defineAsyncComponent } from "vue";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
-);
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
 );
@@ -12,12 +8,44 @@ const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const storeProfile = profileStore();
+const emit = defineEmits(["deactivate"]);
+
+const props = defineProps({
+  candId: String,
+  itemId: String,
+  action: String,
+  investigation: {
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+const investigationForm = ref({
+  form: <Record<string, any>>{},
+
+  updateItem: function () {
+    const itemId = props.action === "create" ? props.candId : props.itemId;
+    props.updateItem(props.action, "check", itemId, investigationForm.value.form);
+
+    Object.keys(this.form).forEach((key) => {
+      delete this.form[key as keyof typeof this.form];
+    });
+    emit("deactivate");
+   },
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="investigationForm.updateItem"
     class="form form-check"
     role="form"
   >
@@ -25,16 +53,16 @@ const storeProfile = profileStore();
       :name="'theme'"
       :label="'Тема проверки'"
       :need="true"
-      :model="storeProfile.dataProfile.form['theme']"
+      :model="props.investigation['theme']"
       @input-event="
-        storeProfile.dataProfile.form['theme'] = $event.target.value
+        investigationForm.form['theme'] = $event.target.value
       "
     />
     <TextLabel
       :name="'info'"
       :label="'Информация'"
-      :model="storeProfile.dataProfile.form['info']"
-      @input-event="storeProfile.dataProfile.form['info'] = $event.target.value"
+      :model="props.investigation['info']"
+      @input-event="investigationForm.form['info'] = $event.target.value"
     />
     <BtnGroupForm>
       <button class="btn btn-outline-primary" type="submit">Принять</button>
@@ -42,7 +70,7 @@ const storeProfile = profileStore();
       <button
         class="btn btn-outline-primary"
         type="button"
-        @click="storeProfile.dataProfile.cancelEdit"
+        @click="emit('deactivate')"
       >
         Отмена
       </button>

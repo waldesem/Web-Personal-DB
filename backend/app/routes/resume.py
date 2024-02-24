@@ -128,8 +128,18 @@ class ResumeView(MethodView):
         db.session.commit()
         return "", 204
     
-    @roles_required(Roles.user.value, Roles.api.value)
-    @group_required(Groups.staffsec.value, Groups.rest.value)
+    @roles_required(Roles.user.value)
+    @group_required(Groups.staffsec.value)
+    @bp.input(PersonSchema)
+    def patch(self, person_id, json_data):
+        person = db.session.get(Person, person_id)
+        for k, v in json_data.items():
+            setattr(person, k, v)
+            db.session.commit()
+        return PersonSchema().dump(person)
+
+    @roles_required(Roles.user.value)
+    @group_required(Groups.staffsec.value)
     @bp.input(PersonSchema)
     def post(self, action, json_data):
         person_id = ResumeView.add_resume(json_data, action)

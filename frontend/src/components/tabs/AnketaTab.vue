@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, inject, onBeforeMount } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
 import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
-import { router } from "@/router/router";
+import { 
+  Resume, 
+  Staff, 
+  Document,
+  Address,
+  Contact,
+  Relation,
+  Work,
+  Affilation,
+} from "@/interfaces/interface";
 
 const ResumeForm = defineAsyncComponent(
   () => import("@components/forms/ResumeForm.vue")
@@ -33,143 +42,127 @@ const AffilationDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
+const BtnGroupForm = defineAsyncComponent(
+  () => import("@components/elements/BtnGroupForm.vue")
+);
 
 const storeClassify = classifyStore();
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-interface Resume {
-  id: string;
-  category_id: string;
-  region_id: string;
-  fullname: string;
-  previous: string;
-  birthday: string;
-  birthplace: string;
-  country: string;
-  ext_country: string;
-  snils: string;
-  inn: string;
-  education: string;
-  marital: string;
-  addition: string;
-  path: string;
-  status_id: string;
-  created: string;
-  updated: string;
-  request_id: string;
-}
-
-const candId = inject("candId") as string;
-
-onBeforeMount(() => {
-  dataResume.value.getResume();
+const props = defineProps({
+  candId: {
+    type: String,
+    required: true,
+  },
+  resume: {
+    type: Object as () => Resume,
+    default: () => {},
+  },
+  spinner: Boolean,
+  getResume: {
+    type: Function,
+    required: true,
+  },
+  deleteResume: {
+    type: Function,
+    required: true,
+  },
 });
 
 const dataResume = ref({
-  resume: <Resume>{},
   action: "",
   item: "",
-  spinner: false,
   form: <Record<string, any>>{},
-
-  getResume: async function (action = "view"): Promise<void> {
-    if (action === "status") {
-      if (!confirm("Вы действительно хотите изменить статус резюме?")) {
-        return;
-      }
-    }
-    if (action === "send") {
-      if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
-        return;
-      }
-    }
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/resume/${candId}`,
-        {
-          params: {
-            action: action,
-          },
-        }
-      );
-      this.resume = response.data;
-
-      if (action === "status") {
-        storeAlert.alertMessage.setAlert(
-          "alert-info",
-          "Статус анкеты обновлен"
-        );
-      }
-      if (action === "send") {
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Анкета отправлена на проверку"
-        );
-        this.spinner = false;
-        window.scrollTo(0, 0);
-      }
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Ошибка обработки ${error}`
-      );
-    }
-  },
-
-  deleteResume: async function (): Promise<void> {
-    if (
-      ["robot", "finish"].includes(
-        storeClassify.classData.status[this.resume["status_id"]]
-      )
-    ) {
-      storeAlert.alertMessage.setAlert(
-        "alert-warning",
-        "Нельзя удалить запись с текущим статусом"
-      );
-      return;
-    }
-
-    if (confirm(`Вы действительно хотите удалить анкету?`)) {
-      try {
-        const response = await storeAuth.axiosInstance.delete(
-          `${server}/resume`
-        );
-        console.log(response.status);
-        router.push({ name: "persons", params: { group: "staffsec" } });
-
-        storeAlert.alertMessage.setAlert(
-          "alert-info",
-          `Запись с ID ${candId} удалена`
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  },
 
   deactivateForm: function () {
     this.action = "";
     this.item = "";
   },
 });
+
+const briefData = ref({
+  staffs: <Array<Staff>>[],
+  documents: <Array<Document>>[],
+  addresses: <Array<Address>>[],
+  contacts: <Array<Contact>>[],
+  relations: <Array<Relation>>[],
+  workplaces: <Array<Work>>[],
+  affilations: <Array<Affilation>>[],
+
+  getItem: async function (param: string): Promise<void> {
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/${param}/${props.candId}`
+      );
+      switch (param) {
+        case "staff":
+          this.staffs = response.data;
+          break;
+        case "document":
+          this.documents = response.data;
+          break;
+        case "address":
+          this.addresses = response.data;
+          break;
+        case "contact":
+          this.contacts = response.data;
+          break;
+        case "relation":
+          this.relations = response.data;
+          break;
+        case "workplace":
+          this.workplaces = response.data;
+          break;
+        case "affilation":
+          this.affilations = response.data;
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error(error);
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Ошибка: ${error}`
+      );
+    }
+  },
+
+  deleteItem: async function (id: string, param: string): Promise<void> {
+    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/staff/${id}`
+      );
+      console.log(response.status);
+      this.getItem(param);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-info",
+        `Запись с ID ${id} удалена`
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  },
+})
 </script>
 
 <template>
   <div class="py-3">
     <template v-if="dataResume.item === 'resume'">
       <ResumeForm
-        :get-item="dataResume.getResume"
+        :get-item="props.getResume"
         :action="dataResume.action"
         :cand-id="candId"
-        :content="dataResume.resume"
+        :content="props.resume"
         @deactivate="dataResume.deactivateForm"
       />
     </template>
 
     <template v-else>
-      <div v-if="dataResume.resume">
+      <div v-if="props.resume">
         <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
@@ -184,48 +177,48 @@ const dataResume = ref({
         <RowDivSlot
           :label="'Категория'"
           :value="
-            storeClassify.classData.category[dataResume.resume['category_id']]
+            storeClassify.classData.category[props.resume['category_id']]
           "
         />
         <RowDivSlot
           :label="'Регион'"
           :value="
-            storeClassify.classData.regions[dataResume.resume['region_id']]
+            storeClassify.classData.regions[props.resume['region_id']]
           "
         />
         <RowDivSlot
           :label="'Фамилия Имя Отчество'"
-          :value="dataResume.resume['fullname']"
+          :value="props.resume['fullname']"
         />
         <RowDivSlot
           :label="'Изменение имени'"
-          :value="dataResume.resume['previous']"
+          :value="props.resume['previous']"
         />
         <RowDivSlot
           :label="'Дата рождения'"
-          :value="dataResume.resume['birthday']"
+          :value="props.resume['birthday']"
         />
         <RowDivSlot
           :label="'Место рождения'"
-          :value="dataResume.resume['birthplace']"
+          :value="props.resume['birthplace']"
         />
         <RowDivSlot
           :label="'Гражданство'"
-          :value="dataResume.resume['country']"
+          :value="props.resume['country']"
         />
         <RowDivSlot
           :label="'Второе гражданство'"
-          :value="dataResume.resume['ext_country']"
+          :value="props.resume['ext_country']"
         />
-        <RowDivSlot :label="'СНИЛС'" :value="dataResume.resume['snils']" />
-        <RowDivSlot :label="'ИНН'" :value="dataResume.resume['inn']" />
+        <RowDivSlot :label="'СНИЛС'" :value="props.resume['snils']" />
+        <RowDivSlot :label="'ИНН'" :value="props.resume['inn']" />
         <RowDivSlot
           :label="'Образование'"
-          :value="dataResume.resume['education']"
+          :value="props.resume['education']"
         />
         <RowDivSlot
           :label="'Дополнительная информация'"
-          :value="dataResume.resume['addition']"
+          :value="props.resume['addition']"
         />
         <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
           <template v-slot:divTwo>
@@ -233,18 +226,18 @@ const dataResume = ref({
               :to="{
                 name: 'manager',
                 params: { group: 'staffsec' },
-                query: { path: dataResume.resume['path'].split('/') },
+                query: { path: props.resume['path'].split('/') },
               }"
             >
-              {{ dataResume.resume["path"] }}
+              {{ props.resume["path"] }}
             </router-link>
           </template>
         </RowDivSlot>
         <RowDivSlot :label="'Статус'" :slotTwo="true">
           <template v-slot:divTwo>
-            <a href="#" @click="dataResume.getResume('status')">
+            <a href="#" @click="props.getResume('status')">
               {{
-                storeClassify.classData.status[dataResume.resume["status_id"]]
+                storeClassify.classData.status[props.resume["status_id"]]
               }}
             </a>
           </template>
@@ -252,7 +245,7 @@ const dataResume = ref({
         <RowDivSlot
           :label="'Создан'"
           :value="
-            new Date(String(dataResume.resume['created'])).toLocaleDateString(
+            new Date(String(props.resume['created'])).toLocaleDateString(
               'ru-RU'
             )
           "
@@ -260,61 +253,103 @@ const dataResume = ref({
         <RowDivSlot
           :label="'Обновлен'"
           :value="
-            new Date(String(dataResume.resume['updated'])).toLocaleDateString(
+            new Date(String(props.resume['updated'])).toLocaleDateString(
               'ru-RU'
             )
           "
         />
         <RowDivSlot
           :label="'Внешний ID'"
-          :value="dataResume.resume['request_id']"
+          :value="props.resume['request_id']"
         />
       </div>
       <p v-else>Данные отсутствуют</p>
     </template>
 
-    <StaffDiv />
-    <DocumentDiv />
-    <AddressDiv />
-    <ContactDiv />
-    <RelationDiv />
-    <WorkplaceDiv />
-    <AffilationDiv />
+    <StaffDiv 
+      :cand-id="props.candId"
+      :items="briefData.staffs"
+      :get-item="briefData.getItem"
+      :delete-item="briefData.deleteItem"
+    />
+    <DocumentDiv 
+      :cand-id="props.candId"
+      :items="briefData.documents"
+      :get-item="briefData.getItem"
+      :delete-item="briefData.deleteItem"
+    />
+    <AddressDiv 
+      :cand-id="props.candId"
+      :items="briefData.addresses"
+      :get-item="briefData.getItem"
+      :delete-item="briefData.deleteItem"
+    />
+    <ContactDiv 
+      :cand-id="props.candId"
+      :items="briefData.contacts"
+      :get-item="briefData.getItem"
+      :delete-item="briefData.deleteItem"
+    />
+    <RelationDiv 
+      :cand-id="props.candId"
+      :items="briefData.relations"
+      :get-item="briefData.getItem"
+      :delete-item="briefData.deleteItem"
+    />
+    <WorkplaceDiv 
+      :cand-id="props.candId"
+      :items="briefData.workplaces"
+      :get-item="briefData.getItem"
+      :delete-item="briefData.deleteItem"
+    />
+    <AffilationDiv 
+      :cand-id="props.candId"
+      :items="briefData.affilations"
+      :get-item="briefData.getItem"
+      :delete-item="briefData.deleteItem"
+    />
 
     <div class="d-print-none py-3">
-      <div class="btn-group" role="group">
+      <BtnGroupForm>
+        <button 
+          :disabled="props.resume.user_id !== ''"
+          type="button"
+          class="btn btn-outline-primary" 
+          @click="props.getResume('self')">
+          Взять на проверку
+        </button>
         <button
           class="btn btn-outline-primary"
           :disabled="
-            (storeClassify.classData.status[dataResume.resume['status_id']] !==
+            (storeClassify.classData.status[props.resume['status_id']] !==
               'new' &&
-              storeClassify.classData.status[dataResume.resume['status_id']] !==
+              storeClassify.classData.status[props.resume['status_id']] !==
                 'update' &&
-              storeClassify.classData.status[dataResume.resume['status_id']] !==
+              storeClassify.classData.status[props.resume['status_id']] !==
                 'repeat') ||
-            dataResume.spinner
+                props.spinner
           "
-          @click="dataResume.getResume('send')"
+          @click="props.getResume('send')"
         >
-          {{ !dataResume.spinner ? "Отправить на проверку" : "" }}
+          {{ !props.spinner ? "Отправить на проверку" : "" }}
           <span
-            v-if="dataResume.spinner"
+            v-if="props.spinner"
             class="spinner-border spinner-border-sm"
           ></span>
-          <span v-if="dataResume.spinner" role="status">Отправляется...</span>
+          <span v-if="props.spinner" role="status">Отправляется...</span>
         </button>
         <button
           type="button"
           class="btn btn-outline-danger"
           :disabled="
-            storeClassify.classData.status[dataResume.resume['status_id']] ===
-              'finish' || dataResume.spinner
+            storeClassify.classData.status[props.resume['status_id']] ===
+              'finish' || props.spinner
           "
-          @click="dataResume.deleteResume"
+          @click="props.deleteResume("resume")"
         >
           Удалить анкету
         </button>
-      </div>
+      </BtnGroupForm>
     </div>
   </div>
 </template>

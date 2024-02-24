@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref, inject } from "vue";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Staff } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -14,18 +12,27 @@ const StaffForm = defineAsyncComponent(
   () => import("@components/forms/StaffForm.vue")
 );
 
-const candId = inject("candId") as string;
-const storeAuth = authStore();
-const storeAlert = alertStore();
-
-interface Staff {
-  id: string;
-  position: string;
-  department: string;
-}
-
 onBeforeMount(() => {
-  staff.value.getItem();
+  props.getItem("staff");
+});
+
+const props = defineProps({
+  candId: {
+    type: String,
+    required: true,
+  },
+  items: {
+    type: Array as () => Staff[],
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
+  },
 });
 
 const staff = ref({
@@ -33,40 +40,6 @@ const staff = ref({
   isForm: false,
   itemId: "",
   item: <Staff>{},
-  items: Array<Staff>(),
-
-  getItem: async function (): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/staff/${candId}`
-      );
-      this.items = response.data;
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Ошибка: ${error}`
-      );
-    }
-  },
-
-  deleteItem: async function (id: string): Promise<void> {
-    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/staff/${id}`
-      );
-      console.log(response.status);
-      this.getItem();
-
-      storeAlert.alertMessage.setAlert(
-        "alert-info",
-        `Запись с ID ${id} удалена`
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  },
 
   deactivateForm: function () {
     this.isForm = false;
@@ -92,7 +65,7 @@ const staff = ref({
   </h6>
   <template v-if="staff.isForm">
     <StaffForm
-      :get-item="staff.getItem"
+      :get-item="props.getItem"
       :action="staff.action"
       :cand-id="candId"
       :content="staff.item"
@@ -100,9 +73,9 @@ const staff = ref({
     />
   </template>
   <template v-else>
-    <div v-if="staff.items.length > 0">
+    <div v-if="props.items.length > 0">
       <CollapseDiv
-        v-for="(item, idx) in staff.items"
+        v-for="(item, idx) in props.items"
         :key="idx"
         :id="'staff' + idx"
         :idx="idx"
@@ -112,7 +85,7 @@ const staff = ref({
           <template v-slot:divTwo>
             <a
               href="#"
-              @click="staff.deleteItem(item['id'].toString())"
+              @click="props.deleteItem(item['id'].toString())"
               title="Удалить"
             >
               <i class="bi bi-trash"></i>

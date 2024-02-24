@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref, inject } from "vue";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Affilation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -14,21 +12,28 @@ const AffilationForm = defineAsyncComponent(
   () => import("@components/forms/AffilationForm.vue")
 );
 
-const candId = inject("candId") as string;
-const storeAuth = authStore();
-const storeAlert = alertStore();
-
-interface Affilation {
-  id: string;
-  view: string;
-  name: string;
-  inn: string;
-  position: string;
-  deadline: string;
-}
 
 onBeforeMount(() => {
-  affilation.value.getItem();
+  props.getItem("staff");
+});
+
+const props = defineProps({
+  candId: {
+    type: String,
+    required: true,
+  },
+  items: {
+    type: Array as () => Affilation[],
+    default: () => ({}),
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
+  },
 });
 
 const affilation = ref({
@@ -36,40 +41,6 @@ const affilation = ref({
   isForm: false,
   itemId: "",
   item: <Affilation>{},
-  items: Array<Affilation>(),
-
-  getItem: async function (): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/affilation/${candId}`
-      );
-      this.items = response.data;
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Ошибка: ${error}`
-      );
-    }
-  },
-
-  deleteItem: async function (id: string): Promise<void> {
-    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/affilation/${id}`
-      );
-      console.log(response.status);
-      this.getItem();
-
-      storeAlert.alertMessage.setAlert(
-        "alert-info",
-        `Запись с ID ${id} удалена`
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  },
 
   deactivateForm: function () {
     this.isForm = false;
@@ -95,7 +66,7 @@ const affilation = ref({
   </h6>
   <template v-if="affilation.isForm">
     <AffilationForm 
-      :get-item="affilation.getItem"
+      :get-item="props.getItem"
       :action="affilation.action"
       :cand-id="candId"
       :content="affilation.item"
@@ -103,9 +74,9 @@ const affilation = ref({
     />
   </template>
   <template v-else>
-    <div v-if="affilation.items.length > 0">
+    <div v-if="props.items.length > 0">
       <CollapseDiv
-        v-for="(item, idx) in affilation.items"
+        v-for="(item, idx) in props.items"
         :key="idx"
         :id="'affil' + idx"
         :idx="idx"
@@ -115,7 +86,7 @@ const affilation = ref({
           <template v-slot:divTwo>
             <a
               href="#"
-              @click="affilation.deleteItem(item['id'].toString())"
+              @click="props.deleteItem(item['id'].toString())"
               title="Удалить"
             >
               <i class="bi bi-trash"></i>

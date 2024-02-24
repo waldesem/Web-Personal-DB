@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { profileStore } from "@/store/profile";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { Inquisition } from "@/interfaces/interface";
 
 const InvestigationForm = defineAsyncComponent(
   () => import("@components/forms/InvestigationForm.vue")
@@ -8,26 +8,63 @@ const InvestigationForm = defineAsyncComponent(
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const InvestigateDiv = defineAsyncComponent(
-  () => import("@components/tabs/divs/InvestigateDiv.vue")
+const RowDivSlot = defineAsyncComponent(
+  () => import("@components/elements/RowDivSlot.vue")
 );
 
-const storeProfile = profileStore();
+onBeforeMount(() => {
+  props.getItem("poligraf");
+});
+
+const props = defineProps({
+  candId: String,
+  userId: String,
+  inquisitions:  {
+    type: Array as () => Inquisition[],
+    default: () => {},
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
+  },
+  submitFile: {
+    type: Function,
+    required: true,
+  },
+});
+
+const inquisition = ref({
+  action: "",
+  isForm: false,
+  itemId: "",
+  item: <Inquisition>{},
+});
 </script>
 
 <template>
   <div class="py-3">
+    <template v-if="inquisition.isForm">
     <InvestigationForm
-      v-if="
-        (storeProfile.dataProfile.action === 'update' ||
-          storeProfile.dataProfile.action === 'create') &&
-        storeProfile.dataProfile.flag === 'investigation'
-      "
+      :get-item="props.getItem"
+      :action="inquisition.action"
+      :cand-id="candId"
+      :content="inquisition.item"
+      :update-item="props.updateItem"
+      @deactivate="inquisition.isForm = false; inquisition.action = '';"
     />
+    </template>
     <div v-else>
-      <div v-if="storeProfile.dataProfile.inquisition.length">
+      <div v-if="props.inquisitions.length">
         <CollapseDiv
-          v-for="(item, idx) in storeProfile.dataProfile.inquisition"
+          v-for="(item, idx) in props.inquisitions"
           :key="idx"
           :id="'investigation' + idx"
           :idx="idx"
@@ -38,34 +75,27 @@ const storeProfile = profileStore();
               <a
                 href="#"
                 title="Удалить"
-                @click="
-                  storeProfile.dataProfile.deleteItem(
-                    props.item['id'].toString(),
-                    'investigation'
-                  )
-                "
+                @click="props.deleteItem(item['id'].toString())"
               >
-                <i class="bi bi-trash"></i> </a
-              >&nbsp; &nbsp; &nbsp;
+                <i class="bi bi-trash"></i>
+              </a>
               <a
                 href="#"
                 title="Изменить"
                 @click="
-                  storeProfile.dataProfile.openForm(
-                    'investigation',
-                    'update',
-                    props.item['id'].toString(),
-                    props.item
-                  )
+                  inquisition.isForm = true;
+                  inquisition.action = 'update';
+                  inquisition.item = item;
+                  inquisition.itemId = item['id'].toString();
                 "
               >
                 <i class="bi bi-pencil-square"></i>
               </a>
             </template>
           </RowDivSlot>
-          <RowDivSlot :label="'Тема'" :value="props.item['theme']" />
-          <RowDivSlot :label="'Информация'" :value="props.item['info']" />
-          <RowDivSlot :label="'Сотрудник'" :value="props.item['officer']" />
+          <RowDivSlot :label="'Тема'" :value="item['theme']" />
+          <RowDivSlot :label="'Информация'" :value="item['info']" />
+          <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
           <RowDivSlot
             :label="'Дата'"
             :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
@@ -76,10 +106,10 @@ const storeProfile = profileStore();
               enctype="multipart/form-data"
               role="form"
               @change="
-                storeProfile.dataProfile.submitFile(
+                props.submitFile(
                   $event,
-                  'investigation',
-                  props.item['id'].toString()
+                  item['id'].toString(),
+                  'investigation'
                 )
               "
             >
@@ -93,7 +123,10 @@ const storeProfile = profileStore();
         <a
           class="btn btn-outline-primary"
           type="button"
-          @click="storeProfile.dataProfile.openForm('investigation', 'create')"
+          @click="
+            inquisition.isForm = true;
+            inquisition.action = 'create';
+          "
           >Добавить запись
         </a>
       </div>

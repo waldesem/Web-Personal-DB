@@ -1,7 +1,23 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onBeforeMount, provide } from "vue";
+import { defineAsyncComponent, ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
+import { authStore } from "@/store/token";
+import { alertStore } from "@store/alert";
+import { classifyStore } from "@/store/classify";
+import { server } from "@utilities/utils";
+import { Resume } from "@/interfaces/interface";
+import { router } from "@/router/router";
+import {
+  Verification,
+  Robot,
+  Pfo,
+  Inquisition,
+  Needs,
+} from "@/interfaces/interface";
 
+const HeaderDiv = defineAsyncComponent(
+  () => import("@components/layouts/HeaderDiv.vue")
+);
 const PhotoCard = defineAsyncComponent(
   () => import("@components/layouts/PhotoCard.vue")
 );
@@ -21,37 +37,249 @@ const InquiryTab = defineAsyncComponent(
   () => import("@components/tabs/InquiryTab.vue")
 );
 
+const storeAuth = authStore();
+const storeAlert = alertStore();
+const storeClassify = classifyStore();
+
 const route = useRoute();
 
+const candId = route.params.id.toString();
+
 onBeforeMount(() => {
-  dataProfile.value.candId = route.params.id.toString();
+  anketaData.value.getResume();
 });
-
-const dataProfile = ref({
-  candId: route.params.id.toString()
-});
-
-provide("candId", dataProfile.value.candId);
-
-const tabsObject = {
-  anketaTab: ["Анкета", AnketaTab],
-  сheckTab: ["Проверки", CheckTab],
-  poligrafTab: ["Полиграф", PoligrafTab],
-  investigateTab: ["Расследования", InvestigateTab],
-  inquiryTab: ["Запросы", InquiryTab],
-};
 
 const printPage = ref(false);
 
+const anketaData = ref({
+  resume: <Resume>{},
+  spinner: false,
+  tabsObject: {
+    anketaTab: "Анкета",
+    сheckTab: "Проверки",
+    poligrafTab: "Полиграф",
+    investigateTab: "Расследования",
+    inquiryTab: "Запросы",
+  },
+
+  getResume: async function (action = "view"): Promise<void> {
+    if (action === "status") {
+      if (!confirm("Вы действительно хотите изменить статус резюме?")) {
+        return;
+      }
+    }
+    if (action === "send") {
+      this.spinner = true;
+      if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
+        this.spinner = false;
+        return;
+      }
+    }
+    if (action === "self") {
+      this.spinner = true;
+      if (!confirm("Вы действительно назначить проверку кандидата на себя?")) {
+        return;
+      }
+    }
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/resume/${candId}`,
+        {
+          params: {
+            action: action,
+          },
+        }
+      );
+      this.resume = response.data;
+
+      if (action === "status") {
+        storeAlert.alertMessage.setAlert(
+          "alert-info",
+          "Статус анкеты обновлен"
+        );
+      }
+      if (action === "send") {
+        storeAlert.alertMessage.setAlert(
+          "alert-success",
+          "Анкета отправлена на проверку"
+        );
+        window.scrollTo(0, 0);
+      }
+    } catch (error) {
+      console.error(error);
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Ошибка обработки ${error}`
+      );
+    }
+    this.spinner = false;
+  },
+});
+
+const checksData = ref({
+  checks: Array<Verification>(),
+  robots: Array<Robot>(),
+  poligraf: Array<Pfo>(),
+  investigations: Array<Inquisition>(),
+  inquiries: Array<Needs>(),
+
+  getItem: async function (param: string): Promise<void> {
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/${param}/${candId}`
+      );
+      switch (param) {
+        case "check":
+          this.checks = response.data;
+          break;
+        case "robot":
+          this.robots = response.data;
+          break;
+        case "poligraf":
+          this.poligraf = response.data;
+          break;
+        case "investigation":
+          this.investigations = response.data;
+          break;
+        case "inquiry":
+          this.inquiries = response.data;
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error(error);
+      storeAlert.alertMessage.setAlert("alert-danger", `Ошибка: ${error}`);
+    }
+  },
+
+  deleteItem: async function (id: string, param: string): Promise<void> {
+    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+    if (
+      param === "check" &&
+      (anketaData.value.resume.status_id ===
+        storeClassify.classData.status["finish"] ||
+        anketaData.value.resume.status_id ===
+          storeClassify.classData.status["robot"])
+    ) {
+      storeAlert.alertMessage.setAlert(
+        "alert-warning",
+        "Невозможно удалить проверку с текщим статусом"
+      );
+      return;
+    }
+    if (
+      ["robot", "finish"].includes(
+        storeClassify.classData.status[anketaData.value.resume["status_id"]]
+      )
+    ) {
+      storeAlert.alertMessage.setAlert(
+        "alert-warning",
+        "Нельзя удалить запись с текущим статусом"
+      );
+      return;
+    }
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/${param}/${id}`
+      );
+      console.log(response.status);
+      param === "resume"
+        ? router.push({ name: "persons", params: { group: "staffsec" } })
+        : this.getItem(param);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-info",
+        `Запись с ID ${id} удалена`
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  submitFile: async function (
+    event: Event,
+    idItem: string,
+    param: string
+  ): Promise<void> {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement && inputElement.files && inputElement.files.length > 0) {
+      const maxSizeInBytes = 1024 * 1024; // 1MB
+      for (let i = 0; i < inputElement.files.length; i++) {
+        if (inputElement.files[i].size > maxSizeInBytes) {
+          storeAlert.alertMessage.setAlert(
+            "alert-warning",
+            "File size exceeds the limit. Please select a smaller file."
+          );
+          inputElement.value = ""; // Reset the input field
+          return;
+        }
+      }
+      const formData = new FormData();
+      formData.append("file", inputElement.files[0]);
+
+      try {
+        const response = await storeAuth.axiosInstance.post(
+          `${server}/file/${param}/${idItem}`,
+          formData
+        );
+        console.log(response.status);
+        storeAlert.alertMessage.setAlert(
+          "alert-success",
+          "Файл или файлы успешно загружен/добавлены"
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      storeAlert.alertMessage.setAlert(
+        "alert-warning",
+        "Ошибка при загрузке файла"
+      );
+    }
+  },
+  updateItem: async function (
+    action: string,
+    param: string,
+    itemId: string,
+    form: Object
+  ): Promise<void> {
+    try {
+      const response =
+        action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/${param}/${itemId}`,
+              form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/check/${itemId}`,
+              form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      this.getItem(param);
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
+    }
+  },
+});
 </script>
 
 <template>
   <div class="container py-3">
     <PhotoCard />
+    <HeaderDiv :page-header="anketaData.resume.fullname" />
     <div v-if="!printPage" class="nav nav-tabs nav-justified" role="tablist">
       <button
-        v-for="(value, key) in tabsObject"
-        :key="key"
+        v-for="(value, key) in anketaData.tabsObject"
         class="nav-link"
         :class="{ active: key === 'anketaTab' }"
         data-bs-toggle="tab"
@@ -65,21 +293,68 @@ const printPage = ref(false);
 
     <div v-if="!printPage" class="tab-content">
       <div
-        v-for="(value, key) in tabsObject"
-        :key="key"
-        :id="key"
-        class="tab-pane fade py-1"
+        id="anketaTab"
+        class="tab-pane fade py-1 show active"
         role="tabpanel"
-        :class="{ ' show active': key === 'anketaTab' }"
       >
-        <component :is="value[1]"></component>
+        <AnketaTab
+          :cand-id="candId"
+          :resume="anketaData.resume"
+          :get-resume="anketaData.getResume"
+          :delete-resume="checksData.deleteItem"
+        />
+      </div>
+      <div id="сheckTab" class="tab-pane fade py-1" role="tabpanel">
+        <CheckTab
+          :cand-id="candId"
+          :checks="checksData.checks"
+          :robots="checksData.robots"
+          :get-item="checksData.getItem"
+          :update-item="checksData.updateItem"
+          :delete-item="checksData.deleteItem"
+          :submit-file="checksData.submitFile"
+          :status-id="anketaData.resume.status_id"
+          :user-id="anketaData.resume.user_id"
+        />
+      </div>
+      <div id="poligrafTab" class="tab-pane fade py-1" role="tabpanel">
+        <PoligrafTab
+          :cand-id="candId"
+          :poligraf="checksData.poligraf"
+          :get-item="checksData.getItem"
+          :update-item="checksData.updateItem"
+          :delete-item="checksData.deleteItem"
+          :submit-file="checksData.submitFile"
+        />
+      </div>
+      <div id="investigateTab" class="tab-pane fade py-1" role="tabpanel">
+        <InvestigateTab
+          :cand-id="candId"
+          :investigations="checksData.investigations"
+          :get-item="checksData.getItem"
+          :update-item="checksData.updateItem"
+          :delete-item="checksData.deleteItem"
+          :submit-file="checksData.submitFile"
+        />
+      </div>
+      <div id="inquiryTab" class="tab-pane fade py-1" role="tabpanel">
+        <InquiryTab
+          :cand-id="candId"
+          :inquiries="checksData.inquiries"
+          :get-item="checksData.getItem"
+          :update-item="checksData.updateItem"
+          :delete-item="checksData.deleteItem"
+          :submit-file="checksData.submitFile"
+        />
       </div>
     </div>
 
     <div v-if="printPage">
-      <div v-for="(value, key) in tabsObject" :key="key" :id="key">
-        <component :is="value[1]"></component>
-      </div>
+      <!-- <AnketaTab/>
+      <CheckTab/>
+      <PoligrafTab/>
+      <InvestigateTab/>
+      <InquiryTab/> -->
     </div>
 
     <a href="#" class="d-print-none" @click="printPage = !printPage">

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@store/classify";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
 
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
@@ -16,8 +13,6 @@ const BtnGroupForm = defineAsyncComponent(
 );
 
 const storeClassify = classifyStore();
-const storeAuth = authStore();
-const storeAlert = alertStore();
 
 const emit = defineEmits(["deactivate"]);
 
@@ -25,7 +20,7 @@ const props = defineProps({
   candId: String,
   itemId: String,
   action: String,
-  staff: {
+  check: {
     type: Object as () => Record<string, any>,
     default: () => {},
   },
@@ -33,37 +28,20 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
 });
 
-const staffForm = ref({
+const checkForm = ref({
   form: <Record<string, any>>{},
+  noNegative: true,
 
-  updateItem: async function (): Promise<void> {
-    try {
-      const response =
-        props.action === "create"
-          ? await storeAuth.axiosInstance.post(
-              `${server}/staff/${props.candId}`,
-              this.form
-            )
-          : await storeAuth.axiosInstance.patch(
-              `${server}/staff/${props.itemId}`,
-              this.form
-            );
+  updateItem: function () {
+    const itemId = props.action === "create" ? props.candId : props.itemId;
+    props.updateItem(props.action, "check", itemId, checkForm.value.form);
 
-      console.log(response.status);
-
-      storeAlert.alertMessage.setAlert(
-        "alert-success",
-        "Данные успешно обновлены"
-      );
-      props.getItem();
-    } catch (error) {
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Возникла ошибка ${error}`
-      );
-    }
     Object.keys(this.form).forEach((key) => {
       delete this.form[key as keyof typeof this.form];
     });
@@ -71,10 +49,9 @@ const staffForm = ref({
    },
 });
 
-const noNegative = ref(true);
 
-if (noNegative.value) {
-  Object.assign(storeProfile.dataProfile.form, {
+if (checkForm.value.noNegative) {
+  Object.assign(checkForm.value.form, {
     workplace: "Негатива по местам работы не обнаружено",
     employee: "В числе бывших работников МТСБ не обнаружен",
     document: "Среди недействительных документов не обнаружен",
@@ -91,34 +68,10 @@ if (noNegative.value) {
     cros: "В Крос негатив не выявлен",
     addition: "Дополнительная информация отсутствует",
   });
-}
-
-/**
- * Cancels the check.
- *
- * @return {Promise<void>} Returns a promise that resolves when the check is cancelled.
- */
-async function cancelCheck(): Promise<void> {
-  if (
-    storeProfile.dataProfile.resume["status"] !==
-    storeClassify.classData.status["save"]
-  ) {
-    storeProfile.dataProfile.getItem(
-      "resume",
-      "status",
-      storeProfile.dataProfile.candId
-    );
-  }
-  storeProfile.dataProfile.cancelEdit();
-}
+};
 </script>
 
-<template
-  v-if="
-    (storeProfile.action === 'update' || storeProfile.action === 'create') &&
-    storeProfile.flag === 'check'
-  "
->
+<template>
   <div class="form-check form-switch">
     <input
       class="form-check-checkbox"
@@ -126,13 +79,13 @@ async function cancelCheck(): Promise<void> {
       id="checkbox"
       name="check"
       type="checkbox"
-      v-model="noNegative"
+      v-model="checkForm.noNegative"
     />
     <label class="form-check-label" for="checkbox">Негатива нет</label>
   </div>
 
   <form
-    @submit.prevent="storeProfile.dataProfile.updateItem"
+    @submit.prevent="checkForm.updateItem"
     class="form form-check"
     role="form"
     id="checkFormId"
@@ -140,111 +93,111 @@ async function cancelCheck(): Promise<void> {
     <TextLabel
       :name="'workplace'"
       :label="'Проверка по местам работы'"
-      :model="storeProfile.dataProfile.form['workplace']"
+      :model="props.check['workplace']"
       @input-event="
-        storeProfile.dataProfile.form['workplace'] = $event.target.value
+        checkForm.form['workplace'] = $event.target.value
       "
     />
     <TextLabel
       :name="'employee'"
       :label="'Проверка по кадровому учету'"
-      :model="storeProfile.dataProfile.form['employee']"
+      :model="props.check['employee']"
       @input-event="
-        storeProfile.dataProfile.form['employee'] = $event.target.value
+        checkForm.form['employee'] = $event.target.value
       "
     />
     <TextLabel
       :name="'document'"
       :label="'Проверка документов'"
-      :model="storeProfile.dataProfile.form['document']"
+      :model="props.check['document']"
       @input-event="
-        storeProfile.dataProfile.form['document'] = $event.target.value
+        checkForm.form['document'] = $event.target.value
       "
     />
     <TextLabel
       :name="'inn'"
       :label="'Проверка ИНН'"
-      :model="storeProfile.dataProfile.form['inn']"
-      @input-event="storeProfile.dataProfile.form['inn'] = $event.target.value"
+      :model="props.check['inn']"
+      @input-event="checkForm.form['inn'] = $event.target.value"
     />
     <TextLabel
       :name="'debt'"
       :label="'Проверка задолженностей'"
-      :model="storeProfile.dataProfile.form['debt']"
-      @input-event="storeProfile.dataProfile.form['debt'] = $event.target.value"
+      :model="props.check['debt']"
+      @input-event="checkForm.form['debt'] = $event.target.value"
     />
     <TextLabel
       :name="'bankruptcy'"
       :label="'Проверка решений о признании банкротом'"
-      :model="storeProfile.dataProfile.form['bankruptcy']"
+      :model="props.check['bankruptcy']"
       @input-event="
-        storeProfile.dataProfile.form['bankruptcy'] = $event.target.value
+        checkForm.form['bankruptcy'] = $event.target.value
       "
     />
     <TextLabel
       :name="'bki'"
       :label="'Проверка кредитной истории'"
-      :model="storeProfile.dataProfile.form['bki']"
-      @input-event="storeProfile.dataProfile.form['bki'] = $event.target.value"
+      :model="props.check['bki']"
+      @input-event="checkForm.form['bki'] = $event.target.value"
     />
     <TextLabel
       :name="'courts'"
       :label="'Проверка судебных дел'"
-      :model="storeProfile.dataProfile.form['courts']"
+      :model="props.check['courts']"
       @input-event="
-        storeProfile.dataProfile.form['courts'] = $event.target.value
+        checkForm.form['courts'] = $event.target.value
       "
     />
     <TextLabel
       :name="'affiliation'"
       :label="'Проверка аффилированности'"
-      :model="storeProfile.dataProfile.form['affiliation']"
+      :model="props.check['affiliation']"
       @input-event="
-        storeProfile.dataProfile.form['affiliation'] = $event.target.value
+        checkForm.form['affiliation'] = $event.target.value
       "
     />
     <TextLabel
       :name="'terrorist'"
       :label="'Проверка в списке террористов'"
-      :model="storeProfile.dataProfile.form['terrorist']"
+      :model="props.check['terrorist']"
       @input-event="
-        storeProfile.dataProfile.form['terrorist'] = $event.target.value
+        checkForm.form['terrorist'] = $event.target.value
       "
     />
     <TextLabel
       :name="'mvd'"
       :label="'Проверка в розыск'"
-      :model="storeProfile.dataProfile.form['mvd']"
-      @input-event="storeProfile.dataProfile.form['mvd'] = $event.target.value"
+      :model="props.check['mvd']"
+      @input-event="checkForm.form['mvd'] = $event.target.value"
     />
     <TextLabel
       :name="'internet'"
       :label="'Проверка в открытых источниках'"
-      :model="storeProfile.dataProfile.form['internet']"
+      :model="props.check['internet']"
       @input-event="
-        storeProfile.dataProfile.form['internet'] = $event.target.value
+        checkForm.form['internet'] = $event.target.value
       "
     />
     <TextLabel
       :name="'cronos'"
       :label="'Проверка в Кронос'"
-      :model="storeProfile.dataProfile.form['cronos']"
+      :model="props.check['cronos']"
       @input-event="
-        storeProfile.dataProfile.form['cronos'] = $event.target.value
+        checkForm.form['cronos'] = $event.target.value
       "
     />
     <TextLabel
       :name="'cros'"
       :label="'Проверка в Крос'"
-      :model="storeProfile.dataProfile.form['cros']"
-      @input-event="storeProfile.dataProfile.form['cros'] = $event.target.value"
+      :model="props.check['cros']"
+      @input-event="checkForm.form['cros'] = $event.target.value"
     />
     <TextLabel
       :name="'addition'"
       :label="'Дополнительная информация'"
-      :model="storeProfile.dataProfile.form['addition']"
+      :model="props.check['addition']"
       @input-event="
-        storeProfile.dataProfile.form['addition'] = $event.target.value
+        checkForm.form['addition'] = $event.target.value
       "
     />
     <div class="row">
@@ -254,7 +207,7 @@ async function cancelCheck(): Promise<void> {
             class="form-check-input"
             id="pfo"
             name="pfo"
-            v-model="storeProfile.dataProfile.form['pfo']"
+            v-model="props.check['pfo']"
             type="checkbox"
             value="y"
           />
@@ -266,17 +219,17 @@ async function cancelCheck(): Promise<void> {
       :name="'conclusion'"
       :label="'Результат'"
       :select="storeClassify.classData.conclusion"
-      :model="storeProfile.dataProfile.form['conclusion']"
+      :model="props.check['conclusion']"
       @input-event="
-        storeProfile.dataProfile.form['conclusion'] = $event.target.value
+        checkForm.form['conclusion'] = $event.target.value
       "
     />
     <TextLabel
       :name="'comments'"
       :label="'Комментарий'"
-      :model="storeProfile.dataProfile.form['comments']"
+      :model="props.check['comments']"
       @input-event="
-        storeProfile.dataProfile.form['comments'] = $event.target.value
+        checkForm.form['comments'] = $event.target.value
       "
     />
     <BtnGroupForm>
@@ -285,7 +238,7 @@ async function cancelCheck(): Promise<void> {
       <button
         class="btn btn-outline-primary"
         type="button"
-        @click="cancelCheck"
+        @click="emit('deactivate')"
       >
         Отмена
       </button>

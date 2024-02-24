@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref, inject } from "vue";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Contact } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -14,19 +12,28 @@ const ContactForm = defineAsyncComponent(
   () => import("@components/forms/ContactForm.vue")
 );
 
-const candId = inject("candId") as string;
-const storeAuth = authStore();
-const storeAlert = alertStore();
-
-
-interface Contact {
-  id: string;
-  view: string;
-  contact: string;
-}
 
 onBeforeMount(() => {
-  contact.value.getItem();
+  props.getItem("staff");
+});
+
+const props = defineProps({
+  candId: {
+    type: String,
+    required: true,
+  },
+  items: {
+    type: Array as () => Contact[],
+    default: () => ({}),
+  },
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
+  },
 });
 
 const contact = ref({
@@ -34,40 +41,6 @@ const contact = ref({
   isForm: false,
   itemId: "",
   item: <Contact>{},
-  items: Array<Contact>(),
-
-  getItem: async function (): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/contact/${candId}`
-      );
-      this.items = response.data;
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Ошибка: ${error}`
-      );
-    }
-  },
-
-  deleteItem: async function (id: string): Promise<void> {
-    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/staff/${id}`
-      );
-      console.log(response.status);
-      this.getItem();
-
-      storeAlert.alertMessage.setAlert(
-        "alert-info",
-        `Запись с ID ${id} удалена`
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  },
 
   deactivateForm: function () {
     this.isForm = false;
@@ -94,7 +67,7 @@ const contact = ref({
   </h6>
   <template v-if="contact.isForm">
     <ContactForm 
-      :get-item="contact.getItem"
+      :get-item="props.getItem"
       :action="contact.action"
       :cand-id="candId"
       :content="contact.item"
@@ -102,9 +75,9 @@ const contact = ref({
     />
   </template>
   <template v-else>
-    <div v-if="contact.items.length > 0">
+    <div v-if="props.items.length > 0">
       <CollapseDiv
-        v-for="(item, idx) in contact.items"
+        v-for="(item, idx) in props.items"
         :key="idx"
         :id="'cont' + idx"
         :idx="idx"
@@ -114,7 +87,7 @@ const contact = ref({
           <template v-slot:divTwo>
             <a
               href="#"
-              @click="contact.deleteItem(item['id'].toString())"
+              @click="props.deleteItem(item['id'].toString())"
               title="Удалить"
             >
               <i class="bi bi-trash"></i>

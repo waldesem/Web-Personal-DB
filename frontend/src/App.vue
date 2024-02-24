@@ -40,6 +40,7 @@ onBeforeMount(() => {
 });
 
 const userData = ref({
+  userId: "",
   fullName: "",
   userName: "",
   userRoles: [],
@@ -48,8 +49,8 @@ const userData = ref({
   getAuth: async function (): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/login`);
-      const { fullname, username, roles, groups } = response.data;
-      this.assignUserData(fullname, username, roles, groups);
+      const { id, fullname, username, roles, groups } = response.data;
+      this.assignUserData(id, fullname, username, roles, groups);
 
       this.hasRole("admin")
         ? router.push({ name: "users", params: { group: "admins" } })
@@ -91,8 +92,9 @@ const userData = ref({
     return this.userGroups.some((g: { group: any }) => g.group === group);
   },
 
-  assignUserData(name = "", user = "", roles = [], groups = []) {
+  assignUserData(id = "", name = "", user = "", roles = [], groups = []) {
     Object.assign(this, {
+      userId: id,
       fullName: name,
       userName: user,
       userRoles: roles,
@@ -100,6 +102,8 @@ const userData = ref({
     });
   },
 });
+
+provide("userId", userData.value.userId);
 </script>
 
 <template>
