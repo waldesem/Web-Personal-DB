@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import shutil
 
-import requests
+import httpx
 from apiflask import EmptySchema
 from flask import abort, request, send_file
 from flask.views import MethodView
@@ -190,19 +190,16 @@ class ResumeView(MethodView):
                         }
                     )
                     try:
-                        response = requests.post(
+                        response = httpx.post(
                             url="https://httpbin.org/post", json=serial, timeout=5
                         )
                         response.raise_for_status()
-                        if response.status_code == 200:
-                            person.status_id = Status.get_id(Statuses.robot.value)
-                            person.user_id = current_user.id
-                            db.session.commit()
-                            return self.get(person_id)
-
-                        return abort(response.status_code)
-                    except requests.exceptions.RequestException as e:
-                        print(e)
+                        person.status_id = Status.get_id(Statuses.robot.value)
+                        person.user_id = current_user.id
+                        db.session.commit()
+                        return self.get(person_id)
+                    except httpx.HTTPError as exc:
+                        print(f"Error while requesting {exc.request.url!r}.")
                 return abort(403)
             return PersonSchema().dump(person), 200
         return abort(403)
