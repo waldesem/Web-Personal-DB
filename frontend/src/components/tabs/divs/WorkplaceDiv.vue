@@ -13,8 +13,8 @@ const WorkplaceForm = defineAsyncComponent(
 );
 
 
-onBeforeMount(() => {
-  props.getItem("staff");
+onBeforeMount( async() => {
+  await props.getItem("staff");
 });
 
 const props = defineProps({

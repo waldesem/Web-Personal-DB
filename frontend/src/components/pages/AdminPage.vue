@@ -43,8 +43,8 @@ const searchUsers = debounce(() => {
   dataUsers.value.getUsers();
 }, 500);
 
-onBeforeMount(async () => {
-  dataUsers.value.getUsers();
+onBeforeMount( async() => {
+  await  dataUsers.value.getUsers();
 });
 
 const dataUsers = ref({

@@ -22,9 +22,9 @@ const RobotDiv = defineAsyncComponent(
 
 const storeClassify = classifyStore();
 
-onBeforeMount(() => {
-  props.getItem("check");
-  props.getItem("robot");
+onBeforeMount( async() => {
+  await props.getItem("check");
+  await props.getItem("robot");
 });
 
 const props = defineProps({

@@ -17,10 +17,10 @@ const storeClassify = classifyStore();
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-onBeforeMount(() => {
+onBeforeMount( async() => {
   if (storeClassify.classData.tables.length) {
     tableData.value.table = storeClassify.classData.tables[0];
-    tableData.value.getItem(1);
+    await tableData.value.getItem(1);
   }
 });
 

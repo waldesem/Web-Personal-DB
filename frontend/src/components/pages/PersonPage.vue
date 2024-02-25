@@ -65,8 +65,8 @@ const personData = ref({
   },
 });
 
-onBeforeMount(() => {
-  personData.value.getCandidates(personData.value.page, personData.value.path);
+onBeforeMount( async() => {
+  await personData.value.getCandidates(personData.value.page, personData.value.path);
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {

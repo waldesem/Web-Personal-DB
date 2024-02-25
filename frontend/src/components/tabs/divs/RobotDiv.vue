@@ -9,9 +9,9 @@ const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
 
-onBeforeMount(() => {
-  props.getItem("check");
-  props.getItem("robot");
+onBeforeMount( async() => {
+  await props.getItem("check");
+  await props.getItem("robot");
 });
 
 const props = defineProps({

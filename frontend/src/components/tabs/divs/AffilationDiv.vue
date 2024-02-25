@@ -13,8 +13,8 @@ const AffilationForm = defineAsyncComponent(
 );
 
 
-onBeforeMount(() => {
-  props.getItem("staff");
+onBeforeMount( async() => {
+  await props.getItem("staff");
 });
 
 const props = defineProps({
@@ -30,6 +30,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
   deleteItem: {
     type: Function,
     required: true,
@@ -41,11 +45,6 @@ const affilation = ref({
   isForm: false,
   itemId: "",
   item: <Affilation>{},
-
-  deactivateForm: function () {
-    this.isForm = false;
-    this.action = "";
-  },
 });
 </script>
 
@@ -67,10 +66,11 @@ const affilation = ref({
   <template v-if="affilation.isForm">
     <AffilationForm 
       :get-item="props.getItem"
+      :update-item="props.updateItem"
       :action="affilation.action"
       :cand-id="candId"
       :content="affilation.item"
-      @deactivate="affilation.deactivateForm"
+      @deactivate="affilation.isForm = false; affilation.action = '';"
     />
   </template>
   <template v-else>

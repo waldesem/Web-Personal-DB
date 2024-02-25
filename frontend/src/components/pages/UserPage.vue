@@ -48,9 +48,9 @@ interface User {
   attempt: string;
 }
 
-onBeforeMount(async () => {
+onBeforeMount( async() => {
   userData.value.id = route.params.id.toString();
-  userData.value.userAction("view");
+  await userData.value.userAction("view");
 });
 
 const userData = ref({

@@ -12,8 +12,8 @@ const StaffForm = defineAsyncComponent(
   () => import("@components/forms/StaffForm.vue")
 );
 
-onBeforeMount(() => {
-  props.getItem("staff");
+onBeforeMount( async() => {
+  await props.getItem("staff");
 });
 
 const props = defineProps({
@@ -29,6 +29,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
   deleteItem: {
     type: Function,
     required: true,
@@ -40,11 +44,6 @@ const staff = ref({
   isForm: false,
   itemId: "",
   item: <Staff>{},
-
-  deactivateForm: function () {
-    this.isForm = false;
-    this.action = "";
-  },
 });
 </script>
 
@@ -66,10 +65,11 @@ const staff = ref({
   <template v-if="staff.isForm">
     <StaffForm
       :get-item="props.getItem"
+      :update-item="props.updateItem"
       :action="staff.action"
       :cand-id="candId"
       :content="staff.item"
-      @deactivate="staff.deactivateForm"
+      @deactivate="staff.isForm = false; staff.action = '';"
     />
   </template>
   <template v-else>

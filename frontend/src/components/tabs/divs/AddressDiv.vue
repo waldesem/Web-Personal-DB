@@ -12,8 +12,8 @@ const AddressForm = defineAsyncComponent(
   () => import("@components/forms/AddressForm.vue")
 );
 
-onBeforeMount(() => {
-  props.getItem("staff");
+onBeforeMount( async() => {
+  await props.getItem("staff");
 });
 
 const props = defineProps({
@@ -29,6 +29,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
   deleteItem: {
     type: Function,
     required: true,
@@ -40,11 +44,6 @@ const address = ref({
   isForm: false,
   itemId: "",
   item: <Address>{},
-
-  deactivateForm: function () {
-    this.isForm = false;
-    this.action = "";
-  },
 });
 </script>
 
@@ -67,10 +66,11 @@ const address = ref({
   <template v-if="address.isForm">
     <AddressForm
       :get-item="props.getItem"
+      :update-item="props.updateItem"
       :action="address.action"
       :cand-id="candId"
       :content="address.item"
-      @deactivate="address.deactivateForm"
+      @deactivate="address.isForm = false; address.action = '';"
     />
   </template>
   <template v-else>

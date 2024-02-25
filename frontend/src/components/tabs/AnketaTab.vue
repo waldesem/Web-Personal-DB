@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
-import { 
-  Resume, 
-  Staff, 
+import {
+  Resume,
+  Staff,
   Document,
   Address,
   Contact,
@@ -47,106 +44,75 @@ const BtnGroupForm = defineAsyncComponent(
 );
 
 const storeClassify = classifyStore();
-const storeAuth = authStore();
-const storeAlert = alertStore();
 
 const props = defineProps({
   candId: {
     type: String,
     required: true,
   },
-  resume: {
-    type: Object as () => Resume,
-    default: () => {},
+  spinner: {
+    type: Boolean,
+    required: true,
   },
-  spinner: Boolean,
+  resume: {
+    type: () => <Resume>{},
+    default: () => <Resume>{},
+    },
+  staffs: {
+    type: () => <Array<Staff>>[],
+    default: () => <Array<Staff>>[],
+    },
+  documents: {
+    type: () => <Array<Document>>[],
+    default: () => <Array<Document>>[],
+  },
+  addresses: {
+    type: () => <Array<Address>>[],
+    default: () => <Array<Address>>[],
+  },
+  contacts: {
+    type: () => <Array<Contact>>[],
+    default: () => <Array<Contact>>[],
+  },
+  relations: {
+    type: () => <Array<Relation>>[],
+    default: () => <Array<Relation>>[],
+  },
+  workplaces: {
+    type: () => <Array<Work>>[],
+    default: () => <Array<Work>>[],
+  },
+  affilations: {
+    type: () => <Array<Affilation>>[],
+    default: () => <Array<Affilation>>[],
+  },
   getResume: {
     type: Function,
     required: true,
   },
-  deleteResume: {
+  getItem: {
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
+  deleteItem: {
+    type: Function,
+    required: true,
+  },
+});
+
+onBeforeMount( async() => {
+  await props.getItem("resume");
 });
 
 const dataResume = ref({
   action: "",
   item: "",
-  form: <Record<string, any>>{},
-
-  deactivateForm: function () {
-    this.action = "";
-    this.item = "";
-  },
+  form: <Resume>{},
 });
-
-const briefData = ref({
-  staffs: <Array<Staff>>[],
-  documents: <Array<Document>>[],
-  addresses: <Array<Address>>[],
-  contacts: <Array<Contact>>[],
-  relations: <Array<Relation>>[],
-  workplaces: <Array<Work>>[],
-  affilations: <Array<Affilation>>[],
-
-  getItem: async function (param: string): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/${param}/${props.candId}`
-      );
-      switch (param) {
-        case "staff":
-          this.staffs = response.data;
-          break;
-        case "document":
-          this.documents = response.data;
-          break;
-        case "address":
-          this.addresses = response.data;
-          break;
-        case "contact":
-          this.contacts = response.data;
-          break;
-        case "relation":
-          this.relations = response.data;
-          break;
-        case "workplace":
-          this.workplaces = response.data;
-          break;
-        case "affilation":
-          this.affilations = response.data;
-          break;
-        default:
-          break;
-      }
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Ошибка: ${error}`
-      );
-    }
-  },
-
-  deleteItem: async function (id: string, param: string): Promise<void> {
-    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/staff/${id}`
-      );
-      console.log(response.status);
-      this.getItem(param);
-
-      storeAlert.alertMessage.setAlert(
-        "alert-info",
-        `Запись с ID ${id} удалена`
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  },
-})
 </script>
 
 <template>
@@ -155,9 +121,12 @@ const briefData = ref({
       <ResumeForm
         :get-item="props.getResume"
         :action="dataResume.action"
-        :cand-id="candId"
+        :cand-id="props.candId"
         :content="props.resume"
-        @deactivate="dataResume.deactivateForm"
+        @deactivate="
+          dataResume.action = '';
+          dataResume.item = '';
+        "
       />
     </template>
 
@@ -176,15 +145,11 @@ const briefData = ref({
         </RowDivSlot>
         <RowDivSlot
           :label="'Категория'"
-          :value="
-            storeClassify.classData.category[props.resume['category_id']]
-          "
+          :value="storeClassify.classData.category[props.resume['category_id']]"
         />
         <RowDivSlot
           :label="'Регион'"
-          :value="
-            storeClassify.classData.regions[props.resume['region_id']]
-          "
+          :value="storeClassify.classData.regions[props.resume['region_id']]"
         />
         <RowDivSlot
           :label="'Фамилия Имя Отчество'"
@@ -202,20 +167,14 @@ const briefData = ref({
           :label="'Место рождения'"
           :value="props.resume['birthplace']"
         />
-        <RowDivSlot
-          :label="'Гражданство'"
-          :value="props.resume['country']"
-        />
+        <RowDivSlot :label="'Гражданство'" :value="props.resume['country']" />
         <RowDivSlot
           :label="'Второе гражданство'"
           :value="props.resume['ext_country']"
         />
         <RowDivSlot :label="'СНИЛС'" :value="props.resume['snils']" />
         <RowDivSlot :label="'ИНН'" :value="props.resume['inn']" />
-        <RowDivSlot
-          :label="'Образование'"
-          :value="props.resume['education']"
-        />
+        <RowDivSlot :label="'Образование'" :value="props.resume['education']" />
         <RowDivSlot
           :label="'Дополнительная информация'"
           :value="props.resume['addition']"
@@ -236,9 +195,7 @@ const briefData = ref({
         <RowDivSlot :label="'Статус'" :slotTwo="true">
           <template v-slot:divTwo>
             <a href="#" @click="props.getResume('status')">
-              {{
-                storeClassify.classData.status[props.resume["status_id"]]
-              }}
+              {{ storeClassify.classData.status[props.resume["status_id"]] }}
             </a>
           </template>
         </RowDivSlot>
@@ -258,64 +215,69 @@ const briefData = ref({
             )
           "
         />
-        <RowDivSlot
-          :label="'Внешний ID'"
-          :value="props.resume['request_id']"
-        />
+        <RowDivSlot :label="'Внешний ID'" :value="props.resume['request_id']" />
       </div>
       <p v-else>Данные отсутствуют</p>
     </template>
 
-    <StaffDiv 
+    <StaffDiv
       :cand-id="props.candId"
-      :items="briefData.staffs"
-      :get-item="briefData.getItem"
-      :delete-item="briefData.deleteItem"
+      :items="props.staffs"
+      :get-item="props.getItem"
+      :update-item="props.updateItem"
+      :delete-item="props.deleteItem"
     />
-    <DocumentDiv 
+    <DocumentDiv
       :cand-id="props.candId"
-      :items="briefData.documents"
-      :get-item="briefData.getItem"
-      :delete-item="briefData.deleteItem"
+      :items="props.documents"
+      :get-item="props.getItem"
+      :update-item="props.updateItem"
+      :delete-item="props.deleteItem"
     />
-    <AddressDiv 
+    <AddressDiv
       :cand-id="props.candId"
-      :items="briefData.addresses"
-      :get-item="briefData.getItem"
-      :delete-item="briefData.deleteItem"
+      :items="props.addresses"
+      :get-item="props.getItem"
+      :update-item="props.updateItem"
+      :delete-item="props.deleteItem"
     />
-    <ContactDiv 
+    <ContactDiv
       :cand-id="props.candId"
-      :items="briefData.contacts"
-      :get-item="briefData.getItem"
-      :delete-item="briefData.deleteItem"
+      :items="props.contacts"
+      :get-item="props.getItem"
+      :update-item="props.updateItem"
+      :delete-item="props.deleteItem"
     />
-    <RelationDiv 
+    <RelationDiv
       :cand-id="props.candId"
-      :items="briefData.relations"
-      :get-item="briefData.getItem"
-      :delete-item="briefData.deleteItem"
+      :items="props.relations"
+      :get-item="props.getItem"
+      :update-item="props.updateItem"
+      :delete-item="props.deleteItem"
     />
-    <WorkplaceDiv 
+    <WorkplaceDiv
       :cand-id="props.candId"
-      :items="briefData.workplaces"
-      :get-item="briefData.getItem"
-      :delete-item="briefData.deleteItem"
+      :items="props.workplaces"
+      :get-item="props.getItem"
+      :update-item="props.updateItem"
+      :delete-item="props.deleteItem"
     />
-    <AffilationDiv 
+    <AffilationDiv
       :cand-id="props.candId"
-      :items="briefData.affilations"
-      :get-item="briefData.getItem"
-      :delete-item="briefData.deleteItem"
+      :items="props.affilations"
+      :get-item="props.getItem"
+      :update-item="props.updateItem"
+      :delete-item="props.deleteItem"
     />
 
     <div class="d-print-none py-3">
       <BtnGroupForm>
-        <button 
+        <button
           :disabled="props.resume.user_id !== ''"
           type="button"
-          class="btn btn-outline-primary" 
-          @click="props.getResume('self')">
+          class="btn btn-outline-primary"
+          @click="props.getResume('self')"
+        >
           Взять на проверку
         </button>
         <button
@@ -327,7 +289,7 @@ const briefData = ref({
                 'update' &&
               storeClassify.classData.status[props.resume['status_id']] !==
                 'repeat') ||
-                props.spinner
+            props.spinner
           "
           @click="props.getResume('send')"
         >
@@ -345,7 +307,7 @@ const briefData = ref({
             storeClassify.classData.status[props.resume['status_id']] ===
               'finish' || props.spinner
           "
-          @click="props.deleteResume("resume")"
+          @click="props.deleteItem('resume')"
         >
           Удалить анкету
         </button>

@@ -12,8 +12,8 @@ const RelationForm = defineAsyncComponent(
   () => import("@components/forms/RelationForm.vue")
 );
 
-onBeforeMount(() => {
-  props.getItem("staff");
+onBeforeMount( async() => {
+  await props.getItem("staff");
 });
 
 const props = defineProps({
@@ -29,6 +29,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
   deleteItem: {
     type: Function,
     required: true,
@@ -40,11 +44,6 @@ const relation = ref({
   isForm: false,
   itemId: "",
   item: <Relation>{},
-
-  deactivateForm: function () {
-    this.isForm = false;
-    this.action = "";
-  },
 });
 </script>
 
@@ -66,10 +65,11 @@ const relation = ref({
   <template v-if="relation.isForm">
     <RelationForm
       :get-item="props.getItem"
+      :update-item="props.updateItem"
       :action="relation.action"
       :cand-id="candId"
       :content="relation.item"
-      @deactivate="relation.deactivateForm"
+      @deactivate="relation.isForm = false; relation.action = '';"
     />
   </template>
   <template v-else>

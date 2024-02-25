@@ -21,9 +21,9 @@ const props = defineProps({
   },
 });
 
-onBeforeMount(() => {
+onBeforeMount( async() => {
   fileManager.value.path = props.path.slice(0, -1);
-  fileManager.value.openFolder();
+  await fileManager.value.openFolder();
 });
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {

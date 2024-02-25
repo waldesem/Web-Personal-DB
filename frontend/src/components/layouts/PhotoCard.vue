@@ -7,8 +7,8 @@ import { server } from "@utilities/utils";
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-onBeforeMount(() => {
-  photoCard.value.getImage()
+onBeforeMount( async() => {
+  await photoCard.value.getImage()
 });
 
 const photoCard = ref({

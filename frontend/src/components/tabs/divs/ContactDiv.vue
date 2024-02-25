@@ -13,8 +13,8 @@ const ContactForm = defineAsyncComponent(
 );
 
 
-onBeforeMount(() => {
-  props.getItem("staff");
+onBeforeMount( async() => {
+  await props.getItem("staff");
 });
 
 const props = defineProps({
@@ -30,6 +30,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
   deleteItem: {
     type: Function,
     required: true,
@@ -41,11 +45,6 @@ const contact = ref({
   isForm: false,
   itemId: "",
   item: <Contact>{},
-
-  deactivateForm: function () {
-    this.isForm = false;
-    this.action = "";
-  },
 });
 </script>
 </script>
@@ -68,10 +67,11 @@ const contact = ref({
   <template v-if="contact.isForm">
     <ContactForm 
       :get-item="props.getItem"
+      :update-item="props.updateItem"
       :action="contact.action"
       :cand-id="candId"
       :content="contact.item"
-      @deactivate="contact.deactivateForm"
+      @deactivate="contact.isForm = false; contact.action = '';"
     />
   </template>
   <template v-else>

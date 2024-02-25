@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
@@ -10,9 +7,6 @@ const InputLabel = defineAsyncComponent(
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
-
-const storeAuth = authStore();
-const storeAlert = alertStore();
 
 const emit = defineEmits(["deactivate"]);
 
@@ -28,37 +22,19 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
 });
 
 const relationForm = ref({
   form: <Record<string, any>>{},
 
-  updateItem: async function (): Promise<void> {
-    try {
-      const response =
-        props.action === "create"
-          ? await storeAuth.axiosInstance.post(
-              `${server}/relation/${props.candId}`,
-              this.form
-            )
-          : await storeAuth.axiosInstance.patch(
-              `${server}/relation/${props.itemId}`,
-              this.form
-            );
+  updateItem: function () {
+    const itemId = props.action === "create" ? props.candId : props.itemId;
+    props.updateItem(props.action, "relation", itemId, relationForm.value.form);
 
-      console.log(response.status);
-
-      storeAlert.alertMessage.setAlert(
-        "alert-success",
-        "Данные успешно обновлены"
-      );
-      props.getItem();
-    } catch (error) {
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Возникла ошибка ${error}`
-      );
-    }
     Object.keys(this.form).forEach((key) => {
       delete this.form[key as keyof typeof this.form];
     });

@@ -17,8 +17,8 @@ const PageSwitcher = defineAsyncComponent(
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-onBeforeMount(() => {
-  contactData.value.getContacts();
+onBeforeMount( async() => {
+  await contactData.value.getContacts();
 });
 
 const searchContacts = debounce(() => {

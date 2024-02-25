@@ -12,8 +12,8 @@ const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
 
-onBeforeMount(() => {
-  props.getItem("poligraf");
+onBeforeMount( async() => {
+  await props.getItem("poligraf");
 });
 
 const props = defineProps({

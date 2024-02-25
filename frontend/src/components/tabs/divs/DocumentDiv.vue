@@ -12,8 +12,8 @@ const DocumentForm = defineAsyncComponent(
   () => import("@components/forms/DocumentForm.vue")
 );
 
-onBeforeMount(() => {
-  props.getItem("staff");
+onBeforeMount( async() => {
+  await props.getItem("staff");
 });
 
 const props = defineProps({
@@ -29,6 +29,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  updateItem: {
+    type: Function,
+    required: true,
+  },
   deleteItem: {
     type: Function,
     required: true,
@@ -40,11 +44,6 @@ const document = ref({
   isForm: false,
   itemId: "",
   item: <Document>{},
-
-  deactivateForm: function () {
-    this.isForm = false;
-    this.action = "";
-  },
 });
 </script>
 
@@ -66,10 +65,11 @@ const document = ref({
   <template v-if="document.isForm">
     <DocumentForm 
       :get-item="props.getItem"
+      :update-item="props.updateItem"
       :action="document.action"
       :cand-id="candId"
       :content="document.item"
-      @deactivate="document.deactivateForm"
+      @deactivate="document.isForm = false; document.action = '';"
     />
   </template>
   <template v-else>

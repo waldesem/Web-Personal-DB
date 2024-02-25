@@ -35,8 +35,8 @@ watch(
   { immediate: true }
 );
 
-onBeforeMount(() => {
-  userData.value.getAuth();
+onBeforeMount( async() => {
+  await userData.value.getAuth();
 });
 
 const userData = ref({

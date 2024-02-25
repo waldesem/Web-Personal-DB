@@ -5,9 +5,16 @@ import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
-import { Resume } from "@/interfaces/interface";
 import { router } from "@/router/router";
 import {
+  Resume,
+  Staff,
+  Document,
+  Address,
+  Contact,
+  Relation,
+  Work,
+  Affilation,
   Verification,
   Robot,
   Pfo,
@@ -45,14 +52,12 @@ const route = useRoute();
 
 const candId = route.params.id.toString();
 
-onBeforeMount(() => {
-  anketaData.value.getResume();
+onBeforeMount( async() => {
+  await anketaData.value.getResume();
 });
 
-const printPage = ref(false);
-
 const anketaData = ref({
-  resume: <Resume>{},
+  printPage: false,
   spinner: false,
   tabsObject: {
     anketaTab: "Анкета",
@@ -61,6 +66,19 @@ const anketaData = ref({
     investigateTab: "Расследования",
     inquiryTab: "Запросы",
   },
+  resume: <Resume>{},
+  staffs: <Array<Staff>>[],
+  documents: <Array<Document>>[],
+  addresses: <Array<Address>>[],
+  contacts: <Array<Contact>>[],
+  relations: <Array<Relation>>[],
+  workplaces: <Array<Work>>[],
+  affilations: <Array<Affilation>>[],
+  checks: Array<Verification>(),
+  robots: Array<Robot>(),
+  poligraf: Array<Pfo>(),
+  investigations: Array<Inquisition>(),
+  inquiries: Array<Needs>(),
 
   getResume: async function (action = "view"): Promise<void> {
     if (action === "status") {
@@ -76,7 +94,6 @@ const anketaData = ref({
       }
     }
     if (action === "self") {
-      this.spinner = true;
       if (!confirm("Вы действительно назначить проверку кандидата на себя?")) {
         return;
       }
@@ -104,6 +121,7 @@ const anketaData = ref({
           "Анкета отправлена на проверку"
         );
         window.scrollTo(0, 0);
+        this.spinner = false;
       }
     } catch (error) {
       console.error(error);
@@ -114,14 +132,6 @@ const anketaData = ref({
     }
     this.spinner = false;
   },
-});
-
-const checksData = ref({
-  checks: Array<Verification>(),
-  robots: Array<Robot>(),
-  poligraf: Array<Pfo>(),
-  investigations: Array<Inquisition>(),
-  inquiries: Array<Needs>(),
 
   getItem: async function (param: string): Promise<void> {
     try {
@@ -129,6 +139,27 @@ const checksData = ref({
         `${server}/${param}/${candId}`
       );
       switch (param) {
+        case "staff":
+          this.staffs = response.data;
+          break;
+        case "document":
+          this.documents = response.data;
+          break;
+        case "address":
+          this.addresses = response.data;
+          break;
+        case "contact":
+          this.contacts = response.data;
+          break;
+        case "relation":
+          this.relations = response.data;
+          break;
+        case "workplace":
+          this.workplaces = response.data;
+          break;
+        case "affilation":
+          this.affilations = response.data;
+          break;
         case "check":
           this.checks = response.data;
           break;
@@ -150,6 +181,39 @@ const checksData = ref({
     } catch (error) {
       console.error(error);
       storeAlert.alertMessage.setAlert("alert-danger", `Ошибка: ${error}`);
+    }
+  },
+
+  updateItem: async function (
+    action: string,
+    param: string,
+    itemId: string,
+    form: Object
+  ): Promise<void> {
+    try {
+      const response =
+        action === "create"
+          ? await storeAuth.axiosInstance.post(
+              `${server}/${param}/${itemId}`,
+              form
+            )
+          : await storeAuth.axiosInstance.patch(
+              `${server}/check/${itemId}`,
+              form
+            );
+
+      console.log(response.status);
+
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Данные успешно обновлены"
+      );
+      this.getItem(param);
+    } catch (error) {
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Возникла ошибка ${error}`
+      );
     }
   },
 
@@ -238,38 +302,6 @@ const checksData = ref({
       );
     }
   },
-  updateItem: async function (
-    action: string,
-    param: string,
-    itemId: string,
-    form: Object
-  ): Promise<void> {
-    try {
-      const response =
-        action === "create"
-          ? await storeAuth.axiosInstance.post(
-              `${server}/${param}/${itemId}`,
-              form
-            )
-          : await storeAuth.axiosInstance.patch(
-              `${server}/check/${itemId}`,
-              form
-            );
-
-      console.log(response.status);
-
-      storeAlert.alertMessage.setAlert(
-        "alert-success",
-        "Данные успешно обновлены"
-      );
-      this.getItem(param);
-    } catch (error) {
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Возникла ошибка ${error}`
-      );
-    }
-  },
 });
 </script>
 
@@ -277,87 +309,114 @@ const checksData = ref({
   <div class="container py-3">
     <PhotoCard />
     <HeaderDiv :page-header="anketaData.resume.fullname" />
-    <div v-if="!printPage" class="nav nav-tabs nav-justified" role="tablist">
-      <button
-        v-for="(value, key) in anketaData.tabsObject"
-        class="nav-link"
-        :class="{ active: key === 'anketaTab' }"
-        data-bs-toggle="tab"
-        :data-bs-target="`#${key}`"
-        type="button"
-        role="tab"
-      >
-        {{ value[0] }}
-      </button>
+    <div
+      v-if="!anketaData.printPage"
+      :class="!anketaData.printPage ? 'nav nav-tabs nav-justified' : 'mt-1'"
+      :role="anketaData.printPage ? 'tablist' : ''"
+    >
+      <div v-if="!anketaData.printPage">
+        <button
+          v-for="(value, key) in anketaData.tabsObject"
+          class="nav-link"
+          :class="{ active: key === 'anketaTab' }"
+          data-bs-toggle="tab"
+          :data-bs-target="`#${key}`"
+          type="button"
+          role="tab"
+        >
+          {{ value[0] }}
+        </button>
+      </div>
     </div>
 
-    <div v-if="!printPage" class="tab-content">
+    <div :class="!anketaData.printPage ? 'tab-content' :'mt-1'" >
       <div
         id="anketaTab"
-        class="tab-pane fade py-1 show active"
-        role="tabpanel"
+        :class="anketaData.printPage ? 'tab-pane fade py-1 show active' : 'mt-1'"
+        :role="anketaData.printPage ? 'tabpanel' : ''"
       >
         <AnketaTab
           :cand-id="candId"
+          :spinner="anketaData.spinner"
           :resume="anketaData.resume"
+          :staffs="anketaData.staffs"
+          :documents="anketaData.documents"
+          :addresses="anketaData.addresses"
+          :contacts="anketaData.contacts"
+          :relations="anketaData.relations"
+          :workplaces="anketaData.workplaces"
+          :affilations="anketaData.affilations"
           :get-resume="anketaData.getResume"
-          :delete-resume="checksData.deleteItem"
+          :get-item="anketaData.getItem"
+          :update-item="anketaData.updateItem"
+          :delete-item="anketaData.deleteItem"
         />
       </div>
-      <div id="сheckTab" class="tab-pane fade py-1" role="tabpanel">
+      <div 
+        id="сheckTab" 
+        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :role="anketaData.printPage ? 'tabpanel' : ''"
+      >
         <CheckTab
           :cand-id="candId"
-          :checks="checksData.checks"
-          :robots="checksData.robots"
-          :get-item="checksData.getItem"
-          :update-item="checksData.updateItem"
-          :delete-item="checksData.deleteItem"
-          :submit-file="checksData.submitFile"
+          :checks="anketaData.checks"
+          :robots="anketaData.robots"
+          :get-item="anketaData.getItem"
+          :update-item="anketaData.updateItem"
+          :delete-item="anketaData.deleteItem"
+          :submit-file="anketaData.submitFile"
           :status-id="anketaData.resume.status_id"
           :user-id="anketaData.resume.user_id"
         />
       </div>
-      <div id="poligrafTab" class="tab-pane fade py-1" role="tabpanel">
+      <div 
+        id="poligrafTab"         
+        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :role="anketaData.printPage ? 'tabpanel' : ''"
+      >
         <PoligrafTab
           :cand-id="candId"
-          :poligraf="checksData.poligraf"
-          :get-item="checksData.getItem"
-          :update-item="checksData.updateItem"
-          :delete-item="checksData.deleteItem"
-          :submit-file="checksData.submitFile"
+          :poligraf="anketaData.poligraf"
+          :get-item="anketaData.getItem"
+          :update-item="anketaData.updateItem"
+          :delete-item="anketaData.deleteItem"
+          :submit-file="anketaData.submitFile"
         />
       </div>
-      <div id="investigateTab" class="tab-pane fade py-1" role="tabpanel">
+      <div 
+        id="investigateTab" 
+        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :role="anketaData.printPage ? 'tabpanel' : ''"
+      >
         <InvestigateTab
           :cand-id="candId"
-          :investigations="checksData.investigations"
-          :get-item="checksData.getItem"
-          :update-item="checksData.updateItem"
-          :delete-item="checksData.deleteItem"
-          :submit-file="checksData.submitFile"
+          :investigations="anketaData.investigations"
+          :get-item="anketaData.getItem"
+          :update-item="anketaData.updateItem"
+          :delete-item="anketaData.deleteItem"
+          :submit-file="anketaData.submitFile"
         />
       </div>
-      <div id="inquiryTab" class="tab-pane fade py-1" role="tabpanel">
+      <div 
+        id="inquiryTab" 
+        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :role="anketaData.printPage ? 'tabpanel' : ''"
+      >
         <InquiryTab
           :cand-id="candId"
-          :inquiries="checksData.inquiries"
-          :get-item="checksData.getItem"
-          :update-item="checksData.updateItem"
-          :delete-item="checksData.deleteItem"
-          :submit-file="checksData.submitFile"
+          :inquiries="anketaData.inquiries"
+          :get-item="anketaData.getItem"
+          :update-item="anketaData.updateItem"
+          :delete-item="anketaData.deleteItem"
+          :submit-file="anketaData.submitFile"
         />
       </div>
     </div>
-
-    <div v-if="printPage">
-      <!-- <AnketaTab/>
-      <CheckTab/>
-      <PoligrafTab/>
-      <InvestigateTab/>
-      <InquiryTab/> -->
-    </div>
-
-    <a href="#" class="d-print-none" @click="printPage = !printPage">
+    <a
+      href="#"
+      class="d-print-none"
+      @click="anketaData.printPage = !anketaData.printPage"
+    >
       <i class="bi bi-printer fs-1" title="Версия для печати"></i>
     </a>
   </div>
