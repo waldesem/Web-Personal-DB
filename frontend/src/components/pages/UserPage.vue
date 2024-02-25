@@ -6,6 +6,7 @@ import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { router } from "@/router/router";
+import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -22,31 +23,6 @@ const storeAlert = alertStore();
 const storeAuth = authStore();
 
 const route = useRoute();
-
-interface Group {
-  id: string;
-  group: string;
-}
-
-interface Role {
-  id: string;
-  role: string;
-}
-
-interface User {
-  id: string;
-  fullname: string;
-  username: string;
-  email: string;
-  pswd_create: string;
-  pswd_change: string;
-  last_login: string;
-  roles: Role[];
-  groups: Group[];
-  blocked: boolean;
-  deleted: boolean;
-  attempt: string;
-}
 
 onBeforeMount( async() => {
   userData.value.id = route.params.id.toString();

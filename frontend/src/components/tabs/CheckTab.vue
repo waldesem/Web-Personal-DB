@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount, inject } from "vue";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
 import { Verification } from "@/interfaces/interface";
 import { Robot } from "@/interfaces/interface";
@@ -60,20 +60,16 @@ const props = defineProps({
   },
 });
 
-const userId = inject("userId") as string;
-
 const check = ref({
   action: "",
   isForm: false,
   itemId: "",
   item: <Verification>{},
   hideEditBtn:
-    userId !== props.userId &&
     props.statusId !== storeClassify.classData.status["save"] &&
     props.statusId !== storeClassify.classData.status["cancel"] &&
     props.statusId !== storeClassify.classData.status["manual"],
   hideAddBtn: ![
-    userId !== props.userId && storeClassify.classData.status["new"],
     storeClassify.classData.status["update"],
     storeClassify.classData.status["save"],
     storeClassify.classData.status["repeat"],
@@ -186,7 +182,7 @@ const check = ref({
               class="form"
               enctype="multipart/form-data"
               role="form"
-              @change="props.submitFile($event, item['id'].toString(), 'check')"
+              @change="props.submitFile($event, 'check')"
             >
               <input
                 class="form-control"

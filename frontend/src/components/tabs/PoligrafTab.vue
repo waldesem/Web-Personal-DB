@@ -105,13 +105,7 @@ const poligraf = ref({
               class="form"
               enctype="multipart/form-data"
               role="form"
-              @change="
-                  props.submitFile(
-                    $event,
-                    item['id'].toString(),
-                    'poligraf'
-                )
-              "
+              @change="props.submitFile($event, 'poligraf')"
             >
               <input class="form-control" id="file" type="file" ref="file" multiple />
             </form>

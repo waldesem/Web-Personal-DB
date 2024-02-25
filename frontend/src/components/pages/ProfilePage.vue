@@ -52,11 +52,12 @@ const route = useRoute();
 
 const candId = route.params.id.toString();
 
-onBeforeMount( async() => {
+onBeforeMount(async () => {
   await anketaData.value.getResume();
 });
 
 const anketaData = ref({
+  imageUrl: "",
   printPage: false,
   spinner: false,
   tabsObject: {
@@ -175,6 +176,9 @@ const anketaData = ref({
         case "inquiry":
           this.inquiries = response.data;
           break;
+        case "file":
+          this.imageUrl = window.URL.createObjectURL(new Blob([response.data]));
+          break
         default:
           break;
       }
@@ -261,11 +265,7 @@ const anketaData = ref({
     }
   },
 
-  submitFile: async function (
-    event: Event,
-    idItem: string,
-    param: string
-  ): Promise<void> {
+  submitFile: async function (event: Event, param: string): Promise<void> {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files && inputElement.files.length > 0) {
       const maxSizeInBytes = 1024 * 1024; // 1MB
@@ -284,7 +284,7 @@ const anketaData = ref({
 
       try {
         const response = await storeAuth.axiosInstance.post(
-          `${server}/file/${param}/${idItem}`,
+          `${server}/file/${param}/${candId}`,
           formData
         );
         console.log(response.status);
@@ -307,7 +307,12 @@ const anketaData = ref({
 
 <template>
   <div class="container py-3">
-    <PhotoCard />
+    <PhotoCard 
+      :cand-id="candId" 
+      :image-url="anketaData.imageUrl"
+      :get-item="anketaData.getItem"
+      :submit-file="anketaData.submitFile" 
+    />
     <HeaderDiv :page-header="anketaData.resume.fullname" />
     <div
       v-if="!anketaData.printPage"
@@ -329,10 +334,12 @@ const anketaData = ref({
       </div>
     </div>
 
-    <div :class="!anketaData.printPage ? 'tab-content' :'mt-1'" >
+    <div :class="!anketaData.printPage ? 'tab-content' : 'mt-1'">
       <div
         id="anketaTab"
-        :class="anketaData.printPage ? 'tab-pane fade py-1 show active' : 'mt-1'"
+        :class="
+          anketaData.printPage ? 'tab-pane fade py-1 show active' : 'mt-1'
+        "
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
         <AnketaTab
@@ -352,8 +359,8 @@ const anketaData = ref({
           :delete-item="anketaData.deleteItem"
         />
       </div>
-      <div 
-        id="сheckTab" 
+      <div
+        id="сheckTab"
         :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
@@ -369,8 +376,8 @@ const anketaData = ref({
           :user-id="anketaData.resume.user_id"
         />
       </div>
-      <div 
-        id="poligrafTab"         
+      <div
+        id="poligrafTab"
         :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
@@ -383,8 +390,8 @@ const anketaData = ref({
           :submit-file="anketaData.submitFile"
         />
       </div>
-      <div 
-        id="investigateTab" 
+      <div
+        id="investigateTab"
         :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
@@ -397,8 +404,8 @@ const anketaData = ref({
           :submit-file="anketaData.submitFile"
         />
       </div>
-      <div 
-        id="inquiryTab" 
+      <div
+        id="inquiryTab"
         :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >

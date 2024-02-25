@@ -105,13 +105,7 @@ const inquisition = ref({
               class="form"
               enctype="multipart/form-data"
               role="form"
-              @change="
-                props.submitFile(
-                  $event,
-                  item['id'].toString(),
-                  'investigation'
-                )
-              "
+              @change="props.submitFile($event, 'investigation')"
             >
               <input class="form-control" id="file" type="file" ref="file" multiple />
             </form>

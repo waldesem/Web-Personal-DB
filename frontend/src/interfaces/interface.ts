@@ -1,3 +1,12 @@
+export interface Candidate {
+  id: number;
+  fullname: string;
+  region_id: number;
+  birthday: string;
+  status_id: string;
+  created: string;
+}
+
 export interface Resume {
     id: string;
     category_id: string;
@@ -136,4 +145,34 @@ export interface Needs {
   source: string;
   officer: string;
   deadline: string;
+}
+
+export interface Message {
+  message: string
+  created: string
+}
+
+export interface Group {
+  id: string;
+  group: string;
+}
+
+export interface Role {
+  id: string;
+  role: string;
+}
+
+export interface User {
+  id: string;
+  fullname: string;
+  username: string;
+  email: string;
+  pswd_create: string;
+  pswd_change: string;
+  last_login: string;
+  roles: Role[];
+  groups: Group[];
+  blocked: boolean;
+  deleted: boolean;
+  attempt: string;
 }

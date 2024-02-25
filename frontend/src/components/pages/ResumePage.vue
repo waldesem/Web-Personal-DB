@@ -26,7 +26,7 @@ const dataJson = ref({
       this.formData.append("file", inputElement.files[0]);
       try {
         const response = await storeAuth.axiosInstance.post(
-          `${server}/file/anketa`,
+          `${server}/file/anketa/0`,
           this.formData
         );
         const { message } = response.data;

@@ -103,7 +103,6 @@ const userData = ref({
   },
 });
 
-provide("userId", userData.value.userId);
 </script>
 
 <template>

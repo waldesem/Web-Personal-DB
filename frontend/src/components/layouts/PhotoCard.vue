@@ -1,70 +1,32 @@
 <script setup lang="ts">
-import { ref, onBeforeMount, inject } from "vue";
-import { authStore } from "@/store/token";
-import { alertStore } from "@store/alert";
-import { server } from "@utilities/utils";
-
-const storeAuth = authStore();
-const storeAlert = alertStore();
+import { ref, onBeforeMount } from "vue";
 
 onBeforeMount( async() => {
-  await photoCard.value.getImage()
+  await props.getItem("file")
+});
+
+const props = defineProps({
+  candId: String,
+  imageUrl: String,
+  getItem: {
+    type: Function,
+    required: true,
+  },
+  submitFile: {
+    type: Function,
+    required: true,
+  },
 });
 
 const photoCard = ref({
-  candId: inject("candId") as string,
   formData: new FormData(),
   showPhoto: false,
-  url: "",
 
-  getImage: async function (): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/file/get/${this.candId}`,
-        { responseType: "blob" }
-      );
-      this.url = window.URL.createObjectURL(new Blob([response.data]));
-    } catch (error) {
-      console.error(error);
-    }
-  },
-
-  submitFile: async function (
+  submitFile: function (
     event: Event,
-  ): Promise<void> {
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement && inputElement.files && inputElement.files.length > 0) {
-      const maxSizeInBytes = 1024 * 1024; // 1MB
-      if (inputElement.files[0].size > maxSizeInBytes) {
-        storeAlert.alertMessage.setAlert(
-          "alert-warning",
-          "File size exceeds the limit. Please select a smaller file."
-        );
-          inputElement.value = "";
-          return;
-        }
-      try {
-        const response = await storeAuth.axiosInstance.post(
-          `${server}/file/image`,
-          this.formData
-        );
-        const { message } = response.data;
-        this.candId = message;
-        this.getImage();
-
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Файл успешно загружен"
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      storeAlert.alertMessage.setAlert(
-        "alert-warning",
-        "Ошибка при загрузке файла"
-      );
-    }
+  ): void {
+    props.submitFile(event, "image");
+    props.getItem("file");
   },
 
   handleMouse: function () {
@@ -81,7 +43,7 @@ const photoCard = ref({
       @mouseout="photoCard.handleMouse"
     >
       <img
-        :src="photoCard.url ? photoCard.url : '/no-photo.png'"
+        :src="props.imageUrl ? props.imageUrl : '/no-photo.png'"
         style="width: 100%; height: auto"
         class="card-img-top"
         alt="..."

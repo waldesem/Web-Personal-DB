@@ -55,8 +55,9 @@ from ..models.schema import (
     InvestigationSchema,
     PoligrafSchema,
     RobotSchema,
-    SearchSchema
+    SearchSchema,
 )
+
 
 class IndexView(MethodView):
 
@@ -95,7 +96,7 @@ class IndexView(MethodView):
                     )
         else:
             if search_data:
-                query = search(query,"%{}%".format(search_data))
+                query = search(query, "%{}%".format(search_data))
 
         result = db.paginate(query, page=page, per_page=16, error_out=False)
         return [
@@ -139,12 +140,12 @@ class ResumeView(MethodView):
                 person.status_id = Status.get_id(Statuses.update.value)
                 db.session.commit()
                 return self.get(person_id), 201
-            
+
             if action == "self":
                 if person.user_id and person.user_id != current_user.id:
                     db.session.add(
                         Message(
-                            message=f"Aнкета ID #{person_id} делегирована " 
+                            message=f"Aнкета ID #{person_id} делегирована "
                             f"{current_user.fullname}",
                             user_id=person.user_id,
                         )
@@ -216,7 +217,7 @@ class ResumeView(MethodView):
         db.session.delete(person)
         db.session.commit()
         return "", 204
-    
+
     @roles_required(Roles.user.value)
     @group_required(Groups.staffsec.value)
     @bp.input(PersonSchema)
@@ -263,13 +264,16 @@ class ResumeView(MethodView):
         if action == "create":
             person.status_id = Status().get_id(Statuses.manual.value)
 
-        person.path = os.path.join(resume["fullname"][0].upper(), f"{person_id}-{resume['fullname']}")
+        person.path = os.path.join(
+            resume["fullname"][0].upper(), f"{person_id}-{resume['fullname']}"
+        )
         url = os.path.join(Config.BASE_PATH, person.path)
         if not os.path.isdir(url):
             os.mkdir(url)
         person.user_id = current_user.id
         db.session.commit()
         return person_id
+
 
 resume_view = ResumeView.as_view("resume")
 bp.add_url_rule(
@@ -282,75 +286,6 @@ bp.add_url_rule(
     view_func=resume_view,
     methods=["GET", "DELETE"],
 )
-
-
-class JsonView(MethodView):
-    decorators = [
-        group_required(Groups.staffsec.value),
-        roles_required(Roles.user.value),
-        bp.doc(hide=True),
-    ]
-
-    @bp.input(ActionSchema, location="query")
-    def post(self, query_data, item_id=0):
-        action = query_data.get("action")
-        if not request.files["file"].filename and action:
-            return {"result": False, "item_id": item_id}
-
-        file = request.files["file"]
-        filename = secure_filename(file.filename)
-        temp_path = os.path.join(
-            Config.BASE_PATH,
-            f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}\
-                                    -{filename}',
-        )
-        file.save(temp_path)
-
-        anketa = parse_json(temp_path)
-        person_id = ResumeView.add_resume(anketa.resume, "create")
-        self.fill_items(anketa, person_id)
-
-        person = db.session.get(Person, person_id)
-        if person.path:
-            full_path = os.path.join(Config.BASE_PATH, person.path)
-            if not os.path.isdir(full_path):
-                os.mkdir(full_path)
-        else:
-            person.path = os.path.join(person.fullname[0].upper(), f"{person_id}-{person.fullname}")
-            url = os.path.join(Config.BASE_PATH, person.path)
-            if not os.path.isdir(url):
-                os.mkdir(url)
-        db.session.commit()
-
-        action_folder = create_folders(person_id, person.fullname, action)
-
-        save_path = os.path.join(
-            Config.BASE_PATH, action_folder, filename
-        )
-        if not os.path.isfile(save_path):
-            try:
-                shutil.move(temp_path, save_path)
-            except Exception as e:
-                print(e)
-        return {"message": person_id}
-
-    def fill_items(self, anketa, person_id):
-        models = [Staff, Document, Address, Contact, Workplace, Affilation]
-        items_lists = [
-            anketa.staff,
-            anketa.passport,
-            anketa.addresses,
-            anketa.contacts,
-            anketa.workplaces,
-            anketa.affilation,
-        ]
-        for model, items in zip(models, items_lists):
-            for item in items:
-                if item:
-                    db.session.add(model(**item | {"person_id": person_id}))
-        db.session.commit()
-
-bp.add_url_rule("/json", view_func=JsonView.as_view("json"))
 
 
 class StaffView(MethodView):
@@ -450,9 +385,7 @@ class DocumentView(MethodView):
         return abort(403)
 
 
-bp.add_url_rule(
-    "/document/<int:item_id>", view_func=DocumentView.as_view("document")
-)
+bp.add_url_rule("/document/<int:item_id>", view_func=DocumentView.as_view("document"))
 
 
 class AddressView(MethodView):
@@ -503,9 +436,7 @@ class AddressView(MethodView):
         return abort(403)
 
 
-bp.add_url_rule(
-    "/address/<int:item_id>", view_func=AddressView.as_view("address")
-)
+bp.add_url_rule("/address/<int:item_id>", view_func=AddressView.as_view("address"))
 
 
 class ContactView(MethodView):
@@ -551,9 +482,7 @@ class ContactView(MethodView):
         return abort(403)
 
 
-bp.add_url_rule(
-    "/contact/<int:item_id>", view_func=ContactView.as_view("contact")
-)
+bp.add_url_rule("/contact/<int:item_id>", view_func=ContactView.as_view("contact"))
 
 
 class WorkplaceView(MethodView):
@@ -670,9 +599,7 @@ class RelationView(MethodView):
         return abort(403)
 
 
-bp.add_url_rule(
-    "/relation/<int:item_id>", view_func=RelationView.as_view("relation")
-)
+bp.add_url_rule("/relation/<int:item_id>", view_func=RelationView.as_view("relation"))
 
 
 class AffilationView(MethodView):
@@ -723,7 +650,6 @@ class AffilationView(MethodView):
 bp.add_url_rule(
     "/affilation/<int:item_id>", view_func=AffilationView.as_view("affilation")
 )
-
 
 
 class CheckView(MethodView):
@@ -1068,43 +994,90 @@ class FileView(MethodView):
             return send_file(file_path, as_attachment=True)
         return abort(404)
 
-    def post(self, item, item_id):
+    def post(self, action, cand_id = None):
         if not request.files["file"].filename:
-            return {"result": False, "item_id": item_id}
+            return abort(400)
 
-        model_mapping = {
-            "check": Check,
-            "investigation": Investigation,
-            "poligraf": Poligraf,
-            "image": Person,
-        }
-        files = request.files.getlist("file")
-        model = model_mapping.get(item)
-        item = db.session.get(model, item_id)
-        person = db.session.get(Person, item.person_id)
-        folder = create_folders(person.id, person.fullname, item)
-        if item == "image":
-            im = Image.open(files[0])
-            rgb_im = im.convert("RGB")
-            images = os.path.join(Config.BASE_PATH, folder, "images")
-            if not os.path.isdir(images):
-                os.mkdir(images)
-            image_path = os.path.join(images, "image.jpg")
-            if os.path.isfile(image_path):
-                os.remove(image_path)
-            rgb_im.save(image_path)
+        if action == "anketa":
+            file = request.files["file"]
+            filename = secure_filename(file.filename)
+            temp_path = os.path.join(
+                Config.BASE_PATH,
+                f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}\
+                                        -{filename}',
+            )
+            file.save(temp_path)
+            anketa = parse_json(temp_path)
+            person_id = ResumeView.add_resume(anketa.resume, "create")
+            self.fill_items(anketa, person_id)
+
+            person = db.session.get(Person, person_id)
+            if person.path:
+                full_path = os.path.join(Config.BASE_PATH, person.path)
+                if not os.path.isdir(full_path):
+                    os.mkdir(full_path)
+            else:
+                person.path = os.path.join(
+                    person.fullname[0].upper(), f"{person_id}-{person.fullname}"
+                )
+                url = os.path.join(Config.BASE_PATH, person.path)
+                if not os.path.isdir(url):
+                    os.mkdir(url)
+            db.session.commit()
+
+            action_folder = create_folders(person_id, person.fullname, action)
+
+            save_path = os.path.join(Config.BASE_PATH, action_folder, filename)
+            if not os.path.isfile(save_path):
+                try:
+                    shutil.move(temp_path, save_path)
+                except Exception as e:
+                    print(e)
+            return {"message": person_id}
+
         else:
-            for file in files:
-                filename = secure_filename(file.filename)
+            files = request.files.getlist("file")
+            person = db.session.get(Person, cand_id)
+            folder = create_folders(cand_id, person.fullname, action)
+            if action == "image":
+                im = Image.open(files[0])
+                rgb_im = im.convert("RGB")
+                images = os.path.join(Config.BASE_PATH, folder, "images")
+                if not os.path.isdir(images):
+                    os.mkdir(images)
+                image_path = os.path.join(images, "image.jpg")
+                if os.path.isfile(image_path):
+                    os.remove(image_path)
+                rgb_im.save(image_path)
+            else:
                 for file in files:
-                    file.save(
-                        os.path.join(
-                            Config.BASE_PATH,
-                            folder,
-                            f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}',
+                    filename = secure_filename(file.filename)
+                    for file in files:
+                        file.save(
+                            os.path.join(
+                                Config.BASE_PATH,
+                                folder,
+                                f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}',
+                            )
                         )
-                    )
-        return {"message": item_id}
+            return {"message": person_id}, 201
 
+    def fill_items(self, anketa, person_id):
+        models = [Staff, Document, Address, Contact, Workplace, Affilation]
+        items_lists = [
+            anketa.staff,
+            anketa.passport,
+            anketa.addresses,
+            anketa.contacts,
+            anketa.workplaces,
+            anketa.affilation,
+        ]
+        for model, items in zip(models, items_lists):
+            for item in items:
+                if item:
+                    db.session.add(model(**item | {"person_id": person_id}))
+        db.session.commit()
 
-bp.add_url_rule("/file/<action>/<int:item_id>", view_func=FileView.as_view("file"))
+file_view = FileView.as_view("file")
+bp.add_url_rule("/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"])
+bp.add_url_rule("/file/<int:item_id>", view_func=file_view, methods=["GET"])

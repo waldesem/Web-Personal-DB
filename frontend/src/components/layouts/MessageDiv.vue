@@ -2,17 +2,13 @@
 import { defineAsyncComponent, ref } from "vue";
 import { authStore } from "@store/token";
 import { server } from "@utilities/utils";
+import { Message } from "@/interfaces/interface";
 
 const MessagesToast = defineAsyncComponent(
   () => import("@components/layouts/MessagesToast.vue")
 );
 
 const storeAuth = authStore();
-
-interface Message {
-  message: string
-  created: string
-}
 
 const messageData = ref({
   isStarted: false,
