@@ -12,7 +12,7 @@ export const authStore = defineStore("authStore", () => {
 
   axiosInstance.value.interceptors.request.use(
     async (config) => {
-      if (!refreshToken) {
+      if (!refreshToken.value) {
         router.push({ name: "login" });
         return Promise.reject("Refresh token not available");
       }
@@ -25,7 +25,7 @@ export const authStore = defineStore("authStore", () => {
         return Promise.reject("Refresh token expired");
       }
 
-      if (!accessToken) {
+      if (!accessToken.value) {
         router.push({ name: "login" });
         return Promise.reject("Access token not available");
       }
@@ -52,7 +52,7 @@ export const authStore = defineStore("authStore", () => {
           return Promise.reject(error);
         }
       }
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
+      config.headers["Authorization"] = `Bearer ${accessToken.value}`;
       return config;
     },
     (error) => {
