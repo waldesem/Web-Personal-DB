@@ -35,7 +35,7 @@ watch(
   { immediate: true }
 );
 
-onBeforeMount( async() => {
+onBeforeMount(async () => {
   await userData.value.getAuth();
 });
 
@@ -50,7 +50,13 @@ const userData = ref({
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/login`);
       const { id, fullname, username, roles, groups } = response.data;
-      this.assignUserData(id, fullname, username, roles, groups);
+      Object.assign(this, {
+        userId: id,
+        fullName: fullname,
+        userName: username,
+        userRoles: roles,
+        userGroups: groups,
+      });
 
       this.hasRole("admin")
         ? router.push({ name: "users", params: { group: "admins" } })
@@ -68,18 +74,14 @@ const userData = ref({
 
   userLogout: async function (): Promise<void> {
     try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/login`
-      );
-      console.log(response.data);
+      const response = await storeAuth.axiosInstance.delete(`${server}/login`);
+      console.log(response.status);
     } catch (error) {
       storeAlert.alertMessage.setAlert("alert-warning", error as string);
     }
 
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-
-    this.assignUserData();
+    storeAuth.accessToken = "";
+    storeAuth.refreshToken = "";
 
     router.push({ name: "login" });
   },
@@ -91,27 +93,16 @@ const userData = ref({
   hasGroup: function (group: string): boolean {
     return this.userGroups.some((g: { group: any }) => g.group === group);
   },
-
-  assignUserData(id = "", name = "", user = "", roles = [], groups = []) {
-    Object.assign(this, {
-      userId: id,
-      fullName: name,
-      userName: user,
-      userRoles: roles,
-      userGroups: groups,
-    });
-  },
 });
-
 </script>
 
 <template>
   <NavBar 
-    :fullName="userData.fullName"
-    :userLogout="userData.userLogout"
+    :fullName="userData.fullName" 
+    :userLogout="userData.userLogout" 
   />
   <AlertMessage />
-  <router-view></router-view>
+  <router-view />
   <FooterDiv />
 </template>
 
@@ -121,4 +112,3 @@ body {
   scrollbar-gutter: stable;
 }
 </style>
-@/utilities/token

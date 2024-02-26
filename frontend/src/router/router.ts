@@ -1,6 +1,7 @@
+import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
 import { server } from "@utilities/utils";
-import axios from "axios";
+import { authStore } from "@/store/token";
 
 export const router = createRouter({
   routes: [
@@ -10,7 +11,7 @@ export const router = createRouter({
       component: () => import("@/App.vue"),
     },
     {
-      path: "/login/auth",
+      path: "/login",
       name: "login",
       component: () => import("@components/pages/LoginPage.vue"),
     },
@@ -77,36 +78,31 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
-  const refresh_token = localStorage.getItem("refresh_token");
-  const access_token = localStorage.getItem("access_token");
+  const storeAuth = authStore();
 
-  if (to.name !== "login") {
-    if (refresh_token) {
-      const expiry_refresh = JSON.parse(atob(refresh_token.split(".")[1])).exp;
+  if (!["auth", "login", "group", "404"].includes(to.name as string)) {
+    if (storeAuth.refreshToken) {
+      const expiry_refresh = JSON.parse(atob(storeAuth.refreshToken.split(".")[1])).exp;
 
-      if (Math.floor(new Date().getTime() / 1000) >= expiry_refresh) {
-        next({ name: "login" });
-      } else {
-        if (access_token) {
+      if (Math.floor(new Date().getTime() / 1000) < expiry_refresh) {
+        if (storeAuth.accessToken) {
           const expiry_access = JSON.parse(
-            atob(access_token.split(".")[1])
+            atob(storeAuth.accessToken.split(".")[1])
           ).exp;
 
           if (Math.floor(new Date().getTime() / 1000) >= expiry_access) {
             const response = await axios.post(`${server}/refresh`, null, {
               headers: {
-                Authorization: `Bearer ${localStorage.getItem(
-                  "refresh_token"
-                )}`,
+                Authorization: `Bearer ${storeAuth.refreshToken}`,
               },
             });
             const { access_token } = response.data;
 
             if (access_token) {
-              localStorage.setItem("access_token", access_token);
+              storeAuth.accessToken =  access_token;
               next();
             } else {
-              router.push({ name: "login" });
+              next({ name: "login" });
             }
           } else {
             next();
@@ -114,6 +110,8 @@ router.beforeEach(async (to, _from, next) => {
         } else {
           next({ name: "login" });
         }
+      } else {
+        next({ name: "login" });
       }
     } else {
       next({ name: "login" });

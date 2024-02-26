@@ -3,6 +3,7 @@ import axios from "axios";
 import { defineAsyncComponent, ref } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { alertStore } from "@store/alert";
+import { authStore } from "@/store/token";
 import { server } from "@utilities/utils";
 import { router } from "@/router/router";
 
@@ -11,6 +12,7 @@ const InputLabel = defineAsyncComponent(
 );
 
 const storeAlert = alertStore();
+const storeAuth = authStore();
 
 onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
   Object.keys(loginData.value.form).forEach((key) => {
@@ -60,8 +62,8 @@ const loginData = ref({
           break
           
         case "Authenticated":
-          localStorage.setItem("refresh_token", refresh_token);
-          localStorage.setItem("access_token", access_token);
+          storeAuth.accessToken = access_token;
+          storeAuth.refreshToken = refresh_token;
           router.push({name: "auth"});
           break;
 
