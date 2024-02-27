@@ -22,7 +22,7 @@ const dataJson = ref({
     event: Event,
   ): Promise<void> {
     const inputElement = event.target as HTMLInputElement;
-    if (inputElement && inputElement.files && inputElement.files.length > 0) {
+    if (inputElement && inputElement.files && inputElement.files.length) {
       this.formData.append("file", inputElement.files[0]);
       try {
         const response = await storeAuth.axiosInstance.post(

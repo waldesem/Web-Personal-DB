@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { defineAsyncComponent, inject } from "vue";
+import { defineAsyncComponent } from "vue";
 
 const MessageDiv = defineAsyncComponent(
   () => import("@components/layouts/MessageDiv.vue")
 );
 
-const pageIdentity = inject("pageIdentity") as string;
-
 const props = defineProps({
+  pageIdentity: String,
   fullName: String,
   userLogout: {
     type: Function,
@@ -18,7 +17,7 @@ const props = defineProps({
 
 <template>
   <nav
-    v-if="pageIdentity"
+    v-if="props.pageIdentity"
     class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none"
     :class="`${pageIdentity === 'admins' ? 'bg-secondary' : 'bg-primary'}`"
   >
@@ -31,7 +30,7 @@ const props = defineProps({
         id="navbarContent"
       >
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <template v-if="pageIdentity.toLowerCase() === 'admins'">
+          <template v-if="props.pageIdentity.toLowerCase() === 'admins'">
             <li class="nav-item">
               <router-link
                 :to="{ name: 'users', params: { group: 'admins' } }"
@@ -53,7 +52,7 @@ const props = defineProps({
             </li>
           </template>
 
-          <template v-if="pageIdentity.toLowerCase() === 'staffsec'">
+          <template v-if="props.pageIdentity.toLowerCase() === 'staffsec'">
             <li class="nav-item">
               <router-link
                 :to="{ name: 'persons', params: { group: 'staffsec' } }"

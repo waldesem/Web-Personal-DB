@@ -3,7 +3,7 @@ import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/token";
-import { debounce, server } from "@utilities/utils";
+import { debounce, server, timeSince } from "@utilities/utils";
 import { Candidate } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
@@ -16,19 +16,20 @@ const PageSwitcher = defineAsyncComponent(
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 
-const mapped_items = {
-  search: "Результаты поиска",
-  officer: "Страница пользователя",
-  main: "Все кандидаты",
-  new: "Новые кандидаты",
-};
-
 const header = computed(() => {
-  return mapped_items[personData.value.path as keyof typeof mapped_items];
+  return personData.value.items[
+    personData.value.path as keyof typeof personData.value.items
+  ];
 });
 
 const personData = ref({
   candidates: <Candidate[]>[],
+  items: {
+    search: "Результаты поиска",
+    officer: "Страница пользователя",
+    main: "Все кандидаты",
+    new: "Новые кандидаты",
+  },
   prev: false,
   next: false,
   search: "",
@@ -90,7 +91,7 @@ const searchPerson = debounce(() => {
             @change="personData.getCandidates(1, personData.path)"
           >
             <option
-              v-for="(value, key) in mapped_items"
+              v-for="(value, key) in personData.items"
               :key="key"
               :value="key"
               :selected="key === 'new'"
@@ -101,7 +102,11 @@ const searchPerson = debounce(() => {
         </form>
       </div>
       <div class="col-md-9">
-        <form @input.prevent="searchPerson" class="form form-check" role="form">
+        <form 
+          @input.prevent="searchPerson" 
+          class="form form-check" 
+          role="form"
+        >
           <input
             class="form-control"
             id="data"
@@ -111,7 +116,6 @@ const searchPerson = debounce(() => {
             minlength="3"
             placeholder="поиск по ФИО, ИНН"
             v-model="personData.search"
-            title="Для поиска записей содержащих “Петров” и “Сергей” используйте запрос: 'Петров Сергей' Для поиска записей содержащих “Петров” или “Сергей” используйте запрос: 'Петров or Сергей' Для поиска записей содержащих “Петров”, но не “Сергей” используйте запрос: 'Петров -Сергей' Для поиска записей содержащих фразу целиком заключите ее в двойные кавычки"
           />
         </form>
       </div>
@@ -125,7 +129,7 @@ const searchPerson = debounce(() => {
             <th>Фамилия Имя Отчество</th>
             <th width="15%">Дата рождения</th>
             <th width="10%">Статус</th>
-            <th width="10%">Дата</th>
+            <th width="10%"> Создан</th>
           </tr>
         </thead>
         <tbody>
@@ -151,7 +155,7 @@ const searchPerson = debounce(() => {
             </td>
             <td>{{ storeClassify.classData.status[candidate.status_id] }}</td>
             <td>
-              {{ new Date(candidate.created).toLocaleDateString("ru-RU") }}
+              {{ timeSince(candidate.created) }}
             </td>
           </tr>
         </tbody>

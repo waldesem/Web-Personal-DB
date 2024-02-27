@@ -7,9 +7,6 @@ import { server } from "@utilities/utils";
 const InputSmall = defineAsyncComponent(
   () => import("@components/elements/InputSmall.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
@@ -64,7 +61,7 @@ const contactForm = ref({
       Object.keys(this.form).forEach((key) => {
         delete this.form[key as keyof typeof this.form];
       });
-      emit("deactivate", props.page);
+      emit("deactivate");
     } catch (error) {
       console.log(error);
     }
@@ -73,81 +70,78 @@ const contactForm = ref({
 </script>
 
 <template>
-  <ModalWin :id="'modalConnect'" :title="'Обновить контакт'" :size="'modal-sm'">
-    <form @submit.prevent="contactForm.updateContact" class="form form-check">
-      <InputSmall
-        :name="'company'"
-        place="Организация"
-        :need="true"
-        :lst="'companies'"
-        :selects="props.companies"
-        :model="item.form['company']"
-        @input-event="contactForm.form['company'] = $event.target.value"
-      />
-      <InputSmall
-        :name="'city'"
-        place="Город"
-        :need="true"
-        :lst="'cities'"
-        :selects="props.cities"
-        :model="item.form['city']"
-        @input-event="contactForm.form['city'] = $event.target.value"
-      />
-      <InputSmall
-        :name="'fullname'"
-        place="Имя"
-        :need="true"
-        :model="item.form['fullname']"
-        @input-event="contactForm.form['fullname'] = $event.target.value"
-      />
-      <InputSmall
-        :name="'phone'"
-        place="Телефон"
-        :model="item.form['phone']"
-        @input-event="contactForm.form['phone'] = $event.target.value"
-      />
-      <InputSmall
-        :name="'adding'"
-        place="Добав"
-        :model="item.form['adding']"
-        @input-event="contactForm.form['adding'] = $event.target.value"
-      />
-      <InputSmall
-        :name="'mobile'"
-        place="Мобильный"
-        :model="item.form['mobile']"
-        @input-event="contactForm.form['mobile'] = $event.target.value"
-      />
-      <InputSmall
-        :name="'mail'"
-        place="Почта"
-        :model="item.form['mail']"
-        @input-event="contactForm.form['mail'] = $event.target.value"
-      />
-      <InputSmall
-        :name="'comment'"
-        place="Комментарий"
-        :model="item.form['comment']"
-        @input-event="contactForm.form['comment'] = $event.target.value"
-      />
-      <BtnGroupForm>
-        <button
-          class="btn btn-outline-primary btn-sm"
-          data-bs-dismiss="modal"
-          name="submit"
-          type="submit"
-        >
-          Принять
-        </button>
-        <button
-          class="btn btn-outline-primary btn-sm"
-          name="reset"
-          type="reset"
-        >
-          Очистить
-        </button>
-      </BtnGroupForm>
-    </form>
-  </ModalWin>
+  <form @submit.prevent="contactForm.updateContact" class="form form-check">
+    <InputSmall
+      :name="'company'"
+      place="Организация"
+      :need="true"
+      :lst="'companies'"
+      :selects="props.companies"
+      :model="item.form['company']"
+      @input-event="contactForm.form['company'] = $event.target.value"
+    />
+    <InputSmall
+      :name="'city'"
+      place="Город"
+      :need="true"
+      :lst="'cities'"
+      :selects="props.cities"
+      :model="item.form['city']"
+      @input-event="contactForm.form['city'] = $event.target.value"
+    />
+    <InputSmall
+      :name="'fullname'"
+      place="Имя"
+      :need="true"
+      :model="item.form['fullname']"
+      @input-event="contactForm.form['fullname'] = $event.target.value"
+    />
+    <InputSmall
+      :name="'phone'"
+      place="Телефон"
+      :model="item.form['phone']"
+      @input-event="contactForm.form['phone'] = $event.target.value"
+    />
+    <InputSmall
+      :name="'adding'"
+      place="Добав"
+      :model="item.form['adding']"
+      @input-event="contactForm.form['adding'] = $event.target.value"
+    />
+    <InputSmall
+      :name="'mobile'"
+      place="Мобильный"
+      :model="item.form['mobile']"
+      @input-event="contactForm.form['mobile'] = $event.target.value"
+    />
+    <InputSmall
+      :name="'mail'"
+      place="Почта"
+      :model="item.form['mail']"
+      @input-event="contactForm.form['mail'] = $event.target.value"
+    />
+    <InputSmall
+      :name="'comment'"
+      place="Комментарий"
+      :model="item.form['comment']"
+      @input-event="contactForm.form['comment'] = $event.target.value"
+    />
+    <BtnGroupForm>
+      <button
+        class="btn btn-outline-primary btn-sm"
+        data-bs-dismiss="modal"
+        name="submit"
+        type="submit"
+      >
+        Принять
+      </button>
+      <button
+        class="btn btn-outline-primary btn-sm"
+        name="reset"
+        type="reset"
+      >
+        Очистить
+      </button>
+    </BtnGroupForm>
+  </form>
 </template>
-@/utilities/token

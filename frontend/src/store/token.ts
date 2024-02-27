@@ -6,9 +6,11 @@ import { server } from "@utilities/utils";
 
 export const authStore = defineStore("authStore", () => {
   const router = useRouter();
-  const axiosInstance = ref(axios.create());
+
   const refreshToken = ref("");
   const accessToken = ref("");
+  
+  const axiosInstance = ref(axios.create());
 
   axiosInstance.value.interceptors.request.use(
     async (config) => {

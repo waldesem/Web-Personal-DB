@@ -114,10 +114,6 @@ const userData = ref({
       }
     }
   },
-
-  deactivateAction: function (){
-    this.action = ""
-  }
 });
 </script>
 
@@ -333,7 +329,7 @@ const userData = ref({
       :action="userData.action"
       :item="userData.profile"
       :userAction="userData.userAction"
-      @deactivate="userData.deactivateAction"
+      @deactivate="userData.action = ''"
     />
   </div>
 </template>

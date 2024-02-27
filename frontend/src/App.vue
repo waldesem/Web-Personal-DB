@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, watch, ref, provide } from "vue";
-import { defineAsyncComponent } from "vue";
+import { onBeforeMount, defineAsyncComponent, watch, ref } from "vue";
 import { useRoute } from "vue-router";
 import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
@@ -21,11 +20,10 @@ const FooterDiv = defineAsyncComponent(
 const storeAlert = alertStore();
 const storeClasses = classifyStore();
 const storeAuth = authStore();
+
 const route = useRoute();
 
 const pageIdentity = ref("");
-
-provide("pageIdentity", pageIdentity);
 
 watch(
   () => route.params.group,
@@ -99,7 +97,8 @@ const userData = ref({
 <template>
   <NavBar 
     :fullName="userData.fullName" 
-    :userLogout="userData.userLogout" 
+    :userLogout="userData.userLogout"
+    :pageIdentity="pageIdentity"
   />
   <AlertMessage />
   <router-view />

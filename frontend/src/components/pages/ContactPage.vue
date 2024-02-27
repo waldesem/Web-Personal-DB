@@ -13,16 +13,19 @@ const ConnectForm = defineAsyncComponent(
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/layouts/PageSwitcher.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-onBeforeMount( async() => {
-  await contactData.value.getContacts();
+onBeforeMount(async () => {
+  await contactData.value.getContacts(1);
 });
 
 const searchContacts = debounce(() => {
-  contactData.value.getContacts();  ;
+  contactData.value.getContacts(1);
 }, 500);
 
 const contactData = ref({
@@ -37,7 +40,7 @@ const contactData = ref({
   search: "",
   item: <Record<string, any>>{},
 
-  getContacts: async function (page: number = 1): Promise<void> {
+  getContacts: async function (page: number): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(
         `${server}/connect/${page}`,
@@ -81,12 +84,6 @@ const contactData = ref({
       }
     }
   },
-
-  deactivateForm: function (page: number){
-    this.action = "";
-    this.id = "";
-    this.page = page
-  }
 });
 </script>
 
@@ -105,18 +102,28 @@ const contactData = ref({
         />
       </div>
     </form>
-    <div v-if="contactData.action !== ''">
-      <ConnectForm
-        :id="contactData.id"
-        :page="contactData.page"
-        :action="contactData.action"
-        :companies="contactData.companies"
-        :cities="contactData.cities"
-        :item="contactData.item"
-        :getContacts="contactData.getContacts"
-        @deactivate="contactData.deactivateForm"
+    <div v-if="contactData.action">
+      <ModalWin
+        :id="'modalConnect'"
+        :title="
+          contactData.action === 'create'
+            ? 'Добавить контакт'
+            : 'Обновить контакт'
+        "
+        :size="'modal-sm'"
+        @deactivate="contactData.action = ''"
       >
-      </ConnectForm>
+        <ConnectForm
+          :id="contactData.id"
+          :page="contactData.page"
+          :action="contactData.action"
+          :companies="contactData.companies"
+          :cities="contactData.cities"
+          :item="contactData.item"
+          :getContacts="contactData.getContacts"
+          @deactivate="contactData.action = ''"
+        />
+      </ModalWin>
     </div>
     <div class="py-3">
       <table class="table align-middle text-center no-bottom-border">
@@ -135,22 +142,13 @@ const contactData = ref({
             <th width="5%">
               <a
                 role="button"
-                @click="contactData.action === ''
-                  ? contactData.action = 'create'
-                  : contactData.action = ''"
-                :title="
-                  contactData.action === 'create'
-                    ? 'Отмена'
-                    : 'Добавить контакт'
-                "
+                type="button"
+                data-bs-toogle="modal"
+                data-bs-target="#modalConnect"
+                @click="contactData.action === 'create'"
+                title="Добавить контакт"
               >
-                <i
-                  :class="
-                    contactData.action === 'create'
-                      ? 'bi bi-dash-circle'
-                      : 'bi bi-plus-circle'
-                  "
-                ></i>
+                <i class="bi bi-plus-circle"></i>
               </a>
             </th>
             <th width="5%"></th>
@@ -179,7 +177,10 @@ const contactData = ref({
                     <td width="5%">
                       <a
                         class="btn btn-link"
-                        title="Изменить"
+                        type="button"
+                        data-bs-toogle="modal"
+                        data-bs-target="#modalConnect"
+                        title="Изменить контакт"
                         @click="
                           contactData.action = 'edit';
                           contactData.id = contact['id'];
@@ -193,9 +194,7 @@ const contactData = ref({
                       <a
                         href="#"
                         title="Удалить"
-                        @click="
-                          contactData.deleteContact(contact['id'])
-                        "
+                        @click="contactData.deleteContact(contact['id'])"
                       >
                         <i class="bi bi-trash"></i>
                       </a>

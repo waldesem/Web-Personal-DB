@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { onBeforeMount, defineAsyncComponent } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
 import { authStore } from "@/store/token";
 import { server } from "@/utilities/utils";
 
@@ -26,11 +25,6 @@ onBeforeMount( async() => {
   await fileManager.value.openFolder();
 });
 
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  fileManager.value.clearValue();
-  next();
-});
-
 const fileManager = ref({
   path: Array<string>(),
   folders: Array<string>(),
@@ -41,14 +35,7 @@ const fileManager = ref({
   copied: Array<string>(),
   form: "",
   item: "",
-  cols: 10,
-  get rowsFolders() {
-    return Math.ceil(this.folders.length / this.cols);
-  },
-  get rowsFiles() {
-    return Math.ceil(this.files.length / this.cols);
-  },
-
+  
   getFoldersFiles: async function () {
     try {
       const response = await storeAuth.axiosInstance.get(`${server}/manager`);

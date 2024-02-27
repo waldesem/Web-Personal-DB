@@ -11,8 +11,9 @@ const HeaderDiv = defineAsyncComponent(
 
 const storeAlert = alertStore();
 
-storeAlert.alertMessage.attr = "alert-info";
-storeAlert.alertMessage.text = "Авторизуйтесь для входа в систему";
+storeAlert.alertMessage.setAlert(
+  "alert-info", "Авторизуйтесь для входа в систему"
+);
 </script>
 
 <template>
@@ -29,5 +30,6 @@ storeAlert.alertMessage.text = "Авторизуйтесь для входа в 
 <style scoped>
 .container {
   height: 75vh;
+  width: 75vh;
 }
 </style>

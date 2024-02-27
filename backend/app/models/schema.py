@@ -70,7 +70,7 @@ class UserSchema(SQLAlchemyAutoSchema):
         model = User
         ordered = True
         include_fk = True
-        exclude = ("search_vector",)
+        exclude = ("password", "search_vector",)
 
 
 class LoginSchema(Schema):

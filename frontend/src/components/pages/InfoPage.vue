@@ -56,7 +56,6 @@ computed(() => {
       :page-header="`Статистика по региону ${tableData.header} 
               за периоди c ${tableData.stat.start} по ${tableData.stat.end}`"
     />
-
     <div class="py-3">
       <table class="table table-hover table-responsive align-middle">
         <caption>

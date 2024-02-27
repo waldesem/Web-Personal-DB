@@ -7,6 +7,7 @@ const props = defineProps({
     type: String,
   },
 });
+const emit = defineEmits(["deactivate"]);
 </script>
 
 <template>
@@ -14,6 +15,8 @@ const props = defineProps({
     <div
       class="modal-dialog modal-dialog-centered"
       :class="props.size"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
       role="document"
     >
       <div class="modal-content">
@@ -26,6 +29,7 @@ const props = defineProps({
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="emit('deactivate')"
           ></button>
         </div>
         <div class="modal-body">

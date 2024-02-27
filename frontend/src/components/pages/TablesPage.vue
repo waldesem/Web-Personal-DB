@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
 import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/token";
 import { alertStore } from "@store/alert";
@@ -22,18 +21,6 @@ onBeforeMount( async() => {
     tableData.value.table = storeClassify.classData.tables[0];
     await tableData.value.getItem(1);
   }
-});
-
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(tableData.value.table, {
-    table: "",
-    tableItem: [],
-    search: "",
-    currentPage: 1,
-    hasNext: false,
-    hasPrev: false,
-  });
-  next();
 });
 
 const tableData = ref({
