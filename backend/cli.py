@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app import db
 from config import Config
-from app.models.classes import Roles, Groups, Regions, Statuses, Conclusions, Categories
+from app.models.classes import Roles, Regions, Statuses, Conclusions, Categories
 from app.models.model import (
     Person,
     User,
@@ -36,13 +36,14 @@ def register_cli(app):
         db.drop_all()
         db.create_all()
 
-        db.session.add_all([Region(region=reg.value) for reg in Regions])
-        db.session.add_all([Status(status=item.value) for item in Statuses])
-        db.session.add_all([Conclusion(conclusion=item.value) for item in Conclusions])
-        db.session.add_all([Category(category=item.value) for item in Categories])
-        db.session.add_all([Group(group=grp.value) for grp in Groups])
-        db.session.add_all([Role(role=actor.value) for actor in Roles])
-
+        for item in [
+            [Region(region=reg.value) for reg in Regions],
+            [Status(status=item.value) for item in Statuses],
+            [Conclusion(conclusion=item.value) for item in Conclusions],
+            [Category(category=item.value) for item in Categories],
+            [Role(role=actor.value) for actor in Roles]
+            ]:
+            db.session.add_all(item)
         db.session.flush()
 
         superadmin = User(
@@ -57,11 +58,6 @@ def register_cli(app):
         superadmin.roles.append(
             db.session.execute(
                 select(Role).filter_by(role=(Roles.admin.value))
-            ).scalar_one_or_none()
-        )
-        superadmin.groups.append(
-            db.session.execute(
-                select(Group).filter_by(group=(Groups.admins.value))
             ).scalar_one_or_none()
         )
         db.session.add(superadmin)

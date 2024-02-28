@@ -6,16 +6,13 @@ from flask.views import MethodView
 
 from config import Config
 from . import bp
-from .login import roles_required, group_required
-from ..models.classes import Roles, Groups
+from .login import roles_required
+from ..models.classes import Roles
 
 
 class FileManagementView(MethodView):
-    decorators = [
-        group_required(Groups.staffsec.value),
-        roles_required(Roles.user.value),
-        bp.doc(hide=True),
-    ]
+    
+    decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
     def __init__(self):
         self.dirs = []

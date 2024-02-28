@@ -10,13 +10,6 @@ class Regions(Enum):
     EAST_REGION = "Региональный центр Восток"
 
 
-class Groups(Enum):
-
-    admins = "Admins"
-    staffsec = "StaffSec"
-    rest = "REST"
-
-
 class Roles(Enum):
 
     admin = "admin"

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
 import { server } from "@utilities/utils";
-import { authStore } from "@/store/token";
+import { authStore } from "@/store/auth";
 
 export const router = createRouter({
   routes: [
@@ -16,57 +16,64 @@ export const router = createRouter({
       component: () => import("@components/pages/LoginPage.vue"),
     },
     {
-      path: "/:group",
-      name: "group",
-      component: () => import("@components/PagesVue.vue"),
+      path: "/staffsec",
+      name: "staffsec",
+      component: () => import("@components/pages/StaffsecPage.vue"),
       children: [
         {
           path: "persons",
           name: "persons",
-          component: () => import("@components/pages/PersonPage.vue"),
+          component: () => import("@components/pages/staffsec/PersonsPage.vue"),
         },
         {
           path: "resume",
           name: "resume",
-          component: () => import("@components/pages/ResumePage.vue"),
+          component: () => import("@components/pages/staffsec/ResumePage.vue"),
         },
         {
           path: "profile/:id",
           name: "profile",
-          component: () => import("@components/pages/ProfilePage.vue"),
+          component: () => import("@components/pages/staffsec/ProfilePage.vue"),
         },
         {
           path: "information",
           name: "information",
-          component: () => import("@components/pages/InfoPage.vue"),
-        },
-        {
-          path: "users",
-          name: "users",
-          component: () => import("@components/pages/AdminPage.vue"),
-        },
-        {
-          path: "user/:id",
-          name: "user",
-          component: () => import("@components/pages/UserPage.vue"),
-        },
-        {
-          path: "table",
-          name: "table",
-          component: () => import("@components/pages/TablesPage.vue"),
+          component: () => import("@components/pages/staffsec/InfoPage.vue"),
         },
         {
           path: "contacts",
           name: "contacts",
-          component: () => import("@components/pages/ContactPage.vue"),
+          component: () => import("@components/pages/staffsec/ContactPage.vue"),
         },
         {
           path: "manager",
           name: "manager",
-          component: () => import("@components/pages/FilePage.vue"),
+          component: () => import("@components/pages/staffsec/FilePage.vue"),
           props: (route) => ({ path: route.query.path }),
         },
       ],
+    },
+    {
+      path: "/admin",
+      name: "admin",
+      component: () => import("@components/pages/AdminPage.vue"),
+      children: [
+        {
+          path: "users",
+          name: "users",
+          component: () => import("@components/pages/admin/IndexPage.vue"),
+        },
+        {
+          path: "user/:id",
+          name: "user",
+          component: () => import("@components/pages/admin/UserPage.vue"),
+        },
+        {
+          path: "table",
+          name: "table",
+          component: () => import("@components/pages/admin/TablesPage.vue"),
+        },
+      ]
     },
     {
       path: "/:pathMatch(.*)*",
@@ -80,7 +87,7 @@ export const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const storeAuth = authStore();
 
-  if (!["auth", "login", "group", "404"].includes(to.name as string)) {
+  if (!["auth", "login", "admin", "staffsec", "404"].includes(to.name as string)) {
     if (storeAuth.refreshToken) {
       const expiry_refresh = JSON.parse(atob(storeAuth.refreshToken.split(".")[1])).exp;
 

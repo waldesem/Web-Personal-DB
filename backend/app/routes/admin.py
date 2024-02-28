@@ -9,9 +9,9 @@ from sqlalchemy_searchable import search
 from config import Config
 from . import bp
 from .. import db
-from .login import group_required
-from .. models.classes import Roles, Groups
-from ..models.model import User, Role, Group
+from .login import roles_required
+from .. models.classes import Roles
+from ..models.model import User, Role
 from ..models.schema import (
     ActionSchema,
     SearchSchema,
@@ -23,7 +23,7 @@ from ..models.schema import (
 
 class UsersView(MethodView):
 
-    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
+    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
     def get(self, query_data):
@@ -44,7 +44,7 @@ bp.add_url_rule("/users", view_func=UsersView.as_view("users"))
 
 class UserView(MethodView):
 
-    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
+    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     @bp.input(ActionSchema, location="query")
     def get(self, user_id, query_data):
@@ -125,51 +125,12 @@ bp.add_url_rule("/user", view_func=user_view, methods=["PATCH", "POST"])
 bp.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "GET"])
 
 
-class GroupView(MethodView):
-
-    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
-
-    def get(self, value, user_id):
-        """
-        Retrieves a user's group from the database and adds it to the user's
-        list of groups if it does not already exist.
-        """
-        user = db.session.get(User, user_id)
-        group = db.session.get(Group, value)
-        if user and group not in user.groups:
-            user.groups.append(group)
-            db.session.commit()
-            return {"message": "Added"}, 200
-        return {"message": "Denied"}, 403
-
-    @bp.output(EmptySchema)
-    def delete(self, value, user_id):
-        """
-        Deletes a group from a user's list of groups.
-        """
-        user = db.session.get(User, user_id)
-        group = db.session.get(Group, value)
-        if (
-            user
-            and group
-            and (user.username != current_user.username
-            or group.group != Groups.admins.value)
-        ):
-            user.groups.remove(group)
-            db.session.commit()
-            return {"message": "Removed"}, 200
-        return {"message": "Denied"}, 403
-
-
-bp.add_url_rule("/group/<value>/<int:user_id>", view_func=GroupView.as_view("group"))
-
-
 class RoleView(MethodView):
     """
     Get a user's role based on the value and user ID.
     """
 
-    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
+    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     def get(self, value, user_id):
         user = db.session.get(User, user_id)
@@ -203,7 +164,7 @@ bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"
 
 class TableView(MethodView):
 
-    decorators = [group_required(Groups.admins.value), bp.doc(hide=True)]
+    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
     def get(self, item, num, query_data):

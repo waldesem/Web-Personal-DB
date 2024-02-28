@@ -91,6 +91,7 @@ def parse_json(file) -> None:
 
         return person
 
+
 def parse_region(json_dict):
     if "department" in json_dict:
         divisions = re.split(r"/", json_dict["department"].strip())

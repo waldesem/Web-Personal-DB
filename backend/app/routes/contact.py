@@ -1,18 +1,19 @@
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required
 from sqlalchemy_searchable import search
 from sqlalchemy import select
 
 from config import Config
 from . import bp
 from .. import db
+from .login import roles_required
+from ..models.classes import Roles
 from ..models.model import Connect
 from ..models.schema import ConnectSchema, SearchSchema
 
 
 class ConnnectView(MethodView):
 
-    decorators = [jwt_required(), bp.doc(hide=True)]
+    decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
     @bp.input(SearchSchema, location="query")
     def get(self, page, query_data):

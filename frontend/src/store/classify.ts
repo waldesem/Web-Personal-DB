@@ -9,14 +9,13 @@ export const classifyStore = defineStore("classifyStore", () => {
     regions: <Record<string, any>>[{}],
     conclusion: <Record<string, any>>{},
     category: <Record<string, any>>{},
-    groups: <Record<string, any>>{},
     roles: <Record<string, any>>{},
     tables: Array<string>(),
 
     getClasses: async function (): Promise<void> {
       try {
         const response = await axios.get(`${server}/classes`);
-        const { category, conclusion, role, group, status, region, tables } =
+        const { category, conclusion, role, status, region, tables } =
           response.data;
 
         Object.assign(classData.value, {
@@ -25,7 +24,6 @@ export const classifyStore = defineStore("classifyStore", () => {
           status: this.reduceItems(status, "status"),
           regions: this.reduceItems(region, "region"),
           roles: role,
-          groups: group,
           tables: tables,
         });
       } catch (error) {

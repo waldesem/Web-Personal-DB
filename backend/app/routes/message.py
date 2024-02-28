@@ -1,17 +1,20 @@
 from apiflask import EmptySchema
 from flask.views import MethodView
-from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended import current_user
 from sqlalchemy import select
 
 from . import bp
 from .. import db
+from .login import roles_required
+from ..models.classes import Roles
 from ..models.model import Message
 from ..models.schema import MessageSchema
 
 
 class MessagesView(MethodView):
 
-    decorators = [jwt_required(), bp.doc(hide=True)]
+
+    decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
     def get(self):
         """

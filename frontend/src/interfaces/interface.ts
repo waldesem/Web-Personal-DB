@@ -152,11 +152,6 @@ export interface Message {
   created: string
 }
 
-export interface Group {
-  id: string;
-  group: string;
-}
-
 export interface Role {
   id: string;
   role: string;
@@ -171,7 +166,6 @@ export interface User {
   pswd_change: string;
   last_login: string;
   roles: Role[];
-  groups: Group[];
   blocked: boolean;
   deleted: boolean;
   attempt: string;

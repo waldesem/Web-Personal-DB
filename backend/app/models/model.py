@@ -18,7 +18,6 @@ from sqlalchemy import (
 )
 
 from .. import db
-from ..models.classes import Statuses
 
 
 make_searchable(db.metadata)
@@ -32,31 +31,11 @@ class Base(db.Model):
     __abstract__ = True
 
 
-user_groups = db.Table(
-    "user_groups",
-    Column("user_id", ForeignKey("users.id"), primary_key=True),
-    Column("group_id", ForeignKey("groups.id"), primary_key=True),
-)
-
-
 user_roles = db.Table(
     "user_roles",
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("role_id", ForeignKey("roles.id"), primary_key=True),
 )
-
-
-class Group(Base):
-
-    __tablename__ = "groups"
-
-    id: Mapped[int] = mapped_column(
-        primary_key=True, autoincrement=True, nullable=False, unique=True
-    )
-    group: Mapped[str] = mapped_column(String(255), unique=True)
-    users: Mapped[List["User"]] = relationship(
-        back_populates="groups", secondary=user_groups, lazy="dynamic"
-    )
 
 
 class Role(Base):
@@ -95,9 +74,6 @@ class User(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="users")
     roles: Mapped[List["Role"]] = relationship(
         back_populates="users", secondary=user_roles, lazy="dynamic"
-    )
-    groups: Mapped[List["Group"]] = relationship(
-        back_populates="users", secondary=user_groups, lazy="dynamic"
     )
     search_vector: Mapped[TSVectorType] = mapped_column(
         TSVectorType("fullname", "username", "email")

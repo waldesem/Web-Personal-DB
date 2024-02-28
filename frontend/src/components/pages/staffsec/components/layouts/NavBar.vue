@@ -1,0 +1,68 @@
+<script setup lang="ts">
+import { defineAsyncComponent } from 'vue';
+
+const NavBar = defineAsyncComponent(
+  () => import("@components/layouts/NavBar.vue")
+);
+
+const props = defineProps({
+  fullName: String,
+  userLogout: {
+    type: Function,
+    required: true,
+  }
+});
+</script>
+
+<template>
+  <NavBar 
+    :arg="'bg-primary'"
+    :brand="'STAFFSEC'"
+    :full-name="props.fullName"
+    :log-out="props.userLogout"
+  >
+  <template v-slot:navbar>
+    <li class="nav-item">
+      <router-link
+        :to="{ name: 'persons', params: { group: 'staffsec' } }"
+        class="nav-link active"
+      >
+        Кандидаты
+      </router-link>
+    </li>
+    <li class="nav-item">
+      <router-link
+        :to="{ name: 'resume', params: { group: 'staffsec' } }"
+        class="nav-link active"
+      >
+        Создать
+      </router-link>
+    </li>
+    <li class="nav-item">
+      <router-link
+        :to="{ name: 'information', params: { group: 'staffsec' } }"
+        class="nav-link active"
+      >
+        Информация
+      </router-link>
+    </li>
+    <li class="nav-item">
+      <router-link
+        :to="{ name: 'contacts', params: { group: 'staffsec' } }"
+        class="nav-link active"
+      >
+        Контакты
+      </router-link>
+    </li>
+    <li class="nav-item">
+      <router-link
+        :to="{ name: 'manager', params: { group: 'staffsec' } }"
+        class="nav-link active"
+        href="#"
+      >
+        Файлы
+      </router-link>
+    </li>
+  </template>
+  </NavBar>
+</template>

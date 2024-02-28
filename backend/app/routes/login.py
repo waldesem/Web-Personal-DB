@@ -140,23 +140,6 @@ def roles_required(*roles):
 
     return decorator
 
-def group_required(*groups):
-    """
-    Decorator that checks if the user is a member of any of the specified groups
-    """
-    def decorator(func):
-        @wraps(func)
-        @jwt_required()
-        def wrapper(*args, **kwargs):
-            if any(g.group in groups for g in current_user.groups):
-                return func(*args, **kwargs)
-            else:
-                abort(404)
-
-        return wrapper
-
-    return decorator
-
 
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):

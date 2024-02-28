@@ -3,10 +3,16 @@ import { defineAsyncComponent } from "vue";
 import { alertStore } from "@store/alert";
 
 const LoginForm = defineAsyncComponent(
-  () => import("@components/forms/LoginForm.vue")
+  () => import("@components/pages/login/forms/LoginForm.vue")
 );
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
+);
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/pages/login/components/layouts/AlertMessage.vue")
+);
+const FooterDiv = defineAsyncComponent(
+  () => import("@components/pages/login/components/layouts/FooterDiv.vue")
 );
 
 const storeAlert = alertStore();
@@ -17,6 +23,7 @@ storeAlert.alertMessage.setAlert(
 </script>
 
 <template>
+  <AlertMessage/>
   <div class="container">
     <div class="row justify-content-center">
       <div class="align-middle col col-6">
@@ -25,6 +32,7 @@ storeAlert.alertMessage.setAlert(
       </div>
     </div>
   </div>
+  <FooterDiv />
 </template>
 
 <style scoped>

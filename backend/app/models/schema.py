@@ -22,7 +22,6 @@ from ..models.model import (
     Message,
     Region,
     Role,
-    Group,
     Connect,
     Robot,
 )
@@ -44,14 +43,6 @@ class RoleSchema(SQLAlchemyAutoSchema):
         ordered = True
 
 
-class GroupSchema(SQLAlchemyAutoSchema):
-    """Create model for group"""
-
-    class Meta:
-        model = Group
-        ordered = True
-
-
 class AdminUserSchema(SQLAlchemySchema):
     """Create model for new user"""
 
@@ -64,13 +55,15 @@ class UserSchema(SQLAlchemyAutoSchema):
     """Create model for user"""
 
     roles = Nested("RoleSchema", many=True)
-    groups = Nested("GroupSchema", many=True)
 
     class Meta:
         model = User
         ordered = True
         include_fk = True
-        exclude = ("password", "search_vector",)
+        exclude = (
+            "password",
+            "search_vector",
+        )
 
 
 class LoginSchema(Schema):
@@ -263,7 +256,6 @@ class AnketaSchemaApi(SQLAlchemySchema):
 models_schemas = {
     "user": [User, UserSchema()],
     "role": [Role, RoleSchema()],
-    "group": [Group, GroupSchema()],
     "message": [Message, MessageSchema()],
     "resume": [Person, PersonSchema()],
     "staff": [Staff, StaffSchema()],

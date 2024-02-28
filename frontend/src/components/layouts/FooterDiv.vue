@@ -5,10 +5,13 @@ import { server } from "@utilities/utils";
 <template>
   <div class="container py-5 d-print-none">
     <footer class="d-flex justify-content-around py-3 my-4 border-top">
-      <a :href="`${server}/docs`" target="”_blank”" title="OpenAPI">
-        <i class="bi bi-book-half"> OpenAPI</i>
+      <a 
+        :href="`${server}/docs`" 
+        target="”_blank”" 
+        title="OpenAPI">
+          <i class="bi bi-book-half"> OpenAPI</i>
       </a>
-      &nbsp;
+      <slot name="footer"></slot>
       <a
         href="https://github.com/waldesem/Web-Personal-DB"
         target="”_blank”"
