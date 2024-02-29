@@ -135,4 +135,3 @@ const dataUsers = ref({
   border-bottom: none;
 }
 </style>
-@/store/auth

@@ -13,11 +13,14 @@ const CollapseDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
+const FileForm = defineAsyncComponent(
+  () => import("@components/layouts/HeaderDiv.vue")
+);
 const CheckForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/CheckForm.vue")
+  () => import("../forms/CheckForm.vue")
 );
 const RobotDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/RobotDiv.vue")
+  () => import("../divs/RobotDiv.vue")
 );
 
 const storeClassify = classifyStore();
@@ -74,6 +77,10 @@ const check = ref({
     storeClassify.classData.status["save"],
     storeClassify.classData.status["repeat"],
   ].includes(props.statusId),
+
+  getEvent (event: Event){
+    props.submitFile(event, 'check')
+  },
 });
 </script>
 
@@ -177,24 +184,11 @@ const check = ref({
               new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
             "
           />
-          <RowDivSlot :slotOne="true" :print="true">
-            <form
-              class="form"
-              enctype="multipart/form-data"
-              role="form"
-              @change="props.submitFile($event, 'check')"
-            >
-              <input
-                class="form-control"
-                id="file"
-                type="file"
-                ref="file"
-                multiple
-              />
-            </form>
-          </RowDivSlot>
         </CollapseDiv>
-
+        <FileForm
+          :accept="'*'"
+          @submit="check.getEvent"
+        />
         <RobotDiv
           :robots="props.robots"
           :get-item="props.getItem"

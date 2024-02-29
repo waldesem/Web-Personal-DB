@@ -138,4 +138,3 @@ computed(() => {
     </div>
   </div>
 </template>
-@/store/auth

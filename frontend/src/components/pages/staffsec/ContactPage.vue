@@ -222,4 +222,3 @@ const contactData = ref({
   border-bottom: none;
 }
 </style>
-@/store/auth

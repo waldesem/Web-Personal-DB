@@ -8,6 +8,9 @@ import { router } from "@/router/router";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
+const FileForm = defineAsyncComponent(
+  () => import("@components/layouts/HeaderDiv.vue")
+);
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/ResumeForm.vue")
 );
@@ -46,32 +49,20 @@ const dataJson = ref({
       );
     }
   },
+
+  getEvent (event: Event){
+    this.submitFile(event)
+  },
 })
 </script>
 
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Создать анкету'" />
-    <form
-      class="form form-check"
-      enctype="multipart/form-data"
-      role="form"
-      @change="dataJson.submitFile($event)"
-    >
-      <div class="mb-3 row">
-        <label class="col-form-label col-lg-2" for="file">Загрузить файл</label>
-        <div class="col-lg-10">
-          <input
-            class="form-control"
-            id="file"
-            type="file"
-            accept=".json"
-            ref="file"
-          />
-        </div>
-      </div>
-    </form>
+    <FileForm
+      :accept="'.json'"
+      @submit="dataJson.getEvent"
+    />
     <ResumeForm />
   </div>
 </template>
-@/store/auth

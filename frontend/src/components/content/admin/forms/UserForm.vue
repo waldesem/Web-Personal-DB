@@ -145,4 +145,3 @@ const userForm = ref({
     </form>
   </ModalWin>
 </template>
-@/utilities/token@/store/auth

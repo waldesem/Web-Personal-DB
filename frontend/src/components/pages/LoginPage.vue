@@ -9,7 +9,7 @@ const LoginForm = defineAsyncComponent(
   () => import("@components/content/login/forms/LoginForm.vue")
 );
 const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/login/layouts/AlertMessage.vue")
+  () => import("@components/layouts/AlertMessage.vue")
 );
 const FooterDiv = defineAsyncComponent(
   () => import("@components/content/login/layouts/FooterDiv.vue")

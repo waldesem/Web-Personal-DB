@@ -171,4 +171,3 @@ const searchPerson = debounce(() => {
     />
   </div>
 </template>
-@/store/auth

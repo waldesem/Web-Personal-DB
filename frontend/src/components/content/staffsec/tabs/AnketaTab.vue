@@ -19,28 +19,28 @@ const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 const ResumeForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/ResumeForm.vue")
+  () => import("../forms/ResumeForm.vue")
 );
 const StaffDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/StaffDiv.vue")
+  () => import("../divs/StaffDiv.vue")
 );
 const DocumentDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/DocumentDiv.vue")
+  () => import("../divs/DocumentDiv.vue")
 );
 const AddressDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/AddressDiv.vue")
+  () => import("../divs/AddressDiv.vue")
 );
 const ContactDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/ContactDiv.vue")
+  () => import("../divs/ContactDiv.vue")
 );
 const RelationDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/RelationDiv.vue")
+  () => import("../divs/RelationDiv.vue")
 );
 const WorkplaceDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/WorkplaceDiv.vue")
+  () => import("../divs/WorkplaceDiv.vue")
 );
 const AffilationDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/divs/AffilationDiv.vue")
+  () => import("../divs/AffilationDiv.vue")
 );
 
 const storeClassify = classifyStore();

@@ -9,7 +9,10 @@ const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
 const PoligrafForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/PoligrafForm.vue")
+  () => import("../forms/PoligrafForm.vue")
+);
+const FileForm = defineAsyncComponent(
+  () => import("@components/layouts/HeaderDiv.vue")
 );
 
 onBeforeMount( async() => {
@@ -46,6 +49,10 @@ const poligraf = ref({
   isForm: false,
   itemId: "",
   item: <Pfo>{},
+  
+  getEvent (event: Event){
+    props.submitFile(event, 'poligraf')
+  },
 });
 </script>
 
@@ -100,17 +107,11 @@ const poligraf = ref({
             :label="'Дата'"
             :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
           />
-          <RowDivSlot :slotOne="true" :print="true">
-            <form
-              class="form"
-              enctype="multipart/form-data"
-              role="form"
-              @change="props.submitFile($event, 'poligraf')"
-            >
-              <input class="form-control" id="file" type="file" ref="file" multiple />
-            </form>
-          </RowDivSlot>
         </CollapseDiv>
+        <FileForm
+          :accept="'*'"
+          @submit="poligraf.getEvent"
+        />
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">

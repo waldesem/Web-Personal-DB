@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { authStore } from "@store/token";
+import { authStore } from "@store/auth";
 import { server } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
 
 const MessagesToast = defineAsyncComponent(
-  () => import("@components/layouts/MessagesToast.vue")
+  () => import("./MessagesToast.vue")
 );
 
 const storeAuth = authStore();
@@ -102,4 +102,4 @@ messageData.value.updateCount();
   max-height: 75vh;
   overflow-y: auto;
 }
-</style>@/store/auth
+</style>

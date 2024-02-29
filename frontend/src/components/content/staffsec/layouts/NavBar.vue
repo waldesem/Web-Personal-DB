@@ -4,6 +4,9 @@ import { defineAsyncComponent } from 'vue';
 const NavBar = defineAsyncComponent(
   () => import("@components/layouts/NavBar.vue")
 );
+const MessageDiv = defineAsyncComponent(
+  () => import('../divs/MessageDiv.vue')
+)
 
 const props = defineProps({
   fullName: String,
@@ -15,6 +18,7 @@ const props = defineProps({
 </script>
 
 <template>
+  <MessageDiv />
   <NavBar 
     :arg="'bg-primary'"
     :brand="'STAFFSEC'"

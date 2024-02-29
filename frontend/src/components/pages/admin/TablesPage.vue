@@ -158,4 +158,3 @@ table td {
   border-bottom: none;
 }
 </style>
-@/store/auth

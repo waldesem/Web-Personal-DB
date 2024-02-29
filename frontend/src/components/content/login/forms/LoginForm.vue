@@ -211,4 +211,3 @@ const loginData = ref({
     </div>
   </div>
 </template>
-@/store/auth

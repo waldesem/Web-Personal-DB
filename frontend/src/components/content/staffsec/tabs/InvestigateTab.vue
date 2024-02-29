@@ -9,7 +9,10 @@ const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
 const InvestigationForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/InvestigationForm.vue")
+  () => import("../forms/InvestigationForm.vue")
+);
+const FileForm = defineAsyncComponent(
+  () => import("@components/layouts/HeaderDiv.vue")
 );
 
 onBeforeMount( async() => {
@@ -46,6 +49,10 @@ const inquisition = ref({
   isForm: false,
   itemId: "",
   item: <Inquisition>{},
+
+  getEvent (event: Event){
+    props.submitFile(event, 'check')
+  },
 });
 </script>
 
@@ -100,17 +107,11 @@ const inquisition = ref({
             :label="'Дата'"
             :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
           />
-          <RowDivSlot :slotOne="true">
-            <form
-              class="form"
-              enctype="multipart/form-data"
-              role="form"
-              @change="props.submitFile($event, 'investigation')"
-            >
-              <input class="form-control" id="file" type="file" ref="file" multiple />
-            </form>
-          </RowDivSlot>
         </CollapseDiv>
+        <FileForm
+          :accept="'*'"
+          @submit="inquisition.getEvent"
+        />
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">

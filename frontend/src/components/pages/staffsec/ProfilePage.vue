@@ -26,7 +26,7 @@ const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
 const PhotoCard = defineAsyncComponent(
-  () => import("@components/layouts/PhotoCard.vue")
+  () => import("@components/content/staffsec/divs//PhotoCard.vue")
 );
 const AnketaTab = defineAsyncComponent(
   () => import("@components/content/staffsec/tabs/AnketaTab.vue")
@@ -316,7 +316,7 @@ const anketaData = ref({
     <HeaderDiv :page-header="anketaData.resume.fullname" />
     <div
       v-if="!anketaData.printPage"
-      :class="!anketaData.printPage ? 'nav nav-tabs nav-justified' : 'mt-1'"
+      :class="{'nav nav-tabs nav-justified:':!anketaData.printPage}"
       :role="anketaData.printPage ? 'tablist' : ''"
     >
       <div v-if="!anketaData.printPage">
@@ -334,12 +334,10 @@ const anketaData = ref({
       </div>
     </div>
 
-    <div :class="!anketaData.printPage ? 'tab-content' : 'mt-1'">
+    <div :class="{'tab-content':!anketaData.printPage}">
       <div
         id="anketaTab"
-        :class="
-          anketaData.printPage ? 'tab-pane fade py-1 show active' : 'mt-1'
-        "
+        :class="{'tab-pane fade py-1 show active':anketaData.printPage}"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
         <AnketaTab
@@ -361,7 +359,7 @@ const anketaData = ref({
       </div>
       <div
         id="сheckTab"
-        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :class="{'tab-pane fade py-1':anketaData.printPage}"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
         <CheckTab
@@ -378,7 +376,7 @@ const anketaData = ref({
       </div>
       <div
         id="poligrafTab"
-        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :class="{'tab-pane fade py-1':anketaData.printPage}"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
         <PoligrafTab
@@ -392,7 +390,7 @@ const anketaData = ref({
       </div>
       <div
         id="investigateTab"
-        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :class="{'tab-pane fade py-1':anketaData.printPage}"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
         <InvestigateTab
@@ -406,7 +404,7 @@ const anketaData = ref({
       </div>
       <div
         id="inquiryTab"
-        :class="anketaData.printPage ? 'tab-pane fade py-1' : 'mt-1'"
+        :class="{'tab-pane fade py-1':anketaData.printPage}"
         :role="anketaData.printPage ? 'tabpanel' : ''"
       >
         <InquiryTab
@@ -440,4 +438,3 @@ const anketaData = ref({
   cursor: pointer;
 }
 </style>
-@/store/auth

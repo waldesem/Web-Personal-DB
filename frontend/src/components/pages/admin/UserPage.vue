@@ -285,4 +285,3 @@ li {
   padding-left: 0;
 }
 </style>
-@/store/auth

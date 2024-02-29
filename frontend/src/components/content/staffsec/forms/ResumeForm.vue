@@ -214,4 +214,3 @@ const select_items = {
     </form>
   </div>
 </template>
-@/store/auth
