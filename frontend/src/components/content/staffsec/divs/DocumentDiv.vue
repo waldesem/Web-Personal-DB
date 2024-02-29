@@ -9,7 +9,7 @@ const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
 const DocumentForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/DocumentForm.vue")
+  () => import("@components/content/staffsec/forms/DocumentForm.vue")
 );
 
 onBeforeMount( async() => {

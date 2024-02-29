@@ -7,17 +7,17 @@ import { Robot } from "@/interfaces/interface";
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
-const CheckForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/CheckForm.vue")
-);
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
+const CheckForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/CheckForm.vue")
+);
 const RobotDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/RobotDiv.vue")
+  () => import("@components/content/staffsec/tabs/divs/RobotDiv.vue")
 );
 
 const storeClassify = classifyStore();

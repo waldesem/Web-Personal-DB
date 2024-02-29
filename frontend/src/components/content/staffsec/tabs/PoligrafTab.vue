@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
-import { Inquisition } from "@/interfaces/interface";
+import { Pfo } from "@/interfaces/interface";
 
-const InvestigationForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/InvestigationForm.vue")
-);
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
+);
+const PoligrafForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/PoligrafForm.vue")
 );
 
 onBeforeMount( async() => {
@@ -19,8 +19,8 @@ onBeforeMount( async() => {
 const props = defineProps({
   candId: String,
   userId: String,
-  inquisitions:  {
-    type: Array as () => Inquisition[],
+  poligrafs:  {
+    type: Array as () => Pfo[],
     default: () => {},
   },
   getItem: {
@@ -41,34 +41,34 @@ const props = defineProps({
   },
 });
 
-const inquisition = ref({
+const poligraf = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Inquisition>{},
+  item: <Pfo>{},
 });
 </script>
 
 <template>
   <div class="py-3">
-    <template v-if="inquisition.isForm">
-    <InvestigationForm
+    <template v-if="poligraf.isForm">
+    <PoligrafForm
       :get-item="props.getItem"
-      :action="inquisition.action"
+      :action="poligraf.action"
       :cand-id="candId"
-      :content="inquisition.item"
+      :content="poligraf.item"
       :update-item="props.updateItem"
-      @deactivate="inquisition.isForm = false; inquisition.action = '';"
+      @deactivate="poligraf.isForm = false; poligraf.action = '';"
     />
     </template>
     <div v-else>
-      <div v-if="props.inquisitions.length">
+      <div v-if="props.poligrafs.length > 0">
         <CollapseDiv
-          v-for="(item, idx) in props.inquisitions"
+          v-for="(item, idx) in props.poligrafs"
           :key="idx"
-          :id="'investigation' + idx"
+          :id="'poligraf' + idx"
           :idx="idx"
-          :label="'Расследование #' + (idx + 1)"
+          :label="'Полиграф #' + (idx + 1)"
         >
           <RowDivSlot :slotTwo="true" :print="true">
             <template v-slot:divTwo>
@@ -83,10 +83,10 @@ const inquisition = ref({
                 href="#"
                 title="Изменить"
                 @click="
-                  inquisition.isForm = true;
-                  inquisition.action = 'update';
-                  inquisition.item = item;
-                  inquisition.itemId = item['id'].toString();
+                  poligraf.isForm = true;
+                  poligraf.action = 'update';
+                  poligraf.item = item;
+                  poligraf.itemId = item['id'].toString();
                 "
               >
                 <i class="bi bi-pencil-square"></i>
@@ -94,18 +94,18 @@ const inquisition = ref({
             </template>
           </RowDivSlot>
           <RowDivSlot :label="'Тема'" :value="item['theme']" />
-          <RowDivSlot :label="'Информация'" :value="item['info']" />
+          <RowDivSlot :label="'Результат'" :value="item['results']" />
           <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
           <RowDivSlot
             :label="'Дата'"
             :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
           />
-          <RowDivSlot :slotOne="true">
+          <RowDivSlot :slotOne="true" :print="true">
             <form
               class="form"
               enctype="multipart/form-data"
               role="form"
-              @change="props.submitFile($event, 'investigation')"
+              @change="props.submitFile($event, 'poligraf')"
             >
               <input class="form-control" id="file" type="file" ref="file" multiple />
             </form>
@@ -118,8 +118,8 @@ const inquisition = ref({
           class="btn btn-outline-primary"
           type="button"
           @click="
-            inquisition.isForm = true;
-            inquisition.action = 'create';
+            poligraf.isForm = true;
+            poligraf.action = 'create';
           "
           >Добавить запись
         </a>

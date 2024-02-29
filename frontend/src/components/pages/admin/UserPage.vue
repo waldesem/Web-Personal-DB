@@ -15,7 +15,7 @@ const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
 const UserForm = defineAsyncComponent(
-  () => import("@components/pages/admin/components/forms/UserForm.vue")
+  () => import("@components/content/admin/forms/UserForm.vue")
 );
 
 const storeClassify = classifyStore();

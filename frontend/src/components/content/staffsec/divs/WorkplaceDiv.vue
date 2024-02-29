@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Affilation } from "@/interfaces/interface";
+import { Work } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
-const AffilationForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/AffilationForm.vue")
+const WorkplaceForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/WorkplaceForm.vue")
 );
 
 
@@ -23,7 +23,7 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Affilation[],
+    type: Array as () => Work[],
     default: () => ({}),
   },
   getItem: {
@@ -40,37 +40,37 @@ const props = defineProps({
   },
 });
 
-const affilation = ref({
+const workplace = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Affilation>{},
+  item: <Work>{},
 });
 </script>
 
 <template>
   <h6>
-    Аффилированность
+    Работа
     <a
       class="btn btn-link"
       @click="
-        affilation.isForm = !affilation.isForm;
-        affilation.action = affilation.isForm ? 'create' : '';"
-      :title="affilation.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        workplace.isForm = !workplace.isForm;  
+        workplace.action = 'create'"
+      :title="workplace.isForm ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="affilation.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="workplace.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="affilation.isForm">
-    <AffilationForm 
+  <template v-if="workplace.isForm">
+    <WorkplaceForm 
       :get-item="props.getItem"
       :update-item="props.updateItem"
-      :action="affilation.action"
+      :action="workplace.action"
       :cand-id="candId"
-      :content="affilation.item"
-      @deactivate="affilation.isForm = false; affilation.action = '';"
+      :content="workplace.item"
+      @deactivate="workplace.isForm = false; workplace.action = ''"
     />
   </template>
   <template v-else>
@@ -78,11 +78,11 @@ const affilation = ref({
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'affil' + idx"
+        :id="'work' + idx"
         :idx="idx"
-        :label="'Аффилированность #' + (idx + 1)"
+        :label="'Работа #' + (idx + 1)"
       >
-      <RowDivSlot :slotTwo="true" :print="true">
+        <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
@@ -95,26 +95,24 @@ const affilation = ref({
               class="btn btn-link"
               title="Изменить"
               @click="
-                affilation.isForm = true;
-                affilation.action = 'update';
-                affilation.item = item;
-                affilation.itemId = item['id'].toString();
+                workplace.isForm = true;
+                workplace.action = 'update';
+                workplace.item = item;
+                workplace.itemId = item['id'].toString();
               "
             >
               <i class="bi bi-pencil-square"></i>
             </a>
           </template>
         </RowDivSlot>
-        <RowDivSlot :label="'Тип участия'" :value="item['view']" />
-        <RowDivSlot :label="'Организация'" :value="item['name']" />
-        <RowDivSlot :label="'ИНН'" :value="item['inn']" />
+        <RowDivSlot :label="'Начало работы'" :value="item['start_date']" />
+        <RowDivSlot :label="'Окончание работы'" :value="item['end_date']" />
+        <RowDivSlot :label="'Организация'" :value="item['workplace']" />
+        <RowDivSlot :label="'КоАдреснтакт'" :value="item['address']" />
         <RowDivSlot :label="'Должность'" :value="item['position']" />
-        <RowDivSlot
-          :label="'Дата декларации'"
-          :value="new Date(item['deadline']).toLocaleDateString('ru-RU')"
-        />
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>
   </template>
+  
 </template>

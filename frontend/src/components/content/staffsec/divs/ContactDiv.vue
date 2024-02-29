@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Staff } from "@/interfaces/interface";
+import { Contact } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -8,9 +8,10 @@ const CollapseDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
-const StaffForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/StaffForm.vue")
+const ContactForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/ContactForm.vue")
 );
+
 
 onBeforeMount( async() => {
   await props.getItem("staff");
@@ -22,8 +23,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Staff[],
-    default: () => {},
+    type: Array as () => Contact[],
+    default: () => ({}),
   },
   getItem: {
     type: Function,
@@ -39,37 +40,38 @@ const props = defineProps({
   },
 });
 
-const staff = ref({
+const contact = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Staff>{},
+  item: <Contact>{},
 });
+</script>
 </script>
 
 <template>
   <h6>
-    Должности
+    Контакты
     <a
       class="btn btn-link"
       @click="
-        staff.isForm = !staff.isForm;
-        staff.action = staff.isForm ? 'create' : '';"
-      :title="staff.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        contact.isForm = !contact.isForm;
+        contact.action = contact.isForm ? 'create' : '';"
+      :title="contact.isForm ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="staff.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="contact.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="staff.isForm">
-    <StaffForm
+  <template v-if="contact.isForm">
+    <ContactForm 
       :get-item="props.getItem"
       :update-item="props.updateItem"
-      :action="staff.action"
+      :action="contact.action"
       :cand-id="candId"
-      :content="staff.item"
-      @deactivate="staff.isForm = false; staff.action = '';"
+      :content="contact.item"
+      @deactivate="contact.isForm = false; contact.action = '';"
     />
   </template>
   <template v-else>
@@ -77,9 +79,9 @@ const staff = ref({
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'staff' + idx"
+        :id="'cont' + idx"
         :idx="idx"
-        :label="'Должность #' + (idx + 1)"
+        :label="'Контакт #' + (idx + 1)"
       >
         <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
@@ -94,18 +96,18 @@ const staff = ref({
               class="btn btn-link"
               title="Изменить"
               @click="
-                staff.isForm = true;
-                staff.action = 'update';
-                staff.item = item;
-                staff.itemId = item['id'].toString();
+                contact.isForm = true;
+                contact.action = 'update';
+                contact.item = item;
+                contact.itemId = item['id'].toString();
               "
             >
               <i class="bi bi-pencil-square"></i>
             </a>
           </template>
         </RowDivSlot>
-        <RowDivSlot :label="'Должность'" :value="item['position']" />
-        <RowDivSlot :label="'Департамент'" :value="item['department']" />
+        <RowDivSlot :label="'Вид'" :value="item['view']" />
+        <RowDivSlot :label="'Контакт'" :value="item['contact']" />
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

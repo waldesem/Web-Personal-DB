@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Relation } from "@/interfaces/interface";
+import { Staff } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
-const RelationForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/RelationForm.vue")
+const StaffForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/StaffForm.vue")
 );
 
 onBeforeMount( async() => {
@@ -22,8 +22,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Relation[],
-    default: () => ({}),
+    type: Array as () => Staff[],
+    default: () => {},
   },
   getItem: {
     type: Function,
@@ -39,49 +39,49 @@ const props = defineProps({
   },
 });
 
-const relation = ref({
+const staff = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Relation>{},
+  item: <Staff>{},
 });
 </script>
 
 <template>
   <h6>
-    Связи
+    Должности
     <a
       class="btn btn-link"
       @click="
-        relation.isForm = !relation.isForm;
-        relation.action = relation.isForm ? 'create' : '';"
-      :title="relation.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        staff.isForm = !staff.isForm;
+        staff.action = staff.isForm ? 'create' : '';"
+      :title="staff.isForm ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="relation.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="staff.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="relation.isForm">
-    <RelationForm
+  <template v-if="staff.isForm">
+    <StaffForm
       :get-item="props.getItem"
       :update-item="props.updateItem"
-      :action="relation.action"
+      :action="staff.action"
       :cand-id="candId"
-      :content="relation.item"
-      @deactivate="relation.isForm = false; relation.action = '';"
+      :content="staff.item"
+      @deactivate="staff.isForm = false; staff.action = '';"
     />
   </template>
   <template v-else>
-    <div v-if="props.items.length">
+    <div v-if="props.items.length > 0">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'relate' + idx"
+        :id="'staff' + idx"
         :idx="idx"
-        :label="'Связь #' + (idx + 1)"
+        :label="'Должность #' + (idx + 1)"
       >
-      <RowDivSlot :slotTwo="true" :print="true">
+        <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
@@ -94,27 +94,18 @@ const relation = ref({
               class="btn btn-link"
               title="Изменить"
               @click="
-                relation.isForm = true;
-                relation.action = 'update';
-                relation.item = item;
-                relation.itemId = item['id'].toString();
+                staff.isForm = true;
+                staff.action = 'update';
+                staff.item = item;
+                staff.itemId = item['id'].toString();
               "
             >
               <i class="bi bi-pencil-square"></i>
             </a>
           </template>
         </RowDivSlot>
-        <RowDivSlot :label="'Тип связи'" :value="item['relation']" />
-        <RowDivSlot :label="'Связь'" :slotTwo="true">
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { id: String(item['relation_id']) },
-            }"
-          >
-            ID #{{ item["relation_id"] }}
-          </router-link>
-        </RowDivSlot>
+        <RowDivSlot :label="'Должность'" :value="item['position']" />
+        <RowDivSlot :label="'Департамент'" :value="item['department']" />
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

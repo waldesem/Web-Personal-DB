@@ -9,7 +9,7 @@ const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
 const UserForm = defineAsyncComponent(
-  () => import("@components/pages/admin/components/forms/UserForm.vue")
+  () => import("@components/content/admin/forms/UserForm.vue")
 );
 
 const storeAlert = alertStore();

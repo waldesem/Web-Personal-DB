@@ -7,14 +7,14 @@ import { debounce, server } from "@utilities/utils";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const ConnectForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/ConnectForm.vue")
-);
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/layouts/PageSwitcher.vue")
 );
 const ModalWin = defineAsyncComponent(
   () => import("@components/layouts/ModalWin.vue")
+);
+const ConnectForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/ConnectForm.vue")
 );
 
 const storeAuth = authStore();

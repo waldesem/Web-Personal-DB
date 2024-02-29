@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Address } from "@/interfaces/interface";
+import { Affilation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -8,9 +8,10 @@ const CollapseDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
-const AddressForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/AddressForm.vue")
+const AffilationForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/AffilationForm.vue")
 );
+
 
 onBeforeMount( async() => {
   await props.getItem("staff");
@@ -22,7 +23,7 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Address[],
+    type: Array as () => Affilation[],
     default: () => ({}),
   },
   getItem: {
@@ -39,38 +40,37 @@ const props = defineProps({
   },
 });
 
-const address = ref({
+const affilation = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Address>{},
+  item: <Affilation>{},
 });
 </script>
 
 <template>
   <h6>
-    Адреса
+    Аффилированность
     <a
       class="btn btn-link"
       @click="
-        address.isForm = !address.isForm;
-        address.action = address.isForm ? 'create' : '';
-      "
-      :title="address.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        affilation.isForm = !affilation.isForm;
+        affilation.action = affilation.isForm ? 'create' : '';"
+      :title="affilation.isForm ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="address.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="affilation.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="address.isForm">
-    <AddressForm
+  <template v-if="affilation.isForm">
+    <AffilationForm 
       :get-item="props.getItem"
       :update-item="props.updateItem"
-      :action="address.action"
+      :action="affilation.action"
       :cand-id="candId"
-      :content="address.item"
-      @deactivate="address.isForm = false; address.action = '';"
+      :content="affilation.item"
+      @deactivate="affilation.isForm = false; affilation.action = '';"
     />
   </template>
   <template v-else>
@@ -78,11 +78,11 @@ const address = ref({
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'addr' + idx"
+        :id="'affil' + idx"
         :idx="idx"
-        :label="'Адрес #' + (idx + 1)"
+        :label="'Аффилированность #' + (idx + 1)"
       >
-        <RowDivSlot :slotTwo="true" :print="true">
+      <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
@@ -95,19 +95,24 @@ const address = ref({
               class="btn btn-link"
               title="Изменить"
               @click="
-                address.action = 'update';
-                address.isForm = true;
-                address.item = item;
-                address.itemId = item['id'].toString();
+                affilation.isForm = true;
+                affilation.action = 'update';
+                affilation.item = item;
+                affilation.itemId = item['id'].toString();
               "
             >
               <i class="bi bi-pencil-square"></i>
             </a>
           </template>
         </RowDivSlot>
-        <RowDivSlot :label="'Тип'" :value="item['view']" />
-        <RowDivSlot :label="'Регион'" :value="item['region']" />
-        <RowDivSlot :label="'Адрес'" :value="item['address']" />
+        <RowDivSlot :label="'Тип участия'" :value="item['view']" />
+        <RowDivSlot :label="'Организация'" :value="item['name']" />
+        <RowDivSlot :label="'ИНН'" :value="item['inn']" />
+        <RowDivSlot :label="'Должность'" :value="item['position']" />
+        <RowDivSlot
+          :label="'Дата декларации'"
+          :value="new Date(item['deadline']).toLocaleDateString('ru-RU')"
+        />
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

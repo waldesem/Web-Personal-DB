@@ -12,35 +12,35 @@ import {
   Affilation,
 } from "@/interfaces/interface";
 
-const ResumeForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/ResumeForm.vue")
-);
-const StaffDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/StaffDiv.vue")
-);
-const DocumentDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/DocumentDiv.vue")
-);
-const AddressDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/AddressDiv.vue")
-);
-const ContactDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/ContactDiv.vue")
-);
-const RelationDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/RelationDiv.vue")
-);
-const WorkplaceDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/WorkplaceDiv.vue")
-);
-const AffilationDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/divs/AffilationDiv.vue")
-);
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
+);
+const ResumeForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/ResumeForm.vue")
+);
+const StaffDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/tabs/divs/StaffDiv.vue")
+);
+const DocumentDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/tabs/divs/DocumentDiv.vue")
+);
+const AddressDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/tabs/divs/AddressDiv.vue")
+);
+const ContactDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/tabs/divs/ContactDiv.vue")
+);
+const RelationDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/tabs/divs/RelationDiv.vue")
+);
+const WorkplaceDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/tabs/divs/WorkplaceDiv.vue")
+);
+const AffilationDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/tabs/divs/AffilationDiv.vue")
 );
 
 const storeClassify = classifyStore();

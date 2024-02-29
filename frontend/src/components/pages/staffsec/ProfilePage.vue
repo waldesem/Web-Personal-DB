@@ -29,19 +29,19 @@ const PhotoCard = defineAsyncComponent(
   () => import("@components/layouts/PhotoCard.vue")
 );
 const AnketaTab = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/AnketaTab.vue")
+  () => import("@components/content/staffsec/tabs/AnketaTab.vue")
 );
 const CheckTab = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/CheckTab.vue")
+  () => import("@components/content/staffsec/tabs/CheckTab.vue")
 );
 const PoligrafTab = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/PoligrafTab.vue")
+  () => import("@components/content/staffsec/tabs/PoligrafTab.vue")
 );
 const InvestigateTab = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/InvestigateTab.vue")
+  () => import("@components/content/staffsec/tabs/InvestigateTab.vue")
 );
 const InquiryTab = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/tabs/InquiryTab.vue")
+  () => import("@components/content/staffsec/tabs/InquiryTab.vue")
 );
 
 const storeAuth = authStore();

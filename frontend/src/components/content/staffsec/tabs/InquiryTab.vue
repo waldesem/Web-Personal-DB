@@ -2,14 +2,14 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces/interface";
 
-const InquiryForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/InquiryForm.vue")
-);
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
+);
+const InquiryForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/InquiryForm.vue")
 );
 
 onBeforeMount( async() => {

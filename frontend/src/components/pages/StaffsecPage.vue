@@ -3,13 +3,13 @@ import { defineAsyncComponent } from 'vue';
 import { authStore } from "@store/auth"
 
 const NavBar = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/layouts/NavBar.vue")
+  () => import("@components/content/staffsec/layouts/NavBar.vue")
 );
 const AlertMessage = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/layouts/AlertMessage.vue")
+  () => import("@components/content/staffsec/layouts/AlertMessage.vue")
 );
 const FooterDiv = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/layouts/FooterDiv.vue")
+  () => import("@components/content/staffsec/layouts/FooterDiv.vue")
 );
 
 const storeAuth = authStore();

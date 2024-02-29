@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Work } from "@/interfaces/interface";
+import { Relation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -8,10 +8,9 @@ const CollapseDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
-const WorkplaceForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/components/forms/WorkplaceForm.vue")
+const RelationForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/RelationForm.vue")
 );
-
 
 onBeforeMount( async() => {
   await props.getItem("staff");
@@ -23,7 +22,7 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Work[],
+    type: Array as () => Relation[],
     default: () => ({}),
   },
   getItem: {
@@ -40,49 +39,49 @@ const props = defineProps({
   },
 });
 
-const workplace = ref({
+const relation = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Work>{},
+  item: <Relation>{},
 });
 </script>
 
 <template>
   <h6>
-    Работа
+    Связи
     <a
       class="btn btn-link"
       @click="
-        workplace.isForm = !workplace.isForm;  
-        workplace.action = 'create'"
-      :title="workplace.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        relation.isForm = !relation.isForm;
+        relation.action = relation.isForm ? 'create' : '';"
+      :title="relation.isForm ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="workplace.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="relation.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="workplace.isForm">
-    <WorkplaceForm 
+  <template v-if="relation.isForm">
+    <RelationForm
       :get-item="props.getItem"
       :update-item="props.updateItem"
-      :action="workplace.action"
+      :action="relation.action"
       :cand-id="candId"
-      :content="workplace.item"
-      @deactivate="workplace.isForm = false; workplace.action = ''"
+      :content="relation.item"
+      @deactivate="relation.isForm = false; relation.action = '';"
     />
   </template>
   <template v-else>
-    <div v-if="props.items.length > 0">
+    <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'work' + idx"
+        :id="'relate' + idx"
         :idx="idx"
-        :label="'Работа #' + (idx + 1)"
+        :label="'Связь #' + (idx + 1)"
       >
-        <RowDivSlot :slotTwo="true" :print="true">
+      <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
@@ -95,24 +94,29 @@ const workplace = ref({
               class="btn btn-link"
               title="Изменить"
               @click="
-                workplace.isForm = true;
-                workplace.action = 'update';
-                workplace.item = item;
-                workplace.itemId = item['id'].toString();
+                relation.isForm = true;
+                relation.action = 'update';
+                relation.item = item;
+                relation.itemId = item['id'].toString();
               "
             >
               <i class="bi bi-pencil-square"></i>
             </a>
           </template>
         </RowDivSlot>
-        <RowDivSlot :label="'Начало работы'" :value="item['start_date']" />
-        <RowDivSlot :label="'Окончание работы'" :value="item['end_date']" />
-        <RowDivSlot :label="'Организация'" :value="item['workplace']" />
-        <RowDivSlot :label="'КоАдреснтакт'" :value="item['address']" />
-        <RowDivSlot :label="'Должность'" :value="item['position']" />
+        <RowDivSlot :label="'Тип связи'" :value="item['relation']" />
+        <RowDivSlot :label="'Связь'" :slotTwo="true">
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { id: String(item['relation_id']) },
+            }"
+          >
+            ID #{{ item["relation_id"] }}
+          </router-link>
+        </RowDivSlot>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>
   </template>
-  
 </template>

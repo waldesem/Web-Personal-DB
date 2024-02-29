@@ -2,17 +2,17 @@
 import { defineAsyncComponent } from "vue";
 import { alertStore } from "@store/alert";
 
-const LoginForm = defineAsyncComponent(
-  () => import("@components/pages/login/forms/LoginForm.vue")
-);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
+const LoginForm = defineAsyncComponent(
+  () => import("@components/content/login/forms/LoginForm.vue")
+);
 const AlertMessage = defineAsyncComponent(
-  () => import("@components/pages/login/components/layouts/AlertMessage.vue")
+  () => import("@components/content/login/layouts/AlertMessage.vue")
 );
 const FooterDiv = defineAsyncComponent(
-  () => import("@components/pages/login/components/layouts/FooterDiv.vue")
+  () => import("@components/content/login/layouts/FooterDiv.vue")
 );
 
 const storeAlert = alertStore();

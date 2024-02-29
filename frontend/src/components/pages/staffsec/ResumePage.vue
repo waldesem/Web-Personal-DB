@@ -9,7 +9,7 @@ const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
 const ResumeForm = defineAsyncComponent(
-  () => import("@components/pages/staffsec/forms/ResumeForm.vue")
+  () => import("@components/content/staffsec/forms/ResumeForm.vue")
 );
 
 const storeAuth = authStore();
