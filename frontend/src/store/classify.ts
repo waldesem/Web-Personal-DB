@@ -4,6 +4,7 @@ import { defineStore } from "pinia";
 import { server } from "@utilities/utils";
 
 export const classifyStore = defineStore("classifyStore", () => {
+
   const classData = ref({
     status: <Record<string, any>>{},
     regions: <Record<string, any>>[{}],
@@ -47,6 +48,7 @@ export const classifyStore = defineStore("classifyStore", () => {
       );
     },
   });
+  
   return {
     classData,
   };

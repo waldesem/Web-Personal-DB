@@ -4,22 +4,12 @@ import { defineAsyncComponent } from 'vue';
 const NavBar = defineAsyncComponent(
   () => import("@components/layouts/NavBar.vue")
 );
-
-const props = defineProps({
-  fullName: String,
-  userLogout: {
-    type: Function,
-    required: true,
-  }
-});
 </script>
 
 <template>
   <NavBar 
     :arg="'bg-secondary'"
     :brand="'ADMIN'"
-    :full-name="props.fullName"
-    :log-out="props.userLogout"
   >
     <template v-slot:navbar>
       <li class="nav-item">

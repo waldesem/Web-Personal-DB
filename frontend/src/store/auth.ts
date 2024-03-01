@@ -2,15 +2,10 @@ import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { defineStore } from "pinia";
-import { alertStore } from "@store/alert";
-import { classifyStore } from "@store/classify";
 import { server } from "@utilities/utils";
 
 export const authStore = defineStore("authStore", () => {
   const router = useRouter();
-
-  const storeAlert = alertStore();
-  const storeClasses = classifyStore();
 
   const axiosInstance = ref(axios.create());
 
@@ -66,59 +61,9 @@ export const authStore = defineStore("authStore", () => {
       return Promise.reject(error);
     }
   );
-
-  const userData = ref({
-    userId: "",
-    fullName: "",
-    userName: "",
-    userRoles: [],
-    hasAdmin: false,
-
-    getAuth: async function (): Promise<void> {
-      try {
-        const response = await axiosInstance.value.get(`${server}/login`);
-        const { id, fullname, username, roles } = response.data;
-        Object.assign(this, {
-          userId: id,
-          fullName: fullname,
-          userName: username,
-          userRoles: roles,
-        });
-
-        this.hasRole("admin")
-          ? router.push({ name: "admin" })
-          : router.push({ name: "staffsec" });
-        storeClasses.classData.getClasses();
-        storeAlert.alertMessage.setAlert();
-      } catch (error) {
-        storeAlert.alertMessage.setAlert("alert-warning", error as string);
-        this.userLogout();
-      }
-    },
-
-    userLogout: async function (): Promise<void> {
-      try {
-        const response = await axiosInstance.value.delete(`${server}/login`);
-        console.log(response.status);
-      } catch (error) {
-        storeAlert.alertMessage.setAlert("alert-warning", error as string);
-      }
-
-      accessToken.value = "";
-      refreshToken.value = "";
-
-      router.push({ name: "login" });
-    },
-
-    hasRole: function (role: string): boolean {
-      return this.userRoles.some((r: { role: any }) => r.role === role);
-    },
-  });
-
   return {
     axiosInstance,
     accessToken,
     refreshToken,
-    userData,
   };
 });

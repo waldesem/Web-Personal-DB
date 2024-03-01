@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
-import { authStore } from "@store/auth"
 
 const NavBar = defineAsyncComponent(
   () => import("@components/content/staffsec/layouts/NavBar.vue")
@@ -11,24 +10,17 @@ const AlertMessage = defineAsyncComponent(
 const FooterDiv = defineAsyncComponent(
   () => import("@components/content/staffsec/layouts/FooterDiv.vue")
 );
-
-const storeAuth = authStore();
 </script>
 
 <template>
-  <NavBar 
-    :full-name="storeAuth.userData.fullName"
-    :user-logout="storeAuth.userData.userLogout"
-  />
+  <NavBar />
   <AlertMessage />
   <router-view v-slot="{ Component }">
     <transition name="component-fade" mode="out-in">
       <component :is="Component" :key="$route.fullPath" />
     </transition>
   </router-view>
-  <FooterDiv 
-    :has-admin="storeAuth.userData.hasAdmin"
-  />
+  <FooterDiv />
 </template>
 
 <style scoped>

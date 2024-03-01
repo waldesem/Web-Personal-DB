@@ -7,14 +7,6 @@ const NavBar = defineAsyncComponent(
 const MessageDiv = defineAsyncComponent(
   () => import('../divs/MessageDiv.vue')
 )
-
-const props = defineProps({
-  fullName: String,
-  userLogout: {
-    type: Function,
-    required: true,
-  }
-});
 </script>
 
 <template>
@@ -22,8 +14,6 @@ const props = defineProps({
   <NavBar 
     :arg="'bg-primary'"
     :brand="'STAFFSEC'"
-    :full-name="props.fullName"
-    :log-out="props.userLogout"
   >
   <template v-slot:navbar>
     <li class="nav-item">

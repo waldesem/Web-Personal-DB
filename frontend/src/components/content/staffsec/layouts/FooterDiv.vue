@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, inject } from "vue";
 
 const FooterDiv = defineAsyncComponent(
   () => import("@components/layouts/FooterDiv.vue")
 );
 
-const prop = defineProps(['hasAdmin'])
+const hasAdmin = inject("hasAdmin") as boolean;
+
 </script>
 
 <template>
   <FooterDiv>
     <template v-slot:footer>
       <router-link
-        :hidden="prop.hasAdmin"
+        :hidden="hasAdmin"
         title="Admin"
         :to="{name: 'users' }"
       >

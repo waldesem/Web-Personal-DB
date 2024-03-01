@@ -58,10 +58,11 @@ class LoginView(MethodView):
                     user.last_login = datetime.now()
                     user.attempt = 0
                     db.session.commit()
+                    token = UserSchema().dump(user)
                     return {
                         "message": "Authenticated",
-                        "access_token": create_access_token(identity=user),
-                        "refresh_token": create_refresh_token(identity=user),
+                        "access_token": create_access_token(identity=token),
+                        "refresh_token": create_refresh_token(identity=token),
                     }
                 return {"message": "Overdue"}
             else:
@@ -117,16 +118,20 @@ class TokenView(MethodView):
         """
         user = db.session.get(User, current_user.id)
         if user and not user.blocked and not user.deleted:
-            return {"access_token": create_access_token(identity=user)}
+            return {
+                "access_token": create_access_token(identity=UserSchema().dump(user))
+            }
         return {"access_token": ""}, 401
 
 
 bp.add_url_rule("/refresh", view_func=TokenView.as_view("refresh"))
 
+
 def roles_required(*roles):
     """
     A decorator that checks if the authenticated user has the required roles.
     """
+
     def decorator(func):
         @wraps(func)
         @jwt_required()
@@ -158,6 +163,7 @@ def user_identity_lookup(user):
     A function that acts as a user identity loader for the JWT framework.
     """
     return user.id
+
 
 @cache.memoize()
 @jwt.user_lookup_loader

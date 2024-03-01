@@ -1,20 +1,41 @@
 <script setup lang="ts">
+import { inject } from "vue";
+import { authStore } from "@/store/auth";
+import { alertStore } from "@/store/alert";
+import { server } from "@/utilities/utils";
+import { router } from "@/router/router";
+
+const storeAuth = authStore();
+const storeAlert = alertStore();
+
+const fullName = inject("fullName") as string;
+
 const props = defineProps({
   arg: String,
   brand: {
     type: String,
-    required: true
+    required: true,
   },
-  fullName: String,
-  logOut: {
-    type: Function,
-    required: true
+});
+
+async function userLogout(): Promise<void> {
+  try {
+    const response = await storeAuth.axiosInstance.delete(`${server}/login`);
+    console.log(response.status);
+  } catch (error) {
+    storeAlert.alertMessage.setAlert("alert-warning", error as string);
   }
-})
+
+  storeAuth.accessToken = "";
+  storeAuth.refreshToken = "";
+
+  router.push({ name: "login" });
+}
 </script>
 
 <template>
-  <nav class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none"
+  <nav
+    class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none"
     :class="props.arg"
   >
     <div class="container">
@@ -32,13 +53,11 @@ const props = defineProps({
             class="nav-link active dropdown-toggle"
             role="button"
             data-bs-toggle="dropdown"
-            :title="
-              props.fullName ? props.fullName : ''
-            "
+            :title="fullName ? fullName : ''"
           >
             {{
-              props.fullName
-                ? props.fullName
+              fullName
+                ? fullName
                     .split(" ")
                     .map((item) => item.charAt(0))
                     .join("")
@@ -48,12 +67,7 @@ const props = defineProps({
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a
-                class="dropdown-item"
-                href="#"
-                @click="props.logOut"
-                >Выход</a
-              >
+              <a class="dropdown-item" href="#" @click="userLogout">Выход</a>
             </li>
           </ul>
         </li>
