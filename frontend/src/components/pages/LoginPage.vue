@@ -12,7 +12,7 @@ const AlertMessage = defineAsyncComponent(
   () => import("@components/layouts/AlertMessage.vue")
 );
 const FooterDiv = defineAsyncComponent(
-  () => import("@components/content/login/layouts/FooterDiv.vue")
+  () => import("@components/layouts/FooterDiv.vue")
 );
 
 const storeAlert = alertStore();

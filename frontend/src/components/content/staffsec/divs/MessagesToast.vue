@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { timeSince } from "@utilities/utils";
-
-interface Message {
-  message: string
-  created: string
-}
+import { Message } from "@/interfaces/interface";
 
 const props = defineProps({
   messages: {

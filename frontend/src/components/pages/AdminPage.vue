@@ -5,10 +5,10 @@ const AlertMessage = defineAsyncComponent(
   () => import("@components/layouts/AlertMessage.vue")
 );
 const NavBar = defineAsyncComponent(
-  () => import("@components/content/admin/layouts/NavBar.vue")
+  () => import("@components/content/admin/layouts/NavBarAdmin.vue")
 );
 const FooterDiv = defineAsyncComponent(
-  () => import("@components/content/admin/layouts/FooterDiv.vue")
+  () => import("@components/content/admin/layouts/FooterAdmin.vue")
 );
 </script>
 

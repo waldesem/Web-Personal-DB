@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 
-const NavBar = defineAsyncComponent(
-  () => import("@components/content/staffsec/layouts/NavBar.vue")
-);
 const AlertMessage = defineAsyncComponent(
   () => import("@components/layouts/AlertMessage.vue")
 );
+const NavBar = defineAsyncComponent(
+  () => import("@components/content/staffsec/layouts/NavBarStaffSec.vue")
+);
 const FooterDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/layouts/FooterDiv.vue")
+  () => import("@components/content/staffsec/layouts/FooterStaffSec.vue")
 );
 </script>
 

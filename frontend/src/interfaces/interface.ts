@@ -170,3 +170,8 @@ export interface User {
   deleted: boolean;
   attempt: string;
 }
+
+export interface Message {
+  message: string
+  created: string
+}
