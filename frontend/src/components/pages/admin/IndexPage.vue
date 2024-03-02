@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { server, debounce } from "@utilities/utils";
@@ -23,9 +23,16 @@ onBeforeMount( async() => {
   await  dataUsers.value.getUsers();
 });
 
+const users = computed(() => {
+  return dataUsers.value.users.filter(
+    (user: User) => user.deleted === dataUsers.value.viewDeleted
+  );
+});
+
 const dataUsers = ref({
   action: "",
   search: "",
+  viewDeleted: false,
   users: <User[]>[],
 
   getUsers: async function () {
@@ -40,15 +47,16 @@ const dataUsers = ref({
       storeAlert.alertMessage.setAlert("alert-success", error as string);
     }
   },
-
-  deactivateAction: function (){
-    this.action = ""
-  }
 });
+
+async function getEmit () {
+  dataUsers.value.action = '';
+  await dataUsers.value.getUsers();
+};
 </script>
 
 <template>
-  <div class="container py-3">
+  <div class="container py-1">
     <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
     <form @input.prevent="searchUsers" class="form form-check" role="form">
       <div class="row py-3">
@@ -61,6 +69,10 @@ const dataUsers = ref({
         />
       </div>
     </form>
+    <div class="form-check form-switch d-flex justify-content-end">
+      <input class="form-check-input" id="deleted" type="checkbox" v-model="dataUsers.viewDeleted" />&nbsp;
+      <label class="form-check-label" for="deleted">Показать удаленные</label>
+    </div>
     <div class="overflow py-2">
       <table class="table table-responsive align-middle">
         <thead>
@@ -68,9 +80,9 @@ const dataUsers = ref({
             <th width="5%">#</th>
             <th>Имя пользователя</th>
             <th width="20%">Логин</th>
-            <th width="15%">Блокировка</th>
-            <th width="15%">Создан</th>
-            <th width="15%">Вход</th>
+            <th width="10%">Блокировка</th>
+            <th width="20%">Создан</th>
+            <th width="20%">Вход</th>
           </tr>
         </thead>
         <tbody>
@@ -82,7 +94,7 @@ const dataUsers = ref({
                 <tbody>
                   <tr
                     height="50px"
-                    v-for="user in dataUsers.users"
+                    v-for="user in users"
                     :key="user.id"
                   >
                     <td width="5%">{{ user.id }}</td>
@@ -94,11 +106,11 @@ const dataUsers = ref({
                         {{ user.username }}
                       </router-link>
                     </td>
-                    <td width="15%">{{ user.blocked }}</td>
-                    <td width="15%">
+                    <td width="10%">{{ user.blocked }}</td>
+                    <td width="20%">
                       {{ new Date(user.pswd_create).toLocaleString("ru-RU") }}
                     </td>
-                    <td width="15%">
+                    <td width="20%">
                       {{ new Date(user.last_login).toLocaleString("ru-RU") }}
                     </td>
                   </tr>
@@ -120,8 +132,7 @@ const dataUsers = ref({
     <UserForm
       :action="dataUsers.action"
       :item="{}"
-      :getUsers="dataUsers.getUsers"
-      @deactivate="dataUsers.deactivateAction"
+      @update="getEmit"
     />
   </div>
 </template>

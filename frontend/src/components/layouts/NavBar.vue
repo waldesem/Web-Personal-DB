@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { inject } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
+import { userStore } from "@/store/user";
 import { server } from "@/utilities/utils";
 import { router } from "@/router/router";
 
 const storeAuth = authStore();
 const storeAlert = alertStore();
-
-const fullName = inject("fullName") as string;
+const storeUser = userStore();
 
 const props = defineProps({
   arg: String,
@@ -53,11 +52,10 @@ async function userLogout(): Promise<void> {
             class="nav-link active dropdown-toggle"
             role="button"
             data-bs-toggle="dropdown"
-            :title="fullName ? fullName : ''"
           >
             {{
-              fullName
-                ? fullName
+              storeUser.userData.fullName
+                ? storeUser.userData.fullName
                     .split(" ")
                     .map((item) => item.charAt(0))
                     .join("")

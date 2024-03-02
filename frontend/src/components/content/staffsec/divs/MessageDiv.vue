@@ -53,8 +53,10 @@ messageData.value.updateCount();
 </script>
 
 <template>
-  <li class="nav-item dropdown">
-    <a
+  <li 
+    class="nav-item"
+    :class="{'dropdown' : messageData.messages.length}">
+    <a v-if="messageData.messages.length"
       href="#"
       class="nav-link active dropdown-toggle"
       role="button"
@@ -65,40 +67,45 @@ messageData.value.updateCount();
       <span
         class="position-absolute translate-middle badge rounded-pill text-bg-success"
       >
+
         {{ messageData.messages.length }}
       </span>
     </a>
-    <div class="dropdown-menu">
-      <MessagesToast :messages="messageData.messages"/>
-      <div class="col text-end">
-        <p>
-          <a href="#" class="link-danger" @click="messageData.deleteMessage()">
-            Удалить сообщения
-          </a>
-        </p>
-      </div>
-      <div class="py-2">
-        <table class="table table-responsive align-middle">
-          <thead>
-            <tr>
-              <th width="20%">Дата</th>
-              <th>Сообщение</th>
-            </tr>
-          </thead>
-          <tbody v-if="messageData.messages.length">
-            <tr v-for="message, index in messageData.messages" :key="index">
-              <td width="30%">{{ message["created"] }}</td>
-              <td>{{ message["message"] }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <a v-else class="nav-link">Сообщения</a>
+    <div :class="{'dropdown-menu' : messageData.messages.length}">
+      <div v-if="messageData.messages.length">
+        <MessagesToast :messages="messageData.messages"/>
+        <div class="col text-end">
+          <p >
+            <a href="#" class="link-danger" @click="messageData.deleteMessage()">
+              Удалить сообщения
+            </a>
+          </p>
+        </div>
+        <div class="py-2">
+          <table class="table table-responsive align-middle">
+            <thead>
+              <tr>
+                <th width="20%">Дата</th>
+                <th>Сообщение</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="message, index in messageData.messages" :key="index">
+                <td width="30%">{{ message["created"] }}</td>
+                <td>{{ message["message"] }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </li>
 </template>
 
 <style scoped>
-.dropdown {
+.dropdown-menu {
+  min-height: auto;
   max-height: 75vh;
   overflow-y: auto;
 }

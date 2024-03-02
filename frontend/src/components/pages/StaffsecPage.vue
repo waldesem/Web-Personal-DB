@@ -10,6 +10,7 @@ const NavBar = defineAsyncComponent(
 const FooterDiv = defineAsyncComponent(
   () => import("@components/content/staffsec/layouts/FooterStaffSec.vue")
 );
+
 </script>
 
 <template>

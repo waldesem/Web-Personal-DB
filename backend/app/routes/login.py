@@ -162,7 +162,7 @@ def user_identity_lookup(user):
     """
     A function that acts as a user identity loader for the JWT framework.
     """
-    return user.id
+    return user['id']
 
 
 @cache.memoize()

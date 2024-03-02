@@ -112,7 +112,7 @@ class InfoView(MethodView):
 
     decorators = [
         roles_required(Roles.user.value),
-        input(InfoSchema, location="query"),
+        bp.input(InfoSchema, location="query"),
         bp.doc(hide=True)
     ]
 

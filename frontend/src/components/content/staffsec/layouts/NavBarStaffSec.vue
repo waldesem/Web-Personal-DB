@@ -7,13 +7,15 @@ const NavBar = defineAsyncComponent(
 const MessageDiv = defineAsyncComponent(
   () => import('../divs/MessageDiv.vue')
 )
+const props = defineProps(["fullName"])
 </script>
 
 <template>
-  <MessageDiv />
+
   <NavBar 
     :arg="'bg-primary'"
     :brand="'STAFFSEC'"
+    :full-name="props.fullName"
   >
   <template v-slot:navbar>
     <li class="nav-item">
@@ -57,6 +59,7 @@ const MessageDiv = defineAsyncComponent(
         Файлы
       </router-link>
     </li>
+    <MessageDiv />
   </template>
   </NavBar>
 </template>

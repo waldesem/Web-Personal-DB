@@ -95,14 +95,14 @@ class UserView(MethodView):
         return {"message": "Denied"}, 403
 
     @bp.input(AdminUserSchema)
-    def patch(self, json_data):
+    def patch(self, user_id, json_data):
         """
         Patch a user's information.
         """
-        user = User.get_user(json_data.get("username"))
+        user = db.session.get(User, user_id)
         if user:
-            user.fullname = json_data.get("fullname")
-            user.email = json_data.get("email")
+            for key, value in json_data.items():
+                setattr(user, key, value)
             db.session.commit()
             return {"message": "Changed"}, 201
         return {"message": "Denied"}, 403
@@ -116,13 +116,13 @@ class UserView(MethodView):
         if user and user.username != current_user.username:
             user.deleted = True
             db.session.commit()
-            return {"message": "Deleted"}, 204
-        return {"message": "Denied"}, 403
+            return '', 204
+        return '', 403
 
 
 user_view = UserView.as_view("user")
-bp.add_url_rule("/user", view_func=user_view, methods=["PATCH", "POST"])
-bp.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "GET"])
+bp.add_url_rule("/user", view_func=user_view, methods=["POST"])
+bp.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "GET", "PATCH"])
 
 
 class RoleView(MethodView):

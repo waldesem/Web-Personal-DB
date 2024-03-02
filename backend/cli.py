@@ -46,6 +46,7 @@ def register_cli(app):
         db.session.flush()
 
         superadmin = User(
+            fullname="Администратор",
             username="superadmin",
             password=bcrypt.hashpw(
                 Config.DEFAULT_PASSWORD.encode("utf-8"), bcrypt.gensalt()

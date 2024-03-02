@@ -23,40 +23,34 @@ const props = defineProps({
     type: Object as () => Record<string, any>,
     default: {},
   },
-  userAction: {
-    type: Function,
-    default: () => {},
-  },
-  getUsers: {
-    type: Function,
-    default: () => {},
-  },
 });
 
-const emit = defineEmits(["deactivate"]);
+const emit = defineEmits(["update"]);
 
 const userForm = ref({
   form: <Record<string, any>>{},
+
   submitUser: async function (): Promise<void> {
     try {
       const response =
         props.action === "edit"
-          ? await storeAuth.axiosInstance.patch(`${server}/user`, this.form)
+          ? await storeAuth.axiosInstance.patch(
+              `${server}/user/${props.item['id' ]}`,
+              this.form
+            )
           : await storeAuth.axiosInstance.post(`${server}/user`, this.form);
 
-        const { message } = response.data;
+      const { message } = response.data;
       if (message === "Changed") {
         storeAlert.alertMessage.setAlert(
           "alert-success",
           "Пользователь успешно изменен"
         );
-        props.userAction("view");
       } else {
         storeAlert.alertMessage.setAlert(
           "alert-success",
           "Пользователь успешно создан"
         );
-        props.getUsers();
       }
     } catch (error) {
       console.error(error);
@@ -68,17 +62,15 @@ const userForm = ref({
     Object.keys(this.form).forEach((key) => {
       delete this.form[key as keyof typeof this.form];
     });
-    emit("deactivate");
+    emit("update");
   },
-})
+});
 </script>
 
 <template>
   <ModalWin
     :title="
-      props.action === 'edit'
-        ? 'Изменить пользователя'
-        : 'Создать пользователя'
+      props.action === 'edit' ? 'Изменить пользователя' : 'Создать пользователя'
     "
     :size="'modal-xl'"
     :id="'modalUser'"
@@ -93,9 +85,7 @@ const userForm = ref({
         :label="'Имя пользователя'"
         :need="true"
         :pattern="'[a-zA-Zа-яА-Я ]+'"
-        @input-event="
-          userForm.form['fullname'] = $event.target.value
-        "
+        @input-event="userForm.form['fullname'] = $event.target.value"
         :model="props.item['fullname']"
       />
       <InputLabel
@@ -104,9 +94,8 @@ const userForm = ref({
         :need="true"
         :pattern="'[a-zA-Z]+'"
         :disable="props.action === 'edit'"
-        @input-event="
-          userForm.form['username'] = $event.target.value
-        "
+        :value="props.action === 'edit' ? props.item['username'] : ''"
+        @input-event="userForm.form['username'] = $event.target.value"
         :model="props.item['username']"
       />
       <InputLabel
@@ -125,9 +114,7 @@ const userForm = ref({
           type="submit"
           data-bs-dismiss="modal"
         >
-          {{
-            props.action === "create" ? "Создать" : "Изменить"
-          }}
+          {{ props.action === "create" ? "Создать" : "Изменить" }}
         </button>
         <button class="btn btn-outline-secondary" name="reset" type="reset">
           Очистить
@@ -137,7 +124,7 @@ const userForm = ref({
           name="cancel"
           type="button"
           data-bs-dismiss="modal"
-          @click="emit('deactivate')"
+          @click="emit('update')"
         >
           Отмена
         </button>

@@ -27,6 +27,7 @@ const loginData = ref({
   form: <Record<string, any>>{},
 
   submitLogin: async function (): Promise<void> {
+    this.hidden = true;
     if (this.action === "password") {
       if (this.form["password"] === this.form["new_pswd"]) {
         storeAlert.alertMessage.setAlert(
@@ -170,7 +171,7 @@ const loginData = ref({
             :need="true"
             :max="'16'"
             :min="'8'"
-            :clsInput="'col-lg-6'"
+            :clsInput="'col-lg-8'"
             :place="'Новый пароль'"
             :pattern="'[0-9a-zA-Z]+'"
             :typeof="loginData.hidden ? 'password' : 'text'"
@@ -184,7 +185,7 @@ const loginData = ref({
             :need="true"
             :max="'16'"
             :min="'8'"
-            :clsInput="'col-lg-6'"
+            :clsInput="'col-lg-8'"
             :place="'Повторите новый пароль'"
             :pattern="'[0-9a-zA-Z]+'"
             :typeof="loginData.hidden ? 'password' : 'text'"
@@ -193,7 +194,7 @@ const loginData = ref({
             "
           />
         </div>
-        <div class="offset-lg-2 col-lg-10">
+        <div class="offset-lg-2 col-lg-10 py-3">
           <button class="btn btn-primary btn-md" name="submit" type="submit">
             {{ loginData.action === "login" ? "Войти" : "Изменить" }}
           </button>

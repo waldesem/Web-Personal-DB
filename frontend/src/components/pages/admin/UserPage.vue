@@ -5,7 +5,7 @@ import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
-import { router } from "@/router/router";
+// import { router } from "@/router/router";
 import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
@@ -72,12 +72,12 @@ const userData = ref({
         const response = await storeAuth.axiosInstance.delete(
           `${server}/user/${this.id}`
         );
-        this.profile = response.data;
+        console.log(response.status);
         storeAlert.alertMessage.setAlert(
           "alert-success",
-          "Пользователь удалён"
+          "Пользователь отмечен к удалению"
         );
-        router.push({ name: "users" });
+        this.userAction("view");
       } catch (error) {
         storeAlert.alertMessage.setAlert("alert-danger", error as string);
       }
@@ -111,6 +111,11 @@ const userData = ref({
     }
   },
 });
+
+async function updateData() {
+  userData.value.action = "";
+  await userData.value.userAction("view");
+};
 </script>
 
 <template>
@@ -226,7 +231,7 @@ const userData = ref({
           </template>
         </RowDivSlot>
       </div>
-      <div class="btn-group py-3" role="group">
+      <div class="btn-group py-5" role="group">
         <button
           class="btn btn-outline-secondary"
           type="button"
@@ -257,6 +262,7 @@ const userData = ref({
           @click="userData.userDelete"
           type="button"
           class="btn btn-outline-secondary"
+          :disabled="userData.profile.deleted"
         >
           Удалить
         </button>
@@ -274,7 +280,7 @@ const userData = ref({
       :action="userData.action"
       :item="userData.profile"
       :userAction="userData.userAction"
-      @deactivate="userData.action = ''"
+      @update="updateData"
     />
   </div>
 </template>

@@ -5,14 +5,14 @@ import { alertStore } from "@store/alert";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const LoginForm = defineAsyncComponent(
-  () => import("@components/content/login/forms/LoginForm.vue")
-);
 const AlertMessage = defineAsyncComponent(
   () => import("@components/layouts/AlertMessage.vue")
 );
 const FooterDiv = defineAsyncComponent(
   () => import("@components/layouts/FooterDiv.vue")
+);
+const LoginForm = defineAsyncComponent(
+  () => import("@components/content/login/forms/LoginForm.vue")
 );
 
 const storeAlert = alertStore();
@@ -24,20 +24,18 @@ storeAlert.alertMessage.setAlert(
 
 <template>
   <AlertMessage/>
-  <div class="container">
+  <div class="container" id="login-page">
     <div class="row justify-content-center">
-      <div class="align-middle col col-6">
-        <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
-        <LoginForm />
-      </div>
+      <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
+      <LoginForm />
     </div>
   </div>
   <FooterDiv />
 </template>
 
 <style scoped>
-.container {
+#login-page {
   height: 75vh;
-  width: 75vh;
+  width: 50vh;
 }
 </style>
