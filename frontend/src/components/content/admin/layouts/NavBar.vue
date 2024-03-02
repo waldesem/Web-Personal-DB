@@ -14,7 +14,7 @@ const NavBar = defineAsyncComponent(
     <template v-slot:navbar>
       <li class="nav-item">
         <router-link
-          :to="{ name: 'users', params: { group: 'admins' } }"
+          :to="{ name: 'users' }"
           class="nav-link active"
           href="#"
         >
@@ -24,7 +24,7 @@ const NavBar = defineAsyncComponent(
 
       <li class="nav-item">
         <router-link
-          :to="{ name: 'table', params: { group: 'admins' } }"
+          :to="{ name: 'table' }"
           class="nav-link active"
           href="#"
         >

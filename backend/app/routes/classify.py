@@ -3,13 +3,12 @@ from sqlalchemy import select
 
 from . import bp
 from .. import db, cache
-from ..models.model import Category, Conclusion, Role, Group, Status, Region
+from ..models.model import Category, Conclusion, Role, Status, Region
 from ..models.schema import (
     models_schemas,
     CategorySchema,
     ConclusionSchema,
     RoleSchema,
-    GroupSchema,
     StatusSchema,
     RegionSchema,
 )
@@ -23,7 +22,7 @@ class ClassesView(MethodView):
     @bp.doc(hide=True)
     @cache.cached()
     def get(self):
-        tables = ["Category", "Conclusion", "Role", "Group", "Status", "Region"]
+        tables = ["Category", "Conclusion", "Role", "Status", "Region"]
         queries = [
             db.session.execute(select(eval(table))).scalars().all() for table in tables
         ]

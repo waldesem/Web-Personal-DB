@@ -18,7 +18,7 @@ const MessageDiv = defineAsyncComponent(
   <template v-slot:navbar>
     <li class="nav-item">
       <router-link
-        :to="{ name: 'persons', params: { group: 'staffsec' } }"
+        :to="{ name: 'persons' }"
         class="nav-link active"
       >
         Кандидаты
@@ -26,7 +26,7 @@ const MessageDiv = defineAsyncComponent(
     </li>
     <li class="nav-item">
       <router-link
-        :to="{ name: 'resume', params: { group: 'staffsec' } }"
+        :to="{ name: 'resume' }"
         class="nav-link active"
       >
         Создать
@@ -34,7 +34,7 @@ const MessageDiv = defineAsyncComponent(
     </li>
     <li class="nav-item">
       <router-link
-        :to="{ name: 'information', params: { group: 'staffsec' } }"
+        :to="{ name: 'information' }"
         class="nav-link active"
       >
         Информация
@@ -42,7 +42,7 @@ const MessageDiv = defineAsyncComponent(
     </li>
     <li class="nav-item">
       <router-link
-        :to="{ name: 'contacts', params: { group: 'staffsec' } }"
+        :to="{ name: 'contacts' }"
         class="nav-link active"
       >
         Контакты
@@ -50,7 +50,7 @@ const MessageDiv = defineAsyncComponent(
     </li>
     <li class="nav-item">
       <router-link
-        :to="{ name: 'manager', params: { group: 'staffsec' } }"
+        :to="{ name: 'manager' }"
         class="nav-link active"
         href="#"
       >

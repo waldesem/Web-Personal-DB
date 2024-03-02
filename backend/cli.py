@@ -12,7 +12,6 @@ from app.models.model import (
     User,
     Region,
     Role,
-    Group,
     Status,
     Conclusion,
     Category,

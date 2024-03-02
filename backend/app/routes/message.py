@@ -13,7 +13,6 @@ from ..models.schema import MessageSchema
 
 class MessagesView(MethodView):
 
-
     decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
     def get(self):
