@@ -23,8 +23,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Work[],
-    default: () => ({}),
+    type: Object as () => Record<string, any>,
+    default: () => {},
   },
   getItem: {
     type: Function,

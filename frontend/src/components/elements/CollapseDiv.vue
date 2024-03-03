@@ -4,7 +4,7 @@ import { ref } from "vue";
 const props = defineProps({
   id: String,
   idx: {
-    type: Number,
+    type: String,
     required: true,
   },
   label: String,
@@ -25,7 +25,7 @@ const toggle = ref(true);
       <i class="bi" :class="toggle ? 'bi-plus-circle' : 'bi-dash-circle'"></i>
       {{ props.label }}
     </a>
-    <div class="collapse" :class="{ show: props.idx == 0 }" :id="props.id">
+    <div class="collapse" :class="{ show: props.idx == '0' }" :id="props.id">
       <slot></slot>
     </div>
   </div>

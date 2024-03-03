@@ -1,4 +1,4 @@
-export interface Candidate {
+interface Candidate {
   id: number;
   fullname: string;
   region_id: number;
@@ -7,36 +7,36 @@ export interface Candidate {
   created: string;
 }
 
-export interface Resume {
-    id: string;
-    category_id: string;
-    region_id: string;
-    user_id: string;
-    fullname: string;
-    previous: string;
-    birthday: string;
-    birthplace: string;
-    country: string;
-    ext_country: string;
-    snils: string;
-    inn: string;
-    education: string;
-    marital: string;
-    addition: string;
-    path: string;
-    status_id: string;
-    created: string;
-    updated: string;
-    request_id: string;
-  }
+interface Resume {
+  id: string;
+  category_id: string;
+  region_id: string;
+  user_id: string;
+  fullname: string;
+  previous: string;
+  birthday: string;
+  birthplace: string;
+  country: string;
+  ext_country: string;
+  snils: string;
+  inn: string;
+  education: string;
+  marital: string;
+  addition: string;
+  path: string;
+  status_id: string;
+  created: string;
+  updated: string;
+  request_id: string;
+}
 
-export interface Staff {
+interface Staff {
   id: string;
   position: string;
   department: string;
 }
 
-export interface Document {
+interface Document {
   id: string;
   view: string;
   series: string;
@@ -45,26 +45,26 @@ export interface Document {
   issue: string;
 }
 
-export interface Address {
+interface Address {
   id: string;
   view: string;
   region: string;
   address: string;
 }
 
-export interface Contact {
+interface Contact {
   id: string;
   view: string;
   contact: string;
 }
 
-export interface Relation {
+interface Relation {
   id: string;
   relation: string;
   relation_id: string;
 }
 
-export interface Work {
+interface Work {
   id: string;
   start_date: string;
   end_date: string;
@@ -74,7 +74,7 @@ export interface Work {
   position: string;
 }
 
-export interface Affilation {
+interface Affilation {
   id: string;
   view: string;
   name: string;
@@ -83,7 +83,7 @@ export interface Affilation {
   deadline: string;
 }
 
-export interface Verification {
+interface Verification {
   id: string;
   workplace: string;
   employee: string;
@@ -107,7 +107,7 @@ export interface Verification {
   officer: string;
 }
 
-export interface Robot {
+interface Robot {
   id: string;
   employee: string;
   document: string;
@@ -122,7 +122,7 @@ export interface Robot {
   deadline: string;
 }
 
-export interface Pfo {
+interface Pfo {
   id: string;
   theme: string;
   results: string;
@@ -130,15 +130,15 @@ export interface Pfo {
   deadline: string;
 }
 
-export interface Inquisition {
+interface Inquisition {
   id: string;
   theme: string;
   info: string;
   officer: string;
   deadline: string;
-};
+}
 
-export interface Needs {
+interface Needs {
   id: string;
   info: string;
   initiator: string;
@@ -147,17 +147,17 @@ export interface Needs {
   deadline: string;
 }
 
-export interface Message {
-  message: string
-  created: string
+interface Message {
+  message: string;
+  created: string;
 }
 
-export interface Role {
+interface Role {
   id: string;
   role: string;
 }
 
-export interface User {
+interface User {
   id: string;
   fullname: string;
   username: string;
@@ -171,13 +171,13 @@ export interface User {
   attempt: string;
 }
 
-export interface Message {
-  message: string
-  created: string
+interface Message {
+  message: string;
+  created: string;
 }
 
-export interface Connection {
-    id: string;
+interface Connection {
+  id: string;
   company: string;
   city: string;
   fullname: string;
@@ -186,5 +186,26 @@ export interface Connection {
   mobile: string;
   mail: string;
   comment: string;
-  data: string
+  data: string;
 }
+
+export type {
+  Candidate,
+  Resume,
+  Staff,
+  Document,
+  Address,
+  Contact,
+  Relation,
+  Work,
+  Affilation,
+  Verification,
+  Robot,
+  Pfo,
+  Inquisition,
+  Needs,
+  Message,
+  Role,
+  User,
+  Connection,
+};

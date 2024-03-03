@@ -22,7 +22,7 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Staff[],
+    type: Object as () => Record<string, any>,
     default: () => {},
   },
   getItem: {

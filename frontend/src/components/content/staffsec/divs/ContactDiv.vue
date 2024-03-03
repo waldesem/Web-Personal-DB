@@ -23,8 +23,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Array as () => Contact[],
-    default: () => ({}),
+    type: Object as () => Record<string, any>,
+    default: () => {},
   },
   getItem: {
     type: Function,
@@ -46,7 +46,6 @@ const contact = ref({
   itemId: "",
   item: <Contact>{},
 });
-</script>
 </script>
 
 <template>

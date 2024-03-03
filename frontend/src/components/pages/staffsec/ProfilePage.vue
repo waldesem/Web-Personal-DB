@@ -6,7 +6,7 @@ import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { router } from "@/router/router";
-import {
+import type {
   Resume,
   Staff,
   Document,
@@ -314,31 +314,30 @@ const anketaData = ref({
       :submit-file="anketaData.submitFile" 
     />
     <HeaderDiv :page-header="anketaData.resume.fullname" />
-    <div
-      v-if="!anketaData.printPage"
-      :class="{'nav nav-tabs nav-justified:':!anketaData.printPage}"
-      :role="anketaData.printPage ? 'tablist' : ''"
+    <div 
+      :class="{'nav nav-tabs nav-justified' : !anketaData.printPage}"
+      :role="!anketaData.printPage ? 'tablist' : ''"
     >
-      <div v-if="!anketaData.printPage">
-        <button
-          v-for="(value, key) in anketaData.tabsObject"
-          class="nav-link"
-          :class="{ active: key === 'anketaTab' }"
-          data-bs-toggle="tab"
-          :data-bs-target="`#${key}`"
-          type="button"
-          role="tab"
-        >
-          {{ value[0] }}
-        </button>
-      </div>
+      <button
+        v-if="!anketaData.printPage"
+        v-for="(value, key) in anketaData.tabsObject"
+        class="nav-link"
+        :class="{ 'active': key === 'anketaTab' }"
+        data-bs-toggle="tab"
+        :data-bs-target="`#${key}`"
+        type="button"
+        role="tab"
+      >
+        {{ value }}
+      </button>
     </div>
 
     <div :class="{'tab-content':!anketaData.printPage}">
       <div
         id="anketaTab"
-        :class="{'tab-pane fade py-1 show active':anketaData.printPage}"
-        :role="anketaData.printPage ? 'tabpanel' : ''"
+        :class="{'tab-pane fade py-1 show active' : !anketaData.printPage}"
+        :role="!anketaData.printPage ? 'tabpanel' : ''"
+        :tabindex="!anketaData.printPage ? '0' : ''"
       >
         <AnketaTab
           :cand-id="candId"
@@ -359,8 +358,8 @@ const anketaData = ref({
       </div>
       <div
         id="сheckTab"
-        :class="{'tab-pane fade py-1':anketaData.printPage}"
-        :role="anketaData.printPage ? 'tabpanel' : ''"
+        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <CheckTab
           :cand-id="candId"
@@ -376,8 +375,8 @@ const anketaData = ref({
       </div>
       <div
         id="poligrafTab"
-        :class="{'tab-pane fade py-1':anketaData.printPage}"
-        :role="anketaData.printPage ? 'tabpanel' : ''"
+        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <PoligrafTab
           :cand-id="candId"
@@ -390,8 +389,8 @@ const anketaData = ref({
       </div>
       <div
         id="investigateTab"
-        :class="{'tab-pane fade py-1':anketaData.printPage}"
-        :role="anketaData.printPage ? 'tabpanel' : ''"
+        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <InvestigateTab
           :cand-id="candId"
@@ -404,8 +403,8 @@ const anketaData = ref({
       </div>
       <div
         id="inquiryTab"
-        :class="{'tab-pane fade py-1':anketaData.printPage}"
-        :role="anketaData.printPage ? 'tabpanel' : ''"
+        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <InquiryTab
           :cand-id="candId"
@@ -427,14 +426,11 @@ const anketaData = ref({
   </div>
 </template>
 
-<style scoped>
+<!-- <style scoped>
 .bi-printer {
-  position: fixed;
-  top: 80px;
-  right: 40px;
-  z-index: 9999;
-  border-radius: 50%;
-  padding: 10px;
+  position: fixed;;
+  top: 100px;
+  right: 1000px;
   cursor: pointer;
 }
-</style>
+</style> -->

@@ -1,16 +1,7 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
-import {
-  Resume,
-  Staff,
-  Document,
-  Address,
-  Contact,
-  Relation,
-  Work,
-  Affilation,
-} from "@/interfaces/interface";
+import type { Resume } from "@/interfaces/interface";
 
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
@@ -55,36 +46,36 @@ const props = defineProps({
     required: true,
   },
   resume: {
-    type: () => <Resume>{},
-    default: () => <Resume>{},
-    },
+    type: Object as () => Record<string, any>,
+    default: () => {},
+  },
   staffs: {
-    type: () => <Array<Staff>>[],
-    default: () => <Array<Staff>>[],
-    },
+    type: Array as () => Array<Record<string, any>>,
+    default: () => [],
+  },
   documents: {
-    type: () => <Array<Document>>[],
-    default: () => <Array<Document>>[],
+    type: Array as () => Array<Record<string, any>>,
+    default: () => [],
   },
   addresses: {
-    type: () => <Array<Address>>[],
-    default: () => <Array<Address>>[],
+    type: Array as () => Array<Record<string, any>>,
+    default: () => [],
   },
   contacts: {
-    type: () => <Array<Contact>>[],
-    default: () => <Array<Contact>>[],
+    type: Array as () => Array<Record<string, any>>,
+    default: () => [],
   },
   relations: {
-    type: () => <Array<Relation>>[],
-    default: () => <Array<Relation>>[],
+    type: Array as () => Array<Record<string, any>>,
+    default: () => [],
   },
   workplaces: {
-    type: () => <Array<Work>>[],
-    default: () => <Array<Work>>[],
+    type: Array as () => Array<Record<string, any>>,
+    default: () => [],
   },
   affilations: {
-    type: () => <Array<Affilation>>[],
-    default: () => <Array<Affilation>>[],
+    type: Array as () => Array<Record<string, any>>,
+    default: () => [],
   },
   getResume: {
     type: Function,
@@ -104,29 +95,21 @@ const props = defineProps({
   },
 });
 
-onBeforeMount( async() => {
-  await props.getItem("resume");
-});
-
 const dataResume = ref({
   action: "",
-  item: "",
   form: <Resume>{},
 });
 </script>
 
 <template>
   <div class="py-3">
-    <template v-if="dataResume.item === 'resume'">
+    <template v-if="dataResume.action === 'update'">
       <ResumeForm
         :get-item="props.getResume"
         :action="dataResume.action"
         :cand-id="props.candId"
         :content="props.resume"
-        @deactivate="
-          dataResume.action = '';
-          dataResume.item = '';
-        "
+        @deactivate="dataResume.action = '';"
       />
     </template>
 
@@ -137,7 +120,7 @@ const dataResume = ref({
             <a
               class="btn btn-link"
               title="Изменить"
-              @click="dataResume.item = 'update'"
+              @click="dataResume.action = 'update'"
             >
               <i class="bi bi-pencil-square"></i>
             </a>
@@ -202,10 +185,12 @@ const dataResume = ref({
         <RowDivSlot
           :label="'Создан'"
           :value="
-            new Date(String(props.resume['created'])).toLocaleDateString(
+            props.resume['created'] 
+            ? new Date(String(props.resume['created'])).toLocaleDateString(
               'ru-RU'
             )
-          "
+              : ''
+          " 
         />
         <RowDivSlot
           :label="'Обновлен'"
