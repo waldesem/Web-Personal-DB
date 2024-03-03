@@ -175,3 +175,16 @@ export interface Message {
   message: string
   created: string
 }
+
+export interface Connection {
+    id: string;
+  company: string;
+  city: string;
+  fullname: string;
+  phone: string;
+  adding: string;
+  mobile: string;
+  mail: string;
+  comment: string;
+  data: string
+}

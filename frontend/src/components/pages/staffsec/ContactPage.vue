@@ -35,7 +35,6 @@ const contactData = ref({
   page: 1,
   prev: false,
   next: false,
-  id: "",
   action: "",
   search: "",
   item: <Record<string, any>>{},
@@ -85,6 +84,11 @@ const contactData = ref({
     }
   },
 });
+
+function getEmit() {
+  contactData.value.action = '';
+  contactData.value.getContacts(contactData.value.page);
+}
 </script>
 
 <template>
@@ -102,29 +106,25 @@ const contactData = ref({
         />
       </div>
     </form>
-    <div v-if="contactData.action">
-      <ModalWin
-        :id="'modalConnect'"
-        :title="
-          contactData.action === 'create'
-            ? 'Добавить контакт'
-            : 'Обновить контакт'
-        "
-        :size="'modal-sm'"
-        @deactivate="contactData.action = ''"
-      >
-        <ConnectForm
-          :id="contactData.id"
-          :page="contactData.page"
-          :action="contactData.action"
-          :companies="contactData.companies"
-          :cities="contactData.cities"
-          :item="contactData.item"
-          :getContacts="contactData.getContacts"
-          @deactivate="contactData.action = ''"
-        />
-      </ModalWin>
-    </div>
+    <ModalWin
+      :id="'modalConnect'"
+      :title="
+        contactData.action === 'create'
+          ? 'Добавить контакт'
+          : 'Обновить контакт'
+      "
+      :size="'modal-lg'"
+      @deactivate="getEmit"
+    >
+      <ConnectForm
+        :page="contactData.page"
+        :action="contactData.action"
+        :companies="contactData.companies"
+        :cities="contactData.cities"
+        :item="contactData.item"
+        @deactivate="getEmit"
+      />
+    </ModalWin>
     <div class="py-3">
       <table class="table align-middle text-center no-bottom-border">
         <thead>
@@ -141,11 +141,10 @@ const contactData = ref({
             <th width="5%">Дата</th>
             <th width="5%">
               <a
-                role="button"
                 type="button"
-                data-bs-toogle="modal"
+                data-bs-toggle="modal"
                 data-bs-target="#modalConnect"
-                @click="contactData.action === 'create'"
+                @click="contactData.action = 'create'"
                 title="Добавить контакт"
               >
                 <i class="bi bi-plus-circle"></i>
@@ -163,7 +162,7 @@ const contactData = ref({
                 class="table align-middle text-center"
               >
                 <tbody>
-                  <tr v-if="contactData.id !== contact['id']">
+                  <tr>
                     <td width="5%">{{ contact["id"] }}</td>
                     <td width="10%">{{ contact["company"] }}</td>
                     <td width="10%">{{ contact["city"] }}</td>
@@ -178,12 +177,11 @@ const contactData = ref({
                       <a
                         class="btn btn-link"
                         type="button"
-                        data-bs-toogle="modal"
+                        data-bs-toggle="modal"
                         data-bs-target="#modalConnect"
                         title="Изменить контакт"
                         @click="
                           contactData.action = 'edit';
-                          contactData.id = contact['id'];
                           contactData.item = contact;
                         "
                       >

@@ -15,7 +15,6 @@ const todayDate = new Date();
 
 const tableData = ref({
   header: "",
-  tableSummed: <Array<Record<string, number>>>[{}],
   stat: {
     region_id: 1,
     checks: [],
@@ -26,17 +25,21 @@ const tableData = ref({
   },
 
   submitData: async function (): Promise<void> {
-    const response = await storeAuth.axiosInstance.post(
-      `${server}/information`,
-      {
-        start: this.stat.start,
-        end: this.stat.end,
-        region_id: this.stat.region_id,
-      }
-    );
-    const { candidates } = response.data;
-    this.header = storeClassify.classData.regions[this.stat.region_id];
-    this.stat.checks = candidates;
+    try {
+      const response = await storeAuth.axiosInstance.get(
+        `${server}/information`, {
+          params: {
+            start: this.stat.start,
+            end: this.stat.end,
+            region_id: this.stat.region_id,
+          }
+        }
+      );
+      this.stat.checks = response.data;
+      this.header = storeClassify.classData.regions[this.stat.region_id];
+    } catch (error) {
+      console.log(error);
+    }
   },
 });
 
@@ -54,7 +57,7 @@ computed(() => {
   <div class="container py-3">
     <HeaderDiv
       :page-header="`Статистика по региону ${tableData.header} 
-              за периоди c ${tableData.stat.start} по ${tableData.stat.end}`"
+              за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
     />
     <div class="py-3">
       <table class="table table-hover table-responsive align-middle">
@@ -70,11 +73,11 @@ computed(() => {
         <tbody>
           <tr
             height="50px"
-            v-for="(value, index) in Object.keys(tableData.tableSummed)"
+            v-for="(value, index) in Object.keys(tableData.stat.checks)"
             :key="index"
           >
             <td>{{ value }}</td>
-            <td>{{ Object.values(tableData.tableSummed)[index] }}</td>
+            <td>{{ Object.values(tableData.stat.checks)[index] }}</td>
           </tr>
         </tbody>
       </table>

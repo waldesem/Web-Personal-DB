@@ -116,15 +116,15 @@ class InfoView(MethodView):
         bp.doc(hide=True)
     ]
 
-    def get(self, json_data):
+    def get(self, query_data):
         candidates = db.session.execute(
             select(Check.conclusion_id, func.count(Check.id))
             .join(Person)
             .group_by(Check.conclusion_id)
-            .filter(Person.region_id == json_data["region_id"])
-            .filter(Check.deadline.between(json_data["start"], json_data["end"]))
+            .filter(Person.region_id == query_data["region_id"])
+            .filter(Check.deadline.between(query_data["start"], query_data["end"]))
         ).all()
-        return {"candidates": dict(map(lambda x: (x[1], x[0]), candidates))}, 200
+        return dict(map(lambda x: (x[1], x[0]), candidates)), 200
 
 
 bp.add_url_rule("/information", view_func=InfoView.as_view("information"))
