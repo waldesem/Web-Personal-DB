@@ -1,38 +1,29 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
 
+const emit = defineEmits(["get", "submit-file"]);
+
 onBeforeMount( async() => {
-  await props.getItem("file")
+  emit("get", "file")
 });
 
 const props = defineProps({
   candId: String,
   imageUrl: String,
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  submitFile: {
-    type: Function,
-    required: true,
-  },
 });
 
 const photoCard = ref({
   formData: new FormData(),
   showPhoto: false,
 
-  submitFile: function (
-    event: Event,
-  ): void {
-    props.submitFile(event, "image");
-    props.getItem("file");
-  },
-
   handleMouse: function () {
     this.showPhoto = !this.showPhoto;
   },
 });
+
+function submitFile (event: Event) {
+  emit("submit-file", [event, "image"]);
+};
 </script>
 
 <template>
@@ -50,7 +41,7 @@ const photoCard = ref({
       />
       <form
         :class="{ 'form-visible': photoCard.showPhoto }"
-        @change="photoCard.submitFile($event)"
+        @change="submitFile($event)"
         class="form"
       >
         <input

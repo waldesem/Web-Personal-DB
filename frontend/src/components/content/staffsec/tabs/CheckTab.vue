@@ -25,14 +25,15 @@ const RobotDiv = defineAsyncComponent(
 
 const storeClassify = classifyStore();
 
+const emit = defineEmits(["get", "delete", "submit", "file"]);
+
 onBeforeMount( async() => {
-  await props.getItem("check");
-  await props.getItem("robot");
+  emit("get", "check");
+  emit("get", "robot");
 });
 
 const props = defineProps({
   candId: String,
-  userId: String,
   checks: {
     type: Array as () => Verification[],
     default: () => {},
@@ -43,22 +44,6 @@ const props = defineProps({
   },
   statusId: {
     type: String,
-    required: true,
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
-  },
-  submitFile: {
-    type: Function,
     required: true,
   },
 });
@@ -77,23 +62,42 @@ const check = ref({
     storeClassify.classData.status["save"],
     storeClassify.classData.status["repeat"],
   ].includes(props.statusId),
-
-  getEvent (event: Event){
-    props.submitFile(event, 'check')
-  },
 });
+
+function deactivateEmit() {
+  check.value.isForm = false; 
+  check.value.action = '';
+};
+
+function submitEmit(
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [check.value.action, "check", itemId, form])
+};
+
+function submitFile(event: Event){
+  emit("file", event)
+};
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "check"])
+};
+
+function getRobot(){
+  emit("get", "robot");
+}
 </script>
 
 <template>
   <div class="py-3">
     <template v-if="check.isForm">
       <CheckForm
-        :get-item="props.getItem"
         :action="check.action"
         :cand-id="candId"
         :content="check.item"
-        :update-item="props.updateItem"
-        @deactivate="check.isForm = false; check.action = '';"
+        @submit="submitEmit"
+        @deactivate="deactivateEmit"
       />
     </template>
     <div v-else>
@@ -101,16 +105,16 @@ const check = ref({
         <CollapseDiv
           v-for="(item, idx) in props.checks"
           :key="idx"
-          :id="'check' + idx"
-          :idx="idx"
-          :label="'Проверка #' + (idx + 1)"
+          :id="'check' + idx.toString()"
+          :idx="idx.toString()"
+          :label="'Проверка #' + (idx + 1).toString()"
         >
           <RowDivSlot :slotTwo="true" :print="true">
             <template v-slot:divTwo>
               <a
                 href="#"
                 title="Удалить"
-                @click="props.deleteItem(item['id'].toString())"
+                @click="deleteItem(item['id'].toString())"
               >
                 <i class="bi bi-trash"></i>
               </a>
@@ -187,12 +191,12 @@ const check = ref({
         </CollapseDiv>
         <FileForm
           :accept="'*'"
-          @submit="check.getEvent"
+          @submit="submitFile"
         />
         <RobotDiv
           :robots="props.robots"
-          :get-item="props.getItem"
-          :delete-item="props.deleteItem"
+          @get="getRobot"
+          @delete="deleteItem"
         />
       </div>
       <p v-else>Данные отсутствуют</p>

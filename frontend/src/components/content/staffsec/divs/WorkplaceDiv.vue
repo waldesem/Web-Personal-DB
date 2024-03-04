@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Work } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -12,9 +11,10 @@ const WorkplaceForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/WorkplaceForm.vue")
 );
 
+const emit = defineEmits(["get", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  await props.getItem("staff");
+  emit("get", "workplace");
 });
 
 const props = defineProps({
@@ -23,20 +23,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Object as () => Record<string, any>,
+    type: Array as () => Array<Record<any, string>>,
     default: () => {},
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
   },
 });
 
@@ -44,8 +32,24 @@ const workplace = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Work>{},
+  item: <Record<any, string>>{},
 });
+
+function deactivateEmit() {
+  workplace.value.isForm = false; 
+  workplace.value.action = '';
+};
+
+function submitForm(
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [workplace.value.action, "workplace", itemId, form])
+};
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "workplace"])
+};
 </script>
 
 <template>
@@ -65,12 +69,11 @@ const workplace = ref({
   </h6>
   <template v-if="workplace.isForm">
     <WorkplaceForm 
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
       :action="workplace.action"
       :cand-id="candId"
       :content="workplace.item"
-      @deactivate="workplace.isForm = false; workplace.action = ''"
+      @submit="submitForm"
+      @deactivate="deactivateEmit"
     />
   </template>
   <template v-else>
@@ -78,15 +81,15 @@ const workplace = ref({
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'work' + idx"
-        :idx="idx"
-        :label="'Работа #' + (idx + 1)"
+        :id="'work' + idx.toString()"
+        :idx="idx.toString()"
+        :label="'Работа #' + (idx + 1).toString()"
       >
         <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
-              @click="props.deleteItem(item['id'].toString())"
+              @click="deleteItem(item['id'].toString())"
               title="Удалить"
             >
               <i class="bi bi-trash"></i>

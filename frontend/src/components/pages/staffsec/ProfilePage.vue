@@ -75,11 +75,11 @@ const anketaData = ref({
   relations: <Array<Relation>>[],
   workplaces: <Array<Work>>[],
   affilations: <Array<Affilation>>[],
-  checks: Array<Verification>(),
-  robots: Array<Robot>(),
-  poligraf: Array<Pfo>(),
-  investigations: Array<Inquisition>(),
-  inquiries: Array<Needs>(),
+  checks: <Array<Verification>>[],
+  robots: <Array<Robot>>[],
+  poligraf: <Array<Pfo>>[],
+  investigations: <Array<Inquisition>>[],
+  inquiries: <Array<Needs>>[],
 
   getResume: async function (action = "view"): Promise<void> {
     if (action === "status") {
@@ -310,8 +310,8 @@ const anketaData = ref({
     <PhotoCard 
       :cand-id="candId" 
       :image-url="anketaData.imageUrl"
-      :get-item="anketaData.getItem"
-      :submit-file="anketaData.submitFile" 
+      @get="anketaData.getItem"
+      @submit-file="anketaData.submitFile" 
     />
     <HeaderDiv :page-header="anketaData.resume.fullname" />
     <div 
@@ -350,10 +350,10 @@ const anketaData = ref({
           :relations="anketaData.relations"
           :workplaces="anketaData.workplaces"
           :affilations="anketaData.affilations"
-          :get-resume="anketaData.getResume"
-          :get-item="anketaData.getItem"
-          :update-item="anketaData.updateItem"
-          :delete-item="anketaData.deleteItem"
+          @get-resume="anketaData.getResume"
+          @get="anketaData.getItem"
+          @update="anketaData.updateItem"
+          @delete="anketaData.deleteItem"
         />
       </div>
       <div
@@ -365,12 +365,11 @@ const anketaData = ref({
           :cand-id="candId"
           :checks="anketaData.checks"
           :robots="anketaData.robots"
-          :get-item="anketaData.getItem"
-          :update-item="anketaData.updateItem"
-          :delete-item="anketaData.deleteItem"
-          :submit-file="anketaData.submitFile"
+          @get="anketaData.getItem"
+          @delete="anketaData.deleteItem"
+          @submit="anketaData.updateItem"
+          @file="anketaData.submitFile"
           :status-id="anketaData.resume.status_id"
-          :user-id="anketaData.resume.user_id"
         />
       </div>
       <div
@@ -381,10 +380,10 @@ const anketaData = ref({
         <PoligrafTab
           :cand-id="candId"
           :poligraf="anketaData.poligraf"
-          :get-item="anketaData.getItem"
-          :update-item="anketaData.updateItem"
-          :delete-item="anketaData.deleteItem"
-          :submit-file="anketaData.submitFile"
+          @get="anketaData.getItem"
+          @delete="anketaData.deleteItem"
+          @submit="anketaData.updateItem"
+          @file="anketaData.submitFile"
         />
       </div>
       <div
@@ -395,10 +394,10 @@ const anketaData = ref({
         <InvestigateTab
           :cand-id="candId"
           :investigations="anketaData.investigations"
-          :get-item="anketaData.getItem"
-          :update-item="anketaData.updateItem"
-          :delete-item="anketaData.deleteItem"
-          :submit-file="anketaData.submitFile"
+          @get="anketaData.getItem"
+          @delete="anketaData.deleteItem"
+          @submit="anketaData.updateItem"
+          @file="anketaData.submitFile"
         />
       </div>
       <div
@@ -409,10 +408,9 @@ const anketaData = ref({
         <InquiryTab
           :cand-id="candId"
           :inquiries="anketaData.inquiries"
-          :get-item="anketaData.getItem"
-          :update-item="anketaData.updateItem"
-          :delete-item="anketaData.deleteItem"
-          :submit-file="anketaData.submitFile"
+          @get="anketaData.getItem"
+          @delete="anketaData.deleteItem"
+          @submit="anketaData.updateItem"
         />
       </div>
     </div>

@@ -15,32 +15,17 @@ const FileForm = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
 
+const emit = defineEmits(["get", "delete", "submit", "file"]);
+
 onBeforeMount( async() => {
-  await props.getItem("poligraf");
+  emit("get", "investigation");
 });
 
 const props = defineProps({
   candId: String,
-  userId: String,
   inquisitions:  {
-    type: Array as () => Inquisition[],
+    type: Array as () => Array<Inquisition>,
     default: () => {},
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
-  },
-  submitFile: {
-    type: Function,
-    required: true,
   },
 });
 
@@ -49,23 +34,38 @@ const inquisition = ref({
   isForm: false,
   itemId: "",
   item: <Inquisition>{},
-
-  getEvent (event: Event){
-    props.submitFile(event, 'check')
-  },
 });
+
+function deactivateEmit() {
+  inquisition.value.isForm = false; 
+  inquisition.value.action = '';
+};
+
+function submitEmit(
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [inquisition.value.action, "investigation", itemId, form])
+};
+
+function submitFile(event: Event){
+  emit("file", event)
+};
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "investigation"])
+};
 </script>
 
 <template>
   <div class="py-3">
     <template v-if="inquisition.isForm">
     <InvestigationForm
-      :get-item="props.getItem"
       :action="inquisition.action"
       :cand-id="candId"
       :content="inquisition.item"
-      :update-item="props.updateItem"
-      @deactivate="inquisition.isForm = false; inquisition.action = '';"
+      @submit="submitEmit"
+      @deactivate="deactivateEmit"
     />
     </template>
     <div v-else>
@@ -73,16 +73,16 @@ const inquisition = ref({
         <CollapseDiv
           v-for="(item, idx) in props.inquisitions"
           :key="idx"
-          :id="'investigation' + idx"
-          :idx="idx"
-          :label="'Расследование #' + (idx + 1)"
+          :id="'investigation' + idx.toString()"
+          :idx="idx.toString()"
+          :label="'Расследование #' + (idx + 1).toString()"
         >
           <RowDivSlot :slotTwo="true" :print="true">
             <template v-slot:divTwo>
               <a
                 href="#"
                 title="Удалить"
-                @click="props.deleteItem(item['id'].toString())"
+                @click="deleteItem(item['id'].toString())"
               >
                 <i class="bi bi-trash"></i>
               </a>
@@ -110,7 +110,7 @@ const inquisition = ref({
         </CollapseDiv>
         <FileForm
           :accept="'*'"
-          @submit="inquisition.getEvent"
+          @submit="submitFile($event)"
         />
       </div>
       <p v-else>Данные отсутствуют</p>

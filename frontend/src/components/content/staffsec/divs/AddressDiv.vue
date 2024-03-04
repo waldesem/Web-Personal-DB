@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Address } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -12,8 +11,10 @@ const AddressForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AddressForm.vue")
 );
 
-onBeforeMount( async() => {
-  await props.getItem("staff");
+const emit = defineEmits(["get", "delete", "submit"]);
+
+onBeforeMount(() => {
+  emit("get", "address");
 });
 
 const props = defineProps({
@@ -22,20 +23,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Object as () => Record<string, any>,
+    type: Array as () => Array<Record<any, string>>,
     default: () => {},
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
   },
 });
 
@@ -43,8 +32,24 @@ const address = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Address>{},
+  item: <Record<any, string>>{},
 });
+
+function deactivateEmit() {
+  address.value.isForm = false; 
+  address.value.action = '';
+};
+
+function submitForm(
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [address.value.action, "address", itemId, form])
+};
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "address"])
+};
 </script>
 
 <template>
@@ -65,12 +70,11 @@ const address = ref({
   </h6>
   <template v-if="address.isForm">
     <AddressForm
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
       :action="address.action"
       :cand-id="candId"
       :content="address.item"
-      @deactivate="address.isForm = false; address.action = '';"
+      @submit="submitForm"
+      @deactivate="deactivateEmit"
     />
   </template>
   <template v-else>
@@ -78,15 +82,15 @@ const address = ref({
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'addr' + idx"
-        :idx="idx"
-        :label="'Адрес #' + (idx + 1)"
+        :id="'addr' + idx.toString()"
+        :idx="idx.toString()"
+        :label="'Адрес #' + (idx + 1).toString()"
       >
         <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
-              @click="props.deleteItem(item['id'].toString())"
+              @click="deleteItem(item['id'].toString())"
               title="Удалить"
             >
               <i class="bi bi-trash"></i>

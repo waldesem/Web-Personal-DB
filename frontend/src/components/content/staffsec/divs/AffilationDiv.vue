@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Affilation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -12,9 +11,10 @@ const AffilationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AffilationForm.vue")
 );
 
+const emit = defineEmits(["get", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  await props.getItem("staff");
+  emit("get", "affilation");
 });
 
 const props = defineProps({
@@ -23,20 +23,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Object as () => Record<string, any>,
+    type: Array as () => Array<Record<any, string>>,
     default: () => {},
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
   },
 });
 
@@ -44,8 +32,24 @@ const affilation = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Affilation>{},
+  item: <Record<any, string>>{},
 });
+
+function deactivateEmit() {
+  affilation.value.isForm = false; 
+  affilation.value.action = '';
+};
+
+function submitForm(
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [affilation.value.action, "affilation", itemId, form])
+};
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "affilation"])
+};
 </script>
 
 <template>
@@ -65,12 +69,11 @@ const affilation = ref({
   </h6>
   <template v-if="affilation.isForm">
     <AffilationForm 
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
       :action="affilation.action"
       :cand-id="candId"
       :content="affilation.item"
-      @deactivate="affilation.isForm = false; affilation.action = '';"
+      @submit="submitForm"
+      @deactivate="deactivateEmit"
     />
   </template>
   <template v-else>
@@ -78,15 +81,15 @@ const affilation = ref({
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'affil' + idx"
-        :idx="idx"
-        :label="'Аффилированность #' + (idx + 1)"
+        :id="'affil' + idx.toString()"
+        :idx="idx.toString()"
+        :label="'Аффилированность #' + (idx + 1).toString()"
       >
       <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
-              @click="props.deleteItem(item['id'].toString())"
+              @click="deleteItem(item['id'].toString())"
               title="Удалить"
             >
               <i class="bi bi-trash"></i>

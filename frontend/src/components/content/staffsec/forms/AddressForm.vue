@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
+import { Address } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
@@ -11,7 +12,7 @@ const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const emit = defineEmits(["deactivate"]);
+const emit = defineEmits(["deactivate", "submit"]);
 
 const props = defineProps({
   candId: String,
@@ -21,18 +22,10 @@ const props = defineProps({
     type: Object as () => Record<string, any>,
     default: () => {},
   },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
 });
 
 const addressForm = ref({
-  form: <Record<string, any>>{},
+  form: <Address>{},
   selected_item: {
     registration: "Адрес регистрации",
     live: "Адрес проживания",
@@ -41,8 +34,8 @@ const addressForm = ref({
 
   updateItem: function () {
     const itemId = props.action === "create" ? props.candId : props.itemId;
-    props.updateItem(props.action, "address", itemId, addressForm.value.form);
-
+    emit("submit", [itemId, addressForm.value.form]);
+    emit("deactivate");
     Object.keys(this.form).forEach((key) => {
       delete this.form[key as keyof typeof this.form];
     });

@@ -12,70 +12,70 @@ const InquiryForm = defineAsyncComponent(
   () => import("../forms/InquiryForm.vue")
 );
 
+const emit = defineEmits(["get", "delete", "submit"]);
+
 onBeforeMount( async() => {
-  await props.getItem("poligraf");
+  emit("get", "inquiry");
 });
 
 const props = defineProps({
   candId: String,
-  userId: String,
   needs:  {
-    type: Array as () => Needs[],
-    default: () => {},
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  submitFile: {
-    type: Function,
-    required: true,
+    type: Array as () => Array<Needs>,
+    default: () => [],
   },
 });
 
 const need = ref({
   action: "",
-  isForm: false,
   itemId: "",
+  isForm: false,
   item: <Needs>{},
 });
+
+function deactivateEmit() {
+  need.value.isForm = false; 
+  need.value.action = '';
+};
+
+function submitEmit(
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [need.value.action, "inquiry", itemId, form])
+};
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "inquiry"])
+};
 </script>
 
 <template>
   <div class="py-3">
     <template v-if="need.isForm">
-    <InquiryForm
-      :get-item="props.getItem"
-      :action="need.action"
-      :cand-id="candId"
-      :content="need.item"
-      :update-item="props.updateItem"
-      @deactivate="need.isForm = false; need.action = '';"
-    />
+      <InquiryForm
+        :cand-id="candId"
+        :content="need.item"
+        :action="need.action"
+        @submit="submitEmit"
+        @deactivate="deactivateEmit"
+      />
     </template>
     <div v-else>
       <div v-if="props.needs.length">
         <CollapseDiv
           v-for="(item, idx) in props.needs"
           :key="idx"
-          :id="'inquiry' + idx"
-          :idx="idx"
-          :label="'Запрос #' + (idx + 1)"
+          :id="'inquiry' + idx.toString()"
+          :idx="idx.toString()"
+          :label="'Запрос #' + (idx + 1).toString()"
         >
           <RowDivSlot :slotTwo="true" :print="true">
             <template v-slot:divTwo>
               <a
                 href="#"
                 title="Удалить"
-                @click="props.deleteItem(item['id'].toString())"
+                @click="deleteItem(item['id'].toString())"
               >
                 <i class="bi bi-trash"></i>
               </a>

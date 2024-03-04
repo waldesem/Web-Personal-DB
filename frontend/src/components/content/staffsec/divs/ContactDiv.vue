@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Contact } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -12,9 +11,10 @@ const ContactForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/ContactForm.vue")
 );
 
+const emit = defineEmits(["get", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  await props.getItem("staff");
+  emit("get", "contact");
 });
 
 const props = defineProps({
@@ -23,20 +23,8 @@ const props = defineProps({
     required: true,
   },
   items: {
-    type: Object as () => Record<string, any>,
+    type: Array as () => Array<Record<any, string>>,
     default: () => {},
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
   },
 });
 
@@ -44,8 +32,24 @@ const contact = ref({
   action: "",
   isForm: false,
   itemId: "",
-  item: <Contact>{},
+  item: <Record<any, string>>{},
 });
+
+function deactivateEmit() {
+  contact.value.isForm = false; 
+  contact.value.action = '';
+};
+
+function submitForm(
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [contact.value.action, "contact", itemId, form])
+};
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "contact"])
+};
 </script>
 
 <template>
@@ -65,12 +69,11 @@ const contact = ref({
   </h6>
   <template v-if="contact.isForm">
     <ContactForm 
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
       :action="contact.action"
       :cand-id="candId"
       :content="contact.item"
-      @deactivate="contact.isForm = false; contact.action = '';"
+      @submit="submitForm"
+      @deactivate="deactivateEmit"
     />
   </template>
   <template v-else>
@@ -78,15 +81,15 @@ const contact = ref({
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
-        :id="'cont' + idx"
-        :idx="idx"
-        :label="'Контакт #' + (idx + 1)"
+        :id="'cont' + idx.toString()"
+        :idx="idx.toString()"
+        :label="'Контакт #' + (idx + 1).toString()"
       >
         <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
-              @click="props.deleteItem(item['id'].toString())"
+              @click="deleteItem(item['id'].toString())"
               title="Удалить"
             >
               <i class="bi bi-trash"></i>

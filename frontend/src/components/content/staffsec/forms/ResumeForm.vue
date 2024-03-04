@@ -3,6 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
+import { Resume } from "@/interfaces/interface";
+import { router } from "@/router/router";
 
 const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
@@ -19,7 +21,7 @@ const BtnGroupForm = defineAsyncComponent(
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-const emit = defineEmits(["deactivate"]);
+const emit = defineEmits(["deactivate", "get-resume"]);
 
 const props = defineProps({
   candId: String,
@@ -29,14 +31,10 @@ const props = defineProps({
     type: Object as () => Record<string, any>,
     default: {},
   },
-  getItem: {
-    type: Function,
-    default: () => {},
-  },
 });
 
 const resumeForm = ref({
-  form: <Record<string, any>>{},
+  form: <Resume>{},
 
   submitResume: async function (): Promise<void> {
     try {
@@ -53,11 +51,16 @@ const resumeForm = ref({
 
       console.log(response.status);
 
+      props.action == "create" 
+        ? router.push({ name: "persons" })
+        : emit("get-resume");
+
+      emit("deactivate");
+      
       storeAlert.alertMessage.setAlert(
         "alert-success",
         "Данные успешно обновлены"
       );
-      props.getItem();
     } catch (error) {
       storeAlert.alertMessage.setAlert(
         "alert-danger",
@@ -89,9 +92,9 @@ const select_items = {
         :label="'Категория'"
         :select="select_items"
         @input-event="
-          resumeForm.form['category'] = $event.target.value
+          resumeForm.form['category_id'] = $event.target.value
         "
-        :model="props.resume['category']"
+        :model="props.resume['category_id']"
       />
       <InputLabel
         :isneed="true"

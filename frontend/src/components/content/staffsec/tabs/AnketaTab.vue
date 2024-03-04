@@ -36,6 +36,10 @@ const AffilationDiv = defineAsyncComponent(
 
 const storeClassify = classifyStore();
 
+const emit = defineEmits([
+  "get", "get-resume", "delete", "submit", "file"
+]);
+
 const props = defineProps({
   candId: {
     type: String,
@@ -77,39 +81,50 @@ const props = defineProps({
     type: Array as () => Array<Record<string, any>>,
     default: () => [],
   },
-  getResume: {
-    type: Function,
-    required: true,
-  },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  updateItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
-  },
 });
 
 const dataResume = ref({
   action: "",
+  isForm: false,
   form: <Resume>{},
 });
+
+function deactivateEmit() {
+  dataResume.value.isForm = false; 
+  dataResume.value.action = '';
+};
+
+function getResume(action: string) {
+  emit("get-resume", action)
+};
+
+function getItem(item: string) {
+  emit("get", item)
+};
+
+function updateItem (
+  action: string,
+  item: string,
+  itemId: string, 
+  form: Object
+  ) {
+  emit("submit", [action, item, itemId, form])
+};
+
+function deleteItem(itemId: string, item: string){
+  emit("delete", [itemId, item])
+};
 </script>
 
 <template>
   <div class="py-3">
-    <template v-if="dataResume.action === 'update'">
+    <template v-if="dataResume.isForm">
       <ResumeForm
-        :get-item="props.getResume"
         :action="dataResume.action"
         :cand-id="props.candId"
         :content="props.resume"
-        @deactivate="dataResume.action = '';"
+        @get-resume="getResume"
+        @deactivate="deactivateEmit"
       />
     </template>
 
@@ -120,7 +135,9 @@ const dataResume = ref({
             <a
               class="btn btn-link"
               title="Изменить"
-              @click="dataResume.action = 'update'"
+              @click="
+              dataResume.action = 'update';
+              dataResume.isForm = true"
             >
               <i class="bi bi-pencil-square"></i>
             </a>
@@ -177,7 +194,7 @@ const dataResume = ref({
         </RowDivSlot>
         <RowDivSlot :label="'Статус'" :slotTwo="true">
           <template v-slot:divTwo>
-            <a href="#" @click="props.getResume('status')">
+            <a href="#" @click="getResume('status')">
               {{ storeClassify.classData.status[props.resume["status_id"]] }}
             </a>
           </template>
@@ -208,51 +225,51 @@ const dataResume = ref({
     <StaffDiv
       :cand-id="props.candId"
       :items="props.staffs"
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
-      :delete-item="props.deleteItem"
+      @get="getItem"
+      @update="updateItem"
+      @delete="deleteItem"
     />
     <DocumentDiv
       :cand-id="props.candId"
       :items="props.documents"
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
-      :delete-item="props.deleteItem"
+      @get="getItem"
+      @update="updateItem"
+      @delete="deleteItem"
     />
     <AddressDiv
       :cand-id="props.candId"
       :items="props.addresses"
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
-      :delete-item="props.deleteItem"
+      @get="getItem"
+      @update="updateItem"
+      @delete="deleteItem"
     />
     <ContactDiv
       :cand-id="props.candId"
       :items="props.contacts"
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
-      :delete-item="props.deleteItem"
+      @get="getItem"
+      @update="updateItem"
+      @delete="deleteItem"
     />
     <RelationDiv
       :cand-id="props.candId"
       :items="props.relations"
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
-      :delete-item="props.deleteItem"
+      @get="getItem"
+      @update="updateItem"
+      @delete="deleteItem"
     />
     <WorkplaceDiv
       :cand-id="props.candId"
       :items="props.workplaces"
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
-      :delete-item="props.deleteItem"
+      @get="getItem"
+      @update="updateItem"
+      @delete="deleteItem"
     />
     <AffilationDiv
       :cand-id="props.candId"
       :items="props.affilations"
-      :get-item="props.getItem"
-      :update-item="props.updateItem"
-      :delete-item="props.deleteItem"
+      @get="getItem"
+      @update="updateItem"
+      @delete="deleteItem"
     />
 
     <div class="d-print-none py-3">
@@ -261,7 +278,7 @@ const dataResume = ref({
           :disabled="props.resume.user_id !== ''"
           type="button"
           class="btn btn-outline-primary"
-          @click="props.getResume('self')"
+          @click="getResume('self')"
         >
           Взять на проверку
         </button>
@@ -276,7 +293,7 @@ const dataResume = ref({
                 'repeat') ||
             props.spinner
           "
-          @click="props.getResume('send')"
+          @click="getResume('send')"
         >
           {{ !props.spinner ? "Отправить на проверку" : "" }}
           <span
@@ -292,7 +309,7 @@ const dataResume = ref({
             storeClassify.classData.status[props.resume['status_id']] ===
               'finish' || props.spinner
           "
-          @click="props.deleteItem('resume')"
+          @click="deleteItem(candId, 'resume')"
         >
           Удалить анкету
         </button>

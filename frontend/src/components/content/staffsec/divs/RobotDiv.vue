@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount } from "vue";
+import { defineAsyncComponent } from "vue";
 import { Robot } from "@/interfaces/interface";
 
 const RowDivSlot = defineAsyncComponent(
@@ -9,14 +9,9 @@ const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
 
-onBeforeMount( async() => {
-  await props.getItem("check");
-  await props.getItem("robot");
-});
-
 const props = defineProps({
   robots:  {
-    type: Array as () => Robot[],
+    type: Array as () => Array<Robot>,
     default: () => {},
   },
   getItem: {
@@ -35,9 +30,9 @@ const props = defineProps({
     <CollapseDiv
       v-for="(item, idx) in props.robots"
       :key="idx"
-      :id="'check' + idx"
-      :idx="idx"
-      :label="'Робот #' + (idx + 1)"
+      :id="'check' + idx.toString()"
+      :idx="idx.toString()"
+      :label="'Робот #' + (idx + 1).toString()"
     >
       <RowDivSlot
         :label="'Проверка по кадровым данным<'"
