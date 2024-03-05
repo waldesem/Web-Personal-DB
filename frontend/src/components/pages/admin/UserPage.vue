@@ -278,7 +278,6 @@ async function updateData() {
     <UserForm 
       :action="userData.action"
       :item="userData.profile"
-      :userAction="userData.userAction"
       @update="updateData"
     />
   </div>

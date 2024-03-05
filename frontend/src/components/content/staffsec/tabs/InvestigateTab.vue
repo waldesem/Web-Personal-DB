@@ -15,15 +15,14 @@ const FileForm = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit", "file"]);
+const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
-onBeforeMount( async() => {
-  emit("get", "investigation");
+onBeforeMount(async () => {
+  emit("get-item", "investigation");
 });
 
 const props = defineProps({
-  candId: String,
-  inquisitions:  {
+  inquisitions: {
     type: Array as () => Array<Inquisition>,
     default: () => {},
   },
@@ -31,42 +30,36 @@ const props = defineProps({
 
 const inquisition = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Inquisition>{},
 });
 
-function deactivateEmit() {
-  inquisition.value.isForm = false; 
-  inquisition.value.action = '';
-};
+function submitForm(form: Object) {
+  emit("submit", [
+    inquisition.value.action,
+    "investigation",
+    inquisition.value.itemId,
+    form,
+  ]);
+}
 
-function submitEmit(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [inquisition.value.action, "investigation", itemId, form])
-};
+function submitFile(event: Event) {
+  emit("file", event);
+}
 
-function submitFile(event: Event){
-  emit("file", event)
-};
-
-function deleteItem(itemId: string){
-  emit("delete", [itemId, "investigation"])
-};
+function deleteItem(itemId: string) {
+  emit("delete", [itemId, "investigation"]);
+}
 </script>
 
 <template>
   <div class="py-3">
-    <template v-if="inquisition.isForm">
-    <InvestigationForm
-      :action="inquisition.action"
-      :cand-id="candId"
-      :content="inquisition.item"
-      @submit="submitEmit"
-      @deactivate="deactivateEmit"
-    />
+    <template v-if="inquisition.action">
+      <InvestigationForm
+        :content="inquisition.item"
+        @submit="submitForm"
+        @deactivate="inquisition.action = ''"
+      />
     </template>
     <div v-else>
       <div v-if="props.inquisitions.length">
@@ -90,7 +83,6 @@ function deleteItem(itemId: string){
                 href="#"
                 title="Изменить"
                 @click="
-                  inquisition.isForm = true;
                   inquisition.action = 'update';
                   inquisition.item = item;
                   inquisition.itemId = item['id'].toString();
@@ -105,23 +97,19 @@ function deleteItem(itemId: string){
           <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
           <RowDivSlot
             :label="'Дата'"
-            :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
+            :value="
+              new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
+            "
           />
         </CollapseDiv>
-        <FileForm
-          :accept="'*'"
-          @submit="submitFile($event)"
-        />
+        <FileForm :accept="'*'" @submit="submitFile($event)" />
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">
         <a
           class="btn btn-outline-primary"
           type="button"
-          @click="
-            inquisition.isForm = true;
-            inquisition.action = 'create';
-          "
+          @click="inquisition.action = 'create'"
           >Добавить запись
         </a>
       </div>

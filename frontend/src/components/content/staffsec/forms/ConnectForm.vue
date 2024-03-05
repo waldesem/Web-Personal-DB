@@ -120,7 +120,7 @@ const contactForm = ref({
       :model="item['comment']"
       @input-event="contactForm.form['comment'] = $event.target.value"
     />
-    <BtnGroupForm>
+    <BtnGroupForm :cls="false">
       <button
         class="btn btn-outline-primary"
         data-bs-dismiss="modal"

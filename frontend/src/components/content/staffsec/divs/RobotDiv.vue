@@ -9,20 +9,18 @@ const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
 
+const emit = defineEmits(["delete"]);
+
 const props = defineProps({
   robots:  {
     type: Array as () => Array<Robot>,
     default: () => {},
   },
-  getItem: {
-    type: Function,
-    required: true,
-  },
-  deleteItem: {
-    type: Function,
-    required: true,
-  },
 });
+
+function deleteItem(itemId: string){
+  emit("delete", [itemId, "robot"])
+};
 </script>
 
 <template>
@@ -34,6 +32,17 @@ const props = defineProps({
       :idx="idx.toString()"
       :label="'Робот #' + (idx + 1).toString()"
     >
+      <RowDivSlot :slotTwo="true" :print="true">
+        <template v-slot:divTwo>
+          <a
+            href="#"
+            @click="deleteItem(item['id'].toString())"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+        </template>
+      </RowDivSlot>
       <RowDivSlot
         :label="'Проверка по кадровым данным<'"
         :value="item['employee']"

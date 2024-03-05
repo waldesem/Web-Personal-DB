@@ -11,17 +11,13 @@ const DocumentForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/DocumentForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  emit("get", "document");
+  emit("get-item", "document");
 });
 
 const props = defineProps({
-  candId: {
-    type: String,
-    required: true,
-  },
   items: {
     type: Array as () => Array<Record<any, string>>,
     default: () => {},
@@ -30,14 +26,13 @@ const props = defineProps({
 
 const document = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Record<any, string>>{},
 });
 
-function deactivateEmit() {
-  document.value.isForm = false; 
+function cancelEdit(){
   document.value.action = '';
+  document.value.item = {};
 };
 
 function submitForm(
@@ -58,22 +53,19 @@ function deleteItem(itemId: string){
     <a
       class="btn btn-link"
       @click="
-        document.isForm = !document.isForm;
-        document.action = document.isForm ? 'create' : '';"
-      :title="document.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        document.action = document.action ? '' : 'create';"
+        :title="document.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="document.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="document.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="document.isForm">
+  <template v-if="document.action">
     <DocumentForm 
-      :action="document.action"
-      :cand-id="candId"
       :content="document.item"
       @submit="submitForm"
-      @deactivate="deactivateEmit"
+      @deactivate="cancelEdit"
     />
   </template>
   <template v-else>
@@ -99,7 +91,6 @@ function deleteItem(itemId: string){
             class="btn btn-link"
             title="Изменить"
             @click="
-              document.isForm = true;
               document.action = 'update';
               document.item = item;
               document.itemId = item['id'].toString();

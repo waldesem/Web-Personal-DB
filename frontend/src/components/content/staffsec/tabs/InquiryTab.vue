@@ -12,14 +12,13 @@ const InquiryForm = defineAsyncComponent(
   () => import("../forms/InquiryForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  emit("get", "inquiry");
+  emit("get-item", "inquiry");
 });
 
 const props = defineProps({
-  candId: String,
   needs:  {
     type: Array as () => Array<Needs>,
     default: () => [],
@@ -29,20 +28,11 @@ const props = defineProps({
 const need = ref({
   action: "",
   itemId: "",
-  isForm: false,
   item: <Needs>{},
 });
 
-function deactivateEmit() {
-  need.value.isForm = false; 
-  need.value.action = '';
-};
-
-function submitEmit(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [need.value.action, "inquiry", itemId, form])
+function submitForm(form: Object) {
+  emit("submit", [need.value.action, "inquiry", need.value.itemId, form])
 };
 
 function deleteItem(itemId: string){
@@ -52,13 +42,11 @@ function deleteItem(itemId: string){
 
 <template>
   <div class="py-3">
-    <template v-if="need.isForm">
+    <template v-if="need.action">
       <InquiryForm
-        :cand-id="candId"
-        :content="need.item"
         :action="need.action"
-        @submit="submitEmit"
-        @deactivate="deactivateEmit"
+        @submit="submitForm"
+        @deactivate="need.action = ''"
       />
     </template>
     <div v-else>
@@ -83,7 +71,6 @@ function deleteItem(itemId: string){
                 href="#"
                 title="Изменить"
                 @click="
-                  need.isForm = true;
                   need.action = 'update';
                   need.item = item;
                   need.itemId = item['id'].toString();
@@ -106,7 +93,6 @@ function deleteItem(itemId: string){
           class="btn btn-outline-primary"
           type="button"
           @click="
-            need.isForm = true;
             need.action = 'create';
           "
           >Добавить запись

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { onBeforeMount, defineAsyncComponent, ref } from "vue";
 import { authStore } from "@store/auth";
 import { server } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
@@ -9,6 +9,10 @@ const MessagesToast = defineAsyncComponent(
 );
 
 const storeAuth = authStore();
+
+onBeforeMount(() => {
+  messageData.value.updateCount();
+});
 
 const messageData = ref({
   isStarted: false,
@@ -48,8 +52,6 @@ const messageData = ref({
     }
   },
 });
-
-messageData.value.updateCount();
 </script>
 
 <template>

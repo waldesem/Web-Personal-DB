@@ -11,17 +11,13 @@ const ContactForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/ContactForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  emit("get", "contact");
+  emit("get-item", "contact");
 });
 
 const props = defineProps({
-  candId: {
-    type: String,
-    required: true,
-  },
   items: {
     type: Array as () => Array<Record<any, string>>,
     default: () => {},
@@ -30,14 +26,13 @@ const props = defineProps({
 
 const contact = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Record<any, string>>{},
 });
 
-function deactivateEmit() {
-  contact.value.isForm = false; 
+function cancelEdit(){
   contact.value.action = '';
+  contact.value.item = {};
 };
 
 function submitForm(
@@ -58,22 +53,19 @@ function deleteItem(itemId: string){
     <a
       class="btn btn-link"
       @click="
-        contact.isForm = !contact.isForm;
-        contact.action = contact.isForm ? 'create' : '';"
-      :title="contact.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        contact.action = contact.action ? '' : 'create';"
+        :title="contact.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="contact.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="contact.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="contact.isForm">
+  <template v-if="contact.action">
     <ContactForm 
-      :action="contact.action"
-      :cand-id="candId"
       :content="contact.item"
       @submit="submitForm"
-      @deactivate="deactivateEmit"
+      @cancel="cancelEdit"
     />
   </template>
   <template v-else>
@@ -98,7 +90,6 @@ function deleteItem(itemId: string){
               class="btn btn-link"
               title="Изменить"
               @click="
-                contact.isForm = true;
                 contact.action = 'update';
                 contact.item = item;
                 contact.itemId = item['id'].toString();

@@ -131,7 +131,6 @@ async function getEmit () {
     </button>
     <UserForm
       :action="dataUsers.action"
-      :item="{}"
       @update="getEmit"
     />
   </div>

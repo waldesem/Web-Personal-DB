@@ -11,17 +11,13 @@ const RelationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/RelationForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  emit("get", "relation");
+  emit("get-item", "relation");
 });
 
 const props = defineProps({
-  candId: {
-    type: String,
-    required: true,
-  },
   items: {
     type: Array as () => Array<Record<any, string>>,
     default: () => {},
@@ -30,14 +26,13 @@ const props = defineProps({
 
 const relation = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Record<any, string>>{},
 });
 
-function deactivateEmit() {
-  relation.value.isForm = false; 
+function cancelEdit(){
   relation.value.action = '';
+  relation.value.item = {};
 };
 
 function submitForm(
@@ -58,22 +53,19 @@ function deleteItem(itemId: string){
     <a
       class="btn btn-link"
       @click="
-        relation.isForm = !relation.isForm;
-        relation.action = relation.isForm ? 'create' : '';"
-      :title="relation.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        relation.action = relation.action ? '' : 'create';"
+        :title="relation.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="relation.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="relation.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="relation.isForm">
+  <template v-if="relation.action">
     <RelationForm
-      :action="relation.action"
-      :cand-id="candId"
       :content="relation.item"
       @submit="submitForm"
-      @deactivate="deactivateEmit"
+      @deactivate="cancelEdit"
     />
   </template>
   <template v-else>
@@ -98,7 +90,6 @@ function deleteItem(itemId: string){
               class="btn btn-link"
               title="Изменить"
               @click="
-                relation.isForm = true;
                 relation.action = 'update';
                 relation.item = item;
                 relation.itemId = item['id'].toString();

@@ -15,15 +15,14 @@ const FileForm = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit", "file"]);
+const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
-onBeforeMount( async() => {
-  emit("get", "poligraf");
+onBeforeMount(async () => {
+  emit("get-item", "poligraf");
 });
 
 const props = defineProps({
-  candId: String,
-  poligrafs:  {
+  poligrafs: {
     type: Array as () => Array<Pfo>,
     default: () => {},
   },
@@ -31,42 +30,36 @@ const props = defineProps({
 
 const poligraf = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Pfo>{},
 });
 
-function deactivateEmit() {
-  poligraf.value.isForm = false; 
-  poligraf.value.action = '';
-};
+function submitForm(form: Object) {
+  emit("submit", [
+    poligraf.value.action,
+    "poligraf",
+    poligraf.value.itemId,
+    form,
+  ]);
+}
 
-function submitEmit(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [poligraf.value.action, "poligraf", itemId, form])
-};
+function submitFile(event: Event) {
+  emit("file", event);
+}
 
-function submitFile(event: Event){
-  emit("file", event)
-};
-
-function deleteItem(itemId: string){
-  emit("delete", [itemId, "poligraf"])
-};
+function deleteItem(itemId: string) {
+  emit("delete", [itemId, "poligraf"]);
+}
 </script>
 
 <template>
   <div class="py-3">
-    <template v-if="poligraf.isForm">
-    <PoligrafForm
-      :action="poligraf.action"
-      :cand-id="candId"
-      :content="poligraf.item"
-      @submit="submitEmit"
-      @deactivate="deactivateEmit"
-    />
+    <template v-if="poligraf.action">
+      <PoligrafForm
+        :content="poligraf.item"
+        @submit="submitForm"
+        @cancel="poligraf.action = ''"
+      />
     </template>
     <div v-else>
       <div v-if="props.poligrafs.length > 0">
@@ -90,7 +83,6 @@ function deleteItem(itemId: string){
                 href="#"
                 title="Изменить"
                 @click="
-                  poligraf.isForm = true;
                   poligraf.action = 'update';
                   poligraf.item = item;
                   poligraf.itemId = item['id'].toString();
@@ -105,23 +97,19 @@ function deleteItem(itemId: string){
           <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
           <RowDivSlot
             :label="'Дата'"
-            :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
+            :value="
+              new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
+            "
           />
         </CollapseDiv>
-        <FileForm
-          :accept="'*'"
-          @submit="submitFile"
-        />
+        <FileForm :accept="'*'" @submit="submitFile" />
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">
         <a
           class="btn btn-outline-primary"
           type="button"
-          @click="
-            poligraf.isForm = true;
-            poligraf.action = 'create';
-          "
+          @click="poligraf.action = 'create'"
           >Добавить запись
         </a>
       </div>

@@ -11,17 +11,13 @@ const StaffForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/StaffForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  emit("get", "staff");
+  emit("get-item", "staff");
 });
 
 const props = defineProps({
-  candId: {
-    type: String,
-    required: true,
-  },
   items: {
     type: Array as () => Array<Record<string, any>>,
     default: () => {},
@@ -30,25 +26,22 @@ const props = defineProps({
 
 const staff = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Record<string, any>>{},
 });
 
-function deactivateEmit() {
-  staff.value.isForm = false; 
-  staff.value.action = '';
-};
-
-function submitForm(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [staff.value.action, "staff", itemId, form])
+function submitForm(form: Object) {
+  emit("submit", [staff.value.action, "staff", staff.value.itemId, form])
+  cancelEdit();
 };
 
 function deleteItem(itemId: string){
   emit("delete", [itemId, "staff"])
+};
+
+function cancelEdit(){
+  staff.value.action = '';
+  staff.value.item = {};
 };
 </script>
 
@@ -58,22 +51,19 @@ function deleteItem(itemId: string){
     <a
       class="btn btn-link"
       @click="
-        staff.isForm = !staff.isForm;
-        staff.action = staff.isForm ? 'create' : '';"
-      :title="staff.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        staff.action = staff.action ? '' : 'create';"
+        :title="staff.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="staff.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="staff.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="staff.isForm">
+  <template v-if="staff.action">
     <StaffForm
-      :action="staff.action"
-      :cand-id="candId"
       :content="staff.item"
       @submit="submitForm"
-      @deactivate="deactivateEmit"
+      @cancel="cancelEdit"
     />
   </template>
   <template v-else>
@@ -98,7 +88,6 @@ function deleteItem(itemId: string){
               class="btn btn-link"
               title="Изменить"
               @click="
-                staff.isForm = true;
                 staff.action = 'update';
                 staff.item = item;
                 staff.itemId = item['id'].toString();

@@ -15,12 +15,9 @@ const BtnGroupForm = defineAsyncComponent(
 
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["deactivate", "submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
-  candId: String,
-  itemId: String,
-  action: String,
   check: {
     type: Object as () => Record<string, any>,
     default: () => {},
@@ -32,13 +29,10 @@ const checkForm = ref({
   noNegative: true,
 
   updateItem: function () {
-    const itemId = props.action === "create" ? props.candId : props.itemId;
-    emit("submit", [itemId, checkForm.value.form]);
-
+    emit("submit", this.form);
     Object.keys(this.form).forEach((key) => {
       delete this.form[key as keyof typeof this.form];
     });
-    emit("deactivate");
    },
 });
 
@@ -225,13 +219,26 @@ if (checkForm.value.noNegative) {
         checkForm.form['comments'] = $event.target.value
       "
     />
-    <BtnGroupForm>
-      <button class="btn btn-outline-primary" type="submit">Принять</button>
-      <button class="btn btn-outline-primary" type="reset">Очистить</button>
+    <BtnGroupForm :cls="false">
       <button
-        class="btn btn-outline-primary"
+        class="btn btn-outline-success btn-md"
+        name="submit"
+        type="submit"
+      >
+        Принять
+      </button>
+      <button 
+        class="btn btn-outline-secondary btn-md" 
+        name="reset" 
+        type="reset"
+      >
+        Очистить
+      </button>
+      <button 
+        class="btn btn-outline-primary btn-md" 
+        name="cancel" 
         type="button"
-        @click="emit('deactivate')"
+        @click="$emit('cancel')"
       >
         Отмена
       </button>

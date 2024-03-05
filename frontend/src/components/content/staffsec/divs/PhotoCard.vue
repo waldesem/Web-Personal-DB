@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
 
-const emit = defineEmits(["get", "submit-file"]);
+const emit = defineEmits(["get-item", "submit-file"]);
 
 onBeforeMount( async() => {
-  emit("get", "file")
+  emit("get-item", "file")
 });
 
 const props = defineProps({
-  candId: String,
   imageUrl: String,
 });
 

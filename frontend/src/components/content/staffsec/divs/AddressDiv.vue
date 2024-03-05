@@ -11,17 +11,13 @@ const AddressForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AddressForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount(() => {
-  emit("get", "address");
+  emit("get-item", "address");
 });
 
 const props = defineProps({
-  candId: {
-    type: String,
-    required: true,
-  },
   items: {
     type: Array as () => Array<Record<any, string>>,
     default: () => {},
@@ -30,14 +26,13 @@ const props = defineProps({
 
 const address = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Record<any, string>>{},
 });
 
-function deactivateEmit() {
-  address.value.isForm = false; 
+function cancelEdit(){
   address.value.action = '';
+  address.value.item = {};
 };
 
 function submitForm(
@@ -58,23 +53,20 @@ function deleteItem(itemId: string){
     <a
       class="btn btn-link"
       @click="
-        address.isForm = !address.isForm;
-        address.action = address.isForm ? 'create' : '';
+        address.action = address.action ? '' : 'create';
       "
-      :title="address.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+      :title="address.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="address.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="address.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="address.isForm">
+  <template v-if="address.action">
     <AddressForm
-      :action="address.action"
-      :cand-id="candId"
       :content="address.item"
       @submit="submitForm"
-      @deactivate="deactivateEmit"
+      @cancel="cancelEdit"
     />
   </template>
   <template v-else>
@@ -100,7 +92,6 @@ function deleteItem(itemId: string){
               title="Изменить"
               @click="
                 address.action = 'update';
-                address.isForm = true;
                 address.item = item;
                 address.itemId = item['id'].toString();
               "

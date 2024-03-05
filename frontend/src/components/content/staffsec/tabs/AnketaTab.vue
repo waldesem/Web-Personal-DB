@@ -37,7 +37,7 @@ const AffilationDiv = defineAsyncComponent(
 const storeClassify = classifyStore();
 
 const emit = defineEmits([
-  "get", "get-resume", "delete", "submit", "file"
+  "get-item", "get-resume", "delete", "submit", "file"
 ]);
 
 const props = defineProps({
@@ -85,21 +85,15 @@ const props = defineProps({
 
 const dataResume = ref({
   action: "",
-  isForm: false,
   form: <Resume>{},
 });
-
-function deactivateEmit() {
-  dataResume.value.isForm = false; 
-  dataResume.value.action = '';
-};
 
 function getResume(action: string) {
   emit("get-resume", action)
 };
 
 function getItem(item: string) {
-  emit("get", item)
+  emit("get-item", item)
 };
 
 function updateItem (
@@ -118,13 +112,13 @@ function deleteItem(itemId: string, item: string){
 
 <template>
   <div class="py-3">
-    <template v-if="dataResume.isForm">
+    <template v-if="dataResume.action">
       <ResumeForm
         :action="dataResume.action"
         :cand-id="props.candId"
         :content="props.resume"
-        @get-resume="getResume"
-        @deactivate="deactivateEmit"
+        @get-item-resume="getResume"
+        @deactivate="dataResume.action = ''"
       />
     </template>
 
@@ -135,9 +129,7 @@ function deleteItem(itemId: string, item: string){
             <a
               class="btn btn-link"
               title="Изменить"
-              @click="
-              dataResume.action = 'update';
-              dataResume.isForm = true"
+              @click="dataResume.action = 'update'"
             >
               <i class="bi bi-pencil-square"></i>
             </a>
@@ -223,57 +215,50 @@ function deleteItem(itemId: string, item: string){
     </template>
 
     <StaffDiv
-      :cand-id="props.candId"
       :items="props.staffs"
-      @get="getItem"
-      @update="updateItem"
+      @get-item="getItem"
+      @submit="updateItem"
       @delete="deleteItem"
     />
     <DocumentDiv
-      :cand-id="props.candId"
       :items="props.documents"
-      @get="getItem"
+      @get-item="getItem"
       @update="updateItem"
       @delete="deleteItem"
     />
     <AddressDiv
-      :cand-id="props.candId"
       :items="props.addresses"
-      @get="getItem"
+      @get-item="getItem"
       @update="updateItem"
       @delete="deleteItem"
     />
     <ContactDiv
-      :cand-id="props.candId"
       :items="props.contacts"
-      @get="getItem"
+      @get-item="getItem"
       @update="updateItem"
       @delete="deleteItem"
     />
     <RelationDiv
-      :cand-id="props.candId"
       :items="props.relations"
-      @get="getItem"
+      @get-item="getItem"
       @update="updateItem"
       @delete="deleteItem"
     />
     <WorkplaceDiv
-      :cand-id="props.candId"
       :items="props.workplaces"
-      @get="getItem"
+      @get-item="getItem"
       @update="updateItem"
       @delete="deleteItem"
     />
     <AffilationDiv
-      :cand-id="props.candId"
       :items="props.affilations"
-      @get="getItem"
+      @get-item="getItem"
       @update="updateItem"
       @delete="deleteItem"
     />
 
     <div class="d-print-none py-3">
-      <BtnGroupForm>
+      <BtnGroupForm :cls="false">
         <button
           :disabled="props.resume.user_id !== ''"
           type="button"

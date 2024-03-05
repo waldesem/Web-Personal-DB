@@ -11,17 +11,13 @@ const WorkplaceForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/WorkplaceForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  emit("get", "workplace");
+  emit("get-item", "workplace");
 });
 
 const props = defineProps({
-  candId: {
-    type: String,
-    required: true,
-  },
   items: {
     type: Array as () => Array<Record<any, string>>,
     default: () => {},
@@ -30,14 +26,13 @@ const props = defineProps({
 
 const workplace = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Record<any, string>>{},
 });
 
-function deactivateEmit() {
-  workplace.value.isForm = false; 
+function cancelEdit(){
   workplace.value.action = '';
+  workplace.value.item = {};
 };
 
 function submitForm(
@@ -58,22 +53,19 @@ function deleteItem(itemId: string){
     <a
       class="btn btn-link"
       @click="
-        workplace.isForm = !workplace.isForm;  
-        workplace.action = 'create'"
-      :title="workplace.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        workplace.action = workplace.action ? '' : 'create';"
+        :title="workplace.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="workplace.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="workplace.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="workplace.isForm">
+  <template v-if="workplace.action">
     <WorkplaceForm 
-      :action="workplace.action"
-      :cand-id="candId"
       :content="workplace.item"
       @submit="submitForm"
-      @deactivate="deactivateEmit"
+      @cancel="cancelEdit"
     />
   </template>
   <template v-else>
@@ -98,7 +90,6 @@ function deleteItem(itemId: string){
               class="btn btn-link"
               title="Изменить"
               @click="
-                workplace.isForm = true;
                 workplace.action = 'update';
                 workplace.item = item;
                 workplace.itemId = item['id'].toString();

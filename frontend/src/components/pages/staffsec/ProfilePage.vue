@@ -60,13 +60,6 @@ const anketaData = ref({
   imageUrl: "",
   printPage: false,
   spinner: false,
-  tabsObject: {
-    anketaTab: "Анкета",
-    сheckTab: "Проверки",
-    poligrafTab: "Полиграф",
-    investigateTab: "Расследования",
-    inquiryTab: "Запросы",
-  },
   resume: <Resume>{},
   staffs: <Array<Staff>>[],
   documents: <Array<Document>>[],
@@ -122,7 +115,6 @@ const anketaData = ref({
           "Анкета отправлена на проверку"
         );
         window.scrollTo(0, 0);
-        this.spinner = false;
       }
     } catch (error) {
       console.error(error);
@@ -178,7 +170,7 @@ const anketaData = ref({
           break;
         case "file":
           this.imageUrl = window.URL.createObjectURL(new Blob([response.data]));
-          break
+          break;
         default:
           break;
       }
@@ -198,7 +190,7 @@ const anketaData = ref({
       const response =
         action === "create"
           ? await storeAuth.axiosInstance.post(
-              `${server}/${param}/${itemId}`,
+              `${server}/${param}/${candId}`,
               form
             )
           : await storeAuth.axiosInstance.patch(
@@ -307,24 +299,30 @@ const anketaData = ref({
 
 <template>
   <div class="container py-3">
-    <PhotoCard 
-      :cand-id="candId" 
+    <PhotoCard
+      :cand-id="candId"
       :image-url="anketaData.imageUrl"
-      @get="anketaData.getItem"
-      @submit-file="anketaData.submitFile" 
+      @get-item="anketaData.getItem"
+      @submit-file="anketaData.submitFile"
     />
     <HeaderDiv :page-header="anketaData.resume.fullname" />
-    <div 
-      :class="{'nav nav-tabs nav-justified' : !anketaData.printPage}"
+    <div
+      :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
       :role="!anketaData.printPage ? 'tablist' : ''"
     >
       <button
         v-if="!anketaData.printPage"
-        v-for="(value, key) in anketaData.tabsObject"
+        v-for="(value, key) in {
+          anketaTab: 'Анкета',
+          сheckTab: 'Проверки',
+          poligrafTab: 'Полиграф',
+          investigateTab: 'Расследования',
+          inquiryTab: 'Запросы',
+        }"
         class="nav-link"
-        :class="{ 'active': key === 'anketaTab' }"
-        data-bs-toggle="tab"
+        :class="{ active: key === 'anketaTab' }"
         :data-bs-target="`#${key}`"
+        data-bs-toggle="tab"
         type="button"
         role="tab"
       >
@@ -332,10 +330,10 @@ const anketaData = ref({
       </button>
     </div>
 
-    <div :class="{'tab-content':!anketaData.printPage}">
+    <div :class="{ 'tab-content': !anketaData.printPage }">
       <div
         id="anketaTab"
-        :class="{'tab-pane fade py-1 show active' : !anketaData.printPage}"
+        :class="{ 'tab-pane fade py-1 show active': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
         :tabindex="!anketaData.printPage ? '0' : ''"
       >
@@ -350,37 +348,35 @@ const anketaData = ref({
           :relations="anketaData.relations"
           :workplaces="anketaData.workplaces"
           :affilations="anketaData.affilations"
-          @get-resume="anketaData.getResume"
-          @get="anketaData.getItem"
+          @get-item-resume="anketaData.getResume"
+          @get-item="anketaData.getItem"
           @update="anketaData.updateItem"
           @delete="anketaData.deleteItem"
         />
       </div>
       <div
         id="сheckTab"
-        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <CheckTab
-          :cand-id="candId"
           :checks="anketaData.checks"
           :robots="anketaData.robots"
-          @get="anketaData.getItem"
+          :status-id="anketaData.resume.status_id"
+          @get-item="anketaData.getItem"
           @delete="anketaData.deleteItem"
           @submit="anketaData.updateItem"
           @file="anketaData.submitFile"
-          :status-id="anketaData.resume.status_id"
         />
       </div>
       <div
         id="poligrafTab"
-        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <PoligrafTab
-          :cand-id="candId"
           :poligraf="anketaData.poligraf"
-          @get="anketaData.getItem"
+          @get-item="anketaData.getItem"
           @delete="anketaData.deleteItem"
           @submit="anketaData.updateItem"
           @file="anketaData.submitFile"
@@ -388,13 +384,12 @@ const anketaData = ref({
       </div>
       <div
         id="investigateTab"
-        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <InvestigateTab
-          :cand-id="candId"
           :investigations="anketaData.investigations"
-          @get="anketaData.getItem"
+          @get-item="anketaData.getItem"
           @delete="anketaData.deleteItem"
           @submit="anketaData.updateItem"
           @file="anketaData.submitFile"
@@ -402,13 +397,12 @@ const anketaData = ref({
       </div>
       <div
         id="inquiryTab"
-        :class="{'tab-pane fade py-1' : !anketaData.printPage}"
+        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <InquiryTab
-          :cand-id="candId"
           :inquiries="anketaData.inquiries"
-          @get="anketaData.getItem"
+          @get-item="anketaData.getItem"
           @delete="anketaData.deleteItem"
           @submit="anketaData.updateItem"
         />
@@ -424,11 +418,11 @@ const anketaData = ref({
   </div>
 </template>
 
-<!-- <style scoped>
+<style scoped>
 .bi-printer {
-  position: fixed;;
+  position: fixed;
   top: 100px;
   right: 1000px;
   cursor: pointer;
 }
-</style> -->
+</style>

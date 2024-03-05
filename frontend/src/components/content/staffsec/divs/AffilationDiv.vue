@@ -11,17 +11,13 @@ const AffilationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AffilationForm.vue")
 );
 
-const emit = defineEmits(["get", "delete", "submit"]);
+const emit = defineEmits(["get-item", "delete", "submit"]);
 
 onBeforeMount( async() => {
-  emit("get", "affilation");
+  emit("get-item", "affilation");
 });
 
 const props = defineProps({
-  candId: {
-    type: String,
-    required: true,
-  },
   items: {
     type: Array as () => Array<Record<any, string>>,
     default: () => {},
@@ -30,14 +26,13 @@ const props = defineProps({
 
 const affilation = ref({
   action: "",
-  isForm: false,
   itemId: "",
   item: <Record<any, string>>{},
 });
 
-function deactivateEmit() {
-  affilation.value.isForm = false; 
+function cancelEdit() {
   affilation.value.action = '';
+  affilation.value.item = {};
 };
 
 function submitForm(
@@ -58,22 +53,19 @@ function deleteItem(itemId: string){
     <a
       class="btn btn-link"
       @click="
-        affilation.isForm = !affilation.isForm;
-        affilation.action = affilation.isForm ? 'create' : '';"
-      :title="affilation.isForm ? 'Закрыть форму' : 'Добавить информацию'"
+        affilation.action = affilation.action ? '' : 'create';"
+        :title="affilation.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
-        :class="affilation.isForm ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+        :class="affilation.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
       ></i>
     </a>
   </h6>
-  <template v-if="affilation.isForm">
+  <template v-if="affilation.action">
     <AffilationForm 
-      :action="affilation.action"
-      :cand-id="candId"
       :content="affilation.item"
       @submit="submitForm"
-      @deactivate="deactivateEmit"
+      @cancel="cancelEdit"
     />
   </template>
   <template v-else>
@@ -85,7 +77,7 @@ function deleteItem(itemId: string){
         :idx="idx.toString()"
         :label="'Аффилированность #' + (idx + 1).toString()"
       >
-      <RowDivSlot :slotTwo="true" :print="true">
+        <RowDivSlot :slotTwo="true" :print="true">
           <template v-slot:divTwo>
             <a
               href="#"
@@ -98,7 +90,6 @@ function deleteItem(itemId: string){
               class="btn btn-link"
               title="Изменить"
               @click="
-                affilation.isForm = true;
                 affilation.action = 'update';
                 affilation.item = item;
                 affilation.itemId = item['id'].toString();

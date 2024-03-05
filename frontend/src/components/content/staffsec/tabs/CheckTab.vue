@@ -16,20 +16,16 @@ const RowDivSlot = defineAsyncComponent(
 const FileForm = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const CheckForm = defineAsyncComponent(
-  () => import("../forms/CheckForm.vue")
-);
-const RobotDiv = defineAsyncComponent(
-  () => import("../divs/RobotDiv.vue")
-);
+const CheckForm = defineAsyncComponent(() => import("../forms/CheckForm.vue"));
+const RobotDiv = defineAsyncComponent(() => import("../divs/RobotDiv.vue"));
 
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["get", "delete", "submit", "file"]);
+const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
-onBeforeMount( async() => {
-  emit("get", "check");
-  emit("get", "robot");
+onBeforeMount(async () => {
+  emit("get-item", "check");
+  emit("get-item", "robot");
 });
 
 const props = defineProps({
@@ -64,28 +60,25 @@ const check = ref({
   ].includes(props.statusId),
 });
 
-function deactivateEmit() {
-  check.value.isForm = false; 
-  check.value.action = '';
-};
+function cancelEdit() {
+  check.value.isForm = false;
+  check.value.action = "";
+}
 
-function submitEmit(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [check.value.action, "check", itemId, form])
-};
+function submitForm(form: Object) {
+  emit("submit", [check.value.action, "check", check.value.itemId, form]);
+}
 
-function submitFile(event: Event){
-  emit("file", event)
-};
+function submitFile(event: Event) {
+  emit("file", event);
+}
 
-function deleteItem(itemId: string){
-  emit("delete", [itemId, "check"])
-};
+function deleteItem(itemId: string) {
+  emit("delete", [itemId, "check"]);
+}
 
-function getRobot(){
-  emit("get", "robot");
+function getRobot() {
+  emit("get-item", "robot");
 }
 </script>
 
@@ -93,11 +86,9 @@ function getRobot(){
   <div class="py-3">
     <template v-if="check.isForm">
       <CheckForm
-        :action="check.action"
-        :cand-id="candId"
         :content="check.item"
-        @submit="submitEmit"
-        @deactivate="deactivateEmit"
+        @submit="submitForm"
+        @deactivate="cancelEdit"
       />
     </template>
     <div v-else>
@@ -189,13 +180,10 @@ function getRobot(){
             "
           />
         </CollapseDiv>
-        <FileForm
-          :accept="'*'"
-          @submit="submitFile"
-        />
+        <FileForm :accept="'*'" @submit="submitFile" />
         <RobotDiv
           :robots="props.robots"
-          @get="getRobot"
+          @get-item="getRobot"
           @delete="deleteItem"
         />
       </div>

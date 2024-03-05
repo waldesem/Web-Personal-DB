@@ -25,7 +25,6 @@ const emit = defineEmits(["deactivate", "get-resume"]);
 
 const props = defineProps({
   candId: String,
-  itemId: String,
   action: String,
   resume: {
     type: Object as () => Record<string, any>,
@@ -53,9 +52,7 @@ const resumeForm = ref({
 
       props.action == "create" 
         ? router.push({ name: "persons" })
-        : emit("get-resume");
-
-      emit("deactivate");
+        : emit("get-resume", "view");
       
       storeAlert.alertMessage.setAlert(
         "alert-success",
