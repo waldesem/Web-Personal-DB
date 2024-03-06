@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
@@ -35,11 +38,9 @@ function cancelEdit(){
   contact.value.item = {};
 };
 
-function submitForm(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [contact.value.action, "contact", itemId, form])
+function submitForm(form: Object) {
+  emit("submit", [contact.value.action, "contact", contact.value.itemId, form])
+   cancelEdit();
 };
 
 function deleteItem(itemId: string){
@@ -51,58 +52,62 @@ function deleteItem(itemId: string){
   <h6>
     Контакты
     <a
+      data-bs-toggle="modal"
+      data-bs-target="#modalContact"
       class="btn btn-link"
-      @click="
-        contact.action = contact.action ? '' : 'create';"
-        :title="contact.action ? 'Закрыть форму' : 'Добавить информацию'"
+      @click="contact.action = 'create'"
+      title="Добавить информацию"
     >
-      <i
-        :class="contact.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
-      ></i>
+      <i class="bi bi-plus-circle"></i>
     </a>
   </h6>
-  <template v-if="contact.action">
+  <ModalWin
+    :title="
+      contact.action === 'update' ? 'Изменить адрес' : 'Добавить адрес'
+    "
+    :id="'modalContact'"
+    @cancel="cancelEdit"
+  >
     <ContactForm 
       :content="contact.item"
       @submit="submitForm"
-      @cancel="cancelEdit"
     />
-  </template>
-  <template v-else>
-    <div v-if="props.items.length > 0">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'cont' + idx.toString()"
-        :idx="idx.toString()"
-        :label="'Контакт #' + (idx + 1).toString()"
-      >
-        <RowDivSlot :slotTwo="true" :print="true">
-          <template v-slot:divTwo>
-            <a
-              href="#"
-              @click="deleteItem(item['id'].toString())"
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                contact.action = 'update';
-                contact.item = item;
-                contact.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot :label="'Вид'" :value="item['view']" />
-        <RowDivSlot :label="'Контакт'" :value="item['contact']" />
-      </CollapseDiv>
-    </div>
-    <p v-else>Данные отсутствуют</p>
-  </template>
+  </ModalWin>
+  <div v-if="props.items.length > 0">
+    <CollapseDiv
+      v-for="(item, idx) in props.items"
+      :key="idx"
+      :id="'cont' + idx.toString()"
+      :idx="idx.toString()"
+      :label="'Контакт #' + (idx + 1).toString()"
+    >
+      <RowDivSlot :slotTwo="true" :print="true">
+        <template v-slot:divTwo>
+          <a
+            href="#"
+            @click="deleteItem(item['id'].toString())"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            data-bs-toggle="modal"
+            data-bs-target="#modalContact"
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              contact.action = 'update';
+              contact.item = item;
+              contact.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </template>
+      </RowDivSlot>
+      <RowDivSlot :label="'Вид'" :value="item['view']" />
+      <RowDivSlot :label="'Контакт'" :value="item['contact']" />
+    </CollapseDiv>
+  </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

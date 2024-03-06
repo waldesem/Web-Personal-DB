@@ -12,7 +12,7 @@ const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   contact: {
@@ -85,14 +85,6 @@ const view = computed(() => {
         type="reset"
       >
         Очистить
-      </button>
-      <button 
-        class="btn btn-outline-primary btn-md" 
-        name="cancel" 
-        type="button"
-        @click="$emit('cancel')"
-      >
-        Отмена
       </button>
     </BtnGroupForm>
   </form>

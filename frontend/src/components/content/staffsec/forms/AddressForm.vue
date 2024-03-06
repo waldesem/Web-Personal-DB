@@ -11,8 +11,11 @@ const TextLabel = defineAsyncComponent(
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/elements/SelectDiv.vue")
+);
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   addrs: {
@@ -82,14 +85,6 @@ const addressForm = ref({
         type="reset"
       >
         Очистить
-      </button>
-      <button 
-        class="btn btn-outline-primary btn-md" 
-        name="cancel" 
-        type="button"
-        @click="$emit('cancel')"
-      >
-        Отмена
       </button>
     </BtnGroupForm>
   </form>

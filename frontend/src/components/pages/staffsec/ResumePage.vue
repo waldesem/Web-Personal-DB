@@ -49,11 +49,11 @@ const dataJson = ref({
       );
     }
   },
+});
 
-  getEvent (event: Event){
-    this.submitFile(event)
-  },
-})
+function submitFile (event: Event){
+  dataJson.value.submitFile(event)
+};
 </script>
 
 <template>
@@ -61,7 +61,7 @@ const dataJson = ref({
     <HeaderDiv :page-header="'Создать анкету'" />
     <FileForm
       :accept="'.json'"
-      @submit="dataJson.getEvent"
+      @submit="submitFile"
     />
     <ResumeForm />
   </div>

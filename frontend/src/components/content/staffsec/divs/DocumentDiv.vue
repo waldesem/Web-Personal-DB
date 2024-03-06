@@ -10,6 +10,9 @@ const RowDivSlot = defineAsyncComponent(
 const DocumentForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/DocumentForm.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -35,11 +38,8 @@ function cancelEdit(){
   document.value.item = {};
 };
 
-function submitForm(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [document.value.action, "document", itemId, form])
+function submitForm(form: Object) {
+  emit("submit", [document.value.action, "document", document.value.itemId, form])
 };
 
 function deleteItem(itemId: string){
@@ -52,64 +52,69 @@ function deleteItem(itemId: string){
     Документы
     <a
       class="btn btn-link"
+      data-bs-toggle="modal"
+      data-bs-target="#modalDoc"
       @click="
         document.action = document.action ? '' : 'create';"
-        :title="document.action ? 'Закрыть форму' : 'Добавить информацию'"
+      title="Добавить информацию"
     >
-      <i
-        :class="document.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
-      ></i>
+      <i class="bi bi-plus-circle"></i>
     </a>
   </h6>
-  <template v-if="document.action">
+  <ModalWin
+    :title="
+      document.action === 'update' ? 'Изменить запись' : 'Добавить запись'
+    "
+    :id="'modalAddress'"
+    @cancel="cancelEdit"
+  >
     <DocumentForm 
       :content="document.item"
       @submit="submitForm"
-      @deactivate="cancelEdit"
     />
-  </template>
-  <template v-else>
-    <div v-if="props.items.length > 0">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'docum' + idx.toString()"
-        :idx="idx.toString()"
-        :label="'Документ #' + (idx + 1).toString()"
-      >
-      <RowDivSlot :slotTwo="true" :print="true">
-        <template v-slot:divTwo>
-          <a
-            href="#"
-            @click="
-              deleteItem(item['id'].toString())"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
-              document.action = 'update';
-              document.item = item;
-              document.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </template>
-      </RowDivSlot>
-      <RowDivSlot :label="'Вид документа'" :value="item['view']" />
-      <RowDivSlot :label="'Серия'" :value="item['series']" />
-      <RowDivSlot :label="'Номер'" :value="item['number']" />
-      <RowDivSlot :label="'Кем выдан'" :value="item['agency']" />
-      <RowDivSlot
-        :label="'Дата выдачи'"
-        :value="new Date(String(item['issue'])).toLocaleDateString('ru-RU')"
-      />
-      </CollapseDiv>
-    </div>
-    <p v-else>Данные отсутствуют</p>
-  </template>
+  </ModalWin>
+  <div v-if="props.items.length > 0">
+    <CollapseDiv
+      v-for="(item, idx) in props.items"
+      :key="idx"
+      :id="'docum' + idx.toString()"
+      :idx="idx.toString()"
+      :label="'Документ #' + (idx + 1).toString()"
+    >
+    <RowDivSlot :slotTwo="true" :print="true">
+      <template v-slot:divTwo>
+        <a
+          href="#"
+          @click="
+            deleteItem(item['id'].toString())"
+          title="Удалить"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          data-bs-toggle="modal"
+          data-bs-target="#modalDoc"
+          @click="
+            document.action = 'update';
+            document.item = item;
+            document.itemId = item['id'].toString();
+          "
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </template>
+    </RowDivSlot>
+    <RowDivSlot :label="'Вид документа'" :value="item['view']" />
+    <RowDivSlot :label="'Серия'" :value="item['series']" />
+    <RowDivSlot :label="'Номер'" :value="item['number']" />
+    <RowDivSlot :label="'Кем выдан'" :value="item['agency']" />
+    <RowDivSlot
+      :label="'Дата выдачи'"
+      :value="new Date(String(item['issue'])).toLocaleDateString('ru-RU')"
+    />
+    </CollapseDiv>
+  </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

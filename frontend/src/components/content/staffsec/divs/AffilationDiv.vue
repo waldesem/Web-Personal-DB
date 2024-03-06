@@ -10,6 +10,9 @@ const RowDivSlot = defineAsyncComponent(
 const AffilationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AffilationForm.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -35,11 +38,9 @@ function cancelEdit() {
   affilation.value.item = {};
 };
 
-function submitForm(
-  itemId: string, 
-  form: Object
-  ) {
-  emit("submit", [affilation.value.action, "affilation", itemId, form])
+function submitForm(form: Object) {
+  emit("submit", [affilation.value.action, "affilation", affilation.value.itemId, form])
+  cancelEdit();
 };
 
 function deleteItem(itemId: string){
@@ -54,61 +55,66 @@ function deleteItem(itemId: string){
       class="btn btn-link"
       @click="
         affilation.action = affilation.action ? '' : 'create';"
-        :title="affilation.action ? 'Закрыть форму' : 'Добавить информацию'"
+        data-bs-toggle="modal"
+        data-bs-target="#modalAffilation"
+        title="Добавить информацию"
     >
-      <i
-        :class="affilation.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
-      ></i>
+      <i class="bi bi-plus-circle"></i>
     </a>
   </h6>
-  <template v-if="affilation.action">
+  <ModalWin
+    :title="
+      affilation.action === 'update' ? 'Изменить адрес' : 'Добавить организацию'
+    "
+    :id="'modalAffilation'"
+    @cancel="cancelEdit"
+  >
     <AffilationForm 
       :content="affilation.item"
       @submit="submitForm"
-      @cancel="cancelEdit"
     />
-  </template>
-  <template v-else>
-    <div v-if="props.items.length > 0">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'affil' + idx.toString()"
-        :idx="idx.toString()"
-        :label="'Аффилированность #' + (idx + 1).toString()"
-      >
-        <RowDivSlot :slotTwo="true" :print="true">
-          <template v-slot:divTwo>
-            <a
-              href="#"
-              @click="deleteItem(item['id'].toString())"
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                affilation.action = 'update';
-                affilation.item = item;
-                affilation.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot :label="'Тип участия'" :value="item['view']" />
-        <RowDivSlot :label="'Организация'" :value="item['name']" />
-        <RowDivSlot :label="'ИНН'" :value="item['inn']" />
-        <RowDivSlot :label="'Должность'" :value="item['position']" />
-        <RowDivSlot
-          :label="'Дата декларации'"
-          :value="new Date(item['deadline']).toLocaleDateString('ru-RU')"
-        />
-      </CollapseDiv>
-    </div>
-    <p v-else>Данные отсутствуют</p>
-  </template>
+  </ModalWin>
+  <div v-if="props.items.length > 0">
+    <CollapseDiv
+      v-for="(item, idx) in props.items"
+      :key="idx"
+      :id="'affil' + idx.toString()"
+      :idx="idx.toString()"
+      :label="'Аффилированность #' + (idx + 1).toString()"
+    >
+      <RowDivSlot :slotTwo="true" :print="true">
+        <template v-slot:divTwo>
+          <a
+            href="#"
+            @click="deleteItem(item['id'].toString())"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            data-bs-toggle="modal"
+            data-bs-target="#modalAffilation"
+            @click="
+              affilation.action = 'update';
+              affilation.item = item;
+              affilation.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </template>
+      </RowDivSlot>
+      <RowDivSlot :label="'Тип участия'" :value="item['view']" />
+      <RowDivSlot :label="'Организация'" :value="item['name']" />
+      <RowDivSlot :label="'ИНН'" :value="item['inn']" />
+      <RowDivSlot :label="'Должность'" :value="item['position']" />
+      <RowDivSlot
+        :label="'Дата декларации'"
+        :value="new Date(item['deadline']).toLocaleDateString('ru-RU')"
+      />
+    </CollapseDiv>
+  </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

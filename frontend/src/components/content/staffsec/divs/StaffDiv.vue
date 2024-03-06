@@ -10,6 +10,9 @@ const RowDivSlot = defineAsyncComponent(
 const StaffForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/StaffForm.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -50,6 +53,8 @@ function cancelEdit(){
     Должности
     <a
       class="btn btn-link"
+      data-bs-toggle="modal"
+      data-bs-target="#modalStaff"
       @click="
         staff.action = staff.action ? '' : 'create';"
         :title="staff.action ? 'Закрыть форму' : 'Добавить информацию'"
@@ -59,48 +64,54 @@ function cancelEdit(){
       ></i>
     </a>
   </h6>
-  <template v-if="staff.action">
+  <ModalWin
+    :title="
+      staff.action === 'update' ? 'Изменить запись' : 'Добавить запись'
+    "
+    :id="'modalAddress'"
+    @cancel="cancelEdit"
+  >
     <StaffForm
       :content="staff.item"
       @submit="submitForm"
       @cancel="cancelEdit"
     />
-  </template>
-  <template v-else>
-    <div v-if="props.items.length > 0">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'staff' + idx.toString()"
-        :idx="idx.toString()"
-        :label="'Должность #' + (idx + 1).toString()"
-      >
-        <RowDivSlot :slotTwo="true" :print="true">
-          <template v-slot:divTwo>
-            <a
-              href="#"
-              @click="deleteItem(item['id'].toString())"
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                staff.action = 'update';
-                staff.item = item;
-                staff.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot :label="'Должность'" :value="item['position']" />
-        <RowDivSlot :label="'Департамент'" :value="item['department']" />
-      </CollapseDiv>
-    </div>
-    <p v-else>Данные отсутствуют</p>
-  </template>
+  </ModalWin>
+  <div v-if="props.items.length > 0">
+    <CollapseDiv
+      v-for="(item, idx) in props.items"
+      :key="idx"
+      :id="'staff' + idx.toString()"
+      :idx="idx.toString()"
+      :label="'Должность #' + (idx + 1).toString()"
+    >
+      <RowDivSlot :slotTwo="true" :print="true">
+        <template v-slot:divTwo>
+          <a
+            href="#"
+            @click="deleteItem(item['id'].toString())"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            data-bs-toggle="modal"
+            data-bs-target="#modalStaff"
+            @click="
+              staff.action = 'update';
+              staff.item = item;
+              staff.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </template>
+      </RowDivSlot>
+      <RowDivSlot :label="'Должность'" :value="item['position']" />
+      <RowDivSlot :label="'Департамент'" :value="item['department']" />
+    </CollapseDiv>
+  </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

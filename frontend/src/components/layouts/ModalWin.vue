@@ -3,11 +3,11 @@ const props = defineProps({
   id: String,
   title: String,
   size: {
-    default: "modal-lg",
+    default: "modal-xl",
     type: String,
   },
 });
-const emit = defineEmits(["deactivate"]);
+const emit = defineEmits(["cancel"]);
 </script>
 
 <template>
@@ -29,7 +29,7 @@ const emit = defineEmits(["deactivate"]);
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
-            @click="emit('deactivate')"
+            @click="emit('cancel')"
           ></button>
         </div>
         <div class="modal-body">

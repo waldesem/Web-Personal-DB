@@ -21,7 +21,7 @@ const BtnGroupForm = defineAsyncComponent(
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-const emit = defineEmits(["deactivate", "get-resume"]);
+const emit = defineEmits(["cancel", "get-resume"]);
 
 const props = defineProps({
   candId: String,
@@ -67,7 +67,7 @@ const resumeForm = ref({
     Object.keys(this.form).forEach((key) => {
       delete this.form[key as keyof typeof this.form];
     });
-    emit("deactivate");
+    emit("cancel");
    },
 });
 
@@ -202,14 +202,6 @@ const select_items = {
         >
           Отмена
         </router-link>
-        <button
-          v-else
-          class="btn btn-outline-primary"
-          type="button"
-          @click="emit('deactivate')"
-        >
-          Отмена
-        </button>
       </BtnGroupForm>
     </form>
   </div>

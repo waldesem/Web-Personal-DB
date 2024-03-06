@@ -10,9 +10,6 @@ const InputLabel = defineAsyncComponent(
 const BtnGroupForm = defineAsyncComponent(
   () => import("@components/elements/BtnGroupForm.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const storeAlert = alertStore();
 const storeAuth = authStore();
@@ -68,67 +65,59 @@ const userForm = ref({
 </script>
 
 <template>
-  <ModalWin
-    :title="
-      props.action === 'edit' ? 'Изменить пользователя' : 'Создать пользователя'
-    "
-    :size="'modal-xl'"
-    :id="'modalUser'"
+  <form
+    @submit.prevent="userForm.submitUser"
+    class="form form-check"
+    role="form"
   >
-    <form
-      @submit.prevent="userForm.submitUser"
-      class="form form-check"
-      role="form"
-    >
-      <InputLabel
-        :name="'fullname'"
-        :label="'Имя пользователя'"
-        :need="true"
-        :pattern="'[a-zA-Zа-яА-Я ]+'"
-        @input-event="userForm.form['fullname'] = $event.target.value"
-        :model="props.item['fullname']"
-      />
-      <InputLabel
-        :name="'username'"
-        :label="'Учетная запись'"
-        :need="true"
-        :pattern="'[a-zA-Z]+'"
-        :disable="props.action === 'edit'"
-        :value="props.action === 'edit' ? props.item['username'] : ''"
-        @input-event="userForm.form['username'] = $event.target.value"
-        :model="props.item['username']"
-      />
-      <InputLabel
-        :name="'email'"
-        :label="'Электронная почта'"
-        :need="true"
-        :typeof="'email'"
-        @input-event="userForm.form['email'] = $event.target.value"
-        :model="props.item['email']"
-      />
+    <InputLabel
+      :name="'fullname'"
+      :label="'Имя пользователя'"
+      :need="true"
+      :pattern="'[a-zA-Zа-яА-Я ]+'"
+      @input-event="userForm.form['fullname'] = $event.target.value"
+      :model="props.item['fullname']"
+    />
+    <InputLabel
+      :name="'username'"
+      :label="'Учетная запись'"
+      :need="true"
+      :pattern="'[a-zA-Z]+'"
+      :disable="props.action === 'edit'"
+      :value="props.action === 'edit' ? props.item['username'] : ''"
+      @input-event="userForm.form['username'] = $event.target.value"
+      :model="props.item['username']"
+    />
+    <InputLabel
+      :name="'email'"
+      :label="'Электронная почта'"
+      :need="true"
+      :typeof="'email'"
+      @input-event="userForm.form['email'] = $event.target.value"
+      :model="props.item['email']"
+    />
 
-      <BtnGroupForm>
-        <button
-          class="btn btn-outline-secondary"
-          name="submit"
-          type="submit"
-          data-bs-dismiss="modal"
-        >
-          {{ props.action === "create" ? "Создать" : "Изменить" }}
-        </button>
-        <button class="btn btn-outline-secondary" name="reset" type="reset">
-          Очистить
-        </button>
-        <button
-          class="btn btn-outline-secondary"
-          name="cancel"
-          type="button"
-          data-bs-dismiss="modal"
-          @click="emit('update')"
-        >
-          Отмена
-        </button>
-      </BtnGroupForm>
-    </form>
-  </ModalWin>
+    <BtnGroupForm>
+      <button
+        class="btn btn-outline-secondary"
+        name="submit"
+        type="submit"
+        data-bs-dismiss="modal"
+      >
+        {{ props.action === "create" ? "Создать" : "Изменить" }}
+      </button>
+      <button class="btn btn-outline-secondary" name="reset" type="reset">
+        Очистить
+      </button>
+      <button
+        class="btn btn-outline-secondary"
+        name="cancel"
+        type="button"
+        data-bs-dismiss="modal"
+        @click="emit('update')"
+      >
+        Отмена
+      </button>
+    </BtnGroupForm>
+  </form>
 </template>

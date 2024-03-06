@@ -114,7 +114,7 @@ function getEmit() {
           : 'Обновить контакт'
       "
       :size="'modal-lg'"
-      @deactivate="getEmit"
+      @cancel="getEmit"
     >
       <ConnectForm
         :page="contactData.page"
@@ -122,7 +122,7 @@ function getEmit() {
         :companies="contactData.companies"
         :cities="contactData.cities"
         :item="contactData.item"
-        @deactivate="getEmit"
+        @cancel="getEmit"
       />
     </ModalWin>
     <div class="py-3">

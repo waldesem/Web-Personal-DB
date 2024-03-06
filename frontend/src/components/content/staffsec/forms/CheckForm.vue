@@ -15,7 +15,7 @@ const BtnGroupForm = defineAsyncComponent(
 
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   check: {
@@ -233,14 +233,6 @@ if (checkForm.value.noNegative) {
         type="reset"
       >
         Очистить
-      </button>
-      <button 
-        class="btn btn-outline-primary btn-md" 
-        name="cancel" 
-        type="button"
-        @click="$emit('cancel')"
-      >
-        Отмена
       </button>
     </BtnGroupForm>
   </form>

@@ -348,7 +348,7 @@ const anketaData = ref({
           :relations="anketaData.relations"
           :workplaces="anketaData.workplaces"
           :affilations="anketaData.affilations"
-          @get-item-resume="anketaData.getResume"
+          @get-resume="anketaData.getResume"
           @get-item="anketaData.getItem"
           @update="anketaData.updateItem"
           @delete="anketaData.deleteItem"
@@ -408,13 +408,17 @@ const anketaData = ref({
         />
       </div>
     </div>
-    <a
-      href="#"
-      class="d-print-none"
-      @click="anketaData.printPage = !anketaData.printPage"
-    >
-      <i class="bi bi-printer fs-1" title="Версия для печати"></i>
-    </a>
+    <div class="position-relative">
+      <div class="position-absolute top-0 end-0">
+        <a
+          href="#"
+          class="d-print-none"
+          @click="anketaData.printPage = !anketaData.printPage"
+        >
+          <i class="bi bi-printer fs-1" title="Версия для печати"></i>
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 

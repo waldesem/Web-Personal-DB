@@ -33,6 +33,9 @@ const WorkplaceDiv = defineAsyncComponent(
 const AffilationDiv = defineAsyncComponent(
   () => import("../divs/AffilationDiv.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 
 const storeClassify = classifyStore();
 
@@ -112,107 +115,105 @@ function deleteItem(itemId: string, item: string){
 
 <template>
   <div class="py-3">
-    <template v-if="dataResume.action">
+    <ModalWin
+      :title="'Изменить запись'"
+      :id="'modalAddress'"
+      @cancel="dataResume.action = ''"
+    >      
       <ResumeForm
         :action="dataResume.action"
         :cand-id="props.candId"
         :content="props.resume"
-        @get-item-resume="getResume"
-        @deactivate="dataResume.action = ''"
+        @get-resume="getResume"
       />
-    </template>
+    </ModalWin>
 
-    <template v-else>
-      <div v-if="props.resume">
-        <RowDivSlot :slotTwo="true" :print="true">
-          <template v-slot:divTwo>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="dataResume.action = 'update'"
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot
-          :label="'Категория'"
-          :value="storeClassify.classData.category[props.resume['category_id']]"
-        />
-        <RowDivSlot
-          :label="'Регион'"
-          :value="storeClassify.classData.regions[props.resume['region_id']]"
-        />
-        <RowDivSlot
-          :label="'Фамилия Имя Отчество'"
-          :value="props.resume['fullname']"
-        />
-        <RowDivSlot
-          :label="'Изменение имени'"
-          :value="props.resume['previous']"
-        />
-        <RowDivSlot
-          :label="'Дата рождения'"
-          :value="props.resume['birthday']"
-        />
-        <RowDivSlot
-          :label="'Место рождения'"
-          :value="props.resume['birthplace']"
-        />
-        <RowDivSlot :label="'Гражданство'" :value="props.resume['country']" />
-        <RowDivSlot
-          :label="'Второе гражданство'"
-          :value="props.resume['ext_country']"
-        />
-        <RowDivSlot :label="'СНИЛС'" :value="props.resume['snils']" />
-        <RowDivSlot :label="'ИНН'" :value="props.resume['inn']" />
-        <RowDivSlot :label="'Образование'" :value="props.resume['education']" />
-        <RowDivSlot
-          :label="'Дополнительная информация'"
-          :value="props.resume['addition']"
-        />
-        <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
-          <template v-slot:divTwo>
-            <router-link
-              :to="{
-                name: 'manager',
-                params: { group: 'staffsec' },
-                query: { path: props.resume['path'].split('/') },
-              }"
-            >
-              {{ props.resume["path"] }}
-            </router-link>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot :label="'Статус'" :slotTwo="true">
-          <template v-slot:divTwo>
-            <a href="#" @click="getResume('status')">
-              {{ storeClassify.classData.status[props.resume["status_id"]] }}
-            </a>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot
-          :label="'Создан'"
-          :value="
-            props.resume['created'] 
-            ? new Date(String(props.resume['created'])).toLocaleDateString(
-              'ru-RU'
-            )
-              : ''
-          " 
-        />
-        <RowDivSlot
-          :label="'Обновлен'"
-          :value="
-            new Date(String(props.resume['updated'])).toLocaleDateString(
-              'ru-RU'
-            )
-          "
-        />
-        <RowDivSlot :label="'Внешний ID'" :value="props.resume['request_id']" />
-      </div>
-      <p v-else>Данные отсутствуют</p>
-    </template>
+    <RowDivSlot :slotTwo="true" :print="true">
+      <template v-slot:divTwo>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          @click="dataResume.action = 'update'"
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </template>
+    </RowDivSlot>
+    <RowDivSlot
+      :label="'Категория'"
+      :value="storeClassify.classData.category[props.resume['category_id']]"
+    />
+    <RowDivSlot
+      :label="'Регион'"
+      :value="storeClassify.classData.regions[props.resume['region_id']]"
+    />
+    <RowDivSlot
+      :label="'Фамилия Имя Отчество'"
+      :value="props.resume['fullname']"
+    />
+    <RowDivSlot
+      :label="'Изменение имени'"
+      :value="props.resume['previous']"
+    />
+    <RowDivSlot
+      :label="'Дата рождения'"
+      :value="props.resume['birthday']"
+    />
+    <RowDivSlot
+      :label="'Место рождения'"
+      :value="props.resume['birthplace']"
+    />
+    <RowDivSlot :label="'Гражданство'" :value="props.resume['country']" />
+    <RowDivSlot
+      :label="'Второе гражданство'"
+      :value="props.resume['ext_country']"
+    />
+    <RowDivSlot :label="'СНИЛС'" :value="props.resume['snils']" />
+    <RowDivSlot :label="'ИНН'" :value="props.resume['inn']" />
+    <RowDivSlot :label="'Образование'" :value="props.resume['education']" />
+    <RowDivSlot
+      :label="'Дополнительная информация'"
+      :value="props.resume['addition']"
+    />
+    <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
+      <template v-slot:divTwo>
+        <router-link
+          :to="{
+            name: 'manager',
+            params: { group: 'staffsec' },
+            query: { path: props.resume['path'].split('/') },
+          }"
+        >
+          {{ props.resume["path"] }}
+        </router-link>
+      </template>
+    </RowDivSlot>
+    <RowDivSlot :label="'Статус'" :slotTwo="true">
+      <template v-slot:divTwo>
+        <a href="#" @click="getResume('status')">
+          {{ storeClassify.classData.status[props.resume["status_id"]] }}
+        </a>
+      </template>
+    </RowDivSlot>
+    <RowDivSlot
+      :label="'Создан'"
+      :value="
+        props.resume['created'] 
+        ? new Date(String(props.resume['created'])).toLocaleDateString(
+          'ru-RU'
+        )
+          : ''
+      " 
+    />
+    <RowDivSlot
+      :label="'Обновлен'"
+      :value="
+        new Date(String(props.resume['updated'])).toLocaleDateString(
+          'ru-RU'
+        )
+      "
+    />
+    <RowDivSlot :label="'Внешний ID'" :value="props.resume['request_id']" />
 
     <StaffDiv
       :items="props.staffs"

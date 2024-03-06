@@ -13,6 +13,9 @@ const HeaderDiv = defineAsyncComponent(
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 const UserForm = defineAsyncComponent(
   () => import("@components/content/admin/forms/UserForm.vue")
 );
@@ -275,11 +278,18 @@ async function updateData() {
         </button>
       </div>
     </div>
-    <UserForm 
-      :action="userData.action"
-      :item="userData.profile"
-      @update="updateData"
-    />
+    <ModalWin
+      :title="
+        userData.action === 'edit' ? 'Изменить пользователя' : 'Создать пользователя'
+      "
+      :id="'modalUser'"
+    >
+      <UserForm 
+        :action="userData.action"
+        :item="userData.profile"
+        @update="updateData"
+      />
+    </ModalWin>
   </div>
 </template>
 

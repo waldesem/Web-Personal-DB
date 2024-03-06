@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import { Robot } from "@/interfaces/interface";
 
 const RowDivSlot = defineAsyncComponent(
   () => import("@components/elements/RowDivSlot.vue")
@@ -13,7 +12,7 @@ const emit = defineEmits(["delete"]);
 
 const props = defineProps({
   robots:  {
-    type: Array as () => Array<Robot>,
+    type: Array as () => Array<Record<any, string>>,
     default: () => {},
   },
 });
