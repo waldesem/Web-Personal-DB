@@ -4,8 +4,11 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const RelationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/RelationForm.vue")
@@ -16,7 +19,7 @@ const ModalWin = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount( async() => {
+onBeforeMount(async () => {
   emit("get-item", "relation");
 });
 
@@ -33,19 +36,24 @@ const relation = ref({
   item: <Record<any, string>>{},
 });
 
-function cancelEdit(){
-  relation.value.action = '';
+function cancelEdit() {
+  relation.value.action = "";
   relation.value.item = {};
-};
+}
 
 function submitForm(form: Object) {
-  emit("submit", [relation.value.action, "relation", relation.value.itemId, form])
+  emit("submit", [
+    relation.value.action,
+    "relation",
+    relation.value.itemId,
+    form,
+  ]);
   cancelEdit();
-};
+}
 
-function deleteItem(itemId: string){
-  emit("delete", [itemId, "relation"])
-};
+function deleteItem(itemId: string) {
+  emit("delete", [itemId, "relation"]);
+}
 </script>
 
 <template>
@@ -55,9 +63,8 @@ function deleteItem(itemId: string){
       class="btn btn-link"
       data-bs-toggle="modal"
       data-bs-target="#modalRelation"
-      @click="
-        relation.action = relation.action ? '' : 'create';"
-        :title="relation.action ? 'Закрыть форму' : 'Добавить информацию'"
+      @click="relation.action = relation.action ? '' : 'create'"
+      :title="relation.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
         :class="relation.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
@@ -68,7 +75,7 @@ function deleteItem(itemId: string){
     :title="
       relation.action === 'update' ? 'Изменить запись' : 'Добавить запись'
     "
-    :id="'modalAddress'"
+    :id="'modalRelation'"
     @cancel="cancelEdit"
   >
     <RelationForm
@@ -81,36 +88,30 @@ function deleteItem(itemId: string){
     <CollapseDiv
       v-for="(item, idx) in props.items"
       :key="idx"
-      :id="'relate' + idx.toString()"
+      :id="'relate' + idx"
       :idx="idx.toString()"
-      :label="'Связь #' + (idx + 1).toString()"
+      :label="'Связь #' + (idx + 1)"
     >
-      <RowDivSlot :slotTwo="true" :print="true">
-        <template v-slot:divTwo>
-          <a
-            href="#"
-            @click="deleteItem(item['id'].toString())"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalRelation"
-            @click="
-              relation.action = 'update';
-              relation.item = item;
-              relation.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </template>
-      </RowDivSlot>
-      <RowDivSlot :label="'Тип связи'" :value="item['relation']" />
-      <RowDivSlot :label="'Связь'" :slotTwo="true">
+      <LabelSlot>
+        <a href="#" @click="deleteItem(item['id'].toString())" title="Удалить">
+          <i class="bi bi-trash"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          data-bs-toggle="modal"
+          data-bs-target="#modalRelation"
+          @click="
+            relation.action = 'update';
+            relation.item = item;
+            relation.itemId = item['id'].toString();
+          "
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </LabelSlot>
+      <LabelValue :label="'Тип связи'" :value="item['relation']" />
+      <LabelSlot :label="'Связь'">
         <router-link
           :to="{
             name: 'profile',
@@ -119,7 +120,7 @@ function deleteItem(itemId: string){
         >
           ID #{{ item["relation_id"] }}
         </router-link>
-      </RowDivSlot>
+      </LabelSlot>
     </CollapseDiv>
   </div>
   <p v-else>Данные отсутствуют</p>

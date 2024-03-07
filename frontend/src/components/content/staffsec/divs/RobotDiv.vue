@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -27,42 +30,40 @@ function deleteItem(itemId: string){
     <CollapseDiv
       v-for="(item, idx) in props.robots"
       :key="idx"
-      :id="'check' + idx.toString()"
+      :id="'check' + idx"
       :idx="idx.toString()"
-      :label="'Робот #' + (idx + 1).toString()"
+      :label="'Робот #' + (idx + 1)"
     >
-      <RowDivSlot :slotTwo="true" :print="true">
-        <template v-slot:divTwo>
-          <a
-            href="#"
-            @click="deleteItem(item['id'].toString())"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-        </template>
-      </RowDivSlot>
-      <RowDivSlot
+      <LabelSlot>
+        <a
+          href="#"
+          @click="deleteItem(item['id'].toString())"
+          title="Удалить"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+      </LabelSlot>
+      <LabelValue
         :label="'Проверка по кадровым данным<'"
         :value="item['employee']"
       />
-      <RowDivSlot :label="'Проверка ИНН'" :value="item['inn']" />
-      <RowDivSlot :label="'Проверка ФССП'" :value="item['debt']" />
-      <RowDivSlot
+      <LabelValue :label="'Проверка ИНН'" :value="item['inn']" />
+      <LabelValue :label="'Проверка ФССП'" :value="item['debt']" />
+      <LabelValue
         :label="'Проверка банкротства'"
         :value="item['bankruptcy']"
       />
-      <RowDivSlot :label="'Проверка БКИ'" :value="item['bki']" />
-      <RowDivSlot :label="'Проверка судебных дел'" :value="item['courts']" />
-      <RowDivSlot
+      <LabelValue :label="'Проверка БКИ'" :value="item['bki']" />
+      <LabelValue :label="'Проверка судебных дел'" :value="item['courts']" />
+      <LabelValue
         :label="'Проверка по списку террористов'"
         :value="item['terrorist']"
       />
-      <RowDivSlot
+      <LabelValue
         :label="'Проверка нахождения в розыске'"
         :value="item['mvd']"
       />
-      <RowDivSlot
+      <LabelValue
         :label="'Дата'"
         :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
       />

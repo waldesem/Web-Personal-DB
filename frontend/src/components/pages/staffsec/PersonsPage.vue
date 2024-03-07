@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
 import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/auth";
 import { debounce, server, timeSince } from "@utilities/utils";
@@ -22,6 +21,10 @@ const header = computed(() => {
   ];
 });
 
+onBeforeMount( async() => {
+  await personData.value.getCandidates();
+});
+
 const personData = ref({
   candidates: <Candidate[]>[],
   items: {
@@ -36,12 +39,11 @@ const personData = ref({
   page: 1,
   path: "new",
 
-  getCandidates: async function (page: number, url: string): Promise<void> {
+  getCandidates: async function (page = 1): Promise<void> {
     this.page = page;
-    this.path = url;
     try {
       const response = await storeAuth.axiosInstance.get(
-        `${server}/index/${url}/${page}`,
+        `${server}/index/${this.path}/${this.page}`,
         {
           params: {
             search: this.search,
@@ -58,21 +60,9 @@ const personData = ref({
   },
 });
 
-onBeforeMount( async() => {
-  await personData.value.getCandidates(personData.value.page, personData.value.path);
-});
-
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.assign(personData.value, {
-    search: "",
-    page: 1,
-    path: "new",
-  });
-  next();
-});
-
 const searchPerson = debounce(() => {
-  personData.value.getCandidates(1, "search");
+  personData.value.path = "search"
+  personData.value.getCandidates();
 }, 500);
 </script>
 
@@ -88,7 +78,7 @@ const searchPerson = debounce(() => {
             id="action"
             name="action"
             v-model="personData.path"
-            @change="personData.getCandidates(1, personData.path)"
+            @change="personData.getCandidates"
           >
             <option
               v-for="(value, key) in personData.items"
@@ -166,8 +156,7 @@ const searchPerson = debounce(() => {
       :has_next="personData.next"
       :switchPrev="personData.page - 1"
       :switchNext="personData.page + 1"
-      :option="personData.path"
-      :switchPage="personData.getCandidates"
+      @switch="personData.getCandidates"
     />
   </div>
 </template>

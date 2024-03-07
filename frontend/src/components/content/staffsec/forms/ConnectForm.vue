@@ -7,8 +7,8 @@ import { server } from "@utilities/utils";
 const InputSmall = defineAsyncComponent(
   () => import("@components/elements/InputSmall.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 
 const storeAuth = authStore();
@@ -120,7 +120,7 @@ const contactForm = ref({
       :model="item['comment']"
       @input-event="contactForm.form['comment'] = $event.target.value"
     />
-    <BtnGroupForm :cls="false">
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-primary"
         data-bs-dismiss="modal"
@@ -136,6 +136,6 @@ const contactForm = ref({
       >
         Очистить
       </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

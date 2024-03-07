@@ -4,8 +4,11 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const WorkplaceForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/WorkplaceForm.vue")
@@ -16,7 +19,7 @@ const ModalWin = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount( async() => {
+onBeforeMount(async () => {
   emit("get-item", "workplace");
 });
 
@@ -33,19 +36,24 @@ const workplace = ref({
   item: <Record<any, string>>{},
 });
 
-function cancelEdit(){
-  workplace.value.action = '';
+function cancelEdit() {
+  workplace.value.action = "";
   workplace.value.item = {};
-};
+}
 
 function submitForm(form: Object) {
-  emit("submit", [workplace.value.action, "workplace", workplace.value.itemId, form])
+  emit("submit", [
+    workplace.value.action,
+    "workplace",
+    workplace.value.itemId,
+    form,
+  ]);
   cancelEdit();
-};
+}
 
-function deleteItem(itemId: string){
-  emit("delete", [itemId, "workplace"])
-};
+function deleteItem(itemId: string) {
+  emit("delete", [itemId, "workplace"]);
+}
 </script>
 
 <template>
@@ -55,9 +63,8 @@ function deleteItem(itemId: string){
       class="btn btn-link"
       data-bs-toggle="modal"
       data-bs-target="#modalWork"
-      @click="
-        workplace.action = workplace.action ? '' : 'create';"
-        :title="workplace.action ? 'Закрыть форму' : 'Добавить информацию'"
+      @click="workplace.action = workplace.action ? '' : 'create'"
+      :title="workplace.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
       <i
         :class="workplace.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
@@ -68,10 +75,10 @@ function deleteItem(itemId: string){
     :title="
       workplace.action === 'update' ? 'Изменить запись' : 'Добавить запись'
     "
-    :id="'modalAddress'"
+    :id="'modalWork'"
     @cancel="cancelEdit"
   >
-    <WorkplaceForm 
+    <WorkplaceForm
       :content="workplace.item"
       @submit="submitForm"
       @cancel="cancelEdit"
@@ -81,39 +88,33 @@ function deleteItem(itemId: string){
     <CollapseDiv
       v-for="(item, idx) in props.items"
       :key="idx"
-      :id="'work' + idx.toString()"
+      :id="'work' + idx"
       :idx="idx.toString()"
-      :label="'Работа #' + (idx + 1).toString()"
+      :label="'Работа #' + (idx + 1)"
     >
-      <RowDivSlot :slotTwo="true" :print="true">
-        <template v-slot:divTwo>
-          <a
-            href="#"
-            @click="deleteItem(item['id'].toString())"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalWork"
-            @click="
-              workplace.action = 'update';
-              workplace.item = item;
-              workplace.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </template>
-      </RowDivSlot>
-      <RowDivSlot :label="'Начало работы'" :value="item['start_date']" />
-      <RowDivSlot :label="'Окончание работы'" :value="item['end_date']" />
-      <RowDivSlot :label="'Организация'" :value="item['workplace']" />
-      <RowDivSlot :label="'КоАдреснтакт'" :value="item['address']" />
-      <RowDivSlot :label="'Должность'" :value="item['position']" />
+      <LabelSlot>
+        <a href="#" @click="deleteItem(item['id'].toString())" title="Удалить">
+          <i class="bi bi-trash"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          data-bs-toggle="modal"
+          data-bs-target="#modalWork"
+          @click="
+            workplace.action = 'update';
+            workplace.item = item;
+            workplace.itemId = item['id'].toString();
+          "
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </LabelSlot>
+      <LabelValue :label="'Начало работы'" :value="item['start_date']" />
+      <LabelValue :label="'Окончание работы'" :value="item['end_date']" />
+      <LabelValue :label="'Организация'" :value="item['workplace']" />
+      <LabelValue :label="'КоАдреснтакт'" :value="item['address']" />
+      <LabelValue :label="'Должность'" :value="item['position']" />
     </CollapseDiv>
   </div>
   <p v-else>Данные отсутствуют</p>

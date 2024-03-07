@@ -5,8 +5,8 @@ import { Relation } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 
 const emit = defineEmits(["submit"]);
@@ -54,7 +54,7 @@ const relationForm = ref({
         relationForm.form['relation_id'] = $event.target.value
       "
     />
-    <BtnGroupForm :cls="false">
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-success btn-md"
         name="submit"
@@ -69,6 +69,6 @@ const relationForm = ref({
       >
         Очистить
       </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

@@ -4,8 +4,11 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const AffilationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AffilationForm.vue")
@@ -16,7 +19,7 @@ const ModalWin = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount( async() => {
+onBeforeMount(async () => {
   emit("get-item", "affilation");
 });
 
@@ -34,18 +37,23 @@ const affilation = ref({
 });
 
 function cancelEdit() {
-  affilation.value.action = '';
+  affilation.value.action = "";
   affilation.value.item = {};
-};
+}
 
 function submitForm(form: Object) {
-  emit("submit", [affilation.value.action, "affilation", affilation.value.itemId, form])
+  emit("submit", [
+    affilation.value.action,
+    "affilation",
+    affilation.value.itemId,
+    form,
+  ]);
   cancelEdit();
-};
+}
 
-function deleteItem(itemId: string){
-  emit("delete", [itemId, "affilation"])
-};
+function deleteItem(itemId: string) {
+  emit("delete", [itemId, "affilation"]);
+}
 </script>
 
 <template>
@@ -53,11 +61,10 @@ function deleteItem(itemId: string){
     Аффилированность
     <a
       class="btn btn-link"
-      @click="
-        affilation.action = affilation.action ? '' : 'create';"
-        data-bs-toggle="modal"
-        data-bs-target="#modalAffilation"
-        title="Добавить информацию"
+      @click="affilation.action = affilation.action ? '' : 'create'"
+      data-bs-toggle="modal"
+      data-bs-target="#modalAffilation"
+      title="Добавить информацию"
     >
       <i class="bi bi-plus-circle"></i>
     </a>
@@ -69,48 +76,39 @@ function deleteItem(itemId: string){
     :id="'modalAffilation'"
     @cancel="cancelEdit"
   >
-    <AffilationForm 
-      :content="affilation.item"
-      @submit="submitForm"
-    />
+    <AffilationForm :content="affilation.item" @submit="submitForm" />
   </ModalWin>
   <div v-if="props.items.length > 0">
     <CollapseDiv
       v-for="(item, idx) in props.items"
       :key="idx"
-      :id="'affil' + idx.toString()"
+      :id="'affil' + idx"
       :idx="idx.toString()"
-      :label="'Аффилированность #' + (idx + 1).toString()"
+      :label="'Аффилированность #' + (idx + 1)"
     >
-      <RowDivSlot :slotTwo="true" :print="true">
-        <template v-slot:divTwo>
-          <a
-            href="#"
-            @click="deleteItem(item['id'].toString())"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalAffilation"
-            @click="
-              affilation.action = 'update';
-              affilation.item = item;
-              affilation.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </template>
-      </RowDivSlot>
-      <RowDivSlot :label="'Тип участия'" :value="item['view']" />
-      <RowDivSlot :label="'Организация'" :value="item['name']" />
-      <RowDivSlot :label="'ИНН'" :value="item['inn']" />
-      <RowDivSlot :label="'Должность'" :value="item['position']" />
-      <RowDivSlot
+      <LabelSlot>
+        <a href="#" @click="deleteItem(item['id'].toString())" title="Удалить">
+          <i class="bi bi-trash"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          data-bs-toggle="modal"
+          data-bs-target="#modalAffilation"
+          @click="
+            affilation.action = 'update';
+            affilation.item = item;
+            affilation.itemId = item['id'].toString();
+          "
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </LabelSlot>
+      <LabelValue :label="'Тип участия'" :value="item['view']" />
+      <LabelValue :label="'Организация'" :value="item['name']" />
+      <LabelValue :label="'ИНН'" :value="item['inn']" />
+      <LabelValue :label="'Должность'" :value="item['position']" />
+      <LabelValue
         :label="'Дата декларации'"
         :value="new Date(item['deadline']).toLocaleDateString('ru-RU')"
       />

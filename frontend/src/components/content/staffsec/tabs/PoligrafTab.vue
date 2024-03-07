@@ -4,8 +4,11 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const PoligrafForm = defineAsyncComponent(
   () => import("../forms/PoligrafForm.vue")
@@ -78,38 +81,36 @@ function deleteItem(itemId: string) {
       <CollapseDiv
         v-for="(item, idx) in props.poligrafs"
         :key="idx"
-        :id="'poligraf' + idx.toString()"
+        :id="'poligraf' + idx"
         :idx="idx.toString()"
-        :label="'Полиграф #' + (idx + 1).toString()"
+        :label="'Полиграф #' + (idx + 1)"
       >
-        <RowDivSlot :slotTwo="true" :print="true">
-          <template v-slot:divTwo>
-            <a
-              href="#"
-              title="Удалить"
-              @click="deleteItem(item['id'].toString())"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              href="#"
-              title="Изменить"
-              data-bs-toggle="modal"
-              data-bs-target="#modalPfo"
-              @click="
-                poligraf.action = 'update';
-                poligraf.item = item;
-                poligraf.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot :label="'Тема'" :value="item['theme']" />
-        <RowDivSlot :label="'Результат'" :value="item['results']" />
-        <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
-        <RowDivSlot
+        <LabelSlot>
+          <a
+            href="#"
+            title="Удалить"
+            @click="deleteItem(item['id'].toString())"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            href="#"
+            title="Изменить"
+            data-bs-toggle="modal"
+            data-bs-target="#modalPfo"
+            @click="
+              poligraf.action = 'update';
+              poligraf.item = item;
+              poligraf.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelSlot>
+        <LabelValue :label="'Тема'" :value="item['theme']" />
+        <LabelValue :label="'Результат'" :value="item['results']" />
+        <LabelValue :label="'Сотрудник'" :value="item['officer']" />
+        <LabelValue
           :label="'Дата'"
           :value="
             new Date(String(item['deadline'])).toLocaleDateString('ru-RU')

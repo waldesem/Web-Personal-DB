@@ -17,14 +17,11 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 
 onBeforeMount( async() => {
-  if (storeClassify.classData.tables.length) {
-    tableData.value.table = storeClassify.classData.tables[0];
-    await tableData.value.getItem(1);
-  }
+  await tableData.value.getItem(1);
 });
 
 const tableData = ref({
-  table: "",
+  table: storeClassify.classData.tables[0],
   item: [],
   search: "",
   currentPage: 1,
@@ -148,7 +145,7 @@ const searchItem = debounce(() => {
       :has_next="tableData.hasNext"
       :switchPrev="tableData.currentPage - 1"
       :switchNext="tableData.currentPage + 1"
-      :switchPage="tableData.getItem"
+      @switch="tableData.getItem"
     />
   </div>
 </template>

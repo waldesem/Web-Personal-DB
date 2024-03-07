@@ -8,8 +8,8 @@ const InputLabel = defineAsyncComponent(
 const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 
 const emit = defineEmits(["submit"]);
@@ -85,7 +85,7 @@ const docForm = ref({
         docForm.form['issue'] = $event.target.value
       "
     />
-    <BtnGroupForm :cls="false">
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-success btn-md"
         name="submit"
@@ -100,6 +100,6 @@ const docForm = ref({
       >
         Очистить
       </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

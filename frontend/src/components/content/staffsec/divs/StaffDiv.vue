@@ -4,8 +4,11 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const StaffForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/StaffForm.vue")
@@ -68,7 +71,7 @@ function cancelEdit(){
     :title="
       staff.action === 'update' ? 'Изменить запись' : 'Добавить запись'
     "
-    :id="'modalAddress'"
+    :id="'modalStaff'"
     @cancel="cancelEdit"
   >
     <StaffForm
@@ -81,36 +84,34 @@ function cancelEdit(){
     <CollapseDiv
       v-for="(item, idx) in props.items"
       :key="idx"
-      :id="'staff' + idx.toString()"
+      :id="'staff' + idx"
       :idx="idx.toString()"
-      :label="'Должность #' + (idx + 1).toString()"
+      :label="'Должность #' + (idx + 1)"
     >
-      <RowDivSlot :slotTwo="true" :print="true">
-        <template v-slot:divTwo>
-          <a
-            href="#"
-            @click="deleteItem(item['id'].toString())"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalStaff"
-            @click="
-              staff.action = 'update';
-              staff.item = item;
-              staff.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </template>
-      </RowDivSlot>
-      <RowDivSlot :label="'Должность'" :value="item['position']" />
-      <RowDivSlot :label="'Департамент'" :value="item['department']" />
+      <LabelSlot>
+        <a
+          href="#"
+          @click="deleteItem(item['id'].toString())"
+          title="Удалить"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          data-bs-toggle="modal"
+          data-bs-target="#modalStaff"
+          @click="
+            staff.action = 'update';
+            staff.item = item;
+            staff.itemId = item['id'].toString();
+          "
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </LabelSlot>
+      <LabelValue :label="'Должность'" :value="item['position']" />
+      <LabelValue :label="'Департамент'" :value="item['department']" />
     </CollapseDiv>
   </div>
   <p v-else>Данные отсутствуют</p>

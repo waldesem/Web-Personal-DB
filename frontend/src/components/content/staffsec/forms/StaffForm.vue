@@ -8,8 +8,8 @@ const InputLabel = defineAsyncComponent(
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 
 const emit = defineEmits(["submit"]);
@@ -52,7 +52,7 @@ const staffForm = ref({
       :model="props.staff['department']"
       @input-event="staffForm.form['department'] = $event.target.value"
     />
-    <BtnGroupForm :cls="false">
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-success btn-md"
         name="submit"
@@ -67,6 +67,6 @@ const staffForm = ref({
       >
         Очистить
       </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

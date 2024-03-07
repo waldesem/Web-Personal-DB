@@ -7,8 +7,8 @@ import { server } from "@utilities/utils";
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 
 const storeAlert = alertStore();
@@ -97,7 +97,7 @@ const userForm = ref({
       :model="props.item['email']"
     />
 
-    <BtnGroupForm>
+    <BtnGroup>
       <button
         class="btn btn-outline-secondary"
         name="submit"
@@ -109,15 +109,6 @@ const userForm = ref({
       <button class="btn btn-outline-secondary" name="reset" type="reset">
         Очистить
       </button>
-      <button
-        class="btn btn-outline-secondary"
-        name="cancel"
-        type="button"
-        data-bs-dismiss="modal"
-        @click="emit('update')"
-      >
-        Отмена
-      </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

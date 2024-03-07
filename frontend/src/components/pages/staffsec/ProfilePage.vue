@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
+import { userStore } from "@/store/user";
 import { server } from "@utilities/utils";
 import { router } from "@/router/router";
 import type {
@@ -47,6 +48,7 @@ const InquiryTab = defineAsyncComponent(
 const storeAuth = authStore();
 const storeAlert = alertStore();
 const storeClassify = classifyStore();
+const storeUser = userStore();
 
 const route = useRoute();
 
@@ -338,7 +340,7 @@ const anketaData = ref({
         :tabindex="!anketaData.printPage ? '0' : ''"
       >
         <AnketaTab
-          :cand-id="candId"
+          :user-id="storeUser.userData.userId"
           :spinner="anketaData.spinner"
           :resume="anketaData.resume"
           :staffs="anketaData.staffs"
@@ -360,9 +362,10 @@ const anketaData = ref({
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <CheckTab
+          :user-id="storeUser.userData.userId"
+          :resume="anketaData.resume"
           :checks="anketaData.checks"
           :robots="anketaData.robots"
-          :status-id="anketaData.resume.status_id"
           @get-item="anketaData.getItem"
           @delete="anketaData.deleteItem"
           @submit="anketaData.updateItem"
@@ -415,18 +418,14 @@ const anketaData = ref({
           class="d-print-none"
           @click="anketaData.printPage = !anketaData.printPage"
         >
-          <i class="bi bi-printer fs-1" title="Версия для печати"></i>
+          <i 
+            class="bi bi-printer fs-1" 
+            title="Версия для печати"
+            style="cursor: pointer;"
+          >
+          </i>
         </a>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.bi-printer {
-  position: fixed;
-  top: 100px;
-  right: 1000px;
-  cursor: pointer;
-}
-</style>

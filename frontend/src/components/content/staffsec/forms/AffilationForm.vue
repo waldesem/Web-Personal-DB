@@ -8,8 +8,8 @@ const InputLabel = defineAsyncComponent(
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
@@ -76,7 +76,7 @@ const affilationForm = ref({
         affilationForm.form['position'] = $event.target.value
       "
     />
-    <BtnGroupForm :cls="false">
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-success btn-md"
         name="submit"
@@ -91,6 +91,6 @@ const affilationForm = ref({
       >
         Очистить
       </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

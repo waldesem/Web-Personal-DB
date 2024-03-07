@@ -3,27 +3,24 @@ import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
 import type { Resume } from "@/interfaces/interface";
 
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
+);
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 const ResumeForm = defineAsyncComponent(
   () => import("../forms/ResumeForm.vue")
 );
-const StaffDiv = defineAsyncComponent(
-  () => import("../divs/StaffDiv.vue")
-);
+const StaffDiv = defineAsyncComponent(() => import("../divs/StaffDiv.vue"));
 const DocumentDiv = defineAsyncComponent(
   () => import("../divs/DocumentDiv.vue")
 );
-const AddressDiv = defineAsyncComponent(
-  () => import("../divs/AddressDiv.vue")
-);
-const ContactDiv = defineAsyncComponent(
-  () => import("../divs/ContactDiv.vue")
-);
+const AddressDiv = defineAsyncComponent(() => import("../divs/AddressDiv.vue"));
+const ContactDiv = defineAsyncComponent(() => import("../divs/ContactDiv.vue"));
 const RelationDiv = defineAsyncComponent(
   () => import("../divs/RelationDiv.vue")
 );
@@ -40,11 +37,15 @@ const ModalWin = defineAsyncComponent(
 const storeClassify = classifyStore();
 
 const emit = defineEmits([
-  "get-item", "get-resume", "delete", "submit", "file"
+  "get-item",
+  "get-resume",
+  "delete",
+  "submit",
+  "file",
 ]);
 
 const props = defineProps({
-  candId: {
+  userId: {
     type: String,
     required: true,
   },
@@ -92,128 +93,116 @@ const dataResume = ref({
 });
 
 function getResume(action: string) {
-  emit("get-resume", action)
-};
+  emit("get-resume", action);
+}
 
 function getItem(item: string) {
-  emit("get-item", item)
-};
+  emit("get-item", item);
+}
 
-function updateItem (
+function updateItem(
   action: string,
   item: string,
-  itemId: string, 
+  itemId: string,
   form: Object
-  ) {
-  emit("submit", [action, item, itemId, form])
-};
+) {
+  emit("submit", [action, item, itemId, form]);
+}
 
-function deleteItem(itemId: string, item: string){
-  emit("delete", [itemId, item])
-};
+function deleteItem(itemId: string, item: string) {
+  emit("delete", [itemId, item]);
+}
 </script>
 
 <template>
   <div class="py-3">
     <ModalWin
       :title="'Изменить запись'"
-      :id="'modalAddress'"
+      :id="'modalResume'"
       @cancel="dataResume.action = ''"
-    >      
+    >
       <ResumeForm
         :action="dataResume.action"
-        :cand-id="props.candId"
         :content="props.resume"
         @get-resume="getResume"
       />
     </ModalWin>
 
-    <RowDivSlot :slotTwo="true" :print="true">
-      <template v-slot:divTwo>
-        <a
-          class="btn btn-link"
-          title="Изменить"
-          @click="dataResume.action = 'update'"
-        >
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </template>
-    </RowDivSlot>
-    <RowDivSlot
+    <LabelSlot>
+      <a
+        data-bs-toggle="modal"
+        data-bs-target="#modalResume"
+        class="btn btn-link"
+        title="Изменить"
+        @click="dataResume.action = 'update'"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </a>
+    </LabelSlot>
+    <LabelValue
       :label="'Категория'"
       :value="storeClassify.classData.category[props.resume['category_id']]"
     />
-    <RowDivSlot
+    <LabelValue
       :label="'Регион'"
       :value="storeClassify.classData.regions[props.resume['region_id']]"
     />
-    <RowDivSlot
+    <LabelValue
       :label="'Фамилия Имя Отчество'"
       :value="props.resume['fullname']"
     />
-    <RowDivSlot
-      :label="'Изменение имени'"
-      :value="props.resume['previous']"
-    />
-    <RowDivSlot
-      :label="'Дата рождения'"
-      :value="props.resume['birthday']"
-    />
-    <RowDivSlot
-      :label="'Место рождения'"
-      :value="props.resume['birthplace']"
-    />
-    <RowDivSlot :label="'Гражданство'" :value="props.resume['country']" />
-    <RowDivSlot
+    <LabelValue :label="'Изменение имени'" :value="props.resume['previous']" />
+    <LabelValue :label="'Дата рождения'" :value="props.resume['birthday']" />
+    <LabelValue :label="'Место рождения'" :value="props.resume['birthplace']" />
+    <LabelValue :label="'Гражданство'" :value="props.resume['country']" />
+    <LabelValue
       :label="'Второе гражданство'"
       :value="props.resume['ext_country']"
     />
-    <RowDivSlot :label="'СНИЛС'" :value="props.resume['snils']" />
-    <RowDivSlot :label="'ИНН'" :value="props.resume['inn']" />
-    <RowDivSlot :label="'Образование'" :value="props.resume['education']" />
-    <RowDivSlot
+    <LabelValue :label="'СНИЛС'" :value="props.resume['snils']" />
+    <LabelValue :label="'ИНН'" :value="props.resume['inn']" />
+    <LabelValue :label="'Образование'" :value="props.resume['education']" />
+    <LabelValue
       :label="'Дополнительная информация'"
       :value="props.resume['addition']"
     />
-    <RowDivSlot :label="'Материалы'" :slotTwo="true" :print="true">
-      <template v-slot:divTwo>
-        <router-link
-          :to="{
-            name: 'manager',
-            params: { group: 'staffsec' },
-            query: { path: props.resume['path'].split('/') },
-          }"
-        >
-          {{ props.resume["path"] }}
-        </router-link>
-      </template>
-    </RowDivSlot>
-    <RowDivSlot :label="'Статус'" :slotTwo="true">
-      <template v-slot:divTwo>
-        <a href="#" @click="getResume('status')">
-          {{ storeClassify.classData.status[props.resume["status_id"]] }}
-        </a>
-      </template>
-    </RowDivSlot>
-    <RowDivSlot
+    <LabelSlot :label="'Материалы'">
+      <router-link
+        :to="{
+          name: 'manager',
+          params: { group: 'staffsec' },
+          query: { path: props.resume['path'].split('/') },
+        }"
+      >
+        {{ props.resume["path"] }}
+      </router-link>
+    </LabelSlot>
+    <LabelSlot :label="'Статус'">
+      <a href="#" @click="getResume('status')">
+        {{ storeClassify.classData.status[props.resume["status_id"]] }}
+      </a>
+    </LabelSlot>
+    <LabelValue
       :label="'Создан'"
       :value="
-        props.resume['created'] 
-        ? new Date(String(props.resume['created'])).toLocaleDateString(
-          'ru-RU'
-        )
+        props.resume['created']
+          ? new Date(String(props.resume['created'])).toLocaleDateString(
+              'ru-RU'
+            )
           : ''
-      " 
-    />
-    <RowDivSlot
-      :label="'Обновлен'"
-      :value="
-        new Date(String(props.resume['updated'])).toLocaleDateString(
-          'ru-RU'
-        )
       "
     />
-    <RowDivSlot :label="'Внешний ID'" :value="props.resume['request_id']" />
+    <LabelValue
+      :label="'Обновлен'"
+      :value="
+        props.resume['updated']
+          ? new Date(String(props.resume['updated'])).toLocaleDateString(
+              'ru-RU'
+            )
+          : ''
+      "
+    />
+    <LabelValue :label="'Внешний ID'" :value="props.resume['request_id']" />
 
     <StaffDiv
       :items="props.staffs"
@@ -259,7 +248,7 @@ function deleteItem(itemId: string, item: string){
     />
 
     <div class="d-print-none py-3">
-      <BtnGroupForm :cls="false">
+      <BtnGroup :cls="false">
         <button
           :disabled="props.resume.user_id !== ''"
           type="button"
@@ -276,7 +265,8 @@ function deleteItem(itemId: string, item: string){
               storeClassify.classData.status[props.resume['status_id']] !==
                 'update' &&
               storeClassify.classData.status[props.resume['status_id']] !==
-                'repeat') ||
+                'repeat') || props.resume.user_id === '' ||
+            props.resume.user_id !== props.userId ||
             props.spinner
           "
           @click="getResume('send')"
@@ -295,11 +285,11 @@ function deleteItem(itemId: string, item: string){
             storeClassify.classData.status[props.resume['status_id']] ===
               'finish' || props.spinner
           "
-          @click="deleteItem(candId, 'resume')"
+          @click="deleteItem(props.resume['id'], 'resume')"
         >
           Удалить анкету
         </button>
-      </BtnGroupForm>
+      </BtnGroup>
     </div>
   </div>
 </template>

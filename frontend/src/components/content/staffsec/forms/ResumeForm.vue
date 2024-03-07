@@ -15,8 +15,8 @@ const InputLabel = defineAsyncComponent(
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 const storeAuth = authStore();
 const storeAlert = alertStore();
@@ -24,7 +24,6 @@ const storeAlert = alertStore();
 const emit = defineEmits(["cancel", "get-resume"]);
 
 const props = defineProps({
-  candId: String,
   action: String,
   resume: {
     type: Object as () => Record<string, any>,
@@ -44,7 +43,7 @@ const resumeForm = ref({
               this.form
             )
           : await storeAuth.axiosInstance.patch(
-              `${server}/resume/${props.candId}`,
+              `${server}/resume/${props.resume['id']}`,
               this.form
             );
 
@@ -191,7 +190,7 @@ const select_items = {
         :model="props.resume['addition']"
       />
 
-      <BtnGroupForm>
+      <BtnGroup>
         <button class="btn btn-outline-primary" type="submit">Принять</button>
         <button class="btn btn-outline-primary" type="reset">Очистить</button>
         <router-link
@@ -202,7 +201,7 @@ const select_items = {
         >
           Отмена
         </router-link>
-      </BtnGroupForm>
+      </BtnGroup>
     </form>
   </div>
 </template>

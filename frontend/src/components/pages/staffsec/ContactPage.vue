@@ -210,7 +210,7 @@ function getEmit() {
       :has_next="contactData.prev"
       :switchPrev="contactData.page - 1"
       :switchNext="contactData.page + 1"
-      :switchPage="contactData.getContacts"
+      @switch="contactData.getContacts"
     />
   </div>
 </template>

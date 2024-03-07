@@ -10,8 +10,14 @@ import { User } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
+);
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 const ModalWin = defineAsyncComponent(
   () => import("@components/layouts/ModalWin.vue")
@@ -128,20 +134,20 @@ async function updateData() {
     />
     <div class="py-3">
       <div>
-        <RowDivSlot :label="'ID'" :value="userData.profile.id" />
-        <RowDivSlot
+        <LabelValue :label="'ID'" :value="userData.profile.id" />
+        <LabelValue
           :label="'Имя пользователя'"
           :value="userData.profile.fullname"
         />
-        <RowDivSlot
+        <LabelValue
           :label="'Логин'"
           :value="userData.profile.username"
         />
-        <RowDivSlot
+        <LabelValue
           :label="'E-mail'"
           :value="userData.profile.email"
         />
-        <RowDivSlot
+        <LabelValue
           :label="'Создан'"
           :value="
             new Date(userData.profile.pswd_create).toLocaleString(
@@ -149,7 +155,7 @@ async function updateData() {
             )
           "
         />
-        <RowDivSlot
+        <LabelValue
           :label="'Изменен'"
           :value="
             new Date(userData.profile.pswd_change).toLocaleString(
@@ -157,7 +163,7 @@ async function updateData() {
             )
           "
         />
-        <RowDivSlot
+        <LabelValue
           :label="'Вход'"
           :value="
             new Date(userData.profile.last_login).toLocaleString(
@@ -165,11 +171,11 @@ async function updateData() {
             )
           "
         />
-        <RowDivSlot
+        <LabelValue
           :label="'Попыток входа'"
           :value="userData.profile.attempt"
         />
-        <RowDivSlot
+        <LabelValue
           :label="'Блокировка'"
           :value="
             userData.profile.blocked
@@ -177,7 +183,7 @@ async function updateData() {
               : 'Разблокирован'
           "
         />
-        <RowDivSlot
+        <LabelValue
           :label="'Активность'"
           :value="
             userData.profile.deleted
@@ -185,55 +191,53 @@ async function updateData() {
               : 'Активен'
           "
         />
-        <RowDivSlot :label="'Роли'" :slotTwo="true">
-          <template v-slot:divTwo>
-            <ul
-              v-for="(role, index) in userData.profile.roles"
-              :key="index"
-            >
-              <li>
-                {{ role["role"] }}
-                <a
-                  href="#"
-                  @click="
-                    userData.updateRole(
-                      'delete',
-                      role['id']
-                    )
-                  "
-                >
-                  <i class="bi bi-dash-circle"></i>
-                </a>
-              </li>
-            </ul>
-            <form class="form form-check" role="form">
-              <select
-                class="form-select"
-                id="role"
-                name="role"
-                style="width: 30%"
-                v-model="userData.role"
-                @change="
+        <LabelSlot :label="'Роли'">
+          <ul
+            v-for="(role, index) in userData.profile.roles"
+            :key="index"
+          >
+            <li>
+              {{ role["role"] }}
+              <a
+                href="#"
+                @click="
                   userData.updateRole(
-                    'add',
-                    userData.role
+                    'delete',
+                    role['id']
                   )
                 "
               >
-                <option value="" selected>Добавить роль</option>
-                <option
-                  v-for="(role, index) in storeClassify.classData.roles"
-                  :key="index"
-                  :value="role['id']"
-                >
-                  {{ role["role"] }}
-                </option>
-              </select>
-            </form>
-          </template>
-        </RowDivSlot>
+                <i class="bi bi-dash-circle"></i>
+              </a>
+            </li>
+          </ul>
+          <form class="form form-check" role="form">
+            <select
+              class="form-select"
+              id="role"
+              name="role"
+              style="width: 30%"
+              v-model="userData.role"
+              @change="
+                userData.updateRole(
+                  'add',
+                  userData.role
+                )
+              "
+            >
+              <option value="" selected>Добавить роль</option>
+              <option
+                v-for="(role, index) in storeClassify.classData.roles"
+                :key="index"
+                :value="role['id']"
+              >
+                {{ role["role"] }}
+              </option>
+            </select>
+          </form>
+        </LabelSlot>
       </div>
-      <div class="btn-group py-5" role="group">
+      <BtnGroup :cls="false">
         <button
           class="btn btn-outline-secondary"
           type="button"
@@ -276,13 +280,12 @@ async function updateData() {
         >
           Восстановить
         </button>
-      </div>
+      </BtnGroup>
     </div>
     <ModalWin
-      :title="
-        userData.action === 'edit' ? 'Изменить пользователя' : 'Создать пользователя'
-      "
+      :title="'Изменить пользователя'"
       :id="'modalUser'"
+      @cancel="userData.action = ''"
     >
       <UserForm 
         :action="userData.action"

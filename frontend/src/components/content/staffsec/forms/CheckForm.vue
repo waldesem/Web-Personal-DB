@@ -9,8 +9,8 @@ const TextLabel = defineAsyncComponent(
 const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 
 const storeClassify = classifyStore();
@@ -219,7 +219,7 @@ if (checkForm.value.noNegative) {
         checkForm.form['comments'] = $event.target.value
       "
     />
-    <BtnGroupForm :cls="false">
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-success btn-md"
         name="submit"
@@ -234,6 +234,6 @@ if (checkForm.value.noNegative) {
       >
         Очистить
       </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

@@ -4,32 +4,29 @@ const props = defineProps({
   has_next: Boolean,
   switchPrev: Number,
   switchNext: Number,
-  switchPage: {
-    type: Function,
-    required: true,
-  },
-  option: String,
 });
+
+const emit = defineEmits(["switch"])
 </script>
 
 <template>
   <div class="py-3">
-    <nav v-if="has_prev || has_next">
+    <nav v-if="props.has_prev || props.has_next">
       <ul class="pagination justify-content-center">
-        <li v-bind:class="{ 'page-item': true, disabled: !has_prev }">
+        <li v-bind:class="{ 'page-item': true, disabled: !props.has_prev }">
           <a
             class="page-link"
             href="#"
-            @click="props.switchPage(props.switchPrev, props.option)"
+            @click="$emit('switch', props.switchPrev)"
           >
             Предыдущая
           </a>
         </li>
-        <li v-bind:class="{ 'page-item': true, disabled: !has_next }">
+        <li v-bind:class="{ 'page-item': true, disabled: !props.has_next }">
           <a
             class="page-link"
             href="#"
-            @click="props.switchPage(props.switchNext, props.option)"
+            @click="$emit('switch', props.switchNext)"
           >
             Следующая
           </a>

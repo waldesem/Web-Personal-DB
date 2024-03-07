@@ -7,8 +7,11 @@ const ModalWin = defineAsyncComponent(
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const AddressForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AddressForm.vue")
@@ -77,37 +80,35 @@ function deleteItem(itemId: string) {
     <CollapseDiv
       v-for="(item, idx) in props.items"
       :key="idx"
-      :id="'addr' + idx.toString()"
+      :id="'addr' + idx"
       :idx="idx.toString()"
-      :label="'Адрес #' + (idx + 1).toString()"
+      :label="'Адрес #' + (idx + 1)"
     >
-      <RowDivSlot :slotTwo="true" :print="true">
-        <template v-slot:divTwo>
-          <a
-            href="#"
-            @click="deleteItem(item['id'].toString())"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalAddress"
-            @click="
-              address.action = 'update';
-              address.item = item;
-              address.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </template>
-      </RowDivSlot>
-      <RowDivSlot :label="'Тип'" :value="item['view']" />
-      <RowDivSlot :label="'Регион'" :value="item['region']" />
-      <RowDivSlot :label="'Адрес'" :value="item['address']" />
+      <LabelSlot>
+        <a
+          href="#"
+          @click="deleteItem(item['id'].toString())"
+          title="Удалить"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          data-bs-toggle="modal"
+          data-bs-target="#modalAddress"
+          @click="
+            address.action = 'update';
+            address.item = item;
+            address.itemId = item['id'].toString();
+          "
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </LabelSlot>>
+      <LabelValue :label="'Тип'" :value="item['view']" />
+      <LabelValue :label="'Регион'" :value="item['region']" />
+      <LabelValue :label="'Адрес'" :value="item['address']" />
     </CollapseDiv>
   </div>
   <p v-else>Данные отсутствуют</p>

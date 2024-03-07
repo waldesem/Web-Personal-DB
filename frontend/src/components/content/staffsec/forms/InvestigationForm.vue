@@ -5,8 +5,8 @@ import { Inquisition } from "@/interfaces/interface";
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
 );
-const BtnGroupForm = defineAsyncComponent(
-  () => import("@components/elements/BtnGroupForm.vue")
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
 );
 
 const emit = defineEmits(["submit"]);
@@ -51,7 +51,7 @@ const investigationForm = ref({
       :model="props.investigation['info']"
       @input-event="investigationForm.form['info'] = $event.target.value"
     />
-    <BtnGroupForm :cls="false">
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-success btn-md"
         name="submit"
@@ -66,6 +66,6 @@ const investigationForm = ref({
       >
         Очистить
       </button>
-    </BtnGroupForm>
+    </BtnGroup>
   </form>
 </template>

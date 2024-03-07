@@ -11,6 +11,9 @@ const HeaderDiv = defineAsyncComponent(
 const UserForm = defineAsyncComponent(
   () => import("@components/content/admin/forms/UserForm.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/layouts/ModalWin.vue")
+);
 
 const storeAlert = alertStore();
 const storeAuth = authStore();
@@ -20,7 +23,7 @@ const searchUsers = debounce(() => {
 }, 500);
 
 onBeforeMount( async() => {
-  await  dataUsers.value.getUsers();
+  await dataUsers.value.getUsers();
 });
 
 const users = computed(() => {
@@ -129,10 +132,16 @@ async function getEmit () {
     >
       Добавить пользователя
     </button>
-    <UserForm
-      :action="dataUsers.action"
-      @update="getEmit"
-    />
+    <ModalWin
+      :title="'Добавить пользователя'"
+      :id="'modalUser'"
+      @cancel="dataUsers.action = ''"
+    >
+      <UserForm
+        :action="dataUsers.action"
+        @update="getEmit"
+      />
+    </ModalWin>
   </div>
 </template>
 

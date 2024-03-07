@@ -4,8 +4,11 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const DocumentForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/DocumentForm.vue")
@@ -65,7 +68,7 @@ function deleteItem(itemId: string){
     :title="
       document.action === 'update' ? 'Изменить запись' : 'Добавить запись'
     "
-    :id="'modalAddress'"
+    :id="'modalDoc'"
     @cancel="cancelEdit"
   >
     <DocumentForm 
@@ -77,40 +80,38 @@ function deleteItem(itemId: string){
     <CollapseDiv
       v-for="(item, idx) in props.items"
       :key="idx"
-      :id="'docum' + idx.toString()"
+      :id="'docum' + idx"
       :idx="idx.toString()"
-      :label="'Документ #' + (idx + 1).toString()"
+      :label="'Документ #' + (idx + 1)"
     >
-    <RowDivSlot :slotTwo="true" :print="true">
-      <template v-slot:divTwo>
-        <a
-          href="#"
-          @click="
-            deleteItem(item['id'].toString())"
-          title="Удалить"
-        >
-          <i class="bi bi-trash"></i>
-        </a>
-        <a
-          class="btn btn-link"
-          title="Изменить"
-          data-bs-toggle="modal"
-          data-bs-target="#modalDoc"
-          @click="
-            document.action = 'update';
-            document.item = item;
-            document.itemId = item['id'].toString();
-          "
-        >
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </template>
-    </RowDivSlot>
-    <RowDivSlot :label="'Вид документа'" :value="item['view']" />
-    <RowDivSlot :label="'Серия'" :value="item['series']" />
-    <RowDivSlot :label="'Номер'" :value="item['number']" />
-    <RowDivSlot :label="'Кем выдан'" :value="item['agency']" />
-    <RowDivSlot
+    <LabelSlot>
+      <a
+        href="#"
+        @click="
+          deleteItem(item['id'].toString())"
+        title="Удалить"
+      >
+        <i class="bi bi-trash"></i>
+      </a>
+      <a
+        class="btn btn-link"
+        title="Изменить"
+        data-bs-toggle="modal"
+        data-bs-target="#modalDoc"
+        @click="
+          document.action = 'update';
+          document.item = item;
+          document.itemId = item['id'].toString();
+        "
+      >
+        <i class="bi bi-pencil-square"></i>
+      </a>
+    </LabelSlot>
+    <LabelValue :label="'Вид документа'" :value="item['view']" />
+    <LabelValue :label="'Серия'" :value="item['series']" />
+    <LabelValue :label="'Номер'" :value="item['number']" />
+    <LabelValue :label="'Кем выдан'" :value="item['agency']" />
+    <LabelValue
       :label="'Дата выдачи'"
       :value="new Date(String(item['issue'])).toLocaleDateString('ru-RU')"
     />

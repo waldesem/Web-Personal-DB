@@ -4,8 +4,11 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
 );
-const RowDivSlot = defineAsyncComponent(
-  () => import("@components/elements/RowDivSlot.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/elements/LabelSlot.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/elements/LabelValue.vue")
 );
 const InvestigationForm = defineAsyncComponent(
   () => import("../forms/InvestigationForm.vue")
@@ -68,47 +71,42 @@ function deleteItem(itemId: string) {
       :id="'modalInvestigation'"
       @cancel="cancelEdit"
     >
-      <InvestigationForm
-        :content="inquisition.item"
-        @submit="submitForm"
-      />
+      <InvestigationForm :content="inquisition.item" @submit="submitForm" />
     </ModalWin>
     <div v-if="props.inquisitions.length">
       <CollapseDiv
         v-for="(item, idx) in props.inquisitions"
         :key="idx"
-        :id="'investigation' + idx.toString()"
+        :id="'investigation' + idx"
         :idx="idx.toString()"
-        :label="'Расследование #' + (idx + 1).toString()"
+        :label="'Расследование #' + (idx + 1)"
       >
-        <RowDivSlot :slotTwo="true" :print="true">
-          <template v-slot:divTwo>
-            <a
-              href="#"
-              title="Удалить"
-              @click="deleteItem(item['id'].toString())"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              href="#"
-              title="Изменить"
-              data-bs-toggle="modal"
-              data-bs-target="#modalInvestigation"
-              @click="
-                inquisition.action = 'update';
-                inquisition.item = item;
-                inquisition.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </template>
-        </RowDivSlot>
-        <RowDivSlot :label="'Тема'" :value="item['theme']" />
-        <RowDivSlot :label="'Информация'" :value="item['info']" />
-        <RowDivSlot :label="'Сотрудник'" :value="item['officer']" />
-        <RowDivSlot
+        <LabelSlot>
+          <a
+            href="#"
+            title="Удалить"
+            @click="deleteItem(item['id'].toString())"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            href="#"
+            title="Изменить"
+            data-bs-toggle="modal"
+            data-bs-target="#modalInvestigation"
+            @click="
+              inquisition.action = 'update';
+              inquisition.item = item;
+              inquisition.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelSlot>
+        <LabelValue :label="'Тема'" :value="item['theme']" />
+        <LabelValue :label="'Информация'" :value="item['info']" />
+        <LabelValue :label="'Сотрудник'" :value="item['officer']" />
+        <LabelValue
           :label="'Дата'"
           :value="
             new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
