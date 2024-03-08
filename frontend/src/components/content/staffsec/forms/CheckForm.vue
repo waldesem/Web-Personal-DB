@@ -19,22 +19,22 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   check: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Verification,
+    default: {},
   },
 });
 
 const checkForm = ref({
   form: <Verification>{},
   noNegative: true,
-
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
 });
+
+function updateItem() {
+  emit("submit", checkForm.value.form);
+  Object.keys(checkForm.value.form).forEach((key) => {
+    delete checkForm.value.form[key as keyof typeof checkForm.value.form];
+  });
+};
 
 
 if (checkForm.value.noNegative) {
@@ -72,7 +72,7 @@ if (checkForm.value.noNegative) {
   </div>
 
   <form
-    @submit.prevent="checkForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
     id="checkFormId"
@@ -219,9 +219,9 @@ if (checkForm.value.noNegative) {
         checkForm.form['comments'] = $event.target.value
       "
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

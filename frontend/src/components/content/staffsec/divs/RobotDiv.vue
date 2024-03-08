@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
+import { Robot } from "@/interfaces/interface";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/elements/LabelSlot.vue")
@@ -15,8 +16,8 @@ const emit = defineEmits(["delete"]);
 
 const props = defineProps({
   robots:  {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Robot>,
+    default: {},
   },
 });
 

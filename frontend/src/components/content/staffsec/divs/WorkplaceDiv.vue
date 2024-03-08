@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Work } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -25,20 +26,20 @@ onBeforeMount(async () => {
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Work>,
+    default: {},
   },
 });
 
 const workplace = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Work>{},
 });
 
 function cancelEdit() {
   workplace.value.action = "";
-  workplace.value.item = {};
+  workplace.value.item = <Work>{};
 }
 
 function submitForm(form: Object) {
@@ -81,7 +82,6 @@ function deleteItem(itemId: string) {
     <WorkplaceForm
       :content="workplace.item"
       @submit="submitForm"
-      @cancel="cancelEdit"
     />
   </ModalWin>
   <div v-if="props.items.length > 0">

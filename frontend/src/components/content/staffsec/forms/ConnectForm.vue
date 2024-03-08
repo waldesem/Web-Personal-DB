@@ -21,7 +21,7 @@ const props = defineProps({
   cities: Array,
   item: {
     type: Object as () => Record<string, any>,
-    default: () => {},
+    default: {},
   },
 });
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Affilation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -25,20 +26,20 @@ onBeforeMount(async () => {
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Affilation>,
+    default: {},
   },
 });
 
 const affilation = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Affilation>{},
 });
 
 function cancelEdit() {
   affilation.value.action = "";
-  affilation.value.item = {};
+  affilation.value.item = <Affilation>{};
 }
 
 function submitForm(form: Object) {

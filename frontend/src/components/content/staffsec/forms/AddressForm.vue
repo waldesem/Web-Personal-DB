@@ -19,8 +19,8 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   addrs: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Address,
+    default: {},
   },
 });
 
@@ -31,19 +31,19 @@ const addressForm = ref({
     live: "Адрес проживания",
     others: "Другое",
   },
-
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
 });
+
+function updateItem() {
+  emit("submit", addressForm.value.form);
+  Object.keys(addressForm.value.form).forEach((key) => {
+    delete addressForm.value.form[key as keyof typeof addressForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="addressForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -73,7 +73,7 @@ const addressForm = ref({
     />
     <BtnGroup :cls="false">
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

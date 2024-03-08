@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Contact } from "@/interfaces/interface";
 
 const ModalWin = defineAsyncComponent(
   () => import("@components/layouts/ModalWin.vue")
@@ -25,20 +26,20 @@ onBeforeMount(async () => {
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Contact>,
+    default: {},
   },
 });
 
 const contact = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Contact>{},
 });
 
 function cancelEdit() {
   contact.value.action = "";
-  contact.value.item = {};
+  contact.value.item = <Contact>{};
 }
 
 function submitForm(form: Object) {
@@ -69,7 +70,10 @@ function deleteItem(itemId: string) {
     :id="'modalContact'"
     @cancel="cancelEdit"
   >
-    <ContactForm :content="contact.item" @submit="submitForm" />
+    <ContactForm 
+      :content="contact.item" 
+      @submit="submitForm" 
+    />
   </ModalWin>
   <div v-if="props.items.length > 0">
     <CollapseDiv

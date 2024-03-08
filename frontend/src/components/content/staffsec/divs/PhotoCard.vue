@@ -3,7 +3,7 @@ import { ref, onBeforeMount } from "vue";
 
 const emit = defineEmits(["get-item", "submit-file"]);
 
-onBeforeMount( async() => {
+onBeforeMount(() => {
   emit("get-item", "file")
 });
 

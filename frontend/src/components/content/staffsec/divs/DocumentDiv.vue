@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Document } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -19,26 +20,26 @@ const ModalWin = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount( async() => {
+onBeforeMount(() => {
   emit("get-item", "document");
 });
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Document>,
+    default: {},
   },
 });
 
 const document = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Document>{},
 });
 
 function cancelEdit(){
   document.value.action = '';
-  document.value.item = {};
+  document.value.item = <Document>{};
 };
 
 function submitForm(form: Object) {

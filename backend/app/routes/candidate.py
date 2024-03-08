@@ -225,7 +225,7 @@ class ResumeView(MethodView):
         for k, v in json_data.items():
             setattr(person, k, v)
             db.session.commit()
-        return PersonSchema().dump(person)
+        return {"message": person_id}
 
     @bp.input(PersonSchema)
     def post(self, action, json_data):
@@ -281,7 +281,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/resume/<int:person_id>",
     view_func=resume_view,
-    methods=["GET", "DELETE"],
+    methods=["GET", "DELETE", "PATCH"],
 )
 
 

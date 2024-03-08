@@ -16,26 +16,26 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   work: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Work,
+    default: {},
   },
 });
 
 const workForm = ref({
   form: <Work>{},
-
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
 });
+
+function updateItem() {
+  emit("submit", workForm.value.form);
+  Object.keys(workForm.value.form).forEach((key) => {
+    delete workForm.value.form[key as keyof typeof workForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="workForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -90,9 +90,9 @@ const workForm = ref({
         workForm.form['reason'] = $event.target.value
       "
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

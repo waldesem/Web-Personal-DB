@@ -16,8 +16,8 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   docs: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Document,
+    default: {},
   },
 });
 
@@ -27,20 +27,20 @@ const docForm = ref({
     passport: "Паспорт гражданина России",
     foreign: "Иностранный докумен",
     others: "Другое",
-  },
-
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
+  }
 });
+
+function updateItem() {
+  emit("submit", docForm.value.form);
+  Object.keys(docForm.value.form).forEach((key) => {
+    delete docForm.value.form[key as keyof typeof docForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="docForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -85,9 +85,9 @@ const docForm = ref({
         docForm.form['issue'] = $event.target.value
       "
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

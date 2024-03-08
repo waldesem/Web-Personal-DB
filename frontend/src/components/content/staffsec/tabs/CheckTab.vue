@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
+import { Resume, Verification, Robot } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -35,23 +36,23 @@ const props = defineProps({
     required: true,
   },
   resume: {
-    type: Object as () => Record<any, string>,
+    type: Object as () => Resume,
     required: true,
   },
   checks: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Verification>,
+    default: () => [],
   },
   robots: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Robot>,
+    default: () => [],
   },
 });
 
 const check = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Verification>{},
   hideEditBtn:
     props.resume['status_id'] !== storeClassify.classData.status["save"] &&
     props.resume['status_id'] !== storeClassify.classData.status["cancel"] &&
@@ -90,7 +91,7 @@ function getRobot() {
       :id="'modalCheck'"
       @cancel="cancelEdit"
     >
-      <CheckForm :content="check.item" @submit="submitForm" />
+      <CheckForm :check="check.item" @submit="submitForm" />
     </ModalWin>
     <div v-if="props.checks.length > 0 && props.robots.length > 0">
       <CollapseDiv

@@ -19,8 +19,8 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   affils: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Affilation,
+    default: {},
   },
 });
 
@@ -31,20 +31,20 @@ const affilationForm = ref({
     official: "Являлся государственным должностным лицом",
     relatives: "Связанные лица работают в государственных организациях",
     commercial: "Участвует в деятельности коммерческих организаций",
-  },
-
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
+  }
 });
+
+function updateItem() {
+  emit("submit", affilationForm.value.form);
+  Object.keys(affilationForm.value.form).forEach((key) => {
+    delete affilationForm.value.form[key as keyof typeof affilationForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="affilationForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -78,7 +78,7 @@ const affilationForm = ref({
     />
     <BtnGroup :cls="false">
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

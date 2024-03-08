@@ -21,7 +21,7 @@ const header = computed(() => {
   ];
 });
 
-onBeforeMount( async() => {
+onBeforeMount( async () => {
   await personData.value.getCandidates();
 });
 

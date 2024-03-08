@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Staff } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -19,21 +20,21 @@ const ModalWin = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount( async() => {
+onBeforeMount(() => {
   emit("get-item", "staff");
 });
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Record<string, any>>,
-    default: () => {},
+    type: Array as () => Array<Staff>,
+    default: {},
   },
 });
 
 const staff = ref({
   action: "",
   itemId: "",
-  item: <Record<string, any>>{},
+  item: <Staff>{},
 });
 
 function submitForm(form: Object) {
@@ -47,7 +48,7 @@ function deleteItem(itemId: string){
 
 function cancelEdit(){
   staff.value.action = '';
-  staff.value.item = {};
+  staff.value.item = <Staff>{};
 };
 </script>
 
@@ -60,7 +61,7 @@ function cancelEdit(){
       data-bs-target="#modalStaff"
       @click="
         staff.action = staff.action ? '' : 'create';"
-        :title="staff.action ? 'Закрыть форму' : 'Добавить информацию'"
+        :title="'Добавить информацию'"
     >
       <i
         :class="staff.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
@@ -77,7 +78,6 @@ function cancelEdit(){
     <StaffForm
       :content="staff.item"
       @submit="submitForm"
-      @cancel="cancelEdit"
     />
   </ModalWin>
   <div v-if="props.items.length > 0">

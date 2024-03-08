@@ -5,6 +5,9 @@ import { Inquisition } from "@/interfaces/interface";
 const TextLabel = defineAsyncComponent(
   () => import("@components/elements/TextLabel.vue")
 );
+const InputLabel = defineAsyncComponent(
+  () => import("@components/elements/InputLabel.vue")
+);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
 );
@@ -13,26 +16,26 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   investigation: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Inquisition,
+    default: {},
   },
 });
 
 const investigationForm = ref({
   form: <Inquisition>{},
+  });
 
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
-});
+function updateItem() {
+  emit("submit", investigationForm.value.form);
+  Object.keys(investigationForm.value.form).forEach((key) => {
+    delete investigationForm.value.form[key as keyof typeof investigationForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="investigationForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -51,9 +54,9 @@ const investigationForm = ref({
       :model="props.investigation['info']"
       @input-event="investigationForm.form['info'] = $event.target.value"
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

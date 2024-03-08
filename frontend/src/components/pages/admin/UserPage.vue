@@ -32,7 +32,7 @@ const storeAuth = authStore();
 
 const route = useRoute();
 
-onBeforeMount( async() => {
+onBeforeMount( async () => {
   userData.value.id = route.params.id.toString();
   await userData.value.userAction("view");
 });

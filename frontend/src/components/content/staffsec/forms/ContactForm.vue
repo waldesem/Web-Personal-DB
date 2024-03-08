@@ -16,8 +16,8 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   contact: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Contact,
+    default: {},
   },
 });
 
@@ -27,15 +27,15 @@ const contactForm = ref({
     phone: "Телефон",
     email: "E-mail",
     other: "Другое",
-  },
-
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
+  }
 });
+
+function updateItem() {
+  emit("submit", contactForm.value.form);
+  Object.keys(contactForm.value.form).forEach((key) => {
+    delete contactForm.value.form[key as keyof typeof contactForm.value.form];
+  });
+};
 
 const view = computed(() => {
   if (contactForm.value.form["view"] === "Телефон") {
@@ -50,7 +50,7 @@ const view = computed(() => {
 
 <template>
   <form
-    @submit.prevent="contactForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -71,9 +71,9 @@ const view = computed(() => {
         contactForm.form['contact'] = $event.target.value
       "
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

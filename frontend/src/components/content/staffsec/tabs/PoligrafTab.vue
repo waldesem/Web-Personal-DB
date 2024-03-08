@@ -29,7 +29,7 @@ onBeforeMount(async () => {
 const props = defineProps({
   poligrafs: {
     type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    default: () => [],
   },
 });
 

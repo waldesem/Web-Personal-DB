@@ -13,26 +13,26 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   relation: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Relation,
+    default: {},
   },
 });
 
 const relationForm = ref({
   form: <Relation>{},
+  });
 
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
-});
+function updateItem() {
+  emit("submit", relationForm.value.form);
+  Object.keys(relationForm.value.form).forEach((key) => {
+    delete relationForm.value.form[key as keyof typeof relationForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="relationForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -54,9 +54,9 @@ const relationForm = ref({
         relationForm.form['relation_id'] = $event.target.value
       "
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

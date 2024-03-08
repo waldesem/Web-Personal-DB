@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
-import type { Resume } from "@/interfaces/interface";
+import type {
+  Resume,
+  Staff,
+  Document,
+  Address,
+  Contact,
+  Relation,
+  Work,
+  Affilation,
+} from "@/interfaces/interface";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/elements/LabelSlot.vue")
@@ -54,35 +63,35 @@ const props = defineProps({
     required: true,
   },
   resume: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Resume,
+    default: {},
   },
   staffs: {
-    type: Array as () => Array<Record<string, any>>,
+    type: Array as () => Array<Staff>,
     default: () => [],
   },
   documents: {
-    type: Array as () => Array<Record<string, any>>,
+    type: Array as () => Array<Document>,
     default: () => [],
   },
   addresses: {
-    type: Array as () => Array<Record<string, any>>,
+    type: Array as () => Array<Address>,
     default: () => [],
   },
   contacts: {
-    type: Array as () => Array<Record<string, any>>,
+    type: Array as () => Array<Contact>,
     default: () => [],
   },
   relations: {
-    type: Array as () => Array<Record<string, any>>,
+    type: Array as () => Array<Relation>,
     default: () => [],
   },
   workplaces: {
-    type: Array as () => Array<Record<string, any>>,
+    type: Array as () => Array<Work>,
     default: () => [],
   },
   affilations: {
-    type: Array as () => Array<Record<string, any>>,
+    type: Array as () => Array<Affilation>,
     default: () => [],
   },
 });
@@ -167,10 +176,9 @@ function deleteItem(itemId: string, item: string) {
       :value="props.resume['addition']"
     />
     <LabelSlot :label="'Материалы'">
-      <router-link
+      <router-link v-if="props.resume['path']"
         :to="{
           name: 'manager',
-          params: { group: 'staffsec' },
           query: { path: props.resume['path'].split('/') },
         }"
       >
@@ -213,37 +221,37 @@ function deleteItem(itemId: string, item: string) {
     <DocumentDiv
       :items="props.documents"
       @get-item="getItem"
-      @update="updateItem"
+      @submit="updateItem"
       @delete="deleteItem"
     />
     <AddressDiv
       :items="props.addresses"
       @get-item="getItem"
-      @update="updateItem"
+      @submit="updateItem"
       @delete="deleteItem"
     />
     <ContactDiv
       :items="props.contacts"
       @get-item="getItem"
-      @update="updateItem"
+      @submit="updateItem"
       @delete="deleteItem"
     />
     <RelationDiv
       :items="props.relations"
       @get-item="getItem"
-      @update="updateItem"
+      @submit="updateItem"
       @delete="deleteItem"
     />
     <WorkplaceDiv
       :items="props.workplaces"
       @get-item="getItem"
-      @update="updateItem"
+      @submit="updateItem"
       @delete="deleteItem"
     />
     <AffilationDiv
       :items="props.affilations"
       @get-item="getItem"
-      @update="updateItem"
+      @submit="updateItem"
       @delete="deleteItem"
     />
 

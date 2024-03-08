@@ -12,14 +12,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  place: {
-    type: String,
-    default: (props: any) => {
-      if (props.typeof === "text") {
-        return props.label;
-      }
-    },
-  },
   pattern: {
     type: String,
     default: ".*",
@@ -42,8 +34,14 @@ const props = defineProps({
     type: String,
     default: "col-lg-10",
   },
-  name: String,
-  label: String,
+  name: {
+    type: String,
+    default: ""
+  },
+  label: {
+    type: String,
+    default: ""
+  },
   model: {
     type: [String, Number],
     default: "",
@@ -67,7 +65,7 @@ const props = defineProps({
         :type="props.typeof"
         :required="props.need"
         :pattern="props.pattern"
-        :placeholder="props.place"
+        :placeholder="props.label"
         :autocomplete="props.name"
         :value="props.model"
         @input="$emit('input-event', $event)"

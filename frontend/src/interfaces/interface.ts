@@ -1,4 +1,4 @@
-interface Candidate {
+export interface Candidate {
   id: number;
   fullname: string;
   region_id: number;
@@ -7,7 +7,7 @@ interface Candidate {
   created: string;
 }
 
-interface Resume {
+export interface Resume {
   id: string;
   category_id: string;
   region_id: string;
@@ -30,13 +30,13 @@ interface Resume {
   request_id: string;
 }
 
-interface Staff {
+export interface Staff {
   id: string;
   position: string;
   department: string;
 }
 
-interface Document {
+export interface Document {
   id: string;
   view: string;
   series: string;
@@ -45,26 +45,26 @@ interface Document {
   issue: string;
 }
 
-interface Address {
+export interface Address {
   id: string;
   view: string;
   region: string;
   address: string;
 }
 
-interface Contact {
+export interface Contact {
   id: string;
   view: string;
   contact: string;
 }
 
-interface Relation {
+export interface Relation {
   id: string;
   relation: string;
   relation_id: string;
 }
 
-interface Work {
+export interface Work {
   id: string;
   start_date: string;
   end_date: string;
@@ -74,7 +74,7 @@ interface Work {
   position: string;
 }
 
-interface Affilation {
+export interface Affilation {
   id: string;
   view: string;
   name: string;
@@ -83,7 +83,7 @@ interface Affilation {
   deadline: string;
 }
 
-interface Verification {
+export interface Verification {
   id: string;
   workplace: string;
   employee: string;
@@ -107,7 +107,7 @@ interface Verification {
   officer: string;
 }
 
-interface Robot {
+export interface Robot {
   id: string;
   employee: string;
   document: string;
@@ -122,7 +122,7 @@ interface Robot {
   deadline: string;
 }
 
-interface Pfo {
+export interface Pfo {
   id: string;
   theme: string;
   results: string;
@@ -130,7 +130,7 @@ interface Pfo {
   deadline: string;
 }
 
-interface Inquisition {
+export interface Inquisition {
   id: string;
   theme: string;
   info: string;
@@ -138,7 +138,7 @@ interface Inquisition {
   deadline: string;
 }
 
-interface Needs {
+export interface Needs {
   id: string;
   info: string;
   initiator: string;
@@ -147,17 +147,17 @@ interface Needs {
   deadline: string;
 }
 
-interface Message {
+export interface Message {
   message: string;
   created: string;
 }
 
-interface Role {
+export interface Role {
   id: string;
   role: string;
 }
 
-interface User {
+export interface User {
   id: string;
   fullname: string;
   username: string;
@@ -171,12 +171,12 @@ interface User {
   attempt: string;
 }
 
-interface Message {
+export interface Message {
   message: string;
   created: string;
 }
 
-interface Connection {
+export interface Connection {
   id: string;
   company: string;
   city: string;
@@ -188,24 +188,3 @@ interface Connection {
   comment: string;
   data: string;
 }
-
-export type {
-  Candidate,
-  Resume,
-  Staff,
-  Document,
-  Address,
-  Contact,
-  Relation,
-  Work,
-  Affilation,
-  Verification,
-  Robot,
-  Pfo,
-  Inquisition,
-  Needs,
-  Message,
-  Role,
-  User,
-  Connection,
-};

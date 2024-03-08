@@ -22,7 +22,7 @@ const searchUsers = debounce(() => {
   dataUsers.value.getUsers();
 }, 500);
 
-onBeforeMount( async() => {
+onBeforeMount( async () => {
   await dataUsers.value.getUsers();
 });
 

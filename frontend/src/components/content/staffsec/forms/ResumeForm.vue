@@ -2,6 +2,7 @@
 import { defineAsyncComponent, ref } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
+import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
 import { router } from "@/router/router";
@@ -20,13 +21,17 @@ const BtnGroup = defineAsyncComponent(
 );
 const storeAuth = authStore();
 const storeAlert = alertStore();
+const storeClassify = classifyStore();
 
 const emit = defineEmits(["cancel", "get-resume"]);
 
 const props = defineProps({
-  action: String,
+  action: {
+    type: String,
+    default: "create",
+  },
   resume: {
-    type: Object as () => Record<string, any>,
+    type: Object as () => Resume,
     default: {},
   },
 });
@@ -39,7 +44,7 @@ const resumeForm = ref({
       const response =
         props.action === "create"
           ? await storeAuth.axiosInstance.post(
-              `${server}/resume`,
+              `${server}/resume/${props.action}`,
               this.form
             )
           : await storeAuth.axiosInstance.patch(
@@ -47,10 +52,10 @@ const resumeForm = ref({
               this.form
             );
 
-      console.log(response.status);
+      const { message } = response.data;
 
       props.action == "create" 
-        ? router.push({ name: "persons" })
+        ? router.push({ name: "profile", params: { id: message } })
         : emit("get-resume", "view");
       
       storeAlert.alertMessage.setAlert(
@@ -69,11 +74,6 @@ const resumeForm = ref({
     emit("cancel");
    },
 });
-
-const select_items = {
-  candidate: "Кандидат",
-  suspict: "Проверяемый",
-};
 </script>
 
 <template>
@@ -86,7 +86,7 @@ const select_items = {
       <SelectDiv
         :name="'category'"
         :label="'Категория'"
-        :select="select_items"
+        :select="storeClassify.classData.category"
         @input-event="
           resumeForm.form['category_id'] = $event.target.value
         "
@@ -96,10 +96,11 @@ const select_items = {
         :isneed="true"
         :name="'fullname'"
         :label="'Полное ФИО*'"
+        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
         @input-event="
-          resumeForm.form['fullname'] = $event.target.value
+          resumeForm.form['fullname'] = $event.target.value.toUpperCase()
         "
-        :model="props.resume['fullname'].toUpperCase()"
+        :model="props.resume['fullname']"
       />
       <TextLabel
         :name="'previous'"

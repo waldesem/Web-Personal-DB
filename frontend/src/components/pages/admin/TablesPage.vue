@@ -16,7 +16,7 @@ const storeClassify = classifyStore();
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-onBeforeMount( async() => {
+onBeforeMount(() => {
   await tableData.value.getItem(1);
 });
 

@@ -16,8 +16,8 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   poligraf: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Pfo,
+    default: {},
   },
 });
 
@@ -27,20 +27,20 @@ const poligrafForm = ref({
     candidate: "Проверка кандидата",
     check: "Служебная проверка",
     investigation: "Служебное расследование",
-  },
-
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
+  }
 });
+
+function updateItem() {
+  emit("submit", poligrafForm.value.form);
+  Object.keys(poligrafForm.value.form).forEach((key) => {
+    delete poligrafForm.value.form[key as keyof typeof poligrafForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="poligrafForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -61,9 +61,9 @@ const poligrafForm = ref({
         poligrafForm.form['results'] = $event.target.value
       "
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

@@ -16,26 +16,26 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   inquiry: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Needs,
+    default: {},
   },
 });
 
 const inquiryForm = ref({
   form: <Needs>{},
+  });
 
-  updateItem: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-  },
-});
+function updateItem() {
+  emit("submit", inquiryForm.value.form);
+  Object.keys(inquiryForm.value.form).forEach((key) => {
+    delete inquiryForm.value.form[key as keyof typeof inquiryForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="inquiryForm.updateItem"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -57,9 +57,9 @@ const inquiryForm = ref({
       :model="props.inquiry['source']"
       @input-event="inquiryForm.form['source'] = $event.target.value"
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

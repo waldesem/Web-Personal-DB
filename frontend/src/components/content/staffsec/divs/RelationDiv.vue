@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Relation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -25,20 +26,20 @@ onBeforeMount(async () => {
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Relation>,
+    default: {},
   },
 });
 
 const relation = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Relation>{},
 });
 
 function cancelEdit() {
   relation.value.action = "";
-  relation.value.item = {};
+  relation.value.item = <Relation>{};
 }
 
 function submitForm(form: Object) {
@@ -81,7 +82,6 @@ function deleteItem(itemId: string) {
     <RelationForm
       :content="relation.item"
       @submit="submitForm"
-      @cancel="cancelEdit"
     />
   </ModalWin>
   <div v-if="props.items.length">

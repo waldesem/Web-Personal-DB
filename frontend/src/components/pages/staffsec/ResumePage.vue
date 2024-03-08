@@ -9,7 +9,7 @@ const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/layouts/FileForm.vue")
 );
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/ResumeForm.vue")

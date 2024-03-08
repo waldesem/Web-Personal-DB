@@ -16,26 +16,25 @@ const emit = defineEmits(["submit"]);
 
 const props = defineProps({
   staff: {
-    type: Object as () => Record<string, any>,
-    default: () => {},
+    type: Object as () => Staff,
+    default: {},
   },
 });
 
 const staffForm = ref({
   form: <Staff>{},
-
-  submitForm: function () {
-    emit("submit", this.form);
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-   },
-});
+  });
+function updateItem() {
+  emit("submit", staffForm.value.form);
+  Object.keys(staffForm.value.form).forEach((key) => {
+    delete staffForm.value.form[key as keyof typeof staffForm.value.form];
+  });
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="staffForm.submitForm;"
+    @submit.prevent="updateItem"
     class="form form-check"
     role="form"
   >
@@ -48,13 +47,13 @@ const staffForm = ref({
     />
     <TextLabel
       :name="'department'"
-      :label="'Подраздление'"
+      :label="'Подразделение'"
       :model="props.staff['department']"
       @input-event="staffForm.form['department'] = $event.target.value"
     />
-    <BtnGroup :cls="false">
+    <BtnGroup>
       <button
-        class="btn btn-outline-success btn-md"
+        class="btn btn-outline-primary btn-md"
         name="submit"
         type="submit"
       >

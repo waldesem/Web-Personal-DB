@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { Address } from "@/interfaces/interface";
 
 const ModalWin = defineAsyncComponent(
   () => import("@components/layouts/ModalWin.vue")
@@ -25,20 +26,20 @@ onBeforeMount(() => {
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Record<any, string>>,
-    default: () => {},
+    type: Array as () => Array<Address>,
+    default: {},
   },
 });
 
 const address = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Address>{},
 });
 
 function cancelEdit() {
   address.value.action = "";
-  address.value.item = {};
+  address.value.item = <Address>{};
 }
 
 function submitForm(form: Object) {
@@ -61,7 +62,9 @@ function deleteItem(itemId: string) {
       data-bs-target="#modalAddress"
       @click="address.action = 'create'"
     >
-      <i class="bi bi-plus-circle"></i>
+    <i
+        :class="address.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
+      ></i>
     </a>
   </h6>
   <ModalWin

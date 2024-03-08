@@ -7,7 +7,7 @@ import { classifyStore } from "@/store/classify";
 import { userStore } from "@/store/user";
 import { server } from "@utilities/utils";
 import { router } from "@/router/router";
-import type {
+import {
   Resume,
   Staff,
   Document,
@@ -55,248 +55,249 @@ const route = useRoute();
 const candId = route.params.id.toString();
 
 onBeforeMount(async () => {
-  await anketaData.value.getResume();
+  await getResume();
 });
 
 const anketaData = ref({
   imageUrl: "",
   printPage: false,
   spinner: false,
-  resume: <Resume>{},
-  staffs: <Array<Staff>>[],
-  documents: <Array<Document>>[],
-  addresses: <Array<Address>>[],
-  contacts: <Array<Contact>>[],
-  relations: <Array<Relation>>[],
-  workplaces: <Array<Work>>[],
-  affilations: <Array<Affilation>>[],
-  checks: <Array<Verification>>[],
-  robots: <Array<Robot>>[],
-  poligraf: <Array<Pfo>>[],
-  investigations: <Array<Inquisition>>[],
-  inquiries: <Array<Needs>>[],
+  resume: <Resume>({}),
+  staffs: [] as Array<Staff>,
+  documents: [] as Array<Document>,
+  addresses: [] as Array<Address>,
+  contacts: [] as Array<Contact>,
+  relations: [] as Array<Relation>,
+  workplaces: [] as Array<Work>,
+  affilations: [] as Array<Affilation>,
+  checks: [] as Array<Verification>,
+  robots: [] as Array<Robot>,
+  poligraf: [] as Array<Pfo>,
+  investigations: [] as Array<Inquisition>,
+  inquiries: [] as Array<Needs>,
+});
 
-  getResume: async function (action = "view"): Promise<void> {
+async function getResume(action = "view"): Promise<void> {
+  if (action === "status") {
+    if (!confirm("Вы действительно хотите изменить статус резюме?")) {
+      return;
+    }
+  }
+  if (action === "send") {
+    anketaData.value.spinner = true;
+    if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
+      anketaData.value.spinner = false;
+      return;
+    }
+  }
+  if (action === "self") {
+    if (!confirm("Вы действительно назначить проверку кандидата на себя?")) {
+      return;
+    }
+  }
+  try {
+    const response = await storeAuth.axiosInstance.get(
+      `${server}/resume/${candId}`,
+      {
+        params: {
+          action: action,
+        },
+      }
+    );
+    anketaData.value.resume = response.data;
+
     if (action === "status") {
-      if (!confirm("Вы действительно хотите изменить статус резюме?")) {
-        return;
-      }
-    }
-    if (action === "send") {
-      this.spinner = true;
-      if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
-        this.spinner = false;
-        return;
-      }
-    }
-    if (action === "self") {
-      if (!confirm("Вы действительно назначить проверку кандидата на себя?")) {
-        return;
-      }
-    }
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/resume/${candId}`,
-        {
-          params: {
-            action: action,
-          },
-        }
-      );
-      this.resume = response.data;
-
-      if (action === "status") {
-        storeAlert.alertMessage.setAlert(
-          "alert-info",
-          "Статус анкеты обновлен"
-        );
-      }
-      if (action === "send") {
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Анкета отправлена на проверку"
-        );
-        window.scrollTo(0, 0);
-      }
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Ошибка обработки ${error}`
-      );
-    }
-    this.spinner = false;
-  },
-
-  getItem: async function (param: string): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/${param}/${candId}`
-      );
-      switch (param) {
-        case "staff":
-          this.staffs = response.data;
-          break;
-        case "document":
-          this.documents = response.data;
-          break;
-        case "address":
-          this.addresses = response.data;
-          break;
-        case "contact":
-          this.contacts = response.data;
-          break;
-        case "relation":
-          this.relations = response.data;
-          break;
-        case "workplace":
-          this.workplaces = response.data;
-          break;
-        case "affilation":
-          this.affilations = response.data;
-          break;
-        case "check":
-          this.checks = response.data;
-          break;
-        case "robot":
-          this.robots = response.data;
-          break;
-        case "poligraf":
-          this.poligraf = response.data;
-          break;
-        case "investigation":
-          this.investigations = response.data;
-          break;
-        case "inquiry":
-          this.inquiries = response.data;
-          break;
-        case "file":
-          this.imageUrl = window.URL.createObjectURL(new Blob([response.data]));
-          break;
-        default:
-          break;
-      }
-    } catch (error) {
-      console.error(error);
-      storeAlert.alertMessage.setAlert("alert-danger", `Ошибка: ${error}`);
-    }
-  },
-
-  updateItem: async function (
-    action: string,
-    param: string,
-    itemId: string,
-    form: Object
-  ): Promise<void> {
-    try {
-      const response =
-        action === "create"
-          ? await storeAuth.axiosInstance.post(
-              `${server}/${param}/${candId}`,
-              form
-            )
-          : await storeAuth.axiosInstance.patch(
-              `${server}/check/${itemId}`,
-              form
-            );
-
-      console.log(response.status);
-
-      storeAlert.alertMessage.setAlert(
-        "alert-success",
-        "Данные успешно обновлены"
-      );
-      this.getItem(param);
-    } catch (error) {
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Возникла ошибка ${error}`
-      );
-    }
-  },
-
-  deleteItem: async function (id: string, param: string): Promise<void> {
-    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    if (
-      param === "check" &&
-      (anketaData.value.resume.status_id ===
-        storeClassify.classData.status["finish"] ||
-        anketaData.value.resume.status_id ===
-          storeClassify.classData.status["robot"])
-    ) {
-      storeAlert.alertMessage.setAlert(
-        "alert-warning",
-        "Невозможно удалить проверку с текщим статусом"
-      );
-      return;
-    }
-    if (
-      ["robot", "finish"].includes(
-        storeClassify.classData.status[anketaData.value.resume["status_id"]]
-      )
-    ) {
-      storeAlert.alertMessage.setAlert(
-        "alert-warning",
-        "Нельзя удалить запись с текущим статусом"
-      );
-      return;
-    }
-    try {
-      const response = await storeAuth.axiosInstance.delete(
-        `${server}/${param}/${id}`
-      );
-      console.log(response.status);
-      param === "resume"
-        ? router.push({ name: "persons" })
-        : this.getItem(param);
-
       storeAlert.alertMessage.setAlert(
         "alert-info",
-        `Запись с ID ${id} удалена`
+        "Статус анкеты обновлен"
+      );
+    }
+    if (action === "send") {
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Анкета отправлена на проверку"
+      );
+      window.scrollTo(0, 0);
+    }
+  } catch (error) {
+    console.error(error);
+    storeAlert.alertMessage.setAlert(
+      "alert-danger",
+      `Ошибка обработки ${error}`
+    );
+  }
+  anketaData.value.spinner = false;
+};
+
+async function getItem(param: string): Promise<void> {
+  try {
+    const response = await storeAuth.axiosInstance.get(
+      `${server}/${param}/${candId}`
+    );
+    switch (param) {
+      case "staff":
+        anketaData.value.staffs = response.data;
+        break;
+      case "document":
+        anketaData.value.documents = response.data;
+        break;
+      case "address":
+        anketaData.value.addresses = response.data;
+        break;
+      case "contact":
+        anketaData.value.contacts = response.data;
+        break;
+      case "relation":
+        anketaData.value.relations = response.data;
+        break;
+      case "workplace":
+        anketaData.value.workplaces = response.data;
+        break;
+      case "affilation":
+        anketaData.value.affilations = response.data;
+        break;
+      case "check":
+        anketaData.value.checks = response.data;
+        break;
+      case "robot":
+        anketaData.value.robots = response.data;
+        break;
+      case "poligraf":
+        anketaData.value.poligraf = response.data;
+        break;
+      case "investigation":
+        anketaData.value.investigations = response.data;
+        break;
+      case "inquiry":
+        anketaData.value.inquiries = response.data;
+        break;
+      case "file":
+        anketaData.value.imageUrl = window.URL.createObjectURL(new Blob([response.data]));
+        break;
+      default:
+        break;
+    }
+  } catch (error) {
+    console.error(error);
+    storeAlert.alertMessage.setAlert("alert-danger", `Ошибка: ${error}`);
+  }
+};
+
+async function  updateItem(
+  action: string,
+  param: string,
+  itemId: string,
+  form: Object
+): Promise<void> {
+  try {
+    const response =
+      action === "create"
+        ? await storeAuth.axiosInstance.post(
+            `${server}/${param}/${candId}`,
+            form
+          )
+        : await storeAuth.axiosInstance.patch(
+            `${server}/check/${itemId}`,
+            form
+          );
+
+    console.log(response.status);
+
+    storeAlert.alertMessage.setAlert(
+      "alert-success",
+      "Данные успешно обновлены"
+    );
+   getItem(param);
+  } catch (error) {
+    storeAlert.alertMessage.setAlert(
+      "alert-danger",
+      `Возникла ошибка ${error}`
+    );
+  }
+};
+
+async function deleteItem(id: string, param: string): Promise<void> {
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  if (
+    param === "check" &&
+    (anketaData.value.resume.status_id ===
+      storeClassify.classData.status["finish"] ||
+      anketaData.value.resume.status_id ===
+        storeClassify.classData.status["robot"])
+  ) {
+    storeAlert.alertMessage.setAlert(
+      "alert-warning",
+      "Невозможно удалить проверку с текщим статусом"
+    );
+    return;
+  }
+  if (
+    ["robot", "finish"].includes(
+      storeClassify.classData.status[anketaData.value.resume["status_id"]]
+    )
+  ) {
+    storeAlert.alertMessage.setAlert(
+      "alert-warning",
+      "Нельзя удалить запись с текущим статусом"
+    );
+    return;
+  }
+  try {
+    const response = await storeAuth.axiosInstance.delete(
+      `${server}/${param}/${id}`
+    );
+    console.log(response.status);
+    param === "resume"
+      ? router.push({ name: "persons" })
+      : getItem(param);
+
+    storeAlert.alertMessage.setAlert(
+      "alert-info",
+      `Запись с ID ${id} удалена`
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+async function submitFile(event: Event, param: string): Promise<void> {
+  const inputElement = event.target as HTMLInputElement;
+  if (inputElement && inputElement.files && inputElement.files.length > 0) {
+    const maxSizeInBytes = 1024 * 1024; // 1MB
+    for (let i = 0; i < inputElement.files.length; i++) {
+      if (inputElement.files[i].size > maxSizeInBytes) {
+        storeAlert.alertMessage.setAlert(
+          "alert-warning",
+          "File size exceeds the limit. Please select a smaller file."
+        );
+        inputElement.value = ""; // Reset the input field
+        return;
+      }
+    }
+    const formData = new FormData();
+    formData.append("file", inputElement.files[0]);
+
+    try {
+      const response = await storeAuth.axiosInstance.post(
+        `${server}/file/${param}/${candId}`,
+        formData
+      );
+      console.log(response.status);
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Файл или файлы успешно загружен/добавлены"
       );
     } catch (error) {
       console.error(error);
     }
-  },
+  } else {
+    storeAlert.alertMessage.setAlert(
+      "alert-warning",
+      "Ошибка при загрузке файла"
+    );
+  }
+};
 
-  submitFile: async function (event: Event, param: string): Promise<void> {
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement && inputElement.files && inputElement.files.length > 0) {
-      const maxSizeInBytes = 1024 * 1024; // 1MB
-      for (let i = 0; i < inputElement.files.length; i++) {
-        if (inputElement.files[i].size > maxSizeInBytes) {
-          storeAlert.alertMessage.setAlert(
-            "alert-warning",
-            "File size exceeds the limit. Please select a smaller file."
-          );
-          inputElement.value = ""; // Reset the input field
-          return;
-        }
-      }
-      const formData = new FormData();
-      formData.append("file", inputElement.files[0]);
-
-      try {
-        const response = await storeAuth.axiosInstance.post(
-          `${server}/file/${param}/${candId}`,
-          formData
-        );
-        console.log(response.status);
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Файл или файлы успешно загружен/добавлены"
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      storeAlert.alertMessage.setAlert(
-        "alert-warning",
-        "Ошибка при загрузке файла"
-      );
-    }
-  },
-});
 </script>
 
 <template>
@@ -304,8 +305,8 @@ const anketaData = ref({
     <PhotoCard
       :cand-id="candId"
       :image-url="anketaData.imageUrl"
-      @get-item="anketaData.getItem"
-      @submit-file="anketaData.submitFile"
+      @get-item="getItem"
+      @submit-file="submitFile"
     />
     <HeaderDiv :page-header="anketaData.resume.fullname" />
     <div
@@ -340,7 +341,7 @@ const anketaData = ref({
         :tabindex="!anketaData.printPage ? '0' : ''"
       >
         <AnketaTab
-          :user-id="storeUser.userData.userId"
+          :user-id="storeUser.userData.userId.toString()"
           :spinner="anketaData.spinner"
           :resume="anketaData.resume"
           :staffs="anketaData.staffs"
@@ -350,10 +351,10 @@ const anketaData = ref({
           :relations="anketaData.relations"
           :workplaces="anketaData.workplaces"
           :affilations="anketaData.affilations"
-          @get-resume="anketaData.getResume"
-          @get-item="anketaData.getItem"
-          @update="anketaData.updateItem"
-          @delete="anketaData.deleteItem"
+          @get-resume="getResume"
+          @get-item="getItem"
+          @submit="updateItem"
+          @delete="deleteItem"
         />
       </div>
       <div
@@ -362,14 +363,14 @@ const anketaData = ref({
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <CheckTab
-          :user-id="storeUser.userData.userId"
+          :user-id="storeUser.userData.userId.toString()"
           :resume="anketaData.resume"
           :checks="anketaData.checks"
           :robots="anketaData.robots"
-          @get-item="anketaData.getItem"
-          @delete="anketaData.deleteItem"
-          @submit="anketaData.updateItem"
-          @file="anketaData.submitFile"
+          @get-item="getItem"
+          @delete="deleteItem"
+          @submit="updateItem"
+          @file="submitFile"
         />
       </div>
       <div
@@ -379,10 +380,10 @@ const anketaData = ref({
       >
         <PoligrafTab
           :poligraf="anketaData.poligraf"
-          @get-item="anketaData.getItem"
-          @delete="anketaData.deleteItem"
-          @submit="anketaData.updateItem"
-          @file="anketaData.submitFile"
+          @get-item="getItem"
+          @delete="deleteItem"
+          @submit="updateItem"
+          @file="submitFile"
         />
       </div>
       <div
@@ -392,10 +393,10 @@ const anketaData = ref({
       >
         <InvestigateTab
           :investigations="anketaData.investigations"
-          @get-item="anketaData.getItem"
-          @delete="anketaData.deleteItem"
-          @submit="anketaData.updateItem"
-          @file="anketaData.submitFile"
+          @get-item="getItem"
+          @delete="deleteItem"
+          @submit="updateItem"
+          @file="submitFile"
         />
       </div>
       <div
@@ -405,9 +406,9 @@ const anketaData = ref({
       >
         <InquiryTab
           :inquiries="anketaData.inquiries"
-          @get-item="anketaData.getItem"
-          @delete="anketaData.deleteItem"
-          @submit="anketaData.updateItem"
+          @get-item="getItem"
+          @delete="deleteItem"
+          @submit="updateItem"
         />
       </div>
     </div>
