@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
 import { defineAsyncComponent, ref } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
 import { alertStore } from "@store/alert";
 import { authStore } from "@/store/auth";
 import { server } from "@utilities/utils";
@@ -10,16 +9,12 @@ import { router } from "@/router/router";
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
+);
 
 const storeAlert = alertStore();
 const storeAuth = authStore();
-
-onBeforeRouteLeave((_to: any, _from: any, next: () => void) => {
-  Object.keys(loginData.value.form).forEach((key) => {
-    delete loginData.value.form[key as keyof typeof loginData.value.form];
-  });
-  next();
-});
 
 const loginData = ref({
   action: "login",
@@ -194,11 +189,10 @@ const loginData = ref({
             "
           />
         </div>
-        <div class="offset-lg-2 col-lg-10 py-3">
+        <BtnGroup>
           <button class="btn btn-primary btn-md" name="submit" type="submit">
             {{ loginData.action === "login" ? "Войти" : "Изменить" }}
           </button>
-          &nbsp;
           <button
             v-show="loginData.action === 'password'"
             class="btn btn-secondary btn-md"
@@ -207,7 +201,7 @@ const loginData = ref({
           >
             Отменить
           </button>
-        </div>
+        </BtnGroup>
       </form>
     </div>
   </div>

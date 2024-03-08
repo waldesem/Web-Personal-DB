@@ -97,7 +97,7 @@ const userForm = ref({
       :model="props.item['email']"
     />
 
-    <BtnGroup>
+    <BtnGroup :cls="false">
       <button
         class="btn btn-outline-secondary"
         name="submit"

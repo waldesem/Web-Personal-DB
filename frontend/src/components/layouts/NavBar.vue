@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { authStore } from "@/store/auth";
-import { alertStore } from "@/store/alert";
 import { userStore } from "@/store/user";
 import { server } from "@/utilities/utils";
 import { router } from "@/router/router";
 
 const storeAuth = authStore();
-const storeAlert = alertStore();
 const storeUser = userStore();
 
 const props = defineProps({
@@ -22,7 +20,7 @@ async function userLogout(): Promise<void> {
     const response = await storeAuth.axiosInstance.delete(`${server}/login`);
     console.log(response.status);
   } catch (error) {
-    storeAlert.alertMessage.setAlert("alert-warning", error as string);
+    console.log(error);
   }
 
   storeAuth.accessToken = "";
