@@ -24,9 +24,9 @@ const props = defineProps({
 const docForm = ref({
   form: <Document>{},
   selected_item: {
-    passport: "Паспорт гражданина России",
-    foreign: "Иностранный докумен",
-    others: "Другое",
+    "Паспорт гражданина России": "Паспорт гражданина России",
+    "Иностранный докумен": "Иностранный докумен",
+    "Другое": "Другое",
   }
 });
 
@@ -88,6 +88,7 @@ function updateItem() {
     <BtnGroup>
       <button
         class="btn btn-outline-primary btn-md"
+        data-bs-dismiss="modal"
         name="submit"
         type="submit"
       >

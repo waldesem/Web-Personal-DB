@@ -20,7 +20,7 @@ const props = defineProps({
   },
 });
 
-onBeforeMount(() => {
+onBeforeMount( async () => {
   fileManager.value.path = props.path.slice(0, -1);
   await fileManager.value.openFolder();
 });

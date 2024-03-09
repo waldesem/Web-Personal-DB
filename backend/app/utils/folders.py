@@ -13,12 +13,11 @@ def create_folders(person_id, fullname, folder_name):
     if not os.path.isdir(url):
         os.mkdir(url)
 
-    url = os.path.join(Config.BASE_PATH, person_path)
     folder = os.path.join(url, folder_name)
     if not os.path.isdir(folder):
         os.mkdir(folder)
     if folder_name == "image":
-        return folder
+        return url
     
     subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
     if not os.path.isdir(subfolder):

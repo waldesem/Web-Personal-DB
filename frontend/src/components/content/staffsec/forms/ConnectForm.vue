@@ -25,8 +25,6 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["cancel"]);
-
 const contactForm = ref({
   form: <Record<string, any>>{},
 
@@ -55,7 +53,6 @@ const contactForm = ref({
       Object.keys(this.form).forEach((key) => {
         delete this.form[key as keyof typeof this.form];
       });
-      emit("cancel");
     } catch (error) {
       console.log(error);
     }

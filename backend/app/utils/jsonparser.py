@@ -17,21 +17,21 @@ def parse_json(file) -> None:
                     "region_id": parse_region(json_dict),
                     "category_id": Category().get_id(Categories.candidate.name),
                     "status_id": Status().get_id(Statuses.new.name),
-                    "fullname": parse_fullname(),
-                    "previous": parse_previous(),
-                    "birthday": parse_birthday(),
+                    "fullname": parse_fullname(json_dict),
+                    "previous": parse_previous(json_dict),
+                    "birthday": parse_birthday(json_dict),
                     "birthplace": json_dict.get("birthplace", "").strip(),
                     "country": json_dict.get("citizen" "").strip(),
                     "ext_country": json_dict.get("additionalCitizenship", "").strip(),
                     "snils": json_dict.get("snils", "").strip(),
                     "inn": json_dict.get("inn", "").strip(),
                     "marital": json_dict.get("maritalStatus", "").strip(),
-                    "education": parse_education(),
+                    "education": parse_education(json_dict),
                 }
             }
         )
 
-        person.update({"workplaces": parse_workplace()})
+        person.update({"workplaces": parse_workplace(json_dict)})
 
         person.update(
             {
@@ -87,7 +87,7 @@ def parse_json(file) -> None:
                 ]
             }
         )
-        person.update({"affilation": parse_affilation()})
+        person.update({"affilation": parse_affilation(json_dict)})
 
         return person
 

@@ -43,17 +43,18 @@ function cancelEdit() {
 }
 
 function submitForm(form: Object) {
-  emit("submit", [
+  emit(
+    "submit", 
     affilation.value.action,
     "affilation",
     affilation.value.itemId,
     form,
-  ]);
+  );
   cancelEdit();
 }
 
 function deleteItem(itemId: string) {
-  emit("delete", [itemId, "affilation"]);
+  emit("delete", itemId, "affilation");
 }
 </script>
 

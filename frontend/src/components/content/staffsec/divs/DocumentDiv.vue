@@ -43,11 +43,11 @@ function cancelEdit(){
 };
 
 function submitForm(form: Object) {
-  emit("submit", [document.value.action, "document", document.value.itemId, form])
+  emit("submit", document.value.action, "document", document.value.itemId, form)
 };
 
 function deleteItem(itemId: string){
-  emit("delete", [itemId, "document"])
+  emit("delete", itemId, "document")
 };
 </script>
 

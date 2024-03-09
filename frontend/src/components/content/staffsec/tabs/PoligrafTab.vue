@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { Pfo } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -28,7 +29,7 @@ onBeforeMount(async () => {
 
 const props = defineProps({
   poligrafs: {
-    type: Array as () => Array<Record<any, string>>,
+    type: Array as () => Array<Pfo>,
     default: () => [],
   },
 });
@@ -36,21 +37,22 @@ const props = defineProps({
 const poligraf = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Pfo>{},
 });
 
 function cancelEdit() {
   poligraf.value.action = "";
-  poligraf.value.item = {};
+  poligraf.value.item = <Pfo>{};
 }
 
 function submitForm(form: Object) {
-  emit("submit", [
+  emit(
+    "submit", 
     poligraf.value.action,
     "poligraf",
     poligraf.value.itemId,
     form,
-  ]);
+  );
   cancelEdit();
 }
 
@@ -59,7 +61,7 @@ function submitFile(event: Event) {
 }
 
 function deleteItem(itemId: string) {
-  emit("delete", [itemId, "poligraf"]);
+  emit("delete", itemId, "poligraf");
 }
 </script>
 
@@ -73,7 +75,7 @@ function deleteItem(itemId: string) {
       @cancel="cancelEdit"
     >
       <PoligrafForm
-        :content="poligraf.item"
+        :poligraf="poligraf.item"
         @submit="submitForm"
       />
     </ModalWin>
@@ -93,6 +95,7 @@ function deleteItem(itemId: string) {
           >
             <i class="bi bi-trash"></i>
           </a>
+          &nbsp;
           <a
             href="#"
             title="Изменить"

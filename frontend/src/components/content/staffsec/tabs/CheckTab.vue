@@ -67,7 +67,7 @@ function cancelEdit() {
 }
 
 function submitForm(form: Object) {
-  emit("submit", [check.value.action, "check", check.value.itemId, form]);
+  emit("submit", check.value.action, "check", check.value.itemId, form);
   cancelEdit();
 }
 
@@ -76,7 +76,7 @@ function submitFile(event: Event) {
 }
 
 function deleteItem(itemId: string) {
-  emit("delete", [itemId, "check"]);
+  emit("delete", itemId, "check");
 }
 
 function getRobot() {

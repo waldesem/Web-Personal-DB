@@ -77,7 +77,6 @@ def register_cli(app):
                 education="Частная гимназия Илиади",
                 marital="женат",
                 addition="великий комбинатор",
-                path=Config.BASE_PATH,
                 status_id=Status().get_id(Statuses.new.value),
             )
         )

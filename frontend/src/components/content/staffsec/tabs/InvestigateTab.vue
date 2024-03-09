@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { Inquisition } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -28,7 +29,7 @@ onBeforeMount(async () => {
 
 const props = defineProps({
   inquisitions: {
-    type: Array as () => Array<Record<any, string>>,
+    type: Array as () => Array<Inquisition>,
     default: () => [],
   },
 });
@@ -36,21 +37,22 @@ const props = defineProps({
 const inquisition = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Inquisition>{},
 });
 
 function cancelEdit() {
   inquisition.value.action = "";
-  inquisition.value.item = {};
+  inquisition.value.item = <Inquisition>{};
 }
 
 function submitForm(form: Object) {
-  emit("submit", [
+  emit(
+    "submit", 
     inquisition.value.action,
     "investigation",
     inquisition.value.itemId,
     form,
-  ]);
+  );
 }
 
 function submitFile(event: Event) {
@@ -58,7 +60,7 @@ function submitFile(event: Event) {
 }
 
 function deleteItem(itemId: string) {
-  emit("delete", [itemId, "investigation"]);
+  emit("delete", itemId, "investigation");
 }
 </script>
 
@@ -71,7 +73,7 @@ function deleteItem(itemId: string) {
       :id="'modalInvestigation'"
       @cancel="cancelEdit"
     >
-      <InvestigationForm :content="inquisition.item" @submit="submitForm" />
+      <InvestigationForm :investigation="inquisition.item" @submit="submitForm" />
     </ModalWin>
     <div v-if="props.inquisitions.length">
       <CollapseDiv

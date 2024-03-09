@@ -43,17 +43,18 @@ function cancelEdit() {
 }
 
 function submitForm(form: Object) {
-  emit("submit", [
+  emit(
+    "submit", 
     workplace.value.action,
     "workplace",
     workplace.value.itemId,
     form,
-  ]);
+  );
   cancelEdit();
 }
 
 function deleteItem(itemId: string) {
-  emit("delete", [itemId, "workplace"]);
+  emit("delete", itemId, "workplace");
 }
 </script>
 

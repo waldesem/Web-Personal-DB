@@ -22,7 +22,7 @@ const header = computed(() => {
 });
 
 onBeforeMount( async () => {
-  await personData.value.getCandidates();
+  await getCandidates();
 });
 
 const personData = ref({
@@ -38,36 +38,40 @@ const personData = ref({
   search: "",
   page: 1,
   path: "new",
-
-  getCandidates: async function (page = 1): Promise<void> {
-    this.page = page;
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/index/${this.path}/${this.page}`,
-        {
-          params: {
-            search: this.search,
-          },
-        }
-      );
-      const [datas, metadata] = response.data;
-      this.candidates = datas;
-      this.prev = metadata.has_prev;
-      this.next = metadata.has_next;
-    } catch (error) {
-      console.error(error);
-    }
-  },
 });
+
+async function getCandidates (page = 1): Promise<void> {
+  personData.value.page = page;
+  try {
+    const response = await storeAuth.axiosInstance.get(
+      `${server}/index/${personData.value.path}/${personData.value.page}`,
+      {
+        params: {
+          search: personData.value.search,
+        },
+      }
+    );
+    const [datas, metadata] = response.data;
+    personData.value.candidates = datas;
+    personData.value.prev = metadata.has_prev;
+    personData.value.next = metadata.has_next;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 const searchPerson = debounce(() => {
   personData.value.path = "search"
-  personData.value.getCandidates();
+  getCandidates();
 }, 500);
+
+function changePath (): void {
+  getCandidates();
+};
 </script>
 
 <template>
-  <div class="container py-3">
+      <div class="container py-3">
     <HeaderDiv :page-header="header" />
     <div class="row">
       <div class="col-md-3">
@@ -75,10 +79,11 @@ const searchPerson = debounce(() => {
           <label class="visually-hidden" for="action"></label>
           <select
             class="form-select"
+            required
             id="action"
             name="action"
             v-model="personData.path"
-            @change="personData.getCandidates"
+            @change="changePath"
           >
             <option
               v-for="(value, key) in personData.items"
@@ -115,11 +120,11 @@ const searchPerson = debounce(() => {
         <thead>
           <tr height="50px">
             <th width="5%">#</th>
-            <th width="25%">Регион</th>
+            <th width="20%">Регион</th>
             <th>Фамилия Имя Отчество</th>
             <th width="15%">Дата рождения</th>
             <th width="10%">Статус</th>
-            <th width="10%"> Создан</th>
+            <th width="15%"> Создан</th>
           </tr>
         </thead>
         <tbody>
@@ -156,7 +161,7 @@ const searchPerson = debounce(() => {
       :has_next="personData.next"
       :switchPrev="personData.page - 1"
       :switchNext="personData.page + 1"
-      @switch="personData.getCandidates"
+      @switch="getCandidates"
     />
   </div>
 </template>

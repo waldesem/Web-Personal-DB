@@ -23,7 +23,7 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["cancel", "get-resume"]);
+const emit = defineEmits(["get-resume"]);
 
 const props = defineProps({
   action: {
@@ -71,7 +71,6 @@ const resumeForm = ref({
     Object.keys(this.form).forEach((key) => {
       delete this.form[key as keyof typeof this.form];
     });
-    emit("cancel");
    },
 });
 </script>
@@ -91,6 +90,15 @@ const resumeForm = ref({
           resumeForm.form['category_id'] = $event.target.value
         "
         :model="props.resume['category_id']"
+      />
+      <SelectDiv
+        :name="'region_id'"
+        :label="'Регион'"
+        :select="storeClassify.classData.regions"
+        @input-event="
+          resumeForm.form['region_id'] = $event.target.value
+        "
+        :model="props.resume['region_id']"
       />
       <InputLabel
         :isneed="true"
@@ -192,7 +200,12 @@ const resumeForm = ref({
       />
 
       <BtnGroup>
-        <button class="btn btn-outline-primary" type="submit">Принять</button>
+        <button 
+          class="btn btn-outline-primary" 
+          data-bs-dismiss="modal"
+          type="submit">
+          Принять
+        </button>
         <button class="btn btn-outline-primary" type="reset">Очистить</button>
         <router-link
           v-if="props.action === 'create'"

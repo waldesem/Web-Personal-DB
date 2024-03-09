@@ -211,10 +211,6 @@ class ResumeView(MethodView):
     @bp.output(EmptySchema)
     def delete(self, person_id):
         person = db.session.get(Person, person_id)
-        try:
-            shutil.rmtree(os.path.join(Config.BASE_PATH, person.path))
-        except Exception as e:
-            print(e)
         db.session.delete(person)
         db.session.commit()
         return "", 204
@@ -935,12 +931,12 @@ class FileView(MethodView):
         Retrieves a file from the server and sends it as a response.
         """
         person = db.session.get(Person, item_id)
-        file_path = os.path.join(Config.BASE_PATH, person.path, "images", "image.jpg")
+        file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True)
         return abort(404)
 
-    def post(self, action, cand_id = None):
+    def post(self, action, item_id = None):
         if not request.files["file"].filename:
             return abort(400)
 
@@ -954,7 +950,7 @@ class FileView(MethodView):
             )
             file.save(temp_path)
             anketa = parse_json(temp_path)
-            person_id = ResumeView.add_resume(anketa.resume, "create")
+            person_id = ResumeView.add_resume(anketa['resume'], "create")
             self.fill_items(anketa, person_id)
 
             person = db.session.get(Person, person_id)
@@ -983,18 +979,17 @@ class FileView(MethodView):
 
         else:
             files = request.files.getlist("file")
-            person = db.session.get(Person, cand_id)
-            folder = create_folders(cand_id, person.fullname, action)
+            person = db.session.get(Person, item_id)
+            folder = create_folders(item_id, person.fullname, action)
             if action == "image":
                 im = Image.open(files[0])
                 rgb_im = im.convert("RGB")
-                images = os.path.join(Config.BASE_PATH, folder, "images")
-                if not os.path.isdir(images):
-                    os.mkdir(images)
-                image_path = os.path.join(images, "image.jpg")
+                image_path = os.path.join(folder, "image", "image.jpg")
                 if os.path.isfile(image_path):
                     os.remove(image_path)
                 rgb_im.save(image_path)
+                person.path = folder
+                db.session.commit()
             else:
                 for file in files:
                     filename = secure_filename(file.filename)
@@ -1006,17 +1001,17 @@ class FileView(MethodView):
                                 f'{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}-{filename}',
                             )
                         )
-            return {"message": person_id}, 201
+            return "", 201
 
     def fill_items(self, anketa, person_id):
         models = [Staff, Document, Address, Contact, Workplace, Affilation]
         items_lists = [
-            anketa.staff,
-            anketa.passport,
-            anketa.addresses,
-            anketa.contacts,
-            anketa.workplaces,
-            anketa.affilation,
+            anketa['staff'],
+            anketa['passport'],
+            anketa['addresses'],
+            anketa['contacts'],
+            anketa['workplaces'],
+            anketa['affilation'],
         ]
         for model, items in zip(models, items_lists):
             for item in items:

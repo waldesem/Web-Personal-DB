@@ -22,7 +22,7 @@ const props = defineProps({
 });
 
 function deleteItem(itemId: string){
-  emit("delete", [itemId, "robot"])
+  emit("delete", itemId, "robot")
 };
 </script>
 

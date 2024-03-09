@@ -115,11 +115,11 @@ function updateItem(
   itemId: string,
   form: Object
 ) {
-  emit("submit", [action, item, itemId, form]);
+  emit("submit", action, item, itemId, form);
 }
 
 function deleteItem(itemId: string, item: string) {
-  emit("delete", [itemId, item]);
+  emit("delete", itemId, item);
 }
 </script>
 
@@ -132,7 +132,7 @@ function deleteItem(itemId: string, item: string) {
     >
       <ResumeForm
         :action="dataResume.action"
-        :content="props.resume"
+        :resume="props.resume"
         @get-resume="getResume"
       />
     </ModalWin>
@@ -171,6 +171,7 @@ function deleteItem(itemId: string, item: string) {
     <LabelValue :label="'СНИЛС'" :value="props.resume['snils']" />
     <LabelValue :label="'ИНН'" :value="props.resume['inn']" />
     <LabelValue :label="'Образование'" :value="props.resume['education']" />
+    <LabelValue :label="'Семейное положение'" :value="props.resume['marital']" />
     <LabelValue
       :label="'Дополнительная информация'"
       :value="props.resume['addition']"

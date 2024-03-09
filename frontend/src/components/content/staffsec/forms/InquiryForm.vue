@@ -60,13 +60,14 @@ function updateItem() {
     <BtnGroup>
       <button
         class="btn btn-outline-primary btn-md"
+        data-bs-dismiss="modal"
         name="submit"
         type="submit"
       >
         Принять
       </button>
       <button 
-        class="btn btn-outline-secondary btn-md" 
+        class="btn btn-outline-secondary btn-md"
         name="reset" 
         type="reset"
       >

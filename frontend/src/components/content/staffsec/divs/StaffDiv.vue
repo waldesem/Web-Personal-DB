@@ -38,12 +38,12 @@ const staff = ref({
 });
 
 function submitForm(form: Object) {
-  emit("submit", [staff.value.action, "staff", staff.value.itemId, form])
+  emit("submit", staff.value.action, "staff", staff.value.itemId, form)
   cancelEdit();
 };
 
 function deleteItem(itemId: string){
-  emit("delete", [itemId, "staff"])
+  emit("delete", itemId, "staff")
 };
 
 function cancelEdit(){

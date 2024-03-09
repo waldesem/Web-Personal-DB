@@ -22,7 +22,6 @@ const toggle = ref(true);
       :href="`#${props.id}`"
       @click="toggle = !toggle"
     >
-      <i class="bi" :class="toggle ? 'bi-plus-circle' : 'bi-dash-circle'"></i>
       {{ props.label }}
     </a>
     <div class="collapse" :class="{ show: props.idx == '0' }" :id="props.id">

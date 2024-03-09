@@ -21,7 +21,7 @@ const photoCard = ref({
 });
 
 function submitFile (event: Event) {
-  emit("submit-file", [event, "image"]);
+  emit("submit-file", event, "image");
 };
 </script>
 

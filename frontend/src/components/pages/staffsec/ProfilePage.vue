@@ -197,7 +197,7 @@ async function  updateItem(
             form
           )
         : await storeAuth.axiosInstance.patch(
-            `${server}/check/${itemId}`,
+            `${server}/${param}/${itemId}`,
             form
           );
 
@@ -247,6 +247,7 @@ async function deleteItem(id: string, param: string): Promise<void> {
       `${server}/${param}/${id}`
     );
     console.log(response.status);
+
     param === "resume"
       ? router.push({ name: "persons" })
       : getItem(param);
@@ -283,6 +284,9 @@ async function submitFile(event: Event, param: string): Promise<void> {
         formData
       );
       console.log(response.status);
+      if (param === "image") {
+        getItem("file");
+      };
       storeAlert.alertMessage.setAlert(
         "alert-success",
         "Файл или файлы успешно загружен/добавлены"
@@ -308,6 +312,22 @@ async function submitFile(event: Event, param: string): Promise<void> {
       @get-item="getItem"
       @submit-file="submitFile"
     />
+    <div class="position-relative">
+      <div class="position-absolute top-0 end-0">
+        <a
+          href="#"
+          class="d-print-none"
+          @click="anketaData.printPage = !anketaData.printPage"
+        >
+          <i 
+            class="bi bi-printer fs-1" 
+            title="Версия для печати"
+            style="cursor: pointer;"
+          >
+          </i>
+        </a>
+      </div>
+    </div>
     <HeaderDiv :page-header="anketaData.resume.fullname" />
     <div
       :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
@@ -379,7 +399,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <PoligrafTab
-          :poligraf="anketaData.poligraf"
+          :poligrafs="anketaData.poligraf"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"
@@ -392,7 +412,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <InvestigateTab
-          :investigations="anketaData.investigations"
+          :inquisitions="anketaData.investigations"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"
@@ -405,28 +425,13 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
         <InquiryTab
-          :inquiries="anketaData.inquiries"
+          :needs="anketaData.inquiries"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"
         />
       </div>
     </div>
-    <div class="position-relative">
-      <div class="position-absolute top-0 end-0">
-        <a
-          href="#"
-          class="d-print-none"
-          @click="anketaData.printPage = !anketaData.printPage"
-        >
-          <i 
-            class="bi bi-printer fs-1" 
-            title="Версия для печати"
-            style="cursor: pointer;"
-          >
-          </i>
-        </a>
-      </div>
-    </div>
+   
   </div>
 </template>

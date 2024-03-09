@@ -110,7 +110,7 @@ const userData = ref({
         this.userAction("view");
 
         storeAlert.alertMessage.setAlert(
-          "alert-success", `"Роль ${action === "add" ? "добавлена" : "удалена"}`
+          "alert-success", `Роль ${action === "add" ? "добавлена" : "удалена"}`
         );
       } catch (error) {
         storeAlert.alertMessage.setAlert("alert-danger", error as string);
@@ -237,50 +237,52 @@ async function updateData() {
           </form>
         </LabelSlot>
       </div>
-      <BtnGroup :cls="false">
-        <button
-          class="btn btn-outline-secondary"
-          type="button"
-          data-bs-toggle="modal"
-          data-bs-target="#modalUser"
-          @click="userData.action = 'edit'"
-        >
-          Изменить пользователя
-        </button>
-        <button
-          @click="userData.userAction('block')"
-          class="btn btn-outline-secondary"
-        >
-          {{
-            userData.profile.blocked
-              ? "Разблокировать"
-              : "Заблокировать"
-          }}
-        </button>
-        <button
-          @click="userData.userAction('drop')"
-          type="button"
-          class="btn btn-outline-secondary"
-        >
-          Сбросить пароль
-        </button>
-        <button
-          @click="userData.userDelete"
-          type="button"
-          class="btn btn-outline-secondary"
-          :disabled="userData.profile.deleted"
-        >
-          Удалить
-        </button>
-        <button
-          @click="userData.userAction('restore')"
-          type="button"
-          class="btn btn-outline-secondary"
-          :disabled="!userData.profile.deleted"
-        >
-          Восстановить
-        </button>
-      </BtnGroup>
+      <div class="py-3">
+        <BtnGroup :cls="false">
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#modalUser"
+            @click="userData.action = 'edit'"
+          >
+            Изменить пользователя
+          </button>
+          <button
+            @click="userData.userAction('block')"
+            class="btn btn-outline-secondary"
+          >
+            {{
+              userData.profile.blocked
+                ? "Разблокировать"
+                : "Заблокировать"
+            }}
+          </button>
+          <button
+            @click="userData.userAction('drop')"
+            type="button"
+            class="btn btn-outline-secondary"
+          >
+            Сбросить пароль
+          </button>
+          <button
+            @click="userData.userDelete"
+            type="button"
+            class="btn btn-outline-secondary"
+            :disabled="userData.profile.deleted"
+          >
+            Удалить
+          </button>
+          <button
+            @click="userData.userAction('restore')"
+            type="button"
+            class="btn btn-outline-secondary"
+            :disabled="!userData.profile.deleted"
+          >
+            Восстановить
+          </button>
+        </BtnGroup>
+      </div>
     </div>
     <ModalWin
       :title="'Изменить пользователя'"

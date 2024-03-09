@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { Needs } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/elements/CollapseDiv.vue")
@@ -25,7 +26,7 @@ onBeforeMount(async () => {
 
 const props = defineProps({
   needs: {
-    type: Array as () => Array<Record<any, string>>,
+    type: Array as () => Array<Needs>,
     default: () => [],
   },
 });
@@ -33,21 +34,27 @@ const props = defineProps({
 const need = ref({
   action: "",
   itemId: "",
-  item: <Record<any, string>>{},
+  item: <Needs>{},
 });
 
 function cancelEdit() {
   need.value.action = "";
-  need.value.item = {};
+  need.value.item = <Needs>{};
 }
 
 function submitForm(form: Object) {
-  emit("submit", [need.value.action, "inquiry", need.value.itemId, form]);
+  emit(
+    "submit", 
+    need.value.action, 
+    "inquiry", 
+    need.value.itemId, 
+    form
+  );
   cancelEdit();
 }
 
 function deleteItem(itemId: string) {
-  emit("delete", [itemId, "inquiry"]);
+  emit("delete", itemId, "inquiry");
 }
 </script>
 
@@ -58,7 +65,7 @@ function deleteItem(itemId: string) {
       :id="'modalInquiry'"
       @cancel="cancelEdit"
     >
-      <InquiryForm :action="need.action" @submit="submitForm" />
+      <InquiryForm :inquiry="need.item" @submit="submitForm" />
     </ModalWin>
     <div v-if="props.needs.length">
       <CollapseDiv
@@ -76,6 +83,7 @@ function deleteItem(itemId: string) {
           >
             <i class="bi bi-trash"></i>
           </a>
+          &nbsp;
           <a
             href="#"
             title="Изменить"

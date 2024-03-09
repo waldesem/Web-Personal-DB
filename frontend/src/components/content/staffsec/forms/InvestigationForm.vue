@@ -57,6 +57,7 @@ function updateItem() {
     <BtnGroup>
       <button
         class="btn btn-outline-primary btn-md"
+        data-bs-dismiss="modal"
         name="submit"
         type="submit"
       >

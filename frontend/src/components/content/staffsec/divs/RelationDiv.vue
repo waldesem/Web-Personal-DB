@@ -43,17 +43,17 @@ function cancelEdit() {
 }
 
 function submitForm(form: Object) {
-  emit("submit", [
+  emit("submit", 
     relation.value.action,
     "relation",
     relation.value.itemId,
     form,
-  ]);
+  );
   cancelEdit();
 }
 
 function deleteItem(itemId: string) {
-  emit("delete", [itemId, "relation"]);
+  emit("delete", itemId, "relation");
 }
 </script>
 

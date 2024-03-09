@@ -21,11 +21,11 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 
 onBeforeMount(async () => {
-  await contactData.value.getContacts(1);
+  await getContacts(1);
 });
 
 const searchContacts = debounce(() => {
-  contactData.value.getContacts(1);
+  getContacts(1);
 }, 500);
 
 const contactData = ref({
@@ -38,57 +38,52 @@ const contactData = ref({
   action: "",
   search: "",
   item: <Record<string, any>>{},
-
-  getContacts: async function (page: number): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/connect/${page}`,
-        {
-          params: {
-            search: this.search,
-          },
-        }
-      );
-      const [datas, has_prev, has_next, companies, cities] = response.data;
-      Object.assign(this, {
-        contacts: datas,
-        companies: companies.companies,
-        cities: cities.cities,
-        prev: has_prev.has_prev,
-        next: has_next.has_next,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  },
-
-  deleteContact: async function (id: string): Promise<void> {
-    if (confirm("Вы действительно хотите удалить контакт?")) {
-      try {
-        const response = await storeAuth.axiosInstance.delete(
-          `${server}/connect/${id}`
-        );
-        console.log(response.status);
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          `Контакт с ID ${id} удален`
-        );
-        this.getContacts(this.page);
-      } catch (error) {
-        console.log(error);
-        storeAlert.alertMessage.setAlert(
-          "alert-danger",
-          `Ошибка при удалении контакта с ID ${id}`
-        );
-      }
-    }
-  },
 });
 
-function getEmit() {
-  contactData.value.action = '';
-  contactData.value.getContacts(contactData.value.page);
-}
+async function getContacts(page: number): Promise<void> {
+  try {
+    const response = await storeAuth.axiosInstance.get(
+      `${server}/connect/${page}`,
+      {
+        params: {
+          search: contactData.value.search,
+        },
+      }
+    );
+    const [datas, has_prev, has_next, companies, cities] = response.data;
+    Object.assign(contactData.value, {
+      contacts: datas,
+      companies: companies.companies,
+      cities: cities.cities,
+      prev: has_prev.has_prev,
+      next: has_next.has_next,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+async function deleteContact(id: string): Promise<void> {
+  if (confirm("Вы действительно хотите удалить контакт?")) {
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/connect/${id}`
+      );
+      console.log(response.status);
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        `Контакт с ID ${id} удален`
+      );
+      getContacts(contactData.value.page);
+    } catch (error) {
+      console.log(error);
+      storeAlert.alertMessage.setAlert(
+        "alert-danger",
+        `Ошибка при удалении контакта с ID ${id}`
+      );
+    }
+  }
+};
 </script>
 
 <template>
@@ -114,7 +109,7 @@ function getEmit() {
           : 'Обновить контакт'
       "
       :size="'modal-lg'"
-      @cancel="getEmit"
+      @cancel="contactData.action = ''"
     >
       <ConnectForm
         :page="contactData.page"
@@ -122,7 +117,6 @@ function getEmit() {
         :companies="contactData.companies"
         :cities="contactData.cities"
         :item="contactData.item"
-        @cancel="getEmit"
       />
     </ModalWin>
     <div class="py-3">
@@ -154,52 +148,44 @@ function getEmit() {
           </tr>
         </thead>
         <tbody v-if="contactData.contacts.length > 0">
-          <tr>
-            <td colspan="12">
-              <table
-                v-for="contact in contactData.contacts"
-                :key="contact['id']"
-                class="table align-middle text-center"
+          <tr
+            v-for="contact in contactData.contacts"
+            :key="contact['id']"
+            class="table align-middle text-center"
+          >
+            <td>{{ contact["id"] }}</td>
+            <td>{{ contact["company"] }}</td>
+            <td>{{ contact["city"] }}</td>
+            <td>{{ contact["fullname"] }}</td>
+            <td>{{ contact["phone"] }}</td>
+            <td>{{ contact["adding"] }}</td>
+            <td>{{ contact["mobile"] }}</td>
+            <td>{{ contact["mail"] }}</td>
+            <td>{{ contact["comment"] }}</td>
+            <td>{{ contact["data"] }}</td>
+            <td>
+              <a
+                class="btn btn-link"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#modalConnect"
+                title="Изменить контакт"
+                @click="
+                  contactData.action = 'edit';
+                  contactData.item = contact;
+                "
               >
-                <tbody>
-                  <tr>
-                    <td width="5%">{{ contact["id"] }}</td>
-                    <td width="10%">{{ contact["company"] }}</td>
-                    <td width="10%">{{ contact["city"] }}</td>
-                    <td width="10%">{{ contact["fullname"] }}</td>
-                    <td width="10%">{{ contact["phone"] }}</td>
-                    <td width="10%">{{ contact["adding"] }}</td>
-                    <td width="10%">{{ contact["mobile"] }}</td>
-                    <td width="10%">{{ contact["mail"] }}</td>
-                    <td width="10%">{{ contact["comment"] }}</td>
-                    <td width="5%">{{ contact["data"] }}</td>
-                    <td width="5%">
-                      <a
-                        class="btn btn-link"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modalConnect"
-                        title="Изменить контакт"
-                        @click="
-                          contactData.action = 'edit';
-                          contactData.item = contact;
-                        "
-                      >
-                        <i class="bi bi-pencil-square"></i>
-                      </a>
-                    </td>
-                    <td width="5%">
-                      <a
-                        href="#"
-                        title="Удалить"
-                        @click="contactData.deleteContact(contact['id'])"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                <i class="bi bi-pencil-square"></i>
+              </a>
+            </td>
+            <td width="5%">
+              <a
+                href="#"
+                title="Удалить"
+                @click="deleteContact(contact['id'])"
+              >
+                <i class="bi bi-trash"></i>
+              </a>
             </td>
           </tr>
         </tbody>
@@ -210,13 +196,8 @@ function getEmit() {
       :has_next="contactData.prev"
       :switchPrev="contactData.page - 1"
       :switchNext="contactData.page + 1"
-      @switch="contactData.getContacts"
+      @switch="getContacts"
     />
   </div>
 </template>
 
-<style scoped>
-.no-bottom-border td {
-  border-bottom: none;
-}
-</style>

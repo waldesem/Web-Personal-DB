@@ -20,39 +20,32 @@ const storeAlert = alertStore();
 
 const dataJson = ref({
   formData: new FormData(),
-
-  submitFile: async function (
-    event: Event,
-  ): Promise<void> {
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement && inputElement.files && inputElement.files.length) {
-      this.formData.append("file", inputElement.files[0]);
-      try {
-        const response = await storeAuth.axiosInstance.post(
-          `${server}/file/anketa/0`,
-          this.formData
-        );
-        const { message } = response.data;
-        router.push({ name: "profile", params: { id: message } });
-
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Файл успешно загружен"
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      storeAlert.alertMessage.setAlert(
-        "alert-warning",
-        "Ошибка при загрузке файла"
-      );
-    }
-  },
 });
+async function submitFile(event: Event): Promise<void> {
+  const inputElement = event.target as HTMLInputElement;
+  if (inputElement && inputElement.files && inputElement.files.length) {
+    dataJson.value.formData.append("file", inputElement.files[0]);
+    try {
+      const response = await storeAuth.axiosInstance.post(
+        `${server}/file/anketa/0`,
+        dataJson.value.formData
+      );
+      const { message } = response.data;
+      router.push({ name: "profile", params: { id: message } });
 
-function submitFile (event: Event){
-  dataJson.value.submitFile(event)
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Файл успешно загружен"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    storeAlert.alertMessage.setAlert(
+      "alert-warning",
+      "Ошибка при загрузке файла"
+    );
+  }
 };
 </script>
 
