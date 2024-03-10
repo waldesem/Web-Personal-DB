@@ -19,10 +19,6 @@ const photoCard = ref({
     this.showPhoto = !this.showPhoto;
   },
 });
-
-function submitFile (event: Event) {
-  emit("submit-file", event, "image");
-};
 </script>
 
 <template>
@@ -40,7 +36,7 @@ function submitFile (event: Event) {
       />
       <form
         :class="{ 'form-visible': photoCard.showPhoto }"
-        @change="submitFile($event)"
+        @change="emit('submit-file', $event, 'image')"
         class="form"
       >
         <input

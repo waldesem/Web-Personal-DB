@@ -23,18 +23,12 @@ const props = defineProps({
 
 const staffForm = ref({
   form: <Staff>{},
-  });
-function updateItem() {
-  emit("submit", staffForm.value.form);
-  Object.keys(staffForm.value.form).forEach((key) => {
-    delete staffForm.value.form[key as keyof typeof staffForm.value.form];
-  });
-};
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', staffForm.form)"
     class="form form-check"
     role="form"
   >
@@ -54,7 +48,6 @@ function updateItem() {
     <BtnGroup>
       <button
         class="btn btn-outline-primary btn-md"
-        data-bs-dismiss="modal"
         name="submit"
         type="submit"
       >

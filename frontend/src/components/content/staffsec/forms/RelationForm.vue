@@ -21,18 +21,11 @@ const props = defineProps({
 const relationForm = ref({
   form: <Relation>{},
   });
-
-function updateItem() {
-  emit("submit", relationForm.value.form);
-  Object.keys(relationForm.value.form).forEach((key) => {
-    delete relationForm.value.form[key as keyof typeof relationForm.value.form];
-  });
-};
 </script>
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', relationForm.form)"
     class="form form-check"
     role="form"
   >

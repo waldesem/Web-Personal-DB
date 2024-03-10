@@ -14,7 +14,7 @@ const toggle = ref(true);
 </script>
 
 <template>
-  <div class="mb-3 py-2">
+  <div class="mb-3 ms-3">
     <a
       class="link-primary"
       role="button"
@@ -24,7 +24,7 @@ const toggle = ref(true);
     >
       {{ props.label }}
     </a>
-    <div class="collapse" :class="{ show: props.idx == '0' }" :id="props.id">
+    <div class="collapse show" :id="props.id">
       <slot></slot>
     </div>
   </div>

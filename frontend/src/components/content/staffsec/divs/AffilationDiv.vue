@@ -14,9 +14,6 @@ const LabelValue = defineAsyncComponent(
 const AffilationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AffilationForm.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -37,11 +34,6 @@ const affilation = ref({
   item: <Affilation>{},
 });
 
-function cancelEdit() {
-  affilation.value.action = "";
-  affilation.value.item = <Affilation>{};
-}
-
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -50,12 +42,8 @@ function submitForm(form: Object) {
     affilation.value.itemId,
     form,
   );
-  cancelEdit();
-}
-
-function deleteItem(itemId: string) {
-  emit("delete", itemId, "affilation");
-}
+  affilation.value.action = "";
+};
 </script>
 
 <template>
@@ -64,57 +52,54 @@ function deleteItem(itemId: string) {
     <a
       class="btn btn-link"
       @click="affilation.action = affilation.action ? '' : 'create'"
-      data-bs-toggle="modal"
-      data-bs-target="#modalAffilation"
       title="Добавить информацию"
     >
       <i class="bi bi-plus-circle"></i>
     </a>
   </h6>
-  <ModalWin
-    :title="
-      affilation.action === 'update' ? 'Изменить адрес' : 'Добавить организацию'
-    "
-    :id="'modalAffilation'"
-    @cancel="cancelEdit"
-  >
-    <AffilationForm :content="affilation.item" @submit="submitForm" />
-  </ModalWin>
-  <div v-if="props.items.length > 0">
-    <CollapseDiv
-      v-for="(item, idx) in props.items"
-      :key="idx"
-      :id="'affil' + idx"
-      :idx="idx.toString()"
-      :label="'Аффилированность #' + (idx + 1)"
-    >
-      <LabelSlot>
-        <a href="#" @click="deleteItem(item['id'].toString())" title="Удалить">
-          <i class="bi bi-trash"></i>
-        </a>
-        <a
-          class="btn btn-link"
-          title="Изменить"
-          data-bs-toggle="modal"
-          data-bs-target="#modalAffilation"
-          @click="
-            affilation.action = 'update';
-            affilation.item = item;
-            affilation.itemId = item['id'].toString();
-          "
-        >
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </LabelSlot>
-      <LabelValue :label="'Тип участия'" :value="item['view']" />
-      <LabelValue :label="'Организация'" :value="item['name']" />
-      <LabelValue :label="'ИНН'" :value="item['inn']" />
-      <LabelValue :label="'Должность'" :value="item['position']" />
-      <LabelValue
-        :label="'Дата декларации'"
-        :value="new Date(item['deadline']).toLocaleDateString('ru-RU')"
-      />
-    </CollapseDiv>
+  <AffilationForm v-if="affilation.action"
+    :affils="affilation.item" 
+    @submit="submitForm" 
+  />
+  <div v-else>
+    <div v-if="props.items.length > 0">
+      <CollapseDiv
+        v-for="(item, idx) in props.items"
+        :key="idx"
+        :id="'affil' + idx"
+        :idx="idx.toString()"
+        :label="'Аффилированность #' + (idx + 1)"
+      >
+        <LabelSlot>
+          <a 
+            href="#" 
+            @click="emit('delete', item['id'].toString(), 'affilation')" 
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              affilation.action = 'update';
+              affilation.item = item;
+              affilation.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelSlot>
+        <LabelValue :label="'Тип участия'" :value="item['view']" />
+        <LabelValue :label="'Организация'" :value="item['name']" />
+        <LabelValue :label="'ИНН'" :value="item['inn']" />
+        <LabelValue :label="'Должность'" :value="item['position']" />
+        <LabelValue
+          :label="'Дата декларации'"
+          :value="new Date(item['deadline']).toLocaleDateString('ru-RU')"
+        />
+      </CollapseDiv>
+    </div>
+    <p v-else>Данные отсутствуют</p>
   </div>
-  <p v-else>Данные отсутствуют</p>
 </template>

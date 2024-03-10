@@ -14,9 +14,6 @@ const LabelValue = defineAsyncComponent(
 const DocumentForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/DocumentForm.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -37,17 +34,9 @@ const document = ref({
   item: <Document>{},
 });
 
-function cancelEdit(){
-  document.value.action = '';
-  document.value.item = <Document>{};
-};
-
 function submitForm(form: Object) {
   emit("submit", document.value.action, "document", document.value.itemId, form)
-};
-
-function deleteItem(itemId: string){
-  emit("delete", itemId, "document")
+  document.value.action = '';
 };
 </script>
 
@@ -56,8 +45,6 @@ function deleteItem(itemId: string){
     Документы
     <a
       class="btn btn-link"
-      data-bs-toggle="modal"
-      data-bs-target="#modalDoc"
       @click="
         document.action = document.action ? '' : 'create';"
       title="Добавить информацию"
@@ -65,58 +52,50 @@ function deleteItem(itemId: string){
       <i class="bi bi-plus-circle"></i>
     </a>
   </h6>
-  <ModalWin
-    :title="
-      document.action === 'update' ? 'Изменить запись' : 'Добавить запись'
-    "
-    :id="'modalDoc'"
-    @cancel="cancelEdit"
-  >
-    <DocumentForm 
-      :content="document.item"
-      @submit="submitForm"
-    />
-  </ModalWin>
-  <div v-if="props.items.length > 0">
-    <CollapseDiv
-      v-for="(item, idx) in props.items"
-      :key="idx"
-      :id="'docum' + idx"
-      :idx="idx.toString()"
-      :label="'Документ #' + (idx + 1)"
-    >
-    <LabelSlot>
-      <a
-        href="#"
-        @click="
-          deleteItem(item['id'].toString())"
-        title="Удалить"
+  <DocumentForm v-if="document.action"
+    :docs="document.item"
+    @submit="submitForm"
+  />
+  <div v-else>
+    <div v-if="props.items.length">
+      <CollapseDiv
+        v-for="(item, idx) in props.items"
+        :key="idx"
+        :id="'docum' + idx"
+        :idx="idx.toString()"
+        :label="'Документ #' + (idx + 1)"
       >
-        <i class="bi bi-trash"></i>
-      </a>
-      <a
-        class="btn btn-link"
-        title="Изменить"
-        data-bs-toggle="modal"
-        data-bs-target="#modalDoc"
-        @click="
-          document.action = 'update';
-          document.item = item;
-          document.itemId = item['id'].toString();
-        "
-      >
-        <i class="bi bi-pencil-square"></i>
-      </a>
-    </LabelSlot>
-    <LabelValue :label="'Вид документа'" :value="item['view']" />
-    <LabelValue :label="'Серия'" :value="item['series']" />
-    <LabelValue :label="'Номер'" :value="item['number']" />
-    <LabelValue :label="'Кем выдан'" :value="item['agency']" />
-    <LabelValue
-      :label="'Дата выдачи'"
-      :value="new Date(String(item['issue'])).toLocaleDateString('ru-RU')"
-    />
-    </CollapseDiv>
+      <LabelSlot>
+        <a
+          href="#"
+          @click="
+            emit('delete', item['id'].toString(), 'document')"
+          title="Удалить"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          @click="
+            document.action = 'update';
+            document.item = item;
+            document.itemId = item['id'].toString();
+          "
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </LabelSlot>
+      <LabelValue :label="'Вид документа'" :value="item['view']" />
+      <LabelValue :label="'Серия'" :value="item['series']" />
+      <LabelValue :label="'Номер'" :value="item['number']" />
+      <LabelValue :label="'Кем выдан'" :value="item['agency']" />
+      <LabelValue
+        :label="'Дата выдачи'"
+        :value="new Date(String(item['issue'])).toLocaleDateString('ru-RU')"
+      />
+      </CollapseDiv>
+    </div>
+    <p v-else>Данные отсутствуют</p>
   </div>
-  <p v-else>Данные отсутствуют</p>
 </template>

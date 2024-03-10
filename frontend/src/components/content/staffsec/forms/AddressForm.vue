@@ -32,18 +32,11 @@ const addressForm = ref({
     others: "Другое",
   },
 });
-
-function updateItem() {
-  emit("submit", addressForm.value.form);
-  Object.keys(addressForm.value.form).forEach((key) => {
-    delete addressForm.value.form[key as keyof typeof addressForm.value.form];
-  });
-};
 </script>
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', addressForm.form)"
     class="form form-check"
     role="form"
   >

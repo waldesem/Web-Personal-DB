@@ -24,18 +24,11 @@ const props = defineProps({
 const workForm = ref({
   form: <Work>{},
 });
-
-function updateItem() {
-  emit("submit", workForm.value.form);
-  Object.keys(workForm.value.form).forEach((key) => {
-    delete workForm.value.form[key as keyof typeof workForm.value.form];
-  });
-};
 </script>
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', workForm.form)"
     class="form form-check"
     role="form"
   >

@@ -14,9 +14,6 @@ const LabelValue = defineAsyncComponent(
 const RelationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/RelationForm.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -37,11 +34,6 @@ const relation = ref({
   item: <Relation>{},
 });
 
-function cancelEdit() {
-  relation.value.action = "";
-  relation.value.item = <Relation>{};
-}
-
 function submitForm(form: Object) {
   emit("submit", 
     relation.value.action,
@@ -49,12 +41,8 @@ function submitForm(form: Object) {
     relation.value.itemId,
     form,
   );
-  cancelEdit();
-}
-
-function deleteItem(itemId: string) {
-  emit("delete", itemId, "relation");
-}
+  relation.value.action = "";
+};
 </script>
 
 <template>
@@ -62,8 +50,6 @@ function deleteItem(itemId: string) {
     Связи
     <a
       class="btn btn-link"
-      data-bs-toggle="modal"
-      data-bs-target="#modalRelation"
       @click="relation.action = relation.action ? '' : 'create'"
       :title="relation.action ? 'Закрыть форму' : 'Добавить информацию'"
     >
@@ -72,56 +58,52 @@ function deleteItem(itemId: string) {
       ></i>
     </a>
   </h6>
-  <ModalWin
-    :title="
-      relation.action === 'update' ? 'Изменить запись' : 'Добавить запись'
-    "
-    :id="'modalRelation'"
-    @cancel="cancelEdit"
-  >
-    <RelationForm
-      :content="relation.item"
-      @submit="submitForm"
-    />
-  </ModalWin>
-  <div v-if="props.items.length">
-    <CollapseDiv
-      v-for="(item, idx) in props.items"
-      :key="idx"
-      :id="'relate' + idx"
-      :idx="idx.toString()"
-      :label="'Связь #' + (idx + 1)"
-    >
-      <LabelSlot>
-        <a href="#" @click="deleteItem(item['id'].toString())" title="Удалить">
-          <i class="bi bi-trash"></i>
-        </a>
-        <a
-          class="btn btn-link"
-          title="Изменить"
-          data-bs-toggle="modal"
-          data-bs-target="#modalRelation"
-          @click="
-            relation.action = 'update';
-            relation.item = item;
-            relation.itemId = item['id'].toString();
-          "
-        >
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </LabelSlot>
-      <LabelValue :label="'Тип связи'" :value="item['relation']" />
-      <LabelSlot :label="'Связь'">
-        <router-link
-          :to="{
-            name: 'profile',
-            params: { id: String(item['relation_id']) },
-          }"
-        >
-          ID #{{ item["relation_id"] }}
-        </router-link>
-      </LabelSlot>
-    </CollapseDiv>
+  <RelationForm v-if="relation.action"
+    :content="relation.item"
+    @submit="submitForm"
+  />
+  <div v-else>
+    <div v-if="props.items.length">
+      <CollapseDiv
+        v-for="(item, idx) in props.items"
+        :key="idx"
+        :id="'relate' + idx"
+        :idx="idx.toString()"
+        :label="'Связь #' + (idx + 1)"
+      >
+        <LabelSlot>
+          <a
+            href="#" 
+            @click="emit('delete', item['id'].toString(), 'relation')" 
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              relation.action = 'update';
+              relation.item = item;
+              relation.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelSlot>
+        <LabelValue :label="'Тип связи'" :value="item['relation']" />
+        <LabelSlot :label="'Связь'">
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { id: String(item['relation_id']) },
+            }"
+          >
+            ID #{{ item["relation_id"] }}
+          </router-link>
+        </LabelSlot>
+      </CollapseDiv>
+    </div>
+    <p v-else>Данные отсутствуют</p>
   </div>
-  <p v-else>Данные отсутствуют</p>
 </template>

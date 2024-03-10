@@ -12,7 +12,7 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
   inquiry: {
@@ -24,18 +24,11 @@ const props = defineProps({
 const inquiryForm = ref({
   form: <Needs>{},
   });
-
-function updateItem() {
-  emit("submit", inquiryForm.value.form);
-  Object.keys(inquiryForm.value.form).forEach((key) => {
-    delete inquiryForm.value.form[key as keyof typeof inquiryForm.value.form];
-  });
-};
 </script>
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', inquiryForm.form)"
     class="form form-check"
     role="form"
   >
@@ -60,7 +53,6 @@ function updateItem() {
     <BtnGroup>
       <button
         class="btn btn-outline-primary btn-md"
-        data-bs-dismiss="modal"
         name="submit"
         type="submit"
       >
@@ -72,6 +64,14 @@ function updateItem() {
         type="reset"
       >
         Очистить
+      </button>
+      <button
+        class="btn btn-outline-danger btn-md"
+        type="button"
+        @click="emit('cancel')"
+        name="cancel"
+      >
+      Отмена
       </button>
     </BtnGroup>
   </form>

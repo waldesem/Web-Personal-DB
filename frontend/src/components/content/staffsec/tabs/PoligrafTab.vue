@@ -17,9 +17,6 @@ const PoligrafForm = defineAsyncComponent(
 const FileForm = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
@@ -40,11 +37,6 @@ const poligraf = ref({
   item: <Pfo>{},
 });
 
-function cancelEdit() {
-  poligraf.value.action = "";
-  poligraf.value.item = <Pfo>{};
-}
-
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -53,85 +45,74 @@ function submitForm(form: Object) {
     poligraf.value.itemId,
     form,
   );
-  cancelEdit();
+  poligraf.value.action = "";
 }
 
 function submitFile(event: Event) {
   emit("file", event);
-}
-
-function deleteItem(itemId: string) {
-  emit("delete", itemId, "poligraf");
-}
+};
 </script>
 
 <template>
   <div class="py-3">
-    <ModalWin
-      :title="
-        poligraf.action === 'update' ? 'Изменить запись' : 'Добавить запись'
-      "
-      :id="'modalPfo'"
-      @cancel="cancelEdit"
-    >
-      <PoligrafForm
-        :poligraf="poligraf.item"
-        @submit="submitForm"
-      />
-    </ModalWin>
-    <div v-if="props.poligrafs.length > 0">
-      <CollapseDiv
-        v-for="(item, idx) in props.poligrafs"
-        :key="idx"
-        :id="'poligraf' + idx"
-        :idx="idx.toString()"
-        :label="'Полиграф #' + (idx + 1)"
-      >
-        <LabelSlot>
-          <a
-            href="#"
-            title="Удалить"
-            @click="deleteItem(item['id'].toString())"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          &nbsp;
-          <a
-            href="#"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalPfo"
-            @click="
-              poligraf.action = 'update';
-              poligraf.item = item;
-              poligraf.itemId = item['id'].toString();
+    <PoligrafForm v-if="poligraf.action"
+      :poligraf="poligraf.item"
+      @submit="submitForm"
+      @cancel="poligraf.action = ''"
+    />
+    <div v-else>
+      <div v-if="props.poligrafs.length > 0">
+        <CollapseDiv
+          v-for="(item, idx) in props.poligrafs"
+          :key="idx"
+          :id="'poligraf' + idx"
+          :idx="idx.toString()"
+          :label="'Полиграф #' + (idx + 1)"
+        >
+          <LabelSlot>
+            <a
+              href="#"
+              title="Удалить"
+              @click="emit('delete', item['id'].toString(), 'poligraf')"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            &nbsp;
+            <a
+              href="#"
+              title="Изменить"
+              data-bs-toggle="modal"
+              data-bs-target="#modalPfo"
+              @click="
+                poligraf.action = 'update';
+                poligraf.item = item;
+                poligraf.itemId = item['id'].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </LabelSlot>
+          <LabelValue :label="'Тема'" :value="item['theme']" />
+          <LabelValue :label="'Результат'" :value="item['results']" />
+          <LabelValue :label="'Сотрудник'" :value="item['officer']" />
+          <LabelValue
+            :label="'Дата'"
+            :value="
+              new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </LabelSlot>
-        <LabelValue :label="'Тема'" :value="item['theme']" />
-        <LabelValue :label="'Результат'" :value="item['results']" />
-        <LabelValue :label="'Сотрудник'" :value="item['officer']" />
-        <LabelValue
-          :label="'Дата'"
-          :value="
-            new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-          "
-        />
-      </CollapseDiv>
-      <FileForm :accept="'*'" @submit="submitFile" />
-    </div>
-    <p v-else>Данные отсутствуют</p>
-    <div class="d-print-none py-3">
-      <a
-        class="btn btn-outline-primary"
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#modalPfo"
-        @click="poligraf.action = 'create'"
-      >Добавить запись
-      </a>
+          />
+        </CollapseDiv>
+        <FileForm :accept="'*'" @submit="submitFile" />
+      </div>
+      <p v-else>Данные отсутствуют</p>
+      <div class="d-print-none py-3">
+        <a
+          class="btn btn-outline-primary"
+          type="button"
+          @click="poligraf.action = 'create'"
+        >Добавить запись
+        </a>
+      </div>
     </div>
   </div>
 </template>

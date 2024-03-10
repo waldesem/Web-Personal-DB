@@ -15,7 +15,7 @@ const BtnGroup = defineAsyncComponent(
 
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
   check: {
@@ -28,14 +28,6 @@ const checkForm = ref({
   form: <Verification>{},
   noNegative: true,
 });
-
-function updateItem() {
-  emit("submit", checkForm.value.form);
-  Object.keys(checkForm.value.form).forEach((key) => {
-    delete checkForm.value.form[key as keyof typeof checkForm.value.form];
-  });
-};
-
 
 if (checkForm.value.noNegative) {
   Object.assign(checkForm.value.form, {
@@ -72,7 +64,7 @@ if (checkForm.value.noNegative) {
   </div>
 
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', checkForm.form)"
     class="form form-check"
     role="form"
     id="checkFormId"
@@ -222,7 +214,6 @@ if (checkForm.value.noNegative) {
     <BtnGroup>
       <button
         class="btn btn-outline-primary btn-md"
-        data-bs-dismiss="modal"
         name="submit"
         type="submit"
       >
@@ -234,6 +225,14 @@ if (checkForm.value.noNegative) {
         type="reset"
       >
         Очистить
+      </button>
+      <button
+        class="btn btn-outline-danger btn-md"
+        type="button"
+        @click="emit('cancel')"
+        name="cancel"
+      >
+      Отмена
       </button>
     </BtnGroup>
   </form>

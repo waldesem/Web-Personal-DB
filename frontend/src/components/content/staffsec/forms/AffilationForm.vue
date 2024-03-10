@@ -33,18 +33,11 @@ const affilationForm = ref({
     commercial: "Участвует в деятельности коммерческих организаций",
   }
 });
-
-function updateItem() {
-  emit("submit", affilationForm.value.form);
-  Object.keys(affilationForm.value.form).forEach((key) => {
-    delete affilationForm.value.form[key as keyof typeof affilationForm.value.form];
-  });
-};
 </script>
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', affilationForm.form)"
     class="form form-check"
     role="form"
   >

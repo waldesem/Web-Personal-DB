@@ -45,7 +45,7 @@ class Role(Base):
     id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
-    role: Mapped[str] = mapped_column(String(255), unique=True)
+    role: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     users: Mapped[List["User"]] = relationship(
         back_populates="roles", secondary=user_roles, lazy="dynamic"
     )
@@ -60,7 +60,7 @@ class User(Base):
     )
     fullname: Mapped[str] = mapped_column(String(255), nullable=True)
     username: Mapped[str] = mapped_column(String(255), unique=True)
-    password: Mapped[str] = mapped_column(LargeBinary)
+    password: Mapped[str] = mapped_column(LargeBinary, nullable=True)
     email: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
     pswd_create: Mapped[datetime] = mapped_column(
         DateTime, nullable=True, default=default_time
@@ -69,7 +69,7 @@ class User(Base):
     last_login: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
-    attempt: Mapped[int] = mapped_column(Integer(), default=0)
+    attempt: Mapped[int] = mapped_column(Integer(), default=0, nullable=True)
     messages: Mapped[List["Message"]] = relationship(back_populates="users")
     persons: Mapped[List["Person"]] = relationship(back_populates="users")
     roles: Mapped[List["Role"]] = relationship(
@@ -93,8 +93,8 @@ class Message(Base):
     id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
-    message: Mapped[str] = mapped_column(Text)
-    created: Mapped[datetime] = mapped_column(DateTime, default=default_time)
+    message: Mapped[str] = mapped_column(Text, nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime, default=default_time, nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     users: Mapped["User"] = relationship(back_populates="messages")
 
@@ -106,7 +106,7 @@ class Category(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    category: Mapped[str] = mapped_column(String(255))
+    category: Mapped[str] = mapped_column(String(255), nullable=True)
     persons: Mapped[List["Person"]] = relationship(back_populates="categories")
 
     @staticmethod
@@ -123,7 +123,7 @@ class Status(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    status: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(255), nullable=True)
     persons: Mapped[List["Person"]] = relationship(back_populates="statuses")
 
     @staticmethod
@@ -140,7 +140,7 @@ class Region(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    region: Mapped[str] = mapped_column(String(255))
+    region: Mapped[str] = mapped_column(String(255), nullable=True)
     persons: Mapped[List["Person"]] = relationship(back_populates="regions")
 
     @staticmethod
@@ -157,11 +157,11 @@ class Person(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=True)
-    region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"), nullable=True)
-    status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"), nullable=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
-    fullname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
+    region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"))
+    status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    fullname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     previous: Mapped[str] = mapped_column(Text, nullable=True, index=True)
     birthday: Mapped[date] = mapped_column(Date, nullable=False)
     birthplace: Mapped[str] = mapped_column(Text, nullable=True)
@@ -226,17 +226,6 @@ class Person(Base):
             "inn",
         )
     )
-
-    def has_status(self, *statuses):
-        """
-        Check if the current status of the object matches any of the given status values.
-        """
-        results = db.session.execute(select(self)).all()
-        for result in results:
-            for status in statuses:
-                if self.id == result.id and result.status == status:
-                    return True
-        return False
 
 
 class Staff(Base):
@@ -367,10 +356,12 @@ class Check(Base):
     addition: Mapped[str] = mapped_column(Text, nullable=True)
     pfo: Mapped[bool] = mapped_column(Boolean, nullable=True)
     comments: Mapped[str] = mapped_column(Text, nullable=True)
-    conclusion_id: Mapped[int] = mapped_column(ForeignKey("conclusions.id"))
+    conclusion_id: Mapped[int] = mapped_column(
+        ForeignKey("conclusions.id"), nullable=True
+    )
     officer: Mapped[str] = mapped_column(String(255), nullable=True)
     deadline: Mapped[datetime] = mapped_column(
-        Date, default=default_time, onupdate=default_time
+        Date, default=default_time, onupdate=default_time, nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="checks")
@@ -405,7 +396,7 @@ class Conclusion(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    conclusion: Mapped[str] = mapped_column(String(255))
+    conclusion: Mapped[str] = mapped_column(String(255), nullable=True)
     checks: Mapped[List["Check"]] = relationship(back_populates="conclusions")
 
     @staticmethod
@@ -422,10 +413,12 @@ class Poligraf(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    theme: Mapped[str] = mapped_column(String(255))
-    results: Mapped[str] = mapped_column(Text)
-    officer: Mapped[str] = mapped_column(String(255))
-    deadline: Mapped[datetime] = mapped_column(Date, default=default_time)
+    theme: Mapped[str] = mapped_column(String(255), nullable=True)
+    results: Mapped[str] = mapped_column(Text, nullable=True)
+    officer: Mapped[str] = mapped_column(String(255), nullable=True)
+    deadline: Mapped[datetime] = mapped_column(
+        Date, default=default_time, nullable=True
+    )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="poligrafs")
 
@@ -437,10 +430,12 @@ class Investigation(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    theme: Mapped[str] = mapped_column(String(255))
-    info: Mapped[str] = mapped_column(Text)
-    officer: Mapped[str] = mapped_column(String(255))
-    deadline: Mapped[datetime] = mapped_column(Date, default=default_time)
+    theme: Mapped[str] = mapped_column(String(255), nullable=True)
+    info: Mapped[str] = mapped_column(Text, nullable=True)
+    officer: Mapped[str] = mapped_column(String(255), nullable=True)
+    deadline: Mapped[datetime] = mapped_column(
+        Date, default=default_time, nullable=True
+    )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="investigations")
 

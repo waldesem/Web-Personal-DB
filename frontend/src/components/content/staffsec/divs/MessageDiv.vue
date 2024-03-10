@@ -1,25 +1,22 @@
 <script setup lang="ts">
-import { onBeforeMount, defineAsyncComponent, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { authStore } from "@store/auth";
 import { server } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
 
-const MessagesToast = defineAsyncComponent(
-  () => import("./MessagesToast.vue")
-);
+// const MessagesToast = defineAsyncComponent(
+//   () => import("./MessagesToast.vue")
+// );
 
 const storeAuth = authStore();
 
 onBeforeMount(() => {
-  messageData.value.updateCount();
+  messageData.value.updateMessages();
 });
 
 const messageData = ref({
   isStarted: false,
   messages: Array<Message>(),
-  hasPrev: false,
-  hasNext: false,
-  currentPage: 1,
 
   updateMessages: async function (): Promise<void> {
     try {
@@ -30,6 +27,10 @@ const messageData = ref({
       this.messages = messages;
     } catch (error) {
       console.error(error);
+    }
+    if (!this.isStarted) {
+      this.isStarted = true;
+      setInterval(this.updateMessages, 100000);
     }
   },
 
@@ -42,13 +43,6 @@ const messageData = ref({
       this.updateMessages();
     } catch (error) {
       console.error(error);
-    }
-  },
-
-  updateCount: function () {
-    if (!this.isStarted) {
-      this.isStarted = true;
-      setInterval(this.updateMessages, 1000000);
     }
   },
 });
@@ -69,37 +63,30 @@ const messageData = ref({
       <span
         class="position-absolute translate-middle badge rounded-pill text-bg-success"
       >
-
         {{ messageData.messages.length }}
       </span>
     </a>
     <a v-else class="nav-link">Сообщения</a>
     <div :class="{'dropdown-menu' : messageData.messages.length}">
-      <div v-if="messageData.messages.length">
-        <MessagesToast :messages="messageData.messages"/>
-        <div class="col text-end">
-          <p >
-            <a href="#" class="link-danger" @click="messageData.deleteMessage()">
-              Удалить сообщения
-            </a>
-          </p>
-        </div>
-        <div class="py-2">
-          <table class="table table-responsive align-middle">
-            <thead>
-              <tr>
-                <th width="20%">Дата</th>
-                <th>Сообщение</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="message, index in messageData.messages" :key="index">
-                <td width="30%">{{ message["created"] }}</td>
-                <td>{{ message["message"] }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div v-if="messageData.messages.length" class="dropdown-item">
+        <table class="table table-responsive align-middle">
+          <thead class="">
+            <tr>
+              <th width="30%">Дата</th>
+              <th>Сообщение</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="message, index in messageData.messages" :key="index">
+              <td width="30%">
+                {{ new Date(String(message["created"])).toLocaleString('ru-RU') }}</td>
+              <td>{{ message["message"] }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <a href="#" class="link-danger" @click="messageData.deleteMessage()">
+          Удалить сообщения
+        </a>
       </div>
     </div>
   </li>
@@ -109,6 +96,8 @@ const messageData = ref({
 .dropdown-menu {
   min-height: auto;
   max-height: 75vh;
+  min-width: auto;
+  max-width: 50vh;
   overflow-y: auto;
 }
 </style>

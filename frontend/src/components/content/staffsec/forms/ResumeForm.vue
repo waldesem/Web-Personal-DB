@@ -23,7 +23,7 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["get-resume"]);
+const emit = defineEmits(["get-resume", "cancel"]);
 
 const props = defineProps({
   action: {
@@ -202,19 +202,25 @@ const resumeForm = ref({
       <BtnGroup>
         <button 
           class="btn btn-outline-primary" 
-          data-bs-dismiss="modal"
           type="submit">
           Принять
         </button>
-        <button class="btn btn-outline-primary" type="reset">Очистить</button>
+        <button class="btn btn-outline-secondary" type="reset">Очистить</button>
         <router-link
           v-if="props.action === 'create'"
-          class="btn btn-outline-primary"
+          class="btn btn-outline-warning"
           type="button"
           :to="{ name: 'persons' }"
         >
           Отмена
         </router-link>
+        <button v-if="props.action === 'update'"
+          class="btn btn-outline-danger" 
+          type="button"
+          @click="emit('cancel')"
+        >
+          Отмена
+        </button>
       </BtnGroup>
     </form>
   </div>

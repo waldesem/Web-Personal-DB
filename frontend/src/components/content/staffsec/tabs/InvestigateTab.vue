@@ -15,10 +15,7 @@ const InvestigationForm = defineAsyncComponent(
   () => import("../forms/InvestigationForm.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
-);
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
+  () => import("@components/layouts/FileForm.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);
@@ -40,11 +37,6 @@ const inquisition = ref({
   item: <Inquisition>{},
 });
 
-function cancelEdit() {
-  inquisition.value.action = "";
-  inquisition.value.item = <Inquisition>{};
-}
-
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -53,80 +45,72 @@ function submitForm(form: Object) {
     inquisition.value.itemId,
     form,
   );
+  inquisition.value.action = "";
 }
 
 function submitFile(event: Event) {
   emit("file", event);
-}
-
-function deleteItem(itemId: string) {
-  emit("delete", itemId, "investigation");
-}
+};
 </script>
 
 <template>
   <div class="py-3">
-    <ModalWin
-      :title="
-        inquisition.action === 'update' ? 'Изменить запись' : 'Добавить запись'
-      "
-      :id="'modalInvestigation'"
-      @cancel="cancelEdit"
-    >
-      <InvestigationForm :investigation="inquisition.item" @submit="submitForm" />
-    </ModalWin>
-    <div v-if="props.inquisitions.length">
-      <CollapseDiv
-        v-for="(item, idx) in props.inquisitions"
-        :key="idx"
-        :id="'investigation' + idx"
-        :idx="idx.toString()"
-        :label="'Расследование #' + (idx + 1)"
-      >
-        <LabelSlot>
-          <a
-            href="#"
-            title="Удалить"
-            @click="deleteItem(item['id'].toString())"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            href="#"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalInvestigation"
-            @click="
-              inquisition.action = 'update';
-              inquisition.item = item;
-              inquisition.itemId = item['id'].toString();
+    <InvestigationForm v-if="inquisition.action"
+      :investigation="inquisition.item" 
+      @submit="submitForm" 
+      @cancel="inquisition.action = ''"
+    />
+    <div v-else>
+      <div v-if="props.inquisitions.length">
+        <CollapseDiv
+          v-for="(item, idx) in props.inquisitions"
+          :key="idx"
+          :id="'investigation' + idx"
+          :idx="idx.toString()"
+          :label="'Расследование #' + (idx + 1)"
+        >
+          <LabelSlot>
+            <a
+              href="#"
+              title="Удалить"
+              @click="emit('delete', item['id'].toString(), 'investigation')"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            &nbsp;
+            <a
+              href="#"
+              title="Изменить"
+              @click="
+                inquisition.action = 'update';
+                inquisition.item = item;
+                inquisition.itemId = item['id'].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </LabelSlot>
+          <LabelValue :label="'Тема'" :value="item['theme']" />
+          <LabelValue :label="'Информация'" :value="item['info']" />
+          <LabelValue :label="'Сотрудник'" :value="item['officer']" />
+          <LabelValue
+            :label="'Дата'"
+            :value="
+              new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </LabelSlot>
-        <LabelValue :label="'Тема'" :value="item['theme']" />
-        <LabelValue :label="'Информация'" :value="item['info']" />
-        <LabelValue :label="'Сотрудник'" :value="item['officer']" />
-        <LabelValue
-          :label="'Дата'"
-          :value="
-            new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-          "
-        />
-      </CollapseDiv>
-      <FileForm :accept="'*'" @submit="submitFile($event)" />
-    </div>
-    <p v-else>Данные отсутствуют</p>
-    <div class="d-print-none py-3">
-      <a
-        data-bs-toggle="modal"
-        data-bs-target="#modalInvestigation"
-        class="btn btn-outline-primary"
-        type="button"
-        @click="inquisition.action = 'create'"
-        >Добавить запись
-      </a>
+          />
+        </CollapseDiv>
+        <FileForm :accept="'*'" @submit="submitFile($event)" />
+      </div>
+      <p v-else>Данные отсутствуют</p>
+      <div class="d-print-none py-3">
+        <a
+          class="btn btn-outline-primary"
+          type="button"
+          @click="inquisition.action = 'create'"
+          >Добавить запись
+        </a>
+      </div>
     </div>
   </div>
 </template>

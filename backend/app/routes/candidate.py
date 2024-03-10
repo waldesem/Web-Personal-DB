@@ -145,22 +145,37 @@ class ResumeView(MethodView):
                 return self.get(person_id), 201
 
             if action == "self":
-                if person.user_id and person.user_id != current_user.id:
+                print(person.user_id)
+                if not person.user_id:
                     db.session.add(
                         Message(
-                            message=f"Aнкета ID #{person_id} делегирована "
-                            f"{current_user.fullname}",
-                            user_id=person.user_id,
+                            message=f"Aнкета ID #{person_id} принята в работу",
+                            user_id=current_user.id,
                         )
                     )
-                    person.user_id = current_user.id
-                    db.session.commit()
-                    return {"message": "self"}, 201
+                    person.status_id = Status.get_id(Statuses.manual.value)
+                else:
+                    if person.user_id != current_user.id:
+                        db.session.add_all([
+                            Message(
+                                message=f"Aнкета ID #{person_id} делегирована "
+                                f"{current_user.fullname}",
+                                user_id=person.user_id,
+                            ),
+                            Message(
+                                message=f"Aнкета ID #{person_id} принята в работу",
+                                user_id=current_user.id,
+                        )
+                    ])
+
+                person.user_id = current_user.id
+                db.session.commit()
+                return {"message": "self"}, 201
             elif action == "send":
-                if person.has_status(
-                    Statuses.new.value,
-                    Statuses.update.value,
-                    Statuses.repeat.value,
+                if person.status_id in (
+                    Status.get_id(Statuses.new.value),
+                    Status.get_id(Statuses.update.value),
+                    Status.get_id(Statuses.repeat.value),
                 ):
                     docum = db.session.execute(
                         select(Document)
@@ -713,7 +728,7 @@ class RobotView(MethodView):
 
         del json_data["id"]
 
-        if candidate.has_status(Statuses.robot.value):
+        if candidate.status_id == Status.get_id(Statuses.robot.value):
             if os.path.isdir(json_data["path"]):
                 check_path = create_folders(
                     candidate.id, candidate["fullname"], "robot"
@@ -836,7 +851,7 @@ class PoligrafView(MethodView):
     def post(self, item_id, json_data):
         person = db.session.get(Person, item_id)
         if person:
-            if person.has_status(Statuses.poligraf.value):
+            if person.status_id == Status.get_id(Statuses.poligraf.value):
                 person.status_id = Status.get_id(Statuses.finish.value)
             db.session.add(
                 Poligraf(

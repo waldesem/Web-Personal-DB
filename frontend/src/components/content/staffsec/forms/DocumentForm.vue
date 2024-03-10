@@ -29,18 +29,11 @@ const docForm = ref({
     "Другое": "Другое",
   }
 });
-
-function updateItem() {
-  emit("submit", docForm.value.form);
-  Object.keys(docForm.value.form).forEach((key) => {
-    delete docForm.value.form[key as keyof typeof docForm.value.form];
-  });
-};
 </script>
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', docForm.form)"
     class="form form-check"
     role="form"
   >

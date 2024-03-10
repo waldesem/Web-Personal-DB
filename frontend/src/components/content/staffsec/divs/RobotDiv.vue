@@ -20,10 +20,6 @@ const props = defineProps({
     default: {},
   },
 });
-
-function deleteItem(itemId: string){
-  emit("delete", itemId, "robot")
-};
 </script>
 
 <template>
@@ -38,7 +34,7 @@ function deleteItem(itemId: string){
       <LabelSlot>
         <a
           href="#"
-          @click="deleteItem(item['id'].toString())"
+          @click="emit('delete', item['id'].toString(), 'robot')"
           title="Удалить"
         >
           <i class="bi bi-trash"></i>

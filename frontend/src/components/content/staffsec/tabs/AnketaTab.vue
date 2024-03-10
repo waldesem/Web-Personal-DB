@@ -39,9 +39,6 @@ const WorkplaceDiv = defineAsyncComponent(
 const AffilationDiv = defineAsyncComponent(
   () => import("../divs/AffilationDiv.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const storeClassify = classifyStore();
 
@@ -120,98 +117,92 @@ function updateItem(
 
 function deleteItem(itemId: string, item: string) {
   emit("delete", itemId, item);
-}
+};
 </script>
 
 <template>
   <div class="py-3">
-    <ModalWin
-      :title="'Изменить запись'"
-      :id="'modalResume'"
+    <ResumeForm v-if="dataResume.action"
+      :action="dataResume.action"
+      :resume="props.resume"
+      @get-resume="getResume"
       @cancel="dataResume.action = ''"
-    >
-      <ResumeForm
-        :action="dataResume.action"
-        :resume="props.resume"
-        @get-resume="getResume"
+    />
+    <div v-else>
+      <LabelSlot>
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          @click="dataResume.action = 'update'"
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+      </LabelSlot>
+      <LabelValue
+        :label="'Категория'"
+        :value="storeClassify.classData.category[props.resume['category_id']]"
       />
-    </ModalWin>
-
-    <LabelSlot>
-      <a
-        data-bs-toggle="modal"
-        data-bs-target="#modalResume"
-        class="btn btn-link"
-        title="Изменить"
-        @click="dataResume.action = 'update'"
-      >
-        <i class="bi bi-pencil-square"></i>
-      </a>
-    </LabelSlot>
-    <LabelValue
-      :label="'Категория'"
-      :value="storeClassify.classData.category[props.resume['category_id']]"
-    />
-    <LabelValue
-      :label="'Регион'"
-      :value="storeClassify.classData.regions[props.resume['region_id']]"
-    />
-    <LabelValue
-      :label="'Фамилия Имя Отчество'"
-      :value="props.resume['fullname']"
-    />
-    <LabelValue :label="'Изменение имени'" :value="props.resume['previous']" />
-    <LabelValue :label="'Дата рождения'" :value="props.resume['birthday']" />
-    <LabelValue :label="'Место рождения'" :value="props.resume['birthplace']" />
-    <LabelValue :label="'Гражданство'" :value="props.resume['country']" />
-    <LabelValue
-      :label="'Второе гражданство'"
-      :value="props.resume['ext_country']"
-    />
-    <LabelValue :label="'СНИЛС'" :value="props.resume['snils']" />
-    <LabelValue :label="'ИНН'" :value="props.resume['inn']" />
-    <LabelValue :label="'Образование'" :value="props.resume['education']" />
-    <LabelValue :label="'Семейное положение'" :value="props.resume['marital']" />
-    <LabelValue
-      :label="'Дополнительная информация'"
-      :value="props.resume['addition']"
-    />
-    <LabelSlot :label="'Материалы'">
-      <router-link v-if="props.resume['path']"
-        :to="{
-          name: 'manager',
-          query: { path: props.resume['path'].split('/') },
-        }"
-      >
-        {{ props.resume["path"] }}
-      </router-link>
-    </LabelSlot>
-    <LabelSlot :label="'Статус'">
-      <a href="#" @click="getResume('status')">
-        {{ storeClassify.classData.status[props.resume["status_id"]] }}
-      </a>
-    </LabelSlot>
-    <LabelValue
-      :label="'Создан'"
-      :value="
-        props.resume['created']
-          ? new Date(String(props.resume['created'])).toLocaleDateString(
-              'ru-RU'
-            )
-          : ''
-      "
-    />
-    <LabelValue
-      :label="'Обновлен'"
-      :value="
-        props.resume['updated']
-          ? new Date(String(props.resume['updated'])).toLocaleDateString(
-              'ru-RU'
-            )
-          : ''
-      "
-    />
-    <LabelValue :label="'Внешний ID'" :value="props.resume['request_id']" />
+      <LabelValue
+        :label="'Регион'"
+        :value="storeClassify.classData.regions[props.resume['region_id']]"
+      />
+      <LabelValue
+        :label="'Фамилия Имя Отчество'"
+        :value="props.resume['fullname']"
+      />
+      <LabelValue :label="'Изменение имени'" :value="props.resume['previous']" />
+      <LabelValue :label="'Дата рождения'" :value="props.resume['birthday']" />
+      <LabelValue :label="'Место рождения'" :value="props.resume['birthplace']" />
+      <LabelValue :label="'Гражданство'" :value="props.resume['country']" />
+      <LabelValue
+        :label="'Второе гражданство'"
+        :value="props.resume['ext_country']"
+      />
+      <LabelValue :label="'СНИЛС'" :value="props.resume['snils']" />
+      <LabelValue :label="'ИНН'" :value="props.resume['inn']" />
+      <LabelValue :label="'Образование'" :value="props.resume['education']" />
+      <LabelValue :label="'Семейное положение'" :value="props.resume['marital']" />
+      <LabelValue
+        :label="'Дополнительная информация'"
+        :value="props.resume['addition']"
+      />
+      <LabelSlot :label="'Материалы'">
+        <router-link v-if="props.resume['path']"
+          :to="{
+            name: 'manager',
+            query: { path: props.resume['path'].split('/') },
+          }"
+        >
+          {{ props.resume["path"] }}
+        </router-link>
+      </LabelSlot>
+      <LabelSlot :label="'Статус'">
+        <a href="#" @click="getResume('status')">
+          {{ storeClassify.classData.status[props.resume["status_id"]] }}
+        </a>
+      </LabelSlot>
+      <LabelValue
+        :label="'Создан'"
+        :value="
+          props.resume['created']
+            ? new Date(String(props.resume['created'])).toLocaleDateString(
+                'ru-RU'
+              )
+            : ''
+        "
+      />
+      <LabelValue
+        :label="'Обновлен'"
+        :value="
+          props.resume['updated']
+            ? new Date(String(props.resume['updated'])).toLocaleDateString(
+                'ru-RU'
+              )
+            : ''
+        "
+      />
+      <LabelValue :label="'Внешний ID'" :value="props.resume['request_id']" />
+    </div>
 
     <StaffDiv
       :items="props.staffs"
@@ -259,7 +250,7 @@ function deleteItem(itemId: string, item: string) {
     <div class="d-print-none py-3">
       <BtnGroup :cls="false">
         <button
-          :disabled="props.resume.user_id !== ''"
+          :disabled="props.resume.user_id !== null && props.resume.user_id !== ''"
           type="button"
           class="btn btn-outline-primary"
           @click="getResume('self')"

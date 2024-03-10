@@ -17,9 +17,6 @@ const FileForm = defineAsyncComponent(
 );
 const CheckForm = defineAsyncComponent(() => import("../forms/CheckForm.vue"));
 const RobotDiv = defineAsyncComponent(() => import("../divs/RobotDiv.vue"));
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const storeClassify = classifyStore();
 
@@ -59,16 +56,9 @@ const check = ref({
     props.resume['status_id'] !== storeClassify.classData.status["manual"],
 });
 
-function cancelEdit() {
-  Object.assign(check.value, {
-    action: "",
-    item: {},
-  });
-}
-
 function submitForm(form: Object) {
   emit("submit", check.value.action, "check", check.value.itemId, form);
-  cancelEdit();
+  check.value.action = "";
 }
 
 function submitFile(event: Event) {
@@ -86,117 +76,113 @@ function getRobot() {
 
 <template>
   <div class="py-3">
-    <ModalWin
-      :title="check.action === 'update' ? 'Изменить запись' : 'Добавить запись'"
-      :id="'modalCheck'"
-      @cancel="cancelEdit"
-    >
-      <CheckForm :check="check.item" @submit="submitForm" />
-    </ModalWin>
-    <div v-if="props.checks.length > 0 && props.robots.length > 0">
-      <CollapseDiv
-        v-for="(item, idx) in props.checks"
-        :key="idx"
-        :id="'check' + idx"
-        :idx="idx.toString()"
-        :label="'Проверка #' + (idx + 1)"
-      >
-        <LabelSlot>
-          <a
-            href="#"
-            title="Удалить"
-            @click="deleteItem(item['id'].toString())"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            :hidden="![
-              storeClassify.classData.status['save'],
-              storeClassify.classData.status['cancel'],
-              storeClassify.classData.status['manual']
-            ].includes(props.resume['status_id']) && props.resume['user_id'] !== props.userId"
-            href="#"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalCheck"
-            @click="
-              check.action = 'update';
-              check.item = item;
-              check.itemId = item['id'].toString();
+    <CheckForm v-if="check.action"
+      :check="check.item" 
+      @submit="submitForm"
+      @cancel="check.action = ''"
+    />
+    <div v-else>
+      <div v-if="props.checks.length && props.robots.length">
+        <CollapseDiv
+          v-for="(item, idx) in props.checks"
+          :key="idx"
+          :id="'check' + idx"
+          :idx="idx.toString()"
+          :label="'Проверка #' + (idx + 1)"
+        >
+          <LabelSlot>
+            <a
+              href="#"
+              title="Удалить"
+              @click="deleteItem(item['id'].toString())"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            <a
+              :hidden="![
+                storeClassify.classData.status['save'],
+                storeClassify.classData.status['cancel'],
+                storeClassify.classData.status['manual']
+              ].includes(props.resume['status_id']) && props.resume['user_id'] !== props.userId"
+              href="#"
+              title="Изменить"
+              @click="
+                check.action = 'update';
+                check.item = item;
+                check.itemId = item['id'].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </LabelSlot>
+          <LabelValue
+            :label="'Проверка по местам работы<'"
+            :value="item['workplace']"
+          />
+          <LabelValue :label="'Бывший работник МТСБ'" :value="item['employee']" />
+          <LabelValue :label="'Проверка паспорта'" :value="item['document']" />
+          <LabelValue :label="'Проверка ИНН'" :value="item['inn']" />
+          <LabelValue :label="'Проверка ФССП'" :value="item['debt']" />
+          <LabelValue
+            :label="'Проверка банкротства'"
+            :value="item['bankruptcy']"
+          />
+          <LabelValue :label="'Проверка БКИ'" :value="item['bki']" />
+          <LabelValue :label="'Проверка судебных дел'" :value="item['courts']" />
+          <LabelValue
+            :label="'Проверка аффилированности'"
+            :value="item['affiliation']"
+          />
+          <LabelValue
+            :label="'Проверка по списку террористов'"
+            :value="item['terrorist']"
+          />
+          <LabelValue
+            :label="'Проверка нахождения в розыске'"
+            :value="item['mvd']"
+          />
+          <LabelValue
+            :label="'Проверка в открытых источниках'"
+            :value="item['internet']"
+          />
+          <LabelValue :label="'Проверка Кронос'" :value="item['cronos']" />
+          <LabelValue :label="'Проверка Крос'" :value="item['cros']" />
+          <LabelValue
+            :label="'Дополнительная информация'"
+            :value="item['addition']"
+          />
+          <LabelValue :label="'ПФО'" :value="item['pfo']" />
+          <LabelValue :label="'Комментарии'" :value="item['comments']" />
+          <LabelValue :label="'Результат проверки'" :value="item['conclusion']" />
+          <LabelValue :label="'Сотрудник'" :value="item['officer']" />
+          <LabelValue
+            :label="'Дата'"
+            :value="
+              new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </LabelSlot>
-        <LabelValue
-          :label="'Проверка по местам работы<'"
-          :value="item['workplace']"
+          />
+        </CollapseDiv>
+        <FileForm :accept="'*'" @submit="submitFile" />
+        <RobotDiv
+          :robots="props.robots"
+          @get-item="getRobot"
+          @delete="deleteItem"
         />
-        <LabelValue :label="'Бывший работник МТСБ'" :value="item['employee']" />
-        <LabelValue :label="'Проверка паспорта'" :value="item['document']" />
-        <LabelValue :label="'Проверка ИНН'" :value="item['inn']" />
-        <LabelValue :label="'Проверка ФССП'" :value="item['debt']" />
-        <LabelValue
-          :label="'Проверка банкротства'"
-          :value="item['bankruptcy']"
-        />
-        <LabelValue :label="'Проверка БКИ'" :value="item['bki']" />
-        <LabelValue :label="'Проверка судебных дел'" :value="item['courts']" />
-        <LabelValue
-          :label="'Проверка аффилированности'"
-          :value="item['affiliation']"
-        />
-        <LabelValue
-          :label="'Проверка по списку террористов'"
-          :value="item['terrorist']"
-        />
-        <LabelValue
-          :label="'Проверка нахождения в розыске'"
-          :value="item['mvd']"
-        />
-        <LabelValue
-          :label="'Проверка в открытых источниках'"
-          :value="item['internet']"
-        />
-        <LabelValue :label="'Проверка Кронос'" :value="item['cronos']" />
-        <LabelValue :label="'Проверка Крос'" :value="item['cros']" />
-        <LabelValue
-          :label="'Дополнительная информация'"
-          :value="item['addition']"
-        />
-        <LabelValue :label="'ПФО'" :value="item['pfo']" />
-        <LabelValue :label="'Комментарии'" :value="item['comments']" />
-        <LabelValue :label="'Результат проверки'" :value="item['conclusion']" />
-        <LabelValue :label="'Сотрудник'" :value="item['officer']" />
-        <LabelValue
-          :label="'Дата'"
-          :value="
-            new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-          "
-        />
-      </CollapseDiv>
-      <FileForm :accept="'*'" @submit="submitFile" />
-      <RobotDiv
-        :robots="props.robots"
-        @get-item="getRobot"
-        @delete="deleteItem"
-      />
-    </div>
-    <p v-else>Данные отсутствуют</p>
-    <div class="d-print-none py-3">
-      <button
-        :disabled="![
-          storeClassify.classData.status['update'],
-          storeClassify.classData.status['save'],
-          storeClassify.classData.status['repeat'],
-        ].includes(props.resume['status_id']) && props.resume['user_id'] !== props.userId"
-        class="btn btn-outline-primary"
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#modalCheck"
-        @click="check.action = 'create'"
-        >Добавить запись
-      </button>
+      </div>
+      <p v-else>Данные отсутствуют</p>
+      <div class="d-print-none py-3">
+        <button
+          :disabled="![
+            storeClassify.classData.status['update'],
+            storeClassify.classData.status['save'],
+            storeClassify.classData.status['repeat'],
+          ].includes(props.resume['status_id']) && props.resume['user_id'] !== props.userId"
+          class="btn btn-outline-primary"
+          type="button"
+          @click="check.action = 'create'"
+          >Добавить запись
+        </button>
+      </div>
     </div>
   </div>
 </template>

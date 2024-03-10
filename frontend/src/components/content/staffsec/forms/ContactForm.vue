@@ -30,13 +30,6 @@ const contactForm = ref({
   }
 });
 
-function updateItem() {
-  emit("submit", contactForm.value.form);
-  Object.keys(contactForm.value.form).forEach((key) => {
-    delete contactForm.value.form[key as keyof typeof contactForm.value.form];
-  });
-};
-
 const view = computed(() => {
   if (contactForm.value.form["view"] === "Телефон") {
     return "tel";
@@ -50,7 +43,7 @@ const view = computed(() => {
 
 <template>
   <form
-    @submit.prevent="updateItem"
+    @submit.prevent="emit('submit', contactForm.form)"
     class="form form-check"
     role="form"
   >
