@@ -17,7 +17,7 @@ from config import Config
 from . import bp
 from .. import jwt, db, cache
 from ..models.model import User
-from ..models.schema import LoginSchema, PasswordSchema, UserSchema
+from ..models.schema import LoginSchema, UserSchema
 
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -73,7 +73,7 @@ class LoginView(MethodView):
                 db.session.commit()
         return {"message": "Denied"}, 401
 
-    @bp.input(PasswordSchema)
+    @bp.input(LoginSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.

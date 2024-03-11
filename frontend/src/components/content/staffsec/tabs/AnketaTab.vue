@@ -139,10 +139,6 @@ function deleteItem(itemId: string, item: string) {
         </a>
       </LabelSlot>
       <LabelValue
-        :label="'Категория'"
-        :value="storeClassify.classData.category[props.resume['category_id']]"
-      />
-      <LabelValue
         :label="'Регион'"
         :value="storeClassify.classData.regions[props.resume['region_id']]"
       />

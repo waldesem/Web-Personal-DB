@@ -18,9 +18,8 @@ from .. import db
 from .login import roles_required
 from ..utils.folders import create_folders
 from ..utils.jsonparser import parse_json
-from ..models.classes import Categories, Roles, Conclusions, Statuses
+from ..models.classes import Roles, Conclusions, Statuses
 from ..models.model import (
-    Category,
     Staff,
     Document,
     Address,
@@ -81,8 +80,6 @@ class IndexView(MethodView):
                                 Status().get_id(Statuses.repeat.value),
                             ]
                         ),
-                        Person.category_id
-                        == Category().get_id(Categories.candidate.value),
                     )
                 case "officer":
                     query = query.filter(
@@ -141,11 +138,11 @@ class ResumeView(MethodView):
         if person:
             if action == "status":
                 person.status_id = Status.get_id(Statuses.update.value)
+                person.user_id = None
                 db.session.commit()
                 return self.get(person_id), 201
 
             if action == "self":
-                print(person.user_id)
                 if not person.user_id:
                     db.session.add(
                         Message(
@@ -154,23 +151,10 @@ class ResumeView(MethodView):
                         )
                     )
                     person.status_id = Status.get_id(Statuses.manual.value)
-                else:
-                    if person.user_id != current_user.id:
-                        db.session.add_all([
-                            Message(
-                                message=f"Aнкета ID #{person_id} делегирована "
-                                f"{current_user.fullname}",
-                                user_id=person.user_id,
-                            ),
-                            Message(
-                                message=f"Aнкета ID #{person_id} принята в работу",
-                                user_id=current_user.id,
-                        )
-                    ])
 
-                person.user_id = current_user.id
-                db.session.commit()
-                return {"message": "self"}, 201
+                    person.user_id = current_user.id
+                    db.session.commit()
+                    return '', 201
             elif action == "send":
                 if person.status_id in (
                     Status.get_id(Statuses.new.value),
@@ -220,7 +204,7 @@ class ResumeView(MethodView):
                     except httpx.HTTPError as exc:
                         print(f"Error while requesting {exc.request.url!r}.")
                 return abort(403)
-            return PersonSchema().dump(person), 200
+            return '', 201
         return abort(403)
 
     @bp.output(EmptySchema)
@@ -673,7 +657,7 @@ class CheckView(MethodView):
                 if json_data["pfo"]
                 else Status.get_id(Statuses.finish.value)
             )
-            person.user_id = ""
+            person.user_id = None
         db.session.commit()
         return "", 201
 

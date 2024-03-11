@@ -17,13 +17,6 @@ class Roles(Enum):
     api = "API"
 
 
-class Categories(Enum):
-
-    candidate = "Кандидат"
-    staff = "Сотрудник"
-    vip = "ВИП"
-
-
 class Statuses(Enum):
 
     new = "Новый"

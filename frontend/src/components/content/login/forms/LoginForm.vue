@@ -40,7 +40,6 @@ const loginData = ref({
       }
       delete this.form["conf_pswd"];
     }
-
     try {
       const response =
         this.action === "password"
@@ -53,8 +52,6 @@ const loginData = ref({
           this.action = "login";
           storeAlert.alertMessage.attr = "alert-success";
           storeAlert.alertMessage.text = "Войдите с новым паролем";
-          delete this.form["new_pswd"];
-          delete this.form["conf_pswd"];
           break
           
         case "Authenticated":

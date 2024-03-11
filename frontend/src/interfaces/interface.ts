@@ -9,7 +9,6 @@ export interface Candidate {
 
 export interface Resume {
   id: string;
-  category_id: string;
   region_id: string;
   user_id: string;
   fullname: string;

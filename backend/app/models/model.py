@@ -99,23 +99,6 @@ class Message(Base):
     users: Mapped["User"] = relationship(back_populates="messages")
 
 
-class Category(Base):
-
-    __tablename__ = "categories"
-
-    id: Mapped[int] = mapped_column(
-        nullable=False, unique=True, primary_key=True, autoincrement=True
-    )
-    category: Mapped[str] = mapped_column(String(255), nullable=True)
-    persons: Mapped[List["Person"]] = relationship(back_populates="categories")
-
-    @staticmethod
-    def get_id(category):
-        return db.session.execute(
-            select(Category.id).filter(Category.category.like(category))
-        ).scalar_one_or_none()
-
-
 class Status(Base):
 
     __tablename__ = "statuses"
@@ -157,7 +140,6 @@ class Person(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"))
     status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -215,7 +197,6 @@ class Person(Base):
     investigations: Mapped[List["Investigation"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
-    categories: Mapped["Category"] = relationship(back_populates="persons")
     statuses: Mapped["Status"] = relationship(back_populates="persons")
     regions: Mapped["Region"] = relationship(back_populates="persons")
     users: Mapped["User"] = relationship(back_populates="persons")

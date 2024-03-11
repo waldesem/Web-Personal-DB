@@ -3,7 +3,6 @@ from apiflask.fields import String, Date, Nested
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
 
 from ..models.model import (
-    Category,
     Conclusion,
     Relation,
     Status,
@@ -71,11 +70,6 @@ class LoginSchema(Schema):
 
     username = String()
     password = String()
-
-
-class PasswordSchema(LoginSchema):
-    """Create model for password"""
-
     new_pswd = String()
 
 
@@ -102,14 +96,6 @@ class RegionSchema(SQLAlchemyAutoSchema):
 
     class Meta:
         model = Region
-        ordered = True
-
-
-class CategorySchema(SQLAlchemyAutoSchema):
-    """Create model for category"""
-
-    class Meta:
-        model = Category
         ordered = True
 
 

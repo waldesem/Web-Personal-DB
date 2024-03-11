@@ -83,15 +83,6 @@ const resumeForm = ref({
       role="form"
     >
       <SelectDiv
-        :name="'category'"
-        :label="'Категория'"
-        :select="storeClassify.classData.category"
-        @input-event="
-          resumeForm.form['category_id'] = $event.target.value
-        "
-        :model="props.resume['category_id']"
-      />
-      <SelectDiv
         :name="'region_id'"
         :label="'Регион'"
         :select="storeClassify.classData.regions"

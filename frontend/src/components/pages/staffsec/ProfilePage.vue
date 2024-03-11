@@ -62,7 +62,7 @@ const anketaData = ref({
   imageUrl: "",
   printPage: false,
   spinner: false,
-  resume: <Resume>({}),
+  resume: <Resume>{},
   staffs: [] as Array<Staff>,
   documents: [] as Array<Document>,
   addresses: [] as Array<Address>,
@@ -79,7 +79,11 @@ const anketaData = ref({
 
 async function getResume(action = "view"): Promise<void> {
   if (action === "status") {
-    if (!confirm("Вы действительно хотите изменить статус резюме?")) {
+    if (
+      !confirm(
+        "Вы действительно хотите изменить статус? USER_ID анкеты будет сброшен"
+      )
+    ) {
       return;
     }
   }
@@ -107,10 +111,7 @@ async function getResume(action = "view"): Promise<void> {
     anketaData.value.resume = response.data;
 
     if (action === "status") {
-      storeAlert.alertMessage.setAlert(
-        "alert-info",
-        "Статус анкеты обновлен"
-      );
+      storeAlert.alertMessage.setAlert("alert-info", "Статус анкеты обновлен");
     }
     if (action === "send") {
       storeAlert.alertMessage.setAlert(
@@ -127,7 +128,7 @@ async function getResume(action = "view"): Promise<void> {
     );
   }
   anketaData.value.spinner = false;
-};
+}
 
 async function getItem(param: string): Promise<void> {
   try {
@@ -172,7 +173,9 @@ async function getItem(param: string): Promise<void> {
         anketaData.value.inquiries = response.data;
         break;
       case "file":
-        anketaData.value.imageUrl = window.URL.createObjectURL(new Blob([response.data]));
+        anketaData.value.imageUrl = window.URL.createObjectURL(
+          new Blob([response.data])
+        );
         break;
       default:
         break;
@@ -181,9 +184,9 @@ async function getItem(param: string): Promise<void> {
     console.error(error);
     storeAlert.alertMessage.setAlert("alert-danger", `Ошибка: ${error}`);
   }
-};
+}
 
-async function  updateItem(
+async function updateItem(
   action: string,
   param: string,
   itemId: string,
@@ -207,14 +210,14 @@ async function  updateItem(
       "alert-success",
       "Данные успешно обновлены"
     );
-   getItem(param);
+    getItem(param);
   } catch (error) {
     storeAlert.alertMessage.setAlert(
       "alert-danger",
       `Возникла ошибка ${error}`
     );
   }
-};
+}
 
 async function deleteItem(id: string, param: string): Promise<void> {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -248,18 +251,13 @@ async function deleteItem(id: string, param: string): Promise<void> {
     );
     console.log(response.status);
 
-    param === "resume"
-      ? router.push({ name: "persons" })
-      : getItem(param);
+    param === "resume" ? router.push({ name: "persons" }) : getItem(param);
 
-    storeAlert.alertMessage.setAlert(
-      "alert-info",
-      `Запись с ID ${id} удалена`
-    );
+    storeAlert.alertMessage.setAlert("alert-info", `Запись с ID ${id} удалена`);
   } catch (error) {
     console.error(error);
   }
-};
+}
 
 async function submitFile(event: Event, param: string): Promise<void> {
   const inputElement = event.target as HTMLInputElement;
@@ -286,7 +284,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       console.log(response.status);
       if (param === "image") {
         getItem("file");
-      };
+      }
       storeAlert.alertMessage.setAlert(
         "alert-success",
         "Файл или файлы успешно загружен/добавлены"
@@ -300,8 +298,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       "Ошибка при загрузке файла"
     );
   }
-};
-
+}
 </script>
 
 <template>
@@ -319,10 +316,10 @@ async function submitFile(event: Event, param: string): Promise<void> {
           class="d-print-none"
           @click="anketaData.printPage = !anketaData.printPage"
         >
-          <i 
-            class="bi bi-printer fs-1" 
+          <i
+            class="bi bi-printer fs-1"
             title="Версия для печати"
-            style="cursor: pointer;"
+            style="cursor: pointer"
           >
           </i>
         </a>
@@ -432,6 +429,5 @@ async function submitFile(event: Event, param: string): Promise<void> {
         />
       </div>
     </div>
-   
   </div>
 </template>

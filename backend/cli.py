@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app import db
 from config import Config
-from app.models.classes import Roles, Regions, Statuses, Conclusions, Categories
+from app.models.classes import Roles, Regions, Statuses, Conclusions
 from app.models.model import (
     Person,
     User,
@@ -14,7 +14,6 @@ from app.models.model import (
     Role,
     Status,
     Conclusion,
-    Category,
 )
 
 
@@ -39,7 +38,6 @@ def register_cli(app):
             [Region(region=reg.value) for reg in Regions],
             [Status(status=item.value) for item in Statuses],
             [Conclusion(conclusion=item.value) for item in Conclusions],
-            [Category(category=item.value) for item in Categories],
             [Role(role=actor.value) for actor in Roles]
             ]:
             db.session.add_all(item)
@@ -64,7 +62,6 @@ def register_cli(app):
 
         db.session.add(
             Person(
-                category_id=Category().get_id(Categories.candidate.value),
                 region_id=Region().get_id(Regions.MAIN_OFFICE.value),
                 fullname="Бендер Остап Ибрагимович",
                 previous="Остап Сулейман",

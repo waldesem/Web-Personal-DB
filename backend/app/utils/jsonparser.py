@@ -2,8 +2,8 @@ import re
 import json
 from datetime import datetime
 
-from ..models.model import Region, Status, Category
-from ..models.classes import Statuses, Categories
+from ..models.model import Region, Status
+from ..models.classes import Statuses
 
 
 def parse_json(file) -> None:
@@ -15,7 +15,6 @@ def parse_json(file) -> None:
             {
                 "resume": {
                     "region_id": parse_region(json_dict),
-                    "category_id": Category().get_id(Categories.candidate.name),
                     "status_id": Status().get_id(Statuses.new.name),
                     "fullname": parse_fullname(json_dict),
                     "previous": parse_previous(json_dict),
