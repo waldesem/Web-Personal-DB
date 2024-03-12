@@ -143,8 +143,16 @@ function deleteItem(itemId: string, item: string) {
         :value="storeClassify.classData.regions[props.resume['region_id']]"
       />
       <LabelValue
-        :label="'Фамилия Имя Отчество'"
-        :value="props.resume['fullname']"
+        :label="'Фамилия'"
+        :value="props.resume['surname']"
+      />
+      <LabelValue
+        :label="'Имя'"
+        :value="props.resume['firstname']"
+      />
+      <LabelValue
+        :label="'Отчество'"
+        :value="props.resume['patronymic']"
       />
       <LabelValue :label="'Изменение имени'" :value="props.resume['previous']" />
       <LabelValue :label="'Дата рождения'" :value="props.resume['birthday']" />

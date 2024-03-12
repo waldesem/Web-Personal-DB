@@ -93,13 +93,33 @@ const resumeForm = ref({
       />
       <InputLabel
         :isneed="true"
-        :name="'fullname'"
-        :label="'Полное ФИО*'"
+        :name="'surname'"
+        :label="'Фамилия*'"
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
         @input-event="
-          resumeForm.form['fullname'] = $event.target.value.toUpperCase()
+          resumeForm.form['surname'] = $event.target.value.toUpperCase()
         "
-        :model="props.resume['fullname']"
+        :model="props.resume['surname']"
+      />
+      <InputLabel
+        :isneed="true"
+        :name="'firstname'"
+        :label="'Имя*'"
+        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+        @input-event="
+          resumeForm.form['firstname'] = $event.target.value.toUpperCase()
+        "
+        :model="props.resume['firstname']"
+      />
+      <InputLabel
+        :isneed="true"
+        :name="'patronymic'"
+        :label="'Отчество*'"
+        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+        @input-event="
+          resumeForm.form['patronymic'] = $event.target.value.toUpperCase()
+        "
+        :model="props.resume['patronymic']"
       />
       <TextLabel
         :name="'previous'"

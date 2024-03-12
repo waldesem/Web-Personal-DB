@@ -42,7 +42,7 @@ class RoleSchema(SQLAlchemyAutoSchema):
         ordered = True
 
 
-class AdminUserSchema(SQLAlchemySchema):
+class AdminSchema(SQLAlchemySchema):
     """Create model for new user"""
 
     fullname = String()
@@ -227,7 +227,9 @@ class AnketaSchemaApi(SQLAlchemySchema):
     """Create schema for sending anketa"""
 
     id = String()
-    fullname = String()
+    surname = String()
+    firstname = String()
+    patronymic = String()
     birthday = String()
     birthplace = String()
     snils = String()

@@ -63,7 +63,9 @@ def register_cli(app):
         db.session.add(
             Person(
                 region_id=Region().get_id(Regions.MAIN_OFFICE.value),
-                fullname="Бендер Остап Ибрагимович",
+                surname="Бендер",
+                firstname="Остап",
+                patronymic="Ибрагимович",
                 previous="Остап Сулейман",
                 birthday=datetime.now().date(),
                 birthplace="Неизвестно",

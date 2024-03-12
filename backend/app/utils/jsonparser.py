@@ -16,7 +16,9 @@ def parse_json(file) -> None:
                 "resume": {
                     "region_id": parse_region(json_dict),
                     "status_id": Status().get_id(Statuses.new.name),
-                    "fullname": parse_fullname(json_dict),
+                    "surname": json_dict.get("lastName").strip().upper(),
+                    "firstname": json_dict.get("firstName").strip().upper(),
+                    "patronymic": json_dict.get("midName", "").strip().upper(),
                     "previous": parse_previous(json_dict),
                     "birthday": parse_birthday(json_dict),
                     "birthplace": json_dict.get("birthplace", "").strip(),
@@ -100,14 +102,6 @@ def parse_region(json_dict):
                 return region_id
             else:
                 return 1
-
-
-def parse_fullname(json_dict):
-    lastName = json_dict.get("lastName").strip()
-    firstName = json_dict.get("firstName").strip()
-    midName = json_dict.get("midName", "").strip()
-    return f"{lastName} {firstName} {midName}".rstrip().upper()
-
 
 def parse_birthday(json_dict):
     birthday = datetime.strptime(json_dict.get("birthday", "1900-01-01"), "%Y-%m-%d")

@@ -20,6 +20,7 @@ class ConnnectView(MethodView):
         """
         Retrieves a paginated list of Connect objects based on the specified group and item.
         """
+        names = db.session.execute(select(Connect.name)).scalars()
         companies = db.session.execute(select(Connect.company)).scalars()
         cities = db.session.execute(select(Connect.city)).scalars()
         search_data = query_data.get("search")
@@ -36,6 +37,7 @@ class ConnnectView(MethodView):
             ConnectSchema().dump(result, many=True),
             {"has_next": result.has_next},
             {"has_prev": result.has_prev},
+            {"names": list({name for name in names})},
             {"companies": list({company for company in companies})},
             {"cities": list({city for city in cities})},
         ], 200

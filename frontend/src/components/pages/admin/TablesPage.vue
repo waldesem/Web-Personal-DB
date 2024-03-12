@@ -17,58 +17,58 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 
 onBeforeMount(async () => {
-  await tableData.value.getItem(1);
+  await getItem(1);
 });
 
 const tableData = ref({
   table: storeClassify.classData.tables[0],
-  item: [],
+  items: [],
   search: "",
   currentPage: 1,
   hasNext: false,
   hasPrev: false,
+});
 
-  getItem: async function (page: number): Promise<void> {
-    this.currentPage = page;
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/table/${this.table}/${page}`,
-        {
-          params: {
-            search: this.search,
-          }
+async function getItem(page: number): Promise<void> {
+  tableData.value.currentPage = page;
+  try {
+    const response = await storeAuth.axiosInstance.get(
+      `${server}/table/${tableData.value.table}/${page}`,
+      {
+        params: {
+          search: tableData.value.search,
         }
+      }
+    );
+    const [datas, metadata] = response.data;
+    tableData.value.items = datas;
+    tableData.value.hasNext = metadata.has_next;
+    tableData.value.hasPrev = metadata.has_prev;
+  } catch (error) {
+    storeAlert.alertMessage.setAlert("alert-warning", error as string);
+  }
+};
+
+async function deleteItem(idItem: string): Promise<void> {
+  if (confirm(`Вы действительно хотите удалить запись?`)) {
+    try {
+      const response = await storeAuth.axiosInstance.delete(
+        `${server}/table/${tableData.value.table}/${idItem}`
       );
-      const [datas, metadata] = response.data;
-      this.item = datas;
-      this.hasNext = metadata.has_next;
-      this.hasPrev = metadata.has_prev;
+      console.log(response.status);
+      storeAlert.alertMessage.setAlert(
+        "alert-warning",
+        `Запись ${idItem} из ${tableData.value.table} удалена`
+      );
+      getItem(tableData.value.currentPage);
     } catch (error) {
       storeAlert.alertMessage.setAlert("alert-warning", error as string);
     }
-  },
-
-  deleteItem: async function (idItem: string): Promise<void> {
-    if (confirm(`Вы действительно хотите удалить запись?`)) {
-      try {
-        const response = await storeAuth.axiosInstance.delete(
-          `${server}/table/${this.table}/${idItem}`
-        );
-        console.log(response.status);
-        storeAlert.alertMessage.setAlert(
-          "alert-warning",
-          `Запись ${idItem} из ${this.table} удалена`
-        );
-        this.getItem(this.currentPage);
-      } catch (error) {
-        storeAlert.alertMessage.setAlert("alert-warning", error as string);
-      }
-    }
-  },
-});
+  }
+};
 
 const searchItem = debounce(() => {
-  tableData.value.getItem(1);
+  getItem(1);
 }, 500);
 </script>
 
@@ -84,7 +84,7 @@ const searchItem = debounce(() => {
             id="region"
             name="region"
             v-model="tableData.table"
-            @change="tableData.getItem(1)"
+            @change="getItem(1)"
           >
             <option
               v-for="(table, index) in storeClassify.classData.tables"
@@ -109,12 +109,12 @@ const searchItem = debounce(() => {
         </form>
       </div>
     </div>
-    <div v-if="tableData.item.length" class="table-responsive py-3">
+    <div v-if="tableData.items.length" class="table-responsive py-3">
       <table class="table align-middle">
         <thead>
           <tr>
             <th
-              v-for="(key, index) in Object.keys(tableData.item[0])"
+              v-for="(key, index) in Object.keys(tableData.items[0])"
               :key="index"
             >
               {{ key }}
@@ -123,14 +123,14 @@ const searchItem = debounce(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, index) in tableData.item" :key="index">
+          <tr v-for="(row, index) in tableData.items" :key="index">
             <td v-for="(val, index) in Object.values(row)" :key="index">
               {{ val }}
             </td>
             <td>
               <a
                 href="#"
-                @click="tableData.deleteItem(row['id'])"
+                @click="deleteItem(row['id'])"
                 title="Удалить"
               >
                 <i class="bi bi-trash"></i>
@@ -145,7 +145,7 @@ const searchItem = debounce(() => {
       :has_next="tableData.hasNext"
       :switchPrev="tableData.currentPage - 1"
       :switchNext="tableData.currentPage + 1"
-      @switch="tableData.getItem"
+      @switch="getItem"
     />
   </div>
 </template>

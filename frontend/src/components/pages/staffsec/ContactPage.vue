@@ -3,6 +3,7 @@ import { onBeforeMount, defineAsyncComponent, ref } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
 import { debounce, server } from "@utilities/utils";
+import { Connection } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -29,6 +30,7 @@ const searchContacts = debounce(() => {
 }, 500);
 
 const contactData = ref({
+  names: [],
   contacts: [],
   companies: [],
   cities: [],
@@ -37,7 +39,7 @@ const contactData = ref({
   next: false,
   action: "",
   search: "",
-  item: <Record<string, any>>{},
+  item: <Connection>{},
 });
 
 async function getContacts(page: number): Promise<void> {
@@ -50,9 +52,10 @@ async function getContacts(page: number): Promise<void> {
         },
       }
     );
-    const [datas, has_prev, has_next, companies, cities] = response.data;
+    const [datas, has_prev, has_next, names, companies, cities] = response.data;
     Object.assign(contactData.value, {
       contacts: datas,
+      names: names,
       companies: companies.companies,
       cities: cities.cities,
       prev: has_prev.has_prev,
@@ -114,6 +117,7 @@ async function deleteContact(id: string): Promise<void> {
       <ConnectForm
         :page="contactData.page"
         :action="contactData.action"
+        :names="contactData.names"
         :companies="contactData.companies"
         :cities="contactData.cities"
         :item="contactData.item"
@@ -123,17 +127,18 @@ async function deleteContact(id: string): Promise<void> {
       <table class="table align-middle text-center no-bottom-border">
         <thead>
           <tr>
-            <th width="5%">#</th>
+            <th width="4%">#</th>
             <th width="10%">Компания</th>
+            <th width="10%">Название</th>
             <th width="10%">Город</th>
             <th width="10%">Имя</th>
             <th width="10%">Телефон</th>
-            <th width="10%">Добавочный</th>
+            <th width="5%">Добавочный</th>
             <th width="10%">Мобильный</th>
             <th width="10%">E-mail</th>
             <th width="10%">Примечание</th>
             <th width="5%">Дата</th>
-            <th width="5%">
+            <th width="3%">
               <a
                 type="button"
                 data-bs-toggle="modal"
@@ -144,7 +149,7 @@ async function deleteContact(id: string): Promise<void> {
                 <i class="bi bi-plus-circle"></i>
               </a>
             </th>
-            <th width="5%"></th>
+            <th width="3%"></th>
           </tr>
         </thead>
         <tbody v-if="contactData.contacts.length > 0">
@@ -154,6 +159,7 @@ async function deleteContact(id: string): Promise<void> {
             class="table align-middle text-center"
           >
             <td>{{ contact["id"] }}</td>
+            <td>{{ contact["name"] }}</td>
             <td>{{ contact["company"] }}</td>
             <td>{{ contact["city"] }}</td>
             <td>{{ contact["fullname"] }}</td>

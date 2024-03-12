@@ -15,7 +15,7 @@ from ..models.model import User, Role
 from ..models.schema import (
     ActionSchema,
     SearchSchema,
-    AdminUserSchema,
+    AdminSchema,
     UserSchema,
     models_schemas,
 )
@@ -73,7 +73,7 @@ class UserView(MethodView):
         user = db.session.get(User, user_id)
         return UserSchema().dump(user), 200
 
-    @bp.input(AdminUserSchema)
+    @bp.input(AdminSchema)
     def post(self, json_data):
         """
         Creates a new user based on the provided JSON data.
@@ -94,7 +94,7 @@ class UserView(MethodView):
             return {"message": "Created"}, 201
         return {"message": "Denied"}, 403
 
-    @bp.input(AdminUserSchema)
+    @bp.input(AdminSchema)
     def patch(self, user_id, json_data):
         """
         Patch a user's information.

@@ -13,8 +13,9 @@ class Regions(Enum):
 class Roles(Enum):
 
     admin = "admin"
+    superuser = "superuser"
     user = "user"
-    api = "API"
+    api = "api"
 
 
 class Statuses(Enum):

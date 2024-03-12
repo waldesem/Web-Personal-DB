@@ -165,8 +165,7 @@ class ResumeView(MethodView):
                         select(Document)
                         .filter_by(person_id=person_id)
                         .order_by(Document.id.desc())
-                        .one_or_none()
-                    )
+                    ).scalar_one_or_none()
                     addr = db.session.execute(
                         select(Address)
                         .filter(
@@ -174,12 +173,14 @@ class ResumeView(MethodView):
                             Address.view.ilike("%регистрац%"),
                         )
                         .order_by(Address.id.desc())
-                        .one_or_none()
-                    )
+                        
+                    ).scalar_one_or_none()
                     serial = AnketaSchemaApi().dump(
                         {
                             "id": person_id,
-                            "fullname": person.fullname,
+                            "surname": person.surname,
+                            "firstname": person.firstname,
+                            "patronymic": person.patronymic,
                             "birthday": person.birthday,
                             "birthplace": person.birthplace,
                             "snils": person.snils,
@@ -234,7 +235,9 @@ class ResumeView(MethodView):
         """
         person = db.session.execute(
             select(Person).filter(
-                Person.fullname.ilike(resume["fullname"]),
+                Person.surname.ilike(resume["surname"]),
+                Person.firstname.ilike(resume["firstname"]),
+                Person.patronymic.ilike(resume["patronymic"]),
                 Person.birthday == resume["birthday"],
             )
         ).one_or_none()
@@ -257,7 +260,7 @@ class ResumeView(MethodView):
             person.status_id = Status().get_id(Statuses.manual.value)
 
         person.path = os.path.join(
-            resume["fullname"][0].upper(), f"{person_id}-{resume['fullname']}"
+            resume["surname"][0].upper(), f"{person_id}-{resume['surname']} {resume['firstname']} {resume['patronymic']}"
         )
         url = os.path.join(Config.BASE_PATH, person.path)
         if not os.path.isdir(url):
@@ -715,7 +718,11 @@ class RobotView(MethodView):
         if candidate.status_id == Status.get_id(Statuses.robot.value):
             if os.path.isdir(json_data["path"]):
                 check_path = create_folders(
-                    candidate.id, candidate["fullname"], "robot"
+                    candidate.id, 
+                    candidate.surname,
+                    candidate.firstname,
+                    candidate.patronymic, 
+                    "robot"
                 )
                 try:
                     for item in os.listdir(robot_path):
@@ -729,7 +736,7 @@ class RobotView(MethodView):
             db.session.add(Robot(**json_data | {"person_id": candidate.id}))
             db.session.add(
                 Message(
-                    report=f"Автоматическая проверка {candidate.fullname} окончена",
+                    report=f"Автоматическая проверка {candidate.surname} окончена",
                     user_id=user_id,
                 )
             )
@@ -738,7 +745,7 @@ class RobotView(MethodView):
         else:
             db.session.add(
                 Message(
-                    report=f"Результат проверки {candidate.fullname} не может быть записан."
+                    report=f"Результат проверки {candidate.surname} не может быть записан."
                     f"Материал проверки находится в {robot_path}",
                     user_id=user_id,
                 )
@@ -959,14 +966,20 @@ class FileView(MethodView):
                     os.mkdir(full_path)
             else:
                 person.path = os.path.join(
-                    person.fullname[0].upper(), f"{person_id}-{person.fullname}"
+                    person.surname[0].upper(), f"{person_id}-{person.surname} {person.firstname} {person.patronymic}"
                 )
                 url = os.path.join(Config.BASE_PATH, person.path)
                 if not os.path.isdir(url):
                     os.mkdir(url)
             db.session.commit()
 
-            action_folder = create_folders(person_id, person.fullname, action)
+            action_folder = create_folders(
+                person_id, 
+                person.surname,
+                person.firstname,
+                person.patronymic,
+                action
+                )
 
             save_path = os.path.join(Config.BASE_PATH, action_folder, filename)
             if not os.path.isfile(save_path):
@@ -979,7 +992,7 @@ class FileView(MethodView):
         else:
             files = request.files.getlist("file")
             person = db.session.get(Person, item_id)
-            folder = create_folders(item_id, person.fullname, action)
+            folder = create_folders(item_id, person.surname, person.firstname, person.patronymic, action)
             if action == "image":
                 im = Image.open(files[0])
                 rgb_im = im.convert("RGB")

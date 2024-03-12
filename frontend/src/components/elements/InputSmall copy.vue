@@ -1,13 +1,20 @@
 <script setup lang="ts">
-const model = defineModel();
 const props = defineProps({
-  title: String,
-  place: String,
-  lst: String,
   need: {
     type: Boolean,
     default: false,
   },
+  pattern: {
+    type: String,
+    default: ".*",
+  },
+  place: String,
+  name: String,
+  model: {
+    type: [String, Number],
+    default: "",
+  },
+  lst: String,
   selects: Array,
 });
 </script>
@@ -19,12 +26,14 @@ const props = defineProps({
         class="form-control"
         max="255"
         type="text"
-        :id="props.title"
-        :name="props.title"
+        :id="props.name"
+        :name="props.name"
         :required="props.need"
+        :pattern="props.pattern"
         :placeholder="props.place"
         :list="props.lst"
-        v-model.trim="model"
+        :value="props.model"
+        @input="$emit('input-event', $event)"
       />
       <datalist v-if="props.lst" :id="props.lst">
         <option v-for="item in selects" :value="item"></option>

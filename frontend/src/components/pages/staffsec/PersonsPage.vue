@@ -3,7 +3,7 @@ import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/auth";
 import { debounce, server, timeSince } from "@utilities/utils";
-import { Candidate } from "@/interfaces/interface";
+import { Resume } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -26,7 +26,7 @@ onBeforeMount( async () => {
 });
 
 const personData = ref({
-  candidates: <Candidate[]>[],
+  candidates: <Resume[]>[],
   items: {
     search: "Результаты поиска",
     officer: "Страница пользователя",
@@ -142,7 +142,7 @@ function changePath (): void {
                   params: { id: candidate.id },
                 }"
               >
-                {{ candidate.fullname }}
+                {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic}` }}
               </router-link>
             </td>
             <td>

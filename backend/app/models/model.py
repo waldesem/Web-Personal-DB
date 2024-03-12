@@ -143,7 +143,9 @@ class Person(Base):
     region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"))
     status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    fullname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
+    surname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
+    firstname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
+    patronymic: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     previous: Mapped[str] = mapped_column(Text, nullable=True, index=True)
     birthday: Mapped[date] = mapped_column(Date, nullable=False)
     birthplace: Mapped[str] = mapped_column(Text, nullable=True)
@@ -203,8 +205,9 @@ class Person(Base):
     search_vector: Mapped[TSVectorType] = mapped_column(
         TSVectorType(
             "previous",
-            "fullname",
-            "inn",
+            "surname",
+            "firstname",
+            "patronymic"
         )
     )
 
@@ -446,6 +449,7 @@ class Connect(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
+    name: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     company: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     city: Mapped[str] = mapped_column(String(255), nullable=True)
     fullname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
@@ -458,5 +462,5 @@ class Connect(Base):
         Date, default=default_time, onupdate=default_time, nullable=True
     )
     search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("company", "fullname", "mobile", "phone")
+        TSVectorType("company", "fullname")
     )

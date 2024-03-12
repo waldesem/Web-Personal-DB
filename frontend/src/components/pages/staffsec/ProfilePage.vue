@@ -325,7 +325,10 @@ async function submitFile(event: Event, param: string): Promise<void> {
         </a>
       </div>
     </div>
-    <HeaderDiv :page-header="anketaData.resume.fullname" />
+    <HeaderDiv 
+      :page-header="
+      `${anketaData.resume.surname} ${anketaData.resume.firstname} ${anketaData.resume.patronymic}`
+      " />
     <div
       :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
       :role="!anketaData.printPage ? 'tablist' : ''"

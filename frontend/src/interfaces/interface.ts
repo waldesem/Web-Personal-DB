@@ -1,17 +1,10 @@
-export interface Candidate {
-  id: number;
-  fullname: string;
-  region_id: number;
-  birthday: string;
-  status_id: string;
-  created: string;
-}
-
 export interface Resume {
   id: string;
   region_id: string;
   user_id: string;
-  fullname: string;
+  surname: string;
+  firstname: string;
+  patronymic: string;
   previous: string;
   birthday: string;
   birthplace: string;
@@ -177,6 +170,7 @@ export interface Message {
 
 export interface Connection {
   id: string;
+  name: string;
   company: string;
   city: string;
   fullname: string;
@@ -186,4 +180,16 @@ export interface Connection {
   mail: string;
   comment: string;
   data: string;
+}
+
+export interface ConnectionForm {
+  name: string;
+  company: string;
+  city: string;
+  fullname: string;
+  phone: string;
+  adding: string;
+  mobile: string;
+  mail: string;
+  comment: string;
 }

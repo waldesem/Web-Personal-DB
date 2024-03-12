@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
 import { server } from "@utilities/utils";
+import { Connection, ConnectionForm } from "@/interfaces/interface";
 
 const InputSmall = defineAsyncComponent(
   () => import("@components/elements/InputSmall.vue")
@@ -17,105 +18,111 @@ const storeAlert = alertStore();
 const props = defineProps({
   page: Number,
   action: String,
-  companies: Array,
-  cities: Array,
+  names: {
+    type: Array<string>,
+    default: [],
+  },
+  companies: {
+    type: Array<string>,
+    default: [],
+  },
+  cities: {
+    type: Array<string>,
+    default: [],
+  },
   item: {
-    type: Object as () => Record<string, any>,
+    type: Object as () => Connection,
     default: {},
   },
 });
 
-const contactForm = ref({
-  form: <Record<string, any>>{},
+const connectForm = toRef(props.item as ConnectionForm);
 
-  updateContact: async function (): Promise<void> {
-    try {
-      const response =
-        props.action === "create"
-          ? await storeAuth.axiosInstance.post(
-            `${server}/connect`, 
-            this.form
-            )
-          : await storeAuth.axiosInstance.patch(
-              `${server}/connect/${props.item['id']}`,
-              this.form
-            );
-      console.log(response.status);
+async function updateContact(): Promise<void> {
+  try {
+    const response =
+      props.action === "create"
+        ? await storeAuth.axiosInstance.post(
+          `${server}/connect`, 
+          connectForm.value
+          )
+        : await storeAuth.axiosInstance.patch(
+            `${server}/connect/${props.item['id']}`,
+            connectForm.value
+          );
+    console.log(response.status);
 
-      const alert = {
-        create: ["alert-success", "Контакт добавлен"],
-        edit: ["alert-info", "Контакт обновлен"],
-      };
-      storeAlert.alertMessage.setAlert(
-        alert[props.action as keyof typeof alert][0],
-        alert[props.action as keyof typeof alert][1]
-      );
-      Object.keys(this.form).forEach((key) => {
-        delete this.form[key as keyof typeof this.form];
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  },
-});
+    const alert = {
+      create: ["alert-success", "Контакт добавлен"],
+      edit: ["alert-info", "Контакт обновлен"],
+    };
+    storeAlert.alertMessage.setAlert(
+      alert[props.action as keyof typeof alert][0],
+      alert[props.action as keyof typeof alert][1]
+    );
+    Object.keys(connectForm.value).forEach((key) => {
+      delete connectForm.value[key as keyof typeof connectForm.value];
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 </script>
 
 <template>
-  <form @submit.prevent="contactForm.updateContact" class="form form-check">
+  <form @submit.prevent="updateContact" class="form form-check">
     <InputSmall
-      :name="'company'"
-      place="Организация"
       :need="true"
+      :title="'name'"
+      :place="'Вид'"
+      :lst="'names'"
+      :selects="props.names"
+      v-model="item['name']"
+    />
+    <InputSmall
+      :need="true"
+      :title="'company'"
+      :place="'Название'"
       :lst="'companies'"
       :selects="props.companies"
-      :model="item['company']"
-      @input-event="contactForm.form['company'] = $event.target.value"
+      v-model="item['company']"
     />
     <InputSmall
-      :name="'city'"
-      place="Город"
-      :need="true"
+      :title="'city'"
+      :place="'Город'"
       :lst="'cities'"
       :selects="props.cities"
-      :model="item['city']"
-      @input-event="contactForm.form['city'] = $event.target.value"
+      v-model="connectForm['city']"
     />
     <InputSmall
-      :name="'fullname'"
-      place="Имя"
-      :need="true"
-      :model="item['fullname']"
-      @input-event="contactForm.form['fullname'] = $event.target.value"
+      :title="'fullname'"
+      :place="'Имя'"
+      v-model="connectForm['fullname']"
     />
     <InputSmall
-      :name="'phone'"
-      place="Телефон"
-      :model="item['phone']"
-      @input-event="contactForm.form['phone'] = $event.target.value"
+      :title="'phone'"
+      :place="'Телефон'"
+      v-model="connectForm['phone']"
     />
     <InputSmall
-      :name="'adding'"
-      place="Добав"
-      :model="item['adding']"
-      @input-event="contactForm.form['adding'] = $event.target.value"
+      :title="'adding'"
+      :place="'Добав'"
+      v-model="connectForm['adding']"
     />
     <InputSmall
-      :name="'mobile'"
-      place="Мобильный"
-      :model="item['mobile']"
-      @input-event="contactForm.form['mobile'] = $event.target.value"
+      :title="'mobile'"
+      :place="'Мобильный'"
+      v-model="connectForm['mobile']"
     />
     <InputSmall
-      :name="'mail'"
-      place="Почта"
-      :model="item['mail']"
-      @input-event="contactForm.form['mail'] = $event.target.value"
+      :title="'mail'"
+      :place="'Почта'"
+      v-model="connectForm['mail']"
     />
     <InputSmall
-      :name="'comment'"
-      place="Комментарий"
-      :model="item['comment']"
-      @input-event="contactForm.form['comment'] = $event.target.value"
+      :title="'comment'"
+      :place="'Комментарий'"
+      v-model="connectForm['comment']"
     />
     <BtnGroup :cls="false">
       <button
