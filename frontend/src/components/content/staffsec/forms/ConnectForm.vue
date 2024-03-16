@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
 import { server } from "@utilities/utils";
-import { Connection, ConnectionForm } from "@/interfaces/interface";
+import { Connection } from "@/interfaces/interface";
 
 const InputSmall = defineAsyncComponent(
   () => import("@components/elements/InputSmall.vue")
@@ -19,15 +19,15 @@ const props = defineProps({
   page: Number,
   action: String,
   names: {
-    type: Array<string>,
+    type: Array,
     default: [],
   },
   companies: {
-    type: Array<string>,
+    type: Array,
     default: [],
   },
   cities: {
-    type: Array<string>,
+    type: Array,
     default: [],
   },
   item: {
@@ -36,7 +36,11 @@ const props = defineProps({
   },
 });
 
-const connectForm = toRef(props.item as ConnectionForm);
+const emit = defineEmits(["get-contacts"]);
+
+const connectForm = computed(() => {
+  return props.item as Connection;
+});
 
 async function updateContact(): Promise<void> {
   try {
@@ -66,6 +70,7 @@ async function updateContact(): Promise<void> {
   } catch (error) {
     console.log(error);
   }
+  emit("get-contacts", props.page);
 };
 </script>
 
@@ -77,7 +82,7 @@ async function updateContact(): Promise<void> {
       :place="'Вид'"
       :lst="'names'"
       :selects="props.names"
-      v-model="item['name']"
+      v-model="connectForm['name']"
     />
     <InputSmall
       :need="true"
@@ -85,7 +90,7 @@ async function updateContact(): Promise<void> {
       :place="'Название'"
       :lst="'companies'"
       :selects="props.companies"
-      v-model="item['company']"
+      v-model="connectForm['company']"
     />
     <InputSmall
       :title="'city'"

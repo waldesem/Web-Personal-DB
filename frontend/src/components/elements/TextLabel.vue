@@ -1,11 +1,8 @@
 <script setup lang="ts">
+const model = defineModel();
 const props = defineProps({
   name: String,
   label: String,
-  model: {
-    type: [String, Number],
-    default: "",
-  },
 });
 </script>
 
@@ -20,8 +17,7 @@ const props = defineProps({
         :id="props.name"
         :name="props.name"
         :placeholder="props.label"
-        :value="props.model"
-        @input="$emit('input-event', $event)"
+        v-model="model"
       >
       </textarea>
     </div>

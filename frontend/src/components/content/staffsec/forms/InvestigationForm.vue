@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
 const TextLabel = defineAsyncComponent(
@@ -21,14 +21,14 @@ const props = defineProps({
   },
 });
 
-const investigationForm = ref({
-  form: <Inquisition>{},
-  });
+const investigationForm = computed(() => {
+  return props.investigation as Inquisition;
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', investigationForm.form)"
+    @submit.prevent="emit('submit', investigationForm)"
     class="form form-check"
     role="form"
   >
@@ -36,16 +36,12 @@ const investigationForm = ref({
       :name="'theme'"
       :label="'Тема проверки'"
       :need="true"
-      :model="props.investigation['theme']"
-      @input-event="
-        investigationForm.form['theme'] = $event.target.value
-      "
+      v-model="investigationForm['theme']"
     />
     <TextLabel
       :name="'info'"
       :label="'Информация'"
-      :model="props.investigation['info']"
-      @input-event="investigationForm.form['info'] = $event.target.value"
+      v-model="investigationForm['info']"
     />
     <BtnGroup>
       <button

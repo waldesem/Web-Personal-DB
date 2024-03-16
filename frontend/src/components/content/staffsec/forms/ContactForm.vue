@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, computed } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Contact } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
@@ -21,19 +21,19 @@ const props = defineProps({
   },
 });
 
-const contactForm = ref({
-  form: <Contact>{},
-  selected_item: {
-    phone: "Телефон",
-    email: "E-mail",
-    other: "Другое",
-  }
+const contactForm = computed(() => {
+  return props.contact as Contact;
 });
+const selected_item = {
+  phone: "Телефон",
+  email: "E-mail",
+  other: "Другое",
+};
 
 const view = computed(() => {
-  if (contactForm.value.form["view"] === "Телефон") {
+  if (contactForm.value["view"] === "Телефон") {
     return "tel";
-  } else if (contactForm.value.form["view"] === "E-mail") {
+  } else if (contactForm.value["view"] === "E-mail") {
     return "email";
   } else {
     return "text";
@@ -43,26 +43,22 @@ const view = computed(() => {
 
 <template>
   <form
-    @submit.prevent="emit('submit', contactForm.form)"
+    @submit.prevent="emit('submit', contactForm)"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="'view'"
       :label="'Выбрать'"
-      :select="contactForm.selected_item"
-      :model="props.contact['view']"
-      @input-event="contactForm.form['view'] = $event.target.value"
+      :select="selected_item"
+      v-model="contactForm['view']"
     />
     <InputLabel
       :name="'contact'"
       :label="'Контакт'"
       :typeof="view"
       :need="true"
-      :model="props.contact['contact']"
-      @input-event="
-        contactForm.form['contact'] = $event.target.value
-      "
+      v-model="contactForm['contact']"
     />
     <BtnGroup>
       <button

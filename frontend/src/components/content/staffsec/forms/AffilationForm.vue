@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Affilation } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
@@ -24,50 +24,45 @@ const props = defineProps({
   },
 });
 
-const affilationForm = ref({
-  form: <Affilation>{},
-  selected_item: {
-    state: "Являлся государственным/муниципальным служащим",
-    official: "Являлся государственным должностным лицом",
-    relatives: "Связанные лица работают в государственных организациях",
-    commercial: "Участвует в деятельности коммерческих организаций",
-  }
+const affilationForm = computed(() => {
+  return props.affils as Affilation;
 });
+
+const selected_item = {
+  state: "Являлся государственным/муниципальным служащим",
+  official: "Являлся государственным должностным лицом",
+  relatives: "Связанные лица работают в государственных организациях",
+  commercial: "Участвует в деятельности коммерческих организаций",
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', affilationForm.form)"
+    @submit.prevent="emit('submit', affilationForm)"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="'view'"
       :label="'Тип участия'"
-      :select="affilationForm.selected_item"
-      :model="props.affils['view']"
-      @input-event="affilationForm.form['view'] = $event.target.value"
+      :select="selected_item"
+      v-model="affilationForm['view']"
     />
     <TextLabel
       :name="'name'"
       :label="'Организация'"
-      :model="props.affils['name']"
-      @input-event="affilationForm.form['name'] = $event.target.value"
+      v-model="affilationForm['name']"
     />
     <InputLabel
       :name="'inn'"
       :label="'ИНН'"
       :need="true"
-      :model="props.affils['inn']"
-      @input-event="affilationForm.form['inn'] = $event.target.value"
+      v-model="affilationForm['inn']"
     />
     <TextLabel
       :name="'position'"
       :label="'Должность'"
-      :model="props.affils['position']"
-      @input-event="
-        affilationForm.form['position'] = $event.target.value
-      "
+      v-model="affilationForm['position']"
     />
     <BtnGroup :cls="false">
       <button

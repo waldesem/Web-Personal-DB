@@ -142,7 +142,7 @@ class Person(Base):
     )
     region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"))
     status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"))
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     surname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     patronymic: Mapped[str] = mapped_column(String(255), nullable=True, index=True)

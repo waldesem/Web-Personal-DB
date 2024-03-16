@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Staff } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
@@ -21,14 +21,14 @@ const props = defineProps({
   },
 });
 
-const staffForm = ref({
-  form: <Staff>{},
+const staffForm = computed(() => {
+  return props.staff as Staff;
 });
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', staffForm.form)"
+    @submit.prevent="emit('submit', staffForm)"
     class="form form-check"
     role="form"
   >
@@ -36,14 +36,12 @@ const staffForm = ref({
       :name="'position'"
       :label="'Должность'"
       :need="true"
-      :model="props.staff['position']"
-      @input-event="staffForm.form['position'] = $event.target.value"
+      v-model="staffForm['position']"
     />
     <TextLabel
       :name="'department'"
       :label="'Подразделение'"
-      :model="props.staff['department']"
-      @input-event="staffForm.form['department'] = $event.target.value"
+      v-model="staffForm['department']"
     />
     <BtnGroup>
       <button

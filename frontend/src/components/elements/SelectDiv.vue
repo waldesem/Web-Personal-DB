@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const model = defineModel();
 const props = defineProps({
   isneed: {
     type: Boolean,
@@ -6,10 +7,6 @@ const props = defineProps({
   },
   name: String,
   label: String,
-  model: {
-    type: [String, Number],
-    default: "",
-  },
   select: {
     type: Object as () => Record<string, any>,
     default: () => [],
@@ -30,8 +27,7 @@ const props = defineProps({
         :required="props.isneed"
         :id="props.name"
         :name="props.name"
-        :value="props.model"
-        @input="$emit('input-event', $event)"
+        v-model="model"
       >
         <option
           v-for="(key, value) in props.select"

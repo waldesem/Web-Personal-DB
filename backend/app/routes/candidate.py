@@ -205,7 +205,7 @@ class ResumeView(MethodView):
                     except httpx.HTTPError as exc:
                         print(f"Error while requesting {exc.request.url!r}.")
                 return abort(403)
-            return '', 201
+            return PersonSchema().dump(person), 201
         return abort(403)
 
     @bp.output(EmptySchema)
@@ -937,9 +937,10 @@ class FileView(MethodView):
         Retrieves a file from the server and sends it as a response.
         """
         person = db.session.get(Person, item_id)
-        file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True)
+        if person.path:
+            file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
+            if os.path.isfile(file_path):
+                return send_file(file_path, as_attachment=True)
         return abort(404)
 
     def post(self, action, item_id = None):

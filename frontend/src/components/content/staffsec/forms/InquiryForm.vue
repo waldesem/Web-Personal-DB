@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { Needs } from "@/interfaces/interface";
 
 const TextLabel = defineAsyncComponent(
@@ -21,34 +21,31 @@ const props = defineProps({
   },
 });
 
-const inquiryForm = ref({
-  form: <Needs>{},
-  });
+const inquiryForm = computed(() => {
+  return props.inquiry as Needs;
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', inquiryForm.form)"
+    @submit.prevent="emit('submit', inquiryForm)"
     class="form form-check"
     role="form"
   >
     <TextLabel
       :name="'info'"
       :label="'Информация'"
-      :model="props.inquiry['info']"
-      @input-event="inquiryForm.form['info'] = $event.target.value"
+      v-model="inquiryForm['info']"
     />
     <InputLabel
       :name="'initiator'"
       :label="'Инициатор'"
-      :model="props.inquiry['initiator']"
-      @input-event="inquiryForm.form['initiator'] = $event.target.value"
+      v-model="inquiryForm['initiator']"
     />
     <InputLabel
       :name="'source'"
       :label="'Источник'"
-      :model="props.inquiry['source']"
-      @input-event="inquiryForm.form['source'] = $event.target.value"
+      v-model="inquiryForm['source']"
     />
     <BtnGroup>
       <button

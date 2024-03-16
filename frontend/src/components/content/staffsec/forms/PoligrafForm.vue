@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
 const SelectDiv = defineAsyncComponent(
@@ -21,38 +21,33 @@ const props = defineProps({
   },
 });
 
-const poligrafForm = ref({
-  form: <Pfo>{},
-  selected_item: {
-    candidate: "Проверка кандидата",
-    check: "Служебная проверка",
-    investigation: "Служебное расследование",
-  }
+const poligrafForm = computed(() => {
+  return props.poligraf as Pfo;
 });
+
+const selected_item = {
+  candidate: "Проверка кандидата",
+  check: "Служебная проверка",
+  investigation: "Служебное расследование",
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', poligrafForm.form)"
+    @submit.prevent="emit('submit', poligrafForm)"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="'theme'"
       :label="'Тема проверки'"
-      :select="poligrafForm.selected_item"
-      :model="props.poligraf['theme']"
-      @input-event="
-        poligrafForm.form['theme'] = $event.target.value
-      "
+      :select="selected_item"
+      v-model="poligrafForm['theme']"
     />
     <TextLabel
       :name="'results'"
       :label="'Результат'"
-      :model="props.poligraf['results']"
-      @input-event="
-        poligrafForm.form['results'] = $event.target.value
-      "
+      v-model="poligrafForm['results']"
     />
     <BtnGroup>
       <button

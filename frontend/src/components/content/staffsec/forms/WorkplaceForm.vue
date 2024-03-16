@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Work } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
@@ -21,14 +21,14 @@ const props = defineProps({
   },
 });
 
-const workForm = ref({
-  form: <Work>{},
+const workForm = computed(() => {
+  return props.work as Work;
 });
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', workForm.form)"
+    @submit.prevent="emit('submit', workForm)"
     class="form form-check"
     role="form"
   >
@@ -36,52 +36,34 @@ const workForm = ref({
       :name="'start_date'"
       :label="'Начало работы'"
       :typeof="'date'"
-      :model="props.work['start_date']"
-      @input-event="
-        workForm.form['start_date'] = $event.target.value
-      "
+      v-model="workForm['start_date']"
     />
     <InputLabel
       :name="'end_date'"
       :label="'Окончание работы'"
       :typeof="'date'"
-      :model="props.work['end_date']"
-      @input-event="
-        workForm.form['end_date'] = $event.target.value
-      "
+      v-model="workForm['end_date']"
     />
     <InputLabel
       :name="'workplace'"
       :label="'Место работы'"
       :need="true"
-      :model="props.work['workplace']"
-      @input-event="
-        workForm.form['workplace'] = $event.target.value
-      "
+      v-model="workForm['workplace']"
     />
     <TextLabel
       :name="'address'"
       :label="'Адрес организации'"
-      :model="props.work['address']"
-      @input-event="
-        workForm.form['address'] = $event.target.value
-      "
+      v-model="workForm['address']"
     />
     <TextLabel
       :name="'position'"
       :label="'Должность'"
-      :model="props.work['position']"
-      @input-event="
-        workForm.form['position'] = $event.target.value
-      "
+      v-model="workForm['position']"
     />
     <TextLabel
       :name="'reason'"
       :label="'Причина увольнения'"
-      :model="props.work['reason']"
-      @input-event="
-        workForm.form['reason'] = $event.target.value
-      "
+      v-model="workForm['reason']"
     />
     <BtnGroup>
       <button

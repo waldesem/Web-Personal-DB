@@ -4,10 +4,6 @@ import { authStore } from "@store/auth";
 import { server } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
 
-// const MessagesToast = defineAsyncComponent(
-//   () => import("./MessagesToast.vue")
-// );
-
 const storeAuth = authStore();
 
 onBeforeMount(() => {
@@ -30,7 +26,7 @@ const messageData = ref({
     }
     if (!this.isStarted) {
       this.isStarted = true;
-      setInterval(this.updateMessages, 100000);
+      setInterval(this.updateMessages, 1000000);
     }
   },
 

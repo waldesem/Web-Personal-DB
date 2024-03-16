@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, ref, computed } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
@@ -37,7 +37,9 @@ const props = defineProps({
 });
 
 const resumeForm = ref({
-  form: <Resume>{},
+  form: computed(() => {
+    return props.resume as Resume;
+  }),
 
   submitResume: async function (): Promise<void> {
     try {
@@ -86,130 +88,87 @@ const resumeForm = ref({
         :name="'region_id'"
         :label="'Регион'"
         :select="storeClassify.classData.regions"
-        @input-event="
-          resumeForm.form['region_id'] = $event.target.value
-        "
-        :model="props.resume['region_id']"
+        v-model="resumeForm.form['region_id']"
       />
       <InputLabel
         :isneed="true"
         :name="'surname'"
         :label="'Фамилия*'"
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-        @input-event="
-          resumeForm.form['surname'] = $event.target.value.toUpperCase()
-        "
-        :model="props.resume['surname']"
+        v-model="resumeForm.form['surname']"
       />
       <InputLabel
         :isneed="true"
         :name="'firstname'"
         :label="'Имя*'"
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-        @input-event="
-          resumeForm.form['firstname'] = $event.target.value.toUpperCase()
-        "
-        :model="props.resume['firstname']"
+        v-model="resumeForm.form['firstname']"
       />
       <InputLabel
         :isneed="true"
         :name="'patronymic'"
         :label="'Отчество*'"
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-        @input-event="
-          resumeForm.form['patronymic'] = $event.target.value.toUpperCase()
-        "
-        :model="props.resume['patronymic']"
+        v-model="resumeForm.form['patronymic']"
       />
       <TextLabel
         :name="'previous'"
         :label="'Изменение имени'"
-        @input-event="
-          resumeForm.form['previous'] = $event.target.value
-        "
-        :model="props.resume['previous']"
+        v-model="resumeForm.form['previous']"
       />
       <InputLabel
         :isneed="true"
         :name="'birthday'"
         :label="'Дата рождения*'"
         :typeof="'date'"
-        @input-event="
-          resumeForm.form['birthday'] = $event.target.value
-        "
-        :model="props.resume['previous']"
+        v-model="resumeForm.form['previous']"
       />
       <TextLabel
         :name="'birthplace'"
         :label="'Место рождения'"
-        @input-event="
-          resumeForm.form['birthplace'] = $event.target.value
-        "
-        :model="props.resume['birthplace']"
+        v-model="resumeForm.form['birthplace']"
       />
       <InputLabel
         :name="'country'"
         :label="'Гражданство'"
         :max="'255'"
-        @input-event="
-          resumeForm.form['country'] = $event.target.value
-        "
-        :model="props.resume['country']"
+        v-model="resumeForm.form['country']"
       />
       <InputLabel
         :name="'ext_country'"
         :label="'Двойное гражданство'"
         :max="'255'"
-        @input-event="
-          resumeForm.form['ext_country'] = $event.target.value
-        "
-        :model="props.resume['ext_country']"
+        v-model="resumeForm.form['ext_country']"
       />
       <InputLabel
         :name="'snils'"
         :label="'СНИЛС'"
         :pattern="'[0-9]{11}'"
-        @input-event="
-          resumeForm.form['snils'] = $event.target.value
-        "
-        :model="props.resume['snils']"
+        v-model="resumeForm.form['snils']"
       />
       <InputLabel
         :name="'inn'"
         :label="'ИНН'"
         :max="'12'"
         :pattern="'[0-9]{12}'"
-        @input-event="
-          resumeForm.form['inn'] = $event.target.value
-        "
-        :model="props.resume['inn']"
+        v-model="resumeForm.form['inn']"
       />
       <TextLabel
         :name="'education'"
         :label="'Образование'"
-        @input-event="
-          resumeForm.form['education'] = $event.target.value
-        "
-        :model="props.resume['education']"
+        v-model="resumeForm.form['education']"
       />
       <InputLabel
         :name="'marital'"
         :label="'Семейнное положение'"
         :max="'255'"
-        @input-event="
-          resumeForm.form['marital'] = $event.target.value
-        "
-        :model="props.resume['marital']"
+        v-model="resumeForm.form['marital']"
       />
       <TextLabel
         :name="'addition'"
         :label="'Дополнительно'"
-        @input-event="
-          resumeForm.form['addition'] = $event.target.value
-        "
-        :model="props.resume['addition']"
+        v-model="resumeForm.form['addition']"
       />
-
       <BtnGroup>
         <button 
           class="btn btn-outline-primary" 

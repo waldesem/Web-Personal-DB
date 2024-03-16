@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Address } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
@@ -24,45 +24,39 @@ const props = defineProps({
   },
 });
 
-const addressForm = ref({
-  form: <Address>{},
-  selected_item: {
-    registration: "Адрес регистрации",
-    live: "Адрес проживания",
-    others: "Другое",
-  },
+const addressForm = computed(() => {
+  return props.addrs as Address;
 });
+
+const selected_item = {
+  registration: "Адрес регистрации",
+  live: "Адрес проживания",
+  others: "Другое",
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', addressForm.form)"
+    @submit.prevent="emit('submit', addressForm)"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="''"
       :label="''"
-      :select="addressForm.selected_item"
-      :model="props.addrs['view']"
-      @input-event="addressForm.form['view'] = $event.target.value"
+      :select="selected_item"
+      v-model="addressForm['view']"
     />
     <InputLabel
       :name="'region'"
       :label="'Регион'"
       :need="true"
-      :model="props.addrs['region']"
-      @input-event="
-        addressForm.form['region'] = $event.target.value
-      "
+      v-model="addressForm['region']"
     />
     <TextLabel
       :name="'address'"
       :label="'Полный адрес'"
-      :model="props.addrs['address']"
-      @input-event="
-        addressForm.form['address'] = $event.target.value
-      "
+      v-model="addressForm['address']"
     />
     <BtnGroup :cls="false">
       <button

@@ -31,9 +31,9 @@ const searchContacts = debounce(() => {
 
 const contactData = ref({
   names: [],
-  contacts: [],
   companies: [],
   cities: [],
+  contacts: [],
   page: 1,
   prev: false,
   next: false,
@@ -55,7 +55,7 @@ async function getContacts(page: number): Promise<void> {
     const [datas, has_prev, has_next, names, companies, cities] = response.data;
     Object.assign(contactData.value, {
       contacts: datas,
-      names: names,
+      names: names.names,
       companies: companies.companies,
       cities: cities.cities,
       prev: has_prev.has_prev,
@@ -121,6 +121,7 @@ async function deleteContact(id: string): Promise<void> {
         :companies="contactData.companies"
         :cities="contactData.cities"
         :item="contactData.item"
+        @get-contacts="getContacts"
       />
     </ModalWin>
     <div class="py-3">

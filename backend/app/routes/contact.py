@@ -35,8 +35,8 @@ class ConnnectView(MethodView):
             )
         return [
             ConnectSchema().dump(result, many=True),
-            {"has_next": result.has_next},
             {"has_prev": result.has_prev},
+            {"has_next": result.has_next},
             {"names": list({name for name in names})},
             {"companies": list({company for company in companies})},
             {"cities": list({city for city in cities})},
@@ -56,6 +56,7 @@ class ConnnectView(MethodView):
         """
         Patch an item in the Connect table.
         """
+        print(json_data)
         resp = db.session.get(Connect, item_id)
         for k, v in json_data.items():
             setattr(resp, k, v)

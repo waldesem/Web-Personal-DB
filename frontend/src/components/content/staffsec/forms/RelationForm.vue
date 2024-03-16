@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Relation } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
@@ -18,14 +18,14 @@ const props = defineProps({
   },
 });
 
-const relationForm = ref({
-  form: <Relation>{},
-  });
+const relationForm = computed(() => {
+  return props.relation as Relation;
+});
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', relationForm.form)"
+    @submit.prevent="emit('submit', relationForm)"
     class="form form-check"
     role="form"
   >
@@ -33,19 +33,13 @@ const relationForm = ref({
       :name="'relation'"
       :label="'Тип связи'"
       :need="true"
-      :model="props.relation['relation']"
-      @input-event="
-        relationForm.form['relation'] = $event.target.value
-      "
+      v-model="relationForm['relation']"
     />
     <InputLabel
       :name="'relation_id'"
       :label="'ID связи'"
       :need="true"
-      :model="props.relation['relation_id']"
-      @input-event="
-        relationForm.form['relation_id'] = $event.target.value
-      "
+      v-model="relationForm['relation_id']"
     />
     <BtnGroup>
       <button

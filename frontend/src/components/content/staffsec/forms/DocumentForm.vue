@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, computed } from "vue";
 import { Document } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
@@ -21,62 +21,50 @@ const props = defineProps({
   },
 });
 
-const docForm = ref({
-  form: <Document>{},
-  selected_item: {
-    "Паспорт гражданина России": "Паспорт гражданина России",
-    "Иностранный докумен": "Иностранный докумен",
-    "Другое": "Другое",
-  }
+const docForm = computed(() => {
+  return props.docs as Document;
 });
+
+const selected_item = {
+  "Паспорт гражданина России": "Паспорт гражданина России",
+  "Иностранный докумен": "Иностранный докумен",
+  "Другое": "Другое",
+};
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', docForm.form)"
+    @submit.prevent="emit('submit', docForm)"
     class="form form-check"
     role="form"
   >
     <SelectDiv
       :name="'view'"
       :label="'Выбрать'"
-      :select="docForm.selected_item"
-      :model="props.docs['view']"
-      @input-event="docForm.form['view'] = $event.target.value"
+      :select="selected_item"
+      v-model="docForm['view']"
     />
     <InputLabel
       :name="'series'"
       :label="'Серия документа'"
-      :model="props.docs['series']"
-      @input-event="
-        docForm.form['series'] = $event.target.value
-      "
+      v-model="docForm['series']"
     />
     <InputLabel
       :name="'number'"
       :label="'Номер документа'"
       :need="true"
-      :model="props.docs['number']"
-      @input-event="
-        docForm.form['number'] = $event.target.value
-      "
+      v-model="docForm['number']"
     />
     <InputLabel
       :name="'agency'"
       :label="'Орган выдавший'"
-      :model="props.docs['agency']"
-      @input-event="
-        docForm.form['agency'] = $event.target.value
-      "
+      v-model="docForm['agency']"
     />
     <InputLabel
       :name="'issue'"
       :label="'Дата выдачи'"
       :typeof="'date'"
-      :model="props.docs['issue']"
-      @input-event="
-        docForm.form['issue'] = $event.target.value
-      "
+      v-model="docForm['issue']"
     />
     <BtnGroup>
       <button

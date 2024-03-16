@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, defineAsyncComponent, computed } from "vue";
 import { classifyStore } from "@store/classify";
 import { Verification } from "@/interfaces/interface";
 
@@ -24,13 +24,14 @@ const props = defineProps({
   },
 });
 
-const checkForm = ref({
-  form: <Verification>{},
-  noNegative: true,
+const checkForm = computed(() => {
+  return props.check as Verification;
 });
 
-if (checkForm.value.noNegative) {
-  Object.assign(checkForm.value.form, {
+const noNegative = ref(true);
+
+if (noNegative) {
+  Object.assign(checkForm.value, {
     workplace: "Негатива по местам работы не обнаружено",
     employee: "В числе бывших работников МТСБ не обнаружен",
     document: "Среди недействительных документов не обнаружен",
@@ -58,13 +59,13 @@ if (checkForm.value.noNegative) {
       id="checkbox"
       name="check"
       type="checkbox"
-      v-model="checkForm.noNegative"
+      v-model="noNegative"
     />
     <label class="form-check-label" for="checkbox">Негатива нет</label>
   </div>
 
   <form
-    @submit.prevent="emit('submit', checkForm.form)"
+    @submit.prevent="emit('submit', checkForm)"
     class="form form-check"
     role="form"
     id="checkFormId"
@@ -72,112 +73,77 @@ if (checkForm.value.noNegative) {
     <TextLabel
       :name="'workplace'"
       :label="'Проверка по местам работы'"
-      :model="props.check['workplace']"
-      @input-event="
-        checkForm.form['workplace'] = $event.target.value
-      "
+      v-model="checkForm['workplace']"
     />
     <TextLabel
       :name="'employee'"
       :label="'Проверка по кадровому учету'"
-      :model="props.check['employee']"
-      @input-event="
-        checkForm.form['employee'] = $event.target.value
-      "
+      v-model="checkForm['employee']"
     />
     <TextLabel
       :name="'document'"
       :label="'Проверка документов'"
-      :model="props.check['document']"
-      @input-event="
-        checkForm.form['document'] = $event.target.value
-      "
+      v-model="checkForm['document']"
     />
     <TextLabel
       :name="'inn'"
       :label="'Проверка ИНН'"
-      :model="props.check['inn']"
-      @input-event="checkForm.form['inn'] = $event.target.value"
+      v-model="checkForm['inn']"
     />
     <TextLabel
       :name="'debt'"
       :label="'Проверка задолженностей'"
-      :model="props.check['debt']"
-      @input-event="checkForm.form['debt'] = $event.target.value"
+      v-model="checkForm['debt']"
     />
     <TextLabel
       :name="'bankruptcy'"
       :label="'Проверка решений о признании банкротом'"
-      :model="props.check['bankruptcy']"
-      @input-event="
-        checkForm.form['bankruptcy'] = $event.target.value
-      "
+      v-model="checkForm['bankruptcy']"
     />
     <TextLabel
       :name="'bki'"
       :label="'Проверка кредитной истории'"
-      :model="props.check['bki']"
-      @input-event="checkForm.form['bki'] = $event.target.value"
+      v-model="checkForm['bki']"
     />
     <TextLabel
       :name="'courts'"
       :label="'Проверка судебных дел'"
-      :model="props.check['courts']"
-      @input-event="
-        checkForm.form['courts'] = $event.target.value
-      "
+      v-model="checkForm['courts']"
     />
     <TextLabel
       :name="'affiliation'"
       :label="'Проверка аффилированности'"
-      :model="props.check['affiliation']"
-      @input-event="
-        checkForm.form['affiliation'] = $event.target.value
-      "
+      v-model="checkForm['affiliation']"
     />
     <TextLabel
       :name="'terrorist'"
       :label="'Проверка в списке террористов'"
-      :model="props.check['terrorist']"
-      @input-event="
-        checkForm.form['terrorist'] = $event.target.value
-      "
+      v-model="checkForm['terrorist']"
     />
     <TextLabel
       :name="'mvd'"
       :label="'Проверка в розыск'"
-      :model="props.check['mvd']"
-      @input-event="checkForm.form['mvd'] = $event.target.value"
+      v-model="checkForm['mvd']"
     />
     <TextLabel
       :name="'internet'"
       :label="'Проверка в открытых источниках'"
-      :model="props.check['internet']"
-      @input-event="
-        checkForm.form['internet'] = $event.target.value
-      "
+      v-model="checkForm['internet']"
     />
     <TextLabel
       :name="'cronos'"
       :label="'Проверка в Кронос'"
-      :model="props.check['cronos']"
-      @input-event="
-        checkForm.form['cronos'] = $event.target.value
-      "
+      v-model="checkForm['cronos']"
     />
     <TextLabel
       :name="'cros'"
       :label="'Проверка в Крос'"
-      :model="props.check['cros']"
-      @input-event="checkForm.form['cros'] = $event.target.value"
+      v-model="checkForm['cros']"
     />
     <TextLabel
       :name="'addition'"
       :label="'Дополнительная информация'"
-      :model="props.check['addition']"
-      @input-event="
-        checkForm.form['addition'] = $event.target.value
-      "
+      v-model="checkForm['addition']"
     />
     <div class="row">
       <div class="offset-lg-2 col-lg-10">
@@ -186,7 +152,7 @@ if (checkForm.value.noNegative) {
             class="form-check-input"
             id="pfo"
             name="pfo"
-            v-model="props.check['pfo']"
+            v-model="checkForm['pfo']"
             type="checkbox"
             value="y"
           />
@@ -198,18 +164,12 @@ if (checkForm.value.noNegative) {
       :name="'conclusion'"
       :label="'Результат'"
       :select="storeClassify.classData.conclusion"
-      :model="props.check['conclusion']"
-      @input-event="
-        checkForm.form['conclusion'] = $event.target.value
-      "
+      v-model="checkForm['conclusion']"
     />
     <TextLabel
       :name="'comments'"
       :label="'Комментарий'"
-      :model="props.check['comments']"
-      @input-event="
-        checkForm.form['comments'] = $event.target.value
-      "
+      v-model="checkForm['comments']"
     />
     <BtnGroup>
       <button

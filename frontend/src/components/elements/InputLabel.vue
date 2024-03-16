@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const model = defineModel();
 const props = defineProps({
   need: {
     type: Boolean,
@@ -42,10 +43,6 @@ const props = defineProps({
     type: String,
     default: ""
   },
-  model: {
-    type: [String, Number],
-    default: "",
-  },
 });
 </script>
 
@@ -67,8 +64,7 @@ const props = defineProps({
         :pattern="props.pattern"
         :placeholder="props.label"
         :autocomplete="props.name"
-        :value="props.model"
-        @input="$emit('input-event', $event)"
+        v-model.trim="model"
       />
     </div>
   </div>
