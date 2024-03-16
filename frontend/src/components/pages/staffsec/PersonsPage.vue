@@ -8,6 +8,15 @@ import { Resume } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
+const InputLabel = defineAsyncComponent(
+  () => import("@components/elements/InputLabel.vue")
+);
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/elements/SelectDiv.vue")
+);
+const TableSlots = defineAsyncComponent(
+  () => import("@components/elements/TableSlots.vue")
+);
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/layouts/PageSwitcher.vue")
 );
@@ -76,24 +85,16 @@ function changePath (): void {
     <div class="row">
       <div class="col-md-3">
         <form class="form form-check" role="form">
-          <label class="visually-hidden" for="action"></label>
-          <select
-            class="form-select"
-            required
-            id="action"
-            name="action"
+          <SelectDiv
+            :lbl-class="'visually-hidden'"
+            :label="'Таблица'"
+            :slc-class="'col-md-12'"
+            :name="'action'"
+            :isneed="false"
+            :select="personData.items"
             v-model="personData.path"
-            @change="changePath"
-          >
-            <option
-              v-for="(value, key) in personData.items"
-              :key="key"
-              :value="key"
-              :selected="key === 'new'"
-            >
-              {{ value }}
-            </option>
-          </select>
+            @change-event="changePath"
+          />
         </form>
       </div>
       <div class="col-md-9">
@@ -102,60 +103,59 @@ function changePath (): void {
           class="form form-check" 
           role="form"
         >
-          <input
-            class="form-control"
-            id="data"
-            name="data"
-            type="text"
-            maxlength="250"
-            minlength="3"
-            placeholder="поиск по ФИО, ИНН"
+          <InputLabel
+            :lbl-cls="'visually-hidden'"
+            :cls-input="'col-lg-12'"
+            :lbl="'Поиск'"
+            :name="'search'"
+            :placeholder="'поиск по ФИО, ИНН'"
             v-model="personData.search"
           />
         </form>
       </div>
     </div>
-    <div class="py-3">
-      <table class="table table-responsive align-middle">
-        <thead>
-          <tr height="50px">
-            <th width="5%">#</th>
-            <th width="20%">Регион</th>
-            <th>Фамилия Имя Отчество</th>
-            <th width="15%">Дата рождения</th>
-            <th width="10%">Статус</th>
-            <th width="15%"> Создан</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="candidate in personData.candidates"
-            :key="candidate.id"
-            height="50px"
-          >
-            <td>{{ candidate["id"] }}</td>
-            <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
-            <td>
-              <router-link
-                :to="{
-                  name: 'profile',
-                  params: { id: candidate.id },
-                }"
-              >
-                {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic}` }}
-              </router-link>
-            </td>
-            <td>
-              {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
-            </td>
-            <td>{{ storeClassify.classData.status[candidate.status_id] }}</td>
-            <td>
-              {{ timeSince(candidate.created) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <TableSlots 
+      v-if="personData.candidates.length"
+      :tbl-caption="'Список кандидатов'"
+    >
+      <template v-slot:thead>
+        <tr height="50px">
+          <th width="5%">#</th>
+          <th width="20%">Регион</th>
+          <th>Фамилия Имя Отчество</th>
+          <th width="15%">Дата рождения</th>
+          <th width="10%">Статус</th>
+          <th width="15%"> Создан</th>
+        </tr>
+      </template>
+      <template v-slot:tbody>
+        <tr
+          v-for="candidate in personData.candidates"
+          :key="candidate.id"
+          height="50px"
+        >
+          <td>{{ candidate["id"] }}</td>
+          <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
+          <td>
+            <router-link
+              :to="{
+                name: 'profile',
+                params: { id: candidate.id },
+              }"
+            >
+              {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic}` }}
+            </router-link>
+          </td>
+          <td>
+            {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
+          </td>
+          <td>{{ storeClassify.classData.status[candidate.status_id] }}</td>
+          <td>
+            {{ timeSince(candidate.created) }}
+          </td>
+        </tr>
+      </template>
+    </TableSlots>
     <PageSwitcher
       :has_prev="personData.prev"
       :has_next="personData.next"

@@ -8,6 +8,15 @@ import { debounce, server } from "@utilities/utils";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/elements/SelectDiv.vue")
+);
+const InputLabel = defineAsyncComponent(
+  () => import("@components/elements/InputLabel.vue")
+);
+const TableSlots = defineAsyncComponent(
+  () => import("@components/elements/TableSlots.vue")
+);
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/layouts/PageSwitcher.vue")
 );
@@ -78,68 +87,63 @@ const searchItem = debounce(() => {
     <div class="row py-3">
       <div class="col-md-3">
         <form class="form form-check" role="form">
-          <select
-            v-if="storeClassify.classData.tables.length"
-            class="form-select"
-            id="region"
-            name="region"
+          <SelectDiv  v-if="storeClassify.classData.tables.length"
+            :lbl-class="'visually-hidden'"
+            :label="'Таблица'"
+            :slc-class="'col-md-12'"
+            :name="'region'"
+            :isneed="false"
+            :select="storeClassify.classData.tables"
             v-model="tableData.table"
-            @change="getItem(1)"
-          >
-            <option
-              v-for="(table, index) in storeClassify.classData.tables"
-              :key="index"
-              :value="table"
-            >
-              {{ table }}
-            </option>
-          </select>
+            @change-event="getItem(1)"
+          />
         </form>
       </div>
       <div class="col-md-8">
         <form @input="searchItem" class="form form-check" role="form">
-          <input
-            class="form-control"
-            id="name"
-            name="name"
-            placeholder="Поиск ID"
-            type="text"
+          <InputLabel
+            :lbl-cls="'visually-hidden'"
+            :cls-input="'col-lg-12'"
+            :lbl="'Поиск'"
+            :id="'name'"
+            :name="'name'"
             v-model="tableData.search"
           />
         </form>
       </div>
     </div>
-    <div v-if="tableData.items.length" class="table-responsive py-3">
-      <table class="table align-middle">
-        <thead>
-          <tr>
-            <th
-              v-for="(key, index) in Object.keys(tableData.items[0])"
-              :key="index"
+    <TableSlots 
+      v-if="tableData.items.length"
+      :tbl-caption="`Список ${tableData.table}`"
+    >
+      <template v-slot:thead>
+        <tr>
+          <th
+            v-for="(key, index) in Object.keys(tableData.items[0])"
+            :key="index"
+          >
+            {{ key }}
+          </th>
+          <th width="5%">action</th>
+        </tr>
+      </template>
+      <template v-slot:tbody>
+        <tr v-for="(row, index) in tableData.items" :key="index">
+          <td v-for="(val, index) in Object.values(row)" :key="index">
+            {{ val }}
+          </td>
+          <td>
+            <a
+              href="#"
+              @click="deleteItem(row['id'])"
+              title="Удалить"
             >
-              {{ key }}
-            </th>
-            <th width="5%">action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in tableData.items" :key="index">
-            <td v-for="(val, index) in Object.values(row)" :key="index">
-              {{ val }}
-            </td>
-            <td>
-              <a
-                href="#"
-                @click="deleteItem(row['id'])"
-                title="Удалить"
-              >
-                <i class="bi bi-trash"></i>
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <i class="bi bi-trash"></i>
+            </a>
+          </td>
+        </tr>
+      </template>
+    </TableSlots>
     <PageSwitcher
       :has_prev="tableData.hasPrev"
       :has_next="tableData.hasNext"

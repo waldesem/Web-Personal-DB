@@ -1,6 +1,14 @@
 <script setup lang="ts">
 const model = defineModel();
 const props = defineProps({
+  lblClass: {
+    type: String,
+    default: "col-form-label col-lg-2",
+  },
+  slcClass: {
+    type: String,
+    default: "col-lg-10",
+  },
   isneed: {
     type: Boolean,
     default: true,
@@ -11,23 +19,25 @@ const props = defineProps({
     type: Object as () => Record<string, any>,
     default: () => [],
   },
-  selectValue: String,
-  selectName: String,
 });
+
+const emit = defineEmits(["change-event", "input-event"]);
 </script>
 
 <template>
   <div class="mb-3 row">
-    <label class="col-form-label col-lg-2" :for="props.name">
+    <label :class="props.lblClass" :for="props.name">
       {{ props.label }}
     </label>
-    <div class="col-lg-10">
+    <div :class="props.slcClass">
       <select
         class="form-select"
         :required="props.isneed"
         :id="props.name"
         :name="props.name"
         v-model="model"
+        @change="emit('change-event', $event)"
+        @input="emit('input-event', $event)"
       >
         <option
           v-for="(key, value) in props.select"

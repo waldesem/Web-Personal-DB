@@ -9,6 +9,9 @@ const TextLabel = defineAsyncComponent(
 const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
 );
+const CheckBox = defineAsyncComponent(
+  () => import("@components/elements/CheckBox.vue")
+);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
 );
@@ -52,18 +55,11 @@ if (noNegative) {
 </script>
 
 <template>
-  <div class="form-check form-switch">
-    <input
-      class="form-check-checkbox"
-      role="switch"
-      id="checkbox"
-      name="check"
-      type="checkbox"
-      v-model="noNegative"
-    />
-    <label class="form-check-label" for="checkbox">Негатива нет</label>
-  </div>
-
+  <CheckBox
+    :name="'noNegative'"
+    :label="'Негатива нет'"
+    v-model="noNegative"
+  />
   <form
     @submit.prevent="emit('submit', checkForm)"
     class="form form-check"
@@ -145,21 +141,11 @@ if (noNegative) {
       :label="'Дополнительная информация'"
       v-model="props.check['addition']"
     />
-    <div class="row">
-      <div class="offset-lg-2 col-lg-10">
-        <div class="mb-3 form-check">
-          <input
-            class="form-check-input"
-            id="pfo"
-            name="pfo"
-            v-model="checkForm['pfo']"
-            type="checkbox"
-            value="y"
-          />
-          <label class="form-check-label" for="pfo">Полиграф</label>
-        </div>
-      </div>
-    </div>
+    <CheckBox
+      :name="'pfo'"
+      :label="'Полиграф'"
+      v-model="checkForm['pfo']"
+    />
     <SelectDiv
       :name="'conclusion'"
       :label="'Результат'"

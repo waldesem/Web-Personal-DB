@@ -9,7 +9,7 @@ const LabelValue = defineAsyncComponent(
   () => import("@components/elements/LabelValue.vue")
 );
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/elements/CollapseDiv.vue")
+  () => import("@components/layouts/CollapseDiv.vue")
 );
 
 const emit = defineEmits(["delete"]);

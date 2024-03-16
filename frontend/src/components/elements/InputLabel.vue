@@ -31,6 +31,10 @@ const props = defineProps({
     type: String,
     default: "0",
   },
+  lblCls: {
+    type: String,
+    default: "col-form-label col-lg-2",
+  },
   clsInput: {
     type: String,
     default: "col-lg-10",
@@ -48,7 +52,7 @@ const props = defineProps({
 
 <template>
   <div class="mb-3 row">
-    <label class="col-form-label col-lg-2" :for="props.name">
+    <label :class="props.lblCls" :for="props.name">
       {{ props.label }}
     </label>
     <div :class="props.clsInput">

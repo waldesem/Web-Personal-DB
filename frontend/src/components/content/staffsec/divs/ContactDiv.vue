@@ -3,7 +3,7 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Contact } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/elements/CollapseDiv.vue")
+  () => import("@components/layouts/CollapseDiv.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/elements/LabelSlot.vue")

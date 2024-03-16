@@ -11,6 +11,15 @@ const HeaderDiv = defineAsyncComponent(
 const UserForm = defineAsyncComponent(
   () => import("@components/content/admin/forms/UserForm.vue")
 );
+const InputLabel = defineAsyncComponent(
+  () => import("@components/elements/InputLabel.vue")
+);
+const CheckBox = defineAsyncComponent(
+  () => import("@components/elements/CheckBox.vue")
+);
+const TableSlots = defineAsyncComponent(
+  () => import("@components/elements/TableSlots.vue")
+);
 const ModalWin = defineAsyncComponent(
   () => import("@components/layouts/ModalWin.vue")
 );
@@ -62,68 +71,66 @@ async function getEmit () {
   <div class="container py-1">
     <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
     <form @input.prevent="searchUsers" class="form form-check" role="form">
-      <div class="row py-3">
-        <input
-          class="form-control"
-          id="fullusername"
-          name="fullusername"
-          type="text"
-          v-model="dataUsers.search"
-        />
-      </div>
+      <InputLabel
+        :lbl-cls="'visually-hidden'"
+        :cls-input="'col-lg-12'"
+        :lbl="'Поиск'"
+        :id="'fullusername'"
+        :name="'fullusername'"
+        v-model="dataUsers.search"
+      />
     </form>
-    <div class="form-check form-switch d-flex justify-content-end">
-      <input class="form-check-input" id="deleted" type="checkbox" v-model="dataUsers.viewDeleted" />&nbsp;
-      <label class="form-check-label" for="deleted">Показать удаленные</label>
-    </div>
-    <div class="overflow py-2">
-      <table class="table table-responsive align-middle">
-        <thead>
-          <tr height="50px">
-            <th width="5%">#</th>
-            <th>Имя пользователя</th>
-            <th width="20%">Логин</th>
-            <th width="10%">Блокировка</th>
-            <th width="20%">Создан</th>
-            <th width="20%">Вход</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colspan="6">
-              <table
-                class="table table-hover table-responsive align-middle no-bottom-border"
-              >
-                <tbody>
-                  <tr
-                    height="50px"
-                    v-for="user in users"
-                    :key="user.id"
-                  >
-                    <td width="5%">{{ user.id }}</td>
-                    <td>{{ user.fullname }}</td>
-                    <td width="20%">
-                      <router-link
-                        :to="{ name: 'user', params: { id: user.id } }"
-                      >
-                        {{ user.username }}
-                      </router-link>
-                    </td>
-                    <td width="10%">{{ user.blocked }}</td>
-                    <td width="20%">
-                      {{ new Date(user.pswd_create).toLocaleString("ru-RU") }}
-                    </td>
-                    <td width="20%">
-                      {{ new Date(user.last_login).toLocaleString("ru-RU") }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <CheckBox
+      :name="'viewDeleted'"
+      :label="'Показать удаленные'"
+      v-model="dataUsers.viewDeleted"
+    />
+    <TableSlots :tbl-caption="'Список пользователей'">
+      <template v-slot:thead>
+        <tr height="50px">
+          <th width="5%">#</th>
+          <th>Имя пользователя</th>
+          <th width="20%">Логин</th>
+          <th width="10%">Блокировка</th>
+          <th width="20%">Создан</th>
+          <th width="20%">Вход</th>
+        </tr>
+      </template>
+      <template v-slot:tbody>
+        <tr>
+          <td colspan="6">
+            <TableSlots
+              :tbl-class="'table table-hover table-responsive align-middle no-bottom-border'"            
+            >
+              <template v-slot:tbody>
+                <tr
+                  height="50px"
+                  v-for="user in users"
+                  :key="user.id"
+                >
+                  <td width="5%">{{ user.id }}</td>
+                  <td>{{ user.fullname }}</td>
+                  <td width="20%">
+                    <router-link
+                      :to="{ name: 'user', params: { id: user.id } }"
+                    >
+                      {{ user.username }}
+                    </router-link>
+                  </td>
+                  <td width="10%">{{ user.blocked }}</td>
+                  <td width="20%">
+                    {{ new Date(user.pswd_create).toLocaleString("ru-RU") }}
+                  </td>
+                  <td width="20%">
+                    {{ new Date(user.last_login).toLocaleString("ru-RU") }}
+                  </td>
+                </tr>
+              </template>
+            </TableSlots>
+          </td>
+        </tr>
+      </template>
+    </TableSlots>
     <button
       class="btn btn-outline-secondary"
       data-bs-toggle="modal"

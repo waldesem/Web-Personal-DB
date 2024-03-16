@@ -4,7 +4,7 @@ import { classifyStore } from "@/store/classify";
 import { Resume, Verification, Robot } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/elements/CollapseDiv.vue")
+  () => import("@components/layouts/CollapseDiv.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/elements/LabelSlot.vue")
