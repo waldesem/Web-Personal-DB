@@ -172,7 +172,7 @@ async function getItem(param: string): Promise<void> {
       case "inquiry":
         anketaData.value.inquiries = response.data;
         break;
-      case "file":
+      case "image":
         anketaData.value.imageUrl = window.URL.createObjectURL(
           new Blob([response.data])
         );

@@ -10,7 +10,7 @@ from config import Config
 from . import bp
 from .. import db
 from .login import roles_required
-from .. models.classes import Roles
+from ..models.classes import Roles
 from ..models.model import User, Role
 from ..models.schema import (
     ActionSchema,
@@ -21,25 +21,20 @@ from ..models.schema import (
 )
 
 
-class UsersView(MethodView):
-
-    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
-
-    @bp.input(SearchSchema, location="query")
-    def get(self, query_data):
-        """
-        Endpoint to handle requests for getting users.
-        """
-        search_data = query_data.get("search")
-        query = (
-            search(select(User), search_data if search_data else "")
-            .order_by(User.id.asc())
-        )
-        result = db.session.scalars(query).all()
-        return UserSchema().dump(result, many=True), 200
-
-
-bp.add_url_rule("/users", view_func=UsersView.as_view("users"))
+@roles_required(Roles.admin.value)
+@bp.doc(hide=True)
+@bp.input(SearchSchema, location="query")
+@bp.get("/users")
+def get_users(query_data):
+    """
+    Endpoint to handle requests for getting users.
+    """
+    search_data = query_data.get("search")
+    query = search(select(User), search_data if search_data else "").order_by(
+        User.id.asc()
+    )
+    result = db.session.scalars(query).all()
+    return UserSchema().dump(result, many=True), 200
 
 
 class UserView(MethodView):
@@ -116,13 +111,15 @@ class UserView(MethodView):
         if user and user.username != current_user.username:
             user.deleted = True
             db.session.commit()
-            return '', 204
-        return '', 403
+            return "", 204
+        return "", 403
 
 
 user_view = UserView.as_view("user")
 bp.add_url_rule("/user", view_func=user_view, methods=["POST"])
-bp.add_url_rule("/user/<int:user_id>", view_func=user_view, methods=["DELETE", "GET", "PATCH"])
+bp.add_url_rule(
+    "/user/<int:user_id>", view_func=user_view, methods=["DELETE", "GET", "PATCH"]
+)
 
 
 class RoleView(MethodView):
@@ -150,8 +147,9 @@ class RoleView(MethodView):
         if (
             user
             and role
-            and (user.username != current_user.username  
-            or role.role != Roles.admin.value)
+            and (
+                user.username != current_user.username or role.role != Roles.admin.value
+            )
         ):
             user.roles.remove(role)
             db.session.commit()

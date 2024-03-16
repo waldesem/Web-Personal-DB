@@ -4,7 +4,7 @@ import { ref, onBeforeMount } from "vue";
 const emit = defineEmits(["get-item", "submit-file"]);
 
 onBeforeMount(() => {
-  emit("get-item", "file")
+  emit("get-item", "image")
 });
 
 const props = defineProps({
