@@ -47,7 +47,7 @@ const selected_item = {
     <TextLabel
       :name="'results'"
       :label="'Результат'"
-      v-model="poligrafForm['results']"
+      v-model="props.poligraf['results']"
     />
     <BtnGroup>
       <button

@@ -5,9 +5,6 @@ import { Staff } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
-const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
-);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
 );
@@ -38,7 +35,7 @@ const staffForm = computed(() => {
       :need="true"
       v-model="staffForm['position']"
     />
-    <TextLabel
+    <InputLabel
       :name="'department'"
       :label="'Подразделение'"
       v-model="staffForm['department']"

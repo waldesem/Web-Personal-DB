@@ -41,7 +41,7 @@ const investigationForm = computed(() => {
     <TextLabel
       :name="'info'"
       :label="'Информация'"
-      v-model="investigationForm['info']"
+      v-model="props.investigation['info']"
     />
     <BtnGroup>
       <button

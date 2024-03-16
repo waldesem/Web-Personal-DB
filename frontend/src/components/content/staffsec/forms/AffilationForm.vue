@@ -5,9 +5,6 @@ import { Affilation } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
-const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
-);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
 );
@@ -48,9 +45,10 @@ const selected_item = {
       :select="selected_item"
       v-model="affilationForm['view']"
     />
-    <TextLabel
+    <InputLabel
       :name="'name'"
       :label="'Организация'"
+      :need="true"
       v-model="affilationForm['name']"
     />
     <InputLabel
@@ -59,9 +57,10 @@ const selected_item = {
       :need="true"
       v-model="affilationForm['inn']"
     />
-    <TextLabel
+    <InputLabel
       :name="'position'"
       :label="'Должность'"
+      :need="true"
       v-model="affilationForm['position']"
     />
     <BtnGroup :cls="false">

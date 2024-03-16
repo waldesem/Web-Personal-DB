@@ -73,77 +73,77 @@ if (noNegative) {
     <TextLabel
       :name="'workplace'"
       :label="'Проверка по местам работы'"
-      v-model="checkForm['workplace']"
+      v-model="props.check['workplace']"
     />
     <TextLabel
       :name="'employee'"
       :label="'Проверка по кадровому учету'"
-      v-model="checkForm['employee']"
+      v-model="props.check['employee']"
     />
     <TextLabel
       :name="'document'"
       :label="'Проверка документов'"
-      v-model="checkForm['document']"
+      v-model="props.check['document']"
     />
     <TextLabel
       :name="'inn'"
       :label="'Проверка ИНН'"
-      v-model="checkForm['inn']"
+      v-model="props.check['inn']"
     />
     <TextLabel
       :name="'debt'"
       :label="'Проверка задолженностей'"
-      v-model="checkForm['debt']"
+      v-model="props.check['debt']"
     />
     <TextLabel
       :name="'bankruptcy'"
       :label="'Проверка решений о признании банкротом'"
-      v-model="checkForm['bankruptcy']"
+      v-model="props.check['bankruptcy']"
     />
     <TextLabel
       :name="'bki'"
       :label="'Проверка кредитной истории'"
-      v-model="checkForm['bki']"
+      v-model="props.check['bki']"
     />
     <TextLabel
       :name="'courts'"
       :label="'Проверка судебных дел'"
-      v-model="checkForm['courts']"
+      v-model="props.check['courts']"
     />
     <TextLabel
       :name="'affiliation'"
       :label="'Проверка аффилированности'"
-      v-model="checkForm['affiliation']"
+      v-model="props.check['affiliation']"
     />
     <TextLabel
       :name="'terrorist'"
       :label="'Проверка в списке террористов'"
-      v-model="checkForm['terrorist']"
+      v-model="props.check['terrorist']"
     />
     <TextLabel
       :name="'mvd'"
       :label="'Проверка в розыск'"
-      v-model="checkForm['mvd']"
+      v-model="props.check['mvd']"
     />
     <TextLabel
       :name="'internet'"
       :label="'Проверка в открытых источниках'"
-      v-model="checkForm['internet']"
+      v-model="props.check['internet']"
     />
     <TextLabel
       :name="'cronos'"
       :label="'Проверка в Кронос'"
-      v-model="checkForm['cronos']"
+      v-model="props.check['cronos']"
     />
     <TextLabel
       :name="'cros'"
       :label="'Проверка в Крос'"
-      v-model="checkForm['cros']"
+      v-model="props.check['cros']"
     />
     <TextLabel
       :name="'addition'"
       :label="'Дополнительная информация'"
-      v-model="checkForm['addition']"
+      v-model="props.check['addition']"
     />
     <div class="row">
       <div class="offset-lg-2 col-lg-10">
@@ -169,7 +169,7 @@ if (noNegative) {
     <TextLabel
       :name="'comments'"
       :label="'Комментарий'"
-      v-model="checkForm['comments']"
+      v-model="props.check['comments']"
     />
     <BtnGroup>
       <button

@@ -1,14 +1,18 @@
 <script setup lang="ts">
-const model = defineModel();
+const model = defineModel<string>();
 const props = defineProps({
   name: String,
   label: String,
+  cls:{
+    type: String,
+    default: "col-form-label col-lg-2",
+  },
 });
 </script>
 
 <template>
   <div class="mb-3 row">
-    <label class="col-form-label col-lg-2" :for="props.name">
+    <label :class="props.cls" :for="props.name">
       {{ props.label }}
     </label>
     <div class="col-lg-10">

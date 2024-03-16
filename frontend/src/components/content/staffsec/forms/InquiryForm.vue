@@ -35,7 +35,7 @@ const inquiryForm = computed(() => {
     <TextLabel
       :name="'info'"
       :label="'Информация'"
-      v-model="inquiryForm['info']"
+      v-model="props.inquiry['info']"
     />
     <InputLabel
       :name="'initiator'"

@@ -111,9 +111,10 @@ const resumeForm = ref({
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
         v-model="resumeForm.form['patronymic']"
       />
-      <TextLabel
+      <InputLabel
         :name="'previous'"
-        :label="'Изменение имени'"
+        :label="'Изменение имени*'"
+        :max="'255'"
         v-model="resumeForm.form['previous']"
       />
       <InputLabel
@@ -123,9 +124,10 @@ const resumeForm = ref({
         :typeof="'date'"
         v-model="resumeForm.form['previous']"
       />
-      <TextLabel
+      <InputLabel
         :name="'birthplace'"
         :label="'Место рождения'"
+        :max="'255'"
         v-model="resumeForm.form['birthplace']"
       />
       <InputLabel
@@ -153,11 +155,6 @@ const resumeForm = ref({
         :pattern="'[0-9]{12}'"
         v-model="resumeForm.form['inn']"
       />
-      <TextLabel
-        :name="'education'"
-        :label="'Образование'"
-        v-model="resumeForm.form['education']"
-      />
       <InputLabel
         :name="'marital'"
         :label="'Семейнное положение'"
@@ -165,9 +162,14 @@ const resumeForm = ref({
         v-model="resumeForm.form['marital']"
       />
       <TextLabel
+        :name="'education'"
+        :label="'Образование'"
+        v-model="props.resume['education']"
+      />
+      <TextLabel
         :name="'addition'"
         :label="'Дополнительно'"
-        v-model="resumeForm.form['addition']"
+        v-model="props.resume['addition']"
       />
       <BtnGroup>
         <button 

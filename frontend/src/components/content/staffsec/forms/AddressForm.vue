@@ -5,9 +5,6 @@ import { Address } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/elements/InputLabel.vue")
 );
-const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
-);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
 );
@@ -53,9 +50,10 @@ const selected_item = {
       :need="true"
       v-model="addressForm['region']"
     />
-    <TextLabel
+    <InputLabel
       :name="'address'"
-      :label="'Полный адрес'"
+      :label="'Адрес'"
+      :need="true"
       v-model="addressForm['address']"
     />
     <BtnGroup :cls="false">
