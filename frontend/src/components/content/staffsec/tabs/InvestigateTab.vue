@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount, computed } from "vue";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
@@ -34,18 +34,6 @@ const inquisition = ref({
   item: <Inquisition>{},
 });
 
-const invsObj = computed(() => {
-  return props.inquisitions.map((item) => ({
-    id: ["ID", item["id"]],
-    theme: ["Тема проверки", item["theme"]], 
-    info: ["Информация", item["info"]],
-    officer: ["Сотрудник", item["officer"]],
-    deadline: [
-      "Дата", new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-    ]
-  }))
-});
-
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -70,44 +58,42 @@ function submitFile(event: Event) {
       @cancel="inquisition.action = ''"
     />
     <div v-else>
-      <div v-if="invsObj.length">
+      <div v-if="props.inquisitions.length">
         <CollapseDiv
-          v-for="(item, idx) in invsObj"
+          v-for="(item, idx) in props.inquisitions"
           :key="idx"
           :id="'investigation' + idx"
           :idx="idx.toString()"
           :label="'Расследование #' + (idx + 1)"
         >
-          <div class="row mb-3 d-print-none">
-            <div class="col-md-3">
-              <label class="form-label">Действия</label>
-            </div>
-            <div class="col-md-9">
-              <a
-                href="#"
-                title="Удалить"
-                @click="emit('delete', item.id[1].toString(), 'investigation')"
-              >
-                <i class="bi bi-trash"></i>
-              </a>
-              &nbsp;
-              <a
-                href="#"
-                title="Изменить"
-                @click="
-                  inquisition.action = 'update';
-                  inquisition.item = props.inquisitions[idx];
-                  inquisition.itemId = item.id[1].toString();
-                "
-              >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </div>
-          </div>
-          <LabelValue v-for="(value, key) in item" :key="key"
-            :label="value[0]"
-            :value="value[1]"
-          />
+          <LabelValue :label="'Действия'">
+            <a
+              href="#"
+              title="Удалить"
+              @click="emit('delete', item['id'].toString(), 'investigation')"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            &nbsp;
+            <a
+              href="#"
+              title="Изменить"
+              @click="
+                inquisition.action = 'update';
+                inquisition.item = item;
+                inquisition.itemId = item['id'].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </LabelValue>
+          <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
+          <LabelValue :label="'Тема проверки'">{{ item["theme"] }}</LabelValue>
+          <LabelValue :label="'Информация'">{{ item["info"] }}</LabelValue>
+          <LabelValue :label="'Сотрудник'">{{ item["officer"] }}</LabelValue>
+          <LabelValue :label="'Дата'">
+            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          </LabelValue>
         </CollapseDiv>
         <FileForm :accept="'*'" @submit="submitFile($event)" />
       </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Address } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
@@ -31,15 +31,6 @@ const address = ref({
   item: <Address>{},
 });
 
-const addrObj = computed(() => {
-  return props.items.map((item) => ({
-    id: ["ID", item['id']],
-    view: ["Тип", item['view']],
-    region: ["Регион", item['region']],
-    address: ["Адрес", item['address']],
-  }));
-});
-
 function submitForm(form: Object) {
   emit("submit", address.value.action, "address", address.value.itemId, form);
   address.value.action = "";
@@ -64,43 +55,38 @@ function submitForm(form: Object) {
     @submit="submitForm"
   />
   <div v-else>
-    <div v-if="addrObj.length">
+    <div v-if="props.items.length">
       <CollapseDiv
-        v-for="(item, idx) in addrObj"
+        v-for="(item, idx) in props.items"
         :key="idx"
         :id="'addr' + idx"
         :idx="idx.toString()"
         :label="'Адрес #' + (idx + 1)"
       >
-        <div class="row mb-3 d-print-none">
-          <div class="col-md-3">
-            <label class="form-label">Действия</label>
-          </div>
-          <div class="col-md-9">
-            <a
-              href="#"
-              @click="emit('delete', item.id[1].toString(), 'address')"
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                address.action = 'update';
-                address.item = props.items[idx];
-                address.itemId = item.id[1].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </div>
-        </div>
-        <LabelValue v-for="(value, key) in item" :key="key"
-          :label="value[0]"
-          :value="value[1]"
-        />
+        <LabelValue :label="'Действия'" :no-print="true">
+          <a
+            href="#"
+            @click="emit('delete', item['id'].toString(), 'address')"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              address.action = 'update';
+              address.item = item;
+              address.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelValue>
+        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
+        <LabelValue :label="'Тип'">{{ item['view'] }}</LabelValue>
+        <LabelValue :label="'Регион'">{{ item['region'] }}</LabelValue>
+        <LabelValue :label="'Адрес'">{{ item['address'] }}</LabelValue>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

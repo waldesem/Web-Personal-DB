@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Document } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
@@ -7,6 +7,9 @@ const CollapseDiv = defineAsyncComponent(
 );
 const DocumentForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/DocumentForm.vue")
+);
+const LabelValue = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/LabelValue.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
@@ -26,17 +29,6 @@ const document = ref({
   action: "",
   itemId: "",
   item: <Document>{},
-});
-
-const docObjs = computed(() => {
-  return props.items.map((item) => ({
-    id: ["ID", item['id']],
-    view: ["Вид документа", item['view']],
-    number: ["Номер документа", item['number']],
-    series: ["Серия документа", item['series']],
-    issuer: ["Кем выдан", item['agency']],
-    date: ["Дата выдачи", new Date(String(item['issue'])).toLocaleDateString('ru-RU')],
-  }));
 });
 
 function submitForm(form: Object) {
@@ -62,44 +54,43 @@ function submitForm(form: Object) {
     @submit="submitForm"
   />
   <div v-else>
-    <div v-if="docObjs.length">
+    <div v-if="props.items.length">
       <CollapseDiv
-        v-for="(item, idx) in docObjs"
+        v-for="(item, idx) in props.items"
         :key="idx"
         :id="'docum' + idx"
         :idx="idx.toString()"
         :label="'Документ #' + (idx + 1)"
       >
-        <div class="row mb-3 d-print-none">
-          <div class="col-md-3">
-            <label class="form-label">Действия</label>
-          </div>
-          <div class="col-md-9">
-            <a
-              href="#"
-              @click="
-                emit('delete', item.id[1].toString(), 'document')"
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                document.action = 'update';
-                document.item = props.items[idx];
-                document.itemId = item.id[1].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </div>
-        </div>
-        <LabelValue v-for="(value, key) in item" :key="key"
-          :label="value[0]"
-          :value="value[1]"
-        />
+        <LabelValue :label="'Действия'" :no-print="true">
+          <a
+            href="#"
+            @click="
+              emit('delete', item['id'].toString(), 'document')"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              document.action = 'update';
+              document.item = item;
+              document.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelValue>
+        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
+        <LabelValue :label="'Вид документа'">{{ item['view'] }}</LabelValue>
+        <LabelValue :label="'Номер документа'">{{ item['number'] }}</LabelValue>
+        <LabelValue :label="'Серия документа'">{{ item['series'] }}</LabelValue>
+        <LabelValue :label="'Кем выдан'">{{ item['agency'] }}</LabelValue>
+        <LabelValue :label="'Дата выдачи'">
+          {{ new Date(String(item['issue'])).toLocaleDateString('ru-RU') }}
+        </LabelValue>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

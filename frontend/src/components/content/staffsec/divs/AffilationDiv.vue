@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Affilation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
@@ -31,19 +31,6 @@ const affilation = ref({
   item: <Affilation>{},
 });
 
-const affilObj = computed(() => {
-  return props.items.map((item) => ({
-    id: ["ID", item['id']],
-    view: ["Тип участия", item['view']],
-    comment: ["Организация", item['name']],
-    inn: ["ИНН", item['inn']],    
-    position: ["Должность", item['position']],
-    deadline: [
-      "Дата декларации", new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-    ]
-  }))
-});
-
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -72,43 +59,42 @@ function submitForm(form: Object) {
     @submit="submitForm" 
   />
   <div v-else>
-    <div v-if="affilObj.length">
+    <div v-if="props.items.length">
       <CollapseDiv
-        v-for="(item, idx) in affilObj"
+        v-for="(item, idx) in props.items"
         :key="idx"
         :id="'affil' + idx"
         :idx="idx.toString()"
         :label="'Аффилированность #' + (idx + 1)"
       >
-        <div class="row mb-3 d-print-none">
-          <div class="col-md-3">
-            <label class="form-label">Действия</label>
-          </div>
-          <div class="col-md-9">
-            <a 
-              href="#" 
-              @click="emit('delete', item.id[1].toString(), 'affilation')" 
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                affilation.action = 'update';
-                affilation.item = props.items[idx];
-                affilation.itemId = item.id[1].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </div>
-        </div>
-        <LabelValue v-for="(value, key) in item" :key="key"
-          :label="value[0]"
-          :value="value[1]"
-        />
+        <LabelValue :label="'Действия'" :no-print="true">
+          <a 
+            href="#" 
+            @click="emit('delete', item['id'].toString(), 'affilation')" 
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              affilation.action = 'update';
+              affilation.item = item;
+              affilation.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelValue>
+        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
+        <LabelValue :label="'Тип участия'">{{ item['view'] }}</LabelValue>
+        <LabelValue :label="'Организация'">{{ item['name'] }}</LabelValue>
+        <LabelValue :label="'ИНН'">{{ item['inn'] }}</LabelValue>
+        <LabelValue :label="'Должность'">{{ item['position'] }}</LabelValue>
+        <LabelValue :label="'Дата декларации'">
+          {{ new Date(String(item['deadline'])).toLocaleDateString('ru-RU') }}
+        </LabelValue>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

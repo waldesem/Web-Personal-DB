@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount, computed } from "vue";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
 import { Resume, Verification, Robot } from "@/interfaces/interface";
 
@@ -53,40 +53,6 @@ const check = ref({
     props.resume["status_id"] !== storeClassify.classData.status["manual"],
 });
 
-const checkObj = computed(() => {
-  return props.checks.map((item) => ({
-    id: ["ID", item["id"]],
-    work: ["Проверка по местам работы", item["workplace"]],
-    employee: ["Бывший работник МТСБ", item["employee"]],
-    document: ["Проверка паспорта", item["document"]],
-    inn: ["Проверка ИНН", item["inn"]],
-    fssp: ["Проверка ФССП", item["debt"]],
-    bankruptcy: [
-      "Проверка решений о признании банкротом",
-      item["bankruptcy"],
-    ],
-    bki: ["Проверка БКИ", item["bki"]],
-    courts: ["Проверка судебных решений", item["courts"]],
-    affiliation: ["Проверка аффилированности", item["affiliation"]],
-    terrorist: ["Проверка преступного лица", item["terrorist"]],
-    mvd: ["Проверка в розыск", item["mvd"]],
-    internet: ["Проверка в открытых источниках", item["internet"]],
-    cronos: ["Проверка в Кронос", item["cronos"]],
-    cros: ["Проверка в Крос", item["cros"]],
-    addition: ["Дополнительная информация", item["addition"]],
-    pfo: ["ПФО", item["pfo"]],
-    comments: ["Комментарии", item["comments"]],
-    conclusion: ["Результат", item["conclusion"]],
-    officer: ["Сотрудник", item["officer"]],
-    date: [
-      "Дата проверки",
-      new Date(String(item["deadline"])).toLocaleDateString(
-        "ru-RU"
-      ),
-    ],
-  }));
-});
-
 function submitForm(form: Object) {
   emit("submit", check.value.action, "check", check.value.itemId, form);
   check.value.action = "";
@@ -116,49 +82,85 @@ function getRobot() {
     <div v-else>
       <div v-if="props.checks.length || props.robots.length">
         <CollapseDiv
-          v-for="(item, idx) in checkObj"
+          v-for="(item, idx) in props.checks"
           :key="idx"
           :id="'check' + idx"
           :idx="idx.toString()"
           :label="'Проверка #' + (idx + 1)"
         >
-          <div class="row mb-3 d-print-none">
-            <div class="col-md-3">
-              <label class="form-label">Действия</label>
-            </div>
-            <div class="col-md-9">
-              <a
-                href="#"
-                title="Удалить"
-                @click="deleteItem(item.id[1].toString())"
-              >
-                <i class="bi bi-trash"></i>
-              </a>
-              <a
-                :hidden="
-                  ![
-                    storeClassify.classData.status['save'],
-                    storeClassify.classData.status['cancel'],
-                    storeClassify.classData.status['manual'],
-                  ].includes(props.resume['status_id']) &&
-                  props.resume['user_id'] !== props.userId
-                "
-                href="#"
-                title="Изменить"
-                @click="
-                  check.action = 'update';
-                  check.item = props.checks[idx];
-                  check.itemId = item.id[1].toString();
-                "
-              >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </div>
-          </div>
-          <LabelValue v-for="(value, key) in item" :key="key"
-            :label="value[0]"
-            :value="value[1]"
-          />
+          <LabelValue :label="'Действия'">
+            <a
+              href="#"
+              title="Удалить"
+              @click="deleteItem(item['id'].toString())"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            <a
+              :hidden="
+                ![
+                  storeClassify.classData.status['save'],
+                  storeClassify.classData.status['cancel'],
+                  storeClassify.classData.status['manual'],
+                ].includes(props.resume['status_id']) &&
+                props.resume['user_id'] !== props.userId
+              "
+              href="#"
+              title="Изменить"
+              @click="
+                check.action = 'update';
+                check.item = item;
+                check.itemId = item['id'].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </LabelValue>
+          <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
+          <LabelValue :label="'Проверка по местам работы'">
+            {{ item["workplace"] }}
+          </LabelValue>
+          <LabelValue :label="'Бывший работник МТСБ'">
+            {{ item["employee"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка паспорта'">
+            {{ item["document"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка ИНН'">{{ item["inn"] }}</LabelValue>
+          <LabelValue :label="'Проверка ФССП'">{{ item["debt"] }}</LabelValue>
+          <LabelValue :label="'Проверка банкротства'">
+            {{ item["bankruptcy"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка БКИ'">{{ item["bki"] }}</LabelValue>
+          <LabelValue :label="'Проверка судебных решений'">
+            {{ item["courts"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка аффилированности'">
+            {{ item["affiliation"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка по списку террористов'">
+            {{ item["terrorist"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelValue>
+          <LabelValue :label="'Проверка в открытых источниках'">
+            {{ item["internet"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка в Кронос'">
+            {{ item["cronos"] }}
+          </LabelValue>
+          <LabelValue :label="'Проверка в Крос'">
+            {{ item["cros"] }}
+          </LabelValue>
+          <LabelValue :label="'Дополнительная информация'">
+            {{ item["addition"] }}
+          </LabelValue>
+          <LabelValue :label="'ПФО'">{{ item["pfo"] }}</LabelValue>
+          <LabelValue :label="'Комментарии'">{{ item["comments"] }}</LabelValue>
+          <LabelValue :label="'Результат'">{{ item["conclusion"] }}</LabelValue>
+          <LabelValue :label="'Сотрудник'">{{ item["officer"] }}</LabelValue>
+          <LabelValue :label="'Дата'">
+            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          </LabelValue>
         </CollapseDiv>
         <FileForm :accept="'*'" @submit="submitFile" />
         <RobotDiv

@@ -68,54 +68,38 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Связь #' + (idx + 1)"
       >
-        <div class="row mb-3 d-print-none">
-          <div class="col-md-3">
-            <label class="form-label">Действия</label>
-          </div>
-          <div class="col-md-9">
-            <a
-              href="#" 
-              @click="emit('delete', item['id'].toString(), 'relation')" 
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                relation.action = 'update';
-                relation.item = item;
-                relation.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </div>
-        </div>
-        <LabelValue
-         :label="'ID'"
-         :value="item['id']"
-        />
-        <LabelValue
-         :label="'Тип'"
-         :value="item['relation']"
-        />
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <label class="form-label">Связь</label>
-          </div>
-          <div class="col-md-9">
-            <router-link
-              :to="{
-                name: 'profile',
-                params: { id: String(item['relation_id']) },
-              }"
-            >
-              ID #{{ item["relation_id"] }}
-            </router-link>
-          </div>
-        </div>
+        <LabelValue :label="'Действия'" :no-print="true">
+          <a
+            href="#" 
+            @click="emit('delete', item['id'].toString(), 'relation')" 
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              relation.action = 'update';
+              relation.item = item;
+              relation.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelValue>
+        <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
+        <LabelValue :label="'Тип'">{{ item["relation"] }}</LabelValue>
+        <LabelValue :label="'Связь'" :no-print="true">
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { id: String(item['relation_id']) },
+            }"
+          >
+            ID #{{ item["relation_id"] }}
+          </router-link>
+        </LabelValue>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

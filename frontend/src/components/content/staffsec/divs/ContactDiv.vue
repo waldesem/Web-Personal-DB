@@ -61,43 +61,29 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Контакт #' + (idx + 1)"
       >
-        <div class="row mb-3 d-print-none">
-          <div class="col-md-3">
-            <label class="form-label">Действия</label>
-          </div>
-          <div class="col-md-9">
-            <a 
-              href="#" 
-              @click="emit('delete', item['id'].toString(), 'contact')" 
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                contact.action = 'update';
-                contact.item = item;
-                contact.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </div>
-        </div>
-        <LabelValue
-          :label="'ID'"
-          :value="item['id']"
-        />
-        <LabelValue
-          :label="'Вид'"
-          :value="item['view']"
-        />
-        <LabelValue
-          :label="'Контакт'"
-          :value="item['contact']"
-        />
+        <LabelValue :label="'Действия'" :no-print="true">
+          <a 
+            href="#" 
+            @click="emit('delete', item['id'].toString(), 'contact')" 
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              contact.action = 'update';
+              contact.item = item;
+              contact.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelValue>
+        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
+        <LabelValue :label="'Вид'">{{ item['view'] }}</LabelValue>
+        <LabelValue :label="'Контакт'">{{ item['contact'] }}</LabelValue>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

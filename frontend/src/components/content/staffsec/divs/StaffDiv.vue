@@ -64,43 +64,29 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Должность #' + (idx + 1)"
       >
-        <div class="row mb-3 d-print-none">
-          <div class="col-md-3">
-            <label class="form-label">Действия</label>
-          </div>
-          <div class="col-md-9">
-            <a
-              href="#"
-              @click="emit('delete', item['id'].toString(), 'staff')"
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-                @click="
-                staff.action = 'update';
-                staff.item = item;
-                staff.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </div>
-        </div>
-        <LabelValue
-         :label="'ID'"
-         :value="item['id']"
-        />
-        <LabelValue
-         :label="'Должность'"
-         :value="item['position']"
-        />
-        <LabelValue
-         :label="'Департамент'"
-         :value="item['department']"
-        />
+        <LabelValue :label="'Действия'" :no-print="true">
+          <a
+            href="#"
+            @click="emit('delete', item['id'].toString(), 'staff')"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+              @click="
+              staff.action = 'update';
+              staff.item = item;
+              staff.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelValue>
+        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
+        <LabelValue :label="'Должность'">{{ item['position'] }}</LabelValue>
+        <LabelValue :label="'Департамент'">{{ item['department'] }}</LabelValue>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

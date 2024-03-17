@@ -163,51 +163,44 @@ function deleteItem(itemId: string, item: string) {
       @cancel="dataResume.action = ''"
     />
     <div v-else>
-      <div class="row mb-3 d-print-none">
-        <div class="col-md-3">
-          <label class="form-label">Действия</label>
-        </div>
-        <div class="col-md-9">
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="dataResume.action = 'update'"
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Удалить"
-            :disabled="
-              storeClassify.classData.status[props.resume['status_id']] ===
-                'finish' || props.spinner
-            "
-            @click="deleteItem(props.resume['id'], 'resume')"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-        </div>
-      </div>
-      <LabelValue v-for="(value, key) in resumeObj" :key="key"
+      <LabelValue :label="'Действия'">
+        <a
+          class="btn btn-link"
+          title="Изменить"
+          @click="dataResume.action = 'update'"
+        >
+          <i class="bi bi-pencil-square"></i>
+        </a>
+        <a
+          class="btn btn-link"
+          title="Удалить"
+          :disabled="
+            storeClassify.classData.status[props.resume['status_id']] ===
+              'finish' || props.spinner
+          "
+          @click="deleteItem(props.resume['id'], 'resume')"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+      </LabelValue>
+      <LabelValue 
+        v-for="(value, key) in resumeObj" 
+        :key="key"
         :label="value[0]"
-        :value="value[1]"
-      />
-      <div class="row mb-3">
-        <div class="col-md-3">
-          <label class="form-label">Материалы</label>
-        </div>
-        <div class="col-md-9">
-          <router-link
-            v-if="props.resume['path']"
-            :to="{
-              name: 'manager',
-              query: { path: props.resume['path'].split('/') },
-            }"
-          >
-            {{ props.resume["path"] }}
-          </router-link>
-        </div>
-      </div>
+      >
+        {{ value[1] }}
+      </LabelValue>
+      <LabelValue :label="'Материалы'">
+        <router-link
+          v-if="props.resume['path']"
+          :to="{
+            name: 'manager',
+            query: { path: props.resume['path'].split('/') },
+          }"
+        >
+          {{ props.resume["path"] }}
+        </router-link>
+      </LabelValue>
     </div>
 
     <StaffDiv

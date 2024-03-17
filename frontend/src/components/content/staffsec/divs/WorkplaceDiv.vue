@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Work } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
@@ -31,17 +31,6 @@ const workplace = ref({
   item: <Work>{},
 });
 
-const workObjects = computed(() => {
-  return props.items.map((item) => ({
-    id: ["ID", item["id"]],
-    start_date: ["Начало работы", item["start_date"]],
-    end_date: ["Окончание работы", item["end_date"]],
-    workplace: ["Место работы", item["workplace"]],
-    address: ["Адрес", item["address"]],
-    position: ["Должность", item["position"]],
-  }));
-});
-    
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -73,42 +62,39 @@ function submitForm(form: Object) {
     @submit="submitForm"
   />
   <div v-else>
-    <div v-if="workObjects.length">
+    <div v-if="props.items.length">
       <CollapseDiv
-        v-for="(item, idx) in workObjects"
+        v-for="(item, idx) in props.items"
         :key="idx"
         :id="'work' + idx"
         :idx="idx.toString()"
         :label="'Работа #' + (idx + 1)"
       >
-        <div class="row mb-3 d-print-none">
-          <div class="col-md-3">
-            <label class="form-label">Действия</label>
-          </div>
-          <div class="col-md-9">
-            <a href="#" 
-              @click="emit('delete', item.id[1].toString(), 'workplace')" 
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              class="btn btn-link"
-              title="Изменить"
-              @click="
-                workplace.action = 'update';
-                workplace.item = props.items[idx];
-                workplace.itemId = item.id[1].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </div>
-        </div>
-        <LabelValue v-for="(value, key) in item" :key="key"
-          :label="value[0]"
-          :value="value[1]"
-        />
+        <LabelValue :label="'Действия'" :no-print="true">
+          <a href="#" 
+            @click="emit('delete', item['id'].toString(), 'workplace')" 
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="
+              workplace.action = 'update';
+              workplace.item = item;
+              workplace.itemId = item['id'].toString();
+            "
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+        </LabelValue>
+        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
+        <LabelValue :label="'Начало работы'">{{ item['start_date'] }}</LabelValue>
+        <LabelValue :label="'Окончание работы'">{{ item['end_date'] }}</LabelValue>
+        <LabelValue :label="'Место работы'">{{ item['workplace'] }}</LabelValue>
+        <LabelValue :label="'Адрес'">{{ item['address'] }}</LabelValue>
+        <LabelValue :label="'Должность'">{{ item['position'] }}</LabelValue>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

@@ -72,36 +72,34 @@ function submitForm(form: Object) {
           :idx="idx.toString()"
           :label="'Запрос #' + (idx + 1)"
         >
-          <div class="row mb-3 d-print-none">
-            <div class="col-md-3">
-              <label class="form-label">Действия</label>
-            </div>
-            <div class="col-md-9">
-              <a
-                href="#"
-                title="Удалить"
-                @click="emit('delete', item.id[1].toString(), 'inquiry')"
-              >
-                <i class="bi bi-trash"></i>
-              </a>
-              &nbsp;
-              <a
-                href="#"
-                title="Изменить"
-                @click="
-                  need.action = 'update';
-                  need.item = props.needs[idx];
-                  need.itemId = item.id[1].toString();
-                "
-              >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </div>
-          </div>
-          <LabelValue v-for="(value, key) in item" :key="key"
+          <LabelValue :label="'Действия'">
+            <a
+              href="#"
+              title="Удалить"
+              @click="emit('delete', item.id[1].toString(), 'inquiry')"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            &nbsp;
+            <a
+              href="#"
+              title="Изменить"
+              @click="
+                need.action = 'update';
+                need.item = props.needs[idx];
+                need.itemId = item.id[1].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </LabelValue>
+          <LabelValue 
+            v-for="(value, key) in item" 
+            :key="key"
             :label="value[0]"
-            :value="value[1]"
-          />
+          >
+            {{ value[1] }}
+          </LabelValue>
         </CollapseDiv>
       </div>
       <p v-else>Данные отсутствуют</p>

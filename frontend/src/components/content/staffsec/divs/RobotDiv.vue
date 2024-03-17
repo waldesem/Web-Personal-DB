@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from "vue";
+import { defineAsyncComponent } from "vue";
 import { Robot } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
@@ -17,53 +17,46 @@ const props = defineProps({
     default: {},
   },
 });
-
-const robotObjects = computed(() => {
-  return props.robots.map((item) => ({
-    id: ["ID", item["id"]],
-    employee: ["Проверка по кадровым данным", item["employee"]],
-    inn: ["Проверка ИНН", item["inn"]],
-    fssp: ["Проверка ФССП", item["debt"]],
-    bankruptcy: ["Проверка банкротства", item["bankruptcy"]],
-    bki: ["Проверка БКИ", item["bki"]],
-    courts: ["Проверка судебных решений", item["courts"]],
-    terrorist: ["Проверка по списку террористов", item["terrorist"]],
-    mvd: ["Проверка в розыск", item["mvd"]],
-    deadline: [
-      "Дата",
-      new Date(String(item["deadline"])).toLocaleDateString("ru-RU"),
-    ],
-  }));
-});
 </script>
 
 <template>
-  <div v-if="robotObjects.length">
+  <div v-if="props.robots.length">
     <CollapseDiv
-      v-for="(item, idx) in robotObjects"
+      v-for="(item, idx) in props.robots"
       :key="idx"
       :id="'check' + idx"
       :idx="idx.toString()"
       :label="'Робот #' + (idx + 1)"
     >
-      <div class="row mb-3 d-print-none">
-        <div class="col-md-3">
-          <label class="form-label">Действия</label>
-        </div>
-        <div class="col-md-9">
-          <a
-            href="#"
-            @click="emit('delete', item.id[1].toString(), 'robot')"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-        </div>
-      </div>
-      <LabelValue v-for="(value, key) in item" :key="key"
-        :label="value[0]"
-        :value="value[1]"
-      />
+      <LabelValue :label="'Действия'" :no-print="true">
+        <a
+          href="#"
+          @click="emit('delete', item['id'].toString(), 'robot')"
+          title="Удалить"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+      </LabelValue>
+      <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
+      <LabelValue :label="'Проверка по кадровым данным'">
+        {{ item["employee"] }}
+      </LabelValue>
+      <LabelValue :label="'Проверка ИНН'">{{ item["inn"] }}</LabelValue>
+      <LabelValue :label="'Проверка ФССП'">{{ item["debt"] }}</LabelValue>
+      <LabelValue :label="'Проверка банкротства'">
+        {{ item["bankruptcy"] }}
+      </LabelValue>
+      <LabelValue :label="'Проверка БКИ'">{{ item["bki"] }}</LabelValue>
+      <LabelValue :label="'Проверка судебных решений'">
+        {{ item["courts"] }}
+      </LabelValue>
+      <LabelValue :label="'Проверка по списку террористов'">
+        {{ item["terrorist"] }}
+      </LabelValue>
+      <LabelValue :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelValue>
+      <LabelValue :label="'Дата'">
+        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+      </LabelValue>
     </CollapseDiv>
   </div>
 </template>
