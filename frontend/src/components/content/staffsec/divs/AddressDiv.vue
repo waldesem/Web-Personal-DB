@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Address } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
 );
 const AddressForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/AddressForm.vue")
@@ -32,6 +26,15 @@ const address = ref({
   action: "",
   itemId: "",
   item: <Address>{},
+});
+
+const addrObj = computed(() => {
+  return props.items.map((item) => ({
+    id: ["ID", item['id']],
+    view: ["Тип", item['view']],
+    region: ["Регион", item['region']],
+    address: ["Адрес", item['address']],
+  }));
 });
 
 function submitForm(form: Object) {
@@ -58,39 +61,49 @@ function submitForm(form: Object) {
     @submit="submitForm"
   />
   <div v-else>
-    <div v-if="props.items.length > 0">
+    <div v-if="addrObj.length">
       <CollapseDiv
-        v-for="(item, idx) in props.items"
+        v-for="(item, idx) in addrObj"
         :key="idx"
         :id="'addr' + idx"
         :idx="idx.toString()"
         :label="'Адрес #' + (idx + 1)"
       >
-        <LabelSlot>
-          <a
-            href="#"
-            @click="emit('delete', ['id'].toString(), 'address')"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            data-bs-toggle="modal"
-            data-bs-target="#modalAddress"
-            @click="
-              address.action = 'update';
-              address.item = item;
-              address.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </LabelSlot>>
-        <LabelValue :label="'Тип'" :value="item['view']" />
-        <LabelValue :label="'Регион'" :value="item['region']" />
-        <LabelValue :label="'Адрес'" :value="item['address']" />
+        <div class="row mb-3 d-print-none">
+          <div class="col-md-3">
+            <label class="form-label">Действия</label>
+          </div>
+          <div class="col-md-9">
+            <a
+              href="#"
+              @click="emit('delete', item.id[1].toString(), 'address')"
+              title="Удалить"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            <a
+              class="btn btn-link"
+              title="Изменить"
+              @click="
+                address.action = 'update';
+                address.item = props.items[idx];
+                address.itemId = item.id[1].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </div>
+        </div>
+        <div v-for="(value, key) in item" :key="key" class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">
+            {{ value[0] }}
+          </label>
+        </div>
+        <div class="col-md-9">
+          {{ value[1] }}
+        </div>
+      </div>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

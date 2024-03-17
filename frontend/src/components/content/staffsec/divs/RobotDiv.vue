@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { Robot } from "@/interfaces/interface";
 
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
-);
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
 );
@@ -15,55 +9,64 @@ const CollapseDiv = defineAsyncComponent(
 const emit = defineEmits(["delete"]);
 
 const props = defineProps({
-  robots:  {
+  robots: {
     type: Array as () => Array<Robot>,
     default: {},
   },
 });
+
+const robotObjects = computed(() => {
+  return props.robots.map((item) => ({
+    id: ["ID", item["id"]],
+    employee: ["Проверка по кадровым данным", item["employee"]],
+    inn: ["Проверка ИНН", item["inn"]],
+    fssp: ["Проверка ФССП", item["debt"]],
+    bankruptcy: ["Проверка банкротства", item["bankruptcy"]],
+    bki: ["Проверка БКИ", item["bki"]],
+    courts: ["Проверка судебных решений", item["courts"]],
+    terrorist: ["Проверка по списку террористов", item["terrorist"]],
+    mvd: ["Проверка в розыск", item["mvd"]],
+    deadline: [
+      "Дата",
+      new Date(String(item["deadline"])).toLocaleDateString("ru-RU"),
+    ],
+  }));
+});
 </script>
 
 <template>
-  <div v-if="props.robots.length">
+  <div v-if="robotObjects.length">
     <CollapseDiv
-      v-for="(item, idx) in props.robots"
+      v-for="(item, idx) in robotObjects"
       :key="idx"
       :id="'check' + idx"
       :idx="idx.toString()"
       :label="'Робот #' + (idx + 1)"
     >
-      <LabelSlot>
-        <a
-          href="#"
-          @click="emit('delete', item['id'].toString(), 'robot')"
-          title="Удалить"
-        >
-          <i class="bi bi-trash"></i>
-        </a>
-      </LabelSlot>
-      <LabelValue
-        :label="'Проверка по кадровым данным<'"
-        :value="item['employee']"
-      />
-      <LabelValue :label="'Проверка ИНН'" :value="item['inn']" />
-      <LabelValue :label="'Проверка ФССП'" :value="item['debt']" />
-      <LabelValue
-        :label="'Проверка банкротства'"
-        :value="item['bankruptcy']"
-      />
-      <LabelValue :label="'Проверка БКИ'" :value="item['bki']" />
-      <LabelValue :label="'Проверка судебных дел'" :value="item['courts']" />
-      <LabelValue
-        :label="'Проверка по списку террористов'"
-        :value="item['terrorist']"
-      />
-      <LabelValue
-        :label="'Проверка нахождения в розыске'"
-        :value="item['mvd']"
-      />
-      <LabelValue
-        :label="'Дата'"
-        :value="new Date(String(item['deadline'])).toLocaleDateString('ru-RU')"
-      />
+      <div class="row mb-3 d-print-none">
+        <div class="col-md-3">
+          <label class="form-label">Действия</label>
+        </div>
+        <div class="col-md-9">
+          <a
+            href="#"
+            @click="emit('delete', item.id[1].toString(), 'robot')"
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+      </div>
+      <div v-for="(value, key) in item" :key="key" class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">
+            {{ value[0] }}
+          </label>
+        </div>
+        <div class="col-md-9">
+          {{ value[1] }}
+        </div>
+      </div>
     </CollapseDiv>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, defineAsyncComponent, computed } from "vue";
 import { classifyStore } from "@/store/classify";
 import type {
   Resume,
@@ -12,15 +12,6 @@ import type {
   Affilation,
 } from "@/interfaces/interface";
 
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/elements/BtnGroup.vue")
-);
 const ResumeForm = defineAsyncComponent(
   () => import("../forms/ResumeForm.vue")
 );
@@ -98,6 +89,44 @@ const dataResume = ref({
   form: <Resume>{},
 });
 
+const resumeObj = computed(() => {
+  return {
+    region: [
+      "Регион",
+      storeClassify.classData.regions[props.resume["region_id"]],
+    ],
+    surname: ["Фамилия", props.resume["surname"]],
+    name: ["Имя", props.resume["firstname"]],
+    patronymic: ["Отчество", props.resume["patronymic"]],
+    previous_surname: ["Предыдущая фамилия", props.resume["previous"]],
+    birthday: ["Дата рождения", props.resume["birthday"]],
+    birthplace: ["Место рождения", props.resume["birthplace"]],
+    country: ["Гражданство", props.resume["country"]],
+    ext_country: ["Двойное гражданство", props.resume["ext_country"]],
+    snils: ["СНИЛС", props.resume["snils"]],
+    inn: ["ИНН", props.resume["inn"]],
+    education: ["Образование", props.resume["education"]],
+    marital: ["Семейнное положение", props.resume["marital"]],
+    additional: ["Дополнительная информация", props.resume["addition"]],
+    status: [
+      "Статус",
+      storeClassify.classData.status[props.resume["status_id"]],
+    ],
+    created: [
+      "Дата создания",
+      props.resume["created"]
+        ? new Date(String(props.resume["created"])).toLocaleDateString("ru-RU")
+        : "",
+    ],
+    updated: [
+      "Дата обновления",
+      props.resume["updated"]
+        ? new Date(String(props.resume["updated"])).toLocaleDateString("ru-RU")
+        : "",
+    ],
+    user_id: ["Пользователь", props.resume["user_id"]],
+  };
+});
 function getResume(action: string) {
   emit("get-resume", action);
 }
@@ -117,95 +146,70 @@ function updateItem(
 
 function deleteItem(itemId: string, item: string) {
   emit("delete", itemId, item);
-};
+}
 </script>
 
 <template>
   <div class="py-3">
-    <ResumeForm v-if="dataResume.action"
+    <ResumeForm
+      v-if="dataResume.action"
       :action="dataResume.action"
       :resume="props.resume"
       @get-resume="getResume"
       @cancel="dataResume.action = ''"
     />
     <div v-else>
-      <LabelSlot>
-        <a
-          class="btn btn-link"
-          title="Изменить"
-          @click="dataResume.action = 'update'"
-        >
-          <i class="bi bi-pencil-square"></i>
-        </a>
-      </LabelSlot>
-      <LabelValue
-        :label="'Регион'"
-        :value="storeClassify.classData.regions[props.resume['region_id']]"
-      />
-      <LabelValue
-        :label="'Фамилия'"
-        :value="props.resume['surname']"
-      />
-      <LabelValue
-        :label="'Имя'"
-        :value="props.resume['firstname']"
-      />
-      <LabelValue
-        :label="'Отчество'"
-        :value="props.resume['patronymic']"
-      />
-      <LabelValue :label="'Изменение имени'" :value="props.resume['previous']" />
-      <LabelValue :label="'Дата рождения'" :value="props.resume['birthday']" />
-      <LabelValue :label="'Место рождения'" :value="props.resume['birthplace']" />
-      <LabelValue :label="'Гражданство'" :value="props.resume['country']" />
-      <LabelValue
-        :label="'Второе гражданство'"
-        :value="props.resume['ext_country']"
-      />
-      <LabelValue :label="'СНИЛС'" :value="props.resume['snils']" />
-      <LabelValue :label="'ИНН'" :value="props.resume['inn']" />
-      <LabelValue :label="'Образование'" :value="props.resume['education']" />
-      <LabelValue :label="'Семейное положение'" :value="props.resume['marital']" />
-      <LabelValue
-        :label="'Дополнительная информация'"
-        :value="props.resume['addition']"
-      />
-      <LabelSlot :label="'Материалы'">
-        <router-link v-if="props.resume['path']"
-          :to="{
-            name: 'manager',
-            query: { path: props.resume['path'].split('/') },
-          }"
-        >
-          {{ props.resume["path"] }}
-        </router-link>
-      </LabelSlot>
-      <LabelSlot :label="'Статус'">
-        <a href="#" @click="getResume('status')">
-          {{ storeClassify.classData.status[props.resume["status_id"]] }}
-        </a>
-      </LabelSlot>
-      <LabelValue
-        :label="'Создан'"
-        :value="
-          props.resume['created']
-            ? new Date(String(props.resume['created'])).toLocaleDateString(
-                'ru-RU'
-              )
-            : ''
-        "
-      />
-      <LabelValue
-        :label="'Обновлен'"
-        :value="
-          props.resume['updated']
-            ? new Date(String(props.resume['updated'])).toLocaleDateString(
-                'ru-RU'
-              )
-            : ''
-        "
-      />
-      <LabelValue :label="'Внешний ID'" :value="props.resume['request_id']" />
+      <div class="row mb-3 d-print-none">
+        <div class="col-md-3">
+          <label class="form-label">Действия</label>
+        </div>
+        <div class="col-md-9">
+          <a
+            class="btn btn-link"
+            title="Изменить"
+            @click="dataResume.action = 'update'"
+          >
+            <i class="bi bi-pencil-square"></i>
+          </a>
+          <a
+            class="btn btn-link"
+            title="Удалить"
+            :disabled="
+              storeClassify.classData.status[props.resume['status_id']] ===
+                'finish' || props.spinner
+            "
+            @click="deleteItem(props.resume['id'], 'resume')"
+          >
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+      </div>
+      <div v-for="(value, key) in resumeObj" :key="key" class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">
+            {{ value[0] }}
+          </label>
+        </div>
+        <div class="col-md-9">
+          {{ value[1] }}
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">Материалы</label>
+        </div>
+        <div class="col-md-9">
+          <router-link
+            v-if="props.resume['path']"
+            :to="{
+              name: 'manager',
+              query: { path: props.resume['path'].split('/') },
+            }"
+          >
+            {{ props.resume["path"] }}
+          </router-link>
+        </div>
+      </div>
     </div>
 
     <StaffDiv
@@ -251,49 +255,43 @@ function deleteItem(itemId: string, item: string) {
       @delete="deleteItem"
     />
 
-    <div class="d-print-none py-3">
-      <BtnGroup :cls="false">
-        <button
-          :disabled="props.resume.user_id !== null && props.resume.user_id !== ''"
-          type="button"
-          class="btn btn-outline-primary"
-          @click="getResume('self')"
-        >
-          Взять на проверку
-        </button>
-        <button
-          class="btn btn-outline-primary"
-          :disabled="
-            (storeClassify.classData.status[props.resume['status_id']] !==
-              'new' &&
-              storeClassify.classData.status[props.resume['status_id']] !==
-                'update' &&
-              storeClassify.classData.status[props.resume['status_id']] !==
-                'repeat') || props.resume.user_id === '' ||
-            props.resume.user_id !== props.userId ||
-            props.spinner
-          "
-          @click="getResume('send')"
-        >
-          {{ !props.spinner ? "Отправить на проверку" : "" }}
-          <span
-            v-if="props.spinner"
-            class="spinner-border spinner-border-sm"
-          ></span>
-          <span v-if="props.spinner" role="status">Отправляется...</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-danger"
-          :disabled="
-            storeClassify.classData.status[props.resume['status_id']] ===
-              'finish' || props.spinner
-          "
-          @click="deleteItem(props.resume['id'], 'resume')"
-        >
-          Удалить анкету
-        </button>
-      </BtnGroup>
+    <div class="d-print-none row mb-3">
+      <div class="offset-lg-2 col-lg-10">
+        <div class="btn-group" role="group">
+          <button
+            :disabled="
+              props.resume.user_id !== null && props.resume.user_id !== ''
+            "
+            type="button"
+            class="btn btn-outline-primary"
+            @click="getResume('self')"
+          >
+            Взять на проверку
+          </button>
+          <button
+            class="btn btn-outline-primary"
+            :disabled="
+              (storeClassify.classData.status[props.resume['status_id']] !==
+                'new' &&
+                storeClassify.classData.status[props.resume['status_id']] !==
+                  'update' &&
+                storeClassify.classData.status[props.resume['status_id']] !==
+                  'repeat') ||
+              props.resume.user_id === '' ||
+              props.resume.user_id !== props.userId ||
+              props.spinner
+            "
+            @click="getResume('send')"
+          >
+            {{ !props.spinner ? "Отправить на проверку" : "" }}
+            <span
+              v-if="props.spinner"
+              class="spinner-border spinner-border-sm"
+            ></span>
+            <span v-if="props.spinner" role="status">Отправляется...</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

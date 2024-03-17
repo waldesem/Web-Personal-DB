@@ -11,11 +11,16 @@ const emit = defineEmits(["cancel"]);
 </script>
 
 <template>
-  <div class="modal fade" :id="props.id" tabindex="-1">
+  <div 
+    class="modal fade" 
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+    :id="props.id" 
+    tabindex="-1"
+  >
     <div
       class="modal-dialog modal-dialog-centered"
       :class="props.size"
-      data-bs-backdrop="static"
       data-bs-keyboard="false"
       role="document"
     >

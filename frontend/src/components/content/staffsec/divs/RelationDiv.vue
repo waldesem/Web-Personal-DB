@@ -5,12 +5,6 @@ import { Relation } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
 );
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
-);
 const RelationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/RelationForm.vue")
 );
@@ -71,37 +65,62 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Связь #' + (idx + 1)"
       >
-        <LabelSlot>
-          <a
-            href="#" 
-            @click="emit('delete', item['id'].toString(), 'relation')" 
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
-              relation.action = 'update';
-              relation.item = item;
-              relation.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </LabelSlot>
-        <LabelValue :label="'Тип связи'" :value="item['relation']" />
-        <LabelSlot :label="'Связь'">
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { id: String(item['relation_id']) },
-            }"
-          >
-            ID #{{ item["relation_id"] }}
-          </router-link>
-        </LabelSlot>
+        <div class="row mb-3 d-print-none">
+          <div class="col-md-3">
+            <label class="form-label">Действия</label>
+          </div>
+          <div class="col-md-9">
+            <a
+              href="#" 
+              @click="emit('delete', item['id'].toString(), 'relation')" 
+              title="Удалить"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            <a
+              class="btn btn-link"
+              title="Изменить"
+              @click="
+                relation.action = 'update';
+                relation.item = item;
+                relation.itemId = item['id'].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">ID</label>
+          </div>
+          <div class="col-md-9">
+            {{ item["id"] }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Тип связи</label>
+          </div>
+          <div class="col-md-9">
+            {{ item["relation"] }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Связь</label>
+          </div>
+          <div class="col-md-9">
+            <router-link
+              :to="{
+                name: 'profile',
+                params: { id: String(item['relation_id']) },
+              }"
+            >
+              ID #{{ item["relation_id"] }}
+            </router-link>
+          </div>
+        </div>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

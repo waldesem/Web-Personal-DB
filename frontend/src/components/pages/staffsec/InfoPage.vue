@@ -90,7 +90,12 @@ computed(() => {
         role="form"
       >
         <div class="mb-3 row required">
-          <label class="col-form-label col-md-2" for="region">Регион</label>
+          <label 
+            class="col-form-label col-md-2" 
+            for="region"
+          >
+            Регион
+          </label>
           <div class="col-md-2">
             <select
               @change="tableData.submitData"
@@ -99,7 +104,10 @@ computed(() => {
               name="region"
               v-model="tableData.stat.region_id"
             >
-              <option :value="tableData.stat.region_id" selected>
+              <option 
+                :value="tableData.stat.region_id" 
+                selected
+              >
                 {{ storeClassify.classData.regions[tableData.stat.region_id] }}
               </option>
               <option
@@ -111,7 +119,12 @@ computed(() => {
               </option>
             </select>
           </div>
-          <label class="col-form-label col-md-1" for="start">Период:</label>
+          <label 
+            class="col-form-label col-md-1" 
+            for="start"
+          >
+            Период:
+          </label>
           <div class="col-md-2">
             <input
               class="form-control"

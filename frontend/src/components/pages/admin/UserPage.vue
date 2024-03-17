@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
@@ -9,9 +9,6 @@ import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
 );
 const ModalWin = defineAsyncComponent(
   () => import("@components/layouts/ModalWin.vue")
@@ -114,10 +111,20 @@ const userData = ref({
   },
 });
 
-async function updateData() {
-  userData.value.action = "";
-  await userData.value.userAction("view");
-};
+const profileObjec = computed(() => {
+  return {
+    id: ["ID", userData.value.profile.id],
+    username: ["Имя пользователя", userData.value.profile.fullname],
+    login: ["Логин", userData.value.profile.username],
+    email: ["E-mail", userData.value.profile.email],
+    created: ["Дата создания", new Date(userData.value.profile.pswd_create).toLocaleString('ru-RU')],
+    updated: ["Дата изменения", new Date(userData.value.profile.pswd_change).toLocaleString('ru-RU')],
+    lastLogin: ["Дата последнего входа", new Date(userData.value.profile.last_login).toLocaleString('ru-RU')],
+    attempt: ["Попытки входа", userData.value.profile.attempt],
+    blocked: ["Заблокирован", userData.value.profile.blocked ? 'Заблокирован' : 'Разблокирован'],
+    activity: ["Активность", userData.value.profile.deleted ? 'Удален' : 'Активен'],
+  }
+});
 </script>
 
 <template>
@@ -127,106 +134,55 @@ async function updateData() {
       :cls="'text-secondary'"
     />
     <div class="py-3">
-      <div>
-        <div class="row mb-3">
-          <div class="col-md-3">ID</div>
-          <div class="col-md-9">{{ userData.profile.id }}</div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Имя пользователя</div>
-          <div class="col-md-9">{{ userData.profile.username }}</div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Логин</div>
-          <div class="col-md-9">{{ userData.profile.username }}</div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">E-mail</div>
-          <div class="col-md-9">{{ userData.profile.email }}</div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Создан</div>
-          <div class="col-md-9">
-            {{ new Date(userData.profile.pswd_create).toLocaleString(
-                'ru-RU'
-            )}}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Изменен</div>
-          <div class="col-md-9">
-            {{ new Date(userData.profile.pswd_change).toLocaleString(
-                'ru-RU'
-            )}}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Вход</div>
-          <div class="col-md-9">
-            {{ new Date(userData.profile.last_login).toLocaleString(
-                'ru-RU'
-            )}}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Попыток входа</div>
-          <div class="col-md-9">{{ userData.profile.attempt }}</div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Блокировка</div>
-          <div class="col-md-9">
-            {{ 
-              userData.profile.blocked
-              ? 'Заблокирован'
-              : 'Разблокирован'
-            }}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Активность</div>
-          <div class="col-md-9">
-            {{
-              userData.profile.deleted
-              ? 'Удален'
-              : 'Активен'
-            }}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">Роли</div>
-          <div class="col-md-9">
-            <ul
-              v-for="(role, index) in userData.profile.roles"
-              :key="index"
+      <div v-for="value, key in profileObjec" :key="key" class="row mb-3">
+        <div class="col-md-3">{{ value[0] }}</div>
+        <div class="col-md-9">{{ value[1] }}</div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-3">Роли</div>
+        <div class="col-md-9">
+          <ul
+            v-for="(role, index) in userData.profile.roles"
+            :key="index"
+          >
+            <li>
+              {{ role["role"] }}
+              <a
+                href="#"
+                @click="
+                  userData.updateRole(
+                    'delete',
+                    role['id']
+                  )
+                "
+              >
+                <i class="bi bi-dash-circle"></i>
+              </a>
+            </li>
+          </ul>
+          <form class="form form-check" role="form" id="role-form">
+            <select
+              class="form-select"
+              name="role"
+              style="width: 30%"
+              v-model="userData.role"
+              @change="
+                userData.updateRole(
+                  'add',
+                  userData.role
+                )
+              "
             >
-              <li>
+              <option value="" selected>Добавить роль</option>
+              <option
+                v-for="(role, index) in storeClassify.classData.roles"
+                :key="index"
+                :value="role['id']"
+              >
                 {{ role["role"] }}
-                <a
-                  href="#"
-                  @click="
-                    userData.updateRole(
-                      'delete',
-                      role['id']
-                    )
-                  "
-                >
-                  <i class="bi bi-dash-circle"></i>
-                </a>
-              </li>
-            </ul>
-            <form class="form form-check" role="form">
-              <SelectDiv
-                :lbl-class="'visually-hidden'"
-                :slc-class="'col-md-12'"
-                :label="'Роль'"
-                :name="'role'"
-                :isneed="false"
-                :select="storeClassify.classData.roles"
-                v-model="userData.role"
-                @change-event="userData.updateRole('add', userData.role)"
-              />
-            </form>
-          </div>
+              </option>
+            </select>
+          </form>
         </div>
       </div>
       <div class="py-3">
@@ -284,15 +240,14 @@ async function updateData() {
       <UserForm 
         :action="userData.action"
         :item="userData.profile"
-        @update="updateData"
+        @update="userData.action = ''; userData.userAction('view');"
       />
     </ModalWin>
   </div>
 </template>
 
 <style scoped>
-ul,
-li {
+#role-form {
   padding-left: 0;
 }
 </style>

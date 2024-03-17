@@ -8,12 +8,6 @@ import { Resume } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
-);
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
 );
@@ -80,21 +74,29 @@ function changePath (): void {
 </script>
 
 <template>
-      <div class="container py-3">
+  <div class="container py-3">
     <HeaderDiv :page-header="header" />
     <div class="row">
       <div class="col-md-3">
-        <form class="form form-check" role="form">
-          <SelectDiv
-            :lbl-class="'visually-hidden'"
-            :label="'Таблица'"
-            :slc-class="'col-md-12'"
-            :name="'action'"
-            :isneed="false"
-            :select="personData.items"
+        <form 
+          @change.prevent="changePath" 
+          class="form form-check" 
+          role="form"
+        >
+          <select
+            class="form-select col-md-3"
+            name="action"
+            id="action"
             v-model="personData.path"
-            @change-event="changePath"
-          />
+          >
+            <option
+              v-for="(name, value) in personData.items"
+              :key="value"
+              :value="value"
+            >
+              {{ name }}
+            </option>
+          </select>
         </form>
       </div>
       <div class="col-md-9">
@@ -103,12 +105,12 @@ function changePath (): void {
           class="form form-check" 
           role="form"
         >
-          <InputLabel
-            :lbl-cls="'visually-hidden'"
-            :cls-input="'col-lg-12'"
-            :lbl="'Поиск'"
-            :name="'search'"
-            :placeholder="'поиск по ФИО, ИНН'"
+          <input
+            class="form-control"
+            name="search"
+            id="search"
+            type="text"
+            placeholder="поиск по ФИО, ИНН"
             v-model="personData.search"
           />
         </form>

@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { ref, defineAsyncComponent, onBeforeMount, computed } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
 );
 const InvestigationForm = defineAsyncComponent(
   () => import("../forms/InvestigationForm.vue")
@@ -37,6 +31,18 @@ const inquisition = ref({
   item: <Inquisition>{},
 });
 
+const invsObj = computed(() => {
+  return props.inquisitions.map((item) => ({
+    id: ["ID", item["id"]],
+    theme: ["Тема проверки", item["theme"]], 
+    info: ["Информация", item["info"]],
+    officer: ["Сотрудник", item["officer"]],
+    deadline: [
+      "Дата", new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
+    ]
+  }))
+});
+
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -61,44 +67,50 @@ function submitFile(event: Event) {
       @cancel="inquisition.action = ''"
     />
     <div v-else>
-      <div v-if="props.inquisitions.length">
+      <div v-if="invsObj.length">
         <CollapseDiv
-          v-for="(item, idx) in props.inquisitions"
+          v-for="(item, idx) in invsObj"
           :key="idx"
           :id="'investigation' + idx"
           :idx="idx.toString()"
           :label="'Расследование #' + (idx + 1)"
         >
-          <LabelSlot>
-            <a
-              href="#"
-              title="Удалить"
-              @click="emit('delete', item['id'].toString(), 'investigation')"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            &nbsp;
-            <a
-              href="#"
-              title="Изменить"
-              @click="
-                inquisition.action = 'update';
-                inquisition.item = item;
-                inquisition.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </LabelSlot>
-          <LabelValue :label="'Тема'" :value="item['theme']" />
-          <LabelValue :label="'Информация'" :value="item['info']" />
-          <LabelValue :label="'Сотрудник'" :value="item['officer']" />
-          <LabelValue
-            :label="'Дата'"
-            :value="
-              new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-            "
-          />
+          <div class="row mb-3 d-print-none">
+            <div class="col-md-3">
+              <label class="form-label">Действия</label>
+            </div>
+            <div class="col-md-9">
+              <a
+                href="#"
+                title="Удалить"
+                @click="emit('delete', item.id[1].toString(), 'investigation')"
+              >
+                <i class="bi bi-trash"></i>
+              </a>
+              &nbsp;
+              <a
+                href="#"
+                title="Изменить"
+                @click="
+                  inquisition.action = 'update';
+                  inquisition.item = props.inquisitions[idx];
+                  inquisition.itemId = item.id[1].toString();
+                "
+              >
+                <i class="bi bi-pencil-square"></i>
+              </a>
+            </div>
+          </div>
+          <div v-for="(value, key) in item" :key="key" class="row mb-3">
+            <div class="col-md-3">
+              <label class="form-label">
+                {{ value[0] }}
+              </label>
+            </div>
+            <div class="col-md-9">
+              {{ value[1] }}
+            </div>
+          </div>
         </CollapseDiv>
         <FileForm :accept="'*'" @submit="submitFile($event)" />
       </div>

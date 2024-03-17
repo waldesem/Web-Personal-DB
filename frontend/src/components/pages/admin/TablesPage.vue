@@ -8,12 +8,6 @@ import { debounce, server } from "@utilities/utils";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
-);
-const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
-);
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
 );
@@ -84,29 +78,33 @@ const searchItem = debounce(() => {
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Таблицы'" :cls="'text-secondary'" />
-    <div class="row py-3">
+    <div class="row mb-5">
       <div class="col-md-3">
-        <form class="form form-check" role="form">
-          <SelectDiv  v-if="storeClassify.classData.tables.length"
-            :lbl-class="'visually-hidden'"
-            :label="'Таблица'"
-            :slc-class="'col-md-12'"
-            :name="'region'"
-            :isneed="false"
-            :select="storeClassify.classData.tables"
+        <form @change.prevent="getItem(1)" class="form form-check" role="form">
+          <select
+            class="form-select"
+            id="table"
+            name="table"
             v-model="tableData.table"
-            @change-event="getItem(1)"
-          />
+          >
+            <option
+              v-for="table, index in storeClassify.classData.tables"
+              :key="index"
+              :value="table"
+            >
+              {{ table }}
+            </option>
+          </select>
         </form>
       </div>
-      <div class="col-md-8">
+      <div class="col-md-9">
         <form @input="searchItem" class="form form-check" role="form">
-          <InputLabel
-            :lbl-cls="'visually-hidden'"
-            :cls-input="'col-lg-12'"
-            :lbl="'Поиск'"
-            :id="'name'"
-            :name="'name'"
+          <input
+            id="search"
+            name="search"
+            type="text"
+            class="form-control"
+            placeholder="Поиск по ID"
             v-model="tableData.search"
           />
         </form>

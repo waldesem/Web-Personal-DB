@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Work } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
 );
 const WorkplaceForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/WorkplaceForm.vue")
@@ -34,6 +28,17 @@ const workplace = ref({
   item: <Work>{},
 });
 
+const workObjects = computed(() => {
+  return props.items.map((item) => ({
+    id: ["ID", item["id"]],
+    start_date: ["Начало работы", item["start_date"]],
+    end_date: ["Окончание работы", item["end_date"]],
+    workplace: ["Место работы", item["workplace"]],
+    address: ["Адрес", item["address"]],
+    position: ["Должность", item["position"]],
+  }));
+});
+    
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -65,38 +70,48 @@ function submitForm(form: Object) {
     @submit="submitForm"
   />
   <div v-else>
-    <div v-if="props.items.length">
+    <div v-if="workObjects.length">
       <CollapseDiv
-        v-for="(item, idx) in props.items"
+        v-for="(item, idx) in workObjects"
         :key="idx"
         :id="'work' + idx"
         :idx="idx.toString()"
         :label="'Работа #' + (idx + 1)"
       >
-        <LabelSlot>
-          <a href="#" 
-            @click="emit('delete', item['id'].toString(), 'workplace')" 
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
-              workplace.action = 'update';
-              workplace.item = item;
-              workplace.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </LabelSlot>
-        <LabelValue :label="'Начало работы'" :value="item['start_date']" />
-        <LabelValue :label="'Окончание работы'" :value="item['end_date']" />
-        <LabelValue :label="'Организация'" :value="item['workplace']" />
-        <LabelValue :label="'КоАдреснтакт'" :value="item['address']" />
-        <LabelValue :label="'Должность'" :value="item['position']" />
+        <div class="row mb-3 d-print-none">
+          <div class="col-md-3">
+            <label class="form-label">Действия</label>
+          </div>
+          <div class="col-md-9">
+            <a href="#" 
+              @click="emit('delete', item.id[1].toString(), 'workplace')" 
+              title="Удалить"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            <a
+              class="btn btn-link"
+              title="Изменить"
+              @click="
+                workplace.action = 'update';
+                workplace.item = props.items[idx];
+                workplace.itemId = item.id[1].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </div>
+        </div>
+        <div v-for="(value, key) in item" :key="key" class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">
+              {{ value[0] }}
+            </label>
+          </div>
+          <div class="col-md-9">
+            {{ value[1] }}
+          </div>
+        </div>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

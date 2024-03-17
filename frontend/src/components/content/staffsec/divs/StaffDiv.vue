@@ -5,12 +5,6 @@ import { Staff } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
 );
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
-);
 const StaffForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/StaffForm.vue")
 );
@@ -67,28 +61,55 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Должность #' + (idx + 1)"
       >
-        <LabelSlot>
-          <a
-            href="#"
-            @click="emit('delete', item['id'].toString(), 'staff')"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-              @click="
-              staff.action = 'update';
-              staff.item = item;
-              staff.itemId = item['id'].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </LabelSlot>
-        <LabelValue :label="'Должность'" :value="item['position']" />
-        <LabelValue :label="'Департамент'" :value="item['department']" />
+        <div class="row mb-3 d-print-none">
+          <div class="col-md-3">
+            <label class="form-label">Действия</label>
+          </div>
+          <div class="col-md-9">
+            <a
+              href="#"
+              @click="emit('delete', item['id'].toString(), 'staff')"
+              title="Удалить"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            <a
+              class="btn btn-link"
+              title="Изменить"
+                @click="
+                staff.action = 'update';
+                staff.item = item;
+                staff.itemId = item['id'].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">ID</label>
+          </div>
+          <div class="col-md-9">
+            {{ item["id"] }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Должность</label>
+          </div>
+          <div class="col-md-9">
+            {{ item["position"] }}
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Департамент</label>
+          </div>
+          <div class="col-md-9">
+            {{ item["department"] }}
+          </div>
+        </div>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { ref, defineAsyncComponent, onBeforeMount, computed } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/elements/LabelSlot.vue")
-);
-const LabelValue = defineAsyncComponent(
-  () => import("@components/elements/LabelValue.vue")
 );
 const PoligrafForm = defineAsyncComponent(
   () => import("../forms/PoligrafForm.vue")
@@ -37,70 +31,90 @@ const poligraf = ref({
   item: <Pfo>{},
 });
 
+const pfoObject = computed(() => {
+  return props.poligrafs.map((item) => ({
+    id: ["ID", item["id"]],
+    theme: ["Тема проверки", item["theme"]],
+    results: ["Результат", item["results"]],
+    officer: ["Сотрудник", item["officer"]],
+    deadline: [
+      "Дата",
+      new Date(String(item["deadline"])).toLocaleDateString(
+        "ru-RU"
+      ),
+    ],
+  }));
+});
+
 function submitForm(form: Object) {
   emit(
-    "submit", 
+    "submit",
     poligraf.value.action,
     "poligraf",
     poligraf.value.itemId,
-    form,
+    form
   );
   poligraf.value.action = "";
 }
 
 function submitFile(event: Event) {
   emit("file", event);
-};
+}
 </script>
 
 <template>
   <div class="py-3">
-    <PoligrafForm v-if="poligraf.action"
+    <PoligrafForm
+      v-if="poligraf.action"
       :poligraf="poligraf.item"
       @submit="submitForm"
       @cancel="poligraf.action = ''"
     />
     <div v-else>
-      <div v-if="props.poligrafs.length > 0">
+      <div v-if="pfoObject.length">
         <CollapseDiv
-          v-for="(item, idx) in props.poligrafs"
+          v-for="(item, idx) in pfoObject"
           :key="idx"
           :id="'poligraf' + idx"
           :idx="idx.toString()"
           :label="'Полиграф #' + (idx + 1)"
         >
-          <LabelSlot>
-            <a
-              href="#"
-              title="Удалить"
-              @click="emit('delete', item['id'].toString(), 'poligraf')"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            &nbsp;
-            <a
-              href="#"
-              title="Изменить"
-              data-bs-toggle="modal"
-              data-bs-target="#modalPfo"
-              @click="
-                poligraf.action = 'update';
-                poligraf.item = item;
-                poligraf.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
-          </LabelSlot>
-          <LabelValue :label="'Тема'" :value="item['theme']" />
-          <LabelValue :label="'Результат'" :value="item['results']" />
-          <LabelValue :label="'Сотрудник'" :value="item['officer']" />
-          <LabelValue
-            :label="'Дата'"
-            :value="
-              new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-            "
-          />
+          <div class="row mb-3 d-print-none">
+            <div class="col-md-3">
+              <label class="form-label">Действия</label>
+            </div>
+            <div class="col-md-9">
+              <a
+                href="#"
+                title="Удалить"
+                @click="emit('delete', item.id[1].toString(), 'poligraf')"
+              >
+                <i class="bi bi-trash"></i>
+              </a>
+              &nbsp;
+              <a
+                href="#"
+                title="Изменить"
+                @click="
+                  poligraf.action = 'update';
+                  poligraf.item = props.poligrafs[idx];
+                  poligraf.itemId = item.id[1].toString();
+                "
+              >
+                <i class="bi bi-pencil-square"></i>
+              </a>
+            </div>
+          </div>
+          <div v-for="(value, key) in item" :key="key" class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">
+              {{ value[0] }}
+            </label>
+          </div>
+          <div class="col-md-9">
+            {{ value[1] }}
+          </div>
+        </div>
         </CollapseDiv>
         <FileForm :accept="'*'" @submit="submitFile" />
       </div>
@@ -110,7 +124,7 @@ function submitFile(event: Event) {
           class="btn btn-outline-primary"
           type="button"
           @click="poligraf.action = 'create'"
-        >Добавить запись
+          >Добавить запись
         </a>
       </div>
     </div>

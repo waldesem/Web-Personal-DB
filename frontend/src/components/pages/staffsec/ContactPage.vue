@@ -8,9 +8,6 @@ import { Connection } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
-);
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
 );
@@ -99,12 +96,12 @@ async function deleteContact(id: string): Promise<void> {
   <div class="container py-3">
     <HeaderDiv :page-header="'Контакты'" />
     <form @input.prevent="searchContacts" class="form form-check" role="form">
-      <InputLabel
-        :lbl-cls="'visually-hidden'"
-        :cls-input="'col-lg-12'"
-        :lbl="'Поиск'"
-        :name="'search'"
-        :placeholder="'Поиск по организации, имени, номеру мобильного телефона'"
+      <input
+        class="form-control col-lg-12"
+        name="search"
+        id="search"
+        type="text"
+        placeholder="Поиск по организации, имени, номеру мобильного телефона"
         v-model="contactData.search"
       />
     </form>

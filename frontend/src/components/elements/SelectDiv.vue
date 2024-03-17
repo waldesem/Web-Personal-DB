@@ -17,7 +17,7 @@ const props = defineProps({
   label: String,
   select: {
     type: Object as () => Record<string, any>,
-    default: () => [],
+    default: () => {},
   },
 });
 
@@ -40,11 +40,11 @@ const emit = defineEmits(["change-event", "input-event"]);
         @input="emit('input-event', $event)"
       >
         <option
-          v-for="(key, value) in props.select"
+          v-for="key, _ in props.select"
           :key="key"
-          :value="value"
+          :value="key"
         >
-          {{key }}
+          {{ key }}
         </option>
       </select>
     </div>

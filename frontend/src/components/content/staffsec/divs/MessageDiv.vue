@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { authStore } from "@store/auth";
 import { server } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
+
+const TableSlots = defineAsyncComponent(
+  () => import("@components/elements/TableSlots.vue")
+);
 
 const storeAuth = authStore();
 
@@ -65,21 +69,21 @@ const messageData = ref({
     <a v-else class="nav-link">Сообщения</a>
     <div :class="{'dropdown-menu' : messageData.messages.length}">
       <div v-if="messageData.messages.length" class="dropdown-item">
-        <table class="table table-responsive align-middle">
-          <thead class="">
+        <TableSlots>
+          <template v-slot:thead>
             <tr>
               <th width="30%">Дата</th>
               <th>Сообщение</th>
             </tr>
-          </thead>
-          <tbody>
+          </template>
+          <template v-slot:tbody>
             <tr v-for="message, index in messageData.messages" :key="index">
               <td width="30%">
                 {{ new Date(String(message["created"])).toLocaleString('ru-RU') }}</td>
               <td>{{ message["message"] }}</td>
             </tr>
-          </tbody>
-        </table>
+          </template>
+        </TableSlots>
         <a href="#" class="link-danger" @click="messageData.deleteMessage()">
           Удалить сообщения
         </a>
