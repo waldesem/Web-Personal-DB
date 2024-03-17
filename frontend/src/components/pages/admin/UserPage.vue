@@ -23,7 +23,7 @@ const storeAuth = authStore();
 
 const route = useRoute();
 
-onBeforeMount( async () => {
+onBeforeMount(async () => {
   userData.value.id = route.params.id.toString();
   await userData.value.userAction("view");
 });
@@ -38,10 +38,11 @@ const userData = ref({
   userAction: async function (action: String): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(
-        `${server}/user/${this.id}`, {
+        `${server}/user/${this.id}`,
+        {
           params: {
             action: action,
-          }
+          },
         }
       );
       this.profile = response.data;
@@ -58,8 +59,8 @@ const userData = ref({
         storeAlert.alertMessage.setAlert(
           "alert-success",
           "Пользователь восстановлен"
-        )
-      };
+        );
+      }
     } catch (error) {
       storeAlert.alertMessage.setAlert("alert-danger", error as string);
     }
@@ -83,10 +84,7 @@ const userData = ref({
     }
   },
 
-  updateRole: async function (
-    action: string,
-    value: string
-  ): Promise<void> {
+  updateRole: async function (action: string, value: string): Promise<void> {
     if (value) {
       try {
         const response =
@@ -101,12 +99,13 @@ const userData = ref({
         this.userAction("view");
 
         storeAlert.alertMessage.setAlert(
-          "alert-success", `Роль ${action === "add" ? "добавлена" : "удалена"}`
+          "alert-success",
+          `Роль ${action === "add" ? "добавлена" : "удалена"}`
         );
       } catch (error) {
         storeAlert.alertMessage.setAlert("alert-danger", error as string);
       }
-      this.role = '';
+      this.role = "";
     }
   },
 });
@@ -117,13 +116,28 @@ const profileObjec = computed(() => {
     username: ["Имя пользователя", userData.value.profile.fullname],
     login: ["Логин", userData.value.profile.username],
     email: ["E-mail", userData.value.profile.email],
-    created: ["Дата создания", new Date(userData.value.profile.pswd_create).toLocaleString('ru-RU')],
-    updated: ["Дата изменения", new Date(userData.value.profile.pswd_change).toLocaleString('ru-RU')],
-    lastLogin: ["Дата последнего входа", new Date(userData.value.profile.last_login).toLocaleString('ru-RU')],
+    created: [
+      "Дата создания",
+      new Date(userData.value.profile.pswd_create).toLocaleString("ru-RU"),
+    ],
+    updated: [
+      "Дата изменения",
+      new Date(userData.value.profile.pswd_change).toLocaleString("ru-RU"),
+    ],
+    lastLogin: [
+      "Дата последнего входа",
+      new Date(userData.value.profile.last_login).toLocaleString("ru-RU"),
+    ],
     attempt: ["Попытки входа", userData.value.profile.attempt],
-    blocked: ["Заблокирован", userData.value.profile.blocked ? 'Заблокирован' : 'Разблокирован'],
-    activity: ["Активность", userData.value.profile.deleted ? 'Удален' : 'Активен'],
-  }
+    blocked: [
+      "Заблокирован",
+      userData.value.profile.blocked ? "Заблокирован" : "Разблокирован",
+    ],
+    activity: [
+      "Активность",
+      userData.value.profile.deleted ? "Удален" : "Активен",
+    ],
+  };
 });
 </script>
 
@@ -134,28 +148,17 @@ const profileObjec = computed(() => {
       :cls="'text-secondary'"
     />
     <div class="py-3">
-      <div v-for="value, key in profileObjec" :key="key" class="row mb-3">
+      <div v-for="(value, key) in profileObjec" :key="key" class="row mb-3">
         <div class="col-md-3">{{ value[0] }}</div>
         <div class="col-md-9">{{ value[1] }}</div>
       </div>
       <div class="row mb-3">
         <div class="col-md-3">Роли</div>
         <div class="col-md-9">
-          <ul
-            v-for="(role, index) in userData.profile.roles"
-            :key="index"
-          >
+          <ul v-for="(role, index) in userData.profile.roles" :key="index">
             <li>
               {{ role["role"] }}
-              <a
-                href="#"
-                @click="
-                  userData.updateRole(
-                    'delete',
-                    role['id']
-                  )
-                "
-              >
+              <a href="#" @click="userData.updateRole('delete', role['id'])">
                 <i class="bi bi-dash-circle"></i>
               </a>
             </li>
@@ -166,12 +169,7 @@ const profileObjec = computed(() => {
               name="role"
               style="width: 30%"
               v-model="userData.role"
-              @change="
-                userData.updateRole(
-                  'add',
-                  userData.role
-                )
-              "
+              @change="userData.updateRole('add', userData.role)"
             >
               <option value="" selected>Добавить роль</option>
               <option
@@ -200,11 +198,7 @@ const profileObjec = computed(() => {
             @click="userData.userAction('block')"
             class="btn btn-outline-secondary"
           >
-            {{
-              userData.profile.blocked
-                ? "Разблокировать"
-                : "Заблокировать"
-            }}
+            {{ userData.profile.blocked ? "Разблокировать" : "Заблокировать" }}
           </button>
           <button
             @click="userData.userAction('drop')"
@@ -237,10 +231,13 @@ const profileObjec = computed(() => {
       :id="'modalUser'"
       @cancel="userData.action = ''"
     >
-      <UserForm 
+      <UserForm
         :action="userData.action"
         :item="userData.profile"
-        @update="userData.action = ''; userData.userAction('view');"
+        @update="
+          userData.action = '';
+          userData.userAction('view');
+        "
       />
     </ModalWin>
   </div>

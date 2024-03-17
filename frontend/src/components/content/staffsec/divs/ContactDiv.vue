@@ -8,6 +8,9 @@ const CollapseDiv = defineAsyncComponent(
 const ContactForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/ContactForm.vue")
 );
+const LabelValue = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/LabelValue.vue")
+);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -83,30 +86,18 @@ function submitForm(form: Object) {
             </a>
           </div>
         </div>
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <label class="form-label">ID</label>
-          </div>
-          <div class="col-md-9">
-            {{ item["id"] }}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <label class="form-label">Вид</label>
-          </div>
-          <div class="col-md-9">
-            {{ item['view'] }}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <label class="form-label">Контакт</label>
-          </div>
-          <div class="col-md-9">
-            {{ item['contact'] }}
-          </div>
-        </div>
+        <LabelValue
+          :label="'ID'"
+          :value="item['id']"
+        />
+        <LabelValue
+          :label="'Вид'"
+          :value="item['view']"
+        />
+        <LabelValue
+          :label="'Контакт'"
+          :value="item['contact']"
+        />
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

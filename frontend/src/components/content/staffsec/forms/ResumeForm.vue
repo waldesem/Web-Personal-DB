@@ -11,14 +11,12 @@ const SelectDiv = defineAsyncComponent(
   () => import("@components/elements/SelectDiv.vue")
 );
 const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
+  () => import("@components/content/staffsec/elements/InputLabel.vue")
 );
 const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
+  () => import("@components/content/staffsec/elements/TextLabel.vue")
 );
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/elements/BtnGroup.vue")
-);
+
 const storeAuth = authStore();
 const storeAlert = alertStore();
 const storeClassify = classifyStore();
@@ -105,16 +103,13 @@ const resumeForm = ref({
         v-model="resumeForm.form['firstname']"
       />
       <InputLabel
-        :isneed="true"
         :name="'patronymic'"
         :label="'Отчество*'"
-        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
         v-model="resumeForm.form['patronymic']"
       />
       <InputLabel
         :name="'previous'"
         :label="'Изменение имени*'"
-        :max="'255'"
         v-model="resumeForm.form['previous']"
       />
       <InputLabel
@@ -127,19 +122,16 @@ const resumeForm = ref({
       <InputLabel
         :name="'birthplace'"
         :label="'Место рождения'"
-        :max="'255'"
         v-model="resumeForm.form['birthplace']"
       />
       <InputLabel
         :name="'country'"
         :label="'Гражданство'"
-        :max="'255'"
         v-model="resumeForm.form['country']"
       />
       <InputLabel
         :name="'ext_country'"
         :label="'Двойное гражданство'"
-        :max="'255'"
         v-model="resumeForm.form['ext_country']"
       />
       <InputLabel
@@ -158,7 +150,6 @@ const resumeForm = ref({
       <InputLabel
         :name="'marital'"
         :label="'Семейнное положение'"
-        :max="'255'"
         v-model="resumeForm.form['marital']"
       />
       <TextLabel
@@ -171,29 +162,31 @@ const resumeForm = ref({
         :label="'Дополнительно'"
         v-model="props.resume['addition']"
       />
-      <BtnGroup>
-        <button 
-          class="btn btn-outline-primary" 
-          type="submit">
-          Принять
-        </button>
-        <button class="btn btn-outline-secondary" type="reset">Очистить</button>
-        <router-link
-          v-if="props.action === 'create'"
-          class="btn btn-outline-warning"
-          type="button"
-          :to="{ name: 'persons' }"
-        >
-          Отмена
-        </router-link>
-        <button v-if="props.action === 'update'"
-          class="btn btn-outline-danger" 
-          type="button"
-          @click="emit('cancel')"
-        >
-          Отмена
-        </button>
-      </BtnGroup>
+      <div class="offset-lg-2 col-lg-10">
+        <div class="btn-group" role="group">
+          <button 
+            class="btn btn-outline-primary" 
+            type="submit">
+            Принять
+          </button>
+          <button class="btn btn-outline-secondary" type="reset">Очистить</button>
+          <router-link
+            v-if="props.action === 'create'"
+            class="btn btn-outline-warning"
+            type="button"
+            :to="{ name: 'persons' }"
+          >
+            Отмена
+          </router-link>
+          <button v-if="props.action === 'update'"
+            class="btn btn-outline-danger" 
+            type="button"
+            @click="emit('cancel')"
+          >
+            Отмена
+          </button>
+        </div>
+      </div>
     </form>
   </div>
 </template>

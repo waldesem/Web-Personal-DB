@@ -30,6 +30,9 @@ const WorkplaceDiv = defineAsyncComponent(
 const AffilationDiv = defineAsyncComponent(
   () => import("../divs/AffilationDiv.vue")
 );
+const LabelValue = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/LabelValue.vue")
+);
 
 const storeClassify = classifyStore();
 
@@ -91,6 +94,7 @@ const dataResume = ref({
 
 const resumeObj = computed(() => {
   return {
+    id: ["ID", props.resume["id"]],
     region: [
       "Регион",
       storeClassify.classData.regions[props.resume["region_id"]],
@@ -184,16 +188,10 @@ function deleteItem(itemId: string, item: string) {
           </a>
         </div>
       </div>
-      <div v-for="(value, key) in resumeObj" :key="key" class="row mb-3">
-        <div class="col-md-3">
-          <label class="form-label">
-            {{ value[0] }}
-          </label>
-        </div>
-        <div class="col-md-9">
-          {{ value[1] }}
-        </div>
-      </div>
+      <LabelValue v-for="(value, key) in resumeObj" :key="key"
+        :label="value[0]"
+        :value="value[1]"
+      />
       <div class="row mb-3">
         <div class="col-md-3">
           <label class="form-label">Материалы</label>

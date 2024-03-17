@@ -5,6 +5,9 @@ import { Robot } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/layouts/CollapseDiv.vue")
 );
+const LabelValue = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/LabelValue.vue")
+);
 
 const emit = defineEmits(["delete"]);
 
@@ -57,16 +60,10 @@ const robotObjects = computed(() => {
           </a>
         </div>
       </div>
-      <div v-for="(value, key) in item" :key="key" class="row mb-3">
-        <div class="col-md-3">
-          <label class="form-label">
-            {{ value[0] }}
-          </label>
-        </div>
-        <div class="col-md-9">
-          {{ value[1] }}
-        </div>
-      </div>
+      <LabelValue v-for="(value, key) in item" :key="key"
+        :label="value[0]"
+        :value="value[1]"
+      />
     </CollapseDiv>
   </div>
 </template>

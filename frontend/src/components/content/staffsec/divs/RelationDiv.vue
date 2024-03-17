@@ -8,6 +8,9 @@ const CollapseDiv = defineAsyncComponent(
 const RelationForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/RelationForm.vue")
 );
+const LabelValue = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/LabelValue.vue")
+);
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
@@ -90,22 +93,14 @@ function submitForm(form: Object) {
             </a>
           </div>
         </div>
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <label class="form-label">ID</label>
-          </div>
-          <div class="col-md-9">
-            {{ item["id"] }}
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-3">
-            <label class="form-label">Тип связи</label>
-          </div>
-          <div class="col-md-9">
-            {{ item["relation"] }}
-          </div>
-        </div>
+        <LabelValue
+         :label="'ID'"
+         :value="item['id']"
+        />
+        <LabelValue
+         :label="'Тип'"
+         :value="item['relation']"
+        />
         <div class="row mb-3">
           <div class="col-md-3">
             <label class="form-label">Связь</label>

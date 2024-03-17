@@ -70,42 +70,36 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Документ #' + (idx + 1)"
       >
-      <div class="row mb-3 d-print-none">
-        <div class="col-md-3">
-          <label class="form-label">Действия</label>
+        <div class="row mb-3 d-print-none">
+          <div class="col-md-3">
+            <label class="form-label">Действия</label>
+          </div>
+          <div class="col-md-9">
+            <a
+              href="#"
+              @click="
+                emit('delete', item.id[1].toString(), 'document')"
+              title="Удалить"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+            <a
+              class="btn btn-link"
+              title="Изменить"
+              @click="
+                document.action = 'update';
+                document.item = props.items[idx];
+                document.itemId = item.id[1].toString();
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </div>
         </div>
-        <div class="col-md-9">
-          <a
-            href="#"
-            @click="
-              emit('delete', item.id[1].toString(), 'document')"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
-              document.action = 'update';
-              document.item = props.items[idx];
-              document.itemId = item.id[1].toString();
-            "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
-        </div>
-      </div>
-      <div v-for="value, key in item" :key="key" class="row mb-3">
-        <div class="col-md-3">
-          <label class="form-label">
-            {{ value[0] }}
-          </label>
-        </div>
-        <div class="col-md-9">
-          {{ value[1] }}
-        </div>
-      </div>
+        <LabelValue v-for="(value, key) in item" :key="key"
+          :label="value[0]"
+          :value="value[1]"
+        />
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>
