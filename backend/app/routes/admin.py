@@ -23,8 +23,8 @@ from ..models.schema import (
 
 @roles_required(Roles.admin.value)
 @bp.doc(hide=True)
-@bp.input(SearchSchema, location="query")
 @bp.get("/users")
+@bp.input(SearchSchema, location="query")
 def get_users(query_data):
     """
     Endpoint to handle requests for getting users.

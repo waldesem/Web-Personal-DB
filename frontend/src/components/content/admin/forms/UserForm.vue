@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { ref } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
-
-const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/elements/BtnGroup.vue")
-);
 
 const storeAlert = alertStore();
 const storeAuth = authStore();
@@ -70,45 +63,82 @@ const userForm = ref({
     class="form form-check"
     role="form"
   >
-    <InputLabel
-      :name="'fullname'"
-      :label="'Имя пользователя'"
-      :need="true"
-      :pattern="'[a-zA-Zа-яА-Я ]+'"
-      @input-event="userForm.form['fullname'] = $event.target.value"
-      :model="props.item['fullname']"
-    />
-    <InputLabel
-      :name="'username'"
-      :label="'Учетная запись'"
-      :need="true"
-      :pattern="'[a-zA-Z]+'"
-      :disable="props.action === 'edit'"
-      :value="props.action === 'edit' ? props.item['username'] : ''"
-      @input-event="userForm.form['username'] = $event.target.value"
-      :model="props.item['username']"
-    />
-    <InputLabel
-      :name="'email'"
-      :label="'Электронная почта'"
-      :need="true"
-      :typeof="'email'"
-      @input-event="userForm.form['email'] = $event.target.value"
-      :model="props.item['email']"
-    />
-
-    <BtnGroup>
-      <button
-        class="btn btn-outline-secondary"
-        name="submit"
-        type="submit"
-        data-bs-dismiss="modal"
+    <div class="mb-3 row">
+      <label 
+        class="col-form-label col-lg-2" 
+        for="fullname"
       >
-        {{ props.action === "create" ? "Создать" : "Изменить" }}
-      </button>
-      <button class="btn btn-outline-secondary" name="reset" type="reset">
-        Очистить
-      </button>
-    </BtnGroup>
+        Имя пользователя: 
+      </label>
+      <div class="col-lg-10">
+        <input 
+          class="form-control"
+          id="fullname"
+          name="fullname"
+          placeholder="Имя пользователя"
+          pattern="[a-zA-Zа-яА-Я ]+"
+          v-model="userForm.form['fullname']"
+        />
+      </div>
+    </div>
+    <div class="mb-3 row">
+      <label
+        class="col-form-label col-lg-2"
+        for="username"
+      >
+        Учетная запись:
+      </label>
+      <div class="col-lg-10">
+        <input
+          class="form-control"
+          id="username"
+          name="username"
+          placeholder="Логин"
+          pattern="[a-zA-Z]+"
+          v-model="userForm.form['username']"
+          required
+          :disabled="props.action === 'edit'"
+        />
+      </div>
+    </div>
+    <div class="mb-3 row">
+      <label
+        class="col-form-label col-lg-2"
+        for="email"
+      >
+        Электронная почта:
+      </label>
+      <div class="col-lg-10">
+        <input
+          class="form-control"
+          id="email"
+          name="email"
+          placeholder="Электронная почта"
+          v-model="userForm.form['email']"
+          required
+          />
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="offset-lg-2 col-lg-10">
+        <div class="btn-group" role="group">
+          <button
+            class="btn btn-outline-secondary"
+            name="submit"
+            type="submit"
+            data-bs-dismiss="modal"
+          >
+            {{ props.action === "create" ? "Создать" : "Изменить" }}
+          </button>
+          <button 
+            class="btn btn-outline-secondary" 
+            name="reset" 
+            type="reset">
+            Очистить
+          </button>
+        </div>
+      </div>
+    </div>
   </form>
 </template>

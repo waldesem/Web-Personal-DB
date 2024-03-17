@@ -2,7 +2,7 @@
 const props = defineProps({
   divClass: {
     type: String,
-    default: "table-responsive mt-3",
+    default: "table-responsive",
   },
   tblClass: {
     type: String,
@@ -18,7 +18,7 @@ const props = defineProps({
 <template>
   <div :class="props.divClass">
     <table :class="props.tblClass">
-      <caption>{{ props.tblClass }}</caption>
+      <caption>{{ props.tblCaption }}</caption>
       <thead>
         <slot name="thead"></slot>
       </thead>

@@ -11,11 +11,8 @@ const HeaderDiv = defineAsyncComponent(
 const UserForm = defineAsyncComponent(
   () => import("@components/content/admin/forms/UserForm.vue")
 );
-const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
-);
-const CheckBox = defineAsyncComponent(
-  () => import("@components/elements/CheckBox.vue")
+const SwitchBox = defineAsyncComponent(
+  () => import("@components/elements/SwitchBox.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
@@ -60,32 +57,32 @@ const dataUsers = ref({
     }
   },
 });
-
-async function getEmit () {
-  dataUsers.value.action = '';
-  await dataUsers.value.getUsers();
-};
 </script>
 
 <template>
   <div class="container py-1">
     <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
     <form @input.prevent="searchUsers" class="form form-check" role="form">
-      <InputLabel
-        :lbl-cls="'visually-hidden'"
-        :cls-input="'col-lg-12'"
-        :lbl="'Поиск'"
-        :id="'fullusername'"
-        :name="'fullusername'"
-        v-model="dataUsers.search"
-      />
+      <div class="row mb-5">
+        <input
+          class="form-control"
+          name="search"
+          id="search"
+          type="text"
+          placeholder="Поиск по имени пользователя"
+          v-model="dataUsers.search"
+        />
+      </div>
     </form>
-    <CheckBox
+    <SwitchBox
       :name="'viewDeleted'"
       :label="'Показать удаленные'"
       v-model="dataUsers.viewDeleted"
     />
-    <TableSlots :tbl-caption="'Список пользователей'">
+    <TableSlots 
+      :tbl-caption="'Список пользователей'"
+      :tbl-class="'table align-middle'"
+    >
       <template v-slot:thead>
         <tr height="50px">
           <th width="5%">#</th>
@@ -100,7 +97,7 @@ async function getEmit () {
         <tr>
           <td colspan="6">
             <TableSlots
-              :tbl-class="'table table-hover table-responsive align-middle no-bottom-border'"            
+              :tbl-class="'table table-hover align-middle no-bottom-border'"            
             >
               <template v-slot:tbody>
                 <tr
@@ -146,7 +143,7 @@ async function getEmit () {
     >
       <UserForm
         :action="dataUsers.action"
-        @update="getEmit"
+        @update="dataUsers.action = ''; dataUsers.getUsers"
       />
     </ModalWin>
   </div>

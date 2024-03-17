@@ -108,18 +108,23 @@ class LoginView(MethodView):
 bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
 
 
-@jwt_required(refresh=True)
-@bp.post("/refresh")
-def post_refresh():
-    """
-    Generate a new access token for the authenticated user.
-    """
-    user = db.session.get(User, current_user.id)
-    if user and not user.blocked and not user.deleted:
-        return {
-            "access_token": create_access_token(identity=UserSchema().dump(user))
-        }
-    return {"access_token": ""}, 401
+class RefreshView(MethodView):
+    """Refresh view"""
+
+    @jwt_required(refresh=True)
+    def post(self):
+        """
+        Generate a new access token for the authenticated user.
+        """
+        user = db.session.get(User, current_user.id)
+        if user and not user.blocked and not user.deleted:
+            return {
+                "access_token": create_access_token(identity=UserSchema().dump(user))
+            }
+        return {"access_token": ""}, 401
+
+
+bp.add_url_rule("/refresh", view_func=RefreshView.as_view("refresh"))
 
 
 def roles_required(*roles):
