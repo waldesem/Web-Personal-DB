@@ -60,15 +60,13 @@ class UserView(MethodView):
                     )
                     user.attempt = 0
                     user.pswd_change = None
-                case "restore":
-                    user.deleted = False
                 case _:
                     return abort, 404
             db.session.commit()
         user = db.session.get(User, user_id)
         return UserSchema().dump(user), 200
 
-    @bp.input(AdminSchema)
+    @bp.input(UserSchema)
     def post(self, json_data):
         """
         Creates a new user based on the provided JSON data.
@@ -89,7 +87,7 @@ class UserView(MethodView):
             return {"message": "Created"}, 201
         return {"message": "Denied"}, 403
 
-    @bp.input(AdminSchema)
+    @bp.input(UserSchema)
     def patch(self, user_id, json_data):
         """
         Patch a user's information.
@@ -135,8 +133,8 @@ class RoleView(MethodView):
         if user and role not in user.roles:
             user.roles.append(role)
             db.session.commit()
-            return {"message": "Added"}, 200
-        return {"message": "Denied"}, 403
+            return "", 201
+        return "", 403
 
     def delete(self, value, user_id):
         """
@@ -153,8 +151,8 @@ class RoleView(MethodView):
         ):
             user.roles.remove(role)
             db.session.commit()
-            return {"message": "Removed"}, 200
-        return {"message": "Denied"}, 403
+            return "", 201
+        return "", 403
 
 
 bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"))
@@ -170,6 +168,7 @@ class TableView(MethodView):
         schema = models_schemas[item][1]
 
         query = select(model).order_by(model.id.desc())
+        
         search_data = query_data.get("search")
         if search_data:
             query = query.filter_by(id=search_data)

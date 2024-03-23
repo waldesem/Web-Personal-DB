@@ -258,5 +258,5 @@ models_schemas = {
     "poligraf": [Poligraf, PoligrafSchema()],
     "investigation": [Investigation, InvestigationSchema()],
     "inquiry": [Inquiry, InquirySchema()],
-    "connect": [Connect, ConnectSchema],
+    "connect": [Connect, ConnectSchema()],
 }

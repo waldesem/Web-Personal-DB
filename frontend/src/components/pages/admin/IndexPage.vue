@@ -17,19 +17,16 @@ const SwitchBox = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
-);
 
 const storeAlert = alertStore();
 const storeAuth = authStore();
 
 const searchUsers = debounce(() => {
-  dataUsers.value.getUsers();
+  getUsers();
 }, 500);
 
 onBeforeMount( async () => {
-  await dataUsers.value.getUsers();
+  await getUsers();
 });
 
 const users = computed(() => {
@@ -43,20 +40,20 @@ const dataUsers = ref({
   search: "",
   viewDeleted: false,
   users: <User[]>[],
-
-  getUsers: async function () {
-    try {
-      const response = await storeAuth.axiosInstance.get(`${server}/users`, {
-        params: {
-          search: this.search,
-        }
-      });
-      this.users = response.data;
-    } catch (error) {
-      storeAlert.alertMessage.setAlert("alert-success", error as string);
-    }
-  },
 });
+
+async function getUsers() {
+  try {
+    const response = await storeAuth.axiosInstance.get(`${server}/users`, {
+      params: {
+        search: dataUsers.value.search,
+      }
+    });
+    dataUsers.value.users = response.data;
+  } catch (error) {
+    storeAlert.alertMessage.setAlert("alert-success", error as string);
+  }
+};
 </script>
 
 <template>
@@ -74,10 +71,29 @@ const dataUsers = ref({
         />
       </div>
     </form>
-    <SwitchBox
-      :name="'viewDeleted'"
-      :label="'Показать удаленные'"
-      v-model="dataUsers.viewDeleted"
+    <div class="row">
+      <div class="col-md-6">
+        <SwitchBox
+          :name="'viewDeleted'"
+          :label="'Показать удаленные'"
+          v-model="dataUsers.viewDeleted"
+        />
+      </div>
+      <div class="col-md-6 text-end">
+        <a
+          class="link link-secondary"
+          type="button"
+          @click="dataUsers.action === '' 
+            ? dataUsers.action = 'create' 
+            : dataUsers.action = ''"
+        >
+          {{ dataUsers.action === '' ? 'Добавить пользователя' : 'Закрыть' }}
+        </a>
+      </div>
+    </div>
+    <UserForm v-if="dataUsers.action"
+      :action="dataUsers.action"
+      @update="dataUsers.action = ''; getUsers()"
     />
     <TableSlots 
       :tbl-caption="'Список пользователей'"
@@ -128,24 +144,6 @@ const dataUsers = ref({
         </tr>
       </template>
     </TableSlots>
-    <button
-      class="btn btn-outline-secondary"
-      data-bs-toggle="modal"
-      data-bs-target="#modalUser"
-      @click="dataUsers.action = 'create'"
-    >
-      Добавить пользователя
-    </button>
-    <ModalWin
-      :title="'Добавить пользователя'"
-      :id="'modalUser'"
-      @cancel="dataUsers.action = ''"
-    >
-      <UserForm
-        :action="dataUsers.action"
-        @update="dataUsers.action = ''; dataUsers.getUsers"
-      />
-    </ModalWin>
   </div>
 </template>
 

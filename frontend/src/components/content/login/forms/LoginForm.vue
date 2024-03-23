@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import axios from "axios";
-import { ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { alertStore } from "@store/alert";
 import { authStore } from "@/store/auth";
 import { server } from "@utilities/utils";
 import { router } from "@/router/router";
+
+const DivLabelInput = defineAsyncComponent(
+  () => import("@components/content/login/elements/DivLabelInput.vue")
+);
 
 const storeAlert = alertStore();
 const storeAuth = authStore();
@@ -91,125 +95,80 @@ const loginData = ref({
         class="form form-check"
         role="form"
       >
-        <div class="mb-3 row">
-          <label class="col-form-label col-lg-2" for="username">Логин: </label>
-          <div class="col-lg-8">
-            <div class="input-group">
-              <input
-                autocomplete="username"
-                class="form-control"
-                required
-                id="username"
-                name="username"
-                minlength="3"
-                maxlength="16"
-                placeholder="Логин"
-                pattern="[a-zA-Z]+"
-                v-model="loginData.form['username']"
-              />
-              </div>
-          </div>
-        </div>
-        <div class="mb-3 row">
-          <label class="col-form-label col-lg-2" for="password">Пароль: </label>
-          <div class="col-lg-8">
-            <div class="input-group">
-              <input
-                autocomplete="current-password"
-                class="form-control"
-                required
-                id="password"
-                name="password"
-                minlength="8"
-                maxlength="16"
-                placeholder="Пароль"
-                pattern="[0-9a-zA-Z]+"
-                :type="loginData.hidden ? 'password' : 'text'"
-                v-model="loginData.form['password']"
-              />
-              <span class="input-group-text">
-                <a
-                  role="button"
-                  @click="
-                    loginData.hidden = !loginData.hidden
-                  "
-                >
-                  <i
-                    :class="
-                      loginData.hidden
-                        ? 'bi bi-eye'
-                        : 'bi bi-eye-slash'
-                    "
-                  ></i>
-                </a>
-              </span>
-            </div>
-            <div v-show="loginData.action === 'login'" class="py-2">
+        <DivLabelInput
+          :name="'username'"
+          :label="'Логин'"
+          :min="3"
+          :max="16"
+          :pattern="'[a-zA-Z]+'"
+          v-model="loginData.form['username']"
+        />
+        <DivLabelInput
+          :name="'password'"
+          :label="'Пароль'"
+          :min="8"
+          :max="16"
+          :pattern="'[0-9a-zA-Z]+'"
+          :type="loginData.hidden ? 'password' : 'text'"
+          v-model="loginData.form['password']
+        "
+        >
+          <span class="input-group-text">
               <a
-                class="link-primary"
-                href="#"
-                @click="loginData.action = 'password'"
+                role="button"
+                @click="loginData.hidden = !loginData.hidden"
               >
-                Изменить пароль
+                <i :class="loginData.hidden ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
               </a>
-            </div>
-          </div>
+          </span>
+        </DivLabelInput>
+        <div class="row mb-3 col-lg-10 offset-lg-2"
+          v-show="loginData.action === 'login'">
+          <a
+            class="link-primary"
+            href="#"
+            @click="loginData.action = 'password'"
+          >
+            Изменить пароль
+          </a>
         </div>
         <div v-if="loginData.action === 'password'">
-          <div class="mb-3 row">
-            <label class="col-form-label col-lg-2" for="username">Новый: </label>
-            <div class="col-lg-8">
-              <div class="input-group">
-                <input
-                  autocomplete="new-password"
-                  class="form-control"
-                  required
-                  id="new_pswd"
-                  name="new_pswd"
-                  minlength="8"
-                  maxlength="16"
-                  placeholder="Новый"
-                  pattern="[0-9a-zA-Z]+"
-                  :type="loginData.hidden ? 'password' : 'text'"
-                  v-model="loginData.form['new_pswd']"
-                />
-                </div>
-            </div>
-          </div>
-          <div class="mb-3 row">
-            <label class="col-form-label col-lg-2" for="username">Повтор: </label>
-            <div class="col-lg-8">
-              <div class="input-group">
-                <input
-                  autocomplete="new-password"
-                  class="form-control"
-                  required
-                  id="conf_pswd"
-                  name="conf_pswd"
-                  minlength="8"
-                  maxlength="16"
-                  placeholder="Повтор"
-                  pattern="[0-9a-zA-Z]+"
-                  :type="loginData.hidden ? 'password' : 'text'"
-                  v-model="loginData.form['conf_pswd']"
-                />
-                </div>
-            </div>
-          </div>
+          <DivLabelInput 
+            :name="'new_pswd'"
+            :label="'Новый'"
+            :min="8"
+            :max="16"
+            :pattern="'[0-9a-zA-Z]+'"
+            :type="loginData.hidden ? 'password' : 'text'"
+            v-model="loginData.form['new_pswd']"
+          />
+          <DivLabelInput
+            :name="'conf_pswd'"
+            :label="'Повтор'"
+            :min="8"
+            :max="16"
+            :pattern="'[0-9a-zA-Z]+'"
+            :type="loginData.hidden ? 'password' : 'text'"
+            v-model="loginData.form['conf_pswd']"
+          />
         </div>
         <div class="row mb-3">
           <div class="offset-lg-2 col-lg-10">
             <div class="btn-group" role="group">
-              <button class="btn btn-primary btn-md" name="submit" type="submit">
+              <button 
+                class="btn btn-primary btn-md" 
+                name="submit" 
+                type="submit"
+              >
                 {{ loginData.action === "login" ? "Войти" : "Изменить" }}
               </button>
               <button
-                v-show="loginData.action === 'password'"
                 class="btn btn-secondary btn-md"
+                name="cancel"
                 type="button"
                 @click="loginData.action = 'login'"
               >
-                Отменить
+                Отмена
               </button>
             </div>
           </div>

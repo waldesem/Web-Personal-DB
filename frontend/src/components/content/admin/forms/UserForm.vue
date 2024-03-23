@@ -1,144 +1,123 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
+import { User } from "@/interfaces/interface";
+
+const InputLabel = defineAsyncComponent(
+  () => import("@components/content/admin/elements/InputLabel.vue")
+);
 
 const storeAlert = alertStore();
 const storeAuth = authStore();
 
+const emit = defineEmits(["update"]);
+
 const props = defineProps({
-  action: String,
+  action: {
+    type: String,
+    default: "",
+  },
   item: {
-    type: Object as () => Record<string, any>,
+    type: Object as () => User,
     default: {},
   },
 });
 
-const emit = defineEmits(["update"]);
+const userForm = computed(() => {
+  return props.item as Record<string, any>;
+});
 
-const userForm = ref({
-  form: <Record<string, any>>{},
+async function submitUser(): Promise<void> {
+  try {
+    const response =
+      props.action === "edit"
+        ? await storeAuth.axiosInstance.patch(
+            `${server}/user/${props.item['id' ]}`,
+            userForm.value
+          )
+        : await storeAuth.axiosInstance.post(
+          `${server}/user`, userForm.value
+          );
 
-  submitUser: async function (): Promise<void> {
-    try {
-      const response =
-        props.action === "edit"
-          ? await storeAuth.axiosInstance.patch(
-              `${server}/user/${props.item['id' ]}`,
-              this.form
-            )
-          : await storeAuth.axiosInstance.post(`${server}/user`, this.form);
-
-      const { message } = response.data;
-      if (message === "Changed") {
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Пользователь успешно изменен"
-        );
-      } else {
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Пользователь успешно создан"
-        );
-      }
-    } catch (error) {
-      console.error(error);
+    const { message } = response.data;
+    if (message === "Changed") {
       storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        "Ошибка сохранения данных"
+        "alert-success",
+        "Пользователь успешно изменен"
+      );
+    } else {
+      storeAlert.alertMessage.setAlert(
+        "alert-success",
+        "Пользователь успешно создан"
       );
     }
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
-    emit("update");
-  },
-});
+  } catch (error) {
+    console.error(error);
+    storeAlert.alertMessage.setAlert(
+      "alert-danger",
+      "Ошибка сохранения данных"
+    );
+  }
+  Object.keys(userForm.value).forEach((key) => {
+    delete userForm.value[key as keyof typeof userForm.value];
+  });
+  emit("update");
+};
 </script>
 
 <template>
-  <form
-    @submit.prevent="userForm.submitUser"
-    class="form form-check"
-    role="form"
-  >
-    <div class="mb-3 row">
-      <label 
-        class="col-form-label col-lg-2" 
-        for="fullname"
-      >
-        Имя пользователя: 
-      </label>
-      <div class="col-lg-10">
-        <input 
-          class="form-control"
-          id="fullname"
-          name="fullname"
-          placeholder="Имя пользователя"
-          pattern="[a-zA-Zа-яА-Я ]+"
-          v-model="userForm.form['fullname']"
-        />
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label
-        class="col-form-label col-lg-2"
-        for="username"
-      >
-        Учетная запись:
-      </label>
-      <div class="col-lg-10">
-        <input
-          class="form-control"
-          id="username"
-          name="username"
-          placeholder="Логин"
-          pattern="[a-zA-Z]+"
-          v-model="userForm.form['username']"
-          required
-          :disabled="props.action === 'edit'"
-        />
-      </div>
-    </div>
-    <div class="mb-3 row">
-      <label
-        class="col-form-label col-lg-2"
-        for="email"
-      >
-        Электронная почта:
-      </label>
-      <div class="col-lg-10">
-        <input
-          class="form-control"
-          id="email"
-          name="email"
-          placeholder="Электронная почта"
-          v-model="userForm.form['email']"
-          required
+  <div class="p-3">
+    <form
+      @submit.prevent="submitUser"
+      class="form form-check border rounded p-"
+      role="form"
+    > 
+      <div class="row m-3">
+        <div class="col col-auto">
+          <InputLabel
+            :name="'fullname'"
+            :label="'Имя пользователя'"
+            :pattern="'[a-zA-Zа-яА-Я ]+'"
+            v-model="userForm['fullname']"
           />
-      </div>
-    </div>
-
-    <div class="row mb-3">
-      <div class="offset-lg-2 col-lg-10">
-        <div class="btn-group" role="group">
-          <button
-            class="btn btn-outline-secondary"
-            name="submit"
-            type="submit"
-            data-bs-dismiss="modal"
-          >
-            {{ props.action === "create" ? "Создать" : "Изменить" }}
-          </button>
-          <button 
-            class="btn btn-outline-secondary" 
-            name="reset" 
-            type="reset">
-            Очистить
-          </button>
+        </div>
+        <div class="col col-auto">
+          <InputLabel
+            :name="'username'"
+            :label="'Учетная запись'"
+            :pattern="'[a-zA-Z]+'"
+            :disabled="props.action === 'edit'"
+            v-model="userForm['username']"
+          />
+        </div>
+        <div class="col col-auto">
+          <InputLabel
+            :name="'email'"
+            :label="'Электронная почта'"
+            :typeof="'email'"
+            v-model="userForm['email']"
+          />
+        </div>
+        <div class="col col-auto">
+          <div class="btn-group" role="group">
+            <button
+              class="btn btn-secondary"
+              name="submit"
+              type="submit"
+            >
+              {{ props.action === "create" ? "Создать" : "Изменить" }}
+            </button>
+            <button 
+              class="btn btn-outline-secondary" 
+              name="reset" 
+              type="reset">
+              Очистить
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </template>

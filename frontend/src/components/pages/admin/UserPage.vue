@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
@@ -10,8 +10,8 @@ import { User } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
+const LabelValue = defineAsyncComponent(
+  () => import("@components/content/admin/elements/LabelValue.vue")
 );
 const UserForm = defineAsyncComponent(
   () => import("@components/content/admin/forms/UserForm.vue")
@@ -55,11 +55,6 @@ const userData = ref({
             this.profile.blocked ? "заблокирован" : "разблокирован"
           }`
         );
-      } else if (action === "restore") {
-        storeAlert.alertMessage.setAlert(
-          "alert-success",
-          "Пользователь восстановлен"
-        );
       }
     } catch (error) {
       storeAlert.alertMessage.setAlert("alert-danger", error as string);
@@ -95,7 +90,7 @@ const userData = ref({
             : await storeAuth.axiosInstance.delete(
                 `${server}/role/${value}/${this.id}`
               );
-        this.profile = response.data;
+        console.log(response.status); 
         this.userAction("view");
 
         storeAlert.alertMessage.setAlert(
@@ -109,36 +104,6 @@ const userData = ref({
     }
   },
 });
-
-const profileObjec = computed(() => {
-  return {
-    id: ["ID", userData.value.profile.id],
-    username: ["Имя пользователя", userData.value.profile.fullname],
-    login: ["Логин", userData.value.profile.username],
-    email: ["E-mail", userData.value.profile.email],
-    created: [
-      "Дата создания",
-      new Date(userData.value.profile.pswd_create).toLocaleString("ru-RU"),
-    ],
-    updated: [
-      "Дата изменения",
-      new Date(userData.value.profile.pswd_change).toLocaleString("ru-RU"),
-    ],
-    lastLogin: [
-      "Дата последнего входа",
-      new Date(userData.value.profile.last_login).toLocaleString("ru-RU"),
-    ],
-    attempt: ["Попытки входа", userData.value.profile.attempt],
-    blocked: [
-      "Заблокирован",
-      userData.value.profile.blocked ? "Заблокирован" : "Разблокирован",
-    ],
-    activity: [
-      "Активность",
-      userData.value.profile.deleted ? "Удален" : "Активен",
-    ],
-  };
-});
 </script>
 
 <template>
@@ -148,10 +113,29 @@ const profileObjec = computed(() => {
       :cls="'text-secondary'"
     />
     <div class="py-3">
-      <div v-for="(value, key) in profileObjec" :key="key" class="row mb-3">
-        <div class="col-md-3">{{ value[0] }}</div>
-        <div class="col-md-9">{{ value[1] }}</div>
-      </div>
+      <LabelValue :label="'ID'">{{ userData.profile.id }}</LabelValue>
+      <LabelValue :label="'Имя пользователя'">{{ userData.profile.fullname }}</LabelValue>
+      <LabelValue :label="'Логин'">{{ userData.profile.username }}</LabelValue>
+      <LabelValue :label="'E-mail'">{{ userData.profile.email }}</LabelValue>
+      <LabelValue :label="'Дата создания'">{{
+        new Date(userData.profile.pswd_create).toLocaleString("ru-RU")
+      }}</LabelValue>
+      <LabelValue :label="'Дата изменения'">{{
+        new Date(userData.profile.pswd_change).toLocaleString("ru-RU")
+      }}</LabelValue>
+      <LabelValue :label="'Дата последнего входа'">{{
+        new Date(userData.profile.last_login).toLocaleString("ru-RU")
+      }}</LabelValue>
+      <LabelValue :label="'Попытки входа'">{{
+        userData.profile.attempt
+      }}</LabelValue>
+      <LabelValue :label="'Заблокирован'">{{
+        userData.profile.blocked ? "Заблокирован" : "Разблокирован"
+      }}</LabelValue>
+      <LabelValue :label="'Активность'">{{
+        userData.profile.deleted ? "Удален" : "Активен"
+      }}</LabelValue>
+
       <div class="row mb-3">
         <div class="col-md-3">Роли</div>
         <div class="col-md-9">
@@ -183,16 +167,24 @@ const profileObjec = computed(() => {
           </form>
         </div>
       </div>
+      <UserForm v-if="userData.action"
+        :action="userData.action"
+        :item="userData.profile"
+        @update="
+          userData.action = '';
+          userData.userAction('view');
+        "
+      />
       <div class="py-3">
         <div class="btn-group" role="group">
           <button
             class="btn btn-outline-secondary"
             type="button"
-            data-bs-toggle="modal"
-            data-bs-target="#modalUser"
-            @click="userData.action = 'edit'"
+            @click="userData.action === '' 
+              ? userData.action = 'edit' 
+              : userData.action = ''"
           >
-            Изменить пользователя
+            {{ userData.action === '' ? "Редактировать" : "Отменить" }}
           </button>
           <button
             @click="userData.userAction('block')"
@@ -215,31 +207,9 @@ const profileObjec = computed(() => {
           >
             Удалить
           </button>
-          <button
-            @click="userData.userAction('restore')"
-            type="button"
-            class="btn btn-outline-secondary"
-            :disabled="!userData.profile.deleted"
-          >
-            Восстановить
-          </button>
         </div>
       </div>
     </div>
-    <ModalWin
-      :title="'Изменить пользователя'"
-      :id="'modalUser'"
-      @cancel="userData.action = ''"
-    >
-      <UserForm
-        :action="userData.action"
-        :item="userData.profile"
-        @update="
-          userData.action = '';
-          userData.userAction('view');
-        "
-      />
-    </ModalWin>
   </div>
 </template>
 

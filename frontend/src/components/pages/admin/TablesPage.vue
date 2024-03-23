@@ -8,6 +8,9 @@ import { debounce, server } from "@utilities/utils";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/admin/elements/SelectDiv.vue")
+)
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
 );
@@ -81,20 +84,11 @@ const searchItem = debounce(() => {
     <div class="row mb-5">
       <div class="col-md-3">
         <form @change.prevent="getItem(1)" class="form form-check" role="form">
-          <select
-            class="form-select"
-            id="table"
-            name="table"
+          <SelectDiv
+            :name="'table'"
+            :select="storeClassify.classData.tables"
             v-model="tableData.table"
-          >
-            <option
-              v-for="table, index in storeClassify.classData.tables"
-              :key="index"
-              :value="table"
-            >
-              {{ table }}
-            </option>
-          </select>
+          />
         </form>
       </div>
       <div class="col-md-9">
