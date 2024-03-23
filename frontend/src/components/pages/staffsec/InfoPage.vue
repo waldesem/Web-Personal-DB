@@ -9,7 +9,7 @@ const HeaderDiv = defineAsyncComponent(
 );
 const SelectOption = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/SelectOption.vue")
-)
+);
 const InputDate = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/InputDate.vue")
 );
@@ -37,20 +37,22 @@ const tableData = ref({
 async function submitData(): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.get(
-      `${server}/information`, {
+      `${server}/information`,
+      {
         params: {
           start: tableData.value.stat.start,
           end: tableData.value.stat.end,
           region_id: tableData.value.stat.region_id,
-        }
+        },
       }
     );
     tableData.value.stat.checks = response.data;
-    tableData.value.header = storeClassify.classData.regions[tableData.value.stat.region_id];
+    tableData.value.header =
+      storeClassify.classData.regions[tableData.value.stat.region_id];
   } catch (error) {
     console.log(error);
   }
-};
+}
 
 onBeforeMount(async () => {
   await submitData();
@@ -69,11 +71,15 @@ computed(() => {
               за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
     />
     <div class="py-3">
-      <TableSlots 
+      <TableSlots
         :class="'table table-hover table-responsive align-middle'"
-        :tbl-caption="'Решения по кандидатам'">
+        :tbl-caption="'Решения по кандидатам'"
+      >
         <template v-slot:thead>
-          <tr><th width="45%">Решение</th><th>Количество</th></tr>
+          <tr>
+            <th width="45%">Решение</th>
+            <th>Количество</th>
+          </tr>
         </template>
         <template v-slot:tbody>
           <tr
@@ -89,41 +95,23 @@ computed(() => {
     </div>
 
     <div class="py-3">
-      <form
-        @submit.prevent="submitData"
-        class="form form-check"
-        role="form"
-      >
+      <form @submit.prevent="submitData" class="form form-check" role="form">
         <div class="mb-3 row required">
-          <label 
-            class="col-form-label col-md-2" 
-            for="region"
-          >
-            Регион
-          </label>
+          <label class="col-form-label col-md-2" for="region"> Регион </label>
           <SelectOption
             :class="'col-md-2'"
             :name="'region'"
-            :selected="storeClassify.classData.regions[tableData.stat.region_id]"
+            :selected="
+              storeClassify.classData.regions[tableData.stat.region_id]
+            "
             :select="storeClassify.classData.regions"
             v-model="tableData.stat.region_id"
             @submit-data="submitData"
           />
           <div>
-            <label 
-              class="col-form-label col-md-1" 
-              for="start"
-            >
-              Период:
-            </label>
-            <InputDate 
-              :name="'start'" 
-              v-model="tableData.stat.start"  
-            />
-            <InputDate 
-              :name="'end'" 
-              v-model="tableData.stat.end"
-            />
+            <label class="col-form-label col-md-1" for="start"> Период: </label>
+            <InputDate :name="'start'" v-model="tableData.stat.start" />
+            <InputDate :name="'end'" v-model="tableData.stat.end" />
           </div>
           <div class="col-md-2">
             <button class="btn btn-primary btn-md" name="submit" type="submit">

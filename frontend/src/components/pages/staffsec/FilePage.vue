@@ -4,8 +4,8 @@ import { onBeforeMount, defineAsyncComponent } from "vue";
 import { authStore } from "@/store/auth";
 import { server } from "@/utilities/utils";
 
-const ModalWin = defineAsyncComponent(
-  () => import("@components/layouts/ModalWin.vue")
+const FileManagerForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/FileManagerForm.vue")
 );
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
@@ -312,8 +312,6 @@ function fileType(file: string): string {
             class="btn btn-outline-primary"
             @click="fileManager.action = 'rename'"
             :disabled="!fileManager.select || fileManager.selected.length !== 1"
-            data-bs-toggle="modal"
-            data-bs-target="#modalFile"
           >
             <i class="bi bi-pencil" title="Переменовать"></i>
           </button>
@@ -378,6 +376,11 @@ function fileType(file: string): string {
               <i class="bi bi-folder"></i>
               {{ folder }}
             </a>
+            <FileManagerForm 
+              v-if="fileManager.action === 'rename' && fileManager.selected[0] === folder"
+              v-model="fileManager.form"
+              @update-item="fileManager.updateItem"
+            />
           </div>
         </div>
       </div>
@@ -394,46 +397,20 @@ function fileType(file: string): string {
           <a
             type="button"
             class="btn btn-link btn-lg text-decoration-none"
-            @click="fileManager.openFolder(file)"
+            @click="fileManager.openFile(file)"
             :disabled="fileManager.select"
           >
             <i :class="fileType(file)"></i>
             {{ file }}
           </a>
+          <FileManagerForm
+            v-if="fileManager.action === 'rename' && fileManager.selected[0] === file"
+            v-model="fileManager.form"
+            @update-item="fileManager.updateItem"
+          />
         </div>
       </div>
     </div>
-
-    <ModalWin :id="'modalFile'" :title="'Переменовать'" :size="'modal-md'">
-      <form
-        @submit.prevent="fileManager.updateItem"
-        class="form form-check"
-        role="form"
-      >
-        <div class="row">
-          <div class="col">
-            <input
-              class="form-control"
-              id="name"
-              maxlength="250"
-              name="name"
-              type="text"
-              v-model="fileManager.form"
-            />
-          </div>
-          <div class="col">
-            <button
-              class="btn btn-primary btn-md"
-              data-bs-dismiss="modal"
-              name="submit"
-              type="submit"
-            >
-              Принять
-            </button>
-          </div>
-        </div>
-      </form>
-    </ModalWin>
   </div>
 </template>
 
