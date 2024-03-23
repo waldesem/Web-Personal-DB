@@ -15,7 +15,7 @@ from ..models.model import User, Role
 from ..models.schema import (
     ActionSchema,
     SearchSchema,
-    AdminSchema,
+
     UserSchema,
     models_schemas,
 )

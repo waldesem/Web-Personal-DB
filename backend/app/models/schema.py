@@ -42,14 +42,6 @@ class RoleSchema(SQLAlchemyAutoSchema):
         ordered = True
 
 
-class AdminSchema(SQLAlchemySchema):
-    """Create model for new user"""
-
-    fullname = String()
-    username = String()
-    email = String()
-
-
 class UserSchema(SQLAlchemyAutoSchema):
     """Create model for user"""
 

@@ -7,6 +7,15 @@ import { server } from "@/utilities/utils";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
+const SelectOption = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/SelectOption.vue")
+)
+const InputDate = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/InputDate.vue")
+);
+const TableSlots = defineAsyncComponent(
+  () => import("@components/elements/TableSlots.vue")
+);
 
 const storeAuth = authStore();
 const storeClassify = classifyStore();
@@ -23,28 +32,28 @@ const tableData = ref({
       .slice(0, 10),
     end: todayDate.toISOString().slice(0, 10),
   },
-
-  submitData: async function (): Promise<void> {
-    try {
-      const response = await storeAuth.axiosInstance.get(
-        `${server}/information`, {
-          params: {
-            start: this.stat.start,
-            end: this.stat.end,
-            region_id: this.stat.region_id,
-          }
-        }
-      );
-      this.stat.checks = response.data;
-      this.header = storeClassify.classData.regions[this.stat.region_id];
-    } catch (error) {
-      console.log(error);
-    }
-  },
 });
 
+async function submitData(): Promise<void> {
+  try {
+    const response = await storeAuth.axiosInstance.get(
+      `${server}/information`, {
+        params: {
+          start: tableData.value.stat.start,
+          end: tableData.value.stat.end,
+          region_id: tableData.value.stat.region_id,
+        }
+      }
+    );
+    tableData.value.stat.checks = response.data;
+    tableData.value.header = storeClassify.classData.regions[tableData.value.stat.region_id];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 onBeforeMount(async () => {
-  await tableData.value.submitData();
+  await submitData();
 });
 
 computed(() => {
@@ -60,17 +69,13 @@ computed(() => {
               за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
     />
     <div class="py-3">
-      <table class="table table-hover table-responsive align-middle">
-        <caption>
-          Решения по кандидатам
-        </caption>
-        <thead>
-          <tr>
-            <th width="45%">Решение</th>
-            <th>Количество</th>
-          </tr>
-        </thead>
-        <tbody>
+      <TableSlots 
+        :class="'table table-hover table-responsive align-middle'"
+        :tbl-caption="'Решения по кандидатам'">
+        <template v-slot:thead>
+          <tr><th width="45%">Решение</th><th>Количество</th></tr>
+        </template>
+        <template v-slot:tbody>
           <tr
             height="50px"
             v-for="(value, index) in Object.keys(tableData.stat.checks)"
@@ -79,13 +84,13 @@ computed(() => {
             <td>{{ value }}</td>
             <td>{{ Object.values(tableData.stat.checks)[index] }}</td>
           </tr>
-        </tbody>
-      </table>
+        </template>
+      </TableSlots>
     </div>
 
     <div class="py-3">
       <form
-        @submit.prevent="tableData.submitData"
+        @submit.prevent="submitData"
         class="form form-check"
         role="form"
       >
@@ -96,51 +101,27 @@ computed(() => {
           >
             Регион
           </label>
-          <div class="col-md-2">
-            <select
-              @change="tableData.submitData"
-              class="form-select"
-              id="region"
-              name="region"
-              v-model="tableData.stat.region_id"
+          <SelectOption
+            :class="'col-md-2'"
+            :name="'region'"
+            :selected="storeClassify.classData.regions[tableData.stat.region_id]"
+            :select="storeClassify.classData.regions"
+            v-model="tableData.stat.region_id"
+            @submit-data="submitData"
+          />
+          <div>
+            <label 
+              class="col-form-label col-md-1" 
+              for="start"
             >
-              <option 
-                :value="tableData.stat.region_id" 
-                selected
-              >
-                {{ storeClassify.classData.regions[tableData.stat.region_id] }}
-              </option>
-              <option
-                v-for="(name, value) in storeClassify.classData.regions"
-                :key="value"
-                :value="value"
-              >
-                {{ name }}
-              </option>
-            </select>
-          </div>
-          <label 
-            class="col-form-label col-md-1" 
-            for="start"
-          >
-            Период:
-          </label>
-          <div class="col-md-2">
-            <input
-              class="form-control"
-              id="start"
-              name="start"
-              required
-              type="date"
-              v-model="tableData.stat.start"
+              Период:
+            </label>
+            <InputDate 
+              :name="'start'" 
+              v-model="tableData.stat.start"  
             />
-          </div>
-          <div class="col-md-2">
-            <input
-              class="form-control"
-              name="end"
-              required
-              type="date"
+            <InputDate 
+              :name="'end'" 
               v-model="tableData.stat.end"
             />
           </div>

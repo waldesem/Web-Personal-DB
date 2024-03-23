@@ -112,7 +112,7 @@ async function getUsers() {
       <template v-slot:tbody>
         <tr>
           <td colspan="6">
-            <TableSlots
+            <TableSlots id="overflow"
               :tbl-class="'table table-hover align-middle no-bottom-border'"            
             >
               <template v-slot:tbody>
@@ -148,8 +148,8 @@ async function getUsers() {
 </template>
 
 <style scoped>
-.overflow {
-  max-height: 75vh;
+#overflow {
+  max-height: 50vh;
   overflow-y: auto;
 }
 .no-bottom-border td {

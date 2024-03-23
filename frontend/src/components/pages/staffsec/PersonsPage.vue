@@ -8,6 +8,9 @@ import { Resume } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/layouts/HeaderDiv.vue")
 );
+const SelectOption = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/SelectOption.vue")
+)
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
 );
@@ -67,10 +70,6 @@ const searchPerson = debounce(() => {
   personData.value.path = "search"
   getCandidates();
 }, 500);
-
-function changePath (): void {
-  getCandidates();
-};
 </script>
 
 <template>
@@ -78,25 +77,15 @@ function changePath (): void {
     <HeaderDiv :page-header="header" />
     <div class="row">
       <div class="col-md-3">
-        <form 
-          @change.prevent="changePath" 
-          class="form form-check" 
-          role="form"
-        >
-          <select
-            class="form-select col-md-3"
-            name="action"
-            id="action"
+        <form  class="form form-check" role="form"> 
+          <SelectOption
+            :class="'col-md-2'"
+            :name="'action'"
+            :selected="personData.items.new"
+            :select="personData.items"
             v-model="personData.path"
-          >
-            <option
-              v-for="(name, value) in personData.items"
-              :key="value"
-              :value="value"
-            >
-              {{ name }}
-            </option>
-          </select>
+            @submit-data="getCandidates"
+          />
         </form>
       </div>
       <div class="col-md-9">
