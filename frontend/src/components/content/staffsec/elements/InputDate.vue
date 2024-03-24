@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const model = defineModel();
 const props = defineProps(["name"]);
+const emit = defineEmits(["submit-data"]);
 </script>
 
 <template>
@@ -12,6 +13,7 @@ const props = defineProps(["name"]);
       required
       type="date"
       v-model="model"
+      @change="emit('submit-data')"
     />
   </div>
 </template>

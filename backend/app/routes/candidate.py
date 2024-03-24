@@ -60,47 +60,22 @@ from ..models.schema import (
 
 @roles_required(Roles.user.value)
 @bp.doc(hide=True)
-@bp.input(SearchSchema, location="query")
-@bp.get("/index/<flag>/<int:page>")
-def get_index(self, flag, page, query_data):
-    search_data = query_data.get("search")
-    query = select(Person).order_by(Person.id.desc())
-    if flag != "search":
-        match flag:
-            case "new":
-                query = query.filter(
-                    Person.status_id.in_(
-                        [
-                            Status().get_id(Statuses.new.value),
-                            Status().get_id(Statuses.update.value),
-                            Status().get_id(Statuses.repeat.value),
-                        ]
-                    ),
-                )
-            case "officer":
-                query = query.filter(
-                    Person.status_id.notin_(
-                        [
-                            Status().get_id(Statuses.finish.value),
-                            Status().get_id(Statuses.cancel.value),
-                        ]
-                    ),
-                    Person.user_id == current_user.id,
-                )
-    else:
-        if search_data:
-            query = search(query, "%{}%".format(search_data))
-
-    result = db.paginate(query, page=page, per_page=16, error_out=False)
-    return [
-        PersonSchema().dump(result, many=True),
-        {"has_next": bool(result.has_next), "has_prev": bool(result.has_prev)},
-    ]
+@bp.route("/image/<int:item_id>")
+def get_image(item_id):
+    """
+    Retrieves a file from the server and sends it as a response.
+    """
+    person = db.session.get(Person, item_id)
+    if person.path:
+        file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True)
+    return abort(404)
 
 
 @roles_required(Roles.user.value)
-@bp.input(SearchSchema, location="query")
 @bp.get("/information")
+@bp.input(InfoSchema, location="query")
 def get_information(query_data):
     candidates = db.session.execute(
         select(Check.conclusion_id, func.count(Check.id))
@@ -112,9 +87,54 @@ def get_information(query_data):
     return dict(map(lambda x: (x[1], x[0]), candidates)), 200
 
 
+class IndexView(MethodView):
+
+    @roles_required(Roles.user.value)
+    @bp.doc(hide=True)
+    @bp.input(SearchSchema, location="query")
+    def get(self, flag, page, query_data):
+        search_data = query_data.get("search")
+        query = select(Person).order_by(Person.id.desc())
+        if flag != "search":
+            match flag:
+                case "new":
+                    query = query.filter(
+                        Person.status_id.in_(
+                            [
+                                Status().get_id(Statuses.new.value),
+                                Status().get_id(Statuses.update.value),
+                                Status().get_id(Statuses.repeat.value),
+                            ]
+                        ),
+                    )
+                case "officer":
+                    query = query.filter(
+                        Person.status_id.notin_(
+                            [
+                                Status().get_id(Statuses.finish.value),
+                                Status().get_id(Statuses.cancel.value),
+                            ]
+                        ),
+                        Person.user_id == current_user.id,
+                    )
+        else:
+            if search_data:
+                query = search(query, "%{}%".format(search_data))
+
+        result = db.paginate(query, page=page, per_page=16, error_out=False)
+        return [
+            PersonSchema().dump(result, many=True),
+            {"has_next": bool(result.has_next), "has_prev": bool(result.has_prev)},
+        ]
+
+
+index_view = IndexView.as_view("index")
+bp.add_url_rule("/index/<flag>/<int:page>", view_func=index_view)
+
+
 class ResumeView(MethodView):
 
-    decorators = [roles_required(Roles.user.value),bp.doc(hide=True)]
+    decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
     @bp.input(ActionSchema, location="query")
     def get(self, person_id, query_data):
@@ -139,7 +159,7 @@ class ResumeView(MethodView):
 
                     person.user_id = current_user.id
                     db.session.commit()
-                    return '', 201
+                    return "", 201
             elif action == "send":
                 if person.status_id in (
                     Status.get_id(Statuses.new.value),
@@ -158,7 +178,6 @@ class ResumeView(MethodView):
                             Address.view.ilike("%регистрац%"),
                         )
                         .order_by(Address.id.desc())
-                        
                     ).scalar_one_or_none()
                     serial = AnketaSchemaApi().dump(
                         {
@@ -245,7 +264,8 @@ class ResumeView(MethodView):
             person.status_id = Status().get_id(Statuses.manual.value)
 
         person.path = os.path.join(
-            resume["surname"][0].upper(), f"{person_id}-{resume['surname']} {resume['firstname']} {resume['patronymic']}"
+            resume["surname"][0].upper(),
+            f"{person_id}-{resume['surname']} {resume['firstname']} {resume['patronymic']}",
         )
         url = os.path.join(Config.BASE_PATH, person.path)
         if not os.path.isdir(url):
@@ -703,11 +723,11 @@ class RobotView(MethodView):
         if candidate.status_id == Status.get_id(Statuses.robot.value):
             if os.path.isdir(json_data["path"]):
                 check_path = create_folders(
-                    candidate.id, 
+                    candidate.id,
                     candidate.surname,
                     candidate.firstname,
-                    candidate.patronymic, 
-                    "robot"
+                    candidate.patronymic,
+                    "robot",
                 )
                 try:
                     for item in os.listdir(robot_path):
@@ -913,23 +933,8 @@ class InquiryView(MethodView):
 bp.add_url_rule("/inquiry/<int:item_id>", view_func=InquiryView.as_view("inquiry"))
 
 
-@roles_required(Roles.user.value)
-@bp.doc(hide=True)
-@bp.route("/image/<int:item_id>")
-def get_image(item_id):
-    """
-    Retrieves a file from the server and sends it as a response.
-    """
-    person = db.session.get(Person, item_id)
-    if person.path:
-        file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True)
-    return abort(404)
-
-
 class FileView(MethodView):
-        
+
     decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
     def get(self, item_id):
@@ -938,12 +943,14 @@ class FileView(MethodView):
         """
         person = db.session.get(Person, item_id)
         if person.path:
-            file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
+            file_path = os.path.join(
+                Config.BASE_PATH, person.path, "image", "image.jpg"
+            )
             if os.path.isfile(file_path):
                 return send_file(file_path, as_attachment=True)
         return abort(404)
 
-    def post(self, action, item_id = None):
+    def post(self, action, item_id=None):
         if not request.files["file"].filename:
             return abort(400)
 
@@ -957,7 +964,7 @@ class FileView(MethodView):
             )
             file.save(temp_path)
             anketa = parse_json(temp_path)
-            person_id = ResumeView.add_resume(anketa['resume'], "create")
+            person_id = ResumeView.add_resume(anketa["resume"], "create")
             self.fill_items(anketa, person_id)
 
             person = db.session.get(Person, person_id)
@@ -967,7 +974,8 @@ class FileView(MethodView):
                     os.mkdir(full_path)
             else:
                 person.path = os.path.join(
-                    person.surname[0].upper(), f"{person_id}-{person.surname} {person.firstname} {person.patronymic}"
+                    person.surname[0].upper(),
+                    f"{person_id}-{person.surname} {person.firstname} {person.patronymic}",
                 )
                 url = os.path.join(Config.BASE_PATH, person.path)
                 if not os.path.isdir(url):
@@ -975,12 +983,8 @@ class FileView(MethodView):
             db.session.commit()
 
             action_folder = create_folders(
-                person_id, 
-                person.surname,
-                person.firstname,
-                person.patronymic,
-                action
-                )
+                person_id, person.surname, person.firstname, person.patronymic, action
+            )
 
             save_path = os.path.join(Config.BASE_PATH, action_folder, filename)
             if not os.path.isfile(save_path):
@@ -993,7 +997,9 @@ class FileView(MethodView):
         else:
             files = request.files.getlist("file")
             person = db.session.get(Person, item_id)
-            folder = create_folders(item_id, person.surname, person.firstname, person.patronymic, action)
+            folder = create_folders(
+                item_id, person.surname, person.firstname, person.patronymic, action
+            )
             if action == "image":
                 im = Image.open(files[0])
                 rgb_im = im.convert("RGB")
@@ -1019,18 +1025,19 @@ class FileView(MethodView):
     def fill_items(self, anketa, person_id):
         models = [Staff, Document, Address, Contact, Workplace, Affilation]
         items_lists = [
-            anketa['staff'],
-            anketa['passport'],
-            anketa['addresses'],
-            anketa['contacts'],
-            anketa['workplaces'],
-            anketa['affilation'],
+            anketa["staff"],
+            anketa["passport"],
+            anketa["addresses"],
+            anketa["contacts"],
+            anketa["workplaces"],
+            anketa["affilation"],
         ]
         for model, items in zip(models, items_lists):
             for item in items:
                 if item:
                     db.session.add(model(**item | {"person_id": person_id}))
         db.session.commit()
+
 
 file_view = FileView.as_view("file")
 bp.add_url_rule("/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"])

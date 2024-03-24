@@ -45,8 +45,8 @@ const props = defineProps({
           :pattern="props.pattern"
           v-model="model"
         />
-          <slot></slot>
-        </div>
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>

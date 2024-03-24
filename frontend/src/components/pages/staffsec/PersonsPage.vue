@@ -75,13 +75,11 @@ const searchPerson = debounce(() => {
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="header" />
-    <div class="row">
+    <div class="row mb-5">
       <div class="col-md-3">
         <form  class="form form-check" role="form"> 
           <SelectOption
-            :class="'col-md-2'"
             :name="'action'"
-            :selected="personData.items.new"
             :select="personData.items"
             v-model="personData.path"
             @submit-data="getCandidates"

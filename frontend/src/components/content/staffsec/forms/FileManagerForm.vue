@@ -10,25 +10,24 @@ const emit = defineEmits(["update-item"]);
     role="form"
     >
     <div class="row">
-      <div class="col">
-      <input
-        class="form-control"
-        id="name"
-        maxlength="250"
-        name="name"
-        type="text"
-        v-model="model"
-      />
-      </div>
-      <div class="col">
-      <button
-        class="btn btn-primary btn-md"
-        data-bs-dismiss="modal"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
+      <div class="col input-group">
+        <input
+          class="form-control"
+          id="name"
+          maxlength="250"
+          name="name"
+          type="text"
+          v-model="model"
+        />
+        <span class="input-group-text">
+          <a
+            role="button"
+            name="submit"
+            type="submit"
+          >
+            <i class="bi bi-save"></i>
+        </a>
+        </span>
       </div>
     </div>
   </form>

@@ -95,29 +95,32 @@ computed(() => {
     </div>
 
     <div class="py-3">
-      <form @submit.prevent="submitData" class="form form-check" role="form">
+      <form class="form form-check" role="form">
         <div class="mb-3 row required">
-          <label class="col-form-label col-md-2" for="region"> Регион </label>
-          <SelectOption
-            :class="'col-md-2'"
-            :name="'region'"
-            :selected="
-              storeClassify.classData.regions[tableData.stat.region_id]
-            "
-            :select="storeClassify.classData.regions"
-            v-model="tableData.stat.region_id"
+          <label class="col-form-label col-md-1" for="region">
+            Регион
+          </label>
+          <div class="col-md-3">
+            <SelectOption
+              :name="'region'"
+              :select="storeClassify.classData.regions"
+              v-model="tableData.stat.region_id"
+              @submit-data="submitData"
+            />
+          </div>
+          <label class="col-form-label col-md-1" for="start">
+            Период:
+          </label>
+          <InputDate 
+            :name="'start'" 
+            v-model="tableData.stat.start" 
             @submit-data="submitData"
-          />
-          <div>
-            <label class="col-form-label col-md-1" for="start"> Период: </label>
-            <InputDate :name="'start'" v-model="tableData.stat.start" />
-            <InputDate :name="'end'" v-model="tableData.stat.end" />
-          </div>
-          <div class="col-md-2">
-            <button class="btn btn-primary btn-md" name="submit" type="submit">
-              Принять
-            </button>
-          </div>
+            />
+          <InputDate 
+            :name="'end'" 
+            v-model="tableData.stat.end" 
+            @submit-data="submitData"
+            />
         </div>
       </form>
     </div>

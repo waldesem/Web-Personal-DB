@@ -169,6 +169,10 @@ const fileManager = ref({
   },
 });
 
+function itemUpdate() {
+  fileManager.value.updateItem();
+};
+
 function fileType(file: string): string {
   const fileExtension = file.split(".").pop();
 
@@ -241,7 +245,7 @@ function fileType(file: string): string {
         <div class="col-1">
           <button
             type="button"
-            class="btn btn-outline-primary"
+            :class="fileManager.action === 'create' ? 'btn btn-primary' : 'btn btn-outline-primary'"
             @click="
               fileManager.action = 'create';
               fileManager.updateItem();
@@ -268,7 +272,7 @@ function fileType(file: string): string {
         <div class="col-1">
           <button
             type="button"
-            class="btn btn-outline-primary"
+            :class="fileManager.action === 'copy' ? 'btn btn-primary' : 'btn btn-outline-primary'"
             @click="
               fileManager.action = 'copy';
               fileManager.copied = fileManager.path;
@@ -283,7 +287,7 @@ function fileType(file: string): string {
         <div class="col-1">
           <button
             type="button"
-            class="btn btn-outline-primary"
+            :class="fileManager.action === 'cut' ? 'btn btn-primary' : 'btn btn-outline-primary'"
             @click="
               fileManager.action = 'сut';
               fileManager.copied = fileManager.path;
@@ -309,8 +313,8 @@ function fileType(file: string): string {
         <div class="col-1">
           <button
             type="button"
-            class="btn btn-outline-primary"
-            @click="fileManager.action = 'rename'"
+            :class="fileManager.action === 'rename' ? 'btn btn-primary' : 'btn btn-outline-primary'"
+            @click="fileManager.action === 'rename' ? fileManager.action = '' : fileManager.action = 'rename'"
             :disabled="!fileManager.select || fileManager.selected.length !== 1"
           >
             <i class="bi bi-pencil" title="Переменовать"></i>
@@ -379,7 +383,7 @@ function fileType(file: string): string {
             <FileManagerForm 
               v-if="fileManager.action === 'rename' && fileManager.selected[0] === folder"
               v-model="fileManager.form"
-              @update-item="fileManager.updateItem"
+              @update-item="itemUpdate()"
             />
           </div>
         </div>
@@ -406,7 +410,7 @@ function fileType(file: string): string {
           <FileManagerForm
             v-if="fileManager.action === 'rename' && fileManager.selected[0] === file"
             v-model="fileManager.form"
-            @update-item="fileManager.updateItem"
+            @update-item="itemUpdate()"
           />
         </div>
       </div>
@@ -416,8 +420,7 @@ function fileType(file: string): string {
 
 <style scoped>
 #fileManager {
-  height: 75vh;
-  max-height: 75vh;
+  height: 50vh;
   overflow-y: auto;
 }
 .item-wrapper {

@@ -7,7 +7,6 @@ const props = defineProps({
     type: String,
   },
 });
-const emit = defineEmits(["cancel"]);
 </script>
 
 <template>
@@ -34,7 +33,6 @@ const emit = defineEmits(["cancel"]);
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
-            @click="emit('cancel')"
           ></button>
         </div>
         <div class="modal-body">

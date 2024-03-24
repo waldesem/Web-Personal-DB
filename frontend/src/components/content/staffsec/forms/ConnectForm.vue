@@ -6,10 +6,7 @@ import { server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
 const InputSmall = defineAsyncComponent(
-  () => import("@components/elements/InputSmall.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/elements/BtnGroup.vue")
+  () => import("@components/content/staffsec/elements/InputSmall.vue")
 );
 
 const storeAuth = authStore();
@@ -36,7 +33,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["get-contacts"]);
+const emit = defineEmits(["get-contacts", "cancel-edit"]);
 
 const connectForm = computed(() => {
   return props.item as Connection;
@@ -76,75 +73,102 @@ async function updateContact(): Promise<void> {
 
 <template>
   <form @submit.prevent="updateContact" class="form form-check">
-    <InputSmall
-      :need="true"
-      :title="'name'"
-      :place="'Вид'"
-      :lst="'names'"
-      :selects="props.names"
-      v-model="connectForm['name']"
-    />
-    <InputSmall
-      :need="true"
-      :title="'company'"
-      :place="'Название'"
-      :lst="'companies'"
-      :selects="props.companies"
-      v-model="connectForm['company']"
-    />
-    <InputSmall
-      :title="'city'"
-      :place="'Город'"
-      :lst="'cities'"
-      :selects="props.cities"
-      v-model="connectForm['city']"
-    />
-    <InputSmall
-      :title="'fullname'"
-      :place="'Имя'"
-      v-model="connectForm['fullname']"
-    />
-    <InputSmall
-      :title="'phone'"
-      :place="'Телефон'"
-      v-model="connectForm['phone']"
-    />
-    <InputSmall
-      :title="'adding'"
-      :place="'Добав'"
-      v-model="connectForm['adding']"
-    />
-    <InputSmall
-      :title="'mobile'"
-      :place="'Мобильный'"
-      v-model="connectForm['mobile']"
-    />
-    <InputSmall
-      :title="'mail'"
-      :place="'Почта'"
-      v-model="connectForm['mail']"
-    />
+    <div class="row mb-3">
+      <InputSmall
+        :need="true"
+        :title="'name'"
+        :place="'Вид'"
+        :lst="'names'"
+        :selects="props.names"
+        v-model="connectForm['name']"
+      />
+    </div>
+    <div class="row mb-3">
+      <InputSmall
+        :need="true"
+        :title="'company'"
+        :place="'Название'"
+        :lst="'companies'"
+        :selects="props.companies"
+        v-model="connectForm['company']"
+      />
+    </div>
+    <div class="row mb-3">
+      <InputSmall
+        :title="'city'"
+        :place="'Город'"
+        :lst="'cities'"
+        :selects="props.cities"
+        v-model="connectForm['city']"
+      />
+    </div>
+    <div class="row mb-3">
+      <InputSmall
+        :title="'fullname'"
+        :place="'Имя'"
+        v-model="connectForm['fullname']"
+      />
+    </div>
+    <div class="row mb-3">
+      <InputSmall
+        :title="'phone'"
+        :place="'Телефон'"
+        v-model="connectForm['phone']"
+      />
+    </div>
+    <div class="row mb-3">
+      <InputSmall
+        :title="'adding'"
+        :place="'Добав'"
+        v-model="connectForm['adding']"
+      />
+    </div>
+    <div class="row mb-3">
+      <InputSmall
+        :title="'mobile'"
+        :place="'Мобильный'"
+        v-model="connectForm['mobile']"
+      />
+    </div>
+    <div class="row mb-3">
+      <InputSmall
+        :title="'mail'"
+        :place="'Почта'"
+        v-model="connectForm['mail']"
+      />
+    </div>
+    <div class="row mb-3">
     <InputSmall
       :title="'comment'"
       :place="'Комментарий'"
       v-model="connectForm['comment']"
     />
-    <BtnGroup :cls="false">
-      <button
-        class="btn btn-outline-primary"
-        data-bs-dismiss="modal"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button
-        class="btn btn-outline-secondary"
-        name="reset"
-        type="reset"
-      >
-        Очистить
-      </button>
-    </BtnGroup>
+    </div>
+    <div class="mt-3">
+      <div class="btn-group c" role="group">
+        <button
+          class="btn btn-outline-primary"
+          name="submit"
+          type="submit"
+        >
+          Принять
+        </button>
+        <button
+          class="btn btn-outline-secondary"
+          name="reset"
+          type="reset"
+        >
+          Очистить
+        </button>
+        <button
+          class="btn btn-outline-secondary"
+          name="cancel"
+          type="button"
+          @click="emit('cancel-edit')"
+        >
+          Отмена
+        </button>
+      </div>
+    </div>
   </form>
 </template>
