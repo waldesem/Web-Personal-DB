@@ -386,6 +386,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
+        <h5 v-if="anketaData.printPage">Проверки</h5>
         <CheckTab
           :user-id="storeUser.userData.userId.toString()"
           :resume="anketaData.resume"
@@ -402,6 +403,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
+        <h5 v-if="anketaData.printPage">Полиграф</h5>
         <PoligrafTab
           :poligrafs="anketaData.poligraf"
           @get-item="getItem"
@@ -415,6 +417,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
+        <h5 v-if="anketaData.printPage">Расследования</h5>
         <InvestigateTab
           :inquisitions="anketaData.investigations"
           @get-item="getItem"
@@ -428,6 +431,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
         :role="!anketaData.printPage ? 'tabpanel' : ''"
       >
+        <h5 v-if="anketaData.printPage">Запросы</h5>
         <InquiryTab
           :needs="anketaData.inquiries"
           @get-item="getItem"
