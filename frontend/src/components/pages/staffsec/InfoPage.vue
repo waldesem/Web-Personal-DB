@@ -5,7 +5,7 @@ import { authStore } from "@/store/auth";
 import { server } from "@/utilities/utils";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const SelectOption = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/SelectOption.vue")

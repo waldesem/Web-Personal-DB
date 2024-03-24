@@ -3,7 +3,7 @@ import { ref, defineAsyncComponent, onBeforeMount, computed } from "vue";
 import { Needs } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/layouts/CollapseDiv.vue")
+  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const InquiryForm = defineAsyncComponent(
   () => import("../forms/InquiryForm.vue")

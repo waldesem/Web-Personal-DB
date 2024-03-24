@@ -23,7 +23,7 @@ const props = defineProps({
   },
   pattern: {
     type: String,
-    default: "",
+    default: ".*",
   },
 });
 </script>

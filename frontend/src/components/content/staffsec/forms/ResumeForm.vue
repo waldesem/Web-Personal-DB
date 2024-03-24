@@ -5,10 +5,9 @@ import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
-import { router } from "@/router/router";
 
 const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
+  () => import("@components/content/staffsec/elements/SelectDiv.vue")
 );
 const InputLabel = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/InputLabel.vue")
@@ -21,7 +20,7 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["get-resume", "cancel"]);
+const emit = defineEmits(["get-resume", "cancel", "submit"]);
 
 const props = defineProps({
   action: {
@@ -51,26 +50,25 @@ const resumeForm = ref({
               `${server}/resume/${props.resume['id']}`,
               this.form
             );
-
       const { message } = response.data;
-
-      props.action == "create" 
-        ? router.push({ name: "profile", params: { id: message } })
+      
+      props.action === "create" 
+        ? emit("submit", message)
         : emit("get-resume", "view");
       
       storeAlert.alertMessage.setAlert(
         "alert-success",
         "Данные успешно обновлены"
       );
+      Object.keys(resumeForm.value.form).forEach((key) => {
+        delete resumeForm.value.form[key as keyof typeof resumeForm.value.form];
+      });
     } catch (error) {
       storeAlert.alertMessage.setAlert(
         "alert-danger",
         `Возникла ошибка ${error}`
       );
     }
-    Object.keys(this.form).forEach((key) => {
-      delete this.form[key as keyof typeof this.form];
-    });
    },
 });
 </script>
@@ -104,12 +102,12 @@ const resumeForm = ref({
       />
       <InputLabel
         :name="'patronymic'"
-        :label="'Отчество*'"
+        :label="'Отчество'"
         v-model="resumeForm.form['patronymic']"
       />
       <InputLabel
         :name="'previous'"
-        :label="'Изменение имени*'"
+        :label="'Изменение имени  '"
         v-model="resumeForm.form['previous']"
       />
       <InputLabel
@@ -117,7 +115,7 @@ const resumeForm = ref({
         :name="'birthday'"
         :label="'Дата рождения*'"
         :typeof="'date'"
-        v-model="resumeForm.form['previous']"
+        v-model="resumeForm.form['birthday']"
       />
       <InputLabel
         :name="'birthplace'"
@@ -149,7 +147,7 @@ const resumeForm = ref({
       />
       <InputLabel
         :name="'marital'"
-        :label="'Семейнное положение'"
+        :label="'Семейное положение'"
         v-model="resumeForm.form['marital']"
       />
       <TextLabel
@@ -169,10 +167,14 @@ const resumeForm = ref({
             type="submit">
             Принять
           </button>
-          <button class="btn btn-outline-secondary" type="reset">Очистить</button>
+          <button 
+            class="btn btn-outline-secondary" 
+            type="reset">
+            Очистить
+          </button>
           <router-link
             v-if="props.action === 'create'"
-            class="btn btn-outline-warning"
+            class="btn btn-outline-danger"
             type="button"
             :to="{ name: 'persons' }"
           >

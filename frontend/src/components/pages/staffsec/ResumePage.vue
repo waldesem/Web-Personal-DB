@@ -6,10 +6,10 @@ import { server } from "@/utilities/utils";
 import { router } from "@/router/router";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/layouts/FileForm.vue")
+  () => import("@components/content/staffsec/forms/FileForm.vue")
 );
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/ResumeForm.vue")
@@ -21,6 +21,11 @@ const storeAlert = alertStore();
 const dataJson = ref({
   formData: new FormData(),
 });
+
+function switchToProfile(idx: string): void {
+  router.push({ name: "profile", params: { id: idx } });
+};
+
 async function submitFile(event: Event): Promise<void> {
   const inputElement = event.target as HTMLInputElement;
   if (inputElement && inputElement.files && inputElement.files.length) {
@@ -31,7 +36,7 @@ async function submitFile(event: Event): Promise<void> {
         dataJson.value.formData
       );
       const { message } = response.data;
-      router.push({ name: "profile", params: { id: message } });
+      switchToProfile(message);
 
       storeAlert.alertMessage.setAlert(
         "alert-success",
@@ -56,6 +61,7 @@ async function submitFile(event: Event): Promise<void> {
       :accept="'.json'"
       @submit="submitFile"
     />
-    <ResumeForm />
+    <ResumeForm 
+      @submit="switchToProfile"/>
   </div>
 </template>

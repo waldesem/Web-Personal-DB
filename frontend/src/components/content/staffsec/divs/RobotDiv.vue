@@ -3,7 +3,7 @@ import { defineAsyncComponent } from "vue";
 import { Robot } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/layouts/CollapseDiv.vue")
+  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const LabelValue = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/LabelValue.vue")

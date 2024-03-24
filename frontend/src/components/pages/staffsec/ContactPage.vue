@@ -6,7 +6,7 @@ import { debounce, server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/elements/TableSlots.vue")
@@ -49,6 +49,7 @@ const contactData = ref({
 });
 
 async function getContacts(page: number): Promise<void> {
+  contactData.value.action = "";
   try {
     const response = await storeAuth.axiosInstance.get(
       `${server}/connect/${page}`,
@@ -135,20 +136,12 @@ async function deleteContact(id: string): Promise<void> {
         :tbl-caption="'Список контактов'">
         <template v-slot:thead>
           <tr>
-            <th width="20%">Название</th>
-            <th width="20%">Имя</th>
-            <th width="20%">Телефон</th>
-            <th width="10%">Добавочный</th>
-            <th width="20%">Мобильный</th>
-            <th width="5%">
-              <a
-                type="button"
-                @click="contactData.action = 'create'"
-                title="Добавить контакт"
-              >
-                <i class="bi bi-plus-circle"></i>
-              </a>
-            </th>
+            <th width="18%">Название</th>
+            <th width="18%">Имя</th>
+            <th width="18%">Телефон</th>
+            <th width="18%">Добавочный</th>
+            <th width="18%">Мобильный</th>
+            <th width="5%"></th>
             <th width="5%"></th>
           </tr>
         </template>
@@ -197,6 +190,13 @@ async function deleteContact(id: string): Promise<void> {
           </tr>
         </template>
       </TableSlots>
+      <a
+        class="link link-primary d-flex justify-content-end"
+        href="#"
+        @click="contactData.action = 'create'"
+        >
+        Добавить контакт
+      </a>
       <PageSwitcher
         :has_prev="contactData.next"
         :has_next="contactData.prev"

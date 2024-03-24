@@ -24,7 +24,7 @@ import {
 } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const PhotoCard = defineAsyncComponent(
   () => import("@components/content/staffsec/divs//PhotoCard.vue")
@@ -59,7 +59,6 @@ onBeforeMount(async () => {
 });
 
 const anketaData = ref({
-  imageUrl: "",
   printPage: false,
   spinner: false,
   resume: <Resume>{},
@@ -75,6 +74,7 @@ const anketaData = ref({
   poligraf: [] as Array<Pfo>,
   investigations: [] as Array<Inquisition>,
   inquiries: [] as Array<Needs>,
+  imageUrl: "",
 });
 
 async function getResume(action = "view"): Promise<void> {
@@ -132,9 +132,13 @@ async function getResume(action = "view"): Promise<void> {
 
 async function getItem(param: string): Promise<void> {
   try {
-    const response = await storeAuth.axiosInstance.get(
-      `${server}/${param}/${candId}`
-    );
+    const response = param === "image" 
+      ? await storeAuth.axiosInstance.get(
+        `${server}/${param}/${candId}`, {responseType: 'blob'}
+      )
+      : await storeAuth.axiosInstance.get(
+        `${server}/${param}/${candId}`
+      );
     switch (param) {
       case "staff":
         anketaData.value.staffs = response.data;
@@ -174,7 +178,7 @@ async function getItem(param: string): Promise<void> {
         break;
       case "image":
         anketaData.value.imageUrl = window.URL.createObjectURL(
-          new Blob([response.data])
+          new Blob([response.data], { type: "image/jpeg" })
         );
         break;
       default:
@@ -305,7 +309,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
   <div class="container py-3">
     <PhotoCard
       :cand-id="candId"
-      :image-url="anketaData.imageUrl"
+      :url="anketaData.imageUrl"
       @get-item="getItem"
       @submit-file="submitFile"
     />

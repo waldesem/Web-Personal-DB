@@ -69,7 +69,7 @@ def get_image(item_id):
     if person.path:
         file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
         if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True)
+            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
     return abort(404)
 
 
@@ -241,31 +241,34 @@ class ResumeView(MethodView):
             select(Person).filter(
                 Person.surname.ilike(resume["surname"]),
                 Person.firstname.ilike(resume["firstname"]),
-                Person.patronymic.ilike(resume["patronymic"]),
+                Person.patronymic.ilike(f"%{resume.get('patronymic')}%"),
                 Person.birthday == resume["birthday"],
             )
         ).one_or_none()
+
+        resume["surname"] = resume["surname"].strip().upper()
+        resume["firstname"] = resume["firstname"].strip().upper()
+        resume["patronymic"] = resume.get("patronymic", "").strip().upper()
 
         if person:
             person_id = person.id
             for k, v in resume.items():
                 setattr(person, k, v)
-            if action == "api":
-                person.status_id = Status().get_id(Statuses.update.value)
         else:
+            if action == "create":
+                resume['status_id'] = Status().get_id(Statuses.manual.value)
+                resume['user_id'] = current_user.id
+            if action == "api":
+                resume['status_id'] = Status().get_id(Statuses.new.value)
+            
             person = Person(**resume)
             db.session.add(person)
             db.session.flush()
             person_id = person.id
-            if action == "api":
-                person.status_id = Status().get_id(Statuses.new.value)
-
-        if action == "create":
-            person.status_id = Status().get_id(Statuses.manual.value)
 
         person.path = os.path.join(
             resume["surname"][0].upper(),
-            f"{person_id}-{resume['surname']} {resume['firstname']} {resume['patronymic']}",
+            f"{person_id}-{resume['surname']} {resume['firstname']} {resume.get('patronymic', '')}".rstrip(),
         )
         url = os.path.join(Config.BASE_PATH, person.path)
         if not os.path.isdir(url):

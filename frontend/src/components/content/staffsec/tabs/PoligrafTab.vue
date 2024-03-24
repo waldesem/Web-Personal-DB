@@ -3,13 +3,13 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/layouts/CollapseDiv.vue")
+  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const PoligrafForm = defineAsyncComponent(
   () => import("../forms/PoligrafForm.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/content/staffsec/forms/FileForm.vue")
 );
 const LabelValue = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/LabelValue.vue")

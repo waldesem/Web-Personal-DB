@@ -4,11 +4,11 @@ import { onBeforeMount, defineAsyncComponent } from "vue";
 import { authStore } from "@/store/auth";
 import { server } from "@/utilities/utils";
 
-const FileManagerForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/FileManagerForm.vue")
+const ManagerForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/ManagerForm.vue")
 );
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 
 const storeAuth = authStore();
@@ -380,7 +380,7 @@ function fileType(file: string): string {
               <i class="bi bi-folder"></i>
               {{ folder }}
             </a>
-            <FileManagerForm 
+            <ManagerForm 
               v-if="fileManager.action === 'rename' && fileManager.selected[0] === folder"
               v-model="fileManager.form"
               @update-item="itemUpdate()"
@@ -407,7 +407,7 @@ function fileType(file: string): string {
             <i :class="fileType(file)"></i>
             {{ file }}
           </a>
-          <FileManagerForm
+          <ManagerForm
             v-if="fileManager.action === 'rename' && fileManager.selected[0] === file"
             v-model="fileManager.form"
             @update-item="itemUpdate()"

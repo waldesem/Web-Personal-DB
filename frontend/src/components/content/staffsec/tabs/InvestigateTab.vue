@@ -3,13 +3,13 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/layouts/CollapseDiv.vue")
+  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const InvestigationForm = defineAsyncComponent(
   () => import("../forms/InvestigationForm.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/layouts/FileForm.vue")
+  () => import("@components/content/staffsec/forms/FileForm.vue")
 );
 const LabelValue = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/LabelValue.vue")

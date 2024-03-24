@@ -6,7 +6,7 @@ import { alertStore } from "@store/alert";
 import { debounce, server } from "@utilities/utils";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const SelectDiv = defineAsyncComponent(
   () => import("@components/content/admin/elements/SelectDiv.vue")

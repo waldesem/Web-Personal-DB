@@ -31,7 +31,7 @@ export const router = createRouter({
           component: () => import("@components/pages/staffsec/ResumePage.vue"),
         },
         {
-          path: ":id",
+          path: "profile/:id",
           name: "profile",
           component: () => import("@components/pages/staffsec/ProfilePage.vue"),
         },

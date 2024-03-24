@@ -3,7 +3,7 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Document } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/layouts/CollapseDiv.vue")
+  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const DocumentForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/DocumentForm.vue")

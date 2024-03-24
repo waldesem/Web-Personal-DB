@@ -6,7 +6,7 @@ import { server, debounce } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const UserForm = defineAsyncComponent(
   () => import("@components/content/admin/forms/UserForm.vue")

@@ -6,7 +6,7 @@ import { debounce, server, timeSince } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const SelectOption = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/SelectOption.vue")
@@ -132,7 +132,7 @@ const searchPerson = debounce(() => {
                 params: { id: candidate.id },
               }"
             >
-              {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic}` }}
+              {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic ? candidate.patronymic : ''}` }}
             </router-link>
           </td>
           <td>

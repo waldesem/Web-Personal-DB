@@ -8,7 +8,7 @@ import { server } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const LabelValue = defineAsyncComponent(
   () => import("@components/content/admin/elements/LabelValue.vue")

@@ -4,13 +4,13 @@ import { classifyStore } from "@/store/classify";
 import { Resume, Verification, Robot } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/layouts/CollapseDiv.vue")
+  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const LabelValue = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/LabelValue.vue")
 )
 const FileForm = defineAsyncComponent(
-  () => import("@components/layouts/HeaderDiv.vue")
+  () => import("@components/elements/HeaderDiv.vue")
 );
 const CheckForm = defineAsyncComponent(() => import("../forms/CheckForm.vue"));
 const RobotDiv = defineAsyncComponent(() => import("../divs/RobotDiv.vue"));

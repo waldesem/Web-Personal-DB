@@ -8,7 +8,7 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
-  imageUrl: String,
+  url: String,
 });
 
 const photoCard = ref({
@@ -29,7 +29,7 @@ const photoCard = ref({
       @mouseout="photoCard.handleMouse"
     >
       <img
-        :src="props.imageUrl ? props.imageUrl : '/no-photo.png'"
+        :src="props.url ? props.url : '/no-photo.png'"
         style="width: 100%; height: auto"
         class="card-img-top"
         alt="..."

@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
@@ -123,7 +123,7 @@ class Region(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    region: Mapped[str] = mapped_column(String(255), nullable=True)
+    region: Mapped[str] = mapped_column(String(255), nullable=False)
     persons: Mapped[List["Person"]] = relationship(back_populates="regions")
 
     @staticmethod
@@ -140,11 +140,11 @@ class Person(Base):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"))
-    status_id: Mapped[int] = mapped_column(ForeignKey("statuses.id"))
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
-    surname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
-    firstname: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
+    region_id: Mapped[Optional[int]] = mapped_column(ForeignKey("regions.id"), nullable=True)
+    status_id: Mapped[Optional[int]] = mapped_column(ForeignKey("statuses.id"), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     patronymic: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
     previous: Mapped[str] = mapped_column(Text, nullable=True, index=True)
     birthday: Mapped[date] = mapped_column(Date, nullable=False)
