@@ -1,4 +1,5 @@
 from apiflask import APIFlask
+from flask import jsonify
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_caching import Cache
@@ -9,14 +10,15 @@ from .models.model import db
 
 cache = Cache()
 jwt = JWTManager()
+migrate = Migrate()
 
 
-def create_app(config=Config):
+def create_app():
     """
     Initializes and configures a Flask application.
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
-    app.config.from_object(config)
+    app.config.from_object(Config)
     # app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
     # for local use, download redoc.standalone.js
     # from https://github.com/Redocly/redoc/blob/master/redoc/static/redoc.standalone.js
@@ -26,7 +28,6 @@ def create_app(config=Config):
     db.init_app(app)
     jwt.init_app(app)
     cache.init_app(app)
-    migrate = Migrate()
     migrate.init_app(app, db, render_as_batch=True)
 
     from app.routes import bp as route_bp
@@ -44,16 +45,8 @@ def create_app(config=Config):
     def main(path=""):
         return app.send_static_file("index.html")
 
-    @app.error_processor
-    def flask_error_processor(error):
-        return (
-            {
-                "status_code": error.status_code,
-                "message": error.message,
-                "detail": error.detail,
-            },
-            error.status_code,
-            error.headers,
-        )
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify(error=str(error)), 404
 
     return app

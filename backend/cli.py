@@ -36,7 +36,6 @@ def register_cli(app):
                 os.mkdir(letter_path)
         print(f"Alphabet directories created")
 
-        db.drop_all()
         db.create_all()
 
         for item in [
