@@ -1,11 +1,12 @@
 import os
 from datetime import datetime
+import shutil
 
 import bcrypt
 from sqlalchemy import select
 
 from app import db
-from config import Config
+from config import Config, basedir
 from app.models.classes import Roles, Regions, Statuses, Conclusions
 from app.models.model import (
     Person,
@@ -24,6 +25,10 @@ def register_cli(app):
         if not os.path.isdir(Config.BASE_PATH):
             os.mkdir(Config.BASE_PATH)
             print("Directory BASE_PATH created")
+        shutil.copy(
+            os.path.join(basedir, "no-photo.png"),
+            os.path.join(Config.NO_PHOTO),
+        )
 
         for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ":
             letter_path = os.path.join(Config.BASE_PATH, letter)
@@ -38,8 +43,8 @@ def register_cli(app):
             [Region(region=reg.value) for reg in Regions],
             [Status(status=item.value) for item in Statuses],
             [Conclusion(conclusion=item.value) for item in Conclusions],
-            [Role(role=actor.value) for actor in Roles]
-            ]:
+            [Role(role=actor.value) for actor in Roles],
+        ]:
             db.session.add_all(item)
         db.session.flush()
 

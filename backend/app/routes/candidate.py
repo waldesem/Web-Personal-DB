@@ -70,7 +70,7 @@ def get_image(item_id):
         file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return abort(404)
+    return send_file(Config.NO_PHOTO, as_attachment=True, mimetype="image/jpg")
 
 
 @roles_required(Roles.user.value)
@@ -256,11 +256,11 @@ class ResumeView(MethodView):
                 setattr(person, k, v)
         else:
             if action == "create":
-                resume['status_id'] = Status().get_id(Statuses.manual.value)
-                resume['user_id'] = current_user.id
+                resume["status_id"] = Status().get_id(Statuses.manual.value)
+                resume["user_id"] = current_user.id
             if action == "api":
-                resume['status_id'] = Status().get_id(Statuses.new.value)
-            
+                resume["status_id"] = Status().get_id(Statuses.new.value)
+
             person = Person(**resume)
             db.session.add(person)
             db.session.flush()

@@ -28,6 +28,7 @@ class Config:
     JWT_REDIS_DB = 1
 
     BASE_PATH = os.path.abspath(os.path.join("..", "persons"))
+    NO_PHOTO = os.path.join(BASE_PATH, 'no-photo.png')
 
     DEFAULT_PASSWORD = "8" * 8
 
