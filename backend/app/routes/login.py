@@ -15,16 +15,15 @@ from flask_jwt_extended import (
 
 from config import Config
 from . import bp
-from .. import jwt, db, cache
-from ..models.model import User
+from .. import jwt, cache
+from ..models.model import db, User
 from ..models.schema import LoginSchema, UserSchema
 
 
 jwt_redis_blocklist = redis.StrictRedis(
     host=Config.JWT_REDIS_HOST,
     port=Config.JWT_REDIS_PORT,
-    db=Config.JWT_REDIS_DB,
-    decode_responses=True,
+    db=1, decode_responses=True,
 )
 
 

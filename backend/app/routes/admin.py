@@ -8,10 +8,9 @@ from sqlalchemy_searchable import search
 
 from config import Config
 from . import bp
-from .. import db
 from .login import roles_required
 from ..models.classes import Roles
-from ..models.model import User, Role
+from ..models.model import db, User, Role
 from ..models.schema import (
     ActionSchema,
     SearchSchema,

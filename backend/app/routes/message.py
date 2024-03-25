@@ -4,8 +4,7 @@ from flask_jwt_extended import current_user, jwt_required
 from sqlalchemy import select
 
 from . import bp
-from .. import db
-from ..models.model import Message
+from ..models.model import db, Message
 from ..models.schema import MessageSchema
 
 

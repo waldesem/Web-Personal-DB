@@ -1,8 +1,8 @@
 from sqlalchemy import select
 
 from . import bp
-from .. import db, cache
-from ..models.model import Conclusion, Role, Status, Region
+from .. import cache
+from ..models.model import db, Conclusion, Role, Status, Region
 from ..models.schema import (
     models_schemas,
     ConclusionSchema,

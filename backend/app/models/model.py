@@ -1,6 +1,8 @@
 from datetime import date, datetime
 from typing import List, Optional
 
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -17,18 +19,18 @@ from sqlalchemy import (
     select,
 )
 
-from .. import db
 
+class Base(DeclarativeBase):
+    pass
+
+
+db = SQLAlchemy(model_class=Base)
 
 make_searchable(db.metadata)
 
 
 def default_time():
     return datetime.now()
-
-
-class Base(db.Model):
-    __abstract__ = True
 
 
 user_roles = db.Table(
@@ -38,7 +40,7 @@ user_roles = db.Table(
 )
 
 
-class Role(Base):
+class Role(db.Model):
 
     __tablename__ = "roles"
 
@@ -51,7 +53,7 @@ class Role(Base):
     )
 
 
-class User(Base):
+class User(db.Model):
 
     __tablename__ = "users"
 
@@ -86,7 +88,7 @@ class User(Base):
         ).scalar_one_or_none()
 
 
-class Message(Base):
+class Message(db.Model):
 
     __tablename__ = "messages"
 
@@ -94,12 +96,14 @@ class Message(Base):
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
     message: Mapped[str] = mapped_column(Text, nullable=True)
-    created: Mapped[datetime] = mapped_column(DateTime, default=default_time, nullable=True)
+    created: Mapped[datetime] = mapped_column(
+        DateTime, default=default_time, nullable=True
+    )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     users: Mapped["User"] = relationship(back_populates="messages")
 
 
-class Status(Base):
+class Status(db.Model):
 
     __tablename__ = "statuses"
 
@@ -116,7 +120,7 @@ class Status(Base):
         ).scalar_one_or_none()
 
 
-class Region(Base):
+class Region(db.Model):
 
     __tablename__ = "regions"
 
@@ -133,16 +137,22 @@ class Region(Base):
         ).scalar_one_or_none()
 
 
-class Person(Base):
+class Person(db.Model):
 
     __tablename__ = "persons"
 
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    region_id: Mapped[Optional[int]] = mapped_column(ForeignKey("regions.id"), nullable=True)
-    status_id: Mapped[Optional[int]] = mapped_column(ForeignKey("statuses.id"), nullable=True)
-    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    region_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("regions.id"), nullable=True
+    )
+    status_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("statuses.id"), nullable=True
+    )
+    user_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
     surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     patronymic: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
@@ -203,16 +213,11 @@ class Person(Base):
     regions: Mapped["Region"] = relationship(back_populates="persons")
     users: Mapped["User"] = relationship(back_populates="persons")
     search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType(
-            "previous",
-            "surname",
-            "firstname",
-            "patronymic"
-        )
+        TSVectorType("previous", "surname", "firstname", "patronymic")
     )
 
 
-class Staff(Base):
+class Staff(db.Model):
 
     __tablename__ = "staffs"
 
@@ -225,7 +230,7 @@ class Staff(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="staffs")
 
 
-class Document(Base):
+class Document(db.Model):
 
     __tablename__ = "documents"
 
@@ -241,7 +246,7 @@ class Document(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="documents")
 
 
-class Address(Base):
+class Address(db.Model):
 
     __tablename__ = "addresses"
 
@@ -255,7 +260,7 @@ class Address(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="addresses")
 
 
-class Contact(Base):
+class Contact(db.Model):
     """Create model for contacts"""
 
     __tablename__ = "contacts"
@@ -269,7 +274,7 @@ class Contact(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="contacts")
 
 
-class Workplace(Base):
+class Workplace(db.Model):
 
     __tablename__ = "workplaces"
 
@@ -286,7 +291,7 @@ class Workplace(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="workplaces")
 
 
-class Affilation(Base):
+class Affilation(db.Model):
 
     __tablename__ = "affilations"
 
@@ -304,7 +309,7 @@ class Affilation(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="affilations")
 
 
-class Relation(Base):
+class Relation(db.Model):
 
     __tablename__ = "relations"
 
@@ -317,7 +322,7 @@ class Relation(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="relations")
 
 
-class Check(Base):
+class Check(db.Model):
 
     __tablename__ = "checks"
 
@@ -352,7 +357,7 @@ class Check(Base):
     conclusions: Mapped["Conclusion"] = relationship(back_populates="checks")
 
 
-class Robot(Base):
+class Robot(db.Model):
 
     __tablename__ = "robots"
 
@@ -373,7 +378,7 @@ class Robot(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="robots")
 
 
-class Conclusion(Base):
+class Conclusion(db.Model):
 
     __tablename__ = "conclusions"
 
@@ -390,7 +395,7 @@ class Conclusion(Base):
         ).scalar_one_or_none()
 
 
-class Poligraf(Base):
+class Poligraf(db.Model):
 
     __tablename__ = "poligrafs"
 
@@ -407,7 +412,7 @@ class Poligraf(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="poligrafs")
 
 
-class Investigation(Base):
+class Investigation(db.Model):
 
     __tablename__ = "investigations"
 
@@ -424,7 +429,7 @@ class Investigation(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="investigations")
 
 
-class Inquiry(Base):
+class Inquiry(db.Model):
 
     __tablename__ = "inquiries"
 
@@ -442,7 +447,7 @@ class Inquiry(Base):
     persons: Mapped[List["Person"]] = relationship(back_populates="inquiries")
 
 
-class Connect(Base):
+class Connect(db.Model):
 
     __tablename__ = "connects"
 

@@ -14,12 +14,12 @@ from PIL import Image
 
 from config import Config
 from . import bp
-from .. import db
 from .login import roles_required
 from ..utils.folders import create_folders
 from ..utils.jsonparser import parse_json
 from ..models.classes import Roles, Conclusions, Statuses
 from ..models.model import (
+    db,
     Staff,
     Document,
     Address,

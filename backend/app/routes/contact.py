@@ -4,10 +4,9 @@ from sqlalchemy import select
 
 from config import Config
 from . import bp
-from .. import db
 from .login import roles_required
 from ..models.classes import Roles
-from ..models.model import Connect
+from ..models.model import db, Connect
 from ..models.schema import ConnectSchema, SearchSchema
 
 

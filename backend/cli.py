@@ -5,10 +5,10 @@ import shutil
 import bcrypt
 from sqlalchemy import select
 
-from app import db
 from config import Config, basedir
 from app.models.classes import Roles, Regions, Statuses, Conclusions
 from app.models.model import (
+    db,
     Person,
     User,
     Region,
