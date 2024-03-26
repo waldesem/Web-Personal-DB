@@ -3,13 +3,16 @@ import { defineAsyncComponent, computed } from "vue";
 import { Affilation } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
+  () => import("@components/content/staffsec/elements/InputLabel.vue")
+);
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/SelectArray.vue")
+);
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
 );
 
 const emit = defineEmits(["submit"]);
@@ -25,12 +28,12 @@ const affilationForm = computed(() => {
   return props.affils as Affilation;
 });
 
-const selected_item = {
-  state: "Являлся государственным/муниципальным служащим",
-  official: "Являлся государственным должностным лицом",
-  relatives: "Связанные лица работают в государственных организациях",
-  commercial: "Участвует в деятельности коммерческих организаций",
-};
+const selected_item = [
+  "Являлся государственным/муниципальным служащим",
+  "Являлся государственным должностным лицом",
+  "Связанные лица работают в государственных организациях",
+  "Участвует в деятельности коммерческих организаций",
+];
 </script>
 
 <template>
@@ -39,7 +42,7 @@ const selected_item = {
     class="form form-check"
     role="form"
   >
-    <SelectDiv
+    <SelectArray
       :name="'view'"
       :label="'Тип участия'"
       :select="selected_item"
@@ -63,22 +66,8 @@ const selected_item = {
       :need="true"
       v-model="affilationForm['position']"
     />
-    <BtnGroup :cls="false">
-      <button
-        class="btn btn-outline-primary btn-md"
-        data-bs-dismiss="modal"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md" 
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+    <BtnGroup>
+      <BtnGroupContent/>
     </BtnGroup>
   </form>
 </template>

@@ -9,7 +9,7 @@ export const authStore = defineStore("authStore", () => {
 
   const axiosInstance = ref(axios.create());
 
-  const refreshToken = ref("");
+  const refreshToken = ref(localStorage.getItem("refresh_token"));
   const accessToken = ref("");
 
   axiosInstance.value.interceptors.request.use(

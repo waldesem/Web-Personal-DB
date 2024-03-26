@@ -4,13 +4,16 @@ import { classifyStore } from "@store/classify";
 import { Verification } from "@/interfaces/interface";
 
 const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
+  () => import("@components/content/staffsec/elements/TextLabel.vue")
 );
 const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
+  () => import("@components/content/staffsec/elements/SelectDiv.vue")
 );
-const CheckBox = defineAsyncComponent(
-  () => import("@components/elements/CheckBox.vue")
+const SwitchBox = defineAsyncComponent(
+  () => import("@components/elements/SwitchBox.vue")
+);
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
@@ -33,29 +36,35 @@ const checkForm = computed(() => {
 
 const noNegative = ref(true);
 
-if (noNegative) {
-  Object.assign(checkForm.value, {
-    workplace: "Негатива по местам работы не обнаружено",
-    employee: "В числе бывших работников МТСБ не обнаружен",
-    document: "Среди недействительных документов не обнаружен",
-    inn: "ИНН соответствует паспорту",
-    debt: "Задолженности не обнаружены",
-    bankruptcy: "Решений о признании банкротом не имеется",
-    bki: "Кредитная история не положительная",
-    courts: "Судебные дела не обнаружены",
-    affiliation: "Аффилированность не выявлена",
-    terrorist: "В списке террористов не обнаружен",
-    mvd: "В розыск не объявлен",
-    internet: "В открытых источниках негатив не обнаружен",
-    cronos: "В Кронос негатив не выявлен",
-    cros: "В Крос негатив не выявлен",
-    addition: "Дополнительная информация отсутствует",
-  });
-};
+computed(() => {
+  if (noNegative) {
+    Object.assign(checkForm.value, {
+      workplace: "Негатива по местам работы не обнаружено",
+      employee: "В числе бывших работников МТСБ не обнаружен",
+      document: "Среди недействительных документов не обнаружен",
+      inn: "ИНН соответствует паспорту",
+      debt: "Задолженности не обнаружены",
+      bankruptcy: "Решений о признании банкротом не имеется",
+      bki: "Кредитная история не положительная",
+      courts: "Судебные дела не обнаружены",
+      affiliation: "Аффилированность не выявлена",
+      terrorist: "В списке террористов не обнаружен",
+      mvd: "В розыск не объявлен",
+      internet: "В открытых источниках негатив не обнаружен",
+      cronos: "В Кронос негатив не выявлен",
+      cros: "В Крос негатив не выявлен",
+      addition: "Дополнительная информация отсутствует",
+    });
+  } else {
+    Object.keys(checkForm.value).forEach((key) => {
+      delete checkForm.value[key as keyof typeof checkForm.value];
+    });
+  };
+})
 </script>
 
 <template>
-  <CheckBox
+  <SwitchBox
     :name="'noNegative'"
     :label="'Негатива нет'"
     v-model="noNegative"
@@ -141,7 +150,8 @@ if (noNegative) {
       :label="'Дополнительная информация'"
       v-model="props.check['addition']"
     />
-    <CheckBox
+    <SwitchBox
+      :div-class="'offset-lg-2 col-lg-10'"
       :name="'pfo'"
       :label="'Полиграф'"
       v-model="checkForm['pfo']"
@@ -158,20 +168,7 @@ if (noNegative) {
       v-model="props.check['comments']"
     />
     <BtnGroup>
-      <button
-        class="btn btn-outline-primary btn-md"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md" 
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+      <BtnGroupContent/>
       <button
         class="btn btn-outline-danger btn-md"
         type="button"

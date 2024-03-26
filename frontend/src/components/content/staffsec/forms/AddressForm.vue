@@ -3,13 +3,16 @@ import { defineAsyncComponent, computed } from "vue";
 import { Address } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
+  () => import("@components/content/staffsec/elements/InputLabel.vue")
+);
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/SelectArray.vue")
+);
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
 );
 
 const emit = defineEmits(["submit"]);
@@ -24,12 +27,6 @@ const props = defineProps({
 const addressForm = computed(() => {
   return props.addrs as Address;
 });
-
-const selected_item = {
-  registration: "Адрес регистрации",
-  live: "Адрес проживания",
-  others: "Другое",
-};
 </script>
 
 <template>
@@ -38,10 +35,10 @@ const selected_item = {
     class="form form-check"
     role="form"
   >
-    <SelectDiv
+    <SelectArray
       :name="''"
       :label="''"
-      :select="selected_item"
+      :select="['Адрес регистрации', 'Адрес проживания', 'Другое']"
       v-model="addressForm['view']"
     />
     <InputLabel
@@ -56,22 +53,8 @@ const selected_item = {
       :need="true"
       v-model="addressForm['address']"
     />
-    <BtnGroup :cls="false">
-      <button
-        class="btn btn-outline-primary btn-md"
-        data-bs-dismiss="modal"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md" 
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+    <BtnGroup>
+      <BtnGroupContent/>
     </BtnGroup>
   </form>
 </template>

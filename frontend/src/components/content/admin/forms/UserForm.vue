@@ -60,9 +60,6 @@ async function submitUser(): Promise<void> {
       "Ошибка сохранения данных"
     );
   }
-  Object.keys(userForm.value).forEach((key) => {
-    delete userForm.value[key as keyof typeof userForm.value];
-  });
   emit("update");
 };
 </script>

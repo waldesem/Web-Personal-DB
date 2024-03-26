@@ -1,16 +1,24 @@
 <script setup lang="ts">
 const model = defineModel();
 const props = defineProps({
-  need: {
-    type: Boolean,
-    default: false,
-  },  
   name: String,
   label: String,
+  lst: {
+    type: String,
+    default: ""
+  },
+  selects: {
+    type: Array,
+    default: []
+  },
   typeof: {
     type: String,
     default: "text",
   },
+  need: {
+    type: Boolean,
+    default: false,
+  },  
   max: {
     type: [String, Number],
     default: (props: any) => {
@@ -43,8 +51,14 @@ const props = defineProps({
         :required="props.need"
         :pattern="props.pattern"
         :placeholder="props.label"
+        :list="props.lst"
         v-model.trim="model"
       />
+      <datalist v-if="props.lst" :id="props.lst">
+        <option v-for="item in selects" 
+          :value="item">
+        </option>
+    </datalist>
     </div>
   </div>
 </template>

@@ -3,11 +3,14 @@ import { defineAsyncComponent, computed } from "vue";
 import { Contact } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
+  () => import("@components/content/staffsec/elements/InputLabel.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/SelectArray.vue")
 )
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
+);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
 );
@@ -24,11 +27,6 @@ const props = defineProps({
 const contactForm = computed(() => {
   return props.contact as Contact;
 });
-const selected_item = {
-  phone: "Телефон",
-  email: "E-mail",
-  other: "Другое",
-};
 
 const view = computed(() => {
   if (contactForm.value["view"] === "Телефон") {
@@ -47,10 +45,10 @@ const view = computed(() => {
     class="form form-check"
     role="form"
   >
-    <SelectDiv
+    <SelectArray
       :name="'view'"
       :label="'Выбрать'"
-      :select="selected_item"
+      :select="['Телефон', 'E-mail', 'Другое']"
       v-model="contactForm['view']"
     />
     <InputLabel
@@ -61,21 +59,7 @@ const view = computed(() => {
       v-model="contactForm['contact']"
     />
     <BtnGroup>
-      <button
-        class="btn btn-outline-primary btn-md"
-        data-bs-dismiss="modal"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md" 
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+      <BtnGroupContent/>
     </BtnGroup>
   </form>
 </template>

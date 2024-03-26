@@ -3,10 +3,13 @@ import { computed, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
 const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
+  () => import("@components/content/staffsec/elements/TextLabel.vue")
 );
 const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
+  () => import("@components/content/staffsec/elements/InputLabel.vue")
+);
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
@@ -44,20 +47,7 @@ const investigationForm = computed(() => {
       v-model="props.investigation['info']"
     />
     <BtnGroup>
-      <button
-        class="btn btn-outline-primary btn-md"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md" 
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+      <BtnGroupContent/>
       <button
         class="btn btn-outline-danger btn-md"
         type="button"

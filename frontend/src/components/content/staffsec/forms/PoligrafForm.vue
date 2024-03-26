@@ -2,11 +2,14 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
-);
 const TextLabel = defineAsyncComponent(
-  () => import("@components/elements/TextLabel.vue")
+  () => import("@components/content/staffsec/elements/TextLabel.vue")
+);
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/SelectArray.vue")
+)
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
@@ -24,12 +27,6 @@ const props = defineProps({
 const poligrafForm = computed(() => {
   return props.poligraf as Pfo;
 });
-
-const selected_item = {
-  candidate: "Проверка кандидата",
-  check: "Служебная проверка",
-  investigation: "Служебное расследование",
-};
 </script>
 
 <template>
@@ -38,10 +35,12 @@ const selected_item = {
     class="form form-check"
     role="form"
   >
-    <SelectDiv
+    <SelectArray
       :name="'theme'"
       :label="'Тема проверки'"
-      :select="selected_item"
+      :select="[
+        'Проверка кандидата', 'Служебная проверка', 'Служебное расследование'
+        ]"
       v-model="poligrafForm['theme']"
     />
     <TextLabel
@@ -50,20 +49,7 @@ const selected_item = {
       v-model="props.poligraf['results']"
     />
     <BtnGroup>
-      <button
-        class="btn btn-outline-primary btn-md"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md"
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+      <BtnGroupContent/>
       <button
         class="btn btn-outline-danger btn-md"
         type="button"

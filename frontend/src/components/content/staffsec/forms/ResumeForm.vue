@@ -15,6 +15,12 @@ const InputLabel = defineAsyncComponent(
 const TextLabel = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/TextLabel.vue")
 );
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/elements/BtnGroup.vue")
+);
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
+);
 
 const storeAuth = authStore();
 const storeAlert = alertStore();
@@ -160,35 +166,24 @@ const resumeForm = ref({
         :label="'Дополнительно'"
         v-model="props.resume['addition']"
       />
-      <div class="offset-lg-2 col-lg-10">
-        <div class="btn-group" role="group">
-          <button 
-            class="btn btn-outline-primary" 
-            type="submit">
-            Принять
-          </button>
-          <button 
-            class="btn btn-outline-secondary" 
-            type="reset">
-            Очистить
-          </button>
-          <router-link
-            v-if="props.action === 'create'"
-            class="btn btn-outline-danger"
-            type="button"
-            :to="{ name: 'persons' }"
-          >
-            Отмена
-          </router-link>
-          <button v-if="props.action === 'update'"
-            class="btn btn-outline-danger" 
-            type="button"
-            @click="emit('cancel')"
-          >
-            Отмена
-          </button>
-        </div>
-      </div>
+      <BtnGroup>
+        <BtnGroupContent/>
+        <router-link
+          v-if="props.action === 'create'"
+          class="btn btn-outline-danger"
+          type="button"
+          :to="{ name: 'persons' }"
+        >
+          Отмена
+        </router-link>
+        <button v-if="props.action === 'update'"
+          class="btn btn-outline-danger" 
+          type="button"
+          @click="emit('cancel')"
+        >
+          Отмена
+        </button>
+      </BtnGroup>
     </form>
   </div>
 </template>

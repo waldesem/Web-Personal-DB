@@ -3,10 +3,13 @@ import { defineAsyncComponent, computed } from "vue";
 import { Staff } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
+  () => import("@components/content/staffsec/elements/InputLabel.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
+);
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
 );
 
 const emit = defineEmits(["submit"]);
@@ -41,20 +44,7 @@ const staffForm = computed(() => {
       v-model="staffForm['department']"
     />
     <BtnGroup>
-      <button
-        class="btn btn-outline-primary btn-md"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md" 
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+      <BtnGroupContent/>
     </BtnGroup>
   </form>
 </template>

@@ -53,7 +53,7 @@ const loginData = ref({
           
         case "Authenticated":
           storeAuth.accessToken = access_token;
-          storeAuth.refreshToken = refresh_token;
+          localStorage.setItem("refresh_token", refresh_token);
           router.push({name: "auth"});
           break;
 

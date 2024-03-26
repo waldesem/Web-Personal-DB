@@ -3,10 +3,13 @@ import { defineAsyncComponent, computed } from "vue";
 import { Document } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
-  () => import("@components/elements/InputLabel.vue")
+  () => import("@components/content/staffsec/elements/InputLabel.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/elements/SelectDiv.vue")
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/SelectArray.vue")
+)
+const BtnGroupContent = defineAsyncComponent(
+  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/elements/BtnGroup.vue")
@@ -25,11 +28,11 @@ const docForm = computed(() => {
   return props.docs as Document;
 });
 
-const selected_item = {
-  "Паспорт гражданина России": "Паспорт гражданина России",
-  "Иностранный докумен": "Иностранный докумен",
-  "Другое": "Другое",
-};
+const selected_item = [
+  "Паспорт гражданина России",
+  "Иностранный докумен",
+  "Другое",
+];
 </script>
 
 <template>
@@ -38,7 +41,7 @@ const selected_item = {
     class="form form-check"
     role="form"
   >
-    <SelectDiv
+    <SelectArray
       :name="'view'"
       :label="'Выбрать'"
       :select="selected_item"
@@ -67,21 +70,7 @@ const selected_item = {
       v-model="docForm['issue']"
     />
     <BtnGroup>
-      <button
-        class="btn btn-outline-primary btn-md"
-        data-bs-dismiss="modal"
-        name="submit"
-        type="submit"
-      >
-        Принять
-      </button>
-      <button 
-        class="btn btn-outline-secondary btn-md" 
-        name="reset" 
-        type="reset"
-      >
-        Очистить
-      </button>
+      <BtnGroupContent/>
     </BtnGroup>
   </form>
 </template>
