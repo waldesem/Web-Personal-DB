@@ -1,16 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
-import type {
-  Resume,
-  Staff,
-  Document,
-  Address,
-  Contact,
-  Relation,
-  Work,
-  Affilation,
-} from "@/interfaces/interface";
+import type { Anketa, Resume } from "@/interfaces/interface";
 
 const ResumeForm = defineAsyncComponent(
   () => import("../forms/ResumeForm.vue")
@@ -53,37 +44,9 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  resume: {
-    type: Object as () => Resume,
+  anketa: {
+    type: Object as () => Anketa,
     default: {},
-  },
-  staffs: {
-    type: Array as () => Array<Staff>,
-    default: () => [],
-  },
-  documents: {
-    type: Array as () => Array<Document>,
-    default: () => [],
-  },
-  addresses: {
-    type: Array as () => Array<Address>,
-    default: () => [],
-  },
-  contacts: {
-    type: Array as () => Array<Contact>,
-    default: () => [],
-  },
-  relations: {
-    type: Array as () => Array<Relation>,
-    default: () => [],
-  },
-  workplaces: {
-    type: Array as () => Array<Work>,
-    default: () => [],
-  },
-  affilations: {
-    type: Array as () => Array<Affilation>,
-    default: () => [],
   },
 });
 
@@ -119,7 +82,7 @@ function deleteItem(itemId: string, item: string) {
     <ResumeForm
       v-if="dataResume.action"
       :action="dataResume.action"
-      :resume="props.resume"
+      :resume="props.anketa.resume"
       @get-resume="getResume"
       @cancel="dataResume.action = ''"
     />
@@ -136,55 +99,55 @@ function deleteItem(itemId: string, item: string) {
           class="btn btn-link"
           title="Удалить"
           :disabled="
-            storeClassify.classData.status[props.resume['status_id']] ===
+            storeClassify.classData.status[props.anketa.resume['status_id']] ===
               'finish' || props.spinner
           "
-          @click="deleteItem(props.resume['id'], 'resume')"
+          @click="deleteItem(props.anketa.resume['id'], 'resume')"
         >
           <i class="bi bi-trash"></i>
         </a>
       </LabelValue>
-      <LabelValue :label="'ID'">{{ props.resume["id"] }}</LabelValue>
-      <LabelValue :label="'Фамилия'">{{ props.resume["surname"] }}</LabelValue>
-      <LabelValue :label="'Имя'">{{ props.resume["firstname"] }}</LabelValue>
+      <LabelValue :label="'ID'">{{ props.anketa.resume["id"] }}</LabelValue>
+      <LabelValue :label="'Фамилия'">{{ props.anketa.resume["surname"] }}</LabelValue>
+      <LabelValue :label="'Имя'">{{ props.anketa.resume["firstname"] }}</LabelValue>
       <LabelValue :label="'Отчество'">{{
-        props.resume["patronymic"]
+        props.anketa.resume["patronymic"]
       }}</LabelValue>
       <LabelValue :label="'Предыдущая фамилия'"
-        >{{ props.resume["previous"] }}
+        >{{ props.anketa.resume["previous"] }}
       </LabelValue>
       <LabelValue :label="'Дата рождения'"
         >{{
-          new Date(String(props.resume["birthday"])).toLocaleDateString("ru-RU")
+          new Date(String(props.anketa.resume["birthday"])).toLocaleDateString("ru-RU")
         }}
       </LabelValue>
       <LabelValue :label="'Место рождения'">{{
-        props.resume["birthplace"]
+        props.anketa.resume["birthplace"]
       }}</LabelValue>
       <LabelValue :label="'Гражданство'">{{
-        props.resume["country"]
+        props.anketa.resume["country"]
       }}</LabelValue>
       <LabelValue :label="'Двойное гражданство'"
-        >{{ props.resume["ext_country"] }}
+        >{{ props.anketa.resume["ext_country"] }}
       </LabelValue>
-      <LabelValue :label="'СНИЛС'">{{ props.resume["snils"] }}</LabelValue>
-      <LabelValue :label="'ИНН'">{{ props.resume["inn"] }}</LabelValue>
+      <LabelValue :label="'СНИЛС'">{{ props.anketa.resume["snils"] }}</LabelValue>
+      <LabelValue :label="'ИНН'">{{ props.anketa.resume["inn"] }}</LabelValue>
       <LabelValue :label="'Образование'"
-        >{{ props.resume["education"] }}
+        >{{ props.anketa.resume["education"] }}
       </LabelValue>
       <LabelValue :label="'Семейнное положение'"
-        >{{ props.resume["marital"] }}
+        >{{ props.anketa.resume["marital"] }}
       </LabelValue>
       <LabelValue :label="'Дополнительная информация'"
-        >{{ props.resume["addition"] }}
+        >{{ props.anketa.resume["addition"] }}
       </LabelValue>
       <LabelValue :label="'Статус'"
-        >{{ storeClassify.classData.status[props.resume["status_id"]] }}
+        >{{ storeClassify.classData.status[props.anketa.resume["status_id"]] }}
       </LabelValue>
       <LabelValue :label="'Дата создания'"
         >{{
-          props.resume["created"]
-            ? new Date(String(props.resume["created"])).toLocaleDateString(
+          props.anketa.resume["created"]
+            ? new Date(String(props.anketa.resume["created"])).toLocaleDateString(
                 "ru-RU"
               )
             : ""
@@ -192,67 +155,67 @@ function deleteItem(itemId: string, item: string) {
       </LabelValue>
       <LabelValue :label="'Дата обновления'"
         >{{
-          props.resume["updated"]
-            ? new Date(String(props.resume["updated"])).toLocaleDateString(
+          props.anketa.resume["updated"]
+            ? new Date(String(props.anketa.resume["updated"])).toLocaleDateString(
                 "ru-RU"
               )
             : ""
         }}
       </LabelValue>
       <LabelValue :label="'Пользователь'">{{
-        props.resume["user_id"]
+        props.anketa.resume["user_id"]
       }}</LabelValue>
       <LabelValue :label="'Материалы'">
         <router-link
-          v-if="props.resume['path']"
+          v-if="props.anketa.resume['path']"
           :to="{
             name: 'manager',
-            query: { path: props.resume['path'].split('/') },
+            query: { path: props.anketa.resume['path'].split('/') },
           }"
         >
-          {{ props.resume["path"] }}
+          {{ props.anketa.resume["path"] }}
         </router-link>
       </LabelValue>
     </div>
 
     <StaffDiv
-      :items="props.staffs"
+      :items="props.anketa.staffs"
       @get-item="getItem"
       @submit="updateItem"
       @delete="deleteItem"
     />
     <DocumentDiv
-      :items="props.documents"
+      :items="props.anketa.documents"
       @get-item="getItem"
       @submit="updateItem"
       @delete="deleteItem"
     />
     <AddressDiv
-      :items="props.addresses"
+      :items="props.anketa.addresses"
       @get-item="getItem"
       @submit="updateItem"
       @delete="deleteItem"
     />
     <ContactDiv
-      :items="props.contacts"
+      :items="props.anketa.contacts"
       @get-item="getItem"
       @submit="updateItem"
       @delete="deleteItem"
     />
     <RelationDiv
-      :items="props.relations"
+      :items="props.anketa.relations"
       @get-item="getItem"
       @submit="updateItem"
       @delete="deleteItem"
     />
     <WorkplaceDiv
-      :items="props.workplaces"
+      :items="props.anketa.workplaces"
       @get-item="getItem"
       @submit="updateItem"
       @delete="deleteItem"
     />
     <AffilationDiv
-      :items="props.affilations"
+      :items="props.anketa.affilations"
       @get-item="getItem"
       @submit="updateItem"
       @delete="deleteItem"
@@ -260,7 +223,7 @@ function deleteItem(itemId: string, item: string) {
 
     <div class="btn-group d-print-none mt-3" role="group">
       <button
-        :disabled="props.resume.user_id !== null && props.resume.user_id !== ''"
+        :disabled="props.anketa.resume.user_id !== null && props.anketa.resume.user_id !== ''"
         type="button"
         class="btn btn-outline-primary"
         @click="getResume('self')"
@@ -271,8 +234,8 @@ function deleteItem(itemId: string, item: string) {
       <button
         class="btn btn-outline-primary"
         :disabled="
-          storeClassify.classData.status[props.resume['status_id']] !== 'Проверка'
-          && props.resume.user_id !== props.userId && props.spinner
+          storeClassify.classData.status[props.anketa.resume['status_id']] !== 'Проверка'
+          && props.anketa.resume.user_id !== props.userId && props.spinner
         "
         @click="getResume('send')"
       >

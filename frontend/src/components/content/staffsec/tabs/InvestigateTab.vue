@@ -6,7 +6,7 @@ const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const InvestigationForm = defineAsyncComponent(
-  () => import("../forms/InvestigationForm.vue")
+  () => import("@components/content/staffsec/forms/InvestigationForm.vue")
 );
 const FileForm = defineAsyncComponent(
   () => import("@components/content/staffsec/forms/FileForm.vue")

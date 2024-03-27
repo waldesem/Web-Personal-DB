@@ -22,7 +22,8 @@ def create_app():
     # app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
     # for local use, download redoc.standalone.js
     # from https://github.com/Redocly/redoc/blob/master/redoc/static/redoc.standalone.js
-    # and save it in the static folder or in frontend/public
+    # Save it in the static folder or in frontend/public
+    # Uncomment string app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
 
     CORS(app, resources={r"/*": {"origins": "*"}})
     db.init_app(app)

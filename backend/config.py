@@ -7,14 +7,13 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY")
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=600)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
     CACHE_TYPE = "RedisCache"
-    CACHE_DEFAULT_TIMEOUT = 300
+    CACHE_DEFAULT_TIMEOUT = 600
     CACHE_KEY_PREFIX = "staffsec_"
     CACHE_REDIS_HOST = "localhost" 
     CACHE_REDIS_PORT = 6379

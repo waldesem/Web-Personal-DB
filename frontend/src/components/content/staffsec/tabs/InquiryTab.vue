@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount, computed } from "vue";
+import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/CollapseDiv.vue")
 );
 const InquiryForm = defineAsyncComponent(
-  () => import("../forms/InquiryForm.vue")
+  () => import("@components/content/staffsec/forms/InquiryForm.vue")
 );
 const LabelValue = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/LabelValue.vue")
@@ -31,19 +31,6 @@ const need = ref({
   item: <Needs>{},
 });
 
-const inquiryObject = computed(() => {
-  return props.needs.map((item) => ({
-    id: ["ID", item["id"]],
-    theme: ["Информация", item["info"]],
-    innitivator: ["Иннициатор", item["initiator"]],
-    source: ["Источник", item["source"]],
-    officer: ["Сотрудник", item["officer"]],
-    deadline: [
-      "Дата запроса", new Date(String(item['deadline'])).toLocaleDateString('ru-RU')
-    ]
-  }))
-});
-
 function submitForm(form: Object) {
   emit(
     "submit", 
@@ -64,9 +51,9 @@ function submitForm(form: Object) {
       @cancel="need.action = ''"
     />
     <div v-else>
-      <div v-if="inquiryObject.length">
+      <div v-if="props.needs.length">
         <CollapseDiv
-          v-for="(item, idx) in inquiryObject"
+          v-for="(item, idx) in props.needs"
           :key="idx"
           :id="'inquiry' + idx"
           :idx="idx.toString()"
@@ -76,7 +63,7 @@ function submitForm(form: Object) {
             <a
               href="#"
               title="Удалить"
-              @click="emit('delete', item.id[1].toString(), 'inquiry')"
+              @click="emit('delete', item['id'].toString(), 'inquiry')"
             >
               <i class="bi bi-trash"></i>
             </a>
@@ -87,18 +74,19 @@ function submitForm(form: Object) {
               @click="
                 need.action = 'update';
                 need.item = props.needs[idx];
-                need.itemId = item.id[1].toString();
+                need.itemId = item['id'].toString();
               "
             >
               <i class="bi bi-pencil-square"></i>
             </a>
           </LabelValue>
-          <LabelValue 
-            v-for="(value, key) in item" 
-            :key="key"
-            :label="value[0]"
-          >
-            {{ value[1] }}
+          <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
+          <LabelValue :label="'Информация'">{{ item["info"] }}</LabelValue>
+          <LabelValue :label="'Иннициатор'">{{ item["initiator"] }}</LabelValue>
+          <LabelValue :label="'Источник'">{{ item["source"] }}</LabelValue>
+          <LabelValue :label="'Сотрудник'">{{ item["officer"] }}</LabelValue>
+          <LabelValue :label="'Дата запроса'">
+            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
           </LabelValue>
         </CollapseDiv>
       </div>

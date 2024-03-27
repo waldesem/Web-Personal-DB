@@ -5,16 +5,18 @@ from config import Config
 
 
 def create_folders(
-        person_id, 
-        surname, 
-        firstname, 
-        patronymic, 
-        folder_name
-    ):
+    person_id, 
+    surname, 
+    firstname, 
+    patronymic, 
+    folder_name
+):
     """
     Check if a folder exists for a given person and create it if it does not exist.
     """
-    person_path = os.path.join(surname[0].upper(), f"{person_id}-{surname} {firstname} {patronymic}")
+    person_path = os.path.join(
+        surname[0].upper(), f"{person_id}-{surname} {firstname} {patronymic}"
+    )
     url = os.path.join(Config.BASE_PATH, person_path)
     if not os.path.isdir(url):
         os.mkdir(url)

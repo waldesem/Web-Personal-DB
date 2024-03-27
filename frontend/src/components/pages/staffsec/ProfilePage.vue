@@ -61,20 +61,37 @@ onBeforeMount(async () => {
 const anketaData = ref({
   printPage: false,
   spinner: false,
-  resume: <Resume>{},
-  staffs: [] as Array<Staff>,
-  documents: [] as Array<Document>,
-  addresses: [] as Array<Address>,
-  contacts: [] as Array<Contact>,
-  relations: [] as Array<Relation>,
-  workplaces: [] as Array<Work>,
-  affilations: [] as Array<Affilation>,
-  checks: [] as Array<Verification>,
-  robots: [] as Array<Robot>,
-  poligraf: [] as Array<Pfo>,
-  investigations: [] as Array<Inquisition>,
-  inquiries: [] as Array<Needs>,
   imageUrl: "",
+  anketa: {
+    resume: <Resume>{},
+    staffs: [] as Array<Staff>,
+    documents: [] as Array<Document>,
+    addresses: [] as Array<Address>,
+    contacts: [] as Array<Contact>,
+    relations: [] as Array<Relation>,
+    workplaces: [] as Array<Work>,
+    affilations: [] as Array<Affilation>,
+    checks: [] as Array<Verification>,
+    robots: [] as Array<Robot>,
+    poligraf: [] as Array<Pfo>,
+    investigations: [] as Array<Inquisition>,
+    inquiries: [] as Array<Needs>,
+  },
+});
+
+const matchedItems = ref({
+  staff: anketaData.value.anketa.staffs,
+  document: anketaData.value.anketa.documents,
+  address: anketaData.value.anketa.addresses,
+  contact: anketaData.value.anketa.contacts,
+  relation: anketaData.value.anketa.relations,
+  workplace: anketaData.value.anketa.workplaces,
+  affilation: anketaData.value.anketa.affilations,
+  check: anketaData.value.anketa.checks,
+  robot: anketaData.value.anketa.robots,
+  poligraf: anketaData.value.anketa.poligraf,
+  investigation: anketaData.value.anketa.investigations,
+  inquiry: anketaData.value.anketa.inquiries,
 });
 
 async function getResume(action = "view"): Promise<void> {
@@ -108,7 +125,7 @@ async function getResume(action = "view"): Promise<void> {
         },
       }
     );
-    anketaData.value.resume = response.data;
+    anketaData.value.anketa.resume = response.data;
 
     if (action === "status") {
       storeAlert.alertMessage.setAlert("alert-info", "Статус анкеты обновлен");
@@ -132,57 +149,19 @@ async function getResume(action = "view"): Promise<void> {
 
 async function getItem(param: string): Promise<void> {
   try {
-    const response = param === "image" 
-      ? await storeAuth.axiosInstance.get(
-        `${server}/${param}/${candId}`, {responseType: 'blob'}
-      )
-      : await storeAuth.axiosInstance.get(
-        `${server}/${param}/${candId}`
+    const response =
+      param === "image"
+        ? await storeAuth.axiosInstance.get(`${server}/${param}/${candId}`, {
+            responseType: "blob",
+          })
+        : await storeAuth.axiosInstance.get(`${server}/${param}/${candId}`);
+
+    if (param === "image") {
+      anketaData.value.imageUrl = window.URL.createObjectURL(
+        new Blob([response.data], { type: "image/jpeg" })
       );
-    switch (param) {
-      case "staff":
-        anketaData.value.staffs = response.data;
-        break;
-      case "document":
-        anketaData.value.documents = response.data;
-        break;
-      case "address":
-        anketaData.value.addresses = response.data;
-        break;
-      case "contact":
-        anketaData.value.contacts = response.data;
-        break;
-      case "relation":
-        anketaData.value.relations = response.data;
-        break;
-      case "workplace":
-        anketaData.value.workplaces = response.data;
-        break;
-      case "affilation":
-        anketaData.value.affilations = response.data;
-        break;
-      case "check":
-        anketaData.value.checks = response.data;
-        break;
-      case "robot":
-        anketaData.value.robots = response.data;
-        break;
-      case "poligraf":
-        anketaData.value.poligraf = response.data;
-        break;
-      case "investigation":
-        anketaData.value.investigations = response.data;
-        break;
-      case "inquiry":
-        anketaData.value.inquiries = response.data;
-        break;
-      case "image":
-        anketaData.value.imageUrl = window.URL.createObjectURL(
-          new Blob([response.data], { type: "image/jpeg" })
-        );
-        break;
-      default:
-        break;
+    } else {
+      matchedItems.value[param as keyof typeof matchedItems.value] = response.data;
     }
   } catch (error) {
     console.error(error);
@@ -227,9 +206,9 @@ async function deleteItem(id: string, param: string): Promise<void> {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   if (
     param === "check" &&
-    (anketaData.value.resume.status_id ===
+    (anketaData.value.anketa.resume.status_id ===
       storeClassify.classData.status["finish"] ||
-      anketaData.value.resume.status_id ===
+      anketaData.value.anketa.resume.status_id ===
         storeClassify.classData.status["robot"])
   ) {
     storeAlert.alertMessage.setAlert(
@@ -240,7 +219,9 @@ async function deleteItem(id: string, param: string): Promise<void> {
   }
   if (
     ["robot", "finish"].includes(
-      storeClassify.classData.status[anketaData.value.resume["status_id"]]
+      storeClassify.classData.status[
+        anketaData.value.anketa.resume["status_id"]
+      ]
     )
   ) {
     storeAlert.alertMessage.setAlert(
@@ -329,10 +310,9 @@ async function submitFile(event: Event, param: string): Promise<void> {
         </a>
       </div>
     </div>
-    <HeaderDiv 
-      :page-header="
-      `${anketaData.resume.surname} ${anketaData.resume.firstname} ${anketaData.resume.patronymic}`
-      " />
+    <HeaderDiv
+      :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
+    />
     <div
       :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
       :role="!anketaData.printPage ? 'tablist' : ''"
@@ -367,14 +347,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         <AnketaTab
           :user-id="storeUser.userData.userId.toString()"
           :spinner="anketaData.spinner"
-          :resume="anketaData.resume"
-          :staffs="anketaData.staffs"
-          :documents="anketaData.documents"
-          :addresses="anketaData.addresses"
-          :contacts="anketaData.contacts"
-          :relations="anketaData.relations"
-          :workplaces="anketaData.workplaces"
-          :affilations="anketaData.affilations"
+          :anketa="anketaData.anketa"
           @get-resume="getResume"
           @get-item="getItem"
           @submit="updateItem"
@@ -389,9 +362,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         <h5 v-if="anketaData.printPage">Проверки</h5>
         <CheckTab
           :user-id="storeUser.userData.userId.toString()"
-          :resume="anketaData.resume"
-          :checks="anketaData.checks"
-          :robots="anketaData.robots"
+          :anketa="anketaData.anketa"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"
@@ -405,7 +376,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       >
         <h5 v-if="anketaData.printPage">Полиграф</h5>
         <PoligrafTab
-          :poligrafs="anketaData.poligraf"
+          :poligrafs="anketaData.anketa.poligraf"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"
@@ -419,7 +390,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       >
         <h5 v-if="anketaData.printPage">Расследования</h5>
         <InvestigateTab
-          :inquisitions="anketaData.investigations"
+          :inquisitions="anketaData.anketa.investigations"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"
@@ -433,7 +404,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       >
         <h5 v-if="anketaData.printPage">Запросы</h5>
         <InquiryTab
-          :needs="anketaData.inquiries"
+          :needs="anketaData.anketa.inquiries"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"

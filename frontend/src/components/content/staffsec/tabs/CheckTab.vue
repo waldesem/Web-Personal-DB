@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
-import { Resume, Verification, Robot } from "@/interfaces/interface";
+import { Anketa, Verification } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/staffsec/elements/CollapseDiv.vue")
@@ -12,8 +12,12 @@ const LabelValue = defineAsyncComponent(
 const FileForm = defineAsyncComponent(
   () => import("@components/elements/HeaderDiv.vue")
 );
-const CheckForm = defineAsyncComponent(() => import("../forms/CheckForm.vue"));
-const RobotDiv = defineAsyncComponent(() => import("../divs/RobotDiv.vue"));
+const CheckForm = defineAsyncComponent(
+  () => import("@components/content/staffsec/forms/CheckForm.vue")
+);
+const RobotDiv = defineAsyncComponent(
+  () => import("@components/content/staffsec/divs/RobotDiv.vue")
+);
 
 const storeClassify = classifyStore();
 
@@ -29,17 +33,9 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  resume: {
-    type: Object as () => Resume,
-    required: true,
-  },
-  checks: {
-    type: Array as () => Array<Verification>,
-    default: () => [],
-  },
-  robots: {
-    type: Array as () => Array<Robot>,
-    default: () => [],
+  anketa: {
+    type: Object as () => Anketa,
+    default: {},
   },
 });
 
@@ -48,9 +44,9 @@ const check = ref({
   itemId: "",
   item: <Verification>{},
   hideEditBtn:
-    props.resume["status_id"] !== storeClassify.classData.status["save"] &&
-    props.resume["status_id"] !== storeClassify.classData.status["cancel"] &&
-    props.resume["status_id"] !== storeClassify.classData.status["manual"],
+    props.anketa.resume["status_id"] !== storeClassify.classData.status["save"] &&
+    props.anketa.resume["status_id"] !== storeClassify.classData.status["cancel"] &&
+    props.anketa.resume["status_id"] !== storeClassify.classData.status["manual"],
 });
 
 function submitForm(form: Object) {
@@ -80,9 +76,9 @@ function getRobot() {
       @cancel="check.action = ''"
     />
     <div v-else>
-      <div v-if="props.checks.length || props.robots.length">
+      <div v-if="props.anketa.checks.length || props.anketa.robots.length">
         <CollapseDiv
-          v-for="(item, idx) in props.checks"
+          v-for="(item, idx) in props.anketa.checks"
           :key="idx"
           :id="'check' + idx"
           :idx="idx.toString()"
@@ -102,8 +98,8 @@ function getRobot() {
                   storeClassify.classData.status['save'],
                   storeClassify.classData.status['cancel'],
                   storeClassify.classData.status['manual'],
-                ].includes(props.resume['status_id']) &&
-                props.resume['user_id'] !== props.userId
+                ].includes(props.anketa.resume['status_id']) &&
+                props.anketa.resume['user_id'] !== props.userId
               "
               href="#"
               title="Изменить"
@@ -164,7 +160,7 @@ function getRobot() {
         </CollapseDiv>
         <FileForm :accept="'*'" @submit="submitFile" />
         <RobotDiv
-          :robots="props.robots"
+          :robots="props.anketa.robots"
           @get-item="getRobot"
           @delete="deleteItem"
         />
@@ -177,8 +173,8 @@ function getRobot() {
               storeClassify.classData.status['update'],
               storeClassify.classData.status['save'],
               storeClassify.classData.status['repeat'],
-            ].includes(props.resume['status_id']) &&
-            props.resume['user_id'] !== props.userId
+            ].includes(props.anketa.resume['status_id']) &&
+            props.anketa.resume['user_id'] !== props.userId
           "
           class="btn btn-outline-primary"
           type="button"
