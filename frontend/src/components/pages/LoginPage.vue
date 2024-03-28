@@ -9,7 +9,7 @@ const AlertMessage = defineAsyncComponent(
   () => import("@components/layouts/AlertMessage.vue")
 );
 const LoginForm = defineAsyncComponent(
-  () => import("@components/content/login/forms/LoginForm.vue")
+  () => import("@components/content/forms/LoginForm.vue")
 );
 
 const storeAlert = alertStore();
