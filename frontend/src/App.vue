@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { onBeforeMount } from "vue";
+import { defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "./store/classify";
 import { userStore } from "./store/user";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
 import { server } from "@utilities/utils";
 import { router } from "./router/router";
+
+const FooterDiv = defineAsyncComponent(
+  () => import("@components/layouts/FooterDiv.vue")
+);
 
 const storeClasses = classifyStore();
 const storeUser = userStore();
@@ -29,11 +33,10 @@ async function getAuth(): Promise<void> {
       userRoles: roles,
       hasAdmin: roles.some((r: { role: any }) => r.role === "admin"),
     });
-
-    storeUser.userData.hasAdmin
-      ? router.push({ name: "users" })
-      : router.push({ name: "persons" });
+    
+    router.push({ name: "persons" });
     storeAlert.alertMessage.setAlert();
+
   } catch (error) {
     storeAlert.alertMessage.setAlert("alert-warning", error as string);
   }
@@ -42,6 +45,7 @@ async function getAuth(): Promise<void> {
 
 <template>
   <RouterView />
+  <FooterDiv />
 </template>
 
 <style>

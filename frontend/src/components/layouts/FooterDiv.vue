@@ -11,7 +11,6 @@ import { server } from "@utilities/utils";
         title="OpenAPI">
           <i class="bi bi-book-half"> OpenAPI</i>
       </a>
-      <slot name="footer"></slot>
       <a
         href="https://github.com/waldesem/Web-Personal-DB"
         target="”_blank”"

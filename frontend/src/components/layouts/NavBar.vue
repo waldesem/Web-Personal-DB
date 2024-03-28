@@ -1,19 +1,16 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import { authStore } from "@/store/auth";
 import { userStore } from "@/store/user";
 import { server } from "@/utilities/utils";
 import { router } from "@/router/router";
 
+const MessageDiv = defineAsyncComponent(
+  () => import('@components/content/staffsec/divs/MessageDiv.vue')
+)
+
 const storeAuth = authStore();
 const storeUser = userStore();
-
-const props = defineProps({
-  arg: String,
-  brand: {
-    type: String,
-    required: true,
-  },
-});
 
 async function userLogout(): Promise<void> {
   try {
@@ -32,17 +29,57 @@ async function userLogout(): Promise<void> {
 
 <template>
   <nav
-    class="navbar navbar-expand navbar-nav mr-auto navbar-dark d-print-none"
-    :class="props.arg"
+    class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary d-print-none"
   >
     <div class="container">
-      <a class="navbar-brand">{{ props.brand.toUpperCase() }}</a>
+      <a class="navbar-brand">STAFFSEC</a>
       <div
         class="navbar-nav mr-auto collapse navbar-collapse"
         id="navbarContent"
       >
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <slot name="navbar"></slot>
+          <li v-if="storeUser.userData.hasAdmin" class="nav-item">
+            <router-link
+              :to="{ name: 'users' }"
+              class="nav-link active"
+              href="#"
+            >
+              Пользователи
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link
+              :to="{ name: 'persons' }"
+              class="nav-link active"
+            >
+              Кандидаты
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link
+              :to="{ name: 'resume' }"
+              class="nav-link active"
+            >
+              Создать
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link
+              :to="{ name: 'information' }"
+              class="nav-link active"
+            >
+              Информация
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link
+              :to="{ name: 'contacts' }"
+              class="nav-link active"
+            >
+              Контакты
+            </router-link>
+          </li>
+          <MessageDiv />
         </ul>
         <li class="nav-item dropdown d-flex">
           <a

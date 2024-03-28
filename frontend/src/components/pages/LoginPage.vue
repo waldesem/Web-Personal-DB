@@ -8,9 +8,6 @@ const HeaderDiv = defineAsyncComponent(
 const AlertMessage = defineAsyncComponent(
   () => import("@components/layouts/AlertMessage.vue")
 );
-const FooterDiv = defineAsyncComponent(
-  () => import("@components/layouts/FooterDiv.vue")
-);
 const LoginForm = defineAsyncComponent(
   () => import("@components/content/login/forms/LoginForm.vue")
 );
@@ -30,7 +27,6 @@ storeAlert.alertMessage.setAlert(
       <LoginForm />
     </div>
   </div>
-  <FooterDiv />
 </template>
 
 <style scoped>

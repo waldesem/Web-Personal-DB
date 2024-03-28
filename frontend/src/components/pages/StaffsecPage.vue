@@ -5,10 +5,7 @@ const AlertMessage = defineAsyncComponent(
   () => import("@components/layouts/AlertMessage.vue")
 );
 const NavBar = defineAsyncComponent(
-  () => import("@components/content/staffsec/layouts/NavBarStaffSec.vue")
-);
-const FooterDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/layouts/FooterStaffSec.vue")
+  () => import("@components/layouts/NavBar.vue")
 );
 
 </script>
@@ -21,7 +18,6 @@ const FooterDiv = defineAsyncComponent(
       <component :is="Component" :key="$route.fullPath" />
     </transition>
   </router-view>
-  <FooterDiv />
 </template>
 
 <style scoped>

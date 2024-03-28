@@ -46,29 +46,16 @@ export const router = createRouter({
           component: () => import("@components/pages/staffsec/ContactPage.vue"),
         },
         {
-          path: "manager",
-          name: "manager",
-          component: () => import("@components/pages/staffsec/FilePage.vue"),
-          props: (route) => ({ path: route.query.path }),
-        },
-      ],
-    },
-    {
-      path: "/admin",
-      name: "admin",
-      component: () => import("@components/pages/AdminPage.vue"),
-      children: [
-        {
           path: "users",
           name: "users",
-          component: () => import("@components/pages/admin/IndexPage.vue"),
+          component: () => import("@components/pages/staffsec/UsersPage.vue"),
         },
         {
           path: "user/:id",
           name: "user",
-          component: () => import("@components/pages/admin/UserPage.vue"),
+          component: () => import("@components/pages/staffsec/UserProfile.vue"),
         },
-      ]
+      ],
     },
     {
       path: "/:pathMatch(.*)*",
