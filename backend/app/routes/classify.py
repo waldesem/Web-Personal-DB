@@ -4,7 +4,6 @@ from . import bp
 from .. import cache
 from ..models.model import db, Conclusion, Role, Status, Region
 from ..models.schema import (
-    models_schemas,
     ConclusionSchema,
     RoleSchema,
     StatusSchema,
@@ -24,5 +23,4 @@ def get_classes():
         schema.dump(query, many=True) for query, schema in zip(queries, schemas)
     ]
     data = {table.lower(): result for table, result in zip(tables, results)}
-    data["tables"] = list(models_schemas.keys())
     return data

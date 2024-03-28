@@ -21,16 +21,6 @@ const NavBar = defineAsyncComponent(
           Пользователи
         </router-link>
       </li>
-
-      <li class="nav-item">
-        <router-link
-          :to="{ name: 'table' }"
-          class="nav-link active"
-          href="#"
-        >
-          Таблицы
-        </router-link>
-      </li>
     </template>
   </NavBar>
 </template>

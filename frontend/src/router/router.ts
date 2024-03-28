@@ -68,11 +68,6 @@ export const router = createRouter({
           name: "user",
           component: () => import("@components/pages/admin/UserPage.vue"),
         },
-        {
-          path: "table",
-          name: "table",
-          component: () => import("@components/pages/admin/TablesPage.vue"),
-        },
       ]
     },
     {

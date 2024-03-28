@@ -14,9 +14,7 @@ from ..models.model import db, User, Role
 from ..models.schema import (
     ActionSchema,
     SearchSchema,
-
     UserSchema,
-    models_schemas,
 )
 
 
@@ -155,41 +153,3 @@ class RoleView(MethodView):
 
 
 bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"))
-
-
-class TableView(MethodView):
-
-    decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
-
-    @bp.input(SearchSchema, location="query")
-    def get(self, item, num, query_data):
-        model = models_schemas[item][0]
-        schema = models_schemas[item][1]
-
-        query = select(model).order_by(model.id.desc())
-        
-        search_data = query_data.get("search")
-        if search_data:
-            query = query.filter_by(id=search_data)
-        result = db.paginate(
-            query,
-            page=num,
-            per_page=Config.PAGINATION,
-            error_out=False,
-        )
-        return [
-            schema.dump(result, many=True),
-            {"has_next": result.has_next, "has_prev": result.has_prev},
-        ], 200
-
-    def delete(self, item, num):
-        if not item == "user":
-            model = models_schemas[item][0]
-            row = db.session.get(model, num)
-            db.session.delete(row)
-            db.session.commit()
-            return {"message": "Deleted"}, 204
-        return {"message": "Denied"}, 403
-
-
-bp.add_url_rule("/table/<item>/<int:num>", view_func=TableView.as_view("table"))

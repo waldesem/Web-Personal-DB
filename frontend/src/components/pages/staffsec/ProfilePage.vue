@@ -79,21 +79,6 @@ const anketaData = ref({
   },
 });
 
-const matchedItems = ref({
-  staff: anketaData.value.anketa.staffs,
-  document: anketaData.value.anketa.documents,
-  address: anketaData.value.anketa.addresses,
-  contact: anketaData.value.anketa.contacts,
-  relation: anketaData.value.anketa.relations,
-  workplace: anketaData.value.anketa.workplaces,
-  affilation: anketaData.value.anketa.affilations,
-  check: anketaData.value.anketa.checks,
-  robot: anketaData.value.anketa.robots,
-  poligraf: anketaData.value.anketa.poligraf,
-  investigation: anketaData.value.anketa.investigations,
-  inquiry: anketaData.value.anketa.inquiries,
-});
-
 async function getResume(action = "view"): Promise<void> {
   if (action === "status") {
     if (
@@ -161,7 +146,9 @@ async function getItem(param: string): Promise<void> {
         new Blob([response.data], { type: "image/jpeg" })
       );
     } else {
-      matchedItems.value[param as keyof typeof matchedItems.value] = response.data;
+      anketaData.value.anketa[
+        param as keyof typeof anketaData.value.anketa
+      ] = response.data;
     }
   } catch (error) {
     console.error(error);

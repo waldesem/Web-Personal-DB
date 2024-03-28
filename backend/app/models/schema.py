@@ -231,24 +231,3 @@ class AnketaSchemaApi(SQLAlchemySchema):
     agency = String()
     issue = String()
     address = String()
-
-
-models_schemas = {
-    "user": [User, UserSchema()],
-    "role": [Role, RoleSchema()],
-    "message": [Message, MessageSchema()],
-    "resume": [Person, PersonSchema()],
-    "staff": [Staff, StaffSchema()],
-    "document": [Document, DocumentSchema()],
-    "address": [Address, AddressSchema()],
-    "contact": [Contact, ContactSchema()],
-    "workplace": [Workplace, WorkplaceSchema()],
-    "relation": [Relation, RelationSchema()],
-    "affilation": [Affilation, AffilationSchema()],
-    "check": [Check, CheckSchema()],
-    "robot": [Robot, RobotSchema()],
-    "poligraf": [Poligraf, PoligrafSchema()],
-    "investigation": [Investigation, InvestigationSchema()],
-    "inquiry": [Inquiry, InquirySchema()],
-    "connect": [Connect, ConnectSchema()],
-}
