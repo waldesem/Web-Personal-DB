@@ -28,10 +28,9 @@ class Statuses(Enum):
     robot = "Робот"
     reply = "Обработан"
     poligraf = "ПФО"
-    finish = "Окончено"
     cancel = "Отменено"
     error = "Ошибка"
-
+    finish = "Окончено"
 
 class Conclusions(Enum):
 

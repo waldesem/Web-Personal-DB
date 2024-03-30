@@ -19,7 +19,7 @@ from ..models.model import (
 from ..models.schema import (
     InfoSchema,
     PersonSchema,
-    SearchSchema,
+    SearchSortSchema,
 )
 
 
@@ -27,32 +27,26 @@ class IndexView(MethodView):
 
     @roles_required(Roles.user.value)
     @bp.doc(hide=True)
-    @bp.input(SearchSchema, location="query")
+    @bp.input(SearchSortSchema, location="query")
     def get(self, flag, page, query_data):
+        query = select(Person)
         search_data = query_data.get("search")
-        query = select(Person).order_by(Person.id.desc())
-        if flag != "search":
-            match flag:
-                case "new":
-                    query = query.filter(
-                        Person.status_id.in_(
-                            [
-                                Status().get_id(Statuses.new.value),
-                                Status().get_id(Statuses.update.value),
-                                Status().get_id(Statuses.repeat.value),
-                            ]
-                        ),
-                    )
-                case "officer":
-                    query = query.filter(
-                        Person.status_id.notin_(
-                            [
-                                Status().get_id(Statuses.finish.value),
-                                Status().get_id(Statuses.cancel.value),
-                            ]
-                        ),
-                        Person.user_id == current_user.id,
-                    )
+        sort = query_data.get("sort")
+        order = query_data.get("order")
+        if order == "asc":
+            query = query.order_by(Person[sort].asc())
+        else:
+            query = query.order_by(Person[sort].desc())
+        if flag == "officer":
+            query = query.filter(
+                Person.status_id.notin_(
+                    [
+                        Status().get_id(Statuses.finish.value),
+                        Status().get_id(Statuses.cancel.value),
+                    ]
+                ),
+                Person.user_id == current_user.id,
+            )
         else:
             if search_data:
                 query = search(query, "%{}%".format(search_data))

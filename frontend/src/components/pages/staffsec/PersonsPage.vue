@@ -14,6 +14,9 @@ const SelectInput = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
+const UpDown = defineAsyncComponent(
+  () => import("@components/content/elements/UpDown.vue")
+)
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/content/layouts/PageSwitcher.vue")
 );
@@ -37,13 +40,14 @@ const personData = ref({
     search: "Результаты поиска",
     officer: "Страница пользователя",
     main: "Все кандидаты",
-    new: "Новые кандидаты",
   },
   prev: false,
   next: false,
   search: "",
+  sort: "id",
+  order: "desc",
   page: 1,
-  path: "new",
+  path: "main",
 });
 
 async function getCandidates (page = 1): Promise<void> {
@@ -54,6 +58,7 @@ async function getCandidates (page = 1): Promise<void> {
       {
         params: {
           search: personData.value.search,
+          sort: personData.value.sort,
         },
       }
     );
@@ -65,6 +70,12 @@ async function getCandidates (page = 1): Promise<void> {
     console.error(error);
   }
 };
+
+function sortCandidates (sort: string, order: string): void {
+  personData.value.sort = sort;
+  personData.value.order = order;
+  getCandidates(1);
+}
 
 const searchPerson = debounce(() => {
   personData.value.path = "search"
@@ -109,12 +120,79 @@ const searchPerson = debounce(() => {
     >
       <template v-slot:thead>
         <tr height="50px">
-          <th width="5%">#</th>
-          <th width="20%">Регион</th>
-          <th>Фамилия Имя Отчество</th>
-          <th width="15%">Дата рождения</th>
-          <th width="10%">Статус</th>
-          <th width="15%"> Создан</th>
+          <th width="5%">
+            #
+            <UpDown
+              :order="'desc'"
+              :sort="'id'"
+              @get-candidates="sortCandidates"
+            />
+            <UpDown
+              :order="'asc'"
+              :sort="'id'"
+              @get-candidates="sortCandidates"
+            />
+          </th>
+          <th width="20%">
+            Регион
+            <UpDown
+              :order="'desc'"
+              :sort="'region_id'"
+              @get-candidates="sortCandidates"
+            />
+            <UpDown
+              :order="'asc'"
+              :sort="'region_id'"
+              @get-candidates="sortCandidates"
+            />
+          </th>
+          <th>
+            Фамилия Имя Отчество
+            <UpDown
+              :order="'desc'"
+              :sort="'surname'"
+              @get-candidates="sortCandidates"
+            />
+            <UpDown
+              :order="'asc'"
+              :sort="'surname'"
+              @get-candidates="sortCandidates"
+            />
+          </th>
+          <th width="15%">
+            Дата рождения
+            <UpDown
+              :order="'desc'"
+              :sort="'birthday'"
+              @get-candidates="sortCandidates"
+            />
+            <UpDown
+              :order="'asc'"
+              :sort="'birthday'"
+              @get-candidates="sortCandidates"
+            />
+          </th>
+          <th width="10%">
+            Статус
+            <UpDown
+              :order="'desc'"
+              :sort="'status_id'"
+              @get-candidates="sortCandidates"
+            />
+          </th>
+          <th width="15%">
+            Создан
+            <UpDown
+              :order="'desc'"
+              :sort="'created'"
+              @get-candidates="sortCandidates"
+            />
+            <UpDown
+              :order="'asc'"
+              :sort="'created'"
+              @get-candidates="sortCandidates"
+            />
+          </th>
         </tr>
       </template>
       <template v-slot:tbody>

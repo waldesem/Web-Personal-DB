@@ -30,6 +30,10 @@ class SearchSchema(Schema):
     search = String(default="")
 
 
+class SearchSortSchema(SearchSchema):
+    sort = String(default="id")
+
+
 class ActionSchema(Schema):
     action = String()
 

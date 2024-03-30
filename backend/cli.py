@@ -62,6 +62,11 @@ def register_cli(app):
                 select(Role).filter_by(role=(Roles.admin.value))
             ).scalar_one_or_none()
         )
+        superadmin.roles.append(
+            db.session.execute(
+                select(Role).filter_by(role=(Roles.user.value))
+            ).scalar_one_or_none()
+        )
         db.session.add(superadmin)
 
         db.session.add(
