@@ -2,10 +2,10 @@
 import { defineAsyncComponent } from 'vue';
 
 const AlertMessage = defineAsyncComponent(
-  () => import("@components/layouts/AlertMessage.vue")
+  () => import("@components/content/layouts/AlertMessage.vue")
 );
 const NavBar = defineAsyncComponent(
-  () => import("@components/layouts/NavBar.vue")
+  () => import("@components/content/layouts/NavBar.vue")
 );
 
 </script>

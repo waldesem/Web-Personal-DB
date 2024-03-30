@@ -4,25 +4,31 @@ import { classifyStore } from "@/store/classify";
 import type { Anketa, Resume } from "@/interfaces/interface";
 
 const ResumeForm = defineAsyncComponent(
-  () => import("../forms/ResumeForm.vue")
+  () => import("@components/content/forms/ResumeForm.vue")
 );
-const StaffDiv = defineAsyncComponent(() => import("../divs/StaffDiv.vue"));
+const StaffDiv = defineAsyncComponent(
+  () => import("@components/content/divs/StaffDiv.vue")
+);
 const DocumentDiv = defineAsyncComponent(
-  () => import("../divs/DocumentDiv.vue")
+  () => import("@components/content/divs/DocumentDiv.vue")
 );
-const AddressDiv = defineAsyncComponent(() => import("../divs/AddressDiv.vue"));
-const ContactDiv = defineAsyncComponent(() => import("../divs/ContactDiv.vue"));
+const AddressDiv = defineAsyncComponent(
+  () => import("@components/content/divs/AddressDiv.vue")
+);
+const ContactDiv = defineAsyncComponent(
+  () => import("@components/content/divs/ContactDiv.vue")
+);
 const RelationDiv = defineAsyncComponent(
-  () => import("../divs/RelationDiv.vue")
+  () => import("@components/content/divs/RelationDiv.vue")
 );
 const WorkplaceDiv = defineAsyncComponent(
-  () => import("../divs/WorkplaceDiv.vue")
+  () => import("@components/content/divs/WorkplaceDiv.vue")
 );
 const AffilationDiv = defineAsyncComponent(
-  () => import("../divs/AffilationDiv.vue")
+  () => import("@components/content/divs/AffilationDiv.vue")
 );
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 );
 
 const storeClassify = classifyStore();
@@ -108,8 +114,12 @@ function deleteItem(itemId: string, item: string) {
         </a>
       </LabelValue>
       <LabelValue :label="'ID'">{{ props.anketa.resume["id"] }}</LabelValue>
-      <LabelValue :label="'Фамилия'">{{ props.anketa.resume["surname"] }}</LabelValue>
-      <LabelValue :label="'Имя'">{{ props.anketa.resume["firstname"] }}</LabelValue>
+      <LabelValue :label="'Фамилия'">{{
+        props.anketa.resume["surname"]
+      }}</LabelValue>
+      <LabelValue :label="'Имя'">{{
+        props.anketa.resume["firstname"]
+      }}</LabelValue>
       <LabelValue :label="'Отчество'">{{
         props.anketa.resume["patronymic"]
       }}</LabelValue>
@@ -118,7 +128,9 @@ function deleteItem(itemId: string, item: string) {
       </LabelValue>
       <LabelValue :label="'Дата рождения'"
         >{{
-          new Date(String(props.anketa.resume["birthday"])).toLocaleDateString("ru-RU")
+          new Date(String(props.anketa.resume["birthday"])).toLocaleDateString(
+            "ru-RU"
+          )
         }}
       </LabelValue>
       <LabelValue :label="'Место рождения'">{{
@@ -130,7 +142,9 @@ function deleteItem(itemId: string, item: string) {
       <LabelValue :label="'Двойное гражданство'"
         >{{ props.anketa.resume["ext_country"] }}
       </LabelValue>
-      <LabelValue :label="'СНИЛС'">{{ props.anketa.resume["snils"] }}</LabelValue>
+      <LabelValue :label="'СНИЛС'">{{
+        props.anketa.resume["snils"]
+      }}</LabelValue>
       <LabelValue :label="'ИНН'">{{ props.anketa.resume["inn"] }}</LabelValue>
       <LabelValue :label="'Образование'"
         >{{ props.anketa.resume["education"] }}
@@ -147,18 +161,18 @@ function deleteItem(itemId: string, item: string) {
       <LabelValue :label="'Дата создания'"
         >{{
           props.anketa.resume["created"]
-            ? new Date(String(props.anketa.resume["created"])).toLocaleDateString(
-                "ru-RU"
-              )
+            ? new Date(
+                String(props.anketa.resume["created"])
+              ).toLocaleDateString("ru-RU")
             : ""
         }}
       </LabelValue>
       <LabelValue :label="'Дата обновления'"
         >{{
           props.anketa.resume["updated"]
-            ? new Date(String(props.anketa.resume["updated"])).toLocaleDateString(
-                "ru-RU"
-              )
+            ? new Date(
+                String(props.anketa.resume["updated"])
+              ).toLocaleDateString("ru-RU")
             : ""
         }}
       </LabelValue>
@@ -223,7 +237,10 @@ function deleteItem(itemId: string, item: string) {
 
     <div class="btn-group d-print-none mt-3" role="group">
       <button
-        :disabled="props.anketa.resume.user_id !== null && props.anketa.resume.user_id !== ''"
+        :disabled="
+          props.anketa.resume.user_id !== null &&
+          props.anketa.resume.user_id !== ''
+        "
         type="button"
         class="btn btn-outline-primary"
         @click="getResume('self')"
@@ -234,8 +251,10 @@ function deleteItem(itemId: string, item: string) {
       <button
         class="btn btn-outline-primary"
         :disabled="
-          storeClassify.classData.status[props.anketa.resume['status_id']] !== 'Проверка'
-          && props.anketa.resume.user_id !== props.userId && props.spinner
+          storeClassify.classData.status[props.anketa.resume['status_id']] !==
+            'Проверка' &&
+          props.anketa.resume.user_id !== props.userId &&
+          props.spinner
         "
         @click="getResume('send')"
       >

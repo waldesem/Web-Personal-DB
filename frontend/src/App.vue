@@ -8,7 +8,7 @@ import { server } from "@utilities/utils";
 import { router } from "./router/router";
 
 const FooterDiv = defineAsyncComponent(
-  () => import("@components/layouts/FooterDiv.vue")
+  () => import("@components/content/layouts/FooterDiv.vue")
 );
 
 const storeClasses = classifyStore();

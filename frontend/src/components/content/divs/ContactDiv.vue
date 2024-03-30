@@ -3,13 +3,13 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Contact } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
+  () => import("@components/content/elements/CollapseDiv.vue")
 );
 const ContactForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/ContactForm.vue")
+  () => import("@components/content/forms/ContactForm.vue")
 );
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);

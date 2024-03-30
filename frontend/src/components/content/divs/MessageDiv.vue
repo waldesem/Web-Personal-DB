@@ -5,7 +5,7 @@ import { server } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
 
 const TableSlots = defineAsyncComponent(
-  () => import("@components/elements/TableSlots.vue")
+  () => import("@components/content/elements/TableSlots.vue")
 );
 
 const storeAuth = authStore();

@@ -3,16 +3,16 @@ import { defineAsyncComponent, computed } from "vue";
 import { Contact } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/InputLabel.vue")
+  () => import("@components/content/elements/InputLabel.vue")
 );
 const SelectArray = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/SelectArray.vue")
+  () => import("@components/content/elements/SelectArray.vue")
 )
 const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
+  () => import("@components/content/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
-  () => import("@components/elements/BtnGroup.vue")
+  () => import("@components/content/elements/BtnGroup.vue")
 );
 
 const emit = defineEmits(["submit"]);

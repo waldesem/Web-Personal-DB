@@ -3,16 +3,16 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
+  () => import("@components/content/elements/CollapseDiv.vue")
 );
 const PoligrafForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/PoligrafForm.vue")
+  () => import("@components/content/forms/PoligrafForm.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/FileForm.vue")
+  () => import("@components/content/forms/FileForm.vue")
 );
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);

@@ -6,13 +6,13 @@ import { server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
 const InputLabel = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/InputLabel.vue")
+  () => import("@components/content/elements/InputLabel.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/BtnGroupContent.vue")
+  () => import("@components/content/elements/BtnGroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
-  () => import("@components/elements/BtnGroup.vue")
+  () => import("@components/content/elements/BtnGroup.vue")
 );
 
 const storeAuth = authStore();

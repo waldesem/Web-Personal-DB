@@ -2,7 +2,7 @@
 import { defineAsyncComponent } from 'vue';
 
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 );
 
 const props = defineProps({

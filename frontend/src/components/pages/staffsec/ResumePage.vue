@@ -6,13 +6,13 @@ import { server } from "@/utilities/utils";
 import { router } from "@/router/router";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/FileForm.vue")
+  () => import("@components/content/forms/FileForm.vue")
 );
 const ResumeForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/ResumeForm.vue")
+  () => import("@components/content/forms/ResumeForm.vue")
 );
 
 const storeAuth = authStore();

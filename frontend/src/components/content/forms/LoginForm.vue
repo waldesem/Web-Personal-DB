@@ -7,7 +7,7 @@ import { server } from "@utilities/utils";
 import { router } from "@/router/router";
 
 const DivLabelInput = defineAsyncComponent(
-  () => import("@components/content/login/elements/DivLabelInput.vue")
+  () => import("@components/content/elements/DivLabelInput.vue")
 );
 
 const storeAlert = alertStore();

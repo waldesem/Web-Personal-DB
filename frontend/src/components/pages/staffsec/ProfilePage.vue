@@ -24,25 +24,25 @@ import {
 } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const PhotoCard = defineAsyncComponent(
-  () => import("@components/content/staffsec/divs//PhotoCard.vue")
+  () => import("@components/content/divs//PhotoCard.vue")
 );
 const AnketaTab = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/AnketaTab.vue")
+  () => import("@components/content/tabs/AnketaTab.vue")
 );
 const CheckTab = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/CheckTab.vue")
+  () => import("@components/content/tabs/CheckTab.vue")
 );
 const PoligrafTab = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/PoligrafTab.vue")
+  () => import("@components/content/tabs/PoligrafTab.vue")
 );
 const InvestigateTab = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/InvestigateTab.vue")
+  () => import("@components/content/tabs/InvestigateTab.vue")
 );
 const InquiryTab = defineAsyncComponent(
-  () => import("@components/content/staffsec/tabs/InquiryTab.vue")
+  () => import("@components/content/tabs/InquiryTab.vue")
 );
 
 const storeAuth = authStore();

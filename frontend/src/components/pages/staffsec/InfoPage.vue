@@ -5,16 +5,16 @@ import { authStore } from "@/store/auth";
 import { server } from "@/utilities/utils";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const SelectOption = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/SelectOption.vue")
+  () => import("@components/content/elements/SelectOption.vue")
 );
 const InputDate = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/InputDate.vue")
+  () => import("@components/content/elements/InputDate.vue")
 );
 const TableSlots = defineAsyncComponent(
-  () => import("@components/elements/TableSlots.vue")
+  () => import("@components/content/elements/TableSlots.vue")
 );
 
 const storeAuth = authStore();

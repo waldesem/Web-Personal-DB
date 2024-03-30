@@ -3,16 +3,16 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
+  () => import("@components/content/elements/CollapseDiv.vue")
 );
 const InvestigationForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/InvestigationForm.vue")
+  () => import("@components/content/forms/InvestigationForm.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/FileForm.vue")
+  () => import("@components/content/forms/FileForm.vue")
 );
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);

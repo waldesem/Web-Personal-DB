@@ -6,16 +6,16 @@ import { debounce, server, timeSince } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const SelectOption = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/SelectOption.vue")
+  () => import("@components/content/elements/SelectOption.vue")
 )
 const TableSlots = defineAsyncComponent(
-  () => import("@components/elements/TableSlots.vue")
+  () => import("@components/content/elements/TableSlots.vue")
 );
 const PageSwitcher = defineAsyncComponent(
-  () => import("@components/layouts/PageSwitcher.vue")
+  () => import("@components/content/layouts/PageSwitcher.vue")
 );
 
 const storeAuth = authStore();

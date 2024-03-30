@@ -6,16 +6,16 @@ import { server, debounce } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const UserForm = defineAsyncComponent(
-  () => import("@components/content/admin/forms/UserForm.vue")
+  () => import("@components/content/forms/UserForm.vue")
 );
 const SwitchBox = defineAsyncComponent(
-  () => import("@components/elements/SwitchBox.vue")
+  () => import("@components/content/elements/SwitchBox.vue")
 );
 const TableSlots = defineAsyncComponent(
-  () => import("@components/elements/TableSlots.vue")
+  () => import("@components/content/elements/TableSlots.vue")
 );
 
 const storeAlert = alertStore();

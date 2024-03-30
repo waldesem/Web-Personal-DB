@@ -3,10 +3,10 @@ import { defineAsyncComponent } from "vue";
 import { alertStore } from "@store/alert";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const AlertMessage = defineAsyncComponent(
-  () => import("@components/layouts/AlertMessage.vue")
+  () => import("@components/content/layouts/AlertMessage.vue")
 );
 const LoginForm = defineAsyncComponent(
   () => import("@components/content/forms/LoginForm.vue")

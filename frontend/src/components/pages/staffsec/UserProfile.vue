@@ -8,13 +8,13 @@ import { server } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/admin/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 );
 const UserForm = defineAsyncComponent(
-  () => import("@components/content/admin/forms/UserForm.vue")
+  () => import("@components/content/forms/UserForm.vue")
 );
 
 const storeClassify = classifyStore();

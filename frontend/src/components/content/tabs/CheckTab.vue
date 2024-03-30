@@ -4,19 +4,19 @@ import { classifyStore } from "@/store/classify";
 import { Anketa, Verification } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
+  () => import("@components/content/elements/CollapseDiv.vue")
 );
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 )
 const FileForm = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const CheckForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/CheckForm.vue")
+  () => import("@components/content/forms/CheckForm.vue")
 );
 const RobotDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/divs/RobotDiv.vue")
+  () => import("@components/content/divs/RobotDiv.vue")
 );
 
 const storeClassify = classifyStore();

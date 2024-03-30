@@ -3,13 +3,13 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Affilation } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/CollapseDiv.vue")
+  () => import("@components/content/elements/CollapseDiv.vue")
 );
 const AffilationForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/AffilationForm.vue")
+  () => import("@components/content/forms/AffilationForm.vue")
 );
 const LabelValue = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/LabelValue.vue")
+  () => import("@components/content/elements/LabelValue.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);

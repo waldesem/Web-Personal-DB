@@ -6,22 +6,22 @@ import { debounce, server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
-  () => import("@components/elements/HeaderDiv.vue")
+  () => import("@components/content/elements/HeaderDiv.vue")
 );
 const TableSlots = defineAsyncComponent(
-  () => import("@components/elements/TableSlots.vue")
+  () => import("@components/content/elements/TableSlots.vue")
 );
 const ModalWin = defineAsyncComponent(
-  () => import("@components/content/staffsec/elements/ModalWin.vue")
+  () => import("@components/content/elements/ModalWin.vue")
 )
 const ConnectDiv = defineAsyncComponent(
-  () => import("@components/content/staffsec/divs/ConnectDiv.vue")
+  () => import("@components/content/divs/ConnectDiv.vue")
 )
 const PageSwitcher = defineAsyncComponent(
-  () => import("@components/layouts/PageSwitcher.vue")
+  () => import("@components/content/layouts/PageSwitcher.vue")
 );
 const ConnectForm = defineAsyncComponent(
-  () => import("@components/content/staffsec/forms/ConnectForm.vue")
+  () => import("@components/content/forms/ConnectForm.vue")
 );
 
 const storeAuth = authStore();

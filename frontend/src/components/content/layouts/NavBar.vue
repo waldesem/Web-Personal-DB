@@ -6,7 +6,7 @@ import { server } from "@/utilities/utils";
 import { router } from "@/router/router";
 
 const MessageDiv = defineAsyncComponent(
-  () => import('@components/content/staffsec/divs/MessageDiv.vue')
+  () => import('@components/content/divs/MessageDiv.vue')
 )
 
 const storeAuth = authStore();
