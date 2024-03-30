@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const RelationForm = defineAsyncComponent(
   () => import("@components/content/forms/RelationForm.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
@@ -68,7 +68,7 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Связь #' + (idx + 1)"
       >
-        <LabelValue :label="'Действия'" :no-print="true">
+        <LabelSlot :label="'Действия'" :no-print="true">
           <a
             href="#" 
             @click="emit('delete', item['id'].toString(), 'relation')" 
@@ -87,10 +87,10 @@ function submitForm(form: Object) {
           >
             <i class="bi bi-pencil-square"></i>
           </a>
-        </LabelValue>
-        <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
-        <LabelValue :label="'Тип'">{{ item["relation"] }}</LabelValue>
-        <LabelValue :label="'Связь'" :no-print="true">
+        </LabelSlot>
+        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+        <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
+        <LabelSlot :label="'Связь'" :no-print="true">
           <router-link
             :to="{
               name: 'profile',
@@ -99,7 +99,7 @@ function submitForm(form: Object) {
           >
             ID #{{ item["relation_id"] }}
           </router-link>
-        </LabelValue>
+        </LabelSlot>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

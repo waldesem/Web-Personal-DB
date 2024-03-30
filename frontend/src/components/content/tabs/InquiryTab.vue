@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const InquiryForm = defineAsyncComponent(
   () => import("@components/content/forms/InquiryForm.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
@@ -59,7 +59,7 @@ function submitForm(form: Object) {
           :idx="idx.toString()"
           :label="'Запрос #' + (idx + 1)"
         >
-          <LabelValue :label="'Действия'">
+          <LabelSlot :label="'Действия'">
             <a
               href="#"
               title="Удалить"
@@ -79,15 +79,15 @@ function submitForm(form: Object) {
             >
               <i class="bi bi-pencil-square"></i>
             </a>
-          </LabelValue>
-          <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
-          <LabelValue :label="'Информация'">{{ item["info"] }}</LabelValue>
-          <LabelValue :label="'Иннициатор'">{{ item["initiator"] }}</LabelValue>
-          <LabelValue :label="'Источник'">{{ item["source"] }}</LabelValue>
-          <LabelValue :label="'Сотрудник'">{{ item["officer"] }}</LabelValue>
-          <LabelValue :label="'Дата запроса'">
+          </LabelSlot>
+          <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+          <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
+          <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
+          <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
+          <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+          <LabelSlot :label="'Дата запроса'">
             {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelValue>
+          </LabelSlot>
         </CollapseDiv>
       </div>
       <p v-else>Данные отсутствуют</p>

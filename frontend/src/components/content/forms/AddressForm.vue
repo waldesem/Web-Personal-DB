@@ -5,8 +5,11 @@ import { Address } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/content/elements/InputLabel.vue")
 );
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+)
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroupContent.vue")
@@ -35,12 +38,13 @@ const addressForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <SelectArray
-      :name="''"
-      :label="''"
-      :select="['Адрес регистрации', 'Адрес проживания', 'Другое']"
-      v-model="addressForm['view']"
-    />
+    <LabelSlot :label="'Вид адреса'">
+      <SelectInput
+        :name="'view'"
+        :select="['Адрес регистрации', 'Адрес проживания', 'Другое']"
+        v-model="addressForm['view']"
+      />
+    </LabelSlot>
     <InputLabel
       :name="'region'"
       :label="'Регион'"

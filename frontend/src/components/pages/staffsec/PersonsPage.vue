@@ -8,8 +8,8 @@ import { Resume } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const SelectOption = defineAsyncComponent(
-  () => import("@components/content/elements/SelectOption.vue")
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
 )
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -78,7 +78,7 @@ const searchPerson = debounce(() => {
     <div class="row mb-5">
       <div class="col-md-3">
         <form  class="form form-check" role="form"> 
-          <SelectOption
+          <SelectInput
             :name="'action'"
             :select="personData.items"
             v-model="personData.path"

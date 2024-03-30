@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const props = defineProps({
@@ -16,39 +16,39 @@ const props = defineProps({
 <template>
   <div class="card">
     <div class="card-body">
-      <LabelValue :label="'id'">
+      <LabelSlot :label="'id'">
         {{ props.item['id'] }}
-      </LabelValue>
-      <LabelValue :label="'Компания'">
+      </LabelSlot>
+      <LabelSlot :label="'Компания'">
         {{ props.item['company'] }}
-      </LabelValue>
-      <LabelValue :label="'Название'">
+      </LabelSlot>
+      <LabelSlot :label="'Название'">
         {{ props.item['name'] }}
-      </LabelValue>
-      <LabelValue :label="'Город'">
+      </LabelSlot>
+      <LabelSlot :label="'Город'">
         {{ props.item['city'] }}
-      </LabelValue>
-      <LabelValue :label="'Имя'">
+      </LabelSlot>
+      <LabelSlot :label="'Имя'">
         {{ props.item['fullname'] }}
-      </LabelValue>
-      <LabelValue :label="'Телефон'">
+      </LabelSlot>
+      <LabelSlot :label="'Телефон'">
         {{ props.item['phone'] }}
-      </LabelValue>
-      <LabelValue :label="'Добавочный'">
+      </LabelSlot>
+      <LabelSlot :label="'Добавочный'">
         {{ props.item['adding'] }}
-      </LabelValue>
-      <LabelValue :label="'Мобильный'">
+      </LabelSlot>
+      <LabelSlot :label="'Мобильный'">
         {{ props.item['mobile'] }}
-      </LabelValue>
-      <LabelValue :label="'E-mail'">
+      </LabelSlot>
+      <LabelSlot :label="'E-mail'">
         {{ props.item['email'] }}
-      </LabelValue>
-      <LabelValue :label="'Примечание'">
+      </LabelSlot>
+      <LabelSlot :label="'Примечание'">
         {{ props.item['note'] }}
-      </LabelValue>
-      <LabelValue :label="'Дата'">
+      </LabelSlot>
+      <LabelSlot :label="'Дата'">
         {{ new Date(String(props.item['data'])).toLocaleDateString("ru-RU") }}
-      </LabelValue>
+      </LabelSlot>
     </div>
   </div>
 </template>

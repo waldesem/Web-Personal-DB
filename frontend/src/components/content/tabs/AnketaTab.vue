@@ -27,8 +27,8 @@ const WorkplaceDiv = defineAsyncComponent(
 const AffilationDiv = defineAsyncComponent(
   () => import("@components/content/divs/AffilationDiv.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const storeClassify = classifyStore();
@@ -93,7 +93,7 @@ function deleteItem(itemId: string, item: string) {
       @cancel="dataResume.action = ''"
     />
     <div v-else>
-      <LabelValue :label="'Действия'">
+      <LabelSlot :label="'Действия'">
         <a
           class="btn btn-link"
           title="Изменить"
@@ -112,53 +112,53 @@ function deleteItem(itemId: string, item: string) {
         >
           <i class="bi bi-trash"></i>
         </a>
-      </LabelValue>
-      <LabelValue :label="'ID'">{{ props.anketa.resume["id"] }}</LabelValue>
-      <LabelValue :label="'Фамилия'">{{
+      </LabelSlot>
+      <LabelSlot :label="'ID'">{{ props.anketa.resume["id"] }}</LabelSlot>
+      <LabelSlot :label="'Фамилия'">{{
         props.anketa.resume["surname"]
-      }}</LabelValue>
-      <LabelValue :label="'Имя'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Имя'">{{
         props.anketa.resume["firstname"]
-      }}</LabelValue>
-      <LabelValue :label="'Отчество'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Отчество'">{{
         props.anketa.resume["patronymic"]
-      }}</LabelValue>
-      <LabelValue :label="'Предыдущая фамилия'"
+      }}</LabelSlot>
+      <LabelSlot :label="'Предыдущая фамилия'"
         >{{ props.anketa.resume["previous"] }}
-      </LabelValue>
-      <LabelValue :label="'Дата рождения'"
+      </LabelSlot>
+      <LabelSlot :label="'Дата рождения'"
         >{{
           new Date(String(props.anketa.resume["birthday"])).toLocaleDateString(
             "ru-RU"
           )
         }}
-      </LabelValue>
-      <LabelValue :label="'Место рождения'">{{
+      </LabelSlot>
+      <LabelSlot :label="'Место рождения'">{{
         props.anketa.resume["birthplace"]
-      }}</LabelValue>
-      <LabelValue :label="'Гражданство'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Гражданство'">{{
         props.anketa.resume["country"]
-      }}</LabelValue>
-      <LabelValue :label="'Двойное гражданство'"
+      }}</LabelSlot>
+      <LabelSlot :label="'Двойное гражданство'"
         >{{ props.anketa.resume["ext_country"] }}
-      </LabelValue>
-      <LabelValue :label="'СНИЛС'">{{
+      </LabelSlot>
+      <LabelSlot :label="'СНИЛС'">{{
         props.anketa.resume["snils"]
-      }}</LabelValue>
-      <LabelValue :label="'ИНН'">{{ props.anketa.resume["inn"] }}</LabelValue>
-      <LabelValue :label="'Образование'"
+      }}</LabelSlot>
+      <LabelSlot :label="'ИНН'">{{ props.anketa.resume["inn"] }}</LabelSlot>
+      <LabelSlot :label="'Образование'"
         >{{ props.anketa.resume["education"] }}
-      </LabelValue>
-      <LabelValue :label="'Семейнное положение'"
+      </LabelSlot>
+      <LabelSlot :label="'Семейнное положение'"
         >{{ props.anketa.resume["marital"] }}
-      </LabelValue>
-      <LabelValue :label="'Дополнительная информация'"
+      </LabelSlot>
+      <LabelSlot :label="'Дополнительная информация'"
         >{{ props.anketa.resume["addition"] }}
-      </LabelValue>
-      <LabelValue :label="'Статус'"
+      </LabelSlot>
+      <LabelSlot :label="'Статус'"
         >{{ storeClassify.classData.status[props.anketa.resume["status_id"]] }}
-      </LabelValue>
-      <LabelValue :label="'Дата создания'"
+      </LabelSlot>
+      <LabelSlot :label="'Дата создания'"
         >{{
           props.anketa.resume["created"]
             ? new Date(
@@ -166,8 +166,8 @@ function deleteItem(itemId: string, item: string) {
               ).toLocaleDateString("ru-RU")
             : ""
         }}
-      </LabelValue>
-      <LabelValue :label="'Дата обновления'"
+      </LabelSlot>
+      <LabelSlot :label="'Дата обновления'"
         >{{
           props.anketa.resume["updated"]
             ? new Date(
@@ -175,11 +175,11 @@ function deleteItem(itemId: string, item: string) {
               ).toLocaleDateString("ru-RU")
             : ""
         }}
-      </LabelValue>
-      <LabelValue :label="'Пользователь'">{{
+      </LabelSlot>
+      <LabelSlot :label="'Пользователь'">{{
         props.anketa.resume["user_id"]
-      }}</LabelValue>
-      <LabelValue :label="'Материалы'">
+      }}</LabelSlot>
+      <LabelSlot :label="'Материалы'">
         <router-link
           v-if="props.anketa.resume['path']"
           :to="{
@@ -189,7 +189,7 @@ function deleteItem(itemId: string, item: string) {
         >
           {{ props.anketa.resume["path"] }}
         </router-link>
-      </LabelValue>
+      </LabelSlot>
     </div>
 
     <StaffDiv

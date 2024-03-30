@@ -6,8 +6,8 @@ import { Anketa, Verification } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 )
 const FileForm = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -84,7 +84,7 @@ function getRobot() {
           :idx="idx.toString()"
           :label="'Проверка #' + (idx + 1)"
         >
-          <LabelValue :label="'Действия'">
+          <LabelSlot :label="'Действия'">
             <a
               href="#"
               title="Удалить"
@@ -111,52 +111,52 @@ function getRobot() {
             >
               <i class="bi bi-pencil-square"></i>
             </a>
-          </LabelValue>
-          <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
-          <LabelValue :label="'Проверка по местам работы'">
+          </LabelSlot>
+          <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+          <LabelSlot :label="'Проверка по местам работы'">
             {{ item["workplace"] }}
-          </LabelValue>
-          <LabelValue :label="'Бывший работник МТСБ'">
+          </LabelSlot>
+          <LabelSlot :label="'Бывший работник МТСБ'">
             {{ item["employee"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка паспорта'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка паспорта'">
             {{ item["document"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка ИНН'">{{ item["inn"] }}</LabelValue>
-          <LabelValue :label="'Проверка ФССП'">{{ item["debt"] }}</LabelValue>
-          <LabelValue :label="'Проверка банкротства'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</LabelSlot>
+          <LabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</LabelSlot>
+          <LabelSlot :label="'Проверка банкротства'">
             {{ item["bankruptcy"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка БКИ'">{{ item["bki"] }}</LabelValue>
-          <LabelValue :label="'Проверка судебных решений'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</LabelSlot>
+          <LabelSlot :label="'Проверка судебных решений'">
             {{ item["courts"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка аффилированности'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка аффилированности'">
             {{ item["affiliation"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка по списку террористов'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка по списку террористов'">
             {{ item["terrorist"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelValue>
-          <LabelValue :label="'Проверка в открытых источниках'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
+          <LabelSlot :label="'Проверка в открытых источниках'">
             {{ item["internet"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка в Кронос'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка в Кронос'">
             {{ item["cronos"] }}
-          </LabelValue>
-          <LabelValue :label="'Проверка в Крос'">
+          </LabelSlot>
+          <LabelSlot :label="'Проверка в Крос'">
             {{ item["cros"] }}
-          </LabelValue>
-          <LabelValue :label="'Дополнительная информация'">
+          </LabelSlot>
+          <LabelSlot :label="'Дополнительная информация'">
             {{ item["addition"] }}
-          </LabelValue>
-          <LabelValue :label="'ПФО'">{{ item["pfo"] }}</LabelValue>
-          <LabelValue :label="'Комментарии'">{{ item["comments"] }}</LabelValue>
-          <LabelValue :label="'Результат'">{{ item["conclusion"] }}</LabelValue>
-          <LabelValue :label="'Сотрудник'">{{ item["officer"] }}</LabelValue>
-          <LabelValue :label="'Дата'">
+          </LabelSlot>
+          <LabelSlot :label="'ПФО'">{{ item["pfo"] }}</LabelSlot>
+          <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
+          <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
+          <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+          <LabelSlot :label="'Дата'">
             {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelValue>
+          </LabelSlot>
         </CollapseDiv>
         <FileForm :accept="'*'" @submit="submitFile" />
         <RobotDiv

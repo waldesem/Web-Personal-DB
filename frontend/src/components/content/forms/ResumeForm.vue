@@ -6,8 +6,11 @@ import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
 
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+)
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
 );
 const InputLabel = defineAsyncComponent(
   () => import("@components/content/elements/InputLabel.vue")
@@ -86,12 +89,13 @@ const resumeForm = ref({
       class="form form-check"
       role="form"
     >
-      <SelectDiv
-        :name="'region_id'"
-        :label="'Регион'"
-        :select="storeClassify.classData.regions"
-        v-model="resumeForm.form['region_id']"
-      />
+      <LabelSlot :label="'Регион'">
+        <SelectInput
+          :name="'region_id'"
+          :select="storeClassify.classData.regions"
+          v-model="resumeForm.form['region_id']"
+        />
+      </LabelSlot>
       <InputLabel
         :isneed="true"
         :name="'surname'"

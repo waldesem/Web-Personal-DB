@@ -22,16 +22,15 @@ storeAlert.alertMessage.setAlert(
 <template>
   <AlertMessage/>
   <div class="container" id="login-page">
-    <div class="row justify-content-center">
-      <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
-      <LoginForm />
-    </div>
+    <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
+    <LoginForm />
   </div>
 </template>
 
 <style scoped>
 #login-page {
-  height: 75vh;
+  height: 65vh;
   width: 50vh;
+  margin-top: 10vh;
 }
 </style>

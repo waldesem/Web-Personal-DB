@@ -3,8 +3,8 @@ const props = defineProps({
   id: String,
   title: String,
   size: {
-    default: "modal-xl",
     type: String,
+    default: "modal-xl",
   },
 });
 </script>

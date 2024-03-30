@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const ContactForm = defineAsyncComponent(
   () => import("@components/content/forms/ContactForm.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
@@ -61,7 +61,7 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Контакт #' + (idx + 1)"
       >
-        <LabelValue :label="'Действия'" :no-print="true">
+        <LabelSlot :label="'Действия'" :no-print="true">
           <a 
             href="#" 
             @click="emit('delete', item['id'].toString(), 'contact')" 
@@ -80,10 +80,10 @@ function submitForm(form: Object) {
           >
             <i class="bi bi-pencil-square"></i>
           </a>
-        </LabelValue>
-        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
-        <LabelValue :label="'Вид'">{{ item['view'] }}</LabelValue>
-        <LabelValue :label="'Контакт'">{{ item['contact'] }}</LabelValue>
+        </LabelSlot>
+        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
+        <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
+        <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

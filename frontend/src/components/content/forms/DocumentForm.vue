@@ -5,9 +5,12 @@ import { Document } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/content/elements/InputLabel.vue")
 );
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 )
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
+);
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroupContent.vue")
 );
@@ -41,12 +44,13 @@ const selected_item = [
     class="form form-check"
     role="form"
   >
-    <SelectArray
-      :name="'view'"
-      :label="'Выбрать'"
-      :select="selected_item"
-      v-model="docForm['view']"
-    />
+    <LabelSlot :label="'Вид документа'">
+      <SelectInput
+        :name="'view'"
+        :select="selected_item"
+        v-model="docForm['view']"
+      />
+    </LabelSlot>
     <InputLabel
       :name="'series'"
       :label="'Серия документа'"

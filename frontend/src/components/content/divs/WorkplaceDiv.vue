@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const WorkplaceForm = defineAsyncComponent(
   () => import("@components/content/forms/WorkplaceForm.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
@@ -70,7 +70,7 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Работа #' + (idx + 1)"
       >
-        <LabelValue :label="'Действия'" :no-print="true">
+        <LabelSlot :label="'Действия'" :no-print="true">
           <a href="#" 
             @click="emit('delete', item['id'].toString(), 'workplace')" 
             title="Удалить"
@@ -88,13 +88,13 @@ function submitForm(form: Object) {
           >
             <i class="bi bi-pencil-square"></i>
           </a>
-        </LabelValue>
-        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
-        <LabelValue :label="'Начало работы'">{{ item['start_date'] }}</LabelValue>
-        <LabelValue :label="'Окончание работы'">{{ item['end_date'] }}</LabelValue>
-        <LabelValue :label="'Место работы'">{{ item['workplace'] }}</LabelValue>
-        <LabelValue :label="'Адрес'">{{ item['address'] }}</LabelValue>
-        <LabelValue :label="'Должность'">{{ item['position'] }}</LabelValue>
+        </LabelSlot>
+        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
+        <LabelSlot :label="'Начало работы'">{{ item['start_date'] }}</LabelSlot>
+        <LabelSlot :label="'Окончание работы'">{{ item['end_date'] }}</LabelSlot>
+        <LabelSlot :label="'Место работы'">{{ item['workplace'] }}</LabelSlot>
+        <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
+        <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

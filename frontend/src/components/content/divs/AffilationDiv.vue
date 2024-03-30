@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const AffilationForm = defineAsyncComponent(
   () => import("@components/content/forms/AffilationForm.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
@@ -67,7 +67,7 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Аффилированность #' + (idx + 1)"
       >
-        <LabelValue :label="'Действия'" :no-print="true">
+        <LabelSlot :label="'Действия'" :no-print="true">
           <a 
             href="#" 
             @click="emit('delete', item['id'].toString(), 'affilation')" 
@@ -86,15 +86,15 @@ function submitForm(form: Object) {
           >
             <i class="bi bi-pencil-square"></i>
           </a>
-        </LabelValue>
-        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
-        <LabelValue :label="'Тип участия'">{{ item['view'] }}</LabelValue>
-        <LabelValue :label="'Организация'">{{ item['name'] }}</LabelValue>
-        <LabelValue :label="'ИНН'">{{ item['inn'] }}</LabelValue>
-        <LabelValue :label="'Должность'">{{ item['position'] }}</LabelValue>
-        <LabelValue :label="'Дата декларации'">
+        </LabelSlot>
+        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
+        <LabelSlot :label="'Тип участия'">{{ item['view'] }}</LabelSlot>
+        <LabelSlot :label="'Организация'">{{ item['name'] }}</LabelSlot>
+        <LabelSlot :label="'ИНН'">{{ item['inn'] }}</LabelSlot>
+        <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
+        <LabelSlot :label="'Дата декларации'">
           {{ new Date(String(item['deadline'])).toLocaleDateString('ru-RU') }}
-        </LabelValue>
+        </LabelSlot>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

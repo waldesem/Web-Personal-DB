@@ -10,8 +10,8 @@ import { User } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 const UserForm = defineAsyncComponent(
   () => import("@components/content/forms/UserForm.vue")
@@ -113,28 +113,28 @@ const userData = ref({
       :cls="'text-secondary'"
     />
     <div class="py-3">
-      <LabelValue :label="'ID'">{{ userData.profile.id }}</LabelValue>
-      <LabelValue :label="'Имя пользователя'">{{ userData.profile.fullname }}</LabelValue>
-      <LabelValue :label="'Логин'">{{ userData.profile.username }}</LabelValue>
-      <LabelValue :label="'E-mail'">{{ userData.profile.email }}</LabelValue>
-      <LabelValue :label="'Дата создания'">{{
+      <LabelSlot :label="'ID'">{{ userData.profile.id }}</LabelSlot>
+      <LabelSlot :label="'Имя пользователя'">{{ userData.profile.fullname }}</LabelSlot>
+      <LabelSlot :label="'Логин'">{{ userData.profile.username }}</LabelSlot>
+      <LabelSlot :label="'E-mail'">{{ userData.profile.email }}</LabelSlot>
+      <LabelSlot :label="'Дата создания'">{{
         new Date(userData.profile.pswd_create).toLocaleString("ru-RU")
-      }}</LabelValue>
-      <LabelValue :label="'Дата изменения'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Дата изменения'">{{
         new Date(userData.profile.pswd_change).toLocaleString("ru-RU")
-      }}</LabelValue>
-      <LabelValue :label="'Дата последнего входа'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Дата последнего входа'">{{
         new Date(userData.profile.last_login).toLocaleString("ru-RU")
-      }}</LabelValue>
-      <LabelValue :label="'Попытки входа'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Попытки входа'">{{
         userData.profile.attempt
-      }}</LabelValue>
-      <LabelValue :label="'Заблокирован'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Заблокирован'">{{
         userData.profile.blocked ? "Заблокирован" : "Разблокирован"
-      }}</LabelValue>
-      <LabelValue :label="'Активность'">{{
+      }}</LabelSlot>
+      <LabelSlot :label="'Активность'">{{
         userData.profile.deleted ? "Удален" : "Активен"
-      }}</LabelValue>
+      }}</LabelSlot>
 
       <div class="row mb-3">
         <div class="col-md-3">Роли</div>

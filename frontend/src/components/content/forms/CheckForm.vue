@@ -6,8 +6,11 @@ import { Verification } from "@/interfaces/interface";
 const TextLabel = defineAsyncComponent(
   () => import("@components/content/elements/TextLabel.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+)
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
 );
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
@@ -156,12 +159,13 @@ computed(() => {
       :label="'Полиграф'"
       v-model="checkForm['pfo']"
     />
-    <SelectDiv
-      :name="'conclusion'"
-      :label="'Результат'"
-      :select="storeClassify.classData.conclusion"
-      v-model="checkForm['conclusion']"
-    />
+    <LabelSlot :label="'Результат'">
+      <SelectInput
+        :name="'conclusion'"
+        :select="storeClassify.classData.conclusion"
+        v-model="checkForm['conclusion']"
+      />
+    </LabelSlot>
     <TextLabel
       :name="'comments'"
       :label="'Комментарий'"

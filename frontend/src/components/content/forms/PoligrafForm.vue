@@ -5,9 +5,12 @@ import { Pfo } from "@/interfaces/interface";
 const TextLabel = defineAsyncComponent(
   () => import("@components/content/elements/TextLabel.vue")
 );
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 )
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
+);
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroupContent.vue")
 );
@@ -35,14 +38,15 @@ const poligrafForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <SelectArray
-      :name="'theme'"
-      :label="'Тема проверки'"
-      :select="[
-        'Проверка кандидата', 'Служебная проверка', 'Служебное расследование'
-        ]"
-      v-model="poligrafForm['theme']"
-    />
+    <LabelSlot :label="'ема проверки'">
+      <SelectInput
+        :name="'theme'"
+        :select="[
+          'Проверка кандидата', 'Служебная проверка', 'Служебное расследование'
+          ]"
+        v-model="poligrafForm['theme']"
+      />
+    </LabelSlot>
     <TextLabel
       :name="'results'"
       :label="'Результат'"

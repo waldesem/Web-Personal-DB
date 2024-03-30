@@ -5,9 +5,12 @@ import { Contact } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/content/elements/InputLabel.vue")
 );
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 )
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
+);
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroupContent.vue")
 );
@@ -45,12 +48,13 @@ const view = computed(() => {
     class="form form-check"
     role="form"
   >
-    <SelectArray
-      :name="'view'"
-      :label="'Выбрать'"
-      :select="['Телефон', 'E-mail', 'Другое']"
-      v-model="contactForm['view']"
-    />
+    <LabelSlot :label="'Вид контакта'">
+      <SelectInput
+        :name="'view'"
+        :select="['Телефон', 'E-mail', 'Другое']"
+        v-model="contactForm['view']"
+      />
+    </LabelSlot>
     <InputLabel
       :name="'contact'"
       :label="'Контакт'"

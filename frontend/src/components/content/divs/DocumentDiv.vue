@@ -8,8 +8,8 @@ const CollapseDiv = defineAsyncComponent(
 const DocumentForm = defineAsyncComponent(
   () => import("@components/content/forms/DocumentForm.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
@@ -62,7 +62,7 @@ function submitForm(form: Object) {
         :idx="idx.toString()"
         :label="'Документ #' + (idx + 1)"
       >
-        <LabelValue :label="'Действия'" :no-print="true">
+        <LabelSlot :label="'Действия'" :no-print="true">
           <a
             href="#"
             @click="
@@ -82,15 +82,15 @@ function submitForm(form: Object) {
           >
             <i class="bi bi-pencil-square"></i>
           </a>
-        </LabelValue>
-        <LabelValue :label="'ID'">{{ item['id'] }}</LabelValue>
-        <LabelValue :label="'Вид документа'">{{ item['view'] }}</LabelValue>
-        <LabelValue :label="'Номер документа'">{{ item['number'] }}</LabelValue>
-        <LabelValue :label="'Серия документа'">{{ item['series'] }}</LabelValue>
-        <LabelValue :label="'Кем выдан'">{{ item['agency'] }}</LabelValue>
-        <LabelValue :label="'Дата выдачи'">
+        </LabelSlot>
+        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
+        <LabelSlot :label="'Вид документа'">{{ item['view'] }}</LabelSlot>
+        <LabelSlot :label="'Номер документа'">{{ item['number'] }}</LabelSlot>
+        <LabelSlot :label="'Серия документа'">{{ item['series'] }}</LabelSlot>
+        <LabelSlot :label="'Кем выдан'">{{ item['agency'] }}</LabelSlot>
+        <LabelSlot :label="'Дата выдачи'">
           {{ new Date(String(item['issue'])).toLocaleDateString('ru-RU') }}
-        </LabelValue>
+        </LabelSlot>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

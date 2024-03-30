@@ -5,8 +5,8 @@ import { Robot } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
-const LabelValue = defineAsyncComponent(
-  () => import("@components/content/elements/LabelValue.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
 );
 
 const emit = defineEmits(["delete"]);
@@ -28,7 +28,7 @@ const props = defineProps({
       :idx="idx.toString()"
       :label="'Робот #' + (idx + 1)"
     >
-      <LabelValue :label="'Действия'" :no-print="true">
+      <LabelSlot :label="'Действия'" :no-print="true">
         <a
           href="#"
           @click="emit('delete', item['id'].toString(), 'robot')"
@@ -36,27 +36,27 @@ const props = defineProps({
         >
           <i class="bi bi-trash"></i>
         </a>
-      </LabelValue>
-      <LabelValue :label="'ID'">{{ item["id"] }}</LabelValue>
-      <LabelValue :label="'Проверка по кадровым данным'">
+      </LabelSlot>
+      <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+      <LabelSlot :label="'Проверка по кадровым данным'">
         {{ item["employee"] }}
-      </LabelValue>
-      <LabelValue :label="'Проверка ИНН'">{{ item["inn"] }}</LabelValue>
-      <LabelValue :label="'Проверка ФССП'">{{ item["debt"] }}</LabelValue>
-      <LabelValue :label="'Проверка банкротства'">
+      </LabelSlot>
+      <LabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</LabelSlot>
+      <LabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</LabelSlot>
+      <LabelSlot :label="'Проверка банкротства'">
         {{ item["bankruptcy"] }}
-      </LabelValue>
-      <LabelValue :label="'Проверка БКИ'">{{ item["bki"] }}</LabelValue>
-      <LabelValue :label="'Проверка судебных решений'">
+      </LabelSlot>
+      <LabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</LabelSlot>
+      <LabelSlot :label="'Проверка судебных решений'">
         {{ item["courts"] }}
-      </LabelValue>
-      <LabelValue :label="'Проверка по списку террористов'">
+      </LabelSlot>
+      <LabelSlot :label="'Проверка по списку террористов'">
         {{ item["terrorist"] }}
-      </LabelValue>
-      <LabelValue :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelValue>
-      <LabelValue :label="'Дата'">
+      </LabelSlot>
+      <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
+      <LabelSlot :label="'Дата'">
         {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-      </LabelValue>
+      </LabelSlot>
     </CollapseDiv>
   </div>
 </template>

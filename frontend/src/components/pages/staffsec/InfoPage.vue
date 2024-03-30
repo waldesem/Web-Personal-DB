@@ -7,8 +7,8 @@ import { server } from "@/utilities/utils";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const SelectOption = defineAsyncComponent(
-  () => import("@components/content/elements/SelectOption.vue")
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
 );
 const InputDate = defineAsyncComponent(
   () => import("@components/content/elements/InputDate.vue")
@@ -101,7 +101,7 @@ computed(() => {
             Регион
           </label>
           <div class="col-md-3">
-            <SelectOption
+            <SelectInput
               :name="'region'"
               :select="storeClassify.classData.regions"
               v-model="tableData.stat.region_id"

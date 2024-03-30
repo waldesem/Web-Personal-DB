@@ -1,19 +1,30 @@
 <script setup lang="ts">
 const props = defineProps({
-  label: String,
+  label: {
+    type: String,
+    default: "",
+  },
   noPrint: {
     type: Boolean,
     default: false,
+  },
+  labelClass: {
+    type: String,
+    default: "col-lg-3",
+  },
+  inputClass: {
+    type: String,
+    default: "col-lg-9",
   }
 });
 </script>
 
 <template>
   <div class="row mb-3" :class="{ 'd-print-none': props.noPrint }">
-    <div class="col-md-4">
+    <div :class="props.labelClass">
       {{ props.label }}
     </div>
-    <div class="col-md-8">
+    <div :class="props.inputClass">
       <slot></slot>
     </div>
   </div>

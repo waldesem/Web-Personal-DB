@@ -5,8 +5,11 @@ import { Affilation } from "@/interfaces/interface";
 const InputLabel = defineAsyncComponent(
   () => import("@components/content/elements/InputLabel.vue")
 );
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+)
+const SelectInput = defineAsyncComponent(
+  () => import("@components/content/elements/SelectInput.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroupContent.vue")
@@ -42,12 +45,13 @@ const selected_item = [
     class="form form-check"
     role="form"
   >
-    <SelectArray
-      :name="'view'"
-      :label="'Тип участия'"
-      :select="selected_item"
-      v-model="affilationForm['view']"
-    />
+    <LabelSlot :label="'Тип участия'">
+      <SelectInput
+        :name="'view'"
+        :select="selected_item"
+        v-model="affilationForm['view']"
+      />
+    </LabelSlot>
     <InputLabel
       :name="'name'"
       :label="'Организация'"
