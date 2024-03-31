@@ -28,6 +28,20 @@ onBeforeMount(async () => {
   await getCandidates();
 });
 
+const statusColor = {
+    "1": "success",
+    "2": "success",
+    "3": "success",
+    "4": "primary",
+    "5": "primary",
+    "6": "danger",
+    "7": "info",
+    "8": "secondary",
+    "9": "light",
+    "10": "warning",
+    "11": "light",
+}
+    
 const personData = ref({
   candidates: <Resume[]>[],
   items: {
@@ -211,7 +225,18 @@ const searchPerson = debounce(() => {
           <td>
             {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
           </td>
-          <td>{{ storeClassify.classData.status[candidate.status_id] }}</td>
+          <td>
+            <small 
+              :class="`text-${
+                statusColor[candidate.status_id as keyof typeof statusColor]
+              } bg-${
+                statusColor[candidate.status_id as keyof typeof statusColor]
+              } border border-${
+                statusColor[candidate.status_id as keyof typeof statusColor]
+                } rounded`">
+              {{ storeClassify.classData.status[candidate.status_id] }}
+            </small>
+          </td>
           <td>
             {{ timeSince(candidate.created) }}
           </td>

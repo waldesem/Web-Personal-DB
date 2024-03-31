@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
+import { Connection } from '@/interfaces/interface';
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -7,7 +8,7 @@ const LabelSlot = defineAsyncComponent(
 
 const props = defineProps({
   item: {
-    type: Object as () => Record<string, any>,
+    type: Object as () => Connection,
     default: {},
   }
 })
@@ -41,10 +42,10 @@ const props = defineProps({
         {{ props.item['mobile'] }}
       </LabelSlot>
       <LabelSlot :label="'E-mail'">
-        {{ props.item['email'] }}
+        {{ props.item['mail'] }}
       </LabelSlot>
       <LabelSlot :label="'Примечание'">
-        {{ props.item['note'] }}
+        {{ props.item['comment'] }}
       </LabelSlot>
       <LabelSlot :label="'Дата'">
         {{ new Date(String(props.item['data'])).toLocaleDateString("ru-RU") }}
