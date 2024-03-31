@@ -8,21 +8,21 @@ import { Resume } from "@/interfaces/interface";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
-)
+);
 const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
 );
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
-const TextLabel = defineAsyncComponent(
-  () => import("@components/content/elements/TextLabel.vue")
+const TextArea = defineAsyncComponent(
+  () => import("@components/content/elements/TextArea.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+const GroupContent = defineAsyncComponent(
+  () => import("@components/content/elements/GroupContent.vue")
 );
 
 const storeAuth = authStore();
@@ -56,15 +56,15 @@ const resumeForm = ref({
               this.form
             )
           : await storeAuth.axiosInstance.patch(
-              `${server}/resume/${props.resume['id']}`,
+              `${server}/resume/${props.resume["id"]}`,
               this.form
             );
       const { message } = response.data;
-      
-      props.action === "create" 
+
+      props.action === "create"
         ? emit("submit", message)
         : emit("get-resume", "view");
-      
+
       storeAlert.alertMessage.setAlert(
         "alert-success",
         "Данные успешно обновлены"
@@ -78,7 +78,7 @@ const resumeForm = ref({
         `Возникла ошибка ${error}`
       );
     }
-   },
+  },
 });
 </script>
 
@@ -96,82 +96,108 @@ const resumeForm = ref({
           v-model="resumeForm.form['region_id']"
         />
       </LabelSlot>
-      <InputLabel
-        :isneed="true"
-        :name="'surname'"
-        :label="'Фамилия*'"
-        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-        v-model="resumeForm.form['surname']"
-      />
-      <InputLabel
-        :isneed="true"
-        :name="'firstname'"
-        :label="'Имя*'"
-        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-        v-model="resumeForm.form['firstname']"
-      />
-      <InputLabel
-        :name="'patronymic'"
-        :label="'Отчество'"
-        v-model="resumeForm.form['patronymic']"
-      />
-      <InputLabel
-        :name="'previous'"
-        :label="'Изменение имени  '"
-        v-model="resumeForm.form['previous']"
-      />
-      <InputLabel
-        :isneed="true"
-        :name="'birthday'"
-        :label="'Дата рождения*'"
-        :typeof="'date'"
-        v-model="resumeForm.form['birthday']"
-      />
-      <InputLabel
-        :name="'birthplace'"
-        :label="'Место рождения'"
-        v-model="resumeForm.form['birthplace']"
-      />
-      <InputLabel
-        :name="'country'"
-        :label="'Гражданство'"
-        v-model="resumeForm.form['country']"
-      />
-      <InputLabel
-        :name="'ext_country'"
-        :label="'Двойное гражданство'"
-        v-model="resumeForm.form['ext_country']"
-      />
-      <InputLabel
-        :name="'snils'"
-        :label="'СНИЛС'"
-        :pattern="'[0-9]{11}'"
-        v-model="resumeForm.form['snils']"
-      />
-      <InputLabel
-        :name="'inn'"
-        :label="'ИНН'"
-        :max="'12'"
-        :pattern="'[0-9]{12}'"
-        v-model="resumeForm.form['inn']"
-      />
-      <InputLabel
-        :name="'marital'"
-        :label="'Семейное положение'"
-        v-model="resumeForm.form['marital']"
-      />
-      <TextLabel
-        :name="'education'"
-        :label="'Образование'"
-        v-model="props.resume['education']"
-      />
-      <TextLabel
-        :name="'addition'"
-        :label="'Дополнительно'"
-        v-model="props.resume['addition']"
-      />
+      <LabelSlot :label="'Фамилия'">
+        <InputElement
+          :isneed="true"
+          :name="'surname'"
+          :place="'Фамилия*'"
+          :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+          v-model="resumeForm.form['surname']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Имя'">
+        <InputElement
+          :isneed="true"
+          :name="'firstname'"
+          :place="'Имя*'"
+          :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+          v-model="resumeForm.form['firstname']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Отчество'">
+        <InputElement
+          :name="'patronymic'"
+          :place="'Отчество'"
+          v-model="resumeForm.form['patronymic']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Изменение имени'">
+        <InputElement
+          :name="'previous'"
+          :place="'Изменение имени'"
+          v-model="resumeForm.form['previous']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Дата рождения*'">
+        <InputElement
+          :isneed="true"
+          :name="'birthday'"
+          :place="'Дата рождения*'"
+          :typeof="'date'"
+          v-model="resumeForm.form['birthday']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Место рождения'">
+        <InputElement
+          :name="'birthplace'"
+          :place="'Место рождения'"
+          v-model="resumeForm.form['birthplace']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Гражданство'">
+        <InputElement
+          :name="'country'"
+          :place="'Гражданство'"
+          v-model="resumeForm.form['country']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Двойное гражданство'">
+        <InputElement
+          :name="'ext_country'"
+          :place="'Двойное гражданство'"
+          v-model="resumeForm.form['ext_country']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'СНИЛС'">
+        <InputElement
+          :name="'snils'"
+          :place="'СНИЛС'"
+          :pattern="'[0-9]{11}'"
+          v-model="resumeForm.form['snils']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'ИНН'">
+        <InputElement
+          :name="'inn'"
+          :place="'ИНН'"
+          :max="'12'"
+          :pattern="'[0-9]{12}'"
+          v-model="resumeForm.form['inn']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Семейное положение'">
+        <InputElement
+          :name="'marital'"
+          :place="'Семейное положение'"
+          v-model="resumeForm.form['marital']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Образование'">
+        <TextArea
+          :name="'education'"
+          :place="'Образование'"
+          v-model="props.resume['education']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Дополнительно'">
+        <TextArea
+          :name="'addition'"
+          :place="'Дополнительно'"
+          v-model="props.resume['addition']"
+        />
+      </LabelSlot>
       <BtnGroup>
-        <BtnGroupContent/>
+        <GroupContent :cancel-needs="false" />
         <router-link
           v-if="props.action === 'create'"
           class="btn btn-outline-danger"
@@ -180,8 +206,9 @@ const resumeForm = ref({
         >
           Отмена
         </router-link>
-        <button v-if="props.action === 'update'"
-          class="btn btn-outline-danger" 
+        <button
+          v-if="props.action === 'update'"
+          class="btn btn-outline-danger"
           type="button"
           @click="emit('cancel')"
         >

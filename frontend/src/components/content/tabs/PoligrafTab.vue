@@ -5,6 +5,9 @@ import { Pfo } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const PoligrafForm = defineAsyncComponent(
   () => import("@components/content/forms/PoligrafForm.vue")
 );
@@ -68,25 +71,14 @@ function submitFile(event: Event) {
           :label="'Полиграф #' + (idx + 1)"
         >
           <LabelSlot :label="'Действия'">
-            <a
-              href="#"
-              title="Удалить"
-              @click="emit('delete', item['id'].toString(), 'poligraf')"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            &nbsp;
-            <a
-              href="#"
-              title="Изменить"
-              @click="
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'poligraf')"
+              @update="
                 poligraf.action = 'update';
                 poligraf.item = item;
                 poligraf.itemId = item['id'].toString();
               "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
+            />
           </LabelSlot>
           <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
           <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>

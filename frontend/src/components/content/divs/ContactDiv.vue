@@ -5,6 +5,9 @@ import { Contact } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const ContactForm = defineAsyncComponent(
   () => import("@components/content/forms/ContactForm.vue")
 );
@@ -62,24 +65,14 @@ function submitForm(form: Object) {
         :label="'Контакт #' + (idx + 1)"
       >
         <LabelSlot :label="'Действия'" :no-print="true">
-          <a 
-            href="#" 
-            @click="emit('delete', item['id'].toString(), 'contact')" 
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
+          <ActionIcons
+            @delete="emit('delete', item['id'].toString(), 'contact')"
+            @update="
               contact.action = 'update';
               contact.item = item;
               contact.itemId = item['id'].toString();
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
+          />
         </LabelSlot>
         <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
         <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>

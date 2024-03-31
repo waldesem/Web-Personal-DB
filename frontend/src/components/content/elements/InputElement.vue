@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const emit = defineEmits(["submit-data"]);
 const model = defineModel();
 const props = defineProps({
   name: String,
@@ -48,6 +49,7 @@ const props = defineProps({
     :placeholder="props.place"
     :list="props.lst"
     v-model.trim="model"
+    @change="emit('submit-data')"
   />
   <datalist v-if="props.lst" :id="props.lst">
     <option v-for="item in selects" 

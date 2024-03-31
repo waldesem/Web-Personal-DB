@@ -5,6 +5,9 @@ import { Document } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const DocumentForm = defineAsyncComponent(
   () => import("@components/content/forms/DocumentForm.vue")
 );
@@ -63,25 +66,14 @@ function submitForm(form: Object) {
         :label="'Документ #' + (idx + 1)"
       >
         <LabelSlot :label="'Действия'" :no-print="true">
-          <a
-            href="#"
-            @click="
-              emit('delete', item['id'].toString(), 'document')"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
+          <ActionIcons
+            @delete="emit('delete', item['id'].toString(), 'document')"
+            @update="
               document.action = 'update';
               document.item = item;
               document.itemId = item['id'].toString();
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
+          />
         </LabelSlot>
         <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
         <LabelSlot :label="'Вид документа'">{{ item['view'] }}</LabelSlot>

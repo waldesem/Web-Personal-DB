@@ -2,11 +2,11 @@
 import { computed, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
-const TextLabel = defineAsyncComponent(
-  () => import("@components/content/elements/TextLabel.vue")
+const TextArea = defineAsyncComponent(
+  () => import("@components/content/elements/TextArea.vue")
 );
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroupContent.vue")
@@ -35,13 +35,13 @@ const investigationForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <InputLabel
+    <InputElement
       :name="'theme'"
       :label="'Тема проверки'"
       :need="true"
       v-model="investigationForm['theme']"
     />
-    <TextLabel
+    <TextArea
       :name="'info'"
       :label="'Информация'"
       v-model="props.investigation['info']"

@@ -3,8 +3,8 @@ import { ref, defineAsyncComponent, computed } from "vue";
 import { classifyStore } from "@store/classify";
 import { Verification } from "@/interfaces/interface";
 
-const TextLabel = defineAsyncComponent(
-  () => import("@components/content/elements/TextLabel.vue")
+const TextArea = defineAsyncComponent(
+  () => import("@components/content/elements/TextArea.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -78,77 +78,77 @@ computed(() => {
     role="form"
     id="checkFormId"
   >
-    <TextLabel
+    <TextArea
       :name="'workplace'"
       :label="'Проверка по местам работы'"
       v-model="props.check['workplace']"
     />
-    <TextLabel
+    <TextArea
       :name="'employee'"
       :label="'Проверка по кадровому учету'"
       v-model="props.check['employee']"
     />
-    <TextLabel
+    <TextArea
       :name="'document'"
       :label="'Проверка документов'"
       v-model="props.check['document']"
     />
-    <TextLabel
+    <TextArea
       :name="'inn'"
       :label="'Проверка ИНН'"
       v-model="props.check['inn']"
     />
-    <TextLabel
+    <TextArea
       :name="'debt'"
       :label="'Проверка задолженностей'"
       v-model="props.check['debt']"
     />
-    <TextLabel
+    <TextArea
       :name="'bankruptcy'"
       :label="'Проверка решений о признании банкротом'"
       v-model="props.check['bankruptcy']"
     />
-    <TextLabel
+    <TextArea
       :name="'bki'"
       :label="'Проверка кредитной истории'"
       v-model="props.check['bki']"
     />
-    <TextLabel
+    <TextArea
       :name="'courts'"
       :label="'Проверка судебных дел'"
       v-model="props.check['courts']"
     />
-    <TextLabel
+    <TextArea
       :name="'affiliation'"
       :label="'Проверка аффилированности'"
       v-model="props.check['affiliation']"
     />
-    <TextLabel
+    <TextArea
       :name="'terrorist'"
       :label="'Проверка в списке террористов'"
       v-model="props.check['terrorist']"
     />
-    <TextLabel
+    <TextArea
       :name="'mvd'"
       :label="'Проверка в розыск'"
       v-model="props.check['mvd']"
     />
-    <TextLabel
+    <TextArea
       :name="'internet'"
       :label="'Проверка в открытых источниках'"
       v-model="props.check['internet']"
     />
-    <TextLabel
+    <TextArea
       :name="'cronos'"
       :label="'Проверка в Кронос'"
       v-model="props.check['cronos']"
     />
-    <TextLabel
+    <TextArea
       :name="'cros'"
       :label="'Проверка в Крос'"
       v-model="props.check['cros']"
     />
-    <TextLabel
+    <TextArea
       :name="'addition'"
       :label="'Дополнительная информация'"
       v-model="props.check['addition']"
@@ -166,7 +166,7 @@ computed(() => {
         v-model="checkForm['conclusion']"
       />
     </LabelSlot>
-    <TextLabel
+    <TextArea
       :name="'comments'"
       :label="'Комментарий'"
       v-model="props.check['comments']"

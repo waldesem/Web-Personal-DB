@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Document } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -51,23 +51,23 @@ const selected_item = [
         v-model="docForm['view']"
       />
     </LabelSlot>
-    <InputLabel
+    <InputElement
       :name="'series'"
       :label="'Серия документа'"
       v-model="docForm['series']"
     />
-    <InputLabel
+    <InputElement
       :name="'number'"
       :label="'Номер документа'"
       :need="true"
       v-model="docForm['number']"
     />
-    <InputLabel
+    <InputElement
       :name="'agency'"
       :label="'Орган выдавший'"
       v-model="docForm['agency']"
     />
-    <InputLabel
+    <InputElement
       :name="'issue'"
       :label="'Дата выдачи'"
       :typeof="'date'"

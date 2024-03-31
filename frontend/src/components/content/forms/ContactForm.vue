@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Contact } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -55,7 +55,7 @@ const view = computed(() => {
         v-model="contactForm['view']"
       />
     </LabelSlot>
-    <InputLabel
+    <InputElement
       :name="'contact'"
       :label="'Контакт'"
       :typeof="view"

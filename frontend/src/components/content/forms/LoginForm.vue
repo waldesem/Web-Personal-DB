@@ -9,9 +9,6 @@ import { router } from "@/router/router";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 )
-const FormForm = defineAsyncComponent(
-  () => import("@components/content/elements/FormForm.vue")
-)
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
@@ -105,8 +102,10 @@ const loginData = ref({
       "
     />
     <div class="mb-3">
-      <FormForm
-        @submit="submitLogin"
+      <form
+        class="form form-check"
+        role="form"
+        @submit.prevent="submitLogin"
       > 
         <LabelSlot :label="'Пользователь'">
           <GroupInput
@@ -178,7 +177,7 @@ const loginData = ref({
             @cancel="loginData.action = 'login'"
           />
         </BtnGroup>
-      </FormForm>
+      </form>
     </div>
   </div>
 </template>

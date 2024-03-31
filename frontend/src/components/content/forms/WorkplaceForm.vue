@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Work } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -32,36 +32,36 @@ const workForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <InputLabel
+    <InputElement
       :name="'start_date'"
       :label="'Начало работы'"
       :typeof="'date'"
       v-model="workForm['start_date']"
     />
-    <InputLabel
+    <InputElement
       :name="'end_date'"
       :label="'Окончание работы'"
       :typeof="'date'"
       v-model="workForm['end_date']"
     />
-    <InputLabel
+    <InputElement
       :name="'workplace'"
       :label="'Место работы'"
       :need="true"
       v-model="workForm['workplace']"
     />
-    <InputLabel
+    <InputElement
       :name="'position'"
       :label="'Должность'"
       :need="true"
       v-model="workForm['position']"
     />
-    <InputLabel
+    <InputElement
       :name="'address'"
       :label="'Адрес организации'"
       v-model="workForm['address']"
     />
-    <InputLabel
+    <InputElement
       :name="'reason'"
       :label="'Причина увольнения'"
       v-model="workForm['reason']"

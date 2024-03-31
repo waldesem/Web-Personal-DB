@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Address } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -45,13 +45,13 @@ const addressForm = computed(() => {
         v-model="addressForm['view']"
       />
     </LabelSlot>
-    <InputLabel
+    <InputElement
       :name="'region'"
       :label="'Регион'"
       :need="true"
       v-model="addressForm['region']"
     />
-    <InputLabel
+    <InputElement
       :name="'address'"
       :label="'Адрес'"
       :need="true"

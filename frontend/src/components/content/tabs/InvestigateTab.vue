@@ -5,6 +5,9 @@ import { Inquisition } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const InvestigationForm = defineAsyncComponent(
   () => import("@components/content/forms/InvestigationForm.vue")
 );
@@ -67,25 +70,14 @@ function submitFile(event: Event) {
           :label="'Расследование #' + (idx + 1)"
         >
           <LabelSlot :label="'Действия'">
-            <a
-              href="#"
-              title="Удалить"
-              @click="emit('delete', item['id'].toString(), 'investigation')"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            &nbsp;
-            <a
-              href="#"
-              title="Изменить"
-              @click="
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'investigation')"
+              @update="
                 inquisition.action = 'update';
                 inquisition.item = item;
                 inquisition.itemId = item['id'].toString();
               "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
+            />
           </LabelSlot>
           <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
           <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>

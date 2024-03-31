@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Staff } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -32,13 +32,13 @@ const staffForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <InputLabel
+    <InputElement
       :name="'position'"
       :label="'Должность'"
       :need="true"
       v-model="staffForm['position']"
     />
-    <InputLabel
+    <InputElement
       :name="'department'"
       :label="'Подразделение'"
       v-model="staffForm['department']"

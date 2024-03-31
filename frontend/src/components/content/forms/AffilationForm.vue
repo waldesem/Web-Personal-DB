@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Affilation } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -52,19 +52,19 @@ const selected_item = [
         v-model="affilationForm['view']"
       />
     </LabelSlot>
-    <InputLabel
+    <InputElement
       :name="'name'"
       :label="'Организация'"
       :need="true"
       v-model="affilationForm['name']"
     />
-    <InputLabel
+    <InputElement
       :name="'inn'"
       :label="'ИНН'"
       :need="true"
       v-model="affilationForm['inn']"
     />
-    <InputLabel
+    <InputElement
       :name="'position'"
       :label="'Должность'"
       :need="true"

@@ -5,6 +5,9 @@ import { Needs } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const InquiryForm = defineAsyncComponent(
   () => import("@components/content/forms/InquiryForm.vue")
 );
@@ -60,25 +63,14 @@ function submitForm(form: Object) {
           :label="'Запрос #' + (idx + 1)"
         >
           <LabelSlot :label="'Действия'">
-            <a
-              href="#"
-              title="Удалить"
-              @click="emit('delete', item['id'].toString(), 'inquiry')"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            &nbsp;
-            <a
-              href="#"
-              title="Изменить"
-              @click="
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'inquiry')"
+              @update="
                 need.action = 'update';
-                need.item = props.needs[idx];
+                need.item = item;
                 need.itemId = item['id'].toString();
               "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
+            />
           </LabelSlot>
           <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
           <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>

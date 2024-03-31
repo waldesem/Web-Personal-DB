@@ -10,8 +10,8 @@ const HeaderDiv = defineAsyncComponent(
 const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
 );
-const InputDate = defineAsyncComponent(
-  () => import("@components/content/elements/InputDate.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -94,35 +94,33 @@ computed(() => {
       </TableSlots>
     </div>
 
-    <div class="py-3">
-      <form class="form form-check" role="form">
-        <div class="mb-3 row required">
-          <label class="col-form-label col-md-1" for="region">
-            Регион
-          </label>
-          <div class="col-md-3">
-            <SelectInput
-              :name="'region'"
-              :select="storeClassify.classData.regions"
-              v-model="tableData.stat.region_id"
-              @submit-data="submitData"
-            />
-          </div>
-          <label class="col-form-label col-md-1" for="start">
-            Период:
-          </label>
-          <InputDate 
-            :name="'start'" 
-            v-model="tableData.stat.start" 
-            @submit-data="submitData"
-            />
-          <InputDate 
-            :name="'end'" 
-            v-model="tableData.stat.end" 
-            @submit-data="submitData"
-            />
-        </div>
-      </form>
+    <div class="row mb-3 ">
+      <label class="col-form-label col-md-1" for="region">
+        Регион
+      </label>
+      <div class="col-md-3">
+        <SelectInput
+          :name="'region'"
+          :select="storeClassify.classData.regions"
+          v-model="tableData.stat.region_id"
+          @submit-data="submitData"
+        />
+      </div>
+      <label class="col-form-label col-md-1" for="start">
+        Период:
+      </label>
+      <InputElement 
+        :name="'start'" 
+        :typeof="'date'"
+        v-model="tableData.stat.start" 
+        @submit-data="submitData"
+        />
+      <InputElement 
+        :name="'end'" 
+        :typeof="'date'"
+        v-model="tableData.stat.end" 
+        @submit-data="submitData"
+        />
     </div>
   </div>
 </template>

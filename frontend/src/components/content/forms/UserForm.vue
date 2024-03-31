@@ -5,8 +5,14 @@ import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/admin/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
+);
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/content/elements/BtnGroup.vue")
+);
+const GroupContent = defineAsyncComponent(
+  () => import("@components/content/elements/GroupContent.vue")
 );
 
 const storeAlert = alertStore();
@@ -34,12 +40,10 @@ async function submitUser(): Promise<void> {
     const response =
       props.action === "edit"
         ? await storeAuth.axiosInstance.patch(
-            `${server}/user/${props.item['id' ]}`,
+            `${server}/user/${props.item["id"]}`,
             userForm.value
           )
-        : await storeAuth.axiosInstance.post(
-          `${server}/user`, userForm.value
-          );
+        : await storeAuth.axiosInstance.post(`${server}/user`, userForm.value);
 
     const { message } = response.data;
     if (message === "Changed") {
@@ -61,7 +65,7 @@ async function submitUser(): Promise<void> {
     );
   }
   emit("update");
-};
+}
 </script>
 
 <template>
@@ -70,49 +74,39 @@ async function submitUser(): Promise<void> {
       @submit.prevent="submitUser"
       class="form form-check border rounded p-"
       role="form"
-    > 
+    >
       <div class="row m-3">
         <div class="col col-auto">
-          <InputLabel
+          <InputElement
             :name="'fullname'"
-            :label="'Имя пользователя'"
+            :place="'Имя пользователя'"
             :pattern="'[a-zA-Zа-яА-Я ]+'"
             v-model="userForm['fullname']"
           />
         </div>
         <div class="col col-auto">
-          <InputLabel
+          <InputElement
             :name="'username'"
-            :label="'Учетная запись'"
+            :place="'Учетная запись'"
             :pattern="'[a-zA-Z]+'"
             :disabled="props.action === 'edit'"
             v-model="userForm['username']"
           />
         </div>
         <div class="col col-auto">
-          <InputLabel
+          <InputElement
             :name="'email'"
-            :label="'Электронная почта'"
+            :place="'Электронная почта'"
             :typeof="'email'"
             v-model="userForm['email']"
           />
         </div>
         <div class="col col-auto">
-          <div class="btn-group" role="group">
-            <button
-              class="btn btn-secondary"
-              name="submit"
-              type="submit"
-            >
-              {{ props.action === "create" ? "Создать" : "Изменить" }}
-            </button>
-            <button 
-              class="btn btn-outline-secondary" 
-              name="reset" 
-              type="reset">
-              Очистить
-            </button>
-          </div>
+          <BtnGroup :offset="false">
+            <GroupContent
+              :submit-btn="props.action === 'create' ? 'Создать' : 'Изменить'"
+            />
+          </BtnGroup>
         </div>
       </div>
     </form>

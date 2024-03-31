@@ -5,6 +5,9 @@ import { Address } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const AddressForm = defineAsyncComponent(
   () => import("@components/content/forms/AddressForm.vue")
 );
@@ -64,24 +67,14 @@ function submitForm(form: Object) {
         :label="'Адрес #' + (idx + 1)"
       >
         <LabelSlot :label="'Действия'" :no-print="true">
-          <a
-            href="#"
-            @click="emit('delete', item['id'].toString(), 'address')"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
+          <ActionIcons
+            @delete="emit('delete', item['id'].toString(), 'address')"
+            @update="
               address.action = 'update';
               address.item = item;
               address.itemId = item['id'].toString();
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
+          />
         </LabelSlot>
         <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
         <LabelSlot :label="'Тип'">{{ item['view'] }}</LabelSlot>

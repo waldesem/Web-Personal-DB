@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
-const TextLabel = defineAsyncComponent(
-  () => import("@components/content/elements/TextLabel.vue")
+const TextArea = defineAsyncComponent(
+  () => import("@components/content/elements/TextArea.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -47,7 +47,7 @@ const poligrafForm = computed(() => {
         v-model="poligrafForm['theme']"
       />
     </LabelSlot>
-    <TextLabel
+    <TextArea
       :name="'results'"
       :label="'Результат'"
       v-model="props.poligraf['results']"

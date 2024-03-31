@@ -2,8 +2,8 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Relation } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -32,13 +32,13 @@ const relationForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <InputLabel
+    <InputElement
       :name="'relation'"
       :label="'Тип связи'"
       :need="true"
       v-model="relationForm['relation']"
     />
-    <InputLabel
+    <InputElement
       :name="'relation_id'"
       :label="'ID связи'"
       :need="true"

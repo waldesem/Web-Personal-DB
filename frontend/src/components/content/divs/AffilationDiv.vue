@@ -5,6 +5,9 @@ import { Affilation } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+);
 const AffilationForm = defineAsyncComponent(
   () => import("@components/content/forms/AffilationForm.vue")
 );
@@ -33,14 +36,14 @@ const affilation = ref({
 
 function submitForm(form: Object) {
   emit(
-    "submit", 
+    "submit",
     affilation.value.action,
     "affilation",
     affilation.value.itemId,
-    form,
+    form
   );
   affilation.value.action = "";
-};
+}
 </script>
 
 <template>
@@ -54,9 +57,10 @@ function submitForm(form: Object) {
       <i class="bi bi-plus-circle"></i>
     </a>
   </h6>
-  <AffilationForm v-if="affilation.action"
-    :affils="affilation.item" 
-    @submit="submitForm" 
+  <AffilationForm
+    v-if="affilation.action"
+    :affils="affilation.item"
+    @submit="submitForm"
   />
   <div v-else>
     <div v-if="props.items.length">
@@ -68,32 +72,22 @@ function submitForm(form: Object) {
         :label="'Аффилированность #' + (idx + 1)"
       >
         <LabelSlot :label="'Действия'" :no-print="true">
-          <a 
-            href="#" 
-            @click="emit('delete', item['id'].toString(), 'affilation')" 
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
+          <ActionIcons
+            @delete="emit('delete', item['id'].toString(), 'affilation')"
+            @update="
               affilation.action = 'update';
               affilation.item = item;
               affilation.itemId = item['id'].toString();
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
+          />
         </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
-        <LabelSlot :label="'Тип участия'">{{ item['view'] }}</LabelSlot>
-        <LabelSlot :label="'Организация'">{{ item['name'] }}</LabelSlot>
-        <LabelSlot :label="'ИНН'">{{ item['inn'] }}</LabelSlot>
-        <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
+        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+        <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>
+        <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
+        <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
+        <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
         <LabelSlot :label="'Дата декларации'">
-          {{ new Date(String(item['deadline'])).toLocaleDateString('ru-RU') }}
+          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </CollapseDiv>
     </div>

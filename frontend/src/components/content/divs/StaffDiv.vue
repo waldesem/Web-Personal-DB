@@ -5,6 +5,9 @@ import { Staff } from "@/interfaces/interface";
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+);
 const StaffForm = defineAsyncComponent(
   () => import("@components/content/forms/StaffForm.vue")
 );
@@ -32,9 +35,9 @@ const staff = ref({
 });
 
 function submitForm(form: Object) {
-  emit("submit", staff.value.action, "staff", staff.value.itemId, form)
-  staff.value.action = ""
-};  
+  emit("submit", staff.value.action, "staff", staff.value.itemId, form);
+  staff.value.action = "";
+}
 </script>
 
 <template>
@@ -42,19 +45,13 @@ function submitForm(form: Object) {
     Должности
     <a
       class="btn btn-link"
-      @click="
-        staff.action = staff.action ? '' : 'create';"
-        :title="'Добавить информацию'"
+      @click="staff.action = staff.action ? '' : 'create'"
+      :title="'Добавить информацию'"
     >
-      <i
-        :class="staff.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
-      ></i>
+      <i :class="staff.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
     </a>
   </h6>
-  <StaffForm v-if="staff.action"
-    :staff="staff.item"
-    @submit="submitForm"
-  />
+  <StaffForm v-if="staff.action" :staff="staff.item" @submit="submitForm" />
   <div v-else>
     <div v-if="props.items.length">
       <CollapseDiv
@@ -65,28 +62,18 @@ function submitForm(form: Object) {
         :label="'Должность #' + (idx + 1)"
       >
         <LabelSlot :label="'Действия'" :no-print="true">
-          <a
-            href="#"
-            @click="emit('delete', item['id'].toString(), 'staff')"
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-              @click="
+          <ActionIcons
+            @delete="emit('delete', item['id'].toString(), 'staff')"
+            @update="
               staff.action = 'update';
               staff.item = item;
               staff.itemId = item['id'].toString();
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
+          />
         </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
-        <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
-        <LabelSlot :label="'Департамент'">{{ item['department'] }}</LabelSlot>
+        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+        <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
+        <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
       </CollapseDiv>
     </div>
     <p v-else>Данные отсутствуют</p>

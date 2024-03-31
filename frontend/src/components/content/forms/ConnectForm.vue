@@ -5,8 +5,8 @@ import { alertStore } from "@/store/alert";
 import { server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
-const InputLabel = defineAsyncComponent(
-  () => import("@components/content/elements/InputLabel.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroupContent.vue")
@@ -80,7 +80,7 @@ async function updateContact(): Promise<void> {
 <template>
   <form @submit.prevent="updateContact" class="form form-check">
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :label="'Вид'"
         :name="'name'"
         :lst="'names'"
@@ -89,7 +89,7 @@ async function updateContact(): Promise<void> {
       />
     </div>
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :label="'Название'"
         :name="'company'"
         :lst="'companies'"
@@ -98,7 +98,7 @@ async function updateContact(): Promise<void> {
       />
     </div>
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :name="'city'"
         :label="'Город'"
         :lst="'cities'"
@@ -107,42 +107,42 @@ async function updateContact(): Promise<void> {
       />
     </div>
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :name="'fullname'"
         :label="'Имя'"
         v-model="connectForm['fullname']"
       />
     </div>
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :name="'phone'"
         :label="'Телефон'"
         v-model="connectForm['phone']"
       />
     </div>
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :name="'adding'"
         :label="'Добав'"
         v-model="connectForm['adding']"
       />
     </div>
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :name="'mobile'"
         :label="'Мобильный'"
         v-model="connectForm['mobile']"
       />
     </div>
     <div class="row mb-3">
-      <InputLabel
+      <InputElement
         :name="'mail'"
         :label="'Почта'"
         v-model="connectForm['mail']"
       />
     </div>
     <div class="row mb-3">
-    <InputLabel
+    <InputElement
       :name="'comment'"
       :label="'Комментарий'"
       v-model="connectForm['comment']"

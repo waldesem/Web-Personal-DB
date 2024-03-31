@@ -116,16 +116,15 @@ async function deleteContact(id: string): Promise<void> {
       />
     </div>
     <div v-show="!contactData.action" class="mb-5">
-      <form @input.prevent="searchContacts" class="form form-check mb-5" role="form">
-        <input
-          class="form-control"
-          name="search"
-          id="search"
-          type="text"
-          placeholder="Поиск по организации, имени, номеру мобильного телефона"
-          v-model="contactData.search"
-        />
-      </form>
+      <input
+        @input.prevent="searchContacts"
+        class="form-control mb-5"
+        name="search"
+        id="search"
+        type="text"
+        placeholder="Поиск по организации, имени, номеру мобильного телефона"
+        v-model="contactData.search"
+      />
       <ModalWin
         :id="'modalConnect'"
         :title="contactData.item.fullname"

@@ -30,6 +30,9 @@ const AffilationDiv = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/content/elements/BtnGroup.vue")
+);
 
 const storeClassify = classifyStore();
 
@@ -235,7 +238,7 @@ function deleteItem(itemId: string, item: string) {
       @delete="deleteItem"
     />
 
-    <div class="btn-group d-print-none mt-3" role="group">
+    <BtnGroup>
       <button
         :disabled="
           props.anketa.resume.user_id !== null &&
@@ -265,6 +268,6 @@ function deleteItem(itemId: string, item: string) {
         ></span>
         <span v-if="props.spinner" role="status">Отправляется...</span>
       </button>
-    </div>
+    </BtnGroup>
   </div>
 </template>
