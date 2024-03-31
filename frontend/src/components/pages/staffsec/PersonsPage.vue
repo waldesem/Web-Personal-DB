@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { classifyStore } from "@store/classify";
 import { authStore } from "@/store/auth";
 import { debounce, server, timeSince } from "@utilities/utils";
@@ -10,13 +10,13 @@ const HeaderDiv = defineAsyncComponent(
 );
 const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
-)
+);
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
-const UpDown = defineAsyncComponent(
-  () => import("@components/content/elements/UpDown.vue")
-)
+const AscDesc = defineAsyncComponent(
+  () => import("@components/content/elements/AscDesc.vue")
+);
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/content/layouts/PageSwitcher.vue")
 );
@@ -24,33 +24,26 @@ const PageSwitcher = defineAsyncComponent(
 const storeAuth = authStore();
 const storeClassify = classifyStore();
 
-const header = computed(() => {
-  return personData.value.items[
-    personData.value.path as keyof typeof personData.value.items
-  ];
-});
-
-onBeforeMount( async () => {
+onBeforeMount(async () => {
   await getCandidates();
 });
 
 const personData = ref({
   candidates: <Resume[]>[],
   items: {
-    search: "Результаты поиска",
-    officer: "Страница пользователя",
-    main: "Все кандидаты",
+    officer: "Мои кандидаты",
+    search: "Все кандидаты",
   },
+  page: 1,
   prev: false,
   next: false,
   search: "",
   sort: "id",
   order: "desc",
-  page: 1,
-  path: "main",
+  path: "search",
 });
 
-async function getCandidates (page = 1): Promise<void> {
+async function getCandidates(page = 1): Promise<void> {
   personData.value.page = page;
   try {
     const response = await storeAuth.axiosInstance.get(
@@ -69,52 +62,45 @@ async function getCandidates (page = 1): Promise<void> {
   } catch (error) {
     console.error(error);
   }
-};
+}
 
-function sortCandidates (sort: string, order: string): void {
+function sortCandidates(sort: string, order: string): void {
   personData.value.sort = sort;
   personData.value.order = order;
-  getCandidates(1);
+  getCandidates();
 }
 
 const searchPerson = debounce(() => {
-  personData.value.path = "search"
+  personData.value.path = "search";
   getCandidates();
 }, 500);
 </script>
 
 <template>
   <div class="container py-3">
-    <HeaderDiv :page-header="header" />
+    <HeaderDiv :page-header="'Кандидаты'" />
     <div class="row mb-5">
       <div class="col-md-3">
-        <form  class="form form-check" role="form"> 
-          <SelectInput
-            :name="'action'"
-            :select="personData.items"
-            v-model="personData.path"
-            @submit-data="getCandidates"
-          />
-        </form>
+        <SelectInput
+          :name="'action'"
+          :select="personData.items"
+          v-model="personData.path"
+          @submit-data="getCandidates"
+        />
       </div>
       <div class="col-md-9">
-        <form 
-          @input.prevent="searchPerson" 
-          class="form form-check" 
-          role="form"
-        >
-          <input
-            class="form-control"
-            name="search"
-            id="search"
-            type="text"
-            placeholder="поиск по ФИО, ИНН"
-            v-model="personData.search"
-          />
-        </form>
+        <input
+          @input.prevent="searchPerson"
+          class="form-control"
+          name="search"
+          id="search"
+          type="text"
+          placeholder="поиск по ФИО, ИНН"
+          v-model="personData.search"
+        />
       </div>
     </div>
-    <TableSlots 
+    <TableSlots
       v-if="personData.candidates.length"
       :tbl-caption="'Список кандидатов'"
     >
@@ -122,12 +108,12 @@ const searchPerson = debounce(() => {
         <tr height="50px">
           <th width="5%">
             #
-            <UpDown
+            <AscDesc
               :order="'desc'"
               :sort="'id'"
               @get-candidates="sortCandidates"
             />
-            <UpDown
+            <AscDesc
               :order="'asc'"
               :sort="'id'"
               @get-candidates="sortCandidates"
@@ -135,12 +121,12 @@ const searchPerson = debounce(() => {
           </th>
           <th width="20%">
             Регион
-            <UpDown
+            <AscDesc
               :order="'desc'"
               :sort="'region_id'"
               @get-candidates="sortCandidates"
             />
-            <UpDown
+            <AscDesc
               :order="'asc'"
               :sort="'region_id'"
               @get-candidates="sortCandidates"
@@ -148,12 +134,12 @@ const searchPerson = debounce(() => {
           </th>
           <th>
             Фамилия Имя Отчество
-            <UpDown
+            <AscDesc
               :order="'desc'"
               :sort="'surname'"
               @get-candidates="sortCandidates"
             />
-            <UpDown
+            <AscDesc
               :order="'asc'"
               :sort="'surname'"
               @get-candidates="sortCandidates"
@@ -161,12 +147,12 @@ const searchPerson = debounce(() => {
           </th>
           <th width="15%">
             Дата рождения
-            <UpDown
+            <AscDesc
               :order="'desc'"
               :sort="'birthday'"
               @get-candidates="sortCandidates"
             />
-            <UpDown
+            <AscDesc
               :order="'asc'"
               :sort="'birthday'"
               @get-candidates="sortCandidates"
@@ -174,20 +160,25 @@ const searchPerson = debounce(() => {
           </th>
           <th width="10%">
             Статус
-            <UpDown
+            <AscDesc
               :order="'desc'"
+              :sort="'status_id'"
+              @get-candidates="sortCandidates"
+            />
+            <AscDesc
+              :order="'asc'"
               :sort="'status_id'"
               @get-candidates="sortCandidates"
             />
           </th>
           <th width="15%">
             Создан
-            <UpDown
+            <AscDesc
               :order="'desc'"
               :sort="'created'"
               @get-candidates="sortCandidates"
             />
-            <UpDown
+            <AscDesc
               :order="'asc'"
               :sort="'created'"
               @get-candidates="sortCandidates"
@@ -210,7 +201,11 @@ const searchPerson = debounce(() => {
                 params: { id: candidate.id },
               }"
             >
-              {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic ? candidate.patronymic : ''}` }}
+              {{
+                `${candidate.surname} ${candidate.firstname} ${
+                  candidate.patronymic ? candidate.patronymic : ""
+                }`
+              }}
             </router-link>
           </td>
           <td>
@@ -223,6 +218,7 @@ const searchPerson = debounce(() => {
         </tr>
       </template>
     </TableSlots>
+    <p v-else>Ничего не найдено</p>
     <PageSwitcher
       :has_prev="personData.prev"
       :has_next="personData.next"
