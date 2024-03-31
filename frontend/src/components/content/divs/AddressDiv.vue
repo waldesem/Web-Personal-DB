@@ -2,6 +2,9 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Address } from "@/interfaces/interface";
 
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
@@ -41,21 +44,15 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-  <h6>
-    Адреса
-    <a
-      class="btn btn-link"
-      title="Добавить информацию"
-      @click="address.action = 'create'"
-    >
-    <i
-        :class="address.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
-      ></i>
-    </a>
-  </h6>
+  <ActionHeader
+    :header="'Адреса'"
+    :action="address.action"
+    @action="address.action = address.action ? '' : 'create'"
+  />
   <AddressForm v-if="address.action"
     :addrs="address.item"
     @submit="submitForm"
+    @cancel="address.action = ''"
   />
   <div v-else>
     <div v-if="props.items.length">

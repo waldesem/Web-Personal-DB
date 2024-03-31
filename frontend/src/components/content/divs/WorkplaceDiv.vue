@@ -2,9 +2,15 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Work } from "@/interfaces/interface";
 
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const WorkplaceForm = defineAsyncComponent(
   () => import("@components/content/forms/WorkplaceForm.vue")
 );
@@ -44,22 +50,15 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-  <h6>
-    Работа
-    <a
-      class="btn btn-link"
-      @click="workplace.action = workplace.action ? '' : 'create'"
-      :title="workplace.action ? 'Закрыть форму' : 'Добавить информацию'"
-    >
-      <i
-        :class="workplace.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
-      >
-      </i>
-    </a>
-  </h6>
+  <ActionHeader
+    :header="'Работа'"
+    :action="workplace.action"
+    @action="workplace.action = workplace.action ? '' : 'create'"
+  />
   <WorkplaceForm v-if="workplace.action"
     :content="workplace.item"
     @submit="submitForm"
+    @cancel="workplace.action = ''"
   />
   <div v-else>
     <div v-if="props.items.length">
@@ -71,23 +70,14 @@ function submitForm(form: Object) {
         :label="'Работа #' + (idx + 1)"
       >
         <LabelSlot :label="'Действия'" :no-print="true">
-          <a href="#" 
-            @click="emit('delete', item['id'].toString(), 'workplace')" 
-            title="Удалить"
-          >
-            <i class="bi bi-trash"></i>
-          </a>
-          <a
-            class="btn btn-link"
-            title="Изменить"
-            @click="
+          <ActionIcons
+            @delete="emit('delete', item['id'].toString(), 'workplace')"
+            @update="
               workplace.action = 'update';
               workplace.item = item;
               workplace.itemId = item['id'].toString();
             "
-          >
-            <i class="bi bi-pencil-square"></i>
-          </a>
+          />
         </LabelSlot>
         <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
         <LabelSlot :label="'Начало работы'">{{ item['start_date'] }}</LabelSlot>

@@ -11,14 +11,14 @@ const LabelSlot = defineAsyncComponent(
 const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+const GroupContent = defineAsyncComponent(
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
   affils: {
@@ -52,26 +52,34 @@ const selected_item = [
         v-model="affilationForm['view']"
       />
     </LabelSlot>
-    <InputElement
-      :name="'name'"
-      :label="'Организация'"
-      :need="true"
-      v-model="affilationForm['name']"
-    />
-    <InputElement
-      :name="'inn'"
-      :label="'ИНН'"
-      :need="true"
-      v-model="affilationForm['inn']"
-    />
-    <InputElement
-      :name="'position'"
-      :label="'Должность'"
-      :need="true"
-      v-model="affilationForm['position']"
-    />
+    <LabelSlot :label="'Организация'">
+      <InputElement
+        :name="'name'"
+        :place="'Организация'"
+        :need="true"
+        v-model="affilationForm['name']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'ИНН'">
+      <InputElement
+        :name="'inn'"
+        :place="'ИНН'"
+        :need="true"
+        v-model="affilationForm['inn']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Должность'">
+      <InputElement
+        :name="'position'"
+        :place="'Должность'"
+        :need="true"
+        v-model="affilationForm['position']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
+      <GroupContent
+        @cancel="emit('cancel')"
+      />
     </BtnGroup>
   </form>
 </template>

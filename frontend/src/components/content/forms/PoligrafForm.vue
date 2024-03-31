@@ -12,7 +12,7 @@ const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -47,21 +47,17 @@ const poligrafForm = computed(() => {
         v-model="poligrafForm['theme']"
       />
     </LabelSlot>
-    <TextArea
-      :name="'results'"
-      :label="'Результат'"
-      v-model="props.poligraf['results']"
-    />
+    <LabelSlot :label="'Результат'">
+      <TextArea
+        :name="'results'"
+        :place="'Результат'"
+        v-model="props.poligraf['results']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
-      <button
-        class="btn btn-outline-danger btn-md"
-        type="button"
-        @click="emit('cancel')"
-        name="cancel"
-      >
-      Отмена
-      </button>
+      <BtnGroupContent
+        @cancel="emit('cancel')"
+      />
     </BtnGroup>
   </form>
 </template>

@@ -2,6 +2,9 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Document } from "@/interfaces/interface";
 
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
@@ -41,20 +44,15 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-   <h6>
-    Документы
-    <a
-      class="btn btn-link"
-      @click="
-        document.action = document.action ? '' : 'create';"
-      title="Добавить информацию"
-    >
-      <i class="bi bi-plus-circle"></i>
-    </a>
-  </h6>
+  <ActionHeader
+    :header="'Документы'"
+    :action="document.action"
+    @action="document.action = document.action ? '' : 'create'"
+  />
   <DocumentForm v-if="document.action"
     :docs="document.item"
     @submit="submitForm"
+    @cancel="document.action = ''"
   />
   <div v-else>
     <div v-if="props.items.length">

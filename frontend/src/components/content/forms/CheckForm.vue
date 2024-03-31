@@ -16,7 +16,7 @@ const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -69,7 +69,7 @@ computed(() => {
 <template>
   <SwitchBox
     :name="'noNegative'"
-    :label="'Негатива нет'"
+    :place="'Негатива нет'"
     v-model="noNegative"
   />
   <form
@@ -78,85 +78,115 @@ computed(() => {
     role="form"
     id="checkFormId"
   >
-    <TextArea
-      :name="'workplace'"
-      :label="'Проверка по местам работы'"
-      v-model="props.check['workplace']"
-    />
-    <TextArea
-      :name="'employee'"
-      :label="'Проверка по кадровому учету'"
-      v-model="props.check['employee']"
-    />
-    <TextArea
-      :name="'document'"
-      :label="'Проверка документов'"
-      v-model="props.check['document']"
-    />
-    <TextArea
-      :name="'inn'"
-      :label="'Проверка ИНН'"
-      v-model="props.check['inn']"
-    />
-    <TextArea
-      :name="'debt'"
-      :label="'Проверка задолженностей'"
-      v-model="props.check['debt']"
-    />
-    <TextArea
-      :name="'bankruptcy'"
-      :label="'Проверка решений о признании банкротом'"
-      v-model="props.check['bankruptcy']"
-    />
-    <TextArea
-      :name="'bki'"
-      :label="'Проверка кредитной истории'"
-      v-model="props.check['bki']"
-    />
-    <TextArea
-      :name="'courts'"
-      :label="'Проверка судебных дел'"
-      v-model="props.check['courts']"
-    />
-    <TextArea
-      :name="'affiliation'"
-      :label="'Проверка аффилированности'"
-      v-model="props.check['affiliation']"
-    />
-    <TextArea
-      :name="'terrorist'"
-      :label="'Проверка в списке террористов'"
-      v-model="props.check['terrorist']"
-    />
-    <TextArea
-      :name="'mvd'"
-      :label="'Проверка в розыск'"
-      v-model="props.check['mvd']"
-    />
-    <TextArea
-      :name="'internet'"
-      :label="'Проверка в открытых источниках'"
-      v-model="props.check['internet']"
-    />
-    <TextArea
-      :name="'cronos'"
-      :label="'Проверка в Кронос'"
-      v-model="props.check['cronos']"
-    />
-    <TextArea
-      :name="'cros'"
-      :label="'Проверка в Крос'"
-      v-model="props.check['cros']"
-    />
-    <TextArea
-      :name="'addition'"
-      :label="'Дополнительная информация'"
-      v-model="props.check['addition']"
-    />
+    <LabelSlot :label="'Проверка по местам работы'">
+      <TextArea
+        :name="'workplace'"
+        :place="'Проверка по местам работы'"
+        v-model="props.check['workplace']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка по кадровому учету'">
+      <TextArea
+        :name="'employee'"
+        :place="'Проверка по кадровому учету'"
+        v-model="props.check['employee']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка документов'">
+      <TextArea
+        :name="'document'"
+        :place="'Проверка документов'"
+        v-model="props.check['document']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка ИНН'">
+      <TextArea
+        :name="'inn'"
+        :place="'Проверка ИНН'"
+        v-model="props.check['inn']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка задолженностей'">
+      <TextArea
+        :name="'debt'"
+        :place="'Проверка задолженностей'"
+        v-model="props.check['debt']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка решений о признании банкротом'">
+      <TextArea
+        :name="'bankruptcy'"
+        :place="'Проверка решений о признании банкротом'"
+        v-model="props.check['bankruptcy']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка кредитной истории'">
+      <TextArea
+        :name="'bki'"
+        :place="'Проверка кредитной истории'"
+        v-model="props.check['bki']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка судебных дел'">
+      <TextArea
+        :name="'courts'"
+        :place="'Проверка судебных дел'"
+        v-model="props.check['courts']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка аффилированности'">
+      <TextArea
+        :name="'affiliation'"
+        :place="'Проверка аффилированности'"
+        v-model="props.check['affiliation']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка в списке террористов'">
+      <TextArea
+        :name="'terrorist'"
+        :place="'Проверка в списке террористов'"
+        v-model="props.check['terrorist']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка в розыск'">
+      <TextArea
+        :name="'mvd'"
+        :place="'Проверка в розыск'"
+        v-model="props.check['mvd']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка в открытых источниках'">
+      <TextArea
+        :name="'internet'"
+        :place="'Проверка в открытых источниках'"
+        v-model="props.check['internet']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка в Кронос'">
+      <TextArea
+        :name="'cronos'"
+        :place="'Проверка в Кронос'"
+        v-model="props.check['cronos']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Проверка в Крос'">
+      <TextArea
+        :name="'cros'"
+        :place="'Проверка в Крос'"
+        v-model="props.check['cros']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Дополнительная информация'">
+      <TextArea
+        :name="'addition'"
+        :place="'Дополнительная информация'"
+        v-model="props.check['addition']"
+      />
+    </LabelSlot>
     <SwitchBox
       :div-class="'offset-lg-2 col-lg-10'"
       :name="'pfo'"
-      :label="'Полиграф'"
+      :place="'Полиграф'"
       v-model="checkForm['pfo']"
     />
     <LabelSlot :label="'Результат'">
@@ -166,21 +196,17 @@ computed(() => {
         v-model="checkForm['conclusion']"
       />
     </LabelSlot>
-    <TextArea
-      :name="'comments'"
-      :label="'Комментарий'"
-      v-model="props.check['comments']"
-    />
+    <LabelSlot :label="'Комментарий'">
+      <TextArea
+        :name="'comments'"
+        :place="'Комментарий'"
+        v-model="props.check['comments']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
-      <button
-        class="btn btn-outline-danger btn-md"
-        type="button"
-        @click="emit('cancel')"
-        name="cancel"
-      >
-      Отмена
-      </button>
+      <BtnGroupContent
+        @cancel="emit('cancel')"  
+      />
     </BtnGroup>
   </form>
 </template>

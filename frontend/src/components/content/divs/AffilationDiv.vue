@@ -2,6 +2,9 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Affilation } from "@/interfaces/interface";
 
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
@@ -47,20 +50,16 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-  <h6>
-    Аффилированность
-    <a
-      class="btn btn-link"
-      @click="affilation.action = affilation.action ? '' : 'create'"
-      title="Добавить информацию"
-    >
-      <i class="bi bi-plus-circle"></i>
-    </a>
-  </h6>
+  <ActionHeader
+    :header="'Аффилированность'"
+    :action="affilation.action"
+    @action="affilation.action = affilation.action ? '' : 'create'"
+  />
   <AffilationForm
     v-if="affilation.action"
     :affils="affilation.item"
     @submit="submitForm"
+    @cancel="affilation.action = ''"
   />
   <div v-else>
     <div v-if="props.items.length">

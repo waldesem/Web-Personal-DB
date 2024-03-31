@@ -2,6 +2,9 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Staff } from "@/interfaces/interface";
 
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
@@ -41,17 +44,17 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-  <h6>
-    Должности
-    <a
-      class="btn btn-link"
-      @click="staff.action = staff.action ? '' : 'create'"
-      :title="'Добавить информацию'"
-    >
-      <i :class="staff.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"></i>
-    </a>
-  </h6>
-  <StaffForm v-if="staff.action" :staff="staff.item" @submit="submitForm" />
+  <ActionHeader
+    :header="'Должности'"
+    :action="staff.action"
+    @action="staff.action = staff.action ? '' : 'create'"
+  />
+  <StaffForm 
+    v-if="staff.action" 
+    :staff="staff.item" 
+    @submit="submitForm" 
+    @cancel="staff.action = ''"
+  />
   <div v-else>
     <div v-if="props.items.length">
       <CollapseDiv

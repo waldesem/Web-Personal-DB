@@ -12,13 +12,13 @@ const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
   docs: {
@@ -51,30 +51,40 @@ const selected_item = [
         v-model="docForm['view']"
       />
     </LabelSlot>
-    <InputElement
-      :name="'series'"
-      :label="'Серия документа'"
-      v-model="docForm['series']"
-    />
-    <InputElement
-      :name="'number'"
-      :label="'Номер документа'"
-      :need="true"
-      v-model="docForm['number']"
-    />
-    <InputElement
-      :name="'agency'"
-      :label="'Орган выдавший'"
-      v-model="docForm['agency']"
-    />
-    <InputElement
-      :name="'issue'"
-      :label="'Дата выдачи'"
-      :typeof="'date'"
-      v-model="docForm['issue']"
-    />
+    <LabelSlot :label="'Серия документа'">
+      <InputElement
+        :name="'series'"
+        :place="'Серия документа'"
+        v-model="docForm['series']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Номер документа'">
+      <InputElement
+        :name="'number'"
+        :place="'Номер документа'"
+        :need="true"
+        v-model="docForm['number']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Кем выдан'">
+      <InputElement
+        :name="'agency'"
+        :place="'Орган выдавший'"
+        v-model="docForm['agency']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Дата выдачи'">
+      <InputElement
+        :name="'issue'"
+        :place="'Дата выдачи'"
+        :typeof="'date'"
+        v-model="docForm['issue']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
+      <BtnGroupContent
+        @cancel="emit('cancel')"
+      />
     </BtnGroup>
   </form>
 </template>

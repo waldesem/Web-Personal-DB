@@ -2,6 +2,9 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Relation } from "@/interfaces/interface";
 
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
@@ -46,21 +49,15 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-  <h6>
-    Связи
-    <a
-      class="btn btn-link"
-      @click="relation.action = relation.action ? '' : 'create'"
-      :title="relation.action ? 'Закрыть форму' : 'Добавить информацию'"
-    >
-      <i
-        :class="relation.action ? 'bi bi-dash-circle' : 'bi bi-plus-circle'"
-      ></i>
-    </a>
-  </h6>
+  <ActionHeader
+    :header="'Связи'"
+    :action="relation.action"
+    @action="relation.action = relation.action ? '' : 'create'"
+  />
   <RelationForm v-if="relation.action"
     :content="relation.item"
     @submit="submitForm"
+    @cancel="relation.action = ''"
   />
   <div v-else>
     <div v-if="props.items.length">

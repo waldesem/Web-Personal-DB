@@ -11,14 +11,14 @@ const LabelSlot = defineAsyncComponent(
 const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+const GroupContent = defineAsyncComponent(
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
   addrs: {
@@ -45,20 +45,30 @@ const addressForm = computed(() => {
         v-model="addressForm['view']"
       />
     </LabelSlot>
-    <InputElement
-      :name="'region'"
+    <LabelSlot 
       :label="'Регион'"
-      :need="true"
-      v-model="addressForm['region']"
-    />
-    <InputElement
-      :name="'address'"
+    >
+      <InputElement
+        :name="'region'"
+        :place="'Регион'"
+        :need="true"
+        v-model="addressForm['region']"
+      />
+    </LabelSlot>
+    <LabelSlot
       :label="'Адрес'"
-      :need="true"
-      v-model="addressForm['address']"
-    />
+    >
+      <InputElement
+        :name="'address'"
+        :place="'Адрес'"
+        :need="true"
+        v-model="addressForm['address']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
+      <GroupContent
+        @cancel="emit('cancel')"
+      />
     </BtnGroup>
   </form>
 </template>

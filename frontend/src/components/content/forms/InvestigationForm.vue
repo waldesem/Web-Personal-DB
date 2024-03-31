@@ -2,6 +2,9 @@
 import { computed, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+)
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")
 );
@@ -9,7 +12,7 @@ const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -35,27 +38,25 @@ const investigationForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <InputElement
-      :name="'theme'"
-      :label="'Тема проверки'"
-      :need="true"
-      v-model="investigationForm['theme']"
-    />
-    <TextArea
-      :name="'info'"
-      :label="'Информация'"
-      v-model="props.investigation['info']"
-    />
+    <LabelSlot :label="'Тема проверки'">
+      <InputElement
+        :name="'theme'"
+        :place="'Тема проверки'"
+        :need="true"
+        v-model="investigationForm['theme']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Информация'">
+      <TextArea
+        :name="'info'"
+        :place="'Информация'"
+        v-model="props.investigation['info']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
-      <button
-        class="btn btn-outline-danger btn-md"
-        type="button"
-        @click="emit('cancel')"
-        name="cancel"
-      >
-      Отмена
-      </button>
+      <BtnGroupContent
+        @cancel="emit('cancel')"
+      />
     </BtnGroup>
   </form>
 </template>

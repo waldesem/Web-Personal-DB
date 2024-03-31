@@ -2,6 +2,9 @@
 import { defineAsyncComponent, computed } from "vue";
 import { Staff } from "@/interfaces/interface";
 
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+)
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
@@ -9,10 +12,10 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+  () => import("@components/content/elements/GroupContent.vue")
 );
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
   staff: {
@@ -32,19 +35,25 @@ const staffForm = computed(() => {
     class="form form-check"
     role="form"
   >
-    <InputElement
-      :name="'position'"
-      :label="'Должность'"
-      :need="true"
-      v-model="staffForm['position']"
-    />
-    <InputElement
-      :name="'department'"
-      :label="'Подразделение'"
-      v-model="staffForm['department']"
-    />
+    <LabelSlot :label="'Должность'">
+      <InputElement
+        :name="'position'"
+        :place="'Должность'"
+        :need="true"
+        v-model="staffForm['position']"
+      />
+    </LabelSlot>
+    <LabelSlot :label="'Подразделение'">
+      <InputElement
+        :name="'department'"
+        :place="'Подразделение'"
+        v-model="staffForm['department']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
+      <BtnGroupContent
+        @cancel="emit('cancel')"
+      />
     </BtnGroup>
   </form>
 </template>

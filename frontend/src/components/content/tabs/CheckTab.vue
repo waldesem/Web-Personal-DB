@@ -3,6 +3,9 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
 import { Anketa, Verification } from "@/interfaces/interface";
 
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+)
 const CollapseDiv = defineAsyncComponent(
   () => import("@components/content/elements/CollapseDiv.vue")
 );
@@ -85,15 +88,13 @@ function getRobot() {
           :label="'Проверка #' + (idx + 1)"
         >
           <LabelSlot :label="'Действия'">
-            <a
-              href="#"
-              title="Удалить"
-              @click="deleteItem(item['id'].toString())"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-            <a
-              :hidden="
+            <ActionIcons
+              @delete="deleteItem(item['id'].toString())"
+              @update="check.action = 'update';
+                check.item = item;
+                check.itemId = item['id'].toString();
+              "
+              :hide="
                 ![
                   storeClassify.classData.status['save'],
                   storeClassify.classData.status['cancel'],
@@ -101,16 +102,7 @@ function getRobot() {
                 ].includes(props.anketa.resume['status_id']) &&
                 props.anketa.resume['user_id'] !== props.userId
               "
-              href="#"
-              title="Изменить"
-              @click="
-                check.action = 'update';
-                check.item = item;
-                check.itemId = item['id'].toString();
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </a>
+            />
           </LabelSlot>
           <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
           <LabelSlot :label="'Проверка по местам работы'">

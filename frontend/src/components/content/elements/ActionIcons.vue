@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const emit = defineEmits(["delete", "update"]);
+const props = defineProps({
+  hide: {
+    type: Boolean,
+    default: false
+  }
+})
 </script>
 
 <template>
@@ -11,6 +17,7 @@ const emit = defineEmits(["delete", "update"]);
     <i class="bi bi-trash"></i>
   </a>
   <a
+    :hidden="props.hide"
     class="btn btn-link"
     title="Изменить"
     @click="emit('update')"

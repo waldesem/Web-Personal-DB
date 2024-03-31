@@ -11,14 +11,14 @@ const LabelSlot = defineAsyncComponent(
 const SelectInput = defineAsyncComponent(
   () => import("@components/content/elements/SelectInput.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+const GroupContent = defineAsyncComponent(
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["submit", "cancel"]);
 
 const props = defineProps({
   contact: {
@@ -55,15 +55,19 @@ const view = computed(() => {
         v-model="contactForm['view']"
       />
     </LabelSlot>
-    <InputElement
-      :name="'contact'"
-      :label="'Контакт'"
-      :typeof="view"
-      :need="true"
-      v-model="contactForm['contact']"
-    />
+    <LabelSlot :label="'Контакт'">
+      <InputElement
+        :name="'contact'"
+        :place="'Контакт'"
+        :typeof="view"
+        :need="true"
+        v-model="contactForm['contact']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
+      <GroupContent
+        @cancel="emit('cancel')"
+      />
     </BtnGroup>
   </form>
 </template>

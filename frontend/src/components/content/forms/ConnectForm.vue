@@ -5,11 +5,14 @@ import { alertStore } from "@/store/alert";
 import { server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+);
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroupContent.vue")
+const GroupContent = defineAsyncComponent(
+  () => import("@components/content/elements/GroupContent.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -50,11 +53,11 @@ async function updateContact(): Promise<void> {
     const response =
       props.action === "create"
         ? await storeAuth.axiosInstance.post(
-          `${server}/connect`, 
-          connectForm.value
+            `${server}/connect`,
+            connectForm.value
           )
         : await storeAuth.axiosInstance.patch(
-            `${server}/connect/${props.item['id']}`,
+            `${server}/connect/${props.item["id"]}`,
             connectForm.value
           );
     console.log(response.status);
@@ -74,90 +77,83 @@ async function updateContact(): Promise<void> {
     console.log(error);
   }
   emit("get-contacts", props.page);
-};
+}
 </script>
 
 <template>
   <form @submit.prevent="updateContact" class="form form-check">
-    <div class="row mb-3">
+    <LabelSlot :label="'Вид контакта'">
       <InputElement
-        :label="'Вид'"
+        :place="'Вид'"
         :name="'name'"
         :lst="'names'"
         :selects="props.names"
         v-model="connectForm['name']"
       />
-    </div>
-    <div class="row mb-3">
+    </LabelSlot>
+    <LabelSlot :label="'Компания'">
       <InputElement
-        :label="'Название'"
+        :place="'Название'"
         :name="'company'"
         :lst="'companies'"
         :selects="props.companies"
         v-model="connectForm['company']"
       />
-    </div>
-    <div class="row mb-3">
+    </LabelSlot>
+    <LabelSlot :label="'Город'">
       <InputElement
         :name="'city'"
-        :label="'Город'"
+        :place="'Город'"
         :lst="'cities'"
         :selects="props.cities"
         v-model="connectForm['city']"
       />
-    </div>
-    <div class="row mb-3">
+    </LabelSlot>
+    <LabelSlot :label="'Имя'">
       <InputElement
         :name="'fullname'"
-        :label="'Имя'"
+        :place="'Имя'"
         v-model="connectForm['fullname']"
       />
-    </div>
-    <div class="row mb-3">
+    </LabelSlot>
+    <LabelSlot :label="'Телефон'">
       <InputElement
         :name="'phone'"
-        :label="'Телефон'"
+        :place="'Телефон'"
         v-model="connectForm['phone']"
       />
-    </div>
-    <div class="row mb-3">
+    </LabelSlot>
+    <LabelSlot :label="'Добавочный'"
+      >>
       <InputElement
         :name="'adding'"
-        :label="'Добав'"
+        :place="'Добав'"
         v-model="connectForm['adding']"
       />
-    </div>
-    <div class="row mb-3">
+    </LabelSlot>
+    <LabelSlot :label="'Мобильный'">
       <InputElement
         :name="'mobile'"
-        :label="'Мобильный'"
+        :place="'Мобильный'"
         v-model="connectForm['mobile']"
       />
-    </div>
-    <div class="row mb-3">
+    </LabelSlot>
+    <LabelSlot :label="'E-mail'">
       <InputElement
         :name="'mail'"
-        :label="'Почта'"
+        :place="'Почта'"
         v-model="connectForm['mail']"
       />
-    </div>
-    <div class="row mb-3">
-    <InputElement
-      :name="'comment'"
-      :label="'Комментарий'"
-      v-model="connectForm['comment']"
-    />
-    </div>
+    </LabelSlot>
+    <LabelSlot :label="'Комментарий'">
+      <InputElement
+        :name="'comment'"
+        :place="'Комментарий'"
+        v-model="connectForm['comment']"
+      />
+    </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent/>
-      <button
-        class="btn btn-outline-secondary"
-        name="cancel"
-        type="button"
-        @click="emit('cancel-edit')"
-      >
-        Отмена
-      </button>
+      <GroupContent @cancel="emit('cancel-edit')" />
     </BtnGroup>
   </form>
 </template>
