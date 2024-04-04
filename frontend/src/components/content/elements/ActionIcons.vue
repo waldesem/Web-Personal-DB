@@ -10,9 +10,9 @@ const props = defineProps({
 
 <template>
   <a 
-    href="#" 
-    @click="emit('delete')" 
+    class="btn btn-link"
     title="Удалить"
+    @click="emit('delete')" 
   >
     <i class="bi bi-trash"></i>
   </a>

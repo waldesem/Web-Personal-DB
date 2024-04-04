@@ -48,9 +48,6 @@ function submitForm(form: Object) {
   inquisition.value.action = "";
 }
 
-function submitFile(event: Event) {
-  emit("file", event);
-};
 </script>
 
 <template>
@@ -87,7 +84,7 @@ function submitFile(event: Event) {
             {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
           </LabelSlot>
         </CollapseDiv>
-        <FileForm :accept="'*'" @submit="submitFile($event)" />
+        <FileForm :accept="'*'" @submit="emit('file')" />
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">

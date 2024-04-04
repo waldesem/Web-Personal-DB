@@ -6,7 +6,7 @@ export const alertStore = defineStore("alertStore", () => {
     attr: "",
     text: "",
 
-    setAlert: function (
+    setAlert (
       attr: string = "", 
       text: string = "",
       ) {

@@ -63,27 +63,6 @@ const dataResume = ref({
   action: "",
   form: <Resume>{},
 });
-
-function getResume(action: string) {
-  emit("get-resume", action);
-}
-
-function getItem(item: string) {
-  emit("get-item", item);
-}
-
-function updateItem(
-  action: string,
-  item: string,
-  itemId: string,
-  form: Object
-) {
-  emit("submit", action, item, itemId, form);
-}
-
-function deleteItem(itemId: string, item: string) {
-  emit("delete", itemId, item);
-}
 </script>
 
 <template>
@@ -92,7 +71,7 @@ function deleteItem(itemId: string, item: string) {
       v-if="dataResume.action"
       :action="dataResume.action"
       :resume="props.anketa.resume"
-      @get-resume="getResume"
+      @get-resume="emit('get-resume')"
       @cancel="dataResume.action = ''"
     />
     <div v-else>
@@ -111,7 +90,7 @@ function deleteItem(itemId: string, item: string) {
             storeClassify.classData.status[props.anketa.resume['status_id']] ===
               'finish' || props.spinner
           "
-          @click="deleteItem(props.anketa.resume['id'], 'resume')"
+          @click="emit('delete', props.anketa.resume['id'], 'resume')"
         >
           <i class="bi bi-trash"></i>
         </a>
@@ -197,45 +176,45 @@ function deleteItem(itemId: string, item: string) {
 
     <StaffDiv
       :items="props.anketa.staffs"
-      @get-item="getItem"
-      @submit="updateItem"
-      @delete="deleteItem"
+      @get-item="emit('get-item')"
+      @submit="emit('submit')"
+      @delete="emit('delete')"
     />
     <DocumentDiv
       :items="props.anketa.documents"
-      @get-item="getItem"
-      @submit="updateItem"
-      @delete="deleteItem"
+      @get-item="emit('get-item')"
+      @submit="emit('submit')"
+      @delete="emit('delete')"
     />
     <AddressDiv
       :items="props.anketa.addresses"
-      @get-item="getItem"
-      @submit="updateItem"
-      @delete="deleteItem"
+      @get-item="emit('get-item')"
+      @submit="emit('submit')"
+      @delete="emit('delete')"
     />
     <ContactDiv
       :items="props.anketa.contacts"
-      @get-item="getItem"
-      @submit="updateItem"
-      @delete="deleteItem"
+      @get-item="emit('get-item')"
+      @submit="emit('submit')"
+      @delete="emit('delete')"
     />
     <RelationDiv
       :items="props.anketa.relations"
-      @get-item="getItem"
-      @submit="updateItem"
-      @delete="deleteItem"
+      @get-item="emit('get-item')"
+      @submit="emit('submit')"
+      @delete="emit('delete')"
     />
     <WorkplaceDiv
       :items="props.anketa.workplaces"
-      @get-item="getItem"
-      @submit="updateItem"
-      @delete="deleteItem"
+      @get-item="emit('get-item')"
+      @submit="emit('submit')"
+      @delete="emit('delete')"
     />
     <AffilationDiv
       :items="props.anketa.affilations"
-      @get-item="getItem"
-      @submit="updateItem"
-      @delete="deleteItem"
+      @get-item="emit('get-item')"
+      @submit="emit('submit')"
+      @delete="emit('delete')"
     />
 
     <BtnGroup>
@@ -246,7 +225,7 @@ function deleteItem(itemId: string, item: string) {
         "
         type="button"
         class="btn btn-outline-primary"
-        @click="getResume('self')"
+        @click="emit('get-resume', 'self')"
       >
         Взять на проверку
       </button>
@@ -259,7 +238,7 @@ function deleteItem(itemId: string, item: string) {
           props.anketa.resume.user_id !== props.userId &&
           props.spinner
         "
-        @click="getResume('send')"
+        @click="emit('get-resume', 'send')"
       >
         {{ !props.spinner ? "Отправить на проверку" : "" }}
         <span

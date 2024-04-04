@@ -18,7 +18,7 @@ const messageData = ref({
   isStarted: false,
   messages: Array<Message>(),
 
-  updateMessages: async function (): Promise<void> {
+  async updateMessages(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.get(
         `${server}/messages`
@@ -34,7 +34,7 @@ const messageData = ref({
     }
   },
 
-  deleteMessage: async function (): Promise<void> {
+  async deleteMessage(): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.delete(
         `${server}/messages`

@@ -2,7 +2,7 @@ import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { defineStore } from "pinia";
-import { server } from "@utilities/utils";
+import { server, expiryToken } from "@utilities/utils";
 
 export const authStore = defineStore("authStore", () => {
   const router = useRouter();
@@ -19,10 +19,7 @@ export const authStore = defineStore("authStore", () => {
         return Promise.reject("Refresh token not available");
       }
 
-      const expiry_refresh = JSON.parse(
-        atob(refreshToken.value.split(".")[1])
-      ).exp;
-      if (Math.floor(new Date().getTime() / 1000) >= expiry_refresh) {
+      if (Math.floor(new Date().getTime() / 1000) >= expiryToken(refreshToken.value)) {
         router.push({ name: "login" });
         return Promise.reject("Refresh token expired");
       }
@@ -32,10 +29,7 @@ export const authStore = defineStore("authStore", () => {
         return Promise.reject("Access token not available");
       }
 
-      const expiry_access = JSON.parse(
-        atob(accessToken.value.split(".")[1])
-      ).exp;
-      if (Math.floor(new Date().getTime() / 1000) >= expiry_access) {
+      if (Math.floor(new Date().getTime() / 1000) >= expiryToken(accessToken.value)) {
         try {
           const response = await axios.post(`${server}/refresh`, null, {
             headers: {

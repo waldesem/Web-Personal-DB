@@ -21,7 +21,6 @@ function timeSince(date: string) {
   const seconds: number = Math.floor(
     ((new Date() as any) - (new Date(date) as any)) / 1000
   );
-
   let interval = seconds / 31536000;
 
   if (interval > 1) {
@@ -46,4 +45,26 @@ function timeSince(date: string) {
   return Math.floor(seconds) + " секунд назад";
 }
 
-export { server, debounce, timeSince };
+function expiryToken(token: string) {
+  return JSON.parse(
+    atob(token.split(".")[1])
+  ).exp;
+}
+
+function reduceItems(
+  items: Record<string, any>,
+  value: string
+): Record<string, any> {
+  return items.reduce(
+    (
+      acc: { [x: string]: any },
+      item: { id: string | number; [x: string]: any }
+    ) => {
+      acc[item.id] = item[value];
+      return acc;
+    },
+    {} as { [key: string]: string }
+  );
+}
+
+export { server, debounce, timeSince, expiryToken, reduceItems };

@@ -19,7 +19,7 @@ from ..models.model import (
 from ..models.schema import (
     InfoSchema,
     PersonSchema,
-    SearchSortSchema,
+    SortSchema,
 )
 
 
@@ -27,7 +27,7 @@ class IndexView(MethodView):
 
     @roles_required(Roles.user.value)
     @bp.doc(hide=True)
-    @bp.input(SearchSortSchema, location="query")
+    @bp.input(SortSchema, location="query")
     def get(self, flag, page, query_data):
         query = select(Person)
         search_data = query_data.get("search")

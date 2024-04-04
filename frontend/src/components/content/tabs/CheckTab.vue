@@ -57,16 +57,8 @@ function submitForm(form: Object) {
   check.value.action = "";
 }
 
-function submitFile(event: Event) {
-  emit("file", event);
-}
-
 function deleteItem(itemId: string) {
   emit("delete", itemId, "check");
-}
-
-function getRobot() {
-  emit("get-item", "robot");
 }
 </script>
 
@@ -150,10 +142,10 @@ function getRobot() {
             {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
           </LabelSlot>
         </CollapseDiv>
-        <FileForm :accept="'*'" @submit="submitFile" />
+        <FileForm :accept="'*'" @submit="emit('file')" />
         <RobotDiv
           :robots="props.anketa.robots"
-          @get-item="getRobot"
+          @get-item="emit('get-item', 'robot')"
           @delete="deleteItem"
         />
       </div>
