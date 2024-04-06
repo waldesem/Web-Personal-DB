@@ -18,5 +18,17 @@ def get_classes():
     models = [Conclusion, Role, Status, Region]
     schemas = [ConclusionSchema(), RoleSchema(), StatusSchema(), RegionSchema()]
     queries = [db.session.execute(select(model)).scalars().all() for model in models]
-    results = [schema.dump(query, many=True) for query, schema in zip(queries, schemas)]
-    return [{k: v for d in result for k, v in d.items()} for result in results]
+    dumps = [schema.dump(query, many=True) for query, schema in zip(queries, schemas)]
+    return [
+        dict(
+            (
+                d["id"],
+                d.get("conclusion")
+                or d.get("role")
+                or d.get("status")
+                or d.get("region"),
+            )
+            for d in sublist
+        )
+        for sublist in dumps
+    ]

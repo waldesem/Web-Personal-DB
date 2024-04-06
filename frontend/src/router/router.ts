@@ -69,7 +69,7 @@ export const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const storeAuth = authStore();
 
-  if (!["auth", "login", "admin", "staffsec", "404"].includes(to.name as string)) {
+  if (to.name as string !== "login") {
     if (storeAuth.refreshToken) {
       const expiry_refresh = JSON.parse(atob(storeAuth.refreshToken.split(".")[1])).exp;
 

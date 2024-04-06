@@ -123,8 +123,7 @@ async function updateContact(): Promise<void> {
         v-model="connectForm['phone']"
       />
     </LabelSlot>
-    <LabelSlot :label="'Добавочный'"
-      >>
+    <LabelSlot :label="'Добавочный'">
       <InputElement
         :name="'adding'"
         :place="'Добав'"

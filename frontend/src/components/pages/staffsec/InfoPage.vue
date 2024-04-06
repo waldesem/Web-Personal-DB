@@ -65,11 +65,13 @@ computed(() => {
 </script>
 
 <template>
-  <div class="container py-3">
-    <HeaderDiv
-      :page-header="`Статистика по региону ${tableData.header} 
-              за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
-    />
+  <div class="container py-5">
+    <div class="row mb-3">
+      <HeaderDiv
+        :page-header="`Статистика по региону ${tableData.header} 
+                за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
+      />
+    </div>
     <div class="py-3">
       <TableSlots
         :class="'table table-hover table-responsive align-middle'"
@@ -96,7 +98,7 @@ computed(() => {
 
     <div class="row mb-3 ">
       <label class="col-form-label col-md-1" for="region">
-        Регион
+        Регион:
       </label>
       <div class="col-md-3">
         <SelectInput
@@ -109,18 +111,22 @@ computed(() => {
       <label class="col-form-label col-md-1" for="start">
         Период:
       </label>
-      <InputElement 
-        :name="'start'" 
-        :typeof="'date'"
-        v-model="tableData.stat.start" 
-        @submit-data="submitData"
-        />
-      <InputElement 
-        :name="'end'" 
-        :typeof="'date'"
-        v-model="tableData.stat.end" 
-        @submit-data="submitData"
-        />
+      <div class="col-md-2">
+        <InputElement 
+          :name="'start'" 
+          :typeof="'date'"
+          v-model="tableData.stat.start" 
+          @submit-data="submitData"
+          />
+      </div>
+      <div class="col-md-2">
+        <InputElement 
+          :name="'end'" 
+          :typeof="'date'"
+          v-model="tableData.stat.end" 
+          @submit-data="submitData"
+          />
+      </div>
     </div>
   </div>
 </template>

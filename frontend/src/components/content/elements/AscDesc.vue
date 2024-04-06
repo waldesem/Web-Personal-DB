@@ -16,11 +16,12 @@ const props = defineProps({
 <template>
   <a 
     role="button" 
-    class="btn btn-link" @click="
+    @click="
       emit('get-candidates', props.sort, props.order)
     "
   >
     <i 
+      :title="props.order === 'desc' ? 'Сортировка по убыванию' : 'Сортировка по возрастанию'"
       class="bi"
       :class="props.order === 'desc' 
         ? 'bi-caret-down-fill' 
@@ -29,3 +30,10 @@ const props = defineProps({
     </i>
   </a>
 </template>
+
+<style scoped>
+.a {
+  padding: 0;
+  margin: 0;
+}
+</style>

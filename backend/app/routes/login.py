@@ -62,15 +62,15 @@ class LoginView(MethodView):
                         "message": "Authenticated",
                         "access_token": create_access_token(identity=token),
                         "refresh_token": create_refresh_token(identity=token),
-                    }
-                return {"message": "Overdue"}
+                    }, 201
+                return {"message": "Overdue"}, 201
             else:
                 if user.attempt < 9:
                     user.attempt += 1
                 else:
                     user.blocked = True
                 db.session.commit()
-        return {"message": "Denied"}, 401
+        return {"message": "Denied"}, 201
 
     @bp.input(LoginSchema)
     def patch(self, json_data):

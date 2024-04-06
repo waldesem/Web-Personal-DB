@@ -2,7 +2,7 @@
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
-import { server, debounce } from "@utilities/utils";
+import { server, debounce, timeSince } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
 const HeaderDiv = defineAsyncComponent(
@@ -57,8 +57,10 @@ async function getUsers() {
 </script>
 
 <template>
-  <div class="container py-1">
-    <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
+  <div class="container py-3">
+    <div class="row mb-5">
+      <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
+    </div>
     <form @input.prevent="searchUsers" class="form form-check" role="form">
       <div class="row mb-5">
         <input
@@ -100,13 +102,13 @@ async function getUsers() {
       :tbl-class="'table align-middle'"
     >
       <template v-slot:thead>
-        <tr height="50px">
-          <th width="5%">#</th>
+        <tr>
+          <th width="10%">#</th>
           <th>Имя пользователя</th>
           <th width="20%">Логин</th>
-          <th width="10%">Блокировка</th>
-          <th width="20%">Создан</th>
-          <th width="20%">Вход</th>
+          <th width="15%">Блокировка</th>
+          <th width="15%">Создан</th>
+          <th width="15%">Вход</th>
         </tr>
       </template>
       <template v-slot:tbody>
@@ -121,7 +123,7 @@ async function getUsers() {
                   v-for="user in users"
                   :key="user.id"
                 >
-                  <td width="5%">{{ user.id }}</td>
+                  <td width="10%">{{ user.id }}</td>
                   <td>{{ user.fullname }}</td>
                   <td width="20%">
                     <router-link
@@ -130,12 +132,12 @@ async function getUsers() {
                       {{ user.username }}
                     </router-link>
                   </td>
-                  <td width="10%">{{ user.blocked }}</td>
-                  <td width="20%">
-                    {{ new Date(user.pswd_create).toLocaleString("ru-RU") }}
+                  <td width="15%">{{ user.blocked }}</td>
+                  <td width="15%">
+                    {{ timeSince(user.pswd_create) }}
                   </td>
-                  <td width="20%">
-                    {{ new Date(user.last_login).toLocaleString("ru-RU") }}
+                  <td width="15%">
+                    {{ timeSince(user.last_login) }}
                   </td>
                 </tr>
               </template>

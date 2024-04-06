@@ -147,7 +147,7 @@ const loginData = ref({
             Изменить пароль
           </a>
         </div>
-        <div v-show="loginData.action === 'password'">
+        <div v-if="loginData.action === 'password'">
           <LabelSlot :label="'Новый пароль'">
             <GroupInput 
               :name="'new_pswd'"

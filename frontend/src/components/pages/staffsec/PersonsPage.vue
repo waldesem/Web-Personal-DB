@@ -66,6 +66,7 @@ async function getCandidates(page = 1): Promise<void> {
         params: {
           search: personData.value.search,
           sort: personData.value.sort,
+          order: personData.value.order,
         },
       }
     );
@@ -92,7 +93,9 @@ const searchPerson = debounce(() => {
 
 <template>
   <div class="container py-3">
-    <HeaderDiv :page-header="'Кандидаты'" />
+    <div class="row mb-5">
+      <HeaderDiv :page-header="'Кандидаты'" />
+    </div>
     <div class="row mb-5">
       <div class="col-md-3">
         <SelectInput
@@ -120,7 +123,7 @@ const searchPerson = debounce(() => {
     >
       <template v-slot:thead>
         <tr height="50px">
-          <th width="5%">
+          <th width="10%">
             #
             <AscDesc
               :order="'desc'"
@@ -172,7 +175,7 @@ const searchPerson = debounce(() => {
               @get-candidates="sortCandidates"
             />
           </th>
-          <th width="10%">
+          <th width="15%">
             Статус
             <AscDesc
               :order="'desc'"
@@ -226,16 +229,11 @@ const searchPerson = debounce(() => {
             {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
           </td>
           <td>
-            <small 
-              :class="`text-${
-                statusColor[candidate.status_id as keyof typeof statusColor]
-              } bg-${
-                statusColor[candidate.status_id as keyof typeof statusColor]
-              } border border-${
-                statusColor[candidate.status_id as keyof typeof statusColor]
-                } rounded`">
-              {{ storeClassify.classData.status[candidate.status_id] }}
-            </small>
+            <label 
+              :class="`fs-6 badge bg-${statusColor[candidate.status_id as keyof typeof statusColor]}`"
+            >
+            {{ storeClassify.classData.status[candidate.status_id] }}
+            </label>
           </td>
           <td>
             {{ timeSince(candidate.created) }}

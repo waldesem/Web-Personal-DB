@@ -30,13 +30,12 @@ class IndexView(MethodView):
     @bp.input(SortSchema, location="query")
     def get(self, flag, page, query_data):
         query = select(Person)
-        search_data = query_data.get("search")
-        sort = query_data.get("sort")
         order = query_data.get("order")
+        sort_attribute = getattr(Person, query_data.get("sort"))
         if order == "asc":
-            query = query.order_by(Person[sort].asc())
+            query = query.order_by(sort_attribute.asc())
         else:
-            query = query.order_by(Person[sort].desc())
+            query = query.order_by(sort_attribute.desc())
         if flag == "officer":
             query = query.filter(
                 Person.status_id.notin_(
@@ -48,6 +47,7 @@ class IndexView(MethodView):
                 Person.user_id == current_user.id,
             )
         else:
+            search_data = query_data.get("search")
             if search_data:
                 query = search(query, "%{}%".format(search_data))
 

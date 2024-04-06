@@ -98,11 +98,13 @@ async function deleteContact(id: string): Promise<void> {
 
 <template>
   <div class="container py-3">
-    <HeaderDiv 
-      :page-header="contactData.action 
-        ? 'Изменить/добавить контакт' 
-        : 'Контакты'" 
-    />
+    <div class="row mb-5">
+      <HeaderDiv 
+        :page-header="contactData.action 
+          ? 'Изменить/добавить контакт' 
+          : 'Контакты'" 
+      />
+    </div>
     <div v-show="contactData.action" class="mb-5">
       <ConnectForm
         :page="contactData.page"

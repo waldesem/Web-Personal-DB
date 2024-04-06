@@ -8,12 +8,13 @@ export const authStore = defineStore("authStore", () => {
   const router = useRouter();
 
   const axiosInstance = ref(axios.create());
-
-  const refreshToken = ref(localStorage.getItem("refresh_token"));
-  const accessToken = ref("");
+  
+  const accessToken: any = ref("");
+  const refreshToken: any = ref("");
 
   axiosInstance.value.interceptors.request.use(
     async (config) => {
+      refreshToken.value = localStorage.getItem("refresh_token");
       if (!refreshToken.value) {
         router.push({ name: "login" });
         return Promise.reject("Refresh token not available");
@@ -24,12 +25,7 @@ export const authStore = defineStore("authStore", () => {
         return Promise.reject("Refresh token expired");
       }
 
-      if (!accessToken.value) {
-        router.push({ name: "login" });
-        return Promise.reject("Access token not available");
-      }
-
-      if (Math.floor(new Date().getTime() / 1000) >= expiryToken(accessToken.value)) {
+      if (!accessToken.value || Math.floor(new Date().getTime() / 1000) >= expiryToken(accessToken.value)) {
         try {
           const response = await axios.post(`${server}/refresh`, null, {
             headers: {

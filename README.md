@@ -60,6 +60,7 @@ To start the application at http://localhost:5000 run the following command in y
 
 ```
 flask create       # create default tables and populate them with data from the classes.py file
+flask run          # start the application
 waitress-serve --host 127.0.0.1 --port 5000 wsgi:app  # start the waitress server
 ```
 

@@ -25,7 +25,7 @@ const props = defineProps({
   >
     <option v-for="value, keydex in props.select"
       :key="keydex"
-      :value="value"
+      :value="keydex"
     >
       {{ value }}
     </option>
