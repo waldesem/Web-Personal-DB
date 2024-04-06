@@ -10,17 +10,13 @@ from ..models.schema import (
     RegionSchema,
 )
 
+
 @bp.doc(hide=True)
 @cache.cached()
 @bp.get("/classes")
 def get_classes():
-    tables = ["Conclusion", "Role", "Status", "Region"]
-    queries = [
-        db.session.execute(select(eval(table))).scalars().all() for table in tables
-    ]
-    schemas = [eval(table + "Schema")() for table in tables]
-    results = [
-        schema.dump(query, many=True) for query, schema in zip(queries, schemas)
-    ]
-    data = {table.lower(): result for table, result in zip(tables, results)}
-    return data
+    models = [Conclusion, Role, Status, Region]
+    schemas = [ConclusionSchema(), RoleSchema(), StatusSchema(), RegionSchema()]
+    queries = [db.session.execute(select(model)).scalars().all() for model in models]
+    results = [schema.dump(query, many=True) for query, schema in zip(queries, schemas)]
+    return [{k: v for d in result for k, v in d.items()} for result in results]

@@ -51,20 +51,4 @@ function expiryToken(token: string) {
   ).exp;
 }
 
-function reduceItems(
-  items: Record<string, any>,
-  value: string
-): Record<string, any> {
-  return items.reduce(
-    (
-      acc: { [x: string]: any },
-      item: { id: string | number; [x: string]: any }
-    ) => {
-      acc[item.id] = item[value];
-      return acc;
-    },
-    {} as { [key: string]: string }
-  );
-}
-
-export { server, debounce, timeSince, expiryToken, reduceItems };
+export { server, debounce, timeSince, expiryToken };

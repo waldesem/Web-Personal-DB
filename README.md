@@ -60,14 +60,14 @@ To start the application at http://localhost:5000 run the following command in y
 
 ```
 flask create       # create default tables and populate them with data from the classes.py file
-gunicorn -c gunicorn.conf.py wsgi:app  # start the gunicorn server with the settings in gunicorn.conf.py
+waitress-serve --host 127.0.0.1 --port 5000 wsgi:app  # start the waitress server
 ```
 
 Admin user on default has name 'admin'.
 Default password for all app users is `88888888`
 Change it in first login to application.
 
-### Gunicorn Service
+### WSGI Service
 
 For create systemd service run the following command in your terminal:
 
@@ -86,7 +86,7 @@ User=user
 Group=www-data
 WorkingDirectory=/home/user/DB-Personal-DB/backend
 Environment="PATH=/home/user/DB-Personal-DB/backend/venv/bin"
-ExecStart=/home/user/DB-Personal-DB/backend/venv/bin/gunicorn -c gunicorn.conf.py wsgi:app
+ExecStart=/home/user/DB-Personal-DB/backend/venv/bin/waitress -c waitress-serve --host 127.0.0.1 --port 5000 wsgi:app
 [Install]
 WantedBy=multi-user.target
 ```
@@ -111,21 +111,11 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://0.0.0.0:5000;
+        proxy_pass http://127.0.0.1:5000;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Host $server_name;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Port $server_port;
-        proxy_redirect off;
-    }
-    location /samba {
-        proxy_pass http://0.0.0.0:445;
-        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Host $server_name;
