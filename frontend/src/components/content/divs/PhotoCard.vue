@@ -22,7 +22,7 @@ const photoCard = ref({
 </script>
 
 <template>
-  <div class="card" style="width: 16rem">
+  <div class="card mb-3" style="width: 16rem">
     <div
       class="card-img-container"
       @mouseover="photoCard.handleMouse"

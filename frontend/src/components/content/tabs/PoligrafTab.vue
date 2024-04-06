@@ -20,7 +20,7 @@ const LabelSlot = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
-onBeforeMount(async () => {
+onBeforeMount(async() => {
   emit("get-item", "poligraf");
 });
 

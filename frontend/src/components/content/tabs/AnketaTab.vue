@@ -30,9 +30,6 @@ const AffilationDiv = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
 
 const storeClassify = classifyStore();
 
@@ -45,14 +42,6 @@ const emit = defineEmits([
 ]);
 
 const props = defineProps({
-  userId: {
-    type: String,
-    required: true,
-  },
-  spinner: {
-    type: Boolean,
-    required: true,
-  },
   anketa: {
     type: Object as () => Anketa,
     default: {},
@@ -75,7 +64,7 @@ const dataResume = ref({
       @cancel="dataResume.action = ''"
     />
     <div v-else>
-      <LabelSlot :label="'Действия'">
+      <LabelSlot>
         <a
           class="btn btn-link"
           title="Изменить"
@@ -88,7 +77,7 @@ const dataResume = ref({
           title="Удалить"
           :disabled="
             storeClassify.classData.status[props.anketa.resume['status_id']] ===
-              'finish' || props.spinner
+              'finish'
           "
           @click="emit('delete', props.anketa.resume['id'], 'resume')"
         >
@@ -173,80 +162,54 @@ const dataResume = ref({
         </router-link>
       </LabelSlot>
     </div>
-
+    <hr/>
     <StaffDiv
       :items="props.anketa.staffs"
-      @get-item="emit('get-item')"
+      @get-item="emit('get-item', 'staff')"
       @submit="emit('submit')"
       @delete="emit('delete')"
     />
+    <hr/>
     <DocumentDiv
       :items="props.anketa.documents"
-      @get-item="emit('get-item')"
+      @get-item="emit('get-item', 'document')"
       @submit="emit('submit')"
       @delete="emit('delete')"
     />
+    <hr/>
     <AddressDiv
       :items="props.anketa.addresses"
-      @get-item="emit('get-item')"
+      @get-item="emit('get-item', 'address')"
       @submit="emit('submit')"
       @delete="emit('delete')"
     />
+    <hr/>
     <ContactDiv
       :items="props.anketa.contacts"
-      @get-item="emit('get-item')"
+      @get-item="emit('get-item', 'contact')"
       @submit="emit('submit')"
       @delete="emit('delete')"
     />
+    <hr/>
     <RelationDiv
       :items="props.anketa.relations"
-      @get-item="emit('get-item')"
+      @get-item="emit('get-item', 'relation')"
       @submit="emit('submit')"
       @delete="emit('delete')"
     />
+    <hr/>
     <WorkplaceDiv
       :items="props.anketa.workplaces"
-      @get-item="emit('get-item')"
+      @get-item="emit('get-item', 'workplace')"
       @submit="emit('submit')"
       @delete="emit('delete')"
     />
+    <hr/>
     <AffilationDiv
       :items="props.anketa.affilations"
-      @get-item="emit('get-item')"
+      @get-item="emit('get-item', 'affilation')"
       @submit="emit('submit')"
       @delete="emit('delete')"
     />
-
-    <BtnGroup>
-      <button
-        :disabled="
-          props.anketa.resume.user_id !== null &&
-          props.anketa.resume.user_id !== ''
-        "
-        type="button"
-        class="btn btn-outline-primary"
-        @click="emit('get-resume', 'self')"
-      >
-        Взять на проверку
-      </button>
-
-      <button
-        class="btn btn-outline-primary"
-        :disabled="
-          storeClassify.classData.status[props.anketa.resume['status_id']] !==
-            'Проверка' &&
-          props.anketa.resume.user_id !== props.userId &&
-          props.spinner
-        "
-        @click="emit('get-resume', 'send')"
-      >
-        {{ !props.spinner ? "Отправить на проверку" : "" }}
-        <span
-          v-if="props.spinner"
-          class="spinner-border spinner-border-sm"
-        ></span>
-        <span v-if="props.spinner" role="status">Отправляется...</span>
-      </button>
-    </BtnGroup>
   </div>
 </template>

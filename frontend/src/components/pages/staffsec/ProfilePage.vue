@@ -26,6 +26,9 @@ import {
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
+const IconRelative = defineAsyncComponent(
+  () => import("@components/content/elements/IconRelative.vue")
+);
 const PhotoCard = defineAsyncComponent(
   () => import("@components/content/divs//PhotoCard.vue")
 );
@@ -146,9 +149,8 @@ async function getItem(param: string): Promise<void> {
         new Blob([response.data], { type: "image/jpeg" })
       );
     } else {
-      anketaData.value.anketa[
-        param as keyof typeof anketaData.value.anketa
-      ] = response.data;
+      anketaData.value.anketa[param as keyof typeof anketaData.value.anketa] =
+        response.data;
     }
   } catch (error) {
     console.error(error);
@@ -281,25 +283,42 @@ async function submitFile(event: Event, param: string): Promise<void> {
       @get-item="getItem"
       @submit-file="submitFile"
     />
-    <div class="position-relative">
-      <div class="position-absolute top-0 end-0">
-        <a
-          href="#"
-          class="d-print-none"
+    <div class="row mb-3">
+      <div class="col-md-10">
+      <HeaderDiv
+        :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
+      />
+      </div>
+      <div class="col-md-2 d-flex justify-content-end">
+        <IconRelative
+          :title="`Версия для печати`"
+          :icon-class="`bi bi-printer fs-1`"
           @click="anketaData.printPage = !anketaData.printPage"
+        />
+        <IconRelative
+          :title="`Взять на проверку`"
+          :icon-class="`bi bi-person-plus fs-1`"
+          :disabled="
+            anketaData.anketa.resume.user_id !== null &&
+            anketaData.anketa.resume.user_id !== ''
+          "
+          @onclick="getResume('self')"
+        />
+        <IconRelative
+          :title="`Отправить на проверку`"
+          :icon-class="
+            !anketaData.spinner ? 'bi bi-send-plus fs-1' : 'bi bi-send-slash fs-1'
+          "
+          @onclick="getResume('send')"
         >
-          <i
-            class="bi bi-printer fs-1"
-            title="Версия для печати"
-            style="cursor: pointer"
-          >
-          </i>
-        </a>
+          <span
+            v-if="anketaData.spinner"
+            class="spinner-border spinner-border-sm"
+          ></span>
+          <span v-if="anketaData.spinner" role="status">Отправляется...</span>
+        </IconRelative>
       </div>
     </div>
-    <HeaderDiv
-      :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
-    />
     <div
       :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
       :role="!anketaData.printPage ? 'tablist' : ''"
@@ -332,8 +351,6 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :tabindex="!anketaData.printPage ? '0' : ''"
       >
         <AnketaTab
-          :user-id="storeUser.userData.userId.toString()"
-          :spinner="anketaData.spinner"
           :anketa="anketaData.anketa"
           @get-resume="getResume"
           @get-item="getItem"

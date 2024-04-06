@@ -103,7 +103,7 @@ class ResumeView(MethodView):
                     except httpx.HTTPError as exc:
                         print(f"Error while requesting {exc.request.url!r}.")
                 return abort(403)
-            return PersonSchema().dump(person), 201
+            return PersonSchema().dump(person), 200
         return abort(403)
 
     @bp.output(EmptySchema)

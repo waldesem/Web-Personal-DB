@@ -20,8 +20,8 @@ const LabelSlot = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount(async () => {
-  emit("get-item", "affilation");
+onBeforeMount(async() => {
+  emit("get-item");
 });
 
 const props = defineProps({

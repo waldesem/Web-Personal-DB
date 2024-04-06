@@ -3,7 +3,7 @@ import { server } from "@utilities/utils";
 </script>
 
 <template>
-  <div class="container py-5 d-print-none">
+  <div class="container py-3 d-print-none">
     <footer class="d-flex justify-content-around py-3 my-4 border-top">
       <a 
         :href="`${server}/docs`" 

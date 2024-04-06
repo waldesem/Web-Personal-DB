@@ -79,7 +79,7 @@ class ItemsView(MethodView):
             .order_by(self.model.id.desc())
         )
         result = db.session.execute(query).scalars().all()
-        return self.schema().dump(result, many=True), 200
+        return self.schema.dump(result, many=True), 200
 
     @roles_required(Roles.user.value, Roles.api.value)
     @bp.doc(hide=True)
