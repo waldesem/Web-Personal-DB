@@ -18,7 +18,7 @@ const toggle = ref(true);
   <h6>
     <button
       type="button"
-      class="link link-primary"
+      class="btn btn-link"
       data-bs-toggle="collapse"
       :href="`#${props.id}`"
       :title="toggle ? 'Развернуть' : 'Свернуть'"
@@ -27,9 +27,9 @@ const toggle = ref(true);
       {{ props.header }}
    </button>
     <button
-      :disabled="!props.disable"
+      :disabled="props.disable"
       type="button"
-      class="link link-primary"
+      class="btn btn-link"
       title="Добавить информацию"
       @click="emit('action')"
     >

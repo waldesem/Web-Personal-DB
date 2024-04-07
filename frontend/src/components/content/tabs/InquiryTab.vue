@@ -2,9 +2,6 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces/interface";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
-)
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -47,12 +44,6 @@ function submitForm(form: Object) {
 
 <template>
   <div class="py-3">
-    <ActionHeader
-      :id="'need'"
-      :header="'Запросы'"
-      :action="need.action"
-      @action="need.action = need.action ? '' : 'create'"
-    />
     <InquiryForm v-if="need.action"
       :inquiry="need.item" 
       @submit="submitForm"
@@ -62,7 +53,7 @@ function submitForm(form: Object) {
       @mouseover="need.handleMouse"
       @mouseout="need.handleMouse"
     >
-      <div v-if="props.needs.length" class="collapse" id="need"> 
+      <div v-if="props.needs.length"> 
         <div class="mb-3" v-for="(item, idx) in props.needs" :key="idx">
           <div class="card card-body">
             <LabelSlot v-show="need.showActions">
@@ -86,6 +77,14 @@ function submitForm(form: Object) {
         </div>
       </div>
       <p v-else>Данные отсутствуют</p>
+      <div class="d-print-none py-3">
+        <a
+          class="btn btn-outline-primary"
+          type="button"
+          @click="need.action = 'create'"
+          >Добавить запись
+        </a>
+      </div>
     </div>
   </div>
 </template>

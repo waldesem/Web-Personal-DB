@@ -2,9 +2,6 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
-)
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -56,12 +53,6 @@ function submitForm(form: Object) {
 
 <template>
   <div class="py-3">
-    <ActionHeader
-      :id="'poligraf'"
-      :header="'Полиграф'"
-      :action="poligraf.action"
-      @action="poligraf.action = poligraf.action ? '' : 'create'"
-    />
     <PoligrafForm
       v-if="poligraf.action"
       :poligraf="poligraf.item"
@@ -72,7 +63,7 @@ function submitForm(form: Object) {
      @mouseover="poligraf.handleMouse"
      @mouseout="poligraf.handleMouse"
     >
-      <div v-if="props.poligrafs.length" class="collapse" id="poligraf"> 
+      <div v-if="props.poligrafs.length"> 
         <div class="mb-3" v-for="(item, idx) in props.poligrafs" :key="idx">
           <div class="card card-body">
             <LabelSlot v-show="poligraf.showActions">
@@ -96,6 +87,14 @@ function submitForm(form: Object) {
         </div>
       </div>
       <p v-else>Данные отсутствуют</p>
+      <div class="d-print-none py-3">
+        <a
+          class="btn btn-outline-primary"
+          type="button"
+          @click="poligraf.action = 'create'"
+          >Добавить запись
+        </a>
+      </div>
     </div>
   </div>
 </template>

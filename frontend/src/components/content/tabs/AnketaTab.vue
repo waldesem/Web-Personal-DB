@@ -3,6 +3,9 @@ import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
 import type { Anketa, Resume } from "@/interfaces/interface";
 
+const ActionIcons = defineAsyncComponent(
+  () => import("@components/content/elements/ActionIcons.vue")
+);
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/forms/ResumeForm.vue")
 );
@@ -47,7 +50,7 @@ const props = defineProps({
     default: {},
   },
 });
-console.log(props.anketa);
+
 const dataResume = ref({
   action: "",
   form: <Resume>{},
@@ -80,26 +83,16 @@ function deleteItem(itemId: string, item: string) {
     <div class="px-3" v-else
       @mouseover="dataResume.handleMouse"
       @mouseout="dataResume.handleMouse"
-    >
+    > 
       <LabelSlot v-show="dataResume.showActions">
-        <a
-          class="btn btn-link"
-          title="Изменить"
-          @click="dataResume.action = 'update'"
-        >
-          <i class="bi bi-pencil-square"></i>
-        </a>
-        <a
-          class="btn btn-link"
-          title="Удалить"
-          :disabled="
-            storeClassify.classData.status[props.anketa.resume['status_id']] ===
+        <ActionIcons
+          v-show="dataResume.showActions"
+          @delete="emit('delete', props.anketa.resume['id'], 'resume')"
+          @update="dataResume.action = 'update'"
+          :disable="storeClassify.classData.status[props.anketa.resume['status_id']] ===
               'finish'
           "
-          @click="emit('delete', props.anketa.resume['id'], 'resume')"
-        >
-          <i class="bi bi-trash"></i>
-        </a>
+        />
       </LabelSlot>
       <LabelSlot :label="'ID'">{{ props.anketa.resume["id"] }}</LabelSlot>
       <LabelSlot :label="'Фамилия'">{{

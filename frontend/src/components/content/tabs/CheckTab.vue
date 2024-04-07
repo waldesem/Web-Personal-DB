@@ -6,9 +6,6 @@ import { Anketa, Verification } from "@/interfaces/interface";
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
-)
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
@@ -70,20 +67,6 @@ function deleteItem(itemId: string) {
 
 <template>
   <div class="py-3">
-    <ActionHeader
-      :id="'check'"
-      :header="'Проверки'"
-      :action="check.action"
-      :disable="
-        ![
-          storeClassify.classData.status['update'],
-          storeClassify.classData.status['save'],
-          storeClassify.classData.status['repeat'],
-        ].includes(props.anketa.resume['status_id']) &&
-        props.anketa.resume['user_id'] !== props.userId
-      "
-      @action="check.action = check.action ? '' : 'create'"
-    />
     <CheckForm
       v-if="check.action"
       :check="check.item"
@@ -94,7 +77,7 @@ function deleteItem(itemId: string) {
       @mouseover="check.handleMouse"
       @mouseout="check.handleMouse"
     >
-      <div v-if="props.anketa.check.length" class="collapse" id="need"> 
+      <div v-if="props.anketa.check.length"> 
         <div class="mb-3" v-for="(item, idx) in props.anketa.check" :key="idx">
           <div class="card card-body">
             <LabelSlot v-show="check.showActions">

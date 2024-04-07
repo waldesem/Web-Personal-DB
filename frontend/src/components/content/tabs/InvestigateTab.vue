@@ -2,9 +2,6 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
-)
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -56,12 +53,6 @@ function submitForm(form: Object) {
 
 <template>
   <div class="py-3">
-    <ActionHeader
-      :id="'inquisition'"
-      :header="'Расследования'"
-      :action="inquisition.action"
-      @action="inquisition.action = inquisition.action ? '' : 'create'"
-    />
     <InvestigationForm
       v-if="inquisition.action"
       :investigation="inquisition.item"
@@ -72,7 +63,7 @@ function submitForm(form: Object) {
      @mouseover="inquisition.handleMouse"
      @mouseout="inquisition.handleMouse"
     >
-      <div v-if="props.inquisitions.length" class="collapse" id="inquisition"> 
+      <div v-if="props.inquisitions.length"> 
         <div class="mb-3" v-for="(item, idx) in props.inquisitions" :key="idx">
           <div class="card card-body">
             <LabelSlot v-show="inquisition.showActions">
@@ -96,6 +87,14 @@ function submitForm(form: Object) {
         <FileForm :accept="'*'" @submit="emit('file')" />
       </div>
       <p v-else>Данные отсутствуют</p>
+      <div class="d-print-none py-3">
+        <a
+          class="btn btn-outline-primary"
+          type="button"
+          @click="inquisition.action = 'create'"
+          >Добавить запись
+        </a>
+      </div>
     </div>
   </div>
 </template>

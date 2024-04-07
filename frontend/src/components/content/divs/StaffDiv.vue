@@ -65,8 +65,9 @@ function submitForm(form: Object) {
     <div v-if="props.items.length" class="collapse" id="staff"> 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
-          <LabelSlot v-show="staff.showActions">
+          <LabelSlot >
             <ActionIcons
+              v-show="staff.showActions"
               @delete="emit('delete', item['id'].toString(), 'staff')"
               @update="
                 staff.action = 'update';
