@@ -33,9 +33,6 @@ const poligraf = ref({
   itemId: "",
   item: <Pfo>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
 });
 
 function submitForm(form: Object) {
@@ -47,7 +44,6 @@ function submitForm(form: Object) {
     form
   );
   poligraf.value.action = "";
-  poligraf.value.showActions = false;
 }
 </script>
 
@@ -57,17 +53,17 @@ function submitForm(form: Object) {
       v-if="poligraf.action"
       :poligraf="poligraf.item"
       @submit="submitForm"
-      @cancel="poligraf.action = ''; poligraf.showActions = false"
+      @cancel="poligraf.action = ''"
     />
     <div v-else
-     @mouseover="poligraf.handleMouse"
-     @mouseout="poligraf.handleMouse"
+     @mouseover="poligraf.showActions = true"
+     @mouseout="poligraf.showActions = false"
     >
       <div v-if="props.poligrafs.length"> 
         <div class="mb-3" v-for="(item, idx) in props.poligrafs" :key="idx">
           <div class="card card-body">
-            <LabelSlot v-show="poligraf.showActions">
-              <ActionIcons
+            <LabelSlot>
+              <ActionIcons v-show="poligraf.showActions"
                 @delete="emit('delete', item['id'].toString(), 'poligraf')"
                 @update="
                   poligraf.action = 'update';

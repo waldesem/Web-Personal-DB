@@ -33,15 +33,11 @@ const contact = ref({
   itemId: "",
   item: <Contact>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
 });
 
 function submitForm(form: Object) {
   emit("submit", contact.value.action, "contact", contact.value.itemId, form);
   contact.value.action = "";
-  contact.value.showActions = false;
 };
 </script>
 
@@ -55,17 +51,17 @@ function submitForm(form: Object) {
   <ContactForm v-if="contact.action"
     :contact="contact.item" 
     @submit="submitForm" 
-    @cancel="contact.action = ''; contact.showActions = false"
+    @cancel="contact.action = ''"
   />
   <div v-else
-    @mouseover="contact.handleMouse"
-    @mouseout="contact.handleMouse"
+    @mouseover="contact.showActions = true"
+    @mouseout="contact.showActions = false"
   >
     <div v-if="props.items.length" class="collapse" id="contact"> 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
-          <LabelSlot v-show="contact.showActions">
-            <ActionIcons
+          <LabelSlot>
+            <ActionIcons v-show="contact.showActions"
               @delete="emit('delete', item['id'].toString(), 'contact')"
               @update="
                 contact.action = 'update';

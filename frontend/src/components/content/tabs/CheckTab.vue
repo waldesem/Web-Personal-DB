@@ -47,21 +47,16 @@ const check = ref({
     props.anketa.resume["status_id"] !== storeClassify.classData.status["save"] &&
     props.anketa.resume["status_id"] !== storeClassify.classData.status["cancel"] &&
     props.anketa.resume["status_id"] !== storeClassify.classData.status["manual"],
-  showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
+  showActions: false
 });
 
 function submitForm(form: Object) {
   emit("submit", check.value.action, "check", check.value.itemId, form);
   check.value.action = "";
-  check.value.showActions = false;
 }
 
 function deleteItem(itemId: string) {
   emit("delete", itemId, "check");
-  check.value.showActions = false;
 }
 </script>
 
@@ -71,17 +66,17 @@ function deleteItem(itemId: string) {
       v-if="check.action"
       :check="check.item"
       @submit="submitForm"
-      @cancel="check.action = ''; check.showActions = false"
+      @cancel="check.action = ''"
     />
     <div v-else
-      @mouseover="check.handleMouse"
-      @mouseout="check.handleMouse"
+      @mouseover="check.showActions = true"
+      @mouseout="check.showActions = false"
     >
       <div v-if="props.anketa.check.length"> 
         <div class="mb-3" v-for="(item, idx) in props.anketa.check" :key="idx">
           <div class="card card-body">
-            <LabelSlot v-show="check.showActions">
-              <ActionIcons
+            <LabelSlot>
+              <ActionIcons v-show="check.showActions"
                 @delete="emit('delete', item['id'].toString(), 'check')"
                 @update="check.action = 'update';
                   check.item = item;

@@ -33,15 +33,11 @@ const staff = ref({
   itemId: "",
   item: <Staff>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
 });
 
 function submitForm(form: Object) {
   emit("submit", staff.value.action, "staff", staff.value.itemId, form);
   staff.value.action = "";
-  staff.value.showActions = false;
 }
 </script>
 
@@ -56,18 +52,17 @@ function submitForm(form: Object) {
     v-if="staff.action" 
     :staff="staff.item" 
     @submit="submitForm" 
-    @cancel="staff.action = ''; staff.showActions = false"
+    @cancel="staff.action = ''"
   />
   <div v-else
-    @mouseover="staff.handleMouse"
-    @mouseout="staff.handleMouse"
+    @mouseover="staff.showActions = true"
+    @mouseout="staff.showActions = false"
   >
     <div v-if="props.items.length" class="collapse" id="staff"> 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
-          <LabelSlot >
-            <ActionIcons
-              v-show="staff.showActions"
+          <LabelSlot>
+            <ActionIcons v-show="staff.showActions"
               @delete="emit('delete', item['id'].toString(), 'staff')"
               @update="
                 staff.action = 'update';

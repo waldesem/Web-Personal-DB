@@ -33,9 +33,6 @@ const inquisition = ref({
   itemId: "",
   item: <Inquisition>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
 });
 
 function submitForm(form: Object) {
@@ -47,7 +44,6 @@ function submitForm(form: Object) {
     form
   );
   inquisition.value.action = "";
-  inquisition.value.showActions = false;
 }
 </script>
 
@@ -57,17 +53,17 @@ function submitForm(form: Object) {
       v-if="inquisition.action"
       :investigation="inquisition.item"
       @submit="submitForm"
-      @cancel="inquisition.action = ''; inquisition.showActions = false"
+      @cancel="inquisition.action = ''"
     />
     <div v-else
-     @mouseover="inquisition.handleMouse"
-     @mouseout="inquisition.handleMouse"
+     @mouseover="inquisition.showActions = true"
+     @mouseout="inquisition.showActions = false"
     >
       <div v-if="props.inquisitions.length"> 
         <div class="mb-3" v-for="(item, idx) in props.inquisitions" :key="idx">
           <div class="card card-body">
-            <LabelSlot v-show="inquisition.showActions">
-              <ActionIcons
+            <LabelSlot>
+              <ActionIcons v-show="inquisition.showActions"
                 @delete="emit('delete', item['id'].toString(), 'investigation')"
                 @update="
                   inquisition.action = 'update';

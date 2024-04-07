@@ -33,10 +33,6 @@ const affilation = ref({
   itemId: "",
   item: <Affilation>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
-
 });
 
 function submitForm(form: Object) {
@@ -48,7 +44,6 @@ function submitForm(form: Object) {
     form
   );
   affilation.value.action = "";
-  affilation.value.showActions = false;
 }
 </script>
 
@@ -62,17 +57,17 @@ function submitForm(form: Object) {
     v-if="affilation.action"
     :affils="affilation.item"
     @submit="submitForm"
-    @cancel="affilation.action = ''; affilation.showActions = false"
+    @cancel="affilation.action = ''"
   />
   <div v-else
-    @mouseover="affilation.handleMouse"
-    @mouseout="affilation.handleMouse"
+    @mouseover="affilation.showActions = true"
+    @mouseout="affilation.showActions = false"
   >
     <div v-if="props.items.length" class="collapse" id="staff"> 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
-          <LabelSlot v-show="affilation.showActions">
-            <ActionIcons
+          <LabelSlot>
+            <ActionIcons v-show="affilation.showActions"
               @delete="emit('delete', item['id'].toString(), 'affilation')"
               @update="
                 affilation.action = 'update';

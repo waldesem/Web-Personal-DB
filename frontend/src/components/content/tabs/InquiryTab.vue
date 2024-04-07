@@ -30,15 +30,11 @@ const need = ref({
   itemId: "",
   item: <Needs>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions
-  }
 });
 
 function submitForm(form: Object) {
   emit("submit", need.value.action, "inquiry", need.value.itemId, form);
   need.value.action = "";
-  need.value.showActions = false;
 };
 </script>
 
@@ -47,17 +43,17 @@ function submitForm(form: Object) {
     <InquiryForm v-if="need.action"
       :inquiry="need.item" 
       @submit="submitForm"
-      @cancel="need.action = ''; need.showActions = false"
+      @cancel="need.action = ''"
     />
     <div v-else
-      @mouseover="need.handleMouse"
-      @mouseout="need.handleMouse"
+      @mouseover="need.showActions = true"
+      @mouseout="need.showActions = false"
     >
       <div v-if="props.needs.length"> 
         <div class="mb-3" v-for="(item, idx) in props.needs" :key="idx">
           <div class="card card-body">
-            <LabelSlot v-show="need.showActions">
-              <ActionIcons
+            <LabelSlot>
+              <ActionIcons v-show="need.showActions"
                 @delete="emit('delete', item['id'].toString(), 'inquiry')"
                 @update="
                   need.action = 'update';

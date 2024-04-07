@@ -16,22 +16,19 @@ const props = defineProps({
 });
 
 const showActions = ref(false);
-function handleMouse() {
-  showActions.value = !showActions.value;
-}
 </script>
 
 <template>
   <div
     v-if="props.robots.length"
-    @mouseover="handleMouse"
-    @mouseout="handleMouse"
+    @mouseover="showActions = true"
+    @mouseout="showActions = false"
   >
     <div v-if="props.robots.length" class="collapse" id="check"> 
       <div class="mb-3" v-for="(item, idx) in props.robots" :key="idx">
         <div class="card card-body">
-          <LabelSlot v-show="showActions">
-            <a
+          <LabelSlot>
+            <a v-show="showActions"
               href="#"
               @click="
                 emit('delete', item['id'].toString(), 'robot');

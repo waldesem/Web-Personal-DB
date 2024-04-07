@@ -55,9 +55,6 @@ const dataResume = ref({
   action: "",
   form: <Resume>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
 });
 
 function submitForm(action: string, item: string, id: string, form: Object) {
@@ -66,7 +63,6 @@ function submitForm(action: string, item: string, id: string, form: Object) {
 
 function deleteItem(itemId: string, item: string) {
   emit("delete", itemId, item);
-  dataResume.value.showActions = false;
 }
 </script>
 
@@ -77,14 +73,13 @@ function deleteItem(itemId: string, item: string) {
       :action="dataResume.action"
       :resume="props.anketa.resume"
       @get-resume="emit('get-resume')"
-      @cancel="dataResume.action = ''; 
-      dataResume.showActions = false"
+      @cancel="dataResume.action = ''"
     />
     <div class="px-3" v-else
-      @mouseover="dataResume.handleMouse"
-      @mouseout="dataResume.handleMouse"
+      @mouseover="dataResume.showActions = true"
+      @mouseout="dataResume.showActions = false"
     > 
-      <LabelSlot v-show="dataResume.showActions">
+      <LabelSlot>
         <ActionIcons
           v-show="dataResume.showActions"
           @delete="emit('delete', props.anketa.resume['id'], 'resume')"

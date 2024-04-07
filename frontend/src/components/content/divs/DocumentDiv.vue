@@ -33,15 +33,11 @@ const document = ref({
   itemId: "",
   item: <Document>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
 });
 
 function submitForm(form: Object) {
   emit("submit", document.value.action, "document", document.value.itemId, form)
   document.value.action = '';
-  document.value.showActions = false;
 };
 </script>
 
@@ -55,17 +51,17 @@ function submitForm(form: Object) {
   <DocumentForm v-if="document.action"
     :docs="document.item"
     @submit="submitForm"
-    @cancel="document.action = ''; document.showActions = false"
+    @cancel="document.action = ''"
   />
   <div v-else
-    @mouseover="document.handleMouse"
-    @mouseout="document.handleMouse"
+    @mouseover="document.showActions = true"
+    @mouseout="document.showActions = false"
   >
     <div v-if="props.items.length" class="collapse" id="staff"> 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
-          <LabelSlot v-show="document.showActions">
-            <ActionIcons
+          <LabelSlot>
+            <ActionIcons v-show="document.showActions"
               @delete="emit('delete', item['id'].toString(), 'document')"
               @update="
                 document.action = 'update';

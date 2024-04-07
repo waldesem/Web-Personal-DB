@@ -33,9 +33,6 @@ const relation = ref({
   itemId: "",
   item: <Relation>{},
   showActions: false,
-  handleMouse() {
-    this.showActions = !this.showActions;
-  }
 });
 
 function submitForm(form: Object) {
@@ -46,7 +43,6 @@ function submitForm(form: Object) {
     form,
   );
   relation.value.action = "";
-  relation.value.showActions = false;
 };
 </script>
 
@@ -60,17 +56,17 @@ function submitForm(form: Object) {
   <RelationForm v-if="relation.action"
     :content="relation.item"
     @submit="submitForm"
-    @cancel="relation.action = ''; relation.showActions = false"
+    @cancel="relation.action = ''"
   />
   <div v-else
-    @mouseover="relation.handleMouse"
-    @mouseout="relation.handleMouse"
+    @mouseover="relation.showActions = true"
+    @mouseout="relation.showActions = false"
   >
     <div v-if="props.items.length" class="collapse" id="relation"> 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
-          <LabelSlot v-show="relation.showActions">
-            <ActionIcons
+          <LabelSlot>
+            <ActionIcons v-show="relation.showActions"
               @delete="emit('delete', item['id'].toString(), 'relation')"
               @update="
                 relation.action = 'update';
