@@ -74,6 +74,14 @@ function deleteItem(itemId: string) {
       :id="'check'"
       :header="'Проверки'"
       :action="check.action"
+      :disable="
+        ![
+          storeClassify.classData.status['update'],
+          storeClassify.classData.status['save'],
+          storeClassify.classData.status['repeat'],
+        ].includes(props.anketa.resume['status_id']) &&
+        props.anketa.resume['user_id'] !== props.userId
+      "
       @action="check.action = check.action ? '' : 'create'"
     />
     <CheckForm

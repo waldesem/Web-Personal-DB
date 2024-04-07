@@ -86,14 +86,6 @@ function submitForm(form: Object) {
         </div>
       </div>
       <p v-else>Данные отсутствуют</p>
-      <div class="d-print-none py-3">
-        <a
-          class="btn btn-outline-primary"
-          type="button"
-          @click="need.action = 'create'"
-          >Добавить запись
-        </a>
-      </div>
     </div>
   </div>
 </template>

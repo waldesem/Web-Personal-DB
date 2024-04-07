@@ -96,14 +96,6 @@ function submitForm(form: Object) {
         <FileForm :accept="'*'" @submit="emit('file')" />
       </div>
       <p v-else>Данные отсутствуют</p>
-      <div class="d-print-none py-3">
-        <a
-          class="btn btn-outline-primary"
-          type="button"
-          @click="inquisition.action = 'create'"
-          >Добавить запись
-        </a>
-      </div>
     </div>
   </div>
 </template>
