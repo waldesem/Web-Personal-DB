@@ -6,9 +6,9 @@ import { Anketa, Verification } from "@/interfaces/interface";
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
@@ -59,106 +59,106 @@ const check = ref({
 function submitForm(form: Object) {
   emit("submit", check.value.action, "check", check.value.itemId, form);
   check.value.action = "";
+  check.value.showActions = false;
 }
 
 function deleteItem(itemId: string) {
   emit("delete", itemId, "check");
+  check.value.showActions = false;
 }
 </script>
 
 <template>
-  <div class="py-3" :class="{ 'border border-primary rounded': check.showActions }">
+  <div class="py-3">
+    <ActionHeader
+      :id="'check'"
+      :header="'Проверки'"
+      :action="check.action"
+      @action="check.action = check.action ? '' : 'create'"
+    />
     <CheckForm
       v-if="check.action"
       :check="check.item"
       @submit="submitForm"
-      @cancel="check.action = ''"
+      @cancel="check.action = ''; check.showActions = false"
     />
     <div v-else
       @mouseover="check.handleMouse"
       @mouseout="check.handleMouse"
     >
-      <div v-if="props.anketa.checks.length || props.anketa.robots.length">
-        <CollapseDiv
-          v-for="(item, idx) in props.anketa.checks"
-          :key="idx"
-          :id="'check' + idx"
-          :label="'Проверка #' + (idx + 1)"
-        >
-          <LabelSlot v-show="check.showActions">
-            <ActionIcons
-              @delete="emit('delete', item['id'].toString(), 'check')"
-              @update="check.action = 'update';
-                check.item = item;
-                check.itemId = item['id'].toString();
-              "
-              :hide="
-                ![
-                  storeClassify.classData.status['save'],
-                  storeClassify.classData.status['cancel'],
-                  storeClassify.classData.status['manual'],
-                ].includes(props.anketa.resume['status_id']) &&
-                props.anketa.resume['user_id'] !== props.userId
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка по местам работы'">
-            {{ item["workplace"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Бывший работник МТСБ'">
-            {{ item["employee"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка паспорта'">
-            {{ item["document"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка банкротства'">
-            {{ item["bankruptcy"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка судебных решений'">
-            {{ item["courts"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка аффилированности'">
-            {{ item["affiliation"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка по списку террористов'">
-            {{ item["terrorist"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка в открытых источниках'">
-            {{ item["internet"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка в Кронос'">
-            {{ item["cronos"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка в Крос'">
-            {{ item["cros"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Дополнительная информация'">
-            {{ item["addition"] }}
-          </LabelSlot>
-          <LabelSlot :label="'ПФО'">{{ item["pfo"] }}</LabelSlot>
-          <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
-          <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
-          <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
-          <LabelSlot :label="'Дата'">
-            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelSlot>
-        </CollapseDiv>
+      <div v-if="props.anketa.check.length" class="collapse" id="need"> 
+        <div class="mb-3" v-for="(item, idx) in props.anketa.check" :key="idx">
+          <div class="card card-body">
+            <LabelSlot v-show="check.showActions">
+              <ActionIcons
+                @delete="emit('delete', item['id'].toString(), 'check')"
+                @update="check.action = 'update';
+                  check.item = item;
+                  check.itemId = item['id'].toString();
+                "
+                :hide="
+                  ![
+                    storeClassify.classData.status['save'],
+                    storeClassify.classData.status['cancel'],
+                    storeClassify.classData.status['manual'],
+                  ].includes(props.anketa.resume['status_id']) &&
+                  props.anketa.resume['user_id'] !== props.userId
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+            <LabelSlot :label="'Проверка по местам работы'">
+              {{ item["workplace"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Бывший работник МТСБ'">
+              {{ item["employee"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка паспорта'">
+              {{ item["document"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</LabelSlot>
+            <LabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</LabelSlot>
+            <LabelSlot :label="'Проверка банкротства'">
+              {{ item["bankruptcy"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</LabelSlot>
+            <LabelSlot :label="'Проверка судебных решений'">
+              {{ item["courts"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка аффилированности'">
+              {{ item["affiliation"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка по списку террористов'">
+              {{ item["terrorist"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
+            <LabelSlot :label="'Проверка в открытых источниках'">
+              {{ item["internet"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка в Кронос'">
+              {{ item["cronos"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Проверка в Крос'">
+              {{ item["cros"] }}
+            </LabelSlot>
+            <LabelSlot :label="'Дополнительная информация'">
+              {{ item["addition"] }}
+            </LabelSlot>
+            <LabelSlot :label="'ПФО'">{{ item["pfo"] }}</LabelSlot>
+            <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
+            <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+            <LabelSlot :label="'Дата'">
+              {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+            </LabelSlot>
+          </div>
+        </div>
         <FileForm :accept="'*'" @submit="emit('file')" />
-        <CollapseDiv
-          :id="'robots'"
-          :label="'Автопроверки'"
-        >
-          <RobotDiv
-            :robots="props.anketa.robots"
-            @get-item="emit('get-item', 'robot')"
-            @delete="deleteItem"
-          />
-        </CollapseDiv>
+        <RobotDiv
+          :robots="props.anketa.robot"
+          @get-item="emit('get-item', 'robot')"
+          @delete="deleteItem"
+        />
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">

@@ -1,17 +1,17 @@
 export interface Anketa {
   resume: Resume,
-  staffs: Staff[],
-  documents: Document[],
-  addresses: Address[],
-  contacts: Contact[],
-  relations: Relation[],
-  affilations: Affilation[],
-  workplaces: Work[],
-  checks: Verification[],
-  robots: Robot[],
+  staff: Staff[],
+  document: Document[],
+  addresse: Address[],
+  contact: Contact[],
+  relation: Relation[],
+  affilation: Affilation[],
+  workplace: Work[],
+  check: Verification[],
+  robot: Robot[],
   poligraf: Pfo[],
-  investigations: Inquisition[],
-  inquiries: Needs[],
+  investigation: Inquisition[],
+  inquiry: Needs[],
 }
 
 export interface Resume {

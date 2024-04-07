@@ -5,9 +5,6 @@ import { Staff } from "@/interfaces/interface";
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
 )
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -26,8 +23,8 @@ onBeforeMount(() => {
 
 const props = defineProps({
   items: {
-    type: Array as () => Array<Staff>,
-    default: {},
+    type: Array<Staff>,
+    default: [{}],
   },
 });
 
@@ -44,11 +41,13 @@ const staff = ref({
 function submitForm(form: Object) {
   emit("submit", staff.value.action, "staff", staff.value.itemId, form);
   staff.value.action = "";
+  staff.value.showActions = false;
 }
 </script>
 
 <template>
   <ActionHeader
+    :id="'staff'"
     :header="'Должности'"
     :action="staff.action"
     @action="staff.action = staff.action ? '' : 'create'"
@@ -57,34 +56,29 @@ function submitForm(form: Object) {
     v-if="staff.action" 
     :staff="staff.item" 
     @submit="submitForm" 
-    @cancel="staff.action = ''"
+    @cancel="staff.action = ''; staff.showActions = false"
   />
   <div v-else
-    :class="{ 'border border-primary rounded': staff.showActions }"
     @mouseover="staff.handleMouse"
     @mouseout="staff.handleMouse"
   >
-    <div v-if="props.items.length">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'staff' + idx"
-        :label="'Должность #' + (idx + 1)"
-      >
-        <LabelSlot v-show="staff.showActions">
-          <ActionIcons
-            @delete="emit('delete', item['id'].toString(), 'staff')"
-            @update="
-              staff.action = 'update';
-              staff.item = item;
-              staff.itemId = item['id'].toString();
-            "
-          />
-        </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-        <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
-        <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
-      </CollapseDiv>
+    <div v-if="props.items.length" class="collapse" id="staff"> 
+      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+        <div class="card card-body">
+          <LabelSlot v-show="staff.showActions">
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'staff')"
+              @update="
+                staff.action = 'update';
+                staff.item = item;
+                staff.itemId = item['id'].toString();
+              "
+            />
+          </LabelSlot>
+          <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
+          <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
+        </div>
+      </div>
     </div>
     <p v-else>Данные отсутствуют</p>
   </div>

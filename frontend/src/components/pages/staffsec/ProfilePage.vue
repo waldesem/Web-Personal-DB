@@ -57,7 +57,7 @@ const route = useRoute();
 
 const candId = route.params.id.toString();
 
-onBeforeMount(async() => {
+onBeforeMount(async () => {
   await getResume();
 });
 
@@ -67,18 +67,18 @@ const anketaData = ref({
   imageUrl: "",
   anketa: {
     resume: <Resume>{},
-    staffs: [] as Array<Staff>,
-    documents: [] as Array<Document>,
-    addresses: [] as Array<Address>,
-    contacts: [] as Array<Contact>,
-    relations: [] as Array<Relation>,
-    workplaces: [] as Array<Work>,
-    affilations: [] as Array<Affilation>,
-    checks: [] as Array<Verification>,
-    robots: [] as Array<Robot>,
+    staff: [] as Array<Staff>,
+    document: [] as Array<Document>,
+    addresse: [] as Array<Address>,
+    contact: [] as Array<Contact>,
+    relation: [] as Array<Relation>,
+    workplace: [] as Array<Work>,
+    affilation: [] as Array<Affilation>,
+    check: [] as Array<Verification>,
+    robot: [] as Array<Robot>,
     poligraf: [] as Array<Pfo>,
-    investigations: [] as Array<Inquisition>,
-    inquiries: [] as Array<Needs>,
+    investigation: [] as Array<Inquisition>,
+    inquiry: [] as Array<Needs>,
   },
 });
 
@@ -115,15 +115,27 @@ async function getResume(action = "view"): Promise<void> {
     );
     anketaData.value.anketa.resume = response.data;
 
-    if (action === "status") {
-      storeAlert.alertMessage.setAlert("alert-info", "Статус анкеты обновлен");
-    }
-    if (action === "send") {
-      storeAlert.alertMessage.setAlert(
-        "alert-success",
-        "Анкета отправлена на проверку"
-      );
-      window.scrollTo(0, 0);
+    if (["self", "send", "status"].includes(action)) {
+      getResume("view");
+
+      if (action === "status") {
+        storeAlert.alertMessage.setAlert(
+          "alert-info",
+          "Статус анкеты обновлен"
+        );
+      }
+      if (action === "self") {
+        storeAlert.alertMessage.setAlert(
+          "alert-info",
+          "Анкета назначена на себя"
+        );
+      }
+      if (action === "send") {
+        storeAlert.alertMessage.setAlert(
+          "alert-success",
+          "Анкета отправлена на проверку"
+        );
+      }
     }
   } catch (error) {
     console.error(error);
@@ -285,9 +297,9 @@ async function submitFile(event: Event, param: string): Promise<void> {
     />
     <div class="row mb-3">
       <div class="col-md-10">
-      <HeaderDiv
-        :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
-      />
+        <HeaderDiv
+          :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
+        />
       </div>
       <div class="col-md-2 d-flex justify-content-end">
         <IconRelative
@@ -298,7 +310,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         <IconRelative
           :title="`Взять на проверку`"
           :icon-class="`bi bi-person-plus fs-1`"
-          :disabled="
+          :hide="
             anketaData.anketa.resume.user_id !== null &&
             anketaData.anketa.resume.user_id !== ''
           "
@@ -306,9 +318,9 @@ async function submitFile(event: Event, param: string): Promise<void> {
         />
         <IconRelative
           :title="`Отправить на проверку`"
-          :icon-class="
-            !anketaData.spinner ? 'bi bi-send-plus fs-1' : 'bi bi-send-slash fs-1'
-          "
+          :icon-class="'bi bi-send-plus fs-1'"
+          :hide="anketaData.anketa.resume.user_id !== storeUser.userData.userId
+          || anketaData.anketa.resume.status_id === storeClassify.classData.status['robot']"
           @onclick="getResume('send')"
         >
           <span
@@ -394,7 +406,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       >
         <h5 v-if="anketaData.printPage">Расследования</h5>
         <InvestigateTab
-          :inquisitions="anketaData.anketa.investigations"
+          :inquisitions="anketaData.anketa.investigation"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"
@@ -408,7 +420,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       >
         <h5 v-if="anketaData.printPage">Запросы</h5>
         <InquiryTab
-          :needs="anketaData.anketa.inquiries"
+          :needs="anketaData.anketa.inquiry"
           @get-item="getItem"
           @delete="deleteItem"
           @submit="updateItem"

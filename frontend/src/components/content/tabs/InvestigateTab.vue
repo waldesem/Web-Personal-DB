@@ -2,9 +2,9 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -50,46 +50,49 @@ function submitForm(form: Object) {
     form
   );
   inquisition.value.action = "";
+  inquisition.value.showActions = false;
 }
 </script>
 
 <template>
-  <div class="py-3" :class="{ 'border border-primary rounded': inquisition.showActions }">
+  <div class="py-3">
+    <ActionHeader
+      :id="'inquisition'"
+      :header="'Расследования'"
+      :action="inquisition.action"
+      @action="inquisition.action = inquisition.action ? '' : 'create'"
+    />
     <InvestigationForm
       v-if="inquisition.action"
       :investigation="inquisition.item"
       @submit="submitForm"
-      @cancel="inquisition.action = ''"
+      @cancel="inquisition.action = ''; inquisition.showActions = false"
     />
     <div v-else
      @mouseover="inquisition.handleMouse"
      @mouseout="inquisition.handleMouse"
     >
-      <div v-if="props.inquisitions.length">
-        <CollapseDiv
-          v-for="(item, idx) in props.inquisitions"
-          :key="idx"
-          :id="'investigation' + idx"
-          :label="'Расследование #' + (idx + 1)"
-        >
-          <LabelSlot v-show="inquisition.showActions">
-            <ActionIcons
-              @delete="emit('delete', item['id'].toString(), 'investigation')"
-              @update="
-                inquisition.action = 'update';
-                inquisition.item = item;
-                inquisition.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-          <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
-          <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-          <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
-          <LabelSlot :label="'Дата'">
-            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelSlot>
-        </CollapseDiv>
+      <div v-if="props.inquisitions.length" class="collapse" id="inquisition"> 
+        <div class="mb-3" v-for="(item, idx) in props.inquisitions" :key="idx">
+          <div class="card card-body">
+            <LabelSlot v-show="inquisition.showActions">
+              <ActionIcons
+                @delete="emit('delete', item['id'].toString(), 'investigation')"
+                @update="
+                  inquisition.action = 'update';
+                  inquisition.item = item;
+                  inquisition.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
+            <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+            <LabelSlot :label="'Дата'">
+              {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+            </LabelSlot>
+          </div>
+        </div>
         <FileForm :accept="'*'" @submit="emit('file')" />
       </div>
       <p v-else>Данные отсутствуют</p>

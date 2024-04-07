@@ -5,9 +5,6 @@ import { Address } from "@/interfaces/interface";
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
 )
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -44,11 +41,13 @@ const address = ref({
 function submitForm(form: Object) {
   emit("submit", address.value.action, "address", address.value.itemId, form);
   address.value.action = "";
+  address.value.showActions = false;
 };
 </script>
 
 <template>
   <ActionHeader
+    :id="'address'"
     :header="'Адреса'"
     :action="address.action"
     @action="address.action = address.action ? '' : 'create'"
@@ -56,35 +55,30 @@ function submitForm(form: Object) {
   <AddressForm v-if="address.action"
     :addrs="address.item"
     @submit="submitForm"
-    @cancel="address.action = ''"
+    @cancel="address.action = ''; address.showActions = false"
   />
   <div v-else
-    :class="{ 'border border-primary rounded': address.showActions }"
     @mouseover="address.handleMouse"
     @mouseout="address.handleMouse"
   >
-    <div v-if="props.items.length">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'addr' + idx"
-        :label="'Адрес #' + (idx + 1)"
-      >
-        <LabelSlot v-show="address.showActions">
-          <ActionIcons
-            @delete="emit('delete', item['id'].toString(), 'address')"
-            @update="
-              address.action = 'update';
-              address.item = item;
-              address.itemId = item['id'].toString();
-            "
-          />
-        </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
-        <LabelSlot :label="'Тип'">{{ item['view'] }}</LabelSlot>
-        <LabelSlot :label="'Регион'">{{ item['region'] }}</LabelSlot>
-        <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
-      </CollapseDiv>
+    <div v-if="props.items.length" class="collapse" id="address"> 
+      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+        <div class="card card-body">
+          <LabelSlot v-show="address.showActions">
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'address')"
+              @update="
+                address.action = 'update';
+                address.item = item;
+                address.itemId = item['id'].toString();
+              "
+            />
+          </LabelSlot>
+          <LabelSlot :label="'Тип'">{{ item['view'] }}</LabelSlot>
+          <LabelSlot :label="'Регион'">{{ item['region'] }}</LabelSlot>
+          <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
+        </div>
+      </div>
     </div>
     <p v-else>Данные отсутствуют</p>
   </div>

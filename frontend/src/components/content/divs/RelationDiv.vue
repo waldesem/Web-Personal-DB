@@ -5,9 +5,6 @@ import { Relation } from "@/interfaces/interface";
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
 )
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -49,11 +46,13 @@ function submitForm(form: Object) {
     form,
   );
   relation.value.action = "";
+  relation.value.showActions = false;
 };
 </script>
 
 <template>
   <ActionHeader
+    :id="'relation'"
     :header="'Связи'"
     :action="relation.action"
     @action="relation.action = relation.action ? '' : 'create'"
@@ -61,43 +60,38 @@ function submitForm(form: Object) {
   <RelationForm v-if="relation.action"
     :content="relation.item"
     @submit="submitForm"
-    @cancel="relation.action = ''"
+    @cancel="relation.action = ''; relation.showActions = false"
   />
   <div v-else
-    :class="{ 'border border-primary rounded': relation.showActions }"
     @mouseover="relation.handleMouse"
     @mouseout="relation.handleMouse"
   >
-    <div v-if="props.items.length">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'relate' + idx"
-        :label="'Связь #' + (idx + 1)"
-      >
-        <LabelSlot v-show="relation.showActions">
-          <ActionIcons
-            @delete="emit('delete', item['id'].toString(), 'relation')"
-            @update="
-              relation.action = 'update';
-              relation.item = item;
-              relation.itemId = item['id'].toString();
-            "
-          />
-        </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-        <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
-        <LabelSlot :label="'Связь'" :no-print="true">
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { id: String(item['relation_id']) },
-            }"
-          >
-            ID #{{ item["relation_id"] }}
-          </router-link>
-        </LabelSlot>
-      </CollapseDiv>
+    <div v-if="props.items.length" class="collapse" id="relation"> 
+      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+        <div class="card card-body">
+          <LabelSlot v-show="relation.showActions">
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'relation')"
+              @update="
+                relation.action = 'update';
+                relation.item = item;
+                relation.itemId = item['id'].toString();
+              "
+            />
+          </LabelSlot>
+          <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
+          <LabelSlot :label="'Связь'" :no-print="true">
+            <router-link
+              :to="{
+                name: 'profile',
+                params: { id: String(item['relation_id']) },
+              }"
+            >
+              ID #{{ item["relation_id"] }}
+            </router-link>
+          </LabelSlot>
+        </div>
+      </div>
     </div>
     <p v-else>Данные отсутствуют</p>
   </div>

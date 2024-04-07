@@ -2,9 +2,9 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces/interface";
 
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -41,46 +41,49 @@ const need = ref({
 function submitForm(form: Object) {
   emit("submit", need.value.action, "inquiry", need.value.itemId, form);
   need.value.action = "";
+  need.value.showActions = false;
 };
 </script>
 
 <template>
-  <div class="py-3" :class="{ 'border border-primary rounded': need.showActions }" >
+  <div class="py-3">
+    <ActionHeader
+      :id="'need'"
+      :header="'Запросы'"
+      :action="need.action"
+      @action="need.action = need.action ? '' : 'create'"
+    />
     <InquiryForm v-if="need.action"
       :inquiry="need.item" 
       @submit="submitForm"
-      @cancel="need.action = ''"
+      @cancel="need.action = ''; need.showActions = false"
     />
     <div v-else
       @mouseover="need.handleMouse"
       @mouseout="need.handleMouse"
     >
-      <div v-if="props.needs.length">
-        <CollapseDiv
-          v-for="(item, idx) in props.needs"
-          :key="idx"
-          :id="'inquiry' + idx"
-          :label="'Запрос #' + (idx + 1)"
-        >
-          <LabelSlot v-show="need.showActions">
-            <ActionIcons
-              @delete="emit('delete', item['id'].toString(), 'inquiry')"
-              @update="
-                need.action = 'update';
-                need.item = item;
-                need.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-          <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-          <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
-          <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
-          <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
-          <LabelSlot :label="'Дата запроса'">
-            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelSlot>
-        </CollapseDiv>
+      <div v-if="props.needs.length" class="collapse" id="need"> 
+        <div class="mb-3" v-for="(item, idx) in props.needs" :key="idx">
+          <div class="card card-body">
+            <LabelSlot v-show="need.showActions">
+              <ActionIcons
+                @delete="emit('delete', item['id'].toString(), 'inquiry')"
+                @update="
+                  need.action = 'update';
+                  need.item = item;
+                  need.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
+            <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
+            <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+            <LabelSlot :label="'Дата запроса'">
+              {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+            </LabelSlot>
+          </div>
+        </div>
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">

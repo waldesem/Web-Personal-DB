@@ -102,7 +102,7 @@ class ItemsView(MethodView):
         if item in ['check', 'poligraf', 'inquiry', 'investigation']:
             json_data | {"officer": current_user.fullname}
         
-        result = self.model(json_data)
+        result = self.model(**json_data)
 
         if item == 'relation':
             db.session.add(

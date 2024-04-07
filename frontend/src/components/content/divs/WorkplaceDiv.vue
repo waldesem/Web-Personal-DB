@@ -5,9 +5,6 @@ import { Work } from "@/interfaces/interface";
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
 )
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -50,11 +47,13 @@ function submitForm(form: Object) {
     form,
   );
   workplace.value.action = "";
+  workplace.value.showActions = false;
 };
 </script>
 
 <template>
   <ActionHeader
+    :id="'work'"
     :header="'Работа'"
     :action="workplace.action"
     @action="workplace.action = workplace.action ? '' : 'create'"
@@ -65,34 +64,30 @@ function submitForm(form: Object) {
     @cancel="workplace.action = ''"
   />
   <div v-else
-    :class="{ 'border border-primary rounded': workplace.showActions }"
     @mouseover="workplace.handleMouse"
     @mouseout="workplace.handleMouse"
   >
-    <div v-if="props.items.length">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'work' + idx"
-        :label="'Работа #' + (idx + 1)"
-      >
-        <LabelSlot v-show="workplace.showActions">
-          <ActionIcons
-            @delete="emit('delete', item['id'].toString(), 'workplace')"
-            @update="
-              workplace.action = 'update';
-              workplace.item = item;
-              workplace.itemId = item['id'].toString();
-            "
-          />
-        </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
-        <LabelSlot :label="'Начало работы'">{{ item['start_date'] }}</LabelSlot>
-        <LabelSlot :label="'Окончание работы'">{{ item['end_date'] }}</LabelSlot>
-        <LabelSlot :label="'Место работы'">{{ item['workplace'] }}</LabelSlot>
-        <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
-        <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
-      </CollapseDiv>
+    <div v-if="props.items.length" class="collapse" id="work"> 
+      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+        <div class="card card-body">
+          <LabelSlot v-show="workplace.showActions">
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'workplace')"
+              @update="
+                workplace.action = 'update';
+                workplace.item = item;
+                workplace.itemId = item['id'].toString();
+              "
+            />
+          </LabelSlot>
+          <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
+          <LabelSlot :label="'Начало работы'">{{ item['start_date'] }}</LabelSlot>
+          <LabelSlot :label="'Окончание работы'">{{ item['end_date'] }}</LabelSlot>
+          <LabelSlot :label="'Место работы'">{{ item['workplace'] }}</LabelSlot>
+          <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
+          <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
+        </div>
+      </div>
     </div>
     <p v-else>Данные отсутствуют</p>
   </div>

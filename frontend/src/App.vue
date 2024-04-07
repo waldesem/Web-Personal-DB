@@ -17,7 +17,6 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 
 onBeforeMount(async () => {
-  console.log("App mounted");
   try {
     const response = await storeAuth.axiosInstance.get(`${server}/login`);
     const { id, fullname, username, roles } = response.data;

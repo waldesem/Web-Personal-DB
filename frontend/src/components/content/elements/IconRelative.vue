@@ -3,7 +3,7 @@ const emit = defineEmits(["onclick"]);
 const props = defineProps({
   title: String,
   iconClass: String,
-  disable: {
+  hide: {
     type: Boolean,
     default: false,
   }
@@ -12,11 +12,11 @@ const props = defineProps({
 
 <template>
   <div class="position-relative flex-grow-1">
-    <a
-      role="button"
-      class="d-print-none"
+    <button
+      type="button"
+      class="btn btn-link"
       @click="emit('onclick')"
-      :disabled="props.disable"
+      :disabled="props.hide"
     >
       <i
         :class="props.iconClass"
@@ -25,6 +25,6 @@ const props = defineProps({
       >
       </i>
       <slot></slot>
-    </a>
+    </button>
   </div>
 </template>

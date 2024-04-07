@@ -2,9 +2,9 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
+const ActionHeader = defineAsyncComponent(
+  () => import("@components/content/elements/ActionHeader.vue")
+)
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -50,57 +50,52 @@ function submitForm(form: Object) {
     form
   );
   poligraf.value.action = "";
+  poligraf.value.showActions = false;
 }
 </script>
 
 <template>
-  <div class="py-3" :class="{ 'border border-primary rounded': poligraf.showActions }">
+  <div class="py-3">
+    <ActionHeader
+      :id="'poligraf'"
+      :header="'Полиграф'"
+      :action="poligraf.action"
+      @action="poligraf.action = poligraf.action ? '' : 'create'"
+    />
     <PoligrafForm
       v-if="poligraf.action"
       :poligraf="poligraf.item"
       @submit="submitForm"
-      @cancel="poligraf.action = ''"
+      @cancel="poligraf.action = ''; poligraf.showActions = false"
     />
     <div v-else
      @mouseover="poligraf.handleMouse"
      @mouseout="poligraf.handleMouse"
     >
-      <div v-if="props.poligrafs.length">
-        <CollapseDiv
-          v-for="(item, idx) in props.poligrafs"
-          :key="idx"
-          :id="'poligraf' + idx"
-          :label="'Полиграф #' + (idx + 1)"
-        >
-          <LabelSlot v-show="poligraf.showActions">
-            <ActionIcons
-              @delete="emit('delete', item['id'].toString(), 'poligraf')"
-              @update="
-                poligraf.action = 'update';
-                poligraf.item = item;
-                poligraf.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-          <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
-          <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
-          <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
-          <LabelSlot :label="'Дата'">
-            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelSlot>
-        </CollapseDiv>
-        <FileForm :accept="'*'" @submit="emit('file')" />
+      <div v-if="props.poligrafs.length" class="collapse" id="poligraf"> 
+        <div class="mb-3" v-for="(item, idx) in props.poligrafs" :key="idx">
+          <div class="card card-body">
+            <LabelSlot v-show="poligraf.showActions">
+              <ActionIcons
+                @delete="emit('delete', item['id'].toString(), 'poligraf')"
+                @update="
+                  poligraf.action = 'update';
+                  poligraf.item = item;
+                  poligraf.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
+            <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+            <LabelSlot :label="'Дата'">
+              {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+            </LabelSlot>
+          </div>
+          <FileForm :accept="'*'" @submit="emit('file')" />
+        </div>
       </div>
       <p v-else>Данные отсутствуют</p>
-      <div class="d-print-none py-3">
-        <a
-          class="btn btn-outline-primary"
-          type="button"
-          @click="poligraf.action = 'create'"
-          >Добавить запись
-        </a>
-      </div>
     </div>
   </div>
 </template>

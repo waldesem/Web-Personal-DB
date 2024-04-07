@@ -61,7 +61,6 @@ async function submitFile(event: Event): Promise<void> {
       :accept="'.json'"
       @submit="submitFile"
     />
-    <ResumeForm 
-      @submit="switchToProfile"/>
+    <ResumeForm />
   </div>
 </template>

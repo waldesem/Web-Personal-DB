@@ -5,9 +5,6 @@ import { Affilation } from "@/interfaces/interface";
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
 )
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -51,6 +48,7 @@ function submitForm(form: Object) {
     form
   );
   affilation.value.action = "";
+  affilation.value.showActions = false;
 }
 </script>
 
@@ -64,39 +62,34 @@ function submitForm(form: Object) {
     v-if="affilation.action"
     :affils="affilation.item"
     @submit="submitForm"
-    @cancel="affilation.action = ''"
+    @cancel="affilation.action = ''; affilation.showActions = false"
   />
   <div v-else
-    :class="{ 'border border-primary rounded': affilation.showActions }"
     @mouseover="affilation.handleMouse"
     @mouseout="affilation.handleMouse"
   >
-    <div v-if="props.items.length">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'affil' + idx"
-        :label="'Аффилированность #' + (idx + 1)"
-      >
-        <LabelSlot v-show="affilation.showActions">
-          <ActionIcons
-            @delete="emit('delete', item['id'].toString(), 'affilation')"
-            @update="
-              affilation.action = 'update';
-              affilation.item = item;
-              affilation.itemId = item['id'].toString();
-            "
-          />
-        </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-        <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
-        <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
-        <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
-        <LabelSlot :label="'Дата декларации'">
-          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-      </CollapseDiv>
+    <div v-if="props.items.length" class="collapse" id="staff"> 
+      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+        <div class="card card-body">
+          <LabelSlot v-show="affilation.showActions">
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'affilation')"
+              @update="
+                affilation.action = 'update';
+                affilation.item = item;
+                affilation.itemId = item['id'].toString();
+              "
+            />
+          </LabelSlot>
+          <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>
+          <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
+          <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
+          <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
+          <LabelSlot :label="'Дата декларации'">
+            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          </LabelSlot>
+        </div>
+      </div>
     </div>
     <p v-else>Данные отсутствуют</p>
   </div>

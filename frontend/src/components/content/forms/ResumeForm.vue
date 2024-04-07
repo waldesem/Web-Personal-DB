@@ -5,6 +5,7 @@ import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
+import { router } from "@/router/router";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -29,7 +30,7 @@ const storeAuth = authStore();
 const storeAlert = alertStore();
 const storeClassify = classifyStore();
 
-const emit = defineEmits(["get-resume", "cancel", "submit"]);
+const emit = defineEmits(["get-resume", "cancel"]);
 
 const props = defineProps({
   action: {
@@ -62,16 +63,13 @@ const resumeForm = ref({
       const { message } = response.data;
 
       props.action === "create"
-        ? emit("submit", message)
-        : emit("get-resume", "view");
+        ? router.push({ name: "profile", params: { id: message } })
+        : emit("cancel"), emit("get-resume", "view");
 
       storeAlert.alertMessage.setAlert(
         "alert-success",
         "Данные успешно обновлены"
       );
-      Object.keys(resumeForm.value.form).forEach((key) => {
-        delete resumeForm.value.form[key as keyof typeof resumeForm.value.form];
-      });
     } catch (error) {
       storeAlert.alertMessage.setAlert(
         "alert-danger",
@@ -98,7 +96,7 @@ const resumeForm = ref({
       </LabelSlot>
       <LabelSlot :label="'Фамилия'">
         <InputElement
-          :isneed="true"
+          :need="true"
           :name="'surname'"
           :place="'Фамилия*'"
           :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
@@ -107,7 +105,7 @@ const resumeForm = ref({
       </LabelSlot>
       <LabelSlot :label="'Имя'">
         <InputElement
-          :isneed="true"
+          :need="true"
           :name="'firstname'"
           :place="'Имя*'"
           :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
@@ -130,7 +128,7 @@ const resumeForm = ref({
       </LabelSlot>
       <LabelSlot :label="'Дата рождения*'">
         <InputElement
-          :isneed="true"
+          :need="true"
           :name="'birthday'"
           :place="'Дата рождения*'"
           :typeof="'date'"

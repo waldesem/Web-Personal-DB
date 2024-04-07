@@ -5,9 +5,6 @@ import { Contact } from "@/interfaces/interface";
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
 )
-const CollapseDiv = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseDiv.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -44,11 +41,13 @@ const contact = ref({
 function submitForm(form: Object) {
   emit("submit", contact.value.action, "contact", contact.value.itemId, form);
   contact.value.action = "";
+  contact.value.showActions = false;
 };
 </script>
 
 <template>
   <ActionHeader
+    :id="'contact'"
     :header="'Контакты'"
     :action="contact.action"
     @action="contact.action = contact.action ? '' : 'create'"
@@ -56,34 +55,29 @@ function submitForm(form: Object) {
   <ContactForm v-if="contact.action"
     :contact="contact.item" 
     @submit="submitForm" 
-    @cancel="contact.action = ''"
+    @cancel="contact.action = ''; contact.showActions = false"
   />
   <div v-else
-    :class="{ 'border border-primary rounded': contact.showActions }"
     @mouseover="contact.handleMouse"
     @mouseout="contact.handleMouse"
   >
-    <div v-if="props.items.length">
-      <CollapseDiv
-        v-for="(item, idx) in props.items"
-        :key="idx"
-        :id="'cont' + idx"
-        :label="'Контакт #' + (idx + 1)"
-      >
-        <LabelSlot v-show="contact.showActions">
-          <ActionIcons
-            @delete="emit('delete', item['id'].toString(), 'contact')"
-            @update="
-              contact.action = 'update';
-              contact.item = item;
-              contact.itemId = item['id'].toString();
-            "
-          />
-        </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
-        <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
-        <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
-      </CollapseDiv>
+    <div v-if="props.items.length" class="collapse" id="contact"> 
+      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+        <div class="card card-body">
+          <LabelSlot v-show="contact.showActions">
+            <ActionIcons
+              @delete="emit('delete', item['id'].toString(), 'contact')"
+              @update="
+                contact.action = 'update';
+                contact.item = item;
+                contact.itemId = item['id'].toString();
+              "
+            />
+          </LabelSlot>
+          <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
+          <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
+        </div>
+      </div>
     </div>
     <p v-else>Данные отсутствуют</p>
   </div>
