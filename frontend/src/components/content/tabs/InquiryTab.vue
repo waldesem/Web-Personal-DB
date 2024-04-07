@@ -17,7 +17,7 @@ const LabelSlot = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount(async () => {
+onBeforeMount(() => {
   emit("get-item", "inquiry");
 });
 
@@ -32,6 +32,10 @@ const need = ref({
   action: "",
   itemId: "",
   item: <Needs>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions
+  }
 });
 
 function submitForm(form: Object) {
@@ -41,13 +45,16 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-  <div class="py-3">
+  <div class="py-3" :class="{ 'border border-primary rounded': need.showActions }" >
     <InquiryForm v-if="need.action"
       :inquiry="need.item" 
       @submit="submitForm"
       @cancel="need.action = ''"
     />
-    <div v-else>
+    <div v-else
+      @mouseover="need.handleMouse"
+      @mouseout="need.handleMouse"
+    >
       <div v-if="props.needs.length">
         <CollapseDiv
           v-for="(item, idx) in props.needs"
@@ -55,7 +62,7 @@ function submitForm(form: Object) {
           :id="'inquiry' + idx"
           :label="'Запрос #' + (idx + 1)"
         >
-          <LabelSlot :label="'Действия'">
+          <LabelSlot v-show="need.showActions">
             <ActionIcons
               @delete="emit('delete', item['id'].toString(), 'inquiry')"
               @update="

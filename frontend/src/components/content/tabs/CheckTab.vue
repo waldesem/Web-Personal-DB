@@ -26,7 +26,7 @@ const storeClassify = classifyStore();
 
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
-onBeforeMount(async () => {
+onBeforeMount(() => {
   emit("get-item", "check");
   emit("get-item", "robot");
 });
@@ -50,6 +50,10 @@ const check = ref({
     props.anketa.resume["status_id"] !== storeClassify.classData.status["save"] &&
     props.anketa.resume["status_id"] !== storeClassify.classData.status["cancel"] &&
     props.anketa.resume["status_id"] !== storeClassify.classData.status["manual"],
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -63,14 +67,17 @@ function deleteItem(itemId: string) {
 </script>
 
 <template>
-  <div class="py-3">
+  <div class="py-3" :class="{ 'border border-primary rounded': check.showActions }">
     <CheckForm
       v-if="check.action"
       :check="check.item"
       @submit="submitForm"
       @cancel="check.action = ''"
     />
-    <div v-else>
+    <div v-else
+      @mouseover="check.handleMouse"
+      @mouseout="check.handleMouse"
+    >
       <div v-if="props.anketa.checks.length || props.anketa.robots.length">
         <CollapseDiv
           v-for="(item, idx) in props.anketa.checks"
@@ -78,7 +85,7 @@ function deleteItem(itemId: string) {
           :id="'check' + idx"
           :label="'Проверка #' + (idx + 1)"
         >
-          <LabelSlot :label="'Действия'">
+          <LabelSlot v-show="check.showActions">
             <ActionIcons
               @delete="emit('delete', item['id'].toString(), 'check')"
               @update="check.action = 'update';

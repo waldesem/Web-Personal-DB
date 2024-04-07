@@ -20,7 +20,7 @@ const LabelSlot = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
-onBeforeMount(async () => {
+onBeforeMount(() => {
   emit("get-item", "investigation");
 });
 
@@ -54,7 +54,7 @@ function submitForm(form: Object) {
 </script>
 
 <template>
-  <div class="py-3">
+  <div class="py-3" :class="{ 'border border-primary rounded': inquisition.showActions }">
     <InvestigationForm
       v-if="inquisition.action"
       :investigation="inquisition.item"

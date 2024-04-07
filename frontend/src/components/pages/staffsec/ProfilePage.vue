@@ -57,7 +57,7 @@ const route = useRoute();
 
 const candId = route.params.id.toString();
 
-onBeforeMount(async () => {
+onBeforeMount(async() => {
   await getResume();
 });
 

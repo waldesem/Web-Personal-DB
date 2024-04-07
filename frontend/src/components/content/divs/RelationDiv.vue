@@ -20,7 +20,7 @@ const LabelSlot = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount(async() => {
+onBeforeMount(() => {
   emit("get-item");
 });
 
@@ -64,6 +64,7 @@ function submitForm(form: Object) {
     @cancel="relation.action = ''"
   />
   <div v-else
+    :class="{ 'border border-primary rounded': relation.showActions }"
     @mouseover="relation.handleMouse"
     @mouseout="relation.handleMouse"
   >

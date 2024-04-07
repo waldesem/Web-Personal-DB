@@ -26,6 +26,7 @@ function handleMouse() {
 
 <template>
   <div v-if="props.robots.length"
+    :class="{ 'border border-primary rounded': showActions }"
     @mouseover="handleMouse"
     @mouseout="handleMouse"
   >

@@ -20,7 +20,7 @@ const LabelSlot = defineAsyncComponent(
 
 const emit = defineEmits(["get-item", "delete", "submit"]);
 
-onBeforeMount(async() => {
+onBeforeMount(() => {
   emit("get-item");
 });
 
@@ -67,6 +67,7 @@ function submitForm(form: Object) {
     @cancel="affilation.action = ''"
   />
   <div v-else
+    :class="{ 'border border-primary rounded': affilation.showActions }"
     @mouseover="affilation.handleMouse"
     @mouseout="affilation.handleMouse"
   >

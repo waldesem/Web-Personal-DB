@@ -67,7 +67,7 @@ function deleteItem(itemId: string, item: string) {
 </script>
 
 <template>
-  <div class="py-3">
+  <div class="py-3" :class="{ 'border border-primary rounded': dataResume.showActions }">
     <ResumeForm
       v-if="dataResume.action"
       :action="dataResume.action"
