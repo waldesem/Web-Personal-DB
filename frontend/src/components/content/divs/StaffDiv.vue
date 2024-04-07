@@ -35,6 +35,10 @@ const staff = ref({
   action: "",
   itemId: "",
   item: <Staff>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -55,16 +59,18 @@ function submitForm(form: Object) {
     @submit="submitForm" 
     @cancel="staff.action = ''"
   />
-  <div v-else>
+  <div v-else
+    @mouseover="staff.handleMouse"
+    @mouseout="staff.handleMouse"
+  >
     <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
         :id="'staff' + idx"
-        :idx="idx.toString()"
         :label="'Должность #' + (idx + 1)"
       >
-        <LabelSlot :label="'Действия'" :no-print="true">
+        <LabelSlot v-show="staff.showActions">
           <ActionIcons
             @delete="emit('delete', item['id'].toString(), 'staff')"
             @update="

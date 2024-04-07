@@ -15,7 +15,7 @@ const photoCard = ref({
   formData: new FormData(),
   showPhoto: false,
 
-  handleMouse: function () {
+  handleMouse() {
     this.showPhoto = !this.showPhoto;
   },
 });

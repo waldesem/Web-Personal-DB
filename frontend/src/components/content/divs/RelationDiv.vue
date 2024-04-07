@@ -35,6 +35,10 @@ const relation = ref({
   action: "",
   itemId: "",
   item: <Relation>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -59,16 +63,18 @@ function submitForm(form: Object) {
     @submit="submitForm"
     @cancel="relation.action = ''"
   />
-  <div v-else>
+  <div v-else
+    @mouseover="relation.handleMouse"
+    @mouseout="relation.handleMouse"
+  >
     <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
         :id="'relate' + idx"
-        :idx="idx.toString()"
         :label="'Связь #' + (idx + 1)"
       >
-        <LabelSlot :label="'Действия'" :no-print="true">
+        <LabelSlot v-show="relation.showActions">
           <ActionIcons
             @delete="emit('delete', item['id'].toString(), 'relation')"
             @update="

@@ -7,7 +7,7 @@ const CollapseDiv = defineAsyncComponent(
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
-)
+);
 const InvestigationForm = defineAsyncComponent(
   () => import("@components/content/forms/InvestigationForm.vue")
 );
@@ -35,38 +35,44 @@ const inquisition = ref({
   action: "",
   itemId: "",
   item: <Inquisition>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
   emit(
-    "submit", 
+    "submit",
     inquisition.value.action,
     "investigation",
     inquisition.value.itemId,
-    form,
+    form
   );
   inquisition.value.action = "";
 }
-
 </script>
 
 <template>
   <div class="py-3">
-    <InvestigationForm v-if="inquisition.action"
-      :investigation="inquisition.item" 
-      @submit="submitForm" 
+    <InvestigationForm
+      v-if="inquisition.action"
+      :investigation="inquisition.item"
+      @submit="submitForm"
       @cancel="inquisition.action = ''"
     />
-    <div v-else>
+    <div v-else
+     @mouseover="inquisition.handleMouse"
+     @mouseout="inquisition.handleMouse"
+    >
       <div v-if="props.inquisitions.length">
         <CollapseDiv
           v-for="(item, idx) in props.inquisitions"
           :key="idx"
           :id="'investigation' + idx"
-          :idx="idx.toString()"
           :label="'Расследование #' + (idx + 1)"
         >
-          <LabelSlot :label="'Действия'">
+          <LabelSlot v-show="inquisition.showActions">
             <ActionIcons
               @delete="emit('delete', item['id'].toString(), 'investigation')"
               @update="

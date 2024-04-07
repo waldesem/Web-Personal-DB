@@ -35,6 +35,10 @@ const workplace = ref({
   action: "",
   itemId: "",
   item: <Work>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -60,16 +64,18 @@ function submitForm(form: Object) {
     @submit="submitForm"
     @cancel="workplace.action = ''"
   />
-  <div v-else>
+  <div v-else
+    @mouseover="workplace.handleMouse"
+    @mouseout="workplace.handleMouse"
+  >
     <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
         :id="'work' + idx"
-        :idx="idx.toString()"
         :label="'Работа #' + (idx + 1)"
       >
-        <LabelSlot :label="'Действия'" :no-print="true">
+        <LabelSlot v-show="workplace.showActions">
           <ActionIcons
             @delete="emit('delete', item['id'].toString(), 'workplace')"
             @update="

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { Robot } from "@/interfaces/interface";
 
 const CollapseDiv = defineAsyncComponent(
@@ -17,18 +17,25 @@ const props = defineProps({
     default: {},
   },
 });
+
+const showActions = ref(false);
+function handleMouse() {
+  showActions.value = !showActions.value;
+}
 </script>
 
 <template>
-  <div v-if="props.robots.length">
+  <div v-if="props.robots.length"
+    @mouseover="handleMouse"
+    @mouseout="handleMouse"
+  >
     <CollapseDiv
       v-for="(item, idx) in props.robots"
       :key="idx"
       :id="'check' + idx"
-      :idx="idx.toString()"
       :label="'Робот #' + (idx + 1)"
     >
-      <LabelSlot :label="'Действия'" :no-print="true">
+      <LabelSlot v-show="showActions">
         <a
           href="#"
           @click="emit('delete', item['id'].toString(), 'robot')"

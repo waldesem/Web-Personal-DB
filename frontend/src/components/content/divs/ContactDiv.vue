@@ -35,6 +35,10 @@ const contact = ref({
   action: "",
   itemId: "",
   item: <Contact>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -54,16 +58,18 @@ function submitForm(form: Object) {
     @submit="submitForm" 
     @cancel="contact.action = ''"
   />
-  <div v-else>
+  <div v-else
+    @mouseover="contact.handleMouse"
+    @mouseout="contact.handleMouse"
+  >
     <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
         :id="'cont' + idx"
-        :idx="idx.toString()"
         :label="'Контакт #' + (idx + 1)"
       >
-        <LabelSlot :label="'Действия'" :no-print="true">
+        <LabelSlot v-show="contact.showActions">
           <ActionIcons
             @delete="emit('delete', item['id'].toString(), 'contact')"
             @update="

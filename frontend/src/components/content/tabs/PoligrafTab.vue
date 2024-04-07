@@ -35,6 +35,10 @@ const poligraf = ref({
   action: "",
   itemId: "",
   item: <Pfo>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -57,16 +61,18 @@ function submitForm(form: Object) {
       @submit="submitForm"
       @cancel="poligraf.action = ''"
     />
-    <div v-else>
+    <div v-else
+     @mouseover="poligraf.handleMouse"
+     @mouseout="poligraf.handleMouse"
+    >
       <div v-if="props.poligrafs.length">
         <CollapseDiv
           v-for="(item, idx) in props.poligrafs"
           :key="idx"
           :id="'poligraf' + idx"
-          :idx="idx.toString()"
           :label="'Полиграф #' + (idx + 1)"
         >
-          <LabelSlot :label="'Действия'">
+          <LabelSlot v-show="poligraf.showActions">
             <ActionIcons
               @delete="emit('delete', item['id'].toString(), 'poligraf')"
               @update="

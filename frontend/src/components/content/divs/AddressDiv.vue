@@ -35,6 +35,10 @@ const address = ref({
   action: "",
   itemId: "",
   item: <Address>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -54,16 +58,18 @@ function submitForm(form: Object) {
     @submit="submitForm"
     @cancel="address.action = ''"
   />
-  <div v-else>
+  <div v-else
+    @mouseover="address.handleMouse"
+    @mouseout="address.handleMouse"
+  >
     <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
         :id="'addr' + idx"
-        :idx="idx.toString()"
         :label="'Адрес #' + (idx + 1)"
       >
-        <LabelSlot :label="'Действия'" :no-print="true">
+        <LabelSlot v-show="address.showActions">
           <ActionIcons
             @delete="emit('delete', item['id'].toString(), 'address')"
             @update="

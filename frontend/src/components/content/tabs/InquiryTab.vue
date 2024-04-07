@@ -35,13 +35,7 @@ const need = ref({
 });
 
 function submitForm(form: Object) {
-  emit(
-    "submit", 
-    need.value.action, 
-    "inquiry", 
-    need.value.itemId, 
-    form
-  );
+  emit("submit", need.value.action, "inquiry", need.value.itemId, form);
   need.value.action = "";
 };
 </script>
@@ -59,7 +53,6 @@ function submitForm(form: Object) {
           v-for="(item, idx) in props.needs"
           :key="idx"
           :id="'inquiry' + idx"
-          :idx="idx.toString()"
           :label="'Запрос #' + (idx + 1)"
         >
           <LabelSlot :label="'Действия'">

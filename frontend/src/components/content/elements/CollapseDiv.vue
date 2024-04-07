@@ -3,10 +3,6 @@ import { ref } from "vue";
 
 const props = defineProps({
   id: String,
-  idx: {
-    type: String,
-    required: true,
-  },
   label: String,
 });
 

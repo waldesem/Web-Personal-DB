@@ -35,6 +35,11 @@ const affilation = ref({
   action: "",
   itemId: "",
   item: <Affilation>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
+
 });
 
 function submitForm(form: Object) {
@@ -61,16 +66,18 @@ function submitForm(form: Object) {
     @submit="submitForm"
     @cancel="affilation.action = ''"
   />
-  <div v-else>
+  <div v-else
+    @mouseover="affilation.handleMouse"
+    @mouseout="affilation.handleMouse"
+  >
     <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
         :id="'affil' + idx"
-        :idx="idx.toString()"
         :label="'Аффилированность #' + (idx + 1)"
       >
-        <LabelSlot :label="'Действия'" :no-print="true">
+        <LabelSlot v-show="affilation.showActions">
           <ActionIcons
             @delete="emit('delete', item['id'].toString(), 'affilation')"
             @update="

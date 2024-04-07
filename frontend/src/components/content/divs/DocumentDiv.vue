@@ -35,6 +35,10 @@ const document = ref({
   action: "",
   itemId: "",
   item: <Document>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
 
 function submitForm(form: Object) {
@@ -54,16 +58,18 @@ function submitForm(form: Object) {
     @submit="submitForm"
     @cancel="document.action = ''"
   />
-  <div v-else>
+  <div v-else
+    @mouseover="document.handleMouse"
+    @mouseout="document.handleMouse"
+  >
     <div v-if="props.items.length">
       <CollapseDiv
         v-for="(item, idx) in props.items"
         :key="idx"
         :id="'docum' + idx"
-        :idx="idx.toString()"
         :label="'Документ #' + (idx + 1)"
       >
-        <LabelSlot :label="'Действия'" :no-print="true">
+        <LabelSlot v-show="document.showActions">
           <ActionIcons
             @delete="emit('delete', item['id'].toString(), 'document')"
             @update="

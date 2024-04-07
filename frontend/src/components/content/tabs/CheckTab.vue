@@ -76,12 +76,11 @@ function deleteItem(itemId: string) {
           v-for="(item, idx) in props.anketa.checks"
           :key="idx"
           :id="'check' + idx"
-          :idx="idx.toString()"
           :label="'Проверка #' + (idx + 1)"
         >
           <LabelSlot :label="'Действия'">
             <ActionIcons
-              @delete="deleteItem(item['id'].toString())"
+              @delete="emit('delete', item['id'].toString(), 'check')"
               @update="check.action = 'update';
                 check.item = item;
                 check.itemId = item['id'].toString();
@@ -143,11 +142,16 @@ function deleteItem(itemId: string) {
           </LabelSlot>
         </CollapseDiv>
         <FileForm :accept="'*'" @submit="emit('file')" />
-        <RobotDiv
-          :robots="props.anketa.robots"
-          @get-item="emit('get-item', 'robot')"
-          @delete="deleteItem"
-        />
+        <CollapseDiv
+          :id="'robots'"
+          :label="'Автопроверки'"
+        >
+          <RobotDiv
+            :robots="props.anketa.robots"
+            @get-item="emit('get-item', 'robot')"
+            @delete="deleteItem"
+          />
+        </CollapseDiv>
       </div>
       <p v-else>Данные отсутствуют</p>
       <div class="d-print-none py-3">

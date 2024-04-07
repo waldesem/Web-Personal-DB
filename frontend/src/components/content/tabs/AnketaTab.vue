@@ -51,7 +51,19 @@ const props = defineProps({
 const dataResume = ref({
   action: "",
   form: <Resume>{},
+  showActions: false,
+  handleMouse() {
+    this.showActions = !this.showActions;
+  }
 });
+
+function submitForm(action: string, item: string, id: string, form: Object) {
+  emit("submit", action, item, id, form);
+};
+
+function deleteItem(itemId: string, item: string) {
+  emit("delete", itemId, item);
+}
 </script>
 
 <template>
@@ -63,8 +75,11 @@ const dataResume = ref({
       @get-resume="emit('get-resume')"
       @cancel="dataResume.action = ''"
     />
-    <div v-else>
-      <LabelSlot>
+    <div v-else
+      @mouseover="dataResume.handleMouse"
+      @mouseout="dataResume.handleMouse"
+    >
+      <LabelSlot v-show="!dataResume.showActions">
         <a
           class="btn btn-link"
           title="Изменить"
@@ -166,50 +181,50 @@ const dataResume = ref({
     <StaffDiv
       :items="props.anketa.staffs"
       @get-item="emit('get-item', 'staff')"
-      @submit="emit('submit')"
-      @delete="emit('delete')"
+      @submit="submitForm"
+      @delete="deleteItem"
     />
     <hr/>
     <DocumentDiv
       :items="props.anketa.documents"
       @get-item="emit('get-item', 'document')"
-      @submit="emit('submit')"
-      @delete="emit('delete')"
+      @submit="submitForm"
+      @delete="deleteItem"
     />
     <hr/>
     <AddressDiv
       :items="props.anketa.addresses"
       @get-item="emit('get-item', 'address')"
-      @submit="emit('submit')"
-      @delete="emit('delete')"
+      @submit="submitForm"
+      @delete="deleteItem"
     />
     <hr/>
     <ContactDiv
       :items="props.anketa.contacts"
       @get-item="emit('get-item', 'contact')"
-      @submit="emit('submit')"
-      @delete="emit('delete')"
+      @submit="submitForm"
+      @delete="deleteItem"
     />
     <hr/>
     <RelationDiv
       :items="props.anketa.relations"
       @get-item="emit('get-item', 'relation')"
-      @submit="emit('submit')"
-      @delete="emit('delete')"
+      @submit="submitForm"
+      @delete="deleteItem"
     />
     <hr/>
     <WorkplaceDiv
       :items="props.anketa.workplaces"
       @get-item="emit('get-item', 'workplace')"
-      @submit="emit('submit')"
-      @delete="emit('delete')"
+      @submit="submitForm"
+      @delete="deleteItem"
     />
     <hr/>
     <AffilationDiv
       :items="props.anketa.affilations"
       @get-item="emit('get-item', 'affilation')"
-      @submit="emit('submit')"
-      @delete="emit('delete')"
+      @submit="submitForm"
+      @delete="deleteItem"
     />
   </div>
 </template>
