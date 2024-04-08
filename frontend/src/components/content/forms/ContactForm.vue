@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, computed, toRef } from "vue";
 import { Contact } from "@/interfaces/interface";
 
 const InputElement = defineAsyncComponent(
@@ -8,8 +8,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/elements/SelectArray.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -27,9 +27,7 @@ const props = defineProps({
   },
 });
 
-const contactForm = computed(() => {
-  return props.contact as Contact;
-});
+const contactForm = toRef(props.contact as Contact);
 
 const view = computed(() => {
   if (contactForm.value["view"] === "Телефон") {
@@ -49,7 +47,7 @@ const view = computed(() => {
     role="form"
   >
     <LabelSlot :label="'Вид контакта'">
-      <SelectInput
+      <SelectArray
         :name="'view'"
         :select="['Телефон', 'E-mail', 'Другое']"
         v-model="contactForm['view']"

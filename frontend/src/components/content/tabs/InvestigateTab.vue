@@ -2,6 +2,9 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces/interface";
 
+const IconRelative = defineAsyncComponent(
+  () => import("@components/content/elements/IconRelative.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -49,6 +52,15 @@ function submitForm(form: Object) {
 
 <template>
   <div class="py-3">
+    <div class="position-relative">
+      <div class="position-absolute top-0 end-0">
+        <IconRelative
+          :title="`Добавить`"
+          :icon-class="`bi bi-incognito fs-1`"
+          @onclick="inquisition.action = 'create'"
+        />
+      </div>
+    </div>
     <InvestigationForm
       v-if="inquisition.action"
       :investigation="inquisition.item"
@@ -83,14 +95,6 @@ function submitForm(form: Object) {
         <FileForm :accept="'*'" @submit="emit('file')" />
       </div>
       <p v-else>Данные отсутствуют</p>
-      <div class="d-print-none py-3">
-        <a
-          class="btn btn-outline-primary"
-          type="button"
-          @click="inquisition.action = 'create'"
-          >Добавить запись
-        </a>
-      </div>
     </div>
   </div>
 </template>

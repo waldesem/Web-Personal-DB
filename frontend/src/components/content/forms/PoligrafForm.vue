@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
 const TextArea = defineAsyncComponent(
@@ -8,8 +8,8 @@ const TextArea = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/elements/SelectArray.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -27,9 +27,7 @@ const props = defineProps({
   },
 });
 
-const poligrafForm = computed(() => {
-  return props.poligraf as Pfo;
-});
+const poligrafForm = toRef(props.poligraf as Pfo);
 </script>
 
 <template>
@@ -39,7 +37,7 @@ const poligrafForm = computed(() => {
     role="form"
   >
     <LabelSlot :label="'ема проверки'">
-      <SelectInput
+      <SelectArray
         :name="'theme'"
         :select="[
           'Проверка кандидата', 'Служебная проверка', 'Служебное расследование'

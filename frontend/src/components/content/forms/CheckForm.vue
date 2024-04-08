@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, computed } from "vue";
+import { ref, defineAsyncComponent, computed, toRef } from "vue";
 import { classifyStore } from "@store/classify";
 import { Verification } from "@/interfaces/interface";
 
@@ -9,8 +9,8 @@ const TextArea = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
@@ -33,9 +33,7 @@ const props = defineProps({
   },
 });
 
-const checkForm = computed(() => {
-  return props.check as Verification;
-});
+const checkForm = toRef(props.check as Verification);
 
 const noNegative = ref(true);
 
@@ -190,9 +188,9 @@ computed(() => {
       v-model="checkForm['pfo']"
     />
     <LabelSlot :label="'Результат'">
-      <SelectInput
+      <SelectObject
         :name="'conclusion'"
-        :select="storeClassify.classData.conclusion"
+        :select="storeClassify.classData.conclusions"
         v-model="checkForm['conclusion']"
       />
     </LabelSlot>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { Staff } from "@/interfaces/interface";
 
 const LabelSlot = defineAsyncComponent(
@@ -24,9 +24,7 @@ const props = defineProps({
   },
 });
 
-const staffForm = computed(() => {
-  return props.staff as Staff;
-});
+const staffForm = toRef(props.staff as Staff);
 </script>
 
 <template>

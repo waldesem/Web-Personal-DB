@@ -18,25 +18,19 @@ const ResumeForm = defineAsyncComponent(
 const storeAuth = authStore();
 const storeAlert = alertStore();
 
-const dataJson = ref({
-  formData: new FormData(),
-});
-
-function switchToProfile(idx: string): void {
-  router.push({ name: "profile", params: { id: idx } });
-};
+const formData = ref(new FormData());
 
 async function submitFile(event: Event): Promise<void> {
   const inputElement = event.target as HTMLInputElement;
-  if (inputElement && inputElement.files && inputElement.files.length) {
-    dataJson.value.formData.append("file", inputElement.files[0]);
+  if (inputElement.files) {
+    formData.value.append("file", inputElement.files[0]);
     try {
       const response = await storeAuth.axiosInstance.post(
         `${server}/file/anketa/0`,
-        dataJson.value.formData
+        formData.value
       );
       const { message } = response.data;
-      switchToProfile(message);
+      router.push({ name: "profile", params: { id: message } });
 
       storeAlert.alertMessage.setAlert(
         "alert-success",
@@ -57,10 +51,7 @@ async function submitFile(event: Event): Promise<void> {
 <template>
   <div class="container py-3">
     <HeaderDiv :page-header="'Создать анкету'" />
-    <FileForm
-      :accept="'.json'"
-      @submit="submitFile"
-    />
-    <ResumeForm />
+    <FileForm :accept="'.json'" @submit="submitFile" />
+    <ResumeForm @cancel="router.push({ name: 'persons' })" />
   </div>
 </template>

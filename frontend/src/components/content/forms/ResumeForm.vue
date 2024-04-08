@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
@@ -10,8 +10,8 @@ import { router } from "@/router/router";
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -43,55 +43,51 @@ const props = defineProps({
   },
 });
 
-const resumeForm = ref({
-  form: computed(() => {
-    return props.resume as Resume;
-  }),
+const resumeForm = toRef(props.resume);
 
-  submitResume: async function (): Promise<void> {
-    try {
-      const response =
-        props.action === "create"
-          ? await storeAuth.axiosInstance.post(
-              `${server}/resume/${props.action}`,
-              this.form
-            )
-          : await storeAuth.axiosInstance.patch(
-              `${server}/resume/${props.resume["id"]}`,
-              this.form
-            );
-      const { message } = response.data;
-
+async function submitResume(): Promise<void> {
+  try {
+    const response =
       props.action === "create"
-        ? router.push({ name: "profile", params: { id: message } })
-        : emit("cancel"), emit("get-resume", "view");
+        ? await storeAuth.axiosInstance.post(
+            `${server}/resume/${props.action}`,
+            resumeForm.value
+          )
+        : await storeAuth.axiosInstance.patch(
+            `${server}/resume/${props.resume["id"]}`,
+            resumeForm.value
+          );
+    const { message } = response.data;
 
-      storeAlert.alertMessage.setAlert(
-        "alert-success",
-        "Данные успешно обновлены"
-      );
-    } catch (error) {
-      storeAlert.alertMessage.setAlert(
-        "alert-danger",
-        `Возникла ошибка ${error}`
-      );
-    }
-  },
-});
+    props.action === "create"
+      ? router.push({ name: "profile", params: { id: message } })
+      : emit("cancel"), emit("get-resume");
+
+    storeAlert.alertMessage.setAlert(
+      "alert-success",
+      "Данные успешно обновлены"
+    );
+  } catch (error) {
+    storeAlert.alertMessage.setAlert(
+      "alert-danger",
+      `Возникла ошибка ${error}`
+    );
+  }
+};
 </script>
 
 <template>
   <div class="py-3">
     <form
-      @submit.prevent="resumeForm.submitResume"
+      @submit.prevent="submitResume"
       class="form form-check"
       role="form"
     >
       <LabelSlot :label="'Регион'">
-        <SelectInput
+        <SelectObject
           :name="'region_id'"
           :select="storeClassify.classData.regions"
-          v-model="resumeForm.form['region_id']"
+          v-model="resumeForm['region_id']"
         />
       </LabelSlot>
       <LabelSlot :label="'Фамилия'">
@@ -100,7 +96,7 @@ const resumeForm = ref({
           :name="'surname'"
           :place="'Фамилия*'"
           :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-          v-model="resumeForm.form['surname']"
+          v-model="resumeForm['surname']"
         />
       </LabelSlot>
       <LabelSlot :label="'Имя'">
@@ -109,21 +105,21 @@ const resumeForm = ref({
           :name="'firstname'"
           :place="'Имя*'"
           :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-          v-model="resumeForm.form['firstname']"
+          v-model="resumeForm['firstname']"
         />
       </LabelSlot>
       <LabelSlot :label="'Отчество'">
         <InputElement
           :name="'patronymic'"
           :place="'Отчество'"
-          v-model="resumeForm.form['patronymic']"
+          v-model="resumeForm['patronymic']"
         />
       </LabelSlot>
       <LabelSlot :label="'Изменение имени'">
         <InputElement
           :name="'previous'"
           :place="'Изменение имени'"
-          v-model="resumeForm.form['previous']"
+          v-model="resumeForm['previous']"
         />
       </LabelSlot>
       <LabelSlot :label="'Дата рождения*'">
@@ -132,28 +128,28 @@ const resumeForm = ref({
           :name="'birthday'"
           :place="'Дата рождения*'"
           :typeof="'date'"
-          v-model="resumeForm.form['birthday']"
+          v-model="resumeForm['birthday']"
         />
       </LabelSlot>
       <LabelSlot :label="'Место рождения'">
         <InputElement
           :name="'birthplace'"
           :place="'Место рождения'"
-          v-model="resumeForm.form['birthplace']"
+          v-model="resumeForm['birthplace']"
         />
       </LabelSlot>
       <LabelSlot :label="'Гражданство'">
         <InputElement
           :name="'country'"
           :place="'Гражданство'"
-          v-model="resumeForm.form['country']"
+          v-model="resumeForm['country']"
         />
       </LabelSlot>
       <LabelSlot :label="'Двойное гражданство'">
         <InputElement
           :name="'ext_country'"
           :place="'Двойное гражданство'"
-          v-model="resumeForm.form['ext_country']"
+          v-model="resumeForm['ext_country']"
         />
       </LabelSlot>
       <LabelSlot :label="'СНИЛС'">
@@ -161,7 +157,7 @@ const resumeForm = ref({
           :name="'snils'"
           :place="'СНИЛС'"
           :pattern="'[0-9]{11}'"
-          v-model="resumeForm.form['snils']"
+          v-model="resumeForm['snils']"
         />
       </LabelSlot>
       <LabelSlot :label="'ИНН'">
@@ -170,14 +166,14 @@ const resumeForm = ref({
           :place="'ИНН'"
           :max="'12'"
           :pattern="'[0-9]{12}'"
-          v-model="resumeForm.form['inn']"
+          v-model="resumeForm['inn']"
         />
       </LabelSlot>
       <LabelSlot :label="'Семейное положение'">
         <InputElement
           :name="'marital'"
           :place="'Семейное положение'"
-          v-model="resumeForm.form['marital']"
+          v-model="resumeForm['marital']"
         />
       </LabelSlot>
       <LabelSlot :label="'Образование'">
@@ -195,23 +191,7 @@ const resumeForm = ref({
         />
       </LabelSlot>
       <BtnGroup>
-        <GroupContent :cancel-needs="false" />
-        <router-link
-          v-if="props.action === 'create'"
-          class="btn btn-outline-danger"
-          type="button"
-          :to="{ name: 'persons' }"
-        >
-          Отмена
-        </router-link>
-        <button
-          v-if="props.action === 'update'"
-          class="btn btn-outline-danger"
-          type="button"
-          @click="emit('cancel')"
-        >
-          Отмена
-        </button>
+        <GroupContent @cancel="emit('cancel')"/>
       </BtnGroup>
     </form>
   </div>

@@ -25,8 +25,8 @@ const searchUsers = debounce(() => {
   getUsers();
 }, 500);
 
-onBeforeMount( async () => {
-  await getUsers();
+onBeforeMount(() => {
+  getUsers();
 });
 
 const users = computed(() => {
@@ -61,18 +61,17 @@ async function getUsers() {
     <div class="row mb-5">
       <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
     </div>
-    <form @input.prevent="searchUsers" class="form form-check" role="form">
-      <div class="row mb-5">
-        <input
-          class="form-control"
-          name="search"
-          id="search"
-          type="text"
-          placeholder="Поиск по имени пользователя"
-          v-model="dataUsers.search"
-        />
-      </div>
-    </form>
+    <div class="row mb-3">
+      <input
+        @input.prevent="searchUsers" 
+        class="form-control"
+        name="search"
+        id="search"
+        type="text"
+        placeholder="Поиск по имени пользователя"
+        v-model="dataUsers.search"
+      />
+    </div>
     <div class="row">
       <div class="col-md-6">
         <SwitchBox

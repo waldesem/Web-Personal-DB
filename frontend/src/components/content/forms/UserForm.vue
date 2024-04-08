@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from "vue";
+import { toRef, defineAsyncComponent } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { server } from "@utilities/utils";
@@ -31,9 +31,7 @@ const props = defineProps({
   },
 });
 
-const userForm = computed(() => {
-  return props.item as Record<string, any>;
-});
+const userForm = toRef(props.item as Record<string, any>);
 
 async function submitUser(): Promise<void> {
   try {

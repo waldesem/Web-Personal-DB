@@ -10,8 +10,8 @@ import { User } from "@/interfaces/interface";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -155,7 +155,7 @@ async function updateRole(action: string, value: string): Promise<void> {
               </a>
             </li>
           </ul>
-          <SelectInput
+          <SelectObject
             :name="'role'"
             :select="storeClassify.classData.roles"
             v-model="userData.role"

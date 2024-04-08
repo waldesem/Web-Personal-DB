@@ -2,6 +2,9 @@
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces/interface";
 
+const IconRelative = defineAsyncComponent(
+  () => import("@components/content/elements/IconRelative.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -49,6 +52,15 @@ function submitForm(form: Object) {
 
 <template>
   <div class="py-3">
+    <div class="position-relative">
+      <div class="position-absolute top-0 end-0">
+        <IconRelative
+          :title="`Добавить`"
+          :icon-class="`bi bi-heart-pulse fs-1`"
+          @onclick="poligraf.action = 'create'"
+        />
+      </div>
+    </div>
     <PoligrafForm
       v-if="poligraf.action"
       :poligraf="poligraf.item"
@@ -79,18 +91,13 @@ function submitForm(form: Object) {
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>
           </div>
-          <FileForm :accept="'*'" @submit="emit('file')" />
+          <FileForm 
+            :accept="'*'" 
+            @submit="emit('file')" 
+          />
         </div>
       </div>
       <p v-else>Данные отсутствуют</p>
-      <div class="d-print-none py-3">
-        <a
-          class="btn btn-outline-primary"
-          type="button"
-          @click="poligraf.action = 'create'"
-          >Добавить запись
-        </a>
-      </div>
     </div>
   </div>
 </template>

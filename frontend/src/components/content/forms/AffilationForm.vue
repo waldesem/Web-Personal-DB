@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { Affilation } from "@/interfaces/interface";
 
 const InputElement = defineAsyncComponent(
@@ -8,8 +8,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/elements/SelectArray.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -27,9 +27,7 @@ const props = defineProps({
   },
 });
 
-const affilationForm = computed(() => {
-  return props.affils as Affilation;
-});
+const affilationForm = toRef(props.affils as Affilation);
 
 const selected_item = [
   "Являлся государственным/муниципальным служащим",
@@ -46,7 +44,7 @@ const selected_item = [
     role="form"
   >
     <LabelSlot :label="'Тип участия'">
-      <SelectInput
+      <SelectArray
         :name="'view'"
         :select="selected_item"
         v-model="affilationForm['view']"

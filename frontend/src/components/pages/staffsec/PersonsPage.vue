@@ -5,11 +5,14 @@ import { authStore } from "@/store/auth";
 import { debounce, server, timeSince } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
 
+const IconRelative = defineAsyncComponent(
+  () => import("@components/content/elements/IconRelative.vue")
+);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -55,6 +58,7 @@ const personData = ref({
   sort: "id",
   order: "desc",
   path: "search",
+  updated: new Date().toLocaleDateString("ru-RU"),
 });
 
 async function getCandidates(page = 1): Promise<void> {
@@ -74,6 +78,7 @@ async function getCandidates(page = 1): Promise<void> {
     personData.value.candidates = datas;
     personData.value.prev = metadata.has_prev;
     personData.value.next = metadata.has_next;
+    personData.value.updated = new Date().toLocaleDateString("ru-RU");
   } catch (error) {
     console.error(error);
   }
@@ -95,10 +100,15 @@ const searchPerson = debounce(() => {
   <div class="container py-3">
     <div class="row mb-5">
       <HeaderDiv :page-header="'Кандидаты'" />
+      <IconRelative
+        :title="`Обновить`"
+        :icon-class="`bi bi-arrow-clockwise fs-1`"
+        @onclick="getCandidates"
+      />
     </div>
     <div class="row mb-5">
       <div class="col-md-3">
-        <SelectInput
+        <SelectObject
           :name="'action'"
           :select="personData.items"
           v-model="personData.path"
@@ -119,7 +129,8 @@ const searchPerson = debounce(() => {
     </div>
     <TableSlots
       v-if="personData.candidates.length"
-      :tbl-caption="'Список кандидатов'"
+      :div-class="'table align-middle caption-top'"
+      :tbl-caption="`Обновлено: ${timeSince(personData.updated)}`"
     >
       <template v-slot:thead>
         <tr height="50px">

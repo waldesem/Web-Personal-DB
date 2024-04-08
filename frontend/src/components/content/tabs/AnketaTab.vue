@@ -72,8 +72,8 @@ function deleteItem(itemId: string, item: string) {
       v-if="dataResume.action"
       :action="dataResume.action"
       :resume="props.anketa.resume"
-      @get-resume="emit('get-resume')"
-      @cancel="dataResume.action = ''"
+      @get-resume="emit('get-resume', 'view')"
+      @cancel="dataResume.action = ''; emit('get-resume')"
     />
     <div class="px-3" v-else
       @mouseover="dataResume.showActions = true"

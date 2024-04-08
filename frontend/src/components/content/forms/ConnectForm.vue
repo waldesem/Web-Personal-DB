@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
 import { server } from "@utilities/utils";
@@ -44,9 +44,7 @@ const props = defineProps({
 
 const emit = defineEmits(["get-contacts", "cancel-edit"]);
 
-const connectForm = computed(() => {
-  return props.item as Connection;
-});
+const connectForm = toRef(props.item as Connection);
 
 async function updateContact(): Promise<void> {
   try {

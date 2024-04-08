@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { Relation } from "@/interfaces/interface";
 
 const LabelSlot = defineAsyncComponent(
@@ -24,9 +24,7 @@ const props = defineProps({
   },
 });
 
-const relationForm = computed(() => {
-  return props.relation as Relation;
-});
+const relationForm = toRef(props.relation as Relation);
 </script>
 
 <template>

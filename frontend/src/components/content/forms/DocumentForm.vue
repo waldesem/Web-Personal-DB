@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { Document } from "@/interfaces/interface";
 
 const InputElement = defineAsyncComponent(
@@ -8,8 +8,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/elements/SelectArray.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -27,9 +27,7 @@ const props = defineProps({
   },
 });
 
-const docForm = computed(() => {
-  return props.docs as Document;
-});
+const docForm = toRef(props.docs as Document);
 
 const selected_item = [
   "Паспорт гражданина России",
@@ -45,7 +43,7 @@ const selected_item = [
     role="form"
   >
     <LabelSlot :label="'Вид документа'">
-      <SelectInput
+      <SelectArray
         :name="'view'"
         :select="selected_item"
         v-model="docForm['view']"

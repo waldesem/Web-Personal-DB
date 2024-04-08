@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { Address } from "@/interfaces/interface";
 
 const InputElement = defineAsyncComponent(
@@ -8,8 +8,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectInput = defineAsyncComponent(
-  () => import("@components/content/elements/SelectInput.vue")
+const SelectArray = defineAsyncComponent(
+  () => import("@components/content/elements/SelectArray.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -27,9 +27,7 @@ const props = defineProps({
   },
 });
 
-const addressForm = computed(() => {
-  return props.addrs as Address;
-});
+const addressForm = toRef(props.addrs as Address);
 </script>
 
 <template>
@@ -39,7 +37,7 @@ const addressForm = computed(() => {
     role="form"
   >
     <LabelSlot :label="'Вид адреса'">
-      <SelectInput
+      <SelectArray
         :name="'view'"
         :select="['Адрес регистрации', 'Адрес проживания', 'Другое']"
         v-model="addressForm['view']"

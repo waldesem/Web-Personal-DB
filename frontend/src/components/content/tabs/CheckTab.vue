@@ -3,6 +3,9 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { classifyStore } from "@/store/classify";
 import { Anketa, Verification } from "@/interfaces/interface";
 
+const IconRelative = defineAsyncComponent(
+  () => import("@components/content/elements/IconRelative.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -62,6 +65,23 @@ function deleteItem(itemId: string) {
 
 <template>
   <div class="py-3">
+    <div class="position-relative">
+      <div class="position-absolute top-0 end-0">
+        <IconRelative
+          :title="`Добавить`"
+          :icon-class="`bi bi-journal-check fs-1`"
+          :hide="
+            ![
+              storeClassify.classData.status['update'],
+              storeClassify.classData.status['save'],
+              storeClassify.classData.status['repeat'],
+            ].includes(props.anketa.resume['status_id']) &&
+            props.anketa.resume['user_id'] !== props.userId
+          "
+          @onclick="check.action = 'create'"
+        />
+      </div>
+    </div>
     <CheckForm
       v-if="check.action"
       :check="check.item"
@@ -147,23 +167,6 @@ function deleteItem(itemId: string) {
         />
       </div>
       <p v-else>Данные отсутствуют</p>
-      <div class="d-print-none py-3">
-        <button
-          :disabled="
-            ![
-              storeClassify.classData.status['update'],
-              storeClassify.classData.status['save'],
-              storeClassify.classData.status['repeat'],
-            ].includes(props.anketa.resume['status_id']) &&
-            props.anketa.resume['user_id'] !== props.userId
-          "
-          class="btn btn-outline-primary"
-          type="button"
-          @click="check.action = 'create'"
-        >
-          Добавить запись
-        </button>
-      </div>
     </div>
   </div>
 </template>
