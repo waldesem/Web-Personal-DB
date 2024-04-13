@@ -23,9 +23,6 @@ import {
   Needs,
 } from "@/interfaces/interface";
 
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/elements/AlertMessage.vue")
-);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -291,145 +288,142 @@ async function submitFile(event: Event, param: string): Promise<void> {
 </script>
 
 <template>
-  <!-- <div class="container py-3"> -->
-    <AlertMessage/>
-    <PhotoCard
-      :cand-id="candId"
-      :url="anketaData.imageUrl"
-      @get-item="getItem"
-      @submit-file="submitFile"
-    />
-    <div class="row mb-3">
-      <div class="col-md-10">
-        <HeaderDiv
-          :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
-        />
-      </div>
-      <div class="col-md-2 d-flex justify-content-end">
-        <IconRelative
-          :title="`Версия для печати`"
-          :icon-class="`bi bi-printer fs-1`"
-          @click="anketaData.printPage = !anketaData.printPage"
-        />
-        <IconRelative
-          :title="`Взять на проверку`"
-          :icon-class="`bi bi-person-plus fs-1`"
-          :hide="
-            anketaData.anketa.resume.user_id !== null &&
-            anketaData.anketa.resume.user_id !== ''
-          "
-          @onclick="getResume('self')"
-        />
-        <IconRelative
-          :title="`Отправить на проверку`"
-          :icon-class="'bi bi-send-plus fs-1'"
-          :hide="anketaData.anketa.resume.user_id !== storeUser.userData.userId
-          || anketaData.anketa.resume.status_id === storeClassify.classData.status['robot']"
-          @onclick="getResume('send')"
-        >
-          <span
-            v-if="anketaData.spinner"
-            class="spinner-border spinner-border-sm"
-          ></span>
-          <span v-if="anketaData.spinner" role="status">Отправляется...</span>
-        </IconRelative>
-      </div>
+  <PhotoCard
+    :cand-id="candId"
+    :url="anketaData.imageUrl"
+    @get-item="getItem"
+    @submit-file="submitFile"
+  />
+  <div class="row mb-3">
+    <div class="col-md-10">
+      <HeaderDiv
+        :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
+      />
+    </div>
+    <div class="col-md-2 d-flex justify-content-end">
+      <IconRelative
+        :title="`Версия для печати`"
+        :icon-class="`bi bi-printer fs-1`"
+        @click="anketaData.printPage = !anketaData.printPage"
+      />
+      <IconRelative
+        :title="`Взять на проверку`"
+        :icon-class="`bi bi-person-plus fs-1`"
+        :hide="
+          anketaData.anketa.resume.user_id !== null &&
+          anketaData.anketa.resume.user_id !== ''
+        "
+        @onclick="getResume('self')"
+      />
+      <IconRelative
+        :title="`Отправить на проверку`"
+        :icon-class="'bi bi-send-plus fs-1'"
+        :hide="anketaData.anketa.resume.user_id !== storeUser.userData.userId
+        || anketaData.anketa.resume.status_id === storeClassify.classData.status['robot']"
+        @onclick="getResume('send')"
+      >
+        <span
+          v-if="anketaData.spinner"
+          class="spinner-border spinner-border-sm"
+        ></span>
+        <span v-if="anketaData.spinner" role="status">Отправляется...</span>
+      </IconRelative>
+    </div>
+  </div>
+  <div
+    :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
+    :role="!anketaData.printPage ? 'tablist' : ''"
+  >
+    <button
+      v-if="!anketaData.printPage"
+      v-for="(value, key) in {
+        anketaTab: 'Анкета',
+        сheckTab: 'Проверки',
+        poligrafTab: 'Полиграф',
+        investigateTab: 'Расследования',
+        inquiryTab: 'Запросы',
+      }"
+      class="nav-link"
+      :class="{ active: key === 'anketaTab' }"
+      :data-bs-target="`#${key}`"
+      data-bs-toggle="tab"
+      type="button"
+      role="tab"
+    >
+      {{ value }}
+    </button>
+  </div>
+
+  <div :class="{ 'tab-content': !anketaData.printPage }">
+    <div
+      id="anketaTab"
+      :class="{ 'tab-pane fade py-1 show active': !anketaData.printPage }"
+      :role="!anketaData.printPage ? 'tabpanel' : ''"
+      :tabindex="!anketaData.printPage ? '0' : ''"
+    >
+      <AnketaTab
+        :anketa="anketaData.anketa"
+        @get-resume="getResume"
+        @get-item="getItem"
+        @submit="updateItem"
+        @delete="deleteItem"
+      />
     </div>
     <div
-      :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
-      :role="!anketaData.printPage ? 'tablist' : ''"
+      id="сheckTab"
+      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
+      :role="!anketaData.printPage ? 'tabpanel' : ''"
     >
-      <button
-        v-if="!anketaData.printPage"
-        v-for="(value, key) in {
-          anketaTab: 'Анкета',
-          сheckTab: 'Проверки',
-          poligrafTab: 'Полиграф',
-          investigateTab: 'Расследования',
-          inquiryTab: 'Запросы',
-        }"
-        class="nav-link"
-        :class="{ active: key === 'anketaTab' }"
-        :data-bs-target="`#${key}`"
-        data-bs-toggle="tab"
-        type="button"
-        role="tab"
-      >
-        {{ value }}
-      </button>
+      <h5 v-if="anketaData.printPage">Проверки</h5>
+      <CheckTab
+        :user-id="storeUser.userData.userId.toString()"
+        :anketa="anketaData.anketa"
+        @get-item="getItem"
+        @delete="deleteItem"
+        @submit="updateItem"
+        @file="submitFile"
+      />
     </div>
-
-    <div :class="{ 'tab-content': !anketaData.printPage }">
-      <div
-        id="anketaTab"
-        :class="{ 'tab-pane fade py-1 show active': !anketaData.printPage }"
-        :role="!anketaData.printPage ? 'tabpanel' : ''"
-        :tabindex="!anketaData.printPage ? '0' : ''"
-      >
-        <AnketaTab
-          :anketa="anketaData.anketa"
-          @get-resume="getResume"
-          @get-item="getItem"
-          @submit="updateItem"
-          @delete="deleteItem"
-        />
-      </div>
-      <div
-        id="сheckTab"
-        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-        :role="!anketaData.printPage ? 'tabpanel' : ''"
-      >
-        <h5 v-if="anketaData.printPage">Проверки</h5>
-        <CheckTab
-          :user-id="storeUser.userData.userId.toString()"
-          :anketa="anketaData.anketa"
-          @get-item="getItem"
-          @delete="deleteItem"
-          @submit="updateItem"
-          @file="submitFile"
-        />
-      </div>
-      <div
-        id="poligrafTab"
-        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-        :role="!anketaData.printPage ? 'tabpanel' : ''"
-      >
-        <h5 v-if="anketaData.printPage">Полиграф</h5>
-        <PoligrafTab
-          :poligrafs="anketaData.anketa.poligraf"
-          @get-item="getItem"
-          @delete="deleteItem"
-          @submit="updateItem"
-          @file="submitFile"
-        />
-      </div>
-      <div
-        id="investigateTab"
-        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-        :role="!anketaData.printPage ? 'tabpanel' : ''"
-      >
-        <h5 v-if="anketaData.printPage">Расследования</h5>
-        <InvestigateTab
-          :inquisitions="anketaData.anketa.investigation"
-          @get-item="getItem"
-          @delete="deleteItem"
-          @submit="updateItem"
-          @file="submitFile"
-        />
-      </div>
-      <div
-        id="inquiryTab"
-        :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-        :role="!anketaData.printPage ? 'tabpanel' : ''"
-      >
-        <h5 v-if="anketaData.printPage">Запросы</h5>
-        <InquiryTab
-          :needs="anketaData.anketa.inquiry"
-          @get-item="getItem"
-          @delete="deleteItem"
-          @submit="updateItem"
-        />
-      </div>
+    <div
+      id="poligrafTab"
+      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
+      :role="!anketaData.printPage ? 'tabpanel' : ''"
+    >
+      <h5 v-if="anketaData.printPage">Полиграф</h5>
+      <PoligrafTab
+        :poligrafs="anketaData.anketa.poligraf"
+        @get-item="getItem"
+        @delete="deleteItem"
+        @submit="updateItem"
+        @file="submitFile"
+      />
     </div>
-  <!-- </div> -->
+    <div
+      id="investigateTab"
+      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
+      :role="!anketaData.printPage ? 'tabpanel' : ''"
+    >
+      <h5 v-if="anketaData.printPage">Расследования</h5>
+      <InvestigateTab
+        :inquisitions="anketaData.anketa.investigation"
+        @get-item="getItem"
+        @delete="deleteItem"
+        @submit="updateItem"
+        @file="submitFile"
+      />
+    </div>
+    <div
+      id="inquiryTab"
+      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
+      :role="!anketaData.printPage ? 'tabpanel' : ''"
+    >
+      <h5 v-if="anketaData.printPage">Запросы</h5>
+      <InquiryTab
+        :needs="anketaData.anketa.inquiry"
+        @get-item="getItem"
+        @delete="deleteItem"
+        @submit="updateItem"
+      />
+    </div>
+  </div>
 </template>

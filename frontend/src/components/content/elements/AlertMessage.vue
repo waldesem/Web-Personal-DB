@@ -6,7 +6,7 @@ const storeAlert = alertStore();
 
 <template>
   <div
-    class="alert p-2"
+    class="alert"
     role="info"
     fade
     show

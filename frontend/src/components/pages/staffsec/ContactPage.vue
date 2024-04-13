@@ -5,9 +5,6 @@ import { alertStore } from "@/store/alert";
 import { debounce, server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/elements/AlertMessage.vue")
-);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -100,116 +97,113 @@ async function deleteContact(id: string): Promise<void> {
 </script>
 
 <template>
-  <!-- <div class="container py-3"> -->
-    <AlertMessage/>
-    <div class="row mb-5">
-      <HeaderDiv 
-        :page-header="contactData.action 
-          ? 'Изменить/добавить контакт' 
-          : 'Контакты'" 
-      />
-    </div>
-    <div v-show="contactData.action" class="mb-5">
-      <ConnectForm
-        :page="contactData.page"
-        :action="contactData.action"
-        :names="contactData.names"
-        :companies="contactData.companies"
-        :cities="contactData.cities"
-        :item="contactData.item"
-        @get-contacts="getContacts"
-        @cancel-edit="contactData.action = ''"
-      />
-    </div>
-    <div v-show="!contactData.action" class="mb-5">
-      <input
-        @input.prevent="searchContacts"
-        class="form-control mb-5"
-        name="search"
-        id="search"
-        type="text"
-        placeholder="Поиск по организации, имени, номеру мобильного телефона"
-        v-model="contactData.search"
-      />
-      <ModalWin
-        :id="'modalConnect'"
-        :title="contactData.item.fullname"
-        :size="'modal-md'">
-        <ConnectDiv :item="contactData.item"/>
-      </ModalWin>
-      <TableSlots
-        :tbl-caption="'Список контактов'">
-        <template v-slot:thead>
-          <tr>
-            <th width="18%">Название</th>
-            <th width="18%">Имя</th>
-            <th width="18%">Телефон</th>
-            <th width="18%">Добавочный</th>
-            <th width="18%">Мобильный</th>
-            <th width="5%"></th>
-            <th width="5%"></th>
-          </tr>
-        </template>
-        <template v-slot:tbody v-if="contactData.contacts.length > 0">
-          <tr
-            v-for="contact in contactData.contacts"
-            :key="contact['id']"
-          >
-            <td>{{ contact["company"] }}</td>
-            <td>
-              <a 
-                href="#" 
-                title="Посмотреть контакт"
-                data-bs-target="#modalConnect" 
-                data-bs-toggle="modal"
-                @click="contactData.item = contact"
-              >
-                {{ contact["fullname"] }}
-              </a>
-            </td>
-            <td>{{ contact["phone"] }}</td>
-            <td>{{ contact["adding"] }}</td>
-            <td>{{ contact["mobile"] }}</td>
-            <td>
-              <a
-                class="btn btn-link"
-                type="button"
-                title="Изменить контакт"
-                @click="
-                  contactData.action = 'edit';
-                  contactData.item = contact;
-                "
-              >
-                <i class="bi bi-pencil-square"></i>
-              </a>
-            </td>
-            <td width="5%">
-              <a
-                href="#"
-                title="Удалить"
-                @click="deleteContact(contact['id'])"
-              >
-                <i class="bi bi-trash"></i>
-              </a>
-            </td>
-          </tr>
-        </template>
-      </TableSlots>
-      <a
-        class="link link-primary d-flex justify-content-end"
-        href="#"
-        @click="contactData.action = 'create'"
+  <div class="row mb-5">
+    <HeaderDiv 
+      :page-header="contactData.action 
+        ? 'Изменить/добавить контакт' 
+        : 'Контакты'" 
+    />
+  </div>
+  <div v-show="contactData.action" class="mb-5">
+    <ConnectForm
+      :page="contactData.page"
+      :action="contactData.action"
+      :names="contactData.names"
+      :companies="contactData.companies"
+      :cities="contactData.cities"
+      :item="contactData.item"
+      @get-contacts="getContacts"
+      @cancel-edit="contactData.action = ''"
+    />
+  </div>
+  <div v-show="!contactData.action" class="mb-5">
+    <input
+      @input.prevent="searchContacts"
+      class="form-control mb-5"
+      name="search"
+      id="search"
+      type="text"
+      placeholder="Поиск по организации, имени, номеру мобильного телефона"
+      v-model="contactData.search"
+    />
+    <ModalWin
+      :id="'modalConnect'"
+      :title="contactData.item.fullname"
+      :size="'modal-md'">
+      <ConnectDiv :item="contactData.item"/>
+    </ModalWin>
+    <TableSlots>
+      <template v-slot:caption>{{ `Список контактов` }}</template>
+      <template v-slot:thead>
+        <tr>
+          <th width="18%">Название</th>
+          <th width="18%">Имя</th>
+          <th width="18%">Телефон</th>
+          <th width="18%">Добавочный</th>
+          <th width="18%">Мобильный</th>
+          <th width="5%"></th>
+          <th width="5%"></th>
+        </tr>
+      </template>
+      <template v-slot:tbody v-if="contactData.contacts.length > 0">
+        <tr
+          v-for="contact in contactData.contacts"
+          :key="contact['id']"
         >
-        Добавить контакт
-      </a>
-      <PageSwitcher
-        :has_prev="contactData.next"
-        :has_next="contactData.prev"
-        :switchPrev="contactData.page - 1"
-        :switchNext="contactData.page + 1"
-        @switch="getContacts"
-      />
-    </div>
-  <!-- </div> -->
+          <td>{{ contact["company"] }}</td>
+          <td>
+            <a 
+              href="#" 
+              title="Посмотреть контакт"
+              data-bs-target="#modalConnect" 
+              data-bs-toggle="modal"
+              @click="contactData.item = contact"
+            >
+              {{ contact["fullname"] }}
+            </a>
+          </td>
+          <td>{{ contact["phone"] }}</td>
+          <td>{{ contact["adding"] }}</td>
+          <td>{{ contact["mobile"] }}</td>
+          <td>
+            <a
+              class="btn btn-link"
+              type="button"
+              title="Изменить контакт"
+              @click="
+                contactData.action = 'edit';
+                contactData.item = contact;
+              "
+            >
+              <i class="bi bi-pencil-square"></i>
+            </a>
+          </td>
+          <td width="5%">
+            <a
+              href="#"
+              title="Удалить"
+              @click="deleteContact(contact['id'])"
+            >
+              <i class="bi bi-trash"></i>
+            </a>
+          </td>
+        </tr>
+      </template>
+    </TableSlots>
+    <a
+      class="link link-primary d-flex justify-content-end"
+      href="#"
+      @click="contactData.action = 'create'"
+      >
+      Добавить контакт
+    </a>
+    <PageSwitcher
+      :has_prev="contactData.next"
+      :has_next="contactData.prev"
+      :switchPrev="contactData.page - 1"
+      :switchNext="contactData.page + 1"
+      @switch="getContacts"
+    />
+  </div>
 </template>
 

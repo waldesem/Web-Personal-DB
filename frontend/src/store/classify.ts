@@ -9,17 +9,18 @@ export const classifyStore = defineStore("classifyStore", () => {
     regions: <Record<string, any>>{},
     conclusions: <Record<string, any>>{},
     roles: <Record<string, any>>{},
+    users: <Record<string, any>>{},
 
     async getClasses(): Promise<void> {
       try {
         const response = await axios.get(`${server}/classes`);
         [
-          classData.value.conclusions, 
-          classData.value.roles, 
-          classData.value.status, 
-          classData.value.regions
+          classData.value.conclusions,
+          classData.value.roles,
+          classData.value.status,
+          classData.value.regions,
+          classData.value.users,
         ] = response.data;
-
       } catch (error) {
         console.error(error);
       }

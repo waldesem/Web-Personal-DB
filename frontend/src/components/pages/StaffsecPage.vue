@@ -7,35 +7,16 @@ const NavBar = defineAsyncComponent(
 const MenuBar = defineAsyncComponent(
   () => import("@components/content/layouts/MenuBar.vue")
 );
-const FooterDiv = defineAsyncComponent(
-  () => import("@components/content/layouts/FooterDiv.vue")
-);
 </script>
 
 <template>
-  <NavBar />
+  <MenuBar />
   <div class="container-fluid row px-3">
-    <div class="col-3">
-      <MenuBar />
+    <div class="col-2">
+      <NavBar />
     </div>
-    <div class="col-9">
-      <router-view v-slot="{ Component }">
-        <transition name="component-fade" mode="out-in">
-          <component :is="Component" :key="$route.fullPath" />
-        </transition>
-      </router-view>
+    <div class="col-10">
+      <RouterView />
     </div>
   </div>
-  <FooterDiv />
 </template>
-
-<style scoped>
-.component-fade-enter-active,
-.component-fade-leave-active {
-  transition: opacity 0.2s ease-in-out;
-}
-.component-fade-enter,
-.component-fade-leave-to {
-  opacity: 0;
-}
-</style>

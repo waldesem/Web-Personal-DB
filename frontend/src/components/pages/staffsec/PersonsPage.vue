@@ -5,12 +5,6 @@ import { authStore } from "@/store/auth";
 import { debounce, server, timeSince } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
 
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/elements/AlertMessage.vue")
-);
-const IconRelative = defineAsyncComponent(
-  () => import("@components/content/elements/IconRelative.vue")
-);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -35,19 +29,19 @@ onBeforeMount(async () => {
 });
 
 const statusColor = {
-    "1": "success",
-    "2": "success",
-    "3": "success",
-    "4": "primary",
-    "5": "primary",
-    "6": "danger",
-    "7": "info",
-    "8": "secondary",
-    "9": "light",
-    "10": "warning",
-    "11": "light",
-}
-    
+  "1": "success",
+  "2": "success",
+  "3": "success",
+  "4": "primary",
+  "5": "primary",
+  "6": "danger",
+  "7": "info",
+  "8": "secondary",
+  "9": "light",
+  "10": "warning",
+  "11": "light",
+};
+
 const personData = ref({
   candidates: <Resume[]>[],
   items: {
@@ -61,7 +55,7 @@ const personData = ref({
   sort: "id",
   order: "desc",
   path: "search",
-  updated: new Date().toLocaleDateString("ru-RU"),
+  updated: new Date().toLocaleTimeString("ru-RU"),
 });
 
 async function getCandidates(page = 1): Promise<void> {
@@ -81,7 +75,7 @@ async function getCandidates(page = 1): Promise<void> {
     personData.value.candidates = datas;
     personData.value.prev = metadata.has_prev;
     personData.value.next = metadata.has_next;
-    personData.value.updated = new Date().toLocaleDateString("ru-RU");
+    personData.value.updated = new Date().toLocaleTimeString("ru-RU");
   } catch (error) {
     console.error(error);
   }
@@ -95,174 +89,190 @@ function sortCandidates(sort: string, order: string): void {
 
 const searchPerson = debounce(() => {
   personData.value.path = "search";
+  if (personData.value.search.length < 3) {
+    return
+  };
   getCandidates();
 }, 500);
 </script>
 
 <template>
-  <!-- <div class="container py-3"> -->
-    <AlertMessage/>
-    <div class="row mb-5">
-      <HeaderDiv :page-header="'Кандидаты'" />
-      <IconRelative
-        :title="`Обновить`"
-        :icon-class="`bi bi-arrow-clockwise fs-1`"
-        @onclick="getCandidates"
+  <div class="row mb-5">
+    <HeaderDiv :page-header="'Кандидаты'" />
+  </div>
+  <div class="row mb-5">
+    <div class="col-md-2">
+      <SelectObject
+        :name="'action'"
+        :select="personData.items"
+        v-model="personData.path"
+        @submit-data="getCandidates"
       />
     </div>
-    <div class="row mb-5">
-      <div class="col-md-3">
-        <SelectObject
-          :name="'action'"
-          :select="personData.items"
-          v-model="personData.path"
-          @submit-data="getCandidates"
-        />
-      </div>
-      <div class="col-md-9">
-        <input
-          @input.prevent="searchPerson"
-          class="form-control"
-          name="search"
-          id="search"
-          type="text"
-          placeholder="поиск по ФИО, ИНН"
-          v-model="personData.search"
-        />
-      </div>
+    <div class="col-md-10">
+      <input
+        @input.prevent="searchPerson"
+        class="form-control"
+        name="search"
+        id="search"
+        type="text"
+        placeholder="поиск по Фамилии, Имени, Отчеству, ИНН (не менее 3-х символов)"
+        v-model="personData.search"
+      />
     </div>
-    <TableSlots
-      v-if="personData.candidates.length"
-      :div-class="'table align-middle caption-top'"
-      :tbl-caption="`Обновлено: ${timeSince(personData.updated)}`"
-    >
-      <template v-slot:thead>
-        <tr height="50px">
-          <th width="10%">
-            #
-            <AscDesc
-              :order="'desc'"
-              :sort="'id'"
-              @get-candidates="sortCandidates"
-            />
-            <AscDesc
-              :order="'asc'"
-              :sort="'id'"
-              @get-candidates="sortCandidates"
-            />
-          </th>
-          <th width="20%">
-            Регион
-            <AscDesc
-              :order="'desc'"
-              :sort="'region_id'"
-              @get-candidates="sortCandidates"
-            />
-            <AscDesc
-              :order="'asc'"
-              :sort="'region_id'"
-              @get-candidates="sortCandidates"
-            />
-          </th>
-          <th>
-            Фамилия Имя Отчество
-            <AscDesc
-              :order="'desc'"
-              :sort="'surname'"
-              @get-candidates="sortCandidates"
-            />
-            <AscDesc
-              :order="'asc'"
-              :sort="'surname'"
-              @get-candidates="sortCandidates"
-            />
-          </th>
-          <th width="15%">
-            Дата рождения
-            <AscDesc
-              :order="'desc'"
-              :sort="'birthday'"
-              @get-candidates="sortCandidates"
-            />
-            <AscDesc
-              :order="'asc'"
-              :sort="'birthday'"
-              @get-candidates="sortCandidates"
-            />
-          </th>
-          <th width="15%">
-            Статус
-            <AscDesc
-              :order="'desc'"
-              :sort="'status_id'"
-              @get-candidates="sortCandidates"
-            />
-            <AscDesc
-              :order="'asc'"
-              :sort="'status_id'"
-              @get-candidates="sortCandidates"
-            />
-          </th>
-          <th width="15%">
-            Создан
-            <AscDesc
-              :order="'desc'"
-              :sort="'created'"
-              @get-candidates="sortCandidates"
-            />
-            <AscDesc
-              :order="'asc'"
-              :sort="'created'"
-              @get-candidates="sortCandidates"
-            />
-          </th>
-        </tr>
-      </template>
-      <template v-slot:tbody>
-        <tr
-          v-for="candidate in personData.candidates"
-          :key="candidate.id"
-          height="50px"
-        >
-          <td>{{ candidate["id"] }}</td>
-          <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
-          <td>
-            <router-link
-              :to="{
-                name: 'profile',
-                params: { id: candidate.id },
-              }"
-            >
-              {{
-                `${candidate.surname} ${candidate.firstname} ${
-                  candidate.patronymic ? candidate.patronymic : ""
-                }`
-              }}
-            </router-link>
-          </td>
-          <td>
-            {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
-          </td>
-          <td>
-            <label 
-              :class="`fs-6 badge bg-${statusColor[candidate.status_id as keyof typeof statusColor]}`"
-            >
+  </div>
+  <TableSlots
+    v-if="personData.candidates.length"
+    :div-class="'table caption-top align-middle'"
+  >
+    <template v-slot:caption>
+      {{ `Обновлено: ${personData.updated}` }}
+      <a href="#" :title="`Обновить`" @click="getCandidates()">
+        <i class="bi bi-arrow-clockwise"></i>
+      </a>
+    </template>
+    <template v-slot:thead>
+      <tr height="50px">
+        <th width="10%">
+          #
+          <AscDesc
+            :order="'desc'"
+            :sort="'id'"
+            @get-candidates="sortCandidates"
+          />
+          <AscDesc
+            :order="'asc'"
+            :sort="'id'"
+            @get-candidates="sortCandidates"
+          />
+        </th>
+        <th width="15%">
+          Регион
+          <AscDesc
+            :order="'desc'"
+            :sort="'region_id'"
+            @get-candidates="sortCandidates"
+          />
+          <AscDesc
+            :order="'asc'"
+            :sort="'region_id'"
+            @get-candidates="sortCandidates"
+          />
+        </th>
+        <th>
+          Фамилия Имя Отчество
+          <AscDesc
+            :order="'desc'"
+            :sort="'surname'"
+            @get-candidates="sortCandidates"
+          />
+          <AscDesc
+            :order="'asc'"
+            :sort="'surname'"
+            @get-candidates="sortCandidates"
+          />
+        </th>
+        <th width="15%">
+          Дата рождения
+          <AscDesc
+            :order="'desc'"
+            :sort="'birthday'"
+            @get-candidates="sortCandidates"
+          />
+          <AscDesc
+            :order="'asc'"
+            :sort="'birthday'"
+            @get-candidates="sortCandidates"
+          />
+        </th>
+        <th width="10%">
+          Статус
+          <AscDesc
+            :order="'desc'"
+            :sort="'status_id'"
+            @get-candidates="sortCandidates"
+          />
+          <AscDesc
+            :order="'asc'"
+            :sort="'status_id'"
+            @get-candidates="sortCandidates"
+          />
+        </th>
+        <th width="10%">
+          Создан
+          <AscDesc
+            :order="'desc'"
+            :sort="'created'"
+            @get-candidates="sortCandidates"
+          />
+          <AscDesc
+            :order="'asc'"
+            :sort="'created'"
+            @get-candidates="sortCandidates"
+          />
+        </th>
+        <th width="15%">
+          Сотрудник
+          <AscDesc
+            :order="'desc'"
+            :sort="'user_id'"
+            @get-candidates="sortCandidates"
+          />
+          <AscDesc
+            :order="'asc'"
+            :sort="'user_id'"
+            @get-candidates="sortCandidates"
+          />
+        </th>
+      </tr>
+    </template>
+    <template v-slot:tbody>
+      <tr
+        v-for="candidate in personData.candidates"
+        :key="candidate.id"
+        height="50px"
+      >
+        <td>{{ candidate["id"] }}</td>
+        <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
+        <td>
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { id: candidate.id },
+            }"
+          >
+            {{
+              `${candidate.surname} ${candidate.firstname} ${
+                candidate.patronymic ? candidate.patronymic : ""
+              }`
+            }}
+          </router-link>
+        </td>
+        <td>
+          {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
+        </td>
+        <td>
+          <label
+            :class="`fs-6 badge bg-${statusColor[candidate.status_id as keyof typeof statusColor]}`"
+          >
             {{ storeClassify.classData.status[candidate.status_id] }}
-            </label>
-          </td>
-          <td>
-            {{ timeSince(candidate.created) }}
-          </td>
-        </tr>
-      </template>
-    </TableSlots>
-    <p v-else>Ничего не найдено</p>
-    <PageSwitcher
-      :has_prev="personData.prev"
-      :has_next="personData.next"
-      :switchPrev="personData.page - 1"
-      :switchNext="personData.page + 1"
-      @switch="getCandidates"
-    />
-  <!-- </div> -->
+          </label>
+        </td>
+        <td>
+          {{ timeSince(candidate.created) }}
+        </td>
+        <td>
+          {{ candidate.user_id ? storeClassify.classData.users[candidate.user_id].split(" ")[0] : "" }}
+        </td>
+      </tr>
+    </template>
+  </TableSlots>
+  <p v-else>Ничего не найдено</p>
+  <PageSwitcher
+    :has_prev="personData.prev"
+    :has_next="personData.next"
+    :switchPrev="personData.page - 1"
+    :switchNext="personData.page + 1"
+    @switch="getCandidates"
+  />
 </template>

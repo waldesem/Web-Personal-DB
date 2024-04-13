@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import { alertStore } from "@store/alert";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -13,12 +12,6 @@ const LoginForm = defineAsyncComponent(
 );
 const FooterDiv = defineAsyncComponent(
   () => import("@components/content/layouts/FooterDiv.vue")
-);
-
-const storeAlert = alertStore();
-
-storeAlert.alertMessage.setAlert(
-  "alert-info", "Авторизуйтесь для входа в систему"
 );
 </script>
 

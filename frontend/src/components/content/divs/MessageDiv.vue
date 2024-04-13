@@ -49,17 +49,16 @@ const messageData = ref({
 </script>
 
 <template>
-  <li 
-    class="nav-item"
+  <div
     :class="{'dropdown' : messageData.messages.length}">
     <a v-if="messageData.messages.length"
       href="#"
-      class="nav-link active dropdown-toggle"
+      class="dropdown-toggle"
       role="button"
       data-bs-toggle="dropdown"
       data-bs-auto-close="outside"
     >
-      Сообщения
+    <i :class="`${messageData.messages.length ? 'bi bi-bell-fill fs-3' : 'bi bi-bell'}`"></i>
       <span
         class="position-absolute translate-middle badge rounded-pill text-bg-success"
       >
@@ -89,7 +88,7 @@ const messageData = ref({
         </a>
       </div>
     </div>
-  </li>
+  </div>
 </template>
 
 <style scoped>

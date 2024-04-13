@@ -7,9 +7,6 @@ import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/elements/AlertMessage.vue")
-);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -116,104 +113,101 @@ async function updateRole(action: string, value: string): Promise<void> {
 </script>
 
 <template>
-  <!-- <div class="container py-3"> -->
-    <AlertMessage/>
-    <HeaderDiv
-      :page-header="userData.profile.fullname"
-      :cls="'text-secondary'"
-    />
-    <div class="py-3">
-      <LabelSlot :label="'ID'">{{ userData.profile.id }}</LabelSlot>
-      <LabelSlot :label="'Имя пользователя'">{{
-        userData.profile.fullname
-      }}</LabelSlot>
-      <LabelSlot :label="'Логин'">{{ userData.profile.username }}</LabelSlot>
-      <LabelSlot :label="'E-mail'">{{ userData.profile.email }}</LabelSlot>
-      <LabelSlot :label="'Дата создания'">{{
-        new Date(userData.profile.pswd_create).toLocaleString("ru-RU")
-      }}</LabelSlot>
-      <LabelSlot :label="'Дата изменения'">{{
-        new Date(userData.profile.pswd_change).toLocaleString("ru-RU")
-      }}</LabelSlot>
-      <LabelSlot :label="'Дата последнего входа'">{{
-        new Date(userData.profile.last_login).toLocaleString("ru-RU")
-      }}</LabelSlot>
-      <LabelSlot :label="'Попытки входа'">{{
-        userData.profile.attempt
-      }}</LabelSlot>
-      <LabelSlot :label="'Заблокирован'">{{
-        userData.profile.blocked ? "Заблокирован" : "Разблокирован"
-      }}</LabelSlot>
-      <LabelSlot :label="'Активность'">{{
-        userData.profile.deleted ? "Удален" : "Активен"
-      }}</LabelSlot>
+  <HeaderDiv
+    :page-header="userData.profile.fullname"
+    :cls="'text-secondary'"
+  />
+  <div class="py-3">
+    <LabelSlot :label="'ID'">{{ userData.profile.id }}</LabelSlot>
+    <LabelSlot :label="'Имя пользователя'">{{
+      userData.profile.fullname
+    }}</LabelSlot>
+    <LabelSlot :label="'Логин'">{{ userData.profile.username }}</LabelSlot>
+    <LabelSlot :label="'E-mail'">{{ userData.profile.email }}</LabelSlot>
+    <LabelSlot :label="'Дата создания'">{{
+      new Date(userData.profile.pswd_create).toLocaleString("ru-RU")
+    }}</LabelSlot>
+    <LabelSlot :label="'Дата изменения'">{{
+      new Date(userData.profile.pswd_change).toLocaleString("ru-RU")
+    }}</LabelSlot>
+    <LabelSlot :label="'Дата последнего входа'">{{
+      new Date(userData.profile.last_login).toLocaleString("ru-RU")
+    }}</LabelSlot>
+    <LabelSlot :label="'Попытки входа'">{{
+      userData.profile.attempt
+    }}</LabelSlot>
+    <LabelSlot :label="'Заблокирован'">{{
+      userData.profile.blocked ? "Заблокирован" : "Разблокирован"
+    }}</LabelSlot>
+    <LabelSlot :label="'Активность'">{{
+      userData.profile.deleted ? "Удален" : "Активен"
+    }}</LabelSlot>
 
-      <div class="row mb-3">
-        <div class="col-md-3">Роли</div>
-        <div class="col-md-9">
-          <ul v-for="(role, index) in userData.profile.roles" :key="index">
-            <li>
-              {{ role["role"] }}
-              <a href="#" @click="updateRole('delete', role['id'])">
-                <i class="bi bi-dash-circle"></i>
-              </a>
-            </li>
-          </ul>
-          <SelectObject
-            :name="'role'"
-            :select="storeClassify.classData.roles"
-            v-model="userData.role"
-            @submit-data="updateRole('add', userData.role)"
-          />
-        </div>
-      </div>
-      <UserForm
-        v-if="userData.action"
-        :action="userData.action"
-        :item="userData.profile"
-        @update="
-          userData.action = '';
-          userAction('view');
-        "
-      />
-      <div class="py-3">
-        <BtnGroup :offset="false">
-          <button
-            class="btn btn-outline-secondary"
-            type="button"
-            @click="
-              userData.action === ''
-                ? (userData.action = 'edit')
-                : (userData.action = '')
-            "
-          >
-            {{ userData.action === "" ? "Редактировать" : "Отменить" }}
-          </button>
-          <button
-            @click="userAction('block')"
-            class="btn btn-outline-secondary"
-          >
-            {{ userData.profile.blocked ? "Разблокировать" : "Заблокировать" }}
-          </button>
-          <button
-            @click="userAction('drop')"
-            type="button"
-            class="btn btn-outline-secondary"
-          >
-            Сбросить пароль
-          </button>
-          <button
-            @click="userDelete"
-            type="button"
-            class="btn btn-outline-secondary"
-            :disabled="userData.profile.deleted"
-          >
-            Удалить
-          </button>
-        </BtnGroup>
+    <div class="row mb-3">
+      <div class="col-md-3">Роли</div>
+      <div class="col-md-9">
+        <ul v-for="(role, index) in userData.profile.roles" :key="index">
+          <li>
+            {{ role["role"] }}
+            <a href="#" @click="updateRole('delete', role['id'])">
+              <i class="bi bi-dash-circle"></i>
+            </a>
+          </li>
+        </ul>
+        <SelectObject
+          :name="'role'"
+          :select="storeClassify.classData.roles"
+          v-model="userData.role"
+          @submit-data="updateRole('add', userData.role)"
+        />
       </div>
     </div>
-  <!-- </div> -->
+    <UserForm
+      v-if="userData.action"
+      :action="userData.action"
+      :item="userData.profile"
+      @update="
+        userData.action = '';
+        userAction('view');
+      "
+    />
+    <div class="py-3">
+      <BtnGroup :offset="false">
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          @click="
+            userData.action === ''
+              ? (userData.action = 'edit')
+              : (userData.action = '')
+          "
+        >
+          {{ userData.action === "" ? "Редактировать" : "Отменить" }}
+        </button>
+        <button
+          @click="userAction('block')"
+          class="btn btn-outline-secondary"
+        >
+          {{ userData.profile.blocked ? "Разблокировать" : "Заблокировать" }}
+        </button>
+        <button
+          @click="userAction('drop')"
+          type="button"
+          class="btn btn-outline-secondary"
+        >
+          Сбросить пароль
+        </button>
+        <button
+          @click="userDelete"
+          type="button"
+          class="btn btn-outline-secondary"
+          :disabled="userData.profile.deleted"
+        >
+          Удалить
+        </button>
+      </BtnGroup>
+    </div>
+  </div>
 </template>
 
 <style scoped>

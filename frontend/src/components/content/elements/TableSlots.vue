@@ -8,17 +8,15 @@ const props = defineProps({
     type: String,
     default: "table align-middle",
   },
-  tblCaption: {
-    type: String,
-    default: "",
-  },
 })
 </script>
 
 <template>
   <div :class="props.divClass">
     <table :class="props.tblClass">
-      <caption>{{ props.tblCaption }}</caption>
+      <caption>
+        <slot name="caption"></slot>
+      </caption>
       <thead>
         <slot name="thead"></slot>
       </thead>

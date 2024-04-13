@@ -25,9 +25,6 @@ const GroupContent = defineAsyncComponent(
 const storeAlert = alertStore();
 const storeAuth = authStore();
 
-storeAlert.alertMessage.attr = "alert-info";
-storeAlert.alertMessage.text = "Для входа в систему введите логин и пароль";
-
 const loginData = ref({
   action: "login",
   hidden: true,

@@ -5,9 +5,6 @@ import { alertStore } from "@store/alert";
 import { server, debounce, timeSince } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/elements/AlertMessage.vue")
-);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -60,96 +57,93 @@ async function getUsers() {
 </script>
 
 <template>
-  <!-- <div class="container py-3"> -->
-    <AlertMessage/>
-    <div class="row mb-5">
-      <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
-    </div>
-    <div class="row mb-3">
-      <input
-        @input.prevent="searchUsers" 
-        class="form-control"
-        name="search"
-        id="search"
-        type="text"
-        placeholder="Поиск по имени пользователя"
-        v-model="dataUsers.search"
+  <div class="row mb-5">
+    <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
+  </div>
+  <div class="row mb-3">
+    <input
+      @input.prevent="searchUsers" 
+      class="form-control"
+      name="search"
+      id="search"
+      type="text"
+      placeholder="Поиск по имени пользователя"
+      v-model="dataUsers.search"
+    />
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <SwitchBox
+        :name="'viewDeleted'"
+        :label="'Показать удаленные'"
+        v-model="dataUsers.viewDeleted"
       />
     </div>
-    <div class="row">
-      <div class="col-md-6">
-        <SwitchBox
-          :name="'viewDeleted'"
-          :label="'Показать удаленные'"
-          v-model="dataUsers.viewDeleted"
-        />
-      </div>
-      <div class="col-md-6 text-end">
-        <a
-          class="link link-secondary"
-          type="button"
-          @click="dataUsers.action === '' 
-            ? dataUsers.action = 'create' 
-            : dataUsers.action = ''"
-        >
-          {{ dataUsers.action === '' ? 'Добавить пользователя' : 'Закрыть' }}
-        </a>
-      </div>
+    <div class="col-md-6 text-end">
+      <a
+        class="link link-secondary"
+        type="button"
+        @click="dataUsers.action === '' 
+          ? dataUsers.action = 'create' 
+          : dataUsers.action = ''"
+      >
+        {{ dataUsers.action === '' ? 'Добавить пользователя' : 'Закрыть' }}
+      </a>
     </div>
-    <UserForm v-if="dataUsers.action"
-      :action="dataUsers.action"
-      @update="dataUsers.action = ''; getUsers()"
-    />
-    <TableSlots 
-      :tbl-caption="'Список пользователей'"
-      :tbl-class="'table align-middle'"
-    >
-      <template v-slot:thead>
-        <tr>
-          <th width="10%">#</th>
-          <th>Имя пользователя</th>
-          <th width="20%">Логин</th>
-          <th width="15%">Блокировка</th>
-          <th width="15%">Создан</th>
-          <th width="15%">Вход</th>
-        </tr>
-      </template>
-      <template v-slot:tbody>
-        <tr>
-          <td colspan="6">
-            <TableSlots id="overflow"
-              :tbl-class="'table table-hover align-middle no-bottom-border'"            
-            >
-              <template v-slot:tbody>
-                <tr
-                  height="50px"
-                  v-for="user in users"
-                  :key="user.id"
-                >
-                  <td width="10%">{{ user.id }}</td>
-                  <td>{{ user.fullname }}</td>
-                  <td width="20%">
-                    <router-link
-                      :to="{ name: 'user', params: { id: user.id } }"
-                    >
-                      {{ user.username }}
-                    </router-link>
-                  </td>
-                  <td width="15%">{{ user.blocked }}</td>
-                  <td width="15%">
-                    {{ timeSince(user.pswd_create) }}
-                  </td>
-                  <td width="15%">
-                    {{ timeSince(user.last_login) }}
-                  </td>
-                </tr>
-              </template>
-            </TableSlots>
-          </td>
-        </tr>
-      </template>
-    </TableSlots>
-  <!-- </div> -->
+  </div>
+  <UserForm v-if="dataUsers.action"
+    :action="dataUsers.action"
+    @update="dataUsers.action = ''; getUsers()"
+  />
+  <TableSlots 
+    :tbl-class="'table align-middle'"
+  >
+    <template v-slot:caption>{{ 'Список пользователей' }}</template>
+    <template v-slot:thead>
+      <tr>
+        <th width="10%">#</th>
+        <th>Имя пользователя</th>
+        <th width="20%">Логин</th>
+        <th width="15%">Блокировка</th>
+        <th width="15%">Создан</th>
+        <th width="15%">Вход</th>
+      </tr>
+    </template>
+    <template v-slot:tbody>
+      <tr>
+        <td colspan="6">
+          <TableSlots id="overflow"
+            :tbl-class="'table table-hover align-middle no-bottom-border'"            
+          >
+            <template v-slot:tbody>
+              <tr
+                height="50px"
+                v-for="user in users"
+                :key="user.id"
+              >
+                <td width="10%">{{ user.id }}</td>
+                <td>{{ user.fullname }}</td>
+                <td width="20%">
+                  <router-link
+                    :to="{ name: 'user', params: { id: user.id } }"
+                  >
+                    {{ user.username }}
+                  </router-link>
+                </td>
+                <td width="15%">{{ user.blocked }}</td>
+                <td width="15%">
+                  {{ timeSince(user.pswd_create) }}
+                </td>
+                <td width="15%">
+                  {{ timeSince(user.last_login) }}
+                </td>
+              </tr>
+            </template>
+          </TableSlots>
+        </td>
+      </tr>
+    </template>
+  </TableSlots>
 </template>
 
 <style scoped>

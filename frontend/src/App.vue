@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { onBeforeMount } from "vue";
-import { classifyStore } from "./store/classify";
-import { userStore } from "./store/user";
+import { classifyStore } from "@/store/classify";
+import { userStore } from "@/store/user";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
+import { router } from "@/router/router";
 import { server } from "@utilities/utils";
-import { router } from "./router/router";
 
-const storeClasses = classifyStore();
 const storeUser = userStore();
 const storeAuth = authStore();
 const storeAlert = alertStore();
+const storeClasses = classifyStore();
 
 onBeforeMount(async () => {
   try {
@@ -34,7 +34,9 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <RouterView />
+  <router-view v-slot="{ Component }">
+    <component :is="Component" :key="$route.fullPath" />
+  </router-view>
 </template>
 
 <style>

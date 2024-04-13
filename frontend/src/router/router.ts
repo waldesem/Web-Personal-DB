@@ -1,7 +1,8 @@
 import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
-import { server } from "@utilities/utils";
 import { authStore } from "@/store/auth";
+import { server } from "@utilities/utils";
+import { expiryToken } from "@utilities/utils";
 
 export const router = createRouter({
   routes: [
@@ -69,43 +70,52 @@ export const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const storeAuth = authStore();
 
-  if (to.name as string !== "login") {
-    if (storeAuth.refreshToken) {
-      const expiry_refresh = JSON.parse(atob(storeAuth.refreshToken.split(".")[1])).exp;
+  if ((to.name as string) === "login") {
+    next();
+    return;
+  }
 
-      if (Math.floor(new Date().getTime() / 1000) < expiry_refresh) {
-        if (storeAuth.accessToken) {
-          const expiry_access = JSON.parse(
-            atob(storeAuth.accessToken.split(".")[1])
-          ).exp;
+  if (!storeAuth.refreshToken) {
+    next({ name: "login" });
+    return;
+  }
 
-          if (Math.floor(new Date().getTime() / 1000) >= expiry_access) {
-            const response = await axios.post(`${server}/refresh`, null, {
-              headers: {
-                Authorization: `Bearer ${storeAuth.refreshToken}`,
-              },
-            });
-            const { access_token } = response.data;
+  if (
+    Math.floor(new Date().getTime() / 1000) >=
+    expiryToken(storeAuth.refreshToken)
+  ) {
+    next();
+    return;
+  }
 
-            if (access_token) {
-              storeAuth.accessToken =  access_token;
-              next();
-            } else {
-              next({ name: "login" });
-            }
-          } else {
-            next();
-          }
-        } else {
-          next({ name: "login" });
-        }
-      } else {
-        next({ name: "login" });
-      }
+  if (!storeAuth.accessToken) {
+    next({ name: "login" });
+    return;
+  }
+
+  if (
+    Math.floor(new Date().getTime() / 1000) < expiryToken(storeAuth.accessToken)
+  ) {
+    next();
+    return;
+  }
+
+  try {
+    const response = await axios.post(`${server}/refresh`, null, {
+      headers: {
+        Authorization: `Bearer ${storeAuth.refreshToken}`,
+      },
+    });
+
+    const { access_token } = response.data;
+
+    if (access_token) {
+      storeAuth.accessToken = access_token;
+      next();
     } else {
       next({ name: "login" });
     }
-  } else {
-    next();
+  } catch (error) {
+    next({ name: "login" });
   }
 });

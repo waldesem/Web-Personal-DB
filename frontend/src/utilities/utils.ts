@@ -1,6 +1,13 @@
 const server = "http://localhost:5000";
 //const server = '';
 
+/**
+ * Debounces a function, ensuring it's not called again until a certain amount of time has passed.
+ *
+ * @param {Function} func - The function to be debounced
+ * @param {number} delay - The delay in milliseconds
+ * @return {Function} - The debounced function
+ */
 function debounce(
   func: (...args: any[]) => void,
   delay: number
@@ -17,7 +24,13 @@ function debounce(
   };
 }
 
-function timeSince(date: string) {
+/**
+ * Calculates the time interval since the given date and returns a human-readable string representing the time elapsed.
+ *
+ * @param {string} date - The date to calculate the time since
+ * @return {string} A string representing the time elapsed in a human-readable format
+ */
+function timeSince(date: string): string {
   const seconds: number = Math.floor(
     ((new Date() as any) - (new Date(date) as any)) / 1000
   );
@@ -45,10 +58,14 @@ function timeSince(date: string) {
   return Math.floor(seconds) + " секунд назад";
 }
 
-function expiryToken(token: string) {
-  return JSON.parse(
-    atob(token.split(".")[1])
-  ).exp;
+/**
+ * Parses the expiration time from a JWT token.
+ *
+ * @param {string} token - The JWT token to extract the expiration time from
+ * @return {any} The expiration time extracted from the JWT token
+ */
+function expiryToken(token: string): any {
+  return JSON.parse(atob(token.split(".")[1])).exp;
 }
 
 export { server, debounce, timeSince, expiryToken };

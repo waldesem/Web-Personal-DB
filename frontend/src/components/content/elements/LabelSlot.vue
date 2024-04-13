@@ -10,11 +10,11 @@ const props = defineProps({
   },
   labelClass: {
     type: String,
-    default: "col-lg-3",
+    default: "col-lg-2",
   },
   inputClass: {
     type: String,
-    default: "col-lg-9",
+    default: "col-lg-10",
   }
 });
 </script>
