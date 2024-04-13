@@ -31,7 +31,7 @@ async function userLogout(): Promise<void> {
   <nav
     class="navbar navbar-expand navbar-nav mr-auto navbar-dark bg-primary d-print-none"
   >
-    <div class="container">
+    <div class="containe-fluid">
       <a class="navbar-brand">STAFFSEC</a>
       <div
         class="navbar-nav mr-auto collapse navbar-collapse"

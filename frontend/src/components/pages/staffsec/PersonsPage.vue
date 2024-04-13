@@ -5,6 +5,9 @@ import { authStore } from "@/store/auth";
 import { debounce, server, timeSince } from "@utilities/utils";
 import { Resume } from "@/interfaces/interface";
 
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/content/elements/AlertMessage.vue")
+);
 const IconRelative = defineAsyncComponent(
   () => import("@components/content/elements/IconRelative.vue")
 );
@@ -21,7 +24,7 @@ const AscDesc = defineAsyncComponent(
   () => import("@components/content/elements/AscDesc.vue")
 );
 const PageSwitcher = defineAsyncComponent(
-  () => import("@components/content/layouts/PageSwitcher.vue")
+  () => import("@components/content/elements/PageSwitcher.vue")
 );
 
 const storeAuth = authStore();
@@ -97,7 +100,8 @@ const searchPerson = debounce(() => {
 </script>
 
 <template>
-  <div class="container py-3">
+  <!-- <div class="container py-3"> -->
+    <AlertMessage/>
     <div class="row mb-5">
       <HeaderDiv :page-header="'Кандидаты'" />
       <IconRelative
@@ -260,5 +264,5 @@ const searchPerson = debounce(() => {
       :switchNext="personData.page + 1"
       @switch="getCandidates"
     />
-  </div>
+  <!-- </div> -->
 </template>

@@ -5,6 +5,9 @@ import { alertStore } from "@/store/alert";
 import { debounce, server } from "@utilities/utils";
 import { Connection } from "@/interfaces/interface";
 
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/content/elements/AlertMessage.vue")
+);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -18,7 +21,7 @@ const ConnectDiv = defineAsyncComponent(
   () => import("@components/content/divs/ConnectDiv.vue")
 )
 const PageSwitcher = defineAsyncComponent(
-  () => import("@components/content/layouts/PageSwitcher.vue")
+  () => import("@components/content/elements/PageSwitcher.vue")
 );
 const ConnectForm = defineAsyncComponent(
   () => import("@components/content/forms/ConnectForm.vue")
@@ -97,7 +100,8 @@ async function deleteContact(id: string): Promise<void> {
 </script>
 
 <template>
-  <div class="container py-3">
+  <!-- <div class="container py-3"> -->
+    <AlertMessage/>
     <div class="row mb-5">
       <HeaderDiv 
         :page-header="contactData.action 
@@ -206,6 +210,6 @@ async function deleteContact(id: string): Promise<void> {
         @switch="getContacts"
       />
     </div>
-  </div>
+  <!-- </div> -->
 </template>
 

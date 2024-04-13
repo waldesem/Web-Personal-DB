@@ -5,6 +5,9 @@ import { alertStore } from "@store/alert";
 import { server, debounce, timeSince } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/content/elements/AlertMessage.vue")
+);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -57,7 +60,8 @@ async function getUsers() {
 </script>
 
 <template>
-  <div class="container py-3">
+  <!-- <div class="container py-3"> -->
+    <AlertMessage/>
     <div class="row mb-5">
       <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
     </div>
@@ -145,7 +149,7 @@ async function getUsers() {
         </tr>
       </template>
     </TableSlots>
-  </div>
+  <!-- </div> -->
 </template>
 
 <style scoped>

@@ -65,7 +65,7 @@ computed(() => {
 </script>
 
 <template>
-  <div class="container py-3">
+  <!-- <div class="container py-3"> -->
     <div class="row mb-3">
       <HeaderDiv
         :page-header="`Статистика по региону ${tableData.header} 
@@ -128,5 +128,5 @@ computed(() => {
           />
       </div>
     </div>
-  </div>
+  <!-- </div> -->
 </template>

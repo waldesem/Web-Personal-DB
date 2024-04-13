@@ -5,6 +5,9 @@ import { alertStore } from "@store/alert";
 import { server } from "@/utilities/utils";
 import { router } from "@/router/router";
 
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/content/elements/AlertMessage.vue")
+);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -49,9 +52,10 @@ async function submitFile(event: Event): Promise<void> {
 </script>
 
 <template>
-  <div class="container py-3">
+  <!-- <div class="container py-3"> -->
+    <AlertMessage/>
     <HeaderDiv :page-header="'Создать анкету'" />
     <FileForm :accept="'.json'" @submit="submitFile" />
     <ResumeForm @cancel="router.push({ name: 'persons' })" />
-  </div>
+  <!-- </div> -->
 </template>

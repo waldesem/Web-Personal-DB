@@ -25,6 +25,9 @@ const GroupContent = defineAsyncComponent(
 const storeAlert = alertStore();
 const storeAuth = authStore();
 
+storeAlert.alertMessage.attr = "alert-info";
+storeAlert.alertMessage.text = "Для входа в систему введите логин и пароль";
+
 const loginData = ref({
   action: "login",
   hidden: true,
@@ -60,8 +63,10 @@ const loginData = ref({
     switch (message) {
       case "Changed":
         loginData.value.action = "login";
-        storeAlert.alertMessage.attr = "alert-success";
-        storeAlert.alertMessage.text = "Войдите с новым паролем";
+        storeAlert.alertMessage.setAlert(
+          "alert-success",
+          "Войдите с новым паролем"
+        );
         break
         
       case "Authenticated":

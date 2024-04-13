@@ -5,12 +5,12 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 ### The main technology stack used in this project includes:
 
 - Python3;
-- APIFlask a Python web API framework based on Flask and marshmallow-code projects;
-- Postgesql as database;
-- SQLAlchemy as ORM;
-- Redis as caching service;
-- Vue3 as the frontend and Vite as Frontend Tooling
-- Bootstrap 5 as the UI library.
+- APIFlask;
+- Postgesql;
+- SQLAlchemy;
+- Redis;
+- Vue3;
+- Bootstrap 5.
 
 ### Installation
 
@@ -20,13 +20,13 @@ For installiing the required Python packages run the following command in the te
 ```
 sudo apt install python3 python3-pip python3-venv # if not install venv yet
 git clone https://github.com/waldesem/Web-Personal-DB.git
-cd backend
+cd Web-Personal-DB/backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-To Use a PostgreSQL Database in a Flask Application install PostgreSQL (Ubuntu example)
+To Use a PostgreSQL Database in Application install PostgreSQL
 
 ```
 sudo apt-get -y install postgresql
@@ -64,7 +64,7 @@ flask run          # start the application
 waitress-serve --host 127.0.0.1 --port 5000 wsgi:app  # start the waitress server
 ```
 
-Admin user on default has name 'admin'.
+Default user for application has name 'superadmin'.
 Default password for all app users is `88888888`
 Change it in first login to application.
 
@@ -169,10 +169,3 @@ This will compile the TypeScript code and output the JavaScript and CSS files in
 ### License
 
 This project is licensed under the MIT License.
-
-### Screenshots
-
-![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/1.png?raw=true)
-![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/2.png?raw=true)
-![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/3.png?raw=true)
-![Screenshot](https://github.com/waldesem/Web-Personal-DB/blob/stable/screenshots/4.png?raw=true)

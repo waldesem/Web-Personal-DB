@@ -1,23 +1,32 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/layouts/AlertMessage.vue")
-);
 const NavBar = defineAsyncComponent(
   () => import("@components/content/layouts/NavBar.vue")
 );
-
+const MenuBar = defineAsyncComponent(
+  () => import("@components/content/layouts/MenuBar.vue")
+);
+const FooterDiv = defineAsyncComponent(
+  () => import("@components/content/layouts/FooterDiv.vue")
+);
 </script>
 
 <template>
   <NavBar />
-  <AlertMessage />
-  <router-view v-slot="{ Component }">
-    <transition name="component-fade" mode="out-in">
-      <component :is="Component" :key="$route.fullPath" />
-    </transition>
-  </router-view>
+  <div class="container-fluid row px-3">
+    <div class="col-3">
+      <MenuBar />
+    </div>
+    <div class="col-9">
+      <router-view v-slot="{ Component }">
+        <transition name="component-fade" mode="out-in">
+          <component :is="Component" :key="$route.fullPath" />
+        </transition>
+      </router-view>
+    </div>
+  </div>
+  <FooterDiv />
 </template>
 
 <style scoped>

@@ -23,6 +23,9 @@ import {
   Needs,
 } from "@/interfaces/interface";
 
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/content/elements/AlertMessage.vue")
+);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -288,7 +291,8 @@ async function submitFile(event: Event, param: string): Promise<void> {
 </script>
 
 <template>
-  <div class="container py-3">
+  <!-- <div class="container py-3"> -->
+    <AlertMessage/>
     <PhotoCard
       :cand-id="candId"
       :url="anketaData.imageUrl"
@@ -427,5 +431,5 @@ async function submitFile(event: Event, param: string): Promise<void> {
         />
       </div>
     </div>
-  </div>
+  <!-- </div> -->
 </template>

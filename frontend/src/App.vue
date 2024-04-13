@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount } from "vue";
+import { onBeforeMount } from "vue";
 import { classifyStore } from "./store/classify";
 import { userStore } from "./store/user";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
 import { server } from "@utilities/utils";
 import { router } from "./router/router";
-
-const FooterDiv = defineAsyncComponent(
-  () => import("@components/content/layouts/FooterDiv.vue")
-);
 
 const storeClasses = classifyStore();
 const storeUser = userStore();
@@ -39,7 +35,6 @@ onBeforeMount(async () => {
 
 <template>
   <RouterView />
-  <FooterDiv />
 </template>
 
 <style>

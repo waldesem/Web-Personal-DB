@@ -7,6 +7,9 @@ import { classifyStore } from "@/store/classify";
 import { server } from "@utilities/utils";
 import { User } from "@/interfaces/interface";
 
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/content/elements/AlertMessage.vue")
+);
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -113,7 +116,8 @@ async function updateRole(action: string, value: string): Promise<void> {
 </script>
 
 <template>
-  <div class="container py-3">
+  <!-- <div class="container py-3"> -->
+    <AlertMessage/>
     <HeaderDiv
       :page-header="userData.profile.fullname"
       :cls="'text-secondary'"
@@ -209,7 +213,7 @@ async function updateRole(action: string, value: string): Promise<void> {
         </BtnGroup>
       </div>
     </div>
-  </div>
+  <!-- </div> -->
 </template>
 
 <style scoped>
