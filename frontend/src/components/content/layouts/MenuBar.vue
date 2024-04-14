@@ -24,8 +24,7 @@ async function userLogout(): Promise<void> {
   }
 
   storeAuth.accessToken = "";
-  storeAuth.refreshToken = "";
-
+  localStorage.removeItem("refresh_token");
   router.push({ name: "login" });
 }
 </script>
