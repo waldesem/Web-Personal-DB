@@ -3,7 +3,7 @@ const props = defineProps({
   pageHeader: String,
   cls: {
     type: String,
-    default: "text-primary py-3",
+    default: "text-info py-3",
   },
 });
 </script>

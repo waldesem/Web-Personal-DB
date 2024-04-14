@@ -3,6 +3,8 @@ import { server } from "@utilities/utils";
 </script>
 <template>
   <div class="navbar navbar-expand fs-5">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">STAFFSEC - MTS Bank</a>
     <div class="nav flex-column">
         <router-link
           :to="{ name: 'persons' }"
@@ -38,6 +40,7 @@ import { server } from "@utilities/utils";
           target="_blank"
           >OpenAPI
         </a>
+    </div>
     </div>
   </div>
 </template>

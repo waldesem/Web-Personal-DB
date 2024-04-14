@@ -31,45 +31,47 @@ async function userLogout(): Promise<void> {
 </script>
 
 <template>
-  <div class="container-fluid p-3">
-    <div class="row">
-      <div class="col col-2">
-        <p class="fs-3 fw-bold text-info">STAFFSEC - MTS Bank</p>
-      </div>
-      <div class="col col-6 text-center">
-        <AlertMessage />
-      </div>
-      <div class="col col-2 text-end">
-        <MessageDiv />
-      </div>
-      <div class="col col-2 text-center">
-        <div class="dropdown">
-          <a
-            href="#"
-            class="dropdown-toggle"
-            role="button"
-            data-bs-toggle="dropdown"
-          >
-            {{ storeUser.userData.userName }}
-            <i class="bi bi-person-circle fs-3"></i>
-          </a>
-          <ul class="dropdown-menu">
-            <li v-if="storeUser.userData.hasAdmin" class="dropdown-item">
-              <router-link
-                :to="{ name: 'users' }"
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid p-3">
+      <div class="row">
+        <!-- <div class="col col-2">
+          <p class="fs-3 fw-bold text-info">STAFFSEC - MTS Bank</p>
+        </div> -->
+        <div class="col col-8 text-center">
+          <AlertMessage />
+        </div>
+        <div class="col col-2 text-end">
+          <MessageDiv />
+        </div>
+        <div class="col col-2 text-center">
+          <div class="dropdown">
+            <a
+              href="#"
+              class="dropdown-toggle"
+              role="button"
+              data-bs-toggle="dropdown"
+            >
+              {{ storeUser.userData.userName }}
+              <i class="bi bi-person-circle fs-3"></i>
+            </a>
+            <ul class="dropdown-menu">
+              <li v-if="storeUser.userData.hasAdmin" class="dropdown-item">
+                <router-link
+                  :to="{ name: 'users' }"
+                  class="link-opacity-50-hover" href="#"
+                >
+                  Пользователи
+                </router-link>
+              </li>
+              <li class="dropdown-item" >
+                <a
                 class="link-opacity-50-hover" href="#"
-              >
-                Пользователи
-              </router-link>
-            </li>
-            <li class="dropdown-item" >
-              <a
-              class="link-opacity-50-hover" href="#"
-                @click="userLogout">Выход</a>
-            </li>
-          </ul>
+                  @click="userLogout">Выход</a>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </nav>
 </template>
