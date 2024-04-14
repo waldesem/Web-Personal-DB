@@ -56,6 +56,11 @@ export const router = createRouter({
           name: "user",
           component: () => import("@components/pages/staffsec/UserProfile.vue"),
         },
+        {
+          path: "gpt",
+          name: "gpt",
+          component: () => import("@components/pages/staffsec/GptPage.vue"),
+        },
       ],
     },
     {
