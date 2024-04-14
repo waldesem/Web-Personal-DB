@@ -55,7 +55,9 @@ const personData = ref({
   sort: "id",
   order: "desc",
   path: "search",
-  updated: new Date().toLocaleTimeString("ru-RU"),
+  updated: `${new Date().toLocaleDateString(
+    "ru-RU"
+  )} в ${new Date().toLocaleTimeString("ru-RU")}`,
 });
 
 async function getCandidates(page = 1): Promise<void> {
@@ -75,7 +77,9 @@ async function getCandidates(page = 1): Promise<void> {
     personData.value.candidates = datas;
     personData.value.prev = metadata.has_prev;
     personData.value.next = metadata.has_next;
-    personData.value.updated = new Date().toLocaleTimeString("ru-RU");
+    personData.value.updated = `${new Date().toLocaleDateString(
+      "ru-RU"
+    )} в ${new Date().toLocaleTimeString("ru-RU")}`;
   } catch (error) {
     console.error(error);
   }
@@ -90,8 +94,8 @@ function sortCandidates(sort: string, order: string): void {
 const searchPerson = debounce(() => {
   personData.value.path = "search";
   if (personData.value.search.length < 3) {
-    return
-  };
+    return;
+  }
   getCandidates();
 }, 500);
 </script>
@@ -262,7 +266,11 @@ const searchPerson = debounce(() => {
           {{ timeSince(candidate.created) }}
         </td>
         <td>
-          {{ candidate.user_id ? storeClassify.classData.users[candidate.user_id].split(" ")[0] : "" }}
+          {{
+            candidate.user_id
+              ? storeClassify.classData.users[candidate.user_id].split(" ")[0]
+              : ""
+          }}
         </td>
       </tr>
     </template>

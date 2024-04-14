@@ -22,6 +22,9 @@ const storeAlert = alertStore();
 const storeAuth = authStore();
 
 const searchUsers = debounce(() => {
+  if (dataUsers.value.search.length < 3) {
+    return;
+  }
   getUsers();
 }, 500);
 
@@ -47,13 +50,13 @@ async function getUsers() {
     const response = await storeAuth.axiosInstance.get(`${server}/users`, {
       params: {
         search: dataUsers.value.search,
-      }
+      },
     });
     dataUsers.value.users = response.data;
   } catch (error) {
     storeAlert.alertMessage.setAlert("alert-success", error as string);
   }
-};
+}
 </script>
 
 <template>
@@ -62,7 +65,7 @@ async function getUsers() {
   </div>
   <div class="row mb-3">
     <input
-      @input.prevent="searchUsers" 
+      @input.prevent="searchUsers"
       class="form-control"
       name="search"
       id="search"
@@ -83,22 +86,26 @@ async function getUsers() {
       <a
         class="link link-secondary"
         type="button"
-        @click="dataUsers.action === '' 
-          ? dataUsers.action = 'create' 
-          : dataUsers.action = ''"
+        @click="
+          dataUsers.action === ''
+            ? (dataUsers.action = 'create')
+            : (dataUsers.action = '')
+        "
       >
-        {{ dataUsers.action === '' ? 'Добавить пользователя' : 'Закрыть' }}
+        {{ dataUsers.action === "" ? "Добавить пользователя" : "Закрыть" }}
       </a>
     </div>
   </div>
-  <UserForm v-if="dataUsers.action"
+  <UserForm
+    v-if="dataUsers.action"
     :action="dataUsers.action"
-    @update="dataUsers.action = ''; getUsers()"
+    @update="
+      dataUsers.action = '';
+      getUsers();
+    "
   />
-  <TableSlots 
-    :tbl-class="'table align-middle'"
-  >
-    <template v-slot:caption>{{ 'Список пользователей' }}</template>
+  <TableSlots :tbl-class="'table align-middle'">
+    <template v-slot:caption>{{ "Список пользователей" }}</template>
     <template v-slot:thead>
       <tr>
         <th width="10%">#</th>
@@ -112,21 +119,16 @@ async function getUsers() {
     <template v-slot:tbody>
       <tr>
         <td colspan="6">
-          <TableSlots id="overflow"
-            :tbl-class="'table table-hover align-middle no-bottom-border'"            
+          <TableSlots
+            id="overflow"
+            :tbl-class="'table table-hover align-middle no-bottom-border'"
           >
             <template v-slot:tbody>
-              <tr
-                height="50px"
-                v-for="user in users"
-                :key="user.id"
-              >
+              <tr height="50px" v-for="user in users" :key="user.id">
                 <td width="10%">{{ user.id }}</td>
                 <td>{{ user.fullname }}</td>
                 <td width="20%">
-                  <router-link
-                    :to="{ name: 'user', params: { id: user.id } }"
-                  >
+                  <router-link :to="{ name: 'user', params: { id: user.id } }">
                     {{ user.username }}
                   </router-link>
                 </td>
