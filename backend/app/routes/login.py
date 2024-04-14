@@ -17,13 +17,21 @@ from config import Config
 from . import bp
 from .. import jwt, cache
 from ..models.model import db, User
-from ..models.schema import LoginSchema, UserSchema
+from ..models.schema import (
+    ChangePswdSchema,
+    LoginSchema,
+    OutputChangePswdSchema,
+    OutputLoginSchema,
+    RefreshSchema,
+    UserSchema,
+)
 
 
 jwt_redis_blocklist = redis.StrictRedis(
     host=Config.JWT_REDIS_HOST,
     port=Config.JWT_REDIS_PORT,
-    db=1, decode_responses=True,
+    db=1,
+    decode_responses=True,
 )
 
 
@@ -45,6 +53,7 @@ class LoginView(MethodView):
         return abort(401)
 
     @bp.input(LoginSchema)
+    @bp.output(OutputLoginSchema)
     def post(self, json_data):
         """
         Post method for the given API endpoint.
@@ -72,7 +81,8 @@ class LoginView(MethodView):
                 db.session.commit()
         return {"message": "Denied"}, 201
 
-    @bp.input(LoginSchema)
+    @bp.input(ChangePswdSchema)
+    @bp.output(OutputChangePswdSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.
@@ -111,6 +121,7 @@ class RefreshView(MethodView):
     """Refresh view"""
 
     @jwt_required(refresh=True)
+    @bp.output(RefreshSchema)
     def post(self):
         """
         Generate a new access token for the authenticated user.
@@ -161,7 +172,7 @@ def user_identity_lookup(user):
     """
     A function that acts as a user identity loader for the JWT framework.
     """
-    return user['id']
+    return user["id"]
 
 
 @cache.memoize()

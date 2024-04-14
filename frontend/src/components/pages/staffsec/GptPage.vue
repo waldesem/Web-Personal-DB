@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-// import { authStore } from "@store/auth";
-// import { server } from "@utilities/utils";
-// import { router } from "@/router/router";
+import { authStore } from "@store/auth";
+import { server } from "@utilities/utils";
+import { router } from "@/router/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-// const storeAuth = authStore();
+const storeAuth = authStore();
 
 const gptData = ref({
   query: "",
@@ -15,17 +15,16 @@ const gptData = ref({
 });
 
 async function getGptAnswers(): Promise<void> {
-  gptData.value.answer = "Еще не реализовано:-(";
-  // try {
-  //   const response = await storeAuth.axiosInstance.post(
-  //     `${server}/gpt`,
-  //     gptData.value.query
-  //   );
-  //   gptData.value.answer = response.data;
-  //   router.push({ name: "gpt" });
-  // } catch (error) {
-  //   console.error(error);
-  // }
+  try {
+    const response = await storeAuth.axiosInstance.post(
+      `${server}/gpt`,
+      gptData.value.query
+    );
+    gptData.value.answer = response.data;
+    router.push({ name: "gpt" });
+  } catch (error) {
+    console.error(error);
+  }
 }
 </script>
 

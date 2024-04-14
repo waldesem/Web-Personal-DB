@@ -66,7 +66,32 @@ class LoginSchema(Schema):
 
     username = String()
     password = String()
+
+
+class OutputLoginSchema(Schema):
+    """Create model for output login"""
+
+    message = String()
+    access_token = String(required=False)
+    refresh_token = String(required=False)
+
+
+class ChangePswdSchema(LoginSchema):
+    """Create model for change password"""
+
     new_pswd = String()
+
+
+class OutputChangePswdSchema(Schema):
+    """Create model for output change password"""
+
+    message = String()
+
+
+class RefreshSchema(Schema):
+    """Create model for refresh"""
+
+    access_token = String()
 
 
 class MessageSchema(SQLAlchemyAutoSchema):
@@ -217,6 +242,16 @@ class InfoSchema(SQLAlchemySchema):
     region_id = String()
     start = Date()
     end = Date()
+
+
+class GptInputSchema(SQLAlchemySchema):
+
+    query = String()
+
+
+class GptOutputSchema(SQLAlchemySchema):
+
+    answer = String()
 
 
 class AnketaSchemaApi(SQLAlchemySchema):
