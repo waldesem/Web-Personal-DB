@@ -17,10 +17,10 @@ const gptData = ref({
 async function getGptAnswers(): Promise<void> {
   try {
     const response = await storeAuth.axiosInstance.post(
-      `${server}/gpt`,
-      gptData.value.query
+      `${server}/gpt`, {"query": gptData.value.query}
     );
-    gptData.value.answer = response.data;
+    const { answer } = response.data;
+    gptData.value.answer = answer;
     router.push({ name: "gpt" });
   } catch (error) {
     console.error(error);
@@ -36,17 +36,27 @@ async function getGptAnswers(): Promise<void> {
     class="form-inline" 
     role="search"
   >
-    <textarea 
-      class="form-control me-2" 
-      placeholder="PrivateGPT"
-      v-model="gptData.query"
-    ></textarea>
-    <button 
-      class="btn btn-outline-primary" 
-      type="submit"
-    >
-      <i class="bi bi-search"></i>
-    </button>
+    <div class="row mb-3">
+      <div class="col-md-11">
+        <input 
+          type="text"
+          name="query"
+          class="form-control me-2" 
+          placeholder="PrivateGPT"
+          v-model="gptData.query"
+        >
+      </div>
+      <div class="col-md-1">
+        <button 
+          class="btn btn-outline-primary" 
+          type="submit"
+        >
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
   </form>
-  <div class="row mb-5 font-monospace text-secondary">{{ gptData.answer }}</div>
+  <div class="row p-3 font-monospace text-secondary overflow-auto">
+    {{ gptData.answer }}
+  </div>
 </template>

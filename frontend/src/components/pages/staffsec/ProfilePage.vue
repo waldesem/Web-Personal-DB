@@ -300,7 +300,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
         :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
       />
     </div>
-    <div class="col-md-2 d-flex justify-content-end">
+    <div class="col-md-2 d-flex justify-content-end d-print-none">
       <IconRelative
         :title="`Версия для печати`"
         :icon-class="`bi bi-printer fs-1`"
@@ -354,7 +354,8 @@ async function submitFile(event: Event, param: string): Promise<void> {
     </button>
   </div>
 
-  <div :class="{ 'tab-content': !anketaData.printPage }">
+  <div 
+    :class="{ 'tab-content': !anketaData.printPage }">
     <div
       id="anketaTab"
       :class="{ 'tab-pane fade py-1 show active': !anketaData.printPage }"
@@ -362,6 +363,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       :tabindex="!anketaData.printPage ? '0' : ''"
     >
       <AnketaTab
+        :print-page="anketaData.printPage"
         :anketa="anketaData.anketa"
         @get-resume="getResume"
         @get-item="getItem"
@@ -376,6 +378,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
     >
       <h5 v-if="anketaData.printPage">Проверки</h5>
       <CheckTab
+        :print-page="anketaData.printPage"
         :user-id="storeUser.userData.userId.toString()"
         :anketa="anketaData.anketa"
         @get-item="getItem"
@@ -391,6 +394,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
     >
       <h5 v-if="anketaData.printPage">Полиграф</h5>
       <PoligrafTab
+        :print-page="anketaData.printPage"
         :poligrafs="anketaData.anketa.poligraf"
         @get-item="getItem"
         @delete="deleteItem"
@@ -405,6 +409,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
     >
       <h5 v-if="anketaData.printPage">Расследования</h5>
       <InvestigateTab
+        :print-page="anketaData.printPage"
         :inquisitions="anketaData.anketa.investigation"
         @get-item="getItem"
         @delete="deleteItem"
@@ -419,6 +424,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
     >
       <h5 v-if="anketaData.printPage">Запросы</h5>
       <InquiryTab
+        :print-page="anketaData.printPage"
         :needs="anketaData.anketa.inquiry"
         @get-item="getItem"
         @delete="deleteItem"

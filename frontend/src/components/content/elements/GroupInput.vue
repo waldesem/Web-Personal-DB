@@ -13,11 +13,11 @@ const props = defineProps({
   },
   max: {
     type: [String, Number],
-    default: "",
+    default: "524288",
   },
   pattern: {
     type: String,
-    default: "",
+    default: ".*",
   }
 });
 </script>

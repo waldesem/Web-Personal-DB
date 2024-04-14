@@ -32,6 +32,10 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   userId: {
     type: String,
     required: true,
@@ -61,13 +65,13 @@ function submitForm(form: Object) {
 function deleteItem(itemId: string) {
   emit("delete", itemId, "check");
 }
+console.log(props.userId);
 </script>
 
 <template>
   <div class="py-3">
-    <div class="position-relative">
-      <div class="position-absolute top-0 end-0">
-        <IconRelative
+    <div class="text-end">
+        <IconRelative v-if="check.action !== 'create' && !props.printPage"
           :title="`Добавить`"
           :icon-class="`bi bi-journal-check fs-1`"
           :hide="
@@ -75,12 +79,12 @@ function deleteItem(itemId: string) {
               storeClassify.classData.status['update'],
               storeClassify.classData.status['save'],
               storeClassify.classData.status['repeat'],
+              storeClassify.classData.status['manual'],
             ].includes(props.anketa.resume['status_id']) &&
-            props.anketa.resume['user_id'] !== props.userId
+            props.anketa.resume['user_id'] != props.userId
           "
           @onclick="check.action = 'create'"
         />
-      </div>
     </div>
     <CheckForm
       v-if="check.action"

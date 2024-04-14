@@ -25,6 +25,10 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   poligrafs: {
     type: Array as () => Array<Pfo>,
     default: () => [],
@@ -48,18 +52,18 @@ function submitForm(form: Object) {
   );
   poligraf.value.action = "";
 }
+console.log(props.poligrafs);
 </script>
 
 <template>
   <div class="py-3">
-    <div class="position-relative">
-      <div class="position-absolute top-0 end-0">
-        <IconRelative
-          :title="`Добавить`"
-          :icon-class="`bi bi-heart-pulse fs-1`"
-          @onclick="poligraf.action = 'create'"
-        />
-      </div>
+    <div class="text-end">
+      <IconRelative 
+        v-if="poligraf.action !== 'create' && !props.printPage"
+        :title="`Добавить`"
+        :icon-class="`bi bi-heart-pulse fs-1`"
+        @onclick="poligraf.action = 'create'"
+      />
     </div>
     <PoligrafForm
       v-if="poligraf.action"
@@ -90,11 +94,11 @@ function submitForm(form: Object) {
             <LabelSlot :label="'Дата'">
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>
-          </div>
-          <FileForm 
+            <FileForm 
             :accept="'*'" 
             @submit="emit('file')" 
           />
+          </div>
         </div>
       </div>
       <p v-else>Данные отсутствуют</p>

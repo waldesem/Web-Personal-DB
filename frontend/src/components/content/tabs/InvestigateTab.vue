@@ -25,6 +25,10 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   inquisitions: {
     type: Array as () => Array<Inquisition>,
     default: () => [],
@@ -52,9 +56,9 @@ function submitForm(form: Object) {
 
 <template>
   <div class="py-3">
-    <div class="position-relative">
-      <div class="position-absolute top-0 end-0">
-        <IconRelative
+    <div class="text-end">
+      <div class="text-end">
+        <IconRelative v-if="inquisition.action !== 'create' && !props.printPage"
           :title="`Добавить`"
           :icon-class="`bi bi-incognito fs-1`"
           @onclick="inquisition.action = 'create'"

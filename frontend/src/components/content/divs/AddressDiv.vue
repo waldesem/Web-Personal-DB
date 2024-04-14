@@ -22,6 +22,10 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   items: {
     type: Array as () => Array<Address>,
     default: {},
@@ -43,6 +47,7 @@ function submitForm(form: Object) {
 
 <template>
   <ActionHeader
+    :print-page="props.printPage"
     :id="'address'"
     :header="'Адреса'"
     :action="address.action"
@@ -57,9 +62,13 @@ function submitForm(form: Object) {
     @mouseover="address.showActions = true"
     @mouseout="address.showActions = false"
   >
-    <div v-if="props.items.length" class="collapse" id="address"> 
+    <div 
+      v-if="props.items.length" 
+      :class="{'collapse show': !printPage}" 
+      id="address"
+    > 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
-        <div class="card card-body">
+        <div :class="{'card card-body': !printPage}">
           <LabelSlot>
             <ActionIcons v-show="address.showActions"
               @delete="emit('delete', item['id'].toString(), 'address')"

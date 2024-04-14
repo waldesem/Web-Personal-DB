@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { authStore } from "@store/auth";
-import { server } from "@utilities/utils";
+import { server, timeSince } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
 
 const TableSlots = defineAsyncComponent(
@@ -49,53 +49,50 @@ const messageData = ref({
 </script>
 
 <template>
-  <div
-    :class="{'dropdown' : messageData.messages.length}">
-    <a v-if="messageData.messages.length"
-      href="#"
-      class="dropdown-toggle"
-      role="button"
-      data-bs-toggle="dropdown"
-      data-bs-auto-close="outside"
+  <a 
+    href="#offcanvasMessage"
+    role="button"
+    data-bs-toggle="offcanvas"
+  >
+  <i class="fs-3" 
+    :class="`${messageData.messages.length ? 'bi bi-bell-fill' : 'bi bi-bell'}`"></i>
+    <span
+      v-if="messageData.messages.length"
+      class="position-absolute translate-middle badge rounded-pill text-bg-success"
     >
-    <i :class="`${messageData.messages.length ? 'bi bi-bell-fill fs-3' : 'bi bi-bell'}`"></i>
-      <span
-        class="position-absolute translate-middle badge rounded-pill text-bg-success"
-      >
-        {{ messageData.messages.length }}
-      </span>
-    </a>
-    <a v-else class="nav-link">Сообщения</a>
-    <div :class="{'dropdown-menu' : messageData.messages.length}">
-      <div v-if="messageData.messages.length" class="dropdown-item">
-        <TableSlots>
-          <template v-slot:thead>
-            <tr>
-              <th width="30%">Дата</th>
-              <th>Сообщение</th>
-            </tr>
-          </template>
-          <template v-slot:tbody>
-            <tr v-for="message, index in messageData.messages" :key="index">
-              <td width="30%">
-                {{ new Date(String(message["created"])).toLocaleString('ru-RU') }}</td>
-              <td>{{ message["message"] }}</td>
-            </tr>
-          </template>
-        </TableSlots>
-        <a href="#" class="link-danger" @click="messageData.deleteMessage()">
-          Удалить сообщения
-        </a>
-      </div>
+      {{ messageData.messages.length }}
+    </span>
+  </a>
+  <div class="offcanvas offcanvas-end" data-bs-scroll="true" id="offcanvasMessage">
+    <div class="offcanvas-body">
+      <TableSlots>
+        <template v-slot:thead>
+          <tr>
+            <th>Дата</th>
+            <th>Сообщение</th>
+          </tr>
+        </template>
+        <template v-slot:tbody>
+          <tr v-for="message, index in messageData.messages" :key="index">
+            <td width="30%">
+              {{ timeSince(message["created"]) }}</td>
+            <td>{{ message["message"] }}</td>
+          </tr>
+          <tr><td colspan="2">
+            <a href="#" class="link-danger" @click="messageData.deleteMessage()">
+              Удалить сообщения
+            </a>
+          </td></tr>
+        </template>
+      </TableSlots>
+     
     </div>
   </div>
 </template>
 
 <style scoped>
-.dropdown-menu {
+.offcanvas {
   min-height: auto;
-  max-height: 75vh;
-  min-width: auto;
   max-width: 50vh;
   overflow-y: auto;
 }

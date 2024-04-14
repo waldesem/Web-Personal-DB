@@ -30,19 +30,15 @@ async function userLogout(): Promise<void> {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container-fluid p-3">
+  <div class="d-print-none sticky-top bg-white p-3 ">
       <div class="row">
-        <!-- <div class="col col-2">
-          <p class="fs-3 fw-bold text-info">STAFFSEC - MTS Bank</p>
-        </div> -->
-        <div class="col col-8 text-center">
+        <div class="col-8 text-center">
           <AlertMessage />
         </div>
-        <div class="col col-2 text-end">
+        <div class="col-2 text-end">
           <MessageDiv />
         </div>
-        <div class="col col-2 text-center">
+        <div class="col-2 text-center">
           <div class="dropdown">
             <a
               href="#"
@@ -54,23 +50,22 @@ async function userLogout(): Promise<void> {
               <i class="bi bi-person-circle fs-3"></i>
             </a>
             <ul class="dropdown-menu">
-              <li v-if="storeUser.userData.hasAdmin" class="dropdown-item">
+              <div v-if="storeUser.userData.hasAdmin" class="dropdown-item">
                 <router-link
                   :to="{ name: 'users' }"
                   class="link-opacity-50-hover" href="#"
                 >
                   Пользователи
                 </router-link>
-              </li>
-              <li class="dropdown-item" >
+              </div >
+              <div class="dropdown-item" >
                 <a
                 class="link-opacity-50-hover" href="#"
                   @click="userLogout">Выход</a>
-              </li>
+              </div >
             </ul>
           </div>
         </div>
       </div>
-    </div>
-  </nav>
+  </div>
 </template>

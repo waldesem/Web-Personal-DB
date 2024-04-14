@@ -22,6 +22,10 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   items: {
     type: Array as () => Array<Affilation>,
     default: {},
@@ -49,6 +53,7 @@ function submitForm(form: Object) {
 
 <template>
   <ActionHeader
+    :print-page="props.printPage"
     :header="'Аффилированность'"
     :action="affilation.action"
     @action="affilation.action = affilation.action ? '' : 'create'"
@@ -63,7 +68,11 @@ function submitForm(form: Object) {
     @mouseover="affilation.showActions = true"
     @mouseout="affilation.showActions = false"
   >
-    <div v-if="props.items.length" class="collapse" id="staff"> 
+    <div 
+      v-if="props.items.length" 
+      :class="{'collapse show': !printPage}" 
+      id="affilation"
+    > 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
           <LabelSlot>

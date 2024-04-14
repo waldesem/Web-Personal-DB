@@ -45,6 +45,10 @@ const emit = defineEmits([
 ]);
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   anketa: {
     type: Object as () => Anketa,
     default: {},
@@ -153,7 +157,10 @@ function deleteItem(itemId: string, item: string) {
         }}
       </LabelSlot>
       <LabelSlot :label="'Пользователь'">{{
-        props.anketa.resume["user_id"]
+        props.anketa.resume["user_id"] ?
+        storeClassify.classData.users[
+          props.anketa.resume["user_id"]
+        ] : ""
       }}</LabelSlot>
       <LabelSlot :label="'Материалы'">
         <router-link
@@ -169,48 +176,49 @@ function deleteItem(itemId: string, item: string) {
     </div>
     <hr/>
     <StaffDiv
+      :print-page="props.printPage"
       :items="props.anketa.staff"
       @get-item="emit('get-item', 'staff')"
       @submit="submitForm"
       @delete="deleteItem"
     />
-    <hr/>
     <DocumentDiv
+      :print-page="props.printPage"
       :items="props.anketa.document"
       @get-item="emit('get-item', 'document')"
       @submit="submitForm"
       @delete="deleteItem"
     />
-    <hr/>
     <AddressDiv
+      :print-page="props.printPage"
       :items="props.anketa.addresse"
       @get-item="emit('get-item', 'address')"
       @submit="submitForm"
       @delete="deleteItem"
     />
-    <hr/>
     <ContactDiv
+      :print-page="props.printPage"
       :items="props.anketa.contact"
       @get-item="emit('get-item', 'contact')"
       @submit="submitForm"
       @delete="deleteItem"
     />
-    <hr/>
     <RelationDiv
+      :print-page="props.printPage"
       :items="props.anketa.relation"
       @get-item="emit('get-item', 'relation')"
       @submit="submitForm"
       @delete="deleteItem"
     />
-    <hr/>
     <WorkplaceDiv
+      :print-page="props.printPage"
       :items="props.anketa.workplace"
       @get-item="emit('get-item', 'workplace')"
       @submit="submitForm"
       @delete="deleteItem"
     />
-    <hr/>
     <AffilationDiv
+      :print-page="props.printPage"
       :items="props.anketa.affilation"
       @get-item="emit('get-item', 'affilation')"
       @submit="submitForm"

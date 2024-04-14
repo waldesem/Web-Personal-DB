@@ -14,9 +14,10 @@ const MenuBar = defineAsyncComponent(
     <div class="col-2">
       <NavBar />
     </div>
-    <div class="col-10">
+    <div class="col-9">
       <MenuBar />
       <RouterView />
     </div>
+    <div class="col-1"></div>
   </div>
 </template>

@@ -9,6 +9,10 @@ const LabelSlot = defineAsyncComponent(
 const emit = defineEmits(["delete"]);
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   robots: {
     type: Array as () => Array<Robot>,
     default: {},
@@ -24,7 +28,11 @@ const showActions = ref(false);
     @mouseover="showActions = true"
     @mouseout="showActions = false"
   >
-    <div v-if="props.robots.length" class="collapse" id="check"> 
+    <div 
+      v-if="props.robots.length" 
+      :class="{'collapse show': !printPage}" 
+      id="check"
+    > 
       <div class="mb-3" v-for="(item, idx) in props.robots" :key="idx">
         <div class="card card-body">
           <LabelSlot>

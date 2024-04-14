@@ -6,6 +6,10 @@ const props = defineProps({
   id: String,
   header: String,
   action: String,
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   disable: {
     type: Boolean,
     default: false,
@@ -17,6 +21,18 @@ const toggle = ref(true);
 <template>
   <h6>
     <button
+      v-if="!props.printPage"
+      :disabled="props.disable"
+      type="button"
+      class="btn btn-link"
+      title="Добавить информацию"
+      @click="emit('action')"
+    >
+      <i 
+        :class="props.action ? 'bi bi-database-slash' : 'bi-database-up'"
+      ></i>
+    </button>
+    <button
       type="button"
       class="btn btn-link"
       data-bs-toggle="collapse"
@@ -26,16 +42,5 @@ const toggle = ref(true);
     >
       {{ props.header }}
    </button>
-    <button
-      :disabled="props.disable"
-      type="button"
-      class="btn btn-link"
-      title="Добавить информацию"
-      @click="emit('action')"
-    >
-      <i
-        :class="props.action ? 'bi bi-plus-square-dotted' : 'bi bi-plus-square'"
-      ></i>
-    </button>
   </h6>
 </template>

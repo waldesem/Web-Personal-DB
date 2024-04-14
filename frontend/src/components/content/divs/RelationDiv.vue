@@ -22,6 +22,10 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   items: {
     type: Array as () => Array<Relation>,
     default: {},
@@ -48,6 +52,7 @@ function submitForm(form: Object) {
 
 <template>
   <ActionHeader
+    :print-page="props.printPage"
     :id="'relation'"
     :header="'Связи'"
     :action="relation.action"
@@ -62,7 +67,11 @@ function submitForm(form: Object) {
     @mouseover="relation.showActions = true"
     @mouseout="relation.showActions = false"
   >
-    <div v-if="props.items.length" class="collapse" id="relation"> 
+    <div 
+      v-if="props.items.length" 
+      :class="{'collapse show': !printPage}" 
+      id="relation"
+    > 
       <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
         <div class="card card-body">
           <LabelSlot>

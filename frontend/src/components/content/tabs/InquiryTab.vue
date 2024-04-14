@@ -22,6 +22,10 @@ onBeforeMount(() => {
 });
 
 const props = defineProps({
+  printPage: {
+    type: Boolean,
+    default: false,
+  },
   needs: {
     type: Array as () => Array<Needs>,
     default: () => [],
@@ -43,14 +47,12 @@ function submitForm(form: Object) {
 
 <template>
   <div class="py-3">
-    <div class="position-relative">
-      <div class="position-absolute top-0 end-0">
-        <IconRelative
-          :title="`Добавить`"
-          :icon-class="`bi bi-question-square fs-1`"
-          @onclick="need.action = 'create'"
-        />
-      </div>
+    <div class="text-end">
+      <IconRelative v-if="need.action !== 'create' && !props.printPage"
+        :title="`Добавить`"
+        :icon-class="`bi bi-question-square fs-1`"
+        @onclick="need.action = 'create'"
+      />
     </div>
     <InquiryForm v-if="need.action"
       :inquiry="need.item" 

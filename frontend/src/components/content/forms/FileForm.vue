@@ -21,3 +21,9 @@ const emit = defineEmits(["submit"])
     </div>
   </form>
 </template>
+
+<style scoped>
+.form {
+  display: flex;
+}
+</style>
