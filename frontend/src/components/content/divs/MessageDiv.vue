@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { authStore } from "@store/auth";
 import { server, timeSince } from "@utilities/utils";
 import { Message } from "@/interfaces/interface";
-
-const TableSlots = defineAsyncComponent(
-  () => import("@components/content/elements/TableSlots.vue")
-);
 
 const storeAuth = authStore();
 
@@ -34,10 +30,15 @@ const messageData = ref({
     }
   },
 
-  async deleteMessage(): Promise<void> {
+  async deleteMessage(iD: string = ''): Promise<void> {
     try {
       const response = await storeAuth.axiosInstance.delete(
-        `${server}/messages`
+        `${server}/messages`,
+        {
+          params: {
+            id: iD,
+          }
+        }
       );
       console.log(response.status);
       this.updateMessages();
@@ -55,7 +56,9 @@ const messageData = ref({
     data-bs-toggle="offcanvas"
   >
   <i class="fs-3" 
-    :class="`${messageData.messages.length ? 'bi bi-bell-fill' : 'bi bi-bell'}`"></i>
+    :class="`${messageData.messages.length ? 'bi bi-bell-fill' : 'bi bi-bell'}`"
+  >
+  </i>
     <span
       v-if="messageData.messages.length"
       class="position-absolute translate-middle badge rounded-pill text-bg-success"
@@ -65,27 +68,38 @@ const messageData = ref({
   </a>
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" id="offcanvasMessage">
     <div class="offcanvas-body">
-      <TableSlots>
-        <template v-slot:thead>
-          <tr>
-            <th>Дата</th>
-            <th>Сообщение</th>
-          </tr>
-        </template>
-        <template v-slot:tbody>
-          <tr v-for="message, index in messageData.messages" :key="index">
-            <td width="30%">
-              {{ timeSince(message["created"]) }}</td>
-            <td>{{ message["message"] }}</td>
-          </tr>
-          <tr><td colspan="2">
-            <a href="#" class="link-danger" @click="messageData.deleteMessage()">
-              Удалить сообщения
-            </a>
-          </td></tr>
-        </template>
-      </TableSlots>
-     
+      <a 
+        href="#" 
+        class="link-danger" 
+        @click="messageData.deleteMessage"
+      >
+        Удалить сообщения
+      </a>
+      <div class="toast-container position-static">
+        <div 
+          v-for="message, index in messageData.messages" :key="index"
+          class="toast" 
+          role="alert" 
+        >
+          <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="...">
+            <strong class="me-auto">Сообщение</strong>
+            <small class="text-body-secondary">
+              {{ timeSince(message["created"]) }}
+            </small>
+            <button 
+              type="button" 
+              class="btn-close" 
+              data-bs-dismiss="toast"
+              @click="messageData.deleteMessage(message['id'])"
+            >
+          </button>
+          </div>
+          <div class="toast-body">
+            {{ message["message"] }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

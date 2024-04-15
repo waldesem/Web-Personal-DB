@@ -156,6 +156,7 @@ export interface Needs {
 }
 
 export interface Message {
+  id: string;
   message: string;
   created: string;
 }
