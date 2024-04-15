@@ -100,7 +100,7 @@ class ItemsView(MethodView):
 
         json_data = json_data | {"person_id": item_id}
         if item in ['check', 'poligraf', 'inquiry', 'investigation']:
-            json_data = json_data | {"officer": current_user.fullname}
+            json_data = json_data | {"user_id": current_user.id}
 
         result = self.model(**json_data)
 

@@ -73,6 +73,12 @@ class User(db.Model):
     attempt: Mapped[int] = mapped_column(Integer(), default=0, nullable=True)
     messages: Mapped[List["Message"]] = relationship(back_populates="users")
     persons: Mapped[List["Person"]] = relationship(back_populates="users")
+    checks: Mapped[List["Check"]] = relationship(back_populates="users")
+    poligrafs: Mapped[List["Poligraf"]] = relationship(back_populates="users")
+    investigations: Mapped[List["Investigation"]] = relationship(
+        back_populates="users"
+    )
+    inquiries: Mapped[List["Inquiry"]] = relationship(back_populates="users")
     roles: Mapped[List["Role"]] = relationship(
         back_populates="users", secondary=user_roles, lazy="dynamic"
     )
@@ -347,13 +353,16 @@ class Check(db.Model):
     conclusion_id: Mapped[int] = mapped_column(
         ForeignKey("conclusions.id"), nullable=True
     )
-    officer: Mapped[str] = mapped_column(String(255), nullable=True)
     deadline: Mapped[datetime] = mapped_column(
         Date, default=default_time, onupdate=default_time, nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    user_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
     persons: Mapped[List["Person"]] = relationship(back_populates="checks")
     conclusions: Mapped["Conclusion"] = relationship(back_populates="checks")
+    users: Mapped["User"] = relationship(back_populates="persons")
 
 
 class Robot(db.Model):
@@ -403,12 +412,15 @@ class Poligraf(db.Model):
     )
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     results: Mapped[str] = mapped_column(Text, nullable=True)
-    officer: Mapped[str] = mapped_column(String(255), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
     deadline: Mapped[datetime] = mapped_column(
         Date, default=default_time, nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="poligrafs")
+    users: Mapped["User"] = relationship(back_populates="persons")
 
 
 class Investigation(db.Model):
@@ -420,12 +432,15 @@ class Investigation(db.Model):
     )
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     info: Mapped[str] = mapped_column(Text, nullable=True)
-    officer: Mapped[str] = mapped_column(String(255), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
     deadline: Mapped[datetime] = mapped_column(
         Date, default=default_time, nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="investigations")
+    users: Mapped["User"] = relationship(back_populates="persons")
 
 
 class Inquiry(db.Model):
@@ -438,12 +453,15 @@ class Inquiry(db.Model):
     info: Mapped[str] = mapped_column(Text, nullable=True)
     initiator: Mapped[str] = mapped_column(String(255), nullable=True)
     source: Mapped[str] = mapped_column(String(255), nullable=True)
-    officer: Mapped[str] = mapped_column(String(255), nullable=True)
+    user_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
     deadline: Mapped[datetime] = mapped_column(
         Date, default=default_time, nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="inquiries")
+    users: Mapped["User"] = relationship(back_populates="persons")
 
 
 class Connect(db.Model):

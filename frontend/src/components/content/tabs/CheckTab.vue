@@ -157,7 +157,7 @@ console.log(props.userId);
             <LabelSlot :label="'ПФО'">{{ item["pfo"] }}</LabelSlot>
             <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
             <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ storeClassify.classData.users[item["user_id"]] }}</LabelSlot>
             <LabelSlot :label="'Дата'">
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>

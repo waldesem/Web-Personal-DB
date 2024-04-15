@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces/interface";
+import { classifyStore } from "@/store/classify";
+
+const storeClassify = classifyStore();
 
 const IconRelative = defineAsyncComponent(
   () => import("@components/content/elements/IconRelative.vue")
@@ -79,7 +82,7 @@ function submitForm(form: Object) {
             <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
             <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
             <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ item["officer"] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ storeClassify.classData.users[item["user_id"]] }}</LabelSlot>
             <LabelSlot :label="'Дата запроса'">
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>

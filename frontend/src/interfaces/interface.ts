@@ -112,7 +112,7 @@ export interface Verification {
   conclusion: string;
   comments: string;
   deadline: string;
-  officer: string;
+  user_id: string;
 }
 
 export interface Robot {
@@ -134,7 +134,7 @@ export interface Pfo {
   id: string;
   theme: string;
   results: string;
-  officer: string;
+  user_id: string;
   deadline: string;
 }
 
@@ -142,7 +142,7 @@ export interface Inquisition {
   id: string;
   theme: string;
   info: string;
-  officer: string;
+  user_id: string;
   deadline: string;
 }
 
@@ -151,7 +151,7 @@ export interface Needs {
   info: string;
   initiator: string;
   source: string;
-  officer: string;
+  user_id: string;
   deadline: string;
 }
 
