@@ -109,7 +109,7 @@ const loginData = ref({
         role="form"
         @submit.prevent="submitLogin"
       > 
-        <LabelSlot :label="'Пользователь'">
+        <LabelSlot :label="'Логин'">
           <GroupInput
             :name="'username'"
             :place="'Логин'"
@@ -139,7 +139,7 @@ const loginData = ref({
             </span>
           </GroupInput>
         </LabelSlot>
-        <div class="row mb-3 col-lg-9 offset-lg-3"
+        <div class="row mb-3 col-lg-9 offset-lg-2"
           v-show="loginData.action === 'login'">
           <a
             class="link-primary"

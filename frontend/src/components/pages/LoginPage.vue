@@ -16,7 +16,7 @@ const FooterDiv = defineAsyncComponent(
 </script>
 
 <template>
-  <div class="container-fluid">
+  <div class="container">
     <AlertMessage/>
     <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
     <LoginForm />
