@@ -10,6 +10,7 @@ from sqlalchemy import select
 from config import Config
 from . import bp
 from .login import roles_required
+from ..utils.create_folders import create_folders
 from ..models.classes import Roles, Statuses
 from ..models.model import (
     db,
@@ -55,54 +56,7 @@ class ResumeView(MethodView):
                     db.session.commit()
                     return "", 201
             elif action == "send":
-                if person.status_id in (
-                    Status.get_id(Statuses.new.value),
-                    Status.get_id(Statuses.update.value),
-                    Status.get_id(Statuses.repeat.value),
-                ):
-                    docum = db.session.execute(
-                        select(Document)
-                        .filter_by(person_id=person_id)
-                        .order_by(Document.id.desc())
-                    ).scalar_one_or_none()
-                    addr = db.session.execute(
-                        select(Address)
-                        .filter(
-                            Address.person_id == person_id,
-                            Address.view.ilike("%регистрац%"),
-                        )
-                        .order_by(Address.id.desc())
-                    ).scalar_one_or_none()
-                    serial = AnketaSchemaApi().dump(
-                        {
-                            "id": person_id,
-                            "surname": person.surname,
-                            "firstname": person.firstname,
-                            "patronymic": person.patronymic,
-                            "birthday": person.birthday,
-                            "birthplace": person.birthplace,
-                            "snils": person.snils,
-                            "inn": person.inn,
-                            "series": docum.series,
-                            "number": docum.number,
-                            "agency": docum.agency,
-                            "issue": docum.issue,
-                            "address": addr.address,
-                            "user_id": current_user.id,
-                        }
-                    )
-                    try:
-                        response = httpx.post(
-                            url="https://httpbin.org/post", json=serial, timeout=5
-                        )
-                        response.raise_for_status()
-                        person.status_id = Status.get_id(Statuses.robot.value)
-                        person.user_id = current_user.id
-                        db.session.commit()
-                        return self.get(person_id)
-                    except httpx.HTTPError as exc:
-                        print(f"Error while requesting {exc.request.url!r}.")
-                return abort(403)
+                ResumeView.send_resume(person)
             return PersonSchema().dump(person), 200
         return abort(403)
 
@@ -127,6 +81,72 @@ class ResumeView(MethodView):
         return {"message": person_id}
 
     @staticmethod
+    def send_resume(person):
+        if person.status_id in (
+            Status.get_id(Statuses.new.value),
+            Status.get_id(Statuses.update.value),
+            Status.get_id(Statuses.repeat.value),
+        ):
+            docum = db.session.execute(
+                select(Document)
+                .filter_by(person_id=person.id)
+                .order_by(Document.id.desc())
+            ).scalar_one_or_none()
+            addr = db.session.execute(
+                select(Address)
+                .filter(
+                    Address.person_id == person.id,
+                    Address.view.ilike("%регистрац%"),
+                )
+                .order_by(Address.id.desc())
+            ).scalar_one_or_none()
+            serial = AnketaSchemaApi().dump(
+                {
+                    "id": person.id,
+                    "surname": person.surname,
+                    "firstname": person.firstname,
+                    "patronymic": person.patronymic,
+                    "birthday": person.birthday,
+                    "birthplace": person.birthplace,
+                    "snils": person.snils,
+                    "inn": person.inn,
+                    "series": docum.series,
+                    "number": docum.number,
+                    "agency": docum.agency,
+                    "issue": docum.issue,
+                    "address": addr.address,
+                }
+            )
+            try:
+                response = httpx.post(
+                    url="https://httpbin.org/post", json=serial, timeout=5
+                )
+                response.raise_for_status()
+                person.status_id = Status.get_id(Statuses.robot.value)
+                person.user_id = current_user.id
+                db.session.add(
+                    Message(
+                        message=f"Aнкета ID #{person_id} успешно отправлена роботу",
+                        user_id=current_user.id,
+                    )
+                )
+            except httpx.HTTPError as exc:
+                db.session.add(
+                    Message(
+                        message=f"При отправке анкеты возникла ошибка: {exc}",
+                        user_id=current_user.id,
+                    )
+                )
+        else:
+            db.session.add(
+                Message(
+                    message=f"Отправка анкеты ID #{person_id} невозможна",
+                    user_id=current_user.id,
+                )
+            )
+        db.session.commit()
+
+    @staticmethod
     def add_resume(resume: dict, action):
         """
         Adds a resume to the database.
@@ -135,14 +155,14 @@ class ResumeView(MethodView):
             select(Person).filter(
                 Person.surname.ilike(resume["surname"]),
                 Person.firstname.ilike(resume["firstname"]),
-                Person.patronymic.ilike(f"%{resume.get('patronymic')}%"),
+                Person.patronymic.ilike(resume.get('patronymic')),
                 Person.birthday == resume["birthday"],
             )
         ).one_or_none()
 
-        resume["surname"] = resume["surname"].strip().upper()
-        resume["firstname"] = resume["firstname"].strip().upper()
-        resume["patronymic"] = resume.get("patronymic", "").strip().upper()
+        for k, v in resume.items():
+            if k in ["surname", "firstname", "patronymic"]:
+                resume[k] = v.strip().upper()
 
         if person:
             person_id = person.id
@@ -160,13 +180,13 @@ class ResumeView(MethodView):
             db.session.flush()
             person_id = person.id
 
-        person.path = os.path.join(
-            resume["surname"][0].upper(),
-            f"{person_id}-{resume['surname']} {resume['firstname']} {resume.get('patronymic', '')}".rstrip(),
+        person.path = create_folders(
+            person_id,
+            resume['surname'],
+            resume['firstname'],
+            resume.get('patronymic', ''),
+            "resume",
         )
-        url = os.path.join(Config.BASE_PATH, person.path)
-        if not os.path.isdir(url):
-            os.mkdir(url)
         person.user_id = current_user.id
         db.session.commit()
         return person_id

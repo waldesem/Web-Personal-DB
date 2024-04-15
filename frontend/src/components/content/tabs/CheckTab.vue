@@ -154,7 +154,7 @@ console.log(props.userId);
             <LabelSlot :label="'Дополнительная информация'">
               {{ item["addition"] }}
             </LabelSlot>
-            <LabelSlot :label="'ПФО'">{{ item["pfo"] }}</LabelSlot>
+            <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
             <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
             <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
             <LabelSlot :label="'Сотрудник'">{{ storeClassify.classData.users[item["user_id"]] }}</LabelSlot>

@@ -2,6 +2,9 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { Work } from "@/interfaces/interface";
 
+const SwitchBox = defineAsyncComponent(
+  () => import("@components/content/elements/SwitchBox.vue")
+);
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
@@ -33,6 +36,12 @@ const workForm = toRef(props.work as Work);
     class="form form-check"
     role="form"
   > 
+   <SwitchBox
+      :div-class="'offset-lg-2 col-lg-10'"
+      :name="'pfo'"
+      :place="'Полиграф'"
+      v-model="workForm['now_work']"
+    />
     <LabelSlot :label="'Начало работы'">
       <InputElement
         :name="'start_date'"

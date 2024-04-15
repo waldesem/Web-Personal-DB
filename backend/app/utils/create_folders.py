@@ -15,21 +15,34 @@ def create_folders(
     Check if a folder exists for a given person and create it if it does not exist.
     """
     person_path = os.path.join(
-        surname[0].upper(), f"{person_id}-{surname} {firstname} {patronymic}"
+        surname[0].upper(), 
+        f"{person_id}-{surname} {firstname} {patronymic}".rstrip(),
     )
+
     url = os.path.join(Config.BASE_PATH, person_path)
     if not os.path.isdir(url):
         os.mkdir(url)
 
+    if folder_name == "resume":
+        return url
+
     folder = os.path.join(url, folder_name)
     if not os.path.isdir(folder):
         os.mkdir(folder)
+
     if folder_name == "image":
-        return url
+        return folder
     
-    subfolder = os.path.join(folder, datetime.now().strftime("%Y-%m-%d"))
+    subfolder = os.path.join(
+        folder, 
+        datetime.now().strftime("%Y-%m-%d")
+    )
     if not os.path.isdir(subfolder):
         os.mkdir(subfolder)
+
     return os.path.join(
-        surname[0].upper(), f"{person_id}-{surname} {firstname} {patronymic}", folder, subfolder
+        surname[0].upper(), 
+        f"{person_id}-{surname} {firstname} {patronymic}", 
+        folder, 
+        subfolder,
     )

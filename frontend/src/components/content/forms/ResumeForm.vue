@@ -115,13 +115,6 @@ async function submitResume(): Promise<void> {
           v-model="resumeForm['patronymic']"
         />
       </LabelSlot>
-      <LabelSlot :label="'Изменение имени'">
-        <InputElement
-          :name="'previous'"
-          :place="'Изменение имени'"
-          v-model="resumeForm['previous']"
-        />
-      </LabelSlot>
       <LabelSlot :label="'Дата рождения*'">
         <InputElement
           :need="true"

@@ -4,6 +4,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
 
 from ..models.model import (
     Conclusion,
+    Previous,
     Relation,
     Status,
     User,
@@ -157,6 +158,14 @@ class StaffSchema(SQLAlchemyAutoSchema):
 
     class Meta:
         model = Staff
+        ordered = True
+
+
+class PreviousSchema(SQLAlchemyAutoSchema):
+    """Create model for staff"""
+
+    class Meta:
+        model = Previous
         ordered = True
 
 

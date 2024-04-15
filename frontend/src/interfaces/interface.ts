@@ -1,5 +1,6 @@
 export interface Anketa {
   resume: Resume,
+  previous: Previous[],
   staff: Staff[],
   document: Document[],
   addresse: Address[],
@@ -21,7 +22,6 @@ export interface Resume {
   surname: string;
   firstname: string;
   patronymic: string;
-  previous: string;
   birthday: string;
   birthplace: string;
   country: string;
@@ -36,6 +36,15 @@ export interface Resume {
   created: string;
   updated: string;
   request_id: string;
+}
+
+export interface Previous {
+  id: string;
+  surname: string;
+  firstname: string;
+  patronymic: string;
+  date_change: string;
+  reason: string;
 }
 
 export interface Staff {
@@ -74,6 +83,7 @@ export interface Relation {
 
 export interface Work {
   id: string;
+  now_work: boolean;
   start_date: string;
   end_date: string;
   workplace: string;
@@ -108,7 +118,7 @@ export interface Verification {
   cronos: string;
   cros: string;
   addition: string;
-  pfo: string;
+  pfo: boolean;
   conclusion: string;
   comments: string;
   deadline: string;

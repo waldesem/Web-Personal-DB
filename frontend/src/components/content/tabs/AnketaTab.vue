@@ -9,6 +9,9 @@ const ActionIcons = defineAsyncComponent(
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/forms/ResumeForm.vue")
 );
+const PreviousDiv = defineAsyncComponent(
+  () => import("@components/content/divs/PreviousDiv.vue")
+);
 const StaffDiv = defineAsyncComponent(
   () => import("@components/content/divs/StaffDiv.vue")
 );
@@ -103,9 +106,6 @@ function deleteItem(itemId: string, item: string) {
       <LabelSlot :label="'Отчество'">{{
         props.anketa.resume["patronymic"]
       }}</LabelSlot>
-      <LabelSlot :label="'Предыдущая фамилия'"
-        >{{ props.anketa.resume["previous"] }}
-      </LabelSlot>
       <LabelSlot :label="'Дата рождения'"
         >{{
           new Date(String(props.anketa.resume["birthday"])).toLocaleDateString(
@@ -175,6 +175,13 @@ function deleteItem(itemId: string, item: string) {
       </LabelSlot>
     </div>
     <hr/>
+    <PreviousDiv
+      :print-page="props.printPage"
+      :items="props.anketa.previous"
+      @get-item="emit('get-item', 'previous')"
+      @submit="submitForm"
+      @delete="deleteItem"
+    />
     <StaffDiv
       :print-page="props.printPage"
       :items="props.anketa.staff"

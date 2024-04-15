@@ -161,7 +161,6 @@ class Person(db.Model):
     surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     patronymic: Mapped[str] = mapped_column(String(255), nullable=True, index=True)
-    previous: Mapped[str] = mapped_column(Text, nullable=True, index=True)
     birthday: Mapped[date] = mapped_column(Date, nullable=False)
     birthplace: Mapped[str] = mapped_column(Text, nullable=True)
     country: Mapped[str] = mapped_column(String(255), nullable=True)
@@ -177,6 +176,9 @@ class Person(db.Model):
     )
     updated: Mapped[datetime] = mapped_column(
         DateTime, onupdate=default_time, nullable=True
+    )
+    previous: Mapped[List["Previous"]] = relationship(
+        back_populates="persons", cascade="all, delete, delete-orphan"
     )
     staffs: Mapped[List["Staff"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
@@ -220,6 +222,22 @@ class Person(db.Model):
     search_vector: Mapped[TSVectorType] = mapped_column(
         TSVectorType("previous", "surname", "firstname", "patronymic")
     )
+
+
+class Previous(db.Model):
+
+    __tablename__ = "previous"
+
+    id: Mapped[int] = mapped_column(
+        nullable=False, unique=True, primary_key=True, autoincrement=True
+    )
+    surname: Mapped[str] = mapped_column(String(255), nullable=True)
+    firstname: Mapped[str] = mapped_column(String(255), nullable=True)
+    patronymic: Mapped[str] = mapped_column(String(255), nullable=True)
+    date_change: Mapped[date] = mapped_column(Date, nullable=True)
+    reason: Mapped[str] = mapped_column(Text, nullable=True)
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    persons: Mapped[List["Person"]] = relationship(back_populates="previous")
 
 
 class Staff(db.Model):

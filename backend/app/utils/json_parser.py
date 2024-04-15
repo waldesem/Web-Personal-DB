@@ -10,9 +10,9 @@ def parse_json(file) -> None:
     with open(file, "r", newline="", encoding="utf-8-sig") as f:
 
         json_dict = json.load(f)
-        json_dict = json.load(f)
         json_data = dict(
             resume = {},
+            previous = [],
             addresses = [],
             contacts = [],
             workplaces = [],
@@ -39,22 +39,22 @@ def parse_json(file) -> None:
                 case "midName":
                     json_data["resume"]["patronymic"] = value.strip().upper()
                 case "nameWasChanged":
-                    previous = ""
-                    if len(value):
-                        for item in value:
-                            firstNameBeforeChange = item.get(
-                                "firstNameBeforeChange", ""
-                            )
-                            lastNameBeforeChange = item.get("lastNameBeforeChange", "")
-                            midNameBeforeChange = item.get("midNameBeforeChange", "")
-                            yearOfChange = str(item.get("yearOfChange", ""))
-                            reason = str(item.get("reason", ""))
-                            previous = previous + (
-                                f"{yearOfChange} - {firstNameBeforeChange} "
-                                f"{lastNameBeforeChange} {midNameBeforeChange}, "
-                                f"{reason}; "
-                            )
-                        json_data["resume"]["previous"] = previous.rstrip("; ")
+                    if len(json_dict["nameWasChanged"]):
+                        for name in json_dict["nameWasChanged"]:
+                            prev = {}
+                            for key, value in name.items():
+                                match key:
+                                    case "firstNameBeforeChange":
+                                        prev["surname"] = value
+                                    case "lastNameBeforeChange":
+                                        prev["firstName"] = value
+                                    case "midNameBeforeChange":
+                                        prev["patronymic"] = value
+                                    case "yearOfChange":
+                                        prev["date_change"] = value
+                                    case "reason":
+                                        prev["reason"] = value
+                            json_data["previous"].append(prev)
                 case "birthday":
                     json_data["resume"]["birthday"] = value
                 case "birthplace":
