@@ -75,7 +75,6 @@ def register_cli(app):
                 surname="Бендер".upper(),
                 firstname="Остап".upper(),
                 patronymic="Ибрагимович".upper(),
-                previous="Остап Сулейман",
                 birthday=datetime.now().date(),
                 birthplace="Неизвестно",
                 country="Россия",

@@ -220,7 +220,7 @@ class Person(db.Model):
     regions: Mapped["Region"] = relationship(back_populates="persons")
     users: Mapped["User"] = relationship(back_populates="persons")
     search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("previous", "surname", "firstname", "patronymic")
+        TSVectorType("surname", "firstname", "patronymic")
     )
 
 
@@ -380,7 +380,7 @@ class Check(db.Model):
     )
     persons: Mapped[List["Person"]] = relationship(back_populates="checks")
     conclusions: Mapped["Conclusion"] = relationship(back_populates="checks")
-    users: Mapped["User"] = relationship(back_populates="persons")
+    users: Mapped["User"] = relationship(back_populates="checks")
 
 
 class Robot(db.Model):
@@ -438,7 +438,7 @@ class Poligraf(db.Model):
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="poligrafs")
-    users: Mapped["User"] = relationship(back_populates="persons")
+    users: Mapped["User"] = relationship(back_populates="poligrafs")
 
 
 class Investigation(db.Model):
@@ -458,7 +458,7 @@ class Investigation(db.Model):
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="investigations")
-    users: Mapped["User"] = relationship(back_populates="persons")
+    users: Mapped["User"] = relationship(back_populates="investigations")
 
 
 class Inquiry(db.Model):
@@ -479,7 +479,7 @@ class Inquiry(db.Model):
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="inquiries")
-    users: Mapped["User"] = relationship(back_populates="persons")
+    users: Mapped["User"] = relationship(back_populates="inquiries")
 
 
 class Connect(db.Model):
