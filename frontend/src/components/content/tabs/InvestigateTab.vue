@@ -19,17 +19,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit", "file"]);
-
-onBeforeMount(() => {
-  emit("get-item", "investigation");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async() => {
+  await stateAnketa.getItem("investigation");
 });
 
 const inquisition = ref({
@@ -40,8 +31,7 @@ const inquisition = ref({
 });
 
 function submitForm(form: Object) {
-  emit(
-    "submit",
+  stateAnketa.updateItem(
     inquisition.value.action,
     "investigation",
     inquisition.value.itemId,
@@ -55,7 +45,7 @@ function submitForm(form: Object) {
   <div class="py-3">
     <div class="text-end">
       <div class="text-end">
-        <IconRelative v-if="inquisition.action !== 'create' && !props.printPage"
+        <IconRelative v-if="inquisition.action !== 'create' && !stateAnketa.share.printPage"
           :title="`Добавить`"
           :icon-class="`bi bi-incognito fs-1`"
           @onclick="inquisition.action = 'create'"
@@ -72,12 +62,12 @@ function submitForm(form: Object) {
      @mouseover="inquisition.showActions = true"
      @mouseout="inquisition.showActions = false"
     >
-      <div v-if="stateAnketa.investigation.length"> 
-        <div class="mb-3" v-for="(item, idx) in stateAnketa.investigation" :key="idx">
+      <div v-if="stateAnketa.anketa.investigation.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.investigation" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="inquisition.showActions"
-                @delete="emit('delete', item['id'].toString(), 'investigation')"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigation')"
                 @update="
                   inquisition.action = 'update';
                   inquisition.item = item;
@@ -93,7 +83,7 @@ function submitForm(form: Object) {
             </LabelSlot>
           </div>
         </div>
-        <FileForm :accept="'*'" @submit="emit('file')" />
+        <FileForm :accept="'*'" @submit="stateAnketa.submitFile($event, 'investigation')" />
       </div>
       <p v-else>Данные отсутствуют</p>
     </div>

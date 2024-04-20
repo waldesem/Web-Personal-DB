@@ -1,37 +1,8 @@
-import { reactive } from 'vue'
-import {
-  Resume,
-  Previous,
-  Staff,
-  Document,
-  Address,
-  Contact,
-  Relation,
-  Work,
-  Affilation,
-  Verification,
-  Robot,
-  Pfo,
-  Inquisition,
-  Needs,
-} from "@/interfaces";
-
-export const stateAnketa = reactive({
-  resume: <Resume>{},
-  previous: [] as Array<Previous>,
-  staff: [] as Array<Staff>,
-  document: [] as Array<Document>,
-  address: [] as Array<Address>,
-  contact: [] as Array<Contact>,
-  relation: [] as Array<Relation>,
-  workplace: [] as Array<Work>,
-  affilation: [] as Array<Affilation>,
-  check: [] as Array<Verification>,
-  robot: [] as Array<Robot>,
-  poligraf: [] as Array<Pfo>,
-  investigation: [] as Array<Inquisition>,
-  inquiry: [] as Array<Needs>,
-});
+import { reactive } from "vue";
+import { axiosInstance } from "@/auth";
+import { router } from "@/router";
+import { server } from "@/utilities";
+import { Anketa } from "@/interfaces";
 
 export const stateToken = reactive({
   accessToken: "" as string | null,
@@ -53,7 +24,7 @@ export const stateClassify = reactive({
   roles: <Record<string, any>>{},
   users: <Record<string, any>>{},
 });
-  
+
 export const stateAlert = {
   alertMessage: reactive({
     attr: "",
@@ -67,4 +38,191 @@ export const stateAlert = {
     }, 10000);
   },
 };
-  
+
+export const stateAnketa = {
+  anketa: reactive(<Anketa>{}),
+  share: reactive({
+    candId: "" as string,
+    imageUrl: "" as string,
+    printPage: false,
+  }),
+
+  async getResume(action = "view"): Promise<void> {
+    if (action === "status") {
+      if (
+        !confirm(
+          "Вы действительно хотите изменить статус? USER_ID анкеты будет сброшен"
+        )
+      ) {
+        return;
+      }
+    }
+    if (action === "send") {
+      if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
+        return;
+      }
+    }
+    if (action === "self") {
+      if (!confirm("Вы действительно назначить проверку кандидата на себя?")) {
+        return;
+      }
+    }
+    try {
+      const response = await axiosInstance.get(
+        `${server}/resume/${this.share.candId}`,
+        {
+          params: {
+            action: action,
+          },
+        }
+      );
+      this.anketa.resume = response.data;
+
+      if (["self", "send", "status"].includes(action)) {
+        this.getResume("view");
+
+        if (action === "status") {
+          stateAlert.setAlert(
+            "alert-info",
+            "Статус анкеты обновлен"
+          );
+        }
+        if (action === "self") {
+          stateAlert.setAlert(
+            "alert-info",
+            "Анкета назначена на себя"
+          );
+        }
+        if (action === "send") {
+          stateAlert.setAlert(
+            "alert-success",
+            "Анкета отправлена на проверку"
+          );
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      stateAlert.setAlert(
+        "alert-danger",
+        `Ошибка обработки ${error}`
+      );
+    }
+  },
+
+  async getItem(param: string): Promise<void> {
+    try {
+      const response =
+        param === "image"
+          ? await axiosInstance.get(`${server}/${param}/${this.share.candId}`, {
+              responseType: "blob",
+            })
+          : await axiosInstance.get(`${server}/${param}/${this.share.candId}`);
+
+      if (param === "image") {
+        this.share.imageUrl = window.URL.createObjectURL(
+          new Blob([response.data], { type: "image/jpeg" })
+        );
+      } else {
+        this.anketa[param as keyof typeof this.anketa] = response.data;
+      }
+    } catch (error) {
+      console.error(error);
+      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+    }
+  },
+
+  async updateItem(
+    action: string,
+    param: string,
+    itemId: string,
+    form: Object
+  ): Promise<void> {
+    try {
+      const response =
+        action === "create"
+          ? await axiosInstance.post(`${server}/${param}/${this.share.candId}`, form)
+          : await axiosInstance.patch(`${server}/${param}/${itemId}`, form);
+
+      console.log(response.status);
+
+      stateAlert.setAlert("alert-success", "Данные успешно обновлены");
+      this.getItem(param);
+    } catch (error) {
+      stateAlert.setAlert("alert-danger", `Возникла ошибка ${error}`);
+    }
+  },
+
+  async deleteItem(id: string, param: string): Promise<void> {
+    if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+    if (
+      param === "check" &&
+      (this.anketa.resume.status_id === stateClassify.status["finish"] ||
+        this.anketa.resume.status_id === stateClassify.status["robot"])
+    ) {
+      stateAlert.setAlert(
+        "alert-warning",
+        "Невозможно удалить проверку с текщим статусом"
+      );
+      return;
+    }
+    if (
+      ["robot", "finish"].includes(
+        stateClassify.status[this.anketa.resume["status_id"]]
+      )
+    ) {
+      stateAlert.setAlert(
+        "alert-warning",
+        "Нельзя удалить запись с текущим статусом"
+      );
+      return;
+    }
+    try {
+      const response = await axiosInstance.delete(`${server}/${param}/${id}`);
+      console.log(response.status);
+
+      param === "resume" ? router.push({ name: "persons" }) : this.getItem(param);
+
+      stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  async submitFile(event: Event, param: string): Promise<void> {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement && inputElement.files && inputElement.files.length > 0) {
+      const maxSizeInBytes = 1024 * 1024; // 1MB
+      for (let i = 0; i < inputElement.files.length; i++) {
+        if (inputElement.files[i].size > maxSizeInBytes) {
+          stateAlert.setAlert(
+            "alert-warning",
+            "File size exceeds the limit. Please select a smaller file."
+          );
+          inputElement.value = ""; // Reset the input field
+          return;
+        }
+      }
+      const formData = new FormData();
+      formData.append("file", inputElement.files[0]);
+
+      try {
+        const response = await axiosInstance.post(
+          `${server}/file/${param}/${this.share.candId}`,
+          formData
+        );
+        console.log(response.status);
+        if (param === "image") {
+          this.getItem("file");
+        }
+        stateAlert.setAlert(
+          "alert-success",
+          "Файл или файлы успешно загружен/добавлены"
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
+    }
+  },
+};

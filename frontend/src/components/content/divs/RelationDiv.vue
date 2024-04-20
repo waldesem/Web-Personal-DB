@@ -16,17 +16,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit"]);
-
-onBeforeMount(() => {
-  emit("get-item");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async () => {
+  await stateAnketa.getItem("relation");
 });
 
 const relation = ref({
@@ -37,7 +28,7 @@ const relation = ref({
 });
 
 function submitForm(form: Object) {
-  emit("submit", 
+  stateAnketa.updateItem(
     relation.value.action,
     "relation",
     relation.value.itemId,
@@ -49,7 +40,6 @@ function submitForm(form: Object) {
 
 <template>
   <ActionHeader
-    :print-page="props.printPage"
     :id="'relation'"
     :header="'Связи'"
     :action="relation.action"
@@ -65,15 +55,15 @@ function submitForm(form: Object) {
     @mouseout="relation.showActions = false"
   >
     <div 
-      v-if="stateAnketa.relation.length" 
-      :class="{'collapse show': !printPage}" 
+      v-if="stateAnketa.anketa.relation.length" 
+      :class="{'collapse show': !stateAnketa.share.printPage}" 
       id="relation"
     > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.relation" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.relation" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <ActionIcons v-show="relation.showActions"
-              @delete="emit('delete', item['id'].toString(), 'relation')"
+              @delete="stateAnketa.deleteItem(item['id'].toString(), 'relation')"
               @update="
                 relation.action = 'update';
                 relation.item = item;

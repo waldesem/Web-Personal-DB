@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateAnketa } from "@/state";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["delete"]);
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async () => {
+  await stateAnketa.getItem("robot");
 });
 
 const showActions = ref(false);
@@ -20,22 +15,27 @@ const showActions = ref(false);
 
 <template>
   <div
-    v-if="stateAnketa.robot.length"
+    v-if="stateAnketa.anketa.robot.length"
     @mouseover="showActions = true"
     @mouseout="showActions = false"
   >
-    <div 
-      v-if="stateAnketa.robot.length" 
-      :class="{'collapse show': !props.printPage}" 
+    <div
+      v-if="stateAnketa.anketa.robot.length"
+      :class="{ 'collapse show': !stateAnketa.share.printPage }"
       id="check"
-    > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.robot" :key="idx">
+    >
+      <div
+        class="mb-3"
+        v-for="(item, idx) in stateAnketa.anketa.robot"
+        :key="idx"
+      >
         <div class="card card-body">
           <LabelSlot>
-            <a v-show="showActions"
+            <a
+              v-show="showActions"
               href="#"
               @click="
-                emit('delete', item['id'].toString(), 'robot');
+                stateAnketa.deleteItem(item['id'].toString(), 'robot');
                 showActions = false;
               "
               title="Удалить"

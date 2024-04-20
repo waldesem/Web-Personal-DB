@@ -16,17 +16,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit"]);
-
-onBeforeMount(() => {
-  emit("get-item");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async () => {
+  await stateAnketa.getItem("previous");
 });
 
 const previous = ref({
@@ -37,14 +28,13 @@ const previous = ref({
 });
 
 function submitForm(form: Object) {
-  emit("submit", previous.value.action, "previous", previous.value.itemId, form);
+  stateAnketa.updateItem(previous.value.action, "previous", previous.value.itemId, form);
   previous.value.action = "";
 }
 </script>
 
 <template>
   <ActionHeader
-    :print-page="props.printPage"
     :id="'previous'"
     :header="'Изменение имени'"
     :action="previous.action"
@@ -61,14 +51,14 @@ function submitForm(form: Object) {
     @mouseout="previous.showActions = false"
   >
     <div 
-      v-if="stateAnketa.previous.length" 
-      :class="{'collapse show': !printPage}" 
+      v-if="stateAnketa.anketa.previous.length" 
+      :class="{'collapse show': !stateAnketa.share.printPage}" 
       id="previous"> 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.previous" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.previous" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <ActionIcons v-show="previous.showActions"
-              @delete="emit('delete', item['id'].toString(), 'previous')"
+              @delete="stateAnketa.deleteItem(item['id'].toString(), 'previous')"
               @update="
                 previous.action = 'update';
                 previous.item = item;

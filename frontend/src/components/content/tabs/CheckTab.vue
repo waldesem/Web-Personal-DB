@@ -22,18 +22,9 @@ const RobotDiv = defineAsyncComponent(
   () => import("@components/content/divs/RobotDiv.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit", "file"]);
-
-onBeforeMount(() => {
-  emit("get-item", "check");
-  emit("get-item", "robot");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async () => {
+  await stateAnketa.getItem("check");
+  await stateAnketa.getItem("robot");
 });
 
 const check = ref({
@@ -41,26 +32,22 @@ const check = ref({
   itemId: "",
   item: <Verification>{},
   hideEditBtn:
-    stateAnketa.resume["status_id"] !== stateClassify.status["save"] &&
-    stateAnketa.resume["status_id"] !== stateClassify.status["cancel"] &&
-    stateAnketa.resume["status_id"] !== stateClassify.status["manual"],
+    stateAnketa.anketa.resume["status_id"] !== stateClassify.status["save"] &&
+    stateAnketa.anketa.resume["status_id"] !== stateClassify.status["cancel"] &&
+    stateAnketa.anketa.resume["status_id"] !== stateClassify.status["manual"],
   showActions: false
 });
 
 function submitForm(form: Object) {
-  emit("submit", check.value.action, "check", check.value.itemId, form);
+  stateAnketa.updateItem(check.value.action, "check", check.value.itemId, form);
   check.value.action = "";
-}
-
-function deleteItem(itemId: string) {
-  emit("delete", itemId, "check");
 }
 </script>
 
 <template>
   <div class="py-3">
     <div class="text-end">
-        <IconRelative v-if="check.action !== 'create' && !props.printPage"
+        <IconRelative v-if="check.action !== 'create' && !stateAnketa.share.printPage"
           :title="`Добавить`"
           :icon-class="`bi bi-journal-check fs-1`"
           :hide="
@@ -69,8 +56,8 @@ function deleteItem(itemId: string) {
               stateClassify.status['save'],
               stateClassify.status['repeat'],
               stateClassify.status['manual'],
-            ].includes(stateAnketa.resume['status_id']) &&
-            stateAnketa.resume['user_id'] != stateUser.userId
+            ].includes(stateAnketa.anketa.resume['status_id']) &&
+            stateAnketa.anketa.resume['user_id'] != stateUser.userId
           "
           @onclick="check.action = 'create'"
         />
@@ -78,19 +65,19 @@ function deleteItem(itemId: string) {
     <CheckForm
       v-if="check.action"
       :check="check.item"
-      @submit="submitForm"
       @cancel="check.action = ''"
+      @submit="submitForm"
     />
     <div v-else
       @mouseover="check.showActions = true"
       @mouseout="check.showActions = false"
     >
-      <div v-if="stateAnketa.check.length"> 
-        <div class="mb-3" v-for="(item, idx) in stateAnketa.check" :key="idx">
+      <div v-if="stateAnketa.anketa.check.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.check" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="check.showActions"
-                @delete="emit('delete', item['id'].toString(), 'check')"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'check')"
                 @update="check.action = 'update';
                   check.item = item;
                   check.itemId = item['id'].toString();
@@ -100,8 +87,8 @@ function deleteItem(itemId: string) {
                     stateClassify.status['save'],
                     stateClassify.status['cancel'],
                     stateClassify.status['manual'],
-                  ].includes(stateAnketa.resume['status_id']) &&
-                  stateAnketa.resume['user_id'] !== stateUser.userId
+                  ].includes(stateAnketa.anketa.resume['status_id']) &&
+                  stateAnketa.anketa.resume['user_id'] !== stateUser.userId
                 "
               />
             </LabelSlot>
@@ -152,12 +139,8 @@ function deleteItem(itemId: string) {
             </LabelSlot>
           </div>
         </div>
-        <FileForm :accept="'*'" @submit="emit('file')" />
-        <RobotDiv
-          :robots="stateAnketa.robot"
-          @get-item="emit('get-item', 'robot')"
-          @delete="deleteItem"
-        />
+        <FileForm :accept="'*'" @submit="stateAnketa.submitFile($event, 'check')" />
+        <RobotDiv />
       </div>
       <p v-else>Данные отсутствуют</p>
     </div>

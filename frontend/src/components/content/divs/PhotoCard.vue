@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
+import { stateAnketa } from "@/state";
 
-const emit = defineEmits(["get-item", "submit-file"]);
-
-onBeforeMount(() => {
-  emit("get-item", "image")
-});
-
-const props = defineProps({
-  url: String,
+onBeforeMount(async () => {
+  await stateAnketa.getItem("image");
 });
 
 const photoCard = ref({
@@ -29,14 +24,14 @@ const photoCard = ref({
       @mouseout="photoCard.handleMouse"
     >
       <img
-        :src="props.url"
+        :src="stateAnketa.share.imageUrl"
         style="width: 100%; height: auto"
         class="card-img-top"
         alt="..."
       />
       <form
         :class="{ 'form-visible': photoCard.showPhoto }"
-        @change="emit('submit-file', $event, 'image')"
+        @change="stateAnketa.submitFile($event, 'image')";
         class="form"
       >
         <input

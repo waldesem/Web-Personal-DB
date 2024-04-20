@@ -19,17 +19,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit", "file"]);
-
-onBeforeMount(() => {
-  emit("get-item", "poligraf");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async() => {
+  await stateAnketa.getItem("poligraf");
 });
 
 const poligraf = ref({
@@ -40,8 +31,7 @@ const poligraf = ref({
 });
 
 function submitForm(form: Object) {
-  emit(
-    "submit",
+  stateAnketa.updateItem(
     poligraf.value.action,
     "poligraf",
     poligraf.value.itemId,
@@ -55,7 +45,7 @@ function submitForm(form: Object) {
   <div class="py-3">
     <div class="text-end">
       <IconRelative 
-        v-if="poligraf.action !== 'create' && !props.printPage"
+        v-if="poligraf.action !== 'create' && !stateAnketa.share.printPage"
         :title="`Добавить`"
         :icon-class="`bi bi-heart-pulse fs-1`"
         @onclick="poligraf.action = 'create'"
@@ -71,12 +61,12 @@ function submitForm(form: Object) {
      @mouseover="poligraf.showActions = true"
      @mouseout="poligraf.showActions = false"
     >
-      <div v-if="stateAnketa.poligraf.length"> 
-        <div class="mb-3" v-for="(item, idx) in stateAnketa.poligraf" :key="idx">
+      <div v-if="stateAnketa.anketa.poligraf.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.poligraf" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="poligraf.showActions"
-                @delete="emit('delete', item['id'].toString(), 'poligraf')"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligraf')"
                 @update="
                   poligraf.action = 'update';
                   poligraf.item = item;
@@ -92,7 +82,7 @@ function submitForm(form: Object) {
             </LabelSlot>
             <FileForm 
             :accept="'*'" 
-            @submit="emit('file')" 
+            @submit="stateAnketa.submitFile($event, 'poligraf')" 
           />
           </div>
         </div>

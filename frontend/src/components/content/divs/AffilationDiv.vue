@@ -16,17 +16,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit"]);
-
-onBeforeMount(() => {
-  emit("get-item");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async() => {
+  await stateAnketa.getItem("affilation");
 });
 
 const affilation = ref({
@@ -37,8 +28,7 @@ const affilation = ref({
 });
 
 function submitForm(form: Object) {
-  emit(
-    "submit",
+  stateAnketa.updateItem(
     affilation.value.action,
     "affilation",
     affilation.value.itemId,
@@ -50,7 +40,6 @@ function submitForm(form: Object) {
 
 <template>
   <ActionHeader
-    :print-page="props.printPage"
     :header="'Аффилированность'"
     :action="affilation.action"
     @action="affilation.action = affilation.action ? '' : 'create'"
@@ -66,15 +55,15 @@ function submitForm(form: Object) {
     @mouseout="affilation.showActions = false"
   >
     <div 
-      v-if="stateAnketa.affilation.length" 
-      :class="{'collapse show': !printPage}" 
+      v-if="stateAnketa.anketa.affilation.length" 
+      :class="{'collapse show': !stateAnketa.share.printPage}" 
       id="affilation"
     > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.affilation" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.affilation" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <ActionIcons v-show="affilation.showActions"
-              @delete="emit('delete', item['id'].toString(), 'affilation')"
+              @delete="stateAnketa.deleteItem(item['id'].toString(), 'affilation')"
               @update="
                 affilation.action = 'update';
                 affilation.item = item;

@@ -16,17 +16,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit"]);
-
-onBeforeMount(() => {
-  emit("get-item", "inquiry");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async() => {
+  await stateAnketa.getItem("inquiry");
 });
 
 const need = ref({
@@ -37,7 +28,7 @@ const need = ref({
 });
 
 function submitForm(form: Object) {
-  emit("submit", need.value.action, "inquiry", need.value.itemId, form);
+  stateAnketa.updateItem(need.value.action, "inquiry", need.value.itemId, form);
   need.value.action = "";
 };
 </script>
@@ -45,7 +36,7 @@ function submitForm(form: Object) {
 <template>
   <div class="py-3">
     <div class="text-end">
-      <IconRelative v-if="need.action !== 'create' && !props.printPage"
+      <IconRelative v-if="need.action !== 'create' && !stateAnketa.share.printPage"
         :title="`Добавить`"
         :icon-class="`bi bi-question-square fs-1`"
         @onclick="need.action = 'create'"
@@ -60,12 +51,12 @@ function submitForm(form: Object) {
       @mouseover="need.showActions = true"
       @mouseout="need.showActions = false"
     >
-      <div v-if="stateAnketa.inquiry.length"> 
-        <div class="mb-3" v-for="(item, idx) in stateAnketa.inquiry" :key="idx">
+      <div v-if="stateAnketa.anketa.inquiry.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.inquiry" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="need.showActions"
-                @delete="emit('delete', item['id'].toString(), 'inquiry')"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiry')"
                 @update="
                   need.action = 'update';
                   need.item = item;

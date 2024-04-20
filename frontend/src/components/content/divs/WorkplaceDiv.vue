@@ -16,17 +16,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit"]);
-
 onBeforeMount(() => {
-  emit("get-item");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+  stateAnketa.getItem("workplace");
 });
 
 const workplace = ref({
@@ -37,8 +28,7 @@ const workplace = ref({
 });
 
 function submitForm(form: Object) {
-  emit(
-    "submit", 
+  stateAnketa.updateItem(
     workplace.value.action,
     "workplace",
     workplace.value.itemId,
@@ -50,7 +40,6 @@ function submitForm(form: Object) {
 
 <template>
   <ActionHeader
-    :print-page="props.printPage"
     :id="'work'"
     :header="'Работа'"
     :action="workplace.action"
@@ -66,15 +55,15 @@ function submitForm(form: Object) {
     @mouseout="workplace.showActions = false"
   >
     <div 
-      v-if="stateAnketa.workplace.length" 
-      :class="{'collapse show': !printPage}" 
+      v-if="stateAnketa.anketa.workplace.length" 
+      :class="{'collapse show': !stateAnketa.share.printPage}" 
       id="work"
     > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.workplace" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.workplace" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <ActionIcons v-show="workplace.showActions"
-              @delete="emit('delete', item['id'].toString(), 'workplace')"
+              @delete="stateAnketa.deleteItem(item['id'].toString(), 'workplace')"
               @update="
                 workplace.action = 'update';
                 workplace.item = item;

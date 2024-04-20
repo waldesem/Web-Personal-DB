@@ -16,17 +16,8 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["get-item", "delete", "submit"]);
-
-onBeforeMount(() => {
-  emit("get-item");
-});
-
-const props = defineProps({
-  printPage: {
-    type: Boolean,
-    default: false,
-  },
+onBeforeMount(async() => {
+  await stateAnketa.getItem("document");
 });
 
 const document = ref({
@@ -37,14 +28,13 @@ const document = ref({
 });
 
 function submitForm(form: Object) {
-  emit("submit", document.value.action, "document", document.value.itemId, form)
+  stateAnketa.updateItem(document.value.action, "document", document.value.itemId, form)
   document.value.action = '';
 };
 </script>
 
 <template>
   <ActionHeader
-    :print-page="props.printPage"
     :id="'document'"
     :header="'Документы'"
     :action="document.action"
@@ -60,15 +50,15 @@ function submitForm(form: Object) {
     @mouseout="document.showActions = false"
   >
     <div 
-      v-if="stateAnketa.document.length" 
-      :class="{'collapse show': !printPage}" 
+      v-if="stateAnketa.anketa.document.length" 
+      :class="{'collapse show': !stateAnketa.share.printPage}" 
       id="document"
     > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.document" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.document" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <ActionIcons v-show="document.showActions"
-              @delete="emit('delete', item['id'].toString(), 'document')"
+              @delete="stateAnketa.deleteItem(item['id'].toString(), 'document')"
               @update="
                 document.action = 'update';
                 document.item = item;

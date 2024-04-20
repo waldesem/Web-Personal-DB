@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { axiosInstance } from "@/auth";
-import { stateAlert, stateClassify } from "@/state";
+import { stateAlert, stateAnketa, stateClassify } from "@/state";
 import { server } from "@/utilities";
-import { Resume } from "@/interfaces";
 import { router } from "@/router";
 
 const LabelSlot = defineAsyncComponent(
@@ -25,20 +24,16 @@ const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
 
-const emit = defineEmits(["get-resume", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   action: {
     type: String,
     default: "create",
   },
-  resume: {
-    type: Object as () => Resume,
-    default: {},
-  },
 });
 
-const resumeForm = toRef(props.resume);
+const resumeForm = toRef(stateAnketa.anketa.resume);
 
 async function submitResume(): Promise<void> {
   try {
@@ -49,14 +44,14 @@ async function submitResume(): Promise<void> {
             resumeForm.value
           )
         : await axiosInstance.patch(
-            `${server}/resume/${props.resume["id"]}`,
+            `${server}/resume/${stateAnketa.anketa.resume["id"]}`,
             resumeForm.value
           );
     const { message } = response.data;
 
     props.action === "create"
       ? router.push({ name: "profile", params: { id: message } })
-      : emit("cancel"), emit("get-resume");
+      : emit("cancel"), stateAnketa.getResume("view");
 
     stateAlert.setAlert(
       "alert-success",
@@ -168,14 +163,14 @@ async function submitResume(): Promise<void> {
         <TextArea
           :name="'education'"
           :place="'Образование'"
-          v-model="props.resume['education']"
+          v-model="resumeForm['education']"
         ></TextArea>
       </LabelSlot>
       <LabelSlot :label="'Дополнительно'">
         <TextArea
           :name="'addition'"
           :place="'Дополнительно'"
-          v-model="props.resume['addition']"
+          v-model="resumeForm['addition']"
         ></TextArea>
       </LabelSlot>
       <BtnGroup>
