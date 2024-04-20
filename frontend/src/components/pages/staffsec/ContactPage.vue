@@ -2,8 +2,8 @@
 import { onBeforeMount, defineAsyncComponent, ref } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
-import { debounce, server } from "@utilities/utils";
-import { Connection } from "@/interfaces/interface";
+import { debounce, server } from "@/utilities";
+import { Connection } from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")

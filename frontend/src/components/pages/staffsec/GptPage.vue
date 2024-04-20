@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
 import { authStore } from "@store/auth";
-import { server } from "@utilities/utils";
-import { router } from "@/router/router";
+import { server } from "@/utilities";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")

@@ -3,9 +3,9 @@ import { defineAsyncComponent, toRef } from "vue";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
-import { server } from "@utilities/utils";
-import { Resume } from "@/interfaces/interface";
-import { router } from "@/router/router";
+import { server } from "@/utilities";
+import { Resume } from "@/interfaces";
+import { router } from "@/router";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")

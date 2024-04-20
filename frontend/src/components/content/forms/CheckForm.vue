@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, computed, toRef } from "vue";
 import { classifyStore } from "@store/classify";
-import { Verification } from "@/interfaces/interface";
+import { Verification } from "@/interfaces";
 
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")

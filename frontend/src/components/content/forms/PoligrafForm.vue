@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { Pfo } from "@/interfaces/interface";
+import { Pfo } from "@/interfaces";
 
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")

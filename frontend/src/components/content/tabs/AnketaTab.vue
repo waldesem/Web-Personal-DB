@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
-import type { Anketa, Resume } from "@/interfaces/interface";
+import type { Anketa, Resume } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")

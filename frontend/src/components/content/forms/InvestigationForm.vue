@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
-import { Inquisition } from "@/interfaces/interface";
+import { Inquisition } from "@/interfaces";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")

@@ -2,8 +2,8 @@
 import { defineAsyncComponent } from "vue";
 import { authStore } from "@/store/auth";
 import { userStore } from "@/store/user";
-import { server } from "@/utilities/utils";
-import { router } from "@/router/router";
+import { server } from "@/utilities";
+import { router } from "@/router";
 
 const AlertMessage = defineAsyncComponent(
   () => import("@components/content/elements/AlertMessage.vue")

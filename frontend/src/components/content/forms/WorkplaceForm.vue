@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { Work } from "@/interfaces/interface";
+import { Work } from "@/interfaces";
 
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")

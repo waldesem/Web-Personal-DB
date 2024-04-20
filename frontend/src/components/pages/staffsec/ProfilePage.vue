@@ -5,8 +5,8 @@ import { authStore } from "@/store/auth";
 import { alertStore } from "@store/alert";
 import { classifyStore } from "@/store/classify";
 import { userStore } from "@/store/user";
-import { server } from "@utilities/utils";
-import { router } from "@/router/router";
+import { server } from "@/utilities";
+import { router } from "@/router";
 import {
   Resume,
   Staff,
@@ -21,7 +21,7 @@ import {
   Pfo,
   Inquisition,
   Needs,
-} from "@/interfaces/interface";
+} from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")

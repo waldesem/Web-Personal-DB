@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
-import { Needs } from "@/interfaces/interface";
+import { Needs } from "@/interfaces";
 import { classifyStore } from "@/store/classify";
 
 const storeClassify = classifyStore();

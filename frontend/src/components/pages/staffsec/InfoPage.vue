@@ -2,7 +2,7 @@
 import { computed, onBeforeMount, ref, defineAsyncComponent } from "vue";
 import { classifyStore } from "@/store/classify";
 import { authStore } from "@/store/auth";
-import { server } from "@/utilities/utils";
+import { server } from "@/utilities";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")

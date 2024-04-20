@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { Affilation } from "@/interfaces/interface";
+import { Affilation } from "@/interfaces";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")

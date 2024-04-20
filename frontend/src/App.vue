@@ -4,7 +4,7 @@ import { classifyStore } from "@/store/classify";
 import { userStore } from "@/store/user";
 import { authStore } from "@/store/auth";
 import { alertStore } from "@/store/alert";
-import { router } from "@/router/router";
+import { router } from "@/router";
 import { server } from "@utilities/utils";
 
 const storeUser = userStore();
