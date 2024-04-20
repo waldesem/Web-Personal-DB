@@ -1,8 +1,7 @@
 import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
 import { authStore } from "@/store/auth";
-import { server } from "@/utilities";
-import { expiryToken } from "@/utilities";
+import { server, readToken } from "@/utilities";
 
 export const router = createRouter({
   routes: [
@@ -87,7 +86,7 @@ router.beforeEach(async (to, _from, next) => {
 
   if (
     Math.floor(new Date().getTime() / 1000) >=
-    expiryToken(storeAuth.refreshToken)
+    readToken(storeAuth.refreshToken, "exp")
   ) {
     next();
     return;
@@ -99,7 +98,7 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   if (
-    Math.floor(new Date().getTime() / 1000) < expiryToken(storeAuth.accessToken)
+    Math.floor(new Date().getTime() / 1000) < readToken(storeAuth.accessToken, "exp")
   ) {
     next();
     return;

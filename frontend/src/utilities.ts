@@ -59,13 +59,14 @@ function timeSince(date: string): string {
 }
 
 /**
- * Parses the expiration time from a JWT token.
+ * Parses the specified item from a JWT token.
  *
- * @param {string} token - The JWT token to extract the expiration time from
- * @return {any} The expiration time extracted from the JWT token
+ * @param {string} token - The JWT token to extract the item from.
+ * @param {string} item - The item to extract from the token.
+ * @return {any} The value of the specified item extracted from the token.
  */
-function expiryToken(token: string): any {
-  return JSON.parse(atob(token.split(".")[1])).exp;
+function readToken(token: string, item: string): any {
+  return JSON.parse(atob(token.split(".")[1]))[item];
 }
 
-export { server, debounce, timeSince, expiryToken };
+export { server, debounce, timeSince, readToken };
