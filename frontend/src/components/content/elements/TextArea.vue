@@ -12,7 +12,7 @@ const props = defineProps({
     :id="props.name"
     :name="props.name"
     :placeholder="props.place"
-    v-model="model"
+    v-model.lazy="model"
   >
   </textarea>
 </template>

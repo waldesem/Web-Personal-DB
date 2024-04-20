@@ -48,7 +48,7 @@ const props = defineProps({
     :pattern="props.pattern"
     :placeholder="props.place"
     :list="props.lst"
-    v-model.trim="model"
+    v-model.trim.lazy="model"
     @change="emit('submit-data')"
   />
   <datalist v-if="props.lst" :id="props.lst">
