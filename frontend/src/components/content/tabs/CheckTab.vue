@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
-import { classifyStore } from "@/store/classify";
-import { Anketa, Verification } from "@/interfaces";
+import { stateClassify, stateAnketa, stateUser } from "@/state";
+import { Verification } from "@/interfaces";
 
 const IconRelative = defineAsyncComponent(
   () => import("@components/content/elements/IconRelative.vue")
@@ -22,8 +22,6 @@ const RobotDiv = defineAsyncComponent(
   () => import("@components/content/divs/RobotDiv.vue")
 );
 
-const storeClassify = classifyStore();
-
 const emit = defineEmits(["get-item", "delete", "submit", "file"]);
 
 onBeforeMount(() => {
@@ -36,14 +34,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  userId: {
-    type: String,
-    required: true,
-  },
-  anketa: {
-    type: Object as () => Anketa,
-    default: {},
-  },
 });
 
 const check = ref({
@@ -51,9 +41,9 @@ const check = ref({
   itemId: "",
   item: <Verification>{},
   hideEditBtn:
-    props.anketa.resume["status_id"] !== storeClassify.classData.status["save"] &&
-    props.anketa.resume["status_id"] !== storeClassify.classData.status["cancel"] &&
-    props.anketa.resume["status_id"] !== storeClassify.classData.status["manual"],
+    stateAnketa.resume["status_id"] !== stateClassify.status["save"] &&
+    stateAnketa.resume["status_id"] !== stateClassify.status["cancel"] &&
+    stateAnketa.resume["status_id"] !== stateClassify.status["manual"],
   showActions: false
 });
 
@@ -65,7 +55,6 @@ function submitForm(form: Object) {
 function deleteItem(itemId: string) {
   emit("delete", itemId, "check");
 }
-console.log(props.userId);
 </script>
 
 <template>
@@ -76,12 +65,12 @@ console.log(props.userId);
           :icon-class="`bi bi-journal-check fs-1`"
           :hide="
             ![
-              storeClassify.classData.status['update'],
-              storeClassify.classData.status['save'],
-              storeClassify.classData.status['repeat'],
-              storeClassify.classData.status['manual'],
-            ].includes(props.anketa.resume['status_id']) &&
-            props.anketa.resume['user_id'] != props.userId
+              stateClassify.status['update'],
+              stateClassify.status['save'],
+              stateClassify.status['repeat'],
+              stateClassify.status['manual'],
+            ].includes(stateAnketa.resume['status_id']) &&
+            stateAnketa.resume['user_id'] != stateUser.userId
           "
           @onclick="check.action = 'create'"
         />
@@ -96,8 +85,8 @@ console.log(props.userId);
       @mouseover="check.showActions = true"
       @mouseout="check.showActions = false"
     >
-      <div v-if="props.anketa.check.length"> 
-        <div class="mb-3" v-for="(item, idx) in props.anketa.check" :key="idx">
+      <div v-if="stateAnketa.check.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.check" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="check.showActions"
@@ -108,11 +97,11 @@ console.log(props.userId);
                 "
                 :hide="
                   ![
-                    storeClassify.classData.status['save'],
-                    storeClassify.classData.status['cancel'],
-                    storeClassify.classData.status['manual'],
-                  ].includes(props.anketa.resume['status_id']) &&
-                  props.anketa.resume['user_id'] !== props.userId
+                    stateClassify.status['save'],
+                    stateClassify.status['cancel'],
+                    stateClassify.status['manual'],
+                  ].includes(stateAnketa.resume['status_id']) &&
+                  stateAnketa.resume['user_id'] !== stateUser.userId
                 "
               />
             </LabelSlot>
@@ -157,7 +146,7 @@ console.log(props.userId);
             <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
             <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
             <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ storeClassify.classData.users[item["user_id"]] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
             <LabelSlot :label="'Дата'">
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>
@@ -165,7 +154,7 @@ console.log(props.userId);
         </div>
         <FileForm :accept="'*'" @submit="emit('file')" />
         <RobotDiv
-          :robots="props.anketa.robot"
+          :robots="stateAnketa.robot"
           @get-item="emit('get-item', 'robot')"
           @delete="deleteItem"
         />

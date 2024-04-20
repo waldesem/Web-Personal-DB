@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@store/alert";
-import { classifyStore } from "@/store/classify";
+import { axiosInstance } from "@/auth";
+import { stateAlert, stateClassify } from "@/state";
 import { server } from "@/utilities";
 import { User } from "@/interfaces";
 
@@ -23,10 +22,6 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const storeClassify = classifyStore();
-const storeAlert = alertStore();
-const storeAuth = authStore();
-
 const route = useRoute();
 
 onBeforeMount(async () => {
@@ -44,7 +39,7 @@ const userData = ref({
 
 async function userAction(action: String): Promise<void> {
   try {
-    const response = await storeAuth.axiosInstance.get(
+    const response = await axiosInstance.get(
       `${server}/user/${userData.value.id}`,
       {
         params: {
@@ -54,9 +49,9 @@ async function userAction(action: String): Promise<void> {
     );
     userData.value.profile = response.data;
     if (action === "drop") {
-      storeAlert.alertMessage.setAlert("alert-success", "Пароль сброшен");
+      stateAlert.setAlert("alert-success", "Пароль сброшен");
     } else if (action === "block") {
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         `Пользователь ${
           userData.value.profile.blocked ? "заблокирован" : "разблокирован"
@@ -64,24 +59,24 @@ async function userAction(action: String): Promise<void> {
       );
     }
   } catch (error) {
-    storeAlert.alertMessage.setAlert("alert-danger", error as string);
+    stateAlert.setAlert("alert-danger", error as string);
   }
 }
 
 async function userDelete(): Promise<void> {
   if (confirm("Вы действительно хотите удалить пользователя?")) {
     try {
-      const response = await storeAuth.axiosInstance.delete(
+      const response = await axiosInstance.delete(
         `${server}/user/${userData.value.id}`
       );
       console.log(response.status);
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         "Пользователь отмечен к удалению"
       );
       userAction("view");
     } catch (error) {
-      storeAlert.alertMessage.setAlert("alert-danger", error as string);
+      stateAlert.setAlert("alert-danger", error as string);
     }
   }
 }
@@ -91,21 +86,21 @@ async function updateRole(action: string, value: string): Promise<void> {
     try {
       const response =
         action === "add"
-          ? await storeAuth.axiosInstance.get(
+          ? await axiosInstance.get(
               `${server}/role/${value}/${userData.value.id}`
             )
-          : await storeAuth.axiosInstance.delete(
+          : await axiosInstance.delete(
               `${server}/role/${value}/${userData.value.id}`
             );
       console.log(response.status);
       userAction("view");
 
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         `Роль ${action === "add" ? "добавлена" : "удалена"}`
       );
     } catch (error) {
-      storeAlert.alertMessage.setAlert("alert-danger", error as string);
+      stateAlert.setAlert("alert-danger", error as string);
     }
     userData.value.role = "";
   }
@@ -156,7 +151,7 @@ async function updateRole(action: string, value: string): Promise<void> {
         </ul>
         <SelectObject
           :name="'role'"
-          :select="storeClassify.classData.roles"
+          :select="stateClassify.roles"
           v-model="userData.role"
           @submit-data="updateRole('add', userData.role)"
         />

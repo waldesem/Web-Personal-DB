@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { authStore } from "@store/auth";
+import { axiosInstance } from "@/auth";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const storeAuth = authStore();
 
 const gptData = ref({
   query: "",
@@ -16,7 +15,7 @@ const gptData = ref({
 
 async function getGptAnswers(): Promise<void> {
   try {
-    const response = await storeAuth.axiosInstance.post(
+    const response = await axiosInstance.post(
       `${server}/gpt`, {"query": gptData.value.query}
     );
     const { answer } = response.data;

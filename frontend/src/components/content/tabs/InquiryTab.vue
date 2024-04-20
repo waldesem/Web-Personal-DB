@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces";
-import { classifyStore } from "@/store/classify";
-
-const storeClassify = classifyStore();
+import { stateClassify, stateAnketa } from "@/state";
 
 const IconRelative = defineAsyncComponent(
   () => import("@components/content/elements/IconRelative.vue")
@@ -28,10 +26,6 @@ const props = defineProps({
   printPage: {
     type: Boolean,
     default: false,
-  },
-  needs: {
-    type: Array as () => Array<Needs>,
-    default: () => [],
   },
 });
 
@@ -66,8 +60,8 @@ function submitForm(form: Object) {
       @mouseover="need.showActions = true"
       @mouseout="need.showActions = false"
     >
-      <div v-if="props.needs.length"> 
-        <div class="mb-3" v-for="(item, idx) in props.needs" :key="idx">
+      <div v-if="stateAnketa.inquiry.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.inquiry" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="need.showActions"
@@ -82,7 +76,7 @@ function submitForm(form: Object) {
             <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
             <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
             <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ storeClassify.classData.users[item["user_id"]] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
             <LabelSlot :label="'Дата запроса'">
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>

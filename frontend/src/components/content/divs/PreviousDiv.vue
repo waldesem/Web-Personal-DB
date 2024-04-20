@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { stateAnketa } from "@/state";
 import { Previous } from "@/interfaces";
 
 const ActionHeader = defineAsyncComponent(
@@ -25,10 +26,6 @@ const props = defineProps({
   printPage: {
     type: Boolean,
     default: false,
-  },
-  items: {
-    type: Array<Previous>,
-    default: [{}],
   },
 });
 
@@ -64,10 +61,10 @@ function submitForm(form: Object) {
     @mouseout="previous.showActions = false"
   >
     <div 
-      v-if="props.items.length" 
+      v-if="stateAnketa.previous.length" 
       :class="{'collapse show': !printPage}" 
       id="previous"> 
-      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.previous" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <ActionIcons v-show="previous.showActions"

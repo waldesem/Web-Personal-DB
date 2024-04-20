@@ -1,27 +1,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@store/alert";
-import { classifyStore } from "@/store/classify";
-import { userStore } from "@/store/user";
+import { axiosInstance } from "@/auth";
+import { stateAlert, stateClassify, stateUser, stateAnketa } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
-import {
-  Resume,
-  Staff,
-  Document,
-  Address,
-  Contact,
-  Relation,
-  Work,
-  Affilation,
-  Verification,
-  Robot,
-  Pfo,
-  Inquisition,
-  Needs,
-} from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -48,11 +31,6 @@ const InquiryTab = defineAsyncComponent(
   () => import("@components/content/tabs/InquiryTab.vue")
 );
 
-const storeAuth = authStore();
-const storeAlert = alertStore();
-const storeClassify = classifyStore();
-const storeUser = userStore();
-
 const route = useRoute();
 
 const candId = route.params.id.toString();
@@ -61,25 +39,10 @@ onBeforeMount(async () => {
   await getResume();
 });
 
-const anketaData = ref({
+const pageDate = ref({
   printPage: false,
   spinner: false,
   imageUrl: "",
-  anketa: {
-    resume: <Resume>{},
-    staff: [] as Array<Staff>,
-    document: [] as Array<Document>,
-    addresse: [] as Array<Address>,
-    contact: [] as Array<Contact>,
-    relation: [] as Array<Relation>,
-    workplace: [] as Array<Work>,
-    affilation: [] as Array<Affilation>,
-    check: [] as Array<Verification>,
-    robot: [] as Array<Robot>,
-    poligraf: [] as Array<Pfo>,
-    investigation: [] as Array<Inquisition>,
-    inquiry: [] as Array<Needs>,
-  },
 });
 
 async function getResume(action = "view"): Promise<void> {
@@ -93,9 +56,9 @@ async function getResume(action = "view"): Promise<void> {
     }
   }
   if (action === "send") {
-    anketaData.value.spinner = true;
+    pageDate.value.spinner = true;
     if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
-      anketaData.value.spinner = false;
+      pageDate.value.spinner = false;
       return;
     }
   }
@@ -105,7 +68,7 @@ async function getResume(action = "view"): Promise<void> {
     }
   }
   try {
-    const response = await storeAuth.axiosInstance.get(
+    const response = await axiosInstance.get(
       `${server}/resume/${candId}`,
       {
         params: {
@@ -113,25 +76,25 @@ async function getResume(action = "view"): Promise<void> {
         },
       }
     );
-    anketaData.value.anketa.resume = response.data;
+    stateAnketa.resume = response.data;
 
     if (["self", "send", "status"].includes(action)) {
       getResume("view");
 
       if (action === "status") {
-        storeAlert.alertMessage.setAlert(
+        stateAlert.setAlert(
           "alert-info",
           "Статус анкеты обновлен"
         );
       }
       if (action === "self") {
-        storeAlert.alertMessage.setAlert(
+        stateAlert.setAlert(
           "alert-info",
           "Анкета назначена на себя"
         );
       }
       if (action === "send") {
-        storeAlert.alertMessage.setAlert(
+        stateAlert.setAlert(
           "alert-success",
           "Анкета отправлена на проверку"
         );
@@ -139,34 +102,33 @@ async function getResume(action = "view"): Promise<void> {
     }
   } catch (error) {
     console.error(error);
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-danger",
       `Ошибка обработки ${error}`
     );
   }
-  anketaData.value.spinner = false;
+  pageDate.value.spinner = false;
 }
 
 async function getItem(param: string): Promise<void> {
   try {
     const response =
       param === "image"
-        ? await storeAuth.axiosInstance.get(`${server}/${param}/${candId}`, {
+        ? await axiosInstance.get(`${server}/${param}/${candId}`, {
             responseType: "blob",
           })
-        : await storeAuth.axiosInstance.get(`${server}/${param}/${candId}`);
+        : await axiosInstance.get(`${server}/${param}/${candId}`);
 
     if (param === "image") {
-      anketaData.value.imageUrl = window.URL.createObjectURL(
+      pageDate.value.imageUrl = window.URL.createObjectURL(
         new Blob([response.data], { type: "image/jpeg" })
       );
     } else {
-      anketaData.value.anketa[param as keyof typeof anketaData.value.anketa] =
-        response.data;
+      stateAnketa[param as keyof typeof stateAnketa] = response.data;
     }
   } catch (error) {
     console.error(error);
-    storeAlert.alertMessage.setAlert("alert-danger", `Ошибка: ${error}`);
+    stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
   }
 }
 
@@ -179,24 +141,24 @@ async function updateItem(
   try {
     const response =
       action === "create"
-        ? await storeAuth.axiosInstance.post(
+        ? await axiosInstance.post(
             `${server}/${param}/${candId}`,
             form
           )
-        : await storeAuth.axiosInstance.patch(
+        : await axiosInstance.patch(
             `${server}/${param}/${itemId}`,
             form
           );
 
     console.log(response.status);
 
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-success",
       "Данные успешно обновлены"
     );
     getItem(param);
   } catch (error) {
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-danger",
       `Возникла ошибка ${error}`
     );
@@ -207,12 +169,12 @@ async function deleteItem(id: string, param: string): Promise<void> {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   if (
     param === "check" &&
-    (anketaData.value.anketa.resume.status_id ===
-      storeClassify.classData.status["finish"] ||
-      anketaData.value.anketa.resume.status_id ===
-        storeClassify.classData.status["robot"])
+    (stateAnketa.resume.status_id ===
+      stateClassify.status["finish"] ||
+      stateAnketa.resume.status_id ===
+        stateClassify.status["robot"])
   ) {
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-warning",
       "Невозможно удалить проверку с текщим статусом"
     );
@@ -220,26 +182,26 @@ async function deleteItem(id: string, param: string): Promise<void> {
   }
   if (
     ["robot", "finish"].includes(
-      storeClassify.classData.status[
-        anketaData.value.anketa.resume["status_id"]
+      stateClassify.status[
+        stateAnketa.resume["status_id"]
       ]
     )
   ) {
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-warning",
       "Нельзя удалить запись с текущим статусом"
     );
     return;
   }
   try {
-    const response = await storeAuth.axiosInstance.delete(
+    const response = await axiosInstance.delete(
       `${server}/${param}/${id}`
     );
     console.log(response.status);
 
     param === "resume" ? router.push({ name: "persons" }) : getItem(param);
 
-    storeAlert.alertMessage.setAlert("alert-info", `Запись с ID ${id} удалена`);
+    stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
   } catch (error) {
     console.error(error);
   }
@@ -251,7 +213,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
     const maxSizeInBytes = 1024 * 1024; // 1MB
     for (let i = 0; i < inputElement.files.length; i++) {
       if (inputElement.files[i].size > maxSizeInBytes) {
-        storeAlert.alertMessage.setAlert(
+        stateAlert.setAlert(
           "alert-warning",
           "File size exceeds the limit. Please select a smaller file."
         );
@@ -263,7 +225,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
     formData.append("file", inputElement.files[0]);
 
     try {
-      const response = await storeAuth.axiosInstance.post(
+      const response = await axiosInstance.post(
         `${server}/file/${param}/${candId}`,
         formData
       );
@@ -271,7 +233,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       if (param === "image") {
         getItem("file");
       }
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         "Файл или файлы успешно загружен/добавлены"
       );
@@ -279,7 +241,7 @@ async function submitFile(event: Event, param: string): Promise<void> {
       console.error(error);
     }
   } else {
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-warning",
       "Ошибка при загрузке файла"
     );
@@ -290,52 +252,52 @@ async function submitFile(event: Event, param: string): Promise<void> {
 <template>
   <PhotoCard
     :cand-id="candId"
-    :url="anketaData.imageUrl"
+    :url="pageDate.imageUrl"
     @get-item="getItem"
     @submit-file="submitFile"
   />
   <div class="row mb-3">
     <div class="col-md-10">
       <HeaderDiv
-        :page-header="`${anketaData.anketa.resume.surname} ${anketaData.anketa.resume.firstname} ${anketaData.anketa.resume.patronymic}`"
+        :page-header="`${stateAnketa.resume.surname} ${stateAnketa.resume.firstname} ${stateAnketa.resume.patronymic}`"
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
       <IconRelative
         :title="`Версия для печати`"
         :icon-class="`bi bi-printer fs-1`"
-        @click="anketaData.printPage = !anketaData.printPage"
+        @click="pageDate.printPage = !pageDate.printPage"
       />
       <IconRelative
         :title="`Взять на проверку`"
         :icon-class="`bi bi-person-plus fs-1`"
         :hide="
-          anketaData.anketa.resume.user_id !== null &&
-          anketaData.anketa.resume.user_id !== ''
+          stateAnketa.resume.user_id !== null &&
+          stateAnketa.resume.user_id !== ''
         "
         @onclick="getResume('self')"
       />
       <IconRelative
         :title="`Отправить на проверку`"
         :icon-class="'bi bi-send-plus fs-1'"
-        :hide="anketaData.anketa.resume.user_id !== storeUser.userData.userId
-        || anketaData.anketa.resume.status_id === storeClassify.classData.status['robot']"
+        :hide="stateAnketa.resume.user_id !== stateUser.userId
+        || stateAnketa.resume.status_id === stateClassify.status['robot']"
         @onclick="getResume('send')"
       >
         <span
-          v-if="anketaData.spinner"
+          v-if="pageDate.spinner"
           class="spinner-border spinner-border-sm"
         ></span>
-        <span v-if="anketaData.spinner" role="status">Отправляется...</span>
+        <span v-if="pageDate.spinner" role="status">Отправляется...</span>
       </IconRelative>
     </div>
   </div>
   <div
-    :class="{ 'nav nav-tabs nav-justified': !anketaData.printPage }"
-    :role="!anketaData.printPage ? 'tablist' : ''"
+    :class="{ 'nav nav-tabs nav-justified': !pageDate.printPage }"
+    :role="!pageDate.printPage ? 'tablist' : ''"
   >
     <button
-      v-if="!anketaData.printPage"
+      v-if="!pageDate.printPage"
       v-for="(value, key) in {
         anketaTab: 'Анкета',
         сheckTab: 'Проверки',
@@ -355,16 +317,15 @@ async function submitFile(event: Event, param: string): Promise<void> {
   </div>
 
   <div 
-    :class="{ 'tab-content': !anketaData.printPage }">
+    :class="{ 'tab-content': !pageDate.printPage }">
     <div
       id="anketaTab"
-      :class="{ 'tab-pane fade py-1 show active': !anketaData.printPage }"
-      :role="!anketaData.printPage ? 'tabpanel' : ''"
-      :tabindex="!anketaData.printPage ? '0' : ''"
+      :class="{ 'tab-pane fade py-1 show active': !pageDate.printPage }"
+      :role="!pageDate.printPage ? 'tabpanel' : ''"
+      :tabindex="!pageDate.printPage ? '0' : ''"
     >
       <AnketaTab
-        :print-page="anketaData.printPage"
-        :anketa="anketaData.anketa"
+        :print-page="pageDate.printPage"
         @get-resume="getResume"
         @get-item="getItem"
         @submit="updateItem"
@@ -373,14 +334,12 @@ async function submitFile(event: Event, param: string): Promise<void> {
     </div>
     <div
       id="сheckTab"
-      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-      :role="!anketaData.printPage ? 'tabpanel' : ''"
+      :class="{ 'tab-pane fade py-1': !pageDate.printPage }"
+      :role="!pageDate.printPage ? 'tabpanel' : ''"
     >
-      <h5 v-if="anketaData.printPage">Проверки</h5>
+      <h5 v-if="pageDate.printPage">Проверки</h5>
       <CheckTab
-        :print-page="anketaData.printPage"
-        :user-id="storeUser.userData.userId.toString()"
-        :anketa="anketaData.anketa"
+        :print-page="pageDate.printPage"
         @get-item="getItem"
         @delete="deleteItem"
         @submit="updateItem"
@@ -389,13 +348,12 @@ async function submitFile(event: Event, param: string): Promise<void> {
     </div>
     <div
       id="poligrafTab"
-      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-      :role="!anketaData.printPage ? 'tabpanel' : ''"
+      :class="{ 'tab-pane fade py-1': !pageDate.printPage }"
+      :role="!pageDate.printPage ? 'tabpanel' : ''"
     >
-      <h5 v-if="anketaData.printPage">Полиграф</h5>
+      <h5 v-if="pageDate.printPage">Полиграф</h5>
       <PoligrafTab
-        :print-page="anketaData.printPage"
-        :poligrafs="anketaData.anketa.poligraf"
+        :print-page="pageDate.printPage"
         @get-item="getItem"
         @delete="deleteItem"
         @submit="updateItem"
@@ -404,13 +362,12 @@ async function submitFile(event: Event, param: string): Promise<void> {
     </div>
     <div
       id="investigateTab"
-      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-      :role="!anketaData.printPage ? 'tabpanel' : ''"
+      :class="{ 'tab-pane fade py-1': !pageDate.printPage }"
+      :role="!pageDate.printPage ? 'tabpanel' : ''"
     >
-      <h5 v-if="anketaData.printPage">Расследования</h5>
+      <h5 v-if="pageDate.printPage">Расследования</h5>
       <InvestigateTab
-        :print-page="anketaData.printPage"
-        :inquisitions="anketaData.anketa.investigation"
+        :print-page="pageDate.printPage"
         @get-item="getItem"
         @delete="deleteItem"
         @submit="updateItem"
@@ -419,13 +376,12 @@ async function submitFile(event: Event, param: string): Promise<void> {
     </div>
     <div
       id="inquiryTab"
-      :class="{ 'tab-pane fade py-1': !anketaData.printPage }"
-      :role="!anketaData.printPage ? 'tabpanel' : ''"
+      :class="{ 'tab-pane fade py-1': !pageDate.printPage }"
+      :role="!pageDate.printPage ? 'tabpanel' : ''"
     >
-      <h5 v-if="anketaData.printPage">Запросы</h5>
+      <h5 v-if="pageDate.printPage">Запросы</h5>
       <InquiryTab
-        :print-page="anketaData.printPage"
-        :needs="anketaData.anketa.inquiry"
+        :print-page="pageDate.printPage"
         @get-item="getItem"
         @delete="deleteItem"
         @submit="updateItem"

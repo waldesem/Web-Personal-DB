@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, computed, toRef } from "vue";
-import { classifyStore } from "@store/classify";
+import { stateClassify } from "@/state";
 import { Verification } from "@/interfaces";
 
 const TextArea = defineAsyncComponent(
@@ -21,8 +21,6 @@ const BtnGroupContent = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-
-const storeClassify = classifyStore();
 
 const emit = defineEmits(["submit", "cancel"]);
 
@@ -81,105 +79,105 @@ computed(() => {
         :name="'workplace'"
         :place="'Проверка по местам работы'"
         v-model="props.check['workplace']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка по кадровому учету'">
       <TextArea
         :name="'employee'"
         :place="'Проверка по кадровому учету'"
         v-model="props.check['employee']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка документов'">
       <TextArea
         :name="'document'"
         :place="'Проверка документов'"
         v-model="props.check['document']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка ИНН'">
       <TextArea
         :name="'inn'"
         :place="'Проверка ИНН'"
         v-model="props.check['inn']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка задолженностей'">
       <TextArea
         :name="'debt'"
         :place="'Проверка задолженностей'"
         v-model="props.check['debt']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка решений о признании банкротом'">
       <TextArea
         :name="'bankruptcy'"
         :place="'Проверка решений о признании банкротом'"
         v-model="props.check['bankruptcy']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка кредитной истории'">
       <TextArea
         :name="'bki'"
         :place="'Проверка кредитной истории'"
         v-model="props.check['bki']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка судебных дел'">
       <TextArea
         :name="'courts'"
         :place="'Проверка судебных дел'"
         v-model="props.check['courts']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка аффилированности'">
       <TextArea
         :name="'affiliation'"
         :place="'Проверка аффилированности'"
         v-model="props.check['affiliation']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка в списке террористов'">
       <TextArea
         :name="'terrorist'"
         :place="'Проверка в списке террористов'"
         v-model="props.check['terrorist']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка в розыск'">
       <TextArea
         :name="'mvd'"
         :place="'Проверка в розыск'"
         v-model="props.check['mvd']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка в открытых источниках'">
       <TextArea
         :name="'internet'"
         :place="'Проверка в открытых источниках'"
         v-model="props.check['internet']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка в Кронос'">
       <TextArea
         :name="'cronos'"
         :place="'Проверка в Кронос'"
         v-model="props.check['cronos']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Проверка в Крос'">
       <TextArea
         :name="'cros'"
         :place="'Проверка в Крос'"
         v-model="props.check['cros']"
-      />
+      ></TextArea>
     </LabelSlot>
     <LabelSlot :label="'Дополнительная информация'">
       <TextArea
         :name="'addition'"
         :place="'Дополнительная информация'"
         v-model="props.check['addition']"
-      />
+      ></TextArea>
     </LabelSlot>
     <SwitchBox
       :div-class="'offset-lg-2 col-lg-10'"
@@ -190,7 +188,7 @@ computed(() => {
     <LabelSlot :label="'Результат'">
       <SelectObject
         :name="'conclusion'"
-        :select="storeClassify.classData.conclusions"
+        :select="stateClassify.conclusions"
         v-model="checkForm['conclusion']"
       />
     </LabelSlot>
@@ -199,7 +197,7 @@ computed(() => {
         :name="'comments'"
         :place="'Комментарий'"
         v-model="props.check['comments']"
-      />
+      ></TextArea>
     </LabelSlot>
     <BtnGroup>
       <BtnGroupContent

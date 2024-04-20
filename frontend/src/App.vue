@@ -1,42 +1,53 @@
 <script setup lang="ts">
-import { onBeforeMount } from "vue";
-import { classifyStore } from "@/store/classify";
-import { userStore } from "@/store/user";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@/store/alert";
+import axios from "axios";
+import { computed, watch, onBeforeMount, onMounted } from "vue";
+import { stateClassify, stateUser, stateAlert } from "@/state";
 import { router } from "@/router";
-import { server } from "@utilities/utils";
+import { readToken, server } from "@/utilities";
 
-const storeUser = userStore();
-const storeAuth = authStore();
-const storeAlert = alertStore();
-const storeClasses = classifyStore();
+watch(
+  () => localStorage.getItem("refresh_token"),
+  (newToken) => {
+    const tokenPayload = readToken(newToken as string);
+    stateUser.userId = tokenPayload["id"] ? tokenPayload["id"] : "";
+    stateUser.fullName = tokenPayload["fullname"] ? tokenPayload["fullname"] : "";
+    stateUser.userName = tokenPayload["username"] ? tokenPayload["username"] : "";
+    stateUser.userRoles = tokenPayload["roles"] ? tokenPayload["roles"] : [];
+  },
+  { immediate: true }
+);
+
+computed(() => {
+  stateUser.hasAdmin = stateUser.userRoles.some((r: { role: any }) => r.role === "admin")
+});
 
 onBeforeMount(async () => {
-  try {
-    const response = await storeAuth.axiosInstance.get(`${server}/login`);
-    const { id, fullname, username, roles } = response.data;
-
-    Object.assign(storeUser.userData, {
-      userId: id,
-      fullName: fullname,
-      userName: username,
-      userRoles: roles,
-      hasAdmin: roles.some((r: { role: any }) => r.role === "admin"),
-    });
-    storeClasses.classData.getClasses();
-    storeAlert.alertMessage.setAlert();
-    router.push({ name: "persons" });
-  } catch (error) {
-    storeAlert.alertMessage.setAlert("alert-warning", error as string);
-  }
+  await getClasses();
+  stateAlert.setAlert();
 });
+
+onMounted(() => {
+  router.push({ name: "persons" });
+});
+
+async function getClasses(): Promise<void> {
+  try {
+    const response = await axios.get(`${server}/classes`);
+    [
+      stateClassify.conclusions,
+      stateClassify.roles,
+      stateClassify.status,
+      stateClassify.regions,
+      stateClassify.users,
+    ] = response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <component :is="Component" :key="$route.fullPath" />
-  </router-view>
+  <RouterView />
 </template>
 
 <style>

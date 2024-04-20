@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { alertStore } from "@store/alert";
-
-const storeAlert = alertStore();
+import { stateAlert } from "@/state";
 </script>
 
 <template>
@@ -10,8 +8,8 @@ const storeAlert = alertStore();
     role="info"
     fade
     show
-    :class="storeAlert.alertMessage.attr"
+    :class="stateAlert.alertMessage.attr"
   >
-    {{ storeAlert.alertMessage.text }}
+    {{ stateAlert.alertMessage.text }}
   </div>
 </template>

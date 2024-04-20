@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { Robot } from "@/interfaces";
+import { stateAnketa } from "@/state";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -13,10 +13,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  robots: {
-    type: Array as () => Array<Robot>,
-    default: {},
-  },
 });
 
 const showActions = ref(false);
@@ -24,16 +20,16 @@ const showActions = ref(false);
 
 <template>
   <div
-    v-if="props.robots.length"
+    v-if="stateAnketa.robot.length"
     @mouseover="showActions = true"
     @mouseout="showActions = false"
   >
     <div 
-      v-if="props.robots.length" 
-      :class="{'collapse show': !printPage}" 
+      v-if="stateAnketa.robot.length" 
+      :class="{'collapse show': !props.printPage}" 
       id="check"
     > 
-      <div class="mb-3" v-for="(item, idx) in props.robots" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.robot" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <a v-show="showActions"

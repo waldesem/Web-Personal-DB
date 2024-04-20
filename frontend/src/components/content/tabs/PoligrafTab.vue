@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces";
-import { classifyStore } from "@/store/classify";
-
-const storeClassify = classifyStore();
+import { stateClassify, stateAnketa } from "@/state";
 
 const IconRelative = defineAsyncComponent(
   () => import("@components/content/elements/IconRelative.vue")
@@ -32,10 +30,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  poligrafs: {
-    type: Array as () => Array<Pfo>,
-    default: () => [],
-  },
 });
 
 const poligraf = ref({
@@ -55,7 +49,6 @@ function submitForm(form: Object) {
   );
   poligraf.value.action = "";
 }
-console.log(props.poligrafs);
 </script>
 
 <template>
@@ -78,8 +71,8 @@ console.log(props.poligrafs);
      @mouseover="poligraf.showActions = true"
      @mouseout="poligraf.showActions = false"
     >
-      <div v-if="props.poligrafs.length"> 
-        <div class="mb-3" v-for="(item, idx) in props.poligrafs" :key="idx">
+      <div v-if="stateAnketa.poligraf.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.poligraf" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="poligraf.showActions"
@@ -93,7 +86,7 @@ console.log(props.poligrafs);
             </LabelSlot>
             <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
             <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ storeClassify.classData.users[item["user_id"]] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
             <LabelSlot :label="'Дата'">
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>

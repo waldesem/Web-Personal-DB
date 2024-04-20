@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@store/alert";
+import { axiosInstance } from "@/auth";
+import { stateAlert } from "@/state";
 import { server, debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
 
@@ -17,9 +17,6 @@ const SwitchBox = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
-
-const storeAlert = alertStore();
-const storeAuth = authStore();
 
 const searchUsers = debounce(() => {
   if (dataUsers.value.search.length < 3) {
@@ -47,14 +44,14 @@ const dataUsers = ref({
 
 async function getUsers() {
   try {
-    const response = await storeAuth.axiosInstance.get(`${server}/users`, {
+    const response = await axiosInstance.get(`${server}/users`, {
       params: {
         search: dataUsers.value.search,
       },
     });
     dataUsers.value.users = response.data;
   } catch (error) {
-    storeAlert.alertMessage.setAlert("alert-success", error as string);
+    stateAlert.setAlert("alert-success", error as string);
   }
 }
 </script>

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { defineAsyncComponent, ref } from "vue";
-import { alertStore } from "@store/alert";
-import { authStore } from "@/store/auth";
+import { stateAlert, stateToken } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -22,9 +21,6 @@ const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
 
-const storeAlert = alertStore();
-const storeAuth = authStore();
-
 const loginData = ref({
   action: "login",
   hidden: true,
@@ -35,14 +31,14 @@ const loginData = ref({
   loginData.value.hidden = true;
   if (loginData.value.action === "password") {
     if (loginData.value.form["password"] === loginData.value.form["new_pswd"]) {
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-warning",
         "Старый и новый пароли совпадают"
       );
       return;
     }
     if (loginData.value.form["conf_pswd"] !== loginData.value.form["new_pswd"]) {
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-warning",
         "Новый пароль и подтверждение не совпадают"
       );
@@ -60,21 +56,21 @@ const loginData = ref({
     switch (message) {
       case "Changed":
         loginData.value.action = "login";
-        storeAlert.alertMessage.setAlert(
+        stateAlert.setAlert(
           "alert-success",
           "Войдите с новым паролем"
         );
         break
         
       case "Authenticated":
-        storeAuth.accessToken = access_token;
+        stateToken.accessToken = access_token;
         localStorage.setItem("refresh_token", refresh_token);
         router.push({name: "auth"});
         break;
 
       case "Overdue":
         loginData.value.action = "password";
-        storeAlert.alertMessage.setAlert(
+        stateAlert.setAlert(
           "alert-warning",
           "Пароль просрочен. Измените пароль"
         );
@@ -82,14 +78,14 @@ const loginData = ref({
 
       case "Denied":
         loginData.value.action = "login";
-        storeAlert.alertMessage.setAlert(
+        stateAlert.setAlert(
           "alert-danger",
           "Неверный логин или пароль"
         );
         break;
     }
   } catch (error) {
-    storeAlert.alertMessage.setAlert("alert-warning", error as string);
+    stateAlert.setAlert("alert-warning", error as string);
   }
 }
 </script>

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
-import { authStore } from "@/store/auth";
+import { stateToken } from "@/state";
 import { server, readToken } from "@/utilities";
 
 export const router = createRouter({
@@ -72,33 +72,32 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
-  const storeAuth = authStore();
-
   if ((to.name as string) === "login") {
     next();
     return;
   }
 
-  if (!storeAuth.refreshToken) {
+  if (!stateToken.refreshToken) {
     next({ name: "login" });
     return;
   }
 
   if (
     Math.floor(new Date().getTime() / 1000) >=
-    readToken(storeAuth.refreshToken, "exp")
+    readToken(stateToken.refreshToken, "exp")
   ) {
     next();
     return;
   }
 
-  if (!storeAuth.accessToken) {
+  if (!stateToken.accessToken) {
     next({ name: "login" });
     return;
   }
 
   if (
-    Math.floor(new Date().getTime() / 1000) < readToken(storeAuth.accessToken, "exp")
+    Math.floor(new Date().getTime() / 1000) <
+    readToken(stateToken.accessToken, "exp")
   ) {
     next();
     return;
@@ -107,14 +106,14 @@ router.beforeEach(async (to, _from, next) => {
   try {
     const response = await axios.post(`${server}/refresh`, null, {
       headers: {
-        Authorization: `Bearer ${storeAuth.refreshToken}`,
+        Authorization: `Bearer ${stateToken.refreshToken}`,
       },
     });
 
     const { access_token } = response.data;
 
     if (access_token) {
-      storeAuth.accessToken = access_token;
+      stateToken.accessToken = access_token;
       next();
     } else {
       next({ name: "login" });

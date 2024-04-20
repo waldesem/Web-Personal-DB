@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@store/alert";
-import { classifyStore } from "@/store/classify";
+import { axiosInstance } from "@/auth";
+import { stateAlert, stateClassify } from "@/state";
 import { server } from "@/utilities";
 import { Resume } from "@/interfaces";
 import { router } from "@/router";
@@ -26,10 +25,6 @@ const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
 
-const storeAuth = authStore();
-const storeAlert = alertStore();
-const storeClassify = classifyStore();
-
 const emit = defineEmits(["get-resume", "cancel"]);
 
 const props = defineProps({
@@ -49,11 +44,11 @@ async function submitResume(): Promise<void> {
   try {
     const response =
       props.action === "create"
-        ? await storeAuth.axiosInstance.post(
+        ? await axiosInstance.post(
             `${server}/resume/${props.action}`,
             resumeForm.value
           )
-        : await storeAuth.axiosInstance.patch(
+        : await axiosInstance.patch(
             `${server}/resume/${props.resume["id"]}`,
             resumeForm.value
           );
@@ -63,12 +58,12 @@ async function submitResume(): Promise<void> {
       ? router.push({ name: "profile", params: { id: message } })
       : emit("cancel"), emit("get-resume");
 
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-success",
       "Данные успешно обновлены"
     );
   } catch (error) {
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-danger",
       `Возникла ошибка ${error}`
     );
@@ -86,7 +81,7 @@ async function submitResume(): Promise<void> {
       <LabelSlot :label="'Регион'">
         <SelectObject
           :name="'region_id'"
-          :select="storeClassify.classData.regions"
+          :select="stateClassify.regions"
           v-model="resumeForm['region_id']"
         />
       </LabelSlot>
@@ -174,14 +169,14 @@ async function submitResume(): Promise<void> {
           :name="'education'"
           :place="'Образование'"
           v-model="props.resume['education']"
-        />
+        ></TextArea>
       </LabelSlot>
       <LabelSlot :label="'Дополнительно'">
         <TextArea
           :name="'addition'"
           :place="'Дополнительно'"
           v-model="props.resume['addition']"
-        />
+        ></TextArea>
       </LabelSlot>
       <BtnGroup>
         <GroupContent @cancel="emit('cancel')"/>

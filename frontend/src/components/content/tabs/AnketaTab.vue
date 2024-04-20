@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { classifyStore } from "@/store/classify";
-import type { Anketa, Resume } from "@/interfaces";
+import { stateClassify, stateAnketa } from "@/state";
+import type { Resume } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -37,8 +37,6 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const storeClassify = classifyStore();
-
 const emit = defineEmits([
   "get-item",
   "get-resume",
@@ -51,10 +49,6 @@ const props = defineProps({
   printPage: {
     type: Boolean,
     default: false,
-  },
-  anketa: {
-    type: Object as () => Anketa,
-    default: {},
   },
 });
 
@@ -78,7 +72,7 @@ function deleteItem(itemId: string, item: string) {
     <ResumeForm
       v-if="dataResume.action"
       :action="dataResume.action"
-      :resume="props.anketa.resume"
+      :resume="stateAnketa.resume"
       @get-resume="emit('get-resume', 'view')"
       @cancel="dataResume.action = ''; emit('get-resume')"
     />
@@ -89,144 +83,136 @@ function deleteItem(itemId: string, item: string) {
       <LabelSlot>
         <ActionIcons
           v-show="dataResume.showActions"
-          @delete="emit('delete', props.anketa.resume['id'], 'resume')"
+          @delete="emit('delete', stateAnketa.resume['id'], 'resume')"
           @update="dataResume.action = 'update'"
-          :disable="storeClassify.classData.status[props.anketa.resume['status_id']] ===
+          :disable="stateClassify.status[stateAnketa.resume['status_id']] ===
               'finish'
           "
         />
       </LabelSlot>
-      <LabelSlot :label="'ID'">{{ props.anketa.resume["id"] }}</LabelSlot>
+      <LabelSlot :label="'ID'">{{ stateAnketa.resume["id"] }}</LabelSlot>
       <LabelSlot :label="'Фамилия'">{{
-        props.anketa.resume["surname"]
+        stateAnketa.resume["surname"]
       }}</LabelSlot>
       <LabelSlot :label="'Имя'">{{
-        props.anketa.resume["firstname"]
+        stateAnketa.resume["firstname"]
       }}</LabelSlot>
       <LabelSlot :label="'Отчество'">{{
-        props.anketa.resume["patronymic"]
+        stateAnketa.resume["patronymic"]
       }}</LabelSlot>
       <LabelSlot :label="'Дата рождения'"
         >{{
-          new Date(String(props.anketa.resume["birthday"])).toLocaleDateString(
+          new Date(String(stateAnketa.resume["birthday"])).toLocaleDateString(
             "ru-RU"
           )
         }}
       </LabelSlot>
       <LabelSlot :label="'Место рождения'">{{
-        props.anketa.resume["birthplace"]
+        stateAnketa.resume["birthplace"]
       }}</LabelSlot>
       <LabelSlot :label="'Гражданство'">{{
-        props.anketa.resume["country"]
+        stateAnketa.resume["country"]
       }}</LabelSlot>
       <LabelSlot :label="'Двойное гражданство'"
-        >{{ props.anketa.resume["ext_country"] }}
+        >{{ stateAnketa.resume["ext_country"] }}
       </LabelSlot>
       <LabelSlot :label="'СНИЛС'">{{
-        props.anketa.resume["snils"]
+        stateAnketa.resume["snils"]
       }}</LabelSlot>
-      <LabelSlot :label="'ИНН'">{{ props.anketa.resume["inn"] }}</LabelSlot>
+      <LabelSlot :label="'ИНН'">{{ stateAnketa.resume["inn"] }}</LabelSlot>
       <LabelSlot :label="'Образование'"
-        >{{ props.anketa.resume["education"] }}
+        >{{ stateAnketa.resume["education"] }}
       </LabelSlot>
       <LabelSlot :label="'Семейнное положение'"
-        >{{ props.anketa.resume["marital"] }}
+        >{{ stateAnketa.resume["marital"] }}
       </LabelSlot>
       <LabelSlot :label="'Дополнительная информация'"
-        >{{ props.anketa.resume["addition"] }}
+        >{{ stateAnketa.resume["addition"] }}
       </LabelSlot>
       <LabelSlot :label="'Статус'"
-        >{{ storeClassify.classData.status[props.anketa.resume["status_id"]] }}
+        >{{ stateClassify.status[stateAnketa.resume["status_id"]] }}
       </LabelSlot>
       <LabelSlot :label="'Дата создания'"
         >{{
-          props.anketa.resume["created"]
+          stateAnketa.resume["created"]
             ? new Date(
-                String(props.anketa.resume["created"])
+                String(stateAnketa.resume["created"])
               ).toLocaleDateString("ru-RU")
             : ""
         }}
       </LabelSlot>
       <LabelSlot :label="'Дата обновления'"
         >{{
-          props.anketa.resume["updated"]
+          stateAnketa.resume["updated"]
             ? new Date(
-                String(props.anketa.resume["updated"])
+                String(stateAnketa.resume["updated"])
               ).toLocaleDateString("ru-RU")
             : ""
         }}
       </LabelSlot>
       <LabelSlot :label="'Пользователь'">{{
-        props.anketa.resume["user_id"] ?
-        storeClassify.classData.users[
-          props.anketa.resume["user_id"]
+        stateAnketa.resume["user_id"] ?
+        stateClassify.users[
+          stateAnketa.resume["user_id"]
         ] : ""
       }}</LabelSlot>
       <LabelSlot :label="'Материалы'">
         <router-link
-          v-if="props.anketa.resume['path']"
+          v-if="stateAnketa.resume['path']"
           :to="{
             name: 'manager',
-            query: { path: props.anketa.resume['path'].split('/') },
+            query: { path: stateAnketa.resume['path'].split('/') },
           }"
         >
-          {{ props.anketa.resume["path"] }}
+          {{ stateAnketa.resume["path"] }}
         </router-link>
       </LabelSlot>
     </div>
     <hr/>
     <PreviousDiv
       :print-page="props.printPage"
-      :items="props.anketa.previous"
       @get-item="emit('get-item', 'previous')"
       @submit="submitForm"
       @delete="deleteItem"
     />
     <StaffDiv
       :print-page="props.printPage"
-      :items="props.anketa.staff"
       @get-item="emit('get-item', 'staff')"
       @submit="submitForm"
       @delete="deleteItem"
     />
     <DocumentDiv
       :print-page="props.printPage"
-      :items="props.anketa.document"
       @get-item="emit('get-item', 'document')"
       @submit="submitForm"
       @delete="deleteItem"
     />
     <AddressDiv
       :print-page="props.printPage"
-      :items="props.anketa.addresse"
       @get-item="emit('get-item', 'address')"
       @submit="submitForm"
       @delete="deleteItem"
     />
     <ContactDiv
       :print-page="props.printPage"
-      :items="props.anketa.contact"
       @get-item="emit('get-item', 'contact')"
       @submit="submitForm"
       @delete="deleteItem"
     />
     <RelationDiv
       :print-page="props.printPage"
-      :items="props.anketa.relation"
       @get-item="emit('get-item', 'relation')"
       @submit="submitForm"
       @delete="deleteItem"
     />
     <WorkplaceDiv
       :print-page="props.printPage"
-      :items="props.anketa.workplace"
       @get-item="emit('get-item', 'workplace')"
       @submit="submitForm"
       @delete="deleteItem"
     />
     <AffilationDiv
       :print-page="props.printPage"
-      :items="props.anketa.affilation"
       @get-item="emit('get-item', 'affilation')"
       @submit="submitForm"
       @delete="deleteItem"

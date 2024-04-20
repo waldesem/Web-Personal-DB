@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces";
-import { classifyStore } from "@/store/classify";
-
-const storeClassify = classifyStore();
+import { stateClassify, stateAnketa } from "@/state";
 
 const IconRelative = defineAsyncComponent(
   () => import("@components/content/elements/IconRelative.vue")
@@ -31,10 +29,6 @@ const props = defineProps({
   printPage: {
     type: Boolean,
     default: false,
-  },
-  inquisitions: {
-    type: Array as () => Array<Inquisition>,
-    default: () => [],
   },
 });
 
@@ -78,8 +72,8 @@ function submitForm(form: Object) {
      @mouseover="inquisition.showActions = true"
      @mouseout="inquisition.showActions = false"
     >
-      <div v-if="props.inquisitions.length"> 
-        <div class="mb-3" v-for="(item, idx) in props.inquisitions" :key="idx">
+      <div v-if="stateAnketa.investigation.length"> 
+        <div class="mb-3" v-for="(item, idx) in stateAnketa.investigation" :key="idx">
           <div class="card card-body">
             <LabelSlot>
               <ActionIcons v-show="inquisition.showActions"
@@ -93,7 +87,7 @@ function submitForm(form: Object) {
             </LabelSlot>
             <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
             <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ storeClassify.classData.users[item["user_id"]] }}</LabelSlot>
+            <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
             <LabelSlot :label="'Дата'">
               {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
             </LabelSlot>

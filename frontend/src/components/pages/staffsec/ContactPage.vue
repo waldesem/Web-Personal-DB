@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, defineAsyncComponent, ref } from "vue";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@/store/alert";
+import { axiosInstance } from "@/auth";
+import { stateAlert } from "@/state";
 import { debounce, server } from "@/utilities";
 import { Connection } from "@/interfaces";
 
@@ -23,9 +23,6 @@ const PageSwitcher = defineAsyncComponent(
 const ConnectForm = defineAsyncComponent(
   () => import("@components/content/forms/ConnectForm.vue")
 );
-
-const storeAuth = authStore();
-const storeAlert = alertStore();
 
 onBeforeMount(async () => {
   await getContacts(1);
@@ -51,7 +48,7 @@ const contactData = ref({
 async function getContacts(page: number): Promise<void> {
   contactData.value.action = "";
   try {
-    const response = await storeAuth.axiosInstance.get(
+    const response = await axiosInstance.get(
       `${server}/connect/${page}`,
       {
         params: {
@@ -76,18 +73,18 @@ async function getContacts(page: number): Promise<void> {
 async function deleteContact(id: string): Promise<void> {
   if (confirm("Вы действительно хотите удалить контакт?")) {
     try {
-      const response = await storeAuth.axiosInstance.delete(
+      const response = await axiosInstance.delete(
         `${server}/connect/${id}`
       );
       console.log(response.status);
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         `Контакт с ID ${id} удален`
       );
       getContacts(contactData.value.page);
     } catch (error) {
       console.log(error);
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-danger",
         `Ошибка при удалении контакта с ID ${id}`
       );

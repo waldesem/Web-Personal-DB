@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@store/alert";
+import { axiosInstance } from "@/auth";
+import { stateAlert } from "@/state";
 import { server } from "@/utilities";
 import { User } from "@/interfaces";
 
@@ -14,9 +14,6 @@ const BtnGroup = defineAsyncComponent(
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
-
-const storeAlert = alertStore();
-const storeAuth = authStore();
 
 const emit = defineEmits(["update"]);
 
@@ -37,27 +34,27 @@ async function submitUser(): Promise<void> {
   try {
     const response =
       props.action === "edit"
-        ? await storeAuth.axiosInstance.patch(
+        ? await axiosInstance.patch(
             `${server}/user/${props.item["id"]}`,
             userForm.value
           )
-        : await storeAuth.axiosInstance.post(`${server}/user`, userForm.value);
+        : await axiosInstance.post(`${server}/user`, userForm.value);
 
     const { message } = response.data;
     if (message === "Changed") {
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         "Пользователь успешно изменен"
       );
     } else {
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         "Пользователь успешно создан"
       );
     }
   } catch (error) {
     console.error(error);
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-danger",
       "Ошибка сохранения данных"
     );

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { server } from "@utilities/utils";
+import { server } from "@/utilities";
 </script>
 
 <template>

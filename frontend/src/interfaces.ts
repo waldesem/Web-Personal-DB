@@ -1,20 +1,3 @@
-export interface Anketa {
-  resume: Resume,
-  previous: Previous[],
-  staff: Staff[],
-  document: Document[],
-  addresse: Address[],
-  contact: Contact[],
-  relation: Relation[],
-  affilation: Affilation[],
-  workplace: Work[],
-  check: Verification[],
-  robot: Robot[],
-  poligraf: Pfo[],
-  investigation: Inquisition[],
-  inquiry: Needs[],
-}
-
 export interface Resume {
   id: string;
   region_id: string;

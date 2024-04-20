@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { classifyStore } from "@store/classify";
-import { authStore } from "@/store/auth";
+import { stateClassify } from "@/state";
+import { axiosInstance } from "@/auth";
 import { debounce, server, timeSince } from "@/utilities";
 import { Resume } from "@/interfaces";
 
@@ -20,9 +20,6 @@ const AscDesc = defineAsyncComponent(
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/content/elements/PageSwitcher.vue")
 );
-
-const storeAuth = authStore();
-const storeClassify = classifyStore();
 
 onBeforeMount(async () => {
   await getCandidates();
@@ -63,7 +60,7 @@ const personData = ref({
 async function getCandidates(page = 1): Promise<void> {
   personData.value.page = page;
   try {
-    const response = await storeAuth.axiosInstance.get(
+    const response = await axiosInstance.get(
       `${server}/index/${personData.value.path}/${personData.value.page}`,
       {
         params: {
@@ -237,7 +234,7 @@ const searchPerson = debounce(() => {
         height="50px"
       >
         <td>{{ candidate["id"] }}</td>
-        <td>{{ storeClassify.classData.regions[candidate.region_id] }}</td>
+        <td>{{ stateClassify.regions[candidate.region_id] }}</td>
         <td>
           <router-link
             :to="{
@@ -259,7 +256,7 @@ const searchPerson = debounce(() => {
           <label
             :class="`fs-6 badge bg-${statusColor[candidate.status_id as keyof typeof statusColor]}`"
           >
-            {{ storeClassify.classData.status[candidate.status_id] }}
+            {{ stateClassify.status[candidate.status_id] }}
           </label>
         </td>
         <td>
@@ -268,7 +265,7 @@ const searchPerson = debounce(() => {
         <td>
           {{
             candidate.user_id
-              ? storeClassify.classData.users[candidate.user_id].split(" ")[0]
+              ? stateClassify.users[candidate.user_id].split(" ")[0]
               : ""
           }}
         </td>

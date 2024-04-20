@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
-import { authStore } from "@store/auth";
-import { server, timeSince } from "@utilities/utils";
-import { Message } from "@/interfaces/interface";
-
-const storeAuth = authStore();
+import { axiosInstance } from "@/auth";
+import { server, timeSince } from "@/utilities";
+import { Message } from "@/interfaces";
 
 onBeforeMount(() => {
   messageData.value.updateMessages();
@@ -16,7 +14,7 @@ const messageData = ref({
 
   async updateMessages(): Promise<void> {
     try {
-      const response = await storeAuth.axiosInstance.get(
+      const response = await axiosInstance.get(
         `${server}/messages`
       );
       const { messages } = response.data;
@@ -32,7 +30,7 @@ const messageData = ref({
 
   async deleteMessage(iD: string = ''): Promise<void> {
     try {
-      const response = await storeAuth.axiosInstance.delete(
+      const response = await axiosInstance.delete(
         `${server}/messages`,
         {
           params: {

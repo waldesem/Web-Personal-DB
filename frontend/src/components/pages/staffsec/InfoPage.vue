@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, defineAsyncComponent } from "vue";
-import { classifyStore } from "@/store/classify";
-import { authStore } from "@/store/auth";
+import { stateClassify } from "@/state";
+import { axiosInstance } from "@/auth";
 import { server } from "@/utilities";
 
 const HeaderDiv = defineAsyncComponent(
@@ -16,9 +16,6 @@ const InputElement = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
-
-const storeAuth = authStore();
-const storeClassify = classifyStore();
 
 const todayDate = new Date();
 
@@ -36,7 +33,7 @@ const tableData = ref({
 
 async function submitData(): Promise<void> {
   try {
-    const response = await storeAuth.axiosInstance.get(
+    const response = await axiosInstance.get(
       `${server}/information`,
       {
         params: {
@@ -48,7 +45,7 @@ async function submitData(): Promise<void> {
     );
     tableData.value.stat.checks = response.data;
     tableData.value.header =
-      storeClassify.classData.regions[tableData.value.stat.region_id];
+      stateClassify.regions[tableData.value.stat.region_id];
   } catch (error) {
     console.log(error);
   }
@@ -60,7 +57,7 @@ onBeforeMount(async () => {
 
 computed(() => {
   tableData.value.header =
-    storeClassify.classData.regions[tableData.value.stat.region_id];
+    stateClassify.regions[tableData.value.stat.region_id];
 });
 </script>
 
@@ -102,7 +99,7 @@ computed(() => {
     <div class="col-md-3">
       <SelectObject
         :name="'region'"
-        :select="storeClassify.classData.regions"
+        :select="stateClassify.regions"
         v-model="tableData.stat.region_id"
         @submit-data="submitData"
       />

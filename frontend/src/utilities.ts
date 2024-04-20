@@ -65,8 +65,12 @@ function timeSince(date: string): string {
  * @param {string} item - The item to extract from the token.
  * @return {any} The value of the specified item extracted from the token.
  */
-function readToken(token: string, item: string): any {
-  return JSON.parse(atob(token.split(".")[1]))[item];
+function readToken(token: string, item: string = ""): any {
+  if (item === "exp") {
+    return JSON.parse(atob(token.split(".")[1]))[item];
+  } else {
+    return JSON.parse(atob(token.split(".")[1]));
+  }
 }
 
 export { server, debounce, timeSince, readToken };

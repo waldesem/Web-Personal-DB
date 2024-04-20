@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@store/alert";
+import { axiosInstance } from "@/auth";
+import { stateAlert } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -15,9 +15,6 @@ const ResumeForm = defineAsyncComponent(
   () => import("@components/content/forms/ResumeForm.vue")
 );
 
-const storeAuth = authStore();
-const storeAlert = alertStore();
-
 const formData = ref(new FormData());
 
 async function submitFile(event: Event): Promise<void> {
@@ -25,14 +22,14 @@ async function submitFile(event: Event): Promise<void> {
   if (inputElement.files) {
     formData.value.append("file", inputElement.files[0]);
     try {
-      const response = await storeAuth.axiosInstance.post(
+      const response = await axiosInstance.post(
         `${server}/file/anketa/0`,
         formData.value
       );
       const { message } = response.data;
       router.push({ name: "profile", params: { id: message } });
 
-      storeAlert.alertMessage.setAlert(
+      stateAlert.setAlert(
         "alert-success",
         "Файл успешно загружен"
       );
@@ -40,7 +37,7 @@ async function submitFile(event: Event): Promise<void> {
       console.error(error);
     }
   } else {
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       "alert-warning",
       "Ошибка при загрузке файла"
     );

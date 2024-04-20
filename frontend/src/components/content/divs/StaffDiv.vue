@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { stateAnketa } from "@/state";
 import { Staff } from "@/interfaces";
 
 const ActionHeader = defineAsyncComponent(
@@ -25,10 +26,6 @@ const props = defineProps({
   printPage: {
     type: Boolean,
     default: false,
-  },
-  items: {
-    type: Array<Staff>,
-    default: [{}],
   },
 });
 
@@ -64,10 +61,10 @@ function submitForm(form: Object) {
     @mouseout="staff.showActions = false"
   >
     <div 
-      v-if="props.items.length" 
+      v-if="stateAnketa.staff.length" 
       :class="{'collapse show': !printPage}" 
       id="staff"> 
-      <div class="mb-3" v-for="(item, idx) in props.items" :key="idx">
+      <div class="mb-3" v-for="(item, idx) in stateAnketa.staff" :key="idx">
         <div class="card card-body">
           <LabelSlot>
             <ActionIcons v-show="staff.showActions"

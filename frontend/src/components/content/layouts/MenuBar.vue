@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import { authStore } from "@/store/auth";
-import { userStore } from "@/store/user";
+import { axiosInstance } from "@/auth";
+import { stateUser, stateToken } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -12,18 +12,15 @@ const MessageDiv = defineAsyncComponent(
   () => import('@components/content/divs/MessageDiv.vue')
 )
 
-const storeAuth = authStore();
-const storeUser = userStore();
-
 async function userLogout(): Promise<void> {
   try {
-    const response = await storeAuth.axiosInstance.delete(`${server}/login`);
+    const response = await axiosInstance.delete(`${server}/login`);
     console.log(response.status);
   } catch (error) {
     console.log(error);
   }
 
-  storeAuth.accessToken = "";
+  stateToken.accessToken = "";
   localStorage.removeItem("refresh_token");
   router.push({ name: "login" });
 }
@@ -46,11 +43,11 @@ async function userLogout(): Promise<void> {
               role="button"
               data-bs-toggle="dropdown"
             >
-              {{ storeUser.userData.userName }}
+              {{ stateUser.userName }}
               <i class="bi bi-person-circle fs-3"></i>
             </a>
             <ul class="dropdown-menu">
-              <div v-if="storeUser.userData.hasAdmin" class="dropdown-item">
+              <div v-if="stateUser.hasAdmin" class="dropdown-item">
                 <router-link
                   :to="{ name: 'users' }"
                   class="link-opacity-50-hover" href="#"

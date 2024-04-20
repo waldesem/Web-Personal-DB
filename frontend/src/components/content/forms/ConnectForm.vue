@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { authStore } from "@/store/auth";
-import { alertStore } from "@/store/alert";
+import { axiosInstance } from "@/auth";
+import { stateAlert } from "@/state";
 import { server } from "@/utilities";
 import { Connection } from "@/interfaces";
 
@@ -17,9 +17,6 @@ const GroupContent = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-
-const storeAuth = authStore();
-const storeAlert = alertStore();
 
 const props = defineProps({
   page: Number,
@@ -50,11 +47,11 @@ async function updateContact(): Promise<void> {
   try {
     const response =
       props.action === "create"
-        ? await storeAuth.axiosInstance.post(
+        ? await axiosInstance.post(
             `${server}/connect`,
             connectForm.value
           )
-        : await storeAuth.axiosInstance.patch(
+        : await axiosInstance.patch(
             `${server}/connect/${props.item["id"]}`,
             connectForm.value
           );
@@ -64,7 +61,7 @@ async function updateContact(): Promise<void> {
       create: ["alert-success", "Контакт добавлен"],
       edit: ["alert-info", "Контакт обновлен"],
     };
-    storeAlert.alertMessage.setAlert(
+    stateAlert.setAlert(
       alert[props.action as keyof typeof alert][0],
       alert[props.action as keyof typeof alert][1]
     );
