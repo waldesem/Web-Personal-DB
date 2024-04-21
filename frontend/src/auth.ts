@@ -11,21 +11,15 @@ axiosInstance.interceptors.request.use(
   async (config: any) => {
     stateToken.refreshToken = localStorage.getItem("refresh_token");
 
-    if (!stateToken.refreshToken) {
-      router.push({ name: "login" });
-      return "Refresh token not available";
-    }
-
     if (
       Math.floor(new Date().getTime() / 1000) >=
       readToken(stateToken.refreshToken, "exp")
     ) {
       router.push({ name: "login" });
-      return Promise.reject("Refresh token expired");
+      return Promise.reject("Refresh token not available or expired");
     }
 
     if (
-      !stateToken.accessToken ||
       Math.floor(new Date().getTime() / 1000) >=
         readToken(stateToken.accessToken, "exp")
     ) {
@@ -37,9 +31,10 @@ axiosInstance.interceptors.request.use(
         });
         const { access_token } = response.data;
 
-        if (!access_token) {
+        if (Math.floor(new Date().getTime() / 1000) >=
+          readToken(access_token, "exp")) {
           router.push({ name: "login" });
-          return Promise.reject("Access token not available");
+          return Promise.reject("Access token not available or expired");
         }
         stateToken.accessToken = access_token;
       } catch (error) {

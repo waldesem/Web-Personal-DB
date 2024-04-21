@@ -1,36 +1,29 @@
 <script setup lang="ts">
 import axios from "axios";
 import { computed, watch, onBeforeMount, onMounted } from "vue";
-import { stateClassify, stateUser, stateAlert } from "@/state";
-import { router } from "@/router";
+import { stateClassify, stateUser, stateToken } from "@/state";
 import { readToken, server } from "@/utilities";
+import { router } from "@/router";
 
 watch(
-  () => localStorage.getItem("refresh_token"),
+  () => stateToken.accessToken,
   (newToken) => {
     const tokenPayload = readToken(newToken as string);
-    stateUser.userId = tokenPayload["id"] ? tokenPayload["id"] : "";
-    stateUser.fullName = tokenPayload["fullname"] ? tokenPayload["fullname"] : "";
-    stateUser.userName = tokenPayload["username"] ? tokenPayload["username"] : "";
-    stateUser.userRoles = tokenPayload["roles"] ? tokenPayload["roles"] : [];
+    stateUser.userId = tokenPayload["id"];
+    stateUser.fullName = tokenPayload["fullname"];
+    stateUser.userName = tokenPayload["username"];
+    stateUser.userRoles = tokenPayload["roles"];
   },
   { immediate: true }
 );
 
 computed(() => {
-  stateUser.hasAdmin = stateUser.userRoles.some((r: { role: any }) => r.role === "admin")
+  stateUser.hasAdmin = stateUser.userRoles.some(
+    (r: { role: any }) => r.role === "admin"
+  );
 });
 
 onBeforeMount(async () => {
-  await getClasses();
-  stateAlert.setAlert();
-});
-
-onMounted(() => {
-  router.push({ name: "persons" });
-});
-
-async function getClasses(): Promise<void> {
   try {
     const response = await axios.get(`${server}/classes`);
     [
@@ -43,7 +36,11 @@ async function getClasses(): Promise<void> {
   } catch (error) {
     console.error(error);
   }
-}
+});
+
+onMounted(() => {
+  router.push({ name: "persons" });
+});
 </script>
 
 <template>

@@ -141,3 +141,18 @@ class FileView(MethodView):
 
 file_view = FileView.as_view("file")
 bp.add_url_rule("/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"])
+
+
+@roles_required(Roles.user.value)
+@bp.doc(hide=True)
+@bp.route("/image/<int:item_id>")
+def get_image(item_id):
+    """
+    Retrieves a file from the server and sends it as a response.
+    """
+    person = db.session.get(Person, item_id)
+    if person.path:
+        file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+    return send_file(Config.NO_PHOTO, as_attachment=True, mimetype="image/jpg")

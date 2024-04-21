@@ -77,48 +77,38 @@ router.beforeEach(async (to, _from, next) => {
     return;
   }
 
-  if (!stateToken.refreshToken) {
-    next({ name: "login" });
-    return;
-  }
-
-  if (
-    Math.floor(new Date().getTime() / 1000) >=
+  if (Math.floor(new Date().getTime() / 1000) <
     readToken(stateToken.refreshToken, "exp")
   ) {
-    next();
-    return;
-  }
-
-  if (!stateToken.accessToken) {
     next({ name: "login" });
     return;
   }
 
-  if (
-    Math.floor(new Date().getTime() / 1000) <
-    readToken(stateToken.accessToken, "exp")
+  if (Math.floor(new Date().getTime() / 1000) <
+      readToken(stateToken.accessToken, "exp")
   ) {
-    next();
-    return;
-  }
+    try {
+      const response = await axios.post(`${server}/refresh`, null, {
+        headers: {
+          Authorization: `Bearer ${stateToken.refreshToken}`,
+        },
+      });
+      const { access_token } = response.data;
 
-  try {
-    const response = await axios.post(`${server}/refresh`, null, {
-      headers: {
-        Authorization: `Bearer ${stateToken.refreshToken}`,
-      },
-    });
-
-    const { access_token } = response.data;
-
-    if (access_token) {
-      stateToken.accessToken = access_token;
-      next();
-    } else {
+      if (
+        access_token && 
+        Math.floor(new Date().getTime() / 1000) >=
+        readToken(access_token, "exp")
+      ) {
+        stateToken.accessToken = access_token;
+        next();
+      } else {
+        next({ name: "login" });
+      }
+    } catch (error) {
       next({ name: "login" });
     }
-  } catch (error) {
-    next({ name: "login" });
+  } else {
+    next();
   }
 });

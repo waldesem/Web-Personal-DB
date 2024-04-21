@@ -5,8 +5,8 @@ import { server } from "@/utilities";
 import { Anketa } from "@/interfaces";
 
 export const stateToken = reactive({
-  accessToken: "" as string | null,
-  refreshToken: "" as string | null,
+  accessToken: "" as any,
+  refreshToken: localStorage.getItem("refresh_token") as any,
 });
 
 export const stateUser = reactive({

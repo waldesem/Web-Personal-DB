@@ -1,12 +1,8 @@
-import os
-
-from flask import send_file
 from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy_searchable import search
 from sqlalchemy import func, select
 
-from config import Config
 from . import bp
 from .login import roles_required
 from ..models.classes import Roles, Statuses
@@ -60,21 +56,6 @@ class IndexView(MethodView):
 
 index_view = IndexView.as_view("index")
 bp.add_url_rule("/index/<flag>/<int:page>", view_func=index_view)
-
-
-@roles_required(Roles.user.value)
-@bp.doc(hide=True)
-@bp.route("/image/<int:item_id>")
-def get_image(item_id):
-    """
-    Retrieves a file from the server and sends it as a response.
-    """
-    person = db.session.get(Person, item_id)
-    if person.path:
-        file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file(Config.NO_PHOTO, as_attachment=True, mimetype="image/jpg")
 
 
 @roles_required(Roles.user.value)

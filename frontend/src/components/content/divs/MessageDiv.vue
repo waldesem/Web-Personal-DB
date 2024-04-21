@@ -66,13 +66,24 @@ const messageData = ref({
   </a>
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" id="offcanvasMessage">
     <div class="offcanvas-body">
-      <a 
-        href="#" 
-        class="link-danger" 
-        @click="messageData.deleteMessage"
-      >
-        Удалить сообщения
-      </a>
+      <p>
+        <a 
+          href="#" 
+          class="link-danger"
+          title="Обновить сообщения"
+          @click="messageData.updateMessages"
+        >
+          <i class="bi bi-arrow-clockwise"></i>
+        </a>
+        <a 
+          href="#" 
+          class="link-danger"
+          title="Удалить все сообщения"
+          @click="messageData.deleteMessage"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+      </p>
       <div class="toast-container position-static">
         <div 
           v-for="message, index in messageData.messages" :key="index"
