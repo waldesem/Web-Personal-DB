@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { server, debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
@@ -44,7 +44,7 @@ const dataUsers = ref({
 
 async function getUsers() {
   try {
-    const response = await axiosInstance.get(`${server}/users`, {
+    const response = await axiosAuth.get(`${server}/users`, {
       params: {
         search: dataUsers.value.search,
       },

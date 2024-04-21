@@ -1,5 +1,5 @@
 import { reactive } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import { server } from "@/utilities";
 import { Anketa } from "@/interfaces";
@@ -68,7 +68,7 @@ export const stateAnketa = {
       }
     }
     try {
-      const response = await axiosInstance.get(
+      const response = await axiosAuth.get(
         `${server}/resume/${this.share.candId}`,
         {
           params: {
@@ -113,10 +113,10 @@ export const stateAnketa = {
     try {
       const response =
         param === "image"
-          ? await axiosInstance.get(`${server}/${param}/${this.share.candId}`, {
+          ? await axiosAuth.get(`${server}/${param}/${this.share.candId}`, {
               responseType: "blob",
             })
-          : await axiosInstance.get(`${server}/${param}/${this.share.candId}`);
+          : await axiosAuth.get(`${server}/${param}/${this.share.candId}`);
 
       if (param === "image") {
         this.share.imageUrl = window.URL.createObjectURL(
@@ -140,8 +140,8 @@ export const stateAnketa = {
     try {
       const response =
         action === "create"
-          ? await axiosInstance.post(`${server}/${param}/${this.share.candId}`, form)
-          : await axiosInstance.patch(`${server}/${param}/${itemId}`, form);
+          ? await axiosAuth.post(`${server}/${param}/${this.share.candId}`, form)
+          : await axiosAuth.patch(`${server}/${param}/${itemId}`, form);
 
       console.log(response.status);
 
@@ -177,7 +177,7 @@ export const stateAnketa = {
       return;
     }
     try {
-      const response = await axiosInstance.delete(`${server}/${param}/${id}`);
+      const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
 
       param === "resume" ? router.push({ name: "persons" }) : this.getItem(param);
@@ -206,7 +206,7 @@ export const stateAnketa = {
       formData.append("file", inputElement.files[0]);
 
       try {
-        const response = await axiosInstance.post(
+        const response = await axiosAuth.post(
           `${server}/file/${param}/${this.share.candId}`,
           formData
         );

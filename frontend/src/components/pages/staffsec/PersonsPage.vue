@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateClassify } from "@/state";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { debounce, server, timeSince } from "@/utilities";
 import { Resume } from "@/interfaces";
 
@@ -60,7 +60,7 @@ const personData = ref({
 async function getCandidates(page = 1): Promise<void> {
   personData.value.page = page;
   try {
-    const response = await axiosInstance.get(
+    const response = await axiosAuth.get(
       `${server}/index/${personData.value.path}/${personData.value.page}`,
       {
         params: {

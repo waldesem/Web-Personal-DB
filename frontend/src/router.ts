@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
 import { stateToken } from "@/state";
-import { server, readToken } from "@/utilities";
+import { server, expiredToken } from "@/utilities";
 
 export const router = createRouter({
   routes: [
@@ -72,21 +72,17 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
-  if ((to.name as string) === "login") {
+  if (["404", "login"].includes(to.name as string)) {
     next();
     return;
   }
 
-  if (Math.floor(new Date().getTime() / 1000) <
-    readToken(stateToken.refreshToken, "exp")
-  ) {
+  if (expiredToken(localStorage.getItem("refresh_token"))) {
     next({ name: "login" });
-    return;
+    return; 
   }
-
-  if (Math.floor(new Date().getTime() / 1000) <
-      readToken(stateToken.accessToken, "exp")
-  ) {
+  
+  if (expiredToken(stateToken.accessToken)) {
     try {
       const response = await axios.post(`${server}/refresh`, null, {
         headers: {
@@ -95,11 +91,7 @@ router.beforeEach(async (to, _from, next) => {
       });
       const { access_token } = response.data;
 
-      if (
-        access_token && 
-        Math.floor(new Date().getTime() / 1000) >=
-        readToken(access_token, "exp")
-      ) {
+      if (!expiredToken(access_token)) {
         stateToken.accessToken = access_token;
         next();
       } else {

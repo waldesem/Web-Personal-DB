@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { server, timeSince } from "@/utilities";
 import { Message } from "@/interfaces";
 
@@ -14,7 +14,7 @@ const messageData = ref({
 
   async updateMessages(): Promise<void> {
     try {
-      const response = await axiosInstance.get(
+      const response = await axiosAuth.get(
         `${server}/messages`
       );
       const { messages } = response.data;
@@ -30,7 +30,7 @@ const messageData = ref({
 
   async deleteMessage(iD: string = ''): Promise<void> {
     try {
-      const response = await axiosInstance.delete(
+      const response = await axiosAuth.delete(
         `${server}/messages`,
         {
           params: {
@@ -66,7 +66,7 @@ const messageData = ref({
   </a>
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" id="offcanvasMessage">
     <div class="offcanvas-body">
-      <p>
+      <div class="d-flex justify-content-between">
         <a 
           href="#" 
           class="link-danger"
@@ -83,7 +83,7 @@ const messageData = ref({
         >
           <i class="bi bi-trash"></i>
         </a>
-      </p>
+      </div>
       <div class="toast-container position-static">
         <div 
           v-for="message, index in messageData.messages" :key="index"
@@ -93,7 +93,7 @@ const messageData = ref({
           <div class="toast-header">
             <img src="..." class="rounded me-2" alt="...">
             <strong class="me-auto">Сообщение</strong>
-            <small class="text-body-secondary">
+            <small class="text-body-info">
               {{ timeSince(message["created"]) }}
             </small>
             <button 

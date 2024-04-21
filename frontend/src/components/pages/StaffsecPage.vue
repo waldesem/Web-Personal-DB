@@ -18,7 +18,7 @@ const MenuBar = defineAsyncComponent(
       <MenuBar />
       <router-view v-slot="{ Component }">
         <transition name="fade">
-          <component :is="Component" />
+          <div><component :is="Component" /></div>
         </transition>
       </router-view>
     </div>

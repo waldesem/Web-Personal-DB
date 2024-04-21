@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert, stateAnketa, stateClassify } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
@@ -39,11 +39,11 @@ async function submitResume(): Promise<void> {
   try {
     const response =
       props.action === "create"
-        ? await axiosInstance.post(
+        ? await axiosAuth.post(
             `${server}/resume/${props.action}`,
             resumeForm.value
           )
-        : await axiosInstance.patch(
+        : await axiosAuth.patch(
             `${server}/resume/${stateAnketa.anketa.resume["id"]}`,
             resumeForm.value
           );
@@ -64,6 +64,7 @@ async function submitResume(): Promise<void> {
     );
   }
 };
+console.log(stateClassify.regions);
 </script>
 
 <template>

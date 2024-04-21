@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, defineAsyncComponent } from "vue";
 import { stateClassify } from "@/state";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 
 const HeaderDiv = defineAsyncComponent(
@@ -33,7 +33,7 @@ const tableData = ref({
 
 async function submitData(): Promise<void> {
   try {
-    const response = await axiosInstance.get(
+    const response = await axiosAuth.get(
       `${server}/information`,
       {
         params: {

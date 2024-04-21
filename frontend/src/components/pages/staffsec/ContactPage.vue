@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount, defineAsyncComponent, ref } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { debounce, server } from "@/utilities";
 import { Connection } from "@/interfaces";
@@ -48,7 +48,7 @@ const contactData = ref({
 async function getContacts(page: number): Promise<void> {
   contactData.value.action = "";
   try {
-    const response = await axiosInstance.get(
+    const response = await axiosAuth.get(
       `${server}/connect/${page}`,
       {
         params: {
@@ -73,7 +73,7 @@ async function getContacts(page: number): Promise<void> {
 async function deleteContact(id: string): Promise<void> {
   if (confirm("Вы действительно хотите удалить контакт?")) {
     try {
-      const response = await axiosInstance.delete(
+      const response = await axiosAuth.delete(
         `${server}/connect/${id}`
       );
       console.log(response.status);

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
@@ -22,7 +22,7 @@ async function submitFile(event: Event): Promise<void> {
   if (inputElement.files) {
     formData.value.append("file", inputElement.files[0]);
     try {
-      const response = await axiosInstance.post(
+      const response = await axiosAuth.post(
         `${server}/file/anketa/0`,
         formData.value
       );

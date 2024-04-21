@@ -59,18 +59,16 @@ function timeSince(date: string): string {
 }
 
 /**
- * Parses the specified item from a JWT token.
+ * Checks if a token is expired.
  *
- * @param {string} token - The JWT token to extract the item from.
- * @param {string} item - The item to extract from the token.
- * @return {any} The value of the specified item extracted from the token.
+ * @param {any} token - The token to check.
+ * @return {boolean} True if the token is expired, false otherwise.
  */
-function readToken(token: string, item: string = ""): any {
-  if (item === "exp") {
-    return JSON.parse(atob(token.split(".")[1]))[item];
-  } else {
-    return JSON.parse(atob(token.split(".")[1]));
-  }
+function expiredToken(token: any): boolean {
+  return token
+    ? Math.floor(new Date().getTime() / 1000) >
+        JSON.parse(atob(token.split(".")[1])).exp
+    : true;
 }
 
-export { server, debounce, timeSince, readToken };
+export { server, debounce, timeSince, expiredToken };

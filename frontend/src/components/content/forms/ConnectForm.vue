@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { server } from "@/utilities";
 import { Connection } from "@/interfaces";
@@ -47,11 +47,11 @@ async function updateContact(): Promise<void> {
   try {
     const response =
       props.action === "create"
-        ? await axiosInstance.post(
+        ? await axiosAuth.post(
             `${server}/connect`,
             connectForm.value
           )
-        : await axiosInstance.patch(
+        : await axiosAuth.patch(
             `${server}/connect/${props.item["id"]}`,
             connectForm.value
           );

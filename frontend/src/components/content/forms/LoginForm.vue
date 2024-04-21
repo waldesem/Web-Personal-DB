@@ -46,6 +46,7 @@ const loginData = ref({
     }
     delete loginData.value.form["conf_pswd"];
   }
+
   try {
     const response =
       loginData.value.action === "password"
@@ -65,7 +66,7 @@ const loginData = ref({
       case "Authenticated":
         stateToken.accessToken = access_token;
         localStorage.setItem("refresh_token", refresh_token);
-        router.push({name: "auth"});
+        router.push({name: "persons"});
         break;
 
       case "Overdue":

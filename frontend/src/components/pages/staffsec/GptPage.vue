@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -15,7 +15,7 @@ const gptData = ref({
 
 async function getGptAnswers(): Promise<void> {
   try {
-    const response = await axiosInstance.post(
+    const response = await axiosAuth.post(
       `${server}/gpt`, {"query": gptData.value.query}
     );
     const { answer } = response.data;

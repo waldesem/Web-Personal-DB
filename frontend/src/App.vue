@@ -2,13 +2,14 @@
 import axios from "axios";
 import { computed, watch, onBeforeMount, onMounted } from "vue";
 import { stateClassify, stateUser, stateToken } from "@/state";
-import { readToken, server } from "@/utilities";
+import { server } from "@/utilities";
 import { router } from "@/router";
 
 watch(
   () => stateToken.accessToken,
   (newToken) => {
-    const tokenPayload = readToken(newToken as string);
+    if (!newToken) return;
+    const tokenPayload = JSON.parse(atob(newToken.split(".")[1]));
     stateUser.userId = tokenPayload["id"];
     stateUser.fullName = tokenPayload["fullname"];
     stateUser.userName = tokenPayload["username"];

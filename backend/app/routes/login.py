@@ -56,7 +56,7 @@ class LoginView(MethodView):
                     return {
                         "message": "Authenticated",
                         "access_token": create_access_token(identity=token),
-                        "refresh_token": create_refresh_token(),
+                        "refresh_token": create_refresh_token(identity=token),
                     }, 201
                 return {"message": "Overdue"}, 201
             else:

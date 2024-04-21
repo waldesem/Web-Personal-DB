@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert, stateClassify } from "@/state";
 import { server } from "@/utilities";
 import { User } from "@/interfaces";
@@ -39,7 +39,7 @@ const userData = ref({
 
 async function userAction(action: String): Promise<void> {
   try {
-    const response = await axiosInstance.get(
+    const response = await axiosAuth.get(
       `${server}/user/${userData.value.id}`,
       {
         params: {
@@ -66,7 +66,7 @@ async function userAction(action: String): Promise<void> {
 async function userDelete(): Promise<void> {
   if (confirm("Вы действительно хотите удалить пользователя?")) {
     try {
-      const response = await axiosInstance.delete(
+      const response = await axiosAuth.delete(
         `${server}/user/${userData.value.id}`
       );
       console.log(response.status);
@@ -86,10 +86,10 @@ async function updateRole(action: string, value: string): Promise<void> {
     try {
       const response =
         action === "add"
-          ? await axiosInstance.get(
+          ? await axiosAuth.get(
               `${server}/role/${value}/${userData.value.id}`
             )
-          : await axiosInstance.delete(
+          : await axiosAuth.delete(
               `${server}/role/${value}/${userData.value.id}`
             );
       console.log(response.status);

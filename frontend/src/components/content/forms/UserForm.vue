@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
-import { axiosInstance } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { server } from "@/utilities";
 import { User } from "@/interfaces";
@@ -34,11 +34,11 @@ async function submitUser(): Promise<void> {
   try {
     const response =
       props.action === "edit"
-        ? await axiosInstance.patch(
+        ? await axiosAuth.patch(
             `${server}/user/${props.item["id"]}`,
             userForm.value
           )
-        : await axiosInstance.post(`${server}/user`, userForm.value);
+        : await axiosAuth.post(`${server}/user`, userForm.value);
 
     const { message } = response.data;
     if (message === "Changed") {

@@ -1,28 +1,21 @@
 import axios from "axios";
-import { useRouter } from "vue-router";
-import { server, readToken } from "@/utilities";
+import { server, expiredToken } from "@/utilities";
+import { router } from "@/router";
 import { stateToken } from "@/state";
 
-const router = useRouter();
+export const axiosAuth = axios.create();
 
-export const axiosInstance = axios.create();
-
-axiosInstance.interceptors.request.use(
+axiosAuth.interceptors.request.use(
   async (config: any) => {
+
     stateToken.refreshToken = localStorage.getItem("refresh_token");
 
-    if (
-      Math.floor(new Date().getTime() / 1000) >=
-      readToken(stateToken.refreshToken, "exp")
-    ) {
+    if (expiredToken(stateToken.refreshToken)) {
       router.push({ name: "login" });
       return Promise.reject("Refresh token not available or expired");
     }
 
-    if (
-      Math.floor(new Date().getTime() / 1000) >=
-        readToken(stateToken.accessToken, "exp")
-    ) {
+    if (expiredToken(stateToken.refreshToken)) {
       try {
         const response = await axios.post(`${server}/refresh`, null, {
           headers: {
@@ -31,8 +24,7 @@ axiosInstance.interceptors.request.use(
         });
         const { access_token } = response.data;
 
-        if (Math.floor(new Date().getTime() / 1000) >=
-          readToken(access_token, "exp")) {
+        if (!expiredToken(access_token)) {
           router.push({ name: "login" });
           return Promise.reject("Access token not available or expired");
         }
