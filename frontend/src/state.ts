@@ -2,7 +2,22 @@ import { reactive } from "vue";
 import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import { server } from "@/utilities";
-import { Anketa } from "@/interfaces";
+import {
+  Resume,
+  Previous,
+  Staff,
+  Document,
+  Address,
+  Contact,
+  Relation,
+  Work,
+  Affilation,
+  Verification,
+  Robot,
+  Pfo,
+  Inquisition,
+  Needs,
+} from "@/interfaces";
 
 export const stateToken = reactive({
   accessToken: "" as any,
@@ -40,7 +55,22 @@ export const stateAlert = {
 };
 
 export const stateAnketa = {
-  anketa: reactive(<Anketa>{}),
+  anketa: reactive({
+    resume: {} as Resume,
+    previous: [] as Previous[],
+    staff: [] as Staff[],
+    document: [] as Document[],
+    address: [] as Address[],
+    contact: [] as Contact[],
+    relation: [] as Relation[],
+    workplace: [] as Work[],
+    affilation: [] as Affilation[],
+    check: [] as Verification[],
+    robot: [] as Robot[],
+    poligraf: [] as Pfo[],
+    investigation: [] as Inquisition[],
+    inquiry: [] as Needs[],
+  }),
   share: reactive({
     candId: "" as string,
     imageUrl: "" as string,
@@ -82,30 +112,18 @@ export const stateAnketa = {
         this.getResume("view");
 
         if (action === "status") {
-          stateAlert.setAlert(
-            "alert-info",
-            "Статус анкеты обновлен"
-          );
+          stateAlert.setAlert("alert-info", "Статус анкеты обновлен");
         }
         if (action === "self") {
-          stateAlert.setAlert(
-            "alert-info",
-            "Анкета назначена на себя"
-          );
+          stateAlert.setAlert("alert-info", "Анкета назначена на себя");
         }
         if (action === "send") {
-          stateAlert.setAlert(
-            "alert-success",
-            "Анкета отправлена на проверку"
-          );
+          stateAlert.setAlert("alert-success", "Анкета отправлена на проверку");
         }
       }
     } catch (error) {
       console.error(error);
-      stateAlert.setAlert(
-        "alert-danger",
-        `Ошибка обработки ${error}`
-      );
+      stateAlert.setAlert("alert-danger", `Ошибка обработки ${error}`);
     }
   },
 
@@ -140,7 +158,10 @@ export const stateAnketa = {
     try {
       const response =
         action === "create"
-          ? await axiosAuth.post(`${server}/${param}/${this.share.candId}`, form)
+          ? await axiosAuth.post(
+              `${server}/${param}/${this.share.candId}`,
+              form
+            )
           : await axiosAuth.patch(`${server}/${param}/${itemId}`, form);
 
       console.log(response.status);
@@ -180,7 +201,9 @@ export const stateAnketa = {
       const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
 
-      param === "resume" ? router.push({ name: "persons" }) : this.getItem(param);
+      param === "resume"
+        ? router.push({ name: "persons" })
+        : this.getItem(param);
 
       stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error) {

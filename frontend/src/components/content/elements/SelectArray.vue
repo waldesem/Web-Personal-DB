@@ -16,7 +16,7 @@ const props = defineProps({
     class="form-select"
     :id="props.name"
     :name="props.name"
-    v-model="model"
+    v-model.lazy="model"
   >
     <option v-for="value, idx in props.select"
       :key="idx"

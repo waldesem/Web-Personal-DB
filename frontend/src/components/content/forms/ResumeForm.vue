@@ -2,6 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert, stateAnketa, stateClassify } from "@/state";
+import { Resume } from "@/interfaces";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -31,9 +32,13 @@ const props = defineProps({
     type: String,
     default: "create",
   },
+  resume: {
+    type: Object as () => Resume,
+    default: {},
+  }
 });
 
-const resumeForm = toRef(stateAnketa.anketa.resume);
+const resumeForm = toRef(props.resume);
 
 async function submitResume(): Promise<void> {
   try {
@@ -44,7 +49,7 @@ async function submitResume(): Promise<void> {
             resumeForm.value
           )
         : await axiosAuth.patch(
-            `${server}/resume/${stateAnketa.anketa.resume["id"]}`,
+            `${server}/resume/${stateAnketa.share.candId}`,
             resumeForm.value
           );
     const { message } = response.data;
@@ -64,7 +69,6 @@ async function submitResume(): Promise<void> {
     );
   }
 };
-console.log(stateClassify.regions);
 </script>
 
 <template>

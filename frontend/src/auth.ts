@@ -24,7 +24,7 @@ axiosAuth.interceptors.request.use(
         });
         const { access_token } = response.data;
 
-        if (!expiredToken(access_token)) {
+        if (!access_token) {
           router.push({ name: "login" });
           return Promise.reject("Access token not available or expired");
         }

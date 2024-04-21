@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount } from "vue";
-import { useRoute } from "vue-router";
+import {router } from "@/router";
 import { stateClassify, stateUser, stateAnketa } from "@/state";
 
 const HeaderDiv = defineAsyncComponent(
@@ -28,11 +28,8 @@ const InquiryTab = defineAsyncComponent(
   () => import("@components/content/tabs/InquiryTab.vue")
 );
 
-const route = useRoute();
-
-stateAnketa.share.candId = route.params.id.toString();
-
 onBeforeMount(async () => {
+  stateAnketa.share.candId = router.currentRoute.value.params.id.toString();
   await stateAnketa.getResume();
 });
 
@@ -46,7 +43,7 @@ const tabData = [
 </script>
 
 <template>
-  <PhotoCard />
+  <!-- <PhotoCard /> -->
   <div class="row mb-3">
     <div class="col-md-10">
       <HeaderDiv

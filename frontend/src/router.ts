@@ -91,7 +91,7 @@ router.beforeEach(async (to, _from, next) => {
       });
       const { access_token } = response.data;
 
-      if (!expiredToken(access_token)) {
+      if (access_token) {
         stateToken.accessToken = access_token;
         next();
       } else {

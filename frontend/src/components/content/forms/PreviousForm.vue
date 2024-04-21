@@ -65,13 +65,13 @@ const previousForm = toRef(props.previous as Previous);
         :typeof="'date'"
         v-model="previousForm['date_change']"
       />
-      <LabelSlot :label="'Причина изменения'">
+    </LabelSlot>
+    <LabelSlot :label="'Причина изменения'">
       <InputElement
         :name="'reason'"
         :place="'Причина изменения'"
         v-model="previousForm['reason']"
       />
-    </LabelSlot>
     </LabelSlot>
     <BtnGroup>
       <BtnGroupContent
