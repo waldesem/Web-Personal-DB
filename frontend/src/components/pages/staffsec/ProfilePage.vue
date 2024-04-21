@@ -43,7 +43,7 @@ const tabData = [
 </script>
 
 <template>
-  <!-- <PhotoCard /> -->
+  <PhotoCard />
   <div class="row mb-3">
     <div class="col-md-10">
       <HeaderDiv

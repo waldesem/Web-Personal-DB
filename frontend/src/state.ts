@@ -131,7 +131,7 @@ export const stateAnketa = {
     try {
       const response =
         param === "image"
-          ? await axiosAuth.get(`${server}/${param}/${this.share.candId}`, {
+          ? await axiosAuth.get(`${server}/image/${this.share.candId}`, {
               responseType: "blob",
             })
           : await axiosAuth.get(`${server}/${param}/${this.share.candId}`);

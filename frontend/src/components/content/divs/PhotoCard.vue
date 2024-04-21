@@ -29,18 +29,17 @@ const photoCard = ref({
         class="card-img-top"
         alt="..."
       />
-      <form
-        :class="{ 'form-visible': photoCard.showPhoto }"
-        @change="stateAnketa.submitFile($event, 'image')";
-        class="form"
-      >
+      <div
+        v-show="photoCard.showPhoto" 
+        class="card-img-overlay">
         <input
+          @change="stateAnketa.submitFile($event, 'image')"
           class="form-control form-control-sm"
           id="formImage"
           type="file"
           accept="image/png, image/jpg, image/jpeg"
         />
-      </form>
+      </div>
     </div>
   </div>
 </template>
