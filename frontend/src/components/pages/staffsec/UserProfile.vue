@@ -33,7 +33,6 @@ const userData = ref({
   id: "",
   action: "",
   role: "",
-  search: "",
   profile: <User>{},
 });
 
