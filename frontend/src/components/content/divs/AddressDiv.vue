@@ -55,53 +55,47 @@ function submitForm(form: Object) {
     "
   />
   <div
-    @mouseover="address.showActions = true"
-    @mouseout="address.showActions = false"
+    v-if="stateAnketa.anketa.address.length"
+    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    id="address"
   >
     <div
-      v-if="stateAnketa.anketa.address.length"
-      :class="{ 'collapse show': !stateAnketa.share.printPage }"
-      id="address"
+      v-for="(item, idx) in stateAnketa.anketa.address"
+      :key="idx"
+      @mouseover="address.showActions = true"
+      @mouseout="address.showActions = false"
+      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+      class="mb-3"
     >
-      <div
-        class="mb-3"
-        v-for="(item, idx) in stateAnketa.anketa.address"
-        :key="idx"
-      >
-        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
-          <AddressForm
-            v-if="
-              address.action === 'update' &&
-              address.itemId === item['id'].toString()
-            "
-            :addrs="address.item"
-            @submit="submitForm"
-            @cancel="
-              address.action = '';
-              address.itemId = '';
+      <AddressForm
+        v-if="
+          address.action === 'update' &&
+          address.itemId === item['id'].toString()
+        "
+        :addrs="address.item"
+        @submit="submitForm"
+        @cancel="
+          address.action = '';
+          address.itemId = '';
+        "
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons
+            v-show="address.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'address')"
+            @update="
+              address.action = 'update';
+              address.item = item;
+              address.itemId = item['id'].toString();
             "
           />
-          <div v-else>
-            <LabelSlot>
-              <ActionIcons
-                v-show="address.showActions"
-                @delete="
-                  stateAnketa.deleteItem(item['id'].toString(), 'address')
-                "
-                @update="
-                  address.action = 'update';
-                  address.item = item;
-                  address.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'Тип'">{{ item["view"] }}</LabelSlot>
-            <LabelSlot :label="'Регион'">{{ item["region"] }}</LabelSlot>
-            <LabelSlot :label="'Адрес'">{{ item["address"] }}</LabelSlot>
-          </div>
-        </div>
+        </LabelSlot>
+        <LabelSlot :label="'Тип'">{{ item["view"] }}</LabelSlot>
+        <LabelSlot :label="'Регион'">{{ item["region"] }}</LabelSlot>
+        <LabelSlot :label="'Адрес'">{{ item["address"] }}</LabelSlot>
       </div>
     </div>
-    <p v-else>Данные отсутствуют</p>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

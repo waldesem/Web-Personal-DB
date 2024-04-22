@@ -5,10 +5,10 @@ import { Relation } from "@/interfaces";
 
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
-)
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
-)
+);
 const RelationForm = defineAsyncComponent(
   () => import("@components/content/forms/RelationForm.vue")
 );
@@ -32,11 +32,11 @@ function submitForm(form: Object) {
     relation.value.action,
     "relation",
     relation.value.itemId,
-    form,
+    form
   );
   relation.value.action = "";
   relation.value.itemId = "";
-};
+}
 </script>
 
 <template>
@@ -46,60 +46,64 @@ function submitForm(form: Object) {
     :action="relation.action"
     @action="relation.action = relation.action ? '' : 'create'"
   />
-  <RelationForm v-if="relation.action === 'create'"
-    :content="relation.item"
+  <RelationForm
+    v-if="relation.action === 'create'"
     @submit="submitForm"
-    @cancel="relation.action = ''; relation.itemId = ''"
+    @cancel="
+      relation.action = '';
+      relation.itemId = '';
+    "
   />
-  <div v-else
-    @mouseover="relation.showActions = true"
-    @mouseout="relation.showActions = false"
+  <div
+    v-if="stateAnketa.anketa.relation.length"
+    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    id="relation"
   >
-    <div 
-      v-if="stateAnketa.anketa.relation.length" 
-      :class="{'collapse show': !stateAnketa.share.printPage}" 
-      id="relation"
-    > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.relation" :key="idx">
-        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
-          <RelationForm
-            v-if="
-              relation.action === 'update' &&
-              relation.itemId === item['id'].toString()
-            "
-            :relation="relation.item"
-            @submit="submitForm"
-            @cancel="
-              relation.action = '';
-              relation.itemId = '';
+    <div
+      class="mb-3"
+      v-for="(item, idx) in stateAnketa.anketa.relation"
+      :key="idx"
+      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+      @mouseover="relation.showActions = true"
+      @mouseout="relation.showActions = false"
+    >
+      <RelationForm
+        v-if="
+          relation.action === 'update' &&
+          relation.itemId === item['id'].toString()
+        "
+        :relation="relation.item"
+        @submit="submitForm"
+        @cancel="
+          relation.action = '';
+          relation.itemId = '';
+        "
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons
+            v-show="relation.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'relation')"
+            @update="
+              relation.action = 'update';
+              relation.item = item;
+              relation.itemId = item['id'].toString();
             "
           />
-          <div v-else>
-            <LabelSlot>
-              <ActionIcons v-show="relation.showActions"
-                @delete="stateAnketa.deleteItem(item['id'].toString(), 'relation')"
-                @update="
-                  relation.action = 'update';
-                  relation.item = item;
-                  relation.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
-            <LabelSlot :label="'Связь'" :no-print="true">
-              <router-link
-                :to="{
-                  name: 'profile',
-                  params: { id: String(item['relation_id']) },
-                }"
-              >
-                ID #{{ item["relation_id"] }}
-              </router-link>
-            </LabelSlot>
-          </div>
-        </div>
+        </LabelSlot>
+        <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
+        <LabelSlot :label="'Связь'" :no-print="true">
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { id: String(item['relation_id']) },
+            }"
+          >
+            ID #{{ item["relation_id"] }}
+          </router-link>
+        </LabelSlot>
       </div>
     </div>
-    <p v-else>Данные отсутствуют</p>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

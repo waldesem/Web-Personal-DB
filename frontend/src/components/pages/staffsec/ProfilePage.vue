@@ -106,8 +106,9 @@ const tabData = [
         }"
         role="tabpanel"
       >
-        <component :is="tab[2]" />
-        <h5 v-if="stateAnketa.share.printPage">{{ tab[1] }}</h5>
+        <div class="py-3">
+          <component :is="tab[2]" />
+        </div>
       </div>
     </div>
   </div>

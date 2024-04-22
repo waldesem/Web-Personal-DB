@@ -30,51 +30,45 @@ const need = ref({
 function submitForm(form: Object) {
   stateAnketa.updateItem(need.value.action, "inquiry", need.value.itemId, form);
   need.value.action = "";
+  need.value.itemId = "";
 };
 </script>
 
 <template>
-  <div class="py-3">
-    <div class="text-end">
-      <IconRelative v-if="need.action !== 'create' && !stateAnketa.share.printPage"
-        :title="`Добавить`"
-        :icon-class="`bi bi-question-square fs-1`"
-        @onclick="need.action = 'create'"
-      />
-    </div>
-    <InquiryForm v-if="need.action"
-      :inquiry="need.item" 
-      @submit="submitForm"
-      @cancel="need.action = ''"
-    />
-    <div v-else
+  <IconRelative v-show="need.action !== 'create' && !stateAnketa.share.printPage"
+    :title="`Добавить`"
+    :icon-class="`bi bi-question-square fs-1`"
+    @onclick="need.action = 'create'"
+  />
+  <InquiryForm v-if="need.action === 'create'"
+    @submit="submitForm"
+    @cancel="need.action = ''; need.itemId = ''"
+  />
+  <div v-if="stateAnketa.anketa.inquiry.length"> 
+    <div
+      class="mb-3"
+      v-for="(item, idx) in stateAnketa.anketa.inquiry" :key="idx"
       @mouseover="need.showActions = true"
-      @mouseout="need.showActions = false"
-    >
-      <div v-if="stateAnketa.anketa.inquiry.length"> 
-        <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.inquiry" :key="idx">
-          <div class="card card-body">
-            <LabelSlot>
-              <ActionIcons v-show="need.showActions"
-                @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiry')"
-                @update="
-                  need.action = 'update';
-                  need.item = item;
-                  need.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-            <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
-            <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
-            <LabelSlot :label="'Дата запроса'">
-              {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-            </LabelSlot>
-          </div>
-        </div>
-      </div>
-      <p v-else>Данные отсутствуют</p>
+      @mouseout="need.showActions = false" 
+      :class="{ 'card card-body': !stateAnketa.share.printPage }">
+      <LabelSlot>
+        <ActionIcons v-show="need.showActions"
+          @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiry')"
+          @update="
+            need.action = 'update';
+            need.item = item;
+            need.itemId = item['id'].toString();
+          "
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
+      <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
+      <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
+      <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+      <LabelSlot :label="'Дата запроса'">
+        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+      </LabelSlot>
     </div>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

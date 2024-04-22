@@ -11,7 +11,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="position-relative flex-grow-1">
+  <div class="position-relative text-end flex-grow-1">
     <button
       type="button"
       class="btn btn-link"

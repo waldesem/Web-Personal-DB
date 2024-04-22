@@ -5,10 +5,10 @@ import { Work } from "@/interfaces";
 
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
-)
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
-)
+);
 const WorkplaceForm = defineAsyncComponent(
   () => import("@components/content/forms/WorkplaceForm.vue")
 );
@@ -32,11 +32,11 @@ function submitForm(form: Object) {
     workplace.value.action,
     "workplace",
     workplace.value.itemId,
-    form,
+    form
   );
   workplace.value.action = "";
   workplace.value.itemId = "";
-};
+}
 </script>
 
 <template>
@@ -46,56 +46,62 @@ function submitForm(form: Object) {
     :action="workplace.action"
     @action="workplace.action = workplace.action ? '' : 'create'"
   />
-  <WorkplaceForm 
+  <WorkplaceForm
     v-if="workplace.action === 'create'"
     @submit="submitForm"
-    @cancel="workplace.action = ''; workplace.itemId = ''"
+    @cancel="
+      workplace.action = '';
+      workplace.itemId = '';
+    "
   />
-  <div v-else
-    @mouseover="workplace.showActions = true"
-    @mouseout="workplace.showActions = false"
+  <div
+    v-if="stateAnketa.anketa.workplace.length"
+    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    id="work"
   >
-    <div 
-      v-if="stateAnketa.anketa.workplace.length" 
-      :class="{'collapse show': !stateAnketa.share.printPage}" 
-      id="work"
-    > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.workplace" :key="idx">
-        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
-          <WorkplaceForm
-            v-if="
-              workplace.action === 'update' &&
-              workplace.itemId === item['id'].toString()
-            "
-            :work="workplace.item"
-            @submit="submitForm"
-            @cancel="
-              workplace.action = '';
-              workplace.itemId = '';
+    <div
+      class="mb-3"
+      v-for="(item, idx) in stateAnketa.anketa.workplace"
+      :key="idx"
+      @mouseover="workplace.showActions = true"
+      @mouseout="workplace.showActions = false"
+      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+    >
+      <WorkplaceForm
+        v-if="
+          workplace.action === 'update' &&
+          workplace.itemId === item['id'].toString()
+        "
+        :work="workplace.item"
+        @submit="submitForm"
+        @cancel="
+          workplace.action = '';
+          workplace.itemId = '';
+        "
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons
+            v-show="workplace.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'workplace')"
+            @update="
+              workplace.action = 'update';
+              workplace.item = item;
+              workplace.itemId = item['id'].toString();
             "
           />
-          <div v-else>
-            <LabelSlot>
-              <ActionIcons v-show="workplace.showActions"
-                @delete="stateAnketa.deleteItem(item['id'].toString(), 'workplace')"
-                @update="
-                  workplace.action = 'update';
-                  workplace.item = item;
-                  workplace.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
-            <LabelSlot :label="'Текущая работа'">{{ item['now_work'] }}</LabelSlot>
-            <LabelSlot :label="'Начало работы'">{{ item['start_date'] }}</LabelSlot>
-            <LabelSlot :label="'Окончание работы'">{{ item['end_date'] }}</LabelSlot>
-            <LabelSlot :label="'Место работы'">{{ item['workplace'] }}</LabelSlot>
-            <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
-            <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
-          </div>
-        </div>
+        </LabelSlot>
+        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
+        <LabelSlot :label="'Текущая работа'">{{ item["now_work"] }}</LabelSlot>
+        <LabelSlot :label="'Начало работы'">{{ item["start_date"] }}</LabelSlot>
+        <LabelSlot :label="'Окончание работы'">{{
+          item["end_date"]
+        }}</LabelSlot>
+        <LabelSlot :label="'Место работы'">{{ item["workplace"] }}</LabelSlot>
+        <LabelSlot :label="'Адрес'">{{ item["address"] }}</LabelSlot>
+        <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
       </div>
     </div>
-    <p v-else>Данные отсутствуют</p>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

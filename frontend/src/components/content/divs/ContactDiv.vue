@@ -40,37 +40,35 @@ function submitForm(form: Object) {
     :action="contact.action"
     @action="contact.action = contact.action ? '' : 'create'"
   />
-  <ContactForm v-if="contact.action"
+  <ContactForm v-if="contact.action === 'create'"
     :contact="contact.item" 
     @submit="submitForm" 
     @cancel="contact.action = ''"
   />
-  <div v-else
-    @mouseover="contact.showActions = true"
-    @mouseout="contact.showActions = false"
-  >
+  <div 
+    v-if="stateAnketa.anketa.contact.length" 
+    :class="{'collapse show': !stateAnketa.share.printPage}" 
+    id="contact"
+  > 
     <div 
-      v-if="stateAnketa.anketa.contact.length" 
-      :class="{'collapse show': !stateAnketa.share.printPage}" 
-      id="contact"
-    > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.contact" :key="idx">
-        <div class="card card-body">
-          <LabelSlot>
-            <ActionIcons v-show="contact.showActions"
-              @delete="stateAnketa.deleteItem(item['id'].toString(), 'contact')"
-              @update="
-                contact.action = 'update';
-                contact.item = item;
-                contact.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
-          <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
-        </div>
-      </div>
+      class="mb-3" 
+      v-for="(item, idx) in stateAnketa.anketa.contact" :key="idx"
+      @mouseover="contact.showActions = true"
+      @mouseout="contact.showActions = false" 
+      :class="{ 'card card-body': !stateAnketa.share.printPage }">
+      <LabelSlot>
+        <ActionIcons v-show="contact.showActions"
+          @delete="stateAnketa.deleteItem(item['id'].toString(), 'contact')"
+          @update="
+            contact.action = 'update';
+            contact.item = item;
+            contact.itemId = item['id'].toString();
+          "
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
+      <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
     </div>
-    <p v-else>Данные отсутствуют</p>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

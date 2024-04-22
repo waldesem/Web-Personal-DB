@@ -5,7 +5,7 @@ import { Staff } from "@/interfaces";
 
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
-)
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -41,50 +41,54 @@ function submitForm(form: Object) {
     :action="staff.action"
     @action="staff.action = staff.action ? '' : 'create'"
   />
-  <StaffForm 
-    v-if="staff.action === 'create'" 
-    @submit="submitForm" 
-    @cancel="staff.action = ''; staff.itemId = ''"
+  <StaffForm
+    v-if="staff.action === 'create'"
+    @submit="submitForm"
+    @cancel="
+      staff.action = '';
+      staff.itemId = '';
+    "
   />
-  <div v-else
-    @mouseover="staff.showActions = true"
-    @mouseout="staff.showActions = false"
+  <div
+    v-if="stateAnketa.anketa.staff.length"
+    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    id="staff"
   >
-    <div 
-      v-if="stateAnketa.anketa.staff.length" 
-      :class="{'collapse show': !stateAnketa.share.printPage}" 
-      id="staff"> 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.staff" :key="idx">
-        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
-          <StaffForm
-            v-if="
-              staff.action === 'update' &&
-              staff.itemId === item['id'].toString()
-            "
-            :staff="staff.item"
-            @submit="submitForm"
-            @cancel="
-              staff.action = '';
-              staff.itemId = '';
+    <div
+      class="mb-3"
+      v-for="(item, idx) in stateAnketa.anketa.staff"
+      :key="idx"
+      @mouseover="staff.showActions = true"
+      @mouseout="staff.showActions = false"
+      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+    >
+      <StaffForm
+        v-if="
+          staff.action === 'update' && staff.itemId === item['id'].toString()
+        "
+        :staff="staff.item"
+        @submit="submitForm"
+        @cancel="
+          staff.action = '';
+          staff.itemId = '';
+        "
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons
+            v-show="staff.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'staff')"
+            @update="
+              staff.action = 'update';
+              staff.item = item;
+              staff.itemId = item['id'].toString();
             "
           />
-          <div v-else>
-            <LabelSlot>
-              <ActionIcons v-show="staff.showActions"
-                @delete="stateAnketa.deleteItem(item['id'].toString(), 'staff')"
-                @update="
-                  staff.action = 'update';
-                  staff.item = item;
-                  staff.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
-            <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
-          </div>
-        </div>
+        </LabelSlot>
+        <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
+        <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
       </div>
     </div>
-    <p v-else>Данные отсутствуют</p>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

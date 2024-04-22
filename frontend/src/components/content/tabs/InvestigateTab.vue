@@ -38,54 +38,47 @@ function submitForm(form: Object) {
     form
   );
   inquisition.value.action = "";
+  inquisition.value.itemId = "";
 }
 </script>
 
 <template>
-  <div class="py-3">
-    <div class="text-end">
-      <div class="text-end">
-        <IconRelative v-if="inquisition.action !== 'create' && !stateAnketa.share.printPage"
-          :title="`Добавить`"
-          :icon-class="`bi bi-incognito fs-1`"
-          @onclick="inquisition.action = 'create'"
-        />
-      </div>
-    </div>
-    <InvestigationForm
-      v-if="inquisition.action"
-      :investigation="inquisition.item"
-      @submit="submitForm"
-      @cancel="inquisition.action = ''"
-    />
-    <div v-else
-     @mouseover="inquisition.showActions = true"
-     @mouseout="inquisition.showActions = false"
+  <IconRelative v-show="inquisition.action !== 'create' && !stateAnketa.share.printPage"
+    :title="`Добавить`"
+    :icon-class="`bi bi-incognito fs-1`"
+    @onclick="inquisition.action = 'create'"
+  />
+  <InvestigationForm
+    v-if="inquisition.action === 'create'"
+    @submit="submitForm"
+    @cancel="inquisition.action = ''; inquisition.itemId = ''"
+  />
+  <div v-if="stateAnketa.anketa.investigation.length"> 
+    <div 
+      v-for="(item, idx) in stateAnketa.anketa.investigation" :key="idx"
+      class="mb-3"
+      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+      @mouseover="inquisition.showActions = true"
+      @mouseout="inquisition.showActions = false"
     >
-      <div v-if="stateAnketa.anketa.investigation.length"> 
-        <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.investigation" :key="idx">
-          <div class="card card-body">
-            <LabelSlot>
-              <ActionIcons v-show="inquisition.showActions"
-                @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigation')"
-                @update="
-                  inquisition.action = 'update';
-                  inquisition.item = item;
-                  inquisition.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
-            <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-            <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
-            <LabelSlot :label="'Дата'">
-              {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-            </LabelSlot>
-          </div>
-        </div>
-        <FileForm :accept="'*'" @submit="stateAnketa.submitFile($event, 'investigation')" />
-      </div>
-      <p v-else>Данные отсутствуют</p>
+      <LabelSlot>
+        <ActionIcons v-show="inquisition.showActions"
+          @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigation')"
+          @update="
+            inquisition.action = 'update';
+            inquisition.item = item;
+            inquisition.itemId = item['id'].toString();
+          "
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
+      <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
+      <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+      <LabelSlot :label="'Дата'">
+        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+      </LabelSlot>
+      <FileForm :accept="'*'" @submit="stateAnketa.submitFile($event, 'investigation')" />
     </div>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

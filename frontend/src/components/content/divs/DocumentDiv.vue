@@ -41,56 +41,54 @@ function submitForm(form: Object) {
     :action="document.action"
     @action="document.action = document.action ? '' : 'create'"
   />
-  <DocumentForm v-if="document.action"
+  <DocumentForm v-if="document.action === 'create'"
     :docs="document.item"
     @submit="submitForm"
     @cancel="document.action = ''; document.itemId = ''"
   />
-  <div v-else
-    @mouseover="document.showActions = true"
-    @mouseout="document.showActions = false"
-  >
+  <div 
+    v-if="stateAnketa.anketa.document.length" 
+    :class="{'collapse show': !stateAnketa.share.printPage}" 
+    id="document"
+  > 
     <div 
-      v-if="stateAnketa.anketa.document.length" 
-      :class="{'collapse show': !stateAnketa.share.printPage}" 
-      id="document"
-    > 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.document" :key="idx">
-        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
-          <DocumentForm
-            v-if="
-              document.action === 'update' &&
-              document.itemId === item['id'].toString()
-            "
-            :docs="document.item"
-            @submit="submitForm"
-            @cancel="
-              document.action = '';
-              document.itemId = '';
+      class="mb-3" 
+      v-for="(item, idx) in stateAnketa.anketa.document" :key="idx"
+      @mouseover="document.showActions = true"
+      @mouseout="document.showActions = false"
+      :class="{ 'card card-body': !stateAnketa.share.printPage }">
+      <DocumentForm
+        v-if="
+          document.action === 'update' &&
+          document.itemId === item['id'].toString()
+        "
+        :docs="document.item"
+        @submit="submitForm"
+        @cancel="
+          document.action = '';
+          document.itemId = '';
+        "
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons v-show="document.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'document')"
+            @update="
+              document.action = 'update';
+              document.item = item;
+              document.itemId = item['id'].toString();
             "
           />
-          <div v-else>
-            <LabelSlot>
-              <ActionIcons v-show="document.showActions"
-                @delete="stateAnketa.deleteItem(item['id'].toString(), 'document')"
-                @update="
-                  document.action = 'update';
-                  document.item = item;
-                  document.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'Вид документа'">{{ item['view'] }}</LabelSlot>
-            <LabelSlot :label="'Номер документа'">{{ item['number'] }}</LabelSlot>
-            <LabelSlot :label="'Серия документа'">{{ item['series'] }}</LabelSlot>
-            <LabelSlot :label="'Кем выдан'">{{ item['agency'] }}</LabelSlot>
-            <LabelSlot :label="'Дата выдачи'">
-              {{ new Date(String(item['issue'])).toLocaleDateString('ru-RU') }}
-            </LabelSlot>
-          </div>
-        </div>
+        </LabelSlot>
+        <LabelSlot :label="'Вид документа'">{{ item['view'] }}</LabelSlot>
+        <LabelSlot :label="'Номер документа'">{{ item['number'] }}</LabelSlot>
+        <LabelSlot :label="'Серия документа'">{{ item['series'] }}</LabelSlot>
+        <LabelSlot :label="'Кем выдан'">{{ item['agency'] }}</LabelSlot>
+        <LabelSlot :label="'Дата выдачи'">
+          {{ new Date(String(item['issue'])).toLocaleDateString('ru-RU') }}
+        </LabelSlot>
       </div>
     </div>
-    <p v-else>Данные отсутствуют</p>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

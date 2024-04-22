@@ -5,7 +5,7 @@ import { Previous } from "@/interfaces";
 
 const ActionHeader = defineAsyncComponent(
   () => import("@components/content/elements/ActionHeader.vue")
-)
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -28,7 +28,12 @@ const previous = ref({
 });
 
 function submitForm(form: Object) {
-  stateAnketa.updateItem(previous.value.action, "previous", previous.value.itemId, form);
+  stateAnketa.updateItem(
+    previous.value.action,
+    "previous",
+    previous.value.itemId,
+    form
+  );
   previous.value.action = "";
   previous.value.itemId = "";
 }
@@ -41,66 +46,71 @@ function submitForm(form: Object) {
     :action="previous.action"
     @action="previous.action = previous.action ? '' : 'create'"
   />
-  <PreviousForm 
-    v-if="previous.action === 'create'" 
-    :previous="previous.item" 
-    @submit="submitForm" 
-    @cancel="previous.action = ''; previous.itemId = ''"
+  <PreviousForm
+    v-if="previous.action === 'create'"
+    :previous="previous.item"
+    @submit="submitForm"
+    @cancel="
+      previous.action = '';
+      previous.itemId = '';
+    "
   />
-  <div v-else
-    @mouseover="previous.showActions = true"
-    @mouseout="previous.showActions = false"
+  <div
+    v-if="stateAnketa.anketa.previous.length"
+    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    id="previous"
   >
-    <div 
-      v-if="stateAnketa.anketa.previous.length" 
-      :class="{'collapse show': !stateAnketa.share.printPage}" 
-      id="previous"> 
-      <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.previous" :key="idx">
-        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
-          <PreviousForm
-            v-if="
-              previous.action === 'update' &&
-              previous.itemId === item['id'].toString()
-            "
-            :previous="previous.item"
-            @submit="submitForm"
-            @cancel="
-              previous.action = '';
-              previous.itemId = '';
+    <div
+      class="mb-3"
+      v-for="(item, idx) in stateAnketa.anketa.previous"
+      :key="idx"
+      @mouseover="previous.showActions = true"
+      @mouseout="previous.showActions = false"
+      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+    >
+      <PreviousForm
+        v-if="
+          previous.action === 'update' &&
+          previous.itemId === item['id'].toString()
+        "
+        :previous="previous.item"
+        @submit="submitForm"
+        @cancel="
+          previous.action = '';
+          previous.itemId = '';
+        "
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons
+            v-show="previous.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'previous')"
+            @update="
+              previous.action = 'update';
+              previous.item = item;
+              previous.itemId = item['id'].toString();
             "
           />
-          <div v-else>
-            <LabelSlot>
-              <ActionIcons v-show="previous.showActions"
-                @delete="stateAnketa.deleteItem(item['id'].toString(), 'previous')"
-                @update="
-                  previous.action = 'update';
-                  previous.item = item;
-                  previous.itemId = item['id'].toString();
-                "
-              />
-            </LabelSlot>
-            <LabelSlot :label="'Фамилия'">
-              {{ item["surname"] }}
-            </LabelSlot>
-            <LabelSlot :label="'Имя'">
-              {{ item["firstname"] }}
-            </LabelSlot>
-            <LabelSlot :label="'Отчество'">
-              {{ item["patronymic"] }}
-            </LabelSlot>
-            <LabelSlot :label="'Дата изменения'">
-              {{ new Date(String(item["date_change"])).toLocaleDateString(
-              "ru-RU"
-            ) }}
-            </LabelSlot>
-            <LabelSlot :label="'Причина'">
-              {{ item["reason"] }}
-            </LabelSlot>
-          </div>
-        </div>
+        </LabelSlot>
+        <LabelSlot :label="'Фамилия'">
+          {{ item["surname"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Имя'">
+          {{ item["firstname"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Отчество'">
+          {{ item["patronymic"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Дата изменения'">
+          {{
+            new Date(String(item["date_change"])).toLocaleDateString("ru-RU")
+          }}
+        </LabelSlot>
+        <LabelSlot :label="'Причина'">
+          {{ item["reason"] }}
+        </LabelSlot>
       </div>
     </div>
-    <p v-else>Данные отсутствуют</p>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

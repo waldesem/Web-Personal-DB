@@ -45,125 +45,121 @@ const dataResume = ref({
 </script>
 
 <template>
-  <div class="py-3">
-    <ResumeForm
-      v-if="dataResume.action"
-      :action="dataResume.action"
-      :resume="stateAnketa.anketa.resume"
-      @cancel="dataResume.action = ''"
-    />
-    <div
-      class="px-3"
-      v-else
-      @mouseover="dataResume.showActions = true"
-      @mouseout="dataResume.showActions = false"
-    >
-      <LabelSlot>
-        <ActionIcons
-          v-show="dataResume.showActions"
-          @delete="
-            stateAnketa.deleteItem(stateAnketa.anketa.resume['id'], 'resume')
-          "
-          @update="dataResume.action = 'update'"
-          :disable="
-            stateClassify.status[stateAnketa.anketa.resume['status_id']] ===
-            'finish'
-          "
-        />
-      </LabelSlot>
-      <LabelSlot :label="'ID'">{{ stateAnketa.anketa.resume["id"] }}</LabelSlot>
-      <LabelSlot :label="'Фамилия'">{{
-        stateAnketa.anketa.resume["surname"]
-      }}</LabelSlot>
-      <LabelSlot :label="'Имя'">{{
-        stateAnketa.anketa.resume["firstname"]
-      }}</LabelSlot>
-      <LabelSlot :label="'Отчество'">{{
-        stateAnketa.anketa.resume["patronymic"]
-      }}</LabelSlot>
-      <LabelSlot :label="'Дата рождения'"
-        >{{
-          new Date(
-            String(stateAnketa.anketa.resume["birthday"])
-          ).toLocaleDateString("ru-RU")
-        }}
-      </LabelSlot>
-      <LabelSlot :label="'Место рождения'">{{
-        stateAnketa.anketa.resume["birthplace"]
-      }}</LabelSlot>
-      <LabelSlot :label="'Гражданство'">{{
-        stateAnketa.anketa.resume["country"]
-      }}</LabelSlot>
-      <LabelSlot :label="'Двойное гражданство'"
-        >{{ stateAnketa.anketa.resume["ext_country"] }}
-      </LabelSlot>
-      <LabelSlot :label="'СНИЛС'">{{
-        stateAnketa.anketa.resume["snils"]
-      }}</LabelSlot>
-      <LabelSlot :label="'ИНН'">{{
-        stateAnketa.anketa.resume["inn"]
-      }}</LabelSlot>
-      <LabelSlot :label="'Образование'"
-        >{{ stateAnketa.anketa.resume["education"] }}
-      </LabelSlot>
-      <LabelSlot :label="'Семейнное положение'"
-        >{{ stateAnketa.anketa.resume["marital"] }}
-      </LabelSlot>
-      <LabelSlot :label="'Дополнительная информация'"
-        >{{ stateAnketa.anketa.resume["addition"] }}
-      </LabelSlot>
-      <LabelSlot :label="'Статус'"
-        >{{ stateClassify.status[stateAnketa.anketa.resume["status_id"]] }}
-      </LabelSlot>
-      <LabelSlot :label="'Дата создания'"
-        >{{
-          stateAnketa.anketa.resume["created"]
-            ? new Date(
-                String(stateAnketa.anketa.resume["created"])
-              ).toLocaleDateString("ru-RU")
-            : ""
-        }}
-      </LabelSlot>
-      <LabelSlot :label="'Дата обновления'"
-        >{{
-          stateAnketa.anketa.resume["updated"]
-            ? new Date(
-                String(stateAnketa.anketa.resume["updated"])
-              ).toLocaleDateString("ru-RU")
-            : ""
-        }}
-      </LabelSlot>
-      <LabelSlot :label="'Пользователь'">{{
+  <ResumeForm
+    v-if="dataResume.action"
+    :action="dataResume.action"
+    :resume="stateAnketa.anketa.resume"
+    @cancel="dataResume.action = ''"
+  />
+  <div
+    v-else
+    class="px-3"
+    @mouseover="dataResume.showActions = true"
+    @mouseout="dataResume.showActions = false"
+  >
+    <LabelSlot>
+      <ActionIcons
+        v-show="dataResume.showActions"
+        @delete="
+          stateAnketa.deleteItem(stateAnketa.anketa.resume['id'], 'resume')
+        "
+        @update="dataResume.action = 'update'"
+        :disable="
+          stateClassify.status[stateAnketa.anketa.resume['status_id']] ===
+          'finish'
+        "
+      />
+    </LabelSlot>
+    <LabelSlot :label="'ID'">
+      {{ stateAnketa.anketa.resume["id"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Фамилия'">
+      {{ stateAnketa.anketa.resume["surname"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Имя'">
+      {{ stateAnketa.anketa.resume["firstname"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Отчество'">
+      {{ stateAnketa.anketa.resume["patronymic"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Дата рождения'">
+      {{
+        new Date(
+          String(stateAnketa.anketa.resume["birthday"])
+        ).toLocaleDateString("ru-RU")
+      }}
+    </LabelSlot>
+    <LabelSlot :label="'Место рождения'">
+      {{ stateAnketa.anketa.resume["birthplace"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Гражданство'">
+      {{ stateAnketa.anketa.resume["country"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Двойное гражданство'">
+      {{ stateAnketa.anketa.resume["ext_country"] }}
+    </LabelSlot>
+    <LabelSlot :label="'СНИЛС'">
+      {{ stateAnketa.anketa.resume["snils"] }}
+    </LabelSlot>
+    <LabelSlot :label="'ИНН'">
+      {{ stateAnketa.anketa.resume["inn"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Образование'">
+      {{ stateAnketa.anketa.resume["education"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Семейнное положение'">
+      {{ stateAnketa.anketa.resume["marital"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Дополнительная информация'">
+      {{ stateAnketa.anketa.resume["addition"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Статус'">
+      {{ stateClassify.status[stateAnketa.anketa.resume["status_id"]] }}
+    </LabelSlot>
+    <LabelSlot :label="'Дата создания'">
+      {{
+        stateAnketa.anketa.resume["created"]
+          ? new Date(
+              String(stateAnketa.anketa.resume["created"])
+            ).toLocaleDateString("ru-RU")
+          : ""
+      }}
+    </LabelSlot>
+    <LabelSlot :label="'Дата обновления'">
+      {{
+        stateAnketa.anketa.resume["updated"]
+          ? new Date(
+              String(stateAnketa.anketa.resume["updated"])
+            ).toLocaleDateString("ru-RU")
+          : ""
+      }}
+    </LabelSlot>
+    <LabelSlot :label="'Пользователь'">
+      {{
         stateAnketa.anketa.resume["user_id"]
           ? stateClassify.users[stateAnketa.anketa.resume["user_id"]]
           : ""
-      }}</LabelSlot>
-      <LabelSlot :label="'Материалы'">
-        <router-link
-          v-if="stateAnketa.anketa.resume['path']"
-          :to="{
-            name: 'manager',
-            query: { path: stateAnketa.anketa.resume['path'].split('/') },
-          }"
-        >
-          {{ stateAnketa.anketa.resume["path"] }}
-        </router-link>
-      </LabelSlot>
-    </div>
-    <hr />
-    <div
-      v-for="(component, idx) in [
-        PreviousDiv,
-        StaffDiv,
-        DocumentDiv,
-        AddressDiv,
-        ContactDiv,
-        RelationDiv,
-        WorkplaceDiv,
-        AffilationDiv,
-      ]"
-      :key="idx"
-    >
+      }}
+    </LabelSlot>
+    <LabelSlot :label="'Материалы'">
+      {{ stateAnketa.anketa.resume["path"] }}
+    </LabelSlot>
+  </div>
+  <hr />
+  <div
+    v-for="(component, idx) in [
+      PreviousDiv,
+      StaffDiv,
+      DocumentDiv,
+      AddressDiv,
+      ContactDiv,
+      RelationDiv,
+      WorkplaceDiv,
+      AffilationDiv,
+    ]"
+    :key="idx"
+  >
+    <div class="py-1">
       <component :is="component" />
     </div>
   </div>

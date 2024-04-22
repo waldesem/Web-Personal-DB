@@ -16,54 +16,46 @@ const showActions = ref(false);
 <template>
   <div
     v-if="stateAnketa.anketa.robot.length"
-    @mouseover="showActions = true"
-    @mouseout="showActions = false"
   >
     <div
-      v-if="stateAnketa.anketa.robot.length"
-      :class="{ 'collapse show': !stateAnketa.share.printPage }"
-      id="check"
+      v-for="(item, idx) in stateAnketa.anketa.robot"
+      :key="idx"
+      @mouseover="showActions = true"
+      @mouseout="showActions = false"
+      class="card card-body mb-3"
     >
-      <div
-        class="mb-3"
-        v-for="(item, idx) in stateAnketa.anketa.robot"
-        :key="idx"
-      >
-        <div class="card card-body">
-          <LabelSlot>
-            <a
-              v-show="showActions"
-              href="#"
-              @click="
-                stateAnketa.deleteItem(item['id'].toString(), 'robot');
-                showActions = false;
-              "
-              title="Удалить"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
-          </LabelSlot>
-          <LabelSlot :label="'Проверка по кадровым данным'">
-            {{ item["employee"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка банкротства'">
-            {{ item["bankruptcy"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</LabelSlot>
-          <LabelSlot :label="'Проверка судебных решений'">
-            {{ item["courts"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка по списку террористов'">
-            {{ item["terrorist"] }}
-          </LabelSlot>
-          <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
-          <LabelSlot :label="'Дата'">
-            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelSlot>
-        </div>
-      </div>
+      <LabelSlot>
+        <button
+          v-show="showActions"
+          class="btn btn-link"
+          @click="
+            stateAnketa.deleteItem(item['id'].toString(), 'robot');
+            showActions = false;
+          "
+          title="Удалить"
+        >
+          <i class="bi bi-trash"></i>
+        </button>
+      </LabelSlot>
+      <LabelSlot :label="'Проверка по кадровым данным'">
+        {{ item["employee"] }}
+      </LabelSlot>
+      <LabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</LabelSlot>
+      <LabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</LabelSlot>
+      <LabelSlot :label="'Проверка банкротства'">
+        {{ item["bankruptcy"] }}
+      </LabelSlot>
+      <LabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</LabelSlot>
+      <LabelSlot :label="'Проверка судебных решений'">
+        {{ item["courts"] }}
+      </LabelSlot>
+      <LabelSlot :label="'Проверка по списку террористов'">
+        {{ item["terrorist"] }}
+      </LabelSlot>
+      <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
+      <LabelSlot :label="'Дата'">
+        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+      </LabelSlot>
     </div>
   </div>
 </template>
