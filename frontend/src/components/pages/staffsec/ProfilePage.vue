@@ -40,6 +40,7 @@ const tabData = [
   ["InvestigateTab", "Расследования", InvestigateTab],
   ["InquiryTab", "Запросы", InquiryTab],
 ];
+console.log(stateUser.userId);
 </script>
 
 <template>

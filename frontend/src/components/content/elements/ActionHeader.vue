@@ -6,10 +6,6 @@ const props = defineProps({
   id: String,
   header: String,
   action: String,
-  disable: {
-    type: Boolean,
-    default: false,
-  }
 });
 const toggle = ref(true); 
 </script>
@@ -28,7 +24,6 @@ const toggle = ref(true);
         {{ props.header }}
       </button>
       <button
-        :disabled="props.disable"
         type="button"
         class="btn btn-link dropdown-toggle dropdown-toggle-split"
         data-bs-toggle="dropdown"
@@ -37,7 +32,10 @@ const toggle = ref(true);
       </button>
       <ul class="dropdown-menu">
         <li>
-          <a class="dropdown-item" href="#" @click="emit('action')">Добавить</a>
+          <a 
+            class="dropdown-item btn btn-link" 
+            role="button"
+            @click="emit('action')">Добавить</a>
         </li>
       </ul>
     </div>

@@ -35,6 +35,7 @@ function submitForm(form: Object) {
     form,
   );
   workplace.value.action = "";
+  workplace.value.itemId = "";
 };
 </script>
 
@@ -45,10 +46,10 @@ function submitForm(form: Object) {
     :action="workplace.action"
     @action="workplace.action = workplace.action ? '' : 'create'"
   />
-  <WorkplaceForm v-if="workplace.action"
-    :content="workplace.item"
+  <WorkplaceForm 
+    v-if="workplace.action === 'create'"
     @submit="submitForm"
-    @cancel="workplace.action = ''"
+    @cancel="workplace.action = ''; workplace.itemId = ''"
   />
   <div v-else
     @mouseover="workplace.showActions = true"
@@ -60,24 +61,38 @@ function submitForm(form: Object) {
       id="work"
     > 
       <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.workplace" :key="idx">
-        <div class="card card-body">
-          <LabelSlot>
-            <ActionIcons v-show="workplace.showActions"
-              @delete="stateAnketa.deleteItem(item['id'].toString(), 'workplace')"
-              @update="
-                workplace.action = 'update';
-                workplace.item = item;
-                workplace.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
-          <LabelSlot :label="'Текущая работа'">{{ item['now_work'] }}</LabelSlot>
-          <LabelSlot :label="'Начало работы'">{{ item['start_date'] }}</LabelSlot>
-          <LabelSlot :label="'Окончание работы'">{{ item['end_date'] }}</LabelSlot>
-          <LabelSlot :label="'Место работы'">{{ item['workplace'] }}</LabelSlot>
-          <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
-          <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
+        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
+          <WorkplaceForm
+            v-if="
+              workplace.action === 'update' &&
+              workplace.itemId === item['id'].toString()
+            "
+            :work="workplace.item"
+            @submit="submitForm"
+            @cancel="
+              workplace.action = '';
+              workplace.itemId = '';
+            "
+          />
+          <div v-else>
+            <LabelSlot>
+              <ActionIcons v-show="workplace.showActions"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'workplace')"
+                @update="
+                  workplace.action = 'update';
+                  workplace.item = item;
+                  workplace.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'ID'">{{ item['id'] }}</LabelSlot>
+            <LabelSlot :label="'Текущая работа'">{{ item['now_work'] }}</LabelSlot>
+            <LabelSlot :label="'Начало работы'">{{ item['start_date'] }}</LabelSlot>
+            <LabelSlot :label="'Окончание работы'">{{ item['end_date'] }}</LabelSlot>
+            <LabelSlot :label="'Место работы'">{{ item['workplace'] }}</LabelSlot>
+            <LabelSlot :label="'Адрес'">{{ item['address'] }}</LabelSlot>
+            <LabelSlot :label="'Должность'">{{ item['position'] }}</LabelSlot>
+          </div>
         </div>
       </div>
     </div>

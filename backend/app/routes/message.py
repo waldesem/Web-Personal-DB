@@ -31,8 +31,8 @@ class MessageView(MethodView):
         """
         Deletes the current instance of the resource from the database.
         """
-        json_data = request.get_json()
-        if not json_data['id']:
+        data = request.args.get('id')
+        if not data:
             messages = db.session.execute(
                 select(Message).filter_by(user_id=current_user.id)
             ).scalars().all()
@@ -40,7 +40,7 @@ class MessageView(MethodView):
                 for message in messages:
                     db.session.delete(message)
         else:
-            db.session.delete(db.session.get(Message, json_data["id"]))
+            db.session.delete(db.session.get(Message, data))
         db.session.commit()
         return "", 204
 

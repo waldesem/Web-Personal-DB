@@ -30,6 +30,7 @@ const staff = ref({
 function submitForm(form: Object) {
   stateAnketa.updateItem(staff.value.action, "staff", staff.value.itemId, form);
   staff.value.action = "";
+  staff.value.itemId = "";
 }
 </script>
 
@@ -41,10 +42,9 @@ function submitForm(form: Object) {
     @action="staff.action = staff.action ? '' : 'create'"
   />
   <StaffForm 
-    v-if="staff.action" 
-    :staff="staff.item" 
+    v-if="staff.action === 'create'" 
     @submit="submitForm" 
-    @cancel="staff.action = ''"
+    @cancel="staff.action = ''; staff.itemId = ''"
   />
   <div v-else
     @mouseover="staff.showActions = true"
@@ -55,19 +55,33 @@ function submitForm(form: Object) {
       :class="{'collapse show': !stateAnketa.share.printPage}" 
       id="staff"> 
       <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.staff" :key="idx">
-        <div class="card card-body">
-          <LabelSlot>
-            <ActionIcons v-show="staff.showActions"
-              @delete="stateAnketa.deleteItem(item['id'].toString(), 'staff')"
-              @update="
-                staff.action = 'update';
-                staff.item = item;
-                staff.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
-          <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
+        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
+          <StaffForm
+            v-if="
+              staff.action === 'update' &&
+              staff.itemId === item['id'].toString()
+            "
+            :staff="staff.item"
+            @submit="submitForm"
+            @cancel="
+              staff.action = '';
+              staff.itemId = '';
+            "
+          />
+          <div v-else>
+            <LabelSlot>
+              <ActionIcons v-show="staff.showActions"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'staff')"
+                @update="
+                  staff.action = 'update';
+                  staff.item = item;
+                  staff.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
+            <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
+          </div>
         </div>
       </div>
     </div>

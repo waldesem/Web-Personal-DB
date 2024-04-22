@@ -30,6 +30,7 @@ const document = ref({
 function submitForm(form: Object) {
   stateAnketa.updateItem(document.value.action, "document", document.value.itemId, form)
   document.value.action = '';
+  document.value.itemId = '';
 };
 </script>
 
@@ -43,7 +44,7 @@ function submitForm(form: Object) {
   <DocumentForm v-if="document.action"
     :docs="document.item"
     @submit="submitForm"
-    @cancel="document.action = ''"
+    @cancel="document.action = ''; document.itemId = ''"
   />
   <div v-else
     @mouseover="document.showActions = true"
@@ -55,24 +56,38 @@ function submitForm(form: Object) {
       id="document"
     > 
       <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.document" :key="idx">
-        <div class="card card-body">
-          <LabelSlot>
-            <ActionIcons v-show="document.showActions"
-              @delete="stateAnketa.deleteItem(item['id'].toString(), 'document')"
-              @update="
-                document.action = 'update';
-                document.item = item;
-                document.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'Вид документа'">{{ item['view'] }}</LabelSlot>
-          <LabelSlot :label="'Номер документа'">{{ item['number'] }}</LabelSlot>
-          <LabelSlot :label="'Серия документа'">{{ item['series'] }}</LabelSlot>
-          <LabelSlot :label="'Кем выдан'">{{ item['agency'] }}</LabelSlot>
-          <LabelSlot :label="'Дата выдачи'">
-            {{ new Date(String(item['issue'])).toLocaleDateString('ru-RU') }}
-          </LabelSlot>
+        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
+          <DocumentForm
+            v-if="
+              document.action === 'update' &&
+              document.itemId === item['id'].toString()
+            "
+            :docs="document.item"
+            @submit="submitForm"
+            @cancel="
+              document.action = '';
+              document.itemId = '';
+            "
+          />
+          <div v-else>
+            <LabelSlot>
+              <ActionIcons v-show="document.showActions"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'document')"
+                @update="
+                  document.action = 'update';
+                  document.item = item;
+                  document.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'Вид документа'">{{ item['view'] }}</LabelSlot>
+            <LabelSlot :label="'Номер документа'">{{ item['number'] }}</LabelSlot>
+            <LabelSlot :label="'Серия документа'">{{ item['series'] }}</LabelSlot>
+            <LabelSlot :label="'Кем выдан'">{{ item['agency'] }}</LabelSlot>
+            <LabelSlot :label="'Дата выдачи'">
+              {{ new Date(String(item['issue'])).toLocaleDateString('ru-RU') }}
+            </LabelSlot>
+          </div>
         </div>
       </div>
     </div>

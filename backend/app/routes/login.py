@@ -38,6 +38,20 @@ jwt_redis_blocklist = redis.StrictRedis(
 class LoginView(MethodView):
     """Login view"""
 
+    @jwt_required()
+    @bp.doc(hide=True)
+    @bp.output(UserSchema)
+    def get(self):
+        """
+        Retrieves the current authenticated user from the database.
+        """
+        user = User.get_user(current_user.username)
+        if user and not user.blocked and not user.deleted:
+            user.last_login = datetime.now()
+            db.session.commit()
+            return user
+        return abort(401)
+    
     @bp.input(LoginSchema)
     @bp.output(OutputLoginSchema)
     def post(self, json_data):

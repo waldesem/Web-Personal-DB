@@ -35,6 +35,7 @@ function submitForm(form: Object) {
     form,
   );
   relation.value.action = "";
+  relation.value.itemId = "";
 };
 </script>
 
@@ -45,10 +46,10 @@ function submitForm(form: Object) {
     :action="relation.action"
     @action="relation.action = relation.action ? '' : 'create'"
   />
-  <RelationForm v-if="relation.action"
+  <RelationForm v-if="relation.action === 'create'"
     :content="relation.item"
     @submit="submitForm"
-    @cancel="relation.action = ''"
+    @cancel="relation.action = ''; relation.itemId = ''"
   />
   <div v-else
     @mouseover="relation.showActions = true"
@@ -60,28 +61,42 @@ function submitForm(form: Object) {
       id="relation"
     > 
       <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.relation" :key="idx">
-        <div class="card card-body">
-          <LabelSlot>
-            <ActionIcons v-show="relation.showActions"
-              @delete="stateAnketa.deleteItem(item['id'].toString(), 'relation')"
-              @update="
-                relation.action = 'update';
-                relation.item = item;
-                relation.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
-          <LabelSlot :label="'Связь'" :no-print="true">
-            <router-link
-              :to="{
-                name: 'profile',
-                params: { id: String(item['relation_id']) },
-              }"
-            >
-              ID #{{ item["relation_id"] }}
-            </router-link>
-          </LabelSlot>
+        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
+          <RelationForm
+            v-if="
+              relation.action === 'update' &&
+              relation.itemId === item['id'].toString()
+            "
+            :relation="relation.item"
+            @submit="submitForm"
+            @cancel="
+              relation.action = '';
+              relation.itemId = '';
+            "
+          />
+          <div v-else>
+            <LabelSlot>
+              <ActionIcons v-show="relation.showActions"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'relation')"
+                @update="
+                  relation.action = 'update';
+                  relation.item = item;
+                  relation.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
+            <LabelSlot :label="'Связь'" :no-print="true">
+              <router-link
+                :to="{
+                  name: 'profile',
+                  params: { id: String(item['relation_id']) },
+                }"
+              >
+                ID #{{ item["relation_id"] }}
+              </router-link>
+            </LabelSlot>
+          </div>
         </div>
       </div>
     </div>

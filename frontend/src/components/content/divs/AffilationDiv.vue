@@ -35,6 +35,7 @@ function submitForm(form: Object) {
     form
   );
   affilation.value.action = "";
+  affilation.value.itemId = "";
 }
 </script>
 
@@ -45,10 +46,10 @@ function submitForm(form: Object) {
     @action="affilation.action = affilation.action ? '' : 'create'"
   />
   <AffilationForm
-    v-if="affilation.action"
+    v-if="affilation.action === 'create'"
     :affils="affilation.item"
     @submit="submitForm"
-    @cancel="affilation.action = ''"
+    @cancel="affilation.action = ''; affilation.itemId = ''"
   />
   <div v-else
     @mouseover="affilation.showActions = true"
@@ -60,24 +61,38 @@ function submitForm(form: Object) {
       id="affilation"
     > 
       <div class="mb-3" v-for="(item, idx) in stateAnketa.anketa.affilation" :key="idx">
-        <div class="card card-body">
-          <LabelSlot>
-            <ActionIcons v-show="affilation.showActions"
-              @delete="stateAnketa.deleteItem(item['id'].toString(), 'affilation')"
-              @update="
-                affilation.action = 'update';
-                affilation.item = item;
-                affilation.itemId = item['id'].toString();
-              "
-            />
-          </LabelSlot>
-          <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>
-          <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
-          <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
-          <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
-          <LabelSlot :label="'Дата декларации'">
-            {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-          </LabelSlot>
+        <div :class="{ 'card card-body': !stateAnketa.share.printPage }">
+          <AffilationForm
+            v-if="
+              affilation.action === 'update' &&
+              affilation.itemId === item['id'].toString()
+            "
+            :affils="affilation.item"
+            @submit="submitForm"
+            @cancel="
+              affilation.action = '';
+              affilation.itemId = '';
+            "
+          />
+          <div v-else>
+            <LabelSlot>
+              <ActionIcons v-show="affilation.showActions"
+                @delete="stateAnketa.deleteItem(item['id'].toString(), 'affilation')"
+                @update="
+                  affilation.action = 'update';
+                  affilation.item = item;
+                  affilation.itemId = item['id'].toString();
+                "
+              />
+            </LabelSlot>
+            <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>
+            <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
+            <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
+            <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
+            <LabelSlot :label="'Дата декларации'">
+              {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+            </LabelSlot>
+          </div>
         </div>
       </div>
     </div>

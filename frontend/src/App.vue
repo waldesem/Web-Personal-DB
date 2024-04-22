@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import axios from "axios";
-import { computed, watch, onBeforeMount, onMounted } from "vue";
-import { stateClassify, stateUser, stateToken } from "@/state";
+import { watch, onBeforeMount, onMounted } from "vue";
+import { stateClassify, stateUser, stateToken, stateAlert } from "@/state";
+import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
 watch(
   () => stateToken.accessToken,
-  (newToken) => {
-    if (!newToken) return;
-    const tokenPayload = JSON.parse(atob(newToken.split(".")[1]));
-    stateUser.userId = tokenPayload["id"];
-    stateUser.fullName = tokenPayload["fullname"];
-    stateUser.userName = tokenPayload["username"];
-    stateUser.userRoles = tokenPayload["roles"];
+  async () => {
+    try {
+      const response = await axiosAuth.get(`${server}/login`);
+      const { id, fullname, username, roles } = response.data;
+      stateUser.userId = id;
+      stateUser.fullName = fullname;
+      stateUser.userName = username;
+      stateUser.hasAdmin = roles.some(
+        (r: { role: any }) => r.role === "admin"
+      );
+    } catch (error) {
+      stateAlert.setAlert("alert-warning", error as string);
+    }
   },
-  { immediate: true }
 );
-
-computed(() => {
-  stateUser.hasAdmin = stateUser.userRoles.some(
-    (r: { role: any }) => r.role === "admin"
-  );
-});
 
 onBeforeMount(async () => {
   try {

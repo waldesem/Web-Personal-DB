@@ -66,7 +66,7 @@ const messageData = ref({
   </a>
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" id="offcanvasMessage">
     <div class="offcanvas-body">
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between mb-3">
         <a 
           href="#" 
           class="link-danger"
@@ -84,30 +84,24 @@ const messageData = ref({
           <i class="bi bi-trash"></i>
         </a>
       </div>
-      <div class="toast-container position-static">
-        <div 
-          v-for="message, index in messageData.messages" :key="index"
-          class="toast" 
-          role="alert" 
-        >
-          <div class="toast-header">
-            <img src="..." class="rounded me-2" alt="...">
-            <strong class="me-auto">Сообщение</strong>
-            <small class="text-body-info">
+      <div 
+        v-for="message, index in messageData.messages" :key="index"
+        class="card" 
+      >
+        <div class="card-header">
+          <small class="d-flex justify-content-between">
               {{ timeSince(message["created"]) }}
-            </small>
             <button 
               type="button" 
-              class="btn-close" 
-              data-bs-dismiss="toast"
+              class="btn-close btn-sm" 
               @click="messageData.deleteMessage(message['id'])"
             >
-          </button>
-          </div>
-          <div class="toast-body">
-            {{ message["message"] }}
-          </div>
+            </button>
+          </small>
         </div>
+        <small class="card-body text-break text-start">
+          {{ message["message"] }}
+        </small>
       </div>
     </div>
   </div>
