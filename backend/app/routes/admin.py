@@ -1,10 +1,10 @@
-import bcrypt
 from apiflask import EmptySchema
 from flask import abort
 from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select
 from sqlalchemy_searchable import search
+from werkzeug.security import generate_password_hash
 
 from config import Config
 from . import bp
@@ -51,10 +51,11 @@ class UserView(MethodView):
                     if user.username != current_user.username:
                         user.blocked = not user.blocked
                 case "drop":
-                    user.password = bcrypt.hashpw(
+                    user.password = generate_password_hash(
                         Config.DEFAULT_PASSWORD.encode("utf-8"),
-                        bcrypt.gensalt(),
-                    )
+                        method="scrypt",
+                        salt_length=16
+                        )
                     user.attempt = 0
                     user.pswd_change = None
                 case _:
@@ -74,9 +75,10 @@ class UserView(MethodView):
                     fullname=json_data.get("fullname"),
                     username=json_data.get("username"),
                     email=json_data.get("email"),
-                    password=bcrypt.hashpw(
+                    password=generate_password_hash(
                         Config.DEFAULT_PASSWORD.encode("utf-8"),
-                        bcrypt.gensalt(),
+                        method="scrypt",
+                        salt_length=16
                     ),
                 )
             )

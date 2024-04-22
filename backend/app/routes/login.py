@@ -1,10 +1,10 @@
 from datetime import datetime
 from functools import wraps
-import bcrypt
 
 import redis
 from flask import abort
 from flask.views import MethodView
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -60,7 +60,7 @@ class LoginView(MethodView):
         """
         user = User.get_user(json_data["username"])
         if user and not user.blocked and not user.deleted:
-            if bcrypt.checkpw(json_data["password"].encode("utf-8"), user.password):
+            if check_password_hash(user.password, json_data["password"].encode("utf-8")):
                 delta_change = datetime.now() - user.pswd_create
                 if user.pswd_change and delta_change.days < 365:
                     user.last_login = datetime.now()
@@ -91,10 +91,12 @@ class LoginView(MethodView):
         if (
             user
             and not user.blocked
-            and bcrypt.checkpw(json_data["password"].encode("utf-8"), user.password)
+            and check_password_hash(user.password, json_data["password"].encode("utf-8"))
         ):
-            user.password = bcrypt.hashpw(
-                json_data["new_pswd"].encode("utf-8"), bcrypt.gensalt()
+            user.password = generate_password_hash(
+                json_data["new_pswd"].encode("utf-8"),
+                method="scrypt",
+                salt_length=16,
             )
             user.pswd_change = datetime.now()
             db.session.commit()

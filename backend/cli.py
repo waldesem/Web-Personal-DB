@@ -2,8 +2,8 @@ import os
 from datetime import datetime
 import shutil
 
-import bcrypt
 from sqlalchemy import select
+from werkzeug.security import generate_password_hash
 
 from config import Config, basedir
 from app.models.classes import Roles, Regions, Statuses, Conclusions
@@ -50,8 +50,10 @@ def register_cli(app):
         superadmin = User(
             fullname="Администратор",
             username="superadmin",
-            password=bcrypt.hashpw(
-                Config.DEFAULT_PASSWORD.encode("utf-8"), bcrypt.gensalt()
+            password=generate_password_hash(
+                Config.DEFAULT_PASSWORD.encode("utf-8"),
+                method="scrypt",
+                salt_length=16,
             ),
         )
         db.session.add(superadmin)

@@ -11,5 +11,6 @@ from . import classify
 from . import contact
 from . import login
 from . import message
+from . import robot
 from . import gpt
 
