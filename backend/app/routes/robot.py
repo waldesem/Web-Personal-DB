@@ -6,7 +6,7 @@ from flask.views import MethodView
 
 from . import bp
 from .login import roles_required
-from ..utils.create_folders import create_folders
+from ..utils.folders import create_folders
 from ..models.classes import Roles, Statuses
 from ..models.schema import  RobotSchema
 from ..models.model import db, Person, Status, Message, Robot

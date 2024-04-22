@@ -6,6 +6,7 @@ from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
 from config import Config, basedir
+from app.utils.folders import create_folders
 from app.models.classes import Roles, Regions, Statuses, Conclusions
 from app.models.model import (
     db,
@@ -51,7 +52,7 @@ def register_cli(app):
             fullname="Администратор",
             username="superadmin",
             password=generate_password_hash(
-                Config.DEFAULT_PASSWORD.encode("utf-8"),
+                Config.DEFAULT_PASSWORD,
                 method="scrypt",
                 salt_length=16,
             ),
@@ -71,25 +72,33 @@ def register_cli(app):
         )
         db.session.add(superadmin)
 
-        db.session.add(
-            Person(
-                region_id=Region().get_id(Regions.MAIN_OFFICE.value),
-                surname="Бендер".upper(),
-                firstname="Остап".upper(),
-                patronymic="Ибрагимович".upper(),
-                birthday=datetime.now().date(),
-                birthplace="Неизвестно",
-                country="Россия",
-                ext_country="Турция",
-                snils="12345678901",
-                inn="123456789012",
-                education="Частная гимназия Илиади",
-                marital="женат",
-                addition="великий комбинатор",
-                status_id=Status().get_id(Statuses.new.value),
-            )
+        candidate = Person(
+            region_id=Region().get_id(Regions.MAIN_OFFICE.value),
+            surname="Бендер".upper(),
+            firstname="Остап".upper(),
+            patronymic="Ибрагимович".upper(),
+            birthday=datetime.now().date(),
+            birthplace="Неизвестно",
+            country="Россия",
+            ext_country="Турция",
+            snils="12345678901",
+            inn="123456789012",
+            education="Частная гимназия Илиади",
+            marital="женат",
+            addition="великий комбинатор",
+            status_id=Status().get_id(Statuses.new.value),
         )
+        db.session.add(candidate)
+        db.session.flush()
+
+        path = create_folders(
+            candidate.id,
+            candidate.surname,
+            candidate.firstname,
+            candidate.patronymic,
+            "resume",
+        )
+        candidate.path = path
 
         db.session.commit()
-
         print("Models created and filled")

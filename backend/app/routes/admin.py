@@ -52,7 +52,7 @@ class UserView(MethodView):
                         user.blocked = not user.blocked
                 case "drop":
                     user.password = generate_password_hash(
-                        Config.DEFAULT_PASSWORD.encode("utf-8"),
+                        Config.DEFAULT_PASSWORD,
                         method="scrypt",
                         salt_length=16
                         )
@@ -76,7 +76,7 @@ class UserView(MethodView):
                     username=json_data.get("username"),
                     email=json_data.get("email"),
                     password=generate_password_hash(
-                        Config.DEFAULT_PASSWORD.encode("utf-8"),
+                        Config.DEFAULT_PASSWORD,
                         method="scrypt",
                         salt_length=16
                     ),

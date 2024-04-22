@@ -10,7 +10,7 @@ from sqlalchemy import select
 from config import Config
 from . import bp
 from .login import roles_required
-from ..utils.create_folders import create_folders
+from ..utils.folders import create_folders
 from ..models.classes import Roles, Statuses
 from ..models.model import (
     db,

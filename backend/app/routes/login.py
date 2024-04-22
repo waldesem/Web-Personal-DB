@@ -60,7 +60,7 @@ class LoginView(MethodView):
         """
         user = User.get_user(json_data["username"])
         if user and not user.blocked and not user.deleted:
-            if check_password_hash(user.password, json_data["password"].encode("utf-8")):
+            if check_password_hash(user.password, json_data["password"]):
                 delta_change = datetime.now() - user.pswd_create
                 if user.pswd_change and delta_change.days < 365:
                     user.last_login = datetime.now()
@@ -91,10 +91,10 @@ class LoginView(MethodView):
         if (
             user
             and not user.blocked
-            and check_password_hash(user.password, json_data["password"].encode("utf-8"))
+            and check_password_hash(user.password, json_data["password"])
         ):
             user.password = generate_password_hash(
-                json_data["new_pswd"].encode("utf-8"),
+                json_data["new_pswd"],
                 method="scrypt",
                 salt_length=16,
             )

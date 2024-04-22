@@ -10,7 +10,7 @@ from PIL import Image
 from config import Config
 from . import bp
 from .login import roles_required
-from ..utils.create_folders import create_folders
+from ..utils.folders import create_folders
 from ..utils.json_parser import parse_json
 from .resume import ResumeView
 from ..models.classes import Roles
@@ -151,8 +151,13 @@ def get_image(item_id):
     Retrieves a file from the server and sends it as a response.
     """
     person = db.session.get(Person, item_id)
-    if person.path:
-        file_path = os.path.join(Config.BASE_PATH, person.path, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+    file_path = os.path.join(
+        Config.BASE_PATH, 
+        person.surname[0].upper(), 
+        f"{person.id}-{person.surname.upper()} {person.firstname.upper()} {person.patronymic.upper()}".rstrip(), 
+        "image", 
+        "image.jpg",
+    )
+    if os.path.isfile(file_path):
+        return send_file(file_path, as_attachment=True, mimetype="image/jpg")
     return send_file(Config.NO_PHOTO, as_attachment=True, mimetype="image/jpg")
