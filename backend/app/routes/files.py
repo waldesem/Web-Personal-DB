@@ -50,8 +50,8 @@ class FileView(MethodView):
 
         if action == "anketa":
             file = request.files["file"]
-            filename = secure_filename(file.filename)
-            anketa = parse_json(filename)
+            anketa = parse_json(file)
+            print(anketa)
             person_id = ResumeView.add_resume(anketa["resume"], "create")
             self.fill_items(anketa, person_id)
 
@@ -100,10 +100,10 @@ class FileView(MethodView):
         items_lists = [
             anketa["previous"],
             anketa["staff"],
-            anketa["passport"],
-            anketa["addresses"],
-            anketa["contacts"],
-            anketa["workplaces"],
+            anketa["document"],
+            anketa["address"],
+            anketa["contact"],
+            anketa["workplace"],
             anketa["affilation"],
         ]
         for model, items in zip(models, items_lists):
@@ -111,10 +111,10 @@ class FileView(MethodView):
                 if item:
                     db.session.add(model(**item | {"person_id": person_id}))
         db.session.commit()
-        self.check_previous(anketa)
+        self.check_previous(anketa, person_id)
 
     def check_previous(self, anketa, person_id):
-        additional = None
+        additional = ""
         if len(anketa["previous"]):
             for item in anketa["previous"]:
                 surname = item["surname"] if item.get("surname") else anketa["surname"]
@@ -136,7 +136,7 @@ class FileView(MethodView):
                     db.session.add(Message(message=message, user_id=current_user.id))
                     additional = additional + message + "\n "
         person = db.session.get(Person, person_id)
-        person.addition = person.addition + "\n " + additional
+        person.addition = person.addition + "\n " + additional if person.addition else additional
         db.session.commit()
 
 file_view = FileView.as_view("file")

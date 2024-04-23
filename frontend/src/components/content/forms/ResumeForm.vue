@@ -103,7 +103,6 @@ async function submitFile(event: Event): Promise<void> {
     );
   }
 };
-console.log(stateClassify.regions);
 </script>
 
 <template>

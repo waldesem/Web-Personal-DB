@@ -74,9 +74,7 @@ class User(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="users")
     checks: Mapped[List["Check"]] = relationship(back_populates="users")
     poligrafs: Mapped[List["Poligraf"]] = relationship(back_populates="users")
-    investigations: Mapped[List["Investigation"]] = relationship(
-        back_populates="users"
-    )
+    investigations: Mapped[List["Investigation"]] = relationship(back_populates="users")
     inquiries: Mapped[List["Inquiry"]] = relationship(back_populates="users")
     roles: Mapped[List["Role"]] = relationship(
         back_populates="users", secondary=user_roles, lazy="dynamic"
@@ -276,7 +274,6 @@ class Address(db.Model):
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
     view: Mapped[str] = mapped_column(String(255), nullable=True)
-    region: Mapped[str] = mapped_column(String(255), nullable=True)
     address: Mapped[str] = mapped_column(Text, nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="addresses")
@@ -303,6 +300,7 @@ class Workplace(db.Model):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
+    now_work: Mapped[bool] = mapped_column(Boolean, nullable=True)
     start_date: Mapped[datetime] = mapped_column(Date, nullable=True)
     end_date: Mapped[datetime] = mapped_column(Date, nullable=True)
     workplace: Mapped[str] = mapped_column(String(255), nullable=True)

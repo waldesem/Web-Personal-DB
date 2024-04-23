@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateClassify, statePersons } from "@/state";
+import { stateClassify } from "@/state";
 import { axiosAuth } from "@/auth";
 import { debounce, server, timeSince } from "@/utilities";
 import { Resume } from "@/interfaces";
@@ -108,35 +108,6 @@ const searchPerson = debounce(() => {
 </script>
 
 <template>
-  <div
-    v-if="statePersons.length"
-    class="mb-5"
-  >
-    <button 
-      class="btn btn-link" 
-      type="button" 
-      data-bs-toggle="collapse" 
-      data-bs-target="#lastViewed"
-    >
-      Последние просмотренные:
-    </button>
-    <div class="collapse show" id="lastViewed">
-      <ul>
-        <li
-          v-for="(cand, idx) in statePersons.reverse().slice(0, 3)" 
-          :key="idx" 
-          class="p-2">
-          <router-link :to="{
-              name: 'profile',
-              params: { id: cand.id },
-            }"
-            >
-            {{ cand.fullname }}
-          </router-link>
-        </li>
-      </ul>
-    </div>
-  </div>
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="row mb-3">
     <div class="col-md-2">
@@ -193,7 +164,7 @@ const searchPerson = debounce(() => {
         :key="candidate.id"
         height="50px"
       >
-        <td>{{ candidate["id"] }}</td>
+        <td>{{ candidate.id }}</td>
         <td>{{ stateClassify.regions[candidate.region_id] }}</td>
         <td>
           <router-link
@@ -201,14 +172,6 @@ const searchPerson = debounce(() => {
               name: 'profile',
               params: { id: candidate.id },
             }"
-            @click="statePersons.push( 
-              {
-                id: candidate.id,
-                fullname: `${candidate.surname} ${candidate.firstname} ${candidate.patronymic 
-                  ? candidate.patronymic 
-                  : ''}`.trim()
-              }
-            )"
           >
             {{
               `${candidate.surname} ${candidate.firstname} ${

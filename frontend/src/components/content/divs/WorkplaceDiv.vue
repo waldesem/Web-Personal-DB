@@ -91,15 +91,27 @@ function submitForm(form: Object) {
             "
           />
         </LabelSlot>
-        <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
-        <LabelSlot :label="'Текущая работа'">{{ item["now_work"] }}</LabelSlot>
-        <LabelSlot :label="'Начало работы'">{{ item["start_date"] }}</LabelSlot>
-        <LabelSlot :label="'Окончание работы'">{{
-          item["end_date"]
-        }}</LabelSlot>
-        <LabelSlot :label="'Место работы'">{{ item["workplace"] }}</LabelSlot>
-        <LabelSlot :label="'Адрес'">{{ item["address"] }}</LabelSlot>
-        <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
+        <LabelSlot :label="'ID'">
+          {{ item["id"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Текущая работа'">
+          {{ item["now_work"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Начало работы'">
+          {{ item["start_date"] }}
+        </LabelSlot>
+        <LabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
+          {{ item["end_date"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Место работы'">
+          {{ item["workplace"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Адрес'">
+          {{ item["address"] }}
+        </LabelSlot>
+        <LabelSlot :label="'Должность'">
+          {{ item["position"] }}
+        </LabelSlot>
       </div>
     </div>
   </div>

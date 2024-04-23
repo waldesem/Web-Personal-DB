@@ -38,8 +38,8 @@ const workForm = toRef(props.work as Work);
   > 
    <SwitchBox
       :div-class="'offset-lg-2 col-lg-10'"
-      :name="'pfo'"
-      :place="'Полиграф'"
+      :name="'now_work'"
+      :place="'Текущая работа'"
       v-model="workForm['now_work']"
     />
     <LabelSlot :label="'Начало работы'">
@@ -50,7 +50,9 @@ const workForm = toRef(props.work as Work);
         v-model="workForm['start_date']"
       />
     </LabelSlot>
-    <LabelSlot :label="'Окончание работы'">
+    <LabelSlot
+      v-if="!workForm['now_work']" 
+      :label="'Окончание работы'">
       <InputElement
         :name="'end_date'"
         :place="'Окончание работы'"
