@@ -1,0 +1,1 @@
+import{d as s,o as t,c as r,C as o,u as e,j as a,E as l}from"./index-BhT_3F5B.js";const _=s({__name:"AlertMessage",setup(n){return(c,i)=>(t(),r("div",{class:l(["alert",e(a).alertMessage.attr]),role:"info",fade:"",show:""},o(e(a).alertMessage.text),3))}});export{_ as default};

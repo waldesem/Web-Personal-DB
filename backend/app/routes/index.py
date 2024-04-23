@@ -26,9 +26,8 @@ class IndexView(MethodView):
     @bp.input(SortSchema, location="query")
     def get(self, flag, page, query_data):
         query = select(Person)
-        order = query_data.get("order")
         sort_attribute = getattr(Person, query_data.get("sort"))
-        if order == "asc":
+        if query_data.get("order") == "asc":
             query = query.order_by(sort_attribute.asc())
         else:
             query = query.order_by(sort_attribute.desc())

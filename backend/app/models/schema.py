@@ -33,6 +33,7 @@ class SearchSchema(Schema):
 
 class SortSchema(SearchSchema):
     sort = String(default="id")
+    order = String(default="desc")
 
 
 class ActionSchema(Schema):

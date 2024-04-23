@@ -160,4 +160,4 @@ def get_image(item_id):
     )
     if os.path.isfile(file_path):
         return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file(Config.NO_PHOTO, as_attachment=True, mimetype="image/jpg")
+    return send_file("static/image.jpg", as_attachment=True, mimetype="image/jpg")

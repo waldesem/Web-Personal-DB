@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const emit = defineEmits(["get-candidates"]);
+const emit = defineEmits(["sort-candidates"]);
 const props = defineProps({
   sort: {
     type: String,
@@ -8,27 +8,24 @@ const props = defineProps({
   order: {
     type: String,
     default: "desc",
-  }
-})
-
+  },
+});
 </script>
 
 <template>
-  <a 
-    role="button" 
-    @click="
-      emit('get-candidates', props.sort, props.order)
+  <i
+    @click="emit('sort-candidates', props.sort, props.order)"
+    :title="
+      props.order === 'desc'
+        ? 'Сортировка по убыванию'
+        : 'Сортировка по возрастанию'
+    "
+    class="bi"
+    :class="
+      props.order === 'desc' ? 'bi-caret-down-fill' : 'bi-caret-up-fill'
     "
   >
-    <i 
-      :title="props.order === 'desc' ? 'Сортировка по убыванию' : 'Сортировка по возрастанию'"
-      class="bi"
-      :class="props.order === 'desc' 
-        ? 'bi-caret-down-fill' 
-        : 'bi-caret-up-fill'"
-    >
-    </i>
-  </a>
+  </i>
 </template>
 
 <style scoped>

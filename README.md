@@ -1,4 +1,4 @@
-# StaffSec (in development now)
+# StaffSec
 
 StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 

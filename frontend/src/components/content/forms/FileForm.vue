@@ -10,15 +10,13 @@ const emit = defineEmits(["submit"])
     role="form"
     @change="emit('submit', $event)"
   >
-    <div class="mb-3 row">
-      <input
-        class="form-control"
-        id="file"
-        type="file"
-        :accept="prop.accept"
-        ref="file"
-      />
-    </div>
+    <input
+      class="form-control"
+      id="file"
+      type="file"
+      :accept="prop.accept"
+      ref="file"
+    />
   </form>
 </template>
 

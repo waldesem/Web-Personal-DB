@@ -5,16 +5,14 @@ from apiflask import EmptySchema
 from flask.views import MethodView
 
 from . import bp
-from .login import roles_required
 from ..utils.folders import create_folders
-from ..models.classes import Roles, Statuses
+from ..models.classes import Statuses
 from ..models.schema import  RobotSchema
 from ..models.model import db, Person, Status, Message, Robot
 
 
 class RobotsView(MethodView):
 
-    @roles_required(Roles.api.value)
     @bp.input(RobotSchema)
     @bp.output(EmptySchema)
     def post(self, item_id, json_data):

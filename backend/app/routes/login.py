@@ -38,8 +38,9 @@ jwt_redis_blocklist = redis.StrictRedis(
 class LoginView(MethodView):
     """Login view"""
 
+    decorators = [bp.doc(hide=True)]
+
     @jwt_required()
-    @bp.doc(hide=True)
     @bp.output(UserSchema)
     def get(self):
         """
@@ -103,7 +104,6 @@ class LoginView(MethodView):
             return {"message": "Changed"}
         return {"message": "Denied"}
 
-    @bp.doc(hide=True)
     @jwt_required(verify_type=False)
     def delete(self):
         """
@@ -122,6 +122,7 @@ bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
 class RefreshView(MethodView):
     """Refresh view"""
 
+    @bp.doc(hide=True)
     @jwt_required(refresh=True)
     @bp.output(RefreshSchema)
     def post(self):

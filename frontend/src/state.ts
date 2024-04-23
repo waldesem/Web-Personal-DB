@@ -54,6 +54,10 @@ export const stateAlert = {
   },
 };
 
+export const statePersons = {
+  viewed: reactive<Resume[]>([])
+}
+
 export const stateAnketa = {
   anketa: reactive({
     resume: {} as Resume,

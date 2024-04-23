@@ -26,10 +26,6 @@ def register_cli(app):
         if not os.path.isdir(Config.BASE_PATH):
             os.mkdir(Config.BASE_PATH)
             print("Directory BASE_PATH created")
-        shutil.copy(
-            os.path.join(basedir, "no-photo.png"),
-            os.path.join(Config.NO_PHOTO),
-        )
 
         for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ":
             letter_path = os.path.join(Config.BASE_PATH, letter)

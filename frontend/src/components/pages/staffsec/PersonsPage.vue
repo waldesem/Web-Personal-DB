@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateClassify } from "@/state";
+import { stateClassify, statePersons } from "@/state";
 import { axiosAuth } from "@/auth";
 import { debounce, server, timeSince } from "@/utilities";
 import { Resume } from "@/interfaces";
@@ -38,6 +38,21 @@ const statusColor = {
   "10": "warning",
   "11": "light",
 };
+
+const months = {
+  "1": "января",
+  "2": "февраля",
+  "3": "марта",
+  "4": "апреля",
+  "5": "мая",
+  "6": "июня",
+  "7": "июля",
+  "8": "августа",
+  "9": "сентября",
+  "10": "октября",
+  "11": "ноября",
+  "12": "декабря",
+}
 
 const personData = ref({
   candidates: <Resume[]>[],
@@ -98,8 +113,36 @@ const searchPerson = debounce(() => {
 </script>
 
 <template>
+  <div
+    v-show="statePersons.viewed.length" 
+    class="mb-5"
+  >
+    <button 
+      class="btn btn-link" 
+      type="button" 
+      data-bs-toggle="collapse" 
+      data-bs-target="#lastViewed"
+    >
+      Последние просмотренные:
+    </button>
+    <div class="collapse show" id="lastViewed">
+      <ul>
+        <li
+          v-for="candidate in statePersons.viewed.reverse().slice(0, 3)" :key="candidate.id" 
+        class="p-2">
+          <router-link :to="{
+              name: 'profile',
+              params: { id: candidate.id },
+            }"
+            >
+            {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic ? candidate.patronymic : ''}` }}
+          </router-link>
+        </li>
+      </ul>
+    </div>
+  </div>
   <HeaderDiv :page-header="'Кандидаты'" />
-  <div class="row mb-5">
+  <div class="row mb-3">
     <div class="col-md-2">
       <SelectObject
         :name="'action'"
@@ -137,12 +180,12 @@ const searchPerson = debounce(() => {
           <AscDesc
             :order="'desc'"
             :sort="'id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
             :sort="'id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
         </th>
         <th width="15%">
@@ -150,12 +193,12 @@ const searchPerson = debounce(() => {
           <AscDesc
             :order="'desc'"
             :sort="'region_id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
             :sort="'region_id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
         </th>
         <th>
@@ -163,12 +206,12 @@ const searchPerson = debounce(() => {
           <AscDesc
             :order="'desc'"
             :sort="'surname'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
             :sort="'surname'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
         </th>
         <th width="15%">
@@ -176,12 +219,12 @@ const searchPerson = debounce(() => {
           <AscDesc
             :order="'desc'"
             :sort="'birthday'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
             :sort="'birthday'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
         </th>
         <th width="10%">
@@ -189,12 +232,12 @@ const searchPerson = debounce(() => {
           <AscDesc
             :order="'desc'"
             :sort="'status_id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
             :sort="'status_id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
         </th>
         <th width="10%">
@@ -202,12 +245,12 @@ const searchPerson = debounce(() => {
           <AscDesc
             :order="'desc'"
             :sort="'created'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
             :sort="'created'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
         </th>
         <th width="15%">
@@ -215,12 +258,12 @@ const searchPerson = debounce(() => {
           <AscDesc
             :order="'desc'"
             :sort="'user_id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
             :sort="'user_id'"
-            @get-candidates="sortCandidates"
+            @sort-candidates="sortCandidates"
           />
         </th>
       </tr>
@@ -239,6 +282,7 @@ const searchPerson = debounce(() => {
               name: 'profile',
               params: { id: candidate.id },
             }"
+            @click="statePersons.viewed.push(candidate)"
           >
             {{
               `${candidate.surname} ${candidate.firstname} ${
@@ -248,7 +292,14 @@ const searchPerson = debounce(() => {
           </router-link>
         </td>
         <td>
-          {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
+          {{ `${
+            new Date(candidate.birthday).getDate()
+          } ${
+            months[(new Date(candidate.birthday).getMonth() + 1).toString() as keyof typeof months]
+          } ${
+            new Date(
+            candidate.birthday).getFullYear() 
+            } года` }}
         </td>
         <td>
           <label
