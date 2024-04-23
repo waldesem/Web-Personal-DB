@@ -1,1 +1,0 @@
-import{d as t,o as s,c as n,a as o,C as r,E as c}from"./index-BhT_3F5B.js";const d=t({__name:"HeaderDiv",props:{pageHeader:String,cls:{type:String,default:"text-info py-3"}},setup(e){const a=e;return(l,p)=>(s(),n("div",{class:c(["text-opacity-85",e.cls])},[o("h3",null,r(a.pageHeader),1)],2))}});export{d as default};

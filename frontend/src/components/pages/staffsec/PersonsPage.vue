@@ -39,19 +39,14 @@ const statusColor = {
   "11": "light",
 };
 
-const months = {
-  "1": "января",
-  "2": "февраля",
-  "3": "марта",
-  "4": "апреля",
-  "5": "мая",
-  "6": "июня",
-  "7": "июля",
-  "8": "августа",
-  "9": "сентября",
-  "10": "октября",
-  "11": "ноября",
-  "12": "декабря",
+const theadData = {
+  "id": ["#", "10%"],
+  "region_id": ["Регион", "15%"],
+  "surname": ["Фамилия Имя Отчество", "25%"],
+  "birthday": ["Дата рождения", "15%"],
+  "status_id": ["Статус", "10%"],
+  "created": ["Создан", "10%"],
+  "user_id": ["Сотрудник", "15%"],
 }
 
 const personData = ref({
@@ -114,7 +109,7 @@ const searchPerson = debounce(() => {
 
 <template>
   <div
-    v-show="statePersons.viewed.length" 
+    v-if="statePersons.length"
     class="mb-5"
   >
     <button 
@@ -128,14 +123,15 @@ const searchPerson = debounce(() => {
     <div class="collapse show" id="lastViewed">
       <ul>
         <li
-          v-for="candidate in statePersons.viewed.reverse().slice(0, 3)" :key="candidate.id" 
-        class="p-2">
+          v-for="(cand, idx) in statePersons.reverse().slice(0, 3)" 
+          :key="idx" 
+          class="p-2">
           <router-link :to="{
               name: 'profile',
-              params: { id: candidate.id },
+              params: { id: cand.id },
             }"
             >
-            {{ `${candidate.surname} ${candidate.firstname} ${candidate.patronymic ? candidate.patronymic : ''}` }}
+            {{ cand.fullname }}
           </router-link>
         </li>
       </ul>
@@ -175,94 +171,17 @@ const searchPerson = debounce(() => {
     </template>
     <template v-slot:thead>
       <tr height="50px">
-        <th width="10%">
-          #
+        <th v-for="(thead, key) in theadData" :key="key" 
+          :width="thead[1]">
+          {{ thead[0] }}
           <AscDesc
             :order="'desc'"
-            :sort="'id'"
+            :sort="key"
             @sort-candidates="sortCandidates"
           />
           <AscDesc
             :order="'asc'"
-            :sort="'id'"
-            @sort-candidates="sortCandidates"
-          />
-        </th>
-        <th width="15%">
-          Регион
-          <AscDesc
-            :order="'desc'"
-            :sort="'region_id'"
-            @sort-candidates="sortCandidates"
-          />
-          <AscDesc
-            :order="'asc'"
-            :sort="'region_id'"
-            @sort-candidates="sortCandidates"
-          />
-        </th>
-        <th>
-          Фамилия Имя Отчество
-          <AscDesc
-            :order="'desc'"
-            :sort="'surname'"
-            @sort-candidates="sortCandidates"
-          />
-          <AscDesc
-            :order="'asc'"
-            :sort="'surname'"
-            @sort-candidates="sortCandidates"
-          />
-        </th>
-        <th width="15%">
-          Дата рождения
-          <AscDesc
-            :order="'desc'"
-            :sort="'birthday'"
-            @sort-candidates="sortCandidates"
-          />
-          <AscDesc
-            :order="'asc'"
-            :sort="'birthday'"
-            @sort-candidates="sortCandidates"
-          />
-        </th>
-        <th width="10%">
-          Статус
-          <AscDesc
-            :order="'desc'"
-            :sort="'status_id'"
-            @sort-candidates="sortCandidates"
-          />
-          <AscDesc
-            :order="'asc'"
-            :sort="'status_id'"
-            @sort-candidates="sortCandidates"
-          />
-        </th>
-        <th width="10%">
-          Создан
-          <AscDesc
-            :order="'desc'"
-            :sort="'created'"
-            @sort-candidates="sortCandidates"
-          />
-          <AscDesc
-            :order="'asc'"
-            :sort="'created'"
-            @sort-candidates="sortCandidates"
-          />
-        </th>
-        <th width="15%">
-          Сотрудник
-          <AscDesc
-            :order="'desc'"
-            :sort="'user_id'"
-            @sort-candidates="sortCandidates"
-          />
-          <AscDesc
-            :order="'asc'"
-            :sort="'user_id'"
+            :sort="key"
             @sort-candidates="sortCandidates"
           />
         </th>
@@ -282,7 +201,14 @@ const searchPerson = debounce(() => {
               name: 'profile',
               params: { id: candidate.id },
             }"
-            @click="statePersons.viewed.push(candidate)"
+            @click="statePersons.push( 
+              {
+                id: candidate.id,
+                fullname: `${candidate.surname} ${candidate.firstname} ${candidate.patronymic 
+                  ? candidate.patronymic 
+                  : ''}`.trim()
+              }
+            )"
           >
             {{
               `${candidate.surname} ${candidate.firstname} ${
@@ -292,14 +218,7 @@ const searchPerson = debounce(() => {
           </router-link>
         </td>
         <td>
-          {{ `${
-            new Date(candidate.birthday).getDate()
-          } ${
-            months[(new Date(candidate.birthday).getMonth() + 1).toString() as keyof typeof months]
-          } ${
-            new Date(
-            candidate.birthday).getFullYear() 
-            } года` }}
+          {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
         </td>
         <td>
           <label

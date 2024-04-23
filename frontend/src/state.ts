@@ -54,9 +54,7 @@ export const stateAlert = {
   },
 };
 
-export const statePersons = {
-  viewed: reactive<Resume[]>([])
-}
+export const statePersons = reactive<Array<Record<string, any>>>([]);
 
 export const stateAnketa = {
   anketa: reactive({
