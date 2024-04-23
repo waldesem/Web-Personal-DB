@@ -46,9 +46,7 @@ async function submitFile(event: Event): Promise<void> {
 </script>
 
 <template>
-  <div class="row mb-5">
   <HeaderDiv :page-header="'Создать анкету'" />
-  </div>
   <FileForm :accept="'.json'" @submit="submitFile" />
   <ResumeForm @cancel="router.push({ name: 'persons' })" />
 </template>

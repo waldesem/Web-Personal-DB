@@ -98,9 +98,7 @@ const searchPerson = debounce(() => {
 </script>
 
 <template>
-  <div class="row mb-5">
-    <HeaderDiv :page-header="'Кандидаты'" />
-  </div>
+  <HeaderDiv :page-header="'Кандидаты'" />
   <div class="row mb-5">
     <div class="col-md-2">
       <SelectObject
@@ -124,7 +122,7 @@ const searchPerson = debounce(() => {
   </div>
   <TableSlots
     v-if="personData.candidates.length"
-    :div-class="'table caption-top align-middle'"
+    :div-class="'table caption-top align-middle py-3'"
   >
     <template v-slot:caption>
       {{ `Обновлено: ${personData.updated}` }}

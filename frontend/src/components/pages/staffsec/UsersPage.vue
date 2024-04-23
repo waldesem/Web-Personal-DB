@@ -57,41 +57,33 @@ async function getUsers() {
 </script>
 
 <template>
-  <div class="row mb-5">
-    <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary'" />
-  </div>
-  <div class="row mb-3">
-    <input
-      @input.prevent="searchUsers"
-      class="form-control"
-      name="search"
-      id="search"
-      type="text"
-      placeholder="Поиск по имени пользователя"
-      v-model="dataUsers.search"
+  <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary py-3'" />
+  <input
+    @input.prevent="searchUsers"
+    class="form-control mb-3"
+    name="search"
+    id="search"
+    type="text"
+    placeholder="Поиск по имени пользователя"
+    v-model="dataUsers.search"
+  />
+  <div class="d-flex justify-content-between">
+    <SwitchBox
+      :name="'viewDeleted'"
+      :label="'Показать удаленные'"
+      v-model="dataUsers.viewDeleted"
     />
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <SwitchBox
-        :name="'viewDeleted'"
-        :label="'Показать удаленные'"
-        v-model="dataUsers.viewDeleted"
-      />
-    </div>
-    <div class="col-md-6 text-end">
-      <a
-        class="link link-secondary"
-        type="button"
-        @click="
-          dataUsers.action === ''
-            ? (dataUsers.action = 'create')
-            : (dataUsers.action = '')
-        "
-      >
-        {{ dataUsers.action === "" ? "Добавить пользователя" : "Закрыть" }}
-      </a>
-    </div>
+    <button
+      class="btn btn-link text-secondary"
+      type="button"
+      @click="
+        dataUsers.action === ''
+          ? (dataUsers.action = 'create')
+          : (dataUsers.action = '')
+      "
+    >
+      {{ dataUsers.action === "" ? "Добавить пользователя" : "Закрыть" }}
+    </button>
   </div>
   <UserForm
     v-if="dataUsers.action"

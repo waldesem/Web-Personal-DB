@@ -147,6 +147,7 @@ const dataResume = ref({
   </div>
   <hr />
   <div
+    class="mb-3 px-3"
     v-for="(component, idx) in [
       PreviousDiv,
       StaffDiv,
@@ -159,8 +160,6 @@ const dataResume = ref({
     ]"
     :key="idx"
   >
-    <div class="py-1">
-      <component :is="component" />
-    </div>
+    <component :is="component" />
   </div>
 </template>

@@ -94,25 +94,22 @@ async function deleteContact(id: string): Promise<void> {
 </script>
 
 <template>
-  <div class="row mb-5">
-    <HeaderDiv 
-      :page-header="contactData.action 
-        ? 'Изменить/добавить контакт' 
-        : 'Контакты'" 
-    />
-  </div>
-  <div v-show="contactData.action" class="mb-5">
-    <ConnectForm
-      :page="contactData.page"
-      :action="contactData.action"
-      :names="contactData.names"
-      :companies="contactData.companies"
-      :cities="contactData.cities"
-      :item="contactData.item"
-      @get-contacts="getContacts"
-      @cancel-edit="contactData.action = ''"
-    />
-  </div>
+  <HeaderDiv 
+    :page-header="contactData.action 
+      ? 'Изменить/добавить контакт' 
+      : 'Контакты'" 
+  />
+  <ConnectForm
+    v-show="contactData.action" 
+    :page="contactData.page"
+    :action="contactData.action"
+    :names="contactData.names"
+    :companies="contactData.companies"
+    :cities="contactData.cities"
+    :item="contactData.item"
+    @get-contacts="getContacts"
+    @cancel-edit="contactData.action = ''"
+  />
   <div v-show="!contactData.action" class="mb-5">
     <input
       @input.prevent="searchContacts"
@@ -129,7 +126,9 @@ async function deleteContact(id: string): Promise<void> {
       :size="'modal-md'">
       <ConnectDiv :item="contactData.item"/>
     </ModalWin>
-    <TableSlots>
+    <TableSlots
+      :class="{ 'table-hover': contactData.contacts.length > 0 }"
+    >
       <template v-slot:caption>{{ `Список контактов` }}</template>
       <template v-slot:thead>
         <tr>
@@ -187,13 +186,13 @@ async function deleteContact(id: string): Promise<void> {
         </tr>
       </template>
     </TableSlots>
-    <a
-      class="link link-primary d-flex justify-content-end"
-      href="#"
+    <button
+      class="btn btn-link text-end"
+      role="button"
       @click="contactData.action = 'create'"
       >
       Добавить контакт
-    </a>
+    </button>
     <PageSwitcher
       :has_prev="contactData.next"
       :has_next="contactData.prev"

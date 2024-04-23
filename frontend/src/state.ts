@@ -137,7 +137,6 @@ export const stateAnketa = {
           : await axiosAuth.get(`${server}/${param}/${this.share.candId}`);
 
       if (param === "image") {
-        console.log(response.data);
         this.share.imageUrl = window.URL.createObjectURL(
           new Blob([response.data]
           )

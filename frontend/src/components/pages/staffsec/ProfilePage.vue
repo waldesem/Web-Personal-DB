@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount } from "vue";
-import {router } from "@/router";
 import { stateClassify, stateUser, stateAnketa } from "@/state";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -77,7 +77,7 @@ const tabData = [
       </IconRelative>
     </div>
   </div>
-  <div
+  <nav
     v-if="!stateAnketa.share.printPage"
     class="nav nav-tabs nav-justified"
     role="tablist"
@@ -94,22 +94,22 @@ const tabData = [
     >
       {{ tab[1] }}
     </button>
-  </div>
-
-  <div :class="{ 'tab-content': !stateAnketa.share.printPage }">
-    <div v-for="(tab, idx) in tabData" :key="idx">
-      <div
-        :id="(tab[0] as string)"
-        :class="{
-          'tab-pane fade mb-1': !stateAnketa.share.printPage,
-          'show active': idx === 0,
-        }"
-        role="tabpanel"
-      >
-        <div class="py-3">
-          <component :is="tab[2]" />
-        </div>
-      </div>
+  </nav>
+  <div
+    v-for="(tab, idx) in tabData"
+    :key="idx"
+    :class="{ 'tab-content': !stateAnketa.share.printPage }"
+  >
+    <div
+      class="py-3"
+      :id="(tab[0] as string)"
+      :class="{
+        'tab-pane fade mb-1': !stateAnketa.share.printPage,
+        'show active': idx === 0,
+      }"
+      role="tabpanel"
+    >
+      <component :is="tab[2]" />
     </div>
   </div>
 </template>

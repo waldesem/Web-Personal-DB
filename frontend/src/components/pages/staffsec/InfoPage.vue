@@ -62,35 +62,31 @@ computed(() => {
 </script>
 
 <template>
-  <div class="row mb-3">
-    <HeaderDiv
-      :page-header="`Статистика по региону ${tableData.header} 
-              за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
-    />
-  </div>
-  <div class="py-3">
-    <TableSlots
-      :class="'table table-hover table-responsive align-middle'"
-    >
-      <template v-slot:caption>{{ `Решения по кандидатам` }}</template>
-      <template v-slot:thead>
-        <tr>
-          <th width="45%">Решение</th>
-          <th>Количество</th>
-        </tr>
-      </template>
-      <template v-slot:tbody>
-        <tr
-          height="50px"
-          v-for="(value, index) in Object.keys(tableData.stat.checks)"
-          :key="index"
-        >
-          <td>{{ value }}</td>
-          <td>{{ Object.values(tableData.stat.checks)[index] }}</td>
-        </tr>
-      </template>
-    </TableSlots>
-  </div>
+  <HeaderDiv
+    :page-header="`Статистика по региону ${tableData.header} 
+            за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
+  />
+  <TableSlots
+    :class="'table table-hover table-responsive align-middle py-3'"
+  >
+    <template v-slot:caption>{{ `Решения по кандидатам` }}</template>
+    <template v-slot:thead>
+      <tr>
+        <th width="45%">Решение</th>
+        <th>Количество</th>
+      </tr>
+    </template>
+    <template v-slot:tbody>
+      <tr
+        height="50px"
+        v-for="(value, index) in Object.keys(tableData.stat.checks)"
+        :key="index"
+      >
+        <td>{{ value }}</td>
+        <td>{{ Object.values(tableData.stat.checks)[index] }}</td>
+      </tr>
+    </template>
+  </TableSlots>
 
   <div class="row mb-3 ">
     <label class="col-form-label col-md-1" for="region">

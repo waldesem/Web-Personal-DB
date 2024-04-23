@@ -28,12 +28,9 @@ async function getGptAnswers(): Promise<void> {
 </script>
 
 <template>
-  <div class="row mb-5">
-    <HeaderDiv :title="'PrivateGPT'" />
-  </div>
+  <HeaderDiv :title="'PrivateGPT'" />
   <form @submit.prevent="getGptAnswers"
-    class="form-inline" 
-    role="search"
+    class="form-check" 
   >
     <div class="row mb-3">
       <div class="col-md-11">
@@ -55,7 +52,7 @@ async function getGptAnswers(): Promise<void> {
       </div>
     </div>
   </form>
-  <div class="row p-3 font-monospace text-secondary overflow-auto">
+  <div class="row p-3 font-monospace text-info overflow-auto">
     {{ gptData.answer }}
   </div>
 </template>

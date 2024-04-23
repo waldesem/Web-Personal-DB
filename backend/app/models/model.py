@@ -10,7 +10,6 @@ from sqlalchemy import (
     ForeignKey,
     String,
     Integer,
-    LargeBinary,
     Date,
     DateTime,
     Text,
@@ -220,7 +219,7 @@ class Person(db.Model):
     regions: Mapped["Region"] = relationship(back_populates="persons")
     users: Mapped["User"] = relationship(back_populates="persons")
     search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("surname", "firstname", "patronymic")
+        TSVectorType("surname", "firstname", "patronymic", "inn")
     )
 
 
