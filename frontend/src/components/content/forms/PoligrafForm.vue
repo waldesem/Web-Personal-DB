@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Pfo } from "@/interfaces";
+import { clearForm } from "@/utilities";
 
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")
@@ -32,7 +33,7 @@ const poligrafForm = toRef(props.poligraf as Pfo);
 
 <template>
   <form
-    @submit.prevent="emit('submit', poligrafForm)"
+    @submit.prevent="emit('submit', poligrafForm); clearForm(poligrafForm)"
     class="form form-check"
     role="form"
   >

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Staff } from "@/interfaces";
+import { clearForm } from "@/utilities";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -29,7 +30,7 @@ const staffForm = toRef(props.staff as Staff);
 
 <template>
   <form
-    @submit.prevent="emit('submit', staffForm)"
+    @submit.prevent="emit('submit', staffForm); clearForm(staffForm)"
     class="form form-check"
     role="form"
   >

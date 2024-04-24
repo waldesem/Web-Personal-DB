@@ -3,9 +3,6 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces";
 import { stateClassify, stateAnketa } from "@/state";
 
-const IconRelative = defineAsyncComponent(
-  () => import("@components/content/elements/IconRelative.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -20,6 +17,19 @@ onBeforeMount(async() => {
   await stateAnketa.getItem("inquiry");
 });
 
+const emit = defineEmits(["cancel"]);
+
+const props = defineProps({
+  tabAction: {
+    type: String,
+    default: "",
+  },
+  currentTab: {
+    type: String,
+    default: "",
+  }
+})
+
 const need = ref({
   action: "",
   itemId: "",
@@ -31,21 +41,14 @@ function submitForm(form: Object) {
   stateAnketa.updateItem(need.value.action, "inquiry", need.value.itemId, form);
   need.value.action = "";
   need.value.itemId = "";
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  emit("cancel");
 };
 </script>
 
 <template>
-  <IconRelative v-show="need.action !== 'create'"
-    :title="`Добавить`"
-    :icon-class="`bi bi-question-square fs-1`"
-    @onclick="need.action = 'create'"
-  />
-  <InquiryForm v-if="need.action === 'create'"
+  <InquiryForm v-if="props.tabAction === 'create' && props.currentTab === 'InquiryTab'"
     @submit="submitForm"
-    @cancel="need.action = ''; need.itemId = ''"
+    @cancel="need.action = ''; need.itemId = ''; emit('cancel')"
   />
   <div v-if="stateAnketa.anketa.inquiry.length"> 
     <div

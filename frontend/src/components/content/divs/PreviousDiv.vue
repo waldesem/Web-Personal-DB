@@ -34,9 +34,7 @@ function submitForm(form: Object) {
     previous.value.itemId,
     form
   );
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  
   previous.value.action = "";
   previous.value.itemId = "";
 }

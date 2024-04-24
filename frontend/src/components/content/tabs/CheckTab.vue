@@ -3,9 +3,6 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { stateClassify, stateAnketa, stateUser } from "@/state";
 import { Verification } from "@/interfaces";
 
-const IconRelative = defineAsyncComponent(
-  () => import("@components/content/elements/IconRelative.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -18,14 +15,23 @@ const FileForm = defineAsyncComponent(
 const CheckForm = defineAsyncComponent(
   () => import("@components/content/forms/CheckForm.vue")
 );
-const RobotDiv = defineAsyncComponent(
-  () => import("@components/content/divs/RobotDiv.vue")
-);
 
 onBeforeMount(async () => {
   await stateAnketa.getItem("check");
-  await stateAnketa.getItem("robot");
 });
+
+const emit = defineEmits(["cancel"]);
+
+const props = defineProps({
+  tabAction: {
+    type: String,
+    default: "",
+  },
+  currentTab: {
+    type: String,
+    default: "",
+  }
+})
 
 const check = ref({
   action: "",
@@ -42,30 +48,15 @@ function submitForm(form: Object) {
   stateAnketa.updateItem(check.value.action, "check", check.value.itemId, form);
   check.value.action = "";
   check.value.itemId = "";
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  
+  emit("cancel");
 }
 </script>
 
 <template>
-  <IconRelative v-if="check.action !== 'create'"
-    :title="`Добавить`"
-    :icon-class="`bi bi-journal-check fs-1`"
-    :hide="
-      ![
-        stateClassify.status['update'],
-        stateClassify.status['save'],
-        stateClassify.status['repeat'],
-        stateClassify.status['manual'],
-      ].includes(stateAnketa.anketa.resume['status_id']) &&
-      stateAnketa.anketa.resume['user_id'] != stateUser.userId
-    "
-    @onclick="check.action = 'create'"
-  />
   <CheckForm
-    v-if="check.action === 'create'"
-    @cancel="check.action = ''; check.itemId = ''"
+    v-if="props.tabAction === 'create' && props.currentTab === 'CheckTab'"
+    @cancel="check.action = ''; check.itemId = ''; emit('cancel')"
     @submit="submitForm"
   />
   <div v-if="stateAnketa.anketa.check.length"> 
@@ -159,7 +150,6 @@ function submitForm(form: Object) {
         </LabelSlot>
       </div>
     </div>
-    <RobotDiv />
   </div>
   <p v-else>Данные отсутствуют</p>
 </template>

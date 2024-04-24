@@ -71,4 +71,11 @@ function expiredToken(token: any): boolean {
     : true;
 }
 
-export { server, debounce, timeSince, expiredToken };
+
+function clearForm (form: Object) {
+  Object.keys(form).forEach((key) => {
+    delete form[key as keyof typeof form];
+  });
+};
+
+export { server, debounce, timeSince, expiredToken, clearForm };

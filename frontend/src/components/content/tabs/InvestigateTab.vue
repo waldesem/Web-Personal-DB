@@ -3,9 +3,6 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces";
 import { stateClassify, stateAnketa } from "@/state";
 
-const IconRelative = defineAsyncComponent(
-  () => import("@components/content/elements/IconRelative.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -23,6 +20,19 @@ onBeforeMount(async() => {
   await stateAnketa.getItem("investigation");
 });
 
+const emit = defineEmits(["cancel"]);
+
+const props = defineProps({
+  tabAction: {
+    type: String,
+    default: "",
+  },
+  currentTab: {
+    type: String,
+    default: "",
+  }
+})
+
 const inquisition = ref({
   action: "",
   itemId: "",
@@ -37,24 +47,18 @@ function submitForm(form: Object) {
     inquisition.value.itemId,
     form
   );
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  
   inquisition.value.action = "";
   inquisition.value.itemId = "";
+  emit("cancel");
 }
 </script>
 
 <template>
-  <IconRelative v-show="inquisition.action !== 'create'"
-    :title="`Добавить`"
-    :icon-class="`bi bi-incognito fs-1`"
-    @onclick="inquisition.action = 'create'"
-  />
   <InvestigationForm
-    v-if="inquisition.action === 'create'"
+    v-if="props.tabAction === 'create' && props.currentTab === 'InvestigateTab'"
     @submit="submitForm"
-    @cancel="inquisition.action = ''; inquisition.itemId = ''"
+    @cancel="inquisition.action = ''; inquisition.itemId = ''; emit('cancel')"
   />
   <div v-if="stateAnketa.anketa.investigation.length"> 
     <div 

@@ -34,9 +34,7 @@ function submitForm(form: Object) {
     affilation.value.itemId,
     form
   );
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  
   affilation.value.action = "";
   affilation.value.itemId = "";
 }

@@ -2,7 +2,7 @@
 import { toRef, defineAsyncComponent } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
-import { server } from "@/utilities";
+import { server, clearForm } from "@/utilities";
 import { User } from "@/interfaces";
 
 const InputElement = defineAsyncComponent(
@@ -59,6 +59,7 @@ async function submitUser(): Promise<void> {
       "Ошибка сохранения данных"
     );
   }
+  clearForm(userForm.value);
   emit("update");
 }
 </script>

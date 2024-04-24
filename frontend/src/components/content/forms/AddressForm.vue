@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Address } from "@/interfaces";
+import { clearForm } from "@/utilities";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -32,7 +33,7 @@ const addressForm = toRef(props.addrs as Address);
 
 <template>
   <form
-    @submit.prevent="emit('submit', addressForm)"
+    @submit.prevent="emit('submit', addressForm); clearForm(addressForm)"
     class="form form-check"
     role="form"
   >

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef, ref } from "vue";
-import { axiosAuth } from "@/auth";
 import { stateAlert, stateAnketa, stateClassify } from "@/state";
 import { Resume } from "@/interfaces";
-import { server } from "@/utilities";
+import { server, clearForm } from "@/utilities";
 import { router } from "@/router";
+import { axiosAuth } from "@/auth";
 
 const FileForm = defineAsyncComponent(
   () => import("@components/content/forms/FileForm.vue")
@@ -58,6 +58,8 @@ async function submitResume(): Promise<void> {
           );
     const { message } = response.data;
 
+    clearForm(resumeForm.value);
+    
     if (props.action === "create") {
       router.push({ name: "profile", params: { id: message } })
     } else {

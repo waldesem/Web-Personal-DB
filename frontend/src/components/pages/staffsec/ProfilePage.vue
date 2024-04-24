@@ -18,6 +18,9 @@ const AnketaTab = defineAsyncComponent(
 const CheckTab = defineAsyncComponent(
   () => import("@components/content/tabs/CheckTab.vue")
 );
+const RobotTab = defineAsyncComponent(
+  () => import("@components/content/tabs/RobotTab.vue")
+);
 const PoligrafTab = defineAsyncComponent(
   () => import("@components/content/tabs/PoligrafTab.vue")
 );
@@ -33,15 +36,18 @@ onBeforeMount(async () => {
   await stateAnketa.getResume();
 });
 
-const tabData = [
-  ["AnketaTab", "Анкета", AnketaTab],
-  ["CheckTab", "Проверки", CheckTab],
-  ["PoligrafTab", "Полиграф", PoligrafTab],
-  ["InvestigateTab", "Расследования", InvestigateTab],
-  ["InquiryTab", "Запросы", InquiryTab],
-];
-
-const currentTab = ref("AnketaTab");
+const tabsData = ref({
+  tabs: [
+    ["AnketaTab", "Анкета", AnketaTab,],
+    ["CheckTab", "Проверки", CheckTab],
+    ["RobotTab", "Робот", RobotTab],
+    ["PoligrafTab", "Полиграф", PoligrafTab],
+    ["InvestigateTab", "Расследования", InvestigateTab],
+    ["InquiryTab", "Запросы", InquiryTab],
+  ],
+  currentTab: "AnketaTab",
+  tabAction: "",
+});
 </script>
 
 <template>
@@ -54,7 +60,7 @@ const currentTab = ref("AnketaTab");
     </div>
     <div class="col-md-2 d-flex justify-content-end">
       <IconRelative
-        v-show="currentTab == 'AnketaTab'"
+        v-show="tabsData.currentTab == 'AnketaTab'"
         :title="`Взять на проверку`"
         :icon-class="`bi bi-person-plus fs-1`"
         :hide="
@@ -64,7 +70,7 @@ const currentTab = ref("AnketaTab");
         @onclick="stateAnketa.getResume('self')"
       />
       <IconRelative
-        v-show="currentTab == 'AnketaTab'"
+        v-show="tabsData.currentTab == 'AnketaTab'"
         :title="`Отправить на проверку`"
         :icon-class="'bi bi-send-plus fs-1'"
         :hide="
@@ -72,8 +78,39 @@ const currentTab = ref("AnketaTab");
           stateAnketa.anketa.resume.status_id === stateClassify.status['robot']
         "
         @onclick="stateAnketa.getResume('send')"
-      >
-      </IconRelative>
+      />
+      <IconRelative v-if="tabsData.currentTab == 'CheckTab'"
+        :title="`Добавить проверку`"
+        :icon-class="`bi bi-journal-check fs-1`"
+        :hide="
+          ![
+            stateClassify.status['update'],
+            stateClassify.status['save'],
+            stateClassify.status['repeat'],
+            stateClassify.status['manual'],
+          ].includes(stateAnketa.anketa.resume['status_id']) &&
+          stateAnketa.anketa.resume['user_id'] != stateUser.userId
+        "
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+      />
+      <IconRelative 
+        v-show="tabsData.currentTab == 'PoligrafTab'"
+        :title="`Добавить полиграф`"
+        :icon-class="`bi bi-heart-pulse fs-1`"
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+      />
+      <IconRelative 
+        v-show="tabsData.currentTab == 'InvestigateTab'"
+        :title="`Добавить расследование`"
+        :icon-class="`bi bi-incognito fs-1`"
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+      />
+      <IconRelative 
+        v-show="tabsData.currentTab == 'InquiryTab'"
+        :title="`Добавить запрос`"
+        :icon-class="`bi bi-question-square fs-1`"
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+      />
       <IconRelative
         :title="`Версия для печати`"
         :icon-class="`bi bi-printer fs-1`"
@@ -87,7 +124,7 @@ const currentTab = ref("AnketaTab");
     role="tablist"
   >
     <button
-      v-for="(tab, idx) in tabData"
+      v-for="(tab, idx) in tabsData.tabs"
       :key="idx"
       class="nav-link"
       :class="{ active: idx === 0 }"
@@ -95,26 +132,75 @@ const currentTab = ref("AnketaTab");
       data-bs-toggle="tab"
       type="button"
       role="tab"
-      @click="currentTab = (tab[0] as string)"
+      @click="tabsData.currentTab = (tab[0] as string)"
     >
       {{ tab[1] }}
     </button>
   </nav>
-  <div
-    v-for="(tab, idx) in tabData"
-    :key="idx"
-    :class="{ 'tab-content': !stateAnketa.share.printPage }"
-  >
+  <div :class="{ 'tab-content': !stateAnketa.share.printPage }" >
     <div
-      class="py-3"
-      :id="(tab[0] as string)"
-      :class="{
-        'tab-pane fade mb-1': !stateAnketa.share.printPage,
-        'show active': idx === 0,
-      }"
+      class="py-3 show active"
+      id="AnketaTab"
+      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
       role="tabpanel"
     >
-      <component :is="tab[2]" />
+      <AnketaTab />
+    </div>
+    <div
+      class="py-3"
+      id="CheckTab"
+      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      role="tabpanel"
+    >
+      <CheckTab
+        :tab-action="tabsData.tabAction"
+        :current-tab="tabsData.currentTab"
+        @cancel="tabsData.tabAction = ''"
+       />
+    </div>
+    <div
+      class="py-3"
+      id="RobotTab"
+      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      role="tabpanel"
+    >
+      <RobotTab />
+    </div>
+    <div
+      class="py-3"
+      id="PoligrafTab"
+      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      role="tabpanel"
+    >
+      <PoligrafTab
+        :tab-action="tabsData.tabAction"
+        :current-tab="tabsData.currentTab"
+        @cancel="tabsData.tabAction = ''"
+       />
+    </div>
+    <div
+      class="py-3"
+      id="InvestigateTab"
+      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      role="tabpanel"
+    >
+      <InvestigateTab
+        :tab-action="tabsData.tabAction"
+        :current-tab="tabsData.currentTab"
+        @cancel="tabsData.tabAction = ''"
+       />
+    </div>
+    <div
+      class="py-3"
+      id="InquiryTab"
+      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      role="tabpanel"
+    >
+      <InquiryTab
+        :tab-action="tabsData.tabAction"
+        :current-tab="tabsData.currentTab"
+        @cancel="tabsData.tabAction = ''"
+       />
     </div>
   </div>
 </template>

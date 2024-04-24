@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Affilation } from "@/interfaces";
+import { clearForm } from "@/utilities";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -39,7 +40,7 @@ const selected_item = [
 
 <template>
   <form
-    @submit.prevent="emit('submit', affilationForm)"
+    @submit.prevent="emit('submit', affilationForm); clearForm(affilationForm)"
     class="form form-check"
     role="form"
   >

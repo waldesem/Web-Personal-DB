@@ -3,9 +3,6 @@ import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces";
 import { stateClassify, stateAnketa } from "@/state";
 
-const IconRelative = defineAsyncComponent(
-  () => import("@components/content/elements/IconRelative.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -23,6 +20,19 @@ onBeforeMount(async() => {
   await stateAnketa.getItem("poligraf");
 });
 
+const emit = defineEmits(["cancel"]);
+
+const props = defineProps({
+  tabAction: {
+    type: String,
+    default: "",
+  },
+  currentTab: {
+    type: String,
+    default: "",
+  }
+})
+
 const poligraf = ref({
   action: "",
   itemId: "",
@@ -37,25 +47,18 @@ function submitForm(form: Object) {
     poligraf.value.itemId,
     form
   );
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  
   poligraf.value.action = "";
   poligraf.value.itemId = "";
+  emit("cancel");
 }
 </script>
 
 <template>
-  <IconRelative 
-    v-show="poligraf.action !== 'create'"
-    :title="`Добавить`"
-    :icon-class="`bi bi-heart-pulse fs-1`"
-    @onclick="poligraf.action = 'create'"
-  />
   <PoligrafForm
-    v-if="poligraf.action === 'create'"
+    v-if="props.tabAction === 'create' && props.currentTab === 'PoligrafTab'"
     @submit="submitForm"
-    @cancel="poligraf.action = ''; poligraf.itemId = ''"
+    @cancel="poligraf.action = ''; poligraf.itemId = ''; emit('cancel')"
   />
   <div v-if="stateAnketa.anketa.poligraf.length"> 
     <div

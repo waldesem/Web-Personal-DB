@@ -2,6 +2,7 @@
 import { ref, defineAsyncComponent, computed, toRef } from "vue";
 import { stateClassify } from "@/state";
 import { Verification } from "@/interfaces";
+import { clearForm } from "@/utilities";
 
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")
@@ -69,7 +70,7 @@ computed(() => {
     v-model="noNegative"
   />
   <form
-    @submit.prevent="emit('submit', checkForm)"
+    @submit.prevent="emit('submit', checkForm); clearForm(checkForm)"
     class="form form-check"
     role="form"
     id="checkFormId"

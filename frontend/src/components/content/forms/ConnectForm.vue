@@ -2,7 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
-import { server } from "@/utilities";
+import { server, clearForm } from "@/utilities";
 import { Connection } from "@/interfaces";
 
 const LabelSlot = defineAsyncComponent(
@@ -76,7 +76,11 @@ async function updateContact(): Promise<void> {
 </script>
 
 <template>
-  <form @submit.prevent="updateContact" class="form form-check">
+  <form 
+    @submit.prevent="updateContact; clearForm(connectForm)" 
+    class="form form-check"
+    role="form"
+  >
     <LabelSlot :label="'Вид контакта'">
       <InputElement
         :place="'Вид'"

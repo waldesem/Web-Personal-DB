@@ -34,9 +34,7 @@ function submitForm(form: Object) {
     workplace.value.itemId,
     form
   );
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  
   workplace.value.action = "";
   workplace.value.itemId = "";
 }

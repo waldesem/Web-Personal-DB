@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Document } from "@/interfaces";
+import { clearForm } from "@/utilities";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -38,7 +39,7 @@ const selected_item = [
 
 <template>
   <form
-    @submit.prevent="emit('submit', docForm)"
+    @submit.prevent="emit('submit', docForm); clearForm(docForm)"
     class="form form-check"
     role="form"
   >

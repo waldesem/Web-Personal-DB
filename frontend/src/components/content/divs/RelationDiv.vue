@@ -34,9 +34,7 @@ function submitForm(form: Object) {
     relation.value.itemId,
     form
   );
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
+  
   relation.value.action = "";
   relation.value.itemId = "";
 }
