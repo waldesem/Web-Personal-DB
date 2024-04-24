@@ -42,11 +42,14 @@ function submitForm(form: Object) {
   stateAnketa.updateItem(check.value.action, "check", check.value.itemId, form);
   check.value.action = "";
   check.value.itemId = "";
+  Object.keys(form).forEach((key) => {
+    delete form[key as keyof typeof form];
+  });
 }
 </script>
 
 <template>
-  <IconRelative v-if="check.action !== 'create' && !stateAnketa.share.printPage"
+  <IconRelative v-if="check.action !== 'create'"
     :title="`Добавить`"
     :icon-class="`bi bi-journal-check fs-1`"
     :hide="
@@ -87,6 +90,7 @@ function submitForm(form: Object) {
       <div v-else>
         <LabelSlot>
           <ActionIcons v-show="check.showActions"
+            :show-form="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'check')"
             @update="check.action = 'update';
               check.item = item;
@@ -100,7 +104,13 @@ function submitForm(form: Object) {
               ].includes(stateAnketa.anketa.resume['status_id']) &&
               stateAnketa.anketa.resume['user_id'] !== stateUser.userId
             "
+          >
+          <FileForm 
+            v-show="check.showActions" 
+            :accept="'*'" 
+            @submit="stateAnketa.submitFile($event, 'check')" 
           />
+        </ActionIcons>
         </LabelSlot>
         <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
         <LabelSlot :label="'Проверка по местам работы'">
@@ -147,7 +157,6 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Дата'">
           {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
-        <FileForm :accept="'*'" @submit="stateAnketa.submitFile($event, 'check')" />
       </div>
     </div>
     <RobotDiv />

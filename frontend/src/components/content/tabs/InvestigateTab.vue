@@ -37,13 +37,16 @@ function submitForm(form: Object) {
     inquisition.value.itemId,
     form
   );
+  Object.keys(form).forEach((key) => {
+    delete form[key as keyof typeof form];
+  });
   inquisition.value.action = "";
   inquisition.value.itemId = "";
 }
 </script>
 
 <template>
-  <IconRelative v-show="inquisition.action !== 'create' && !stateAnketa.share.printPage"
+  <IconRelative v-show="inquisition.action !== 'create'"
     :title="`Добавить`"
     :icon-class="`bi bi-incognito fs-1`"
     @onclick="inquisition.action = 'create'"
@@ -63,13 +66,20 @@ function submitForm(form: Object) {
     >
       <LabelSlot>
         <ActionIcons v-show="inquisition.showActions"
+          :show-form="true"
           @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigation')"
           @update="
             inquisition.action = 'update';
             inquisition.item = item;
             inquisition.itemId = item['id'].toString();
           "
+        >
+        <FileForm 
+          v-show="inquisition.showActions" 
+          :accept="'*'" 
+          @submit="stateAnketa.submitFile($event, 'investigation')" 
         />
+        </ActionIcons>
       </LabelSlot>
       <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
       <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
@@ -77,7 +87,7 @@ function submitForm(form: Object) {
       <LabelSlot :label="'Дата'">
         {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
-      <FileForm :accept="'*'" @submit="stateAnketa.submitFile($event, 'investigation')" />
+
     </div>
   </div>
   <p v-else>Данные отсутствуют</p>

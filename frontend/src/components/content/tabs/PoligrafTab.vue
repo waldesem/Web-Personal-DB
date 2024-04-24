@@ -37,6 +37,9 @@ function submitForm(form: Object) {
     poligraf.value.itemId,
     form
   );
+  Object.keys(form).forEach((key) => {
+    delete form[key as keyof typeof form];
+  });
   poligraf.value.action = "";
   poligraf.value.itemId = "";
 }
@@ -44,7 +47,7 @@ function submitForm(form: Object) {
 
 <template>
   <IconRelative 
-    v-show="poligraf.action !== 'create' && !stateAnketa.share.printPage"
+    v-show="poligraf.action !== 'create'"
     :title="`Добавить`"
     :icon-class="`bi bi-heart-pulse fs-1`"
     @onclick="poligraf.action = 'create'"
@@ -64,13 +67,20 @@ function submitForm(form: Object) {
     >
       <LabelSlot>
         <ActionIcons v-show="poligraf.showActions"
+          :show-form="true"
           @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligraf')"
           @update="
             poligraf.action = 'update';
             poligraf.item = item;
             poligraf.itemId = item['id'].toString();
           "
+        >
+        <FileForm 
+          v-show="poligraf.showActions" 
+          :accept="'*'" 
+          @submit="stateAnketa.submitFile($event, 'poligraf')" 
         />
+      </ActionIcons>
       </LabelSlot>
       <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
       <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
@@ -78,10 +88,6 @@ function submitForm(form: Object) {
       <LabelSlot :label="'Дата'">
         {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
-      <FileForm 
-      :accept="'*'" 
-      @submit="stateAnketa.submitFile($event, 'poligraf')" 
-      />
     </div>
   </div>
   <p v-else>Данные отсутствуют</p>

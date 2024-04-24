@@ -8,6 +8,10 @@ const props = defineProps({
   disable: {
     type: Boolean,
     default: false
+  },
+  showForm: {
+    type: Boolean,
+    default: false
   }
 })
 </script>
@@ -30,7 +34,13 @@ const props = defineProps({
         @click="emit('delete')" 
       >
         <i class="bi bi-trash"></i>
-      </a>  
+      </a>
+      <label v-if="props.showForm" for="file">
+        <a class="btn btn-link" title="Загрузить">
+        <i class="bi bi-cloud-arrow-up-fill"></i>
+        </a>
+      </label>  
+      <slot></slot>
     </div>
   </div>
 </template>

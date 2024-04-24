@@ -4,24 +4,26 @@ const emit = defineEmits(["submit"])
 </script>
 
 <template>
-  <form
-    class="form form-check"
+  <form 
+    class="form form-check" 
+    role="form" 
+    @change="emit('submit', $event)" 
     enctype="multipart/form-data"
-    role="form"
-    @change="emit('submit', $event)"
   >
     <input
-      class="form-control"
+      class="form-control form-control-sm invisible"
       id="file"
+      name="file"
       type="file"
       :accept="prop.accept"
       ref="file"
+      multiple
     />
   </form>
 </template>
 
 <style scoped>
-.form {
-  display: flex;
+input[type="file"] {
+  display: none;
 }
 </style>

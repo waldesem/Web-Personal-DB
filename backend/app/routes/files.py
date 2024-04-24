@@ -45,55 +45,63 @@ class FileView(MethodView):
         return abort(404)
 
     def post(self, action, item_id=None):
-        if not request.files["file"].filename:
-            return abort(400)
-
-        if action == "anketa":
+        if action in ["anketa", "image"]:
             file = request.files["file"]
-            anketa = parse_json(file)
-            print(anketa)
-            person_id = ResumeView.add_resume(anketa["resume"], "create")
-            self.fill_items(anketa, person_id)
+            if not file.filename:
+                return abort(400)
+            
+            if action == "anketa":
+                anketa = parse_json(file)
+                person_id = ResumeView.add_resume(anketa["resume"], "create")
+                self.fill_items(anketa, person_id)
 
-            person = db.session.get(Person, person_id)
-            if person.path:
-                if not os.path.isdir(person.path):
-                    os.mkdir(person.path)
-            else:
-                person.path = person.path = create_folders(
-                    person_id,
-                    person.surname,
-                    person.firstname,
-                    person.patronymic,
-                    "resume",
-                )
-            db.session.commit()
-            return {"message": person_id}
-
-        else:
-            files = request.files.getlist("file")
-            person = db.session.get(Person, item_id)
-            folder = create_folders(
-                item_id, 
-                person.surname, 
-                person.firstname, 
-                person.patronymic, 
-                action,
-            )
+                person = db.session.get(Person, person_id)
+                if person.path:
+                    if not os.path.isdir(person.path):
+                        os.mkdir(person.path)
+                else:
+                    person.path = create_folders(
+                        person_id,
+                        person.surname,
+                        person.firstname,
+                        person.patronymic,
+                        "anketa",
+                    )
+                db.session.commit()
+                return {"message": person_id}, 201
+            
             if action == "image":
-                im = Image.open(files[0])
+                person = db.session.get(Person, item_id)
+                folder = create_folders(
+                    item_id, 
+                    person.surname, 
+                    person.firstname, 
+                    person.patronymic, 
+                    "image",
+                )
+                im = Image.open(file)
                 rgb_im = im.convert("RGB")
                 image_path = os.path.join(folder, "image.jpg")
                 if os.path.isfile(image_path):
                     os.remove(image_path)
                 rgb_im.save(image_path)
-            else:
+
+        else:
+            person = db.session.get(Person, item_id)
+            if person:
+                folder = create_folders(
+                    item_id, 
+                    person.surname, 
+                    person.firstname, 
+                    person.patronymic, 
+                    action,
+                )
+                files = request.files.getlist("file")
                 for file in files:
-                    filename = secure_filename(file.filename)
-                    for file in files:
-                        if not os.path.isfile(os.path.join(folder, filename)):
-                            file.save(os.path.join(folder, filename))
-            return "", 201
+                    if file.filename:
+                        if not os.path.isfile(os.path.join(folder, file.filename)):
+                            file.save(os.path.join(folder, file.filename))
+        return "", 201
 
     def fill_items(self, anketa, person_id):
         models = [Previous, Staff, Document, Address, Contact, Workplace, Affilation]

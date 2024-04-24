@@ -213,9 +213,10 @@ export const stateAnketa = {
   },
 
   async submitFile(event: Event, param: string): Promise<void> {
+    const formData = new FormData();
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files && inputElement.files.length > 0) {
-      const maxSizeInBytes = 1024 * 1024; // 1MB
+      const maxSizeInBytes = 2 * 1024 * 1024; // 1MB
       for (let i = 0; i < inputElement.files.length; i++) {
         if (inputElement.files[i].size > maxSizeInBytes) {
           stateAlert.setAlert(
@@ -224,11 +225,10 @@ export const stateAnketa = {
           );
           inputElement.value = ""; // Reset the input field
           return;
+        } else {
+          formData.append("file", inputElement.files[i]);
         }
       }
-      const formData = new FormData();
-      formData.append("file", inputElement.files[0]);
-
       try {
         const response = await axiosAuth.post(
           `${server}/file/${param}/${this.share.candId}`,

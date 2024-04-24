@@ -31,6 +31,9 @@ function submitForm(form: Object) {
   stateAnketa.updateItem(staff.value.action, "staff", staff.value.itemId, form);
   staff.value.action = "";
   staff.value.itemId = "";
+  Object.keys(form).forEach((key) => {
+    delete form[key as keyof typeof form];
+  });
 }
 </script>
 

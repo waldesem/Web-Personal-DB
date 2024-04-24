@@ -48,7 +48,6 @@ export interface Document {
 export interface Address {
   id: string;
   view: string;
-  region: string;
   address: string;
 }
 

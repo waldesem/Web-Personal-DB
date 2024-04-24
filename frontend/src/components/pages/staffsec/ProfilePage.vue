@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateClassify, stateUser, stateAnketa } from "@/state";
 import { router } from "@/router";
 
@@ -40,6 +40,8 @@ const tabData = [
   ["InvestigateTab", "Расследования", InvestigateTab],
   ["InquiryTab", "Запросы", InquiryTab],
 ];
+
+const currentTab = ref("AnketaTab");
 </script>
 
 <template>
@@ -50,13 +52,9 @@ const tabData = [
         :page-header="`${stateAnketa.anketa.resume.surname} ${stateAnketa.anketa.resume.firstname} ${stateAnketa.anketa.resume.patronymic}`"
       />
     </div>
-    <div class="col-md-2 d-flex justify-content-end d-print-none">
+    <div class="col-md-2 d-flex justify-content-end">
       <IconRelative
-        :title="`Версия для печати`"
-        :icon-class="`bi bi-printer fs-1`"
-        @click="stateAnketa.share.printPage = !stateAnketa.share.printPage"
-      />
-      <IconRelative
+        v-show="currentTab == 'AnketaTab'"
         :title="`Взять на проверку`"
         :icon-class="`bi bi-person-plus fs-1`"
         :hide="
@@ -66,6 +64,7 @@ const tabData = [
         @onclick="stateAnketa.getResume('self')"
       />
       <IconRelative
+        v-show="currentTab == 'AnketaTab'"
         :title="`Отправить на проверку`"
         :icon-class="'bi bi-send-plus fs-1'"
         :hide="
@@ -75,6 +74,11 @@ const tabData = [
         @onclick="stateAnketa.getResume('send')"
       >
       </IconRelative>
+      <IconRelative
+        :title="`Версия для печати`"
+        :icon-class="`bi bi-printer fs-1`"
+        @click="stateAnketa.share.printPage = !stateAnketa.share.printPage"
+      />
     </div>
   </div>
   <nav
@@ -91,6 +95,7 @@ const tabData = [
       data-bs-toggle="tab"
       type="button"
       role="tab"
+      @click="currentTab = (tab[0] as string)"
     >
       {{ tab[1] }}
     </button>

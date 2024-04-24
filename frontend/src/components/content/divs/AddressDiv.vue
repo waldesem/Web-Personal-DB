@@ -34,6 +34,9 @@ function submitForm(form: Object) {
     address.value.itemId,
     form
   );
+  Object.keys(form).forEach((key) => {
+    delete form[key as keyof typeof form];
+  })
   address.value.action = "";
   address.value.itemId = "";
 }
@@ -92,7 +95,6 @@ function submitForm(form: Object) {
           />
         </LabelSlot>
         <LabelSlot :label="'Тип'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Регион'">{{ item["region"] }}</LabelSlot>
         <LabelSlot :label="'Адрес'">{{ item["address"] }}</LabelSlot>
       </div>
     </div>

@@ -31,11 +31,14 @@ function submitForm(form: Object) {
   stateAnketa.updateItem(need.value.action, "inquiry", need.value.itemId, form);
   need.value.action = "";
   need.value.itemId = "";
+  Object.keys(form).forEach((key) => {
+    delete form[key as keyof typeof form];
+  });
 };
 </script>
 
 <template>
-  <IconRelative v-show="need.action !== 'create' && !stateAnketa.share.printPage"
+  <IconRelative v-show="need.action !== 'create'"
     :title="`Добавить`"
     :icon-class="`bi bi-question-square fs-1`"
     @onclick="need.action = 'create'"

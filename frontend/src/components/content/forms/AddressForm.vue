@@ -43,16 +43,6 @@ const addressForm = toRef(props.addrs as Address);
         v-model="addressForm['view']"
       />
     </LabelSlot>
-    <LabelSlot 
-      :label="'Регион'"
-    >
-      <InputElement
-        :name="'region'"
-        :place="'Регион'"
-        :need="true"
-        v-model="addressForm['region']"
-      />
-    </LabelSlot>
     <LabelSlot
       :label="'Адрес'"
     >

@@ -6,6 +6,9 @@ import type { Resume } from "@/interfaces";
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
+const FileForm = defineAsyncComponent(
+  () => import("@components/content/elements/HeaderDiv.vue")
+);
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/forms/ResumeForm.vue")
 );
@@ -68,7 +71,13 @@ const dataResume = ref({
           stateClassify.status[stateAnketa.anketa.resume['status_id']] ===
           'finish'
         "
+      >
+      <FileForm 
+        v-show="dataResume.showActions" 
+        :accept="'*'" 
+        @submit="stateAnketa.submitFile($event, 'resume')" 
       />
+    </ActionIcons>
     </LabelSlot>
     <LabelSlot :label="'ID'">
       {{ stateAnketa.anketa.resume["id"] }}
