@@ -1,11 +1,11 @@
 import os
 from datetime import datetime
-import shutil
+import secrets
 
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
-from config import Config, basedir
+from config import Config
 from app.utils.folders import create_folders
 from app.models.classes import Roles, Regions, Statuses, Conclusions
 from app.models.model import (
@@ -18,6 +18,7 @@ from app.models.model import (
     Conclusion,
 )
 
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://flask:flask@localhost/personal"
 
 def register_cli(app):
     @app.cli.command("create")
@@ -32,6 +33,12 @@ def register_cli(app):
             if not os.path.isdir(letter_path):
                 os.mkdir(letter_path)
         print(f"Alphabet directories created")
+
+        with open(".env", "w", encoding="utf-8") as file:
+            file.write(
+                f"SECRET_KEY='{secrets.token_hex()}'\nJWT_SECRET_KEY='{secrets.token_hex()}'\nSQLALCHEMY_DATABASE_URI = '{SQLALCHEMY_DATABASE_URI}'"
+            )
+        print(".env file created")
 
         db.create_all()
 

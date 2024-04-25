@@ -43,6 +43,7 @@ CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
+In cli.py change SQLALCHEMY_DATABASE_URI with your database url, user and password
 
 ### Migration
 
@@ -59,13 +60,13 @@ flask db upgrade    # after change db schema
 To start the application at http://localhost:5000 run the following command in your terminal:
 
 ```
-flask create       # create default tables and populate them with data from the classes.py file
+flask create       # create default values
 flask run          # start the application
 waitress-serve --host 127.0.0.1 --port 5000 wsgi:app  # start the waitress server
 ```
 
 Default user for application has name 'superadmin'.
-Default password for all app users is `88888888`
+DEFAULT_PASSWORD for all app users is `88888888`. You can change it in config.py file.
 Change it in first login to application.
 
 ### WSGI Service
