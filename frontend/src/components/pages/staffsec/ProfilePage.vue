@@ -62,24 +62,26 @@ const tabsData = ref({
       <IconRelative
         v-show="tabsData.currentTab == 'AnketaTab'"
         :title="`Взять на проверку`"
-        :icon-class="`bi bi-person-plus fs-1`"
-        :hide="
-          stateAnketa.anketa.resume.user_id !== null &&
-          stateAnketa.anketa.resume.user_id !== ''
-        "
-        @onclick="stateAnketa.getResume('self')"
+        :icon-class="`bi bi-arrow-clockwise fs-1`"
+        :hide="stateAnketa.anketa.resume.user_id !== stateUser.userId"
+        @onclick="stateAnketa.getResume('status')"
       />
       <IconRelative
         v-show="tabsData.currentTab == 'AnketaTab'"
+        :title="`Взять на проверку`"
+        :icon-class="`bi bi-person-plus fs-1`"
+        :hide="stateAnketa.anketa.resume.user_id === stateUser.userId"
+        @onclick="stateAnketa.getResume('self')"
+      />
+      <IconRelative
+        v-show="tabsData.currentTab == 'CheckTab'"
         :title="`Отправить на проверку`"
         :icon-class="'bi bi-send-plus fs-1'"
-        :hide="
-          stateAnketa.anketa.resume.user_id !== stateUser.userId ||
-          stateAnketa.anketa.resume.status_id === stateClassify.status['robot']
-        "
+        :hide="stateAnketa.anketa.resume.user_id !== stateUser.userId"
         @onclick="stateAnketa.getResume('send')"
       />
-      <IconRelative v-if="tabsData.currentTab == 'CheckTab'"
+      <IconRelative 
+        v-show="tabsData.currentTab == 'CheckTab'"
         :title="`Добавить проверку`"
         :icon-class="`bi bi-journal-check fs-1`"
         :hide="
@@ -132,7 +134,10 @@ const tabsData = ref({
       data-bs-toggle="tab"
       type="button"
       role="tab"
-      @click="tabsData.currentTab = (tab[0] as string)"
+      @click="
+        tabsData.currentTab = (tab[0] as string); 
+        tabsData.tabAction = ''
+      "
     >
       {{ tab[1] }}
     </button>

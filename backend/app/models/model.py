@@ -389,6 +389,7 @@ class Robot(db.Model):
     )
     employee: Mapped[str] = mapped_column(Text, nullable=True)
     inn: Mapped[str] = mapped_column(Text, nullable=True)
+    debt: Mapped[str] = mapped_column(Text, nullable=True)
     bankruptcy: Mapped[str] = mapped_column(Text, nullable=True)
     bki: Mapped[str] = mapped_column(Text, nullable=True)
     courts: Mapped[str] = mapped_column(Text, nullable=True)

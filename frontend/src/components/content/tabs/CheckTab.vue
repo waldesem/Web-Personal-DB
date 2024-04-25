@@ -55,7 +55,7 @@ function submitForm(form: Object, action: string) {
     @cancel="emit('cancel')"
     @submit="submitForm"
   />
-  <div v-if="stateAnketa.anketa.check.length"> 
+  <div v-else-if="stateAnketa.anketa.check.length"> 
     <div
       v-for="(item, idx) in stateAnketa.anketa.check" :key="idx" 
       @mouseover="check.showActions = true"

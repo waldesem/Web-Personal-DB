@@ -22,19 +22,21 @@ const showActions = ref(false);
       @mouseout="showActions = false"
       class="card card-body mb-3"
     >
-      <LabelSlot>
-        <button
-          v-show="showActions"
-          class="btn btn-link"
-          @click="
-            stateAnketa.deleteItem(item['id'].toString(), 'robot');
-            showActions = false;
-          "
-          title="Удалить"
-        >
-          <i class="bi bi-trash"></i>
-        </button>
-      </LabelSlot>
+      <div class="position-relative">
+        <div class="position-absolute top-0 end-0">
+          <button
+            v-show="showActions"
+            class="btn btn-link"
+            @click="
+              stateAnketa.deleteItem(item['id'].toString(), 'robot');
+              showActions = false;
+            "
+            title="Удалить"
+          >
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
       <LabelSlot :label="'Проверка по кадровым данным'">
         {{ item["employee"] }}
       </LabelSlot>
@@ -56,4 +58,5 @@ const showActions = ref(false);
       </LabelSlot>
     </div>
   </div>
+  <p v-else>Данные отсутствуют</p>
 </template>

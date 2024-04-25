@@ -37,7 +37,7 @@ class ResumeView(MethodView):
                 person.status_id = Status.get_id(Statuses.update.value)
                 person.user_id = None
                 db.session.commit()
-                return self.get(person_id), 201
+                return {"message": action}, 201
 
             if action == "self":
                 if not person.user_id:
@@ -48,13 +48,14 @@ class ResumeView(MethodView):
                         )
                     )
                     person.status_id = Status.get_id(Statuses.manual.value)
-
                     person.user_id = current_user.id
                     db.session.commit()
-                    return "", 201
+                    return {"message": action}, 201
+
             elif action == "send":
-                ResumeView.send_resume(person)
-            return PersonSchema().dump(person), 200
+                return {"message": send_resume(person)}, 201
+
+            return {"message": PersonSchema().dump(person)}, 200
         return abort(403)
 
     @bp.output(EmptySchema)
@@ -76,72 +77,6 @@ class ResumeView(MethodView):
     def post(self, action, json_data):
         person_id = ResumeView.add_resume(json_data, action)
         return {"message": person_id}
-
-    @staticmethod
-    def send_resume(person):
-        if person.status_id in (
-            Status.get_id(Statuses.new.value),
-            Status.get_id(Statuses.update.value),
-            Status.get_id(Statuses.repeat.value),
-        ):
-            docum = db.session.execute(
-                select(Document)
-                .filter_by(person_id=person.id)
-                .order_by(Document.id.desc())
-            ).scalar_one_or_none()
-            addr = db.session.execute(
-                select(Address)
-                .filter(
-                    Address.person_id == person.id,
-                    Address.view.ilike("%регистрац%"),
-                )
-                .order_by(Address.id.desc())
-            ).scalar_one_or_none()
-            serial = AnketaSchemaApi().dump(
-                {
-                    "id": person.id,
-                    "surname": person.surname,
-                    "firstname": person.firstname,
-                    "patronymic": person.patronymic,
-                    "birthday": person.birthday,
-                    "birthplace": person.birthplace,
-                    "snils": person.snils,
-                    "inn": person.inn,
-                    "series": docum.series,
-                    "number": docum.number,
-                    "agency": docum.agency,
-                    "issue": docum.issue,
-                    "address": addr.address,
-                }
-            )
-            try:
-                response = httpx.post(
-                    url="https://httpbin.org/post", json=serial, timeout=5
-                )
-                response.raise_for_status()
-                person.status_id = Status.get_id(Statuses.robot.value)
-                person.user_id = current_user.id
-                db.session.add(
-                    Message(
-                        message=f"Aнкета ID #{person_id} успешно отправлена роботу",
-                        user_id=current_user.id,
-                    )
-                )
-            except httpx.HTTPError as exc:
-                db.session.add(
-                    Message(
-                        message=f"При отправке анкеты возникла ошибка: {exc}",
-                        user_id=current_user.id,
-                    )
-                )
-        else:
-            db.session.add(
-                Message(
-                    message=f"Отправка анкеты ID #{person_id} невозможна",
-                    user_id=current_user.id,
-                )
-            )
-        db.session.commit()
 
 
 resume_view = ResumeView.as_view("resume")
@@ -200,3 +135,73 @@ def add_resume(resume: dict, action):
     person.user_id = current_user.id
     db.session.commit()
     return person_id
+
+
+def send_resume(person):
+    if person.status_id in (
+        Status.get_id(Statuses.new.value),
+        Status.get_id(Statuses.update.value),
+        Status.get_id(Statuses.repeat.value),
+        Status.get_id(Statuses.manual.value),
+    ):
+        docum = db.session.execute(
+            select(Document).filter_by(person_id=person.id).order_by(Document.id.desc())
+        ).scalar_one_or_none()
+        addr = db.session.execute(
+            select(Address)
+            .filter(
+                Address.person_id == person.id,
+                Address.view.ilike("%регистрац%"),
+            )
+            .order_by(Address.id.desc())
+        ).scalar_one_or_none()
+        if not docum or not addr:
+            return "error"
+        serial = AnketaSchemaApi().dump(
+            {
+                "id": person.id,
+                "surname": person.surname,
+                "firstname": person.firstname,
+                "patronymic": person.patronymic,
+                "birthday": person.birthday,
+                "birthplace": person.birthplace,
+                "snils": person.snils,
+                "inn": person.inn,
+                "series": docum.series,
+                "number": docum.number,
+                "agency": docum.agency,
+                "issue": docum.issue,
+                "address": addr.address,
+            }
+        )
+        try:
+            response = httpx.post(url="http://127.0.0.1:5001", json=serial, timeout=5)
+            response.raise_for_status()
+            person.status_id = Status.get_id(Statuses.robot.value)
+            person.user_id = current_user.id
+            db.session.add(
+                Message(
+                    message=f"Aнкета ID #{person.id} успешно отправлена роботу",
+                    user_id=current_user.id,
+                )
+            )
+            db.session.commit()
+            return "send"
+        except httpx.HTTPError as e:
+            db.session.add(
+                Message(
+                    message=f"При отправке анкеты возникла ошибка: {e}",
+                    user_id=current_user.id,
+                )
+            )
+            db.session.commit()
+            return "error"
+    else:
+        db.session.add(
+            Message(
+                message=f"Отправка анкеты ID #{person.id} невозможна",
+                user_id=current_user.id,
+            )
+        )
+        db.session.commit()
+        return "error"

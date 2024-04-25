@@ -25,7 +25,6 @@ class Statuses(Enum):
     manual = "Проверка"
     save = "Сохранен"
     robot = "Робот"
-    reply = "Обработан"
     poligraf = "ПФО"
     cancel = "Отменено"
     error = "Ошибка"
@@ -37,4 +36,4 @@ class Conclusions(Enum):
     with_comment = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
     saved = "СОХРАНЕН"
-    canceled = "ОТМЕНЕНО"
+    canceled = "СНЯТ С ПРОВЕРКИ"

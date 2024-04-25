@@ -5,46 +5,42 @@ import { server, timeSince } from "@/utilities";
 import { Message } from "@/interfaces";
 
 onBeforeMount(() => {
-  messageData.value.updateMessages();
+  updateMessages();
 });
 
 const messageData = ref({
   isStarted: false,
   messages: Array<Message>(),
-
-  async updateMessages(): Promise<void> {
-    try {
-      const response = await axiosAuth.get(
-        `${server}/messages`
-      );
-      const { messages } = response.data;
-      this.messages = messages;
-    } catch (error) {
-      console.error(error);
-    }
-    if (!this.isStarted) {
-      this.isStarted = true;
-      setInterval(this.updateMessages, 1000000);
-    }
-  },
-
-  async deleteMessage(iD: string = ''): Promise<void> {
-    try {
-      const response = await axiosAuth.delete(
-        `${server}/messages`,
-        {
-          params: {
-            id: iD,
-          }
-        }
-      );
-      console.log(response.status);
-      this.updateMessages();
-    } catch (error) {
-      console.error(error);
-    }
-  },
 });
+
+async function updateMessages(): Promise<void> {
+  try {
+    const response = await axiosAuth.get(
+      `${server}/messages`
+    );
+    const { messages } = response.data;
+    messageData.value.messages = messages;
+  } catch (error) {
+    console.error(error);
+  }
+  if (!messageData.value.isStarted) {
+    messageData.value.isStarted = true;
+    setInterval(updateMessages, 1000000);
+  }
+};
+
+async function deleteMessage(event: Event, iD: number = 0): Promise<void> {
+  event.preventDefault();
+  try {
+    const response = await axiosAuth.delete(
+      `${server}/messages/${iD}`,
+    );
+    console.log(response.status);
+    updateMessages();
+  } catch (error) {
+    console.error(error);
+  }
+}
 </script>
 
 <template>
@@ -67,26 +63,24 @@ const messageData = ref({
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" id="offcanvasMessage">
     <div class="offcanvas-body">
       <div class="d-flex justify-content-between mb-3">
-        <a 
-          href="#" 
-          class="link-danger"
+        <button 
+          class="btn btn-link"
           title="Обновить сообщения"
-          @click="messageData.updateMessages"
+          @click="updateMessages"
         >
           <i class="bi bi-arrow-clockwise"></i>
-        </a>
-        <a 
-          href="#" 
-          class="link-danger"
+        </button>
+        <button 
+          class="btn btn-link"
           title="Удалить все сообщения"
-          @click="messageData.deleteMessage"
+          @click="deleteMessage"
         >
           <i class="bi bi-trash"></i>
-        </a>
+        </button>
       </div>
       <div 
         v-for="message, index in messageData.messages" :key="index"
-        class="card" 
+        class="card mb-3" 
       >
         <div class="card-header">
           <small class="d-flex justify-content-between">
@@ -94,7 +88,7 @@ const messageData = ref({
             <button 
               type="button" 
               class="btn-close btn-sm" 
-              @click="messageData.deleteMessage(message['id'])"
+              @click="deleteMessage($event, parseInt(message['id']))"
             >
             </button>
           </small>

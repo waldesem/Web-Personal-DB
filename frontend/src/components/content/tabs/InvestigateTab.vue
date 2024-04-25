@@ -57,7 +57,7 @@ function submitForm(form: Object, action: string) {
     @submit="submitForm"
     @cancel="emit('cancel')"
   />
-  <div v-if="stateAnketa.anketa.investigation.length" class="py-3"> 
+  <div v-else-if="stateAnketa.anketa.investigation.length" class="py-3"> 
     <div 
       v-for="(item, idx) in stateAnketa.anketa.investigation" :key="idx"
       class="mb-3"

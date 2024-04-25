@@ -18,10 +18,7 @@ from . import bp
 from .. import jwt, cache
 from ..models.model import db, User
 from ..models.schema import (
-    ChangePswdSchema,
     LoginSchema,
-    OutputChangePswdSchema,
-    OutputLoginSchema,
     RefreshSchema,
     UserSchema,
 )
@@ -54,7 +51,6 @@ class LoginView(MethodView):
         return abort(401)
     
     @bp.input(LoginSchema)
-    @bp.output(OutputLoginSchema)
     def post(self, json_data):
         """
         Post method for the given API endpoint.
@@ -82,8 +78,7 @@ class LoginView(MethodView):
                 db.session.commit()
         return {"message": "Denied"}, 201
 
-    @bp.input(ChangePswdSchema)
-    @bp.output(OutputChangePswdSchema)
+    @bp.input(LoginSchema)
     def patch(self, json_data):
         """
         Patch method for updating user password.

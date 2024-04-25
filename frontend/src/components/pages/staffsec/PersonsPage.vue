@@ -28,15 +28,14 @@ onBeforeMount(async () => {
 const statusColor = {
   "1": "success",
   "2": "success",
-  "3": "success",
+  "3": "secondary",
   "4": "primary",
   "5": "primary",
   "6": "danger",
   "7": "info",
-  "8": "secondary",
-  "9": "light",
-  "10": "warning",
-  "11": "light",
+  "8": "light",
+  "9": "warning",
+  "10": "light",
 };
 
 const theadData = {

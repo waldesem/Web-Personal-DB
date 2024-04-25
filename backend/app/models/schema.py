@@ -68,26 +68,7 @@ class LoginSchema(Schema):
 
     username = String()
     password = String()
-
-
-class OutputLoginSchema(Schema):
-    """Create model for output login"""
-
-    message = String()
-    access_token = String(required=False)
-    refresh_token = String(required=False)
-
-
-class ChangePswdSchema(LoginSchema):
-    """Create model for change password"""
-
     new_pswd = String()
-
-
-class OutputChangePswdSchema(Schema):
-    """Create model for output change password"""
-
-    message = String()
 
 
 class RefreshSchema(Schema):
@@ -200,6 +181,7 @@ class CheckSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Check
         ordered = True
+        include_fk = True
 
 
 class RobotSchema(SQLAlchemyAutoSchema):
@@ -208,7 +190,8 @@ class RobotSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Robot
         ordered = True
-
+    path = String()
+    
 
 class ConclusionSchema(SQLAlchemyAutoSchema):
     """Create model for conclusion"""
@@ -222,12 +205,14 @@ class InquirySchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Inquiry
         ordered = True
+        include_fk = True
 
 
 class InvestigationSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Investigation
         ordered = True
+        include_fk = True
 
 
 class PoligrafSchema(SQLAlchemyAutoSchema):
@@ -236,6 +221,7 @@ class PoligrafSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Poligraf
         ordered = True
+        include_fk = True
 
 
 class ConnectSchema(SQLAlchemyAutoSchema):
@@ -271,12 +257,12 @@ class AnketaSchemaApi(SQLAlchemySchema):
     surname = String()
     firstname = String()
     patronymic = String()
-    birthday = String()
+    birthday = Date()
     birthplace = String()
     snils = String()
     inn = String()
     series = String()
     number = String()
     agency = String()
-    issue = String()
+    issue = Date()
     address = String()

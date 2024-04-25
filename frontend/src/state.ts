@@ -106,20 +106,28 @@ export const stateAnketa = {
           },
         }
       );
-      this.anketa.resume = response.data;
+      const { message } = response.data;
 
-      if (["self", "send", "status"].includes(action)) {
-        this.getResume("view");
-
-        if (action === "status") {
+      switch (message) {
+        case "status":
           stateAlert.setAlert("alert-info", "Статус анкеты обновлен");
-        }
-        if (action === "self") {
+          this.getResume();
+          break;
+        case "self":
           stateAlert.setAlert("alert-info", "Анкета назначена на себя");
-        }
-        if (action === "send") {
+          this.getResume();
+          break;
+        case "send":
           stateAlert.setAlert("alert-success", "Анкета отправлена на проверку");
-        }
+          this.getResume();
+          break;
+        case "error":
+          stateAlert.setAlert("alert-danger", "Ошибка обработки");
+          this.getResume();
+          break;
+        default:
+          this.anketa.resume = message;
+          break;
       }
     } catch (error) {
       console.error(error);
