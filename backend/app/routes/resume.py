@@ -1,5 +1,3 @@
-import os
-
 import httpx
 from apiflask import EmptySchema
 from flask import abort
@@ -7,7 +5,6 @@ from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select
 
-from config import Config
 from . import bp
 from .login import roles_required
 from ..utils.folders import create_folders
@@ -146,51 +143,6 @@ class ResumeView(MethodView):
             )
         db.session.commit()
 
-    @staticmethod
-    def add_resume(resume: dict, action):
-        """
-        Adds a resume to the database.
-        """
-        person = db.session.execute(
-            select(Person).filter(
-                Person.surname.ilike(resume["surname"]),
-                Person.firstname.ilike(resume["firstname"]),
-                Person.patronymic.ilike(resume.get('patronymic')),
-                Person.birthday == resume["birthday"],
-            )
-        ).one_or_none()
-
-        for k, v in resume.items():
-            if k in ["surname", "firstname", "patronymic"]:
-                resume[k] = v.strip().upper()
-
-        if person:
-            person_id = person.id
-            for k, v in resume.items():
-                setattr(person, k, v)
-        else:
-            if action == "create":
-                resume["status_id"] = Status().get_id(Statuses.manual.value)
-                resume["user_id"] = current_user.id
-            if action == "api":
-                resume["status_id"] = Status().get_id(Statuses.new.value)
-
-            person = Person(**resume)
-            db.session.add(person)
-            db.session.flush()
-            person_id = person.id
-
-        person.path = create_folders(
-            person_id,
-            resume['surname'],
-            resume['firstname'],
-            resume.get('patronymic', ''),
-            "resume",
-        )
-        person.user_id = current_user.id
-        db.session.commit()
-        return person_id
-
 
 resume_view = ResumeView.as_view("resume")
 bp.add_url_rule(
@@ -203,3 +155,48 @@ bp.add_url_rule(
     view_func=resume_view,
     methods=["GET", "DELETE", "PATCH"],
 )
+
+
+def add_resume(resume: dict, action):
+    """
+    Adds a resume to the database.
+    """
+    person = db.session.execute(
+        select(Person).filter(
+            Person.surname.ilike(resume["surname"]),
+            Person.firstname.ilike(resume["firstname"]),
+            Person.patronymic.ilike(resume.get("patronymic")),
+            Person.birthday == resume["birthday"],
+        )
+    ).one_or_none()
+
+    for k, v in resume.items():
+        if k in ["surname", "firstname", "patronymic"]:
+            resume[k] = v.strip().upper()
+
+    if person:
+        person_id = person.id
+        for k, v in resume.items():
+            setattr(person, k, v)
+    else:
+        if action == "create":
+            resume["status_id"] = Status().get_id(Statuses.manual.value)
+            resume["user_id"] = current_user.id
+        if action == "api":
+            resume["status_id"] = Status().get_id(Statuses.new.value)
+
+        person = Person(**resume)
+        db.session.add(person)
+        db.session.flush()
+        person_id = person.id
+
+    person.path = create_folders(
+        person_id,
+        resume["surname"],
+        resume["firstname"],
+        resume.get("patronymic", ""),
+        "resume",
+    )
+    person.user_id = current_user.id
+    db.session.commit()
+    return person_id

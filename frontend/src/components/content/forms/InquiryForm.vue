@@ -26,6 +26,10 @@ const props = defineProps({
     type: Object as () => Needs,
     default: {},
   },
+  action: {
+    type: String,
+    default: "",
+  }
 });
 
 const inquiryForm = toRef(props.inquiry as Needs);
@@ -33,16 +37,20 @@ const inquiryForm = toRef(props.inquiry as Needs);
 
 <template>
   <form
-    @submit.prevent="emit('submit', inquiryForm); clearForm(inquiryForm)"
-    class="form form-check"
+    @submit.prevent="
+      emit('submit', inquiryForm, props.action); 
+      clearForm(inquiryForm)
+    "
+    class="form form-check p-3"
     role="form"
   >
     <LabelSlot :label="'Информация'">
       <TextArea
         :name="'info'"
         :place="'Информация'"
-        v-model="props.inquiry['info']"
-      />
+        v-model="inquiryForm['info']"
+      >
+      </TextArea>
     </LabelSlot>
     <LabelSlot :label="'Инициатор'">
       <InputElement

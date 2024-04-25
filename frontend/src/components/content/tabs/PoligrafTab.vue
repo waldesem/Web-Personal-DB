@@ -34,63 +34,67 @@ const props = defineProps({
 })
 
 const poligraf = ref({
-  action: "",
   itemId: "",
   item: <Pfo>{},
   showActions: false,
 });
 
-function submitForm(form: Object) {
+function submitForm(form: Object, action: string) {
   stateAnketa.updateItem(
-    poligraf.value.action,
+    action,
     "poligraf",
     poligraf.value.itemId,
     form
   );
-  
-  poligraf.value.action = "";
-  poligraf.value.itemId = "";
-  emit("cancel");
+  action === "update" ? poligraf.value.itemId = "" : emit("cancel");
 }
 </script>
 
 <template>
   <PoligrafForm
     v-if="props.tabAction === 'create' && props.currentTab === 'PoligrafTab'"
+    :action="'create'"
     @submit="submitForm"
-    @cancel="poligraf.action = ''; poligraf.itemId = ''; emit('cancel')"
+    @cancel="emit('cancel')"
   />
-  <div v-if="stateAnketa.anketa.poligraf.length"> 
+  <div v-if="stateAnketa.anketa.poligraf.length" class="py-3"> 
     <div
-      class="mb-3"
-      :class="{'collapse show': !stateAnketa.share.printPage}"
+      :class="{'card card-body': !stateAnketa.share.printPage}"
       v-for="(item, idx) in stateAnketa.anketa.poligraf" :key="idx"
       @mouseover="poligraf.showActions = true"
       @mouseout="poligraf.showActions = false"
     >
-      <LabelSlot>
-        <ActionIcons v-show="poligraf.showActions"
-          :show-form="true"
-          @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligraf')"
-          @update="
-            poligraf.action = 'update';
-            poligraf.item = item;
-            poligraf.itemId = item['id'].toString();
-          "
-        >
-        <FileForm 
-          v-show="poligraf.showActions" 
-          :accept="'*'" 
-          @submit="stateAnketa.submitFile($event, 'poligraf')" 
-        />
-      </ActionIcons>
-      </LabelSlot>
-      <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
-      <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
-      <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
-      <LabelSlot :label="'Дата'">
-        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-      </LabelSlot>
+      <PoligrafForm
+        v-if="poligraf.itemId === item['id'].toString()"
+        :poligraf="poligraf.item"
+        :action="'update'"
+        @submit="submitForm"
+        @cancel="poligraf.itemId = ''"
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons v-show="poligraf.showActions"
+            :show-form="true"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligraf')"
+            @update="
+              poligraf.item = item;
+              poligraf.itemId = item['id'].toString();
+            "
+          >
+          <FileForm 
+            v-show="poligraf.showActions" 
+            :accept="'*'" 
+            @submit="stateAnketa.submitFile($event, 'poligraf')" 
+          />
+        </ActionIcons>
+        </LabelSlot>
+        <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
+        <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot :label="'Дата'">
+          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+      </div>
     </div>
   </div>
   <p v-else>Данные отсутствуют</p>

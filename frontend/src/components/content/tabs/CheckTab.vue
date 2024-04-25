@@ -34,7 +34,6 @@ const props = defineProps({
 })
 
 const check = ref({
-  action: "",
   itemId: "",
   item: <Verification>{},
   hideEditBtn:
@@ -44,19 +43,16 @@ const check = ref({
   showActions: false
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(check.value.action, "check", check.value.itemId, form);
-  check.value.action = "";
-  check.value.itemId = "";
-  
-  emit("cancel");
+function submitForm(form: Object, action: string) {
+  stateAnketa.updateItem(action, "check", check.value.itemId, form);
+  action === "update" ? check.value.itemId = "" : emit("cancel");
 }
 </script>
 
 <template>
   <CheckForm
     v-if="props.tabAction === 'create' && props.currentTab === 'CheckTab'"
-    @cancel="check.action = ''; check.itemId = ''; emit('cancel')"
+    @cancel="emit('cancel')"
     @submit="submitForm"
   />
   <div v-if="stateAnketa.anketa.check.length"> 
@@ -67,23 +63,18 @@ function submitForm(form: Object) {
       class="card card-body mb-3"
     >
       <CheckForm
-        v-if="
-          check.action === 'update' && 
-          check.itemId === item['id'].toString()
-          "
+        v-if="check.itemId === item['id'].toString()"
         :check="check.item"
+        :action="'update'"
         @submit="submitForm"
-        @cancel="
-          check.action = '';
-          check.itemId = '';
-        "
+        @cancel="check.itemId = ''"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons v-show="check.showActions"
             :show-form="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'check')"
-            @update="check.action = 'update';
+            @update="
               check.item = item;
               check.itemId = item['id'].toString();
             "

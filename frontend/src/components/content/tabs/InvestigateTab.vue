@@ -34,33 +34,30 @@ const props = defineProps({
 })
 
 const inquisition = ref({
-  action: "",
   itemId: "",
   item: <Inquisition>{},
   showActions: false,
 });
 
-function submitForm(form: Object) {
+function submitForm(form: Object, action: string) {
   stateAnketa.updateItem(
-    inquisition.value.action,
+    action,
     "investigation",
     inquisition.value.itemId,
     form
-  );
-  
-  inquisition.value.action = "";
-  inquisition.value.itemId = "";
-  emit("cancel");
+  );  
+  action === "update" ? inquisition.value.itemId = "" : emit("cancel");
 }
 </script>
 
 <template>
   <InvestigationForm
     v-if="props.tabAction === 'create' && props.currentTab === 'InvestigateTab'"
+    :action="'create'"
     @submit="submitForm"
-    @cancel="inquisition.action = ''; inquisition.itemId = ''; emit('cancel')"
+    @cancel="emit('cancel')"
   />
-  <div v-if="stateAnketa.anketa.investigation.length"> 
+  <div v-if="stateAnketa.anketa.investigation.length" class="py-3"> 
     <div 
       v-for="(item, idx) in stateAnketa.anketa.investigation" :key="idx"
       class="mb-3"
@@ -68,30 +65,37 @@ function submitForm(form: Object) {
       @mouseover="inquisition.showActions = true"
       @mouseout="inquisition.showActions = false"
     >
-      <LabelSlot>
-        <ActionIcons v-show="inquisition.showActions"
-          :show-form="true"
-          @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigation')"
-          @update="
-            inquisition.action = 'update';
-            inquisition.item = item;
-            inquisition.itemId = item['id'].toString();
-          "
-        >
-        <FileForm 
-          v-show="inquisition.showActions" 
-          :accept="'*'" 
-          @submit="stateAnketa.submitFile($event, 'investigation')" 
-        />
-        </ActionIcons>
-      </LabelSlot>
-      <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
-      <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-      <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
-      <LabelSlot :label="'Дата'">
-        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-      </LabelSlot>
-
+      <InvestigationForm
+        v-if="inquisition.itemId === item['id'].toString()"
+        :poligraf="inquisition.item"
+        :action="'update'"
+        @submit="submitForm"
+        @cancel="inquisition.itemId = ''"
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons v-show="inquisition.showActions"
+            :show-form="true"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigation')"
+            @update="
+              inquisition.item = item;
+              inquisition.itemId = item['id'].toString();
+            "
+          >
+          <FileForm 
+            v-show="inquisition.showActions" 
+            :accept="'*'" 
+            @submit="stateAnketa.submitFile($event, 'investigation')" 
+          />
+          </ActionIcons>
+        </LabelSlot>
+        <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
+        <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot :label="'Дата'">
+          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+      </div>
     </div>
   </div>
   <p v-else>Данные отсутствуют</p>

@@ -4,7 +4,6 @@ from flask import abort, request, send_file
 from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select
-from werkzeug.utils import secure_filename
 from PIL import Image
 
 from config import Config
@@ -12,7 +11,7 @@ from . import bp
 from .login import roles_required
 from ..utils.folders import create_folders
 from ..utils.json_parser import parse_json
-from .resume import ResumeView
+from ..routes.resume import add_resume
 from ..models.classes import Roles
 from ..models.model import (
     Previous,
@@ -24,8 +23,9 @@ from ..models.model import (
     Workplace,
     Affilation,
     Person,
-    Message
+    Message,
 )
+
 
 class FileView(MethodView):
 
@@ -49,10 +49,10 @@ class FileView(MethodView):
             file = request.files["file"]
             if not file.filename:
                 return abort(400)
-            
+
             if action == "anketa":
                 anketa = parse_json(file)
-                person_id = ResumeView.add_resume(anketa["resume"], "create")
+                person_id = add_resume(anketa["resume"], "create")
                 self.fill_items(anketa, person_id)
 
                 person = db.session.get(Person, person_id)
@@ -69,14 +69,14 @@ class FileView(MethodView):
                     )
                 db.session.commit()
                 return {"message": person_id}, 201
-            
+
             if action == "image":
                 person = db.session.get(Person, item_id)
                 folder = create_folders(
-                    item_id, 
-                    person.surname, 
-                    person.firstname, 
-                    person.patronymic, 
+                    item_id,
+                    person.surname,
+                    person.firstname,
+                    person.patronymic,
                     "image",
                 )
                 im = Image.open(file)
@@ -90,10 +90,10 @@ class FileView(MethodView):
             person = db.session.get(Person, item_id)
             if person:
                 folder = create_folders(
-                    item_id, 
-                    person.surname, 
-                    person.firstname, 
-                    person.patronymic, 
+                    item_id,
+                    person.surname,
+                    person.firstname,
+                    person.patronymic,
                     action,
                 )
                 files = request.files.getlist("file")
@@ -126,9 +126,15 @@ class FileView(MethodView):
         if len(anketa["previous"]):
             for item in anketa["previous"]:
                 surname = item["surname"] if item.get("surname") else anketa["surname"]
-                firstname = item["firstname"] if item.get("firstname") else anketa["firstname"]
-                patronymic = item["patronymic"] if item.get("patronymic") else anketa["patronymic"]
-                
+                firstname = (
+                    item["firstname"] if item.get("firstname") else anketa["firstname"]
+                )
+                patronymic = (
+                    item["patronymic"]
+                    if item.get("patronymic")
+                    else anketa["patronymic"]
+                )
+
                 result = db.session.execute(
                     select(Person).filter(
                         Person.surname.ilike(surname),
@@ -139,13 +145,18 @@ class FileView(MethodView):
                 ).one_or_none()
 
                 if result:
-                    message=f"Кандидат {anketa.surname} ID: {anketa.id} "\
-                            f"ранее проверялся как {result.surname} ID: {result.id}"
+                    message = (
+                        f"Кандидат {anketa.surname} ID: {anketa.id} "
+                        f"ранее проверялся как {result.surname} ID: {result.id}"
+                    )
                     db.session.add(Message(message=message, user_id=current_user.id))
                     additional = additional + message + "\n "
         person = db.session.get(Person, person_id)
-        person.addition = person.addition + "\n " + additional if person.addition else additional
+        person.addition = (
+            person.addition + "\n " + additional if person.addition else additional
+        )
         db.session.commit()
+
 
 file_view = FileView.as_view("file")
 bp.add_url_rule("/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"])
@@ -160,10 +171,10 @@ def get_image(item_id):
     """
     person = db.session.get(Person, item_id)
     file_path = os.path.join(
-        Config.BASE_PATH, 
-        person.surname[0].upper(), 
-        f"{person.id}-{person.surname.upper()} {person.firstname.upper()} {person.patronymic.upper()}".rstrip(), 
-        "image", 
+        Config.BASE_PATH,
+        person.surname[0].upper(),
+        f"{person.id}-{person.surname.upper()} {person.firstname.upper()} {person.patronymic.upper()}".rstrip(),
+        "image",
         "image.jpg",
     )
     if os.path.isfile(file_path):

@@ -14,9 +14,7 @@ const showActions = ref(false);
 </script>
 
 <template>
-  <div
-    v-if="stateAnketa.anketa.robot.length"
-  >
+  <div v-if="stateAnketa.anketa.robot.length" class='py-3'>
     <div
       v-for="(item, idx) in stateAnketa.anketa.robot"
       :key="idx"

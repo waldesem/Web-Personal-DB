@@ -31,49 +31,56 @@ const props = defineProps({
 })
 
 const need = ref({
-  action: "",
   itemId: "",
   item: <Needs>{},
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(need.value.action, "inquiry", need.value.itemId, form);
-  need.value.action = "";
+function submitForm(form: Object, action: string) {
+  stateAnketa.updateItem(action, "inquiry", need.value.itemId, form);
   need.value.itemId = "";
-  emit("cancel");
+  action === "update" ? need.value.itemId = "" : emit("cancel");
 };
 </script>
 
 <template>
   <InquiryForm v-if="props.tabAction === 'create' && props.currentTab === 'InquiryTab'"
     @submit="submitForm"
-    @cancel="need.action = ''; need.itemId = ''; emit('cancel')"
+    @cancel="emit('cancel')"
   />
-  <div v-if="stateAnketa.anketa.inquiry.length"> 
+  <div v-if="stateAnketa.anketa.inquiry.length" class="py-3"> 
     <div
       class="mb-3"
       v-for="(item, idx) in stateAnketa.anketa.inquiry" :key="idx"
       @mouseover="need.showActions = true"
       @mouseout="need.showActions = false" 
-      :class="{ 'card card-body': !stateAnketa.share.printPage }">
-      <LabelSlot>
-        <ActionIcons v-show="need.showActions"
-          @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiry')"
-          @update="
-            need.action = 'update';
-            need.item = item;
-            need.itemId = item['id'].toString();
-          "
-        />
-      </LabelSlot>
-      <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-      <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
-      <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
-      <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
-      <LabelSlot :label="'Дата запроса'">
-        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
-      </LabelSlot>
+      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+    >
+      <InquiryForm
+        v-if="need.itemId === item['id'].toString()"
+        :poligraf="need.item"
+        :action="'update'"
+        @submit="submitForm"
+        @cancel="need.itemId = ''"
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons v-show="need.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiry')"
+            @update="
+              need.item = item;
+              need.itemId = item['id'].toString();
+            "
+          />
+        </LabelSlot>
+        <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
+        <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
+        <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot :label="'Дата запроса'">
+          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+      </div>
     </div>
   </div>
   <p v-else>Данные отсутствуют</p>

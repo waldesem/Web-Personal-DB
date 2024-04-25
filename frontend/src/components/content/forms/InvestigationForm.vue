@@ -5,7 +5,7 @@ import { clearForm } from "@/utilities";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
-)
+);
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")
 );
@@ -26,6 +26,10 @@ const props = defineProps({
     type: Object as () => Inquisition,
     default: {},
   },
+  action: {
+    type: String,
+    default: "create",
+  },
 });
 
 const investigationForm = toRef(props.investigation as Inquisition);
@@ -33,8 +37,11 @@ const investigationForm = toRef(props.investigation as Inquisition);
 
 <template>
   <form
-    @submit.prevent="emit('submit', investigationForm); clearForm(investigationForm)"
-    class="form form-check"
+    @submit.prevent="
+      emit('submit', investigationForm, props.action);
+      clearForm(investigationForm);
+    "
+    class="form form-check p-3"
     role="form"
   >
     <LabelSlot :label="'Тема проверки'">
@@ -50,12 +57,11 @@ const investigationForm = toRef(props.investigation as Inquisition);
         :name="'info'"
         :place="'Информация'"
         v-model="props.investigation['info']"
-      />
+      >
+      </TextArea>
     </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent
-        @cancel="emit('cancel')"
-      />
+      <BtnGroupContent @cancel="emit('cancel')" />
     </BtnGroup>
   </form>
 </template>

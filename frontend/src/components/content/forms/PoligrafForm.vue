@@ -8,7 +8,7 @@ const TextArea = defineAsyncComponent(
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
-)
+);
 const SelectArray = defineAsyncComponent(
   () => import("@components/content/elements/SelectArray.vue")
 );
@@ -26,6 +26,10 @@ const props = defineProps({
     type: Object as () => Pfo,
     default: {},
   },
+  action: {
+    type: String,
+    default: "",
+  },
 });
 
 const poligrafForm = toRef(props.poligraf as Pfo);
@@ -33,16 +37,21 @@ const poligrafForm = toRef(props.poligraf as Pfo);
 
 <template>
   <form
-    @submit.prevent="emit('submit', poligrafForm); clearForm(poligrafForm)"
-    class="form form-check"
+    @submit.prevent="
+      emit('submit', poligrafForm, props.action);
+      clearForm(poligrafForm);
+    "
+    class="form form-check p-3"
     role="form"
   >
-    <LabelSlot :label="'ема проверки'">
+    <LabelSlot :label="'Тема проверки'">
       <SelectArray
         :name="'theme'"
         :select="[
-          'Проверка кандидата', 'Служебная проверка', 'Служебное расследование'
-          ]"
+          'Проверка кандидата',
+          'Служебная проверка',
+          'Служебное расследование',
+        ]"
         v-model="poligrafForm['theme']"
       />
     </LabelSlot>
@@ -51,12 +60,11 @@ const poligrafForm = toRef(props.poligraf as Pfo);
         :name="'results'"
         :place="'Результат'"
         v-model="props.poligraf['results']"
-      />
+      >
+      </TextArea>
     </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent
-        @cancel="emit('cancel')"
-      />
+      <BtnGroupContent @cancel="emit('cancel')" />
     </BtnGroup>
   </form>
 </template>
