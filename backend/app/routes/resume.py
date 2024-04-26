@@ -143,6 +143,7 @@ def send_resume(person):
         Status.get_id(Statuses.update.value),
         Status.get_id(Statuses.repeat.value),
         Status.get_id(Statuses.manual.value),
+        Status.get_id(Statuses.robot.value),
     ):
         docum = db.session.execute(
             select(Document).filter_by(person_id=person.id).order_by(Document.id.desc())

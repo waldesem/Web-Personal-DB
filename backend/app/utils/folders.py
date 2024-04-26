@@ -40,9 +40,4 @@ def create_folders(
     if not os.path.isdir(subfolder):
         os.mkdir(subfolder)
 
-    return os.path.join(
-        surname[0].upper(), 
-        f"{person_id}-{surname} {firstname} {patronymic}", 
-        folder, 
-        subfolder,
-    )
+    return subfolder

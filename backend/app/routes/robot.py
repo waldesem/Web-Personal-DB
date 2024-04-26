@@ -6,9 +6,8 @@ from flask.views import MethodView
 
 from . import bp
 from ..utils.folders import create_folders
-from ..models.classes import Statuses
 from ..models.schema import  RobotSchema
-from ..models.model import db, Person, Status, Message, Robot
+from ..models.model import db, Person, Message, Robot
 
 
 class RobotsView(MethodView):
@@ -38,10 +37,11 @@ class RobotsView(MethodView):
                 )
                 try:
                     for item in os.listdir(robot_path):
-                        if os.path.isfile(os.path.join(robot_path, item)):
-                            shutil.copyfile(item, check_path)
-                        elif os.path.isdir(os.path.join(robot_path, item)):
-                            shutil.copytree(item, os.path.join(check_path, item))
+                        item_path = os.path.join(robot_path, item)
+                        if os.path.isfile(item_path):
+                            shutil.copyfile(item_path, os.path.join(check_path, item))
+                        elif os.path.isdir(item_path):
+                            shutil.copytree(item_path, os.path.join(check_path, item))
                 except FileNotFoundError as e:
                     db.session.add(Message(message=f"{e}", user_id=candidate.user_id))
 
