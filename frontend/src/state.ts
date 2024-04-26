@@ -1,7 +1,7 @@
 import { reactive } from "vue";
 import { axiosAuth } from "@/auth";
 import { router } from "@/router";
-import { server } from "@/utilities";
+import { server } from "./utilities";
 import {
   Resume,
   Previous,

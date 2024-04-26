@@ -1,5 +1,5 @@
-const server = "http://localhost:5000";
-//const server = '';
+// const server = "http://localhost:5000";
+const server = '';
 
 /**
  * Debounces a function, ensuring it's not called again until a certain amount of time has passed.

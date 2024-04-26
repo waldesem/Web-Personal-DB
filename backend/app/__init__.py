@@ -1,5 +1,5 @@
 from apiflask import APIFlask
-from flask import jsonify
+from flask import jsonify, send_from_directory
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_caching import Cache
@@ -13,19 +13,19 @@ jwt = JWTManager()
 migrate = Migrate()
 
 
-def create_app():
+def create_app(config=Config):
     """
     Initializes and configures a Flask application.
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
-    app.config.from_object(Config)
+    app.config.from_object(config)
     # app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
     # for local use, download redoc.standalone.js
     # from https://github.com/Redocly/redoc/blob/master/redoc/static/redoc.standalone.js
-    # Save it in the static folder or in frontend/public
+    # Save it in the static folder or in frontend/public before build
     # Uncomment string app.config['REDOC_STANDALONE_JS'] = './static/redoc.standalone.js'
 
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
     db.init_app(app)
     jwt.init_app(app)
     cache.init_app(app)
@@ -39,10 +39,9 @@ def create_app():
 
     register_cli(app)
 
+    @app.doc(hide=True)
     @app.get("/", defaults={"path": ""})
     @app.get("/<path:path>")
-    @app.doc(hide=True)
-    @cache.cached()
     def main(path=""):
         return app.send_static_file("index.html")
 
