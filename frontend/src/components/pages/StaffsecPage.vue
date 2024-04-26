@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import { onMounted } from "vue";
-import { stateUser, stateAlert } from "@/state";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
+import { stateUser, stateAlert, stateMessage } from "@/state";
 
 const NavBar = defineAsyncComponent(
   () => import("@components/content/layouts/NavBar.vue")
@@ -19,14 +19,13 @@ onMounted(async () => {
     stateUser.userId = id;
     stateUser.fullName = fullname;
     stateUser.userName = username;
-    stateUser.hasAdmin = roles.some(
-      (r: { role: any }) => r.role === "admin"
-    );
+    stateUser.hasAdmin = roles.some((r: { role: any }) => r.role === "admin");
+
+    await stateMessage.updateMessages();
   } catch (error) {
     stateAlert.setAlert("alert-warning", error as string);
   }
 });
-
 </script>
 
 <template>
@@ -55,4 +54,5 @@ onMounted(async () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}</style>
+}
+</style>

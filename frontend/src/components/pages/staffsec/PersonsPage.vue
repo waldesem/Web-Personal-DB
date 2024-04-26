@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { debounce, server, timeSince } from "@/utilities";
 import { stateClassify } from "@/state";
 import { axiosAuth } from "@/auth";
-import { debounce, server, timeSince } from "@/utilities";
 import { Resume } from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
@@ -86,6 +86,8 @@ async function getCandidates(page = 1): Promise<void> {
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
+
+
   } catch (error) {
     console.error(error);
   }

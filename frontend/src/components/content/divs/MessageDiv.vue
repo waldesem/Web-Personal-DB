@@ -1,33 +1,7 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
+import { stateMessage } from "@/state";
 import { server, timeSince } from "@/utilities";
-import { Message } from "@/interfaces";
-
-onBeforeMount(() => {
-  updateMessages();
-});
-
-const messageData = ref({
-  isStarted: false,
-  messages: Array<Message>(),
-});
-
-async function updateMessages(): Promise<void> {
-  try {
-    const response = await axiosAuth.get(
-      `${server}/messages`
-    );
-    const { messages } = response.data;
-    messageData.value.messages = messages;
-  } catch (error) {
-    console.error(error);
-  }
-  if (!messageData.value.isStarted) {
-    messageData.value.isStarted = true;
-    setInterval(updateMessages, 1000000);
-  }
-};
 
 async function deleteMessage(event: Event, iD: number = 0): Promise<void> {
   event.preventDefault();
@@ -36,7 +10,7 @@ async function deleteMessage(event: Event, iD: number = 0): Promise<void> {
       `${server}/messages/${iD}`,
     );
     console.log(response.status);
-    updateMessages();
+    stateMessage.updateMessages();
   } catch (error) {
     console.error(error);
   }
@@ -50,14 +24,14 @@ async function deleteMessage(event: Event, iD: number = 0): Promise<void> {
     data-bs-toggle="offcanvas"
   >
   <i class="fs-3" 
-    :class="`${messageData.messages.length ? 'bi bi-bell-fill' : 'bi bi-bell'}`"
+    :class="`${stateMessage.messages.length ? 'bi bi-bell-fill' : 'bi bi-bell'}`"
   >
   </i>
     <span
-      v-if="messageData.messages.length"
+      v-if="stateMessage.messages.length"
       class="position-absolute translate-middle badge rounded-pill text-bg-success"
     >
-      {{ messageData.messages.length }}
+      {{ stateMessage.messages.length }}
     </span>
   </a>
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" id="offcanvasMessage">
@@ -66,7 +40,7 @@ async function deleteMessage(event: Event, iD: number = 0): Promise<void> {
         <button 
           class="btn btn-link"
           title="Обновить сообщения"
-          @click="updateMessages"
+          @click="stateMessage.updateMessages"
         >
           <i class="bi bi-arrow-clockwise"></i>
         </button>
@@ -79,7 +53,7 @@ async function deleteMessage(event: Event, iD: number = 0): Promise<void> {
         </button>
       </div>
       <div 
-        v-for="message, index in messageData.messages" :key="index"
+        v-for="message, index in stateMessage.messages" :key="index"
         class="card mb-3" 
       >
         <div class="card-header">

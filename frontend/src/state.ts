@@ -17,6 +17,7 @@ import {
   Pfo,
   Inquisition,
   Needs,
+  Message,
 } from "@/interfaces";
 
 export const stateToken = reactive({
@@ -107,6 +108,8 @@ export const stateAnketa = {
         }
       );
       const { message } = response.data;
+
+      stateMessage.updateMessages();
 
       switch (message) {
         case "status":
@@ -258,3 +261,19 @@ export const stateAnketa = {
     }
   },
 };
+
+export const stateMessage = {
+  messages: reactive<Message[]>([]),
+
+  async updateMessages(): Promise<void> {
+    try {
+      const response = await axiosAuth.get(
+        `${server}/messages`
+      );
+      const { messages } = response.data;
+      this.messages = messages;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
