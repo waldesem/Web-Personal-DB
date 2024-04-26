@@ -56,7 +56,7 @@ async function updateContact(): Promise<void> {
             connectForm.value
           );
     console.log(response.status);
-
+    clearForm(connectForm)
     const alert = {
       create: ["alert-success", "Контакт добавлен"],
       edit: ["alert-info", "Контакт обновлен"],
@@ -65,9 +65,6 @@ async function updateContact(): Promise<void> {
       alert[props.action as keyof typeof alert][0],
       alert[props.action as keyof typeof alert][1]
     );
-    Object.keys(connectForm.value).forEach((key) => {
-      delete connectForm.value[key as keyof typeof connectForm.value];
-    });
   } catch (error) {
     console.log(error);
   }
@@ -77,7 +74,7 @@ async function updateContact(): Promise<void> {
 
 <template>
   <form 
-    @submit.prevent="updateContact; clearForm(connectForm)" 
+    @submit.prevent="updateContact" 
     class="form form-check"
     role="form"
   >

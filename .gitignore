@@ -189,3 +189,4 @@ pnpm-debug.log*
 
 # Project files & folders
 persons/
+backend/app/static/assets

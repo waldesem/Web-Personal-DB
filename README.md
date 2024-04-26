@@ -143,7 +143,7 @@ sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
 ```
 
-### Node Development (optional)
+### Node Development
 
 You will also need to have Node.js installed on your machine to build and run the TypeScript code.
 After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
