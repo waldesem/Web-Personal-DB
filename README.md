@@ -43,7 +43,6 @@ CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
-In cli.py change SQLALCHEMY_DATABASE_URI with your database url, user and password
 
 ### Migration
 
@@ -55,12 +54,16 @@ flask db migrate    # after change db schema
 flask db upgrade    # after change db schema
 ```
 
-### Usage
+### Start backend
+
+To create application run the following command in your terminal:
+```
+flask create       # create default values and .env file
+```
+In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials.
 
 To start the application at http://localhost:5000 run the following command in your terminal:
-
 ```
-flask create       # create default values
 flask run          # start the application
 waitress-serve --host 127.0.0.1 --port 5000 wsgi:app  # start the waitress server
 ```
@@ -68,6 +71,30 @@ waitress-serve --host 127.0.0.1 --port 5000 wsgi:app  # start the waitress serve
 Default user for application has name 'superadmin'.
 DEFAULT_PASSWORD for all app users is `88888888`. You can change it in config.py file.
 Change it in first login to application.
+
+### Frontend build
+
+You will also need to have Node.js installed on your machine to build and run the TypeScript code.
+After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
+
+```
+npm i
+```
+
+To start development node server run the following command in your terminal:
+
+```
+npm run dev
+```
+
+To build the code in the static directory flask app, first comment/uncomment the lines `server` in /Web-Personal-DB/frontend/src/utilities/utils.ts
+Then run the following command in your terminal:
+
+```
+npm run build
+```
+
+This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
 
 ### WSGI Service
 
@@ -142,30 +169,6 @@ Add rule in your firewall:
 sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
 ```
-
-### Node Development
-
-You will also need to have Node.js installed on your machine to build and run the TypeScript code.
-After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
-
-```
-npm i
-```
-
-To start development node server run the following command in your terminal:
-
-```
-npm run dev
-```
-
-To build the code in the static directory flask app, first comment/uncomment the lines `server` in /Web-Personal-DB/frontend/src/utilities/utils.ts
-Then run the following command in your terminal:
-
-```
-npm run build
-```
-
-This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
 
 ### License
 

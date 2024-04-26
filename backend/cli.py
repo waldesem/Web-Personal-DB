@@ -36,7 +36,9 @@ def register_cli(app):
 
         with open(".env", "w", encoding="utf-8") as file:
             file.write(
-                f"SECRET_KEY='{secrets.token_hex()}'\nJWT_SECRET_KEY='{secrets.token_hex()}'\nSQLALCHEMY_DATABASE_URI = '{SQLALCHEMY_DATABASE_URI}'"
+                f"SECRET_KEY='{secrets.token_hex()}'\n" 
+                f"JWT_SECRET_KEY='{secrets.token_hex()}'\n" 
+                f"SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://flask:flask@localhost/personal'"
             )
         print(".env file created")
 
