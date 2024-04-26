@@ -14,7 +14,7 @@ const MenuBar = defineAsyncComponent(
 
 onMounted(async () => {
   try {
-    const response = await axiosAuth.get(`${server}/login`);
+    const response = await axiosAuth.get(`${server}/auth`);
     const { id, fullname, username, roles } = response.data;
     stateUser.userId = id;
     stateUser.fullName = fullname;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { server, expiredToken } from "./utilities";
+import { server, expiredToken } from "@/utilities";
 import { router } from "@/router";
 import { stateToken } from "@/state";
 

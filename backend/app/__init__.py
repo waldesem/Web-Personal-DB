@@ -1,5 +1,4 @@
 from apiflask import APIFlask
-from flask import jsonify, send_from_directory
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_caching import Cache
@@ -15,7 +14,7 @@ migrate = Migrate()
 
 def create_app(config=Config):
     """
-    Initializes and configures a Flask application.
+    Initializes and configures a Flask application. 
     """
     app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
     app.config.from_object(config)
@@ -41,12 +40,16 @@ def create_app(config=Config):
 
     @app.doc(hide=True)
     @app.get("/", defaults={"path": ""})
-    @app.get("/<path:path>")
     def main(path=""):
         return app.send_static_file("index.html")
+    
+    @app.doc(hide=True)
+    @app.get("/<path:path>")
+    def static_file(path=""):
+        return app.send_static_file(path)
 
     @app.errorhandler(404)
     def not_found(error):
-        return jsonify(error=str(error)), 404
+        return app.redirect("/")
 
     return app

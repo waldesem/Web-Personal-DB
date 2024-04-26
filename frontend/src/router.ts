@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
 import { stateToken } from "@/state";
-import { server, expiredToken } from "./utilities";
+import { server, expiredToken } from "@/utilities";
 
 export const router = createRouter({
   routes: [

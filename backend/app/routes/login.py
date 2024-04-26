@@ -31,8 +31,7 @@ jwt_redis_blocklist = redis.StrictRedis(
     decode_responses=True,
 )
 
-
-class LoginView(MethodView):
+class AuthView(MethodView):
     """Login view"""
 
     decorators = [bp.doc(hide=True)]
@@ -48,7 +47,13 @@ class LoginView(MethodView):
             user.last_login = datetime.now()
             db.session.commit()
             return user
-        return abort(401)
+        return abort(404)
+
+bp.add_url_rule("/auth", view_func=AuthView.as_view("auth"))
+
+
+class LoginView(MethodView):
+    """Login view"""
     
     @bp.input(LoginSchema)
     def post(self, json_data):
