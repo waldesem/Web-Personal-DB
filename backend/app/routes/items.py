@@ -130,7 +130,7 @@ class ItemsView(MethodView):
                 else:
                     person.status_id = (
                         Status.get_id(Statuses.poligraf.value)
-                        if json_data["pfo"]
+                        if json_data.get("pfo")
                         else Status.get_id(Statuses.finish.value)
                     )
                     person.user_id = None

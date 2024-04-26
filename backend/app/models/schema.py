@@ -182,7 +182,7 @@ class CheckSchema(SQLAlchemyAutoSchema):
         model = Check
         ordered = True
         include_fk = True
-
+        dump_only = ("person_id",)
 
 class RobotSchema(SQLAlchemyAutoSchema):
     """Create model for robot"""
@@ -206,6 +206,7 @@ class InquirySchema(SQLAlchemyAutoSchema):
         model = Inquiry
         ordered = True
         include_fk = True
+        dump_only = ("person_id",)
 
 
 class InvestigationSchema(SQLAlchemyAutoSchema):
@@ -213,6 +214,7 @@ class InvestigationSchema(SQLAlchemyAutoSchema):
         model = Investigation
         ordered = True
         include_fk = True
+        dump_only = ("person_id",)
 
 
 class PoligrafSchema(SQLAlchemyAutoSchema):
@@ -222,6 +224,7 @@ class PoligrafSchema(SQLAlchemyAutoSchema):
         model = Poligraf
         ordered = True
         include_fk = True
+        dump_only = ("person_id",)
 
 
 class ConnectSchema(SQLAlchemyAutoSchema):

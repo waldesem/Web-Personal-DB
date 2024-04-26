@@ -43,14 +43,13 @@ watch(noNegative, () => {
   if (noNegative.value) {
     Object.assign(checkForm.value, {
       workplace: "Негатива по местам работы не обнаружено",
-      employee: "В числе бывших работников МТСБ не обнаружен",
       document: "Среди недействительных документов не обнаружен",
       inn: "ИНН соответствует паспорту",
       debt: "Задолженности не обнаружены",
       bankruptcy: "Решений о признании банкротом не имеется",
       bki: "Кредитная история не положительная",
       courts: "Судебные дела не обнаружены",
-      affiliation: "Аффилированность не выявлена",
+      affilation: "Аффилированность не выявлена",
       terrorist: "В списке террористов не обнаружен",
       mvd: "В розыск не объявлен",
       internet: "В открытых источниках негатив не обнаружен",
@@ -87,13 +86,6 @@ watch(noNegative, () => {
           :name="'workplace'"
           :place="'Проверка по местам работы'"
           v-model="checkForm['workplace']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка по кадровому учету'">
-        <TextArea
-          :name="'employee'"
-          :place="'Проверка по кадровому учету'"
-          v-model="checkForm['employee']"
         ></TextArea>
       </LabelSlot>
       <LabelSlot :label="'Проверка документов'">
@@ -140,9 +132,9 @@ watch(noNegative, () => {
       </LabelSlot>
       <LabelSlot :label="'Проверка аффилированности'">
         <TextArea
-          :name="'affiliation'"
+          :name="'affilation'"
           :place="'Проверка аффилированности'"
-          v-model="checkForm['affiliation']"
+          v-model="checkForm['affilation']"
         ></TextArea>
       </LabelSlot>
       <LabelSlot :label="'Проверка в списке террористов'">
@@ -191,7 +183,7 @@ watch(noNegative, () => {
         <SelectObject
           :name="'conclusion'"
           :select="stateClassify.conclusions"
-          v-model="checkForm['conclusion']"
+          v-model="checkForm['conclusion_id']"
         />
       </LabelSlot>
       <LabelSlot :label="'Комментарий'">

@@ -73,13 +73,6 @@ const tabsData = ref({
         :hide="stateAnketa.anketa.resume.user_id === stateUser.userId"
         @onclick="stateAnketa.getResume('self')"
       />
-      <IconRelative
-        v-show="tabsData.currentTab == 'CheckTab'"
-        :title="`Отправить на проверку`"
-        :icon-class="'bi bi-send-plus fs-1'"
-        :hide="stateAnketa.anketa.resume.user_id !== stateUser.userId"
-        @onclick="stateAnketa.getResume('send')"
-      />
       <IconRelative 
         v-show="tabsData.currentTab == 'CheckTab'"
         :title="`Добавить проверку`"
@@ -94,6 +87,13 @@ const tabsData = ref({
           stateAnketa.anketa.resume['user_id'] != stateUser.userId
         "
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+      />
+      <IconRelative
+        v-show="tabsData.currentTab == 'RobotTab'"
+        :title="`Отправить на проверку`"
+        :icon-class="'bi bi-send-plus fs-1'"
+        :hide="stateAnketa.anketa.resume.user_id !== stateUser.userId"
+        @onclick="stateAnketa.getResume('send')"
       />
       <IconRelative 
         v-show="tabsData.currentTab == 'PoligrafTab'"

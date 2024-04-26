@@ -52,10 +52,11 @@ function submitForm(form: Object, action: string) {
 <template>
   <CheckForm
     v-if="props.tabAction === 'create' && props.currentTab === 'CheckTab'"
+    :action="'create'"
     @cancel="emit('cancel')"
     @submit="submitForm"
   />
-  <div v-else-if="stateAnketa.anketa.check.length"> 
+  <div v-else-if="stateAnketa.anketa.check.length" class='py-3'> 
     <div
       v-for="(item, idx) in stateAnketa.anketa.check" :key="idx" 
       @mouseover="check.showActions = true"
@@ -98,9 +99,6 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Проверка по местам работы'">
           {{ item["workplace"] }}
         </LabelSlot>
-        <LabelSlot :label="'Бывший работник МТСБ'">
-          {{ item["employee"] }}
-        </LabelSlot>
         <LabelSlot :label="'Проверка паспорта'">
           {{ item["document"] }}
         </LabelSlot>
@@ -114,7 +112,7 @@ function submitForm(form: Object, action: string) {
           {{ item["courts"] }}
         </LabelSlot>
         <LabelSlot :label="'Проверка аффилированности'">
-          {{ item["affiliation"] }}
+          {{ item["affilation"] }}
         </LabelSlot>
         <LabelSlot :label="'Проверка по списку террористов'">
           {{ item["terrorist"] }}
@@ -134,7 +132,7 @@ function submitForm(form: Object, action: string) {
         </LabelSlot>
         <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
         <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
-        <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
+        <LabelSlot :label="'Результат'">{{ item["conclusion_id"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
         <LabelSlot :label="'Дата'">
           {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}

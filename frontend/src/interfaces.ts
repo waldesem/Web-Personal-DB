@@ -86,14 +86,13 @@ export interface Affilation {
 export interface Verification {
   id: string;
   workplace: string;
-  employee: string;
   document: string;
   inn: string;
   debt: string;
   bankruptcy: string;
   bki: string;
   courts: string;
-  affiliation: string;
+  affilation: string;
   terrorist: string;
   mvd: string;
   internet: string;
@@ -101,7 +100,7 @@ export interface Verification {
   cros: string;
   addition: string;
   pfo: boolean;
-  conclusion: string;
+  conclusion_id: string;
   comments: string;
   deadline: string;
   user_id: string;
