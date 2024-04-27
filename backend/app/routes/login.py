@@ -15,7 +15,7 @@ from flask_jwt_extended import (
 
 from config import Config
 from . import bp
-from .. import jwt, cache
+from .. import jwt
 from ..models.model import db, User
 from ..models.schema import (
     LoginSchema,
@@ -55,6 +55,8 @@ bp.add_url_rule("/auth", view_func=AuthView.as_view("auth"))
 class LoginView(MethodView):
     """Login view"""
     
+    decorators = [bp.doc(hide=True)]
+
     @bp.input(LoginSchema)
     def post(self, json_data):
         """
@@ -112,7 +114,6 @@ class LoginView(MethodView):
         jti = get_jwt()["jti"]
         access_expires = Config.JWT_ACCESS_TOKEN_EXPIRES
         jwt_redis_blocklist.set(jti, "", ex=access_expires)
-        cache.clear()
         return {"message": "Denied"}
 
 
@@ -169,7 +170,6 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     return token_in_redis is not None
 
 
-@cache.memoize()
 @jwt.user_identity_loader
 def user_identity_lookup(user):
     """
@@ -178,7 +178,6 @@ def user_identity_lookup(user):
     return user["id"]
 
 
-@cache.memoize()
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     """

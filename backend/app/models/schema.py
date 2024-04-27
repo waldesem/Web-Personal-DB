@@ -1,5 +1,5 @@
 from apiflask import Schema
-from apiflask.fields import String, Date, Nested
+from apiflask.fields import String, Date, Nested, DateTime, Boolean
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
 
 from ..models.model import (
@@ -184,14 +184,17 @@ class CheckSchema(SQLAlchemyAutoSchema):
         include_fk = True
         dump_only = ("person_id",)
 
+
 class RobotSchema(SQLAlchemyAutoSchema):
     """Create model for robot"""
 
     class Meta:
         model = Robot
         ordered = True
+        dump_only = ("deadline",)
+
     path = String()
-    
+
 
 class ConclusionSchema(SQLAlchemyAutoSchema):
     """Create model for conclusion"""
@@ -253,7 +256,10 @@ class GptOutputSchema(SQLAlchemySchema):
     answer = String()
 
 
-class AnketaSchemaApi(SQLAlchemySchema):
+"""Schemas for API endpoints"""
+
+
+class ResumeSchemaApi(SQLAlchemySchema):
     """Create schema for sending anketa"""
 
     id = String()
@@ -269,3 +275,114 @@ class AnketaSchemaApi(SQLAlchemySchema):
     agency = String()
     issue = Date()
     address = String()
+
+
+class NameWasChanged(SQLAlchemySchema):
+    """Nested schema for AnketaSchemaApi"""
+
+    firstNameBeforeChange = String(required=False)
+    lastNameBeforeChange = String(required=False)
+    midNameBeforeChange = String(required=False)
+    yearOfChange = Date(required=False)
+    reason = String(required=False)
+
+
+class Education(SQLAlchemySchema):
+    """Nested schema for AnketaSchemaApi"""
+
+    educationType = String(required=False)
+    institutionName = String(required=False)
+    beginYear = Date(required=False)
+    endYear = Date(required=False)
+    specialty = String(required=False)
+
+
+class Experience(SQLAlchemySchema):
+    """Nested schema for AnketaSchemaApi"""
+
+    beginDate = Date(required=False)
+    endDate = Date(required=False)
+    currentJob = Boolean(required=False)
+    name = String(required=False)
+    address = String(required=False)
+    phone = String(required=False)
+    activityType = String(required=False)
+    position = String(required=False)
+    possibilityContactEmployer = Boolean(required=False)
+    fireReason = String(required=False)
+
+
+class Organizations(SQLAlchemySchema):
+    """Nested schema for AnketaSchemaApi"""
+
+    name = String(required=False)
+    position = String(required=False)
+    inn = String(required=False)
+
+
+class RelatedPersonsOrganizations(SQLAlchemySchema):
+    """Nested schema for AnketaSchemaApi"""
+
+    name = String(required=False)
+    position = String(required=False)
+    inn = String(required=False)
+
+
+class StateOrganizations(SQLAlchemySchema):
+    """Nested schema for AnketaSchemaApi"""
+
+    name = String(required=False)
+    position = String(required=False)
+
+
+class PublicOfficeOrganizations(SQLAlchemySchema):
+    """Nested schema for AnketaSchemaApi"""
+    
+    name = String(required=False)
+    position = String(required=False)
+
+
+class AnketaSchemaApi(SQLAlchemySchema):
+    """Create schema for getting anketa"""
+
+    positionName = String(required=True)
+    department = String(required=False)
+    statusDate = DateTime(required=False)
+    lastName = String(required=True)
+    firstName = String(required=True)
+    midName = String(required=False)
+    hasNameChanged = Boolean(required=True)
+    birthday = Date(required=True)
+    birthplace = String(required=True)
+    citizen = String(required=True)
+    hasAdditionalCitizenship = Boolean(required=True)
+    maritalStatus = String(required=True)
+    regAddress = String(required=False)
+    validAddress = String(required=True)
+    contactPhone = String(required=True)
+    email = String(required=False)
+    hasInn = Boolean(required=True)
+    inn = String(required=False)
+    hasSnils = Boolean(required=True)
+    snils = String(required=False)
+    passportSerial = String(required=True)
+    passportNumber = String(required=True)
+    passportIssueDate = Date(required=True)
+    passportIssuedBy = String(required=True)
+    hasJob = Boolean(required=True)
+    hasPublicOfficeOrganizations = Boolean(required=True)
+    hasStateOrganizations = Boolean(required=True)
+    hasRelatedPersonsOrganizations = Boolean(required=True)
+    hasMtsRelatedPersonsOrganizations = Boolean(required=True)
+    hasOrganizations = Boolean(required=True)
+    nameWasChanged = Nested(NameWasChanged, required=False, many=True)
+    education = Nested(Education, required=False, many=True)
+    experience = Nested(Experience, required=False, many=True)
+    organizations = Nested(Organizations, required=False, many=True)
+    relatedPersonsOrganizations = Nested(
+        RelatedPersonsOrganizations, required=False, many=True
+    )
+    stateOrganizations = Nested(StateOrganizations, required=False, many=True)
+    publicOfficeOrganizations = Nested(
+        PublicOfficeOrganizations, required=False, many=True
+    )

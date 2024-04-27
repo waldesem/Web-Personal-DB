@@ -59,6 +59,7 @@ bp.add_url_rule("/index/<flag>/<int:page>", view_func=index_view)
 
 @roles_required(Roles.user.value)
 @bp.get("/information")
+@bp.doc(hide=True)
 @bp.input(InfoSchema, location="query")
 def get_information(query_data):
     candidates = db.session.execute(

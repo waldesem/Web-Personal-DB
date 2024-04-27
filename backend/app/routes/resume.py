@@ -19,7 +19,7 @@ from ..models.model import (
 )
 from ..models.schema import (
     ActionSchema,
-    AnketaSchemaApi,
+    ResumeSchemaApi,
     PersonSchema,
 )
 
@@ -158,7 +158,7 @@ def send_resume(person):
         ).scalar_one_or_none()
         if not docum or not addr:
             return "error"
-        serial = AnketaSchemaApi().dump(
+        serial = ResumeSchemaApi().dump(
             {
                 "id": person.id,
                 "surname": person.surname,

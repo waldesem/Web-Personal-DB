@@ -51,23 +51,7 @@ class FileView(MethodView):
                 return abort(400)
 
             if action == "anketa":
-                anketa = parse_json(file)
-                person_id = add_resume(anketa["resume"], "create")
-                self.fill_items(anketa, person_id)
-
-                person = db.session.get(Person, person_id)
-                if person.path:
-                    if not os.path.isdir(person.path):
-                        os.mkdir(person.path)
-                else:
-                    person.path = create_folders(
-                        person_id,
-                        person.surname,
-                        person.firstname,
-                        person.patronymic,
-                        "anketa",
-                    )
-                db.session.commit()
+                person_id = parse_anketa(file)
                 return {"message": person_id}, 201
 
             if action == "image":
@@ -103,68 +87,14 @@ class FileView(MethodView):
                             file.save(os.path.join(folder, file.filename))
         return "", 201
 
-    def fill_items(self, anketa, person_id):
-        models = [Previous, Staff, Document, Address, Contact, Workplace, Affilation]
-        items_lists = [
-            anketa["previous"],
-            anketa["staff"],
-            anketa["document"],
-            anketa["address"],
-            anketa["contact"],
-            anketa["workplace"],
-            anketa["affilation"],
-        ]
-        for model, items in zip(models, items_lists):
-            for item in items:
-                if item:
-                    db.session.add(model(**item | {"person_id": person_id}))
-        db.session.commit()
-        self.check_previous(anketa, person_id)
-
-    def check_previous(self, anketa, person_id):
-        additional = ""
-        if len(anketa["previous"]):
-            for item in anketa["previous"]:
-                surname = item["surname"] if item.get("surname") else anketa["surname"]
-                firstname = (
-                    item["firstname"] if item.get("firstname") else anketa["firstname"]
-                )
-                patronymic = (
-                    item["patronymic"]
-                    if item.get("patronymic")
-                    else anketa["patronymic"]
-                )
-
-                result = db.session.execute(
-                    select(Person).filter(
-                        Person.surname.ilike(surname),
-                        Person.firstname.ilike(firstname),
-                        Person.patronymic.ilike(patronymic),
-                        Person.birthday == anketa["birthday"],
-                    )
-                ).one_or_none()
-
-                if result:
-                    message = (
-                        f"Кандидат {anketa.surname} ID: {anketa.id} "
-                        f"ранее проверялся как {result.surname} ID: {result.id}"
-                    )
-                    db.session.add(Message(message=message, user_id=current_user.id))
-                    additional = additional + message + "\n "
-        person = db.session.get(Person, person_id)
-        person.addition = (
-            person.addition + "\n " + additional if person.addition else additional
-        )
-        db.session.commit()
-
 
 file_view = FileView.as_view("file")
 bp.add_url_rule("/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"])
 
 
 @roles_required(Roles.user.value)
+@bp.route("/image/<int:item_id>")   
 @bp.doc(hide=True)
-@bp.route("/image/<int:item_id>")
 def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.
@@ -180,3 +110,77 @@ def get_image(item_id):
     if os.path.isfile(file_path):
         return send_file(file_path, as_attachment=True, mimetype="image/jpg")
     return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
+
+
+
+def parse_anketa(file_json):
+    anketa = parse_json(file_json)
+    person_id = add_resume(anketa["resume"], "create")
+
+    person = db.session.get(Person, person_id)
+    if person.path:
+        if not os.path.isdir(person.path):
+            os.mkdir(person.path)
+    else:
+        person.path = create_folders(
+            person_id,
+            person.surname,
+            person.firstname,
+            person.patronymic,
+            "anketa",
+        )
+    models = [Previous, Staff, Document, Address, Contact, Workplace, Affilation]
+    items_lists = [
+        anketa["previous"],
+        anketa["staff"],
+        anketa["document"],
+        anketa["address"],
+        anketa["contact"],
+        anketa["workplace"],
+        anketa["affilation"],
+    ]
+    for model, items in zip(models, items_lists):
+        for item in items:
+            if item:
+                db.session.add(model(**item | {"person_id": person_id}))
+    db.session.commit()
+    check_previous(anketa, person_id)
+    
+    return person_id
+
+
+def check_previous(anketa, person_id):
+    additional = ""
+    if len(anketa["previous"]):
+        for item in anketa["previous"]:
+            surname = item["surname"] if item.get("surname") else anketa["surname"]
+            firstname = (
+                item["firstname"] if item.get("firstname") else anketa["firstname"]
+            )
+            patronymic = (
+                item["patronymic"]
+                if item.get("patronymic")
+                else anketa["patronymic"]
+            )
+
+            result = db.session.execute(
+                select(Person).filter(
+                    Person.surname.ilike(surname),
+                    Person.firstname.ilike(firstname),
+                    Person.patronymic.ilike(patronymic),
+                    Person.birthday == anketa["birthday"],
+                )
+            ).one_or_none()
+
+            if result:
+                message = (
+                    f"Кандидат {anketa.surname} ID: {anketa.id} "
+                    f"ранее проверялся как {result.surname} ID: {result.id}"
+                )
+                db.session.add(Message(message=message, user_id=current_user.id))
+                additional = additional + message + "\n "
+    person = db.session.get(Person, person_id)
+    person.addition = (
+        person.addition + "\n " + additional if person.addition else additional
+    )
+    db.session.commit()

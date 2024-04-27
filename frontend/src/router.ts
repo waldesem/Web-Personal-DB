@@ -7,7 +7,7 @@ export const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "auth",
+      name: "index",
       component: () => import("@/App.vue"),
     },
     {
@@ -62,11 +62,7 @@ export const router = createRouter({
         },
       ],
     },
-    {
-      path: "/:pathMatch(.*)*",
-      name: "404",
-      component: () => import("@components/pages/NotFound.vue"),
-    },
+    { path: "/:pathMatch(.*)*", redirect: { name: "persons" } },
   ],
   history: createWebHistory(),
 });
@@ -79,9 +75,9 @@ router.beforeEach(async (to, _from, next) => {
 
   if (expiredToken(localStorage.getItem("refresh_token"))) {
     next({ name: "login" });
-    return; 
+    return;
   }
-  
+
   if (expiredToken(stateToken.accessToken)) {
     try {
       const response = await axios.post(`${server}/refresh`, null, {

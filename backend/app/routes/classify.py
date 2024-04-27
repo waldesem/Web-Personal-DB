@@ -1,7 +1,6 @@
 from sqlalchemy import select
 
 from . import bp
-from .. import cache
 from ..models.model import db, Conclusion, Role, Status, Region, User
 from ..models.schema import (
     ConclusionSchema,
@@ -12,9 +11,8 @@ from ..models.schema import (
 )
 
 
-@bp.doc(hide=True)
-@cache.cached()
 @bp.get("/classes")
+@bp.doc(hide=True)
 def get_classes():
     models = [Conclusion, Role, Status, Region, User]
     schemas = [ConclusionSchema(), RoleSchema(), StatusSchema(), RegionSchema(), UserSchema()]
