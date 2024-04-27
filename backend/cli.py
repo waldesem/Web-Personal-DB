@@ -6,7 +6,7 @@ from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
 from config import Config
-from app.utils.folders import create_folders
+from app.utils.folders import Folders
 from app.models.classes import Roles, Regions, Statuses, Conclusions
 from app.models.model import (
     db,
@@ -96,14 +96,14 @@ def register_cli(app):
         db.session.add(candidate)
         db.session.flush()
 
-        path = create_folders(
+        folders = Folders(
             candidate.id,
             candidate.surname,
             candidate.firstname,
-            candidate.patronymic,
-            "resume",
-        )
+            candidate.patronymic
+            )
+        path = folders.create_main_folder()
         candidate.path = path
-
         db.session.commit()
+
         print("Models created and filled")

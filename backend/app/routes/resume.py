@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from . import bp
 from .login import roles_required
-from ..utils.folders import create_folders
+from ..utils.folders import Folders
 from ..models.classes import Roles, Statuses
 from ..models.model import (
     db,
@@ -120,13 +120,13 @@ def add_resume(resume: dict):
         db.session.flush()
         person_id = person.id
 
-    person.path = create_folders(
+    folsers = Folders(
         person_id,
         resume["surname"],
         resume["firstname"],
         resume.get("patronymic", ""),
-        "resume",
     )
+    person.path = folsers.create_main_folder()
     db.session.commit()
     return person_id
 

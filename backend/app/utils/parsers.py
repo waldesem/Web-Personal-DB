@@ -1,9 +1,26 @@
 import re
+import os
 from datetime import datetime
 
-from ..models.model import Region, Status
-from ..models.classes import Statuses
+from sqlalchemy import select
 
+from ..utils.folders import Folders
+from ..utils.parsers import parse_json
+from ..routes.resume import add_resume
+from ..models.classes import Statuses
+from ..models.model import (
+    db,
+    Previous,
+    Staff,
+    Document,
+    Address,
+    Contact,
+    Workplace,
+    Affilation,
+    Person,
+    Region, 
+    Status
+)
 
 def parse_json(json_dict) -> None:
     json_data = dict(
@@ -173,3 +190,71 @@ def parse_json(json_dict) -> None:
                         }
                         json_data["affilation"].append(organization)  
     return json_data
+
+
+
+def parse_anketa(json_dict):
+    anketa = parse_json(json_dict)
+    person_id = add_resume(anketa["resume"])
+
+    person = db.session.get(Person, person_id)
+    if person.path:
+        if not os.path.isdir(person.path):
+            os.mkdir(person.path)
+    else:
+        folders = Folders(
+            person_id, person.surname, person.firstname, person.patronymic
+        )
+        person.path = folders.create_main_folder()
+    models = [Previous, Staff, Document, Address, Contact, Workplace, Affilation]
+    items_lists = [
+        anketa["previous"],
+        anketa["staff"],
+        anketa["document"],
+        anketa["address"],
+        anketa["contact"],
+        anketa["workplace"],
+        anketa["affilation"],
+    ]
+    for model, items in zip(models, items_lists):
+        for item in items:
+            if item:
+                db.session.add(model(**item | {"person_id": person_id}))
+    db.session.commit()
+    check_previous(anketa, person_id)
+
+    return person_id
+
+
+def check_previous(anketa, person_id):
+    additional = ""
+    if len(anketa["previous"]):
+        for item in anketa["previous"]:
+            surname = item["surname"] if item.get("surname") else anketa["surname"]
+            firstname = (
+                item["firstname"] if item.get("firstname") else anketa["firstname"]
+            )
+            patronymic = (
+                item["patronymic"] if item.get("patronymic") else anketa["patronymic"]
+            )
+
+            result = db.session.execute(
+                select(Person).filter(
+                    Person.surname.ilike(surname),
+                    Person.firstname.ilike(firstname),
+                    Person.patronymic.ilike(patronymic),
+                    Person.birthday == anketa["birthday"],
+                )
+            ).one_or_none()
+
+            if result:
+                message = (
+                    f"Кандидат {anketa.surname} ID: {anketa.id} "
+                    f"ранее проверялся как {result.surname} ID: {result.id}"
+                )
+                additional = additional + "\n " + message
+    person = db.session.get(Person, person_id)
+    person.addition = (
+        person.addition + "\n " + additional if person.addition else additional
+    )
+    db.session.commit()

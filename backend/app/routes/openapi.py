@@ -5,10 +5,10 @@ from apiflask import EmptySchema
 from flask.views import MethodView
 
 from . import bp
-from ..utils.folders import create_folders
+from ..utils.folders import Folders
 from ..models.schema import  RobotSchema, AnketaSchemaApi
 from ..models.model import db, Person, Message, Robot
-from ..routes.files import parse_anketa
+from ..utils.parsers import parse_anketa
 
 
 class RobotsView(MethodView):
@@ -32,13 +32,13 @@ class RobotsView(MethodView):
             )
         else:
             if os.path.isdir(robot_path):
-                check_path = create_folders(
+                folders = Folders(
                     candidate.id,
                     candidate.surname,
                     candidate.firstname,
                     candidate.patronymic,
-                    "robot",
                 )
+                check_path = folders.create_subfolder("robot")
                 try:
                     for item in os.listdir(robot_path):
                         item_path = os.path.join(robot_path, item)

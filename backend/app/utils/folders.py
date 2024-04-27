@@ -4,40 +4,30 @@ from datetime import datetime
 from config import Config
 
 
-def create_folders(
-    person_id, 
-    surname, 
-    firstname, 
-    patronymic, 
-    folder_name
-):
-    """
-    Check if a folder exists for a given person and create it if it does not exist.
-    """
-    person_path = os.path.join(
-        surname[0].upper(), 
-        f"{person_id}-{surname} {firstname} {patronymic}".rstrip(),
-    )
+class Folders:
 
-    url = os.path.join(Config.BASE_PATH, person_path)
-    if not os.path.isdir(url):
-        os.mkdir(url)
+    def __init__(self, person_id, surname, firstname, patronymic):
+        self.url = os.path.join(
+            Config.BASE_PATH,
+            surname[0].upper(),
+            f"{person_id}-{surname.upper()} {firstname.upper()} {patronymic.upper()}".rstrip(),
+        )
 
-    if folder_name == "resume":
-        return url
+    def create_main_folder(self):
+        if not os.path.isdir(self.url):
+            os.mkdir(self.url)
+        return self.url
 
-    folder = os.path.join(url, folder_name)
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
+    def create_parent_folder(self, folder_name):
+        parent_folder = os.path.join(self.url, folder_name)
+        if not os.path.isdir(parent_folder):
+            os.mkdir(parent_folder)
+        return parent_folder
 
-    if folder_name == "image":
-        return folder
-    
-    subfolder = os.path.join(
-        folder, 
-        datetime.now().strftime("%Y-%m-%d")
-    )
-    if not os.path.isdir(subfolder):
-        os.mkdir(subfolder)
-
-    return subfolder
+    def create_subfolder(self, parent_folder):
+        subfolder = os.path.join(
+            self.url, parent_folder, datetime.now().strftime("%Y-%m-%d")
+        )
+        if not os.path.isdir(subfolder):
+            os.mkdir(subfolder)
+        return subfolder
