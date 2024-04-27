@@ -65,7 +65,7 @@ In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials.
 To start the application at http://localhost:5000 run the following command in your terminal:
 ```
 flask run          # start the application
-waitress-serve --host 127.0.0.1 --port 5000 wsgi:app  # start the waitress server
+waitress-serve --host 127.0.0.1 --port 5000 --threads=8 wsgi:app  # start the waitress server
 ```
 
 Default user for application has name 'superadmin'.
