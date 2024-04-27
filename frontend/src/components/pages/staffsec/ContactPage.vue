@@ -100,7 +100,7 @@ async function deleteContact(id: string): Promise<void> {
       : 'Контакты'" 
   />
   <ConnectForm
-    v-show="contactData.action" 
+    v-if="contactData.action" 
     :page="contactData.page"
     :action="contactData.action"
     :names="contactData.names"
@@ -110,7 +110,7 @@ async function deleteContact(id: string): Promise<void> {
     @get-contacts="getContacts"
     @cancel-edit="contactData.action = ''"
   />
-  <div v-show="!contactData.action" class="mb-5">
+  <div v-show="!contactData.action" class="mb-3">
     <input
       @input.prevent="searchContacts"
       class="form-control mb-5"
@@ -129,7 +129,15 @@ async function deleteContact(id: string): Promise<void> {
     <TableSlots
       :class="{ 'table-hover': contactData.contacts.length > 0 }"
     >
-      <template v-slot:caption>{{ `Список контактов` }}</template>
+      <template v-slot:caption>
+        <button
+          class="btn btn-link btn-sm"
+          role="button"
+          @click="contactData.action = 'create'"
+        >
+          Добавить контакт
+        </button>  
+      </template>
       <template v-slot:thead>
         <tr>
           <th width="18%">Название</th>
@@ -162,7 +170,7 @@ async function deleteContact(id: string): Promise<void> {
           <td>{{ contact["adding"] }}</td>
           <td>{{ contact["mobile"] }}</td>
           <td>
-            <a
+            <button
               class="btn btn-link"
               type="button"
               title="Изменить контакт"
@@ -172,7 +180,7 @@ async function deleteContact(id: string): Promise<void> {
               "
             >
               <i class="bi bi-pencil-square"></i>
-            </a>
+            </button>
           </td>
           <td width="5%">
             <a
@@ -186,13 +194,6 @@ async function deleteContact(id: string): Promise<void> {
         </tr>
       </template>
     </TableSlots>
-    <button
-      class="btn btn-link text-end"
-      role="button"
-      @click="contactData.action = 'create'"
-      >
-      Добавить контакт
-    </button>
     <PageSwitcher
       :has_prev="contactData.next"
       :has_next="contactData.prev"

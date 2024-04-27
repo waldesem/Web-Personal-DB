@@ -92,7 +92,7 @@ bp.add_url_rule(
 )
 
 
-def add_resume(resume: dict, action):
+def add_resume(resume: dict):
     """
     Adds a resume to the database.
     """
@@ -114,12 +114,7 @@ def add_resume(resume: dict, action):
         for k, v in resume.items():
             setattr(person, k, v)
     else:
-        if action == "create":
-            resume["status_id"] = Status().get_id(Statuses.manual.value)
-            resume["user_id"] = current_user.id
-        if action == "api":
-            resume["status_id"] = Status().get_id(Statuses.new.value)
-
+        resume["status_id"] = Status().get_id(Statuses.new.value)
         person = Person(**resume)
         db.session.add(person)
         db.session.flush()
@@ -132,7 +127,6 @@ def add_resume(resume: dict, action):
         resume.get("patronymic", ""),
         "resume",
     )
-    person.user_id = current_user.id
     db.session.commit()
     return person_id
 

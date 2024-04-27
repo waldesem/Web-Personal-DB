@@ -55,6 +55,7 @@ const tabsData = ref({
   <div class="row mb-3">
     <div class="col-md-10">
       <HeaderDiv
+        :cls="'text-info py-3'"
         :page-header="`${stateAnketa.anketa.resume.surname} ${stateAnketa.anketa.resume.firstname} ${stateAnketa.anketa.resume.patronymic}`"
       />
     </div>

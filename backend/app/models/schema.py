@@ -1,5 +1,5 @@
 from apiflask import Schema
-from apiflask.fields import String, Date, Nested, DateTime, Boolean
+from apiflask.fields import String, Date, Nested, DateTime, Boolean, Integer
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
 
 from ..models.model import (
@@ -283,7 +283,7 @@ class NameWasChanged(SQLAlchemySchema):
     firstNameBeforeChange = String(required=False)
     lastNameBeforeChange = String(required=False)
     midNameBeforeChange = String(required=False)
-    yearOfChange = Date(required=False)
+    yearOfChange = String(required=False)
     reason = String(required=False)
 
 
@@ -292,16 +292,16 @@ class Education(SQLAlchemySchema):
 
     educationType = String(required=False)
     institutionName = String(required=False)
-    beginYear = Date(required=False)
-    endYear = Date(required=False)
+    beginYear = Integer(required=False)
+    endYear = Integer(required=False)
     specialty = String(required=False)
 
 
 class Experience(SQLAlchemySchema):
     """Nested schema for AnketaSchemaApi"""
 
-    beginDate = Date(required=False)
-    endDate = Date(required=False)
+    beginDate = String(required=False)
+    endDate = String(required=False)
     currentJob = Boolean(required=False)
     name = String(required=False)
     address = String(required=False)
@@ -347,12 +347,12 @@ class AnketaSchemaApi(SQLAlchemySchema):
 
     positionName = String(required=True)
     department = String(required=False)
-    statusDate = DateTime(required=False)
+    statusDate = String(required=False)
     lastName = String(required=True)
     firstName = String(required=True)
     midName = String(required=False)
     hasNameChanged = Boolean(required=True)
-    birthday = Date(required=True)
+    birthday = String(required=True)
     birthplace = String(required=True)
     citizen = String(required=True)
     hasAdditionalCitizenship = Boolean(required=True)
@@ -367,7 +367,7 @@ class AnketaSchemaApi(SQLAlchemySchema):
     snils = String(required=False)
     passportSerial = String(required=True)
     passportNumber = String(required=True)
-    passportIssueDate = Date(required=True)
+    passportIssueDate = String(required=True)
     passportIssuedBy = String(required=True)
     hasJob = Boolean(required=True)
     hasPublicOfficeOrganizations = Boolean(required=True)

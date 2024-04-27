@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef, ref } from "vue";
+import { defineAsyncComponent, toRef } from "vue";
 import { stateAlert, stateAnketa, stateClassify } from "@/state";
 import { Resume } from "@/interfaces";
 import { server, clearForm } from "@/utilities";
 import { router } from "@/router";
 import { axiosAuth } from "@/auth";
 
-const FileForm = defineAsyncComponent(
-  () => import("@components/content/forms/FileForm.vue")
-);
+
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
@@ -42,7 +40,6 @@ const props = defineProps({
 });
 
 const resumeForm = toRef(props.resume);
-const formData = ref(new FormData());
 
 async function submitResume(): Promise<void> {
   try {
@@ -78,33 +75,6 @@ async function submitResume(): Promise<void> {
     );
   }
 };
-
-async function submitFile(event: Event): Promise<void> {
-  const inputElement = event.target as HTMLInputElement;
-  if (inputElement.files) {
-    formData.value.append("file", inputElement.files[0]);
-    try {
-      const response = await axiosAuth.post(
-        `${server}/file/anketa/0`,
-        formData.value
-      );
-      const { message } = response.data;
-      router.push({ name: "profile", params: { id: message } });
-
-      stateAlert.setAlert(
-        "alert-success",
-        "Файл успешно загружен"
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  } else {
-    stateAlert.setAlert(
-      "alert-warning",
-      "Ошибка при загрузке файла"
-    );
-  }
-};
 </script>
 
 <template>
@@ -113,12 +83,6 @@ async function submitFile(event: Event): Promise<void> {
     class="form form-check"
     role="form"
   >
-    <LabelSlot 
-      v-if="props.action === 'create'"
-      :label="'Загрузить анкету'"
-    >
-      <FileForm :accept="'.json'" @submit="submitFile" />
-    </LabelSlot>
     <LabelSlot :label="'Регион'">
       <SelectObject
         :name="'region_id'"

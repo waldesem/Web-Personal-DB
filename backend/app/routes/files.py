@@ -1,3 +1,4 @@
+import json
 import os
 
 from flask import abort, request, send_file
@@ -51,7 +52,8 @@ class FileView(MethodView):
                 return abort(400)
 
             if action == "anketa":
-                person_id = parse_anketa(file)
+                json_dict = json.load(file)
+                person_id = parse_anketa(json_dict)
                 return {"message": person_id}, 201
 
             if action == "image":
@@ -113,9 +115,9 @@ def get_image(item_id):
 
 
 
-def parse_anketa(file_json):
-    anketa = parse_json(file_json)
-    person_id = add_resume(anketa["resume"], "create")
+def parse_anketa(json_dict):
+    anketa = parse_json(json_dict)
+    person_id = add_resume(anketa["resume"])
 
     person = db.session.get(Person, person_id)
     if person.path:
@@ -177,8 +179,7 @@ def check_previous(anketa, person_id):
                     f"Кандидат {anketa.surname} ID: {anketa.id} "
                     f"ранее проверялся как {result.surname} ID: {result.id}"
                 )
-                db.session.add(Message(message=message, user_id=current_user.id))
-                additional = additional + message + "\n "
+                additional = additional + "\n " + message 
     person = db.session.get(Person, person_id)
     person.addition = (
         person.addition + "\n " + additional if person.addition else additional

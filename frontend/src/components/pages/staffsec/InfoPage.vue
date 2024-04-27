@@ -23,14 +23,14 @@ const tableData = ref({
   header: "",
   stat: {
     region_id: 1,
-    checks: [],
+    checks: <Record<string, any>>{},
     start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
       .toISOString()
       .slice(0, 10),
     end: todayDate.toISOString().slice(0, 10),
   },
 });
-
+console.log(tableData.value.stat.checks);
 async function submitData(): Promise<void> {
   try {
     const response = await axiosAuth.get(
@@ -78,12 +78,10 @@ computed(() => {
     </template>
     <template v-slot:tbody>
       <tr
-        height="50px"
-        v-for="(value, index) in Object.keys(tableData.stat.checks)"
-        :key="index"
+        v-for="(key, value) in tableData.stat.checks"
+        :key="key"
       >
-        <td>{{ value }}</td>
-        <td>{{ Object.values(tableData.stat.checks)[index] }}</td>
+        <td>{{ stateClassify.conclusions[key] }}</td><td>{{ value }}</td>
       </tr>
     </template>
   </TableSlots>

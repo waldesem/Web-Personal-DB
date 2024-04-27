@@ -1,13 +1,11 @@
 import re
-import json
 from datetime import datetime
 
 from ..models.model import Region, Status
 from ..models.classes import Statuses
 
 
-def parse_json(file) -> None:
-    json_dict = json.load(file)
+def parse_json(json_dict) -> None:
     json_data = dict(
         resume = {},
         previous = [],

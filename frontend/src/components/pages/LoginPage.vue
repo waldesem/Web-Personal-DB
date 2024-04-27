@@ -18,7 +18,9 @@ const FooterDiv = defineAsyncComponent(
 <template>
   <div class="container">
     <AlertMessage/>
-    <HeaderDiv :page-header="'StaffSec - кадровая безопасность'" />
+    <HeaderDiv 
+      :cls="'text-info py-3'"
+      :page-header="'StaffSec - кадровая безопасность'" />
     <LoginForm />
   </div>
   <FooterDiv />

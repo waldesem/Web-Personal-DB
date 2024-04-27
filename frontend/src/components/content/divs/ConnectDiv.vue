@@ -17,37 +17,81 @@ const props = defineProps({
 <template>
   <div class="card">
     <div class="card-body">
-      <LabelSlot :label="'id'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'id'"
+      >
         {{ props.item['id'] }}
       </LabelSlot>
-      <LabelSlot :label="'Компания'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Компания'"
+      >
         {{ props.item['company'] }}
       </LabelSlot>
-      <LabelSlot :label="'Название'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Название'"
+      >
         {{ props.item['name'] }}
       </LabelSlot>
-      <LabelSlot :label="'Город'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Город'"
+      >
         {{ props.item['city'] }}
       </LabelSlot>
-      <LabelSlot :label="'Имя'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Имя'"
+      >
         {{ props.item['fullname'] }}
       </LabelSlot>
-      <LabelSlot :label="'Телефон'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Телефон'"
+      >
         {{ props.item['phone'] }}
       </LabelSlot>
-      <LabelSlot :label="'Добавочный'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Добавочный'"
+      >
         {{ props.item['adding'] }}
       </LabelSlot>
-      <LabelSlot :label="'Мобильный'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Мобильный'"
+      >
         {{ props.item['mobile'] }}
       </LabelSlot>
-      <LabelSlot :label="'E-mail'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'E-mail'"
+      >
         {{ props.item['mail'] }}
       </LabelSlot>
-      <LabelSlot :label="'Примечание'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Комментарий'"
+      >
         {{ props.item['comment'] }}
       </LabelSlot>
-      <LabelSlot :label="'Дата'">
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Дата'"
+      >
         {{ new Date(String(props.item['data'])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
     </div>

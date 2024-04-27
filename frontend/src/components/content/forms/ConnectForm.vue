@@ -2,7 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
-import { server, clearForm } from "@/utilities";
+import { server } from "@/utilities";
 import { Connection } from "@/interfaces";
 
 const LabelSlot = defineAsyncComponent(
@@ -17,6 +17,8 @@ const GroupContent = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
+
+const emit = defineEmits(["get-contacts", "cancel-edit"]);
 
 const props = defineProps({
   page: Number,
@@ -39,7 +41,6 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["get-contacts", "cancel-edit"]);
 
 const connectForm = toRef(props.item as Connection);
 
@@ -56,7 +57,7 @@ async function updateContact(): Promise<void> {
             connectForm.value
           );
     console.log(response.status);
-    clearForm(connectForm)
+
     const alert = {
       create: ["alert-success", "Контакт добавлен"],
       edit: ["alert-info", "Контакт обновлен"],
@@ -65,6 +66,7 @@ async function updateContact(): Promise<void> {
       alert[props.action as keyof typeof alert][0],
       alert[props.action as keyof typeof alert][1]
     );
+
   } catch (error) {
     console.log(error);
   }
