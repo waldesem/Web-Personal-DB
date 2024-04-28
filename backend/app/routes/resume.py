@@ -7,21 +7,10 @@ from sqlalchemy import select
 
 from . import bp
 from .login import roles_required
-from ..utils.folders import Folders
+from ..utils.parsers import add_resume
 from ..models.classes import Roles, Statuses
-from ..models.model import (
-    db,
-    Document,
-    Address,
-    Person,
-    Status,
-    Message,
-)
-from ..models.schema import (
-    ActionSchema,
-    ResumeSchemaApi,
-    PersonSchema,
-)
+from ..models.schema import  ActionSchema, ResumeSchemaApi, PersonSchema
+from ..models.model import  db, Document, Address, Person, Status, Message
 
 
 class ResumeView(MethodView):
@@ -75,7 +64,7 @@ class ResumeView(MethodView):
 
     @bp.input(PersonSchema)
     def post(self, action, json_data):
-        person_id = ResumeView.add_resume(json_data, action)
+        person_id = add_resume(json_data, action)
         return {"message": person_id}
 
 
@@ -90,45 +79,6 @@ bp.add_url_rule(
     view_func=resume_view,
     methods=["GET", "DELETE", "PATCH"],
 )
-
-
-def add_resume(resume: dict):
-    """
-    Adds a resume to the database.
-    """
-    person = db.session.execute(
-        select(Person).filter(
-            Person.surname.ilike(resume["surname"]),
-            Person.firstname.ilike(resume["firstname"]),
-            Person.patronymic.ilike(resume.get("patronymic")),
-            Person.birthday == resume["birthday"],
-        )
-    ).one_or_none()
-
-    for k, v in resume.items():
-        if k in ["surname", "firstname", "patronymic"]:
-            resume[k] = v.strip().upper()
-
-    if person:
-        person_id = person.id
-        for k, v in resume.items():
-            setattr(person, k, v)
-    else:
-        resume["status_id"] = Status().get_id(Statuses.new.value)
-        person = Person(**resume)
-        db.session.add(person)
-        db.session.flush()
-        person_id = person.id
-
-    folsers = Folders(
-        person_id,
-        resume["surname"],
-        resume["firstname"],
-        resume.get("patronymic", ""),
-    )
-    person.path = folsers.create_main_folder()
-    db.session.commit()
-    return person_id
 
 
 def send_resume(person):

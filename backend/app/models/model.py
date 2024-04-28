@@ -247,7 +247,7 @@ class Education(db.Model):
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
     )
-    type: Mapped[str] = mapped_column(String(255), nullable=True)
+    view: Mapped[str] = mapped_column(String(255), nullable=True)
     name: Mapped[str] = mapped_column(Text, nullable=True)
     end: Mapped[int] = mapped_column(Integer, nullable=True)
     specialty: Mapped[str] = mapped_column(Text, nullable=True)

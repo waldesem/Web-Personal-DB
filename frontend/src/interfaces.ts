@@ -31,7 +31,7 @@ export interface Previous {
 
 export interface Education {
   id: string;
-  type: string;
+  view: string;
   name: string;
   end: string;
   speciality: string;

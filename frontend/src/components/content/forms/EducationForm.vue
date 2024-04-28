@@ -49,7 +49,7 @@ const selected_item = [
       <SelectArray
         :name="'type'"
         :select="selected_item"
-        v-model="educationForm['type']"
+        v-model="educationForm['view']"
       />
     </LabelSlot>
     <LabelSlot :label="'Название учебного заведения'">

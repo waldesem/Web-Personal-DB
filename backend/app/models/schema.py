@@ -285,36 +285,35 @@ class ResumeSchemaApi(Schema):
     issue = Date()
     address = String()
 
-
 class NameWasChangedApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    firstNameBeforeChange = String(required=False)
-    lastNameBeforeChange = String(required=False)
-    midNameBeforeChange = String(required=False)
-    yearOfChange = String(required=False)
+    surname = String(required=False, attribute="firstNameBeforeChange")
+    firstname = String(required=False, attribute="lastNameBeforeChange")
+    patronymic = String(required=False, attribute="midNameBeforeChange")
+    date_change = String(required=False, attribute="yearOfChange")
     reason = String(required=False)
 
 
 class EducationApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    educationType = String(required=False)
-    institutionName = String(required=False)
-    endYear = Integer(required=False)
-    specialty = String(required=False)
+    view = String(required=False, attribute="educationType")
+    name = String(required=False, attribute="institutionName")
+    end = Integer(required=False, attribute="endYear")
+    specialty = String(required=False, attribute="specialty")
 
 
 class ExperienceApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    beginDate = String(required=False)
-    endDate = String(required=False)
-    currentJob = Boolean(required=False)
-    name = String(required=False)
+    start_date = String(required=False, attribute="beginDate")
+    end_date = String(required=False, attribute="endDate")
+    now_work = Boolean(required=False, attribute="currentJob")
+    workplace = String(required=False, attribute="name")
     address = String(required=False)
     position = String(required=False)
-    fireReason = String(required=False)
+    reason = String(required=False, attribute="fireReason")
 
 
 class OrganizationsApi(Schema):
@@ -342,7 +341,7 @@ class StateOrganizationsApi(Schema):
 
 class PublicOfficeOrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
-    
+
     name = String(required=False)
     position = String(required=False)
 
@@ -370,7 +369,6 @@ class AnketaSchemaApi(Schema):
     passportNumber = String(required=True)
     passportIssueDate = String(required=True)
     passportIssuedBy = String(required=True)
-    hasOrganizations = Boolean(required=True)
     nameWasChanged = Nested(NameWasChangedApi, required=False, many=True)
     education = Nested(EducationApi, required=False, many=True)
     experience = Nested(ExperienceApi, required=False, many=True)

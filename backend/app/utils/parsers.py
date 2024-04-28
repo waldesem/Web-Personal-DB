@@ -1,11 +1,9 @@
 import re
 import os
-from datetime import datetime
 
 from sqlalchemy import select
 
 from ..utils.folders import Folders
-from ..utils.parsers import parse_json
 from ..routes.resume import add_resume
 from ..models.classes import Statuses
 from ..models.model import (
@@ -19,181 +17,138 @@ from ..models.model import (
     Workplace,
     Affilation,
     Person,
-    Region, 
-    Status
+    Region,
+    Status,
 )
 
-def parse_json(json_dict) -> None:
-    json_data = dict(
-        resume = {},
-        previous = [],
-        education = [],
-        address = [],
-        contact = [],
-        workplace = [],
-        document = [],
-        staff = [],
-        affilation = [],
-    )
 
-    json_data["resume"]["status_id"] = Status().get_id(Statuses.new.name),
-    for key, value in json_dict.items():
-        match key:
+def parse_json(json_dict) -> None:
+    json_data = {
+        "resume": {
+            "status_id": Status().get_id(Statuses.new.name),
+            "firstname": json_dict["firstName"].strip().upper(),
+            "surname": json_dict["lastName"].strip().upper(),
+            "birthday": json_dict["birthday"],
+            "birthplace": json_dict["birthplace"].strip(),
+            "citizen": json_dict["citizen"].strip(),
+        },
+        "previous": json_dict["nameWasChanged"],
+        "education": json_dict["education"],
+        "workplace": json_dict["experience"],
+        "address": [],
+        "contact": [],
+        "document": [],
+        "affilation": [],
+        "staff": [
+            {
+                "position": json_dict.get("positionName").strip(),
+                "department": json_dict.get("department").strip(),
+            }
+        ],
+    }
+    for item in json_dict:
+        match item:
             case "department":
-                region_id = 1
-                divisions = re.split(r"/", json_dict["department"].strip())
-                for div in divisions:
-                    region = Region().get_id(div)
-                    if region:
-                        region_id = region
-                json_data["resume"]["region_id"] = region_id
-            case "lastName":
-                json_data["resume"]["surname"] = value.strip().upper()
-            case "firstName":
-                json_data["resume"]["firstname"] = value.strip().upper()
+                json_data["region_id"] = get_region_id(json_dict)
             case "midName":
-                json_data["resume"]["patronymic"] = value.strip().upper()
-            case "nameWasChanged":
-                if len(json_dict["nameWasChanged"]):
-                    for name in json_dict["nameWasChanged"]:
-                        prev = {}
-                        for key, value in name.items():
-                            match key:
-                                case "firstNameBeforeChange":
-                                    prev["surname"] = value
-                                case "lastNameBeforeChange":
-                                    prev["firstName"] = value
-                                case "midNameBeforeChange":
-                                    prev["patronymic"] = value
-                                case "yearOfChange":
-                                    prev["date_change"] = value
-                                case "reason":
-                                    prev["reason"] = value
-                        json_data["previous"].append(prev)
-            case "birthday":
-                json_data["resume"]["birthday"] = value
-            case "birthplace":
-                json_data["resume"]["birthplace"] = value
-            case "citizen":
-                json_data["resume"]["country"] = value
-            case "ext_country":
-                json_data["resume"]["ext_country"] = value
-            case "snils":
-                json_data["resume"]["snils"] = value
-            case "inn":
-                json_data["resume"]["inn"] = value
+                json_data["patronymic"] = json_dict["midName"].strip().upper()
+            case "additionalCitizenship":
+                json_data["ext_country"] = json_dict["additionalCitizenship"]
             case "maritalStatus":
-                json_data["resume"]["marital"] = value
-            case "education":
-                json_data["education"].append(
-                    {   
-                        "type": item.get("educationType", ""),
-                        "name": item.get("institutionName", ""),
-                        "end": item.get("endYear", "н.в."),
-                        "specialty": item.get("specialty", "")
-                    }
+                json_data["marital"] = json_dict["maritalStatus"]
+            case "inn":
+                json_data["inn"] = json_dict["inn"].strip()
+            case "snils":
+                json_data["snils"] = json_dict["snils"].strip()
+            case "ValidAddress":
+                json_data["address"].append(
+                    {"view": "Адрес проживания", "address": json_dict["ValidAddress"]}
+                )
+            case "RegAddress":
+                json_data["address"].append(
+                    {"view": "Адрес регистрации", "address": json_dict["RegAddress"]}
+                )
+            case "contactPhone":
+                json_data["contact"].append(
+                    {"view": "Телефон", "phone": json_dict["contactPhone"]}
+                )
+            case "email":
+                json_data["contact"].append(
+                    {"view": "Электронная почта", "email": json_dict["email"]}
                 )
             case "passportNumber":
                 json_data["document"].append(
                     {
                         "view": "Паспорт",
-                        "number": value,
-                        "series": json_dict.get("passportSerial", ""),
-                        "issue": json_dict.get("passportIssueDate", ""),
-                        "agency": json_dict.get("passportIssuedBy", ""),
+                        "number": json_dict["passportNumber"],
+                        "series": json_dict.get("passportSerial"),
+                        "issue": json_dict.get("passportIssueDate"),
+                        "agency": json_dict.get("passportIssuedBy"),
                     }
                 )
-            case "regAddress":
-                json_data["address"].append(
-                    {"view": "Адрес регистрации", "address": value}
-                )
-            case "validAddress":
-                json_data["address"].append(
-                    {"view": "Адрес проживания", "address": value}
-                )
-            case "contactPhone":
-                json_data["contact"].append({"view": "Телефон", "contact": value})
-            case "email":
-                json_data["contact"].append({"view": "E-mail", "contact": value})
-            case "positionName":
-                json_data["staff"].append(
-                    {
-                        "position": value,
-                        "department": json_dict.get("department", ""),
-                    }
-                )
-            case "experience":
-                if len(json_dict["experience"]):
-                    for exp in json_dict["experience"]:
-                        work = {}
-                        for key, value in exp.items():
-                            match key:
-                                case "beginDate":
-                                    work["start_date"] = datetime.strptime(
-                                        value, "%Y-%m-%d"
-                                    )
-                                case "endDate":
-                                    work["end_date"] = datetime.strptime(
-                                        value, "%Y-%m-%d"
-                                    )
-                                case "currentJob":
-                                    work["now_work"] = True
-                                case "name":
-                                    work["workplace"] = value
-                                case "address":
-                                    work["address"] = value
-                                case "position":
-                                    work["position"] = value
-                                case "fireReason":
-                                    work["reason"] = value
-                    json_data["workplace"].append(work)
-            case "publicOfficeOrganizations":
-                if len(json_dict["publicOfficeOrganizations"]):
-                    for item in json_dict["publicOfficeOrganizations"]:
-                        public = {
-                            "view": "Являлся государственным или муниципальным служащим",
-                            "name": f"{item.get('name', '')}",
-                            "position": f"{item.get('position', '')}",
-                        }
-                        json_data["affilation"].append(public)
-
-            case "stateOrganizations":
-                if len(json_dict["stateOrganizations"]):
-                    for item in json_dict["stateOrganizations"]:
-                        state = {
-                            "view": "Являлся государственным должностным лицом",
-                            "name": f"{item.get('name', '')}",
-                            "position": f"{item.get('position', '')}",
-                        }
-                        json_data["affilation"].append(state)
-
+            case "organization":
+                json_data["affilation"].append(json_dict["organization"])
             case "relatedPersonsOrganizations":
-                if len(json_dict["relatedPersonsOrganizations"]):
-                    for item in json_dict["relatedPersonsOrganizations"]:
-                        related = {
-                            "view": "Связанные лица работают в госудраственных организациях",
-                            "name": f"{item.get('name', '')}",
-                            "position": f"{item.get('position', '')}",
-                            "inn": f"{item.get('inn'), ''}",
-                        }
-                        json_data["affilation"].append(related)
+                json_data["affilation"].append(json_dict["relatedPersonsOrganizations"])
+            case "publicOfficeOrganizations":
+                json_data["affilation"].append(json_dict["publicOfficeOrganizations"])
+            case "stateOrganizations":
+                json_data["affilation"].append(json_dict["stateOrganizations"])
 
-            case "organizations":
-                if len(json_dict["organizations"]):
-                    for item in json_dict["organizations"]:
-                        organization = {
-                            "view": 'Участвует в деятельности коммерческих организаций"',
-                            "name": f"{item.get('name', '')}",
-                            "position": f"{item.get('workCombinationTime', '')}",
-                            "inn": f"{item.get('inn'), ''}",
-                        }
-                        json_data["affilation"].append(organization)  
     return json_data
 
 
+def get_region_id(json_dict):
+    region_id = 1
+    if "department" in json_dict:
+        divisions = re.split(r"/", json_dict["department"].strip())
+        for div in divisions:
+            region = Region().get_id(div)
+            if region:
+                region_id = region
+    return region_id
 
-def parse_anketa(json_dict):
-    anketa = parse_json(json_dict)
+
+def add_resume(resume: dict):
+    """
+    Adds a resume to the database.
+    """
+    person = db.session.execute(
+        select(Person).filter(
+            Person.surname.ilike(resume["surname"]),
+            Person.firstname.ilike(resume["firstname"]),
+            Person.patronymic.ilike(resume.get("patronymic")),
+            Person.birthday == resume["birthday"],
+        )
+    ).one_or_none()
+
+    for k, v in resume.items():
+        if k in ["surname", "firstname", "patronymic"]:
+            resume[k] = v.strip().upper()
+
+    if person:
+        person_id = person.id
+        for k, v in resume.items():
+            setattr(person, k, v)
+    else:
+        resume["status_id"] = Status().get_id(Statuses.new.value)
+        person = Person(**resume)
+        db.session.add(person)
+        db.session.flush()
+        person_id = person.id
+
+    folsers = Folders(
+        person_id,
+        resume["surname"],
+        resume["firstname"],
+        resume.get("patronymic", ""),
+    )
+    person.path = folsers.create_main_folder()
+    db.session.commit()
+    return person_id
+
+
+def parse_anketa(anketa):
     person_id = add_resume(anketa["resume"])
 
     person = db.session.get(Person, person_id)
@@ -206,7 +161,14 @@ def parse_anketa(json_dict):
         )
         person.path = folders.create_main_folder()
     models = [
-        Previous, Education, Staff, Document, Address, Contact, Workplace, Affilation
+        Previous,
+        Education,
+        Staff,
+        Document,
+        Address,
+        Contact,
+        Workplace,
+        Affilation,
     ]
     items_lists = [
         anketa["previous"],
@@ -222,41 +184,41 @@ def parse_anketa(json_dict):
         for item in items:
             if item:
                 db.session.add(model(**item | {"person_id": person_id}))
+
+    if len(anketa["previous"]):
+        for item in anketa["previous"]:
+            surname =item.get("surname") if item.get("surname") else anketa["surname"]
+            firstname = (
+               item.get("firstname") if item.get("firstname") else anketa["firstname"]
+            )
+            patronymic = (
+                item.get("patronymic") if item.get("patronymic") else anketa["patronymic"]
+            )
+            addition = parse_previous(
+                surname, firstname, patronymic, anketa["resume"]["birthday"]
+            )
+            if addition:
+                person.addition = (
+                    person.addition + "\n " + addition if person.addition else addition
+                )
+
     db.session.commit()
-    check_previous(anketa, person_id)
 
     return person_id
 
 
-def check_previous(anketa, person_id):
-    additional = ""
-    if len(anketa["previous"]):
-        for item in anketa["previous"]:
-            surname = item["surname"] if item.get("surname") else anketa["surname"]
-            firstname = (
-                item["firstname"] if item.get("firstname") else anketa["firstname"]
-            )
-            patronymic = (
-                item["patronymic"] if item.get("patronymic") else anketa["patronymic"]
-            )
+def parse_previous(surname, firstname, patronymic, birthday):
+    result = db.session.execute(
+        select(Person).filter(
+            Person.surname.ilike(surname),
+            Person.firstname.ilike(firstname),
+            Person.patronymic.ilike(patronymic),
+            Person.birthday == birthday,
+        )
+    ).one_or_none()
 
-            result = db.session.execute(
-                select(Person).filter(
-                    Person.surname.ilike(surname),
-                    Person.firstname.ilike(firstname),
-                    Person.patronymic.ilike(patronymic),
-                    Person.birthday == anketa["birthday"],
-                )
-            ).one_or_none()
-
-            if result:
-                message = (
-                    f"Кандидат {anketa.surname} ID: {anketa.id} "
-                    f"ранее проверялся как {result.surname} ID: {result.id}"
-                )
-                additional = additional + "\n " + message
-    person = db.session.get(Person, person_id)
-    person.addition = (
-        person.addition + "\n " + additional if person.addition else additional
+    return (
+        f"Кандидат ранее проверялся как surname: {surname} {firstname}"
+        if result
+        else None
     )
-    db.session.commit()
