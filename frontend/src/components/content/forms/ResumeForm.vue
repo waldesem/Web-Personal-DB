@@ -169,13 +169,6 @@ async function submitResume(): Promise<void> {
         v-model="resumeForm['marital']"
       />
     </LabelSlot>
-    <LabelSlot :label="'Образование'">
-      <TextArea
-        :name="'education'"
-        :place="'Образование'"
-        v-model="resumeForm['education']"
-      ></TextArea>
-    </LabelSlot>
     <LabelSlot :label="'Дополнительно'">
       <TextArea
         :name="'addition'"

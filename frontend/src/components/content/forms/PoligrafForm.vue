@@ -64,7 +64,7 @@ const poligrafForm = toRef(props.poligraf as Pfo);
       </TextArea>
     </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent @cancel="emit('cancel')" />
+      <BtnGroupContent @cancel="emit('cancel')"/>
     </BtnGroup>
   </form>
 </template>

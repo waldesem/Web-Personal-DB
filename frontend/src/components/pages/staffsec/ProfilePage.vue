@@ -30,6 +30,9 @@ const InvestigateTab = defineAsyncComponent(
 const InquiryTab = defineAsyncComponent(
   () => import("@components/content/tabs/InquiryTab.vue")
 );
+const OneSTab = defineAsyncComponent(
+  () => import("@components/content/tabs/OneSTab.vue")
+);
 
 onBeforeMount(async () => {
   stateAnketa.share.candId = router.currentRoute.value.params.id.toString();
@@ -44,6 +47,7 @@ const tabsData = ref({
     ["PoligrafTab", "Полиграф", PoligrafTab],
     ["InvestigateTab", "Расследования", InvestigateTab],
     ["InquiryTab", "Запросы", InquiryTab],
+    ["OneSTab", "1С", OneSTab],
   ],
   currentTab: "AnketaTab",
   tabAction: "",
@@ -51,7 +55,7 @@ const tabsData = ref({
 </script>
 
 <template>
-  <PhotoCard />
+  <PhotoCard/>
   <div class="row mb-3">
     <div class="col-md-10">
       <HeaderDiv
@@ -150,7 +154,7 @@ const tabsData = ref({
       :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
       role="tabpanel"
     >
-      <AnketaTab />
+      <AnketaTab/>
     </div>
     <div
       class="py-3"
@@ -170,7 +174,7 @@ const tabsData = ref({
       :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
       role="tabpanel"
     >
-      <RobotTab />
+      <RobotTab/>
     </div>
     <div
       class="py-3"
@@ -207,6 +211,14 @@ const tabsData = ref({
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
        />
+    </div>
+    <div
+      class="py-3"
+      id="OneSTab"
+      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      role="tabpanel"
+    >
+      <OneSTab/>
     </div>
   </div>
 </template>

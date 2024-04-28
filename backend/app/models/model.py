@@ -164,7 +164,6 @@ class Person(db.Model):
     ext_country: Mapped[str] = mapped_column(String(255), nullable=True)
     snils: Mapped[str] = mapped_column(String(11), nullable=True)
     inn: Mapped[str] = mapped_column(String(12), nullable=True, index=True)
-    education: Mapped[str] = mapped_column(Text, nullable=True)
     marital: Mapped[str] = mapped_column(String(255), nullable=True)
     addition: Mapped[str] = mapped_column(Text, nullable=True)
     path: Mapped[str] = mapped_column(Text, nullable=True)
@@ -175,6 +174,9 @@ class Person(db.Model):
         DateTime, onupdate=default_time, nullable=True
     )
     previous: Mapped[List["Previous"]] = relationship(
+        back_populates="persons", cascade="all, delete, delete-orphan"
+    )
+    educations: Mapped[List["Education"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
     staffs: Mapped[List["Staff"]] = relationship(
@@ -235,6 +237,22 @@ class Previous(db.Model):
     reason: Mapped[str] = mapped_column(Text, nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="previous")
+
+
+class Education(db.Model):
+    """Nested schema for AnketaSchemaApi"""
+
+    __tablename__ = "educations"
+
+    id: Mapped[int] = mapped_column(
+        nullable=False, unique=True, primary_key=True, autoincrement=True
+    )
+    type: Mapped[str] = mapped_column(String(255), nullable=True)
+    name: Mapped[str] = mapped_column(Text, nullable=True)
+    end: Mapped[int] = mapped_column(Integer, nullable=True)
+    specialty: Mapped[str] = mapped_column(Text, nullable=True)
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
+    persons: Mapped[List["Person"]] = relationship(back_populates="educations")
 
 
 class Staff(db.Model):

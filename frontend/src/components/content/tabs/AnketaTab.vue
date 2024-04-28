@@ -15,6 +15,9 @@ const ResumeForm = defineAsyncComponent(
 const PreviousDiv = defineAsyncComponent(
   () => import("@components/content/divs/PreviousDiv.vue")
 );
+const EducationDiv = defineAsyncComponent(
+  () => import("@components/content/divs/EducationDiv.vue")
+);
 const StaffDiv = defineAsyncComponent(
   () => import("@components/content/divs/StaffDiv.vue")
 );
@@ -113,9 +116,6 @@ const dataResume = ref({
     <LabelSlot :label="'ИНН'">
       {{ stateAnketa.anketa.resume["inn"] }}
     </LabelSlot>
-    <LabelSlot :label="'Образование'">
-      {{ stateAnketa.anketa.resume["education"] }}
-    </LabelSlot>
     <LabelSlot :label="'Семейнное положение'">
       {{ stateAnketa.anketa.resume["marital"] }}
     </LabelSlot>
@@ -154,11 +154,12 @@ const dataResume = ref({
       {{ stateAnketa.anketa.resume["path"] }}
     </LabelSlot>
   </div>
-  <hr />
+  <hr/>
   <div
     class="mb-3 px-3"
     v-for="(component, idx) in [
       PreviousDiv,
+      EducationDiv,
       StaffDiv,
       DocumentDiv,
       AddressDiv,
@@ -169,6 +170,6 @@ const dataResume = ref({
     ]"
     :key="idx"
   >
-    <component :is="component" />
+    <component :is="component"/>
   </div>
 </template>

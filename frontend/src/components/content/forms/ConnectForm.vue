@@ -150,7 +150,7 @@ async function updateContact(): Promise<void> {
       />
     </LabelSlot>
     <BtnGroup>
-      <GroupContent @cancel="emit('cancel-edit')" />
+      <GroupContent @cancel="emit('cancel-edit')"/>
     </BtnGroup>
   </form>
 </template>

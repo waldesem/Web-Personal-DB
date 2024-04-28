@@ -11,7 +11,6 @@ export interface Resume {
   ext_country: string;
   snils: string;
   inn: string;
-  education: string;
   marital: string;
   addition: string;
   path: string;
@@ -28,6 +27,14 @@ export interface Previous {
   patronymic: string;
   date_change: string;
   reason: string;
+}
+
+export interface Education {
+  id: string;
+  type: string;
+  name: string;
+  end: string;
+  speciality: string;
 }
 
 export interface Staff {

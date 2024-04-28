@@ -28,7 +28,7 @@ async function getGptAnswers(): Promise<void> {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'PrivateGPT'" />
+  <HeaderDiv :page-header="'PrivateGPT'"/>
   <form @submit.prevent="getGptAnswers"
     class="form-check" 
   >

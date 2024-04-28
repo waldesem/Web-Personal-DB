@@ -46,7 +46,7 @@ async function submitFile(event: Event): Promise<void> {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Создать анкету'" />
+  <HeaderDiv :page-header="'Создать анкету'"/>
   <div class="position-relative">
     <div class="position-absolute bottom-100 end-0">
       <label for="file" class="text-primary">
@@ -57,8 +57,8 @@ async function submitFile(event: Event): Promise<void> {
         >
           </i>
       </label>
-    <FileForm :accept="'.json'" @submit="submitFile" />
+    <FileForm :accept="'.json'" @submit="submitFile"/>
     </div>  
   </div>
-  <ResumeForm @cancel="router.push({ name: 'persons' })" />
+  <ResumeForm @cancel="router.push({ name: 'persons' })"/>
 </template>

@@ -1,10 +1,11 @@
 from apiflask import Schema
-from apiflask.fields import String, Date, Nested, DateTime, Boolean, Integer
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema
+from apiflask.fields import String, Date, Nested, Boolean, Integer
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from ..models.model import (
     Conclusion,
     Previous,
+    Education,
     Relation,
     Status,
     User,
@@ -151,6 +152,14 @@ class PreviousSchema(SQLAlchemyAutoSchema):
         ordered = True
 
 
+class EducationSchema(SQLAlchemyAutoSchema):
+    """Create model for education"""
+
+    class Meta:
+        model = Education
+        ordered = True
+
+
 class WorkplaceSchema(SQLAlchemyAutoSchema):
     """Create model for workplace"""
 
@@ -239,19 +248,19 @@ class ConnectSchema(SQLAlchemyAutoSchema):
         exclude = ("search_vector",)
 
 
-class InfoSchema(SQLAlchemySchema):
+class InfoSchema(Schema):
 
     region_id = String()
     start = Date()
     end = Date()
 
 
-class GptInputSchema(SQLAlchemySchema):
+class GptInputSchema(Schema):
 
     query = String()
 
 
-class GptOutputSchema(SQLAlchemySchema):
+class GptOutputSchema(Schema):
 
     answer = String()
 
@@ -259,7 +268,7 @@ class GptOutputSchema(SQLAlchemySchema):
 """Schemas for API endpoints"""
 
 
-class ResumeSchemaApi(SQLAlchemySchema):
+class ResumeSchemaApi(Schema):
     """Create schema for sending anketa"""
 
     id = String()
@@ -277,7 +286,7 @@ class ResumeSchemaApi(SQLAlchemySchema):
     address = String()
 
 
-class NameWasChanged(SQLAlchemySchema):
+class NameWasChangedApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
     firstNameBeforeChange = String(required=False)
@@ -287,17 +296,16 @@ class NameWasChanged(SQLAlchemySchema):
     reason = String(required=False)
 
 
-class Education(SQLAlchemySchema):
+class EducationApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
     educationType = String(required=False)
     institutionName = String(required=False)
-    beginYear = Integer(required=False)
     endYear = Integer(required=False)
     specialty = String(required=False)
 
 
-class Experience(SQLAlchemySchema):
+class ExperienceApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
     beginDate = String(required=False)
@@ -305,14 +313,11 @@ class Experience(SQLAlchemySchema):
     currentJob = Boolean(required=False)
     name = String(required=False)
     address = String(required=False)
-    phone = String(required=False)
-    activityType = String(required=False)
     position = String(required=False)
-    possibilityContactEmployer = Boolean(required=False)
     fireReason = String(required=False)
 
 
-class Organizations(SQLAlchemySchema):
+class OrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
     name = String(required=False)
@@ -320,7 +325,7 @@ class Organizations(SQLAlchemySchema):
     inn = String(required=False)
 
 
-class RelatedPersonsOrganizations(SQLAlchemySchema):
+class RelatedPersonsOrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
     name = String(required=False)
@@ -328,61 +333,52 @@ class RelatedPersonsOrganizations(SQLAlchemySchema):
     inn = String(required=False)
 
 
-class StateOrganizations(SQLAlchemySchema):
+class StateOrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
     name = String(required=False)
     position = String(required=False)
 
 
-class PublicOfficeOrganizations(SQLAlchemySchema):
+class PublicOfficeOrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
     
     name = String(required=False)
     position = String(required=False)
 
 
-class AnketaSchemaApi(SQLAlchemySchema):
+class AnketaSchemaApi(Schema):
     """Create schema for getting anketa"""
 
     positionName = String(required=True)
     department = String(required=False)
-    statusDate = String(required=False)
     lastName = String(required=True)
     firstName = String(required=True)
     midName = String(required=False)
-    hasNameChanged = Boolean(required=True)
     birthday = String(required=True)
     birthplace = String(required=True)
     citizen = String(required=True)
-    hasAdditionalCitizenship = Boolean(required=True)
+    additionalCitizenship = String(required=False)
     maritalStatus = String(required=True)
     regAddress = String(required=False)
     validAddress = String(required=True)
     contactPhone = String(required=True)
     email = String(required=False)
-    hasInn = Boolean(required=True)
     inn = String(required=False)
-    hasSnils = Boolean(required=True)
     snils = String(required=False)
     passportSerial = String(required=True)
     passportNumber = String(required=True)
     passportIssueDate = String(required=True)
     passportIssuedBy = String(required=True)
-    hasJob = Boolean(required=True)
-    hasPublicOfficeOrganizations = Boolean(required=True)
-    hasStateOrganizations = Boolean(required=True)
-    hasRelatedPersonsOrganizations = Boolean(required=True)
-    hasMtsRelatedPersonsOrganizations = Boolean(required=True)
     hasOrganizations = Boolean(required=True)
-    nameWasChanged = Nested(NameWasChanged, required=False, many=True)
-    education = Nested(Education, required=False, many=True)
-    experience = Nested(Experience, required=False, many=True)
-    organizations = Nested(Organizations, required=False, many=True)
+    nameWasChanged = Nested(NameWasChangedApi, required=False, many=True)
+    education = Nested(EducationApi, required=False, many=True)
+    experience = Nested(ExperienceApi, required=False, many=True)
+    organizations = Nested(OrganizationsApi, required=False, many=True)
     relatedPersonsOrganizations = Nested(
-        RelatedPersonsOrganizations, required=False, many=True
+        RelatedPersonsOrganizationsApi, required=False, many=True
     )
-    stateOrganizations = Nested(StateOrganizations, required=False, many=True)
+    stateOrganizations = Nested(StateOrganizationsApi, required=False, many=True)
     publicOfficeOrganizations = Nested(
-        PublicOfficeOrganizations, required=False, many=True
+        PublicOfficeOrganizationsApi, required=False, many=True
     )

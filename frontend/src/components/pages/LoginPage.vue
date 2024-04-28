@@ -20,10 +20,10 @@ const FooterDiv = defineAsyncComponent(
     <AlertMessage/>
     <HeaderDiv 
       :cls="'text-info py-3'"
-      :page-header="'StaffSec - кадровая безопасность'" />
-    <LoginForm />
+      :page-header="'StaffSec - кадровая безопасность'"/>
+    <LoginForm/>
   </div>
-  <FooterDiv />
+  <FooterDiv/>
 </template>
 
 <style scoped>

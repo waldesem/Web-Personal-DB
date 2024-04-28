@@ -61,7 +61,7 @@ const investigationForm = toRef(props.investigation as Inquisition);
       </TextArea>
     </LabelSlot>
     <BtnGroup>
-      <BtnGroupContent @cancel="emit('cancel')" />
+      <BtnGroupContent @cancel="emit('cancel')"/>
     </BtnGroup>
   </form>
 </template>

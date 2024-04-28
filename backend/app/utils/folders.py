@@ -15,8 +15,8 @@ class Folders:
             f"{patronymic.upper()}".rstrip(),
         )
 
-    @classmethod
-    def _check_url(cls, url):
+    @staticmethod
+    def _check_url(url):
         if not os.path.isdir(url):
             os.mkdir(url)
 

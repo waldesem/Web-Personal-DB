@@ -31,13 +31,13 @@ onMounted(async () => {
 <template>
   <div class="container-fluid row px-3">
     <div class="col-2">
-      <NavBar />
+      <NavBar/>
     </div>
     <div class="col-9">
-      <MenuBar />
+      <MenuBar/>
       <router-view v-slot="{ Component }">
         <transition name="fade">
-          <div><component :is="Component" /></div>
+          <div><component :is="Component"/></div>
         </transition>
       </router-view>
     </div>

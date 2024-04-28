@@ -11,6 +11,7 @@ from ..models.classes import Statuses
 from ..models.model import (
     db,
     Previous,
+    Education,
     Staff,
     Document,
     Address,
@@ -26,6 +27,7 @@ def parse_json(json_dict) -> None:
     json_data = dict(
         resume = {},
         previous = [],
+        education = [],
         address = [],
         contact = [],
         workplace = [],
@@ -83,17 +85,14 @@ def parse_json(json_dict) -> None:
             case "maritalStatus":
                 json_data["resume"]["marital"] = value
             case "education":
-                education = ""
-                if len(json_dict["education"]):
-                    for item in json_dict["education"]:
-                        institutionName = item.get("institutionName", "")
-                        endYear = item.get("endYear", "н.в.")
-                        specialty = item.get("specialty", "")
-                        education = (
-                            education
-                            + f"{str(endYear)} - {institutionName}, {specialty}; "
-                        )
-                    json_data["resume"]["education"] = education.rstrip("; ")
+                json_data["education"].append(
+                    {   
+                        "type": item.get("educationType", ""),
+                        "name": item.get("institutionName", ""),
+                        "end": item.get("endYear", "н.в."),
+                        "specialty": item.get("specialty", "")
+                    }
+                )
             case "passportNumber":
                 json_data["document"].append(
                     {
@@ -206,9 +205,12 @@ def parse_anketa(json_dict):
             person_id, person.surname, person.firstname, person.patronymic
         )
         person.path = folders.create_main_folder()
-    models = [Previous, Staff, Document, Address, Contact, Workplace, Affilation]
+    models = [
+        Previous, Education, Staff, Document, Address, Contact, Workplace, Affilation
+    ]
     items_lists = [
         anketa["previous"],
+        anketa["education"],
         anketa["staff"],
         anketa["document"],
         anketa["address"],

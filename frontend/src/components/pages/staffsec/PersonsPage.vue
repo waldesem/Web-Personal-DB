@@ -109,7 +109,7 @@ const searchPerson = debounce(() => {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Кандидаты'" />
+  <HeaderDiv :page-header="'Кандидаты'"/>
   <div class="row mb-3">
     <div class="col-md-2">
       <SelectObject

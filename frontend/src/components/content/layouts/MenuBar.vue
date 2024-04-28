@@ -30,10 +30,10 @@ async function userLogout(): Promise<void> {
   <div class="d-print-none sticky-top bg-white p-3 ">
       <div class="row">
         <div class="col-10 text-center">
-          <AlertMessage />
+          <AlertMessage/>
         </div>
         <div class="col-1 text-start">
-          <MessageDiv />
+          <MessageDiv/>
         </div>
         <div class="col-1 text-end">
           <div class="dropdown">

@@ -57,7 +57,7 @@ async function getUsers() {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary py-3'" />
+  <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary py-3'"/>
   <input
     @input.prevent="searchUsers"
     class="form-control mb-3"

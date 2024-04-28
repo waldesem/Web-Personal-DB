@@ -5,6 +5,7 @@ import { server } from "@/utilities";
 import {
   Resume,
   Previous,
+  Education,
   Staff,
   Document,
   Address,
@@ -59,6 +60,7 @@ export const stateAnketa = {
   anketa: reactive({
     resume: {} as Resume,
     previous: [] as Previous[],
+    education: [] as Education[],
     staff: [] as Staff[],
     document: [] as Document[],
     address: [] as Address[],
