@@ -93,13 +93,16 @@ class ItemsView(MethodView):
 
         if item == "previous":
             person = db.session.get(Person, item_id)
-            addition = parse_previous(
-                json_data["surname"],
-                json_data["firstname"],
-                json_data.get("patronymic"),
-                person.birthday,
-            )
-            if addition:
+            prev = db.session.execute(
+                select(Person).filter(
+                    Person.surname.ilike(json_data["surname"]),
+                    Person.firstname.ilike(json_data["firstname"]),
+                    Person.patronymic.ilike(json_data.get("patronymic")),
+                    Person.birthday == person.birthday,
+                )
+            ).one_or_none()
+            if prev:
+                addition = f"Кандидат ранее проверялся ID: {prev.id}"
                 db.session.add(Message(addition, user_id=current_user.id))
                 person.addition = person.addition + "\n" + addition \
                     if person.addition else addition

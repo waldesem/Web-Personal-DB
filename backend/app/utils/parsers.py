@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 
 from sqlalchemy import select
 
@@ -26,6 +27,7 @@ def parse_json(json_dict) -> None:
     json_data = {
         "resume": {
             "status_id": Status().get_id(Statuses.new.name),
+            "region_id": get_region_id(json_dict),
             "firstname": json_dict["firstName"].strip().upper(),
             "surname": json_dict["lastName"].strip().upper(),
             "birthday": json_dict["birthday"],
@@ -48,8 +50,6 @@ def parse_json(json_dict) -> None:
     }
     for item in json_dict:
         match item:
-            case "department":
-                json_data["region_id"] = get_region_id(json_dict)
             case "midName":
                 json_data["patronymic"] = json_dict["midName"].strip().upper()
             case "additionalCitizenship":
@@ -80,20 +80,20 @@ def parse_json(json_dict) -> None:
                 json_data["document"].append(
                     {
                         "view": "Паспорт",
-                        "number": json_dict["passportNumber"],
-                        "series": json_dict.get("passportSerial"),
+                        "number": json_dict["passportNumber"].strip(),
+                        "series": json_dict.get("passportSerial").strip(),
                         "issue": json_dict.get("passportIssueDate"),
                         "agency": json_dict.get("passportIssuedBy"),
                     }
                 )
             case "organization":
-                json_data["affilation"].append(json_dict["organization"])
+                json_data["affilation"] + json_dict["organization"]
             case "relatedPersonsOrganizations":
-                json_data["affilation"].append(json_dict["relatedPersonsOrganizations"])
+                json_data["affilation"] + json_dict["relatedPersonsOrganizations"]
             case "publicOfficeOrganizations":
-                json_data["affilation"].append(json_dict["publicOfficeOrganizations"])
+                json_data["affilation"] + json_dict["publicOfficeOrganizations"]
             case "stateOrganizations":
-                json_data["affilation"].append(json_dict["stateOrganizations"])
+                json_data["affilation"] + json_dict["stateOrganizations"]
 
     return json_data
 
@@ -149,17 +149,58 @@ def add_resume(resume: dict):
 
 
 def parse_anketa(anketa):
-    person_id = add_resume(anketa["resume"])
+    person_id = None
+    if len(anketa["previous"]):
+        prev_id = []
+        for item in anketa["previous"]:
+            prev = db.session.execute(
+                select(Person).filter(
+                    Person.surname.ilike(
+                        item.get("surname") 
+                        if item.get("surname") 
+                        else anketa["resume"]["surname"]
+                    ),
+                    Person.firstname.ilike(
+                        item.get("firstname")
+                        if item.get("firstname")
+                        else anketa["resume"]["firstname"]
+                    ),
+                    Person.patronymic.ilike(
+                        item.get("patronymic")
+                        if item.get("patronymic")
+                        else anketa["resume"].get("patronymic")
+                    ),
+                    Person.birthday == anketa["resume"]["birthday"],
+                )
+            ).one_or_none()
+            if prev:
+                prev_id.append(prev.id)
 
-    person = db.session.get(Person, person_id)
-    if person.path:
-        if not os.path.isdir(person.path):
-            os.mkdir(person.path)
-    else:
-        folders = Folders(
-            person_id, person.surname, person.firstname, person.patronymic
-        )
-        person.path = folders.create_main_folder()
+        if prev_id:
+            person_id = max(prev_id)
+            previous = db.session.get(Previous, person_id)
+
+            if previous.path:
+                folders = Folders(person_id, previous.surname, previous.firstname, previous.patronymic)
+                new_path = folders.create_main_folder()
+                shutil.copytree(previous.path, new_path)
+                os.remove(previous.path)
+                previous.path = new_path
+                
+            for k, v in anketa["resume"].items():
+                setattr(previous, k, v)
+
+            addition = f"Кандидат ранее проверялся ID: {', '.join(prev_id)}"
+            previous.addition = (
+                previous.addition + "\n " + addition 
+                if previous.addition 
+                else addition
+                    )
+            db.session.commit()
+    
+    if not person_id:
+        person_id = add_resume(anketa["resume"])
+
     models = [
         Previous,
         Education,
@@ -185,40 +226,7 @@ def parse_anketa(anketa):
             if item:
                 db.session.add(model(**item | {"person_id": person_id}))
 
-    if len(anketa["previous"]):
-        for item in anketa["previous"]:
-            surname =item.get("surname") if item.get("surname") else anketa["surname"]
-            firstname = (
-               item.get("firstname") if item.get("firstname") else anketa["firstname"]
-            )
-            patronymic = (
-                item.get("patronymic") if item.get("patronymic") else anketa["patronymic"]
-            )
-            addition = parse_previous(
-                surname, firstname, patronymic, anketa["resume"]["birthday"]
-            )
-            if addition:
-                person.addition = (
-                    person.addition + "\n " + addition if person.addition else addition
-                )
-
+    
     db.session.commit()
 
     return person_id
-
-
-def parse_previous(surname, firstname, patronymic, birthday):
-    result = db.session.execute(
-        select(Person).filter(
-            Person.surname.ilike(surname),
-            Person.firstname.ilike(firstname),
-            Person.patronymic.ilike(patronymic),
-            Person.birthday == birthday,
-        )
-    ).one_or_none()
-
-    return (
-        f"Кандидат ранее проверялся как surname: {surname} {firstname}"
-        if result
-        else None
-    )
