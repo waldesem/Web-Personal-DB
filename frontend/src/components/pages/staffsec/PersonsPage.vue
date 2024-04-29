@@ -33,8 +33,8 @@ const statusColor = {
   "5": "primary",
   "6": "danger",
   "7": "info",
-  "8": "secondary",
-  "9": "warning",
+  "8": "warning",
+  "9": "secondary",
   "10": "secondary",
 };
 
@@ -58,8 +58,8 @@ const personData = ref({
   prev: false,
   next: false,
   search: "",
-  sort: "id",
-  order: "desc",
+  sort: "status_id",
+  order: "asc",
   path: "search",
   updated: `${new Date().toLocaleDateString(
     "ru-RU"

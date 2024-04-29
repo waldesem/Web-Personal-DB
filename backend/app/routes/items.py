@@ -7,7 +7,6 @@ from sqlalchemy import select
 from . import bp
 from .login import roles_required
 from ..models.classes import Roles, Conclusions, Statuses
-from ..utils.parsers import parse_previous
 from ..models.model import (
     db,
     Previous,
@@ -47,7 +46,7 @@ from ..models.schema import (
 
 class ItemsView(MethodView):
 
-    models_schemas = {
+    MODELS_SCHEMAS = {
         "previous": [Previous, PreviousSchema()],
         "staff": [Staff, StaffSchema()],
         "document": [Document, DocumentSchema()],
@@ -63,33 +62,29 @@ class ItemsView(MethodView):
         "inquiry": [Inquiry, InquirySchema()],
     }
 
-    def __init__(self):
-        self.model = None
-        self.schema = None
-
-    def defines(self, item):
-        self.model = ItemsView.models_schemas[item][0]
-        self.schema = ItemsView.models_schemas[item][1]
+    @classmethod
+    def define_schema_model(cls, item):
+        return cls.MODELS_SCHEMAS[item]
 
     @roles_required(Roles.user.value)
     @bp.doc(hide=True)
     def get(self, item, item_id):
-        self.defines(item)
+        model, schema = self.define_schema_model(item)
         query = (
-            select(self.model)
+            select(model)
             .filter_by(person_id=item_id)
-            .order_by(self.model.id.desc())
+            .order_by(model.id.desc())
         )
         result = db.session.execute(query).scalars().all()
-        return self.schema.dump(result, many=True), 200
+        return schema.dump(result, many=True), 200
 
     @roles_required(Roles.user.value)
     @bp.doc(hide=True)
     @bp.output(EmptySchema)
     def post(self, item, item_id):
-        self.defines(item)
+        model, schema = self.define_schema_model(item)
         resp = request.get_json()
-        json_data = self.schema.load(resp) | {"person_id": item_id}
+        json_data = schema.load(resp) | {"person_id": item_id}
 
         if item == "previous":
             person = db.session.get(Person, item_id)
@@ -102,10 +97,20 @@ class ItemsView(MethodView):
                 )
             ).one_or_none()
             if prev:
-                addition = f"Кандидат ранее проверялся ID: {prev.id}"
-                db.session.add(Message(addition, user_id=current_user.id))
-                person.addition = person.addition + "\n" + addition \
-                    if person.addition else addition
+                db.session.add_all(
+                    [
+                        Message(
+                            message=f"Кандидат ранее проверялся ID: {prev.id}",
+                            user_id=current_user.id,
+                        ),
+                        Relation(
+                            relation="Одно лицо", person_id=item_id, relation_id=prev.id
+                        ),
+                        Relation(
+                            relation="Одно лицо", person_id=prev.id, relation_id=item_id
+                        ),
+                    ]
+                )
 
         if item == "relation":
             db.session.add(
@@ -138,7 +143,7 @@ class ItemsView(MethodView):
                 if person.status_id == Status.get_id(Statuses.poligraf.value):
                     person.status_id = Status.get_id(Statuses.finish.value)
 
-        result = self.model(**json_data)
+        result = model(**json_data)
         db.session.add(result)
         db.session.commit()
         return "", 201
@@ -146,14 +151,14 @@ class ItemsView(MethodView):
     @roles_required(Roles.user.value)
     @bp.doc(hide=True)
     def patch(self, item, item_id):
-        self.defines(item)
+        model, schema = self.define_schema_model(item)
         resp = request.get_json()
-        json_data = self.schema.load(resp)
+        json_data = schema.load(resp)
         if item == "workplace":
             json_data["now_work"] = (
                 bool(json_data.pop("now_work")) if "now_work" in json_data else False
             )
-        result = db.session.get(self.model, item_id)
+        result = db.session.get(model, item_id)
         if result:
             for k, v in json_data.items():
                 setattr(result, k, v)
@@ -164,8 +169,8 @@ class ItemsView(MethodView):
     @roles_required(Roles.user.value)
     @bp.doc(hide=True)
     def delete(self, item, item_id):
-        self.defines(item)
-        result = db.session.get(self.model, item_id)
+        model, _ = self.define_schema_model(item)
+        result = db.session.get(model, item_id)
         if result:
             db.session.delete(result)
             db.session.commit()

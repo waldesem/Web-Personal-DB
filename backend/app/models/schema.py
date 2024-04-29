@@ -255,16 +255,6 @@ class InfoSchema(Schema):
     end = Date()
 
 
-class GptInputSchema(Schema):
-
-    query = String()
-
-
-class GptOutputSchema(Schema):
-
-    answer = String()
-
-
 """Schemas for API endpoints"""
 
 

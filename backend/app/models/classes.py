@@ -26,8 +26,8 @@ class Statuses(Enum):
     save = "Сохранен"
     robot = "Робот"
     poligraf = "ПФО"
-    cancel = "Отменено"
     error = "Ошибка"
+    cancel = "Отменено"
     finish = "Окончено"
 
 class Conclusions(Enum):
