@@ -46,7 +46,7 @@ async function submitResume(): Promise<void> {
     const response =
       props.action === "create"
         ? await axiosAuth.post(
-            `${server}/resume/${props.action}`,
+            `${server}/resume`,
             resumeForm.value
           )
         : await axiosAuth.patch(

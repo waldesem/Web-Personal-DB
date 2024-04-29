@@ -1,51 +1,45 @@
-import httpx
 from apiflask import EmptySchema
-from flask import abort
+from flask import request
 from flask.views import MethodView
 from flask_jwt_extended import current_user
-from sqlalchemy import select
 
 from . import bp
 from .login import roles_required
-from ..utils.parsers import add_resume
+from ..utils.parsers import Resume, Personal
 from ..models.classes import Roles, Statuses
-from ..models.schema import  ActionSchema, ResumeSchemaApi, PersonSchema
-from ..models.model import  db, Document, Address, Person, Status, Message
+from ..models.schema import  PersonSchema
+from ..models.model import  db, Person, Message
 
 
 class ResumeView(MethodView):
 
     decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
-    @bp.input(ActionSchema, location="query")
-    def get(self, person_id, query_data):
-        action = query_data.get("action")
-        person = db.session.get(Person, person_id)
-        if person:
-            if action == "status":
-                person.status_id = Status.get_id(Statuses.update.value)
-                person.user_id = None
-                db.session.commit()
-                return {"message": action}, 201
+    def get(self, person_id):
+        action = request.args.get("action")
+        person = Personal(person_id)
+        if action == "status":
+            person.change_status(Statuses.update.value)
+            return {"message": action}, 201
 
-            if action == "self":
-                if not person.user_id:
-                    db.session.add(
-                        Message(
-                            message=f"Aнкета ID #{person_id} принята в работу",
-                            user_id=current_user.id,
-                        )
-                    )
-                    person.status_id = Status.get_id(Statuses.manual.value)
-                    person.user_id = current_user.id
-                    db.session.commit()
-                    return {"message": action}, 201
+        if action == "self" and not person.user_id:
+            db.session.add(
+                Message(
+                    message=f"Aнкета ID #{person_id} принята в работу",
+                    user_id=current_user.id,
+                )
+            )
+            db.session.commit()
+            person.change_status(Statuses.manual.value, current_user.id)
+            return {"message": action}, 201
 
-            elif action == "send":
-                return {"message": send_resume(person)}, 201
+        elif action == "send":
+            status = person.send_anketa()
+            if status == "send":
+                person.change_status(Statuses.robot.value, current_user.id)
+            return {"message": status}, 201
 
-            return {"message": PersonSchema().dump(person)}, 200
-        return abort(403)
+        return {"message": PersonSchema().dump(person)}, 200
 
     @bp.output(EmptySchema)
     def delete(self, person_id):
@@ -56,21 +50,20 @@ class ResumeView(MethodView):
 
     @bp.input(PersonSchema)
     def patch(self, person_id, json_data):
-        person = db.session.get(Person, person_id)
-        for k, v in json_data.items():
-            setattr(person, k, v)
-            db.session.commit()
+        resume = Resume(json_data)
+        resume.update_resume(db.session.get(Person, person_id))
         return {"message": person_id}
 
     @bp.input(PersonSchema)
-    def post(self, action, json_data):
-        person_id = add_resume(json_data, action)
+    def post(self, json_data):
+        resume = Resume(json_data)
+        person_id = resume.check_resume()
         return {"message": person_id}
 
 
 resume_view = ResumeView.as_view("resume")
 bp.add_url_rule(
-    "/resume/<action>",
+    "/resume",
     view_func=resume_view,
     methods=["POST"],
 )
@@ -80,73 +73,3 @@ bp.add_url_rule(
     methods=["GET", "DELETE", "PATCH"],
 )
 
-
-def send_resume(person):
-    if person.status_id in (
-        Status.get_id(Statuses.new.value),
-        Status.get_id(Statuses.update.value),
-        Status.get_id(Statuses.repeat.value),
-        Status.get_id(Statuses.manual.value),
-        Status.get_id(Statuses.robot.value),
-    ):
-        docum = db.session.execute(
-            select(Document).filter_by(person_id=person.id).order_by(Document.id.desc())
-        ).scalar_one_or_none()
-        addr = db.session.execute(
-            select(Address)
-            .filter(
-                Address.person_id == person.id,
-                Address.view.ilike("%регистрац%"),
-            )
-            .order_by(Address.id.desc())
-        ).scalar_one_or_none()
-        if not docum or not addr:
-            return "error"
-        serial = ResumeSchemaApi().dump(
-            {
-                "id": person.id,
-                "surname": person.surname,
-                "firstname": person.firstname,
-                "patronymic": person.patronymic,
-                "birthday": person.birthday,
-                "birthplace": person.birthplace,
-                "snils": person.snils,
-                "inn": person.inn,
-                "series": docum.series,
-                "number": docum.number,
-                "agency": docum.agency,
-                "issue": docum.issue,
-                "address": addr.address,
-            }
-        )
-        try:
-            response = httpx.post(url="http://127.0.0.1:5001", json=serial, timeout=5)
-            response.raise_for_status()
-            person.status_id = Status.get_id(Statuses.robot.value)
-            person.user_id = current_user.id
-            db.session.add(
-                Message(
-                    message=f"Aнкета ID #{person.id} успешно отправлена роботу",
-                    user_id=current_user.id,
-                )
-            )
-            db.session.commit()
-            return "send"
-        except httpx.HTTPError as e:
-            db.session.add(
-                Message(
-                    message=f"При отправке анкеты возникла ошибка: {e}",
-                    user_id=current_user.id,
-                )
-            )
-            db.session.commit()
-            return "error"
-    else:
-        db.session.add(
-            Message(
-                message=f"Отправка анкеты ID #{person.id} невозможна",
-                user_id=current_user.id,
-            )
-        )
-        db.session.commit()
-        return "error"

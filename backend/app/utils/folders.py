@@ -19,15 +19,14 @@ class Folders:
     def _check_url(url):
         if not os.path.isdir(url):
             os.mkdir(url)
+        return url
 
     def create_main_folder(self):
-        self._check_url(self.url)
-        return self.url
+        return self._check_url(self.url)
 
     def create_parent_folder(self, folder_name):
         parent_folder = os.path.join(self.create_main_folder(), folder_name)
-        self._check_url(parent_folder)
-        return parent_folder
+        return self._check_url(parent_folder)
 
     def create_subfolder(self, parent_folder):
         subfolder = os.path.join(
@@ -35,5 +34,4 @@ class Folders:
             self.create_parent_folder(parent_folder),
             datetime.now().strftime("%Y-%m-%d"),
         )
-        self._check_url(subfolder)
-        return subfolder
+        return self._check_url(subfolder)

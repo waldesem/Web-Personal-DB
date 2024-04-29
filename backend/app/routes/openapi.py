@@ -8,7 +8,7 @@ from . import bp
 from ..utils.folders import Folders
 from ..models.schema import  RobotSchema, AnketaSchemaApi
 from ..models.model import db, Person, Message, Robot
-from ..utils.parsers import parse_json, parse_anketa
+from ..utils.parsers import Anketa
 
 
 class RobotsView(MethodView):
@@ -71,7 +71,8 @@ class PulseView(MethodView):
         """
         Post method for the given API endpoint.
         """
-        parse_anketa(parse_json(json_data))
+        anketa = Anketa(json_data)
+        anketa.parse_anketa()
 
         return "", 201
     

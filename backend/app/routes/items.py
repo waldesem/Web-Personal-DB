@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from . import bp
 from .login import roles_required
+from ..utils.parsers import Anketa
 from ..models.classes import Roles, Conclusions, Statuses
 from ..models.model import (
     db,

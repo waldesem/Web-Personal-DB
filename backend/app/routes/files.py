@@ -9,7 +9,7 @@ from config import Config
 from . import bp
 from .login import roles_required
 from ..utils.folders import Folders
-from ..utils.parsers import parse_anketa, parse_json
+from ..utils.parsers import Anketa
 from ..models.classes import Roles
 from ..models.model import db, Person
 
@@ -38,7 +38,8 @@ class FileView(MethodView):
 
         if action == "anketa":
             json_dict = json.load(file)
-            person_id = parse_anketa(parse_json(json_dict))
+            anketa = Anketa(json_dict)
+            person_id = anketa.parse_anketa()
             return {"message": person_id}, 201
 
         person = db.session.get(Person, item_id)
