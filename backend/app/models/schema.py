@@ -244,14 +244,14 @@ class NameWasChangedApi(Schema):
     surname = String(required=False, attribute="firstNameBeforeChange")
     firstname = String(required=False, attribute="lastNameBeforeChange")
     patronymic = String(required=False, attribute="midNameBeforeChange")
-    date_change = String(required=False, attribute="yearOfChange")
+    date_change = String(required=True, attribute="yearOfChange")
     reason = String(required=False)
 
 
 class EducationApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    view = String(required=False, attribute="educationType")
+    view = String(required=True, attribute="educationType")
     name = String(required=False, attribute="institutionName")
     end = Integer(required=False, attribute="endYear")
     specialty = String(required=False, attribute="specialty")
@@ -260,43 +260,43 @@ class EducationApi(Schema):
 class ExperienceApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    start_date = String(required=False, attribute="beginDate")
+    start_date = String(required=True, attribute="beginDate")
     end_date = String(required=False, attribute="endDate")
-    now_work = Boolean(required=False, attribute="currentJob")
-    workplace = String(required=False, attribute="name")
-    address = String(required=False)
-    position = String(required=False)
+    now_work = Boolean(required=True, attribute="currentJob")
+    workplace = String(required=True, attribute="name")
+    address = String(required=True)
+    position = String(required=True)
     reason = String(required=False, attribute="fireReason")
 
 
 class OrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    name = String(required=False)
-    position = String(required=False)
-    inn = String(required=False)
+    name = String(required=True)
+    position = String(required=True)
+    inn = String(required=True)
 
 
 class RelatedPersonsOrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    name = String(required=False)
-    position = String(required=False)
-    inn = String(required=False)
+    name = String(required=True)
+    position = String(required=True)
+    inn = String(required=True)
 
 
 class StateOrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    name = String(required=False)
-    position = String(required=False)
+    name = String(required=True)
+    position = String(required=True)
 
 
 class PublicOfficeOrganizationsApi(Schema):
     """Nested schema for AnketaSchemaApi"""
 
-    name = String(required=False)
-    position = String(required=False)
+    name = String(required=True)
+    position = String(required=True)
 
 
 class AnketaSchemaApi(Schema):
@@ -311,13 +311,13 @@ class AnketaSchemaApi(Schema):
     birthplace = String(required=True)
     citizen = String(required=True)
     additionalCitizenship = String(required=False)
-    maritalStatus = String(required=True)
+    maritalStatus = String(required=False)
     regAddress = String(required=False)
     validAddress = String(required=True)
     contactPhone = String(required=True)
     email = String(required=False)
-    inn = String(required=False)
-    snils = String(required=False)
+    inn = String(required=True)
+    snils = String(required=True)
     passportSerial = String(required=True)
     passportNumber = String(required=True)
     passportIssueDate = String(required=True)

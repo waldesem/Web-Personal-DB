@@ -65,7 +65,7 @@ bp.add_url_rule("/robot", view_func=RobotsView.as_view("robot"))
 
 class PulseView(MethodView):
 
-    @bp.input(AnketaSchemaApi)
+    @bp.input(AnketaSchemaApi, location="json")
     @bp.output(EmptySchema, status_code=201)
     def post(self, json_data):
         """
@@ -74,6 +74,6 @@ class PulseView(MethodView):
         anketa = Anketa(json_data)
         anketa.parse_anketa()
 
-        return "", 201
+        return ""
     
 bp.add_url_rule("/pulse", view_func=PulseView.as_view("pulse"))

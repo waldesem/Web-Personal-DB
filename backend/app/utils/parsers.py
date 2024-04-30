@@ -39,7 +39,7 @@ class Resume:
                 Person.birthday == birthday,
             )
         ).scalar_one_or_none()
-    
+
     def change_status(self, status, user_id=None):
         self.resume["status_id"] = Status.get_id(status)
         self.resume["user_id"] = user_id
@@ -68,7 +68,7 @@ class Resume:
     def add_resume(self):
         person = Person(**self.resume)
         db.session.add(person)
-        db.session.flush()        
+        db.session.flush()
         person_id = person.id
 
         folders = Folders(
@@ -88,46 +88,37 @@ class Anketa(Resume):
         self.anketa = self.parse_json(json_data)
         super().__init__(self.anketa["resume"])
         self.person_id = self.check_resume()
-        
+
     def parse_anketa(self):
-        self.parse_relations()
+        if len(self.anketa["previous"]):
+            self.parse_relations()
         self.save_items()
         return self.person_id
 
+
     def parse_relations(self):
-        if len(self.anketa["previous"]):
-            for item in self.anketa["previous"]:
-                prev = self.get_person(
+        for item in self.anketa["previous"]:
+            relation = self.get_person(
+                (
                     item.get("surname")
                     if item.get("surname")
-                    else self.resume["surname"],
-
+                    else self.resume["surname"]
+                ),
+                (
                     item.get("firstname")
                     if item.get("firstname")
-                    else self.resume["firstname"],
-
+                    else self.resume["firstname"]
+                ),
+                (
                     item.get("patronymic")
                     if item.get("patronymic")
-                    else self.resume.get("patronymic"),
-                    
-                    self.resume["birthday"],
-                )
-                if prev:
-                    db.session.add_all(
-                        [
-                            Relation(
-                                relation="Одно лицо",
-                                person_id=self.person_id,
-                                relation_id=prev.id,
-                            ),
-                            Relation(
-                                relation="Одно лицо",
-                                person_id=prev.id,
-                                relation_id=self.person_id,
-                            ),
-                        ]
-                    )
-        db.session.commit()
+                    else self.resume.get("patronymic")
+                ),
+                self.resume["birthday"],
+            )
+            if relation:
+                self.add_relation("Одно лицо", self.person_id, relation.id)
+
 
     def save_items(self):
         models = [
@@ -159,6 +150,20 @@ class Anketa(Resume):
         db.session.commit()
 
     @staticmethod
+    def add_relation(relation, person_id, relation_id):
+        db.session.add_all(
+            [
+                Relation(
+                    relation=relation, person_id=person_id, relation_id=relation_id
+                ),
+                Relation(
+                    relation=relation, person_id=relation_id, relation_id=person_id
+                ),
+            ]
+        )
+        db.session.commit()
+        
+    @staticmethod
     def parse_json(json_dict) -> None:
         json_data = {
             "resume": {
@@ -187,9 +192,13 @@ class Anketa(Resume):
         for item in json_dict:
             match item:
                 case "midName":
-                    json_data["resume"]["patronymic"] = json_dict["midName"].strip().upper()
+                    json_data["resume"]["patronymic"] = (
+                        json_dict["midName"].strip().upper()
+                    )
                 case "additionalCitizenship":
-                    json_data["resume"]["ext_country"] = json_dict["additionalCitizenship"]
+                    json_data["resume"]["ext_country"] = json_dict[
+                        "additionalCitizenship"
+                    ]
                 case "maritalStatus":
                     json_data["resume"]["marital"] = json_dict["maritalStatus"]
                 case "inn":
@@ -205,7 +214,7 @@ class Anketa(Resume):
                     )
                 case "RegAddress":
                     json_data["address"].append(
-                       {
+                        {
                             "view": "Адрес регистрации",
                             "address": json_dict["RegAddress"],
                         }

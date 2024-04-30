@@ -9,8 +9,8 @@ from .login import roles_required
 from ..utils.parsers import Anketa
 from ..models.classes import Roles, Conclusions, Statuses
 from ..models.model import (
+    db, 
     Education,
-    db,
     Previous,
     Staff,
     Document,
@@ -101,29 +101,15 @@ class ItemsView(MethodView):
                 )
             ).scalar_one_or_none()
             if prev:
-                db.session.add_all(
-                    [
-                        Message(
-                            message=f"Кандидат ранее проверялся ID: {prev.id}",
-                            user_id=current_user.id,
-                        ),
-                        Relation(
-                            relation="Одно лицо", person_id=item_id, relation_id=prev.id
-                        ),
-                        Relation(
-                            relation="Одно лицо", person_id=prev.id, relation_id=item_id
-                        ),
-                    ]
-                )
+                db.session.add(Message(
+                    message=f"Кандидат ранее проверялся ID: {prev.id}",
+                    user_id=current_user.id,
+                ))
+                Anketa.add_relation("Одно лицо", prev.id, item_id)
 
         if item == "relation":
-            db.session.add(
-                Relation(
-                    relation=json_data["relation"],
-                    relation_id=item_id,
-                    person_id=json_data["relation_id"],
-                )
-            )
+            Anketa.add_relation(json_data["relation"], item_id, json_data["relation_id"])
+
 
         if item in ["check", "poligraf", "inquiry", "investigation"]:
             json_data = json_data | {"user_id": current_user.id}

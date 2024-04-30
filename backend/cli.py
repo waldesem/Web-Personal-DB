@@ -78,7 +78,10 @@ def register_cli(app):
         db.session.add(superadmin)
 
         candidate = Person(
-            region_id=Region().get_id(Regions.MAIN_OFFICE.value),
+            region_id=db.session.execute(
+                select(Region.id)
+                .filter(Region.region.like(Regions.MAIN_OFFICE.value))
+            ).scalar_one_or_none(),
             surname="Бендер".upper(),
             firstname="Остап".upper(),
             patronymic="Ибрагимович".upper(),
@@ -90,7 +93,10 @@ def register_cli(app):
             inn="123456789012",
             marital="женат",
             addition="великий комбинатор",
-            status_id=Status().get_id(Statuses.new.value),
+            status_id=db.session.execute(
+                select(Status.id)
+                .filter(Status.status.like(Statuses.new.value))
+            ).scalar_one_or_none()
         )
         db.session.add(candidate)
         db.session.flush()
