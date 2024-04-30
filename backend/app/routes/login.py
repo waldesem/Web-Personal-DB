@@ -17,11 +17,7 @@ from config import Config
 from . import bp
 from .. import jwt, cache
 from ..models.model import db, User
-from ..models.schema import (
-    LoginSchema,
-    RefreshSchema,
-    UserSchema,
-)
+from ..models.schema import LoginSchema, UserSchema
 
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -126,7 +122,6 @@ class RefreshView(MethodView):
 
     @bp.doc(hide=True)
     @jwt_required(refresh=True)
-    @bp.output(RefreshSchema)
     def post(self):
         """
         Generate a new access token for the authenticated user.

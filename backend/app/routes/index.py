@@ -1,3 +1,4 @@
+from flask import request
 from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy_searchable import search
@@ -6,28 +7,18 @@ from sqlalchemy import func, select
 from . import bp
 from .login import roles_required
 from ..models.classes import Roles, Statuses
-from ..models.model import (
-    db,
-    Person,
-    Check,
-    Status,
-)
-from ..models.schema import (
-    InfoSchema,
-    PersonSchema,
-    SortSchema,
-)
+from ..models.model import db, Person, Check, Status
+from ..models.schema import InfoSchema, PersonSchema
 
 
 class IndexView(MethodView):
 
     @roles_required(Roles.user.value)
     @bp.doc(hide=True)
-    @bp.input(SortSchema, location="query")
-    def get(self, flag, page, query_data):
+    def get(self, flag, page):
         query = select(Person)
-        sort_attribute = getattr(Person, query_data.get("sort"))
-        if query_data.get("order") == "asc":
+        sort_attribute = getattr(Person, request.args.get("sort"))
+        if request.args.get("order") == "asc":
             query = query.order_by(sort_attribute.asc())
         else:
             query = query.order_by(sort_attribute.desc())
@@ -42,7 +33,7 @@ class IndexView(MethodView):
                 Person.user_id == current_user.id,
             )
         else:
-            search_data = query_data.get("search")
+            search_data = request.args.get("search")
             if search_data:
                 query = search(query, "%{}%".format(search_data))
 

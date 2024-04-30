@@ -1,3 +1,4 @@
+from flask import request
 from flask.views import MethodView
 from sqlalchemy_searchable import search
 from sqlalchemy import select
@@ -7,22 +8,21 @@ from . import bp
 from .login import roles_required
 from ..models.classes import Roles
 from ..models.model import db, Connect
-from ..models.schema import ConnectSchema, SearchSchema
+from ..models.schema import ConnectSchema
 
 
 class ConnnectView(MethodView):
 
     decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
-    @bp.input(SearchSchema, location="query")
-    def get(self, page, query_data):
+    def get(self, page):
         """
         Retrieves a paginated list of Connect objects based on the specified group and item.
         """
         names = db.session.execute(select(Connect.name)).scalars()
         companies = db.session.execute(select(Connect.company)).scalars()
         cities = db.session.execute(select(Connect.city)).scalars()
-        search_data = query_data.get("search")
+        search_data = request.args.get("search")
         query = select(Connect).order_by(Connect.id.desc())
         if search_data:
             query = search(query,"%{}%".format(search_data))

@@ -1,11 +1,9 @@
 import re
 
-import httpx
 from sqlalchemy import select
 
 from ..utils.folders import Folders
 from ..models.classes import Statuses
-from ..models.schema import ResumeSchemaApi
 from ..models.model import (
     Relation,
     db,
@@ -21,68 +19,6 @@ from ..models.model import (
     Region,
     Status,
 )
-
-
-class Personal:
-
-    def __init__(self, person_id):
-        self.anketa = db.session.get(Person, person_id)
-
-    def change_status(self, status, user_id=None):
-        self.anketa.status_id = Status.get_id(status)
-        self.anketa.user_id = user_id
-        db.session.commit()
-
-    def send_anketa(self):
-        if self.anketa.status_id in (
-            Status.get_id(Statuses.new.value),
-            Status.get_id(Statuses.update.value),
-            Status.get_id(Statuses.repeat.value),
-            Status.get_id(Statuses.manual.value),
-            Status.get_id(Statuses.robot.value),
-        ):
-            docum = db.session.execute(
-                select(Document)
-                .filter_by(person_id=self.anketa.id)
-                .order_by(Document.id.desc())
-            ).scalar_one_or_none()
-            addr = db.session.execute(
-                select(Address)
-                .filter(
-                    Address.person_id == self.anketa.id,
-                    Address.view.ilike("%регистрац%"),
-                )
-                .order_by(Address.id.desc())
-            ).scalar_one_or_none()
-            if not docum or not addr:
-                return "error"
-            serial = ResumeSchemaApi().dump(
-                {
-                    "id": self.anketa.id,
-                    "surname": self.anketa.surname,
-                    "firstname": self.anketa.firstname,
-                    "patronymic": self.anketa.patronymic,
-                    "birthday": self.anketa.birthday,
-                    "birthplace": self.anketa.birthplace,
-                    "snils": self.anketa.snils,
-                    "inn": self.anketa.inn,
-                    "series": docum.series,
-                    "number": docum.number,
-                    "agency": docum.agency,
-                    "issue": docum.issue,
-                    "address": addr.address,
-                }
-            )
-            try:
-                response = httpx.post(
-                    url="http://127.0.0.1:5001", json=serial, timeout=5
-                )
-                response.raise_for_status()
-                return "send"
-            except httpx.HTTPError as e:
-                return "error"
-        else:
-            return "error"
 
 
 class Resume:

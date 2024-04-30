@@ -28,19 +28,6 @@ from ..models.model import (
 )
 
 
-class SearchSchema(Schema):
-    search = String(default="")
-
-
-class SortSchema(SearchSchema):
-    sort = String(default="id")
-    order = String(default="desc")
-
-
-class ActionSchema(Schema):
-    action = String()
-
-
 class RoleSchema(SQLAlchemyAutoSchema):
     """Create model for role"""
 
@@ -70,12 +57,6 @@ class LoginSchema(Schema):
     username = String()
     password = String()
     new_pswd = String()
-
-
-class RefreshSchema(Schema):
-    """Create model for refresh"""
-
-    access_token = String()
 
 
 class MessageSchema(SQLAlchemyAutoSchema):
@@ -256,24 +237,6 @@ class InfoSchema(Schema):
 
 
 """Schemas for API endpoints"""
-
-
-class ResumeSchemaApi(Schema):
-    """Create schema for sending anketa"""
-
-    id = String()
-    surname = String()
-    firstname = String()
-    patronymic = String()
-    birthday = Date()
-    birthplace = String()
-    snils = String()
-    inn = String()
-    series = String()
-    number = String()
-    agency = String()
-    issue = Date()
-    address = String()
 
 class NameWasChangedApi(Schema):
     """Nested schema for AnketaSchemaApi"""

@@ -1,5 +1,5 @@
 from apiflask import EmptySchema
-from flask import abort
+from flask import abort, request
 from flask.views import MethodView
 from flask_jwt_extended import current_user
 from sqlalchemy import select
@@ -11,22 +11,17 @@ from . import bp
 from .login import roles_required
 from ..models.classes import Roles
 from ..models.model import db, User, Role
-from ..models.schema import (
-    ActionSchema,
-    SearchSchema,
-    UserSchema,
-)
+from ..models.schema import UserSchema
 
 
 @roles_required(Roles.admin.value)
 @bp.doc(hide=True)
 @bp.get("/users")
-@bp.input(SearchSchema, location="query")
-def get_users(query_data):
+def get_users():
     """
     Endpoint to handle requests for getting users.
     """
-    search_data = query_data.get("search")
+    search_data = request.args.get("search")
     query = search(select(User), search_data if search_data else "").order_by(
         User.id.asc()
     )
@@ -38,12 +33,11 @@ class UserView(MethodView):
 
     decorators = [roles_required(Roles.admin.value), bp.doc(hide=True)]
 
-    @bp.input(ActionSchema, location="query")
-    def get(self, user_id, query_data):
+    def get(self, user_id):
         """
         Retrieves a user based on the specified action and user ID.
         """
-        action_data = query_data.get("action")
+        action_data = request.args.get("action")
         if action_data != "view":
             user = db.session.get(User, user_id)
             match action_data:
