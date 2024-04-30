@@ -88,7 +88,6 @@ def register_cli(app):
             ext_country="Турция",
             snils="12345678901",
             inn="123456789012",
-            education="Частная гимназия Илиади",
             marital="женат",
             addition="великий комбинатор",
             status_id=Status().get_id(Statuses.new.value),

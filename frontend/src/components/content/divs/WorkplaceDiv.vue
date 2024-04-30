@@ -95,7 +95,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'ID'">
           {{ item["id"] }}
         </LabelSlot>
-        <LabelSlot :label="'Текущая работа'">
+        <LabelSlot v-if="!item['end_date']" :label="'Текущая работа'">
           {{ item["now_work"] }}
         </LabelSlot>
         <LabelSlot :label="'Начало работы'">

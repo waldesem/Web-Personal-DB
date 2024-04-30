@@ -48,8 +48,8 @@ class ResumeView(MethodView):
                 if status == "send":
                     person.change_status(Statuses.robot.value, current_user.id)
                 return {"message": status}, 201
-        else:
-            return abort, 400
+            else:
+                return abort, 400
         return {"message": PersonSchema().dump(person.anketa)}, 200
 
     @bp.output(EmptySchema)

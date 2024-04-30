@@ -12,6 +12,7 @@ from ..utils.folders import Folders
 from ..utils.parsers import Anketa
 from ..models.classes import Roles
 from ..models.model import db, Person
+from ..models.schema import AnketaSchemaApi
 
 
 class FileView(MethodView):
@@ -37,7 +38,8 @@ class FileView(MethodView):
             return abort(400)
 
         if action == "anketa":
-            json_dict = json.load(file)
+            json_data = json.load(file)
+            json_dict = AnketaSchemaApi().dump(json_data)
             anketa = Anketa(json_dict)
             person_id = anketa.parse_anketa()
             return {"message": person_id}, 201

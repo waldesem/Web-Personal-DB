@@ -120,8 +120,8 @@ bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
 class RefreshView(MethodView):
     """Refresh view"""
 
-    @bp.doc(hide=True)
-    @jwt_required(refresh=True)
+    decorators = [jwt_required(refresh=True), bp.doc(hide=True)]
+
     def post(self):
         """
         Generate a new access token for the authenticated user.

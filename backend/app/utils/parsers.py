@@ -27,7 +27,7 @@ class Resume:
         for k, v in resume.items():
             if k in ["surname", "firstname", "patronymic"]:
                 resume[k] = v.strip().upper()
-        self.resume = resume
+        self.resume: dict = resume
 
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
@@ -38,7 +38,12 @@ class Resume:
                 Person.patronymic.ilike(patronymic),
                 Person.birthday == birthday,
             )
-        ).one_or_none()
+        ).scalar_one_or_none()
+    
+    def change_status(self, status, user_id=None):
+        self.resume["status_id"] = Status.get_id(status)
+        self.resume["user_id"] = user_id
+        db.session.commit()
 
     def check_resume(self):
         person = self.get_person(
@@ -47,7 +52,12 @@ class Resume:
             self.resume.get("patronymic", ""),
             self.resume["birthday"],
         )
-        return self.update_resume(person) if person else self.add_resume()
+        if person:
+            self.change_status(Statuses.repeat.value)
+            return self.update_resume(person)
+        else:
+            self.change_status(Statuses.new.value)
+            return self.add_resume()
 
     def update_resume(self, person):
         for k, v in self.resume.items():
@@ -56,10 +66,9 @@ class Resume:
         return person.id
 
     def add_resume(self):
-        self.resume["status_id"] = Status().get_id(Statuses.new.value)
         person = Person(**self.resume)
         db.session.add(person)
-        db.session.flush()
+        db.session.flush()        
         person_id = person.id
 
         folders = Folders(
@@ -79,7 +88,7 @@ class Anketa(Resume):
         self.anketa = self.parse_json(json_data)
         super().__init__(self.anketa["resume"])
         self.person_id = self.check_resume()
-
+        
     def parse_anketa(self):
         self.parse_relations()
         self.save_items()
@@ -144,7 +153,8 @@ class Anketa(Resume):
         for model, items in zip(models, items_lists):
             for item in items:
                 if item:
-                    db.session.add(model(**item | {"person_id": self.person_id}))
+                    item["person_id"] = self.person_id
+                    db.session.add(model(**item))
 
         db.session.commit()
 
@@ -158,7 +168,7 @@ class Anketa(Resume):
                 "surname": json_dict["lastName"].strip().upper(),
                 "birthday": json_dict["birthday"],
                 "birthplace": json_dict["birthplace"].strip(),
-                "citizen": json_dict["citizen"].strip(),
+                "country": json_dict["citizen"].strip(),
             },
             "previous": json_dict["nameWasChanged"],
             "education": json_dict["education"],
@@ -177,15 +187,15 @@ class Anketa(Resume):
         for item in json_dict:
             match item:
                 case "midName":
-                    json_data["patronymic"] = json_dict["midName"].strip().upper()
+                    json_data["resume"]["patronymic"] = json_dict["midName"].strip().upper()
                 case "additionalCitizenship":
-                    json_data["ext_country"] = json_dict["additionalCitizenship"]
+                    json_data["resume"]["ext_country"] = json_dict["additionalCitizenship"]
                 case "maritalStatus":
-                    json_data["marital"] = json_dict["maritalStatus"]
+                    json_data["resume"]["marital"] = json_dict["maritalStatus"]
                 case "inn":
-                    json_data["inn"] = json_dict["inn"].strip()
+                    json_data["resume"]["inn"] = json_dict["inn"].strip()
                 case "snils":
-                    json_data["snils"] = json_dict["snils"].strip()
+                    json_data["resume"]["snils"] = json_dict["snils"].strip()
                 case "ValidAddress":
                     json_data["address"].append(
                         {
@@ -195,18 +205,18 @@ class Anketa(Resume):
                     )
                 case "RegAddress":
                     json_data["address"].append(
-                        {
+                       {
                             "view": "Адрес регистрации",
                             "address": json_dict["RegAddress"],
                         }
                     )
                 case "contactPhone":
                     json_data["contact"].append(
-                        {"view": "Телефон", "phone": json_dict["contactPhone"]}
+                        {"view": "Телефон", "contact": json_dict["contactPhone"]}
                     )
                 case "email":
                     json_data["contact"].append(
-                        {"view": "Электронная почта", "email": json_dict["email"]}
+                        {"view": "Электронная почта", "contact": json_dict["email"]}
                     )
                 case "passportNumber":
                     json_data["document"].append(
@@ -235,7 +245,7 @@ class Anketa(Resume):
         if "department" in json_dict:
             divisions = re.split(r"/", json_dict["department"].strip())
             for div in divisions:
-                region = Region().get_id(div)
-                if region:
-                    region_id = region
+                reg_id = Region().get_id(div)
+                if reg_id:
+                    region_id = reg_id
         return region_id

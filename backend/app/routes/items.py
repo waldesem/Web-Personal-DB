@@ -9,6 +9,7 @@ from .login import roles_required
 from ..utils.parsers import Anketa
 from ..models.classes import Roles, Conclusions, Statuses
 from ..models.model import (
+    Education,
     db,
     Previous,
     Staff,
@@ -29,6 +30,7 @@ from ..models.model import (
     Message,
 )
 from ..models.schema import (
+    EducationSchema,
     RelationSchema,
     PreviousSchema,
     StaffSchema,
@@ -53,6 +55,7 @@ class ItemsView(MethodView):
         "document": [Document, DocumentSchema()],
         "address": [Address, AddressSchema()],
         "contact": [Contact, ContactSchema()],
+        "education": [Education, EducationSchema()],
         "workplace": [Workplace, WorkplaceSchema()],
         "relation": [Relation, RelationSchema()],
         "affilation": [Affilation, AffilationSchema()],
@@ -96,7 +99,7 @@ class ItemsView(MethodView):
                     Person.patronymic.ilike(json_data.get("patronymic")),
                     Person.birthday == person.birthday,
                 )
-            ).one_or_none()
+            ).scalar_one_or_none()
             if prev:
                 db.session.add_all(
                     [
