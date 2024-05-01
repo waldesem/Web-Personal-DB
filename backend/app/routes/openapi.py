@@ -13,7 +13,20 @@ from ..utils.parsers import Anketa
 
 class RobotsView(MethodView):
 
-    @bp.input(RobotSchema)
+    example = {
+        "bankruptcy": "Признан банкротом",
+        "bki": "Положительная кредитная история",
+        "courts": "Есть судебные решения",
+        "debt": "Наличие задолженности",
+        "employee": "Ранее работал в компании с 2000 по 2010 года",
+        "id": 0,
+        "inn": "Проверка пройдена",
+        "mvd": "Проверка пройдена",
+        "path": "/path/to/robot",
+        "terrorist": "Проверка пройдена",
+    }
+
+    @bp.input(RobotSchema, example=example)
     @bp.output(EmptySchema, status_code=201)
     def post(self, json_data):
         """
@@ -65,7 +78,83 @@ bp.add_url_rule("/robot", view_func=RobotsView.as_view("robot"))
 
 class PulseView(MethodView):
 
-    @bp.input(AnketaSchemaApi, location="json")
+    example = {
+        "additionalCitizenship": "Беларусь, Израиль",
+        "birthday": "2002-12-12",
+        "birthplace": "Беларусь, Минск",
+        "citizen": "Россия",
+        "contactPhone": "+375 29 123 45 67",
+        "department": "Департамент тестирования",
+        "education": [
+            {
+            "end": 2021,
+            "name": "Институт тестирования",
+            "specialty": "тестирование",
+            "view": "высшее"
+            }
+        ],
+        "email": "email@bk.ru",
+        "experience": [
+            {
+            "address": "Россия, Москва, ул. Большая Конюшенная, д. 1",
+            "end_date": "1999-01-01",
+            "now_work": False,
+            "position": "тестировщик",
+            "reason": "по собственному желанию",
+            "start_date": "1998-01-01",
+            "workplace": "ООО Тест"
+            }
+        ],
+        "firstName": "Иван",
+        "inn": "123456789010",
+        "lastName": "Иванов",
+        "maritalStatus": "женат",
+        "midName": "Иванович",
+        "nameWasChanged": [
+            {
+            "date_change": 2021,
+            "firstname": "Семен",
+            "patronymic": "Семенович",
+            "reason": "по собственному желанию",
+            "surname": "Семенов"
+            }
+        ],
+        "organizations": [
+            {
+            "inn": "123456789010",
+            "name": "ООО БелТест",
+            "position": "Директор"
+            }
+        ],
+        "passportIssueDate": "2024-01-01",
+        "passportIssuedBy": "МВД России",
+        "passportNumber": "1234",
+        "passportSerial": "123654",
+        "positionName": "тестировщик",
+        "publicOfficeOrganizations": [
+            {
+            "name": "МИД России",
+            "position": "тестировщик"
+            }
+        ],
+        "regAddress": "Россия, Москва, ул. Тестовая, д. 1",
+        "relatedPersonsOrganizations": [
+            {
+            "name": "ЦБ России",
+            "position": "Директор Департамента тестирования",
+            }
+        ],
+        "snils": "12345678901",
+        "stateOrganizations": [
+            {
+            "name": "ФСПП России",
+            "position": "пристав"
+            }
+        ],
+        "validAddress": "Россия, Москва, ул. Тестовая, д. 1",
+        }
+    
+    @bp.input(AnketaSchemaApi, location="json", example=example)
     @bp.output(EmptySchema, status_code=201)
     def post(self, json_data):
         """

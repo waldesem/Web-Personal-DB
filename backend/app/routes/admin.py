@@ -15,8 +15,8 @@ from ..models.schema import UserSchema
 
 
 @roles_required(Roles.admin.value)
-@bp.doc(hide=True)
 @bp.get("/users")
+@bp.doc(hide=True)
 def get_users():
     """
     Endpoint to handle requests for getting users.

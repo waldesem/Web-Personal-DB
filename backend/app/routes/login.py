@@ -1,9 +1,11 @@
+import ssl
 from datetime import datetime
 from functools import wraps
 
 import redis
-from flask import abort
+from flask import abort, request
 from flask.views import MethodView
+from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import (
     create_access_token,
@@ -12,12 +14,14 @@ from flask_jwt_extended import (
     jwt_required,
     current_user,
 )
+from ldap3 import Server, Connection, ALL, Tls, NTLM
 
 from config import Config
 from . import bp
 from .. import jwt, cache
-from ..models.model import db, User
+from ..models.model import Role, db, User
 from ..models.schema import LoginSchema, UserSchema
+from ..models.classes import Roles
 
 
 jwt_redis_blocklist = redis.StrictRedis(
@@ -26,6 +30,7 @@ jwt_redis_blocklist = redis.StrictRedis(
     db=1,
     decode_responses=True,
 )
+
 
 class AuthView(MethodView):
     """Login view"""
@@ -45,6 +50,7 @@ class AuthView(MethodView):
             return user
         return abort(404)
 
+
 bp.add_url_rule("/auth", view_func=AuthView.as_view("auth"))
 
 
@@ -52,12 +58,40 @@ class LoginView(MethodView):
     """Login view"""
 
     decorators = [bp.doc(hide=True)]
-    
+
     @bp.input(LoginSchema)
     def post(self, json_data):
         """
         Post method for the given API endpoint.
         """
+        # ldap = ldap_auth(json_data["username"], json_data["password"])
+        # if ldap == "Success":
+        #     user = User.get_user(json_data["username"])
+        #     if not user:
+        #         user = User(
+        #         username=json_data["username"], 
+        #         password=generate_password_hash(
+        #             json_data["password"], 
+        #             method="scrypt", salt_length=16
+        #         )
+        #     )
+        #         db.session.add(user)
+        #         db.session.flush()
+        #         user.roles.append(
+        #             db.session.execute(
+        #                 select(Role).filter_by(role=(Roles.user.value))
+        #                 ).scalar_one_or_none()
+        #         )
+        #     if not user.deleted and not user.blocked:
+        #         user.last_login = datetime.now()
+        #         token = UserSchema().dump(user)
+        #         db.session.commit()
+        #         return {
+        #             "message": "Authenticated",
+        #             "access_token": create_access_token(identity=token),
+        #             "refresh_token": create_refresh_token(identity=token),
+        #         }, 201
+            
         user = User.get_user(json_data["username"])
         if user and not user.blocked and not user.deleted:
             if check_password_hash(user.password, json_data["password"]):
@@ -79,7 +113,9 @@ class LoginView(MethodView):
                 else:
                     user.blocked = True
                 db.session.commit()
+        
         return {"message": "Denied"}, 201
+
 
     @bp.input(LoginSchema)
     def patch(self, json_data):
@@ -154,6 +190,26 @@ def roles_required(*roles):
         return wrapper
 
     return decorator
+
+
+def ldap_auth(user_name, user_pwd):
+
+    ldap_user_name = user_name.strip()
+    ldap_user_pwd = user_pwd.strip()
+
+    tls_configuration = Tls(validate=ssl.CERT_REQUIRED, version=ssl.PROTOCOL_TLSv1_2)
+    server = Server(
+        "ldap://<server_name_here>:389", use_ssl=True, tls=tls_configuration
+    )
+    connection = Connection(
+        server,
+        user=ldap_user_name,
+        password=ldap_user_pwd,
+        authentication=NTLM,
+        auto_referrals=False,
+    )
+
+    return "Success" if connection.bind() else "Failed"
 
 
 @jwt.token_in_blocklist_loader

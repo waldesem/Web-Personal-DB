@@ -14,7 +14,7 @@ from ..models.schema import  PersonSchema
 from ..models.model import  Status, db, Person, Message, Document, Address
 
 
-class ResumeView(MethodView):
+class AnketaView(MethodView):
 
     decorators = [roles_required(Roles.user.value), bp.doc(hide=True)]
 
@@ -71,7 +71,7 @@ class ResumeView(MethodView):
         return {"message": person_id}
 
 
-resume_view = ResumeView.as_view("resume")
+resume_view = AnketaView.as_view("resume")
 bp.add_url_rule(
     "/resume",
     view_func=resume_view,
@@ -85,7 +85,7 @@ bp.add_url_rule(
 
 
 class ResumeSchemaApi(Schema):
-    """Create schema for sending anketa"""
+    """Create schema for sending anketa to api for robot check"""
 
     id = String()
     surname = String()

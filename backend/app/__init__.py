@@ -16,7 +16,7 @@ def create_app(config=Config):
     """
     Initializes and configures a Flask application. 
     """
-    app = APIFlask(__name__, title="StaffSec", docs_ui="redoc")
+    app = APIFlask(__name__, title="StaffSec")
     app.config.from_object(config)
 
     CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)

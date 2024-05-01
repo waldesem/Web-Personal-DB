@@ -183,8 +183,8 @@ class RobotSchema(SQLAlchemyAutoSchema):
         ordered = True
         dump_only = ("deadline",)
 
-    path = String()
-
+    path = String(required=True)
+    id = Integer(required=True)
 
 class ConclusionSchema(SQLAlchemyAutoSchema):
     """Create model for conclusion"""
@@ -244,7 +244,7 @@ class NameWasChangedApi(Schema):
     surname = String(required=False, attribute="firstNameBeforeChange")
     firstname = String(required=False, attribute="lastNameBeforeChange")
     patronymic = String(required=False, attribute="midNameBeforeChange")
-    date_change = String(required=True, attribute="yearOfChange")
+    date_change = Integer(required=True, attribute="yearOfChange")
     reason = String(required=False)
 
 
