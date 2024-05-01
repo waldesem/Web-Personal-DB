@@ -1,9 +1,8 @@
-import ssl
 from datetime import datetime
 from functools import wraps
 
 import redis
-from flask import abort, request
+from flask import abort
 from flask.views import MethodView
 from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -14,7 +13,7 @@ from flask_jwt_extended import (
     jwt_required,
     current_user,
 )
-from ldap3 import Server, Connection, ALL, Tls, NTLM
+from ldap3 import ALL, Server, Connection, Tls, NTLM
 
 from config import Config
 from . import bp
@@ -65,10 +64,12 @@ class LoginView(MethodView):
         Post method for the given API endpoint.
         """
         # ldap = ldap_auth(json_data["username"], json_data["password"])
-        # if ldap == "Success":
+        # if ldap:
         #     user = User.get_user(json_data["username"])
         #     if not user:
         #         user = User(
+        #         fullname=ldap["fullname"],
+        #         email=ldap["email"],
         #         username=json_data["username"], 
         #         password=generate_password_hash(
         #             json_data["password"], 
@@ -192,24 +193,26 @@ def roles_required(*roles):
     return decorator
 
 
-def ldap_auth(user_name, user_pwd):
-
+def ldap_auth(user_name, password):
     ldap_user_name = user_name.strip()
-    ldap_user_pwd = user_pwd.strip()
-
-    tls_configuration = Tls(validate=ssl.CERT_REQUIRED, version=ssl.PROTOCOL_TLSv1_2)
-    server = Server(
-        "ldap://<server_name_here>:389", use_ssl=True, tls=tls_configuration
-    )
+    server = Server("ldap://ldap.forumsys.com:389", get_info=ALL)
     connection = Connection(
         server,
-        user=ldap_user_name,
-        password=ldap_user_pwd,
-        authentication=NTLM,
-        auto_referrals=False,
+        user='uid={},dc=example,dc=com'.format(ldap_user_name),
+        password=password,
     )
-
-    return "Success" if connection.bind() else "Failed"
+    if connection.bind():
+        connection.search(
+            "dc=example,dc=com",
+            f"(uid={ldap_user_name})",
+        )
+        if connection.entries:
+            return {
+                'fullname': connection.entries[0].cn.value,
+                'email': connection.entries[0].mail.value
+            }
+    else:
+        return None
 
 
 @jwt.token_in_blocklist_loader
