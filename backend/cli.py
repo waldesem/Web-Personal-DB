@@ -18,9 +18,19 @@ from app.models.model import (
     Conclusion,
 )
 
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://flask:flask@localhost/personal"
 
 def register_cli(app):
+
+    @app.cli.command("init")
+    def init_env():
+        with open(".env", "w", encoding="utf-8") as file:
+            file.write(
+                f"SECRET_KEY='{secrets.token_hex()}'\n" 
+                f"JWT_SECRET_KEY='{secrets.token_hex()}'\n" 
+                f"SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://flask:flask@localhost/personal'"
+            )
+            print(".env file created")
+    
     @app.cli.command("create")
     def create_default():
         """Create default values"""
@@ -33,14 +43,6 @@ def register_cli(app):
             if not os.path.isdir(letter_path):
                 os.mkdir(letter_path)
         print(f"Alphabet directories created")
-
-        with open(".env", "w", encoding="utf-8") as file:
-            file.write(
-                f"SECRET_KEY='{secrets.token_hex()}'\n" 
-                f"JWT_SECRET_KEY='{secrets.token_hex()}'\n" 
-                f"SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://flask:flask@localhost/personal'"
-            )
-        print(".env file created")
 
         db.create_all()
 
