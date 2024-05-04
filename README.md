@@ -59,10 +59,11 @@ flask db upgrade    # after change db schema
 To create application run the following command in your terminal:
 ```
 flask init         # init environments
+```
+In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials then run the command.
+```
 flask create       # create default values
 ```
-In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials.
-
 To start the application at http://localhost:5000 run the following command in your terminal:
 ```
 flask run          # start the application
