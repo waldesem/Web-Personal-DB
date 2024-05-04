@@ -1,7 +1,6 @@
 from apiflask import APIFlask
 from flask_migrate import Migrate
 from flask_cors import CORS
-from flask_caching import Cache
 from flask_jwt_extended import JWTManager
 
 from config import Config
@@ -9,7 +8,6 @@ from .models.model import db
 
 jwt = JWTManager()
 migrate = Migrate()
-cache = Cache()
 
 
 def create_app(config=Config):
@@ -22,7 +20,6 @@ def create_app(config=Config):
     CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
     db.init_app(app)
     jwt.init_app(app)
-    cache.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
 
     from app.routes import bp as route_bp
@@ -32,9 +29,6 @@ def create_app(config=Config):
     from cli import register_cli
 
     register_cli(app)
-
-    with app.app_context():
-        cache.clear()
 
     @app.get("/", defaults={"path": ""})
     @app.doc(hide=True)

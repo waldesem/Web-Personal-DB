@@ -17,7 +17,7 @@ from ldap3 import ALL, Server, Connection, Tls, NTLM
 
 from config import Config
 from . import bp
-from .. import jwt, cache
+from .. import jwt
 from ..models.model import Role, db, User
 from ..models.schema import LoginSchema, UserSchema
 from ..models.classes import Roles
@@ -70,10 +70,7 @@ class LoginView(MethodView):
         #         user = User(
         #         fullname=ldap["fullname"],
         #         email=ldap["email"],
-        #         username=json_data["username"], 
-        #         password=generate_password_hash(
-        #             json_data["password"], 
-        #             method="scrypt", salt_length=16
+        #         username=json_data["username"],
         #         )
         #     )
         #         db.session.add(user)
@@ -147,7 +144,6 @@ class LoginView(MethodView):
         jti = get_jwt()["jti"]
         access_expires = Config.JWT_ACCESS_TOKEN_EXPIRES
         jwt_redis_blocklist.set(jti, "", ex=access_expires)
-        cache.clear()
         return {"message": "Denied"}
 
 
@@ -225,7 +221,6 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     return token_in_redis is not None
 
 
-@cache.memoize()
 @jwt.user_identity_loader
 def user_identity_lookup(user):
     """
@@ -234,7 +229,6 @@ def user_identity_lookup(user):
     return user["id"]
 
 
-@cache.memoize()
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     """
