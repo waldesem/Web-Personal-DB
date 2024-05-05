@@ -2,15 +2,8 @@ from apiflask import APIBlueprint
 
 bp = APIBlueprint("route", __name__)
 
-from . import admin
-from . import index
-from . import resume
-from . import items
-from . import files
-from . import classify
-from . import contact
 from . import login
-from . import message
+from . import users
+from . import index
+from . import person
 from . import openapi
-from . import gpt
-

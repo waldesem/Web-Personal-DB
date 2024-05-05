@@ -15,6 +15,7 @@ from sqlalchemy import (
     Text,
     Boolean,
     select,
+    func,
 )
 
 
@@ -27,8 +28,10 @@ db = SQLAlchemy(model_class=Base)
 make_searchable(db.metadata)
 
 
-def default_time():
-    return datetime.now()
+class TokenBlocklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False)
 
 
 user_roles = db.Table(
@@ -63,13 +66,17 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(String(), nullable=True)
     email: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
     pswd_create: Mapped[datetime] = mapped_column(
-        DateTime, nullable=True, default=default_time
+        DateTime, nullable=True, default=func.now()
     )
     pswd_change: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     last_login: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(Integer(), default=0, nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, onupdate=func.now())
+    region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"))
+    region: Mapped["Region"] = relationship(back_populates="persons")
     messages: Mapped[List["Message"]] = relationship(back_populates="users")
     persons: Mapped[List["Person"]] = relationship(back_populates="users")
     checks: Mapped[List["Check"]] = relationship(back_populates="users")
@@ -99,7 +106,7 @@ class Message(db.Model):
     )
     message: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=default_time, nullable=True
+        DateTime, default=func.now(), nullable=True
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     users: Mapped["User"] = relationship(back_populates="messages")
@@ -131,6 +138,7 @@ class Region(db.Model):
     )
     region: Mapped[str] = mapped_column(String(255), nullable=False)
     persons: Mapped[List["Person"]] = relationship(back_populates="regions")
+    users: Mapped[List["User"]] = relationship(back_populates="region")
 
     @staticmethod
     def get_id(region):
@@ -168,10 +176,10 @@ class Person(db.Model):
     addition: Mapped[str] = mapped_column(Text, nullable=True)
     path: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        DateTime, default=default_time, nullable=True
+        DateTime, default=func.now(), nullable=True
     )
     updated: Mapped[datetime] = mapped_column(
-        DateTime, onupdate=default_time, nullable=True
+        DateTime, onupdate=func.now(), nullable=True
     )
     previous: Mapped[List["Previous"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
@@ -340,9 +348,7 @@ class Affilation(db.Model):
     name: Mapped[str] = mapped_column(Text, nullable=True)
     inn: Mapped[str] = mapped_column(String(255), nullable=True)
     position: Mapped[str] = mapped_column(Text, nullable=True)
-    deadline: Mapped[datetime] = mapped_column(
-        Date, default=default_time, nullable=True
-    )
+    deadline: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="affilations")
 
@@ -387,7 +393,7 @@ class Check(db.Model):
         ForeignKey("conclusions.id"), nullable=True
     )
     deadline: Mapped[datetime] = mapped_column(
-        Date, default=default_time, onupdate=default_time, nullable=True
+        Date, default=func.now(), onupdate=func.now(), nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
@@ -413,9 +419,7 @@ class Robot(db.Model):
     courts: Mapped[str] = mapped_column(Text, nullable=True)
     terrorist: Mapped[str] = mapped_column(Text, nullable=True)
     mvd: Mapped[str] = mapped_column(Text, nullable=True)
-    deadline: Mapped[datetime] = mapped_column(
-        Date, default=default_time, nullable=True
-    )
+    deadline: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="robots")
 
@@ -449,9 +453,7 @@ class Poligraf(db.Model):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    deadline: Mapped[datetime] = mapped_column(
-        Date, default=default_time, nullable=True
-    )
+    deadline: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="poligrafs")
     users: Mapped["User"] = relationship(back_populates="poligrafs")
@@ -469,9 +471,7 @@ class Investigation(db.Model):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    deadline: Mapped[datetime] = mapped_column(
-        Date, default=default_time, nullable=True
-    )
+    deadline: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="investigations")
     users: Mapped["User"] = relationship(back_populates="investigations")
@@ -490,9 +490,7 @@ class Inquiry(db.Model):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    deadline: Mapped[datetime] = mapped_column(
-        Date, default=default_time, nullable=True
-    )
+    deadline: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     persons: Mapped[List["Person"]] = relationship(back_populates="inquiries")
     users: Mapped["User"] = relationship(back_populates="inquiries")
@@ -515,7 +513,7 @@ class Connect(db.Model):
     mail: Mapped[str] = mapped_column(String(255), nullable=True)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     data: Mapped[datetime] = mapped_column(
-        Date, default=default_time, onupdate=default_time, nullable=True
+        Date, default=func.now(), onupdate=func.now(), nullable=True
     )
     search_vector: Mapped[TSVectorType] = mapped_column(
         TSVectorType("company", "fullname")

@@ -63,6 +63,10 @@ def register_cli(app):
                 method="scrypt",
                 salt_length=16,
             ),
+            email="admin@example.com",
+            region_id=db.session.execute(
+                select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
+            ).scalar_one_or_none()
         )
         db.session.add(superadmin)
         db.session.flush()
@@ -81,8 +85,7 @@ def register_cli(app):
 
         candidate = Person(
             region_id=db.session.execute(
-                select(Region.id)
-                .filter(Region.region.like(Regions.MAIN_OFFICE.value))
+                select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
             ).scalar_one_or_none(),
             surname="Бендер".upper(),
             firstname="Остап".upper(),
@@ -96,8 +99,7 @@ def register_cli(app):
             marital="женат",
             addition="великий комбинатор",
             status_id=db.session.execute(
-                select(Status.id)
-                .filter(Status.status.like(Statuses.new.value))
+                select(Status.id).filter(Status.status.like(Statuses.new.value))
             ).scalar_one_or_none()
         )
         db.session.add(candidate)

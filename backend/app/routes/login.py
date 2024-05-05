@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 
-import redis
 from flask import abort
 from flask.views import MethodView
 from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
+from ldap3 import Server, Connection, Tls, ALL, NTLM
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -13,22 +13,12 @@ from flask_jwt_extended import (
     jwt_required,
     current_user,
 )
-from ldap3 import ALL, Server, Connection, Tls, NTLM
 
-from config import Config
 from . import bp
 from .. import jwt
-from ..models.model import Role, db, User
+from ..models.model import db, User, TokenBlocklist, Role
 from ..models.schema import LoginSchema, UserSchema
 from ..models.classes import Roles
-
-
-jwt_redis_blocklist = redis.StrictRedis(
-    host=Config.JWT_REDIS_HOST,
-    port=Config.JWT_REDIS_PORT,
-    db=1,
-    decode_responses=True,
-)
 
 
 class AuthView(MethodView):
@@ -139,11 +129,12 @@ class LoginView(MethodView):
     @jwt_required(verify_type=False)
     def delete(self):
         """
-        A function that deletes the JWT token from the Redis blocklist.
+        A function that deletes the JWT token to the database blocklist.
         """
         jti = get_jwt()["jti"]
-        access_expires = Config.JWT_ACCESS_TOKEN_EXPIRES
-        jwt_redis_blocklist.set(jti, "", ex=access_expires)
+        now = datetime.now(timezone.utc)
+        db.session.add(TokenBlocklist(jti=jti, created_at=now))
+        db.session.commit()
         return {"message": "Denied"}
 
 
@@ -190,6 +181,17 @@ def roles_required(*roles):
 
 
 def ldap_auth(user_name, password):
+    """
+    Authenticates a user against an LDAP server.
+
+    Args:
+        user_name (str): The username of the user to authenticate.
+        password (str): The password of the user to authenticate.
+
+    Returns:
+        dict or None: A dictionary containing the user's full name and email if the authentication is successful.
+                     None if the authentication fails.
+    """
     ldap_user_name = user_name.strip()
     server = Server("ldap://ldap.forumsys.com:389", get_info=ALL)
     connection = Connection(
@@ -212,13 +214,14 @@ def ldap_auth(user_name, password):
 
 
 @jwt.token_in_blocklist_loader
-def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
     """
-    Check if a token is revoked.
+    Callback function to check if a JWT exists in the database blocklist
     """
     jti = jwt_payload["jti"]
-    token_in_redis = jwt_redis_blocklist.get(jti)
-    return token_in_redis is not None
+    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+
+    return token is not None
 
 
 @jwt.user_identity_loader

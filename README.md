@@ -4,11 +4,8 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 
 ### The main technology stack used in this project includes:
 
-- Python3;
 - APIFlask;
 - Postgesql;
-- SQLAlchemy;
-- Redis;
 - Vue3;
 - Bootstrap 5.
 
