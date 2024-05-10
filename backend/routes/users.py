@@ -70,7 +70,9 @@ async def post_user(json_data: User):
     Creates a new user based on the provided JSON data.
     """
     with Session(engine) as session:
-        if not User.get_user(json_data.username):
+        if not session.exec(
+                select(User).filter_by(username=json_data.username)
+            ).one_or_none():
             session.add(
                 User(
                     fullname=json_data.get("fullname"),

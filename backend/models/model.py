@@ -37,42 +37,54 @@ class Role(SQLModel, table=True):
     users: list["User"] = Relationship(back_populates="roles", link_model=UserRole)
 
 
-class User(SQLModel, table=True):
-    
-    __tablename__ = "users"
-    
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    
+class Region(SQLModel, table=True):
+
+    __tablename__ = "regions"
+
     id: int | None = Field(default=None, primary_key=True, unique=True)
-    fullname: str = Field(max_length=255)
-    username: str = Field(unique=True, max_length=255)
+    region: str = Field(unique=True, max_length=255)
+    users: list["User"] = Relationship(back_populates="regions")
+    persons: list["Person"] = Relationship(back_populates="regions")
+
+    @staticmethod
+    def get_id(region):
+        with Session(engine) as session:
+            return session.exec(
+                select(Region.id).filter(Region.region.like(region))
+            ).one_or_none()
+
+
+class User(SQLModel, table=True):
+
+    __tablename__ = "users"
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    id: int | None = Field(default=None, primary_key=True, unique=True)
+    fullname: str | None = Field(max_length=255, index=True)
+    username: str = Field(unique=True, max_length=255, index=True)
     password: bytes | None = None
     email: str | None = Field(unique=True, max_length=255)
-    region_id: int | None = Field(default=None, foreign_key="regions.id")
-    pswd_create: Optional[datetime] = Field(
+    pswd_create: datetime | None = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
-    change_pswd: Optional[bool] = Field(default=True)
+    change_pswd: bool | None = Field(default=True)
     last_login: datetime | None = None
-    blocked: bool = Field(default=False)
-    deleted: bool = Field(default=False)
-    attempt: int = Field(default=0)
-    regions: "Region" = Relationship(back_populates="users")
+    blocked: bool | None = Field(default=False)
+    deleted: bool | None = Field(default=False)
+    attempt: int | None = Field(default=0)
+    region_id: int | None = Field(default=None, foreign_key="regions.id")
+    regions: Region | None = Relationship(back_populates="users")
     messages: list["Message"] = Relationship(back_populates="users")
     persons: list["Person"] = Relationship(back_populates="users")
     checks: list["Check"] = Relationship(back_populates="users")
     poligrafs: list["Poligraf"] = Relationship(back_populates="users")
     investigations: list["Investigation"] = Relationship(back_populates="users")
     inquiries: list["Inquiry"] = Relationship(back_populates="users")
-    roles: list["Role"] = Relationship(back_populates="users", link_model=UserRole)
-    search_vector: TSVectorType = Field(sa_column=Column(TSVectorType("fullname", "username")))
-
-    @staticmethod
-    def get_user(user_name):
-        with Session(engine) as session:
-            return session.exec(
-                select(User).filter_by(username=user_name)
-            ).one_or_none()
+    roles: Role = Relationship(back_populates="users", link_model=UserRole)
+    search_vector: TSVectorType = Field(
+        sa_column=Column(TSVectorType("fullname", "username"))
+    )
 
 
 class Message(SQLModel, table=True):
@@ -81,7 +93,7 @@ class Message(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True, unique=True)
     message: str
-    created: Optional[datetime] = Field(
+    created: datetime = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
     user_id: int | None = Field(foreign_key="users.id")
@@ -104,39 +116,19 @@ class Status(SQLModel, table=True):
             ).one_or_none()
 
 
-class Region(SQLModel, table=True):
-
-    __tablename__ = "regions"
-
-    id: int | None = Field(default=None, primary_key=True, unique=True)
-    region: str = Field(unique=True, max_length=255)
-    users: list["User"] = Relationship(back_populates="regions")
-    persons: list["Person"] = Relationship(back_populates="regions")
-
-    @staticmethod
-    def get_id(region):
-        with Session(engine) as session:
-            return session.exec(
-                select(Region.id).filter(Region.region.like(region))
-            ).one_or_none()
-
-
 class Person(SQLModel, table=True):
 
     __tablename__ = "persons"
 
     id: int | None = Field(default=None, primary_key=True, unique=True)
-    region_id: int | None = Field(default=None, foreign_key="regions.id")
-    status_id: int | None = Field(default=None, foreign_key="statuses.id")
-    user_id: int | None = Field(default=None, foreign_key="users.id")
     surname: str = Field(max_length=255, index=True)
     firstname: str = Field(max_length=255, index=True)
-    patronymic: str = Field(max_length=255, index=True)
+    patronymic: str | None = Field(max_length=255, index=True)
     birthday: date = Field(index=True)
     birthplace: str | None = None
     country: str | None = Field(max_length=255)
     ext_country: str | None = Field(max_length=255)
-    snils: str | None = Field(max_length=11, index=True)
+    snils: str | None = Field(max_length=11)
     inn: str | None = Field(max_length=12, index=True)
     marital: str | None = None
     addition: str | None = None
@@ -203,23 +195,28 @@ class Person(SQLModel, table=True):
         back_populates="persons",
         sa_relationship_kwargs={"cascade": "all,delete,delete-orphan"},
     )
+    region_id: int | None = Field(default=None, foreign_key="regions.id")
+    regions: Region = Relationship(back_populates="persons")
+    status_id: int | None = Field(default=None, foreign_key="statuses.id")
     statuses: Status = Relationship(back_populates="persons")
-    regions: "Region" = Relationship(back_populates="persons")
-    users: "User" = Relationship(back_populates="persons")
-    
+    user_id: int | None = Field(default=None, foreign_key="users.id")
+    users: User = Relationship(back_populates="persons")
+    search_vector: TSVectorType = Field(
+        sa_column=Column(TSVectorType("surname", "firstname", "patronymic", "inn"))
+    )
 
 class Previous(SQLModel, table=True):
 
     __tablename__ = "previous"
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    surname: str = Field(max_length=255)
-    firstname: str = Field(max_length=255)
-    patronymic: str = Field(max_length=255)
+    surname: str | None = Field(max_length=255)
+    firstname: str | None = Field(max_length=255)
+    patronymic: str | None = Field(max_length=255)
     date_change: date | None = None
     reason: str | None = None
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="previous")
+    persons: Person | None = Relationship(back_populates="previous")
 
 
 class Education(SQLModel, table=True):
@@ -229,11 +226,11 @@ class Education(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     view: str = Field(max_length=255)
-    name: str = Field(nullable=True)
+    name: str | None = Field(nullable=True)
     end: int | None = None
     specialty: str | None = None
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="educations")
+    persons: Person | None = Relationship(back_populates="educations")
 
 
 class Staff(SQLModel, table=True):
@@ -242,9 +239,9 @@ class Staff(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     position: str = Field(nullable=True)
-    department: str = Field(nullable=True)
+    department: str | None = Field(nullable=True)
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="staffs")
+    persons: Person | None = Relationship(back_populates="staffs")
 
 
 class Document(SQLModel, table=True):
@@ -253,12 +250,12 @@ class Document(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     view: str = Field(max_length=255)
-    series: str = Field(max_length=255)
+    series: str | None = Field(max_length=255)
     number: str = Field(max_length=255)
-    agency: str = Field(nullable=True)
+    agency: str | None = Field(nullable=True)
     issue: date | None = None
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="documents")
+    persons: Person | None = Relationship(back_populates="documents")
 
 
 class Address(SQLModel, table=True):
@@ -266,10 +263,10 @@ class Address(SQLModel, table=True):
     __tablename__ = "addresses"
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    view: str = Field(max_length=255)
+    view: str | None = Field(max_length=255)
     address: str = Field(nullable=True)
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="addresses")
+    persons: Person | None = Relationship(back_populates="addresses")
 
 
 class Contact(SQLModel, table=True):
@@ -281,7 +278,7 @@ class Contact(SQLModel, table=True):
     view: str = Field(max_length=255)
     contact: str = Field(max_length=255)
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="contacts")
+    persons: Person | None = Relationship(back_populates="contacts")
 
 
 class Workplace(SQLModel, table=True):
@@ -289,15 +286,15 @@ class Workplace(SQLModel, table=True):
     __tablename__ = "workplaces"
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    now_work: bool | None = None
+    now_work: bool | None = Field(default=False)
     start_date: date | None = None
     end_date: date | None = None
     workplace: str = Field(max_length=255)
-    address: str = Field(nullable=True)
-    position: str = Field(nullable=True)
-    reason: str = Field(nullable=True)
+    address: str | None = Field(nullable=True)
+    position: str | None = Field(nullable=True)
+    reason: str | None = Field(nullable=True)
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="workplaces")
+    persons: Person | None = Relationship(back_populates="workplaces")
 
 
 class Affilation(SQLModel, table=True):
@@ -305,13 +302,13 @@ class Affilation(SQLModel, table=True):
     __tablename__ = "affilations"
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    view: str = Field(max_length=255)
+    view: str | None = Field(max_length=255)
     name: str = Field(nullable=True)
-    inn: str = Field(max_length=255)
-    position: str = Field(nullable=True)
+    inn: str | None = Field(max_length=255)
+    position: str | None = Field(nullable=True)
     deadline: datetime | None = None
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="affilations")
+    persons: Person | None = Relationship(back_populates="affilations")
 
 
 class Relation(SQLModel, table=True):
@@ -320,67 +317,9 @@ class Relation(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     relation: str = Field(max_length=255)
-    relation_id: int | None = None
+    relation_id: int = Field(max_digits=10)
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="relations")
-
-
-class Check(SQLModel, table=True):
-
-    __tablename__ = "checks"
-
-    id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    workplace: str = Field(nullable=True)
-    document: str = Field(nullable=True)
-    inn: str = Field(nullable=True)
-    debt: str = Field(nullable=True)
-    bankruptcy: str = Field(nullable=True)
-    bki: str = Field(nullable=True)
-    courts: str = Field(nullable=True)
-    affilation: str = Field(nullable=True)
-    terrorist: str = Field(nullable=True)
-    mvd: str = Field(nullable=True)
-    internet: str = Field(nullable=True)
-    cronos: str = Field(nullable=True)
-    cros: str = Field(nullable=True)
-    addition: str = Field(nullable=True)
-    pfo: bool | None = None
-    comments: str = Field(nullable=True)
-    deadline: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True), default=func.now())
-    )
-    updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
-    )
-    conclusion_id: int | None = Field(default=None, foreign_key="conclusions.id")
-    person_id: int | None = Field(default=None, foreign_key="persons.id")
-    user_id: int | None = Field(default=None, foreign_key="users.id")
-    persons: list["Person"] = Relationship(back_populates="checks")
-    users: User = Relationship(back_populates="checks")
-    conclusions: list["Conclusion"] = Relationship(back_populates="checks")
-
-
-class Robot(SQLModel, table=True):
-
-    __tablename__ = "robots"
-
-    id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    employee: str = Field(nullable=True)
-    inn: str = Field(nullable=True)
-    debt: str = Field(nullable=True)
-    bankruptcy: str = Field(nullable=True)
-    bki: str = Field(nullable=True)
-    courts: str = Field(nullable=True)
-    terrorist: str = Field(nullable=True)
-    mvd: str = Field(nullable=True)
-    deadline: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True), default=func.now())
-    )
-    updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
-    )
-    person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="robots")
+    persons: Person | None = Relationship(back_populates="relations")
 
 
 class Conclusion(SQLModel, table=True):
@@ -399,22 +338,74 @@ class Conclusion(SQLModel, table=True):
             ).scalar_one_or_none()
 
 
+class Check(SQLModel, table=True):
+
+    __tablename__ = "checks"
+
+    id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
+    workplace: str | None = None
+    document: str | None = None
+    inn: str | None = None
+    debt: str | None = None
+    bankruptcy: str | None = None
+    bki: str | None = None
+    courts: str | None = None
+    affilation: str | None = None
+    terrorist: str | None = None
+    mvd: str | None = None
+    internet: str | None = None
+    cronos: str | None = None
+    cros: str | None = None
+    addition: str | None = None
+    pfo: bool | None = Field(default=False)
+    comments: str | None = None
+    deadline: datetime | None = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated_at: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
+    conclusion_id: int | None = Field(default=None, foreign_key="conclusions.id")
+    conclusions: Conclusion | None = Relationship(back_populates="checks")
+    person_id: int | None = Field(default=None, foreign_key="persons.id")
+    persons: Person | None = Relationship(back_populates="checks")
+    user_id: int | None = Field(default=None, foreign_key="users.id")
+    users: User = Relationship(back_populates="checks")
+
+
+class Robot(SQLModel, table=True):
+
+    __tablename__ = "robots"
+
+    id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
+    employee: str | None = None
+    inn: str | None = None
+    debt: str | None = None
+    bankruptcy: str | None = None
+    bki: str | None = None
+    courts: str | None = None
+    terrorist: str | None = None
+    mvd: str | None = None
+    deadline: datetime | None = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    person_id: int | None = Field(default=None, foreign_key="persons.id")
+    persons: Person | None = Relationship(back_populates="robots")
+
+
 class Poligraf(SQLModel, table=True):
 
     __tablename__ = "poligrafs"
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    theme: str = Field(max_length=255)
-    results: str = Field(nullable=True)
-    user_id: int | None = Field(foreign_key="users.id")
-    deadline: Optional[datetime] = Field(
+    theme: str
+    results: str
+    deadline: datetime | None = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
-    updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
-    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="poligrafs")
+    persons: Person | None = Relationship(back_populates="poligrafs")
+    user_id: int | None = Field(foreign_key="users.id")
     users: User = Relationship(back_populates="poligrafs")
 
 
@@ -423,17 +414,14 @@ class Investigation(SQLModel, table=True):
     __tablename__ = "investigations"
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    theme: str = Field(max_length=255)
-    info: str = Field(nullable=True)
-    user_id: int | None = Field(foreign_key="users.id")
-    deadline: Optional[datetime] = Field(
+    theme: str
+    info: str
+    deadline: datetime | None = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
-    updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
-    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="investigations")
+    persons: Person | None = Relationship(back_populates="investigations")
+    user_id: int | None = Field(foreign_key="users.id")
     users: User = Relationship(back_populates="investigations")
 
 
@@ -442,18 +430,15 @@ class Inquiry(SQLModel, table=True):
     __tablename__ = "inquiries"
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
-    info: str = Field(nullable=True)
-    initiator: str = Field(max_length=255)
-    source: str = Field(max_length=255)
-    user_id: int | None = Field(foreign_key="users.id")
-    deadline: Optional[datetime] = Field(
+    info: str
+    initiator: str
+    source: str
+    deadline: datetime | None = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
-    updated_at: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
-    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
-    persons: list["Person"] = Relationship(back_populates="inquiries")
+    persons: Person | None = Relationship(back_populates="inquiries")
+    user_id: int | None = Field(foreign_key="users.id")
     users: User = Relationship(back_populates="inquiries")
 
 
@@ -462,31 +447,37 @@ class Connect(SQLModel, table=True):
     __tablename__ = "connects"
 
     id: int | None = Field(default=None, primary_key=True, unique=True)
-    name: str = Field(index=True, max_length=255)
+    name: str = Field(max_length=255)
     company: str | None = Field(index=True, max_length=255)
     city: str | None = Field(max_length=255)
-    fullname: str = Field(max_length=255)
-    phone: str | None = Field(index=True, max_length=255)
-    adding: Optional[datetime] = Field(
-        sa_column=Column(DateTime(timezone=True)), default=func.now()
-    )
+    fullname: str = Field(max_length=255, index=True)
+    phone: str | None = Field(max_length=255)
+    adding: str | None = Field(max_length=255)
     mobile: str | None = Field(max_length=255)
     mail: str | None = Field(max_length=255)
     comment: str | None = None
-    data: Optional[datetime] = Field(
+    created: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
-    updated_at: Optional[datetime] = Field(
+    updated: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
+    search_vector: TSVectorType = Field(
+        sa_column=Column(TSVectorType("company", "fullname"))
     )
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 make_searchable(SQLModel.metadata)
 
-SQLModel.metadata.drop_all(engine)
+SQLModel.metadata.drop_all(engine) # comment after testing
+
 SQLModel.metadata.create_all(engine)
 
+"""
+Code below is used to fill the database with data on the first start
+It must be commented or deleted after the first start
+"""
 with Session(engine) as session:
     for item in [
         [Region(region=reg.value) for reg in Regions],
@@ -507,9 +498,7 @@ with Session(engine) as session:
         ),
     )
     superadmin.roles.append(
-        session.exec(
-            select(Role).filter_by(role=Roles.admin.value)
-        ).one_or_none()
+        session.exec(select(Role).filter_by(role=Roles.admin.value)).one_or_none()
     )
     session.add(superadmin)
     session.commit()
