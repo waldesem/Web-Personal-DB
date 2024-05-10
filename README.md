@@ -4,7 +4,7 @@ StaffSec is a web interface for managing a candidate database. It includes a dat
 
 ### The main technology stack used in this project includes:
 
-- APIFlask;
+- FastAPI;
 - Postgesql;
 - Vue3;
 - Bootstrap 5.
@@ -41,30 +41,20 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
 
-### Migration
-
-For migrate database enter commands:
-
-```
-flask db init       # run this command for the first time if migration folder is not exist
-flask db migrate    # after change db schema
-flask db upgrade    # after change db schema
-```
-
 ### Start backend
 
 To create application run the following command in your terminal:
 ```
-flask init         # init environments
+creeate.py
 ```
-In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials then run the command.
+In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials.
+To start the application at http://localhost:8080 run the following command in your terminal:
 ```
-flask create       # create default values
+fastapi dev main.py
 ```
-To start the application at http://localhost:5000 run the following command in your terminal:
+or 
 ```
-flask run          # start the application
-waitress-serve --host 127.0.0.1 --port 5000 --threads=8 wsgi:app  # start the waitress server
+fastapi start main.py
 ```
 
 Default user for application has name 'superadmin'.
@@ -93,8 +83,8 @@ Then run the following command in your terminal:
 npm run build
 ```
 
-This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/app/static'.
-
+This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/static'.
+<!-- 
 ### WSGI Service
 
 For create systemd service run the following command in your terminal:
@@ -167,7 +157,7 @@ Add rule in your firewall:
 ```
 sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
-```
+``` -->
 
 ### License
 
