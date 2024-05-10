@@ -25,8 +25,8 @@ async def get_persons(
     flag: str,
     page: int,
     current_user: Annotated[User, Depends(login_required)],
-    ordered: str = "asc",
-    sorted: str = "id",
+    order: str = "asc",
+    sort: str = "id",
     search: str = "",
 ):
     with Session(engine) as session:
@@ -35,10 +35,10 @@ async def get_persons(
             if current_user.region_id == 1
             else select(Person).filter_by(region_id=current_user.region_id)
         )
-        sort_attribute = getattr(Person, sorted)
+        sort_attribute = getattr(Person, sort)
         query = (
             query.order_by(sort_attribute.asc())
-            if ordered == "asc"
+            if order == "asc"
             else query.order_by(sort_attribute.desc())
         )
 

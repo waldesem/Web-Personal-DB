@@ -20,7 +20,7 @@ export default defineConfig({
   },
   base: "./",
   build: {
-    outDir: "../backend/app/static",
+    outDir: "../backend/static",
     emptyOutDir: true,
   },
 });

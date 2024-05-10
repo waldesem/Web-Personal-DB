@@ -4,12 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
-from .routes.openapi import api
+from .routes.api import api
 from .routes.auth import auth
-from .routes.connects import connect
+from .routes.contacts import connect
 from .routes.index import index
 from .routes.files import file
-from .routes.privategpt import gpt
+from .routes.gpt import gpt
 from .routes.users import usr
 from .routes.person import person
 
@@ -28,22 +28,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="static")
 
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:5173",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 @app.get("/{path:path}", response_class=HTMLResponse)
 async def catch_all(request: Request, path: str):
-    return templates.TemplateResponse(
-        request=request, name="index.html"
-    )
+    return templates.TemplateResponse(request=request, name="index.html")

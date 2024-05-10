@@ -1,6 +1,7 @@
 # StaffSec
 
-StaffSec is a web interface for managing a candidate database. It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
+StaffSec is a web interface for managing a candidate database. 
+It includes a database model and an API for submitting/retrieving candidate applications and the results of automatic verification.
 
 ### The main technology stack used in this project includes:
 
@@ -54,7 +55,11 @@ fastapi dev main.py
 ```
 or 
 ```
-fastapi start main.py
+fastapi run main.py
+```
+or
+```
+uvicorn main:app --reload --host 0.0.0.0 --port 8080
 ```
 
 Default user for application has name 'superadmin'.
@@ -84,8 +89,8 @@ npm run build
 ```
 
 This will compile the TypeScript code and output the JavaScript and CSS files in the static directory '/backend/static'.
-<!-- 
-### WSGI Service
+
+### ASGI Service
 
 For create systemd service run the following command in your terminal:
 
@@ -104,7 +109,7 @@ User=user
 Group=www-data
 WorkingDirectory=/home/user/DB-Personal-DB/backend
 Environment="PATH=/home/user/DB-Personal-DB/backend/venv/bin"
-ExecStart=/home/user/DB-Personal-DB/backend/venv/bin/waitress -c waitress-serve --host 127.0.0.1 --port 5000 wsgi:app
+ExecStart=/home/user/DB-Personal-DB/backend/venv/bin/uvicorn --workers 4 --bind 127.0.0.1:8080 staffsec:app
 [Install]
 WantedBy=multi-user.target
 ```
@@ -129,7 +134,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://127.0.0.1:5000;
+        proxy_pass http://127.0.0.1:8080;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
@@ -157,7 +162,7 @@ Add rule in your firewall:
 ```
 sudo ufw allow 'Nginx HTTP'
 sudo ufw reload
-``` -->
+```
 
 ### License
 
