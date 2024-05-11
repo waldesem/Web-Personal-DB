@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Annotated, Union
 
 import aiohttp
-import httpx
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
 
@@ -171,7 +170,8 @@ class ResumeAction:
                         print(response.status)
                         print(await response.text())
                 return "send"
-            except httpx.HTTPError as e:
+            except aiohttp.ClientConnectorError as e:
+                print(e)
                 return "error"
 
 
@@ -195,6 +195,7 @@ class Models(Enum):
 @person.get(
     "/{item}/{item_id}",
     status_code=200,
+    response_model=Models,
     dependencies=[Depends(Permission(roles=[Roles.user.value]))],
 )
 async def get_item(item: Models, item_id):
@@ -205,14 +206,14 @@ async def get_item(item: Models, item_id):
     )
     with Session(engine) as session:
         result = session.exec(query).all()
-    return list[result]
+    return result
 
 
 @person.post("/{item}/{item_id}", status_code=201)
 async def post_item(
     item: Models,
     json_data: Union[
-        Poligraf,
+        Previous,
         Staff,
         Document,
         Address,
@@ -251,25 +252,30 @@ async def post_item(
                     )
                 )
                 Anketa.add_relation("Одно лицо", prev.id, item_id)
-
+        if item == "workplace":
+            setattr(
+                json_data,
+                "now_work",
+                True if json_data.now_work else False,
+            )
         if item == "relation":
             Anketa.add_relation(
                 json_data["relation"], item_id, json_data["relation_id"]
             )
 
         if item in ["check", "poligraf", "inquiry", "investigation"]:
-            json_data = json_data | {"user_id": current_user.id}
+            setattr(json_data, "user_id", current_user.id)
 
             if item == "check":
                 person = session.get(Person, item_id)
-                if json_data["conclusion_id"] == Conclusion.get_id(
+                if json_data.conclusion_id == Conclusion.get_id(
                     Conclusions.saved.value
                 ):
                     person.status_id = Status.get_id(Statuses.save.value)
                 else:
                     person.status_id = (
                         Status.get_id(Statuses.poligraf.value)
-                        if json_data.get("pfo")
+                        if json_data.pfo
                         else Status.get_id(Statuses.finish.value)
                     )
                     person.user_id = None
@@ -293,7 +299,7 @@ async def patch_item(
     item: Models,
     item_id: int,
     json_data: Union[
-        Poligraf,
+        Previous,
         Staff,
         Document,
         Address,
@@ -309,17 +315,12 @@ async def patch_item(
         Poligraf,
     ],
 ):
-    if item == "workplace":
-        setattr(
-            json_data,
-            "now_work",
-            bool(json_data.pop("now_work")) if "now_work" in json_data else False,
-        )
     with Session(engine) as session:
         result = session.get(Models[item], item_id)
         if result:
-            for k, v in json_data.items():
-                setattr(result, k, v)
+            for k, v in json_data.__dict__.items():
+                if hasattr(result, k):
+                    setattr(result, k, v)
             session.commit()
             return Response(status_code=204)
         raise HTTPException(status_code=404)

@@ -54,7 +54,7 @@ const showActions = ref(false);
       </LabelSlot>
       <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
       <LabelSlot :label="'Дата'">
-        {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+        {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
     </div>
   </div>

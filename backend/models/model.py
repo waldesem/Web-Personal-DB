@@ -62,9 +62,15 @@ class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True, unique=True)
     fullname: str | None = Field(max_length=255, index=True)
     username: str = Field(unique=True, max_length=255, index=True)
-    password: bytes | None = None
     email: str | None = Field(unique=True, max_length=255)
-    pswd_create: datetime | None = Field(
+    created: datetime | None = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: datetime | None = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
+    password: bytes | None = None
+    pswd_created: datetime | None = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
     change_pswd: bool | None = Field(default=True)
@@ -216,6 +222,12 @@ class Previous(SQLModel, table=True):
     patronymic: str | None = Field(max_length=255)
     date_change: date | None = None
     reason: str | None = None
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="previous")
 
@@ -230,6 +242,12 @@ class Education(SQLModel, table=True):
     name: str | None = Field(nullable=True)
     end: int | None = None
     specialty: str | None = None
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="educations")
 
@@ -241,6 +259,12 @@ class Staff(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     position: str = Field(nullable=True)
     department: str | None = Field(nullable=True)
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="staffs")
 
@@ -255,6 +279,12 @@ class Document(SQLModel, table=True):
     number: str = Field(max_length=255)
     agency: str | None = Field(nullable=True)
     issue: date | None = None
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="documents")
 
@@ -266,6 +296,12 @@ class Address(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     view: str | None = Field(max_length=255)
     address: str = Field(nullable=True)
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="addresses")
 
@@ -278,6 +314,12 @@ class Contact(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     view: str = Field(max_length=255)
     contact: str = Field(max_length=255)
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="contacts")
 
@@ -294,6 +336,12 @@ class Workplace(SQLModel, table=True):
     address: str | None = Field(nullable=True)
     position: str | None = Field(nullable=True)
     reason: str | None = Field(nullable=True)
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="workplaces")
 
@@ -307,7 +355,12 @@ class Affilation(SQLModel, table=True):
     name: str = Field(nullable=True)
     inn: str | None = Field(max_length=255)
     position: str | None = Field(nullable=True)
-    deadline: datetime | None = None
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="affilations")
 
@@ -319,6 +372,12 @@ class Relation(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     relation: str = Field(max_length=255)
     relation_id: int | None
+    created: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="relations")
 
@@ -360,10 +419,10 @@ class Check(SQLModel, table=True):
     addition: str | None = None
     pfo: bool | None = Field(default=False)
     comments: str | None = None
-    deadline: datetime | None = Field(
+    created: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
-    updated_at: datetime = Field(
+    updated: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
     conclusion_id: int | None = Field(default=None, foreign_key="conclusions.id")
@@ -387,7 +446,7 @@ class Robot(SQLModel, table=True):
     courts: str | None = None
     terrorist: str | None = None
     mvd: str | None = None
-    deadline: datetime | None = Field(
+    created: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
     )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
@@ -401,8 +460,11 @@ class Poligraf(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     theme: str
     results: str
-    deadline: datetime | None = Field(
+    created: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="poligrafs")
@@ -417,8 +479,11 @@ class Investigation(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     theme: str
     info: str
-    deadline: datetime | None = Field(
+    created: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="investigations")
@@ -434,8 +499,11 @@ class Inquiry(SQLModel, table=True):
     info: str
     initiator: str
     source: str
-    deadline: datetime | None = Field(
+    created: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), default=func.now())
+    )
+    updated: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="inquiries")
@@ -496,6 +564,7 @@ with Session(engine) as session:
                 fullname="Super Admin",
                 username="superadmin",
                 email="superadmin@admin.com",
+                region_id=session.exec(select(Region).filter_by(region=Regions.MAIN_OFFICE)).one_or_none().id,
                 password=bcrypt.hashpw(
                     Config.DEFAULT_PASSWORD.encode("utf-8"),
                     bcrypt.gensalt(),

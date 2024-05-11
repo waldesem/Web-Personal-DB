@@ -101,8 +101,9 @@ async def patch_user(user_id, json_data: User):
     with Session(engine) as session:
         user = session.get(User, user_id)
         if user:
-            for key, value in json_data.items():
-                setattr(user, key, value)
+            for key, value in json_data.__dict__.items():
+                if hasattr(user, key):
+                    setattr(user, key, value)
             session.commit()
             return {"message": "Changed"}
         raise HTTPException(status_code=403)

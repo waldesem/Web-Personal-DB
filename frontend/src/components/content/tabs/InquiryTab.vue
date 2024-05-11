@@ -77,8 +77,11 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
         <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
-        <LabelSlot :label="'Дата запроса'">
-          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+        <LabelSlot :label="'Cоздан'">
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot :label="'Изменен'">
+          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

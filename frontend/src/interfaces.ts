@@ -87,7 +87,8 @@ export interface Affilation {
   name: string;
   inn: string;
   position: string;
-  deadline: string;
+  created: string;
+  updated: string;
 }
 
 export interface Verification {
@@ -109,7 +110,8 @@ export interface Verification {
   pfo: boolean;
   conclusion_id: string;
   comments: string;
-  deadline: string;
+  created: string;
+  updated: string;
   user_id: string;
 }
 
@@ -125,7 +127,8 @@ export interface Robot {
   affiliation: string;
   terrorist: string;
   mvd: string;
-  deadline: string;
+  created: string;
+  updated: string;
 }
 
 export interface Pfo {
@@ -133,7 +136,8 @@ export interface Pfo {
   theme: string;
   results: string;
   user_id: string;
-  deadline: string;
+  created: string;
+  updated: string;
 }
 
 export interface Inquisition {
@@ -141,7 +145,8 @@ export interface Inquisition {
   theme: string;
   info: string;
   user_id: string;
-  deadline: string;
+  created: string;
+  updated: string;
 }
 
 export interface Needs {
@@ -150,7 +155,8 @@ export interface Needs {
   initiator: string;
   source: string;
   user_id: string;
-  deadline: string;
+  created: string;
+  updated: string;
 }
 
 export interface Message {

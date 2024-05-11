@@ -173,7 +173,7 @@ export const stateAnketa = {
       const response =
         action === "create"
           ? await axiosAuth.post(
-              `${server}/${param}/${this.share.candId}`,
+              `${server}/person/${param}/${this.share.candId}`,
               form
             )
           : await axiosAuth.patch(`${server}/person/${param}/${itemId}`, form);
