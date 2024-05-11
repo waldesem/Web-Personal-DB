@@ -18,18 +18,8 @@ onMounted(async () => {
   } catch (error) {
     console.error(error);
   }
-
-  try {
-    const response = await axios.get(`${server}/users/admin`);
-    if (response.status === 204) {
-      router.push({ name: "persons" })
-    } else {
-      router.push({ name: "admin" })
-    }
-  } catch (error) {
-    console.error(error);
-  }
 });
+router.push({ name: "persons" })
 </script>
 
 <template>

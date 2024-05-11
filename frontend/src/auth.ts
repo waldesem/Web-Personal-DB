@@ -17,7 +17,7 @@ axiosAuth.interceptors.request.use(
 
     if (expiredToken(stateToken.refreshToken)) {
       try {
-        const response = await axios.post(`${server}/login/refresh`, null, {
+        const response = await axios.post(`${server}/auth/refresh`, null, {
           headers: {
             Authorization: `Bearer ${stateToken.refreshToken}`,
           },

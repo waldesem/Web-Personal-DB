@@ -14,7 +14,7 @@ const MessageDiv = defineAsyncComponent(
 
 async function userLogout(): Promise<void> {
   try {
-    const response = await axiosAuth.delete(`${server}/login`);
+    const response = await axiosAuth.delete(`${server}/auth/login`);
     console.log(response.status);
   } catch (error) {
     console.log(error);

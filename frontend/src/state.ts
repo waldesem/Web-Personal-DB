@@ -102,7 +102,7 @@ export const stateAnketa = {
     }
     try {
       const response = await axiosAuth.get(
-        `${server}/resume/${this.share.candId}`,
+        `${server}/person/resume/${this.share.candId}`,
         {
           params: {
             action: action,
@@ -144,10 +144,10 @@ export const stateAnketa = {
     try {
       const response =
         param === "image"
-          ? await axiosAuth.get(`${server}/image/${this.share.candId}`, {
+          ? await axiosAuth.get(`${server}/files/image/${this.share.candId}`, {
               responseType: "blob",
             })
-          : await axiosAuth.get(`${server}/${param}/${this.share.candId}`);
+          : await axiosAuth.get(`${server}/person/${param}/${this.share.candId}`);
 
       if (param === "image") {
         this.share.imageUrl = window.URL.createObjectURL(
@@ -176,7 +176,7 @@ export const stateAnketa = {
               `${server}/${param}/${this.share.candId}`,
               form
             )
-          : await axiosAuth.patch(`${server}/${param}/${itemId}`, form);
+          : await axiosAuth.patch(`${server}/person/${param}/${itemId}`, form);
 
       console.log(response.status);
 
@@ -212,7 +212,7 @@ export const stateAnketa = {
       return;
     }
     try {
-      const response = await axiosAuth.delete(`${server}/${param}/${id}`);
+      const response = await axiosAuth.delete(`${server}/person/${param}/${id}`);
       console.log(response.status);
 
       param === "resume"
@@ -244,7 +244,7 @@ export const stateAnketa = {
       }
       try {
         const response = await axiosAuth.post(
-          `${server}/file/${param}/${this.share.candId}`,
+          `${server}/files/file/${param}/${this.share.candId}`,
           formData
         );
         console.log(response.status);

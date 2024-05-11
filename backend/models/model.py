@@ -491,4 +491,18 @@ with Session(engine) as session:
             session.add_all(item)
         session.commit()
 
+    if not session.exec(select(User)).all():
+        user = User(
+                fullname="Super Admin",
+                username="superadmin",
+                email="superadmin@admin.com",
+                password=bcrypt.hashpw(
+                    Config.DEFAULT_PASSWORD.encode("utf-8"),
+                    bcrypt.gensalt(),
+                ),
+            )
+        role = session.exec(select(Role).where(Role.role == Roles.admin.value)).first()
+        user.roles.append(role)
+        session.add(user)
+        session.commit()
     print("Database initialized and filled")

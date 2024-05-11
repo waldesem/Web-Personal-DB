@@ -37,7 +37,7 @@ const userData = ref({
 async function userAction(action: String): Promise<void> {
   try {
     const response = await axiosAuth.get(
-      `${server}/user/${userData.value.id}`,
+      `${server}/users/user/${userData.value.id}`,
       {
         params: {
           action: action,
@@ -64,7 +64,7 @@ async function userDelete(): Promise<void> {
   if (confirm("Вы действительно хотите удалить пользователя?")) {
     try {
       const response = await axiosAuth.delete(
-        `${server}/user/${userData.value.id}`
+        `${server}/users/user/${userData.value.id}`
       );
       console.log(response.status);
       stateAlert.setAlert(
@@ -84,10 +84,10 @@ async function updateRole(action: string, value: string): Promise<void> {
       const response =
         action === "add"
           ? await axiosAuth.get(
-              `${server}/role/${value}/${userData.value.id}`
+              `${server}/users/role/${value}/${userData.value.id}`
             )
           : await axiosAuth.delete(
-              `${server}/role/${value}/${userData.value.id}`
+              `${server}/users/role/${value}/${userData.value.id}`
             );
       console.log(response.status);
       userAction("view");

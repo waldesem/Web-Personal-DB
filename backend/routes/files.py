@@ -14,7 +14,7 @@ from ..models.classes import Roles
 from ..models.schema import AnketaSchemaApi
 from ..models.model import engine, Person
 
-file = APIRouter()
+file = APIRouter(prefix="/files", tags=["files"])
 
 @file.post(
     "/file/{action}/{item_id}", status_code=201, dependencies=[Depends(Permission(roles=[Roles.user.value]))]

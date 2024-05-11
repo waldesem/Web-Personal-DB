@@ -16,11 +16,6 @@ export const router = createRouter({
       component: () => import("@components/pages/LoginPage.vue"),
     },
     {
-      path: "/admin",
-      name: "admin",
-      component: () => import("@components/content/forms/UserForm.vue"),
-    },
-    {
       path: "/staffsec",
       name: "staffsec",
       component: () => import("@components/pages/StaffsecPage.vue"),
