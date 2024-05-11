@@ -1,7 +1,6 @@
 from datetime import date, datetime
 from typing import Optional
 
-import bcrypt
 from pydantic import ConfigDict
 from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, Relationship, create_engine, select, SQLModel, Session
@@ -119,6 +118,8 @@ class Status(SQLModel, table=True):
 class Person(SQLModel, table=True):
 
     __tablename__ = "persons"
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     id: int | None = Field(default=None, primary_key=True, unique=True)
     surname: str = Field(max_length=255, index=True)
@@ -317,7 +318,7 @@ class Relation(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
     relation: str = Field(max_length=255)
-    relation_id: int = Field(max_digits=10)
+    relation_id: int | None
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="relations")
 
@@ -446,6 +447,8 @@ class Connect(SQLModel, table=True):
 
     __tablename__ = "connects"
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     id: int | None = Field(default=None, primary_key=True, unique=True)
     name: str = Field(max_length=255)
     company: str | None = Field(index=True, max_length=255)
@@ -468,39 +471,24 @@ class Connect(SQLModel, table=True):
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
-make_searchable(SQLModel.metadata)
-
 SQLModel.metadata.drop_all(engine) # comment after testing
 
 SQLModel.metadata.create_all(engine)
 
-"""
-Code below is used to fill the database with data on the first start
-It must be commented or deleted after the first start
-"""
-with Session(engine) as session:
-    for item in [
-        [Region(region=reg.value) for reg in Regions],
-        [Status(status=item.value) for item in Statuses],
-        [Conclusion(conclusion=item.value) for item in Conclusions],
-        [Role(role=actor.value) for actor in Roles],
-    ]:
-        session.add_all(item)
-    session.commit()
+make_searchable(SQLModel.metadata)
 
-    superadmin = User(
-        fullname="Администратор",
-        username="superadmin",
-        email="admin@example.com",
-        password=bcrypt.hashpw(
-            Config.DEFAULT_PASSWORD.encode("utf-8"),
-            salt=bcrypt.gensalt(),
-        ),
-    )
-    superadmin.roles.append(
-        session.exec(select(Role).filter_by(role=Roles.admin.value)).one_or_none()
-    )
-    session.add(superadmin)
-    session.commit()
+with Session(engine) as session:
+    if not (session.exec(select(Role)).all() \
+            and session.exec(select(Region)).all() \
+            and session.exec(select(Status)).all() \
+            and session.exec(select(Conclusion)).all()):
+        for item in [
+            [Region(region=reg.value) for reg in Regions],
+            [Status(status=item.value) for item in Statuses],
+            [Conclusion(conclusion=item.value) for item in Conclusions],
+            [Role(role=actor.value) for actor in Roles],
+        ]:
+            session.add_all(item)
+        session.commit()
 
     print("Database initialized and filled")

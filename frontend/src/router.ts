@@ -16,6 +16,11 @@ export const router = createRouter({
       component: () => import("@components/pages/LoginPage.vue"),
     },
     {
+      path: "/admin",
+      name: "admin",
+      component: () => import("@components/content/forms/UserForm.vue"),
+    },
+    {
       path: "/staffsec",
       name: "staffsec",
       component: () => import("@components/pages/StaffsecPage.vue"),
@@ -68,7 +73,7 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
-  if (["404", "login"].includes(to.name as string)) {
+  if (["404", "login", "admin"].includes(to.name as string)) {
     next();
     return;
   }
@@ -80,7 +85,7 @@ router.beforeEach(async (to, _from, next) => {
 
   if (expiredToken(stateToken.accessToken)) {
     try {
-      const response = await axios.post(`${server}/refresh`, null, {
+      const response = await axios.post(`${server}/auth/refresh`, null, {
         headers: {
           Authorization: `Bearer ${stateToken.refreshToken}`,
         },

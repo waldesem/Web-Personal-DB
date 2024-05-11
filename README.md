@@ -49,7 +49,7 @@ To create application run the following command in your terminal:
 creeate.py
 ```
 In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials.
-To start the application at http://localhost:8080 run the following command in your terminal:
+To start the application at http://localhost:8000 run the following command in your terminal:
 ```
 fastapi dev main.py
 ```
@@ -59,7 +59,7 @@ fastapi run main.py
 ```
 or
 ```
-uvicorn main:app --reload --host 0.0.0.0 --port 8080
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Default user for application has name 'superadmin'.
@@ -109,7 +109,7 @@ User=user
 Group=www-data
 WorkingDirectory=/home/user/DB-Personal-DB/backend
 Environment="PATH=/home/user/DB-Personal-DB/backend/venv/bin"
-ExecStart=/home/user/DB-Personal-DB/backend/venv/bin/uvicorn --workers 4 --bind 127.0.0.1:8080 staffsec:app
+ExecStart=/home/user/DB-Personal-DB/backend/venv/bin/uvicorn --workers 4 --bind 127.0.0.1:8000 staffsec:app
 [Install]
 WantedBy=multi-user.target
 ```
@@ -134,7 +134,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://127.0.0.1:8080;
+        proxy_pass http://127.0.0.1:8000;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;

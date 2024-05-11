@@ -9,7 +9,7 @@ from sqlalchemy_searchable import search
 from ..config import Config
 from ..utils.token import Permission
 from ..models.classes import Roles
-from ..models.model import engine, User, Role, Message
+from ..models.model import engine, User, Role
 
 
 usr = APIRouter(prefix="/users", tags=["users"])
@@ -75,9 +75,9 @@ async def post_user(json_data: User):
             ).one_or_none():
             session.add(
                 User(
-                    fullname=json_data.get("fullname"),
-                    username=json_data.get("username"),
-                    email=json_data.get("email"),
+                    fullname=json_data.fullname,
+                    username=json_data.username,
+                    email=json_data.email,
                     password=bcrypt.hashpw(
                         Config.DEFAULT_PASSWORD.encode("utf-8"),
                         bcrypt.gensalt(),
@@ -165,41 +165,40 @@ async def delete_role(
         raise HTTPException(status_code=403)
 
 
-@usr.get("/messages")
-async def get_messages(
-    current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))]
-) -> list[Message]:
-    """
-    Get the serialized representation of the messages.
-    """
+@usr.get("/admin")
+async def need_admin():
     with Session(engine) as session:
-        return session.exec(
-            select(Message)
-            .filter_by(user_id=current_user.id)
-            .order_by(Message.created.desc())
-            .limit(100)
-        ).all()
+        if session.scalar(select(User)):
+            return Response(status_code=204)
+        raise HTTPException(status_code=403)
 
-
-@usr.delete("/messages/{item_id}")
-async def delete(
-    current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
-    item_id: int | None = None,
-):
-    """
-    Deletes the current instance of the resource from the database.
-    """
+    
+@usr.post(
+    "/admin",
+    status_code=204,
+)
+async def post_admin(json_data: User):
     with Session(engine) as session:
-        if not item_id:
-            messages = (
-                session.exec(select(Message).filter_by(user_id=current_user.id))
-                .scalars()
-                .all()
+        if not session.scalar(select(User)) \
+            and not session.exec(
+                select(User).filter_by(username=json_data.username)
+            ):
+            admin = User(
+                        fullname=json_data.fullname,
+                        username=json_data.username,
+                        email=json_data.email,
+                        change_pswd=True,
+                        password=bcrypt.hashpw(
+                            Config.DEFAULT_PASSWORD.encode("utf-8"),
+                            bcrypt.gensalt(),
+                        ),
+                    )
+            admin.roles.append(
+                session.exec(
+                    select(Role).filter_by(role=Roles.admin.value)
+                ).one_or_none()
             )
-            if len(messages):
-                for message in messages:
-                    session.delete(message)
-        else:
-            session.delete(session.get(Message, item_id))
-        session.commit()
-        return Response(status_code=204)
+            session.add(admin)
+            session.commit()
+            return Response(status_code=201)
+        raise HTTPException(status_code=403)
