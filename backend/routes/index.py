@@ -3,6 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select, func
 
+from backend.config import Config
+
 from ..utils.token import login_required
 from ..models.classes import Statuses
 from ..models.schema import SchemaPersons
@@ -20,7 +22,7 @@ from ..models.model import (
 index = APIRouter()
 
 
-@index.get("/index/{flag}/{page}", status_code=200, response_model=SchemaPersons)
+@index.get("/index/{flag}/{page}", status_code=200)
 async def get_persons(
     flag: str,
     page: int,
@@ -28,7 +30,7 @@ async def get_persons(
     order: str = "asc",
     sort: str = "id",
     search: str = "",
-):
+) -> SchemaPersons:
     with Session(engine) as session:
         query = (
             select(Person)
@@ -55,12 +57,11 @@ async def get_persons(
         else:
             if search:
                 query = search(query, "%{}%".format(search))
-
-        result = session.paginate(query, page=page, per_page=16, error_out=False)
+        pagination = query.offset(page * Config.PAGINATION).limit(Config.PAGINATION + 1)
+        has_next = True if len(pagination) > Config.PAGINATION else False
         return {
-            "persons": result,
-            "has_next": bool(result.has_next),
-            "has_prev": bool(result.has_prev),
+            "persons": pagination if not has_next else pagination[:-1],
+            "has_next": has_next,
         }
 
 

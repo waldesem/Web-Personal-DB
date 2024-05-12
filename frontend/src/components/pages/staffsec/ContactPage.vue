@@ -38,7 +38,7 @@ const contactData = ref({
   cities: [],
   contacts: [],
   page: 1,
-  prev: false,
+  prev: (contactData: any) => {return false ? contactData.page > 1 : false},
   next: false,
   action: "",
   search: "",
@@ -56,13 +56,12 @@ async function getContacts(page: number): Promise<void> {
         },
       }
     );
-    const [datas, has_prev, has_next, names, companies, cities] = response.data;
+    const [datas, has_next, names, companies, cities] = response.data;
     Object.assign(contactData.value, {
       contacts: datas,
       names: names.names,
       companies: companies.companies,
       cities: cities.cities,
-      prev: has_prev.has_prev,
       next: has_next.has_next,
     });
   } catch (error) {

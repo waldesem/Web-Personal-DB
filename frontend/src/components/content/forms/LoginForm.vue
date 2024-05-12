@@ -50,8 +50,8 @@ const loginData = ref({
   try {
     const response =
       loginData.value.action === "password"
-        ? await axios.patch(`${server}/login`, loginData.value.form)
-        : await axios.post(`${server}/login`, loginData.value.form);
+        ? await axios.patch(`${server}/auth/login`, loginData.value.form)
+        : await axios.post(`${server}/auth/login`, loginData.value.form);
     const { message, access_token, refresh_token } = response.data;
 
     switch (message) {

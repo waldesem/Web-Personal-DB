@@ -55,7 +55,7 @@ const personData = ref({
     search: "Все кандидаты",
   },
   page: 1,
-  prev: false,
+  prev: (personData: any) => {return false ? personData.page > 1 : false},
   next: false,
   search: "",
   sort: "status_id",
@@ -81,7 +81,6 @@ async function getCandidates(page = 1): Promise<void> {
     );
     const [datas, metadata] = response.data;
     personData.value.candidates = datas;
-    personData.value.prev = metadata.has_prev;
     personData.value.next = metadata.has_next;
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"

@@ -30,8 +30,8 @@ async def get_auth(current_user: Annotated[User, Depends(login_required)]) -> Us
 
 
 
-@auth.post("/login", status_code=201, response_model=TokenSchema)
-async def post_login(json_data: LoginSchema) -> dict:
+@auth.post("/login", status_code=201)
+async def post_login(json_data: LoginSchema) -> TokenSchema:
     """
     Post method for the given API endpoint.
     """
@@ -68,7 +68,7 @@ async def post_login(json_data: LoginSchema) -> dict:
         ).one_or_none()
         if user and not user.blocked and not user.deleted:
             if bcrypt.checkpw(json_data.password.encode("utf-8"), user.password):
-                delta_change = datetime.now(timezone.utc) - user.pswd_create
+                delta_change = datetime.now(timezone.utc) - user.pswd_created
                 if not user.change_pswd and delta_change.days < 365:
                     user.last_login = datetime.now(timezone.utc)
                     user.attempt = 0

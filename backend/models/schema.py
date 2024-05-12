@@ -23,13 +23,11 @@ class TokenSchema(BaseModel):
 class SchemaPersons(BaseModel):
     persons: list[Person]
     has_next: bool
-    has_prev: bool
 
 
 class SchemaConnections(BaseModel):
     connects: list[Connect]
     has_next: bool
-    has_prev: bool
     names: list[dict]
     companies: list[dict]
     cities: list[dict]

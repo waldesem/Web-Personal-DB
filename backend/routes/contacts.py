@@ -27,13 +27,11 @@ async def get_connection(page: int, searches: str = ""):
         query = select(Connect).order_by(Connect.id.desc())
     if searches:
         query = search(query, "%{}%".format(searches))
-    result = session.paginate(
-        query, page=page, per_page=Config.PAGINATION, error_out=False
-    )
+    pagination = query.offset(page * Config.PAGINATION).limit(Config.PAGINATION + 1)
+    has_next = True if len(pagination) > Config.PAGINATION else False
     return {
-        "connects": result,
-        "has_prev": result.has_prev,
-        "has_next": result.has_next,
+        "connects": pagination,
+        "has_next": has_next,
         "names": list({name for name in names}),
         "companies": list({company for company in companies}),
         "cities": list({city for city in cities}),

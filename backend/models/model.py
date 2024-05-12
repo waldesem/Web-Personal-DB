@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from typing import Optional
 
+import bcrypt
 from pydantic import ConfigDict
 from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field, Relationship, create_engine, select, SQLModel, Session
@@ -86,7 +87,7 @@ class User(SQLModel, table=True):
     poligrafs: list["Poligraf"] = Relationship(back_populates="users")
     investigations: list["Investigation"] = Relationship(back_populates="users")
     inquiries: list["Inquiry"] = Relationship(back_populates="users")
-    roles: Role = Relationship(back_populates="users", link_model=UserRole)
+    roles: list["Role"] = Relationship(back_populates="users", link_model=UserRole, sa_relationship_kwargs={"lazy": "dynamic"})
     search_vector: TSVectorType = Field(
         sa_column=Column(TSVectorType("fullname", "username"))
     )
@@ -211,6 +212,7 @@ class Person(SQLModel, table=True):
     search_vector: TSVectorType = Field(
         sa_column=Column(TSVectorType("surname", "firstname", "patronymic", "inn"))
     )
+
 
 class Previous(SQLModel, table=True):
 
@@ -537,19 +539,22 @@ class Connect(SQLModel, table=True):
         sa_column=Column(TSVectorType("company", "fullname"))
     )
 
+
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
-SQLModel.metadata.drop_all(engine) # comment after testing
+SQLModel.metadata.drop_all(engine)  # comment after testing
 
 SQLModel.metadata.create_all(engine)
 
 make_searchable(SQLModel.metadata)
 
 with Session(engine) as session:
-    if not (session.exec(select(Role)).all() \
-            and session.exec(select(Region)).all() \
-            and session.exec(select(Status)).all() \
-            and session.exec(select(Conclusion)).all()):
+    if not (
+        session.exec(select(Role)).all()
+        and session.exec(select(Region)).all()
+        and session.exec(select(Status)).all()
+        and session.exec(select(Conclusion)).all()
+    ):
         for item in [
             [Region(region=reg.value) for reg in Regions],
             [Status(status=item.value) for item in Statuses],
@@ -559,19 +564,25 @@ with Session(engine) as session:
             session.add_all(item)
         session.commit()
 
+with Session(engine) as session:
     if not session.exec(select(User)).all():
-        user = User(
-                fullname="Super Admin",
-                username="superadmin",
-                email="superadmin@admin.com",
-                region_id=session.exec(select(Region).filter_by(region=Regions.MAIN_OFFICE)).one_or_none().id,
-                password=bcrypt.hashpw(
-                    Config.DEFAULT_PASSWORD.encode("utf-8"),
-                    bcrypt.gensalt(),
-                ),
-            )
-        role = session.exec(select(Role).where(Role.role == Roles.admin.value)).first()
-        user.roles.append(role)
-        session.add(user)
+        superadmin = User(
+            fullname="Super Admin",
+            username="superadmin",
+            email="superadmin@admin.com",
+            region_id=session.exec(
+                select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
+            ).one_or_none(),
+            password=bcrypt.hashpw(
+                Config.DEFAULT_PASSWORD.encode("utf-8"),
+                bcrypt.gensalt(),
+            ),
+        )
+        superadmin.roles.append(
+            session.exec(
+                select(Role).filter_by(role=Roles.admin.value)
+            ).one_or_none()
+        )
+        session.add(superadmin)
         session.commit()
     print("Database initialized and filled")
