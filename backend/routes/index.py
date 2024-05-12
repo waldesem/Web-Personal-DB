@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select, func
+from sqlalchemy_searchable import search
 
-from backend.config import Config
-
-from ..utils.token import login_required
+from ..config import Config
+from ..dependencies import login_required
 from ..models.classes import Statuses
 from ..models.schema import SchemaPersons
 from ..models.model import (
@@ -26,10 +26,10 @@ index = APIRouter()
 async def get_persons(
     flag: str,
     page: int,
+    order: str,
+    sort: str,
+    searches: str,
     current_user: Annotated[User, Depends(login_required)],
-    order: str = "asc",
-    sort: str = "id",
-    search: str = "",
 ) -> SchemaPersons:
     with Session(engine) as session:
         query = (
@@ -55,12 +55,13 @@ async def get_persons(
                 Person.user_id == current_user.id,
             )
         else:
-            if search:
-                query = search(query, "%{}%".format(search))
-        pagination = query.offset(page * Config.PAGINATION).limit(Config.PAGINATION + 1)
-        has_next = True if len(pagination) > Config.PAGINATION else False
+            if searches:
+                query = search(query, "%{}%".format(searches))
+        pagination = query.offset((page - 1) * Config.PAGINATION).limit(Config.PAGINATION + 1)
+        result = session.exec(pagination).all()
+        has_next = True if len(result) > Config.PAGINATION else False
         return {
-            "persons": pagination if not has_next else pagination[:-1],
+            "persons": result if not has_next else result[:-1],
             "has_next": has_next,
         }
 

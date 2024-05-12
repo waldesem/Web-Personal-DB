@@ -5,7 +5,7 @@ import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
 
-from ..utils.token import Permission
+from ..dependencies import Permission
 from ..utils.parsers import Resume, Anketa
 from ..models.schema import ResumeSchemaApi
 from ..models.classes import Roles, Statuses, Conclusions

@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response
 from sqlmodel import Session, select
 
-from ..utils.token import Permission
+from ..dependencies import Permission
 from ..models.classes import Roles
 from ..models.model import engine, User, Message
 

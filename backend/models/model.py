@@ -87,8 +87,12 @@ class User(SQLModel, table=True):
     poligrafs: list["Poligraf"] = Relationship(back_populates="users")
     investigations: list["Investigation"] = Relationship(back_populates="users")
     inquiries: list["Inquiry"] = Relationship(back_populates="users")
-    roles: list["Role"] = Relationship(back_populates="users", link_model=UserRole, sa_relationship_kwargs={"lazy": "dynamic"})
-    search_vector: TSVectorType = Field(
+    roles: list["Role"] = Relationship(
+        back_populates="users",
+        link_model=UserRole,
+        sa_relationship_kwargs={"lazy": "selectin"},
+    )
+    search_vector: list[str] = Field(
         sa_column=Column(TSVectorType("fullname", "username"))
     )
 
@@ -209,7 +213,7 @@ class Person(SQLModel, table=True):
     statuses: Status = Relationship(back_populates="persons")
     user_id: int | None = Field(default=None, foreign_key="users.id")
     users: User = Relationship(back_populates="persons")
-    search_vector: TSVectorType = Field(
+    search_vector: list[str] = Field(
         sa_column=Column(TSVectorType("surname", "firstname", "patronymic", "inn"))
     )
 
@@ -535,7 +539,7 @@ class Connect(SQLModel, table=True):
     updated: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
-    search_vector: TSVectorType = Field(
+    search_vector: list[str] = Field(
         sa_column=Column(TSVectorType("company", "fullname"))
     )
 
@@ -579,9 +583,7 @@ with Session(engine) as session:
             ),
         )
         superadmin.roles.append(
-            session.exec(
-                select(Role).filter_by(role=Roles.admin.value)
-            ).one_or_none()
+            session.exec(select(Role).filter_by(role=Roles.admin.value)).one_or_none()
         )
         session.add(superadmin)
         session.commit()

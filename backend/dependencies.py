@@ -7,8 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
 from jose import JWTError, jwt
 
-from ..config import Config
-from ..models.model import engine, TokenBlocklist, User
+from .config import Config
+from .models.model import engine, TokenBlocklist, User
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")

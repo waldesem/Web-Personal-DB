@@ -5,9 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
 from sqlalchemy_searchable import search
 
-
 from ..config import Config
-from ..utils.token import Permission
+from ..dependencies import Permission
 from ..models.classes import Roles
 from ..models.model import engine, User, Role
 

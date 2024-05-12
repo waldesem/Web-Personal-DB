@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, EmailStr
 
-from ..models.model import Person, Connect
+from ..models.model import Person, Connect, Role, User
 
 
 class LoginSchema(BaseModel):
@@ -18,6 +18,11 @@ class TokenSchema(BaseModel):
     message: str
     access_token: str = Field(default="")
     refresh_token: str = Field(default="")
+
+
+class UserWithRoles(BaseModel):
+    user: User
+    roles: list[Role]
 
 
 class SchemaPersons(BaseModel):

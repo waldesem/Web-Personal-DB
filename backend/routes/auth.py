@@ -2,32 +2,34 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 import bcrypt
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from ldap3 import Server, Connection, ALL
 
-from ..models.schema import LoginSchema, TokenSchema
+from ..models.schema import LoginSchema, TokenSchema, UserWithRoles
 from ..models.model import engine, User, TokenBlocklist
-from ..utils.token import jwt_required, login_required, create_token
+from ..dependencies import jwt_required, login_required, create_token
 
 
 auth = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @auth.get("/", status_code=200)
-async def get_auth(current_user: Annotated[User, Depends(login_required)]) -> User:
+async def get_auth(
+    current_user: Annotated[User, Depends(login_required)]
+) -> UserWithRoles:
     """
     Retrieves the current authenticated user from the database.
     """
     with Session(engine) as session:
-        user = session.exec(
-            select(User).where(User.username == current_user.username)
-        ).one_or_none()
-        if user and not user.blocked and not user.deleted:
-            user.last_login = datetime.now()
+        if current_user and not current_user.blocked and not current_user.deleted:
+            current_user.last_login = datetime.now()
             session.commit()
-            return user
-
+            return {
+                "user": current_user,
+                "roles": current_user.roles,
+            }
+        raise HTTPException(status_code=401)
 
 
 @auth.post("/login", status_code=201)
@@ -103,7 +105,9 @@ async def patch_password(json_data: LoginSchema):
             and not user.blocked
             and bcrypt.checkpw(json_data.password.encode("utf-8"), user.password)
         ):
-            user.password = bcrypt.hashpw(json_data.new_pswd.encode("utf-8"), bcrypt.gensalt())
+            user.password = bcrypt.hashpw(
+                json_data.new_pswd.encode("utf-8"), bcrypt.gensalt()
+            )
             user.change_pswd = False
             session.commit()
             return {"message": "Changed"}
@@ -117,9 +121,8 @@ async def delete(token: Annotated[str, Depends(jwt_required)]):
     """
     with Session(engine) as session:
         session.add(
-            TokenBlocklist(jti=token["jti"], 
-                           created_at=datetime.now(timezone.utc))
-            )
+            TokenBlocklist(jti=token["jti"], created_at=datetime.now(timezone.utc))
+        )
         session.commit()
     return {"message": "Denied"}
 

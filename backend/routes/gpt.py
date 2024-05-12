@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from ..utils.token import Permission
+from ..dependencies import Permission
 from ..models.classes import Roles
 from ..models.schema import SchemaGptInput, SchemaGptOutput
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
 import { stateClassify } from "@/state";
 import { axiosAuth } from "@/auth";
@@ -55,9 +55,9 @@ const personData = ref({
     search: "Все кандидаты",
   },
   page: 1,
-  prev: (personData: any) => {return false ? personData.page > 1 : false},
+  prev: false,
   next: false,
-  search: "",
+  searches: "",
   sort: "status_id",
   order: "asc",
   path: "search",
@@ -73,19 +73,18 @@ async function getCandidates(page = 1): Promise<void> {
       `${server}/index/${personData.value.path}/${personData.value.page}`,
       {
         params: {
-          search: personData.value.search,
+          search: personData.value.searches,
           sort: personData.value.sort,
           order: personData.value.order,
         },
       }
     );
-    const [datas, metadata] = response.data;
-    personData.value.candidates = datas;
-    personData.value.next = metadata.has_next;
+    const {persons, has_next} = response.data;
+    personData.value.candidates = persons;
+    personData.value.next = has_next;
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-
 
   } catch (error) {
     console.error(error);
@@ -100,11 +99,15 @@ function sortCandidates(sort: string, order: string): void {
 
 const searchPerson = debounce(() => {
   personData.value.path = "search";
-  if (personData.value.search.length < 3) {
+  if (personData.value.searches.length < 3) {
     return;
   }
   getCandidates();
 }, 500);
+
+computed(() => {
+  personData.value.prev = personData.value.page > 1 ? true : false;
+})
 </script>
 
 <template>
@@ -126,7 +129,7 @@ const searchPerson = debounce(() => {
         id="search"
         type="text"
         placeholder="поиск по Фамилии, Имени, Отчеству, ИНН (не менее 3-х символов)"
-        v-model="personData.search"
+        v-model="personData.searches"
       />
     </div>
   </div>

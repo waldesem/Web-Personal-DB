@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from sqlalchemy_searchable import search
 
 from ..config import Config
-from ..utils.token import login_required
+from ..dependencies import login_required
 from ..models.schema import SchemaConnections
 from ..models.model import engine, Connect
 
@@ -27,8 +27,9 @@ async def get_connection(page: int, searches: str = ""):
         query = select(Connect).order_by(Connect.id.desc())
     if searches:
         query = search(query, "%{}%".format(searches))
-    pagination = query.offset(page * Config.PAGINATION).limit(Config.PAGINATION + 1)
-    has_next = True if len(pagination) > Config.PAGINATION else False
+    pagination = query.offset((page - 1) * Config.PAGINATION).limit(Config.PAGINATION + 1)
+    result = session.exec(pagination).all()
+    has_next = True if len(result) > Config.PAGINATION else False
     return {
         "connects": pagination,
         "has_next": has_next,

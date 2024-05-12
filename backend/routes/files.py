@@ -9,7 +9,7 @@ from PIL import Image
 
 from ..utils.folders import Folders
 from ..utils.parsers import Anketa
-from ..utils.token import Permission
+from ..dependencies import Permission
 from ..models.classes import Roles
 from ..models.schema import AnketaSchemaApi
 from ..models.model import engine, Person
