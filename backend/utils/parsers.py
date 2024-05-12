@@ -25,10 +25,10 @@ from ..models.model import (
 class Resume:
 
     def __init__(self, resume):
-        for k, v in resume.items():
+        for k, v in resume.__dict__.items():
             if k in ["surname", "firstname", "patronymic"]:
                 resume[k] = v.strip().upper()
-        self.resume: dict = resume
+        self.resume: Person = resume
 
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
@@ -43,16 +43,16 @@ class Resume:
 
     def change_status(self, status, user_id=None):
         with Session(engine) as session:
-            self.resume["status_id"] = Status.get_id(status)
-            self.resume["user_id"] = user_id
+            self.resume.status_id = Status.get_id(status)
+            self.resume.user_id = user_id
             session.commit()
 
     def check_resume(self):
         person = self.get_person(
-            self.resume["surname"],
-            self.resume["firstname"],
-            self.resume.get("patronymic", ""),
-            self.resume["birthday"],
+            self.resume.surname,
+            self.resume.firstname,
+            self.resume.patronymic  if hasattr(self.resume, "patronymic") else "",
+            self.resume.birthday,
         )
         if person:
             self.change_status(Statuses.repeat.value)
@@ -63,25 +63,24 @@ class Resume:
 
     def update_resume(self, person):
         with Session(engine) as session:
-            for k, v in self.resume.items():
+            for k, v in self.resume.__dict__.items():
                 setattr(person, k, v)
             session.commit()
             return person.id
 
     def add_resume(self):
         with Session(engine) as session:
-            person = Person(**self.resume)
-            session.add(person)
+            session.add(self.resume)
             session.flush()
-            person_id = person.id
+            person_id = self.resume.id
 
             folders = Folders(
                 person_id,
-                self.resume["surname"],
-                self.resume["firstname"],
-                self.resume.get("patronymic", ""),
+                self.resume.surname,
+                self.resume.firstname,
+                self.resume.patronymic if hasattr(self.resume, "patronymic") else "",
             )
-            person.path = folders.create_main_folder()
+            self.resume.path = folders.create_main_folder()
             session.commit()
             return person_id
 
@@ -90,7 +89,8 @@ class Anketa(Resume):
 
     def __init__(self, json_data):
         self.anketa = self.parse_json(json_data)
-        super().__init__(self.anketa["resume"])
+        resume: Person = self.anketa.resume
+        super().__init__(resume)
         self.person_id = self.check_resume()
 
     def parse_anketa(self):

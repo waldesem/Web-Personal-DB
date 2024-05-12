@@ -8,7 +8,7 @@ from .routes.api import api
 from .routes.auth import auth
 from .routes.contacts import connect
 from .routes.index import index
-from .routes.files import file
+from .routes.files import blob
 from .routes.gpt import gpt
 from .routes.messages import msg
 from .routes.users import usr
@@ -20,7 +20,7 @@ app.include_router(api)
 app.include_router(auth)
 app.include_router(connect)
 app.include_router(index)
-app.include_router(file)
+app.include_router(blob)
 app.include_router(gpt)
 app.include_router(msg)
 app.include_router(person)

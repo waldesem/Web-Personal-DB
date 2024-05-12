@@ -14,9 +14,9 @@ from ..models.classes import Roles
 from ..models.schema import AnketaSchemaApi
 from ..models.model import engine, Person
 
-file = APIRouter(prefix="/files", tags=["files"])
+blob = APIRouter(prefix="/files", tags=["files"])
 
-@file.post(
+@blob.post(
     "/file/{action}/{item_id}", status_code=201, dependencies=[Depends(Permission(roles=[Roles.user.value]))]
 )
 async def post_files(
@@ -24,9 +24,8 @@ async def post_files(
 ):
 
     if action == "anketa":
-        json_data = json.load(file)
-        json_dict = AnketaSchemaApi().model_dump(json_data)
-        anketa = Anketa(json_dict)
+        json_data = AnketaSchemaApi(json.load(files[0]))
+        anketa = Anketa(json_data)
         person_id = anketa.parse_anketa()
         return {"message": person_id}
 
@@ -54,7 +53,7 @@ async def post_files(
     return Response(status_code=204)
 
 
-@file.get("/image/{item_id}", dependencies=[Depends(Permission(roles=[Roles.user.value]))])
+@blob.get("/image/{item_id}", dependencies=[Depends(Permission(roles=[Roles.user.value]))])
 async def get_image(item_id: int):
     """
     Retrieves a file from the server and sends it as a response.
