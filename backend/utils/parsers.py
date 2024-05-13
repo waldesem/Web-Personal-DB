@@ -5,6 +5,7 @@ from sqlmodel import Session
 
 from ..utils.folders import Folders
 from ..models.classes import Statuses
+from ..models.schema import AnketaSchemaApi
 from ..models.model import (
     engine,
     Relation,
@@ -51,7 +52,7 @@ class Resume:
         person = self.get_person(
             self.resume.surname,
             self.resume.firstname,
-            self.resume.patronymic  if hasattr(self.resume, "patronymic") else "",
+            self.resume.patronymic if hasattr(self.resume, "patronymic") else "",
             self.resume.birthday,
         )
         if person:
@@ -87,171 +88,219 @@ class Resume:
 
 class Anketa(Resume):
 
-    def __init__(self, json_data):
-        self.anketa = self.parse_json(json_data)
-        resume: Person = self.anketa.resume
-        super().__init__(resume)
+    def __init__(self, data):
+        self.data: AnketaSchemaApi = data
+        self.resume: Person = self.parse_resume()
+        super().__init__(self.resume)
         self.person_id = self.check_resume()
+        self.items = self.parse_items()
 
     def parse_anketa(self):
-        if len(self.anketa["previous"]):
+        if self.items.get("previous") and len(self.items.get("previous")):
             self.parse_relations()
         self.save_items()
         return self.person_id
 
-
     def parse_relations(self):
-        for item in self.anketa["previous"]:
+        for item in self.items["previous"]:
             relation = self.get_person(
+                (item.surname if hasattr(item, "surname") else self.resume.surname),
                 (
-                    item.get("surname")
-                    if item.get("surname")
-                    else self.resume["surname"]
+                    item.firstname
+                    if hasattr(item, "firstname")
+                    else self.resume.firstname
                 ),
                 (
-                    item.get("firstname")
-                    if item.get("firstname")
-                    else self.resume["firstname"]
-                ),
-                (
-                    item.get("patronymic")
-                    if item.get("patronymic")
-                    else self.resume.get("patronymic")
+                    item.patronymic
+                    if hasattr(item, "patronymic")
+                    else (
+                        self.resume.patronymic
+                        if hasattr(self.resume, "patronymic")
+                        else ""
+                    )
                 ),
                 self.resume["birthday"],
             )
             if relation:
-                self.add_relation("Одно лицо", self.person_id, relation.id)
-
+                self.add_relation("Одно лицо", relation.id)
 
     def save_items(self):
-        models = {
-            "previous": Previous,
-            "education": Education,
-            "staff": Staff,
-            "document": Document,
-            "address": Address,
-            "contact": Contact,
-            "workplace": Workplace,
-            "affilation": Affilation,
-        }
         with Session(engine) as session:
-            for item, values in self.anketa.items():
-                if item != "resume":
-                    for value in values:
-                        if value:
-                            value["person_id"] = self.person_id
-                    session.add_all(models[item](**value) for value in values)
+            for _, item in self.items.items():
+                session.add_all(item)
+                session.commit()
 
-            session.commit()
-
-    @staticmethod
-    def add_relation(relation, person_id, relation_id):
+    def add_relation(self, relation, relation_id):
         with Session(engine) as session:
             session.add_all(
                 [
                     Relation(
-                        relation=relation, person_id=person_id, relation_id=relation_id
+                        relation=relation, person_id=self.person_id, relation_id=relation_id
                     ),
                     Relation(
-                        relation=relation, person_id=relation_id, relation_id=person_id
+                        relation=relation, person_id=relation_id, relation_id=self.person_id
                     ),
                 ]
             )
             session.commit()
-        
-    @staticmethod
-    def parse_json(json_dict) -> None:
-        json_data = {
-            "resume": {
-                "status_id": Status().get_id(Statuses.new.name),
-                "region_id": Anketa.get_region_id(json_dict),
-                "firstname": json_dict["firstName"].strip().upper(),
-                "surname": json_dict["lastName"].strip().upper(),
-                "birthday": json_dict["birthday"],
-                "birthplace": json_dict["birthplace"].strip(),
-                "country": json_dict["citizen"].strip(),
-            },
-            "previous": json_dict["nameWasChanged"],
-            "education": json_dict["education"],
-            "workplace": json_dict["experience"],
-            "address": [],
-            "contact": [],
-            "document": [],
-            "affilation": [],
-            "staff": [
-                {
-                    "position": json_dict.get("positionName").strip(),
-                    "department": json_dict.get("department").strip(),
-                }
+
+    def parse_resume(self) -> Person:
+        return Person(
+            status_id=Status().get_id(Statuses.new.name),
+            region_id=Anketa.get_region_id(),
+            firstname=self.data.firstName.strip().upper(),
+            surname=self.data.lastName.strip().upper(),
+            patronymic=(
+                self.data.midName.strip().upper()
+                if hasattr(self.data, "midName")
+                else ""
+            ),
+            birthday=self.data.birthday,
+            birthplace=self.data.birthplace.strip(),
+            country=self.data.citizen.strip(),
+            ext_country=(
+                self.data.additionalCitizenship
+                if hasattr(self.data, "additionalCitizenship")
+                else ""
+            ),
+            marital=(
+                self.data.maritalStatus if hasattr(self.data, "maritalStatus") else ""
+            ),
+            inn=self.data.inn if hasattr(self.data, "inn") else "",
+            snils=self.data.snils if hasattr(self.data, "snils") else "",
+        )
+
+    def parse_items(self) -> dict:
+        return dict(
+            staff=Staff(
+                position=self.data.positionName,
+                department=(
+                    self.data.department if hasattr(self.data, "department") else ""
+                ),
+                person_id=self.person_id,
+            ),
+            previous=[
+                Previous(
+                    surname=item.lastNameBeforeChange,
+                    firstname=item.firstNameBeforeChange,
+                    patronymic=item.midNameBeforeChange,
+                    date_change=item.yearOfChange,
+                    reason=item.reason,
+                    person_id=self.person_id,
+                )
+                for item in self.data.nameWasChanged
+                if len(self.data.nameWasChanged)
+                and hasattr(self.data, "nameWasChanged")
             ],
-        }
-        for item in json_dict:
-            match item:
-                case "midName":
-                    json_data["resume"]["patronymic"] = (
-                        json_dict["midName"].strip().upper()
+            education=[
+                Education(
+                    view=item.educationType,
+                    name=item.institutionName,
+                    end=item.endYear,
+                    specialty=item.specialty,
+                    person_id=self.person_id,
+                )
+                for item in self.data.education
+                if len(self.data.education) and hasattr(self.data, "education")
+            ],
+            workplace=[
+                Workplace(
+                    now_work=item.currentJob,
+                    start_date=item.beginDate,
+                    end_date=item.endDate,
+                    workplace=item.name,
+                    address=item.address,
+                    position=item.position,
+                    reason=item.fireReason,
+                    person_id=self.person_id,
+                )
+                for item in self.data.experience
+                if len(self.data.experience) and hasattr(self.data, "experience")
+            ],
+            address=[
+                Address(
+                    view="Адрес проживания",
+                    address=self.data.validAddress,
+                    person_id=self.person_id,
+                ),
+                Address(
+                    view="Адрес регистрации",
+                    address=self.data.regAddress,
+                    person_id=self.person_id,
+                ),
+            ],
+            contact=[
+                Contact(
+                    view="Телефон",
+                    contact=self.data.contactPhone,
+                    person_id=self.person_id,
+                ),
+                Contact(
+                    view="Электронная почта",
+                    contact=self.data.email,
+                    person_id=self.person_id,
+                ),
+            ],
+            document=[
+                Document(
+                    view="Паспорт",
+                    number=self.data.passportNumber,
+                    series=self.data.passportSerial,
+                    issue=self.data.passportIssueDate,
+                    agency=self.data.passportIssuedBy,
+                    person_id=self.person_id,
+                )
+            ],
+            affilation=[
+                [
+                    Affilation(
+                        name=item.name,
+                        position=item.position,
+                        inn=item.inn,
+                        person_id=self.person_id,
                     )
-                case "additionalCitizenship":
-                    json_data["resume"]["ext_country"] = json_dict[
-                        "additionalCitizenship"
-                    ]
-                case "maritalStatus":
-                    json_data["resume"]["marital"] = json_dict["maritalStatus"]
-                case "inn":
-                    json_data["resume"]["inn"] = json_dict["inn"].strip()
-                case "snils":
-                    json_data["resume"]["snils"] = json_dict["snils"].strip()
-                case "ValidAddress":
-                    json_data["address"].append(
-                        {
-                            "view": "Адрес проживания",
-                            "address": json_dict["ValidAddress"],
-                        }
+                    for item in self.data.organizations
+                    if len(self.data.organizations)
+                    and hasattr(self.data, "organizations")
+                ]
+                + [
+                    Affilation(
+                        name=item.name,
+                        position=item.position,
+                        inn=item.inn,
+                        person_id=self.person_id,
                     )
-                case "RegAddress":
-                    json_data["address"].append(
-                        {
-                            "view": "Адрес регистрации",
-                            "address": json_dict["RegAddress"],
-                        }
+                    for item in self.data.relatedPersonsOrganizations
+                    if len(self.data.relatedPersonsOrganizations)
+                    and hasattr(self.data, "relatedPersonsOrganizations")
+                ]
+                + [
+                    Affilation(
+                        name=item.name, position=item.position, person_id=self.person_id
                     )
-                case "contactPhone":
-                    json_data["contact"].append(
-                        {"view": "Телефон", "contact": json_dict["contactPhone"]}
+                    for item in self.data.stateOrganizations
+                    if len(self.data.stateOrganizations)
+                    and hasattr(self.data, "stateOrganizations")
+                ]
+                + [
+                    Affilation(
+                        name=item.name, position=item.position, person_id=self.person_id
                     )
-                case "email":
-                    json_data["contact"].append(
-                        {"view": "Электронная почта", "contact": json_dict["email"]}
-                    )
-                case "passportNumber":
-                    json_data["document"].append(
-                        {
-                            "view": "Паспорт",
-                            "number": json_dict["passportNumber"].strip(),
-                            "series": json_dict.get("passportSerial").strip(),
-                            "issue": json_dict.get("passportIssueDate"),
-                            "agency": json_dict.get("passportIssuedBy"),
-                        }
-                    )
-                case "organization":
-                    json_data["affilation"] + json_dict["organization"]
-                case "relatedPersonsOrganizations":
-                    json_data["affilation"] + json_dict["relatedPersonsOrganizations"]
-                case "publicOfficeOrganizations":
-                    json_data["affilation"] + json_dict["publicOfficeOrganizations"]
-                case "stateOrganizations":
-                    json_data["affilation"] + json_dict["stateOrganizations"]
+                    for item in self.data.publicOfficeOrganizations
+                    if len(self.data.publicOfficeOrganizations)
+                    and hasattr(self.data, "publicOfficeOrganizations")
+                ]
+            ],
+        )
 
-        return json_data
-
-    @staticmethod
-    def get_region_id(json_dict):
+    def get_region_id(self):
         region_id = 1
-        if "department" in json_dict:
-            divisions = re.split(r"/", json_dict["department"].strip())
-            for div in divisions:
-                reg_id = Region().get_id(div)
-                if reg_id:
-                    region_id = reg_id
+        if hasattr(self.data, "department"):
+            divisions = re.split(r"/", self.data.department.strip())
+            with Session(engine) as session:
+                regions = session.exec(select(Region)).all()
+                for reg in regions:
+                    if reg.region in divisions:
+                        region_id = reg.id
+                        break
         return region_id

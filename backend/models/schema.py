@@ -72,32 +72,32 @@ class RobotSchema(BaseModel):
 class NameWasChangedApi(BaseModel):
     """Nested schema for AnketaSchemaApi"""
 
-    surname: Optional[str] = Field(alias="firstNameBeforeChange")
-    firstname: Optional[str] = Field(alias="lastNameBeforeChange")
-    patronymic: Optional[str] = Field(alias="midNameBeforeChange")
-    date_change: Optional[int] = Field(alias="yearOfChange")
+    firstNameBeforeChange: Optional[str]
+    lastNameBeforeChange: Optional[str]
+    midNameBeforeChange: Optional[str]
+    yearOfChange: Optional[int]
     reason: Optional[str]
 
 
 class EducationApi(BaseModel):
     """Nested schema for AnketaSchemaApi"""
 
-    view: str = Field(alias="educationType")
-    name: Optional[str] = Field(alias="institutionName")
-    end: Optional[int] = Field(alias="endYear")
+    educationType: str
+    institutionName: Optional[str]
+    endYear: Optional[int]
     specialty: Optional[str]
 
 
 class ExperienceApi(BaseModel):
     """Nested schema for AnketaSchemaApi"""
 
-    start_date: Optional[int] = Field(alias="beginDate")
-    end_date: Optional[int] = Field(alias="endDate")
-    now_work: Optional[bool] = Field(alias="currentJob")
-    workplace: Optional[str] = Field(alias="name")
+    beginDate: Optional[int]
+    endDate: Optional[int]
+    currentJob: Optional[bool]
+    name: Optional[str]
     address: Optional[str]
     position: Optional[str]
-    reason: Optional[str] = Field(alias="fireReason")
+    fireReason: Optional[str]
 
 
 class OrganizationsApi(BaseModel):
