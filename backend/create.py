@@ -1,19 +1,19 @@
 import os
-import click
 import secrets
 
-from config import Settings, basedir
+import click
+from config import basedir, settings
 
 
 @click.command("create")
 def create():
     """Create default values"""
-    if not os.path.isdir(Settings.base_path):
-        os.mkdir(Settings.base_path)
+    if not os.path.isdir(settings.base_path):
+        os.mkdir(settings.base_path)
         print("Directory BASE_PATH created")
 
     for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ":
-        letter_path = os.path.join(Settings.base_path, letter)
+        letter_path = os.path.join(settings.base_path, letter)
         if not os.path.isdir(letter_path):
             os.mkdir(letter_path)
     print("Alphabet directories created")
@@ -21,7 +21,7 @@ def create():
     env = os.path.join(basedir, ".env")
     with open(env, "w", encoding="utf-8") as file:
         file.write(
-            f"jwt_secret_key='{secrets.token_hex()}'\n" 
+            f"jwt_secret_key='{secrets.token_hex()}'\n"
             f"sqlalchemy_database_uri = 'postgresql+psycopg2://flask:flask@localhost/personal'"
         )
     print(".env file created")
