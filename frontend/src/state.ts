@@ -22,7 +22,7 @@ import {
 } from "@/interfaces";
 
 export const stateToken = reactive({
-  accessToken: "" as any,
+  accessToken: localStorage.getItem("access_token") as any,
   refreshToken: localStorage.getItem("refresh_token") as any,
 });
 

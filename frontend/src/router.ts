@@ -68,17 +68,17 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
-  if (["404", "login"].includes(to.name as string)) {
+  if ((to.name as string) === "login") {
     next();
     return;
   }
 
-  if (expiredToken(localStorage.getItem("refresh_token"))) {
+  if (expiredToken(stateToken.refreshToken) || !stateToken.refreshToken) {
     next({ name: "login" });
     return;
   }
 
-  if (expiredToken(stateToken.accessToken)) {
+  if (expiredToken(stateToken.accessToken) || !stateToken.accessToken) {
     try {
       const response = await axios.post(`${server}/refresh`, null, {
         headers: {
@@ -86,13 +86,8 @@ router.beforeEach(async (to, _from, next) => {
         },
       });
       const { access_token } = response.data;
-
-      if (access_token) {
-        stateToken.accessToken = access_token;
-        next();
-      } else {
-        next({ name: "login" });
-      }
+      localStorage.setItem("access_token", access_token);
+      next();
     } catch (error) {
       next({ name: "login" });
     }

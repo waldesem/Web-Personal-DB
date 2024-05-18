@@ -10,12 +10,12 @@ axiosAuth.interceptors.request.use(
 
     stateToken.refreshToken = localStorage.getItem("refresh_token");
 
-    if (expiredToken(stateToken.refreshToken)) {
+    if (expiredToken(stateToken.refreshToken) || !stateToken.refreshToken) {
       router.push({ name: "login" });
       return Promise.reject("Refresh token not available or expired");
     }
 
-    if (expiredToken(stateToken.refreshToken)) {
+    if (expiredToken(stateToken.accessToken) || !stateToken.accessToken) {
       try {
         const response = await axios.post(`${server}/refresh`, null, {
           headers: {
@@ -23,12 +23,7 @@ axiosAuth.interceptors.request.use(
           },
         });
         const { access_token } = response.data;
-
-        if (!access_token) {
-          router.push({ name: "login" });
-          return Promise.reject("Access token not available or expired");
-        }
-        stateToken.accessToken = access_token;
+        localStorage.setItem("access_token", access_token);
       } catch (error) {
         router.push({ name: "login" });
         return Promise.reject(error);

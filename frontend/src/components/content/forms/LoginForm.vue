@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { defineAsyncComponent, ref } from "vue";
-import { stateAlert, stateToken } from "@/state";
+import { stateAlert } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -64,7 +64,7 @@ const loginData = ref({
         break
         
       case "Authenticated":
-        stateToken.accessToken = access_token;
+        localStorage.setItem("access_token", access_token);
         localStorage.setItem("refresh_token", refresh_token);
         router.push({name: "persons"});
         break;
