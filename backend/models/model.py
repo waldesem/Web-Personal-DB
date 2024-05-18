@@ -8,7 +8,7 @@ from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
 
-from ..config import Settings
+from ..config import settings
 from .classes import Conclusions, Regions, Roles, Statuses
 
 
@@ -450,7 +450,7 @@ class Check(SQLModel, table=True):
     conclusion_id: int | None = Field(default=None, foreign_key="conclusions.id")
     conclusions: Conclusion | None = Relationship(back_populates="checks")
     motivation_id: int | None = Field(default=None, foreign_key="motivations.id")
-    motivation: Motivation | None = Relationship(back_populates="checks")
+    motivations: Motivation | None = Relationship(back_populates="checks")
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="checks")
     user_id: int | None = Field(default=None, foreign_key="users.id")
@@ -562,7 +562,7 @@ class Connect(SQLModel, table=True):
     )
 
 
-engine = create_engine(Settings.SQLALCHEMY_DATABASE_URI)
+engine = create_engine(settings.sqlalchemy_database_uri)
 
 SQLModel.metadata.drop_all(engine)  # comment after testing
 
@@ -596,7 +596,7 @@ with Session(engine) as session:
                 select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
             ).one_or_none(),
             password=bcrypt.hashpw(
-                Settings.DEFAULT_PASSWORD.encode("utf-8"),
+                settings.default_password.encode("utf-8"),
                 bcrypt.gensalt(),
             ),
         )
