@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
 from jose import JWTError, jwt
 
-from .config import Config
+from .config import Settings
 from .models.model import engine, TokenBlocklist, User
 
 
@@ -23,18 +23,18 @@ credentials_exception = HTTPException(
 def create_token(cridentials: str, token_type: str):
     data = {"sub": cridentials, "type": cridentials, "jti": str(uuid.uuid4())}
     if token_type == "access":
-        data["exp"] = datetime.now(timezone.utc) + Config.JWT_ACCESS_TOKEN_EXPIRES
+        data["exp"] = datetime.now(timezone.utc) + Settings.jwt_access_token_expires
     if token_type == "refresh":
-        data["exp"] = datetime.now(timezone.utc) + Config.JWT_REFRESH_TOKEN_EXPIRES
+        data["exp"] = datetime.now(timezone.utc) + Settings.jwt_refresh_token_expires
     return jwt.encode(
-        data, Config.JWT_SECRET_KEY, algorithm=Config.JWT_TOKENS_ALGORITHM
+        data, Settings.jwt_secret_key, algorithm=Settings.jwt_tokens_algorithm
     )
 
 
 def jwt_required(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
         decoded = jwt.decode(
-            token, Config.JWT_SECRET_KEY, algorithms=[Config.JWT_TOKENS_ALGORITHM]
+            token, Settings.jwt_secret_key, algorithms=[Settings.jwt_tokens_algorithm]
         )
         return decoded
     except JWTError:

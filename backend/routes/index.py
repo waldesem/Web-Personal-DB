@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session, select, func
 from sqlalchemy_searchable import search
 
-from ..config import Config
+from ..config import Settings
 from ..dependencies import login_required
 from ..models.classes import Statuses
 from ..models.schema import SchemaPersons
@@ -57,9 +57,9 @@ async def get_persons(
         else:
             if searches:
                 query = search(query, "%{}%".format(searches))
-        pagination = query.offset((page - 1) * Config.PAGINATION).limit(Config.PAGINATION + 1)
+        pagination = query.offset((page - 1) * Settings.pagination).limit(Settings.pagination + 1)
         result = session.exec(pagination).all()
-        has_next = True if len(result) > Config.PAGINATION else False
+        has_next = True if len(result) > Settings.pagination else False
         return {
             "persons": result if not has_next else result[:-1],
             "has_next": has_next,

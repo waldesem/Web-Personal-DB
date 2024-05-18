@@ -23,7 +23,6 @@ from ..models.model import (
     Relation,
     Affilation,
     Conclusion,
-    Person,
     Check,
     Robot,
     Poligraf,

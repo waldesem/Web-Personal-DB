@@ -1,24 +1,21 @@
 import os
 from datetime import timedelta
-from dotenv import load_dotenv
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-load_dotenv(os.path.join(basedir, ".env"))
 
 
-class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    
-    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=600)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
-    JWT_TOKENS_ALGORITHM = "HS256"
+class Settings(BaseSettings):
+    jwt_secret_key: str
+    jwt_access_token_expires: timedelta = timedelta(seconds=600)
+    jwt_refresh_token_expires: timedelta = timedelta(days=30)
+    jwt_tokens_algorithm: str = "HS256"
+    sqlalchemy_database_uri: str
+    base_path: str = os.path.abspath(os.path.join(basedir, "..", "persons"))
+    default_password: str = "8" * 8
+    pagination: int = 16
 
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    BASE_PATH = os.path.abspath(os.path.join(basedir, "..", "persons"))
-
-    DEFAULT_PASSWORD = "8" * 8
-
-    PAGINATION = 16
+    model_config = SettingsConfigDict(
+        env_file = os.path.join(basedir, ".env")
+    )

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
 from sqlalchemy_searchable import search
 
-from ..config import Config
+from ..config import Settings
 from ..dependencies import Permission
 from ..models.classes import Roles
 from ..models.model import engine, User, Role
@@ -48,7 +48,7 @@ async def get_user(
                         user.blocked = not user.blocked
                 case "drop":
                     user.password = bcrypt.hashpw(
-                        Config.DEFAULT_PASSWORD.encode("utf-8"),
+                        Settings.DEFAULT_PASSWORD.encode("utf-8"),
                         bcrypt.gensalt(),
                     )
                     user.attempt = 0
@@ -78,7 +78,7 @@ async def post_user(json_data: User):
                     username=json_data.username,
                     email=json_data.email,
                     password=bcrypt.hashpw(
-                        Config.DEFAULT_PASSWORD.encode("utf-8"),
+                        Settings.DEFAULT_PASSWORD.encode("utf-8"),
                         bcrypt.gensalt(),
                     ),
                 )

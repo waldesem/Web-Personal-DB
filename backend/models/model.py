@@ -8,7 +8,7 @@ from sqlmodel import Field, Relationship, create_engine, select, SQLModel, Sessi
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 
-from ..config import Config
+from ..config import Settings
 from .classes import Roles, Regions, Statuses, Conclusions
 
 
@@ -544,7 +544,7 @@ class Connect(SQLModel, table=True):
     )
 
 
-engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+engine = create_engine(Settings.SQLALCHEMY_DATABASE_URI)
 
 SQLModel.metadata.drop_all(engine)  # comment after testing
 
@@ -578,7 +578,7 @@ with Session(engine) as session:
                 select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
             ).one_or_none(),
             password=bcrypt.hashpw(
-                Config.DEFAULT_PASSWORD.encode("utf-8"),
+                Settings.DEFAULT_PASSWORD.encode("utf-8"),
                 bcrypt.gensalt(),
             ),
         )

@@ -1,14 +1,14 @@
 import os
 from datetime import datetime
 
-from ..config import Config
+from ..config import Settings
 
 
 class Folders:
 
     def __init__(self, person_id, surname, firstname, patronymic):
         self.url = os.path.join(
-            Config.BASE_PATH,
+            Settings.base_path,
             surname[0].upper(),
             f"{person_id}-{surname.upper()} "
             f"{firstname.upper()} "
