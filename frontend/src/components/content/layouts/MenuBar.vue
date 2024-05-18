@@ -32,7 +32,7 @@ async function userLogout(): Promise<void> {
         <div class="col-10 text-center">
           <AlertMessage/>
         </div>
-        <div class="col-1 text-start">
+        <div class="col-1 text-start p-2">
           <MessageDiv/>
         </div>
         <div class="col-1 text-end">

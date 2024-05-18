@@ -64,8 +64,7 @@ const loginData = ref({
         break
         
       case "Authenticated":
-        stateToken.accessToken = access_token;
-        localStorage.setItem("refresh_token", refresh_token);
+        stateToken.setTokens(access_token, refresh_token);
         router.push({name: "persons"});
         break;
 

@@ -15,10 +15,10 @@ const MenuBar = defineAsyncComponent(
 onMounted(async () => {
   try {
     const response = await axiosAuth.get(`${server}/auth/`);
-    const { id, fullname, username, roles } = response.data;
-    stateUser.userId = id;
-    stateUser.fullName = fullname;
-    stateUser.userName = username;
+    const { user, roles } = response.data;
+    stateUser.userId = user.id;
+    stateUser.fullName = user.fullname;
+    stateUser.userName = user.username;
     stateUser.hasAdmin = roles.some((r: { role: any }) => r.role === "admin");
 
     await stateMessage.updateMessages();

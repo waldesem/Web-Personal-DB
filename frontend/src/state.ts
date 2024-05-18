@@ -22,8 +22,13 @@ import {
 } from "@/interfaces";
 
 export const stateToken = reactive({
-  accessToken: "" as any,
+  accessToken: localStorage.getItem("access_token") as any,
   refreshToken: localStorage.getItem("refresh_token") as any,
+
+  setTokens(accessToken: string, refreshToken: string) {
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("refresh_token", refreshToken);
+  },
 });
 
 export const stateUser = reactive({
@@ -270,10 +275,11 @@ export const stateMessage = {
   async updateMessages(): Promise<void> {
     try {
       const response = await axiosAuth.get(
-        `${server}/messages`
+        `${server}/messages/`
       );
-      const { messages } = response.data;
-      this.messages = messages;
+      this.messages = response.data;
+
+      console.log(this.messages);
     } catch (error) {
       console.error(error);
     }

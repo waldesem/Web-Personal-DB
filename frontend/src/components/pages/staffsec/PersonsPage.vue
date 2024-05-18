@@ -73,7 +73,7 @@ async function getCandidates(page = 1): Promise<void> {
       `${server}/index/${personData.value.path}/${personData.value.page}`,
       {
         params: {
-          search: personData.value.searches,
+          searches: personData.value.searches,
           sort: personData.value.sort,
           order: personData.value.order,
         },

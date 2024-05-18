@@ -3,15 +3,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response
 from sqlmodel import Session, select
 
-from ..dependencies import Permission
+from ..dependencies import Permission   
 from ..models.classes import Roles
 from ..models.model import engine, User, Message
 
 
-msg = APIRouter(prefix="/users", tags=["users"])
+msg = APIRouter(prefix="/messages", tags=["messages"])
 
 
-@msg.get("/messages")
+@msg.get("/")
 async def get_messages(
     current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))]
 ) -> list[Message]:
@@ -27,7 +27,7 @@ async def get_messages(
         ).all()
 
 
-@msg.delete("/messages/{item_id}")
+@msg.delete("/{item_id}")
 async def delete(
     current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
     item_id: int | None = None,
@@ -38,8 +38,9 @@ async def delete(
     with Session(engine) as session:
         if not item_id:
             messages = (
-                session.exec(select(Message).filter_by(user_id=current_user.id))
-                .scalars()
+                session.exec(
+                    select(Message).filter_by(user_id=current_user.id)
+                )
                 .all()
             )
             if len(messages):

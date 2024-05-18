@@ -73,7 +73,7 @@ router.beforeEach(async (to, _from, next) => {
     return;
   }
 
-  if (expiredToken(localStorage.getItem("refresh_token")) || !stateToken.refreshToken) {
+  if (expiredToken(stateToken.refreshToken) || !stateToken.refreshToken) {
     next({ name: "login" });
     return;
   }
@@ -86,7 +86,7 @@ router.beforeEach(async (to, _from, next) => {
         },
       });
       const { access_token } = response.data;
-      stateToken.accessToken = access_token;
+      stateToken.setTokens(access_token, stateToken.refreshToken);
       next();
     } catch (error) {
       next({ name: "login" });

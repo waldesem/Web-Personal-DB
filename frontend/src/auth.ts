@@ -8,8 +8,6 @@ export const axiosAuth = axios.create();
 axiosAuth.interceptors.request.use(
   async (config: any) => {
 
-    stateToken.refreshToken = localStorage.getItem("refresh_token");
-
     if (expiredToken(stateToken.refreshToken) || !stateToken.refreshToken) {
       router.push({ name: "login" });
       return Promise.reject("Refresh token not available or expired");
@@ -23,7 +21,7 @@ axiosAuth.interceptors.request.use(
           },
         });
         const { access_token } = response.data;
-        stateToken.accessToken = access_token;
+        stateToken.setTokens(access_token, stateToken.refreshToken);
       } catch (error) {
         router.push({ name: "login" });
         return Promise.reject(error);

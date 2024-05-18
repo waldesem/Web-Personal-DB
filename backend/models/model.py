@@ -564,7 +564,7 @@ class Connect(SQLModel, table=True):
 
 engine = create_engine(settings.sqlalchemy_database_uri)
 
-SQLModel.metadata.drop_all(engine)  # comment after testing
+# SQLModel.metadata.drop_all(engine)  # comment after testing
 
 SQLModel.metadata.create_all(engine)
 
