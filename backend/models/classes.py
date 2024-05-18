@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class Regions(Enum):
-
     MAIN_OFFICE = "Главный офис"
     SOUTH_REGION = "Региональный центр Юг"
     WEST_REGION = "Региональный центр Запад"
@@ -11,14 +10,12 @@ class Regions(Enum):
 
 
 class Roles(Enum):
-
     admin = "admin"
     user = "user"
     api = "api"
 
 
 class Statuses(Enum):
-
     new = "Новый"
     repeat = "Повторный"
     update = "Обновлен"
@@ -30,10 +27,17 @@ class Statuses(Enum):
     cancel = "Отменено"
     finish = "Окончено"
 
-class Conclusions(Enum):
 
+class Conclusions(Enum):
     agreed = "СОГЛАСОВАНО"
     with_comment = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
     saved = "СОХРАНЕН"
     canceled = "СНЯТ С ПРОВЕРКИ"
+
+
+class Motivations(Enum):
+    negative_job = "Отрицательная работа"
+    negative_finance = "Отрицательные финансы"
+    negative_internet = "Отрицательный интернет"
+    negative_pfo = "Отрицательный ПФО"

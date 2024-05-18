@@ -4,12 +4,12 @@ from typing import Optional
 import bcrypt
 from pydantic import ConfigDict
 from sqlalchemy import Column, DateTime, func
-from sqlmodel import Field, Relationship, create_engine, select, SQLModel, Session
 from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
+from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
 
 from ..config import Settings
-from .classes import Roles, Regions, Statuses, Conclusions
+from .classes import Conclusions, Regions, Roles, Statuses
 
 
 class TokenBlocklist(SQLModel, table=True):
@@ -399,10 +399,26 @@ class Conclusion(SQLModel, table=True):
     @staticmethod
     def get_id(conclusion):
         with Session(engine) as session:
-            return session.execute(
+            return session.exec(
                 select(Conclusion.id).filter(Conclusion.conclusion == conclusion)
-            ).scalar_one_or_none()
+            ).one_or_none()
 
+
+class Motivation(SQLModel, table=True):
+
+    __tablename__ = "motivations"
+
+    id: int | None = Field(default=None, primary_key=True, nullable=False, unique=True)
+    motivation: str = Field(max_length=255)
+    checks: list["Check"] = Relationship(back_populates="motivations")
+
+    @staticmethod
+    def get_id(motivation):
+        with Session(engine) as session:
+            return session.exec(
+                select(Motivation.id).filter(Motivation.motivation == motivation)
+            ).one_or_none()
+        
 
 class Check(SQLModel, table=True):
 
@@ -433,6 +449,8 @@ class Check(SQLModel, table=True):
     )
     conclusion_id: int | None = Field(default=None, foreign_key="conclusions.id")
     conclusions: Conclusion | None = Relationship(back_populates="checks")
+    motivation_id: int | None = Field(default=None, foreign_key="motivations.id")
+    motivation: Motivation | None = Relationship(back_populates="checks")
     person_id: int | None = Field(default=None, foreign_key="persons.id")
     persons: Person | None = Relationship(back_populates="checks")
     user_id: int | None = Field(default=None, foreign_key="users.id")
