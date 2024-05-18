@@ -73,6 +73,7 @@ async def post_login(json_data: LoginSchema) -> TokenSchema:
                 delta_change = datetime.now(timezone.utc) - user.pswd_created
                 if not user.change_pswd and delta_change.days < 365:
                     user.last_login = datetime.now(timezone.utc)
+                    user.change_pswd = False
                     user.attempt = 0
                     session.commit()
                     return {

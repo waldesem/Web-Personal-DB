@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlmodel import Session, select
 from sqlalchemy_searchable import search
 
-from ..config import Settings
+from ..config import settings
 from ..dependencies import login_required
 from ..models.schema import SchemaConnections
 from ..models.model import engine, Connect
@@ -21,15 +21,15 @@ async def get_connection(page: int, searches: str = ""):
     Retrieves a paginated list of Connect objects based on the specified group and item.
     """
     with Session(engine) as session:
-        names = session.exec(select(Connect.name)).scalars()
-        companies = session.exec(select(Connect.company)).scalars()
-        cities = session.exec(select(Connect.city)).scalars()
+        names = session.exec(select(Connect.name)).all()
+        companies = session.exec(select(Connect.company)).all()
+        cities = session.exec(select(Connect.city)).all()
         query = select(Connect).order_by(Connect.id.desc())
     if searches:
         query = search(query, "%{}%".format(searches))
-    pagination = query.offset((page - 1) * Settings.pagination).limit(Settings.pagination + 1)
+    pagination = query.offset((page - 1) * settings.pagination).limit(settings.pagination + 1)
     result = session.exec(pagination).all()
-    has_next = True if len(result) > Settings.pagination else False
+    has_next = True if len(result) > settings.pagination else False
     return {
         "connects": pagination,
         "has_next": has_next,

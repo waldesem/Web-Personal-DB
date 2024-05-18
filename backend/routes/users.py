@@ -27,7 +27,7 @@ async def get_users(search_data: str = None) -> list[User]:
         query = search(select(User), search_data if search_data else "").order_by(
             User.id.asc()
         )
-        return session.scalars(query).all()
+        return session.exec(query).all()
 
 
 @usr.get("/user/{user_id}", status_code=200)
