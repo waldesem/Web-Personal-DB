@@ -23,7 +23,7 @@ async def get_auth(
     """
     with Session(engine) as session:
         if current_user and not current_user.blocked and not current_user.deleted:
-            current_user.last_login = datetime.now()
+            current_user.last_login = datetime.now(timezone.utc)
             session.commit()
             return {
                 "user": current_user,

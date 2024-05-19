@@ -44,12 +44,13 @@ const dataUsers = ref({
 
 async function getUsers() {
   try {
-    const response = await axiosAuth.get(`${server}/users`, {
+    const response = await axiosAuth.get(`${server}/users/`, {
       params: {
         search: dataUsers.value.search,
       },
     });
     dataUsers.value.users = response.data;
+    console.log(dataUsers.value.users);
   } catch (error) {
     stateAlert.setAlert("alert-success", error as string);
   }
@@ -57,17 +58,17 @@ async function getUsers() {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary py-3'"/>
+  <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary py-3 mb-3'"/>
   <input
     @input.prevent="searchUsers"
-    class="form-control mb-3"
+    class="form-control mb-5"
     name="search"
     id="search"
     type="text"
     placeholder="Поиск по имени пользователя"
     v-model="dataUsers.search"
   />
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between mb-3">
     <SwitchBox
       :name="'viewDeleted'"
       :label="'Показать удаленные'"
@@ -123,10 +124,10 @@ async function getUsers() {
                 </td>
                 <td width="15%">{{ user.blocked }}</td>
                 <td width="15%">
-                  {{ timeSince(user.pswd_create) }}
+                  {{ user.pswd_created ? timeSince(user.creaated) : "" }}
                 </td>
                 <td width="15%">
-                  {{ timeSince(user.last_login) }}
+                  {{ user.last_login ? timeSince(user.last_login) : "" }}
                 </td>
               </tr>
             </template>

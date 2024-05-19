@@ -68,25 +68,26 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
-  if ((to.name as string) === "login") {
+  if (["login", "index"].includes(to.name as string)) {
     next();
     return;
   }
 
-  if (expiredToken(stateToken.refreshToken) || !stateToken.refreshToken) {
+  if (expiredToken(stateToken.tokens.refreshToken) || !stateToken.tokens.refreshToken) {
     next({ name: "login" });
     return;
   }
 
-  if (expiredToken(stateToken.accessToken) || !stateToken.accessToken) {
+  if (expiredToken(stateToken.tokens.accessToken) || !stateToken.tokens.accessToken) {
+    console.log("expired accessToken");
     try {
       const response = await axios.post(`${server}/auth/refresh`, null, {
         headers: {
-          Authorization: `Bearer ${stateToken.refreshToken}`,
+          Authorization: `Bearer ${stateToken.tokens.refreshToken}`,
         },
       });
       const { access_token } = response.data;
-      stateToken.setTokens(access_token, stateToken.refreshToken);
+      stateToken.setTokens(access_token, stateToken.tokens.refreshToken);
       next();
     } catch (error) {
       next({ name: "login" });

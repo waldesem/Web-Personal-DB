@@ -123,10 +123,10 @@ async function updateRole(action: string, value: string): Promise<void> {
       {{ userData.profile.email }}
     </LabelSlot>
     <LabelSlot :label="'Дата создания'">
-      {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") }}
+      {{ new Date(userData.profile.creaated).toLocaleString("ru-RU") }}
     </LabelSlot>
     <LabelSlot :label="'Дата изменения'">
-      {{ new Date(userData.profile.pswd_change).toLocaleString("ru-RU") }}
+      {{ new Date(userData.profile.updated).toLocaleString("ru-RU") }}
     </LabelSlot>
     <LabelSlot :label="'Дата последнего входа'">
       {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") }}

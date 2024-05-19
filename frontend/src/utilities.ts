@@ -31,6 +31,7 @@ function debounce(
  * @return {string} A string representing the time elapsed in a human-readable format
  */
 function timeSince(date: string): string {
+  console.log(date);
   const seconds: number = Math.floor(
     ((new Date() as any) - (new Date(date) as any)) / 1000
   );

@@ -176,8 +176,10 @@ export interface User {
   fullname: string;
   username: string;
   email: string;
-  pswd_create: string;
-  pswd_change: string;
+  creaated: string;
+  updated: string;
+  pswd_created: string;
+  pswd_change: boolean;
   last_login: string;
   roles: Role[];
   blocked: boolean;
