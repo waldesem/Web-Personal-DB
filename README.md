@@ -46,7 +46,7 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 
 To create application run the following command in your terminal:
 ```
-creeate.py
+python3 initialize.py
 ```
 In .env file change SQLALCHEMY_DATABASE_URI to your PostgreSQL credentials.
 To start the application at http://localhost:8000 run the following command in your terminal:

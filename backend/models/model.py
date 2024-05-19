@@ -1,7 +1,6 @@
 from datetime import date, datetime
 from typing import Optional
 
-import bcrypt
 from pydantic import ConfigDict
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy_searchable import make_searchable
@@ -9,7 +8,6 @@ from sqlalchemy_utils.types import TSVectorType
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
 
 from ..config import settings
-from .classes import Conclusions, Motivations, Regions, Roles, Statuses
 
 
 class TokenBlocklist(SQLModel, table=True):
@@ -564,47 +562,5 @@ class Connect(SQLModel, table=True):
 
 engine = create_engine(settings.sqlalchemy_database_uri)
 
-# SQLModel.metadata.drop_all(engine)  # comment after testing
-
-SQLModel.metadata.create_all(engine)
-
 make_searchable(SQLModel.metadata)
 
-with Session(engine) as session:
-    if not (
-        session.exec(select(Role)).all()
-        and session.exec(select(Region)).all()
-        and session.exec(select(Status)).all()
-        and session.exec(select(Conclusion)).all()
-        and session.exec(select(Motivation)).all()
-    ):
-        for item in [
-            [Role(role=actor.value) for actor in Roles],
-            [Region(region=reg.value) for reg in Regions],
-            [Status(status=item.value) for item in Statuses],
-            [Conclusion(conclusion=item.value) for item in Conclusions],
-            [Motivation(motivation=item.value) for item in Motivations],
-        ]:
-            session.add_all(item)
-        session.commit()
-
-with Session(engine) as session:
-    if not session.exec(select(User)).all():
-        superadmin = User(
-            fullname="Super Admin",
-            username="superadmin",
-            email="superadmin@admin.com",
-            region_id=session.exec(
-                select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
-            ).one_or_none(),
-            password=bcrypt.hashpw(
-                settings.default_password.encode("utf-8"),
-                bcrypt.gensalt(),
-            ),
-        )
-        superadmin.roles.append(
-            session.exec(select(Role).filter_by(role=Roles.admin.value)).one_or_none()
-        )
-        session.add(superadmin)
-        session.commit()
-    print("Database initialized and filled")
