@@ -1,6 +1,5 @@
 import axios from "axios";
 import { createRouter, createWebHistory } from "vue-router";
-import { stateToken } from "@/state";
 import { server, expiredToken } from "@/utilities";
 
 export const router = createRouter({
@@ -73,16 +72,19 @@ router.beforeEach(async (to, _from, next) => {
     return;
   }
 
-  if (expiredToken(stateToken.refreshToken) || !stateToken.refreshToken) {
+  const refreshToken = localStorage.getItem("refresh_token");
+  const accessToken = localStorage.getItem("access_token");
+
+  if (expiredToken(refreshToken)) {
     next({ name: "login" });
     return;
   }
 
-  if (expiredToken(stateToken.accessToken) || !stateToken.accessToken) {
+  if (expiredToken(accessToken)) {
     try {
       const response = await axios.post(`${server}/refresh`, null, {
         headers: {
-          Authorization: `Bearer ${stateToken.refreshToken}`,
+          Authorization: `Bearer ${refreshToken}`,
         },
       });
       const { access_token } = response.data;

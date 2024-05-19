@@ -65,6 +65,7 @@ function timeSince(date: string): string {
  * @return {boolean} True if the token is expired, false otherwise.
  */
 function expiredToken(token: any): boolean {
+  if (!token) return true;
   return token
     ? Math.floor(new Date().getTime() / 1000) >
         JSON.parse(atob(token.split(".")[1])).exp
