@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
 from sqlalchemy_searchable import search
 
-from ..config import Settings
+from backend.models.schema import UserWithRoles
+
+from ..config import settings
 from ..dependencies import Permission
 from ..models.classes import Roles
 from ..models.model import engine, User, Role
@@ -35,7 +37,7 @@ async def get_user(
     user_id,
     current_user: Annotated[User, Depends(Permission(roles=[Roles.admin.value]))],
     action: str = None,
-) -> User:
+) -> UserWithRoles:
     """
     Retrieves a user based on the specified action and user ID.
     """
@@ -48,7 +50,7 @@ async def get_user(
                         user.blocked = not user.blocked
                 case "drop":
                     user.password = bcrypt.hashpw(
-                        Settings.DEFAULT_PASSWORD.encode("utf-8"),
+                        settings.default_password.encode("utf-8"),
                         bcrypt.gensalt(),
                     )
                     user.attempt = 0
@@ -56,8 +58,11 @@ async def get_user(
                 case _:
                     user.region_id = action
             session.commit()
-        return session.get(User, user_id)
-
+        user = session.get(User, user_id)
+        return {
+            "user": user,
+            "roles": user.roles,
+        }
 
 @usr.post(
     "/user",
@@ -78,7 +83,7 @@ async def post_user(json_data: User):
                     username=json_data.username,
                     email=json_data.email,
                     password=bcrypt.hashpw(
-                        Settings.DEFAULT_PASSWORD.encode("utf-8"),
+                        settings.default_password.encode("utf-8"),
                         bcrypt.gensalt(),
                     ),
                 )

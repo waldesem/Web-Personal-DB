@@ -124,7 +124,7 @@ async function getUsers() {
                 </td>
                 <td width="15%">{{ user.blocked }}</td>
                 <td width="15%">
-                  {{ user.pswd_created ? timeSince(user.creaated) : "" }}
+                  {{ user.pswd_created ? timeSince(user.created) : "" }}
                 </td>
                 <td width="15%">
                   {{ user.last_login ? timeSince(user.last_login) : "" }}

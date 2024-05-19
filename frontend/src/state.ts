@@ -21,17 +21,6 @@ import {
   Message,
 } from "@/interfaces";
 
-export const stateToken = {
-  tokens: reactive({
-    accessToken: localStorage.getItem("access_token") as any,
-    refreshToken: localStorage.getItem("refresh_token") as any,
-  }),
-  setTokens(accessToken: string, refreshToken: string) {
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("refresh_token", refreshToken);
-  }
-};
-
 export const stateUser = reactive({
   userId: "",
   fullName: "",

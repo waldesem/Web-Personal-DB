@@ -44,7 +44,9 @@ async function userAction(action: String): Promise<void> {
         },
       }
     );
-    userData.value.profile = response.data;
+    const { user, roles } = response.data;
+    userData.value.profile = user;
+    userData.value.profile.roles = roles;
     if (action === "drop") {
       stateAlert.setAlert("alert-success", "Пароль сброшен");
     } else if (action === "block") {
@@ -60,7 +62,7 @@ async function userAction(action: String): Promise<void> {
   }
 }
 
-async function userDelete(): Promise<void> {
+  async function userDelete(): Promise<void> {
   if (confirm("Вы действительно хотите удалить пользователя?")) {
     try {
       const response = await axiosAuth.delete(
@@ -123,7 +125,7 @@ async function updateRole(action: string, value: string): Promise<void> {
       {{ userData.profile.email }}
     </LabelSlot>
     <LabelSlot :label="'Дата создания'">
-      {{ new Date(userData.profile.creaated).toLocaleString("ru-RU") }}
+      {{ new Date(userData.profile.created).toLocaleString("ru-RU") }}
     </LabelSlot>
     <LabelSlot :label="'Дата изменения'">
       {{ new Date(userData.profile.updated).toLocaleString("ru-RU") }}
@@ -141,24 +143,30 @@ async function updateRole(action: string, value: string): Promise<void> {
       {{ userData.profile.deleted ? "Удален" : "Активен" }}
     </LabelSlot>
     <LabelSlot :label="'Роли'">
-      <ul v-for="(role, index) in userData.profile.roles" :key="index">
-        <li>
-          {{ role["role"] }}
-          <button 
-            type="button" 
-            class="btn btn-link" 
-            @click="updateRole('delete', role['id'])"
-          >
-            <i class="bi bi-dash-circle"></i>
-          </button>
-        </li>
-      </ul>
-      <SelectObject
-        :name="'role'"
-        :select="stateClassify.roles"
-        v-model="userData.role"
-        @submit-data="updateRole('add', userData.role)"
-      />
+      <div class="row">
+        <div class="col-auto">
+          <ul v-for="(role, index) in userData.profile.roles" :key="index">
+            <li>
+              {{ role["role"] }}
+              <button 
+                type="button" 
+                class="btn btn-link" 
+                @click="updateRole('delete', role['id'])"
+              >
+                <i class="bi bi-dash-circle"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="col-auto">
+          <SelectObject
+            :name="'role'"
+            :select="stateClassify.roles"
+            v-model="userData.role"
+            @submit-data="updateRole('add', userData.role)"
+          />
+      </div>
+    </div>
     </LabelSlot>
     <UserForm
       v-if="userData.action"
@@ -208,6 +216,6 @@ async function updateRole(action: string, value: string): Promise<void> {
 
 <style scoped>
 #role {
-  padding-left: 0;
+  width: 10%;
 }
 </style>
