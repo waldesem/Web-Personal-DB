@@ -68,31 +68,32 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
-  if (["login", "index"].includes(to.name as string)) {
+  if (["login", "index", "staffsec"].includes(to.name as string)) {
     next();
     return;
   }
-
-  if (expiredToken(stateToken.tokens.refreshToken) || !stateToken.tokens.refreshToken) {
+  if (expiredToken(stateToken.tokens.refreshToken)) {
     next({ name: "login" });
     return;
-  }
-
-  if (expiredToken(stateToken.tokens.accessToken) || !stateToken.tokens.accessToken) {
-    console.log("expired accessToken");
-    try {
-      const response = await axios.post(`${server}/auth/refresh`, null, {
-        headers: {
-          Authorization: `Bearer ${stateToken.tokens.refreshToken}`,
-        },
-      });
-      const { access_token } = response.data;
-      stateToken.setTokens(access_token, stateToken.tokens.refreshToken);
-      next();
-    } catch (error) {
-      next({ name: "login" });
-    }
   } else {
-    next();
+    if (expiredToken(stateToken.tokens.accessToken)) {
+      try {
+        const response = await axios.post(`${server}/auth/refresh`, null, {
+          headers: {
+            Authorization: `Bearer ${stateToken.tokens.refreshToken}`,
+          },
+        });
+        const { access_token } = response.data;
+        stateToken.setTokens(access_token, stateToken.tokens.refreshToken);
+        next();
+        return;
+      } catch (error) {
+        next({ name: "login" });
+        return;
+      }
+    } else {
+      next();
+      return;
+    }
   }
 });

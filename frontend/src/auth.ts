@@ -7,24 +7,23 @@ export const axiosAuth = axios.create();
 
 axiosAuth.interceptors.request.use(
   async (config: any) => {
-
-    if (expiredToken(stateToken.tokens.refreshToken) || !stateToken.tokens.refreshToken) {
+    if (expiredToken(stateToken.tokens.refreshToken)) {
       router.push({ name: "login" });
       return Promise.reject("Refresh token not available or expired");
-    }
-
-    if (expiredToken(stateToken.tokens.accessToken) || !stateToken.tokens.accessToken) {
-      try {
-        const response = await axios.post(`${server}/auth/refresh`, null, {
-          headers: {
-            Authorization: `Bearer ${stateToken.tokens.refreshToken}`,
-          },
-        });
-        const { access_token } = response.data;
-        stateToken.setTokens(access_token, stateToken.tokens.refreshToken);
-      } catch (error) {
-        router.push({ name: "login" });
-        return Promise.reject(error);
+    } else {
+      if (expiredToken(stateToken.tokens.accessToken)) {
+        try {
+          const response = await axios.post(`${server}/auth/refresh`, null, {
+            headers: {
+              Authorization: `Bearer ${stateToken.tokens.refreshToken}`,
+            },
+          });
+          const { access_token } = response.data;
+          stateToken.setTokens(access_token, stateToken.tokens.refreshToken);
+        } catch (error) {
+          router.push({ name: "login" });
+          return Promise.reject(error);
+        }
       }
     }
     config.headers["Authorization"] = `Bearer ${stateToken.tokens.accessToken}`;

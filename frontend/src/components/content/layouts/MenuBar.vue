@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateUser, stateToken } from "@/state";
+import { stateUser } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -20,7 +20,7 @@ async function userLogout(): Promise<void> {
     console.log(error);
   }
 
-  stateToken.accessToken = "";
+  localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   router.push({ name: "login" });
 }
