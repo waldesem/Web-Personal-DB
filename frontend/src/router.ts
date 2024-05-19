@@ -72,32 +72,27 @@ router.beforeEach(async (to, _from, next) => {
     return;
   }
   
-  const accessToken = localStorage.getItem("access_token");
   const refreshToken = localStorage.getItem("refresh_token");
-
-  if (!expiredToken(refreshToken)) {
-    if (expiredToken(accessToken)) {
-      try {
-        const response = await axios.post(`${server}/auth/refresh`, null, {
-          headers: {
-            Authorization: `Bearer ${refreshToken}`,
-          },
-        });
-        const { access_token } = response.data;
-        localStorage.setItem("access_token", access_token);
-        next();
-        return;
-      } catch (error) {
-        console.error(error);
-        next({ name: "login" });
-        return;
-      }
-    } else {
-      next();
-      return;
-    }
-  }  else {
+  if (expiredToken(refreshToken)) {
     next({ name: "login" });
     return;
-  }  
+  };
+
+  const accessToken = localStorage.getItem("access_token");
+  if (expiredToken(accessToken)) {
+    try {
+      const response = await axios.post(`${server}/auth/refresh`, null, {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+      const { access_token } = response.data;
+      localStorage.setItem("access_token", access_token);
+    } catch (error) {
+      console.error(error);
+      next({ name: "login" });
+      return;
+    }
+  }
+  next()
 });

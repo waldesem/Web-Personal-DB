@@ -6,30 +6,33 @@ export const axiosAuth = axios.create();
 
 axiosAuth.interceptors.request.use(
   async (config: any) => {
-
-    const accessToken = localStorage.getItem("access_token");
+    // Check if refresh token is expired
     const refreshToken = localStorage.getItem("refresh_token");
-
-    if (!expiredToken(refreshToken)) {
-      if (expiredToken(accessToken)) {
-        try {
-          const response = await axios.post(`${server}/auth/refresh`, null, {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`,
-            },
-          });
-          const { access_token } = response.data;
-          localStorage.setItem("access_token", access_token);
-        } catch (error) {
-          router.push({ name: "login" });
-          return Promise.reject(error);
-        }
-      }
-    } else {
+    if (expiredToken(refreshToken)) {
       router.push({ name: "login" });
       return Promise.reject("Refresh token not available or expired");
     }
-    config.headers["Authorization"] = `Bearer ${accessToken}`;
+
+    // Check if access token is expired
+    if (expiredToken(localStorage.getItem("access_token"))) {
+      try {
+        const response = await axios.post(`${server}/auth/refresh`, null, {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        });
+        const { access_token } = response.data;
+        localStorage.setItem("access_token", access_token);
+      } catch (error) {
+        router.push({ name: "login" });
+        return Promise.reject(error);
+      }
+    }
+
+    // Set access token in request header
+    config.headers["Authorization"] = `Bearer ${localStorage.getItem(
+      "access_token"
+    )}`;
     return config;
   },
   (error) => {
