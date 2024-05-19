@@ -9,7 +9,7 @@ from sqlalchemy_utils.types import TSVectorType
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
 
 from ..config import settings
-from .classes import Conclusions, Regions, Roles, Statuses
+from .classes import Conclusions, Motivations, Regions, Roles, Statuses
 
 
 class TokenBlocklist(SQLModel, table=True):
@@ -576,12 +576,14 @@ with Session(engine) as session:
         and session.exec(select(Region)).all()
         and session.exec(select(Status)).all()
         and session.exec(select(Conclusion)).all()
+        and session.exec(select(Motivation)).all()
     ):
         for item in [
+            [Role(role=actor.value) for actor in Roles],
             [Region(region=reg.value) for reg in Regions],
             [Status(status=item.value) for item in Statuses],
             [Conclusion(conclusion=item.value) for item in Conclusions],
-            [Role(role=actor.value) for actor in Roles],
+            [Motivation(motivation=item.value) for item in Motivations],
         ]:
             session.add_all(item)
         session.commit()

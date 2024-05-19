@@ -186,6 +186,13 @@ watch(noNegative, () => {
           v-model="checkForm['conclusion_id']"
         />
       </LabelSlot>
+      <LabelSlot :label="'Причина'">
+        <SelectObject
+          :name="'motivation'"
+          :select="stateClassify.motivations"
+          v-model="checkForm['motivation_id']"
+        />
+      </LabelSlot>
       <LabelSlot :label="'Комментарий'">
         <TextArea
           :name="'comments'"

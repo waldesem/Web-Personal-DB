@@ -1,23 +1,24 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlmodel import Session, select, func
 from sqlalchemy_searchable import search
+from sqlmodel import Session, func, select
 
 from ..config import settings
 from ..dependencies import login_required
 from ..models.classes import Statuses
-from ..models.schema import SchemaPersons
 from ..models.model import (
-    engine,
-    Person,
     Check,
     Conclusion,
+    Motivation,
+    Person,
+    Region,
     Role,
     Status,
-    Region,
     User,
+    engine,
 )
+from ..models.schema import SchemaPersons
 
 index = APIRouter()
 
@@ -57,7 +58,9 @@ async def get_persons(
         else:
             if searches:
                 query = search(query, "%{}%".format(searches))
-        pagination = query.offset((page - 1) * settings.pagination).limit(settings.pagination + 1)
+        pagination = query.offset((page - 1) * settings.pagination).limit(
+            settings.pagination + 1
+        )
         result = session.exec(pagination).all()
         has_next = True if len(result) > settings.pagination else False
         return {
@@ -82,7 +85,7 @@ async def get_information(start: str, end: str, region_id: int = 1) -> dict:
 
 @index.get("/classes", status_code=200)
 async def get_classes():
-    models = [Conclusion, Role, Status, Region, User]
+    models = [Conclusion, Motivation, Role, Status, Region, User]
     with Session(engine) as session:
         queries = [session.exec(select(model)).all() for model in models]
         return [
@@ -93,18 +96,22 @@ async def get_classes():
                         sub.conclusion
                         if hasattr(sub, "conclusion")
                         else (
-                            sub.role
-                            if hasattr(sub, "role")
+                            sub.motivation
+                            if hasattr(sub, "motivation")
                             else (
-                                sub.status
-                                if hasattr(sub, "status")
+                                sub.role
+                                if hasattr(sub, "role")
                                 else (
-                                    sub.region
-                                    if hasattr(sub, "region")
+                                    sub.status
+                                    if hasattr(sub, "status")
                                     else (
-                                        sub.fullname
-                                        if hasattr(sub, "fullname")
-                                        else None
+                                        sub.region
+                                        if hasattr(sub, "region")
+                                        else (
+                                            sub.fullname
+                                            if hasattr(sub, "fullname")
+                                            else None
+                                        )
                                     )
                                 )
                             )

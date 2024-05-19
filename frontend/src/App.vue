@@ -10,6 +10,7 @@ onMounted(async () => {
     const response = await axios.get(`${server}/classes`);
     [
       stateClassify.conclusions,
+      stateClassify.motivations,
       stateClassify.roles,
       stateClassify.status,
       stateClassify.regions,

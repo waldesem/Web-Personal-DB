@@ -5,10 +5,10 @@ import { Verification } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
-)
+);
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
-)
+);
 const FileForm = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
@@ -30,8 +30,8 @@ const props = defineProps({
   currentTab: {
     type: String,
     default: "",
-  }
-})
+  },
+});
 
 const check = ref({
   itemId: "",
@@ -40,12 +40,12 @@ const check = ref({
     stateAnketa.anketa.resume["status_id"] !== stateClassify.status["save"] &&
     stateAnketa.anketa.resume["status_id"] !== stateClassify.status["cancel"] &&
     stateAnketa.anketa.resume["status_id"] !== stateClassify.status["manual"],
-  showActions: false
+  showActions: false,
 });
 
 function submitForm(form: Object, action: string) {
   stateAnketa.updateItem(action, "check", check.value.itemId, form);
-  action === "update" ? check.value.itemId = "" : emit("cancel");
+  action === "update" ? (check.value.itemId = "") : emit("cancel");
 }
 </script>
 
@@ -56,9 +56,10 @@ function submitForm(form: Object, action: string) {
     @cancel="emit('cancel')"
     @submit="submitForm"
   />
-  <div v-else-if="stateAnketa.anketa.check.length" class='py-3'> 
+  <div v-else-if="stateAnketa.anketa.check.length" class="py-3">
     <div
-      v-for="(item, idx) in stateAnketa.anketa.check" :key="idx" 
+      v-for="(item, idx) in stateAnketa.anketa.check"
+      :key="idx"
       @mouseover="check.showActions = true"
       @mouseout="check.showActions = false"
       class="card card-body mb-3"
@@ -72,7 +73,8 @@ function submitForm(form: Object, action: string) {
       />
       <div v-else>
         <LabelSlot>
-          <ActionIcons v-show="check.showActions"
+          <ActionIcons
+            v-show="check.showActions"
             :show-form="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'check')"
             @update="
@@ -88,12 +90,12 @@ function submitForm(form: Object, action: string) {
               stateAnketa.anketa.resume['user_id'] !== stateUser.userId
             "
           >
-          <FileForm 
-            v-show="check.showActions" 
-            :accept="'*'" 
-            @submit="stateAnketa.submitFile($event, 'check')" 
-          />
-        </ActionIcons>
+            <FileForm
+              v-show="check.showActions"
+              :accept="'*'"
+              @submit="stateAnketa.submitFile($event, 'check')"
+            />
+          </ActionIcons>
         </LabelSlot>
         <LabelSlot :label="'ID'">{{ item["id"] }}</LabelSlot>
         <LabelSlot :label="'Проверка по местам работы'">
@@ -133,7 +135,12 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
         <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["conclusion_id"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot v-if="item['motivation_id']" :label="'Причина'">{{
+          item["motivation_id"]
+        }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{
+          stateClassify.users[item["user_id"]]
+        }}</LabelSlot>
         <LabelSlot :label="'Cоздан'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>

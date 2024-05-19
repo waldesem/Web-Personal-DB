@@ -109,6 +109,7 @@ export interface Verification {
   addition: string;
   pfo: boolean;
   conclusion_id: string;
+  motivation_id: string;
   comments: string;
   created: string;
   updated: string;
