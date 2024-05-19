@@ -13,10 +13,9 @@ connect = APIRouter(prefix="/connect", tags=["connect"])
 @connect.get(
     "/{page}",
     status_code=200,
-    response_model=SchemaConnections,
     dependencies=[Depends(login_required)],
 )
-async def get_connection(page: int, searches: str = ""):
+async def get_connection(page: int, searches: str = "") -> SchemaConnections:
     """
     Retrieves a paginated list of Connect objects based on the specified group and item.
     """
@@ -25,18 +24,18 @@ async def get_connection(page: int, searches: str = ""):
         companies = session.exec(select(Connect.company)).all()
         cities = session.exec(select(Connect.city)).all()
         query = select(Connect).order_by(Connect.id.desc())
-    if searches:
-        query = search(query, "%{}%".format(searches))
-    pagination = query.offset((page - 1) * settings.pagination).limit(settings.pagination + 1)
-    result = session.exec(pagination).all()
-    has_next = True if len(result) > settings.pagination else False
-    return {
-        "connects": pagination,
-        "has_next": has_next,
-        "names": list({name for name in names}),
-        "companies": list({company for company in companies}),
-        "cities": list({city for city in cities}),
-    }
+        if searches:
+            query = search(query, "%{}%".format(searches))
+        pagination = query.offset((page - 1) * settings.pagination).limit(settings.pagination + 1)
+        result = session.exec(pagination).all()
+        has_next = True if len(result) > settings.pagination else False
+        return {
+            "contacts": pagination,
+            "has_next": has_next,
+            "names": list({name for name in names}),
+            "companies": list({company for company in companies}),
+            "cities": list({city for city in cities}),
+        }
 
 
 @connect.post("/", status_code=201, dependencies=[Depends(login_required)])
@@ -47,7 +46,7 @@ async def post_connection(json_data: Connect) -> dict:
     with Session(engine) as session:
         session.add(Connect(**json_data))
         session.commit()
-        return {"message": "Created"}
+        return Response(status_code=201)
 
 
 @connect.patch("/{item_id}", status_code=201, dependencies=[Depends(login_required)])
@@ -60,7 +59,7 @@ async def patch(item_id: int, json_data: Connect) -> dict:
         for k, v in json_data.items():
             setattr(resp, k, v)
         session.commit()
-        return {"message": "Updated"}
+        return Response(status_code=201)
 
 
 @connect.delete("/{item_id}", dependencies=[Depends(login_required)])
