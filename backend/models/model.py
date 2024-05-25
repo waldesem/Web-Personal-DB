@@ -540,8 +540,8 @@ class Connect(SQLModel, table=True):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     id: int | None = Field(default=None, primary_key=True, unique=True)
-    name: str = Field(max_length=255)
-    company: str | None = Field(index=True, max_length=255)
+    name: str | None = Field(max_length=255)
+    company: str = Field(index=True, max_length=255)
     city: str | None = Field(max_length=255)
     fullname: str = Field(max_length=255, index=True)
     phone: str | None = Field(max_length=255)

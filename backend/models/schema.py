@@ -30,11 +30,11 @@ class SchemaPersons(BaseModel):
 
 
 class SchemaConnections(BaseModel):
-    connects: list[Connect]
+    contacts: list[Connect]
     has_next: bool
-    names: list[dict]
-    companies: list[dict]
-    cities: list[dict]
+    names: list[str]
+    companies: list[str]
+    cities: list[str]
 
 
 class SchemaGptInput(BaseModel):

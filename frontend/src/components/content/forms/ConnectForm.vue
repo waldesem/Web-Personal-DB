@@ -49,7 +49,7 @@ async function updateContact(): Promise<void> {
     const response =
       props.action === "create"
         ? await axiosAuth.post(
-            `${server}/connect`,
+            `${server}/connect/`,
             connectForm.value
           )
         : await axiosAuth.patch(

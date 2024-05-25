@@ -30,21 +30,21 @@ async def get_connection(page: int, searches: str = "") -> SchemaConnections:
         result = session.exec(pagination).all()
         has_next = True if len(result) > settings.pagination else False
         return {
-            "contacts": pagination,
+            "contacts": result,
             "has_next": has_next,
-            "names": list({name for name in names}),
-            "companies": list({company for company in companies}),
-            "cities": list({city for city in cities}),
+            "names": [name for name in names],
+            "companies": [company for company in companies],
+            "cities": [city for city in cities],
         }
 
 
 @connect.post("/", status_code=201, dependencies=[Depends(login_required)])
-async def post_connection(json_data: Connect) -> dict:
+async def post_connection(json_data: Connect):
     """
     Create a new connection.
     """
     with Session(engine) as session:
-        session.add(Connect(**json_data))
+        session.add(json_data)
         session.commit()
         return Response(status_code=201)
 

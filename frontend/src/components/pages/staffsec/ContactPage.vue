@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, defineAsyncComponent, ref } from "vue";
+import { onBeforeMount, defineAsyncComponent, ref, computed } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { debounce, server } from "@/utilities";
@@ -38,11 +38,15 @@ const contactData = ref({
   cities: [],
   contacts: [],
   page: 1,
-  prev: (contactData: any) => {return false ? contactData.page > 1 : false},
+  prev: false,
   next: false,
   action: "",
-  search: "",
+  searches: "",
   item: <Connection>{},
+});
+
+computed(() => {
+  contactData.value.prev = contactData.value.page > 1 ? true : false
 });
 
 async function getContacts(page: number): Promise<void> {
@@ -52,7 +56,7 @@ async function getContacts(page: number): Promise<void> {
       `${server}/connect/${page}`,
       {
         params: {
-          search: contactData.value.search,
+          searches: contactData.value.searches,
         },
       }
     );
@@ -117,7 +121,7 @@ async function deleteContact(id: string): Promise<void> {
       id="search"
       type="text"
       placeholder="Поиск по организации, имени, номеру мобильного телефона"
-      v-model="contactData.search"
+      v-model="contactData.searches"
     />
     <ModalWin
       :id="'modalConnect'"
@@ -194,8 +198,8 @@ async function deleteContact(id: string): Promise<void> {
       </template>
     </TableSlots>
     <PageSwitcher
-      :has_prev="contactData.next"
-      :has_next="contactData.prev"
+      :has_prev="contactData.prev"
+      :has_next="contactData.next"
       :switchPrev="contactData.page - 1"
       :switchNext="contactData.page + 1"
       @switch="getContacts"
