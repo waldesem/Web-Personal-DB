@@ -50,7 +50,6 @@ async function getUsers() {
       },
     });
     dataUsers.value.users = response.data;
-    console.log(dataUsers.value.users);
   } catch (error) {
     stateAlert.setAlert("alert-success", error as string);
   }
@@ -100,16 +99,16 @@ async function getUsers() {
       <tr>
         <th width="10%">#</th>
         <th>Имя пользователя</th>
-        <th width="20%">Логин</th>
+        <th width="15%">Логин</th>
         <th width="15%">Регион</th>
         <th width="10%">Блокировка</th>
-        <th width="10%">Создан</th>
-        <th width="10%">Вход</th>
+        <th width="15%">Создан</th>
+        <th width="15%">Вход</th>
       </tr>
     </template>
     <template v-slot:tbody>
       <tr>
-        <td colspan="6">
+        <td colspan="7">
           <TableSlots
             id="overflow"
             :tbl-class="'table table-hover align-middle no-bottom-border'"
@@ -118,17 +117,17 @@ async function getUsers() {
               <tr height="50px" v-for="user in users" :key="user.id">
                 <td width="10%">{{ user.id }}</td>
                 <td>{{ user.fullname }}</td>
-                <td width="20%">
+                <td width="15%">
                   <router-link :to="{ name: 'user', params: { id: user.id } }">
                     {{ user.username }}
                   </router-link>
                 </td>
                 <td width="15%">{{ stateClassify.regions[user.region_id] }}</td>
                 <td width="10%">{{ user.blocked }}</td>
-                <td width="10%">
+                <td width="15%">
                   {{ user.pswd_created ? timeSince(user.created) : "" }}
                 </td>
-                <td width="10%">
+                <td width="15%">
                   {{ user.last_login ? timeSince(user.last_login) : "" }}
                 </td>
               </tr>

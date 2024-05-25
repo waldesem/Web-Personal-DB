@@ -82,6 +82,7 @@ async def post_user(json_data: User):
                     fullname=json_data.fullname,
                     username=json_data.username,
                     email=json_data.email,
+                    region_id=json_data.region_id,
                     password=bcrypt.hashpw(
                         settings.default_password.encode("utf-8"),
                         bcrypt.gensalt(),

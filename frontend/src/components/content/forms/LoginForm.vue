@@ -60,24 +60,24 @@ async function submitLogin(): Promise<void> {
         router.push({ name: "persons" });
         break;
 
-      case 205:
-        loginData.value.action = "login";
-        stateAlert.setAlert("alert-success", "Войдите с новым паролем");
-        break;
-
-      case 401:
-        loginData.value.action = "login";
-        stateAlert.setAlert("alert-danger", "Неверный логин или пароль");
-        break;
-
-      case 403:
+      case 202:
         loginData.value.action = "password";
         stateAlert.setAlert(
           "alert-warning",
           "Пароль просрочен. Измените пароль"
         );
         break;
-        
+
+      case 203:
+        loginData.value.action = "login";
+        stateAlert.setAlert("alert-danger", "Неверный логин или пароль");
+        break;
+
+      case 205:
+        loginData.value.action = "login";
+        stateAlert.setAlert("alert-success", "Войдите с новым паролем");
+        break;
+
       default:
         stateAlert.setAlert("alert-warning", "Неизвестная ошибка");
         break;

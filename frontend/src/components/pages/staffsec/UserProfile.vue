@@ -3,7 +3,7 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateAlert, stateClassify } from "@/state";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
-import { router } from "@/router";
+import { useRoute } from 'vue-router'
 import { User } from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
@@ -23,7 +23,8 @@ const BtnGroup = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  userData.value.id = router.currentRoute.value.params.id.toString();
+  const route = useRoute();
+  userData.value.id = route.params.id as string;
   await userAction("view");
 });
 
@@ -125,7 +126,7 @@ async function updateRole(action: string, value: string): Promise<void> {
       {{ userData.profile.email }}
     </LabelSlot>
     <LabelSlot :label="'Регион'">
-      {{ userData.profile.region_id }}
+      {{ stateClassify.regions[userData.profile.region_id] }}
     </LabelSlot>
     <LabelSlot :label="'Дата создания'">
       {{ new Date(userData.profile.created).toLocaleString("ru-RU") }}
@@ -215,10 +216,4 @@ async function updateRole(action: string, value: string): Promise<void> {
       </button>
     </BtnGroup>
   </div>
-</template>
-
-<style scoped>
-#role {
-  width: 10%;
-}
-</style>
+</template> 

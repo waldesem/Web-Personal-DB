@@ -43,7 +43,7 @@ async def get_auth(
         # If the user is blocked, not deleted, and the password has not been
         # changed in the last year, then update the user's last login time
         if (
-            current_user.blocked
+            not current_user.blocked
             and not current_user.deleted
             and delta_change.days < 365
         ):
@@ -101,7 +101,7 @@ async def post_login(json_data: LoginSchema) -> TokenSchema:
                     }
                 # If the password has been changed in the last year, then return a message
                 # indicating that the password is overdue
-                return Response(status_code=403)
+                return Response(status_code=202)
             else:
                 # If the password is incorrect, then increment the user's attempt count
                 # If the attempt count is equal to 9, then block the user
@@ -111,7 +111,7 @@ async def post_login(json_data: LoginSchema) -> TokenSchema:
                     user.blocked = True
                 session.commit()
 
-        return Response(status_code=401)
+        return Response(status_code=203)
 
     # ldap = ldap_auth(json_data["username"], json_data["password"])
     # if ldap:
@@ -184,7 +184,7 @@ async def patch_password(json_data: LoginSchema) -> dict[str, str]:
 
         # If any of the conditions are not met, return a message indicating that the password
         # change was denied
-        return Response(status_code=401)
+        return Response(status_code=203)
 
 
 @auth.delete("/login", status_code=204)

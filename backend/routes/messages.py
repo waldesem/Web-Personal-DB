@@ -11,9 +11,9 @@ from ..models.model import engine, User, Message
 msg = APIRouter(prefix="/messages", tags=["messages"])
 
 
-@msg.get("/")
+@msg.get("/", status_code=200)
 async def get_messages(
-    current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))]
+    current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
 ) -> list[Message]:
     """
     Get the serialized representation of the messages.
@@ -27,7 +27,7 @@ async def get_messages(
         ).all()
 
 
-@msg.delete("/{item_id}")
+@msg.delete("/{item_id}", status_code=204)
 async def delete(
     current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
     item_id: int | None = None,

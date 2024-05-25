@@ -131,7 +131,6 @@ export const stateAnketa = {
           break;
       }
     } catch (error) {
-      console.error(error);
       stateAlert.setAlert("alert-danger", `Ошибка обработки ${error}`);
     }
   },
@@ -154,7 +153,6 @@ export const stateAnketa = {
         this.anketa[param as keyof typeof this.anketa] = response.data;
       }
     } catch (error) {
-      console.error(error);
       stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
     }
   },
@@ -270,7 +268,6 @@ export const stateMessage = {
       );
       this.messages = response.data;
 
-      console.log(this.messages);
     } catch (error) {
       console.error(error);
     }

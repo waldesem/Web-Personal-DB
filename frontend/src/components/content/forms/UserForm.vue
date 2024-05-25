@@ -38,10 +38,10 @@ async function submitUser(): Promise<void> {
     const response =
       props.action === "edit"
         ? await axiosAuth.patch(
-            `${server}/user/${props.item["id"]}`,
+            `${server}/users/user/${props.item["id"]}`,
             userForm.value
           )
-        : await axiosAuth.post(`${server}/user`, userForm.value);
+        : await axiosAuth.post(`${server}/users/user`, userForm.value);
 
     const { message } = response.data;
     if (message === "Changed") {
@@ -71,11 +71,11 @@ async function submitUser(): Promise<void> {
   <div class="p-3">
     <form
       @submit.prevent="submitUser"
-      class="form form-check border rounded p-"
+      class="form form-check border rounded mb-3"
       role="form"
     >
       <div class="row m-3">
-        <div class="col col-auto">
+        <div class="col col-2">
           <InputElement
             :name="'fullname'"
             :place="'Имя пользователя'"
@@ -83,16 +83,16 @@ async function submitUser(): Promise<void> {
             v-model="userForm['fullname']"
           />
         </div>
-        <div class="col col-auto">
+        <div class="col col-2">
           <InputElement
             :name="'username'"
             :place="'Учетная запись'"
             :pattern="'[a-zA-Z]+'"
-            :disabled="props.action === 'edit'"
+            :need="props.action === 'edit'"
             v-model="userForm['username']"
           />
         </div>
-        <div class="col col-auto">
+        <div class="col col-3">
           <InputElement
             :name="'email'"
             :place="'Электронная почта'"
@@ -100,7 +100,7 @@ async function submitUser(): Promise<void> {
             v-model="userForm['email']"
           />
         </div>
-        <div class="col col-auto">
+        <div class="col col-2">
           <SelectObject
             :name="'region_id'"
             :place="'Регион'"
@@ -108,7 +108,7 @@ async function submitUser(): Promise<void> {
             v-model="userForm['region_id']"
           />
         </div>
-        <div class="col col-auto">
+        <div class="col col-3">
           <BtnGroup :offset="false">
             <GroupContent
               :submit-btn="props.action === 'create' ? 'Создать' : 'Изменить'"

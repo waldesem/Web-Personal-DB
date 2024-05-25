@@ -15,7 +15,6 @@ class LoginSchema(BaseModel):
 
 class TokenSchema(BaseModel):
 
-    message: str
     access_token: str = Field(default="")
     refresh_token: str = Field(default="")
 

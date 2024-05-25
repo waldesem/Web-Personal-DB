@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateClassify, stateUser, stateAnketa } from "@/state";
-import { router } from "@/router";
+import { useRoute } from 'vue-router'
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -35,7 +35,8 @@ const OneSTab = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  stateAnketa.share.candId = router.currentRoute.value.params.id.toString();
+  const route = useRoute();
+  stateAnketa.share.candId = route.params.id as string;
   await stateAnketa.getResume();
 });
 
