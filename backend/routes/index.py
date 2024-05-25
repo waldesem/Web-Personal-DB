@@ -79,7 +79,7 @@ async def get_information(start: str, end: str, region_id: int = 1) -> dict:
             .filter(Person.region_id == region_id)
             .filter(Check.created.between(start, end))
         )
-        result = session.exec(query).scalars()
+        result = session.exec(query).all()
         return dict(map(lambda x: (x[1], x[0]), result))
 
 

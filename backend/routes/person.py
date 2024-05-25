@@ -36,7 +36,7 @@ from ..models.model import (
 person = APIRouter(prefix="/person", tags=["person"])
 
 
-@person.get("/resume/{person_id}", status_code=201)
+@person.get("/resume/{person_id}", status_code=200)
 async def get_resume(
     person_id,
     action: str,
@@ -45,9 +45,9 @@ async def get_resume(
     person = ResumeAction(person_id)
     if action == "status":
         person.change_status(Statuses.update.value)
-        return {"message": action}, 201
+        return Response(status_code=201)
 
-    if action == "self" and not person.anketa.user_id:
+    elif action == "self" and not person.anketa.user_id:
         with Session(engine) as session:
             session.add(
                 Message(
@@ -57,7 +57,7 @@ async def get_resume(
             )
             session.commit()
             person.change_status(Statuses.manual.value, current_user.id)
-            return {"message": action}
+            return Response(status_code=202)
 
     elif action == "send":
         if person.anketa.status_id in (
@@ -70,7 +70,7 @@ async def get_resume(
             status = await person.send_anketa()
             if status == "send":
                 person.change_status(Statuses.robot.value, current_user.id)
-            return {"message": status}
+            return Response(status_code=203)
         else:
             raise HTTPException(status_code=400, detail="Невозможно отправить анкету")
     return Person.model_dump(person.anketa)
@@ -78,7 +78,6 @@ async def get_resume(
 
 @person.delete(
     "/resume/{person_id}",
-    status_code=204,
     dependencies=[Depends(Permission(roles=[Roles.user.value]))],
 )
 async def delete_resume(person_id):
@@ -89,14 +88,13 @@ async def delete_resume(person_id):
 
 @person.patch(
     "/resume/{person_id}",
-    status_code=201,
     dependencies=[Depends(Permission(roles=[Roles.user.value]))],
 )
 async def patch_resume(person_id, json_data: Person):
     resume = Resume(json_data)
     with Session(engine) as session:
         resume.update_resume(session.get(Person, person_id))
-    return {"message": person_id}
+        return Response(status_code=201)
 
 
 @person.post(
@@ -133,7 +131,7 @@ class ResumeAction:
                 select(Document)
                 .filter_by(person_id=self.anketa.id)
                 .order_by(Document.id.desc())
-            ).scalar_one_or_none()
+            ).one_or_none()
             addr = session.exec(
                 select(Address)
                 .filter(
@@ -141,7 +139,7 @@ class ResumeAction:
                     Address.view.ilike("%регистрац%"),
                 )
                 .order_by(Address.id.desc())
-            ).scalar_one_or_none()
+            ).one_or_none()
             if not docum or not addr:
                 return "error"
             serial = ResumeSchemaApi.model_dump(
@@ -194,18 +192,17 @@ class Models(Enum):
 @person.get(
     "/{item}/{item_id}",
     status_code=200,
-    response_model=Models,
     dependencies=[Depends(Permission(roles=[Roles.user.value]))],
 )
-async def get_item(item: Models, item_id):
-    query = (
-        select(Models[item].value)
-        .filter_by(person_id=item_id)
-        .order_by(Models[item].value.id.desc())
-    )
+async def get_item(item, item_id):
     with Session(engine) as session:
+        query = (
+            select(Models[item].value)
+            .filter_by(person_id=item_id)
+            .order_by(Models[item].value.id.desc())
+        )
         result = session.exec(query).all()
-    return result
+        return [Models[item].model_dump(res) for res in result]
 
 
 @person.post("/{item}/{item_id}", status_code=201)

@@ -39,12 +39,12 @@ const statusColor = {
 };
 
 const theadData = {
-  "id": ["#", "10%"],
+  "id": ["#", "5%"],
   "region_id": ["Регион", "15%"],
   "surname": ["Фамилия Имя Отчество", "25%"],
   "birthday": ["Дата рождения", "15%"],
   "status_id": ["Статус", "10%"],
-  "created": ["Создан", "10%"],
+  "created": ["Создан", "15%"],
   "user_id": ["Сотрудник", "15%"],
 }
 
@@ -99,9 +99,6 @@ function sortCandidates(sort: string, order: string): void {
 
 const searchPerson = debounce(() => {
   personData.value.path = "search";
-  if (personData.value.searches.length < 3) {
-    return;
-  }
   getCandidates();
 }, 500);
 

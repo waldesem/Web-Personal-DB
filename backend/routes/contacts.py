@@ -30,7 +30,7 @@ async def get_connection(page: int, searches: str = "") -> SchemaConnections:
         result = session.exec(pagination).all()
         has_next = True if len(result) > settings.pagination else False
         return {
-            "contacts": result,
+            "contacts": result if not has_next else result[:-1],
             "has_next": has_next,
             "names": [name for name in names],
             "companies": [company for company in companies],

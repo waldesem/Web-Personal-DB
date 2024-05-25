@@ -46,11 +46,11 @@ async function submitResume(): Promise<void> {
     const response =
       props.action === "create"
         ? await axiosAuth.post(
-            `${server}/resume`,
+            `${server}/person/resume`,
             resumeForm.value
           )
         : await axiosAuth.patch(
-            `${server}/resume/${stateAnketa.share.candId}`,
+            `${server}/person/resume/${stateAnketa.share.candId}`,
             resumeForm.value
           );
     const { message } = response.data;

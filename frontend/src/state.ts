@@ -105,29 +105,29 @@ export const stateAnketa = {
           },
         }
       );
-      const { message } = response.data;
+      const status = response.status;
 
       stateMessage.updateMessages();
 
-      switch (message) {
-        case "status":
+      switch (status) {
+        case 200:
+          this.anketa.resume = response.data;
+          break;
+        case 201:
           stateAlert.setAlert("alert-info", "Статус анкеты обновлен");
           this.getResume();
           break;
-        case "self":
+        case 202:
           stateAlert.setAlert("alert-info", "Анкета назначена на себя");
           this.getResume();
           break;
-        case "send":
+        case 203:
           stateAlert.setAlert("alert-success", "Анкета отправлена на проверку");
           this.getResume();
           break;
-        case "error":
+        default:
           stateAlert.setAlert("alert-danger", "Ошибка обработки");
           this.getResume();
-          break;
-        default:
-          this.anketa.resume = message;
           break;
       }
     } catch (error) {
