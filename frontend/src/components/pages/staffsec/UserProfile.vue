@@ -124,6 +124,9 @@ async function updateRole(action: string, value: string): Promise<void> {
     <LabelSlot :label="'E-mail'">
       {{ userData.profile.email }}
     </LabelSlot>
+    <LabelSlot :label="'Регион'">
+      {{ userData.profile.region_id }}
+    </LabelSlot>
     <LabelSlot :label="'Дата создания'">
       {{ new Date(userData.profile.created).toLocaleString("ru-RU") }}
     </LabelSlot>

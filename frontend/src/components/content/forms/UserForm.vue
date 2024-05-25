@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateAlert } from "@/state";
+import { stateAlert, stateClassify } from "@/state";
 import { server, clearForm } from "@/utilities";
 import { User } from "@/interfaces";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
+);
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -95,6 +98,14 @@ async function submitUser(): Promise<void> {
             :place="'Электронная почта'"
             :typeof="'email'"
             v-model="userForm['email']"
+          />
+        </div>
+        <div class="col col-auto">
+          <SelectObject
+            :name="'region_id'"
+            :place="'Регион'"
+            :select="stateClassify.regions"
+            v-model="userForm['region_id']"
           />
         </div>
         <div class="col col-auto">

@@ -56,4 +56,10 @@ const props = defineProps({
       :value="item">
     </option>
   </datalist>
+  <div class="valid-feedback">
+    Отлично
+  </div>
+  <div class="invalid-feedback">
+    Введите корретные данные
+  </div>
 </template>

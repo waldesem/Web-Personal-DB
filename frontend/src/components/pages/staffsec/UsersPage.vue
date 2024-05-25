@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateAlert } from "@/state";
+import { stateAlert, stateClassify } from "@/state";
 import { server, debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
 
@@ -101,9 +101,10 @@ async function getUsers() {
         <th width="10%">#</th>
         <th>Имя пользователя</th>
         <th width="20%">Логин</th>
-        <th width="15%">Блокировка</th>
-        <th width="15%">Создан</th>
-        <th width="15%">Вход</th>
+        <th width="15%">Регион</th>
+        <th width="10%">Блокировка</th>
+        <th width="10%">Создан</th>
+        <th width="10%">Вход</th>
       </tr>
     </template>
     <template v-slot:tbody>
@@ -122,11 +123,12 @@ async function getUsers() {
                     {{ user.username }}
                   </router-link>
                 </td>
-                <td width="15%">{{ user.blocked }}</td>
-                <td width="15%">
+                <td width="15%">{{ stateClassify.regions[user.region_id] }}</td>
+                <td width="10%">{{ user.blocked }}</td>
+                <td width="10%">
                   {{ user.pswd_created ? timeSince(user.created) : "" }}
                 </td>
-                <td width="15%">
+                <td width="10%">
                   {{ user.last_login ? timeSince(user.last_login) : "" }}
                 </td>
               </tr>

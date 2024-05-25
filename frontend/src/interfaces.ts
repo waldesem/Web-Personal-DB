@@ -176,6 +176,7 @@ export interface User {
   fullname: string;
   username: string;
   email: string;
+  region_id: string;
   created: string;
   updated: string;
   pswd_created: string;
