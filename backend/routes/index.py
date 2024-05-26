@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -57,16 +58,16 @@ async def post_persons(
         elif flag == "search":
             if searches:
                 query = select(Person).filter(
-                    Person.surname.contains(searches),
+                    Person.surname.contains(searches.surname),
                     Person.region_id == current_user.region_id,
                 )
         elif flag == "extended":
+            print(datetime.strptime(searches.birthday, "%Y-%m-%d").date())
             query = select(Person).filter(
-                Person.surname.ilike(f"%{searches.surname}%"),
-                Person.firstname.ilike(f"%{searches.firstname}%"),
-                Person.patronymic.ilike(f"%{searches.patronymic}%"),
-                Person.birthday == searches.birthday if searches.birthday else None,
-                region_id=current_user.region_id
+                Person.surname.ilike(f"%{searches.surname}%" if searches.surname else "%"),
+                Person.firstname.ilike(f"%{searches.firstname}%" if searches.firstname else "%"),
+                Person.patronymic.ilike(f"%{searches.patronymic}%" if searches.patronymic else "%"),
+                Person.birthday == datetime.strptime(searches.birthday, "%Y-%m-%d").date() if searches.birthday else None,
             )
 
         pagination = query.offset((page - 1) * settings.pagination).limit(

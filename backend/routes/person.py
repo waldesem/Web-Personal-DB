@@ -15,7 +15,6 @@ from ..models.model import (
     Education,
     Inquiry,
     Investigation,
-    Message,
     Person,
     Poligraf,
     Previous,
@@ -46,14 +45,6 @@ async def get_resume(
 
     elif action == "self":
         change_status(Statuses.manual.value, person_id, current_user.id)
-        with Session(engine) as session:
-            session.add(
-                Message(
-                    message=f"Aнкета ID #{person_id} принята в работу",
-                    user_id=current_user.id,
-                )
-            )
-            session.commit()
         return Response(status_code=202)
 
     elif action == "send":
@@ -163,12 +154,6 @@ async def post_item(
                     )
                 ).one_or_none()
                 if prev:
-                    session.add(
-                        Message(
-                            message=f"Кандидат ранее проверялся ID: {prev.id}",
-                            user_id=current_user.id,
-                        )
-                    )
                     Anketa.add_relation("Одно лицо", prev.id, item_id)
             if item == "workplace":
                 setattr(

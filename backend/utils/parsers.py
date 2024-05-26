@@ -28,7 +28,11 @@ class Resume:
         self.resume: Person = resume
         self.resume.surname = resume.surname.strip().upper()
         self.resume.firstname = resume.firstname.strip().upper()
-        self.resume.patronymic = getattr(resume, "patronymic", "").strip().upper()
+        self.resume.patronymic = (
+            getattr(resume, "patronymic").strip().upper()
+            if self.resume.patronymic
+            else ""
+        )
         self.resume.birthday = resume.birthday
 
     @staticmethod
@@ -38,7 +42,7 @@ class Resume:
                 select(Person).filter(
                     Person.surname.ilike(surname),
                     Person.firstname.ilike(firstname),
-                    Person.patronymic.ilike(patronymic),
+                    Person.patronymic.ilike(patronymic if patronymic else "%"),
                     Person.birthday == birthday,
                 )
             ).one_or_none()
@@ -106,7 +110,11 @@ class Anketa(Resume):
             relation = self.get_person(
                 getattr(item, "surname", self.resume.surname),
                 getattr(item, "firstname", self.resume.firstname),
-                getattr(item, "patronymic", self.resume.patronymic),
+                getattr(
+                    item,
+                    "patronymic",
+                    self.resume.patronymic if self.resume.patronymic else "",
+                ),
                 self.resume["birthday"],
             )
             if relation:
@@ -144,12 +152,12 @@ class Anketa(Resume):
             surname=self.data.lastName,
             patronymic=getattr(self.data, "midName", ""),
             birthday=self.data.birthday,
-            birthplace=getattr(self.data, "birthplace", "").strip(),
-            country=getattr(self.data, "citizen", "").strip(),
-            ext_country=getattr(self.data, "additionalCitizenship", "").strip(),
-            marital=getattr(self.data, "maritalStatus", "").strip(),
-            inn=getattr(self.data, "inn", "").strip(),
-            snils=getattr(self.data, "snils", "").strip(),
+            birthplace=getattr(self.data, "birthplace", ""),
+            country=getattr(self.data, "citizen", ""),
+            ext_country=getattr(self.data, "additionalCitizenship", ""),
+            marital=getattr(self.data, "maritalStatus", ""),
+            inn=getattr(self.data, "inn", ""),
+            snils=getattr(self.data, "snils", ""),
         )
 
     def parse_items(self) -> dict:
@@ -157,17 +165,17 @@ class Anketa(Resume):
             staff=[
                 Staff(
                     position=self.data.positionName,
-                    department=getattr(self.data, "department", "").strip(),
+                    department=getattr(self.data, "department", ""),
                     person_id=self.person_id,
                 )
             ],
             previous=[
                 Previous(
-                    surname=getattr(item, "lastNameBeforeChange", "").strip(),
-                    firstname=getattr(item, "firstNameBeforeChange", "").strip(),
-                    patronymic=getattr(item, "midNameBeforeChange", "").strip(),
-                    date_change=getattr(item, "yearOfChange", "").strip(),
-                    reason=getattr(item, "reason", "").strip(),
+                    surname=getattr(item, "lastNameBeforeChange", ""),
+                    firstname=getattr(item, "firstNameBeforeChange", ""),
+                    patronymic=getattr(item, "midNameBeforeChange", ""),
+                    date_change=getattr(item, "yearOfChange", ""),
+                    reason=getattr(item, "reason", ""),
                     person_id=self.person_id,
                 )
                 for item in self.data.nameWasChanged
@@ -176,10 +184,10 @@ class Anketa(Resume):
             ],
             education=[
                 Education(
-                    view=getattr(item, "educationType", "").strip(),
-                    name=getattr(item, "institutionName", "").strip(),
-                    end=getattr(item, "endYear", "").strip(),
-                    specialty=getattr(item, "specialty", "").strip(),
+                    view=getattr(item, "educationType", ""),
+                    name=getattr(item, "institutionName", ""),
+                    end=getattr(item, "endYear", ""),
+                    specialty=getattr(item, "specialty", ""),
                     person_id=self.person_id,
                 )
                 for item in self.data.education
@@ -190,10 +198,10 @@ class Anketa(Resume):
                     now_work=getattr(item, "currentJob", False),
                     start_date=getattr(item, "beginDate", ""),
                     end_date=getattr(item, "endDate", ""),
-                    workplace=getattr(item, "name", "").strip(),
-                    address=getattr(item, "address", "").strip(),
-                    position=getattr(item, "position", "").strip(),
-                    reason=getattr(item, "fireReason", "").strip(),
+                    workplace=getattr(item, "name", ""),
+                    address=getattr(item, "address", ""),
+                    position=getattr(item, "position", ""),
+                    reason=getattr(item, "fireReason", ""),
                     person_id=self.person_id,
                 )
                 for item in self.data.experience
@@ -202,43 +210,43 @@ class Anketa(Resume):
             address=[
                 Address(
                     view="Адрес проживания",
-                    address=getattr(self.data, "validAddress", "").strip(),
+                    address=getattr(self.data, "validAddress", ""),
                     person_id=self.person_id,
                 ),
                 Address(
                     view="Адрес регистрации",
-                    address=getattr(self.data, "regAddress", "").strip(),
+                    address=getattr(self.data, "regAddress", ""),
                     person_id=self.person_id,
                 ),
             ],
             contact=[
                 Contact(
                     view="Телефон",
-                    contact=getattr(self.data, "contactPhone", "").strip(),
+                    contact=getattr(self.data, "contactPhone", ""),
                     person_id=self.person_id,
                 ),
                 Contact(
                     view="Электронная почта",
-                    contact=getattr(self.data, "contactEmail", "").strip(),
+                    contact=getattr(self.data, "contactEmail", ""),
                     person_id=self.person_id,
                 ),
             ],
             document=[
                 Document(
                     view="Паспорт",
-                    number=getattr(self.data, "passportNumber", "").strip(),
-                    series=getattr(self.data, "passportSerial", "").strip(),
-                    issue=getattr(self.data, "passportIssueDate", "").strip(),
-                    agency=getattr(self.data, "passportIssuedBy", "").strip(),
+                    number=getattr(self.data, "passportNumber", ""),
+                    series=getattr(self.data, "passportSerial", ""),
+                    issue=getattr(self.data, "passportIssueDate", ""),
+                    agency=getattr(self.data, "passportIssuedBy", ""),
                     person_id=self.person_id,
                 )
             ],
             affilation=[
                 [
                     Affilation(
-                        name=getattr(item, "name", "").strip(),
-                        position=getattr(item, "position", "").strip(),
-                        inn=getattr(item, "inn", "").strip(),
+                        name=getattr(item, "name", ""),
+                        position=getattr(item, "position", ""),
+                        inn=getattr(item, "inn", ""),
                         person_id=self.person_id,
                     )
                     for item in self.data.organizations
@@ -247,9 +255,9 @@ class Anketa(Resume):
                 ]
                 + [
                     Affilation(
-                        name=getattr(item, "name", "").strip(),
-                        position=getattr(item, "position", "").strip(),
-                        inn=getattr(item, "inn", "").strip(),
+                        name=getattr(item, "name", ""),
+                        position=getattr(item, "position", ""),
+                        inn=getattr(item, "inn", ""),
                         person_id=self.person_id,
                     )
                     for item in self.data.relatedPersonsOrganizations
@@ -258,8 +266,8 @@ class Anketa(Resume):
                 ]
                 + [
                     Affilation(
-                        name=getattr(item, "name", "").strip(),
-                        position=getattr(item, "position", "").strip(),
+                        name=getattr(item, "name", ""),
+                        position=getattr(item, "position", ""),
                         person_id=self.person_id,
                     )
                     for item in self.data.stateOrganizations
@@ -268,8 +276,8 @@ class Anketa(Resume):
                 ]
                 + [
                     Affilation(
-                        name=getattr(item, "name", "").strip(),
-                        position=getattr(item, "position", "").strip(),
+                        name=getattr(item, "name", ""),
+                        position=getattr(item, "position", ""),
                         person_id=self.person_id,
                     )
                     for item in self.data.publicOfficeOrganizations
@@ -282,7 +290,7 @@ class Anketa(Resume):
     def get_region_id(self):
         region_id = 1
         if hasattr(self.data, "department"):
-            divisions = re.split(r"/", self.data.department.strip())
+            divisions = re.split(r"/", self.data.department)
             with Session(engine) as session:
                 regions = session.exec(select(Region)).all()
                 for reg in regions:

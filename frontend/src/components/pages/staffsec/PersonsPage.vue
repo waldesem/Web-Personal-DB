@@ -76,7 +76,12 @@ const personData = ref({
   order: "asc",
   path: "search",
   extend: false,
-  searchForm: <Record<string, any>>{},
+  searchForm: <Record<string, any>>{
+    surname: "",
+    firstname: "",
+    patronymic: "",
+    birthday: "",
+  },
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
@@ -87,13 +92,13 @@ async function getCandidates(page = 1): Promise<void> {
   try {
     const response = await axiosAuth.post(
       `${server}/index/${personData.value.path}/${personData.value.page}`,
+      personData.value.searchForm,
       {
         params: {
           sort: personData.value.sort,
           order: personData.value.order,
-        },
+        }
       },
-      personData.value.searchForm
     );
     const { persons, has_next } = response.data;
     personData.value.candidates = persons;
@@ -123,7 +128,12 @@ function extendSearch(): void {
 }
 
 function clearSearch(): void {
-  personData.value.searchForm = {};
+  personData.value.searchForm = {
+    surname: "",
+    firstname: "",
+    patronymic: "",
+    birthday: "0000-00-00",
+  };
   personData.value.path = "search";
   personData.value.page = 1;
   personData.value.extend = false;
@@ -162,18 +172,16 @@ computed(() => {
     <form @submit.prevent="extendSearch" class="form form-check" role="form">
       <LabelSlot :label="'Фамилия'">
         <InputElement
-          :need="true"
           :name="'surname'"
-          :place="'Фамилия*'"
+          :place="'Фамилия'"
           :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
           v-model="personData.searchForm['surname']"
         />
       </LabelSlot>
       <LabelSlot :label="'Имя'">
         <InputElement
-          :need="true"
           :name="'firstname'"
-          :place="'Имя*'"
+          :place="'Имя'"
           :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
           v-model="personData.searchForm['firstname']"
         />
@@ -187,9 +195,8 @@ computed(() => {
       </LabelSlot>
       <LabelSlot :label="'Дата рождения*'">
         <InputElement
-          :need="true"
           :name="'birthday'"
-          :place="'Дата рождения*'"
+          :place="'Дата рождения'"
           :typeof="'date'"
           v-model="personData.searchForm['birthday']"
         />

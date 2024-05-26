@@ -107,8 +107,6 @@ export const stateAnketa = {
       );
       const status = response.status;
 
-      stateMessage.updateMessages();
-
       switch (status) {
         case 200:
           this.anketa.resume = response.data;

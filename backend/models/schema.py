@@ -46,7 +46,7 @@ class SchemaPersonsInput(BaseModel):
     surname: str | None
     firstname: str | None
     patronymic: str | None
-    birthday: date | None
+    birthday: str | None
 
 
 class SchemaPersons(BaseModel):
