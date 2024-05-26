@@ -19,9 +19,6 @@ const TableSlots = defineAsyncComponent(
 );
 
 const searchUsers = debounce(() => {
-  if (dataUsers.value.search.length < 3) {
-    return;
-  }
   getUsers();
 }, 500);
 
@@ -46,7 +43,7 @@ async function getUsers() {
   try {
     const response = await axiosAuth.get(`${server}/users/`, {
       params: {
-        search: dataUsers.value.search,
+        searches: dataUsers.value.search,
       },
     });
     dataUsers.value.users = response.data;
@@ -64,7 +61,7 @@ async function getUsers() {
     name="search"
     id="search"
     type="text"
-    placeholder="Поиск по имени пользователя"
+    placeholder="Поиск по учетной записи"
     v-model="dataUsers.search"
   />
   <div class="d-flex justify-content-between mb-3">

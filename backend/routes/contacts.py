@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Response
-from sqlmodel import Session, select
-from sqlalchemy_searchable import search
+from sqlmodel import Session, select, text
 
 from ..config import settings
 from ..dependencies import login_required
@@ -15,26 +14,29 @@ connect = APIRouter(prefix="/connect", tags=["connect"])
     status_code=200,
     dependencies=[Depends(login_required)],
 )
-async def get_connection(page: int, searches: str = "") -> SchemaConnections:
+async def get_connection(
+    page: int, item: str = None, searches: str = None
+) -> SchemaConnections:
     """
     Retrieves a paginated list of Connect objects based on the specified group and item.
     """
     with Session(engine) as session:
-        names = session.exec(select(Connect.name)).all()
-        companies = session.exec(select(Connect.company)).all()
-        cities = session.exec(select(Connect.city)).all()
         query = select(Connect).order_by(Connect.id.desc())
         if searches:
-            query = search(query, "%{}%".format(searches))
-        pagination = query.offset((page - 1) * settings.pagination).limit(settings.pagination + 1)
+            query = select(Connect).filter(text(f"{item} ilike '%{searches}%'"))
+        pagination = query.offset((page - 1) * settings.pagination).limit(
+            settings.pagination + 1
+        )
         result = session.exec(pagination).all()
         has_next = True if len(result) > settings.pagination else False
         return {
             "contacts": result if not has_next else result[:-1],
             "has_next": has_next,
-            "names": [name for name in names],
-            "companies": [company for company in companies],
-            "cities": [city for city in cities],
+            "names": [name for name in session.exec(select(Connect.name)).all()],
+            "companies": [
+                company for company in session.exec(select(Connect.company)).all()
+            ],
+            "cities": [city for city in session.exec(select(Connect.city)).all()],
         }
 
 

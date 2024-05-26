@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy_searchable import search
 from sqlmodel import Session, func, select
 
 from ..config import settings
@@ -18,18 +17,18 @@ from ..models.model import (
     User,
     engine,
 )
-from ..models.schema import SchemaPersons
+from ..models.schema import SchemaPersons, SchemaPersonsInput
 
 index = APIRouter()
 
 
-@index.get("/index/{flag}/{page}", status_code=200)
-async def get_persons(
+@index.post("/index/{flag}/{page}", status_code=200)
+async def post_persons(
     flag: str,
     page: int,
     order: str,
     sort: str,
-    searches: str,
+    searches: SchemaPersonsInput,
     current_user: Annotated[User, Depends(login_required)],
 ) -> SchemaPersons:
     with Session(engine) as session:
@@ -55,9 +54,21 @@ async def get_persons(
                 ),
                 Person.user_id == current_user.id,
             )
-        else:
+        elif flag == "search":
             if searches:
-                query = search(query, "%{}%".format(searches))
+                query = select(Person).filter(
+                    Person.surname.contains(searches),
+                    Person.region_id == current_user.region_id,
+                )
+        elif flag == "extended":
+            query = select(Person).filter(
+                Person.surname.ilike(f"%{searches.surname}%"),
+                Person.firstname.ilike(f"%{searches.firstname}%"),
+                Person.patronymic.ilike(f"%{searches.patronymic}%"),
+                Person.birthday == searches.birthday if searches.birthday else None,
+                region_id=current_user.region_id
+            )
+
         pagination = query.offset((page - 1) * settings.pagination).limit(
             settings.pagination + 1
         )
@@ -67,7 +78,7 @@ async def get_persons(
             "persons": result if not has_next else result[:-1],
             "has_next": has_next,
         }
-
+    
 
 @index.get("/information", status_code=200, dependencies=[Depends(login_required)])
 async def get_information(start: str, end: str, region_id: int = 1) -> dict:

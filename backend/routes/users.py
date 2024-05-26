@@ -3,7 +3,6 @@ from typing import Annotated
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlmodel import Session, select
-from sqlalchemy_searchable import search
 
 from backend.models.schema import UserWithRoles
 
@@ -21,15 +20,16 @@ usr = APIRouter(prefix="/users", tags=["users"])
     status_code=200,
     dependencies=[Depends(Permission(roles=[Roles.admin.value]))],
 )
-async def get_users(search_data: str = None) -> list[User]:
+async def get_users(searches: str = None) -> list[User]:
     """
     Endpoint to handle requests for getting users.
     """
     with Session(engine) as session:
-        query = search(select(User), search_data if search_data else "").order_by(
-            User.id.asc()
-        )
-        return session.exec(query).all()
+        if searches:
+            query = select(User).filter(User.username.contains(searches))
+        else:
+            query = select(User)
+        return session.exec(query.order_by(User.id.asc())).all()
 
 
 @usr.get("/user/{user_id}", status_code=200)

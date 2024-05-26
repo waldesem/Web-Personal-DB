@@ -87,7 +87,7 @@ async function submitUser(): Promise<void> {
           <InputElement
             :name="'username'"
             :place="'Учетная запись'"
-            :pattern="'[a-zA-Z]+'"
+            :pattern="'[a-z_0-9]+'"
             :need="props.action === 'edit'"
             v-model="userForm['username']"
           />

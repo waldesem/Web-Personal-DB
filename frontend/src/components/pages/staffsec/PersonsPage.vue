@@ -8,6 +8,21 @@ import { Resume } from "@/interfaces";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
+const SwitchBox = defineAsyncComponent(
+  () => import("@components/content/elements/SwitchBox.vue")
+);
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+);
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
+);
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/content/elements/BtnGroup.vue")
+);
+const GroupContent = defineAsyncComponent(
+  () => import("@components/content/elements/GroupContent.vue")
+);
 const SelectObject = defineAsyncComponent(
   () => import("@components/content/elements/SelectObject.vue")
 );
@@ -39,14 +54,14 @@ const statusColor = {
 };
 
 const theadData = {
-  "id": ["#", "10%"],
-  "region_id": ["Регион", "15%"],
-  "surname": ["Фамилия Имя Отчество", "20%"],
-  "birthday": ["Дата рождения", "15%"],
-  "status_id": ["Статус", "10%"],
-  "created": ["Создан", "15%"],
-  "user_id": ["Сотрудник", "15%"],
-}
+  id: ["#", "10%"],
+  region_id: ["Регион", "15%"],
+  surname: ["Фамилия Имя Отчество", "20%"],
+  birthday: ["Дата рождения", "15%"],
+  status_id: ["Статус", "10%"],
+  created: ["Создан", "15%"],
+  user_id: ["Сотрудник", "15%"],
+};
 
 const personData = ref({
   candidates: <Resume[]>[],
@@ -57,10 +72,11 @@ const personData = ref({
   page: 1,
   prev: false,
   next: false,
-  searches: "",
   sort: "status_id",
   order: "asc",
   path: "search",
+  extend: false,
+  searchForm: <Record<string, any>>{},
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
@@ -69,23 +85,22 @@ const personData = ref({
 async function getCandidates(page = 1): Promise<void> {
   personData.value.page = page;
   try {
-    const response = await axiosAuth.get(
+    const response = await axiosAuth.post(
       `${server}/index/${personData.value.path}/${personData.value.page}`,
       {
         params: {
-          searches: personData.value.searches,
           sort: personData.value.sort,
           order: personData.value.order,
         },
-      }
+      },
+      personData.value.searchForm
     );
-    const {persons, has_next} = response.data;
+    const { persons, has_next } = response.data;
     personData.value.candidates = persons;
     personData.value.next = has_next;
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-
   } catch (error) {
     console.error(error);
   }
@@ -102,14 +117,27 @@ const searchPerson = debounce(() => {
   getCandidates();
 }, 500);
 
+function extendSearch(): void {
+  personData.value.path = "extended";
+  getCandidates();
+}
+
+function clearSearch(): void {
+  personData.value.searchForm = {};
+  personData.value.path = "search";
+  personData.value.page = 1;
+  personData.value.extend = false;
+  getCandidates();
+}
+
 computed(() => {
   personData.value.prev = personData.value.page > 1 ? true : false;
-})
+});
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Кандидаты'"/>
-  <div class="row mb-3">
+  <HeaderDiv :page-header="'Кандидаты'" />
+  <div v-if="!personData.extend" class="row mb-3">
     <div class="col-md-2">
       <SelectObject
         :name="'action'"
@@ -122,14 +150,60 @@ computed(() => {
       <input
         @input.prevent="searchPerson"
         class="form-control"
-        name="search"
-        id="search"
+        name="surname"
+        id="surname"
         type="text"
-        placeholder="поиск по Фамилии, Имени, Отчеству, ИНН"
-        v-model="personData.searches"
+        placeholder="поиск по фамилии"
+        v-model="personData.searchForm['surname']"
       />
     </div>
   </div>
+  <div v-else class="mb-3">
+    <form @submit.prevent="extendSearch" class="form form-check" role="form">
+      <LabelSlot :label="'Фамилия'">
+        <InputElement
+          :need="true"
+          :name="'surname'"
+          :place="'Фамилия*'"
+          :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+          v-model="personData.searchForm['surname']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Имя'">
+        <InputElement
+          :need="true"
+          :name="'firstname'"
+          :place="'Имя*'"
+          :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+          v-model="personData.searchForm['firstname']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Отчество'">
+        <InputElement
+          :name="'patronymic'"
+          :place="'Отчество'"
+          v-model="personData.searchForm['patronymic']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Дата рождения*'">
+        <InputElement
+          :need="true"
+          :name="'birthday'"
+          :place="'Дата рождения*'"
+          :typeof="'date'"
+          v-model="personData.searchForm['birthday']"
+        />
+      </LabelSlot>
+      <BtnGroup>
+        <GroupContent @cancel="clearSearch" />
+      </BtnGroup>
+    </form>
+  </div>
+  <SwitchBox
+    :name="'extend'"
+    :label="'Расширенный поиск'"
+    v-model="personData.extend"
+  />
   <TableSlots
     v-if="personData.candidates.length"
     :div-class="'table caption-top align-middle py-3'"
@@ -142,8 +216,7 @@ computed(() => {
     </template>
     <template v-slot:thead>
       <tr height="50px">
-        <th v-for="(thead, key) in theadData" :key="key" 
-          :width="thead[1]">
+        <th v-for="(thead, key) in theadData" :key="key" :width="thead[1]">
           {{ thead[0] }}
           <AscDesc
             :order="'desc'"

@@ -11,6 +11,9 @@ const HeaderDiv = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
+)
 const ModalWin = defineAsyncComponent(
   () => import("@components/content/elements/ModalWin.vue")
 )
@@ -42,6 +45,7 @@ const contactData = ref({
   next: false,
   action: "",
   searches: "",
+  filter: "company",
   item: <Connection>{},
 });
 
@@ -56,6 +60,7 @@ async function getContacts(page: number): Promise<void> {
       `${server}/connect/${page}`,
       {
         params: {
+          item: contactData.value.filter,
           searches: contactData.value.searches,
         },
       }
@@ -114,15 +119,30 @@ async function deleteContact(id: string): Promise<void> {
     @cancel-edit="contactData.action = ''"
   />
   <div v-show="!contactData.action" class="mb-3">
-    <input
-      @input.prevent="searchContacts"
-      class="form-control mb-5"
-      name="search"
-      id="search"
-      type="text"
-      placeholder="Поиск по организации, имени, номеру мобильного телефона"
-      v-model="contactData.searches"
-    />
+    <div class="row mb-3">
+      <div class="col-md-10">
+        <input
+          @input.prevent="searchContacts"
+          class="form-control mb-5"
+          name="search"
+          id="search"
+          type="text"
+          placeholder="Поиск по организации, имени, номеру мобильного телефона"
+          v-model="contactData.searches"
+        />
+      </div>
+      <div class="col-md-2">
+        <SelectObject
+          :name="'filter'"
+          :select="{
+            'company': 'Организация',
+            'fullname': 'Имя',
+            'phone': 'Телефон',
+            }"
+          v-model="contactData.filter"
+        />
+      </div>
+    </div>
     <ModalWin
       :id="'modalConnect'"
       :title="contactData.item.fullname"

@@ -42,6 +42,13 @@ class UserWithRoles(BaseModel):
     roles: list[Role]
 
 
+class SchemaPersonsInput(BaseModel):
+    surname: str | None
+    firstname: str | None
+    patronymic: str | None
+    birthday: date | None
+
+
 class SchemaPersons(BaseModel):
     persons: list[Person]
     has_next: bool
