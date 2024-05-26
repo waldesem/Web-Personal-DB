@@ -142,12 +142,13 @@ export const stateAnketa = {
           ? await axiosAuth.get(`${server}/files/image/${this.share.candId}`, {
               responseType: "blob",
             })
-          : await axiosAuth.get(`${server}/person/${param}/${this.share.candId}`);
+          : await axiosAuth.get(
+              `${server}/person/${param}/${this.share.candId}`
+            );
 
       if (param === "image") {
         this.share.imageUrl = window.URL.createObjectURL(
-          new Blob([response.data]
-          )
+          new Blob([response.data])
         );
       } else {
         this.anketa[param as keyof typeof this.anketa] = response.data;
@@ -164,13 +165,12 @@ export const stateAnketa = {
     form: Object
   ): Promise<void> {
     try {
-      const response =
-        action === "create"
-          ? await axiosAuth.post(
-              `${server}/person/${param}/${this.share.candId}`,
-              form
-            )
-          : await axiosAuth.patch(`${server}/person/${param}/${itemId}`, form);
+      const response = await axiosAuth.post(
+        `${server}/person/${action}/${param}/${
+          itemId ? itemId : this.share.candId
+        }`,
+        form
+      );
 
       console.log(response.status);
 
@@ -206,7 +206,9 @@ export const stateAnketa = {
       return;
     }
     try {
-      const response = await axiosAuth.delete(`${server}/person/${param}/${id}`);
+      const response = await axiosAuth.delete(
+        `${server}/person/${param}/${id}`
+      );
       console.log(response.status);
 
       param === "resume"
@@ -263,13 +265,10 @@ export const stateMessage = {
 
   async updateMessages(): Promise<void> {
     try {
-      const response = await axiosAuth.get(
-        `${server}/messages/`
-      );
+      const response = await axiosAuth.get(`${server}/messages/`);
       this.messages = response.data;
-
     } catch (error) {
       console.error(error);
     }
-  }
-}
+  },
+};

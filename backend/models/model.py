@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import ConfigDict
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy_searchable import make_searchable
+from sqlalchemy.orm import configure_mappers
 from sqlalchemy_utils.types import TSVectorType
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
 
@@ -90,7 +91,7 @@ class User(SQLModel, table=True):
         link_model=UserRole,
         sa_relationship_kwargs={"lazy": "selectin"},
     )
-    search_vector: list[str] = Field(
+    search_vector: TSVectorType = Field(
         sa_column=Column(TSVectorType("fullname", "username"))
     )
 
@@ -211,7 +212,7 @@ class Person(SQLModel, table=True):
     statuses: Status = Relationship(back_populates="persons")
     user_id: int | None = Field(default=None, foreign_key="users.id")
     users: User = Relationship(back_populates="persons")
-    search_vector: list[str] = Field(
+    search_vector: TSVectorType = Field(
         sa_column=Column(TSVectorType("surname", "firstname", "patronymic", "inn"))
     )
 
@@ -555,12 +556,10 @@ class Connect(SQLModel, table=True):
     updated: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
-    search_vector: list[str] = Field(
+    search_vector: TSVectorType = Field(
         sa_column=Column(TSVectorType("company", "fullname"))
     )
 
-
 engine = create_engine(settings.sqlalchemy_database_uri)
-
 make_searchable(SQLModel.metadata)
-
+configure_mappers()

@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Annotated, Union
 
 import aiohttp
@@ -7,7 +6,7 @@ from sqlmodel import Session, select
 
 from ..dependencies import Permission
 from ..utils.parsers import Resume, Anketa
-from ..models.schema import ResumeSchemaApi
+from ..models.schema import ResumeSchemaApi, Models
 from ..models.classes import Roles, Statuses, Conclusions
 from ..models.model import (
     User,
@@ -42,12 +41,12 @@ async def get_resume(
     action: str,
     current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
 ):
-    person = ResumeAction(person_id)
     if action == "status":
-        person.change_status(Statuses.update.value)
+        change_status(Statuses.update.value, person_id)
         return Response(status_code=201)
 
-    elif action == "self" and not person.anketa.user_id:
+    elif action == "self":
+        change_status(Statuses.manual.value, person_id, current_user.id)
         with Session(engine) as session:
             session.add(
                 Message(
@@ -56,24 +55,17 @@ async def get_resume(
                 )
             )
             session.commit()
-            person.change_status(Statuses.manual.value, current_user.id)
-            return Response(status_code=202)
+        return Response(status_code=202)
 
     elif action == "send":
-        if person.anketa.status_id in (
-            Status.get_id(Statuses.new.value),
-            Status.get_id(Statuses.update.value),
-            Status.get_id(Statuses.repeat.value),
-            Status.get_id(Statuses.manual.value),
-            Status.get_id(Statuses.robot.value),
-        ):
-            status = await person.send_anketa()
-            if status == "send":
-                person.change_status(Statuses.robot.value, current_user.id)
+        status = await send_anketa()
+        if status == 200:
+            change_status(Statuses.robot.value, person_id, current_user.id)      
             return Response(status_code=203)
-        else:
-            raise HTTPException(status_code=400, detail="Невозможно отправить анкету")
-    return Person.model_dump(person.anketa)
+        raise HTTPException(status_code=400, detail="Невозможно отправить анкету")
+    with Session(engine) as session:
+        anketa = session.get(Person, person_id)
+        return Person.model_dump(anketa)
 
 
 @person.delete(
@@ -81,9 +73,11 @@ async def get_resume(
     dependencies=[Depends(Permission(roles=[Roles.user.value]))],
 )
 async def delete_resume(person_id):
-    person = ResumeAction(person_id)
-    person.del_person()
-    return Response(status_code=204)
+    with Session(engine) as session:
+        anketa = session.get(Person, person_id)
+        session.delete(anketa)
+        session.commit()
+        return Response(status_code=204)
 
 
 @person.patch(
@@ -108,34 +102,32 @@ async def post_resume(json_data: Person):
     return {"message": person_id}
 
 
-class ResumeAction:
+def change_status(status, person_id, user_id=None):
+    with Session(engine) as session:
+        anketa = session.get(Person, person_id)
+        anketa.status_id = Status.get_id(status)
+        anketa.user_id = user_id
+        session.commit()
 
-    def __init__(self, person_id):
-        with Session(engine) as session:
-            self.anketa = session.get(Person, person_id)
-
-    def change_status(self, status, user_id=None):
-        with Session(engine) as session:
-            self.anketa.status_id = Status.get_id(status)
-            self.anketa.user_id = user_id
-            session.commit()
-
-    def del_person(self):
-        with Session(engine) as session:
-            session.delete(self.anketa)
-            session.commit()
-
-    async def send_anketa(self):
-        with Session(engine) as session:
+async def send_anketa(person_id):
+    with Session(engine) as session:
+        anketa = session.get(Person, person_id)
+        if anketa.status_id in (
+            Status.get_id(Statuses.new.value),
+            Status.get_id(Statuses.update.value),
+            Status.get_id(Statuses.repeat.value),
+            Status.get_id(Statuses.manual.value),
+            Status.get_id(Statuses.robot.value),
+        ):
             docum = session.exec(
                 select(Document)
-                .filter_by(person_id=self.anketa.id)
+                .filter_by(person_id=anketa.id)
                 .order_by(Document.id.desc())
             ).one_or_none()
             addr = session.exec(
                 select(Address)
                 .filter(
-                    Address.person_id == self.anketa.id,
+                    Address.person_id == anketa.id,
                     Address.view.ilike("%регистрац%"),
                 )
                 .order_by(Address.id.desc())
@@ -144,14 +136,14 @@ class ResumeAction:
                 return "error"
             serial = ResumeSchemaApi.model_dump(
                 {
-                    "id": self.anketa.id,
-                    "surname": self.anketa.surname,
-                    "firstname": self.anketa.firstname,
-                    "patronymic": self.anketa.patronymic,
-                    "birthday": self.anketa.birthday,
-                    "birthplace": self.anketa.birthplace,
-                    "snils": self.anketa.snils,
-                    "inn": self.anketa.inn,
+                    "id": anketa.id,
+                    "surname": anketa.surname,
+                    "firstname": anketa.firstname,
+                    "patronymic": anketa.patronymic,
+                    "birthday": anketa.birthday,
+                    "birthplace": anketa.birthplace,
+                    "snils": anketa.snils,
+                    "inn": anketa.inn,
                     "series": docum.series,
                     "number": docum.number,
                     "agency": docum.agency,
@@ -164,29 +156,10 @@ class ResumeAction:
                     async with session.post(
                         url="http://127.0.0.1:5001", json=serial, timeout=5
                     ) as response:
-                        print(response.status)
                         print(await response.text())
-                return "send"
+                        return response.status
             except aiohttp.ClientConnectorError as e:
-                print(e)
-                return "error"
-
-
-class Models(Enum):
-    previous = Previous
-    staff = Staff
-    document = Document
-    address = Address
-    contact = Contact
-    education = Education
-    workplace = Workplace
-    relation = Relation
-    affilation = Affilation
-    check = Check
-    robot = Robot
-    poligraf = Poligraf
-    investigation = Investigation
-    inquiry = Inquiry
+                return Response(status_code=500, content=e)
 
 
 @person.get(
@@ -202,12 +175,13 @@ async def get_item(item, item_id):
             .order_by(Models[item].value.id.desc())
         )
         result = session.exec(query).all()
-        return [Models[item].model_dump(res) for res in result]
+        return [res.model_dump() for res in result]
 
 
-@person.post("/{item}/{item_id}", status_code=201)
+@person.post("/{action}/{item}/{item_id}", status_code=201)
 async def post_item(
-    item: Models,
+    action: str,
+    item: str,
     json_data: Union[
         Previous,
         Staff,
@@ -227,99 +201,73 @@ async def post_item(
     item_id: int,
     current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
 ):
-    setattr(json_data, "person_id", item_id)
-
     with Session(engine) as session:
-        if item == "previous":
-            person = session.get(Person, item_id)
-            prev = session.exec(
-                select(Person).filter(
-                    Person.surname.ilike(json_data.surname),
-                    Person.firstname.ilike(json_data.firstname),
-                    Person.patronymic.ilike(json_data.patronymic),
-                    Person.birthday == person.birthday,
-                )
-            ).scalar_one_or_none()
-            if prev:
-                session.add(
-                    Message(
-                        message=f"Кандидат ранее проверялся ID: {prev.id}",
-                        user_id=current_user.id,
-                    )
-                )
-                Anketa.add_relation("Одно лицо", prev.id, item_id)
-        if item == "workplace":
-            setattr(
-                json_data,
-                "now_work",
-                True if json_data.now_work else False,
-            )
-        if item == "relation":
-            Anketa.add_relation(
-                json_data["relation"], item_id, json_data["relation_id"]
-            )
+        if action == "create":
+            setattr(json_data, "person_id", item_id)
 
-        if item in ["check", "poligraf", "inquiry", "investigation"]:
-            setattr(json_data, "user_id", current_user.id)
-
-            if item == "check":
+            if item == "previous":
                 person = session.get(Person, item_id)
-                if json_data.conclusion_id == Conclusion.get_id(
-                    Conclusions.saved.value
-                ):
-                    person.status_id = Status.get_id(Statuses.save.value)
-                else:
-                    person.status_id = (
-                        Status.get_id(Statuses.poligraf.value)
-                        if json_data.pfo
-                        else Status.get_id(Statuses.finish.value)
+                prev = session.exec(
+                    select(Person).filter(
+                        Person.surname.ilike(json_data.surname),
+                        Person.firstname.ilike(json_data.firstname),
+                        Person.patronymic.ilike(json_data.patronymic),
+                        Person.birthday == person.birthday,
                     )
-                    person.user_id = None
+                ).one_or_none()
+                if prev:
+                    session.add(
+                        Message(
+                            message=f"Кандидат ранее проверялся ID: {prev.id}",
+                            user_id=current_user.id,
+                        )
+                    )
+                    Anketa.add_relation("Одно лицо", prev.id, item_id)
+            if item == "workplace":
+                setattr(
+                    json_data,
+                    "now_work",
+                    True if json_data.now_work else False,
+                )
+            if item == "relation":
+                Anketa.add_relation(
+                    json_data["relation"], item_id, json_data["relation_id"]
+                )
 
-            if item == "poligraf":
-                person = session.get(Person, item_id)
-                if person.status_id == Status.get_id(Statuses.poligraf.value):
-                    person.status_id = Status.get_id(Statuses.finish.value)
+            if item in ["check", "poligraf", "inquiry", "investigation"]:
+                setattr(json_data, "user_id", current_user.id)
 
-        session.add(json_data)
-        session.commit()
-        return "", 201
+                if item == "check":
+                    person = session.get(Person, item_id)
+                    if json_data.conclusion_id == Conclusion.get_id(
+                        Conclusions.saved.value
+                    ):
+                        person.status_id = Status.get_id(Statuses.save.value)
+                    else:
+                        person.status_id = (
+                            Status.get_id(Statuses.poligraf.value)
+                            if json_data.pfo
+                            else Status.get_id(Statuses.finish.value)
+                        )
+                        person.user_id = None
 
+                if item == "poligraf":
+                    person = session.get(Person, item_id)
+                    if person.status_id == Status.get_id(Statuses.poligraf.value):
+                        person.status_id = Status.get_id(Statuses.finish.value)
 
-@person.patch(
-    "/{item}/{item_id}",
-    status_code=201,
-    dependencies=[Depends(Permission(roles=[Roles.user.value]))],
-)
-async def patch_item(
-    item: Models,
-    item_id: int,
-    json_data: Union[
-        Previous,
-        Staff,
-        Document,
-        Address,
-        Contact,
-        Education,
-        Workplace,
-        Relation,
-        Affilation,
-        Check,
-        Robot,
-        Inquiry,
-        Investigation,
-        Poligraf,
-    ],
-):
-    with Session(engine) as session:
-        result = session.get(Models[item], item_id)
-        if result:
-            for k, v in json_data.__dict__.items():
-                if hasattr(result, k):
-                    setattr(result, k, v)
+            session.add(json_data)
             session.commit()
-            return Response(status_code=204)
-        raise HTTPException(status_code=404)
+            return "", 201
+        else:
+            result = session.get(Models[item].value, item_id)
+            if result:
+                for k, v in json_data.__dict__.items():
+                    if hasattr(result, k):
+                        setattr(result, k, v)
+                session.commit()
+                return Response(status_code=201)
+    raise HTTPException(status_code=404)
 
 
 @person.delete(

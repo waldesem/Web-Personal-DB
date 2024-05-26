@@ -1,20 +1,38 @@
 from datetime import date
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field, EmailStr
 
-from ..models.model import Person, Connect, Role, User
+from ..models.model import (
+    Person,
+    Connect,
+    Role,
+    User,
+    Previous,
+    Staff,
+    Document,
+    Address,
+    Contact,
+    Education,
+    Workplace,
+    Relation,
+    Affilation,
+    Check,
+    Robot,
+    Poligraf,
+    Investigation,
+    Inquiry,
+)
 
 
 class LoginSchema(BaseModel):
-
     username: str
     password: str
     new_pswd: Optional[str] = None
 
 
 class TokenSchema(BaseModel):
-
     access_token: str = Field(default="")
     refresh_token: str = Field(default="")
 
@@ -46,7 +64,6 @@ class SchemaGptOutput(BaseModel):
 
 
 class ResumeSchemaApi(BaseModel):
-
     id: int
     surname: str
     firstname: str
@@ -66,7 +83,25 @@ class RobotSchema(BaseModel):
     path: str
 
 
+class Models(Enum):
+    previous = Previous
+    staff = Staff
+    document = Document
+    address = Address
+    contact = Contact
+    education = Education
+    workplace = Workplace
+    relation = Relation
+    affilation = Affilation
+    check = Check
+    robot = Robot
+    poligraf = Poligraf
+    investigation = Investigation
+    inquiry = Inquiry
+
+
 """Schemas for API endpoints"""
+
 
 class NameWasChangedApi(BaseModel):
     """Nested schema for AnketaSchemaApi"""
@@ -145,7 +180,7 @@ class AnketaSchemaApi(BaseModel):
     regAddress: Optional[str]
     validAddress: str
     contactPhone: str
-    email: Optional[EmailStr] 
+    email: Optional[EmailStr]
     inn: str = Field(max_length=12)
     snils: str = Field(max_length=11)
     passportSerial: str = Field(max_length=4)

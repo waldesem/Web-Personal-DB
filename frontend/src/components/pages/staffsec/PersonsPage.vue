@@ -39,9 +39,9 @@ const statusColor = {
 };
 
 const theadData = {
-  "id": ["#", "5%"],
+  "id": ["#", "10%"],
   "region_id": ["Регион", "15%"],
-  "surname": ["Фамилия Имя Отчество", "25%"],
+  "surname": ["Фамилия Имя Отчество", "20%"],
   "birthday": ["Дата рождения", "15%"],
   "status_id": ["Статус", "10%"],
   "created": ["Создан", "15%"],
@@ -125,7 +125,7 @@ computed(() => {
         name="search"
         id="search"
         type="text"
-        placeholder="поиск по Фамилии, Имени, Отчеству, ИНН (не менее 3-х символов)"
+        placeholder="поиск по Фамилии, Имени, Отчеству, ИНН"
         v-model="personData.searches"
       />
     </div>
