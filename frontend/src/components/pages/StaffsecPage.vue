@@ -3,7 +3,7 @@ import { defineAsyncComponent } from "vue";
 import { onMounted } from "vue";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
-import { stateUser, stateAlert, stateMessage } from "@/state";
+import { stateUser, stateAlert } from "@/state";
 
 const NavBar = defineAsyncComponent(
   () => import("@components/content/layouts/NavBar.vue")
@@ -21,7 +21,6 @@ onMounted(async () => {
     stateUser.userName = user.username;
     stateUser.hasAdmin = roles.some((r: { role: any }) => r.role === "admin");
 
-    await stateMessage.updateMessages();
   } catch (error) {
     stateAlert.setAlert("alert-warning", error as string);
   }

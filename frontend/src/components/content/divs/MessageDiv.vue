@@ -1,7 +1,25 @@
 <script setup lang="ts">
 import { axiosAuth } from "@/auth";
-import { stateMessage } from "@/state";
+import { Message } from "@/interfaces";
 import { server, timeSince } from "@/utilities";
+import { reactive, onBeforeMount } from "vue";
+
+onBeforeMount(async () => {
+  await stateMessage.updateMessages();
+});
+
+const stateMessage = {
+  messages: reactive([] as Message[]),
+
+  async updateMessages(): Promise<void> {
+    try {
+      const response = await axiosAuth.get(`${server}/messages/`);
+      this.messages = response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
+};
 
 async function deleteMessage(event: Event, iD: number = 0): Promise<void> {
   event.preventDefault();

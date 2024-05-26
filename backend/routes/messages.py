@@ -3,8 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response
 from sqlmodel import Session, select
 
-from ..dependencies import Permission   
-from ..models.classes import Roles
+from ..dependencies import login_required   
 from ..models.model import engine, User, Message
 
 
@@ -13,7 +12,7 @@ msg = APIRouter(prefix="/messages", tags=["messages"])
 
 @msg.get("/", status_code=200)
 async def get_messages(
-    current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
+    current_user: Annotated[User, Depends(login_required)],
 ) -> list[Message]:
     """
     Get the serialized representation of the messages.
@@ -29,7 +28,7 @@ async def get_messages(
 
 @msg.delete("/{item_id}", status_code=204)
 async def delete(
-    current_user: Annotated[User, Depends(Permission(roles=[Roles.user.value]))],
+    current_user: Annotated[User, Depends(login_required)],
     item_id: int | None = None,
 ):
     """

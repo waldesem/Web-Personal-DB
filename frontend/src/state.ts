@@ -18,7 +18,6 @@ import {
   Pfo,
   Inquisition,
   Needs,
-  Message,
 } from "@/interfaces";
 
 export const stateUser = reactive({
@@ -254,19 +253,6 @@ export const stateAnketa = {
       }
     } else {
       stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
-    }
-  },
-};
-
-export const stateMessage = {
-  messages: reactive<Message[]>([]),
-
-  async updateMessages(): Promise<void> {
-    try {
-      const response = await axiosAuth.get(`${server}/messages/`);
-      this.messages = response.data;
-    } catch (error) {
-      console.error(error);
     }
   },
 };
