@@ -1,14 +1,15 @@
 import os
 import shutil
 
+import aiohttp
 from fastapi import APIRouter, Response
-from sqlmodel import Session
+from sqlmodel import Session, select
 
+from ..models.classes import Statuses
+from ..models.model import Address, Document, Message, Person, Robot, Status, engine
+from ..models.schema import AnketaSchemaApi, ResumeSchemaApi, RobotSchema
 from ..utils.folders import Folders
-from ..models.schema import  RobotSchema, AnketaSchemaApi
-from ..models.model import engine, Person, Message, Robot
 from ..utils.parsers import Anketa
-
 
 api = APIRouter(prefix="/api", tags=["api"])
 
@@ -52,13 +53,15 @@ async def post_robot(json_data: RobotSchema):
                     session.add(Message(message=f"{e}", user_id=candidate.user_id))
 
             setattr(json_data, "person_id", candidate.id)
-            session.add_all([
-                Robot(json_data),
-                Message(
-                    message=f"Автоматическая проверка {candidate.surname} окончена",
-                    user_id=candidate.user_id,
-                )
-            ])
+            session.add_all(
+                [
+                    Robot(json_data),
+                    Message(
+                        message=f"Автоматическая проверка {candidate.surname} окончена",
+                        user_id=candidate.user_id,
+                    ),
+                ]
+            )
         session.commit()
         return Response(status_code=204)
 
@@ -72,3 +75,56 @@ async def post(json_data: AnketaSchemaApi):
     anketa.parse_anketa()
 
     return Response(status_code=204)
+
+
+async def send_anketa(person_id):
+    with Session(engine) as session:
+        anketa = session.get(Person, person_id)
+        if anketa.status_id in (
+            Status.get_id(Statuses.new.value),
+            Status.get_id(Statuses.update.value),
+            Status.get_id(Statuses.repeat.value),
+            Status.get_id(Statuses.manual.value),
+            Status.get_id(Statuses.robot.value),
+        ):
+            docum = session.exec(
+                select(Document)
+                .filter_by(person_id=anketa.id)
+                .order_by(Document.id.desc())
+            ).one_or_none()
+            addr = session.exec(
+                select(Address)
+                .filter(
+                    Address.person_id == anketa.id,
+                    Address.view.ilike("%регистрац%"),
+                )
+                .order_by(Address.id.desc())
+            ).one_or_none()
+            if not docum or not addr:
+                return "error"
+            serial = ResumeSchemaApi.model_dump(
+                {
+                    "id": anketa.id,
+                    "surname": anketa.surname,
+                    "firstname": anketa.firstname,
+                    "patronymic": anketa.patronymic,
+                    "birthday": anketa.birthday,
+                    "birthplace": anketa.birthplace,
+                    "snils": anketa.snils,
+                    "inn": anketa.inn,
+                    "series": docum.series,
+                    "number": docum.number,
+                    "agency": docum.agency,
+                    "issue": docum.issue,
+                    "address": addr.address,
+                }
+            )
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(
+                        url="http://127.0.0.1:5001", json=serial, timeout=5
+                    ) as response:
+                        print(await response.text())
+                        return response.status
+            except aiohttp.ClientConnectorError as e:
+                return Response(status_code=500, content=e)
