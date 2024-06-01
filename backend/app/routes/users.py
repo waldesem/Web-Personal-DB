@@ -22,7 +22,7 @@ def get_users():
         query = session.execute(
             select(User).filter_by(username=search_data).order_by(User.id.asc())
         ).all()
-        return jsonify(q.__dict__.pop("_sa_instance_state", None) for q in query)
+        return jsonify(q.__dict__ for q in query)
 
 
 class UserView(MethodView):
@@ -52,7 +52,7 @@ class UserView(MethodView):
                         return abort, 404
                 session.commit()
             user = session.get(User, user_id)
-            return jsonify(user.__dict__.pop("_sa_instance_state", None))
+            return jsonify(user)
 
     def post(self):
         """

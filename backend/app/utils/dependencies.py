@@ -20,8 +20,9 @@ class Token:
     @classmethod 
     def get_auth(cls, token):
         Token.current_user = None 
-        Token.decoded_token = None 
+        Token.decoded_token = None
         try:
+            token = token.replace("Bearer ", "")  # Remove "Bearer " prefix
             decoded = jwt.decode(
                 token, 
                 Config.JWT_SECRET_KEY, 
@@ -36,12 +37,18 @@ class Token:
                     user_id = decoded.get("sub")
                     if user_id:
                         user = session.get(User, user_id)
+                        roles = session.execute(
+                            select(User.roles)
+                            .filter_by(id=user_id)  
+                        ).scalars().all()
+                        print(roles)
                         if user: 
                             Token.current_user = user
                             Token.decoded_token = decoded
                             return True
                 return False 
-        except JWTError:
+        except JWTError as e:
+            print(e)
             return False 
 
 

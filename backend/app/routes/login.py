@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 
-from flask import abort, request
+from flask import abort, jsonify, request
 from flask.views import MethodView
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -19,7 +20,6 @@ class AuthView(MethodView):
         """
         Retrieves the current authenticated user from the database.
         """
-        user = Token.current_user.username
         if (
             Token.current_user
             and not Token.current_user.blocked
@@ -28,7 +28,9 @@ class AuthView(MethodView):
             with Session(engine) as session:
                 Token.current_user.last_login = datetime.now()
                 session.commit()
-                return user
+                user_dict = Token.current_user.__dict__
+                del user_dict["_sa_instance_state"], user_dict["password"]
+                return jsonify(user_dict)
         return abort(404)
 
 
@@ -72,13 +74,18 @@ class LoginView(MethodView):
         Patch method for updating user password.
         """
         json_data = request.get_json()
-        user = User.get_user(json_data["username"])
         with Session(engine) as session:
+            user = session.execute(
+                select(User)
+                .filter_by(username=json_data["username"])
+            ).scalar_one_or_none()
             if (
                 user
                 and not user.blocked
+                and not user.deleted
                 and check_password_hash(user.password, json_data["password"])
             ):
+                print("Changed")
                 user.password = generate_password_hash(
                     json_data["new_pswd"],
                     method="scrypt",
@@ -108,6 +115,7 @@ bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
 class RefreshView(MethodView):
     """Refresh view"""
 
+    @jwt_required()
     def post(self):
         """
         Generate a new access token for the authenticated user.

@@ -238,20 +238,20 @@ def get_classes():
     models = [Conclusion, Role, Status, Region, User]
     with Session(engine) as session:
         queries = [session.execute(select(model)).scalars().all() for model in models]
-        dumps = [query.__dict__ for query in queries]
         return [
             dict(
                 (
-                    d["id"],
-                    d.get("conclusion")
-                    or d.get("role")
-                    or d.get("status")
-                    or d.get("region")
-                    or d.get("fullname"),
+                    d.id,
+                    d.conclusion if hasattr(d, "conclusion") \
+                        else d.role if hasattr(d, "role") \
+                            else d.status if hasattr(d, "status") \
+                                else d.region if hasattr(d, "region") \
+                                    else d.fullname if hasattr(d, "fullname") \
+                                        else None,
                 )
                 for d in sublist
             )
-            for sublist in dumps
+            for sublist in queries  
         ]
 
 
