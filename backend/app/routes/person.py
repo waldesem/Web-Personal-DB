@@ -147,13 +147,17 @@ class ItemsView(MethodView):
     @roles_required(Roles.user.value)
     def post(self, item, item_id):
         model = self.define_model(item)
-        json_data = request.get_json() | {"person_id": item_id}
-
+        response = request.get_json() | {"person_id": item_id}
+        json_data = {}
+        for k, v in response.items():
+            if k in ["birthday", "date_change", "issue", "start_date", "end_date", "deadline"]:
+                json_data.update({k: datetime.strptime(v, "%Y-%m-%d").date()}) if v else None
+            elif k in ["now_work", "pfo"]:
+                json_data.update({k: bool(v)}) if v else False
+            else:
+                json_data.update({k: v})
         with Session(engine) as session:
             if item == "previous":
-                json_data["date_change"] = datetime.strptime(
-                    json_data["date_change"], "%Y-%m-%d"
-                )
                 person = session.get(Person, item_id)
                 prev = session.execute(
                     select(Person).filter(
@@ -176,30 +180,10 @@ class ItemsView(MethodView):
                 Anketa.add_relation(
                     json_data["relation"], item_id, json_data["relation_id"]
                 )
-            if item == "document":
-                json_data["issue"] = datetime.strptime(json_data["issue"], "%Y-%m-%d")
-            if item == "workplace":
-                json_data["start_date"] = datetime.strptime(
-                    json_data["start_date"], "%Y-%m-%d"
-                )
-                if json_data.get("end_date"):
-                    json_data["end_date"] = datetime.strptime(
-                        json_data["end_date"], "%Y-%m-%d"
-                    )
-                if json_data.get("now_work"):
-                    json_data["now_work"] = True
-            if item == "affilation":
-                json_data["deadline"] = datetime.strptime(
-                    json_data["deadline"], "%Y-%m-%d"
-                )
+
             if item in ["check", "poligraf", "inquiry", "investigation"]:
                 json_data = json_data | {"user_id": Token.current_user.id}
-                json_data["deadline"] = datetime.strptime(
-                    json_data["deadline"], "%Y-%m-%d"
-                )
                 if item == "check":
-                    if json_data.get("pfo"):
-                        json_data["pfo"] = True
                     person = session.get(Person, item_id)
                     if json_data["conclusion_id"] == Conclusion.get_id(
                         Conclusions.saved.value
@@ -230,16 +214,16 @@ class ItemsView(MethodView):
         json_data = json.load(resp)
 
         with Session(engine) as session:
-            if item == "workplace":
-                json_data["now_work"] = (
-                    bool(json_data.pop("now_work"))
-                    if "now_work" in json_data
-                    else False
-                )
             result = session.get(model, item_id)
             if result:
                 for k, v in json_data.items():
-                    setattr(result, k, v)
+                    if k != "deadline":
+                        if k in ["birthday", "date_change", "issue", "start_date", "end_date"]:
+                            setattr(result, k, datetime.strptime(v, "%Y-%m-%d").date())
+                        elif k in ["now_work", "pfo"]:
+                            setattr(result, k, bool(v)) if v else False
+                        else:
+                            setattr(result, k, v)
                 session.commit()
                 return "", 201
             return abort(403)
