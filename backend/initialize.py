@@ -65,10 +65,10 @@ def initialize():
                 bcrypt.gensalt(),
             ),
         )
+        session.add(superadmin)
         superadmin.roles.append(
             session.exec(select(Role).filter_by(role=Roles.admin.value)).one_or_none()
         )
-        session.add(superadmin)
         session.commit()
         print("Database initialized and filled")
 
