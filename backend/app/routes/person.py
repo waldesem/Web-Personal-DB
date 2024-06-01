@@ -187,7 +187,6 @@ class ItemsView(MethodView):
         return cls.MODELS_SCHEMAS[item]
 
     @roles_required(Roles.user.value)
-    @bp.doc(hide=True)
     def get(self, item, item_id):
         with Session(engine) as session:
             model = self.define_model(item)
@@ -255,7 +254,6 @@ class ItemsView(MethodView):
             return ""
 
     @roles_required(Roles.user.value)
-    @bp.doc(hide=True)
     def patch(self, item, item_id):
         model = self.define_model(item)
         resp = request.get_json()
@@ -275,7 +273,6 @@ class ItemsView(MethodView):
             return abort(403)
 
     @roles_required(Roles.user.value)
-    @bp.doc(hide=True)
     def delete(self, item, item_id):
         model = self.define_model(item)
         with Session(engine) as session:

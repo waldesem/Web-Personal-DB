@@ -41,8 +41,7 @@ def register_cli(app):
         print("Alphabet directories created")
 
         with Session(engine) as session:
-            Base.metadata.create_all()
-
+            Base.metadata.create_all(engine)
             for item in [
                 [Region(region=reg.value) for reg in Regions],
                 [Status(status=item.value) for item in Statuses],
@@ -65,6 +64,7 @@ def register_cli(app):
                     select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
                 ).scalar_one_or_none(),
             )
+            session.add(superadmin)
             superadmin.roles.append(
                 session.execute(
                     select(Role).filter_by(role=(Roles.admin.value))

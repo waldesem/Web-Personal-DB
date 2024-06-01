@@ -13,7 +13,7 @@ from ..models.model import engine, User, TokenBlocklist
 class AuthView(MethodView):
     """Login view"""
 
-    decorators = [jwt_required]
+    decorators = [jwt_required()]
 
     def get(self):
         """
@@ -95,7 +95,7 @@ class LoginView(MethodView):
         A function that deletes the JWT token to the database blocklist.
         """
         with Session(engine) as session:
-            jti = Token.token["jti"]
+            jti = Token.decoded_token["jti"]
             now = datetime.now(timezone.utc)
             session.add(TokenBlocklist(jti=jti, created_at=now))
             session.commit()

@@ -13,7 +13,6 @@ from ..models.model import engine, User, Role, Message
 
 @roles_required(Roles.admin.value)
 @bp.get("/users")
-@bp.doc(hide=True)
 def get_users():
     """
     Endpoint to handle requests for getting users.
@@ -152,7 +151,7 @@ bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"
 
 
 class MessageView(MethodView):
-    decorators = [jwt_required]
+    decorators = [jwt_required()]
 
     def get(self):
         """

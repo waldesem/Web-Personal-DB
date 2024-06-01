@@ -73,7 +73,6 @@ bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index")
 class InformationView(MethodView):
 
     @roles_required(Roles.user.value)
-    @bp.doc(hide=True)
     def get_information(query_data):
         query_data = request.args
         with Session(engine) as session:

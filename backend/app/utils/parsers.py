@@ -1,12 +1,12 @@
 import re
 
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from ..utils.folders import Folders
 from ..models.classes import Statuses
 from ..models.model import (
     Relation,
-    db,
     Previous,
     Education,
     Staff,
@@ -18,6 +18,7 @@ from ..models.model import (
     Person,
     Region,
     Status,
+    engine
 )
 
 
@@ -31,19 +32,21 @@ class Resume:
 
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
-        return db.session.execute(
-            select(Person).filter(
-                Person.surname.ilike(surname),
-                Person.firstname.ilike(firstname),
-                Person.patronymic.ilike(patronymic),
-                Person.birthday == birthday,
-            )
-        ).scalar_one_or_none()
+        with Session(engine) as session:
+            return session.execute(
+                select(Person).filter(
+                    Person.surname.ilike(surname),
+                    Person.firstname.ilike(firstname),
+                    Person.patronymic.ilike(patronymic),
+                    Person.birthday == birthday,
+                )
+            ).scalar_one_or_none()
 
     def change_status(self, status, user_id=None):
-        self.resume["status_id"] = Status.get_id(status)
-        self.resume["user_id"] = user_id
-        db.session.commit()
+        with Session(engine) as session:
+            self.resume["status_id"] = Status.get_id(status)
+            self.resume["user_id"] = user_id
+            session.commit()
 
     def check_resume(self):
         person = self.get_person(
@@ -60,26 +63,28 @@ class Resume:
             return self.add_resume()
 
     def update_resume(self, person):
-        for k, v in self.resume.items():
-            setattr(person, k, v)
-        db.session.commit()
-        return person.id
+        with Session(engine) as session:
+            for k, v in self.resume.items():
+                setattr(person, k, v)
+            session.commit()
+            return person.id
 
     def add_resume(self):
-        person = Person(**self.resume)
-        db.session.add(person)
-        db.session.flush()
-        person_id = person.id
+        with Session(engine) as session:
+            person = Person(**self.resume)
+            session.add(person)
+            session.flush()
+            person_id = person.id
 
-        folders = Folders(
-            person_id,
-            self.resume["surname"],
-            self.resume["firstname"],
-            self.resume.get("patronymic", ""),
-        )
-        person.path = folders.create_main_folder()
-        db.session.commit()
-        return person_id
+            folders = Folders(
+                person_id,
+                self.resume["surname"],
+                self.resume["firstname"],
+                self.resume.get("patronymic", ""),
+            )
+            person.path = folders.create_main_folder()
+            session.commit()
+            return person_id
 
 
 class Anketa(Resume):
@@ -141,27 +146,29 @@ class Anketa(Resume):
             self.anketa["workplace"],
             self.anketa["affilation"],
         ]
-        for model, items in zip(models, items_lists):
-            for item in items:
-                if item:
-                    item["person_id"] = self.person_id
-                    db.session.add(model(**item))
+        with Session(engine) as session:
+            for model, items in zip(models, items_lists):
+                for item in items:
+                    if item:
+                        item["person_id"] = self.person_id
+                        session.add(model(**item))
 
-        db.session.commit()
+            session.commit()
 
     @staticmethod
     def add_relation(relation, person_id, relation_id):
-        db.session.add_all(
-            [
-                Relation(
-                    relation=relation, person_id=person_id, relation_id=relation_id
-                ),
-                Relation(
-                    relation=relation, person_id=relation_id, relation_id=person_id
-                ),
-            ]
-        )
-        db.session.commit()
+        with Session(engine) as session:
+            session.add_all(
+                [
+                    Relation(
+                        relation=relation, person_id=person_id, relation_id=relation_id
+                    ),
+                    Relation(
+                        relation=relation, person_id=relation_id, relation_id=person_id
+                    ),
+                ]
+            )
+            session.commit()
         
     @staticmethod
     def parse_json(json_dict) -> None:

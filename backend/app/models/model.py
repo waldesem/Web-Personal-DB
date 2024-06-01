@@ -25,13 +25,17 @@ class Base(DeclarativeBase):
 
 
 class TokenBlocklist(Base):
-    id = Column(Integer, primary_key=True)
-    jti = Column(String(36), nullable=False, index=True)
-    created_at = Column(DateTime, nullable=False)
+
+    __tablename__ = "tokens"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    jti: Mapped[str] = mapped_column(String(36), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
 user_roles = Table(
     "user_roles",
+    Base.metadata,
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("role_id", ForeignKey("roles.id"), primary_key=True),
 )
@@ -48,6 +52,25 @@ class Role(Base):
     users: Mapped[List["User"]] = relationship(
         back_populates="roles", secondary=user_roles, lazy="dynamic"
     )
+
+
+class Region(Base):
+
+    __tablename__ = "regions"
+
+    id: Mapped[int] = mapped_column(
+        nullable=False, unique=True, primary_key=True, autoincrement=True
+    )
+    region: Mapped[str] = mapped_column(String(255), nullable=False)
+    persons: Mapped[List["Person"]] = relationship(back_populates="regions")
+    users: Mapped[List["User"]] = relationship(back_populates="regions")
+
+    @staticmethod
+    def get_id(region):
+        with Session(engine) as session:
+            return session.execute(
+                select(Region.id).filter(Region.region.like(region))
+            ).scalar_one_or_none()
 
 
 class User(Base):
@@ -70,9 +93,9 @@ class User(Base):
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(Integer(), default=0, nullable=True)
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated: Mapped[datetime] = mapped_column(DateTime, onupdate=func.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, nullable=True, onupdate=func.now())
     region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"))
-    region: Mapped["Region"] = relationship(back_populates="persons")
+    regions: Mapped["Region"] = relationship(back_populates="users")
     messages: Mapped[List["Message"]] = relationship(back_populates="users")
     persons: Mapped[List["Person"]] = relationship(back_populates="users")
     checks: Mapped[List["Check"]] = relationship(back_populates="users")
@@ -122,25 +145,6 @@ class Status(Base):
         with Session(engine) as session:
             return session.execute(
                 select(Status.id).filter(Status.status.like(status))
-            ).scalar_one_or_none()
-
-
-class Region(Base):
-
-    __tablename__ = "regions"
-
-    id: Mapped[int] = mapped_column(
-        nullable=False, unique=True, primary_key=True, autoincrement=True
-    )
-    region: Mapped[str] = mapped_column(String(255), nullable=False)
-    persons: Mapped[List["Person"]] = relationship(back_populates="regions")
-    users: Mapped[List["User"]] = relationship(back_populates="region")
-
-    @staticmethod
-    def get_id(region):
-        with Session(engine) as session:
-            return session.execute(
-                select(Region.id).filter(Region.region.like(region))
             ).scalar_one_or_none()
 
 

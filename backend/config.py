@@ -12,7 +12,7 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=600)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     jwt_tokens_algorithm = "HS256"
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'candidates.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.abspath(os.path.join("..", 'candidates.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     BASE_PATH = os.path.abspath(os.path.join("..", "persons"))
     DEFAULT_PASSWORD = "8" * 8
