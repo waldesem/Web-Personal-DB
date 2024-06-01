@@ -1,26 +1,16 @@
-from apiflask import APIFlask
-from flask_migrate import Migrate
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager
+from flask import Flask
 
+from cors import CORS
 from config import Config
-from .models.model import db
-
-jwt = JWTManager()
-migrate = Migrate()
-
 
 def create_app(config=Config):
     """
     Initializes and configures a Flask application. 
     """
-    app = APIFlask(__name__, title="StaffSec")
+    app = Flask()
     app.config.from_object(config)
 
     CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-    db.init_app(app)
-    jwt.init_app(app)
-    migrate.init_app(app, db, render_as_batch=True)
 
     from app.routes import bp as route_bp
 

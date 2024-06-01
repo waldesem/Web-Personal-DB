@@ -1,47 +1,43 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_searchable import make_searchable
-from sqlalchemy_utils.types import TSVectorType
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from config import Config
 from sqlalchemy import (
+    Boolean,
     Column,
-    ForeignKey,
-    String,
-    Integer,
     Date,
     DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
     Text,
-    Boolean,
-    select,
+    create_engine,
     func,
+    select,
 )
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
 
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 class Base(DeclarativeBase):
     pass
 
 
-db = SQLAlchemy(model_class=Base)
-
-make_searchable(db.metadata)
-
-
-class TokenBlocklist(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(36), nullable=False, index=True)
-    created_at = db.Column(db.DateTime, nullable=False)
+class TokenBlocklist(Base):
+    id = Column(Integer, primary_key=True)
+    jti = Column(String(36), nullable=False, index=True)
+    created_at = Column(DateTime, nullable=False)
 
 
-user_roles = db.Table(
+user_roles = Table(
     "user_roles",
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("role_id", ForeignKey("roles.id"), primary_key=True),
 )
 
 
-class Role(db.Model):
+class Role(Base):
 
     __tablename__ = "roles"
 
@@ -54,7 +50,7 @@ class Role(db.Model):
     )
 
 
-class User(db.Model):
+class User(Base):
 
     __tablename__ = "users"
 
@@ -86,18 +82,17 @@ class User(db.Model):
     roles: Mapped[List["Role"]] = relationship(
         back_populates="users", secondary=user_roles, lazy="dynamic"
     )
-    search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("fullname", "username", "email")
-    )
+
 
     @staticmethod
     def get_user(user_name):
-        return db.session.execute(
-            select(User).filter_by(username=user_name)
-        ).scalar_one_or_none()
+        with Session(engine) as session:
+            return session.execute(
+                select(User).filter_by(username=user_name)
+            ).scalar_one_or_none()
 
 
-class Message(db.Model):
+class Message(Base):
 
     __tablename__ = "messages"
 
@@ -112,7 +107,7 @@ class Message(db.Model):
     users: Mapped["User"] = relationship(back_populates="messages")
 
 
-class Status(db.Model):
+class Status(Base):
 
     __tablename__ = "statuses"
 
@@ -124,12 +119,13 @@ class Status(db.Model):
 
     @staticmethod
     def get_id(status):
-        return db.session.execute(
-            select(Status.id).filter(Status.status.like(status))
-        ).scalar_one_or_none()
+        with Session(engine) as session:
+            return session.execute(
+                select(Status.id).filter(Status.status.like(status))
+            ).scalar_one_or_none()
 
 
-class Region(db.Model):
+class Region(Base):
 
     __tablename__ = "regions"
 
@@ -142,26 +138,18 @@ class Region(db.Model):
 
     @staticmethod
     def get_id(region):
-        return db.session.execute(
-            select(Region.id).filter(Region.region.like(region))
-        ).scalar_one_or_none()
+        with Session(engine) as session:
+            return session.execute(
+                select(Region.id).filter(Region.region.like(region))
+            ).scalar_one_or_none()
 
 
-class Person(db.Model):
+class Person(Base):
 
     __tablename__ = "persons"
 
     id: Mapped[int] = mapped_column(
         nullable=False, unique=True, primary_key=True, autoincrement=True
-    )
-    region_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("regions.id"), nullable=True
-    )
-    status_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("statuses.id"), nullable=True
-    )
-    user_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("users.id"), nullable=True
     )
     surname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
@@ -223,15 +211,21 @@ class Person(db.Model):
     investigations: Mapped[List["Investigation"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
+    region_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("regions.id"), nullable=True
+    )
+    status_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("statuses.id"), nullable=True
+    )
+    user_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
     statuses: Mapped["Status"] = relationship(back_populates="persons")
     regions: Mapped["Region"] = relationship(back_populates="persons")
     users: Mapped["User"] = relationship(back_populates="persons")
-    search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("surname", "firstname", "patronymic", "inn")
-    )
 
 
-class Previous(db.Model):
+class Previous(Base):
 
     __tablename__ = "previous"
 
@@ -247,7 +241,7 @@ class Previous(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="previous")
 
 
-class Education(db.Model):
+class Education(Base):
     """Nested schema for AnketaSchemaApi"""
 
     __tablename__ = "educations"
@@ -263,7 +257,7 @@ class Education(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="educations")
 
 
-class Staff(db.Model):
+class Staff(Base):
 
     __tablename__ = "staffs"
 
@@ -276,7 +270,7 @@ class Staff(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="staffs")
 
 
-class Document(db.Model):
+class Document(Base):
 
     __tablename__ = "documents"
 
@@ -292,7 +286,7 @@ class Document(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="documents")
 
 
-class Address(db.Model):
+class Address(Base):
 
     __tablename__ = "addresses"
 
@@ -305,7 +299,7 @@ class Address(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="addresses")
 
 
-class Contact(db.Model):
+class Contact(Base):
     """Create model for contacts"""
 
     __tablename__ = "contacts"
@@ -319,7 +313,7 @@ class Contact(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="contacts")
 
 
-class Workplace(db.Model):
+class Workplace(Base):
 
     __tablename__ = "workplaces"
 
@@ -337,7 +331,7 @@ class Workplace(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="workplaces")
 
 
-class Affilation(db.Model):
+class Affilation(Base):
 
     __tablename__ = "affilations"
 
@@ -353,7 +347,7 @@ class Affilation(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="affilations")
 
 
-class Relation(db.Model):
+class Relation(Base):
 
     __tablename__ = "relations"
 
@@ -366,7 +360,7 @@ class Relation(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="relations")
 
 
-class Check(db.Model):
+class Check(Base):
 
     __tablename__ = "checks"
 
@@ -389,22 +383,22 @@ class Check(db.Model):
     addition: Mapped[str] = mapped_column(Text, nullable=True)
     pfo: Mapped[bool] = mapped_column(Boolean, nullable=True)
     comments: Mapped[str] = mapped_column(Text, nullable=True)
-    conclusion_id: Mapped[int] = mapped_column(
-        ForeignKey("conclusions.id"), nullable=True
-    )
     deadline: Mapped[datetime] = mapped_column(
         Date, default=func.now(), onupdate=func.now(), nullable=True
+    )
+    conclusion_id: Mapped[int] = mapped_column(
+        ForeignKey("conclusions.id"), nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
-    persons: Mapped[List["Person"]] = relationship(back_populates="checks")
     conclusions: Mapped["Conclusion"] = relationship(back_populates="checks")
+    persons: Mapped[List["Person"]] = relationship(back_populates="checks")
     users: Mapped["User"] = relationship(back_populates="checks")
 
 
-class Robot(db.Model):
+class Robot(Base):
 
     __tablename__ = "robots"
 
@@ -424,7 +418,7 @@ class Robot(db.Model):
     persons: Mapped[List["Person"]] = relationship(back_populates="robots")
 
 
-class Conclusion(db.Model):
+class Conclusion(Base):
 
     __tablename__ = "conclusions"
 
@@ -436,12 +430,13 @@ class Conclusion(db.Model):
 
     @staticmethod
     def get_id(conclusion):
-        return db.session.execute(
-            select(Conclusion.id).filter(Conclusion.conclusion.ilike(conclusion))
-        ).scalar_one_or_none()
+        with Session(engine) as session:
+            return session.execute(
+                select(Conclusion.id).filter(Conclusion.conclusion.ilike(conclusion))
+            ).scalar_one_or_none()
 
 
-class Poligraf(db.Model):
+class Poligraf(Base):
 
     __tablename__ = "poligrafs"
 
@@ -459,7 +454,7 @@ class Poligraf(db.Model):
     users: Mapped["User"] = relationship(back_populates="poligrafs")
 
 
-class Investigation(db.Model):
+class Investigation(Base):
 
     __tablename__ = "investigations"
 
@@ -477,7 +472,7 @@ class Investigation(db.Model):
     users: Mapped["User"] = relationship(back_populates="investigations")
 
 
-class Inquiry(db.Model):
+class Inquiry(Base):
 
     __tablename__ = "inquiries"
 
@@ -496,7 +491,7 @@ class Inquiry(db.Model):
     users: Mapped["User"] = relationship(back_populates="inquiries")
 
 
-class Connect(db.Model):
+class Connect(Base):
 
     __tablename__ = "connects"
 
@@ -514,7 +509,4 @@ class Connect(db.Model):
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     data: Mapped[datetime] = mapped_column(
         Date, default=func.now(), onupdate=func.now(), nullable=True
-    )
-    search_vector: Mapped[TSVectorType] = mapped_column(
-        TSVectorType("company", "fullname")
     )

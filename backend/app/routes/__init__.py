@@ -1,6 +1,6 @@
-from apiflask import APIBlueprint
+from flask import Blueprint
 
-bp = APIBlueprint("route", __name__)
+bp = Blueprint("route", __name__)
 
 from . import login
 from . import users
