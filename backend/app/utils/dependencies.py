@@ -1,61 +1,34 @@
-import uuid
-from datetime import datetime, timezone
 from functools import wraps
+from base64 import b64decode, b64encode
 
 from flask import abort, request
-import jwt
-from jwt.exceptions import InvalidTokenError as JWTError
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 
 from config import Config
-from ..models.model import engine, TokenBlocklist, User
+from ..models.model import engine, User
 
 
 class Token:
-
     current_user = None
-    decoded_token = None
-    
-    @classmethod 
+
+    @classmethod
     def get_auth(cls, token):
-        Token.current_user = None 
-        Token.decoded_token = None
-        try:
-            token = token.replace("Bearer ", "")  # Remove "Bearer " prefix
-            decoded = jwt.decode(
-                token, 
-                Config.JWT_SECRET_KEY, 
-                algorithms=[Config.jwt_tokens_algorithm]
-            )
+        Token.current_user = None
+        token = token.replace("Basic ", "")
+        decoded = b64decode(token).decode()
+        user_id, secret = decoded.split(":")
+        if user_id and secret == Config.SECRET_KEY:
             with Session(engine) as session:
-                result = session.execute(
-                    select(TokenBlocklist)
-                    .filter_by(jti=decoded["jti"])
-                ).all()
-                if not result:
-                    user_id = decoded.get("sub")
-                    if user_id:
-                        user = session.get(User, user_id)
-                        if user: 
-                            Token.current_user = user
-                            Token.decoded_token = decoded
-                            return True
-                return False 
-        except JWTError as e:
-            print(e)
-            return False 
+                if user_id:
+                    user = session.get(User, user_id)
+                    if user and not user.deleted and not user.blocked:
+                        Token.current_user = user
+                        return True
+        return False
 
 
-def create_token(cridentials, token_type):
-    data = {"sub": cridentials, "type": token_type, "jti": str(uuid.uuid4())}
-    if token_type == "access":
-        data["exp"] = datetime.now(timezone.utc) + Config.JWT_ACCESS_TOKEN_EXPIRES
-    else:
-        data["exp"] = datetime.now(timezone.utc) + Config.JWT_REFRESH_TOKEN_EXPIRES
-    return jwt.encode(
-        data, Config.JWT_SECRET_KEY, algorithm=Config.jwt_tokens_algorithm
-    )
+def create_token(cridentials):
+    return b64encode(f"{cridentials}:{Config.SECRET_KEY}".encode()).decode()
 
 
 def jwt_required():
@@ -67,8 +40,11 @@ def jwt_required():
                 return func(*args, **kwargs)
             else:
                 abort(404)
+
         return wrapper
+
     return decorator
+
 
 def roles_required(*roles):
     def decorator(func):
@@ -82,5 +58,7 @@ def roles_required(*roles):
                     abort(404)
             else:
                 abort(404)
+
         return wrapper
+
     return decorator

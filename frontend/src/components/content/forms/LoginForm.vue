@@ -52,7 +52,7 @@ const loginData = ref({
       loginData.value.action === "password"
         ? await axios.patch(`${server}/login`, loginData.value.form)
         : await axios.post(`${server}/login`, loginData.value.form);
-    const { message, access_token, refresh_token } = response.data;
+    const { message, user_token } = response.data;
 
     switch (message) {
       case "Changed":
@@ -64,8 +64,7 @@ const loginData = ref({
         break
         
       case "Authenticated":
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("refresh_token", refresh_token);
+        localStorage.setItem("user_token", user_token);
         router.push({name: "persons"});
         break;
 

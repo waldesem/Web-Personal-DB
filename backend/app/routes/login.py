@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from flask import abort, jsonify, request
 from flask.views import MethodView
@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import bp
 from ..utils.dependencies import Token, create_token, jwt_required
-from ..models.model import engine, User, TokenBlocklist
+from ..models.model import engine, User
 
 
 class AuthView(MethodView):
@@ -57,12 +57,11 @@ class LoginView(MethodView):
                         user.last_login = datetime.now()
                         user.attempt = 0
                         session.commit()
-                        return {
+                        return jsonify({
                             "message": "Authenticated",
-                            "access_token": create_token(str(user.id), "access"),
-                            "refresh_token": create_token(str(user.id), "refresh"),
-                        }, 201
-                    return {"message": "Overdue"}, 201
+                            "user_token": create_token(str(user.id)),
+                        }), 201
+                    return jsonify({"message": "Overdue"}), 201
                 else:
                     if user.attempt < 9:
                         user.attempt += 1
@@ -97,39 +96,5 @@ class LoginView(MethodView):
                 return jsonify({"message": "Changed"})
         return jsonify({"message": "Denied"})
 
-    @jwt_required()
-    def delete(self):
-        """
-        A function that deletes the JWT token to the database blocklist.
-        """
-        with Session(engine) as session:
-            jti = Token.decoded_token["jti"]
-            now = datetime.now(timezone.utc)
-            session.add(TokenBlocklist(jti=jti, created_at=now))
-            session.commit()
-            return jsonify({"message": "Denied"})
-
 
 bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
-
-
-class RefreshView(MethodView):
-    """Refresh view"""
-
-    @jwt_required()
-    def post(self):
-        """
-        Generate a new access token for the authenticated user.
-        """
-        with Session(engine) as session:
-            user = session.get(User, Token.current_user.id)
-            if (
-                Token.current_user
-                and not Token.current_user.blocked
-                and not Token.current_user.deleted
-            ):
-                return jsonify({"access_token": create_token(str(user.id), "access")})
-        return jsonify({"access_token": ""}), 401
-
-
-bp.add_url_rule("/refresh", view_func=RefreshView.as_view("refresh"))

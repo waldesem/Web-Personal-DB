@@ -24,15 +24,6 @@ class Base(DeclarativeBase):
     pass
 
 
-class TokenBlocklist(Base):
-
-    __tablename__ = "tokens"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    jti: Mapped[str] = mapped_column(String(36), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-
-
 user_roles = Table(
     "user_roles",
     Base.metadata,

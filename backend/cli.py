@@ -22,8 +22,7 @@ def register_cli(app):
     def init_env():
         with open(".env", "w", encoding="utf-8") as file:
             file.write(
-                f"SECRET_KEY='{secrets.token_hex()}'\n"
-                f"JWT_SECRET_KEY='{secrets.token_hex()}'"
+                f"SECRET_KEY='{secrets.token_hex()}'"
             )
             print(".env file created")
 

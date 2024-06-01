@@ -58,25 +58,10 @@ function timeSince(date: string): string {
   return Math.floor(seconds) + " секунд назад";
 }
 
-/**
- * Checks if a token is expired.
- *
- * @param {any} token - The token to check.
- * @return {boolean} True if the token is expired, false otherwise.
- */
-function expiredToken(token: any): boolean {
-  if (!token) return true;
-  return token
-    ? Math.floor(new Date().getTime() / 1000) >
-        JSON.parse(atob(token.split(".")[1])).exp
-    : true;
-}
-
-
 function clearForm (form: Object) {
   Object.keys(form).forEach((key) => {
     delete form[key as keyof typeof form];
   });
 };
 
-export { server, debounce, timeSince, expiredToken, clearForm };
+export { server, debounce, timeSince, clearForm };
