@@ -79,10 +79,10 @@ async function getCandidates(page = 1): Promise<void> {
         },
       }
     );
-    const [datas, metadata] = response.data;
-    personData.value.candidates = datas;
-    personData.value.prev = metadata.has_prev;
-    personData.value.next = metadata.has_next;
+    const { persons, has_next, has_prev } = response.data;
+    personData.value.candidates = persons;
+    personData.value.prev = has_prev;
+    personData.value.next = has_next;
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
@@ -101,9 +101,6 @@ function sortCandidates(sort: string, order: string): void {
 
 const searchPerson = debounce(() => {
   personData.value.path = "search";
-  if (personData.value.search.length < 3) {
-    return;
-  }
   getCandidates();
 }, 500);
 </script>

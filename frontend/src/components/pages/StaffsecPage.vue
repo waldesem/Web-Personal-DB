@@ -19,8 +19,7 @@ onMounted(async () => {
     stateUser.userId = id;
     stateUser.fullName = fullname;
     stateUser.userName = username;
-    stateUser.hasAdmin = roles.some((r: { role: any }) => r.role === "admin");
-
+    stateUser.hasAdmin = roles.includes("admin");
     await stateMessage.updateMessages();
   } catch (error) {
     stateAlert.setAlert("alert-warning", error as string);

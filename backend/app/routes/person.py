@@ -1,7 +1,7 @@
+from datetime import datetime
 import json
 from flask import jsonify, request, abort
 from flask.views import MethodView
-import requests
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,7 @@ from ..utils.dependencies import Token, roles_required
 from ..utils.parsers import Resume, Anketa
 from ..models.classes import Roles, Statuses, Conclusions
 from ..models.model import (
-    engine, 
+    engine,
     Person,
     Education,
     Previous,
@@ -33,7 +33,6 @@ from ..models.model import (
 
 
 class AnketaView(MethodView):
-
     decorators = [roles_required(Roles.user.value)]
 
     def get(self, person_id):
@@ -53,22 +52,9 @@ class AnketaView(MethodView):
                 session.commit()
                 person.change_status(Statuses.manual.value, Token.current_user.id)
                 return {"message": action}, 201
-
-            elif action == "send":
-                if person.anketa.status_id in (
-                    Status.get_id(Statuses.new.value),
-                    Status.get_id(Statuses.update.value),
-                    Status.get_id(Statuses.repeat.value),
-                    Status.get_id(Statuses.manual.value),
-                    Status.get_id(Statuses.robot.value),
-                ):
-                    status = person.send_anketa()
-                    if status == "send":
-                        person.change_status(Statuses.robot.value, Token.current_user.id)
-                    return {"message": status}, 201
-                else:
-                    return abort, 400
-        return {"message": person.anketa.__dict__}
+        result = person.anketa.__dict__
+        del result["_sa_instance_state"]
+        return jsonify({"message": person.anketa.__dict__})
 
     def delete(self, person_id):
         person = ResumeAction(person_id)
@@ -77,16 +63,22 @@ class AnketaView(MethodView):
 
     def patch(self, person_id):
         json_data = request.get_json()
+        json_data["birthday"] = datetime.strptime(
+            json_data["birthday"], "%Y-%m-%d"
+        ).date()
         resume = Resume(json_data)
         with Session(engine) as session:
             resume.update_resume(session.get(Person, person_id))
-            return {"message": person_id}
+            return jsonify({"message": person_id}), 201
 
     def post(self):
         json_data = request.get_json()
+        json_data["birthday"] = datetime.strptime(
+            json_data["birthday"], "%Y-%m-%d"
+        ).date()
         resume = Resume(json_data)
         person_id = resume.check_resume()
-        return {"message": person_id}
+        return jsonify({"message": person_id}), 201
 
 
 resume_view = AnketaView.as_view("resume")
@@ -101,8 +93,8 @@ bp.add_url_rule(
     methods=["GET", "DELETE", "PATCH"],
 )
 
-class ResumeAction:
 
+class ResumeAction:
     def __init__(self, person_id):
         with Session(engine) as session:
             self.anketa = session.get(Person, person_id)
@@ -118,53 +110,8 @@ class ResumeAction:
             session.delete(self.anketa)
             session.commit()
 
-    def send_anketa(self):
-        with Session(engine) as session:
-            docum = session.execute(
-                select(Document)
-                .filter_by(person_id=self.anketa.id)
-                .order_by(Document.id.desc())
-            ).scalar_one_or_none()
-            addr = session.execute(
-                select(Address)
-                .filter(
-                    Address.person_id == self.anketa.id,
-                    Address.view.ilike("%регистрац%"),
-                )
-                .order_by(Address.id.desc())
-            ).scalar_one_or_none()
-            if not docum or not addr:
-                return "error"
-            serial = json.dump(
-                {
-                    "id": self.anketa.id,
-                    "surname": self.anketa.surname,
-                    "firstname": self.anketa.firstname,
-                    "patronymic": self.anketa.patronymic,
-                    "birthday": self.anketa.birthday,
-                    "birthplace": self.anketa.birthplace,
-                    "snils": self.anketa.snils,
-                    "inn": self.anketa.inn,
-                    "series": docum.series,
-                    "number": docum.number,
-                    "agency": docum.agency,
-                    "issue": docum.issue,
-                    "address": addr.address,
-                }
-            )
-            try:
-                response = requests.post(
-                    url="http://127.0.0.1:5001", json=serial, timeout=5
-                )
-                response.raise_for_status()
-                return "send"
-            except requests.HTTPError as e:
-                print(e)
-                return "error"
-
 
 class ItemsView(MethodView):
-
     MODELS_SCHEMAS = {
         "previous": Previous,
         "staff": Staff,
@@ -190,22 +137,23 @@ class ItemsView(MethodView):
     def get(self, item, item_id):
         with Session(engine) as session:
             model = self.define_model(item)
-            query = (
-                select(model)
-                .filter_by(person_id=item_id)
-                .order_by(model.id.desc())
-            )
+            query = select(model).filter_by(person_id=item_id).order_by(model.id.desc())
             results = session.execute(query).all()
-            return jsonify(result.__dict__ for result in results)
+            results = [r.__dict__ for r in results]
+            for r in results:
+                del r["_sa_instance_state"]
+            return jsonify(results)
 
     @roles_required(Roles.user.value)
     def post(self, item, item_id):
         model = self.define_model(item)
-        resp = request.get_json()
-        json_data = json.load(resp) | {"person_id": item_id}
+        json_data = request.get_json() | {"person_id": item_id}
 
         with Session(engine) as session:
             if item == "previous":
+                json_data["date_change"] = datetime.strptime(
+                    json_data["date_change"], "%Y-%m-%d"
+                )
                 person = session.get(Person, item_id)
                 prev = session.execute(
                     select(Person).filter(
@@ -216,20 +164,42 @@ class ItemsView(MethodView):
                     )
                 ).scalar_one_or_none()
                 if prev:
-                    session.add(Message(
-                        message=f"Кандидат ранее проверялся ID: {prev.id}",
-                        user_id=Token.current_user.id,
-                    ))
+                    session.add(
+                        Message(
+                            message=f"Кандидат ранее проверялся ID: {prev.id}",
+                            user_id=Token.current_user.id,
+                        )
+                    )
                     Anketa.add_relation("Одно лицо", prev.id, item_id)
 
             if item == "relation":
-                Anketa.add_relation(json_data["relation"], item_id, json_data["relation_id"])
-
-
+                Anketa.add_relation(
+                    json_data["relation"], item_id, json_data["relation_id"]
+                )
+            if item == "document":
+                json_data["issue"] = datetime.strptime(json_data["issue"], "%Y-%m-%d")
+            if item == "workplace":
+                json_data["start_date"] = datetime.strptime(
+                    json_data["start_date"], "%Y-%m-%d"
+                )
+                if json_data.get("end_date"):
+                    json_data["end_date"] = datetime.strptime(
+                        json_data["end_date"], "%Y-%m-%d"
+                    )
+                if json_data.get("now_work"):
+                    json_data["now_work"] = True
+            if item == "affilation":
+                json_data["deadline"] = datetime.strptime(
+                    json_data["deadline"], "%Y-%m-%d"
+                )
             if item in ["check", "poligraf", "inquiry", "investigation"]:
                 json_data = json_data | {"user_id": Token.current_user.id}
-
+                json_data["deadline"] = datetime.strptime(
+                    json_data["deadline"], "%Y-%m-%d"
+                )
                 if item == "check":
+                    if json_data.get("pfo"):
+                        json_data["pfo"] = True
                     person = session.get(Person, item_id)
                     if json_data["conclusion_id"] == Conclusion.get_id(
                         Conclusions.saved.value
@@ -251,7 +221,7 @@ class ItemsView(MethodView):
             result = model(**json_data)
             session.add(result)
             session.commit()
-            return ""
+            return "", 201
 
     @roles_required(Roles.user.value)
     def patch(self, item, item_id):
@@ -262,14 +232,16 @@ class ItemsView(MethodView):
         with Session(engine) as session:
             if item == "workplace":
                 json_data["now_work"] = (
-                    bool(json_data.pop("now_work")) if "now_work" in json_data else False
+                    bool(json_data.pop("now_work"))
+                    if "now_work" in json_data
+                    else False
                 )
             result = session.get(model, item_id)
             if result:
                 for k, v in json_data.items():
                     setattr(result, k, v)
                 session.commit()
-                return ""
+                return "", 201
             return abort(403)
 
     @roles_required(Roles.user.value)
@@ -280,7 +252,7 @@ class ItemsView(MethodView):
             if result:
                 session.delete(result)
                 session.commit()
-                return ""
+                return "", 204
             return abort(403)
 
 

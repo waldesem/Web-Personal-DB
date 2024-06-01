@@ -66,7 +66,7 @@ const tabsData = ref({
     <div class="col-md-2 d-flex justify-content-end">
       <IconRelative
         v-show="tabsData.currentTab == 'AnketaTab'"
-        :title="`Взять на проверку`"
+        :title="`Обновить статус`"
         :icon-class="`bi bi-arrow-clockwise fs-1`"
         :hide="stateAnketa.anketa.resume.user_id !== stateUser.userId"
         @onclick="stateAnketa.getResume('status')"
@@ -97,7 +97,7 @@ const tabsData = ref({
         v-show="tabsData.currentTab == 'RobotTab'"
         :title="`Отправить на проверку`"
         :icon-class="'bi bi-send-plus fs-1'"
-        :hide="stateAnketa.anketa.resume.user_id !== stateUser.userId"
+        :hide=true
         @onclick="stateAnketa.getResume('send')"
       />
       <IconRelative 

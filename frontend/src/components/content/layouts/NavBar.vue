@@ -32,12 +32,6 @@
         Контакты
       </router-link>
       <hr class="text-info">
-      <router-link
-        :to="{ name: 'gpt' }"
-        class="nav-link active"
-      >
-        PrivateGPT
-      </router-link>
     </div>
   </div>
 </template>

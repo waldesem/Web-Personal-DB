@@ -27,9 +27,12 @@ class AuthView(MethodView):
         ):
             with Session(engine) as session:
                 Token.current_user.last_login = datetime.now()
-                session.commit()
                 user_dict = Token.current_user.__dict__
+                user_dict.update(
+                    {"roles": [role.role for role in Token.current_user.roles]}
+                )
                 del user_dict["_sa_instance_state"], user_dict["password"]
+                session.commit()
                 return jsonify(user_dict)
         return abort(404)
 
@@ -67,7 +70,7 @@ class LoginView(MethodView):
                         user.blocked = True
                     session.commit()
 
-            return {"message": "Denied"}, 201
+            return jsonify({"message": "Denied"}), 201
 
     def patch(self):
         """
@@ -76,8 +79,7 @@ class LoginView(MethodView):
         json_data = request.get_json()
         with Session(engine) as session:
             user = session.execute(
-                select(User)
-                .filter_by(username=json_data["username"])
+                select(User).filter_by(username=json_data["username"])
             ).scalar_one_or_none()
             if (
                 user
@@ -85,7 +87,6 @@ class LoginView(MethodView):
                 and not user.deleted
                 and check_password_hash(user.password, json_data["password"])
             ):
-                print("Changed")
                 user.password = generate_password_hash(
                     json_data["new_pswd"],
                     method="scrypt",
@@ -93,8 +94,8 @@ class LoginView(MethodView):
                 )
                 user.pswd_change = datetime.now()
                 session.commit()
-                return {"message": "Changed"}
-        return {"message": "Denied"}
+                return jsonify({"message": "Changed"})
+        return jsonify({"message": "Denied"})
 
     @jwt_required()
     def delete(self):
@@ -106,7 +107,7 @@ class LoginView(MethodView):
             now = datetime.now(timezone.utc)
             session.add(TokenBlocklist(jti=jti, created_at=now))
             session.commit()
-            return {"message": "Denied"}
+            return jsonify({"message": "Denied"})
 
 
 bp.add_url_rule("/login", view_func=LoginView.as_view("login"))
@@ -127,8 +128,8 @@ class RefreshView(MethodView):
                 and not Token.current_user.blocked
                 and not Token.current_user.deleted
             ):
-                return {"access_token": create_token(str(user.id), "access")}
-        return {"access_token": ""}, 401
+                return jsonify({"access_token": create_token(str(user.id), "access")})
+        return jsonify({"access_token": ""}), 401
 
 
 bp.add_url_rule("/refresh", view_func=RefreshView.as_view("refresh"))

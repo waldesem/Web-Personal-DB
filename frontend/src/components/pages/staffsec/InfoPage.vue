@@ -30,7 +30,6 @@ const tableData = ref({
     end: todayDate.toISOString().slice(0, 10),
   },
 });
-console.log(tableData.value.stat.checks);
 async function submitData(): Promise<void> {
   try {
     const response = await axiosAuth.get(

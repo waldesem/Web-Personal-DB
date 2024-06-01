@@ -103,7 +103,7 @@ class User(Base):
     investigations: Mapped[List["Investigation"]] = relationship(back_populates="users")
     inquiries: Mapped[List["Inquiry"]] = relationship(back_populates="users")
     roles: Mapped[List["Role"]] = relationship(
-        back_populates="users", secondary=user_roles, lazy="dynamic"
+        back_populates="users", secondary=user_roles, lazy="subquery"
     )
 
 
@@ -512,5 +512,5 @@ class Connect(Base):
     mail: Mapped[str] = mapped_column(String(255), nullable=True)
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     data: Mapped[datetime] = mapped_column(
-        Date, default=func.now(), onupdate=func.now(), nullable=True
+        DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )

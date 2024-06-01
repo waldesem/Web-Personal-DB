@@ -53,18 +53,21 @@ class IndexView(MethodView):
         else:
             search_data = request.args.get("search")
             if search_data:
-                query = query.filter_by(surname="%{}%".format(search_data))
+                query = query.filter(Person.surname.contains("%{}%".format(search_data.upper())))
         with Session(engine) as session:
             pagination = query.offset((page - 1) * Config.PAGINATION).limit(
                 Config.PAGINATION + 1
             )
-            result = session.execute(pagination).all()
+            result = session.execute(pagination).scalars().all()
+            result = [i.__dict__ for i in result]
+            for r in result:
+                del r["_sa_instance_state"]
             has_next = True if len(result) > Config.PAGINATION else False
-            return {
+            return jsonify({
                 "persons": result if not has_next else result[:-1],
                 "has_next": has_next,
                 "has_prev": True if page > 1 else False
-            }
+            })
 
 
 bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
@@ -73,7 +76,7 @@ bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index")
 class InformationView(MethodView):
 
     @roles_required(Roles.user.value)
-    def get_information(query_data):
+    def get(query_data):
         query_data = request.args
         with Session(engine) as session:
             candidates = session.execute(
@@ -101,22 +104,25 @@ class ConnnectView(MethodView):
             search_data = request.args.get("search")
             query = select(Connect).order_by(Connect.id.desc())
             if search_data:
-                query = query.filter_by(company="%{}%".format(search_data))
-                pagination = query.offset((page - 1) * Config.PAGINATION).limit(
-                    Config.PAGINATION + 1
-                )
-            result = session.execute(pagination).all()
+                query = query.filter(Connect.company.contains("%{}%".format(search_data)))
+            pagination = query.offset((page - 1) * Config.PAGINATION).limit(
+                Config.PAGINATION + 1
+            )
+            result = session.execute(pagination).scalars().all()
+            result = [i.__dict__ for i in result]
+            for r in result:
+                del r["_sa_instance_state"]
             has_next = True if len(result) > Config.PAGINATION else False
-            return {
+            return jsonify({
                 "contacts": result if not has_next else result[:-1],
                 "has_next": has_next,
                 "has_prev": True if page > 1 else False,
-                "names": [name for name in session.exec(select(Connect.name)).all()],
+                "names": [name for name in session.execute(select(Connect.name)).scalars().all()],
                 "companies": [
-                    company for company in session.exec(select(Connect.company)).all()
+                    company for company in session.execute(select(Connect.company)).scalars().all()
                 ],
-                "cities": [city for city in session.exec(select(Connect.city)).all()],
-            }
+                "cities": [city for city in session.execute(select(Connect.city)).scalars().all()],
+            }), 200
 
     def post(self):
         """
@@ -126,9 +132,9 @@ class ConnnectView(MethodView):
         with Session(engine) as session:
             session.add(Connect(**json_data))
             session.commit()
-            return {"message": "Created"}
+            return jsonify({"message": "Created"}), 201
 
-    def patch(self, item_id, json_data):
+    def patch(self, item_id):
         """
         Patch an item in the Connect table.
         """
@@ -136,9 +142,10 @@ class ConnnectView(MethodView):
         with Session(engine) as session:
             resp = session.get(Connect, item_id)
             for k, v in json_data.items():
-                setattr(resp, k, v)
+                if k != "data":
+                    setattr(resp, k, v)
             session.commit()
-            return {"message": "Updated"}
+            return jsonify({"message": "Updated"}), 201
 
     def delete(self, item_id):
         """
@@ -148,7 +155,7 @@ class ConnnectView(MethodView):
             resp = session.get(Connect, item_id)
             session.delete(resp)
             session.commit()
-            return {"message": "Deleted"}
+            return jsonify({"message": "Deleted"}), 204
 
 
 contacts_view = ConnnectView.as_view("connect")
@@ -188,7 +195,7 @@ class FileView(MethodView):
             json_dict = json.load(file)
             anketa = Anketa(json_dict)
             person_id = anketa.parse_anketa()
-            return {"message": person_id}
+            return jsonify({"message": person_id}), 201
         
         with Session(engine) as session:
             person = session.get(Person, item_id)
@@ -203,7 +210,7 @@ class FileView(MethodView):
                 if os.path.isfile(image_path):
                     os.remove(image_path)
                 rgb_im.save(image_path)
-                return ""
+                return "", 201
 
             folder = folders.create_subfolder(action)
             files = request.files.getlist("file")
@@ -211,7 +218,7 @@ class FileView(MethodView):
                 if file.filename:
                     if not os.path.isfile(os.path.join(folder, file.filename)):
                         file.save(os.path.join(folder, file.filename))
-            return ""
+            return "", 201
 
 
 file_view = FileView.as_view("file")
@@ -238,7 +245,7 @@ def get_classes():
     models = [Conclusion, Role, Status, Region, User]
     with Session(engine) as session:
         queries = [session.execute(select(model)).scalars().all() for model in models]
-        return [
+        return jsonify([
             dict(
                 (
                     d.id,
@@ -252,14 +259,4 @@ def get_classes():
                 for d in sublist
             )
             for sublist in queries  
-        ]
-
-
-@roles_required(Roles.user.value)
-@bp.post("/gpt")
-def post_gpt():
-    response = request.args.get("query")
-    print(response)
-    return {
-        "answer": "К сожалению, ничего не удалось сгенерировать или сервис отключен"
-    }
+        ])

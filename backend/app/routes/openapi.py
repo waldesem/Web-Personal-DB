@@ -56,7 +56,7 @@ class RobotsView(MethodView):
                     )
                 )
             session.commit()
-            return ""
+            return "", 201
 
 
 bp.add_url_rule("/robot", view_func=RobotsView.as_view("robot"))

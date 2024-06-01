@@ -22,7 +22,10 @@ def get_users():
         query = session.execute(
             select(User).filter_by(username=search_data).order_by(User.id.asc())
         ).all()
-        return jsonify(q.__dict__ for q in query)
+        query = [q.__dict__ for q in query]
+        for q in query:
+            del q["_sa_instance_state"]
+        return jsonify(query)
 
 
 class UserView(MethodView):
@@ -51,7 +54,8 @@ class UserView(MethodView):
                     case _:
                         return abort, 404
                 session.commit()
-            user = session.get(User, user_id)
+            user = session.get(User, user_id).__dict__
+            del user["_sa_instance_state"]
             return jsonify(user)
 
     def post(self):
@@ -164,9 +168,10 @@ class MessageView(MethodView):
                 .order_by(Message.created.desc())
                 .limit(100)
             ).all()
-            return jsonify(
-                message.__dict__.pop("_sa_instance_state", None) for message in messages
-            )
+            result = [m.__dict__ for m in messages]
+            for r in result:
+                del r["_sa_instance_state"]
+            return jsonify(result)
 
     def delete(self, item_id):
         """

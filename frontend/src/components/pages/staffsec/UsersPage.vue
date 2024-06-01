@@ -19,9 +19,6 @@ const TableSlots = defineAsyncComponent(
 );
 
 const searchUsers = debounce(() => {
-  if (dataUsers.value.search.length < 3) {
-    return;
-  }
   getUsers();
 }, 500);
 

@@ -15,6 +15,7 @@ class Roles(Enum):
     admin = "admin"
     user = "user"
     api = "api"
+    guest = "guest"
 
 
 class Statuses(Enum):

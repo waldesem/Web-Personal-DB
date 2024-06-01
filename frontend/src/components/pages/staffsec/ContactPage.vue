@@ -56,14 +56,14 @@ async function getContacts(page: number): Promise<void> {
         },
       }
     );
-    const [datas, has_prev, has_next, names, companies, cities] = response.data;
+    const { contacts, has_prev, has_next, names, companies, cities } = response.data;
     Object.assign(contactData.value, {
-      contacts: datas,
-      names: names.names,
-      companies: companies.companies,
-      cities: cities.cities,
-      prev: has_prev.has_prev,
-      next: has_next.has_next,
+      contacts: contacts,
+      names: names,
+      companies: companies,
+      cities: cities,
+      prev: has_prev,
+      next: has_next,
     });
   } catch (error) {
     console.error(error);

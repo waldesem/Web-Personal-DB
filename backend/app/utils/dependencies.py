@@ -37,11 +37,6 @@ class Token:
                     user_id = decoded.get("sub")
                     if user_id:
                         user = session.get(User, user_id)
-                        roles = session.execute(
-                            select(User.roles)
-                            .filter_by(id=user_id)  
-                        ).scalars().all()
-                        print(roles)
                         if user: 
                             Token.current_user = user
                             Token.decoded_token = decoded
