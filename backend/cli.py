@@ -75,7 +75,6 @@ def register_cli(app):
                     select(Role).filter_by(role=(Roles.user.value))
                 ).scalar_one_or_none()
             )
-            session.add(superadmin)
             session.commit()
 
             print("Models created and filled")
