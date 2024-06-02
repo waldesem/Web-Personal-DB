@@ -1,26 +1,10 @@
 from datetime import datetime
 import re
+import sqlite3
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
+from config import Config
 from ..utils.folders import Folders
 from ..models.classes import Statuses
-from ..models.model import (
-    Relation,
-    Previous,
-    Education,
-    Staff,
-    Document,
-    Address,
-    Contact,
-    Workplace,
-    Affilation,
-    Person,
-    Region,
-    Status,
-    engine
-)
 
 
 class Resume:
@@ -35,21 +19,25 @@ class Resume:
 
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
-        with Session(engine) as session:
-            return session.execute(
-                select(Person).filter(
-                    Person.surname.ilike(surname),
-                    Person.firstname.ilike(firstname),
-                    Person.patronymic.ilike(patronymic),
-                    Person.birthday == birthday,
-                )
-            ).scalar_one_or_none()
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT * FROM person WHERE surname = ? AND firstname = ? AND patronymic = ? AND birthday = ?",
+                (surname, firstname, patronymic, birthday),
+            )
+            return query.fetchone()
 
     def change_status(self, status, user_id=None):
-        with Session(engine) as session:
-            self.resume["status_id"] = Status.get_id(status)
-            self.resume["user_id"] = user_id
-            session.commit()
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT * FROM statuses WHERE name = ?", (status,)
+            )
+            status = query.fetchone()
+            cursor.execute(
+                "UPDATE person SET status_id = ? WHERE user_id = ?", (status["id"], user_id)
+            )
+            conn.commit()
 
     def check_resume(self):
         person = self.get_person(
@@ -60,24 +48,32 @@ class Resume:
         )
         if person:
             self.change_status(Statuses.repeat.value)
-            return self.update_resume(person)
+            return self.update_resume(person.id)
         else:
             self.change_status(Statuses.new.value)
             return self.add_resume()
 
-    def update_resume(self, person):
-        with Session(engine) as session:
-            for k, v in self.resume.items():
-                setattr(person, k, v)
-            session.commit()
-            return person.id
+    def update_resume(self, person_id):
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"UPDATE person SET {self.resume}, updated = ? WHERE id = ?",
+                datetime.now(), person_id
+            )
+            conn.commit()
+            return person_id
 
     def add_resume(self):
-        with Session(engine) as session:
-            person = Person(**self.resume)
-            session.add(person)
-            session.flush()
-            person_id = person.id
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO person ({}, created) VALUES ({})".format(
+                    ", ".join(self.resume.keys()),
+                    ", ".join(self.resume.values()),
+                ), datetime.now(),
+            )
+            person_id = cursor.lastrowid
+            conn.commit()
 
             folders = Folders(
                 person_id,
@@ -85,8 +81,11 @@ class Resume:
                 self.resume["firstname"],
                 self.resume.get("patronymic", ""),
             )
-            person.path = folders.create_main_folder()
-            session.commit()
+            path = folders.create_main_folder()
+            cursor.execute(
+                "UPDATE person SET path = ? WHERE id = ?", (path, person_id)
+            )
+            conn.commit()
             return person_id
 
 
@@ -129,55 +128,56 @@ class Anketa(Resume):
 
 
     def save_items(self):
-        models = [
-            Previous,
-            Education,
-            Staff,
-            Document,
-            Address,
-            Contact,
-            Workplace,
-            Affilation,
+        tables = [
+            "previous", 
+            "educations", 
+            "staffs", 
+            "documents", 
+            "addresses", 
+            "contacts", 
+            "workplaces", 
+            "affilations"
         ]
         items_lists = [
-            self.anketa["previous"],
+            self.anketa["previou"],
             self.anketa["education"],
             self.anketa["staff"],
             self.anketa["document"],
-            self.anketa["address"],
+            self.anketa["addresse"],
             self.anketa["contact"],
             self.anketa["workplace"],
             self.anketa["affilation"],
         ]
-        with Session(engine) as session:
-            for model, items in zip(models, items_lists):
-                for item in items:
-                    if item:
-                        item["person_id"] = self.person_id
-                        session.add(model(**item))
-
-            session.commit()
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            for table, item in zip(tables, items_lists):
+                cursor.execute(
+                    f"INSERT INTO {table} ({','.join(item.keys())}, person_id) VALUES ({','.join(item.values())}, ?)", 
+                    self.person_id 
+                    )
+            conn.commit()
 
     @staticmethod
     def add_relation(relation, person_id, relation_id):
-        with Session(engine) as session:
-            session.add_all(
-                [
-                    Relation(
-                        relation=relation, person_id=person_id, relation_id=relation_id
-                    ),
-                    Relation(
-                        relation=relation, person_id=relation_id, relation_id=person_id
-                    ),
-                ]
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO relations (relation, person_id, relation_id) VALUES(?, ?, ?)", 
+                (relation, person_id, relation_id)    
             )
-            session.commit()
+            conn.commit()
         
     @staticmethod
     def parse_json(json_dict) -> None:
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT * FROM statuses WHERE name = ?", (Statuses.new.name,)
+            )
+            status = query.fetchone()
         json_data = {
             "resume": {
-                "status_id": Status().get_id(Statuses.new.name),
+                "status_id": status["id"],
                 "region_id": Anketa.get_region_id(json_dict),
                 "firstname": json_dict["firstName"].strip().upper(),
                 "surname": json_dict["lastName"].strip().upper(),
@@ -343,8 +343,13 @@ class Anketa(Resume):
         region_id = 1
         if "department" in json_dict:
             divisions = re.split(r"/", json_dict["department"].strip())
-            for div in divisions:
-                reg_id = Region().get_id(div)
-                if reg_id:
-                    region_id = reg_id
+            with sqlite3.connect(Config.DATABASE_URI) as conn:
+                cursor = conn.cursor()
+                query = cursor.execute("SELECT * FROM regions")
+                result = query.fetchmany()
+                for div in divisions:
+                    for item in result:
+                        if item[1] == div:
+                            region_id = item[0]
+                            break
         return region_id

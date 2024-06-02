@@ -1,14 +1,13 @@
+from datetime import datetime
+import sqlite3
 from flask import abort, jsonify, request
 from flask.views import MethodView
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
 
 from config import Config
 from . import bp
-from ..utils.dependencies import Token, roles_required, jwt_required
+from ..utils.dependencies import Token, roles_required
 from ..models.classes import Roles
-from ..models.model import engine, User, Role, Message
 
 
 @roles_required(Roles.admin.value)
@@ -18,13 +17,18 @@ def get_users():
     Endpoint to handle requests for getting users.
     """
     search_data = request.args.get("search")
-    with Session(engine) as session:
-        query = session.execute(
-            select(User).filter_by(username=search_data).order_by(User.id.asc())
-        ).all()
-        query = [q.__dict__ for q in query]
-        for q in query:
-            del q["_sa_instance_state"]
+    with sqlite3.connect(Config.DATABASE_URI) as conn:
+        cursor = conn.cursor()
+        query = cursor.execute(
+            "SELECT * FROM users ORDER BY id DESC",
+        )
+        if search_data:
+            query = cursor.execute(
+                "SELECT * FROM users WHERE username LIKE '%{}%' ORDER BY id DESC".format(
+                    search_data
+                )
+            )
+        query = query.fetchall()
         return jsonify(query)
 
 
@@ -36,74 +40,119 @@ class UserView(MethodView):
         Retrieves a user based on the specified action and user ID.
         """
         action_data = request.args.get("action")
-        with Session(engine) as session:
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT * FROM users WHERE id = ?", (user_id,)
+            )
+            user = query.fetchone()
+            if not user:
+                return abort(404)
             if action_data != "view":
-                user = session.get(User, user_id)
                 match action_data:
                     case "block":
-                        if user.username != Token.current_user.username:
-                            user.blocked = not user.blocked
+                        if user['username'] != Token.current_user['username']:
+                            cursor.execute(
+                                "UPDATE users SET blocked = ? WHERE id = ?",
+                                (not user['blocked'], user_id),
+                            )
                     case "drop":
-                        user.password = generate_password_hash(
-                            Config.DEFAULT_PASSWORD, method="scrypt", salt_length=16
+                        cursor.execute(
+                            "UPDATE users SET password = ?, attempt = ?, pswd_change = ? WHERE id = ?",
+                            (
+                                generate_password_hash(
+                                    Config.DEFAULT_PASSWORD,
+                                    method="scrypt",
+                                    salt_length=16,
+                                ),
+                                0,
+                                None,
+                                user_id,
+                            ),
                         )
-                        user.attempt = 0
-                        user.pswd_change = None
                     case "region":
-                        user.region_id = action_data
+                        cursor.execute(
+                            "UPDATE users SET region_id = ? WHERE id = ?",
+                            (action_data, user_id),
+                        )
                     case _:
                         return abort, 404
-                session.commit()
-            user = session.get(User, user_id).__dict__
-            del user["_sa_instance_state"]
-            return jsonify(user)
+                conn.commit()
+            result = cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+            return jsonify(result.fetchone())
 
     def post(self):
         """
         Creates a new user based on the provided JSON data.
         """
         json_data = request.get_json()
-        if not User.get_user(json_data.get("username")):
-            with Session(engine) as session:
-                session.add(
-                    User(
-                        fullname=json_data.get("fullname"),
-                        username=json_data.get("username"),
-                        email=json_data.get("email"),
-                        password=generate_password_hash(
-                            Config.DEFAULT_PASSWORD, method="scrypt", salt_length=16
-                        ),
-                    )
-                )
-                session.commit()
-                return {"message": "Created"}, 201
-        return {"message": "Denied"}, 403
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT * FROM users WHERE username = ?", (json_data.get("username"),)
+            )
+            user = query.fetchone()
+            if user:
+                return {"message": "Denied"}, 403
+            cursor.execute(
+                "INSERT INTO users (fullname, username, email, password, email, pswd_create, pswd_change, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?)",
+                (
+                    json_data.get("fullname"),
+                    json_data.get("username"),
+                    json_data.get("email"),
+                    generate_password_hash(
+                        Config.DEFAULT_PASSWORD, method="scrypt", salt_length=16
+                    ),
+                    datetime.now(),
+                    None,
+                    None,
+                    0,
+                    0,
+                    0,
+                    datetime.now(),
+                    datetime.now(),
+                    json_data.get("region_id"),
+
+                ),
+            )
+            conn.commit()
+            return {"message": "Created"}, 201
 
     def patch(self, user_id, json_data):
         """
         Patch a user's information.
         """
-        json_data = request.get_json()
-        with Session(engine) as session:
-            user = session.get(User, user_id)
-            if user:
-                for key, value in json_data.items():
-                    setattr(user, key, value)
-                session.commit()
-                return {"message": "Changed"}, 201
-        return {"message": "Denied"}, 403
+        json_data: dict = request.get_json()
+        del (
+            json_data["pswd_create"], 
+            json_data["pswd_change"], 
+            json_data["last_login"],
+            json_data["created"],
+            json_data["updated"],
+            json_data["blocked"],
+            json_data["deleted"],
+            json_data["attempt"],
+            )
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"UPDATE users SET {json_data} WHERE id = ?", (user_id,)
+            )
+            conn.commit()
+            return {"message": "Changed"}, 201
 
     def delete(self, user_id):
         """
         Delete a user by their ID.
         """
-        with Session(engine) as session:
-            user = session.get(User, user_id)
-            if user and user.username != Token.current_user.username:
-                user.deleted = True
-                session.commit()
-                return "", 204
-        return "", 403
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE users SET deleted = 1 WHERE id = ? AND username = ?", 
+                (user_id, Token.current_user['username'])
+            )
+            conn.commit()
+            return "", 204
 
 
 user_view = UserView.as_view("user")
@@ -121,12 +170,19 @@ class RoleView(MethodView):
     decorators = [roles_required(Roles.admin.value)]
 
     def get(self, value, user_id):
-        with Session(engine) as session:
-            user = session.get(User, user_id)
-            role = session.get(Role, value)
-            if user and role not in user.roles:
-                user.roles.append(role)
-                session.commit()
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT * FROM user_roles JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
+                (user_id),
+            )
+            roles = query.fetchone()
+            if value not in roles:
+                cursor.execute(
+                    "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
+                    (user_id, value),
+                )
+                conn.commit()
                 return "", 201
         return "", 403
 
@@ -134,67 +190,27 @@ class RoleView(MethodView):
         """
         Deletes a role from a user.
         """
-        with Session(engine) as session:
-            user = session.get(User, user_id)
-            role = session.get(Role, value)
-            if (
-                user
-                and role
-                and (
-                    user.username != Token.current_user.username
-                    or role.role != Roles.admin.value
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query_role = cursor.execute(
+                "SELECT * FROM user_roles JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
+                (user_id),
+            )
+            role = query_role.fetchone()
+            query_user = cursor.execute(
+                "SELECT * FROM users WHERE id = ?", (user_id)
+            )
+            user = query_user.fetchone()
+
+            if role != "admin" and user['username'] != Token.current_user['username']:
+                cursor.execute(
+                    "DELETE FROM user_roles WHERE user_id = ? AND role_id = ?", 
+                    (user_id, value)
                 )
-            ):
-                user.roles.remove(role)
-                session.commit()
+                conn.commit()
                 return "", 201
         return "", 403
 
 
 bp.add_url_rule("/role/<value>/<int:user_id>", view_func=RoleView.as_view("role"))
 
-
-class MessageView(MethodView):
-    decorators = [jwt_required()]
-
-    def get(self):
-        """
-        Get the serialized representation of the messages.
-        """
-        with Session(engine) as session:
-            messages = session.execute(
-                select(Message)
-                .filter_by(user_id=Token.current_user.id)
-                .order_by(Message.created.desc())
-                .limit(100)
-            ).all()
-            result = [m.__dict__ for m in messages]
-            for r in result:
-                del r["_sa_instance_state"]
-            return jsonify(result)
-
-    def delete(self, item_id):
-        """
-        Deletes the current instance of the resource from the database.
-        """
-        with Session(engine) as session:
-            if not item_id:
-                messages = (
-                    session.execute(
-                        select(Message).filter_by(user_id=Token.current_user.id)
-                    )
-                    .scalars()
-                    .all()
-                )
-                if len(messages):
-                    for message in messages:
-                        session.delete(message)
-            else:
-                session.delete(session.get(Message, item_id))
-            session.commit()
-            return "", 204
-
-
-message_view = MessageView.as_view("messages")
-bp.add_url_rule("/messages", view_func=message_view, methods=["GET"])
-bp.add_url_rule("/messages/<int:item_id>", view_func=message_view, methods=["DELETE"])

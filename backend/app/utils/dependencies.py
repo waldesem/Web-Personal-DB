@@ -1,11 +1,9 @@
-from functools import wraps
+import sqlite3
 from base64 import b64decode, b64encode
-
-from flask import abort, request
-from sqlalchemy.orm import Session
+from functools import wraps
 
 from config import Config
-from ..models.model import engine, User
+from flask import abort, request
 
 
 class Token:
@@ -18,10 +16,14 @@ class Token:
         decoded = b64decode(token).decode()
         user_id, secret = decoded.split(":")
         if user_id and secret == Config.SECRET_KEY:
-            with Session(engine) as session:
+            with sqlite3.connect(Config.DATABASE_URI) as conn:
+                cursor = conn.cursor()
                 if user_id:
-                    user = session.get(User, user_id)
-                    if user and not user.deleted and not user.blocked:
+                    query = cursor.execute(
+                        "SELECT * FROM users WHERE id = ?", (user_id,)
+                    )
+                    user = query.fetchone()
+                    if user and not user["deleted"] and not user["blocked"]:
                         Token.current_user = user
                         return True
         return False
@@ -52,10 +54,17 @@ def roles_required(*roles):
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if Token.get_auth(header):
-                if any(r.role in roles for r in Token.current_user.roles):
-                    return func(*args, **kwargs)
-                else:
-                    abort(404)
+                with sqlite3.connect(Config.DATABASE_URI) as conn:
+                    cursor = conn.cursor()
+                    query = cursor.execute(
+                        "SELECT * FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
+                        (Token.current_user["id"],),
+                    )
+                    roles = [r["role"] for r in query.fetchall()]
+                    if any(r.role in roles for r in roles):
+                        return func(*args, **kwargs)
+                    else:
+                        abort(404)
             else:
                 abort(404)
 

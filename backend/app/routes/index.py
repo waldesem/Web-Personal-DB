@@ -1,228 +1,83 @@
-import json
 import os
+import sqlite3
 
-from flask import jsonify, request, send_file, abort
+from flask import jsonify, request, send_file
 from flask.views import MethodView
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
-from PIL import Image
 
 from . import bp
 from config import Config
 from ..utils.folders import Folders
-from ..utils.parsers import Anketa
 from ..utils.dependencies import Token, roles_required
 from ..models.classes import Roles, Statuses
-from ..models.model import (
-    engine,
-    Person,
-    Check,
-    Conclusion,
-    Role,
-    Status,
-    Region,
-    User,
-    Connect,
-)
 
 
 class IndexView(MethodView):
-
     @roles_required(Roles.user.value)
     def get(self, flag, page):
-        query = (
-            select(Person)
-            if Token.current_user.region_id == 1
-            else select(Person).filter_by(region_id=Token.current_user.region_id)
-        )
-        sort_attribute = getattr(Person, request.args.get("sort"))
-        if request.args.get("order") == "asc":
-            query = query.order_by(sort_attribute.asc())
-        else:
-            query = query.order_by(sort_attribute.desc())
-        if flag == "officer":
-            query = query.filter(
-                Person.status_id.notin_(
-                    [
-                        Status().get_id(Statuses.finish.value),
-                        Status().get_id(Statuses.cancel.value),
-                    ]
-                ),
-                Person.user_id == Token.current_user.id,
-            )
-        else:
-            search_data = request.args.get("search")
-            if search_data:
-                query = query.filter(Person.surname.contains("%{}%".format(search_data.upper())))
-        with Session(engine) as session:
-            pagination = query.offset((page - 1) * Config.PAGINATION).limit(
-                Config.PAGINATION + 1
-            )
-            result = session.execute(pagination).scalars().all()
-            result = [i.__dict__ for i in result]
-            for r in result:
-                del r["_sa_instance_state"]
+        search_data = request.args.get("search")
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            if flag == "search":
+                if Token.current_user["region_id"] != 1:
+                    query = cursor.execute(
+                        f"SELECT * FROM person WHERE region_id = ? AND surname LIKE ? "
+                        f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
+                        f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
+                        (Token.current_user["region_id"], f"%{search_data}%"),
+                    )
+                else:
+                    query = cursor.execute(
+                        f"SELECT * FROM person WHERE surname LIKE ? "
+                        f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
+                        f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
+                        (f"%{search_data}%",),
+                    )
+
+            elif flag == "officer":
+                query_finish = cursor.execute(
+                    "SELECT * FROM statuses WHERE status = ?", 
+                    (Statuses.finish.value,)
+                )
+                finish = query_finish.fetchone()
+                query_cancel = cursor.execute(
+                    "SELECT * FROM statuses WHERE status = ?", 
+                    (Statuses.cancel.value,)
+                )
+                cancel = query_cancel.fetchone()
+                query = cursor.execute(
+                    "SELECT * FROM person WHERE status_id NOT IN (?, ?) AND user_id = ?",
+                    (finish[0], cancel[0], Token.current_user["id"]),
+                )
+
+            result = query.fetchall()
             has_next = True if len(result) > Config.PAGINATION else False
-            return jsonify({
-                "persons": result if not has_next else result[:-1],
-                "has_next": has_next,
-                "has_prev": True if page > 1 else False
-            })
+            return jsonify(
+                {
+                    "persons": result if not has_next else result[:-1],
+                    "has_next": has_next,
+                    "has_prev": True if page > 1 else False,
+                }
+            )
 
 
 bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
 
 
 class InformationView(MethodView):
-
     @roles_required(Roles.user.value)
     def get(query_data):
         query_data = request.args
-        with Session(engine) as session:
-            candidates = session.execute(
-                select(Check.conclusion_id, func.count(Check.id))
-                .join(Person)
-                .group_by(Check.conclusion_id)
-                .filter(Person.region_id == query_data["region_id"])
-                .filter(Check.deadline.between(query_data["start"], query_data["end"]))
-            ).all()
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT checks.conclusion_id, count(checks.id) FROM checks join person on checks.person_id = person.id WHERE person.region_id = ? AND checks.deadline BETWEEN ? AND ? GROUP BY conclusion_id",
+                (query_data["region_id"], query_data["start"], query_data["end"]),
+            )
+            candidates = query.fetchall()
             return jsonify(dict(map(lambda x: (x[1], x[0]), candidates)))
 
 
 bp.add_url_rule("/information", view_func=InformationView.as_view("information"))
-
-
-class ConnnectView(MethodView):
-
-    decorators = [roles_required(Roles.user.value)]
-
-    def get(self, page):
-        """
-        Retrieves a paginated list of Connect objects based on the specified group and item.
-        """
-        with Session(engine) as session:
-            search_data = request.args.get("search")
-            query = select(Connect).order_by(Connect.id.desc())
-            if search_data:
-                query = query.filter(Connect.company.contains("%{}%".format(search_data)))
-            pagination = query.offset((page - 1) * Config.PAGINATION).limit(
-                Config.PAGINATION + 1
-            )
-            result = session.execute(pagination).scalars().all()
-            result = [i.__dict__ for i in result]
-            for r in result:
-                del r["_sa_instance_state"]
-            has_next = True if len(result) > Config.PAGINATION else False
-            return jsonify({
-                "contacts": result if not has_next else result[:-1],
-                "has_next": has_next,
-                "has_prev": True if page > 1 else False,
-                "names": [name for name in session.execute(select(Connect.name)).scalars().all()],
-                "companies": [
-                    company for company in session.execute(select(Connect.company)).scalars().all()
-                ],
-                "cities": [city for city in session.execute(select(Connect.city)).scalars().all()],
-            }), 200
-
-    def post(self):
-        """
-        Create a new connection.
-        """
-        json_data = request.get_json()
-        with Session(engine) as session:
-            session.add(Connect(**json_data))
-            session.commit()
-            return jsonify({"message": "Created"}), 201
-
-    def patch(self, item_id):
-        """
-        Patch an item in the Connect table.
-        """
-        json_data = request.get_json()
-        with Session(engine) as session:
-            resp = session.get(Connect, item_id)
-            for k, v in json_data.items():
-                if k != "data":
-                    setattr(resp, k, v)
-            session.commit()
-            return jsonify({"message": "Updated"}), 201
-
-    def delete(self, item_id):
-        """
-        Deletes an item from the database.
-        """
-        with Session(engine) as session:
-            resp = session.get(Connect, item_id)
-            session.delete(resp)
-            session.commit()
-            return jsonify({"message": "Deleted"}), 204
-
-
-contacts_view = ConnnectView.as_view("connect")
-bp.add_url_rule("/connect/<int:page>", view_func=contacts_view, methods=["GET"])
-bp.add_url_rule("/connect", view_func=contacts_view, methods=["POST"])
-bp.add_url_rule(
-    "/connect/<int:item_id>",
-    view_func=contacts_view,
-    methods=["PATCH", "DELETE"],
-)
-
-
-class FileView(MethodView):
-
-    decorators = [roles_required(Roles.user.value)]
-
-    def get(self, item_id):
-        """
-        Retrieves a file from the server and sends it as a response.
-        """
-        with Session(engine) as session:
-            person = session.get(Person, item_id)
-            if person.path:
-                file_path = os.path.join(
-                    Config.BASE_PATH, person.path, "image", "image.jpg"
-                )
-                if os.path.isfile(file_path):
-                    return send_file(file_path, as_attachment=True)
-            return abort(404)
-
-    def post(self, action, item_id=None):
-        file = request.files["file"]
-        if not file.filename:
-            return abort(400)
-
-        if action == "anketa":
-            json_dict = json.load(file)
-            anketa = Anketa(json_dict)
-            person_id = anketa.parse_anketa()
-            return jsonify({"message": person_id}), 201
-        
-        with Session(engine) as session:
-            person = session.get(Person, item_id)
-            folders = Folders(
-                person.id, person.surname, person.firstname, person.patronymic
-            )
-            if action == "image":
-                folder = folders.create_parent_folder("image")
-                im = Image.open(file)
-                rgb_im = im.convert("RGB")
-                image_path = os.path.join(folder, "image.jpg")
-                if os.path.isfile(image_path):
-                    os.remove(image_path)
-                rgb_im.save(image_path)
-                return "", 201
-
-            folder = folders.create_subfolder(action)
-            files = request.files.getlist("file")
-            for file in files:
-                if file.filename:
-                    if not os.path.isfile(os.path.join(folder, file.filename)):
-                        file.save(os.path.join(folder, file.filename))
-            return "", 201
-
-
-file_view = FileView.as_view("file")
-bp.add_url_rule("/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"])
 
 
 @roles_required(Roles.user.value)
@@ -231,32 +86,44 @@ def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.
     """
-    with Session(engine) as session:
-        person = session.get(Person, item_id)
-        folders = Folders(person.id, person.surname, person.firstname, person.patronymic)
+    with sqlite3.connect(Config.DATABASE_URI) as conn:
+        cursor = conn.cursor()
+        query = cursor.execute(
+            "SELECT * FROM person WHERE id = ?", (item_id,)
+        )
+        person = query.fetchone()
+        folders = Folders(
+            person['id'], person['surname'], person['firstname'], person['patronymic']
+        )
         file_path = os.path.join(folders.create_main_folder(), "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-        return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
+        return send_file(
+            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+        )
 
 
 @bp.get("/classes")
 def get_classes():
-    models = [Conclusion, Role, Status, Region, User]
-    with Session(engine) as session:
-        queries = [session.execute(select(model)).scalars().all() for model in models]
-        return jsonify([
-            dict(
-                (
-                    d.id,
-                    d.conclusion if hasattr(d, "conclusion") \
-                        else d.role if hasattr(d, "role") \
-                            else d.status if hasattr(d, "status") \
-                                else d.region if hasattr(d, "region") \
-                                    else d.fullname if hasattr(d, "fullname") \
-                                        else None,
-                )
-                for d in sublist
-            )
-            for sublist in queries  
-        ])
+    with sqlite3.connect(Config.DATABASE_URI) as conn:
+        cursor = conn.cursor()
+        users_query = cursor.execute("SELECT * FROM users")
+        users = users_query.fetchall()
+
+        conclusions_query = cursor.execute("SELECT * FROM conclusions")
+        conclusions = conclusions_query.fetchall()
+
+        statuses_query = cursor.execute("SELECT * FROM statuses")
+        statuses = statuses_query.fetchall()
+
+        regions_query = cursor.execute("SELECT * FROM regions")
+        regions = regions_query.fetchall()
+
+        return jsonify(
+            [
+                {user['id']: user['fullname'] for user in users},
+                {conclusion['id']: conclusion['conclusion'] for conclusion in conclusions},
+                {status['id']: status['status'] for status in statuses},
+                {region['id']: region['region'] for region in regions}, 
+            ]
+        )

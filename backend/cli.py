@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import secrets
 import sqlite3
@@ -46,14 +47,14 @@ def register_cli(app):
                     "INSERT INTO conclusions (conclusion) VALUES (?)",
                     [(conclusion.value,) for conclusion in Conclusions],
                 )
-                cursor.execute(
+                cursor.executemany(
                     "INSERT INTO regions (region) VALUES (?)",
                     [(region.value,) for region in Regions],
                 )
                 conn.commit()
 
                 user = cursor.execute(
-                    "INSERT INTO users (fullname, username, password, email, region_id) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT INTO users (fullname, username, password, email, pswd_create, pswd_change, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         "Администратор",
                         "superadmin",
@@ -63,6 +64,14 @@ def register_cli(app):
                             salt_length=16,
                         ),
                         "admin@example",
+                        datetime.now(),
+                        None,
+                        None,
+                        0,
+                        0,
+                        0,
+                        datetime.now(),
+                        None,
                         1,
                     ),
                 )
@@ -77,12 +86,13 @@ def register_cli(app):
                     "SELECT * FROM roles WHERE role = 'user'",
                 )
                 user = role_user.fetchone()
+
                 cursor.execute(
-                    "INSERT INTO users_roles (user_id, role_id) VALUES (?, ?)",
+                    "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
                     (user_id, admin[0]),
                 )
                 cursor.execute(
-                    "INSERT INTO users_roles (user_id, role_id) VALUES (?, ?)",
+                    "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
                     (user_id, user[0]),
                 )
                 conn.commit()
