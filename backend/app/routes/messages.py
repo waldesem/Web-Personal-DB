@@ -19,8 +19,8 @@ class MessageView(MethodView):
             query = cursor.execute(
                 "SELECT * FROM messages WHERE user_id = ? ORDER BY created DESC LIMIT 100"
             )
-            result = query.fetchall()
-            return jsonify(result)
+            col_names = [i[0] for i in query.description]
+            return jsonify(zip(col_names, query.fetchall()))
 
     def delete(self, item_id):
         """

@@ -20,23 +20,24 @@ class ConnnectView(MethodView):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             query = cursor.execute(
-                "SELECT * FROM Connect ORDER BY id DESC OFFSET ? LIMIT ?",
+                "SELECT * FROM connects ORDER BY id DESC OFFSET ? LIMIT ?",
                 (page - 1, Config.PAGINATION),
             )
             if search_data:
                 query = cursor.execute(
-                    "SELECT * FROM Connect WHERE company LIKE '%{}%' ORDER BY id DESC OFFSET ? LIMIT ?".format(
+                    "SELECT * FROM connects WHERE company LIKE '%{}%' ORDER BY id DESC OFFSET ? LIMIT ?".format(
                         search_data
                     ),
                     (page - 1, Config.PAGINATION),
                 )
-            result = query.fetchall()
+            col_names = [i[0] for i in query.description]
+            result = zip(col_names, query.fetchall())
             has_next = True if len(result) > Config.PAGINATION else False
-            names = cursor.execute("SELECT DISTINCT name FROM Connect ORDER BY name")
+            names = cursor.execute("SELECT DISTINCT name FROM connects ORDER BY name")
             companies = cursor.execute(
-                "SELECT DISTINCT company FROM Connect ORDER BY company"
+                "SELECT DISTINCT company FROM connects ORDER BY company"
             )
-            cities = cursor.execute("SELECT DISTINCT city FROM Connect ORDER BY city")
+            cities = cursor.execute("SELECT DISTINCT city fROM connects ORDER BY city")
             return jsonify(
                 {
                     "contacts": result if not has_next else result[:-1],
@@ -56,23 +57,23 @@ class ConnnectView(MethodView):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             cursor.execute(
-                f"INSERT INTO Connect ({','.join(json_data.keys())}, data) VALUES ({','.join(['?']*len(json_data))})",
-                (",".join(json_data.keys()), datetime.now()),
+                f"INSERT INTO connects ({','.join(json_data.keys())}, data) VALUES ({','.join(['?']*len(json_data))})",
+                (",".join(json_data.values()), datetime.now()),
             )
             conn.commit()
             return jsonify({"message": "Created"}), 201
 
     def patch(self, item_id):
         """
-        Patch an item in the Connect table.
+        Patch an item in the connects table.
         """
         json_data = request.get_json()
-        del json_data["data"]
+        json_data["data"] = datetime.now()
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             cursor.execute(
-                f"UPDATE Connect SET {','.join(json_data.keys())}, data WHERE id = {item_id}",
-                tuple(json_data.values()) + (datetime.now(),),
+                f"UPDATE connects SET {','.join(f"{key} = ?" for key in json_data.keys())} WHERE id = ?",
+                tuple(json_data.values()) + (item_id,),
             )
             conn.commit()
             return jsonify({"message": "Updated"}), 201
@@ -83,7 +84,8 @@ class ConnnectView(MethodView):
         """
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
-            cursor.execute(f"DELETE FROM Connect WHERE id = {item_id}")
+            cursor.execute(f"DELETE FROM connects WHERE id = {item_id}")
+            conn.commit()
             return jsonify({"message": "Deleted"}), 204
 
 

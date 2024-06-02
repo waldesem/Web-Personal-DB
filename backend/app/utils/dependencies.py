@@ -18,14 +18,14 @@ class Token:
         if user_id and secret == Config.SECRET_KEY:
             with sqlite3.connect(Config.DATABASE_URI) as conn:
                 cursor = conn.cursor()
-                if user_id:
-                    query = cursor.execute(
-                        "SELECT * FROM users WHERE id = ?", (user_id,)
-                    )
-                    user = query.fetchone()
-                    if user and not user["deleted"] and not user["blocked"]:
-                        Token.current_user = user
-                        return True
+                query = cursor.execute(
+                    "SELECT * FROM users WHERE id = ?", (user_id,)
+                )
+                col_names = [i[0] for i in query.description]
+                user = dict(zip(col_names, query.fetchone()))
+                if user and not user["deleted"] and not user["blocked"]:
+                    Token.current_user = user
+                    return True
         return False
 
 
@@ -57,11 +57,11 @@ def roles_required(*roles):
                 with sqlite3.connect(Config.DATABASE_URI) as conn:
                     cursor = conn.cursor()
                     query = cursor.execute(
-                        "SELECT * FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
+                        "SELECT roles.role FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
                         (Token.current_user["id"],),
                     )
-                    roles = [r["role"] for r in query.fetchall()]
-                    if any(r.role in roles for r in roles):
+                    result = [role[0] for role in query.fetchall()]
+                    if any(r in roles for r in result):
                         return func(*args, **kwargs)
                     else:
                         abort(404)

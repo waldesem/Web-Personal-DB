@@ -21,19 +21,21 @@ class AuthView(MethodView):
         """
         if (
             Token.current_user
-            and not Token.current_user['blocked']
-            and not Token.current_user['deleted']
+            and not Token.current_user["blocked"]
+            and not Token.current_user["deleted"]
         ):
             with sqlite3.connect(Config.DATABASE_URI) as conn:
                 cursor = conn.cursor()
-                Token.current_user['last_login'] = datetime.now()
-                user_dict = Token.current_user
+                cursor.execute(
+                    "UPDATE users SET last_login = ? WHERE id = ?",
+                    (datetime.now(), Token.current_user["id"]),
+                )
                 query = cursor.execute(
-                    "SELECT * FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
+                    "SELECT roles.role FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
                     (Token.current_user["id"],),
                 )
-                user_dict["roles"] = [r["role"] for r in query.fetchall()]
-                return jsonify(user_dict)
+                Token.current_user["roles"] = [role[0] for role in query.fetchall()]
+                return jsonify(Token.current_user)
         return abort(404)
 
 
@@ -43,42 +45,55 @@ bp.add_url_rule("/auth", view_func=AuthView.as_view("auth"))
 class LoginView(MethodView):
     """Login view"""
 
+    @staticmethod
+    def select_user(username):
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query = cursor.execute(
+                "SELECT * FROM users WHERE username = ?", (username,)
+            )
+            user = query.fetchone()
+            if not user:
+                return None
+            return dict(zip([desc[0] for desc in query.description], user))
+
     def post(self):
         """
         Post method for the given API endpoint.
         """
         json_data = request.get_json()
+        user = self.select_user(json_data["username"])
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
-            query = cursor.execute(
-                "SELECT * FROM users WHERE username = ?",
-                (json_data["username"],),
-            )
-            user = query.fetchone()
-            if user and not user['blocked'] and not user['deleted']:
-                if check_password_hash(user['password'], json_data["password"]):
-                    delta_change = datetime.now() - user['pswd_create']
-                    if user['pswd_change'] and delta_change.days < 365:
+            if user and not user["blocked"] and not user["deleted"]:
+                if check_password_hash(user["password"], json_data["password"]):
+                    delta_change = datetime.now() - datetime.fromisoformat(
+                        user["pswd_create"]
+                    )
+                    if user["pswd_change"] and delta_change.days < 365:
                         cursor.execute(
-                            "UPDATE users SET last_login = ? attempt = 0 WHERE id = ?",
-                            (datetime.now(), user['id']),
+                            "UPDATE users SET last_login = ?, attempt = ? WHERE id = ?",
+                            (datetime.now(), 0, user["id"]),
                         )
                         conn.commit()
-                        return jsonify({
-                            "message": "Authenticated",
-                            "user_token": create_token(str(user.id)),
-                        }), 201
+                        return jsonify(
+                            {
+                                "message": "Authenticated",
+                                "user_token": create_token(user["id"]),
+                            }
+                        ), 201
                     return jsonify({"message": "Overdue"}), 201
                 else:
-                    if user['attempt'] < 9:
+                    if user["attempt"] < 9:
                         cursor.execute(
                             "UPDATE users SET attempt = ? WHERE id = ?",
-                            (user['attempt'] + 1, user['id']),
+                            (user["attempt"] + 1, user["id"]),
                         )
+                        print(user["attempt"] + 1)
                     else:
                         cursor.execute(
                             "UPDATE users SET blocked = ? WHERE id = ?",
-                            (True, user['id']),
+                            (True, user["id"]),
                         )
                     conn.commit()
             return jsonify({"message": "Denied"}), 201
@@ -88,18 +103,15 @@ class LoginView(MethodView):
         Patch method for updating user password.
         """
         json_data = request.get_json()
-        with sqlite3.connect(Config.DATABASE_URI) as conn:
-            cursor = conn.cursor()
-            query = cursor.execute(
-                "SELECT * FROM users WHERE username = ?", (json_data["username"],)
-            )
-            user = query.fetchone()
-            if (
-                user
-                and not user['blocked']
-                and not user['deleted']
-                and check_password_hash(user['password'], json_data["password"])
-            ):
+        user = self.select_user(json_data["username"])
+        if (
+            user
+            and not user["blocked"]
+            and not user["deleted"]
+            and check_password_hash(user["password"], json_data["password"])
+        ):
+            with sqlite3.connect(Config.DATABASE_URI) as conn:
+                cursor = conn.cursor()
                 cursor.execute(
                     "UPDATE users SET password = ?, pswd_change = ? WHERE id = ?",
                     (
@@ -109,7 +121,7 @@ class LoginView(MethodView):
                             salt_length=16,
                         ),
                         datetime.now(),
-                        user['id'],
+                        user["id"],
                     ),
                 )
                 conn.commit()
