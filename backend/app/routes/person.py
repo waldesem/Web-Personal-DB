@@ -23,7 +23,6 @@ from ..models.model import (
     Affilation,
     Conclusion,
     Check,
-    Robot,
     Poligraf,
     Investigation,
     Inquiry,
@@ -54,7 +53,7 @@ class AnketaView(MethodView):
                 return {"message": action}, 201
         result = person.anketa.__dict__
         del result["_sa_instance_state"]
-        return jsonify({"message": person.anketa.__dict__})
+        return jsonify({"message": result})
 
     def delete(self, person_id):
         person = ResumeAction(person_id)
@@ -117,7 +116,6 @@ class ItemsView(MethodView):
         "relation": Relation,
         "affilation": Affilation,
         "check": Check,
-        "robot": Robot,
         "poligraf": Poligraf,
         "investigation": Investigation,
         "inquiry": Inquiry,
@@ -132,7 +130,7 @@ class ItemsView(MethodView):
         with Session(engine) as session:
             model = self.define_model(item)
             query = select(model).filter_by(person_id=item_id).order_by(model.id.desc())
-            results = session.execute(query).all()
+            results = session.execute(query).scalars().all()
             results = [r.__dict__ for r in results]
             for r in results:
                 del r["_sa_instance_state"]

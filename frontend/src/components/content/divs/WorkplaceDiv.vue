@@ -99,10 +99,10 @@ function submitForm(form: Object) {
           {{ item["now_work"] }}
         </LabelSlot>
         <LabelSlot :label="'Начало работы'">
-          {{ item["start_date"] }}
+          {{ new Date(item["start_date"]).toLocaleDateString("ru-RU") }}
         </LabelSlot>
         <LabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
-          {{ item["end_date"] }}
+          {{ new Date(item["end_date"]).toLocaleDateString("ru-RU") }}
         </LabelSlot>
         <LabelSlot :label="'Место работы'">
           {{ item["workplace"] }}

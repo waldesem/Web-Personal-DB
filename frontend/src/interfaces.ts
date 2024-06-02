@@ -113,21 +113,6 @@ export interface Verification {
   user_id: string;
 }
 
-export interface Robot {
-  id: string;
-  employee: string;
-  document: string;
-  inn: string;
-  debt: string;
-  bankruptcy: string;
-  bki: string;
-  courts: string;
-  affiliation: string;
-  terrorist: string;
-  mvd: string;
-  deadline: string;
-}
-
 export interface Pfo {
   id: string;
   theme: string;

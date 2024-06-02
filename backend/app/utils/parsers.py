@@ -182,20 +182,20 @@ class Anketa(Resume):
                 "firstname": json_dict["firstName"].strip().upper(),
                 "surname": json_dict["lastName"].strip().upper(),
                 "birthday": json_dict["birthday"],
-                "birthplace": json_dict["birthplace"].strip(),
-                "country": json_dict["citizen"].strip(),
+                "birthplace": json_dict["birthplace"],
+                "country": json_dict["citizen"],
             },
-            "previous": json_dict["nameWasChanged"],
-            "education": json_dict["education"],
-            "workplace": json_dict["experience"],
+            "previous": [],
+            "education": [],
+            "workplace": [],
             "address": [],
             "contact": [],
             "document": [],
             "affilation": [],
             "staff": [
                 {
-                    "position": json_dict.get("positionName").strip(),
-                    "department": json_dict.get("department").strip(),
+                    "position": json_dict.get("positionName"),
+                    "department": json_dict.get("department"),
                 }
             ],
         }
@@ -215,18 +215,18 @@ class Anketa(Resume):
                     json_data["resume"]["inn"] = json_dict["inn"].strip()
                 case "snils":
                     json_data["resume"]["snils"] = json_dict["snils"].strip()
-                case "ValidAddress":
+                case "validAddress":
                     json_data["address"].append(
                         {
                             "view": "Адрес проживания",
-                            "address": json_dict["ValidAddress"],
+                            "address": json_dict["validAddress"],
                         }
                     )
-                case "RegAddress":
+                case "regAddress":
                     json_data["address"].append(
                         {
                             "view": "Адрес регистрации",
-                            "address": json_dict["RegAddress"],
+                            "address": json_dict["regAddress"],
                         }
                     )
                 case "contactPhone":
@@ -247,15 +247,95 @@ class Anketa(Resume):
                             "agency": json_dict.get("passportIssuedBy"),
                         }
                     )
-                case "organization":
-                    json_data["affilation"] + json_dict["organization"]
-                case "relatedPersonsOrganizations":
-                    json_data["affilation"] + json_dict["relatedPersonsOrganizations"]
                 case "publicOfficeOrganizations":
-                    json_data["affilation"] + json_dict["publicOfficeOrganizations"]
-                case "stateOrganizations":
-                    json_data["affilation"] + json_dict["stateOrganizations"]
+                    if len(json_dict["publicOfficeOrganizations"]):
+                        for item in json_dict["publicOfficeOrganizations"]:
+                            public = {
+                                "view": "Являлся государственным или муниципальным служащим",
+                                "name": f"{item.get('name', '')}",
+                                "position": f"{item.get('position', '')}",
+                            }
+                            json_data["affilations"].append(public)
 
+                case "stateOrganizations":
+                    if len(json_dict["stateOrganizations"]):
+                        for item in json_dict["stateOrganizations"]:
+                            state = {
+                                "view": "Являлся государственным должностным лицом",
+                                "name": f"{item.get('name', '')}",
+                                "position": f"{item.get('position', '')}",
+                            }
+                            json_data["affilations"].append(state)
+
+                case "relatedPersonsOrganizations":
+                    if len(json_dict["relatedPersonsOrganizations"]):
+                        for item in json_dict["relatedPersonsOrganizations"]:
+                            related = {
+                                "view": "Связанные лица работают в госудраственных организациях",
+                                "name": f"{item.get('name', '')}",
+                                "position": f"{item.get('position', '')}",
+                                "inn": f"{item.get('inn'), ''}",
+                            }
+                            json_data["affilations"].append(related)
+
+                case "organizations":
+                    if len(json_dict["organizations"]):
+                        for item in json_dict["organizations"]:
+                            organization = {
+                                "view": 'Участвует в деятельности коммерческих организаций"',
+                                "name": f"{item.get('name', '')}",
+                                "position": f"{item.get('workCombinationTime', '')}",
+                                "inn": f"{item.get('inn'), ''}",
+                            }
+                            json_data["affilations"].append(organization)
+                case "previous":
+                    if len(json_dict["previous"]):
+                        for item in json_dict["previous"]:
+                            previous = dict(
+                                firstname = item.get(
+                                    "firstNameBeforeChange", ""
+                                ),
+                                surname = item.get("lastNameBeforeChange", ""),
+                                patronymic = item.get("midNameBeforeChange", ""),
+                                date_change = str(item.get("yearOfChange", "")),
+                                reason = str(item.get("reason", ""))
+                            )
+                            json_data["previous"].append(previous)
+                case "education":
+                    if len(json_dict["education"]):
+                        for item in json_dict["education"]:
+                            education = dict(
+                                view = item.get("educationType", ""),
+                                name = item.get("institutionName", ""),
+                                end = item.get("endYear", "н.в."),
+                                specialty = item.get("specialty", ""),
+                            )
+                            json_data["education"].append(education)
+                case "experience":
+                    if len(json_dict["experience"]):
+                        for exp in json_dict["experience"]:
+                            work = {}
+                            for key, value in exp.items():
+                                match key:
+                                    case "beginDate":
+                                        work["start_date"] = datetime.strptime(
+                                            value, "%Y-%m-%d"
+                                        ).date()
+                                    case "endDate":
+                                        work["end_date"] = datetime.strptime(
+                                            value, "%Y-%m-%d"
+                                        ).date()
+                                    case "currentJob":
+                                        work["now_work"] = bool(value)
+                                    case "name":
+                                        work["workplace"] = value
+                                    case "address":
+                                        work["address"] = value
+                                    case "position":
+                                        work["position"] = value
+                                    case "fireReason":
+                                        work["reason"] = value
+                        json_data["workplace"].append(work)
         return json_data
 
     @staticmethod

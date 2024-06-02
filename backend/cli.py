@@ -1,19 +1,9 @@
 import os
 import secrets
+import sqlite3
 
 from app.models.classes import Conclusions, Regions, Roles, Statuses
-from app.models.model import (
-    Base,
-    Conclusion,
-    Region,
-    Role,
-    Status,
-    User,
-    engine,
-)
 from config import Config
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
 
 
@@ -39,41 +29,62 @@ def register_cli(app):
                 os.mkdir(letter_path)
         print("Alphabet directories created")
 
-        with Session(engine) as session:
-            Base.metadata.create_all(engine)
-            for item in [
-                [Region(region=reg.value) for reg in Regions],
-                [Status(status=item.value) for item in Statuses],
-                [Conclusion(conclusion=item.value) for item in Conclusions],
-                [Role(role=actor.value) for actor in Roles],
-            ]:
-                session.add_all(item)
-            session.flush()
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            with open(Config.DATABASE_SQL, "r", encoding="utf-8") as file:
+                sql = file.read()
+                cursor.executescript(sql)
+                cursor.executemany(
+                    "INSERT INTO roles (role) VALUES (?)", 
+                    [(role.value,) for role in Roles]
+                )
+                cursor.executemany(
+                    "INSERT INTO statuses (status) VALUES (?)",
+                    [(status.value,) for status in Statuses],
+                )
+                cursor.executemany(
+                    "INSERT INTO conclusions (conclusion) VALUES (?)",
+                    [(conclusion.value,) for conclusion in Conclusions],
+                )
+                cursor.execute(
+                    "INSERT INTO regions (region) VALUES (?)",
+                    [(region.value,) for region in Regions],
+                )
+                conn.commit()
 
-            superadmin = User(
-                fullname="Администратор",
-                username="superadmin",
-                password=generate_password_hash(
-                    Config.DEFAULT_PASSWORD,
-                    method="scrypt",
-                    salt_length=16,
-                ),
-                email="admin@example.com",
-                region_id=session.execute(
-                    select(Region.id).filter_by(region=Regions.MAIN_OFFICE.value)
-                ).scalar_one_or_none(),
-            )
-            session.add(superadmin)
-            superadmin.roles.append(
-                session.execute(
-                    select(Role).filter_by(role=(Roles.admin.value))
-                ).scalar_one_or_none()
-            )
-            superadmin.roles.append(
-                session.execute(
-                    select(Role).filter_by(role=(Roles.user.value))
-                ).scalar_one_or_none()
-            )
-            session.commit()
+                user = cursor.execute(
+                    "INSERT INTO users (fullname, username, password, email, region_id) VALUES (?, ?, ?, ?, ?)",
+                    (
+                        "Администратор",
+                        "superadmin",
+                        generate_password_hash(
+                            Config.DEFAULT_PASSWORD,
+                            method="scrypt",
+                            salt_length=16,
+                        ),
+                        "admin@example",
+                        1,
+                    ),
+                )
+                user_id = user.lastrowid
+                conn.commit()
 
-            print("Models created and filled")
+                role_admin = cursor.execute(
+                    "SELECT * FROM roles WHERE role = 'admin'",
+                )
+                admin = role_admin.fetchone()
+                role_user = cursor.execute(
+                    "SELECT * FROM roles WHERE role = 'user'",
+                )
+                user = role_user.fetchone()
+                cursor.execute(
+                    "INSERT INTO users_roles (user_id, role_id) VALUES (?, ?)",
+                    (user_id, admin[0]),
+                )
+                cursor.execute(
+                    "INSERT INTO users_roles (user_id, role_id) VALUES (?, ?)",
+                    (user_id, user[0]),
+                )
+                conn.commit()
+
+        print("Tables created and filled")

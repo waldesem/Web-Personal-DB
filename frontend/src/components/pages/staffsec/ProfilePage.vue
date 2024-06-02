@@ -18,9 +18,6 @@ const AnketaTab = defineAsyncComponent(
 const CheckTab = defineAsyncComponent(
   () => import("@components/content/tabs/CheckTab.vue")
 );
-const RobotTab = defineAsyncComponent(
-  () => import("@components/content/tabs/RobotTab.vue")
-);
 const PoligrafTab = defineAsyncComponent(
   () => import("@components/content/tabs/PoligrafTab.vue")
 );
@@ -29,9 +26,6 @@ const InvestigateTab = defineAsyncComponent(
 );
 const InquiryTab = defineAsyncComponent(
   () => import("@components/content/tabs/InquiryTab.vue")
-);
-const OneSTab = defineAsyncComponent(
-  () => import("@components/content/tabs/OneSTab.vue")
 );
 
 onBeforeMount(async () => {
@@ -43,11 +37,9 @@ const tabsData = ref({
   tabs: [
     ["AnketaTab", "Анкета", AnketaTab,],
     ["CheckTab", "Проверки", CheckTab],
-    ["RobotTab", "Робот", RobotTab],
     ["PoligrafTab", "Полиграф", PoligrafTab],
     ["InvestigateTab", "Расследования", InvestigateTab],
     ["InquiryTab", "Запросы", InquiryTab],
-    ["OneSTab", "1С", OneSTab],
   ],
   currentTab: "AnketaTab",
   tabAction: "",

@@ -17,6 +17,7 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship
+# from sqlalchemy.schema import CreateTable
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
@@ -192,9 +193,6 @@ class Person(Base):
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
     checks: Mapped[List["Check"]] = relationship(
-        back_populates="persons", cascade="all, delete, delete-orphan"
-    )
-    robots: Mapped[List["Robot"]] = relationship(
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
     inquiries: Mapped[List["Inquiry"]] = relationship(
@@ -393,26 +391,6 @@ class Check(Base):
     users: Mapped["User"] = relationship(back_populates="checks")
 
 
-class Robot(Base):
-
-    __tablename__ = "robots"
-
-    id: Mapped[int] = mapped_column(
-        nullable=False, unique=True, primary_key=True, autoincrement=True
-    )
-    employee: Mapped[str] = mapped_column(Text, nullable=True)
-    inn: Mapped[str] = mapped_column(Text, nullable=True)
-    debt: Mapped[str] = mapped_column(Text, nullable=True)
-    bankruptcy: Mapped[str] = mapped_column(Text, nullable=True)
-    bki: Mapped[str] = mapped_column(Text, nullable=True)
-    courts: Mapped[str] = mapped_column(Text, nullable=True)
-    terrorist: Mapped[str] = mapped_column(Text, nullable=True)
-    mvd: Mapped[str] = mapped_column(Text, nullable=True)
-    deadline: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
-    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
-    persons: Mapped[List["Person"]] = relationship(back_populates="robots")
-
-
 class Conclusion(Base):
 
     __tablename__ = "conclusions"
@@ -505,3 +483,9 @@ class Connect(Base):
     data: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
+
+# tables = [CreateTable(table) for table in Base.metadata.tables.values()]
+# sql_query = ";\n".join([str(table) for table in tables])
+
+# with open("database.sql", "w", encoding="utf-8") as file:
+#     file.write(sql_query)
