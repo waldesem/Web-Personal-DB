@@ -63,9 +63,6 @@ class AnketaView(MethodView):
 
     def patch(self, person_id):
         json_data = request.get_json()
-        json_data["birthday"] = datetime.strptime(
-            json_data["birthday"], "%Y-%m-%d"
-        ).date()
         resume = Resume(json_data)
         with Session(engine) as session:
             resume.update_resume(session.get(Person, person_id))
@@ -73,9 +70,6 @@ class AnketaView(MethodView):
 
     def post(self):
         json_data = request.get_json()
-        json_data["birthday"] = datetime.strptime(
-            json_data["birthday"], "%Y-%m-%d"
-        ).date()
         resume = Resume(json_data)
         person_id = resume.check_resume()
         return jsonify({"message": person_id}), 201

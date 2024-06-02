@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 from sqlalchemy import select
@@ -28,6 +29,8 @@ class Resume:
         for k, v in resume.items():
             if k in ["surname", "firstname", "patronymic"]:
                 resume[k] = v.strip().upper()
+            elif k == "birthday":
+                resume[k] = datetime.strptime(v, "%Y-%m-%d").date()
         self.resume: dict = resume
 
     @staticmethod
@@ -117,7 +120,7 @@ class Anketa(Resume):
                 (
                     item.get("patronymic")
                     if item.get("patronymic")
-                    else self.resume.get("patronymic")
+                    else self.resume.get("patronymic", "")
                 ),
                 self.resume["birthday"],
             )
@@ -240,7 +243,7 @@ class Anketa(Resume):
                             "view": "Паспорт",
                             "number": json_dict["passportNumber"].strip(),
                             "series": json_dict.get("passportSerial").strip(),
-                            "issue": json_dict.get("passportIssueDate"),
+                            "issue": datetime.strptime(json_dict.get("passportIssueDate"), "%Y-%m-%d").date(),
                             "agency": json_dict.get("passportIssuedBy"),
                         }
                     )
