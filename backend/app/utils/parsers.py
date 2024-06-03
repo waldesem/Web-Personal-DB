@@ -25,7 +25,8 @@ class Resume:
                 "SELECT * FROM person WHERE surname = ? AND firstname = ? AND patronymic = ? AND birthday = ?",
                 (surname, firstname, patronymic, birthday),
             )
-            return query.fetchone()
+            col_names = [i[0] for i in query.description]
+            return zip(col_names, query.fetchone())
 
     def change_status(self, status, user_id=None):
         with sqlite3.connect(Config.DATABASE_URI) as conn:

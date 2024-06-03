@@ -35,21 +35,22 @@ class IndexView(MethodView):
 
             elif flag == "officer":
                 query_finish = cursor.execute(
-                    "SELECT * FROM statuses WHERE status = ?", 
+                    "SELECT id FROM statuses WHERE status = ?", 
                     (Statuses.finish.value,)
                 )
-                finish = query_finish.fetchone()
+                finish = query_finish.fetchone()[0]
                 query_cancel = cursor.execute(
-                    "SELECT * FROM statuses WHERE status = ?", 
+                    "SELECT id FROM statuses WHERE status = ?", 
                     (Statuses.cancel.value,)
                 )
-                cancel = query_cancel.fetchone()
+                cancel = query_cancel.fetchone()[0]
                 query = cursor.execute(
                     "SELECT * FROM person WHERE status_id NOT IN (?, ?) AND user_id = ?",
-                    (finish[0], cancel[0], Token.current_user["id"]),
+                    (finish, cancel, Token.current_user["id"]),
                 )
 
-            result = query.fetchall()
+            col_names = [i[0] for i in query.description]
+            result = [zip(col_names, q) for q in query.fetchall()]
             has_next = True if len(result) > Config.PAGINATION else False
             return jsonify(
                 {
@@ -73,8 +74,9 @@ class InformationView(MethodView):
                 "SELECT checks.conclusion_id, count(checks.id) FROM checks join person on checks.person_id = person.id WHERE person.region_id = ? AND checks.deadline BETWEEN ? AND ? GROUP BY conclusion_id",
                 (query_data["region_id"], query_data["start"], query_data["end"]),
             )
-            candidates = query.fetchall()
-            return jsonify(dict(map(lambda x: (x[1], x[0]), candidates)))
+            col_names = [i[0] for i in query.description]
+            result = [zip(col_names, q) for q in query.fetchall()]
+            return jsonify(dict(map(lambda x: (x[1], x[0]), result)))
 
 
 bp.add_url_rule("/information", view_func=InformationView.as_view("information"))
@@ -91,7 +93,8 @@ def get_image(item_id):
         query = cursor.execute(
             "SELECT * FROM person WHERE id = ?", (item_id,)
         )
-        person = query.fetchone()
+        col_names = [i[0] for i in query.description]
+        person = [zip(col_names, q) for q in query.fetchall()]
         folders = Folders(
             person['id'], person['surname'], person['firstname'], person['patronymic']
         )
@@ -111,13 +114,16 @@ def get_classes():
         users = users_query.fetchall()
 
         conclusions_query = cursor.execute("SELECT * FROM conclusions")
-        conclusions = conclusions_query.fetchall()
+        col_names = [i[0] for i in conclusions_query.description]
+        conclusions = [zip(col_names, q) for q in conclusions_query.fetchall()]
 
         statuses_query = cursor.execute("SELECT * FROM statuses")
-        statuses = statuses_query.fetchall()
+        col_names = [i[0] for i in statuses_query.description]
+        statuses = [zip(col_names, q) for q in statuses_query.fetchall()]
 
         regions_query = cursor.execute("SELECT * FROM regions")
-        regions = regions_query.fetchall()
+        col_names = [i[0] for i in regions_query.description]
+        regions = [zip(col_names, q) for q in regions_query.fetchall()]
 
         return jsonify(
             [

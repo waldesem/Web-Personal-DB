@@ -70,7 +70,10 @@ class ResumeAction:
     def __init__(self, person_id):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
-            query = cursor.execute("SELECT * FROM persons WHERE id = ?", (person_id,))
+            query = cursor.execute(
+                "SELECT * FROM persons WHERE id = ?", 
+                (person_id,)
+            )
             self.anketa = query.fetchone()
 
     def change_status(self, status, user_id=None):
@@ -85,12 +88,25 @@ class ResumeAction:
     def del_person(self):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM persons WHERE id = ?", (self.anketa["id"],))
+            cursor.execute(
+                "DELETE FROM persons WHERE id = ?", 
+                (self.anketa["id"],)
+            )
             conn.commit()
 
 
 class ItemsView(MethodView):
     decorators = [roles_required(Roles.user.value)]
+
+    @staticmethod
+    def select_status_id(status):
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
+            query_status = cursor.execute(
+                "SELECT id FROM statuses WHERE status = ?",
+                (status,),
+            )
+            return query_status.fetchone()[0]
 
     def get(self, item, item_id):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
@@ -99,7 +115,8 @@ class ItemsView(MethodView):
                 "SELECT * FROM {} WHERE person_id = ? ORDER BY id DESC".format(item),
                 (item_id,),
             )
-            results = query.fetchall()
+            col_names = [i[0] for i in query.description]
+            results = [zip(col_names, q) for q in query.fetchall()]
             if not results:
                 abort(404)
             return jsonify(results)
@@ -142,7 +159,8 @@ class ItemsView(MethodView):
                         person["birthday"],
                     ),
                 )
-                prev = query_prev.fetchone()
+                col_names = [i[0] for i in query_prev.description]
+                prev = zip(col_names, query_prev.fetchone())
                 if prev:
                     cursor.execute(
                         "INSERT INTO messages (message, user_id) VALUES (?, ?)",
@@ -163,57 +181,37 @@ class ItemsView(MethodView):
                 json_data = json_data | {"user_id": Token.current_user.id}
                 if item == "check":
                     query_conclusion = cursor.execute(
-                        "SELECT * FROM conclusions WHERE conclusion = ?",
+                        "SELECT id FROM conclusions WHERE conclusion = ?",
                         (Conclusions.saved.value,),
                     )
-                    conclusion = query_conclusion.fetchone()
-                    query_status = cursor.execute(
-                        "SELECT * FROM statuses WHERE status = ?",
-                        (Statuses.save.value,),
-                    )
-                    status = query_status.fetchone()
-                    if json_data["conclusion_id"] == conclusion["id"]:
+                    conclusion_id = query_conclusion.fetchone()[0]
+                    save_id = self.select_status_id(Statuses.save.value)
+                    if json_data["conclusion_id"] == conclusion_id:
                         cursor.execute(
                             "UPDATE persons SET status_id = ? WHERE id = ?",
-                            (status["id"], item_id),
+                            (save_id, item_id),
                         )
                     else:
                         if json_data.get("pfo"):
-                            pfo_status = cursor.execute(
-                                "SELECT * FROM statuses WHERE status = ?",
-                                (Statuses.poligraf.value,),
-                            )
-                            pfo = pfo_status.fetchone()
+                            pfo_id = self.select_status_id(Statuses.poligraf.value)
                             cursor.execute(
                                 "UPDATE persons SET status_id = ? user_id = ? WHERE id = ?",
-                                (pfo["id"], None, item_id),
+                                (pfo_id, None, item_id),
                             )
                         else:
-                            finish_status = cursor.execute(
-                                "SELECT * FROM statuses WHERE status = ?",
-                                (Statuses.finish.value,),
-                            )
-                            finish = finish_status.fetchone()
+                            finish_id = self.select_status_id(Statuses.finish.value)
                             cursor.execute(
                                 "UPDATE persons SET status_id = ? user_id = ? WHERE id = ?",
-                                (finish["id"], None, item_id),
+                                (finish_id, None, item_id),
                             )
 
                 if item == "poligraf":
-                    pfo_status = cursor.execute(
-                        "SELECT * FROM statuses WHERE status = ?",
-                        (Statuses.poligraf.value,),
-                    )
-                    pfo = pfo_status.fetchone()
-                    finish_status = cursor.execute(
-                        "SELECT * FROM statuses WHERE status = ?",
-                        (Statuses.finish.value,),
-                    )
-                    finish = finish_status.fetchone()
-                    if person["status_id"] == pfo["id"]:
+                    pfo_id = self.select_status_id(Statuses.poligraf.value)
+                    finish_id = self.select_status_id(Statuses.finish.value)
+                    if person["status_id"] == pfo_id:
                         cursor.execute(
                             "UPDATE persons SET status_id = ? WHERE id = ?",
-                            (finish["id"], item_id),
+                            (finish_id, item_id),
                         )
 
             cursor.execute(
@@ -241,8 +239,8 @@ class ItemsView(MethodView):
                     elif k in ["now_work", "pfo"]:
                         json_data[k] = bool(v) if v else False
             cursor.execute(
-                f"UPDATE {item} SET {json_data} WHERE person_id = ?",
-                (item_id,),
+                f"UPDATE {item} SET {','.join(f"{key} = ?" for key in json_data.keys())} WHERE person_id = ?",
+                tuple(json_data.values()) + (item_id,),
             )
             conn.commit()
             return "", 201

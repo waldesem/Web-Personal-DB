@@ -31,7 +31,7 @@ class ConnnectView(MethodView):
                     (page - 1, Config.PAGINATION),
                 )
             col_names = [i[0] for i in query.description]
-            result = zip(col_names, query.fetchall())
+            result = [zip(col_names, q) for q in query.fetchall()]
             has_next = True if len(result) > Config.PAGINATION else False
             names = cursor.execute("SELECT DISTINCT name FROM connects ORDER BY name")
             companies = cursor.execute(

@@ -28,26 +28,33 @@ def get_users():
                     search_data
                 )
             )
-        query = query.fetchall()
-        return jsonify(query)
+        col_names = [i[0] for i in query.description]
+        return jsonify([zip(col_names, q) for q in query.fetchall()])
 
 
 class UserView(MethodView):
     decorators = [roles_required(Roles.admin.value)]
 
-    def get(self, user_id):
-        """
-        Retrieves a user based on the specified action and user ID.
-        """
-        action_data = request.args.get("action")
+    @staticmethod
+    def select_user_by_id(user_id):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             query = cursor.execute(
                 "SELECT * FROM users WHERE id = ?", (user_id,)
             )
-            user = query.fetchone()
-            if not user:
-                return abort(404)
+            col_names = [i[0] for i in query.description]
+            return zip(col_names, query.fetchone())
+        
+    def get(self, user_id):
+        """
+        Retrieves a user based on the specified action and user ID.
+        """
+        action_data = request.args.get("action")
+        user = self.select_user_by_id(user_id)
+        if not user:
+            return abort(404)
+        with sqlite3.connect(Config.DATABASE_URI) as conn:
+            cursor = conn.cursor()
             if action_data != "view":
                 match action_data:
                     case "block":
@@ -78,8 +85,7 @@ class UserView(MethodView):
                     case _:
                         return abort, 404
                 conn.commit()
-            result = cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-            return jsonify(result.fetchone())
+            return jsonify(self.select_user_by_id(user_id))
 
     def post(self):
         """
@@ -128,15 +134,16 @@ class UserView(MethodView):
             json_data["pswd_change"], 
             json_data["last_login"],
             json_data["created"],
-            json_data["updated"],
             json_data["blocked"],
             json_data["deleted"],
             json_data["attempt"],
             )
+        json_data["updated"] = datetime.now()
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             cursor.execute(
-                f"UPDATE users SET {json_data} WHERE id = ?", (user_id,)
+                f"UPDATE users SET SET {','.join(f"{key} = ?" for key in json_data.keys())} WHERE id = ?", 
+                tuple(json_data.values()) + (user_id,)
             )
             conn.commit()
             return {"message": "Changed"}, 201
@@ -176,15 +183,15 @@ class RoleView(MethodView):
                 "SELECT * FROM user_roles JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
                 (user_id),
             )
-            roles = query.fetchone()
-            if value not in roles:
+            roles = query.fetchall()
+            if value not in [r[0] for r in roles]:
                 cursor.execute(
                     "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
                     (user_id, value),
                 )
                 conn.commit()
                 return "", 201
-        return "", 403
+            return "", 403
 
     def delete(self, value, user_id):
         """
@@ -193,22 +200,22 @@ class RoleView(MethodView):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             query_role = cursor.execute(
-                "SELECT * FROM user_roles JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
+                "SELECT * FROM user_roles JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ? AND roles.role = 'admin'",
                 (user_id),
             )
             role = query_role.fetchone()
             query_user = cursor.execute(
-                "SELECT * FROM users WHERE id = ?", (user_id)
+                "SELECT username FROM users WHERE id = ?", (user_id)
             )
-            user = query_user.fetchone()
+            username = query_user.fetchone()[0]
 
-            if role != "admin" and user['username'] != Token.current_user['username']:
+            if role and username != Token.current_user['username']:
                 cursor.execute(
                     "DELETE FROM user_roles WHERE user_id = ? AND role_id = ?", 
                     (user_id, value)
                 )
                 conn.commit()
-                return "", 201
+                return "", 204
         return "", 403
 
 
