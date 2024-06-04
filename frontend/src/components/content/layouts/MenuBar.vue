@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateUser } from "@/state";
+import { stateUser, stateClassify } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -40,8 +40,8 @@ async function userLogout(): Promise<void> {
               class="btn btn-link dropdown-toggle"
               role="button"
               data-bs-toggle="dropdown"
+              :title="stateClassify.users[stateUser.userId]"
             >
-              {{ stateUser.userName }}
               <i class="bi bi-person-circle fs-3"></i>
             </button>
             <ul class="dropdown-menu">

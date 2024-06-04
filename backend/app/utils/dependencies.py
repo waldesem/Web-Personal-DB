@@ -6,6 +6,15 @@ from config import Config
 from flask import abort, request
 
 
+def select_roles(user_id):
+    with sqlite3.connect(Config.DATABASE_URI) as conn:
+        cursor = conn.cursor()
+        query = cursor.execute(
+            "SELECT roles.role FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
+            (user_id),
+        )
+        return [role[0] for role in query.fetchall()]
+
 class Token:
     current_user = None
 
@@ -14,8 +23,8 @@ class Token:
         Token.current_user = None
         token = token.replace("Basic ", "")
         decoded = b64decode(token).decode()
-        user_id, secret = decoded.split(":")
-        if user_id and secret == Config.SECRET_KEY:
+        secret, user_id, _ = decoded.split(":")
+        if  secret and user_id == Config.SECRET_KEY:
             with sqlite3.connect(Config.DATABASE_URI) as conn:
                 cursor = conn.cursor()
                 query = cursor.execute(
@@ -23,14 +32,15 @@ class Token:
                 )
                 col_names = [i[0] for i in query.description]
                 user = dict(zip(col_names, query.fetchone()))
+                user["roles"] = select_roles(user_id)
                 if user and not user["deleted"] and not user["blocked"]:
                     Token.current_user = user
                     return True
         return False
 
 
-def create_token(cridentials):
-    return b64encode(f"{cridentials}:{Config.SECRET_KEY}".encode()).decode()
+def create_token(user_id, roles):
+    return b64encode(f"{Config.SECRET_KEY}:{user_id}:{roles}".encode()).decode()
 
 
 def jwt_required():
@@ -54,17 +64,10 @@ def roles_required(*roles):
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if Token.get_auth(header):
-                with sqlite3.connect(Config.DATABASE_URI) as conn:
-                    cursor = conn.cursor()
-                    query = cursor.execute(
-                        "SELECT roles.role FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
-                        (Token.current_user["id"],),
-                    )
-                    result = [role[0] for role in query.fetchall()]
-                    if any(r in roles for r in result):
-                        return func(*args, **kwargs)
-                    else:
-                        abort(404)
+                if any(r in roles for r in Token.current_user["roles"]):
+                    return func(*args, **kwargs)
+                else:
+                    abort(404)
             else:
                 abort(404)
 

@@ -1,4 +1,4 @@
-import { reactive } from "vue";
+import { reactive, watch } from "vue";
 import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import { server } from "@/utilities";
@@ -22,11 +22,15 @@ import {
 
 export const stateUser = reactive({
   userId: "",
-  fullName: "",
-  userName: "",
-  userRoles: [],
   hasAdmin: false,
+  userToken: localStorage.getItem("user_token") as any,
 });
+
+watch(stateUser.userToken, (token: string) => {
+  const payload = window.atob(token).split(":")
+  stateUser.userId = payload[1];
+  stateUser.hasAdmin = payload[2].includes("admin");
+})
 
 export const stateClassify = reactive({
   status: <Record<string, any>>{},

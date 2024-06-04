@@ -85,13 +85,6 @@ const tabsData = ref({
         "
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
       />
-      <IconRelative
-        v-show="tabsData.currentTab == 'RobotTab'"
-        :title="`Отправить на проверку`"
-        :icon-class="'bi bi-send-plus fs-1'"
-        :hide=true
-        @onclick="stateAnketa.getResume('send')"
-      />
       <IconRelative 
         v-show="tabsData.currentTab == 'PoligrafTab'"
         :title="`Добавить полиграф`"

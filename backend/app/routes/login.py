@@ -1,45 +1,13 @@
 import sqlite3
 from datetime import datetime
 
-from flask import abort, jsonify, request
+from flask import jsonify, request
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from config import Config
 from . import bp
-from ..utils.dependencies import Token, create_token, jwt_required
-
-
-class AuthView(MethodView):
-    """Login view"""
-
-    decorators = [jwt_required()]
-
-    def get(self):
-        """
-        Retrieves the current authenticated user from the database.
-        """
-        if (
-            Token.current_user
-            and not Token.current_user["blocked"]
-            and not Token.current_user["deleted"]
-        ):
-            with sqlite3.connect(Config.DATABASE_URI) as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "UPDATE users SET last_login = ? WHERE id = ?",
-                    (datetime.now(), Token.current_user["id"]),
-                )
-                query = cursor.execute(
-                    "SELECT roles.role FROM user_roles LEFT JOIN roles ON user_roles.role_id = roles.id WHERE user_id = ?",
-                    (Token.current_user["id"],),
-                )
-                Token.current_user["roles"] = [role[0] for role in query.fetchall()]
-                return jsonify(Token.current_user)
-        return abort(404)
-
-
-bp.add_url_rule("/auth", view_func=AuthView.as_view("auth"))
+from ..utils.dependencies import create_token, select_roles
 
 
 class LoginView(MethodView):
@@ -79,7 +47,9 @@ class LoginView(MethodView):
                         return jsonify(
                             {
                                 "message": "Authenticated",
-                                "user_token": create_token(user["id"]),
+                                "user_token": create_token(
+                                    user["id"], select_roles(user["id"])
+                                ),
                             }
                         ), 201
                     return jsonify({"message": "Overdue"}), 201

@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import { onMounted } from "vue";
-import { axiosAuth } from "@/auth";
-import { server } from "@/utilities";
-import { stateUser, stateAlert, stateMessage } from "@/state";
+import { stateMessage } from "@/state";
 
 const NavBar = defineAsyncComponent(
   () => import("@components/content/layouts/NavBar.vue")
@@ -13,17 +11,7 @@ const MenuBar = defineAsyncComponent(
 );
 
 onMounted(async () => {
-  try {
-    const response = await axiosAuth.get(`${server}/auth`);
-    const { id, fullname, username, roles } = response.data;
-    stateUser.userId = id;
-    stateUser.fullName = fullname;
-    stateUser.userName = username;
-    stateUser.hasAdmin = roles.includes("admin");
-    await stateMessage.updateMessages();
-  } catch (error) {
-    stateAlert.setAlert("alert-warning", error as string);
-  }
+  await stateMessage.updateMessages();
 });
 </script>
 
