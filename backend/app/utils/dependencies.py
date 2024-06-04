@@ -32,7 +32,6 @@ class Token:
                 )
                 col_names = [i[0] for i in query.description]
                 user = dict(zip(col_names, query.fetchone()))
-                user["roles"] = select_roles(user_id)
                 if user and not user["deleted"] and not user["blocked"]:
                     Token.current_user = user
                     return True
@@ -64,7 +63,8 @@ def roles_required(*roles):
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if Token.get_auth(header):
-                if any(r in roles for r in Token.current_user["roles"]):
+                cur_roles = select_roles(Token.current_user["id"])
+                if any(r in roles for r in cur_roles):
                     return func(*args, **kwargs)
                 else:
                     abort(404)

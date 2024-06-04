@@ -239,7 +239,7 @@ class ItemsView(MethodView):
                     elif k in ["now_work", "pfo"]:
                         json_data[k] = bool(v) if v else False
             cursor.execute(
-                f"UPDATE {item} SET {','.join(f"{key} = ?" for key in json_data.keys())} WHERE person_id = ?",
+                f"UPDATE {item} SET {','.join(key + '=?' for key in json_data.keys())} WHERE person_id = ?",
                 tuple(json_data.values()) + (item_id,),
             )
             conn.commit()

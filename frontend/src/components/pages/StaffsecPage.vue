@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, watch } from "vue";
 import { onMounted } from "vue";
-import { stateMessage } from "@/state";
+import { stateMessage, stateUser } from "@/state";
 
 const NavBar = defineAsyncComponent(
   () => import("@components/content/layouts/NavBar.vue")
@@ -13,6 +13,12 @@ const MenuBar = defineAsyncComponent(
 onMounted(async () => {
   await stateMessage.updateMessages();
 });
+
+watch(stateUser.userToken, (token: string) => {
+  const payload = window.atob(token).split(":")
+  stateUser.userId = payload[1];
+  stateUser.hasAdmin = payload[2].includes("admin");
+})
 </script>
 
 <template>

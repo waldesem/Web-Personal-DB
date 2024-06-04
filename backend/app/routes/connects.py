@@ -72,7 +72,7 @@ class ConnnectView(MethodView):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             cursor.execute(
-                f"UPDATE connects SET {','.join(f"{key} = ?" for key in json_data.keys())} WHERE id = ?",
+                f"UPDATE connects SET {','.join(key + '=?' for key in json_data.keys())} WHERE id = ?",
                 tuple(json_data.values()) + (item_id,),
             )
             conn.commit()

@@ -8,6 +8,7 @@ from . import bp
 from config import Config
 from ..utils.folders import Folders
 from ..utils.dependencies import Token, roles_required
+from ..utils.queries import select_from_table
 from ..models.classes import Roles, Statuses
 
 
@@ -35,13 +36,11 @@ class IndexView(MethodView):
 
             elif flag == "officer":
                 query_finish = cursor.execute(
-                    "SELECT id FROM statuses WHERE status = ?", 
-                    (Statuses.finish.value,)
+                    "SELECT id FROM statuses WHERE status = ?", (Statuses.finish.value,)
                 )
                 finish = query_finish.fetchone()[0]
                 query_cancel = cursor.execute(
-                    "SELECT id FROM statuses WHERE status = ?", 
-                    (Statuses.cancel.value,)
+                    "SELECT id FROM statuses WHERE status = ?", (Statuses.cancel.value,)
                 )
                 cancel = query_cancel.fetchone()[0]
                 query = cursor.execute(
@@ -68,15 +67,20 @@ class InformationView(MethodView):
     @roles_required(Roles.user.value)
     def get(query_data):
         query_data = request.args
-        with sqlite3.connect(Config.DATABASE_URI) as conn:
-            cursor = conn.cursor()
-            query = cursor.execute(
-                "SELECT checks.conclusion_id, count(checks.id) FROM checks join person on checks.person_id = person.id WHERE person.region_id = ? AND checks.deadline BETWEEN ? AND ? GROUP BY conclusion_id",
-                (query_data["region_id"], query_data["start"], query_data["end"]),
-            )
-            col_names = [i[0] for i in query.description]
-            result = [zip(col_names, q) for q in query.fetchall()]
-            return jsonify(dict(map(lambda x: (x[1], x[0]), result)))
+        result = select_from_table(
+            "fetchall",
+            "SELECT checks.conclusion_id, count(checks.id) FROM checks \
+                LEFT JOIN person on checks.person_id = person.id \
+                    WHERE person.region_id = ? \
+                        AND checks.deadline BETWEEN ? AND ? \
+                            GROUP BY conclusion_id",
+            (
+                query_data["region_id"],
+                query_data["start"],
+                query_data["end"],
+            ),
+        )
+        return jsonify(dict(map(lambda x: (x[1], x[0]), result)))
 
 
 bp.add_url_rule("/information", view_func=InformationView.as_view("information"))
@@ -88,48 +92,28 @@ def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.
     """
-    with sqlite3.connect(Config.DATABASE_URI) as conn:
-        cursor = conn.cursor()
-        query = cursor.execute(
-            "SELECT * FROM person WHERE id = ?", (item_id,)
-        )
-        col_names = [i[0] for i in query.description]
-        person = [zip(col_names, q) for q in query.fetchall()]
-        folders = Folders(
-            person['id'], person['surname'], person['firstname'], person['patronymic']
-        )
-        file_path = os.path.join(folders.create_main_folder(), "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-        return send_file(
-            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-        )
+    person = select_from_table(
+        "fetchone", "SELECT * FROM person WHERE id = ?", (item_id,)
+    )
+    folders = Folders(
+        person["id"], person["surname"], person["firstname"], person["patronymic"]
+    )
+    file_path = os.path.join(folders.create_main_folder(), "image", "image.jpg")
+    if os.path.isfile(file_path):
+        return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
 @bp.get("/classes")
 def get_classes():
-    with sqlite3.connect(Config.DATABASE_URI) as conn:
-        cursor = conn.cursor()
-        users_query = cursor.execute("SELECT * FROM users")
-        users = users_query.fetchall()
-
-        conclusions_query = cursor.execute("SELECT * FROM conclusions")
-        col_names = [i[0] for i in conclusions_query.description]
-        conclusions = [zip(col_names, q) for q in conclusions_query.fetchall()]
-
-        statuses_query = cursor.execute("SELECT * FROM statuses")
-        col_names = [i[0] for i in statuses_query.description]
-        statuses = [zip(col_names, q) for q in statuses_query.fetchall()]
-
-        regions_query = cursor.execute("SELECT * FROM regions")
-        col_names = [i[0] for i in regions_query.description]
-        regions = [zip(col_names, q) for q in regions_query.fetchall()]
-
-        return jsonify(
-            [
-                {user['id']: user['fullname'] for user in users},
-                {conclusion['id']: conclusion['conclusion'] for conclusion in conclusions},
-                {status['id']: status['status'] for status in statuses},
-                {region['id']: region['region'] for region in regions}, 
-            ]
-        )
+    tables_items = {
+        "users": "fullname",
+        "conclusions": "conclusion",
+        "statuses": "status",
+        "regions": "region",
+    }
+    result = []
+    for table, item in tables_items.items():
+        query = select_from_table("fetchall", f"SELECT id, {item} FROM {table}")
+        result.append({q["id"]: q[item] for q in query})
+    return jsonify(result)

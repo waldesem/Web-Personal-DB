@@ -66,7 +66,7 @@ class LoginView(MethodView):
                             (True, user["id"]),
                         )
                     conn.commit()
-            return jsonify({"message": "Denied"}), 201
+            return jsonify({"message": "Denied"}), 204
 
     def patch(self):
         """
@@ -95,8 +95,8 @@ class LoginView(MethodView):
                     ),
                 )
                 conn.commit()
-                return jsonify({"message": "Changed"})
-        return jsonify({"message": "Denied"})
+                return jsonify({"message": "Changed"}), 201
+        return jsonify({"message": "Denied"}), 204
 
 
 bp.add_url_rule("/login", view_func=LoginView.as_view("login"))

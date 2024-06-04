@@ -142,7 +142,7 @@ class UserView(MethodView):
         with sqlite3.connect(Config.DATABASE_URI) as conn:
             cursor = conn.cursor()
             cursor.execute(
-                f"UPDATE users SET SET {','.join(f"{key} = ?" for key in json_data.keys())} WHERE id = ?", 
+                f"UPDATE users SET SET {','.join(key + '= ?' for key in json_data.keys())} WHERE id = ?", 
                 tuple(json_data.values()) + (user_id,)
             )
             conn.commit()
