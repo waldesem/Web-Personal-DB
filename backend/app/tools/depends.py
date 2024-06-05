@@ -3,7 +3,7 @@ from functools import wraps
 
 from flask import abort, request
 
-from ..utils.queries import select_single, select_all
+from .queries import select_single, select_all
 from config import Config
 
 

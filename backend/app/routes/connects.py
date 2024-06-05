@@ -5,9 +5,9 @@ from flask.views import MethodView
 
 from . import bp
 from config import Config
-from ..utils.dependencies import roles_required
-from ..utils.queries import select_all, execute
-from ..models.classes import Roles
+from ..tools.depends import roles_required
+from ..tools.queries import select_all, execute
+from ..tools.classes import Roles
 
 
 class ConnnectView(MethodView):

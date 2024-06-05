@@ -5,8 +5,8 @@ from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import bp
-from ..utils.dependencies import create_token, select_roles
-from ..utils.queries import select_single, execute
+from ..tools.depends import create_token, select_roles
+from ..tools.queries import select_single, execute
 
 
 class LoginView(MethodView):

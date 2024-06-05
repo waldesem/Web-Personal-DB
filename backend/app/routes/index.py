@@ -5,10 +5,10 @@ from flask.views import MethodView
 
 from . import bp
 from config import Config
-from ..utils.folders import Folders
-from ..utils.dependencies import Token, roles_required
-from ..utils.queries import select_all, select_single
-from ..models.classes import Roles, Statuses
+from ..tools.folders import Folders
+from ..tools.depends import Token, roles_required
+from ..tools.queries import select_all, select_single
+from ..tools.classes import Roles, Statuses
 
 
 class IndexView(MethodView):

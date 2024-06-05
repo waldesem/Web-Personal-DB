@@ -2,8 +2,8 @@ from flask import jsonify
 from flask.views import MethodView
 
 from . import bp
-from ..utils.queries import select_all, execute
-from ..utils.dependencies import Token, jwt_required
+from ..tools.queries import select_all, execute
+from ..tools.depends import Token, jwt_required
 
 
 class MessageView(MethodView):

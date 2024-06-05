@@ -1,9 +1,9 @@
 from datetime import datetime
 import re
 
-from ..utils.folders import Folders
-from ..utils.queries import select_all, select_single, execute
-from ..models.classes import Statuses
+from ..tools.folders import Folders
+from ..tools.queries import select_all, select_single, execute
+from .classes import Statuses
 
 
 class Resume:

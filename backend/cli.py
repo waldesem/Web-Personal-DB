@@ -2,8 +2,8 @@ from datetime import datetime
 import os
 import secrets
 
-from app.models.classes import Conclusions, Regions, Roles, Statuses
-from app.utils.queries import execute_script, execute, select_single
+from app.tools.classes import Conclusions, Regions, Roles, Statuses
+from app.tools.queries import execute_script, execute, select_single
 from config import Config
 from werkzeug.security import generate_password_hash
 

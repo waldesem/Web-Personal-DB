@@ -7,11 +7,11 @@ from PIL import Image
 
 from . import bp
 from config import Config
-from ..utils.folders import Folders
-from ..utils.parsers import Anketa
-from ..utils.dependencies import roles_required
-from ..utils.queries import select_single
-from ..models.classes import Roles
+from ..tools.folders import Folders
+from ..tools.parsers import Anketa
+from ..tools.depends import roles_required
+from ..tools.queries import select_single
+from ..tools.classes import Roles
 
 
 class FileView(MethodView):

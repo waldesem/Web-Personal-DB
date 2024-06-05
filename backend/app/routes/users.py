@@ -6,9 +6,9 @@ from werkzeug.security import generate_password_hash
 
 from config import Config
 from . import bp
-from ..utils.dependencies import Token, roles_required
-from ..utils.queries import select_single, select_all, execute
-from ..models.classes import Roles
+from ..tools.depends import Token, roles_required
+from ..tools.queries import select_single, select_all, execute
+from ..tools.classes import Roles
 
 
 @roles_required(Roles.admin.value)

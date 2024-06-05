@@ -4,10 +4,10 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 from . import bp
-from ..utils.dependencies import Token, roles_required
-from ..utils.parsers import Resume, Anketa
-from ..utils.queries import execute, select_single
-from ..models.classes import Roles, Statuses, Conclusions
+from ..tools.depends import Token, roles_required
+from ..tools.parsers import Resume, Anketa
+from ..tools.queries import execute, select_single
+from ..tools.classes import Roles, Statuses, Conclusions
 
 
 class AnketaView(MethodView):
