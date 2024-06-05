@@ -1,5 +1,4 @@
 import os
-import sqlite3
 
 from flask import jsonify, request, send_file
 from flask.views import MethodView
@@ -8,7 +7,7 @@ from . import bp
 from config import Config
 from ..utils.folders import Folders
 from ..utils.dependencies import Token, roles_required
-from ..utils.queries import select_from_table
+from ..utils.queries import select_all, select_single
 from ..models.classes import Roles, Statuses
 
 
@@ -16,48 +15,41 @@ class IndexView(MethodView):
     @roles_required(Roles.user.value)
     def get(self, flag, page):
         search_data = request.args.get("search")
-        with sqlite3.connect(Config.DATABASE_URI) as conn:
-            cursor = conn.cursor()
-            if flag == "search":
-                if Token.current_user["region_id"] != 1:
-                    query = cursor.execute(
-                        f"SELECT * FROM person WHERE region_id = ? AND surname LIKE ? "
-                        f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
-                        f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
-                        (Token.current_user["region_id"], f"%{search_data}%"),
-                    )
-                else:
-                    query = cursor.execute(
-                        f"SELECT * FROM person WHERE surname LIKE ? "
-                        f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
-                        f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
-                        (f"%{search_data}%",),
-                    )
-
-            elif flag == "officer":
-                query_finish = cursor.execute(
-                    "SELECT id FROM statuses WHERE status = ?", (Statuses.finish.value,)
+        if flag == "search":
+            if Token.current_user["region_id"] != 1:
+                result = select_all(
+                    f"SELECT * FROM person WHERE region_id = ? AND surname LIKE ? "
+                    f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
+                    f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
+                    (Token.current_user["region_id"], f"%{search_data}%"),
                 )
-                finish = query_finish.fetchone()[0]
-                query_cancel = cursor.execute(
-                    "SELECT id FROM statuses WHERE status = ?", (Statuses.cancel.value,)
-                )
-                cancel = query_cancel.fetchone()[0]
-                query = cursor.execute(
-                    "SELECT * FROM person WHERE status_id NOT IN (?, ?) AND user_id = ?",
-                    (finish, cancel, Token.current_user["id"]),
+            else:
+                result = select_all(
+                    f"SELECT * FROM person WHERE surname LIKE ? "
+                    f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
+                    f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
+                    (f"%{search_data}%",),
                 )
 
-            col_names = [i[0] for i in query.description]
-            result = [zip(col_names, q) for q in query.fetchall()]
-            has_next = True if len(result) > Config.PAGINATION else False
-            return jsonify(
-                {
-                    "persons": result if not has_next else result[:-1],
-                    "has_next": has_next,
-                    "has_prev": True if page > 1 else False,
-                }
+        elif flag == "officer":
+            finish = select_single(
+                "SELECT id FROM statuses WHERE status = ?", (Statuses.finish.value,)
             )
+            cancel = select_single(
+                "SELECT id FROM statuses WHERE status = ?", (Statuses.cancel.value,)
+            )
+            result = select_all(
+                "SELECT * FROM person WHERE status_id NOT IN (?, ?) AND user_id = ?",
+                (finish['id'], cancel['id'], Token.current_user["id"]),
+            )
+        has_next = True if len(result) > Config.PAGINATION else False
+        return jsonify(
+            {
+                "persons": result if not has_next else result[:-1],
+                "has_next": has_next,
+                "has_prev": True if page > 1 else False,
+            }
+        )
 
 
 bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
@@ -67,8 +59,7 @@ class InformationView(MethodView):
     @roles_required(Roles.user.value)
     def get(query_data):
         query_data = request.args
-        result = select_from_table(
-            "fetchall",
+        result = select_all(
             "SELECT checks.conclusion_id, count(checks.id) FROM checks \
                 LEFT JOIN person on checks.person_id = person.id \
                     WHERE person.region_id = ? \
@@ -80,7 +71,7 @@ class InformationView(MethodView):
                 query_data["end"],
             ),
         )
-        return jsonify(dict(map(lambda x: (x[1], x[0]), result)))
+        return jsonify(result)
 
 
 bp.add_url_rule("/information", view_func=InformationView.as_view("information"))
@@ -92,8 +83,7 @@ def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.
     """
-    person = select_from_table(
-        "fetchone", "SELECT * FROM person WHERE id = ?", (item_id,)
+    person = select_single("SELECT * FROM person WHERE id = ?", (item_id,)
     )
     folders = Folders(
         person["id"], person["surname"], person["firstname"], person["patronymic"]
@@ -112,8 +102,8 @@ def get_classes():
         "statuses": "status",
         "regions": "region",
     }
-    result = []
+    results = []
     for table, item in tables_items.items():
-        query = select_from_table("fetchall", f"SELECT id, {item} FROM {table}")
-        result.append({q["id"]: q[item] for q in query})
-    return jsonify(result)
+        query = select_all(f"SELECT id, {item} FROM {table}")
+        results.append({q["id"]: q[item] for q in query})
+    return jsonify(results)

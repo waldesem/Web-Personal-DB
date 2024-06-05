@@ -1,6 +1,5 @@
 import json
 import os
-import sqlite3
 
 from flask import jsonify, request, send_file, abort
 from flask.views import MethodView
@@ -11,6 +10,7 @@ from config import Config
 from ..utils.folders import Folders
 from ..utils.parsers import Anketa
 from ..utils.dependencies import roles_required
+from ..utils.queries import select_single
 from ..models.classes import Roles
 
 
@@ -18,21 +18,14 @@ class FileView(MethodView):
 
     decorators = [roles_required(Roles.user.value)]
 
-    @staticmethod
-    def select_person(item_id):
-        with sqlite3.connect(Config.DATABASE_URI) as conn:
-            cursor = conn.cursor()
-            query = cursor.execute(
-                "SELECT * FROM person WHERE id = ?", (item_id,)
-            )
-            col_names = [i[0] for i in query.description]
-            return dict(zip(col_names, query.fetchone()))
-
     def get(self, item_id):
         """
         Retrieves a file from the server and sends it as a response.
         """
-        person = self.select_person(item_id)
+        person = select_single(
+            "SELECT * FROM person WHERE id = ?", 
+            (item_id,)
+        )
         if person["path"]:
             file_path = os.path.join(
                 Config.BASE_PATH, person["path"], "image", "image.jpg"
@@ -52,7 +45,10 @@ class FileView(MethodView):
             person_id = anketa.parse_anketa()
             return jsonify({"message": person_id}), 201
         
-        person = self.select_person(item_id)
+        person = select_single(
+            "SELECT * FROM person WHERE id = ?", 
+            (item_id,)
+        )
         folders = Folders(
             person["id"], person['surname'], person['firstname'], person['patronymic']
         )

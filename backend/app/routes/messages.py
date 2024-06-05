@@ -1,9 +1,8 @@
-import sqlite3
 from flask import jsonify
 from flask.views import MethodView
 
-from config import Config
 from . import bp
+from ..utils.queries import select_all, execute
 from ..utils.dependencies import Token, jwt_required
 
 
@@ -14,26 +13,19 @@ class MessageView(MethodView):
         """
         Get the serialized representation of the messages.
         """
-        with sqlite3.connect(Config.DATABASE_URI) as conn:
-            cursor = conn.cursor()
-            query = cursor.execute(
-                "SELECT * FROM messages WHERE user_id = ? ORDER BY created DESC LIMIT 100"
-            )
-            col_names = [i[0] for i in query.description]
-            return jsonify(zip(col_names, query.fetchall()))
+        return jsonify(select_all(
+            "SELECT * FROM messages WHERE user_id = ? ORDER BY created DESC LIMIT 100"
+        )), 200
 
     def delete(self, item_id):
         """
         Deletes the current instance of the resource from the database.
         """
-        with sqlite3.connect(Config.DATABASE_URI) as conn:
-            cursor = conn.cursor()
-            if not item_id:
-                cursor.execute("DELETE FROM messages WHERE user_id = ?", (Token.current_user.id,))
-            else:
-                cursor.execute("DELETE FROM messages WHERE id = ?", (item_id,))
-            conn.commit()
-            return "", 204
+        if not item_id:
+            execute("DELETE FROM messages WHERE user_id = ?", (Token.current_user.id,))
+        else:
+            execute("DELETE FROM messages WHERE id = ?", (item_id,))
+        return "", 204
 
 
 message_view = MessageView.as_view("messages")

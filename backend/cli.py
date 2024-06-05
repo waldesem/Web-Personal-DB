@@ -1,9 +1,9 @@
 from datetime import datetime
 import os
 import secrets
-import sqlite3
 
 from app.models.classes import Conclusions, Regions, Roles, Statuses
+from app.utils.queries import execute_script, execute, select_single
 from config import Config
 from werkzeug.security import generate_password_hash
 
@@ -30,71 +30,58 @@ def register_cli(app):
                 os.mkdir(letter_path)
         print("Alphabet directories created")
 
-        with sqlite3.connect(Config.DATABASE_URI) as conn:
-            cursor = conn.cursor()
-            with open(Config.DATABASE_SQL, "r", encoding="utf-8") as file:
-                sql = file.read()
-                cursor.executescript(sql)
-                cursor.executemany(
-                    "INSERT INTO roles (role) VALUES (?)", 
-                    [(role.value,) for role in Roles]
-                )
-                cursor.executemany(
-                    "INSERT INTO statuses (status) VALUES (?)",
-                    [(status.value,) for status in Statuses],
-                )
-                cursor.executemany(
-                    "INSERT INTO conclusions (conclusion) VALUES (?)",
-                    [(conclusion.value,) for conclusion in Conclusions],
-                )
-                cursor.executemany(
-                    "INSERT INTO regions (region) VALUES (?)",
-                    [(region.value,) for region in Regions],
-                )
-                conn.commit()
+        with open(Config.DATABASE_SQL, "r", encoding="utf-8") as file:
+            sql = file.read()
+            execute_script(sql)
+            execute(
+                "INSERT INTO roles (role) VALUES (?)", 
+                [(role.value,) for role in Roles]
+            )
+            execute(
+                "INSERT INTO statuses (status) VALUES (?)",
+                [(status.value,) for status in Statuses],
+            )
+            execute(
+                "INSERT INTO conclusions (conclusion) VALUES (?)",
+                [(conclusion.value,) for conclusion in Conclusions],
+            )
+            execute(
+                "INSERT INTO regions (region) VALUES (?)",
+                [(region.value,) for region in Regions],
+            )
 
-                user = cursor.execute(
-                    "INSERT INTO users (fullname, username, password, email, pswd_create, pswd_change, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (
-                        "Администратор",
-                        "superadmin",
-                        generate_password_hash(
-                            Config.DEFAULT_PASSWORD,
-                            method="scrypt",
-                            salt_length=16,
-                        ),
-                        "admin@example",
-                        datetime.now(),
-                        None,
-                        None,
-                        0,
-                        0,
-                        0,
-                        datetime.now(),
-                        None,
-                        1,
+            user_id = execute(
+                "INSERT INTO users (fullname, username, password, email, pswd_create, pswd_change, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    "Администратор",
+                    "superadmin",
+                    generate_password_hash(
+                        Config.DEFAULT_PASSWORD,
+                        method="scrypt",
+                        salt_length=16,
                     ),
-                )
-                user_id = user.lastrowid
-                conn.commit()
+                    "admin@example",
+                    datetime.now(),
+                    None,
+                    None,
+                    0,
+                    0,
+                    0,
+                    datetime.now(),
+                    None,
+                    1,
+                ),
+            )
 
-                role_admin = cursor.execute(
-                    "SELECT * FROM roles WHERE role = 'admin'",
-                )
-                admin = role_admin.fetchone()
-                role_user = cursor.execute(
-                    "SELECT * FROM roles WHERE role = 'user'",
-                )
-                user = role_user.fetchone()
-
-                cursor.execute(
-                    "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
-                    (user_id, admin[0]),
-                )
-                cursor.execute(
-                    "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
-                    (user_id, user[0]),
-                )
-                conn.commit()
+            admin = select_single(
+                "SELECT * FROM roles WHERE role = 'admin'",
+            )
+            user = select_single(
+                "SELECT * FROM roles WHERE role = 'user'",
+            )
+            execute(
+                "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
+                [(user_id, admin['id']), (user_id, user[0]),]
+            )
 
         print("Tables created and filled")

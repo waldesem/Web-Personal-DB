@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import { axiosAuth } from "@/auth";
 import { stateUser, stateClassify } from "@/state";
-import { server } from "@/utilities";
 import { router } from "@/router";
 
 const AlertMessage = defineAsyncComponent(
@@ -12,15 +10,7 @@ const MessageDiv = defineAsyncComponent(
   () => import('@components/content/divs/MessageDiv.vue')
 )
 async function userLogout(): Promise<void> {
-  try {
-    const response = await axiosAuth.delete(`${server}/auth/login`);
-    console.log(response.status);
-  } catch (error) {
-    console.log(error);
-  }
-
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("user_token");
   router.push({ name: "login" });
 }
 </script>
