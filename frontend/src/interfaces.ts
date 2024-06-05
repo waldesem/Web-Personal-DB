@@ -33,7 +33,7 @@ export interface Education {
   id: string;
   view: string;
   name: string;
-  end: string;
+  finish: string;
   speciality: string;
 }
 

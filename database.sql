@@ -8,8 +8,9 @@ CREATE TABLE user_roles (
 )
 ;
 CREATE TABLE roles (
-	id INTEGER NOT NULL, 
-	role VARCHAR(255), 
+	id INTEGER NOT NULL,
+	prefix VARCHAR(255) NOT NULL, 
+	role VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	UNIQUE (role)
@@ -17,24 +18,26 @@ CREATE TABLE roles (
 ;
 CREATE TABLE regions (
 	id INTEGER NOT NULL, 
+	prefix VARCHAR(255) NOT NULL, 
 	region VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (id), 
-	UNIQUE (id)
+	UNIQUE (id),
+	UNIQUE (region)
 )
 ;
 CREATE TABLE users (
 	id INTEGER NOT NULL, 
-	fullname VARCHAR(255), 
+	fullname VARCHAR(255) NOT NULL, 
 	username VARCHAR(255) NOT NULL, 
-	password VARCHAR, 
-	email VARCHAR(255), 
-	pswd_create DATETIME, 
-	change_pswd BOOLEAN NOT NULL, 
-	last_login DATETIME, 
-	blocked BOOLEAN NOT NULL, 
-	deleted BOOLEAN NOT NULL, 
-	attempt INTEGER, 
-	created DATETIME NOT NULL, 
+	password VARCHAR NOT NULL, 
+	email VARCHAR(255) NOT NULL, 
+	pswd_create DATETIME DEFAULT GETDATE(), 
+	change_pswd BOOLEAN DEFAULT 1, 
+	last_login DATETIME NOT NULL, 
+	blocked BOOLEAN DEFAULT 0, 
+	deleted BOOLEAN 0, 
+	attempt INTEGER 0, 
+	created DATETIME DEFAULT GETDATE(), 
 	updated DATETIME, 
 	region_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
@@ -46,8 +49,8 @@ CREATE TABLE users (
 ;
 CREATE TABLE messages (
 	id INTEGER NOT NULL, 
-	message TEXT, 
-	created DATETIME, 
+	message TEXT NOT NULL, 
+	created DEFAULT GETDATE(), 
 	user_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -56,9 +59,11 @@ CREATE TABLE messages (
 ;
 CREATE TABLE statuses (
 	id INTEGER NOT NULL, 
-	status VARCHAR(255), 
+	prefix VARCHAR(255) NOT NULL, 
+	status VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (id), 
-	UNIQUE (id)
+	UNIQUE (id),
+	UNIQUE (status)
 )
 ;
 CREATE TABLE persons (
@@ -70,12 +75,12 @@ CREATE TABLE persons (
 	birthplace TEXT, 
 	country VARCHAR(255), 
 	ext_country VARCHAR(255), 
-	snils VARCHAR(11), 
-	inn VARCHAR(12), 
+	snils VARCHAR(11) CHECK(snils = 11), 
+	inn VARCHAR(12) CHECK(age = 12), 
 	marital VARCHAR(255), 
 	addition TEXT, 
 	path TEXT, 
-	created DATETIME, 
+	created DATETIME DEFAULT GETDATE(), 
 	updated DATETIME, 
 	region_id INTEGER, 
 	status_id INTEGER, 
@@ -104,7 +109,7 @@ CREATE TABLE educations (
 	id INTEGER NOT NULL, 
 	view VARCHAR(255), 
 	name TEXT, 
-	"end" INTEGER, 
+	finish INTEGER, 
 	specialty TEXT, 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
@@ -157,7 +162,7 @@ CREATE TABLE contacts (
 ;
 CREATE TABLE workplaces (
 	id INTEGER NOT NULL, 
-	now_work BOOLEAN, 
+	now_work BOOLEAN DEFAULT 0, 
 	start_date DATE, 
 	end_date DATE, 
 	workplace VARCHAR(255), 
@@ -185,8 +190,8 @@ CREATE TABLE affilations (
 ;
 CREATE TABLE relations (
 	id INTEGER NOT NULL, 
-	relation VARCHAR(255), 
-	relation_id INTEGER, 
+	relation VARCHAR(255) NOT NULL, 
+	relation_id INTEGER NOT NULL, 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -211,7 +216,7 @@ CREATE TABLE checks (
 	addition TEXT, 
 	pfo BOOLEAN, 
 	comments TEXT, 
-	deadline DATE, 
+	deadline DATE DEFAULT GETDATE(), 
 	conclusion_id INTEGER, 
 	person_id INTEGER NOT NULL, 
 	user_id INTEGER, 
@@ -224,6 +229,7 @@ CREATE TABLE checks (
 ;
 CREATE TABLE conclusions (
 	id INTEGER NOT NULL, 
+	prefix VARCHAR(255) NOT NULL, 
 	conclusion VARCHAR(255), 
 	PRIMARY KEY (id), 
 	UNIQUE (id)
@@ -234,7 +240,7 @@ CREATE TABLE poligrafs (
 	theme VARCHAR(255), 
 	results TEXT, 
 	user_id INTEGER, 
-	deadline DATE, 
+	deadline DATE DEFAULT GETDATE(), 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -247,7 +253,7 @@ CREATE TABLE investigations (
 	theme VARCHAR(255), 
 	info TEXT, 
 	user_id INTEGER, 
-	deadline DATE, 
+	deadline DATE DEFAULT GETDATE(), 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -261,7 +267,7 @@ CREATE TABLE inquiries (
 	initiator VARCHAR(255), 
 	source VARCHAR(255), 
 	user_id INTEGER, 
-	deadline DATE, 
+	deadline DATE DEFAULT GETDATE(), 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -280,7 +286,7 @@ CREATE TABLE connects (
 	mobile VARCHAR(255), 
 	mail VARCHAR(255), 
 	comment TEXT, 
-	data DATETIME, 
+	data DATE DEFAULT GETDATE(), 
 	PRIMARY KEY (id), 
 	UNIQUE (id)
 )

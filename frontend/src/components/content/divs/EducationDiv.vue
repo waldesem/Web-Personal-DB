@@ -95,7 +95,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Название учебного заведения'">{{
           item["name"]
         }}</LabelSlot>
-        <LabelSlot :label="'Год окончания'">{{ item["end"] }}</LabelSlot>
+        <LabelSlot :label="'Год окончания'">{{ item["finish"] }}</LabelSlot>
         <LabelSlot :label="'Специальность'">{{ item["speciality"] }}</LabelSlot>
       </div>
     </div>

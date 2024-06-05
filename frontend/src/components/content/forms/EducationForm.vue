@@ -61,10 +61,10 @@ const selected_item = [
     </LabelSlot>
     <LabelSlot :label="'Год окончания'">
       <InputElement
-        :name="'end'"
+        :name="'finish'"
         :place="'Год окончания'"
         :need="true"
-        v-model="educationForm['end']"
+        v-model="educationForm['finish']"
       />
     </LabelSlot>
     <LabelSlot :label="'Специальность'">
