@@ -51,7 +51,7 @@ class UserView(MethodView):
                         )
                 case "drop":
                     execute(
-                        "UPDATE users SET password = ?, attempt = ?, pswd_change = ? WHERE id = ?",
+                        "UPDATE users SET password = ?, attempt = ?, change_pswd = ? WHERE id = ?",
                         (
                             generate_password_hash(
                                 Config.DEFAULT_PASSWORD,
@@ -59,7 +59,7 @@ class UserView(MethodView):
                                 salt_length=16,
                             ),
                             0,
-                            None,
+                            True,
                             user_id,
                         ),
                     )
@@ -85,7 +85,7 @@ class UserView(MethodView):
         if user:
             return {"message": "Denied"}, 403
         execute(
-            "INSERT INTO users (fullname, username, email, password, email, pswd_create, pswd_change, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?)",
+            "INSERT INTO users (fullname, username, email, password, email, pswd_create, change_pswd, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?)",
             (
                 json_data.get("fullname"),
                 json_data.get("username"),
@@ -94,7 +94,7 @@ class UserView(MethodView):
                     Config.DEFAULT_PASSWORD, method="scrypt", salt_length=16
                 ),
                 datetime.now(),
-                None,
+                True,
                 None,
                 0,
                 0,
@@ -113,7 +113,7 @@ class UserView(MethodView):
         json_data: dict = request.get_json()
         del (
             json_data["pswd_create"],
-            json_data["pswd_change"],
+            json_data["change_pswd"],
             json_data["last_login"],
             json_data["created"],
             json_data["blocked"],

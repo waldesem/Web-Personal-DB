@@ -51,7 +51,7 @@ def register_cli(app):
             )
 
             user_id = execute(
-                "INSERT INTO users (fullname, username, password, email, pswd_create, pswd_change, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO users (fullname, username, password, email, pswd_create, change_pswd, last_login, blocked, deleted, attempt, created, updated, region_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     "Администратор",
                     "superadmin",
@@ -62,7 +62,7 @@ def register_cli(app):
                     ),
                     "admin@example",
                     datetime.now(),
-                    None,
+                    False,
                     None,
                     0,
                     0,

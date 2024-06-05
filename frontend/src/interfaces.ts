@@ -155,7 +155,7 @@ export interface User {
   username: string;
   email: string;
   pswd_create: string;
-  pswd_change: string;
+  change_pswd: boolean;
   last_login: string;
   roles: Role[];
   blocked: boolean;

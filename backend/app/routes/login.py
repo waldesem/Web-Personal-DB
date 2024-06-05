@@ -30,7 +30,7 @@ class LoginView(MethodView):
                 delta_change = datetime.now() - datetime.fromisoformat(
                     user["pswd_create"]
                 )
-                if user["pswd_change"] and delta_change.days < 365:
+                if not user["change_pswd"] and delta_change.days < 365:
                     execute(
                         "UPDATE users SET last_login = ?, attempt = ? WHERE id = ?",
                         (datetime.now(), 0, user["id"]),
@@ -70,7 +70,7 @@ class LoginView(MethodView):
             and check_password_hash(user["password"], json_data["password"])
         ):
             execute(
-                "UPDATE users SET password = ?, pswd_change = ? WHERE id = ?",
+                "UPDATE users SET password = ?, change_pswd = ? WHERE id = ?",
                 (
                     generate_password_hash(
                         json_data["new_pswd"],

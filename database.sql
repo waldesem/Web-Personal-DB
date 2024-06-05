@@ -29,7 +29,7 @@ CREATE TABLE users (
 	password VARCHAR, 
 	email VARCHAR(255), 
 	pswd_create DATETIME, 
-	pswd_change DATETIME, 
+	change_pswd BOOLEAN NOT NULL, 
 	last_login DATETIME, 
 	blocked BOOLEAN NOT NULL, 
 	deleted BOOLEAN NOT NULL, 
