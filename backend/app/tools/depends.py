@@ -3,7 +3,7 @@ from functools import wraps
 
 from flask import abort, request
 
-from .queries import select_single, select_all
+from .queries import select_single
 from config import Config
 
 
@@ -18,14 +18,14 @@ class Token:
         secret, user_id, _ = decoded.split(":")
         if secret and user_id == Config.SECRET_KEY:
             user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
-            if user and not user["deleted"] and not user["blocked"]:
+            if user and not user["blocked"]:
                 Token.current_user = user
                 return True
         return False
 
 
-def create_token(user_id, roles):
-    return b64encode(f"{Config.SECRET_KEY}:{user_id}:{roles}".encode()).decode()
+def create_token(user_id, has_admin):
+    return b64encode(f"{Config.SECRET_KEY}:{user_id}:{has_admin}".encode()).decode()
 
 
 def jwt_required():
@@ -43,19 +43,13 @@ def jwt_required():
     return decorator
 
 
-def roles_required(*roles):
+def admin_required():
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if Token.get_auth(header):
-                cur_roles = select_all(
-                    "SELECT roles.role FROM user_roles \
-                        LEFT JOIN roles ON user_roles.role_id = roles.id \
-                            WHERE user_id = ?",
-                    (Token.current_user["id"],),
-                )
-                if any(r['role'] in roles for r in cur_roles):
+                if Token.current_user["has_admin"]:
                     return func(*args, **kwargs)
                 else:
                     abort(404)

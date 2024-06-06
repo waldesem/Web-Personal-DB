@@ -2,18 +2,11 @@ from enum import Enum
 
 
 class Regions(Enum):
-    MAIN_OFFICE = "Главный офис"
-    SOUTH_REGION = "Региональный центр Юг"
-    WEST_REGION = "Региональный центр Запад"
-    URAL_REGION = "Региональный центр Урал"
-    EAST_REGION = "Региональный центр Восток"
-
-
-class Roles(Enum):
-    admin = "admin"
-    user = "user"
-    api = "api"
-    guest = "guest"
+    main = "Главный офис"
+    south = "Региональный центр Юг"
+    west = "Региональный центр Запад"
+    ural = "Региональный центр Урал"
+    east = "Региональный центр Восток"
 
 
 class Statuses(Enum):
@@ -31,7 +24,7 @@ class Statuses(Enum):
 
 class Conclusions(Enum):
     agreed = "СОГЛАСОВАНО"
-    with_comment = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
+    comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
     saved = "СОХРАНЕН"
     canceled = "СНЯТ С ПРОВЕРКИ"

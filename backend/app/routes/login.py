@@ -5,7 +5,7 @@ from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import bp
-from ..tools.depends import create_token, select_roles
+from ..tools.depends import create_token
 from ..tools.queries import select_single, execute
 
 
@@ -14,10 +14,10 @@ class LoginView(MethodView):
 
     @staticmethod
     def select_user(username):
-        return jsonify(select_single(
+        return select_single(
             "SELECT * FROM users WHERE username = ?", 
             (username,)
-        ))
+        )
 
     def post(self):
         """
@@ -25,7 +25,7 @@ class LoginView(MethodView):
         """
         json_data = request.get_json()
         user = self.select_user(json_data["username"])
-        if user and not user["blocked"] and not user["deleted"]:
+        if user and not user["blocked"]:
             if check_password_hash(user["password"], json_data["password"]):
                 delta_change = datetime.now() - datetime.fromisoformat(
                     user["pswd_create"]
@@ -39,7 +39,7 @@ class LoginView(MethodView):
                         {
                             "message": "Authenticated",
                             "user_token": create_token(
-                                user["id"], select_roles(user["id"])
+                                user["id"], user["has_admin"]
                             ),
                         }
                     ), 201
@@ -66,18 +66,14 @@ class LoginView(MethodView):
         if (
             user
             and not user["blocked"]
-            and not user["deleted"]
             and check_password_hash(user["password"], json_data["password"])
         ):
             execute(
-                "UPDATE users SET password = ?, change_pswd = ? WHERE id = ?",
+                "UPDATE users SET password = ?, change_pswd = ? attempt = ? WHERE id = ?",
                 (
-                    generate_password_hash(
-                        json_data["new_pswd"],
-                        method="scrypt",
-                        salt_length=16,
-                    ),
-                    datetime.now(),
+                    generate_password_hash(json_data["new_pswd"]),
+                    False,
+                    0,
                     user["id"],
                 ),
             )

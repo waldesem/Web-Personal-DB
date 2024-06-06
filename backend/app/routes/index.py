@@ -6,22 +6,23 @@ from flask.views import MethodView
 from . import bp
 from config import Config
 from ..tools.folders import Folders
-from ..tools.depends import Token, roles_required
+from ..tools.depends import Token, jwt_required
 from ..tools.queries import select_all, select_single
-from ..tools.classes import Roles, Statuses
+from ..tools.classes import Conclusions, Regions, Statuses
 
 
 class IndexView(MethodView):
-    @roles_required(Roles.user.value)
+
+    @jwt_required()
     def get(self, flag, page):
         search_data = request.args.get("search")
         if flag == "search":
-            if Token.current_user["region_id"] != 1:
+            if Token.current_user["region"] != Regions.main.name:
                 result = select_all(
-                    f"SELECT * FROM person WHERE region_id = ? AND surname LIKE ? "
+                    f"SELECT * FROM person WHERE region = ? AND surname LIKE ? "
                     f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
                     f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
-                    (Token.current_user["region_id"], f"%{search_data}%"),
+                    (Token.current_user["region"], f"%{search_data}%"),
                 )
             else:
                 result = select_all(
@@ -32,15 +33,9 @@ class IndexView(MethodView):
                 )
 
         elif flag == "officer":
-            finish = select_single(
-                "SELECT id FROM statuses WHERE status = ?", (Statuses.finish.value,)
-            )
-            cancel = select_single(
-                "SELECT id FROM statuses WHERE status = ?", (Statuses.cancel.value,)
-            )
             result = select_all(
-                "SELECT * FROM person WHERE status_id NOT IN (?, ?) AND user_id = ?",
-                (finish['id'], cancel['id'], Token.current_user["id"]),
+                "SELECT * FROM person WHERE status NOT IN (?, ?) AND user_id = ?",
+                (Statuses.finish.name, Statuses.cancel.name, Token.current_user["id"]),
             )
         has_next = True if len(result) > Config.PAGINATION else False
         return jsonify(
@@ -56,17 +51,18 @@ bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index")
 
 
 class InformationView(MethodView):
-    @roles_required(Roles.user.value)
+
+    @jwt_required()
     def get(query_data):
         query_data = request.args
         result = select_all(
-            "SELECT checks.conclusion_id, count(checks.id) FROM checks \
+            "SELECT checks.conclusion, count(checks.id) FROM checks \
                 LEFT JOIN person on checks.person_id = person.id \
-                    WHERE person.region_id = ? \
+                    WHERE person.region = ? \
                         AND checks.deadline BETWEEN ? AND ? \
-                            GROUP BY conclusion_id",
+                            GROUP BY conclusion",
             (
-                query_data["region_id"],
+                query_data["region"],
                 query_data["start"],
                 query_data["end"],
             ),
@@ -77,7 +73,7 @@ class InformationView(MethodView):
 bp.add_url_rule("/information", view_func=InformationView.as_view("information"))
 
 
-@roles_required(Roles.user.value)
+@jwt_required()
 @bp.route("/image/<int:item_id>")
 def get_image(item_id):
     """
@@ -96,14 +92,12 @@ def get_image(item_id):
 
 @bp.get("/classes")
 def get_classes():
-    tables_items = {
-        "users": "fullname",
-        "conclusions": "conclusion",
-        "statuses": "status",
-        "regions": "region",
-    }
     results = []
-    for table, item in tables_items.items():
-        query = select_all(f"SELECT id, {item} FROM {table}")
-        results.append({q["id"]: q[item] for q in query})
+    query = select_all("SELECT id, fullname FROM users")
+    results.append({q["id"]: q['fullname'] for q in query})
+    for items in [Regions, Statuses, Conclusions]:
+        enums = {}
+        for item in items:
+            enums.update({item.name: item.value})
+        results.append(enums)
     return jsonify(results)

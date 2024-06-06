@@ -4,14 +4,14 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 from . import bp
-from ..tools.depends import Token, roles_required
-from ..tools.parsers import Resume, Anketa
+from ..tools.depends import Token, jwt_required
+from ..tools.parsers import Resume
 from ..tools.queries import execute, select_single
-from ..tools.classes import Roles, Statuses, Conclusions
+from ..tools.classes import Statuses, Conclusions
 
 
 class AnketaView(MethodView):
-    decorators = [roles_required(Roles.user.value)]
+    decorators = [jwt_required()]
 
     def get(self, person_id):
         action = request.args.get("action")
@@ -73,7 +73,7 @@ class ResumeAction:
 
     def change_status(self, status, user_id=None):
         execute(
-            "UPDATE persons SET status_id = ? user_id = ? WHERE id = ?",
+            "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
             (status, self.anketa["id"], user_id,),
         )
 
@@ -85,7 +85,7 @@ class ResumeAction:
 
 class ItemsView(MethodView):
     
-    decorators = [roles_required(Roles.user.value)]
+    decorators = [jwt_required()]
 
     def get(self, item, item_id):
         return jsonify(select_single(
@@ -122,9 +122,9 @@ class ItemsView(MethodView):
                 "SELECT * FROM persons WHERE "
                 "surname = ? AND firstname = ? AND patronymic = ? AND birthday = ?",
                 (
-                    person["surname"].upper(),
-                    person["firstname"].upper(),
-                    person.get("patronymic").upper()
+                    person["surname"].strip().upper(),
+                    person["firstname"].strip().upper(),
+                    person.get("patronymic").strip().upper()
                     if person.get("patronymic")
                     else None,
                     person["birthday"],
@@ -144,59 +144,36 @@ class ItemsView(MethodView):
                 )
 
         if item == "relation":
-            Anketa.add_relation(
-                json_data["relation"], item_id, json_data["relation_id"]
-            )
+            execute(
+                    "INSERT INTO relations (relation, person_id, relation_id) VALUES(?, ?, ?)", 
+                    (json_data["relation"], item_id, json_data["relation_id"],)    
+                )
 
         if item in ["check", "poligraf", "inquiry", "investigation"]:
             json_data = json_data | {"user_id": Token.current_user.id}
             if item == "check":
-                conclusion = select_single(
-                    "SELECT id FROM conclusions WHERE conclusion = ?",
-                    (Conclusions.saved.value,),
-                )
-                save = select_single(
-                    "SELECT id FROM statuses WHERE status = ?",
-                    (Statuses.save.value,),
-                )
-                if json_data["conclusion_id"] == conclusion['id']:
+                if json_data["conclusion"] == Conclusions.saved.name:
                     execute(
-                        "UPDATE persons SET status_id = ? WHERE id = ?",
-                        (save['id'], item_id,),
+                        "UPDATE persons SET status = ? WHERE id = ?",
+                        (Statuses.save.n, item_id,),
                     )
                 else:
                     if json_data.get("pfo"):
-                        pfo = select_single(
-                            "SELECT id FROM statuses WHERE status = ?",
-                            (Statuses.poligraf.value,),
-                        )
                         execute(
-                            "UPDATE persons SET status_id = ? user_id = ? WHERE id = ?",
-                            (pfo['id'], None, item_id),
+                            "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
+                            (Statuses.poligraf.name, None, item_id),
                         )
                     else:
-                        finish = select_single(
-                            "SELECT id FROM statuses WHERE status = ?",
-                            (Statuses.finish.value,),
-                        )
                         execute(
-                            "UPDATE persons SET status_id = ? user_id = ? WHERE id = ?",
-                            (finish['id'], None, item_id),
+                            "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
+                            (Statuses.finish.name, None, item_id),
                         )
 
             if item == "poligraf":
-                pfo = select_single(
-                    "SELECT id FROM statuses WHERE status = ?",
-                    (Statuses.poligraf.value,),
-                )
-                finish = select_single(
-                    "SELECT id FROM statuses WHERE status = ?",
-                    (Statuses.finish.value,),
-                )
-                if person["status_id"] == pfo['id']:
+                if person["status_id"] == Statuses.poligraf.name:
                     execute(
                         "UPDATE persons SET status_id = ? WHERE id = ?",
-                        (finish['id'], item_id),
+                        (Statuses.finish.name, item_id),
                     )
 
         execute(

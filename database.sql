@@ -9,20 +9,10 @@ CREATE TABLE user_roles (
 ;
 CREATE TABLE roles (
 	id INTEGER NOT NULL,
-	prefix VARCHAR(255) NOT NULL, 
 	role VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	UNIQUE (role)
-)
-;
-CREATE TABLE regions (
-	id INTEGER NOT NULL, 
-	prefix VARCHAR(255) NOT NULL, 
-	region VARCHAR(255) NOT NULL, 
-	PRIMARY KEY (id), 
-	UNIQUE (id),
-	UNIQUE (region)
 )
 ;
 CREATE TABLE users (
@@ -31,39 +21,29 @@ CREATE TABLE users (
 	username VARCHAR(255) NOT NULL, 
 	password VARCHAR NOT NULL, 
 	email VARCHAR(255) NOT NULL, 
-	pswd_create DATETIME DEFAULT GETDATE(), 
+	pswd_create DATETIME DEFAULT (DATETIME('now')), 
 	change_pswd BOOLEAN DEFAULT 1, 
-	last_login DATETIME NOT NULL, 
+	last_login DATETIME, 
 	blocked BOOLEAN DEFAULT 0, 
-	deleted BOOLEAN 0, 
-	attempt INTEGER 0, 
-	created DATETIME DEFAULT GETDATE(), 
+	attempt INTEGER DEFAULT 0,
+	has_admin BOOLEAN DEFAULT 0,
+	created DATETIME DEFAULT (DATETIME('now')), 
 	updated DATETIME, 
-	region_id INTEGER NOT NULL, 
+	region VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	UNIQUE (username), 
-	UNIQUE (email), 
-	FOREIGN KEY(region_id) REFERENCES regions (id)
+	UNIQUE (email)
 )
 ;
 CREATE TABLE messages (
 	id INTEGER NOT NULL, 
 	message TEXT NOT NULL, 
-	created DEFAULT GETDATE(), 
+	created DEFAULT (DATETIME('now')), 
 	user_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(user_id) REFERENCES users (id)
-)
-;
-CREATE TABLE statuses (
-	id INTEGER NOT NULL, 
-	prefix VARCHAR(255) NOT NULL, 
-	status VARCHAR(255) NOT NULL, 
-	PRIMARY KEY (id), 
-	UNIQUE (id),
-	UNIQUE (status)
 )
 ;
 CREATE TABLE persons (
@@ -76,19 +56,17 @@ CREATE TABLE persons (
 	country VARCHAR(255), 
 	ext_country VARCHAR(255), 
 	snils VARCHAR(11) CHECK(snils = 11), 
-	inn VARCHAR(12) CHECK(age = 12), 
+	inn VARCHAR(12) CHECK(inn = 12), 
 	marital VARCHAR(255), 
 	addition TEXT, 
 	path TEXT, 
-	created DATETIME DEFAULT GETDATE(), 
+	created DATETIME DEFAULT (DATETIME('now')), 
 	updated DATETIME, 
-	region_id INTEGER, 
-	status_id INTEGER, 
+	region VARCHAR(255) NOT NULL, 
+	status VARCHAR(255) NOT NULL, 
 	user_id INTEGER, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(region_id) REFERENCES regions (id), 
-	FOREIGN KEY(status_id) REFERENCES statuses (id), 
 	FOREIGN KEY(user_id) REFERENCES users (id)
 )
 ;
@@ -216,23 +194,14 @@ CREATE TABLE checks (
 	addition TEXT, 
 	pfo BOOLEAN, 
 	comments TEXT, 
-	deadline DATE DEFAULT GETDATE(), 
-	conclusion_id INTEGER, 
+	deadline DATE DEFAULT (DATETIME('now')), 
+	conclusion VARCHAR(255) NOT NULL, 
 	person_id INTEGER NOT NULL, 
 	user_id INTEGER, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(conclusion_id) REFERENCES conclusions (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id), 
 	FOREIGN KEY(user_id) REFERENCES users (id)
-)
-;
-CREATE TABLE conclusions (
-	id INTEGER NOT NULL, 
-	prefix VARCHAR(255) NOT NULL, 
-	conclusion VARCHAR(255), 
-	PRIMARY KEY (id), 
-	UNIQUE (id)
 )
 ;
 CREATE TABLE poligrafs (
@@ -240,7 +209,7 @@ CREATE TABLE poligrafs (
 	theme VARCHAR(255), 
 	results TEXT, 
 	user_id INTEGER, 
-	deadline DATE DEFAULT GETDATE(), 
+	deadline DATE DEFAULT (DATETIME('now')), 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -253,7 +222,7 @@ CREATE TABLE investigations (
 	theme VARCHAR(255), 
 	info TEXT, 
 	user_id INTEGER, 
-	deadline DATE DEFAULT GETDATE(), 
+	deadline DATE DEFAULT (DATETIME('now')), 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -267,7 +236,7 @@ CREATE TABLE inquiries (
 	initiator VARCHAR(255), 
 	source VARCHAR(255), 
 	user_id INTEGER, 
-	deadline DATE DEFAULT GETDATE(), 
+	deadline DATE DEFAULT (DATETIME('now')), 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -286,7 +255,7 @@ CREATE TABLE connects (
 	mobile VARCHAR(255), 
 	mail VARCHAR(255), 
 	comment TEXT, 
-	data DATE DEFAULT GETDATE(), 
+	data DATE DEFAULT (DATETIME('now')), 
 	PRIMARY KEY (id), 
 	UNIQUE (id)
 )

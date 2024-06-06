@@ -5,13 +5,12 @@ from flask.views import MethodView
 
 from . import bp
 from config import Config
-from ..tools.depends import roles_required
+from ..tools.depends import jwt_required
 from ..tools.queries import select_all, execute
-from ..tools.classes import Roles
 
 
 class ConnnectView(MethodView):
-    decorators = [roles_required(Roles.user.value)]
+    decorators = [jwt_required()]
 
     def get(self, page):
         """
@@ -52,7 +51,8 @@ class ConnnectView(MethodView):
         """
         json_data = request.get_json()
         execute(
-            f"INSERT INTO connects ({','.join(json_data.keys())}, data) VALUES ({','.join(['?']*len(json_data))})",
+            f"INSERT INTO connects ({','.join(json_data.keys())}, data) \
+                VALUES ({','.join(['?']*len(json_data))})",
             (",".join(json_data.values()), datetime.now()),
         )
         return jsonify({"message": "Created"}), 201

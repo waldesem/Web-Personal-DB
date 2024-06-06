@@ -21,7 +21,7 @@ def execute(query, args=None):
             con.rollback()
 
 
-def execute_script(query, args=None):
+def execute_script(query):
     with sqlite3.connect(Config.DATABASE_URI) as con:
         cursor = con.cursor()
         try:

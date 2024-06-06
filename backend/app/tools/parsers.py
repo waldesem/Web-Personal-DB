@@ -2,8 +2,8 @@ from datetime import datetime
 import re
 
 from ..tools.folders import Folders
-from ..tools.queries import select_all, select_single, execute
-from .classes import Statuses
+from ..tools.queries import select_single, execute
+from .classes import Regions, Statuses
 
 
 class Resume:
@@ -23,15 +23,6 @@ class Resume:
             (surname, firstname, patronymic, birthday,),
         )
 
-    def change_status(self, status, user_id=None):
-        status = select_single(
-            "SELECT * FROM statuses WHERE name = ?", 
-            (status,)
-        )
-        execute(
-            "UPDATE person SET status_id = ? WHERE user_id = ?", (status["id"], user_id)
-        )
-
     def check_resume(self):
         person = self.get_person(
             self.resume["surname"],
@@ -40,10 +31,16 @@ class Resume:
             self.resume["birthday"],
         )
         if person:
-            self.change_status(Statuses.repeat.value)
+            execute(
+                "UPDATE person SET status = ? WHERE user_id = ?", 
+                (Statuses.repeat.name, None,)
+            )
             return self.update_resume(person.id)
         else:
-            self.change_status(Statuses.new.value)
+            execute(
+                "UPDATE person SET status = ? WHERE user_id = ?", 
+                (Statuses.new.name, None,)
+            )
             return self.add_resume()
 
     def update_resume(self, person_id):
@@ -143,12 +140,9 @@ class Anketa(Resume):
         
     @staticmethod
     def parse_json(json_dict) -> None:
-        status = select_single(
-            "SELECT * FROM statuses WHERE name = ?", (Statuses.new.name,)
-        )
         json_data = {
             "resume": {
-                "status_id": status["id"],
+                "status": Statuses.new.name,
                 "region_id": Anketa.get_region_id(json_dict),
                 "firstname": json_dict["firstName"].strip().upper(),
                 "surname": json_dict["lastName"].strip().upper(),
@@ -311,13 +305,12 @@ class Anketa(Resume):
 
     @staticmethod
     def get_region_id(json_dict):
-        region_id = 1
+        region = Regions.main.name
         if "department" in json_dict:
             divisions = re.split(r"/", json_dict["department"].strip())
-            result = select_all("SELECT * FROM regions")
             for div in divisions:
-                for item in result:
-                    if item['region'] == div:
-                        region_id = item['id']
+                for item in [reg.name for reg in Regions]:
+                    if item == div:
+                        region = div
                         break
-        return region_id
+        return region

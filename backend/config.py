@@ -7,7 +7,6 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.abspath(os.path.join("..", 'candidates.db'))
     DATABASE_URI = os.path.abspath(os.path.join("..", 'database.db'))
     DATABASE_SQL = os.path.abspath(os.path.join("..", "database.sql"))
     BASE_PATH = os.path.abspath(os.path.join("..", "persons"))

@@ -1,9 +1,8 @@
-from datetime import datetime
 import os
 import secrets
 
-from app.tools.classes import Conclusions, Regions, Roles, Statuses
-from app.tools.queries import execute_script, execute, select_single
+from app.tools.classes import Regions
+from app.tools.queries import execute_script, execute
 from config import Config
 from werkzeug.security import generate_password_hash
 
@@ -31,88 +30,16 @@ def register_cli(app):
         with open(Config.DATABASE_SQL, "r", encoding="utf-8") as file:
             sql = file.read()
             execute_script(sql)
-            for query in [
-                (
-                    "INSERT INTO roles (prefix, role) VALUES (?, ?)",
-                    [
-                        (
-                            role.name,
-                            role.value,
-                        )
-                        for role in Roles
-                    ],
-                ),
-                (
-                    "INSERT INTO statuses (prefix, status) VALUES (?, ?)",
-                    [
-                        (
-                            status.name,
-                            status.value,
-                        )
-                        for status in Statuses
-                    ],
-                ),
-                (
-                    "INSERT INTO conclusions (prefix, conclusion) VALUES (?, ?)",
-                    [
-                        (
-                            conclusion.name,
-                            conclusion.value,
-                        )
-                        for conclusion in Conclusions
-                    ],
-                ),
-                (
-                    "INSERT INTO regions (prefix, region) VALUES (?, ?)",
-                    [
-                        (
-                            region.name,
-                            region.value,
-                        )
-                        for region in Regions
-                    ],
-                ),
-            ]:
-                execute(*query)
-
-            user_id = execute(
-                "INSERT INTO users (fullname, username, password, email, \
-                    pswd_create, change_pswd, last_login, blocked, deleted, \
-                        attempt, created, updated, region_id) \
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            execute(
+                "INSERT INTO users (fullname, username, password, email, has_admin, region) \
+                    VALUES (?, ?, ?, ?, ?, ?)",
                 (
                     "Администратор",
                     "superadmin",
-                    generate_password_hash(
-                        Config.DEFAULT_PASSWORD,
-                        method="scrypt",
-                        salt_length=16,
-                    ),
-                    "admin@example",
-                    datetime.now(),
-                    False,
-                    None,
-                    0,
-                    0,
-                    0,
-                    datetime.now(),
-                    None,
+                    generate_password_hash(Config.DEFAULT_PASSWORD),
+                    "admin@example.ru",
                     1,
+                    Regions.main.value,
                 ),
             )
-
-            admin = select_single(
-                "SELECT * FROM roles WHERE role = 'admin'",
-            )
-            user = select_single(
-                "SELECT * FROM roles WHERE role = 'user'",
-            )
-            execute(
-                "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
-                [
-                    (user_id, admin["id"]),
-                    (user_id, user[0]),
-                ],
-            )
-
         print("Tables created and filled")

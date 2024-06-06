@@ -9,14 +9,13 @@ from . import bp
 from config import Config
 from ..tools.folders import Folders
 from ..tools.parsers import Anketa
-from ..tools.depends import roles_required
+from ..tools.depends import jwt_required
 from ..tools.queries import select_single
-from ..tools.classes import Roles
 
 
 class FileView(MethodView):
 
-    decorators = [roles_required(Roles.user.value)]
+    decorators = [jwt_required()]
 
     def get(self, item_id):
         """
