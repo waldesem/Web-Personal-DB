@@ -17,10 +17,12 @@ def get_users():
     Endpoint to handle requests for getting users.
     """
     search_data = request.args.get("search")
-    return jsonify(select_all(
-        "SELECT * FROM users WHERE username ILIKE '%{}%' ORDER BY id DESC"
-        .format(search_data)
-    )), 200
+    users = select_all(
+        "SELECT * FROM users WHERE username LIKE '%{}%' ORDER BY id DESC".format(
+            search_data
+        )
+    )
+    return jsonify(users), 200
 
 
 class UserView(MethodView):
@@ -41,9 +43,13 @@ class UserView(MethodView):
                     user_id,
                 ),
             )
-        return jsonify(
-            select_single("SELECT * FROM users WHERE id = ?", (user_id,))
-        ), 200
+        elif action_data == "block":
+            execute(
+                "UPDATE users SET blocked = 1 WHERE id = ?",
+                (user_id,),
+            )
+        user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
+        return jsonify(user), 200
 
     def post(self):
         """
@@ -54,7 +60,7 @@ class UserView(MethodView):
             "SELECT * FROM users WHERE username = ?", (json_data.get("username"),)
         )
         if user:
-            return {"message": "Denied"}, 403
+            return "", 205
         execute(
             "INSERT INTO users (fullname, username, email, password, has_admin, region) \
                 VALUES (?, ?, ?, ?, ?, ?)",
@@ -67,7 +73,7 @@ class UserView(MethodView):
                 json_data.get("region"),
             ),
         )
-        return {"message": "Created"}, 201
+        return "", 201
 
     def patch(self, user_id, json_data):
         """
@@ -75,8 +81,9 @@ class UserView(MethodView):
         """
         json_data: dict = request.get_json()
         execute(
-            "UPDATE users SET fullname=?, username=?, email=?, has_admin=?, updated =?, region=? \
-                 WHERE id = ?",
+            "UPDATE users SET \
+                fullname = ?, username = ?, email = ?, has_admin = ?, updated = ?, region = ? \
+                    WHERE id = ?",
             (
                 json_data.get("fullname"),
                 json_data.get("username"),
@@ -87,14 +94,14 @@ class UserView(MethodView):
                 user_id,
             ),
         )
-        return {"message": "Changed"}, 201
+        return "", 201
 
     def delete(self, user_id):
         """
         Delete a user by their ID.
         """
         execute(
-            "UPDATE users SET blocked = 1 WHERE id = ?",
+            "UPDATE users SET deleted = 1 WHERE id = ?",
             (user_id,),
         )
         return "", 204

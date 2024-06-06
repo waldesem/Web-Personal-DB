@@ -3,8 +3,8 @@ from functools import wraps
 
 from flask import abort, request
 
-from .queries import select_single
 from config import Config
+from .queries import select_single
 
 
 class Token:
@@ -13,19 +13,21 @@ class Token:
     @classmethod
     def get_auth(cls, token):
         Token.current_user = None
-        token = token.replace("Basic ", "")
-        decoded = b64decode(token).decode()
-        secret, user_id, _ = decoded.split(":")
-        if secret and user_id == Config.SECRET_KEY:
+        cuted = token.replace("Basic ", "")
+        decoded = b64decode(cuted).decode()
+        secret, user_id, *_ = decoded.split(":")
+        if secret == Config.SECRET_KEY:
             user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
-            if user and not user["blocked"]:
+            if user and not user["blocked"] and not user["deleted"]:
                 Token.current_user = user
                 return True
         return False
 
 
-def create_token(user_id, has_admin):
-    return b64encode(f"{Config.SECRET_KEY}:{user_id}:{has_admin}".encode()).decode()
+def create_token(user_id, fullname, username, has_admin):
+    return b64encode(
+        f"{Config.SECRET_KEY}:{user_id}:{fullname};{username}:{has_admin}".encode()
+    ).decode()
 
 
 def jwt_required():

@@ -4,28 +4,23 @@ from flask import jsonify, request
 from flask.views import MethodView
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from . import bp
 from ..tools.depends import create_token
-from ..tools.queries import select_single, execute
+from ..tools.queries import execute, select_single
+from . import bp
 
 
 class LoginView(MethodView):
     """Login view"""
-
-    @staticmethod
-    def select_user(username):
-        return select_single(
-            "SELECT * FROM users WHERE username = ?", 
-            (username,)
-        )
 
     def post(self):
         """
         Post method for the given API endpoint.
         """
         json_data = request.get_json()
-        user = self.select_user(json_data["username"])
-        if user and not user["blocked"]:
+        user = select_single(
+            "SELECT * FROM users WHERE username = ?", (json_data.get("username"),)
+        )
+        if user and not user["blocked"] and not user["deleted"]:
             if check_password_hash(user["password"], json_data["password"]):
                 delta_change = datetime.now() - datetime.fromisoformat(
                     user["pswd_create"]
@@ -37,15 +32,17 @@ class LoginView(MethodView):
                     )
                     return jsonify(
                         {
-                            "message": "Authenticated",
                             "user_token": create_token(
-                                user["id"], user["has_admin"]
+                                user["id"],
+                                user["fullname"],
+                                user["username"],
+                                user["has_admin"],
                             ),
                         }
-                    ), 201
-                return jsonify({"message": "Overdue"}), 201
+                    ), 200
+                return "", 205
             else:
-                if user["attempt"] < 9:
+                if user["attempt"] < 5:
                     execute(
                         "UPDATE users SET attempt = ? WHERE id = ?",
                         (user["attempt"] + 1, user["id"]),
@@ -55,17 +52,20 @@ class LoginView(MethodView):
                         "UPDATE users SET blocked = ? WHERE id = ?",
                         (True, user["id"]),
                     )
-        return jsonify({"message": "Denied"}), 204
+        return "", 204
 
     def patch(self):
         """
         Patch method for updating user password.
         """
         json_data = request.get_json()
-        user = self.select_user(json_data["username"])
+        user = select_single(
+            "SELECT * FROM users WHERE username = ?", (json_data["username"],)
+        )
         if (
             user
             and not user["blocked"]
+            and not user["deleted"]
             and check_password_hash(user["password"], json_data["password"])
         ):
             execute(
@@ -77,8 +77,8 @@ class LoginView(MethodView):
                     user["id"],
                 ),
             )
-            return jsonify({"message": "Changed"}), 201
-        return jsonify({"message": "Denied"}), 204
+            return "", 201
+        return "", 204
 
 
 bp.add_url_rule("/login", view_func=LoginView.as_view("login"))

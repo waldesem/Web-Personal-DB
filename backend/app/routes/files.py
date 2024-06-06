@@ -71,4 +71,6 @@ class FileView(MethodView):
 
 
 file_view = FileView.as_view("file")
-bp.add_url_rule("/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"])
+bp.add_url_rule(
+    "/file/<action>/<int:item_id>", view_func=file_view, methods=["POST"]
+)

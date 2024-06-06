@@ -12,29 +12,44 @@ from ..tools.classes import Conclusions, Regions, Statuses
 
 
 class IndexView(MethodView):
-
     @jwt_required()
     def get(self, flag, page):
         search_data = request.args.get("search")
         if flag == "search":
             if Token.current_user["region"] != Regions.main.name:
                 result = select_all(
-                    f"SELECT * FROM person WHERE region = ? AND surname LIKE ? "
-                    f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
-                    f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
-                    (Token.current_user["region"], f"%{search_data}%"),
+                    "SELECT * FROM person WHERE region = ? AND surname LIKE %{}% \
+                        LEFT JOIN users on users.id = person.user_id \
+                            ORDER BY {} {} OFFSET {} LIMIT {}".format(
+                        request.args.get("sort"),
+                        request.args.get("order"),
+                        search_data,
+                        page - 1,
+                        Config.PAGINATION + 1,
+                    ),
+                    (Token.current_user["region"],),
                 )
             else:
                 result = select_all(
-                    f"SELECT * FROM person WHERE surname LIKE ? "
-                    f"ORDER BY {request.args.get('sort')} {request.args.get('order')} "
-                    f"OFFSET {page - 1} LIMIT {Config.PAGINATION + 1}",
-                    (f"%{search_data}%",),
+                    "SELECT * FROM person WHERE region = ? AND surname LIKE %{}% \
+                        ORDER BY {} {} OFFSET {} LIMIT {}".format(
+                        request.args.get("sort"),
+                        request.args.get("order"),
+                        search_data,
+                        page - 1,
+                        Config.PAGINATION + 1,
+                    ),
                 )
 
         elif flag == "officer":
             result = select_all(
-                "SELECT * FROM person WHERE status NOT IN (?, ?) AND user_id = ?",
+                "SELECT * FROM person WHERE status NOT IN (?, ?) AND user_id = ? \
+                    ORDER BY {} {} OFFSET {} LIMIT {}".format(
+                    request.args.get("sort"),
+                    request.args.get("order"),
+                    page - 1,
+                    Config.PAGINATION + 1,
+                ),
                 (Statuses.finish.name, Statuses.cancel.name, Token.current_user["id"]),
             )
         has_next = True if len(result) > Config.PAGINATION else False
@@ -51,7 +66,6 @@ bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index")
 
 
 class InformationView(MethodView):
-
     @jwt_required()
     def get(query_data):
         query_data = request.args
@@ -79,8 +93,7 @@ def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.
     """
-    person = select_single("SELECT * FROM person WHERE id = ?", (item_id,)
-    )
+    person = select_single("SELECT * FROM person WHERE id = ?", (item_id,))
     folders = Folders(
         person["id"], person["surname"], person["firstname"], person["patronymic"]
     )
@@ -92,12 +105,8 @@ def get_image(item_id):
 
 @bp.get("/classes")
 def get_classes():
-    results = []
-    query = select_all("SELECT id, fullname FROM users")
-    results.append({q["id"]: q['fullname'] for q in query})
-    for items in [Regions, Statuses, Conclusions]:
-        enums = {}
-        for item in items:
-            enums.update({item.name: item.value})
-        results.append(enums)
+    results = [
+        {item.name: item.value for item in items} 
+        for items in [Regions, Statuses, Conclusions]
+    ]
     return jsonify(results)

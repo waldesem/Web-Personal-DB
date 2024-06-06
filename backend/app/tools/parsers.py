@@ -19,8 +19,10 @@ class Resume:
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
         return select_single(
-            "SELECT * FROM person WHERE surname = ? AND firstname = ? AND patronymic = ? AND birthday = ?",
-            (surname, firstname, patronymic, birthday,),
+            "SELECT * FROM person \
+                WHERE surname LIKE %{}% AND firstname LIKE %{}% AND patronymic LIKE %{}% AND birthday = ?"
+            .format(surname, firstname, patronymic)
+            (birthday,),
         )
 
     def check_resume(self):
@@ -45,8 +47,10 @@ class Resume:
 
     def update_resume(self, person_id):
         execute(
-            f"UPDATE person SET {self.resume}, updated = ? WHERE id = ?",
-            datetime.now(), person_id
+            f"UPDATE person SET {','.join(key + '=?' for key in self.resume.keys())}, updated = ? \
+                WHERE person_id = ?",
+                tuple(self.resume.values() + (datetime.now(), person_id,)
+            )
         )
         return person_id
 
@@ -66,7 +70,7 @@ class Resume:
         )
         path = folders.create_main_folder()
         execute(
-            "UPDATE person SET path = ? WHERE id = ?", (path, person_id)
+            "UPDATE person SET path = ? WHERE id = ?", (path, person_id,)
         )
         return person_id
 

@@ -1,20 +1,3 @@
-
-CREATE TABLE user_roles (
-	user_id INTEGER NOT NULL, 
-	role_id INTEGER NOT NULL, 
-	PRIMARY KEY (user_id, role_id), 
-	FOREIGN KEY(user_id) REFERENCES users (id), 
-	FOREIGN KEY(role_id) REFERENCES roles (id)
-)
-;
-CREATE TABLE roles (
-	id INTEGER NOT NULL,
-	role VARCHAR(255) NOT NULL, 
-	PRIMARY KEY (id), 
-	UNIQUE (id), 
-	UNIQUE (role)
-)
-;
 CREATE TABLE users (
 	id INTEGER NOT NULL, 
 	fullname VARCHAR(255) NOT NULL, 
@@ -24,7 +7,8 @@ CREATE TABLE users (
 	pswd_create DATETIME DEFAULT (DATETIME('now')), 
 	change_pswd BOOLEAN DEFAULT 1, 
 	last_login DATETIME, 
-	blocked BOOLEAN DEFAULT 0, 
+	blocked BOOLEAN DEFAULT 0,
+	deleted BOOLEAN DEFAULT 0,
 	attempt INTEGER DEFAULT 0,
 	has_admin BOOLEAN DEFAULT 0,
 	created DATETIME DEFAULT (DATETIME('now')), 
@@ -34,16 +18,6 @@ CREATE TABLE users (
 	UNIQUE (id), 
 	UNIQUE (username), 
 	UNIQUE (email)
-)
-;
-CREATE TABLE messages (
-	id INTEGER NOT NULL, 
-	message TEXT NOT NULL, 
-	created DEFAULT (DATETIME('now')), 
-	user_id INTEGER NOT NULL, 
-	PRIMARY KEY (id), 
-	UNIQUE (id), 
-	FOREIGN KEY(user_id) REFERENCES users (id)
 )
 ;
 CREATE TABLE persons (
@@ -75,7 +49,7 @@ CREATE TABLE previous (
 	surname VARCHAR(255), 
 	firstname VARCHAR(255), 
 	patronymic VARCHAR(255), 
-	date_change DATE, 
+	date_change INTEGER, 
 	reason TEXT, 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
@@ -159,7 +133,7 @@ CREATE TABLE affilations (
 	name TEXT, 
 	inn VARCHAR(255), 
 	position TEXT, 
-	deadline DATE, 
+	data INTEGER, 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
