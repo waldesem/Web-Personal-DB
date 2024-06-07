@@ -6,11 +6,11 @@ from werkzeug.security import generate_password_hash
 
 from config import Config
 from . import bp
-from ..tools.depends import admin_required
+from ..tools.depends import user_required, jwt_required
 from ..tools.queries import select_single, select_all, execute
 
 
-@admin_required()
+@user_required(admin=True)
 @bp.get("/users")
 def get_users():
     """
@@ -26,7 +26,7 @@ def get_users():
 
 
 class UserView(MethodView):
-    decorators = [admin_required()]
+    decorators = [jwt_required()]
 
     def get(self, user_id):
         """

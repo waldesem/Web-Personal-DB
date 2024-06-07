@@ -6,17 +6,17 @@ from flask.views import MethodView
 from . import bp
 from config import Config
 from ..tools.folders import Folders
-from ..tools.depends import Token, jwt_required
+from ..tools.depends import current_user, jwt_required, user_required
 from ..tools.queries import select_all, select_single
 from ..tools.classes import Conclusions, Regions, Statuses
 
 
 class IndexView(MethodView):
-    @jwt_required()
+    @user_required()
     def get(self, flag, page):
         search_data = request.args.get("search")
         if flag == "search":
-            if Token.current_user["region"] != Regions.main.name:
+            if current_user["region"] != Regions.main.name:
                 result = select_all(
                     "SELECT * FROM person WHERE region = ? AND surname LIKE %{}% \
                         LEFT JOIN users on users.id = person.user_id \
@@ -27,7 +27,7 @@ class IndexView(MethodView):
                         page - 1,
                         Config.PAGINATION + 1,
                     ),
-                    (Token.current_user["region"],),
+                    (current_user["region"],),
                 )
             else:
                 result = select_all(
@@ -50,7 +50,7 @@ class IndexView(MethodView):
                     page - 1,
                     Config.PAGINATION + 1,
                 ),
-                (Statuses.finish.name, Statuses.cancel.name, Token.current_user["id"]),
+                (Statuses.finish.name, Statuses.cancel.name, current_user["id"]),
             )
         has_next = True if len(result) > Config.PAGINATION else False
         return jsonify(

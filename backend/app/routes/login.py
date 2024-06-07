@@ -36,6 +36,7 @@ class LoginView(MethodView):
                                 user["id"],
                                 user["fullname"],
                                 user["username"],
+                                user["region"],
                                 user["has_admin"],
                             ),
                         }

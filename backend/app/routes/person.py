@@ -4,15 +4,14 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 from . import bp
-from ..tools.depends import Token, jwt_required
+from ..tools.depends import current_user, jwt_required, user_required
 from ..tools.parsers import Resume
 from ..tools.queries import execute, select_all, select_single
 from ..tools.classes import Statuses, Conclusions
 
 
 class AnketaView(MethodView):
-    decorators = [jwt_required()]
-
+    @user_required()
     def get(self, person_id):
         action = request.args.get("action")
         if action == "status":
@@ -29,7 +28,7 @@ class AnketaView(MethodView):
                 "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
                 (
                     Statuses.manual.name,
-                    Token.current_user["id"],
+                    current_user["id"],
                     person_id,
                 ),
             )
@@ -40,16 +39,19 @@ class AnketaView(MethodView):
         )
         return jsonify(person), 201
 
+    @jwt_required()
     def delete(self, person_id):
         execute("DELETE FROM persons WHERE id = ?", (person_id,))
         return "", 204
 
+    @jwt_required()
     def patch(self, person_id):
         json_data = request.get_json()
         resume = Resume(json_data)
         resume.update_resume(person_id)
         return jsonify({"message": person_id}), 201
 
+    @jwt_required()
     def post(self):
         json_data = request.get_json()
         resume = Resume(json_data)
@@ -71,8 +73,7 @@ bp.add_url_rule(
 
 
 class ItemsView(MethodView):
-    decorators = [jwt_required()]
-
+    @jwt_required()
     def get(self, item, item_id):
         items = select_all(
             f"SELECT * FROM {item} WHERE person_id = ? ORDER BY id ASC",
@@ -80,16 +81,13 @@ class ItemsView(MethodView):
         )
         return jsonify(items)
 
+    @user_required()
     def post(self, item, item_id):
         json_data = request.get_json() | {"person_id": item_id}
         json_data = {}
         for k, v in json_data.items():
-            if k in [
-                "issue",
-                "start_date",
-                "end_date",
-            ]:
-                json_data[k] = datetime.strptime(v, "%Y-%m-%d").date() if v else None
+            if k in ["issue", "start_date", "end_date"]:
+                json_data[k] = datetime.strptime(v, "%Y-%m-%d")
             elif k in ["now_work", "pfo"]:
                 json_data[k] = True if v else False
 
@@ -127,7 +125,7 @@ class ItemsView(MethodView):
             )
 
         if item in ["check", "poligraf", "inquiry", "investigation"]:
-            json_data = json_data | {"user_id": Token.current_user.id}
+            json_data = json_data | {"user_id": current_user.id}
             if item == "check":
                 if json_data["conclusion"] == Conclusions.saved.name:
                     execute(
@@ -163,18 +161,18 @@ class ItemsView(MethodView):
         )
         return "", 201
 
+    @user_required()
     def patch(self, item, item_id):
         json_data = request.get_json()
         for k, v in json_data.items():
-            if k != "deadline":
-                if k in [
-                    "issue",
-                    "start_date",
-                    "end_date",
-                ]:
-                    json_data[k] = datetime.strptime(v, "%Y-%m-%d").date()
-                elif k in ["now_work", "pfo"]:
-                    json_data[k] = bool(v) if v else False
+            if k == "updated":
+                json_data[k] = datetime.now()
+            elif k in ["issue", "start_date", "end_date", "created"]:
+                json_data[k] = datetime.strptime(v, "%Y-%m-%d")
+            elif k in ["now_work", "pfo"]:
+                json_data[k] = bool(v) if v else False
+            elif k == "user_id":
+                json_data[k] = current_user.id
         execute(
             f"UPDATE {item} SET {','.join(key + '=?' for key in json_data.keys())} \
                 WHERE person_id = ?",
@@ -182,6 +180,7 @@ class ItemsView(MethodView):
         )
         return "", 201
 
+    @jwt_required()
     def delete(self, item, item_id):
         execute(
             f"DELETE FROM {item} WHERE person_id = ?",
