@@ -1,7 +1,5 @@
 export interface Resume {
   id: string;
-  region_id: string;
-  user_id: string;
   surname: string;
   firstname: string;
   patronymic: string;
@@ -14,10 +12,11 @@ export interface Resume {
   marital: string;
   addition: string;
   path: string;
-  status_id: string;
+  status: string;
   created: string;
   updated: string;
-  request_id: string;
+  region: string;
+  user_id: string;
 }
 
 export interface Previous {
@@ -87,7 +86,7 @@ export interface Affilation {
   name: string;
   inn: string;
   position: string;
-  deadline: string;
+  created: string;
 }
 
 export interface Verification {
@@ -107,9 +106,9 @@ export interface Verification {
   cros: string;
   addition: string;
   pfo: boolean;
-  conclusion_id: string;
+  conclusion: string;
   comments: string;
-  deadline: string;
+  created: string;
   user_id: string;
 }
 
@@ -118,7 +117,8 @@ export interface Pfo {
   theme: string;
   results: string;
   user_id: string;
-  deadline: string;
+  created: string;
+  updated: string;
 }
 
 export interface Inquisition {
@@ -126,7 +126,8 @@ export interface Inquisition {
   theme: string;
   info: string;
   user_id: string;
-  deadline: string;
+  created: string;
+  updated: string;
 }
 
 export interface Needs {
@@ -135,18 +136,8 @@ export interface Needs {
   initiator: string;
   source: string;
   user_id: string;
-  deadline: string;
-}
-
-export interface Message {
-  id: string;
-  message: string;
   created: string;
-}
-
-export interface Role {
-  id: string;
-  role: string;
+  updated: string;
 }
 
 export interface User {
@@ -157,15 +148,13 @@ export interface User {
   pswd_create: string;
   change_pswd: boolean;
   last_login: string;
-  roles: Role[];
+  has_admin: boolean;
   blocked: boolean;
   deleted: boolean;
   attempt: string;
-}
-
-export interface Message {
-  message: string;
+  region: string;
   created: string;
+  updated: string;
 }
 
 export interface Connection {
@@ -180,16 +169,4 @@ export interface Connection {
   mail: string;
   comment: string;
   data: string;
-}
-
-export interface ConnectionForm {
-  name: string;
-  company: string;
-  city: string;
-  fullname: string;
-  phone: string;
-  adding: string;
-  mobile: string;
-  mail: string;
-  comment: string;
 }
