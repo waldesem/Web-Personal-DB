@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateAlert } from "@/state";
+import { stateAlert, stateClassify } from "@/state";
 import { server, clearForm } from "@/utilities";
 import { User } from "@/interfaces";
 
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+);
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
+)
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
 );
@@ -71,43 +77,48 @@ async function submitUser(): Promise<void> {
   <div class="p-3">
     <form
       @submit.prevent="submitUser"
-      class="form form-check border rounded p-"
+      class="form form-check"
       role="form"
     >
-      <div class="row m-3">
-        <div class="col col-auto">
-          <InputElement
-            :name="'fullname'"
-            :place="'Имя пользователя'"
-            :pattern="'[a-zA-Zа-яА-Я ]+'"
-            v-model="userForm['fullname']"
-          />
-        </div>
-        <div class="col col-auto">
-          <InputElement
-            :name="'username'"
-            :place="'Учетная запись'"
-            :pattern="'[a-zA-Z]+'"
-            :need="props.action === 'edit'"
-            v-model="userForm['username']"
-          />
-        </div>
-        <div class="col col-auto">
-          <InputElement
-            :name="'email'"
-            :place="'Электронная почта'"
-            :typeof="'email'"
-            v-model="userForm['email']"
-          />
-        </div>
-        <div class="col col-auto">
-          <SwitchBox
-            :name="'admin'"
-            :label="'Администратор'"
-            v-model="userForm['has_admin']"
-          />
-        </div>
-      </div>
+      <LabelSlot :label="'Имя пользователя'">
+        <InputElement
+          :name="'fullname'"
+          :place="'Имя пользователя'"
+          :pattern="'[a-zA-Zа-яА-Я ]+'"
+          v-model="userForm['fullname']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Учетная запись'">
+        <InputElement
+          :name="'username'"
+          :place="'Учетная запись'"
+          :pattern="'[a-zA-Z]+'"
+          :need="props.action === 'edit'"
+          v-model="userForm['username']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Электронная почта'">
+        <InputElement
+          :name="'email'"
+          :place="'Электронная почта'"
+          :typeof="'email'"
+          v-model="userForm['email']"
+        />
+      </LabelSlot>
+      <LabelSlot :label="'Регион'">
+        <SelectObject
+          :name="'region'"
+          :place="'Регион'"
+          :select="stateClassify.regions"
+          v-model="userForm['region']"
+        />
+      </LabelSlot>
+      <SwitchBox
+        :div-class="'offset-lg-2 col-lg-10'"
+        :name="'admin'"
+        :label="'Администратор'"
+        v-model="userForm['has_admin']"
+      />
       <div class="row m-3">
         <div class="col col-auto">
           <BtnGroup :offset="false">

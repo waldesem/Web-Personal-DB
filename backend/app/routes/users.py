@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash
 
 from config import Config
 from . import bp
-from ..tools.depends import user_required, jwt_required
+from ..tools.depends import user_required, current_user
 from ..tools.queries import select_single, select_all, execute
 
 
@@ -18,32 +18,36 @@ def get_users():
     """
     search_data = request.args.get("search", "")
     users = select_all(
-        "SELECT * FROM users WHERE username LIKE ? ORDER BY id DESC", ('%' + search_data + '%',)
+        "SELECT * FROM users WHERE username LIKE '%{}%' ORDER BY id DESC".format(search_data),
     )
     return jsonify(users), 200
 
 
 class UserView(MethodView):
-    decorators = [jwt_required()]
 
+    @user_required()
     def get(self, user_id):
         """
         Retrieves a user based on the specified action and user ID.
         """
         action_data = request.args.get("action")
-        query = "UPDATE users SET "
-        values = []
-        if action_data == "drop":
-            query += "password = ?, attempt = ?, change_pswd = ? "
-            values.extend((generate_password_hash(Config.DEFAULT_PASSWORD), 0, True))
-        elif action_data == "block":
-            query += "blocked = 1 "
-        query += "WHERE id = ?"
-        values.append(user_id)
-        execute(query, values)
+        if action_data != "view":
+            query = "UPDATE users SET "
+            values = []
+            if action_data == "drop":
+                query += "password = ?, attempt = ?, change_pswd = ? "
+                values.extend((generate_password_hash(Config.DEFAULT_PASSWORD), 0, True))
+            elif action_data == "block":
+                user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
+                query += "blocked = ? "
+                values.append(int(not user['blocked']))
+            query += "WHERE id = ?"
+            values.append(user_id)
+            execute(query, values)
         user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
         return jsonify(user), 200
 
+    @user_required()
     def post(self):
         """
         Creates a new user based on the provided JSON data.
@@ -68,7 +72,8 @@ class UserView(MethodView):
         )
         return "", 201
 
-    def patch(self, user_id, json_data):
+    @user_required()
+    def patch(self, user_id):
         """
         Patch a user's information.
         """
@@ -89,10 +94,13 @@ class UserView(MethodView):
         )
         return "", 201
 
+    @user_required(admin=True)
     def delete(self, user_id):
         """
         Delete a user by their ID.
         """
+        if user_id == current_user["id"]:
+            return "", 205
         execute(
             "UPDATE users SET deleted = 1 WHERE id = ?",
             (user_id,),

@@ -63,12 +63,16 @@ async function userDelete(): Promise<void> {
       const response = await axiosAuth.delete(
         `${server}/user/${userData.value.id}`
       );
-      console.log(response.status);
-      stateAlert.setAlert(
-        "alert-success",
-        "Пользователь отмечен к удалению"
-      );
-      userAction("view");
+      const status =response.status;
+      if(status === 204) {
+        stateAlert.setAlert(
+          "alert-success",
+          "Пользователь отмечен к удалению"
+        );
+        userAction("view");
+      } else {
+        stateAlert.setAlert("alert-danger", "Произошла ошибка");
+      }
     } catch (error) {
       stateAlert.setAlert("alert-danger", error as string);
     }
@@ -79,9 +83,19 @@ async function userDelete(): Promise<void> {
 <template>
   <HeaderDiv
     :page-header="userData.profile.fullname"
-    :cls="'text-secondary py-3'"
+    :cls="'text-secondary py-5'"
   />
-  <div class="mb-3">
+  <UserForm
+    v-if="userData.action"
+    :action="userData.action"
+    :item="userData.profile"
+    @update="
+      userData.action = '';
+      userAction('view');
+    "
+    @cancel="userData.action = '';"
+  />
+  <div v-else class="mb-3">
     <LabelSlot :label="'ID'">
       {{ userData.profile.id }}
     </LabelSlot>
@@ -97,8 +111,8 @@ async function userDelete(): Promise<void> {
     <LabelSlot :label="'Дата создания'">
       {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") }}
     </LabelSlot>
-    <LabelSlot :label="'Дата изменения'">
-      {{ userData.profile.change_pswd }}
+    <LabelSlot :label="'Требует смены пароля'">
+      {{ userData.profile.change_pswd ? "Да" : "Нет" }}
     </LabelSlot>
     <LabelSlot :label="'Дата последнего входа'">
       {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") }}
@@ -113,17 +127,8 @@ async function userDelete(): Promise<void> {
       {{ userData.profile.deleted ? "Удален" : "Активен" }}
     </LabelSlot>
     <LabelSlot :label="'Администратор'">
-      {{ userData.profile.has_admin }}
+      {{ userData.profile.has_admin ? "Да" : "Нет" }}
     </LabelSlot>
-    <UserForm
-      v-if="userData.action"
-      :action="userData.action"
-      :item="userData.profile"
-      @update="
-        userData.action = '';
-        userAction('view');
-      "
-    />
     <BtnGroup :offset="false">
       <button
         class="btn btn-outline-primary"

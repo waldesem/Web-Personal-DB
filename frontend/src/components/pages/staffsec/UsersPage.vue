@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateAlert } from "@/state";
+import { stateAlert, stateClassify } from "@/state";
 import { server, debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
 
@@ -28,7 +28,7 @@ onBeforeMount(() => {
 
 const users = computed(() => {
   return dataUsers.value.users.filter(
-    (user: User) => user.deleted === dataUsers.value.viewDeleted
+    (user: User) => user.deleted == dataUsers.value.viewDeleted
   );
 });
 
@@ -77,7 +77,7 @@ async function getUsers() {
     />
   </div>
   <UserForm
-    v-if="dataUsers.action"
+    v-show="dataUsers.action"
     :action="dataUsers.action"
     @update="
       dataUsers.action = '';
@@ -85,7 +85,9 @@ async function getUsers() {
     "
     @cancel="dataUsers.action = ''"
   />
-  <TableSlots :tbl-class="'table align-middle'">
+  <TableSlots 
+    v-show="dataUsers.action === ''"
+    :tbl-class="'table align-middle'">
     <template v-slot:caption>
       <button
         class="btn btn-link text-secondary"
@@ -103,15 +105,16 @@ async function getUsers() {
       <tr>
         <th width="10%">#</th>
         <th>Имя пользователя</th>
-        <th width="20%">Логин</th>
-        <th width="15%">Блокировка</th>
+        <th width="15%">Логин</th>
+        <th width="10%">Блокировка</th>
         <th width="15%">Создан</th>
         <th width="15%">Вход</th>
+        <th width="15%">Регион</th>
       </tr>
     </template>
     <template v-slot:tbody>
       <tr>
-        <td colspan="6">
+        <td colspan="7">
           <TableSlots
             id="overflow"
             :tbl-class="'table table-hover align-middle no-bottom-border'"
@@ -120,17 +123,20 @@ async function getUsers() {
               <tr height="50px" v-for="user in users" :key="user.id">
                 <td width="10%">{{ user.id }}</td>
                 <td>{{ user.fullname }}</td>
-                <td width="20%">
+                <td width="15%">
                   <router-link :to="{ name: 'user', params: { id: user.id } }">
                     {{ user.username }}
                   </router-link>
                 </td>
-                <td width="15%">{{ user.blocked }}</td>
+                <td width="10%">{{ user.blocked }}</td>
                 <td width="15%">
                   {{ timeSince(user.pswd_create) }}
                 </td>
                 <td width="15%">
                   {{ timeSince(user.last_login) }}
+                </td>
+                <td width="15%">
+                  {{ stateClassify.regions[user.region] }}
                 </td>
               </tr>
             </template>
