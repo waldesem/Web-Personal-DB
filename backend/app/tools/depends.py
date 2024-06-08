@@ -38,7 +38,7 @@ def get_current_user():
 def create_token(user):
     token_parts = [
         Config.SECRET_KEY,
-        user["id"],
+        str(user["id"]),
         user["fullname"],
         user["username"],
         user["region"],
@@ -49,15 +49,15 @@ def create_token(user):
 
 
 def jwt_required():
-    def wrapper(func):
+    def decorator(func):
         @wraps(func)
-        def decorated_view(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
                 return func(*args, **kwargs)
             abort(401)
-        return decorated_view
-    return wrapper
+        return wrapper
+    return decorator
 
 
 def user_required(admin=False):
@@ -65,14 +65,14 @@ def user_required(admin=False):
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
-            user = get_auth(header)
-            if user and (
-                not user["blocked"]
-                and not user["deleted"]
-                and (not admin or user["has_admin"])
-            ):
-                return func(*args, **kwargs)
-            abort(403 if user else 401)
+            if header and get_auth(header):
+                if current_user and (
+                    not current_user["blocked"]
+                    and not current_user["deleted"]
+                    and (not admin or current_user["has_admin"])
+                ):
+                    return func(*args, **kwargs)
+                abort(403 if current_user else 401)
 
         return wrapper
 

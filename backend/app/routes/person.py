@@ -148,9 +148,9 @@ class ItemsView(MethodView):
                         )
 
             if item == "poligraf":
-                if person["status_id"] == Statuses.poligraf.name:
+                if person["status"] == Statuses.poligraf.name:
                     execute(
-                        "UPDATE persons SET status_id = ? WHERE id = ?",
+                        "UPDATE persons SET status = ? WHERE id = ?",
                         (Statuses.finish.name, item_id),
                     )
 

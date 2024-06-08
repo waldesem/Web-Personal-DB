@@ -39,7 +39,7 @@ def register_cli(app):
                     generate_password_hash(Config.DEFAULT_PASSWORD),
                     "admin@example.ru",
                     1,
-                    Regions.main.value,
+                    Regions.main.name,
                 ),
             )
         print("Tables created and filled")

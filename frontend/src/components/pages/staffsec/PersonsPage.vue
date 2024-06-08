@@ -43,7 +43,7 @@ const theadData = {
   "region_id": ["Регион", "15%"],
   "surname": ["Фамилия Имя Отчество", "25%"],
   "birthday": ["Дата рождения", "15%"],
-  "status_id": ["Статус", "10%"],
+  "status": ["Статус", "10%"],
   "created": ["Создан", "10%"],
   "user_id": ["Сотрудник", "15%"],
 }
@@ -58,7 +58,7 @@ const personData = ref({
   prev: false,
   next: false,
   search: "",
-  sort: "status_id",
+  sort: "status",
   order: "asc",
   path: "search",
   updated: `${new Date().toLocaleDateString(
@@ -86,7 +86,6 @@ async function getCandidates(page = 1): Promise<void> {
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-
 
   } catch (error) {
     console.error(error);
@@ -163,7 +162,7 @@ const searchPerson = debounce(() => {
         height="50px"
       >
         <td>{{ candidate.id }}</td>
-        <td>{{ stateClassify.regions[candidate.region_id] }}</td>
+        <td>{{ stateClassify.regions[candidate.region] }}</td>
         <td>
           <router-link
             :to="{
@@ -183,9 +182,9 @@ const searchPerson = debounce(() => {
         </td>
         <td>
           <label
-            :class="`fs-6 badge bg-${statusColor[candidate.status_id as keyof typeof statusColor]}`"
+            :class="`fs-6 badge bg-${statusColor[candidate.status as keyof typeof statusColor]}`"
           >
-            {{ stateClassify.status[candidate.status_id] }}
+            {{ stateClassify.status[candidate.status] }}
           </label>
         </td>
         <td>

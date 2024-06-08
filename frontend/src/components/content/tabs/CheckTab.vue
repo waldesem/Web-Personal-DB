@@ -37,9 +37,9 @@ const check = ref({
   itemId: "",
   item: <Verification>{},
   hideEditBtn:
-    stateAnketa.anketa.resume["status_id"] !== stateClassify.status["save"] &&
-    stateAnketa.anketa.resume["status_id"] !== stateClassify.status["cancel"] &&
-    stateAnketa.anketa.resume["status_id"] !== stateClassify.status["manual"],
+    stateAnketa.anketa.resume["status"] !== stateClassify.status["save"] &&
+    stateAnketa.anketa.resume["status"] !== stateClassify.status["cancel"] &&
+    stateAnketa.anketa.resume["status"] !== stateClassify.status["manual"],
   showActions: false
 });
 
@@ -84,7 +84,7 @@ function submitForm(form: Object, action: string) {
                 stateClassify.status['save'],
                 stateClassify.status['cancel'],
                 stateClassify.status['manual'],
-              ].includes(stateAnketa.anketa.resume['status_id']) &&
+              ].includes(stateAnketa.anketa.resume['status']) &&
               stateAnketa.anketa.resume['user_id'] !== stateUser.userId
             "
           >

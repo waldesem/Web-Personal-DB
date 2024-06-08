@@ -5,10 +5,11 @@ from config import Config
 
 def execute(query, args=None):
     with sqlite3.connect(Config.DATABASE_URI) as con:
+        cursor = con.cursor()
         try:
-            con.execute(query, args or ())
+            cursor.execute(query, args or ())
             lastrowid = (
-                con.execute("SELECT last_insert_rowid()").fetchone()[0]
+                cursor.execute("SELECT last_insert_rowid()").fetchone()[0]
                 if "INSERT" in query
                 else None
             )
@@ -21,18 +22,23 @@ def execute(query, args=None):
 
 def execute_script(query):
     with sqlite3.connect(Config.DATABASE_URI) as con:
-        con.executescript(query)
+        cursor = con.cursor()
+        cursor.executescript(query)
         con.commit()
 
 
 def select_all(query, args=None):
     with sqlite3.connect(Config.DATABASE_URI) as con:
+        cursor = con.cursor()
         try:
             if args is None:
-                result = con.execute(query)
+                result = cursor.execute(query)
             else:
-                result = con.execute(query, args)
-            return [dict(row) for row in result.fetchall()]
+                result = cursor.execute(query, args)
+            if result:
+                columns = [desc[0] for desc in cursor.description]
+                return [dict(zip(columns, res)) for res in result.fetchall()]
+            return []
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()
@@ -40,12 +46,14 @@ def select_all(query, args=None):
 
 def select_single(query, args=None):
     with sqlite3.connect(Config.DATABASE_URI) as con:
+        cursor = con.cursor()
         try:
             if args is None:
-                result = con.execute(query).fetchone()
+                result = cursor.execute(query).fetchone()
             else:
-                result = con.execute(query, args).fetchone()
-            return dict(zip(*result)) if result else None
+                result = cursor.execute(query, args).fetchone()
+            columns = [desc[0] for desc in cursor.description] if result else []
+            return dict(zip(columns, result)) if result else None
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()

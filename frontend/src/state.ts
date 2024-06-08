@@ -1,4 +1,4 @@
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import { server } from "@/utilities";
@@ -21,9 +21,13 @@ import {
 
 export const stateUser = reactive({
   userId: "",
+  fullname: "",
+  username: "",
+  region: "",
   hasAdmin: false,
-  userToken: localStorage.getItem("user_token") as any,
 });
+
+export const userToken = ref(localStorage.getItem("user_token") as any) || "";
 
 export const stateClassify = reactive({
   status: <Record<string, any>>{},
@@ -139,8 +143,7 @@ export const stateAnketa = {
 
       if (param === "image") {
         this.share.imageUrl = window.URL.createObjectURL(
-          new Blob([response.data]
-          )
+          new Blob([response.data])
         );
       } else {
         this.anketa[param as keyof typeof this.anketa] = response.data;
@@ -179,8 +182,8 @@ export const stateAnketa = {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
     if (
       param === "check" &&
-      (this.anketa.resume.status_id === stateClassify.status["finish"] ||
-        this.anketa.resume.status_id === stateClassify.status["robot"])
+      (this.anketa.resume.status === stateClassify.status["finish"] ||
+        this.anketa.resume.status === stateClassify.status["robot"])
     ) {
       stateAlert.setAlert(
         "alert-warning",
@@ -190,7 +193,7 @@ export const stateAnketa = {
     }
     if (
       ["robot", "finish"].includes(
-        stateClassify.status[this.anketa.resume["status_id"]]
+        stateClassify.status[this.anketa.resume["status"]]
       )
     ) {
       stateAlert.setAlert(

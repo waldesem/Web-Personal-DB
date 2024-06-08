@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import { stateUser, stateClassify } from "@/state";
+import { stateUser } from "@/state";
 import { router } from "@/router";
 
 const AlertMessage = defineAsyncComponent(
   () => import("@components/content/elements/AlertMessage.vue")
 );
-const MessageDiv = defineAsyncComponent(
-  () => import('@components/content/divs/MessageDiv.vue')
-)
 async function userLogout(): Promise<void> {
   localStorage.removeItem("user_token");
   router.push({ name: "login" });
@@ -27,8 +24,9 @@ async function userLogout(): Promise<void> {
               class="btn btn-link dropdown-toggle"
               role="button"
               data-bs-toggle="dropdown"
-              :title="stateClassify.users[stateUser.userId]"
+              :title="stateUser.fullname"
             >
+              {{ stateUser.username }}
               <i class="bi bi-person-circle fs-3"></i>
             </button>
             <ul class="dropdown-menu">

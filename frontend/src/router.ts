@@ -50,7 +50,7 @@ export const router = createRouter({
         {
           path: "user/:id",
           name: "user",
-          component: () => import("@components/pages/staffsec/UserProfile.vue"),
+          component: () => import("@components/pages/staffsec/ProfileUser.vue"),
         },
       ],
     },

@@ -54,33 +54,27 @@ async function getUsers() {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Список пользователей'" :cls="'text-secondary py-3'"/>
-  <input
-    @input.prevent="searchUsers"
-    class="form-control mb-3"
-    name="search"
-    id="search"
-    type="text"
-    placeholder="Поиск по имени пользователя"
-    v-model="dataUsers.search"
+  <HeaderDiv 
+    :page-header="'Список пользователей'" 
+    :cls="'text-secondary py-5'"
   />
-  <div class="d-flex justify-content-between">
+  <div class="row mb-3">
+    <input
+      @input.prevent="searchUsers"
+      class="form-control mb-3"
+      name="search"
+      id="search"
+      type="text"
+      placeholder="Поиск по имени пользователя"
+      v-model="dataUsers.search"
+    />
+  </div>
+  <div class="d-flex justify-content-between mb-3">
     <SwitchBox
       :name="'viewDeleted'"
       :label="'Показать удаленные'"
       v-model="dataUsers.viewDeleted"
     />
-    <button
-      class="btn btn-link text-secondary"
-      type="button"
-      @click="
-        dataUsers.action === ''
-          ? (dataUsers.action = 'create')
-          : (dataUsers.action = '')
-      "
-    >
-      {{ dataUsers.action === "" ? "Добавить пользователя" : "Закрыть" }}
-    </button>
   </div>
   <UserForm
     v-if="dataUsers.action"
@@ -89,9 +83,22 @@ async function getUsers() {
       dataUsers.action = '';
       getUsers();
     "
+    @cancel="dataUsers.action = ''"
   />
   <TableSlots :tbl-class="'table align-middle'">
-    <template v-slot:caption>{{ "Список пользователей" }}</template>
+    <template v-slot:caption>
+      <button
+        class="btn btn-link text-secondary"
+        type="button"
+        @click="
+          dataUsers.action === ''
+            ? (dataUsers.action = 'create')
+            : (dataUsers.action = '')
+        "
+      >
+        Добавить пользователя
+      </button>
+    </template>
     <template v-slot:thead>
       <tr>
         <th width="10%">#</th>

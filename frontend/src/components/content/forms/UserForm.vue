@@ -8,6 +8,9 @@ import { User } from "@/interfaces";
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
+const SwitchBox = defineAsyncComponent(
+  () => import("@components/content/elements/SwitchBox.vue")
+);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
@@ -15,7 +18,7 @@ const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
 
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update", "cancel"]);
 
 const props = defineProps({
   action: {
@@ -85,7 +88,7 @@ async function submitUser(): Promise<void> {
             :name="'username'"
             :place="'Учетная запись'"
             :pattern="'[a-zA-Z]+'"
-            :disabled="props.action === 'edit'"
+            :need="props.action === 'edit'"
             v-model="userForm['username']"
           />
         </div>
@@ -98,9 +101,19 @@ async function submitUser(): Promise<void> {
           />
         </div>
         <div class="col col-auto">
+          <SwitchBox
+            :name="'admin'"
+            :label="'Администратор'"
+            v-model="userForm['has_admin']"
+          />
+        </div>
+      </div>
+      <div class="row m-3">
+        <div class="col col-auto">
           <BtnGroup :offset="false">
             <GroupContent
               :submit-btn="props.action === 'create' ? 'Создать' : 'Изменить'"
+              @cancel="emit('cancel')"
             />
           </BtnGroup>
         </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateAlert, stateClassify } from "@/state";
+import { stateAlert } from "@/state";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 import { router } from "@/router";
@@ -8,9 +8,6 @@ import { User } from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
-);
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -77,31 +74,6 @@ async function userDelete(): Promise<void> {
     }
   }
 }
-
-async function updateRole(action: string, value: string): Promise<void> {
-  if (value) {
-    try {
-      const response =
-        action === "add"
-          ? await axiosAuth.get(
-              `${server}/role/${value}/${userData.value.id}`
-            )
-          : await axiosAuth.delete(
-              `${server}/role/${value}/${userData.value.id}`
-            );
-      console.log(response.status);
-      userAction("view");
-
-      stateAlert.setAlert(
-        "alert-success",
-        `Роль ${action === "add" ? "добавлена" : "удалена"}`
-      );
-    } catch (error) {
-      stateAlert.setAlert("alert-danger", error as string);
-    }
-    userData.value.role = "";
-  }
-}
 </script>
 
 <template>
@@ -140,25 +112,8 @@ async function updateRole(action: string, value: string): Promise<void> {
     <LabelSlot :label="'Активность'">
       {{ userData.profile.deleted ? "Удален" : "Активен" }}
     </LabelSlot>
-    <LabelSlot :label="'Роли'">
-      <ul v-for="(role, index) in userData.profile.roles" :key="index">
-        <li>
-          {{ role["role"] }}
-          <button 
-            type="button" 
-            class="btn btn-link" 
-            @click="updateRole('delete', role['id'])"
-          >
-            <i class="bi bi-dash-circle"></i>
-          </button>
-        </li>
-      </ul>
-      <SelectObject
-        :name="'role'"
-        :select="stateClassify.roles"
-        v-model="userData.role"
-        @submit-data="updateRole('add', userData.role)"
-      />
+    <LabelSlot :label="'Администратор'">
+      {{ userData.profile.has_admin }}
     </LabelSlot>
     <UserForm
       v-if="userData.action"

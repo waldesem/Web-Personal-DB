@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, watch } from "vue";
-import { onMounted } from "vue";
-import { stateMessage, stateUser } from "@/state";
+import { defineAsyncComponent, onBeforeMount } from "vue";
+import { stateUser } from "@/state";
+import { router } from "@/router";
 
 const NavBar = defineAsyncComponent(
   () => import("@components/content/layouts/NavBar.vue")
@@ -10,14 +10,17 @@ const MenuBar = defineAsyncComponent(
   () => import("@components/content/layouts/MenuBar.vue")
 );
 
-onMounted(async () => {
-  await stateMessage.updateMessages();
-});
-
-watch(stateUser.userToken, (token: string) => {
+onBeforeMount(() => {
+  const token = localStorage.getItem("user_token") as string;
+  if (!token) {
+    router.push({ name: "login" });
+  }
   const payload = window.atob(token).split(":")
   stateUser.userId = payload[1];
-  stateUser.hasAdmin = payload[2].includes("admin");
+  stateUser.fullname = payload[2];
+  stateUser.username = payload[3];
+  stateUser.region = payload[4];
+  stateUser.hasAdmin = payload[5] === "1";
 })
 </script>
 

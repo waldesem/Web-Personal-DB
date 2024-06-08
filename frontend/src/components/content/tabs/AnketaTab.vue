@@ -71,7 +71,7 @@ const dataResume = ref({
         "
         @update="dataResume.action = 'update'"
         :disable="
-          stateClassify.status[stateAnketa.anketa.resume['status_id']] ===
+          stateClassify.status[stateAnketa.anketa.resume['status']] ===
           'finish'
         "
       >
@@ -123,7 +123,7 @@ const dataResume = ref({
       {{ stateAnketa.anketa.resume["addition"] }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
-      {{ stateClassify.status[stateAnketa.anketa.resume["status_id"]] }}
+      {{ stateClassify.status[stateAnketa.anketa.resume["status"]] }}
     </LabelSlot>
     <LabelSlot :label="'Дата создания'">
       {{

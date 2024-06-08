@@ -17,21 +17,21 @@ class IndexView(MethodView):
         search_data = request.args.get("search", "")
         offset = (page - 1) * Config.PAGINATION
         limit = Config.PAGINATION + 1
-        query = "SELECT * FROM person"
+        query = "SELECT * FROM persons "
         args = []
         if flag == "search":
-            query += " WHERE surname LIKE %{}%".format(search_data)
+            query += " WHERE surname LIKE '%{}%' ".format(search_data)
             if current_user["region"] != Regions.main.name:
-                query += " AND region = ?"
-                args.append(current_user["region"])
-        elif flag == "officer":
-            query += " WHERE status NOT IN (?, ?) AND user_id = ?"
-            args.append(Statuses.finish.name, Statuses.cancel.name, current_user["id"])
-        query += " ORDER BY {} {} LIMIT {} OFFSET {}".format(
+                query += " AND region = ? "
+                args.append(current_user["region"]) 
+        if flag == "officer":
+            query += " WHERE status NOT IN (?, ?) AND user_id = ? "
+            args.extend([Statuses.finish.name, Statuses.cancel.name, current_user["id"]])
+        query += " ORDER BY {} {} LIMIT {} OFFSET {} ".format(
             request.args.get("sort"), request.args.get("order"), limit, offset
         )
         result = select_all(query, tuple(args) if args else (""))
-        has_next = len(result) > Config.PAGINATION
+        has_next = len(result) > Config.PAGINATION if result else False
         result = result[:Config.PAGINATION] if has_next else result
         return jsonify(
             {

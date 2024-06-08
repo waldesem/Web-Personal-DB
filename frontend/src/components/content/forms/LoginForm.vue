@@ -52,10 +52,9 @@ const loginData = ref({
       loginData.value.action === "password"
         ? await axios.patch(`${server}/login`, loginData.value.form)
         : await axios.post(`${server}/login`, loginData.value.form);
-    const { message, user_token } = response.data;
 
-    switch (message) {
-      case "Changed":
+    switch (response.status) {
+      case 201:
         loginData.value.action = "login";
         stateAlert.setAlert(
           "alert-success",
@@ -63,12 +62,13 @@ const loginData = ref({
         );
         break
         
-      case "Authenticated":
+      case 200:
+        const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
         router.push({name: "persons"});
         break;
 
-      case "Overdue":
+      case 205:
         loginData.value.action = "password";
         stateAlert.setAlert(
           "alert-warning",
@@ -76,7 +76,7 @@ const loginData = ref({
         );
         break;
 
-      case "Denied":
+      case 204:
         loginData.value.action = "login";
         stateAlert.setAlert(
           "alert-danger",

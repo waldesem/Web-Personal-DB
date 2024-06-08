@@ -80,7 +80,7 @@ const tabsData = ref({
             stateClassify.status['save'],
             stateClassify.status['repeat'],
             stateClassify.status['manual'],
-          ].includes(stateAnketa.anketa.resume['status_id']) &&
+          ].includes(stateAnketa.anketa.resume['status']) &&
           stateAnketa.anketa.resume['user_id'] != stateUser.userId
         "
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
