@@ -16,11 +16,9 @@ def get_users():
     """
     Endpoint to handle requests for getting users.
     """
-    search_data = request.args.get("search")
+    search_data = request.args.get("search", "")
     users = select_all(
-        "SELECT * FROM users WHERE username LIKE '%{}%' ORDER BY id DESC".format(
-            search_data
-        )
+        "SELECT * FROM users WHERE username LIKE ? ORDER BY id DESC", ('%' + search_data + '%',)
     )
     return jsonify(users), 200
 
@@ -33,21 +31,16 @@ class UserView(MethodView):
         Retrieves a user based on the specified action and user ID.
         """
         action_data = request.args.get("action")
+        query = "UPDATE users SET "
+        values = []
         if action_data == "drop":
-            execute(
-                "UPDATE users SET password = ?, attempt = ?, change_pswd = ? WHERE id = ?",
-                (
-                    generate_password_hash(Config.DEFAULT_PASSWORD),
-                    0,
-                    True,
-                    user_id,
-                ),
-            )
+            query += "password = ?, attempt = ?, change_pswd = ? "
+            values.extend((generate_password_hash(Config.DEFAULT_PASSWORD), 0, True))
         elif action_data == "block":
-            execute(
-                "UPDATE users SET blocked = 1 WHERE id = ?",
-                (user_id,),
-            )
+            query += "blocked = 1 "
+        query += "WHERE id = ?"
+        values.append(user_id)
+        execute(query, values)
         user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
         return jsonify(user), 200
 

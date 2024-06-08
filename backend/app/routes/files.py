@@ -9,29 +9,29 @@ from . import bp
 from config import Config
 from ..tools.folders import Folders
 from ..tools.parsers import Anketa
-from ..tools.depends import jwt_required
+from ..tools.depends import user_required
 from ..tools.queries import select_single
 
 
 class FileView(MethodView):
 
-    decorators = [jwt_required()]
+    decorators = [user_required()]
 
     def get(self, item_id):
         """
         Retrieves a file from the server and sends it as a response.
         """
         person = select_single(
-            "SELECT * FROM person WHERE id = ?", 
+            "SELECT path FROM person WHERE id = ?", 
             (item_id,)
         )
-        if person["path"]:
+        if person:
             file_path = os.path.join(
                 Config.BASE_PATH, person["path"], "image", "image.jpg"
             )
             if os.path.isfile(file_path):
                 return send_file(file_path, as_attachment=True)
-        return abort(404)
+        abort(404)
 
     def post(self, action, item_id=None):
         file = request.files["file"]

@@ -17,43 +17,35 @@ class LoginView(MethodView):
         Post method for the given API endpoint.
         """
         json_data = request.get_json()
-        user = select_single(
-            "SELECT * FROM users WHERE username = ?", (json_data.get("username"),)
-        )
-        if user and not user["blocked"] and not user["deleted"]:
-            if check_password_hash(user["password"], json_data["password"]):
-                delta_change = datetime.now() - datetime.fromisoformat(
-                    user["pswd_create"]
-                )
-                if not user["change_pswd"] and delta_change.days < 365:
-                    execute(
-                        "UPDATE users SET last_login = ?, attempt = ? WHERE id = ?",
-                        (datetime.now(), 0, user["id"]),
-                    )
-                    return jsonify(
-                        {
-                            "user_token": create_token(
-                                user["id"],
-                                user["fullname"],
-                                user["username"],
-                                user["region"],
-                                user["has_admin"],
-                            ),
-                        }
-                    ), 200
-                return "", 205
-            else:
-                if user["attempt"] < 5:
-                    execute(
-                        "UPDATE users SET attempt = ? WHERE id = ?",
-                        (user["attempt"] + 1, user["id"]),
-                    )
-                else:
-                    execute(
-                        "UPDATE users SET blocked = ? WHERE id = ?",
-                        (True, user["id"]),
-                    )
-        return "", 204
+        query = "SELECT id, password, last_login, attempt, change_pswd, blocked, deleted, has_admin, region, username, fullname FROM users WHERE username = ? FOR UPDATE"
+        user = select_single(query, (json_data.get("username"),))
+        if not user or user["blocked"] or user["deleted"]:
+            return "", 204
+        password = json_data["password"]
+        if not check_password_hash(user["password"], password):
+            user["attempt"] = min(user["attempt"] + 1, 5)
+            if user["attempt"] == 5:
+                execute("UPDATE users SET blocked = ? WHERE id = ?", (True, user["id"]))
+            return "", 401
+        delta_change = datetime.now() - user["last_login"]
+        if not user["change_pswd"] and delta_change.days < 365:
+            execute(
+                "UPDATE users SET last_login = ?, attempt = ? WHERE id = ?",
+                (datetime.now(), 0, user["id"]),
+            )
+            return jsonify(
+                {
+                    "user_token": create_token(
+                        user["id"],
+                        user["fullname"],
+                        user["username"],
+                        user["region"],
+                        user["has_admin"],
+                    ),
+                },
+                200,
+            )
+        return "", 205
 
     def patch(self):
         """
@@ -61,24 +53,16 @@ class LoginView(MethodView):
         """
         json_data = request.get_json()
         user = select_single(
-            "SELECT * FROM users WHERE username = ?", (json_data["username"],)
+            "SELECT id, password FROM users WHERE username = %s FOR UPDATE",
+            (json_data["username"],),
         )
-        if (
-            user
-            and not user["blocked"]
-            and not user["deleted"]
-            and check_password_hash(user["password"], json_data["password"])
-        ):
-            execute(
-                "UPDATE users SET password = ?, change_pswd = ? attempt = ? WHERE id = ?",
-                (
-                    generate_password_hash(json_data["new_pswd"]),
-                    False,
-                    0,
-                    user["id"],
-                ),
-            )
-            return "", 201
+        if user and not user["blocked"] and not user["deleted"]:
+            if check_password_hash(user["password"], json_data["password"]):
+                execute(
+                    "UPDATE users SET password = %s, change_pswd = FALSE, attempt = 0 WHERE id = %s",
+                    (generate_password_hash(json_data["new_pswd"]), user["id"]),
+                )
+                return "", 201
         return "", 204
 
 

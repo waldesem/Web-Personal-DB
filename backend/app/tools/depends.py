@@ -13,10 +13,12 @@ current_user = LocalProxy(lambda: get_current_user())
 
 
 def get_auth(token):
-    cuted = token.replace("Basic ", "")
-    decoded = b64decode(cuted).decode()
-    secret, g.user_id, *_ = decoded.split(":")
-    return secret == Config.SECRET_KEY
+    try:
+        decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 2)
+        g.user_id = decoded[1]
+        return decoded[0] == Config.SECRET_KEY
+    except (IndexError, UnicodeDecodeError):
+        return False
 
 
 def get_current_user():
@@ -34,28 +36,28 @@ def get_current_user():
 
 
 def create_token(user):
-    return (
-        b64encode(
-            f"{Config.SECRET_KEY}:{user['id']}:{user['fullname']};{user['username']}:{user['region']}:{user['has_admin']}"
-        )
-        .encode()
-        .decode()
-    )
+    token_parts = [
+        Config.SECRET_KEY,
+        user["id"],
+        user["fullname"],
+        user["username"],
+        user["region"],
+        str(user["has_admin"]),
+    ]
+    token = ":".join(token_parts)
+    return b64encode(token.encode()).decode()
 
 
 def jwt_required():
-    def decorator(func):
+    def wrapper(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def decorated_view(*args, **kwargs):
             header = request.headers.get("Authorization")
-            if get_auth(header):
+            if header and get_auth(header):
                 return func(*args, **kwargs)
-            else:
-                abort(401)
-
-        return wrapper
-
-    return decorator
+            abort(401)
+        return decorated_view
+    return wrapper
 
 
 def user_required(admin=False):
@@ -63,19 +65,14 @@ def user_required(admin=False):
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
-            if get_auth(header):
-                if current_user:
-                    if admin:
-                        if current_user["has_admin"]:
-                            return func(*args, **kwargs)
-                        else:
-                            abort(403)
-                    else:
-                        return func(*args, **kwargs)
-                else:
-                    abort(403)
-            else:
-                abort(401)
+            user = get_auth(header)
+            if user and (
+                not user["blocked"]
+                and not user["deleted"]
+                and (not admin or user["has_admin"])
+            ):
+                return func(*args, **kwargs)
+            abort(403 if user else 401)
 
         return wrapper
 

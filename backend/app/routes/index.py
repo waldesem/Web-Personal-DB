@@ -14,52 +14,32 @@ from ..tools.classes import Conclusions, Regions, Statuses
 class IndexView(MethodView):
     @user_required()
     def get(self, flag, page):
-        search_data = request.args.get("search")
+        search_data = request.args.get("search", "")
+        offset = (page - 1) * Config.PAGINATION
+        limit = Config.PAGINATION + 1
+        query = "SELECT * FROM person"
+        args = []
         if flag == "search":
+            query += " WHERE surname LIKE %{}%".format(search_data)
             if current_user["region"] != Regions.main.name:
-                result = select_all(
-                    "SELECT * FROM person WHERE region = ? AND surname LIKE %{}% \
-                        LEFT JOIN users on users.id = person.user_id \
-                            ORDER BY {} {} OFFSET {} LIMIT {}".format(
-                        request.args.get("sort"),
-                        request.args.get("order"),
-                        search_data,
-                        page - 1,
-                        Config.PAGINATION + 1,
-                    ),
-                    (current_user["region"],),
-                )
-            else:
-                result = select_all(
-                    "SELECT * FROM person WHERE region = ? AND surname LIKE %{}% \
-                        ORDER BY {} {} OFFSET {} LIMIT {}".format(
-                        request.args.get("sort"),
-                        request.args.get("order"),
-                        search_data,
-                        page - 1,
-                        Config.PAGINATION + 1,
-                    ),
-                )
-
+                query += " AND region = ?"
+                args.append(current_user["region"])
         elif flag == "officer":
-            result = select_all(
-                "SELECT * FROM person WHERE status NOT IN (?, ?) AND user_id = ? \
-                    ORDER BY {} {} OFFSET {} LIMIT {}".format(
-                    request.args.get("sort"),
-                    request.args.get("order"),
-                    page - 1,
-                    Config.PAGINATION + 1,
-                ),
-                (Statuses.finish.name, Statuses.cancel.name, current_user["id"]),
-            )
-        has_next = True if len(result) > Config.PAGINATION else False
+            query += " WHERE status NOT IN (?, ?) AND user_id = ?"
+            args.append(Statuses.finish.name, Statuses.cancel.name, current_user["id"])
+        query += " ORDER BY {} {} LIMIT {} OFFSET {}".format(
+            request.args.get("sort"), request.args.get("order"), limit, offset
+        )
+        result = select_all(query, tuple(args) if args else (""))
+        has_next = len(result) > Config.PAGINATION
+        result = result[:Config.PAGINATION] if has_next else result
         return jsonify(
             {
-                "persons": result if not has_next else result[:-1],
+                "persons": result,
                 "has_next": has_next,
-                "has_prev": True if page > 1 else False,
+                "has_prev": page > 1,
             }
-        )
+        ), 200
 
 
 bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))

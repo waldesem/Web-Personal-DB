@@ -44,18 +44,18 @@ class AnketaView(MethodView):
         execute("DELETE FROM persons WHERE id = ?", (person_id,))
         return "", 204
 
-    @jwt_required()
+    @user_required()
     def patch(self, person_id):
         json_data = request.get_json()
         resume = Resume(json_data)
-        resume.update_resume(person_id)
+        resume.update_resume(person_id, manual=True)
         return jsonify({"message": person_id}), 201
 
-    @jwt_required()
+    @user_required()
     def post(self):
         json_data = request.get_json()
         resume = Resume(json_data)
-        person_id = resume.check_resume()
+        person_id = resume.update_status()
         return jsonify({"message": person_id}), 201
 
 

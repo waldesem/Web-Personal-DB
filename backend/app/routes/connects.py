@@ -16,29 +16,27 @@ class ConnnectView(MethodView):
         """
         Retrieves a paginated list of Connect objects based on the specified group and item.
         """
-        search_data = request.args.get("search")
-        result = select_all(
-            "SELECT * FROM connects ORDER BY id DESC OFFSET ? LIMIT ?",
-            (page - 1, Config.PAGINATION,),
-        )
+        search_data = request.args.get("search", "")
+        offset = (page - 1) * Config.PAGINATION
+        limit = Config.PAGINATION + 1
+        query = "SELECT * FROM connects"
         if search_data:
-            result = select_all(
-                "SELECT * FROM connects WHERE company LIKE '%{}%' ORDER BY id DESC OFFSET ? LIMIT ?".format(
-                    search_data
-                ),
-                (page - 1, Config.PAGINATION,),
-            )
-        has_next = True if len(result) > Config.PAGINATION else False
+            query += " WHERE company LIKE ?"
+            search_data = "%" + search_data + "%"
+        query += " ORDER BY id DESC LIMIT ? OFFSET ?"
+        result = select_all(query, (search_data, limit, offset,))
+        has_next = len(result) > Config.PAGINATION
+        result = result[:Config.PAGINATION] if has_next else result
         names = select_all("SELECT DISTINCT name FROM connects ORDER BY name")
         companies = select_all(
             "SELECT DISTINCT company FROM connects ORDER BY company"
         )
-        cities = select_all("SELECT DISTINCT city fROM connects ORDER BY city")
+        cities = select_all("SELECT DISTINCT city FROM connects ORDER BY city")
         return jsonify(
             {
-                "contacts": result if not has_next else result[:-1],
+                "contacts": result,
                 "has_next": has_next,
-                "has_prev": True if page > 1 else False,
+                "has_prev": page > 1,
                 "names": [n["name"] for n in names],
                 "companies": [c["company"] for c in companies],
                 "cities": [c["city"] for c in cities],
@@ -50,12 +48,14 @@ class ConnnectView(MethodView):
         Create a new connection.
         """
         json_data = request.get_json()
-        execute(
-            f"INSERT INTO connects ({','.join(json_data.keys())}, data) \
-                VALUES ({','.join(['?']*len(json_data))})",
-            (",".join(json_data.values()), datetime.now()),
+        keys, args = zip(*json_data.items())
+        query = "INSERT INTO connects ({}) VALUES ({})".format(
+            ",".join(keys),
+            ",".join("?" for _ in keys)
         )
-        return jsonify({"message": "Created"}), 201
+        execute(query, args)
+        return "", 201
+
 
     def patch(self, item_id):
         """
@@ -63,18 +63,18 @@ class ConnnectView(MethodView):
         """
         json_data = request.get_json()
         json_data["data"] = datetime.now()
-        execute(
-            f"UPDATE connects SET {','.join(key + '=?' for key in json_data.keys())} WHERE id = ?",
-            tuple(json_data.values()) + (item_id,),
-        )
-        return jsonify({"message": "Updated"}), 201
+        query_parts = ', '.join(key + '=?' for key in json_data.keys())
+        args = tuple(json_data.values()) + (item_id,)
+        query = f"UPDATE connects SET {query_parts} WHERE id = ?"
+        execute(query, args)
+        return "", 201
 
     def delete(self, item_id):
         """
         Deletes an item from the database.
         """
-        execute(f"DELETE FROM connects WHERE id = {item_id}")
-        return jsonify({"message": "Deleted"}), 204
+        execute("DELETE FROM connects WHERE id = ?", (item_id,))
+        return "", 204
 
 
 contacts_view = ConnnectView.as_view("connect")

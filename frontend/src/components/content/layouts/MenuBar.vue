@@ -21,10 +21,7 @@ async function userLogout(): Promise<void> {
         <div class="col-10 text-center">
           <AlertMessage/>
         </div>
-        <div class="col-1 text-start">
-          <MessageDiv/>
-        </div>
-        <div class="col-1 text-end">
+        <div class="col-2 text-end">
           <div class="dropdown">
             <button
               class="btn btn-link dropdown-toggle"
