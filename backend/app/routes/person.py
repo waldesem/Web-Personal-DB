@@ -92,12 +92,12 @@ class ItemsView(MethodView):
             if json_data.get("pfo"):
                 execute(
                     "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
-                    (Statuses.poligraf.name, None, item_id,),
+                    (Statuses.poligraf.name, "", item_id,),
                 )
             else:
                 execute(
                     "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
-                    (Statuses.finish.name, None, item_id,),
+                    (Statuses.finish.name, "", item_id,),
                 )
 
     @jwt_required()
