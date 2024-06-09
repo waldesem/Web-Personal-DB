@@ -56,9 +56,9 @@ function submitForm(form: Object, action: string) {
     @cancel="emit('cancel')"
     @submit="submitForm"
   />
-  <div v-else-if="stateAnketa.anketa.check.length" class='py-3'> 
+  <div v-else-if="stateAnketa.anketa.checks.length" class='py-3'> 
     <div
-      v-for="(item, idx) in stateAnketa.anketa.check" :key="idx" 
+      v-for="(item, idx) in stateAnketa.anketa.checks" :key="idx" 
       @mouseover="check.showActions = true"
       @mouseout="check.showActions = false"
       class="card card-body mb-3"

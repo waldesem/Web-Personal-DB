@@ -30,8 +30,8 @@ export const stateUser = reactive({
 export const userToken = ref(localStorage.getItem("user_token") as any) || "";
 
 export const stateClassify = reactive({
-  status: <Record<string, any>>{},
   regions: <Record<string, any>>{},
+  status: <Record<string, any>>{},
   conclusions: <Record<string, any>>{},
 });
 
@@ -53,18 +53,18 @@ export const stateAnketa = {
   anketa: reactive({
     resume: {} as Resume,
     previous: [] as Previous[],
-    education: [] as Education[],
-    staff: [] as Staff[],
-    document: [] as Document[],
-    address: [] as Address[],
-    contact: [] as Contact[],
-    relation: [] as Relation[],
-    workplace: [] as Work[],
-    affilation: [] as Affilation[],
-    check: [] as Verification[],
-    poligraf: [] as Pfo[],
-    investigation: [] as Inquisition[],
-    inquiry: [] as Needs[],
+    educations: [] as Education[],
+    staffs: [] as Staff[],
+    documents: [] as Document[],
+    addresses: [] as Address[],
+    contacts: [] as Contact[],
+    relations: [] as Relation[],
+    workplaces: [] as Work[],
+    affilations: [] as Affilation[],
+    checks: [] as Verification[],
+    poligrafs: [] as Pfo[],
+    investigations: [] as Inquisition[],
+    inquiries: [] as Needs[],
   }),
   share: reactive({
     candId: "" as string,
@@ -112,7 +112,6 @@ export const stateAnketa = {
           break;
         default:
           this.anketa.resume = response.data;
-          console.log(this.anketa.resume);
           break;
       }
     } catch (error) {

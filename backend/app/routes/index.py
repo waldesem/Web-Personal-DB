@@ -21,7 +21,7 @@ class IndexView(MethodView):
         query = "SELECT * FROM persons "
         args = []
         if flag == "search":
-            query += " WHERE surname LIKE '%{}%' ".format(search_data)
+            query += " WHERE surname LIKE upper('%{}%') ".format(search_data.upper())
             if current_user["region"] != Regions.main.name:
                 query += " AND region = ? "
                 args.append(current_user["region"]) 
@@ -34,6 +34,11 @@ class IndexView(MethodView):
         result = select_all(query, tuple(args) if args else (""))
         has_next = len(result) > Config.PAGINATION if result else False
         result = result[:Config.PAGINATION] if has_next else result
+        users = select_all("SELECT id, fullname FROM users")
+        names = {u["id"]: u["fullname"] for u in users}
+        for i in result:
+            if i["user_id"]:
+                i["username"] = names[i["user_id"]]
         return jsonify(
             {
                 "persons": result,
@@ -90,4 +95,4 @@ def get_classes():
         {item.name: item.value for item in items} 
         for items in [Regions, Statuses, Conclusions]
     ]
-    return jsonify(results)
+    return jsonify(results), 200

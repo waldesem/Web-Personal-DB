@@ -183,7 +183,7 @@ watch(noNegative, () => {
         <SelectObject
           :name="'conclusion'"
           :select="stateClassify.conclusions"
-          v-model="checkForm['conclusion_id']"
+          v-model="checkForm['conclusion']"
         />
       </LabelSlot>
       <LabelSlot :label="'Комментарий'">

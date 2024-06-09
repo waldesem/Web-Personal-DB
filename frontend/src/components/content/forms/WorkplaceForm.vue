@@ -37,12 +37,13 @@ const workForm = toRef(props.work as Work);
     class="form form-check"
     role="form"
   > 
-   <SwitchBox
-      :div-class="'offset-lg-2 col-lg-10'"
-      :name="'now_work'"
-      :place="'Текущая работа'"
-      v-model="workForm['now_work']"
-    />
+    <LabelSlot :label="'Текущая работа'">
+    <SwitchBox
+        :name="'now_work'"
+        :place="'Текущая работа'"
+        v-model="workForm['now_work']"
+      />
+    </LabelSlot>
     <LabelSlot :label="'Начало работы'">
       <InputElement
         :name="'start_date'"

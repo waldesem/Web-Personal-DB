@@ -28,7 +28,7 @@ const props = defineProps({
   },
   action: {
     type: String,
-    default: "",
+    default: "create",
   }
 });
 

@@ -83,22 +83,20 @@ class ItemsView(MethodView):
             f"SELECT * FROM {item} WHERE person_id = ? ORDER BY id ASC",
             (item_id,),
         )
-        if item in ["check", "poligraf", "inquiry", "investigation"]:
+        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
+            users = select_all("SELECT id, fullname FROM users")
+            names = {u["id"]: u["fullname"] for u in users}
             for i in items:
                 if i["user_id"]:
-                    user_fullname = select_single(
-                        "SELECT fullname FROM users WHERE id = ?", (i["user_id"],)
-                    )
-                    i["username"] = user_fullname["fullname"]
+                    i["user"] = names[i["user_id"]]
         return jsonify(items)
 
     @user_required()
     def post(self, item, item_id):
-        json_data = request.get_json() | {"person_id": item_id}
-        json_data = {}
+        json_data = request.get_json() | {"person_id": str(item_id)}
         for k, v in json_data.items():
             if k in ["issue", "start_date", "end_date"]:
-                json_data[k] = datetime.strptime(v, "%Y-%m-%d")
+                json_data[k] = datetime.strptime(v, "%Y-%m-%d").date() if v else None
             elif k in ["now_work", "pfo"]:
                 json_data[k] = True if v else False
 
@@ -106,14 +104,14 @@ class ItemsView(MethodView):
         if item == "previous":
             prev = select_single(
                 "SELECT * FROM persons \
-                WHERE surname LIKE %{}% AND firstname LIKE %{}% AND patronymic LIKE %{}% AND birthday = ?".format(
+                WHERE surname LIKE '%{}%' AND firstname LIKE '%{}%' AND patronymic LIKE '%{}%' AND birthday = ?".format(
                     person["surname"].strip().upper(),
                     person["firstname"].strip().upper(),
                     person.get("patronymic").strip().upper()
                     if person.get("patronymic")
                     else "",
                 ),
-                (person["birthday"],),
+                (datetime.strptime(person["birthday"], "%Y-%m-%d"),),
             )
             if prev:
                 execute(
@@ -125,7 +123,7 @@ class ItemsView(MethodView):
                     ),
                 )
 
-        if item == "relation":
+        if item == "relations":
             execute(
                 "INSERT INTO relations (relation, person_id, relation_id) VALUES(?, ?, ?)",
                 (
@@ -135,9 +133,9 @@ class ItemsView(MethodView):
                 ),
             )
 
-        if item in ["check", "poligraf", "inquiry", "investigation"]:
-            json_data = json_data | {"user_id": current_user.id}
-            if item == "check":
+        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
+            json_data["user_id"] = str(current_user["id"])
+            if item == "checks":
                 if json_data["conclusion"] == Conclusions.saved.name:
                     execute(
                         "UPDATE persons SET status = ? WHERE id = ?",
@@ -158,17 +156,16 @@ class ItemsView(MethodView):
                             (Statuses.finish.name, None, item_id),
                         )
 
-            if item == "poligraf":
+            if item == "poligrafs":
                 if person["status"] == Statuses.poligraf.name:
                     execute(
                         "UPDATE persons SET status = ? WHERE id = ?",
                         (Statuses.finish.name, item_id),
                     )
-
+        cols = ",".join(json_data.keys())
         execute(
-            "INSERT INTO {} ({}) VALUES ({})".format(
-                item, ", ".join(json_data.keys()), ", ".join(["?"] * len(json_data))
-            ),
+            f"INSERT INTO {item} ({cols}) VALUES ({','.join('?' for _ in json_data.keys())})",
+                (tuple(json_data.values())),
         )
         return "", 201
 
@@ -196,7 +193,7 @@ class ItemsView(MethodView):
     @jwt_required()
     def delete(self, item, item_id):
         execute(
-            f"DELETE FROM {item} WHERE person_id = ?",
+            f"DELETE FROM {item} WHERE id = ?",
             (item_id,),
         )
         return "", 204

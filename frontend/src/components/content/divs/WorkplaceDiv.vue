@@ -56,13 +56,13 @@ function submitForm(form: Object) {
     "
   />
   <div
-    v-if="stateAnketa.anketa.workplace.length"
+    v-if="stateAnketa.anketa.workplaces.length"
     :class="{ 'collapse show': !stateAnketa.share.printPage }"
     id="work"
   >
     <div
       class="mb-3"
-      v-for="(item, idx) in stateAnketa.anketa.workplace"
+      v-for="(item, idx) in stateAnketa.anketa.workplaces"
       :key="idx"
       @mouseover="workplace.showActions = true"
       @mouseout="workplace.showActions = false"
@@ -95,8 +95,8 @@ function submitForm(form: Object) {
         <LabelSlot :label="'ID'">
           {{ item["id"] }}
         </LabelSlot>
-        <LabelSlot v-if="!item['end_date']" :label="'Текущая работа'">
-          {{ item["now_work"] }}
+        <LabelSlot v-if="item['now_work']" :label="'Текущая работа'">
+          {{ item["now_work"] ? "Да" : "Нет" }}
         </LabelSlot>
         <LabelSlot :label="'Начало работы'">
           {{ new Date(item["start_date"]).toLocaleDateString("ru-RU") }}

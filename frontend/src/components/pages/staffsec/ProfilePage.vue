@@ -61,14 +61,13 @@ const tabsData = ref({
         v-show="tabsData.currentTab == 'AnketaTab'"
         :title="`Обновить статус`"
         :icon-class="`bi bi-arrow-clockwise fs-1`"
-        :hide="stateAnketa.anketa.resume.user_id !== stateUser.userId"
         @onclick="stateAnketa.getResume('status')"
       />
       <IconRelative
         v-show="tabsData.currentTab == 'AnketaTab'"
         :title="`Взять на проверку`"
         :icon-class="`bi bi-person-plus fs-1`"
-        :hide="stateAnketa.anketa.resume.user_id === stateUser.userId"
+        :hide="stateAnketa.anketa.resume.user_id == stateUser.userId"
         @onclick="stateAnketa.getResume('self')"
       />
       <IconRelative 

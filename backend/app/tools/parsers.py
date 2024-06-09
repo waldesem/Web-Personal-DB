@@ -66,6 +66,8 @@ class Resume:
 
     def update_resume(self, person_id, manual=False):
         columns, values = [], []
+        if "username" in self.resume:
+            del self.resume["username"]
         for key in self.resume.keys():
             columns.append(key)
             values.append(self.resume[key])

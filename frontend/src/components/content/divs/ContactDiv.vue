@@ -48,13 +48,13 @@ function submitForm(form: Object) {
     @cancel="contact.action = ''"
   />
   <div 
-    v-if="stateAnketa.anketa.contact.length" 
+    v-if="stateAnketa.anketa.contacts.length" 
     :class="{'collapse show': !stateAnketa.share.printPage}" 
     id="contact"
   > 
     <div 
       class="mb-3" 
-      v-for="(item, idx) in stateAnketa.anketa.contact" :key="idx"
+      v-for="(item, idx) in stateAnketa.anketa.contacts" :key="idx"
       @mouseover="contact.showActions = true"
       @mouseout="contact.showActions = false" 
       :class="{ 'card card-body': !stateAnketa.share.printPage }">

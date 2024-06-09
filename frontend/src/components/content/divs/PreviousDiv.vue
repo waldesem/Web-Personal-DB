@@ -34,7 +34,7 @@ function submitForm(form: Object) {
     previous.value.itemId,
     form
   );
-  
+
   previous.value.action = "";
   previous.value.itemId = "";
 }
@@ -99,15 +99,15 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Имя'">
           {{ item["firstname"] }}
         </LabelSlot>
-        <LabelSlot :label="'Отчество'">
+        <LabelSlot v-if="item['patronymic']" :label="'Отчество'">
           {{ item["patronymic"] }}
         </LabelSlot>
-        <LabelSlot :label="'Дата изменения'">
+        <LabelSlot v-if="item['date_change']" :label="'Дата изменения'">
           {{
             new Date(String(item["date_change"])).toLocaleDateString("ru-RU")
           }}
         </LabelSlot>
-        <LabelSlot :label="'Причина'">
+        <LabelSlot v-if="item['reason']" :label="'Причина'">
           {{ item["reason"] }}
         </LabelSlot>
       </div>

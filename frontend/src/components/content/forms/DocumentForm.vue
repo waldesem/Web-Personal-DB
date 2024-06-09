@@ -75,6 +75,7 @@ const selected_item = [
     <LabelSlot :label="'Дата выдачи'">
       <InputElement
         :name="'issue'"
+        :need="true"
         :place="'Дата выдачи'"
         :typeof="'date'"
         v-model="docForm['issue']"

@@ -26,27 +26,27 @@ onBeforeMount(async () => {
 });
 
 const statusColor = {
-  "1": "success",
-  "2": "success",
-  "3": "success",
-  "4": "primary",
-  "5": "primary",
-  "6": "danger",
-  "7": "info",
-  "8": "warning",
-  "9": "secondary",
-  "10": "secondary",
+  new: "success",
+  repeat: "success",
+  update: "success",
+  manual: "primary",
+  save: "primary",
+  robot: "danger",
+  poligraf: "info",
+  error: "warning",
+  cancel: "secondary",
+  finish: "secondary",
 };
 
 const theadData = {
-  "id": ["#", "10%"],
-  "region_id": ["Регион", "15%"],
-  "surname": ["Фамилия Имя Отчество", "25%"],
-  "birthday": ["Дата рождения", "15%"],
-  "status": ["Статус", "10%"],
-  "created": ["Создан", "10%"],
-  "user_id": ["Сотрудник", "15%"],
-}
+  id: ["#", "10%"],
+  region_id: ["Регион", "15%"],
+  surname: ["Фамилия Имя Отчество", "20%"],
+  birthday: ["Дата рождения", "15%"],
+  status: ["Статус", "10%"],
+  created: ["Создан", "10%"],
+  user: ["Сотрудник", "20%"],
+};
 
 const personData = ref({
   candidates: <Resume[]>[],
@@ -65,7 +65,6 @@ const personData = ref({
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
 });
-
 async function getCandidates(page = 1): Promise<void> {
   personData.value.page = page;
   try {
@@ -86,7 +85,6 @@ async function getCandidates(page = 1): Promise<void> {
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-
   } catch (error) {
     console.error(error);
   }
@@ -105,7 +103,7 @@ const searchPerson = debounce(() => {
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Кандидаты'"/>
+  <HeaderDiv :page-header="'Кандидаты'" />
   <div class="row mb-3">
     <div class="col-md-2">
       <SelectObject
@@ -139,8 +137,7 @@ const searchPerson = debounce(() => {
     </template>
     <template v-slot:thead>
       <tr height="50px">
-        <th v-for="(thead, key) in theadData" :key="key" 
-          :width="thead[1]">
+        <th v-for="(thead, key) in theadData" :key="key" :width="thead[1]">
           {{ thead[0] }}
           <AscDesc
             :order="'desc'"
@@ -191,7 +188,7 @@ const searchPerson = debounce(() => {
           {{ timeSince(candidate.created) }}
         </td>
         <td>
-          {{ candidate.user ? candidate.user : "" }}
+          {{ candidate.username ? candidate.username : "" }}
         </td>
       </tr>
     </template>

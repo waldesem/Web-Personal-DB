@@ -57,10 +57,10 @@ function submitForm(form: Object, action: string) {
     @submit="submitForm"
     @cancel="emit('cancel')"
   />
-  <div v-else-if="stateAnketa.anketa.poligraf.length" class="py-3"> 
+  <div v-else-if="stateAnketa.anketa.poligrafs.length" class="py-3"> 
     <div
       :class="{'card card-body': !stateAnketa.share.printPage}"
-      v-for="(item, idx) in stateAnketa.anketa.poligraf" :key="idx"
+      v-for="(item, idx) in stateAnketa.anketa.poligrafs" :key="idx"
       @mouseover="poligraf.showActions = true"
       @mouseout="poligraf.showActions = false"
     >

@@ -55,13 +55,13 @@ function submitForm(form: Object) {
     "
   />
   <div
-    v-if="stateAnketa.anketa.education.length"
+    v-if="stateAnketa.anketa.educations.length"
     :class="{ 'collapse show': !stateAnketa.share.printPage }"
     id="education"
   >
     <div
       class="mb-3"
-      v-for="(item, idx) in stateAnketa.anketa.education"
+      v-for="(item, idx) in stateAnketa.anketa.educations"
       :key="idx"
       @mouseover="education.showActions = true"
       @mouseout="education.showActions = false"

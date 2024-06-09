@@ -48,10 +48,10 @@ function submitForm(form: Object, action: string) {
     @submit="submitForm"
     @cancel="emit('cancel')"
   />
-  <div v-else-if="stateAnketa.anketa.inquiry.length" class="py-3"> 
+  <div v-else-if="stateAnketa.anketa.inquiries.length" class="py-3"> 
     <div
       class="mb-3"
-      v-for="(item, idx) in stateAnketa.anketa.inquiry" :key="idx"
+      v-for="(item, idx) in stateAnketa.anketa.inquiries" :key="idx"
       @mouseover="need.showActions = true"
       @mouseout="need.showActions = false" 
       :class="{ 'card card-body': !stateAnketa.share.printPage }"
@@ -80,7 +80,7 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Дата запроса'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
-        <LabelSlot :label="'Обновлено'">
+        <LabelSlot v-if="item['updated']" :label="'Обновлено'">
           {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
