@@ -7,9 +7,12 @@ def execute(query, args=None):
     with sqlite3.connect(Config.DATABASE_URI) as con:
         cursor = con.cursor()
         try:
-            result = cursor.execute(query, args)
-            con.commit()
-            return result.lastrowid if "INSERT" in query else None
+            if isinstance(args, list):
+                cursor.executemany(query, args)
+            else:
+                result = cursor.execute(query, args)
+                con.commit()
+                return result.lastrowid if "INSERT" in query else None
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()

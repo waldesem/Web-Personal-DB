@@ -12,7 +12,7 @@ class Resume:
         for k, v in resume.items():
             if k in ["surname", "firstname", "patronymic"]:
                 resume[k] = v.strip().upper()
-            elif k == "birthday":
+            elif k == "birthday" and isinstance(v, str):
                 resume[k] = datetime.strptime(v, "%Y-%m-%d").date()
         self.resume: dict = resume
 
@@ -113,12 +113,13 @@ class Anketa(Resume):
             )
 
     def save_items(self):
-        for table in [key for key in self.anketa.items() if key != "resume"]:
-            execute(
-                f"INSERT INTO {table} ({','.join(self.anketa[table].keys())}, person_id) \
-                    VALUES ({','.join(self.anketa[table].values())}, ?)",
-                (self.person_id,),
-            )
+        for tables in [key for key in self.anketa.keys() if key != "resume"]:
+            for item in self.anketa[tables]:
+                execute(
+                    f"INSERT INTO {tables} ({','.join(item.keys())}, person_id) \
+                        VALUES ({','.join('?' * len(item))}, ?)",
+                    (tuple(item.values() + [self.person_id])),
+                )
 
     @staticmethod
     def parse_json(json_dict) -> None:
@@ -160,29 +161,29 @@ class Anketa(Resume):
                 case "snils":
                     json_data["resume"]["snils"] = json_dict["snils"].strip()
                 case "validAddress":
-                    json_data["address"].append(
+                    json_data["addresses"].append(
                         {
                             "view": "Адрес проживания",
                             "address": json_dict["validAddress"],
                         }
                     )
                 case "regAddress":
-                    json_data["address"].append(
+                    json_data["addresses"].append(
                         {
                             "view": "Адрес регистрации",
                             "address": json_dict["regAddress"],
                         }
                     )
                 case "contactPhone":
-                    json_data["contact"].append(
+                    json_data["contacts"].append(
                         {"view": "Телефон", "contact": json_dict["contactPhone"]}
                     )
                 case "email":
-                    json_data["contact"].append(
+                    json_data["contacts"].append(
                         {"view": "Электронная почта", "contact": json_dict["email"]}
                     )
                 case "passportNumber":
-                    json_data["document"].append(
+                    json_data["documents"].append(
                         {
                             "view": "Паспорт",
                             "number": json_dict["passportNumber"],
@@ -262,7 +263,7 @@ class Anketa(Resume):
                                         education["finish"] = v
                                     case "specialty":
                                         education["specialty"] = v
-                            json_data["education"].append(education)
+                            json_data["educations"].append(education)
                 case "experience":
                     if len(json_dict["experience"]):
                         for exp in json_dict["experience"]:
@@ -287,7 +288,7 @@ class Anketa(Resume):
                                         work["position"] = value
                                     case "fireReason":
                                         work["reason"] = value
-                        json_data["workplace"].append(work)
+                        json_data["workplaces"].append(work)
         return json_data
 
     @staticmethod

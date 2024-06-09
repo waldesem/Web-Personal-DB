@@ -77,6 +77,29 @@ bp.add_url_rule(
 
 
 class ItemsView(MethodView):
+
+    @staticmethod
+    def post_patch_checks(json_data, item_id):
+        if json_data["conclusion"] == Conclusions.saved.name:
+            execute(
+                "UPDATE persons SET status = ? WHERE id = ?",
+                (
+                    Statuses.save.name,
+                    item_id,
+                ),
+            )
+        else:
+            if json_data.get("pfo"):
+                execute(
+                    "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
+                    (Statuses.poligraf.name, None, item_id,),
+                )
+            else:
+                execute(
+                    "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
+                    (Statuses.finish.name, None, item_id,),
+                )
+
     @jwt_required()
     def get(self, item, item_id):
         items = select_all(
@@ -136,25 +159,7 @@ class ItemsView(MethodView):
         if item in ["checks", "poligrafs", "inquiries", "investigations"]:
             json_data["user_id"] = str(current_user["id"])
             if item == "checks":
-                if json_data["conclusion"] == Conclusions.saved.name:
-                    execute(
-                        "UPDATE persons SET status = ? WHERE id = ?",
-                        (
-                            Statuses.save.name,
-                            item_id,
-                        ),
-                    )
-                else:
-                    if json_data.get("pfo"):
-                        execute(
-                            "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
-                            (Statuses.poligraf.name, None, item_id),
-                        )
-                    else:
-                        execute(
-                            "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
-                            (Statuses.finish.name, None, item_id),
-                        )
+                self.post_patch_checks(json_data, item_id)
 
             if item == "poligrafs":
                 if person["status"] == Statuses.poligraf.name:
@@ -172,22 +177,29 @@ class ItemsView(MethodView):
     @user_required()
     def patch(self, item, item_id):
         json_data = request.get_json()
+        json_dict = {}
         for k, v in json_data.items():
-            if k == "updated":
-                json_data[k] = datetime.now()
-            elif k in ["issue", "start_date", "end_date", "created"]:
-                json_data[k] = datetime.strptime(v, "%Y-%m-%d")
-            elif k in ["now_work", "pfo"]:
-                json_data[k] = bool(v) if v else False
-            elif k == "user_id":
-                json_data[k] = current_user.id
-            elif k == "username":
-                del json_data[k]
-        execute(
-            f"UPDATE {item} SET {','.join(key + '=?' for key in json_data.keys())} \
-                WHERE person_id = ?",
-            tuple(json_data.values()) + (item_id,),
-        )
+            if k not in ["updated", "username"]:
+                if k in ["issue", "start_date", "end_date"]:
+                    json_data[k] = datetime.strptime(v, "%Y-%m-%d").date()
+                elif k == "created":
+                    json_data[k] = datetime.strptime(v, "%Y-%m-%d %H:%M:%S")
+                elif k in ["now_work", "pfo"]:
+                    json_data[k] = bool(v) if v else False
+                elif k == "user_id":
+                    json_data[k] = current_user["id"]
+                else:
+                    json_dict[k] = v
+        query = "UPDATE persons SET "
+        args = []
+        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
+            if item == "checks":
+                self.post_patch_checks(json_data, item_id)
+            query += "updated = ? "
+            args.append(datetime.now())
+        query += f"{','.join([key + '=?' for key in json_data.keys()])} WHERE person_id = ?"
+        args.extend(json_data.values())
+        execute(query, tuple(args))
         return "", 201
 
     @jwt_required()

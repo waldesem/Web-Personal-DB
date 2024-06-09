@@ -36,10 +36,6 @@ const props = defineProps({
 const check = ref({
   itemId: "",
   item: <Verification>{},
-  hideEditBtn:
-  stateClassify.status[stateAnketa.anketa.resume["status"]] !== stateClassify.status["save"] &&
-  stateClassify.status[stateAnketa.anketa.resume["status"]] !== stateClassify.status["cancel"] &&
-  stateClassify.status[stateAnketa.anketa.resume["status"]] !== stateClassify.status["manual"],
   showActions: false
 });
 
@@ -84,8 +80,8 @@ function submitForm(form: Object, action: string) {
                 stateClassify.status['save'],
                 stateClassify.status['cancel'],
                 stateClassify.status['manual'],
-              ].includes(stateAnketa.anketa.resume['status']) &&
-              stateAnketa.anketa.resume['user_id'] !== stateUser.userId
+              ].includes(stateClassify.status[stateAnketa.anketa.resume['status']]) &&
+              stateAnketa.anketa.resume['user_id'] != stateUser.userId
             "
           >
           <FileForm 
@@ -132,12 +128,12 @@ function submitForm(form: Object, action: string) {
         </LabelSlot>
         <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
         <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
-        <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ item["user_id"] }}</LabelSlot>
+        <LabelSlot :label="'Результат'">{{ stateClassify.conclusions[item["conclusion"]] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
-        <LabelSlot :label="'Дата обновления'">
+        <LabelSlot v-if="item['updated']" :label="'Дата обновления'">
           {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
