@@ -145,8 +145,8 @@ const dataResume = ref({
     </LabelSlot>
     <LabelSlot :label="'Пользователь'">
       {{
-        stateAnketa.anketa.resume["user_id"]
-          ? stateClassify.users[stateAnketa.anketa.resume["user_id"]]
+        stateAnketa.anketa.resume["username"]
+          ? stateAnketa.anketa.resume["username"]
           : ""
       }}
     </LabelSlot>

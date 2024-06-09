@@ -33,11 +33,15 @@ class AnketaView(MethodView):
                 ),
             )
         person = select_single(
-            "SELECT * FROM persons WHERE id = ? \
-                LEFT JOIN users on users.id = person.user_id ",
+            "SELECT * FROM persons WHERE id = ?",
             (person_id,),
         )
-        return jsonify(person), 201
+        if person["user_id"]:
+            user_fullname = select_single(
+                "SELECT fullname FROM users WHERE id = ?", (person["user_id"],)
+            )
+            person["username"] = user_fullname["fullname"]
+        return jsonify(person), 200
 
     @jwt_required()
     def delete(self, person_id):
@@ -79,6 +83,13 @@ class ItemsView(MethodView):
             f"SELECT * FROM {item} WHERE person_id = ? ORDER BY id ASC",
             (item_id,),
         )
+        if item in ["check", "poligraf", "inquiry", "investigation"]:
+            for i in items:
+                if i["user_id"]:
+                    user_fullname = select_single(
+                        "SELECT fullname FROM users WHERE id = ?", (i["user_id"],)
+                    )
+                    i["username"] = user_fullname["fullname"]
         return jsonify(items)
 
     @user_required()
@@ -173,6 +184,8 @@ class ItemsView(MethodView):
                 json_data[k] = bool(v) if v else False
             elif k == "user_id":
                 json_data[k] = current_user.id
+            elif k == "username":
+                del json_data[k]
         execute(
             f"UPDATE {item} SET {','.join(key + '=?' for key in json_data.keys())} \
                 WHERE person_id = ?",

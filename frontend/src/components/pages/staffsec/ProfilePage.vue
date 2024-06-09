@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateClassify, stateUser, stateAnketa } from "@/state";
-import { router } from "@/router";
+import { useRoute } from "vue-router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -29,7 +29,8 @@ const InquiryTab = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  stateAnketa.share.candId = router.currentRoute.value.params.id.toString();
+  const route = useRoute();
+  stateAnketa.share.candId = route.params.id as string;
   await stateAnketa.getResume();
 });
 
@@ -155,14 +156,6 @@ const tabsData = ref({
     </div>
     <div
       class="py-3"
-      id="RobotTab"
-      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
-      role="tabpanel"
-    >
-      <RobotTab/>
-    </div>
-    <div
-      class="py-3"
       id="PoligrafTab"
       :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
       role="tabpanel"
@@ -196,14 +189,6 @@ const tabsData = ref({
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
        />
-    </div>
-    <div
-      class="py-3"
-      id="OneSTab"
-      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
-      role="tabpanel"
-    >
-      <OneSTab/>
     </div>
   </div>
 </template>

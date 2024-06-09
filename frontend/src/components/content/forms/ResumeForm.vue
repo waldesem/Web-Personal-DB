@@ -87,7 +87,7 @@ async function submitResume(): Promise<void> {
       <SelectObject
         :name="'region_id'"
         :select="stateClassify.regions"
-        v-model="resumeForm['region_id']"
+        v-model="resumeForm['region']"
       />
     </LabelSlot>
     <LabelSlot :label="'Фамилия'">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state";
+import { stateAnketa } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,7 +17,7 @@ const LabelSlot = defineAsyncComponent(
 );
 
 onBeforeMount(async() => {
-  await stateAnketa.getItem("poligraf");
+  await stateAnketa.getItem("poligrafs");
 });
 
 const emit = defineEmits(["cancel"]);
@@ -42,7 +42,7 @@ const poligraf = ref({
 function submitForm(form: Object, action: string) {
   stateAnketa.updateItem(
     action,
-    "poligraf",
+    "poligrafs",
     poligraf.value.itemId,
     form
   );
@@ -75,7 +75,7 @@ function submitForm(form: Object, action: string) {
         <LabelSlot>
           <ActionIcons v-show="poligraf.showActions"
             :show-form="true"
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligraf')"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligrafs')"
             @update="
               poligraf.item = item;
               poligraf.itemId = item['id'].toString();
@@ -90,10 +90,11 @@ function submitForm(form: Object, action: string) {
         </LabelSlot>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата'">
-          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
+
       </div>
     </div>
   </div>

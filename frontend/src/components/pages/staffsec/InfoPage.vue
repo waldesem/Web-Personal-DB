@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, defineAsyncComponent } from "vue";
-import { stateClassify } from "@/state";
+import {  onBeforeMount, ref, defineAsyncComponent } from "vue";
+import { stateClassify, stateUser } from "@/state";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 
@@ -20,9 +20,8 @@ const TableSlots = defineAsyncComponent(
 const todayDate = new Date();
 
 const tableData = ref({
-  header: "",
   stat: {
-    region_id: 1,
+    region: stateUser.region,
     checks: <Record<string, any>>{},
     start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
       .toISOString()
@@ -38,13 +37,11 @@ async function submitData(): Promise<void> {
         params: {
           start: tableData.value.stat.start,
           end: tableData.value.stat.end,
-          region_id: tableData.value.stat.region_id,
+          region: tableData.value.stat.region,
         },
       }
     );
     tableData.value.stat.checks = response.data;
-    tableData.value.header =
-      stateClassify.regions[tableData.value.stat.region_id];
   } catch (error) {
     console.log(error);
   }
@@ -53,16 +50,11 @@ async function submitData(): Promise<void> {
 onBeforeMount(async () => {
   await submitData();
 });
-
-computed(() => {
-  tableData.value.header =
-    stateClassify.regions[tableData.value.stat.region_id];
-});
 </script>
 
 <template>
   <HeaderDiv
-    :page-header="`Статистика по региону ${tableData.header} 
+    :page-header="`Статистика по региону ${stateClassify.regions[tableData.stat.region]} 
             за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
   />
   <TableSlots
@@ -91,9 +83,11 @@ computed(() => {
     </label>
     <div class="col-md-3">
       <SelectObject
+        :place="'Регион'"
         :name="'region'"
         :select="stateClassify.regions"
-        v-model="tableData.stat.region_id"
+        :needs="stateClassify.regions['main'] !== stateClassify.regions[stateUser.region]"
+        v-model="tableData.stat.region"
         @submit-data="submitData"
       />
     </div>

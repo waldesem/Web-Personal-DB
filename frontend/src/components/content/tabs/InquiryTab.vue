@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Needs } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state";
+import { stateAnketa } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -14,7 +14,7 @@ const LabelSlot = defineAsyncComponent(
 );
 
 onBeforeMount(async() => {
-  await stateAnketa.getItem("inquiry");
+  await stateAnketa.getItem("inquiries");
 });
 
 const emit = defineEmits(["cancel"]);
@@ -37,7 +37,7 @@ const need = ref({
 });
 
 function submitForm(form: Object, action: string) {
-  stateAnketa.updateItem(action, "inquiry", need.value.itemId, form);
+  stateAnketa.updateItem(action, "inquiries", need.value.itemId, form);
   need.value.itemId = "";
   action === "update" ? need.value.itemId = "" : emit("cancel");
 };
@@ -66,7 +66,7 @@ function submitForm(form: Object, action: string) {
       <div v-else>
         <LabelSlot>
           <ActionIcons v-show="need.showActions"
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiry')"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiries')"
             @update="
               need.item = item;
               need.itemId = item['id'].toString();
@@ -76,9 +76,12 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
         <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата запроса'">
-          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot :label="'Обновлено'">
+          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

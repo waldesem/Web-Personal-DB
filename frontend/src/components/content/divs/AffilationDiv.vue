@@ -17,7 +17,7 @@ const LabelSlot = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  await stateAnketa.getItem("affilation");
+  await stateAnketa.getItem("affilations");
 });
 
 const affilation = ref({
@@ -30,7 +30,7 @@ const affilation = ref({
 function submitForm(form: Object) {
   stateAnketa.updateItem(
     affilation.value.action,
-    "affilation",
+    "affilations",
     affilation.value.itemId,
     form
   );
@@ -85,7 +85,7 @@ function submitForm(form: Object) {
           <ActionIcons
             v-show="affilation.showActions"
             @delete="
-              stateAnketa.deleteItem(item['id'].toString(), 'affilation')
+              stateAnketa.deleteItem(item['id'].toString(), 'affilations')
             "
             @update="
               affilation.action = 'update';
@@ -99,7 +99,10 @@ function submitForm(form: Object) {
         <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
         <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
         <LabelSlot :label="'Дата декларации'">
-          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot :label="'Дата изменения'">
+          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

@@ -17,7 +17,7 @@ const CheckForm = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  await stateAnketa.getItem("check");
+  await stateAnketa.getItem("checks");
 });
 
 const emit = defineEmits(["cancel"]);
@@ -37,14 +37,14 @@ const check = ref({
   itemId: "",
   item: <Verification>{},
   hideEditBtn:
-    stateAnketa.anketa.resume["status"] !== stateClassify.status["save"] &&
-    stateAnketa.anketa.resume["status"] !== stateClassify.status["cancel"] &&
-    stateAnketa.anketa.resume["status"] !== stateClassify.status["manual"],
+  stateClassify.status[stateAnketa.anketa.resume["status"]] !== stateClassify.status["save"] &&
+  stateClassify.status[stateAnketa.anketa.resume["status"]] !== stateClassify.status["cancel"] &&
+  stateClassify.status[stateAnketa.anketa.resume["status"]] !== stateClassify.status["manual"],
   showActions: false
 });
 
 function submitForm(form: Object, action: string) {
-  stateAnketa.updateItem(action, "check", check.value.itemId, form);
+  stateAnketa.updateItem(action, "checks", check.value.itemId, form);
   action === "update" ? check.value.itemId = "" : emit("cancel");
 }
 </script>
@@ -74,7 +74,7 @@ function submitForm(form: Object, action: string) {
         <LabelSlot>
           <ActionIcons v-show="check.showActions"
             :show-form="true"
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'check')"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="
               check.item = item;
               check.itemId = item['id'].toString();
@@ -132,10 +132,13 @@ function submitForm(form: Object, action: string) {
         </LabelSlot>
         <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
         <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
-        <LabelSlot :label="'Результат'">{{ item["conclusion_id"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["user_id"] }}</LabelSlot>
         <LabelSlot :label="'Дата'">
-          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot :label="'Дата обновления'">
+          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

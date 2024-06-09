@@ -19,13 +19,15 @@ class Resume:
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
         stmt = """
-        SELECT * FROM person
-        WHERE surname = ?
-        AND firstname = ?
-        AND patronymic = ?
+        SELECT * FROM persons
+        WHERE surname LIKE '%{}%'
+        AND firstname LIKE '%{}%'
+        AND patronymic LIKE '%{}%'
         AND birthday = ?
-        """
-        return select_single(stmt, (surname, firstname, patronymic, birthday))
+        """.format(
+            surname, firstname, patronymic
+        )
+        return select_single(stmt, (birthday,))
 
 
     def update_status(self):
@@ -37,17 +39,14 @@ class Resume:
         )
 
         if person:
-            return self.update_resume(person.id)
+            return self.update_resume(person['id'])
         else:
             status = Statuses.manual.name
             user_id = current_user["id"]
 
-            query = """
-                INSERT INTO person ({}) VALUES ({})
-                RETURNING id
-            """
-            columns = ", ".join(self.resume.keys())
-            values = ", ".join(["%s"] * len(self.resume))
+            query = "INSERT INTO persons ({}) VALUES ({})"
+            columns = ", ".join(self.resume.keys()) + ", status, user_id"
+            values = "? ,"* len(self.resume) + "?, ?"
             args = tuple(self.resume.values()) + (status, user_id)
             person_id = execute(query.format(columns, values), args)
 
@@ -59,8 +58,8 @@ class Resume:
             )
             path = folders.create_main_folder()
 
-            query = "UPDATE person SET path = %s WHERE id = %s"
-            args = (path, person_id)
+            query = "UPDATE persons SET path = ? WHERE id = ?"
+            args = (path, person_id,)
             execute(query, args)
 
             return person_id
@@ -71,7 +70,7 @@ class Resume:
             columns.append(key)
             values.append(self.resume[key])
         sql = (
-            f"UPDATE person SET {','.join(key + '=?' for key in columns)}"
+            f"UPDATE persons SET {','.join(key + '=?' for key in columns)}"
             f", updated = ?, user_id = ? WHERE id = ?"
         )
         values += [datetime.now(), current_user["id"], person_id]

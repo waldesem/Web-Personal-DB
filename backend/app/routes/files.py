@@ -22,7 +22,7 @@ class FileView(MethodView):
         Retrieves a file from the server and sends it as a response.
         """
         person = select_single(
-            "SELECT path FROM person WHERE id = ?", 
+            "SELECT path FROM persons WHERE id = ?", 
             (item_id,)
         )
         if person:
@@ -45,11 +45,11 @@ class FileView(MethodView):
             return jsonify({"message": person_id}), 201
         
         person = select_single(
-            "SELECT * FROM person WHERE id = ?", 
+            "SELECT * FROM persons WHERE id = ?", 
             (item_id,)
         )
         folders = Folders(
-            person["id"], person['surname'], person['firstname'], person['patronymic']
+            person["id"], person['surname'], person['firstname'], person.get('patronymic', '')
         )
         if action == "image":
             folder = folders.create_parent_folder("image")

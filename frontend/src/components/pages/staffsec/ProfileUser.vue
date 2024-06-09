@@ -3,7 +3,7 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateAlert } from "@/state";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
-import { router } from "@/router";
+import { useRoute } from "vue-router";
 import { User } from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
@@ -20,7 +20,8 @@ const BtnGroup = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  userData.value.id = router.currentRoute.value.params.id.toString();
+  const route = useRoute();
+  userData.value.id = route.params.id as string;
   await userAction("view");
 });
 

@@ -101,9 +101,7 @@ export const stateAnketa = {
           },
         }
       );
-      const { message } = response.data;
-
-      switch (message) {
+      switch (action) {
         case "status":
           stateAlert.setAlert("alert-info", "Статус анкеты обновлен");
           this.getResume();
@@ -112,16 +110,9 @@ export const stateAnketa = {
           stateAlert.setAlert("alert-info", "Анкета назначена на себя");
           this.getResume();
           break;
-        case "send":
-          stateAlert.setAlert("alert-success", "Анкета отправлена на проверку");
-          this.getResume();
-          break;
-        case "error":
-          stateAlert.setAlert("alert-danger", "Ошибка обработки");
-          this.getResume();
-          break;
         default:
-          this.anketa.resume = message;
+          this.anketa.resume = response.data;
+          console.log(this.anketa.resume);
           break;
       }
     } catch (error) {

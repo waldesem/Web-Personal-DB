@@ -17,7 +17,7 @@ const LabelSlot = defineAsyncComponent(
 );
 
 onBeforeMount(() => {
-  stateAnketa.getItem("staff");
+  stateAnketa.getItem("staffs");
 });
 
 const staff = ref({
@@ -28,7 +28,7 @@ const staff = ref({
 });
 
 function submitForm(form: Object) {
-  stateAnketa.updateItem(staff.value.action, "staff", staff.value.itemId, form);
+  stateAnketa.updateItem(staff.value.action, "staffs", staff.value.itemId, form);
   staff.value.action = "";
   staff.value.itemId = "";
   
@@ -78,7 +78,7 @@ function submitForm(form: Object) {
         <LabelSlot>
           <ActionIcons
             v-show="staff.showActions"
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'staff')"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'staffs')"
             @update="
               staff.action = 'update';
               staff.item = item;

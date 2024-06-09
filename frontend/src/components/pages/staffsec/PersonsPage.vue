@@ -191,11 +191,7 @@ const searchPerson = debounce(() => {
           {{ timeSince(candidate.created) }}
         </td>
         <td>
-          {{
-            candidate.user_id
-              ? stateClassify.users[candidate.user_id].split(" ")[0]
-              : ""
-          }}
+          {{ candidate.user ? candidate.user : "" }}
         </td>
       </tr>
     </template>

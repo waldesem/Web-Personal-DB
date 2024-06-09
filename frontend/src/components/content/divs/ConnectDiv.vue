@@ -92,7 +92,7 @@ const props = defineProps({
         :input-class="'col-lg-8'" 
         :label="'Дата'"
       >
-        {{ new Date(String(props.item['data'])).toLocaleDateString("ru-RU") }}
+        {{ new Date(String(props.item['updated'])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
     </div>
   </div>

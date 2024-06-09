@@ -17,6 +17,7 @@ export interface Resume {
   updated: string;
   region: string;
   user_id: string;
+  username: User;
 }
 
 export interface Previous {
@@ -87,6 +88,7 @@ export interface Affilation {
   inn: string;
   position: string;
   created: string;
+  updated: string;
 }
 
 export interface Verification {
@@ -109,7 +111,9 @@ export interface Verification {
   conclusion: string;
   comments: string;
   created: string;
+  updated: string;
   user_id: string;
+  user: string;
 }
 
 export interface Pfo {
@@ -117,6 +121,7 @@ export interface Pfo {
   theme: string;
   results: string;
   user_id: string;
+  user: string;
   created: string;
   updated: string;
 }
@@ -126,6 +131,7 @@ export interface Inquisition {
   theme: string;
   info: string;
   user_id: string;
+  user: string;
   created: string;
   updated: string;
 }
@@ -136,6 +142,7 @@ export interface Needs {
   initiator: string;
   source: string;
   user_id: string;
+  user: string;
   created: string;
   updated: string;
 }
@@ -168,5 +175,5 @@ export interface Connection {
   mobile: string;
   mail: string;
   comment: string;
-  data: string;
+  updated: string;
 }

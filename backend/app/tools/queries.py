@@ -7,14 +7,9 @@ def execute(query, args=None):
     with sqlite3.connect(Config.DATABASE_URI) as con:
         cursor = con.cursor()
         try:
-            cursor.execute(query, args or ())
-            lastrowid = (
-                cursor.execute("SELECT last_insert_rowid()").fetchone()[0]
-                if "INSERT" in query
-                else None
-            )
+            result = cursor.execute(query, args)
             con.commit()
-            return lastrowid
+            return result.lastrowid if "INSERT" in query else None
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()

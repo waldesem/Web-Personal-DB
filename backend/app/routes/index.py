@@ -12,6 +12,7 @@ from ..tools.classes import Conclusions, Regions, Statuses
 
 
 class IndexView(MethodView):
+
     @user_required()
     def get(self, flag, page):
         search_data = request.args.get("search", "")
@@ -51,9 +52,9 @@ class InformationView(MethodView):
         query_data = request.args
         result = select_all(
             "SELECT checks.conclusion, count(checks.id) FROM checks \
-                LEFT JOIN person on checks.person_id = person.id \
-                    WHERE person.region = ? \
-                        AND checks.deadline BETWEEN ? AND ? \
+                LEFT JOIN persons on checks.person_id = persons.id \
+                    WHERE persons.region = ? \
+                        AND checks.created BETWEEN ? AND ? \
                             GROUP BY conclusion",
             (
                 query_data["region"],
@@ -73,9 +74,9 @@ def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.
     """
-    person = select_single("SELECT * FROM person WHERE id = ?", (item_id,))
+    person = select_single("SELECT * FROM persons WHERE id = ?", (item_id,))
     folders = Folders(
-        person["id"], person["surname"], person["firstname"], person["patronymic"]
+        person["id"], person["surname"], person["firstname"], person.get("patronymic", "")
     )
     file_path = os.path.join(folders.create_main_folder(), "image", "image.jpg")
     if os.path.isfile(file_path):

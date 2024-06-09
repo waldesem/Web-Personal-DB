@@ -21,10 +21,9 @@ class ConnnectView(MethodView):
         limit = Config.PAGINATION + 1
         query = "SELECT * FROM connects"
         if search_data:
-            query += " WHERE company LIKE ?"
-            search_data = "%" + search_data + "%"
+            query += " WHERE company LIKE '%{}%'".format(search_data)
         query += " ORDER BY id DESC LIMIT ? OFFSET ?"
-        result = select_all(query, (search_data, limit, offset,))
+        result = select_all(query, (limit, offset,))
         has_next = len(result) > Config.PAGINATION
         result = result[:Config.PAGINATION] if has_next else result
         names = select_all("SELECT DISTINCT name FROM connects ORDER BY name")
@@ -62,7 +61,7 @@ class ConnnectView(MethodView):
         Patch an item in the connects table.
         """
         json_data = request.get_json()
-        json_data["data"] = datetime.now()
+        json_data["updated"] = datetime.now()
         query_parts = ', '.join(key + '=?' for key in json_data.keys())
         args = tuple(json_data.values()) + (item_id,)
         query = f"UPDATE connects SET {query_parts} WHERE id = ?"

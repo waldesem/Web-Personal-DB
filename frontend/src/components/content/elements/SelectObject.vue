@@ -3,6 +3,10 @@ const model = defineModel();
 const emit = defineEmits(["submit-data"]);
 const props = defineProps({
   name: String,
+  needs: {
+    type: Boolean,
+    default: false,
+  },
   select: {
     type: Object,
     default: {}
@@ -14,6 +18,7 @@ const props = defineProps({
   <select
     @change="emit('submit-data')"
     class="form-select"
+    :disabled="props.needs"
     :id="props.name"
     :name="props.name"
     v-model.lazy="model"

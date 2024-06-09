@@ -17,7 +17,7 @@ const LabelSlot = defineAsyncComponent(
 );
 
 onBeforeMount(async() => {
-  await stateAnketa.getItem("contact");
+  await stateAnketa.getItem("contacts");
 });
 
 const contact = ref({
@@ -28,7 +28,7 @@ const contact = ref({
 });
 
 function submitForm(form: Object) {
-  stateAnketa.updateItem(contact.value.action, "contact", contact.value.itemId, form);
+  stateAnketa.updateItem(contact.value.action, "contacts", contact.value.itemId, form);
   contact.value.action = "";
   contact.value.itemId = "";
   
@@ -60,7 +60,7 @@ function submitForm(form: Object) {
       :class="{ 'card card-body': !stateAnketa.share.printPage }">
       <LabelSlot>
         <ActionIcons v-show="contact.showActions"
-          @delete="stateAnketa.deleteItem(item['id'].toString(), 'contact')"
+          @delete="stateAnketa.deleteItem(item['id'].toString(), 'contacts')"
           @update="
             contact.action = 'update';
             contact.item = item;

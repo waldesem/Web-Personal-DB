@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state";
+import { stateAnketa } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,7 +17,7 @@ const LabelSlot = defineAsyncComponent(
 );
 
 onBeforeMount(async() => {
-  await stateAnketa.getItem("investigation");
+  await stateAnketa.getItem("investigations");
 });
 
 const emit = defineEmits(["cancel"]);
@@ -42,7 +42,7 @@ const inquisition = ref({
 function submitForm(form: Object, action: string) {
   stateAnketa.updateItem(
     action,
-    "investigation",
+    "investigations",
     inquisition.value.itemId,
     form
   );  
@@ -76,7 +76,7 @@ function submitForm(form: Object, action: string) {
         <LabelSlot>
           <ActionIcons v-show="inquisition.showActions"
             :show-form="true"
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigation')"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigations')"
             @update="
               inquisition.item = item;
               inquisition.itemId = item['id'].toString();
@@ -91,9 +91,12 @@ function submitForm(form: Object, action: string) {
         </LabelSlot>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ stateClassify.users[item["user_id"]] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата'">
-          {{ new Date(String(item["deadline"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot :label="'Обновлено'">
+          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>
