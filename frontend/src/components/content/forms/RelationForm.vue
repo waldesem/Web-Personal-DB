@@ -2,10 +2,14 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { Relation } from "@/interfaces";
 import { clearForm } from "@/utilities";
+import { stateClassify} from "@/state"
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
+);
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
@@ -35,12 +39,11 @@ const relationForm = toRef(props.relation as Relation);
     role="form"
   >
     <LabelSlot :label="'Тип связи'">
-      <InputElement
-        :name="'relation'"
-        :place="'Тип связи'"
-        :need="true"
-        v-model="relationForm['relation']"
-      />
+      <SelectObject
+          :name="'relation'"
+          :select="stateClassify.relations"
+          v-model="relationForm['relation']"
+        />
     </LabelSlot>
     <LabelSlot :label="'ID связи'">
       <InputElement

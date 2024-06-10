@@ -33,6 +33,7 @@ export const stateClassify = reactive({
   regions: <Record<string, any>>{},
   status: <Record<string, any>>{},
   conclusions: <Record<string, any>>{},
+  relations: <Record<string, any>>{},
 });
 
 export const stateAlert = {

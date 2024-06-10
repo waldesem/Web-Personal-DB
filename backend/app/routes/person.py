@@ -4,19 +4,20 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 from . import bp
+from ..tools.classes import Statuses, Relations
 from ..tools.depends import current_user, jwt_required, user_required
 from ..tools.parsers import Resume
 from ..tools.queries import execute, select_all, select_single
-from ..tools.classes import Statuses, Conclusions
 
 
 class AnketaView(MethodView):
     @user_required()
     def get(self, person_id):
         action = request.args.get("action")
+        upd_query = "UPDATE persons SET status = ? user_id = ? WHERE id = ?"
         if action == "status":
             execute(
-                "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
+                upd_query,
                 (
                     Statuses.update.name,
                     None,
@@ -25,7 +26,7 @@ class AnketaView(MethodView):
             )
         if action == "self":
             execute(
-                "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
+                upd_query,
                 (
                     Statuses.manual.name,
                     current_user["id"],
@@ -76,131 +77,88 @@ bp.add_url_rule(
 )
 
 
-class ItemsView(MethodView):
-
-    @staticmethod
-    def post_patch_checks(json_data, item_id):
-        if json_data["conclusion"] == Conclusions.saved.name:
-            execute(
-                "UPDATE persons SET status = ? WHERE id = ?",
+class RelationView(MethodView):
+    @jwt_required()
+    def post(self, item_id):
+        json_data = request.get_json()
+        execute(
+            "INSERT INTO relations (relation, relation_id) VALUES(?, ?, ?)",
+            [
                 (
-                    Statuses.save.name,
+                    json_data["relation"],
+                    json_data["relation_id"],
                     item_id,
                 ),
-            )
-        else:
-            if json_data.get("pfo"):
-                execute(
-                    "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
-                    (Statuses.poligraf.name, "", item_id,),
-                )
-            else:
-                execute(
-                    "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
-                    (Statuses.finish.name, "", item_id,),
-                )
-
-    @jwt_required()
-    def get(self, item, item_id):
-        items = select_all(
-            f"SELECT * FROM {item} WHERE person_id = ? ORDER BY id ASC",
-            (item_id,),
-        )
-        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-            users = select_all("SELECT id, fullname FROM users")
-            names = {u["id"]: u["fullname"] for u in users}
-            for i in items:
-                if i["user_id"]:
-                    i["user"] = names[i["user_id"]]
-        return jsonify(items)
-
-    @user_required()
-    def post(self, item, item_id):
-        json_data = request.get_json() | {"person_id": str(item_id)}
-        for k, v in json_data.items():
-            if k in ["issue", "start_date", "end_date"]:
-                json_data[k] = datetime.strptime(v, "%Y-%m-%d").date() if v else None
-            elif k in ["now_work", "pfo"]:
-                json_data[k] = True if v else False
-
-        person = select_single("SELECT * FROM persons WHERE id = ?", (item_id,))
-        if item == "previous":
-            prev = select_single(
-                "SELECT * FROM persons \
-                WHERE surname LIKE '%{}%' AND firstname LIKE '%{}%' AND patronymic LIKE '%{}%' AND birthday = ?".format(
-                    person["surname"].strip().upper(),
-                    person["firstname"].strip().upper(),
-                    person.get("patronymic").strip().upper()
-                    if person.get("patronymic")
-                    else "",
-                ),
-                (datetime.strptime(person["birthday"], "%Y-%m-%d"),),
-            )
-            if prev:
-                execute(
-                    "INSERT INTO relations (relation, person_id, relation_id) VALUES(?, ?, ?)",
-                    (
-                        "Одно лицо",
-                        prev["id"],
-                        item_id,
-                    ),
-                )
-
-        if item == "relations":
-            execute(
-                "INSERT INTO relations (relation, person_id, relation_id) VALUES(?, ?, ?)",
                 (
                     json_data["relation"],
                     item_id,
                     json_data["relation_id"],
                 ),
-            )
-
-        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-            json_data["user_id"] = str(current_user["id"])
-            if item == "checks":
-                self.post_patch_checks(json_data, item_id)
-
-            if item == "poligrafs":
-                if person["status"] == Statuses.poligraf.name:
-                    execute(
-                        "UPDATE persons SET status = ? WHERE id = ?",
-                        (Statuses.finish.name, item_id),
-                    )
-        cols = ",".join(json_data.keys())
-        execute(
-            f"INSERT INTO {item} ({cols}) VALUES ({','.join('?' for _ in json_data.keys())})",
-                (tuple(json_data.values())),
+            ],
         )
         return "", 201
 
-    @user_required()
-    def patch(self, item, item_id):
+
+prev_view = RelationView.as_view("relations")
+bp.add_url_rule("/relations/<int:item_id>", view_func=prev_view, methods=["POST"])
+
+
+class PreviousView(MethodView):
+    @jwt_required()
+    def post(self, item_id):
         json_data = request.get_json()
-        json_dict = {}
-        for k, v in json_data.items():
-            if k not in ["updated", "username"]:
-                if k in ["issue", "start_date", "end_date"]:
-                    json_data[k] = datetime.strptime(v, "%Y-%m-%d").date()
-                elif k == "created":
-                    json_data[k] = datetime.strptime(v, "%Y-%m-%d %H:%M:%S")
-                elif k in ["now_work", "pfo"]:
-                    json_data[k] = bool(v) if v else False
-                elif k == "user_id":
-                    json_data[k] = current_user["id"]
-                else:
-                    json_dict[k] = v
-        query = "UPDATE persons SET "
-        args = []
-        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-            if item == "checks":
-                self.post_patch_checks(json_data, item_id)
-            query += "updated = ? "
-            args.append(datetime.now())
-        query += f"{','.join([key + '=?' for key in json_data.keys()])} WHERE person_id = ?"
-        args.extend(json_data.values())
-        execute(query, tuple(args))
+        person = select_single("SELECT * FROM persons WHERE id = ?", (item_id,))
+        exist = Resume.get_person(
+            person["surname"].strip().upper(),
+            person["firstname"].strip().upper(),
+            person.get("patronymic").strip().upper()
+            if person.get("patronymic")
+            else "",
+            datetime.strptime(person["birthday"], "%Y-%m-%d").date(),
+        )
+        if exist:
+            execute(
+                "INSERT INTO relations (relation, relation_id, person_id) VALUES (?, ?, ?)",
+                [
+                    (
+                        Relations.similar.name,
+                        exist["id"],
+                        item_id,
+                    ),
+                    (
+                        Relations.similar.name,
+                        item_id,
+                        exist["id"],
+                    ),
+                ]
+            )
+        cols = ",".join(json_data.keys())
+        vals = ",".join(["?" for _ in cols])
+        execute(
+            "INSERT INTO previous ({}) VALUES ({})".format(cols, vals),
+            (tuple(json_data.values())),
+        )
         return "", 201
+
+
+prev_view = PreviousView.as_view("previous")
+bp.add_url_rule("/previous/<int:item_id>", view_func=prev_view, methods=["POST"])
+
+
+class ItemsView(MethodView):
+    @jwt_required()
+    def get(self, item, item_id):
+        results = select_all(
+            f"SELECT * FROM {item} WHERE person_id = ? ORDER BY id ASC",
+            (item_id,),
+        )
+        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
+            users = select_all("SELECT id, fullname FROM users")
+            names = {user["id"]: user["fullname"] for user in users}
+            for res in results:
+                if "user_id" in res:
+                    res["user"] = names[res["user_id"]]
+        return jsonify(results)
 
     @jwt_required()
     def delete(self, item, item_id):
@@ -210,5 +168,73 @@ class ItemsView(MethodView):
         )
         return "", 204
 
+    @user_required()
+    def post(self, item, item_id):
+        json_data = request.get_json() | {"person_id": str(item_id)}
+        json_dict = {}
+        for k, v in json_data.items():
+            if k in ["issue", "start_date", "end_date"]:
+                json_dict[k] = datetime.strptime(v, "%Y-%m-%d").date() if v else None
+            elif k in ["now_work", "pfo"]:
+                json_dict[k] = True if v else False
+            else:
+                json_dict[k] = v
+        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
+            json_dict["user_id"] = str(current_user["id"])
+        cols = ",".join(json_dict.keys())
+        vals = ",".join("?" for _ in cols)
+        execute(
+            f"INSERT INTO {item} ({cols}) VALUES ({vals})",
+            (tuple(json_dict.values())),
+        )
+        if item == "checks":
+            args = []
+            if json_data.get("pfo"):
+                args.extend([Statuses.poligraf.name, "", item_id])
+            else:
+                args.extend([Statuses.finish.name, "", item_id])
+            execute(
+                "UPDATE persons SET status = ? user_id = ? WHERE id = ?", tuple(args)
+            )
+        if item == "poligrafs":
+            person = select_single(
+                "SELECT status FROM persons WHERE id = ?", (item_id,)
+            )
+            if person["status"] == Statuses.poligraf.name:
+                args = (
+                    Statuses.finish.name,
+                    "",
+                    item_id,
+                )
+                execute("UPDATE persons SET status = ? user_id = ? WHERE id = ?", args)
+        return "", 201
 
-bp.add_url_rule("/<item>/<int:item_id>", view_func=ItemsView.as_view("items"))
+    @user_required()
+    def patch(self, item, item_id):
+        json_data = request.get_json()
+        json_dict = {}
+        for k, v in json_data.items():
+            if k not in ["updated", "created", "username"]:
+                if k in ["issue", "start_date", "end_date"]:
+                    json_dict[k] = datetime.strptime(v, "%Y-%m-%d").date()
+                elif k in ["now_work", "pfo"]:
+                    json_dict[k] = bool(v) if v else False
+                elif k == "user_id":
+                    json_dict[k] = current_user["id"]
+                else:
+                    json_dict[k] = v
+        query = "UPDATE persons SET "
+        args = []
+        if item in ["inquiries", "investigations"]:
+            query += " updated = ? "
+            args.append(datetime.now())
+        query += {",".join([key + "=?" for key in json_dict.keys()])}
+        args.extend(json_dict.values())
+        execute(query + " WHERE person_id = ?", tuple(args + [item_id]))
+        return "", 201
+
+
+items_view = ItemsView.as_view("items")
+bp.add_url_rule(
+    "/<item>/<int:item_id>", view_func=items_view, methods=["GET", "DELETE"]
+)

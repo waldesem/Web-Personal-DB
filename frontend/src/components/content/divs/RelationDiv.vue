@@ -84,6 +84,7 @@ function submitForm(form: Object) {
         <LabelSlot>
           <ActionIcons
             v-show="relation.showActions"
+            :hide="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'relations')"
             @update="
               relation.action = 'update';

@@ -14,10 +14,7 @@ class Statuses(Enum):
     repeat = "Повторный"
     update = "Обновлен"
     manual = "Проверка"
-    save = "Сохранен"
-    robot = "Робот"
     poligraf = "ПФО"
-    error = "Ошибка"
     cancel = "Отменено"
     finish = "Окончено"
 
@@ -26,5 +23,13 @@ class Conclusions(Enum):
     agreed = "СОГЛАСОВАНО"
     comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
-    saved = "СОХРАНЕН"
     canceled = "СНЯТ С ПРОВЕРКИ"
+
+
+class Relations(Enum):
+    similar = "Одно лицо"
+    parent_child = "Родители-Дети"
+    brother_sister = "Братья-Сестры"
+    husband_wife = "Супруг-Супруга"
+    relatives = "Родственники"
+    others = "Близкая связь"

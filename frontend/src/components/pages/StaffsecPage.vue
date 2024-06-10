@@ -19,6 +19,7 @@ onBeforeMount(async () => {
       stateClassify.regions,
       stateClassify.status,
       stateClassify.conclusions,
+      stateClassify.relations
     ] = response.data;
   } catch (error) {
     console.error(error);

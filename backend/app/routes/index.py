@@ -8,7 +8,7 @@ from config import Config
 from ..tools.folders import Folders
 from ..tools.depends import current_user, jwt_required, user_required
 from ..tools.queries import select_all, select_single
-from ..tools.classes import Conclusions, Regions, Statuses
+from ..tools.classes import Conclusions, Regions, Statuses, Relations
 
 
 class IndexView(MethodView):
@@ -93,6 +93,6 @@ def get_image(item_id):
 def get_classes():
     results = [
         {item.name: item.value for item in items} 
-        for items in [Regions, Statuses, Conclusions]
+        for items in [Regions, Statuses, Conclusions, Relations]
     ]
     return jsonify(results), 200

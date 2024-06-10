@@ -41,7 +41,7 @@ CREATE TABLE persons (
 	user_id INTEGER, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(user_id) REFERENCES users (id)
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE previous (
@@ -54,7 +54,7 @@ CREATE TABLE previous (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE educations (
@@ -66,7 +66,7 @@ CREATE TABLE educations (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE staffs (
@@ -76,7 +76,7 @@ CREATE TABLE staffs (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE documents (
@@ -89,7 +89,7 @@ CREATE TABLE documents (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE addresses (
@@ -99,7 +99,7 @@ CREATE TABLE addresses (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE contacts (
@@ -109,7 +109,7 @@ CREATE TABLE contacts (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE workplaces (
@@ -124,7 +124,7 @@ CREATE TABLE workplaces (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE affilations (
@@ -137,7 +137,7 @@ CREATE TABLE affilations (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE relations (
@@ -147,7 +147,8 @@ CREATE TABLE relations (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(relation_id) REFERENCES persons (id) ON DELETE CASCADE,
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE checks (
@@ -175,8 +176,8 @@ CREATE TABLE checks (
 	user_id INTEGER, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id), 
-	FOREIGN KEY(user_id) REFERENCES users (id)
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE, 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE poligrafs (
@@ -189,8 +190,8 @@ CREATE TABLE poligrafs (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(user_id) REFERENCES users (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE investigations (
@@ -203,8 +204,8 @@ CREATE TABLE investigations (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(user_id) REFERENCES users (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE inquiries (
@@ -218,8 +219,8 @@ CREATE TABLE inquiries (
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
-	FOREIGN KEY(user_id) REFERENCES users (id), 
-	FOREIGN KEY(person_id) REFERENCES persons (id)
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
+	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
 CREATE TABLE connects (
