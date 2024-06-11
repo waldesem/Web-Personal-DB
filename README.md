@@ -25,25 +25,21 @@ pip install -r requirements.txt
 
 ### Start backend
 
-To create application run the following command in your terminal:
+To create default values run in  terminal:
 ```
-flask init         # init environments
-flask create       # create default values
+flask init         # init app
 ```
-To start the application at http://localhost:5000 run the following command in your terminal:
+To start the application at http://localhost:5000 run the command in terminal:
 ```
-flask run          # start the application
+flask run
 ```
 
 Default user for application has name 'superadmin'.
 DEFAULT_PASSWORD for all app users is `88888888`. You can change it in config.py file.
-Change it in first login to application.
 
 ### Frontend build
 
-You will also need to have Node.js installed on your machine to build and run the TypeScript code.
-After installing Node.js, you can install the required npm packages by running in your webapp directory the following command in your terminal:
-
+You will need to have Node.js installed on your machine to build and run the TypeScript code. After installation run:
 ```
 npm i
 ```
@@ -55,8 +51,7 @@ npm run dev
 ```
 
 To build the code in the static directory flask app, first comment/uncomment the lines `server` in /Web-Personal-DB/frontend/src/utilities/utils.ts
-Then run the following command in your terminal:
-
+Then run the command in terminal:
 ```
 npm run build
 ```
