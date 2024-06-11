@@ -18,13 +18,14 @@ def get_users():
     """
     search_data = request.args.get("search", "")
     users = select_all(
-        "SELECT * FROM users WHERE username LIKE '%{}%' ORDER BY id DESC".format(search_data),
+        "SELECT * FROM users WHERE username LIKE '%{}%' ORDER BY id DESC".format(
+            search_data
+        ),
     )
     return jsonify(users), 200
 
 
 class UserView(MethodView):
-
     @user_required()
     def get(self, user_id):
         """
@@ -36,14 +37,14 @@ class UserView(MethodView):
             values = []
             if action_data == "drop":
                 query += "password = ?, attempt = ?, change_pswd = ? "
-                values.extend((generate_password_hash(Config.DEFAULT_PASSWORD), 0, True))
+                values.extend(
+                    [generate_password_hash(Config.DEFAULT_PASSWORD), 0, True]
+                )
             elif action_data == "block":
-                user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
                 query += "blocked = ? "
-                values.append(int(not user['blocked']))
-            query += "WHERE id = ?"
-            values.append(user_id)
-            execute(query, values)
+                user = select_single("SELECT blocked FROM users WHERE id = ?", (user_id,))
+                values.append(int(not user["blocked"]))
+            execute(query + "WHERE id = ?", tuple(values + [user_id]))
         user = select_single("SELECT * FROM users WHERE id = ?", (user_id,))
         return jsonify(user), 200
 
@@ -58,9 +59,13 @@ class UserView(MethodView):
         )
         if user:
             return "", 205
+        stmt = """
+        INSERT INTO users 
+        (fullname, username, email, password, has_admin, region)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """
         execute(
-            "INSERT INTO users (fullname, username, email, password, has_admin, region) \
-                VALUES (?, ?, ?, ?, ?, ?)",
+            stmt,
             (
                 json_data.get("fullname"),
                 json_data.get("username"),
@@ -74,14 +79,19 @@ class UserView(MethodView):
 
     @user_required()
     def patch(self, user_id):
+        json_data = request.get_json()
+        stmt = """
+        UPDATE users SET 
+        fullname = ?, 
+        username = ?, 
+        email = ?, 
+        has_admin = ?, 
+        updated = ?, 
+        region = ?
+        WHERE id = ?
         """
-        Patch a user's information.
-        """
-        json_data: dict = request.get_json()
         execute(
-            "UPDATE users SET \
-                fullname = ?, username = ?, email = ?, has_admin = ?, updated = ?, region = ? \
-                    WHERE id = ?",
+            stmt,
             (
                 json_data.get("fullname"),
                 json_data.get("username"),

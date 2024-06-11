@@ -10,9 +10,6 @@ class Regions(Enum):
 
 
 class Statuses(Enum):
-    new = "Новый"
-    repeat = "Повторный"
-    update = "Обновлен"
     manual = "Проверка"
     poligraf = "ПФО"
     cancel = "Отменено"

@@ -74,24 +74,11 @@ export const stateAnketa = {
   }),
 
   async getResume(action = "view"): Promise<void> {
-    if (action === "status") {
-      if (
-        !confirm(
-          "Вы действительно хотите изменить статус? USER_ID анкеты будет сброшен"
-        )
-      ) {
-        return;
-      }
-    }
-    if (action === "send") {
-      if (!confirm("Вы действительно хотите отправить анкету на проверку?")) {
-        return;
-      }
-    }
-    if (action === "self") {
-      if (!confirm("Вы действительно назначить проверку кандидата на себя?")) {
-        return;
-      }
+    if (
+      action === "self" &&
+      !confirm("Вы действительно назначить проверку кандидата на себя?")
+    ) {
+      return;
     }
     try {
       const response = await axiosAuth.get(
@@ -102,22 +89,13 @@ export const stateAnketa = {
           },
         }
       );
-      switch (action) {
-        case "status":
-          stateAlert.setAlert("alert-info", "Статус анкеты обновлен");
-          this.getResume();
-          break;
-        case "self":
-          stateAlert.setAlert("alert-info", "Анкета назначена на себя");
-          this.getResume();
-          break;
-        default:
-          this.anketa.resume = response.data;
-          break;
+      this.anketa.resume = response.data;
+      if (action === "self") {
+        stateAlert.setAlert("alert-info", "Анкета назначена на себя");
       }
     } catch (error) {
       console.error(error);
-      stateAlert.setAlert("alert-danger", `Ошибка обработки ${error}`);
+      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
     }
   },
 
@@ -159,64 +137,35 @@ export const stateAnketa = {
           : await axiosAuth.patch(`${server}/${param}/${itemId}`, form);
 
       console.log(response.status);
-
       stateAlert.setAlert("alert-success", "Данные успешно обновлены");
       this.getItem(param);
     } catch (error) {
-      stateAlert.setAlert("alert-danger", `Возникла ошибка ${error}`);
+      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
     }
   },
 
   async deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    if (
-      param === "check" &&
-      (this.anketa.resume.status === stateClassify.status["finish"] ||
-        this.anketa.resume.status === stateClassify.status["robot"])
-    ) {
-      stateAlert.setAlert(
-        "alert-warning",
-        "Невозможно удалить проверку с текщим статусом"
-      );
-      return;
-    }
-    if (
-      ["robot", "finish"].includes(
-        stateClassify.status[this.anketa.resume["status"]]
-      )
-    ) {
-      stateAlert.setAlert(
-        "alert-warning",
-        "Нельзя удалить запись с текущим статусом"
-      );
-      return;
-    }
     try {
       const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
-
       param === "resume"
         ? router.push({ name: "persons" })
         : this.getItem(param);
-
       stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error) {
-      console.error(error);
+      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
     }
   },
 
   async submitFile(event: Event, param: string): Promise<void> {
     const formData = new FormData();
     const inputElement = event.target as HTMLInputElement;
-    if (inputElement && inputElement.files && inputElement.files.length > 0) {
-      const maxSizeInBytes = 2 * 1024 * 1024; // 1MB
+    if (inputElement && inputElement.files) {
       for (let i = 0; i < inputElement.files.length; i++) {
-        if (inputElement.files[i].size > maxSizeInBytes) {
-          stateAlert.setAlert(
-            "alert-warning",
-            "File size exceeds the limit. Please select a smaller file."
-          );
-          inputElement.value = ""; // Reset the input field
+        if (inputElement.files[i].size > 10 * 1024 * 1024) {
+          stateAlert.setAlert("alert-warning","Превышен максимальный размер файла");
+          inputElement.value = "";
           return;
         } else {
           formData.append("file", inputElement.files[i]);
@@ -236,7 +185,7 @@ export const stateAnketa = {
           "Файл или файлы успешно загружен/добавлены"
         );
       } catch (error) {
-        console.error(error);
+        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
       }
     } else {
       stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");

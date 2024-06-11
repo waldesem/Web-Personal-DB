@@ -59,12 +59,6 @@ const tabsData = ref({
     <div class="col-md-2 d-flex justify-content-end">
       <IconRelative
         v-show="tabsData.currentTab == 'AnketaTab'"
-        :title="`Обновить статус`"
-        :icon-class="`bi bi-arrow-clockwise fs-1`"
-        @onclick="stateAnketa.getResume('status')"
-      />
-      <IconRelative
-        v-show="tabsData.currentTab == 'AnketaTab'"
         :title="`Взять на проверку`"
         :icon-class="`bi bi-person-plus fs-1`"
         :hide="stateAnketa.anketa.resume.user_id == stateUser.userId"

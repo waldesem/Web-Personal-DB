@@ -4,17 +4,19 @@ import re
 from ..tools.depends import current_user
 from ..tools.folders import Folders
 from ..tools.queries import select_single, execute
-from .classes import Regions, Statuses
+from .classes import Regions, Statuses, Relations
 
 
 class Resume:
-    def __init__(self, resume):
+    def __init__(self, resume: dict):
+        self.resume = {}
         for k, v in resume.items():
             if k in ["surname", "firstname", "patronymic"]:
-                resume[k] = v.strip().upper()
+                self.resume[k] = v.strip().upper()
             elif k == "birthday" and isinstance(v, str):
-                resume[k] = datetime.strptime(v, "%Y-%m-%d").date()
-        self.resume: dict = resume
+                self.resume[k] = datetime.strptime(v, "%Y-%m-%d").date()
+            else:
+                self.resume = v
 
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
@@ -24,11 +26,8 @@ class Resume:
         AND firstname LIKE '%{}%'
         AND patronymic LIKE '%{}%'
         AND birthday = ?
-        """.format(
-            surname, firstname, patronymic
-        )
+        """.format(surname, firstname, patronymic)
         return select_single(stmt, (birthday,))
-
 
     def update_status(self):
         person = self.get_person(
@@ -39,17 +38,17 @@ class Resume:
         )
 
         if person:
-            return self.update_resume(person['id'])
+            return self.update_resume(person["id"])
         else:
-            status = Statuses.manual.name
-            user_id = current_user["id"]
-
-            query = "INSERT INTO persons ({}) VALUES ({})"
-            columns = ", ".join(self.resume.keys()) + ", status, user_id"
-            values = "? ,"* len(self.resume) + "?, ?"
-            args = tuple(self.resume.values()) + (status, user_id)
-            person_id = execute(query.format(columns, values), args)
-
+            columns = ", ".join(self.resume.keys())
+            values = ", ".join(["?" for _ in len(self.resume.keys())])
+            args = tuple(
+                self.resume.values() + [Statuses.manual.name, current_user["id"]]
+            )
+            stmt = "INSERT INTO persons ({}, status, user_id) VALUES ({}), ?, ?".format(
+                columns, values
+            )
+            person_id = execute(stmt, args)
             folders = Folders(
                 person_id,
                 self.resume["surname"],
@@ -57,30 +56,28 @@ class Resume:
                 self.resume.get("patronymic", ""),
             )
             path = folders.create_main_folder()
-
-            query = "UPDATE persons SET path = ? WHERE id = ?"
-            args = (path, person_id,)
-            execute(query, args)
-
+            execute(
+                "UPDATE persons SET path = ? WHERE id = ?",
+                (
+                    path,
+                    person_id,
+                ),
+            )
             return person_id
 
     def update_resume(self, person_id, manual=False):
         columns, values = [], []
-        if "username" in self.resume:
-            del self.resume["username"]
         for key in self.resume.keys():
-            columns.append(key)
-            values.append(self.resume[key])
-        sql = (
-            f"UPDATE persons SET {','.join(key + '=?' for key in columns)}"
-            f", updated = ?, user_id = ? WHERE id = ?"
-        )
-        values += [datetime.now(), current_user["id"], person_id]
-        if manual:
-            execute(sql, values)
-        else:
+            if key not in ["username", "updated", "created"]:
+                columns.append(key)
+                values.append(self.resume[key])
+        columns.extend(["updated", "user_id"])
+        values.extend([datetime.now(), current_user["id"]])
+        if not manual:
+            columns.append("status")
             values.append(Statuses.manual.name)
-            execute(sql, values)
+        sql = f"UPDATE persons SET {','.join(key + '=?' for key in columns)}"
+        execute(sql + " WHERE id = ?", tuple(values + [person_id]))
         return person_id
 
 
@@ -97,7 +94,6 @@ class Anketa(Resume):
         return self.person_id
 
     def parse_relations(self):
-        values = []
         for item in self.anketa["previous"]:
             surname = item.get("surname", self.resume["surname"])
             firstname = item.get("firstname", self.resume["firstname"])
@@ -105,21 +101,31 @@ class Anketa(Resume):
             birthday = self.resume["birthday"]
             relation = self.get_person(surname, firstname, patronymic, birthday)
             if relation:
-                values.append(("Одно лицо", self.person_id, relation.id))
-        if values:
-            execute(
-                "INSERT INTO relations (relation, person_id, relation_id) VALUES (?, ?, ?)",
-                values,
-            )
+                execute(
+                    "INSERT INTO relations (relation, person_id, relation_id) VALUES (?, ?, ?)",
+                    [
+                        (
+                            Relations.similar.name,
+                            self.person_id,
+                            relation.id,
+                        ),
+                        (
+                            Relations.similar.name,
+                            relation.id,
+                            self.person_id,
+                        ),
+                    ],
+                )
 
     def save_items(self):
-        for tables in [key for key in self.anketa.keys() if key != "resume"]:
-            for item in self.anketa[tables]:
-                execute(
-                    f"INSERT INTO {tables} ({','.join(item.keys())}, person_id) \
-                        VALUES ({','.join('?' * len(item))}, ?)",
-                    (tuple(item.values() + [self.person_id])),
-                )
+        for table, values in self.anketa:
+            if table != "resume":
+                for item in values:
+                    execute(
+                        f"INSERT INTO {table} ({','.join(item.keys())}, person_id) \
+                            VALUES ({','.join(['?' for _ in len(self.resume.keys())])},?)",
+                        (tuple(item.values() + [self.person_id])),
+                    )
 
     @staticmethod
     def parse_json(json_dict) -> None:

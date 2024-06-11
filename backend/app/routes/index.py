@@ -1,7 +1,6 @@
 import os
 
 from flask import jsonify, request, send_file
-from flask.views import MethodView
 
 from . import bp
 from config import Config
@@ -11,66 +10,64 @@ from ..tools.queries import select_all, select_single
 from ..tools.classes import Conclusions, Regions, Statuses, Relations
 
 
-class IndexView(MethodView):
-
-    @user_required()
-    def get(self, flag, page):
-        search_data = request.args.get("search", "")
-        offset = (page - 1) * Config.PAGINATION
-        limit = Config.PAGINATION + 1
-        query = "SELECT * FROM persons "
-        args = []
-        if flag == "search":
-            query += " WHERE surname LIKE upper('%{}%') ".format(search_data.upper())
+@user_required()
+@bp.route("/index/<flag>/<int:page>")
+def get_index(flag, page):
+    search_data = request.args.get("search", "")
+    offset = (page - 1) * Config.PAGINATION
+    limit = Config.PAGINATION + 1
+    query = "SELECT * FROM persons "
+    args = []
+    if flag == "search":
+        if search_data:
+            query += "WHERE surname LIKE upper('%{}%') ".format(search_data.upper())
             if current_user["region"] != Regions.main.name:
                 query += " AND region = ? "
                 args.append(current_user["region"]) 
-        if flag == "officer":
-            query += " WHERE status NOT IN (?, ?) AND user_id = ? "
-            args.extend([Statuses.finish.name, Statuses.cancel.name, current_user["id"]])
-        query += " ORDER BY {} {} LIMIT {} OFFSET {} ".format(
-            request.args.get("sort"), request.args.get("order"), limit, offset
-        )
-        result = select_all(query, tuple(args) if args else (""))
-        has_next = len(result) > Config.PAGINATION if result else False
-        result = result[:Config.PAGINATION] if has_next else result
-        users = select_all("SELECT id, fullname FROM users")
-        names = {u["id"]: u["fullname"] for u in users}
-        for i in result:
-            if i["user_id"]:
-                i["username"] = names[i["user_id"]]
-        return jsonify(
-            {
-                "persons": result,
-                "has_next": has_next,
-                "has_prev": page > 1,
-            }
-        ), 200
+        else:
+            if current_user["region"] != Regions.main.name:
+                query += " WHERE region = ? "
+                args.append(current_user["region"]) 
+    if flag == "officer":
+        query += "WHERE status = ? AND user_id = ? "
+        args.extend([Statuses.manual.name, current_user["id"]])
+    query += " ORDER BY {} {} LIMIT {} OFFSET {} ".format(
+        request.args.get("sort"), request.args.get("order"), limit, offset
+    )
+    result = select_all(query, tuple(args) if args else (""))
+    has_next = len(result) > Config.PAGINATION if result else False
+    result = result[:Config.PAGINATION] if has_next else result
+    users = select_all("SELECT id, fullname FROM users")
+    names = {u["id"]: u["fullname"] for u in users}
+    for i in result:
+        if i["user_id"]:
+            i["username"] = names[i["user_id"]]
+    return jsonify(
+        {
+            "persons": result,
+            "has_next": has_next,
+            "has_prev": page > 1,
+        }
+    ), 200
 
 
-bp.add_url_rule("/index/<flag>/<int:page>", view_func=IndexView.as_view("index"))
-
-
-class InformationView(MethodView):
-    @jwt_required()
-    def get(query_data):
-        query_data = request.args
-        result = select_all(
-            "SELECT checks.conclusion, count(checks.id) FROM checks \
-                LEFT JOIN persons on checks.person_id = persons.id \
-                    WHERE persons.region = ? \
-                        AND checks.created BETWEEN ? AND ? \
-                            GROUP BY conclusion",
-            (
-                query_data["region"],
-                query_data["start"],
-                query_data["end"],
-            ),
-        )
-        return jsonify(result)
-
-
-bp.add_url_rule("/information", view_func=InformationView.as_view("information"))
+@jwt_required()
+@bp.route("/information")
+def get_information(query_data):
+    query_data = request.args
+    result = select_all(
+        "SELECT checks.conclusion, count(checks.id) FROM checks \
+            LEFT JOIN persons on checks.person_id = persons.id \
+                WHERE persons.region = ? \
+                    AND checks.created BETWEEN ? AND ? \
+                        GROUP BY conclusion",
+        (
+            query_data["region"],
+            query_data["start"],
+            query_data["end"],
+        ),
+    )
+    return jsonify(result), 200
 
 
 @jwt_required()
