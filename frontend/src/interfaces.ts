@@ -26,6 +26,8 @@ export interface Previous {
   firstname: string;
   patronymic: string;
   date_change: string;
+  created: string;
+  updated: string;
   reason: string;
 }
 
@@ -35,12 +37,16 @@ export interface Education {
   name: string;
   finish: string;
   speciality: string;
+  created: string;
+  updated: string;
 }
 
 export interface Staff {
   id: string;
   position: string;
   department: string;
+  created: string;
+  updated: string;
 }
 
 export interface Document {
@@ -50,24 +56,32 @@ export interface Document {
   number: string;
   agency: string;
   issue: string;
+  created: string;
+  updated: string;
 }
 
 export interface Address {
   id: string;
   view: string;
   address: string;
+  created: string;
+  updated: string;
 }
 
 export interface Contact {
   id: string;
   view: string;
   contact: string;
+  created: string;
+  updated: string;
 }
 
 export interface Relation {
   id: string;
   relation: string;
   relation_id: string;
+  created: string;
+  updated: string;
 }
 
 export interface Work {
@@ -79,6 +93,8 @@ export interface Work {
   address: string;
   reason: string;
   position: string;
+  created: string;
+  updated: string;
 }
 
 export interface Affilation {
@@ -89,6 +105,7 @@ export interface Affilation {
   position: string;
   created: string;
   updated: string;
+  
 }
 
 export interface Verification {

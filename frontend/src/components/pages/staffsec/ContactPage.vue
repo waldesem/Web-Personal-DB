@@ -117,7 +117,7 @@ async function deleteContact(id: string): Promise<void> {
       name="search"
       id="search"
       type="text"
-      placeholder="Поиск по организации, имени, номеру мобильного телефона"
+      placeholder="Поиск по организации"
       v-model="contactData.search"
     />
     <ModalWin

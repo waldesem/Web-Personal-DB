@@ -25,7 +25,7 @@ const toggle = ref(true);
       </button>
       <button
         type="button"
-        class="btn btn-link dropdown-toggle dropdown-toggle-split"
+        class="btn btn-link dropdown-toggle dropdown-toggle-split d-print-none"
         data-bs-toggle="dropdown"
         title="Добавить информацию"
       >

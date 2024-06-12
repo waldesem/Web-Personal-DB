@@ -97,7 +97,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
         <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
         <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
-        <LabelSlot :label="'Дата декларации'">
+        <LabelSlot :label="'Дата создания'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
         <LabelSlot :label="'Дата изменения'">

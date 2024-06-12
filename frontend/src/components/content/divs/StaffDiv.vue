@@ -87,6 +87,12 @@ function submitForm(form: Object) {
         </LabelSlot>
         <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
         <LabelSlot :label="'Департамент'">{{ item["department"] }}</LabelSlot>
+        <LabelSlot :label="'Дата'">
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot v-if="item['updated']" :label="'Обновлено'">
+          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
       </div>
     </div>
   </div>

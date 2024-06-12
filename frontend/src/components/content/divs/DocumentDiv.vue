@@ -94,9 +94,15 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Вид документа'">{{ item["view"] }}</LabelSlot>
         <LabelSlot :label="'Номер документа'">{{ item["number"] }}</LabelSlot>
         <LabelSlot :label="'Серия документа'">{{ item["series"] }}</LabelSlot>
-        <LabelSlot :label="'Кем выдан'">{{ item["agency"] }}</LabelSlot>
         <LabelSlot :label="'Дата выдачи'">
           {{ new Date(String(item["issue"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot :label="'Кем выдан'">{{ item["agency"] }}</LabelSlot>
+        <LabelSlot :label="'Дата создания'">
+          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot v-if="item['updated']" :label="'Обновлено'">
+          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

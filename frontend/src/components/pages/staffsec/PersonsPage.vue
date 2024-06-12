@@ -120,7 +120,7 @@ const searchPerson = debounce(() => {
         name="search"
         id="search"
         type="text"
-        placeholder="поиск по Фамилии, Имени, Отчеству, ИНН (не менее 3-х символов)"
+        placeholder="поиск по фамилии, имени, отчеству, инн"
         v-model="personData.search"
       />
     </div>

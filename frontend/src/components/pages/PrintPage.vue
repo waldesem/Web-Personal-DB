@@ -36,17 +36,20 @@ const tabsData = ({
 </script>
 
 <template>
-  <PhotoCard />
-  <HeaderDiv
-    :cls="'text-info py-3'"
-    :page-header="`${stateAnketa.anketa.resume.surname} ${stateAnketa.anketa.resume.firstname} ${stateAnketa.anketa.resume.patronymic}`"
-  />
-  <div class="py-1"
-    v-for="(item, idx) in tabsData.tabs"
-    :key="idx"
-  >
-    <HeaderDiv :cls="'text-info py-3'" :page-header="(item[0] as string)" />
-    <component :is="item[1]" />
-  
+  <div class="container-fluid">
+    <PhotoCard />
+    <HeaderDiv
+      :cls="'text-info py-3'"
+      :page-header="`${stateAnketa.anketa.resume.surname} ${stateAnketa.anketa.resume.firstname} ${stateAnketa.anketa.resume.patronymic}`"
+    />
+    <div
+      v-for="(item, idx) in tabsData.tabs"
+      :key="idx"
+    >
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <p class="fs-5 fw-bold text-info">{{ (item[0] as string) }}</p>
+      </div>
+      <component :is="item[1]" />
+    </div>
   </div>
 </template>

@@ -17,7 +17,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="position-relative">
+  <div class="position-relative d-print-none">
     <div class="position-absolute top-0 end-0">
       <a
         :hidden="props.hide"

@@ -4,10 +4,6 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  noPrint: {
-    type: Boolean,
-    default: false,
-  },
   labelClass: {
     type: String,
     default: "col-lg-2",
@@ -20,7 +16,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="row mb-3" :class="{ 'd-print-none': props.noPrint }">
+  <div class="row mb-3">
     <div :class="props.labelClass">
       {{ props.label }}
     </div>
@@ -29,3 +25,18 @@ const props = defineProps({
     </div>
   </div>
 </template>
+
+
+<style scoped>
+@media print {
+  .col-lg-2, .col-lg-10 {
+    float: left!important;
+  }
+  .col-lg-10 {
+    width: 70%;
+  }
+  .col-lg-2 {
+    width: 30%;
+  }
+}
+</style>

@@ -172,4 +172,5 @@ const dataResume = ref({
   >
     <component :is="component"/>
   </div>
+  <hr/>
 </template>

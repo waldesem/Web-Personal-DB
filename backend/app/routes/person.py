@@ -213,11 +213,8 @@ class ItemsView(MethodView):
     def patch(self, item, item_id):
         json_data = request.get_json()
         json_dict = self.parse_json(json_data)
-        query = f"UPDATE {item} SET "
-        args = []
-        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-            query += "updated = ?,"
-            args.append(datetime.now())
+        query = f"UPDATE {item} SET updated = ?, "
+        args = [datetime.now()]
         query += ",".join([key + "=?" for key in json_dict.keys()])
         args.extend(json_dict.values())
         execute(query + " WHERE person_id = ?", tuple(args + [item_id]))
