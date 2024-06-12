@@ -128,7 +128,7 @@ async function getUsers() {
                     {{ user.username }}
                   </router-link>
                 </td>
-                <td width="10%">{{ user.blocked }}</td>
+                <td width="10%">{{ user.blocked ? "Да" : "Нет" }}</td>
                 <td width="15%">
                   {{ timeSince(user.pswd_create) }}
                 </td>

@@ -53,12 +53,12 @@ async function submitResume(): Promise<void> {
             `${server}/resume/${stateAnketa.share.candId}`,
             resumeForm.value
           );
-    const { message } = response.data;
+    const { person_id } = response.data;
 
     clearForm(resumeForm.value);
     
     if (props.action === "create") {
-      router.push({ name: "profile", params: { id: message } })
+      router.push({ name: "profile", params: { id: person_id } })
     } else {
       emit("cancel");
        stateAnketa.getResume();

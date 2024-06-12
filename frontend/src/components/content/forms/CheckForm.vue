@@ -31,7 +31,7 @@ const props = defineProps({
   },
   action: {
     type: String,
-    default: "",
+    default: "create",
   }
 });
 
@@ -182,6 +182,7 @@ watch(noNegative, () => {
       <LabelSlot :label="'Результат'">
         <SelectObject
           :name="'conclusion'"
+          :need="true"
           :select="stateClassify.conclusions"
           v-model="checkForm['conclusion']"
         />

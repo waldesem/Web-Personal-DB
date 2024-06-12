@@ -31,11 +31,12 @@ function debounce(
  * @return {string} A string representing the time elapsed in a human-readable format
  */
 function timeSince(date: string): string {
-  const seconds: number = Math.floor(
-    ((new Date() as any) - (new Date(date) as any)) / 1000
-  );
+  let seconds =
+    (new Date().getTime() -
+      new Date(date).getTime() +
+      new Date().getTimezoneOffset() * 60000) /
+    1000;
   let interval = seconds / 31536000;
-
   if (interval > 1) {
     return Math.floor(interval) + " лет назад";
   }
@@ -58,10 +59,10 @@ function timeSince(date: string): string {
   return Math.floor(seconds) + " секунд назад";
 }
 
-function clearForm (form: Object) {
+function clearForm(form: Object) {
   Object.keys(form).forEach((key) => {
     delete form[key as keyof typeof form];
   });
-};
+}
 
 export { server, debounce, timeSince, clearForm };

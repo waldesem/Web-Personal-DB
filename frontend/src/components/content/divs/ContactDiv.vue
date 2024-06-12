@@ -49,15 +49,14 @@ function submitForm(form: Object) {
   />
   <div 
     v-if="stateAnketa.anketa.contacts.length" 
-    :class="{'collapse show': !stateAnketa.share.printPage}" 
+    class="collapse show" 
     id="contact"
   > 
     <div 
-      class="mb-3" 
       v-for="(item, idx) in stateAnketa.anketa.contacts" :key="idx"
       @mouseover="contact.showActions = true"
       @mouseout="contact.showActions = false" 
-      :class="{ 'card card-body': !stateAnketa.share.printPage }">
+      class="card card-body mb-3">
       <LabelSlot>
         <ActionIcons v-show="contact.showActions"
           @delete="stateAnketa.deleteItem(item['id'].toString(), 'contacts')"

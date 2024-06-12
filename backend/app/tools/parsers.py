@@ -16,7 +16,7 @@ class Resume:
             elif k == "birthday" and isinstance(v, str):
                 self.resume[k] = datetime.strptime(v, "%Y-%m-%d").date()
             else:
-                self.resume = v
+                self.resume[k] = v
 
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
@@ -41,14 +41,15 @@ class Resume:
             return self.update_resume(person["id"])
         else:
             columns = ", ".join(self.resume.keys())
-            values = ", ".join(["?" for _ in len(self.resume.keys())])
-            args = tuple(
-                self.resume.values() + [Statuses.manual.name, current_user["id"]]
-            )
-            stmt = "INSERT INTO persons ({}, status, user_id) VALUES ({}), ?, ?".format(
+            values = ", ".join(["?" for _ in self.resume.keys()])
+            args = [val for val in self.resume.values()] + [
+                Statuses.manual.name,
+                current_user["id"],
+            ]
+            stmt = "INSERT INTO persons ({}, status, user_id) VALUES ({}, ?, ?)".format(
                 columns, values
             )
-            person_id = execute(stmt, args)
+            person_id = execute(stmt, tuple(args))
             folders = Folders(
                 person_id,
                 self.resume["surname"],
@@ -118,20 +119,20 @@ class Anketa(Resume):
                 )
 
     def save_items(self):
-        for table, values in self.anketa:
+        for table, values in self.anketa.items():
             if table != "resume":
                 for item in values:
                     execute(
                         f"INSERT INTO {table} ({','.join(item.keys())}, person_id) \
-                            VALUES ({','.join(['?' for _ in len(self.resume.keys())])},?)",
-                        (tuple(item.values() + [self.person_id])),
+                            VALUES ({','.join(['?' for _ in item.keys()])},?)",
+                        (tuple([val for val in item.values()] + [self.person_id])),
                     )
 
     @staticmethod
     def parse_json(json_dict) -> None:
         json_data = {
             "resume": {
-                "region_id": Anketa.get_region_id(json_dict),
+                "region": Anketa.get_region_id(json_dict),
                 "firstname": json_dict["firstName"],
                 "surname": json_dict["lastName"],
                 "birthday": datetime.strptime(json_dict["birthday"], "%Y-%m-%d").date(),

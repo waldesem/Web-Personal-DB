@@ -60,14 +60,13 @@ function submitForm(form: Object, action: string) {
   <div v-else-if="stateAnketa.anketa.investigations.length" class="py-3"> 
     <div 
       v-for="(item, idx) in stateAnketa.anketa.investigations" :key="idx"
-      class="mb-3"
-      :class="{ 'card card-body': !stateAnketa.share.printPage }"
       @mouseover="inquisition.showActions = true"
       @mouseout="inquisition.showActions = false"
+      class="card card-body mb-3"
     >
       <InvestigationForm
         v-if="inquisition.itemId === item['id'].toString()"
-        :poligraf="inquisition.item"
+        :investigation="inquisition.item"
         :action="'update'"
         @submit="submitForm"
         @cancel="inquisition.itemId = ''"
@@ -85,7 +84,7 @@ function submitForm(form: Object, action: string) {
           <FileForm 
             v-show="inquisition.showActions" 
             :accept="'*'" 
-            @submit="stateAnketa.submitFile($event, 'investigation')" 
+            @submit="stateAnketa.submitFile($event, 'investigations')" 
           />
           </ActionIcons>
         </LabelSlot>

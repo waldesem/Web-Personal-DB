@@ -50,15 +50,14 @@ function submitForm(form: Object, action: string) {
   />
   <div v-else-if="stateAnketa.anketa.inquiries.length" class="py-3"> 
     <div
-      class="mb-3"
+      class="card card-body mb-3"
       v-for="(item, idx) in stateAnketa.anketa.inquiries" :key="idx"
       @mouseover="need.showActions = true"
       @mouseout="need.showActions = false" 
-      :class="{ 'card card-body': !stateAnketa.share.printPage }"
     >
       <InquiryForm
         v-if="need.itemId === item['id'].toString()"
-        :poligraf="need.item"
+        :inquiry="need.item"
         :action="'update'"
         @submit="submitForm"
         @cancel="need.itemId = ''"

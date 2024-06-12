@@ -58,16 +58,15 @@ function submitForm(form: Object) {
   />
   <div
     v-if="stateAnketa.anketa.previous.length"
-    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    class="collapse show"
     id="previous"
   >
     <div
-      class="mb-3"
       v-for="(item, idx) in stateAnketa.anketa.previous"
       :key="idx"
       @mouseover="previous.showActions = true"
       @mouseout="previous.showActions = false"
-      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+      class="card card-body mb-3"
     >
       <PreviousForm
         v-if="

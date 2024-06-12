@@ -70,7 +70,6 @@ export const stateAnketa = {
   share: reactive({
     candId: "" as string,
     imageUrl: "" as string,
-    printPage: false,
   }),
 
   async getResume(action = "view"): Promise<void> {

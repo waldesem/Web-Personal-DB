@@ -36,7 +36,7 @@ onBeforeMount(async () => {
 
 const tabsData = ref({
   tabs: [
-    ["AnketaTab", "Анкета", AnketaTab,],
+    ["AnketaTab", "Анкета", AnketaTab],
     ["CheckTab", "Проверки", CheckTab],
     ["PoligrafTab", "Полиграф", PoligrafTab],
     ["InvestigateTab", "Расследования", InvestigateTab],
@@ -48,7 +48,7 @@ const tabsData = ref({
 </script>
 
 <template>
-  <PhotoCard/>
+  <PhotoCard />
   <div class="row mb-3">
     <div class="col-md-10">
       <HeaderDiv
@@ -64,48 +64,43 @@ const tabsData = ref({
         :hide="stateAnketa.anketa.resume.user_id == stateUser.userId"
         @onclick="stateAnketa.getResume('self')"
       />
-      <IconRelative 
+      <IconRelative
         v-show="tabsData.currentTab == 'CheckTab'"
         :title="`Добавить проверку`"
         :icon-class="`bi bi-journal-check fs-1`"
         :hide="
-          ![
-            stateClassify.status['update'],
-            stateClassify.status['save'],
-            stateClassify.status['repeat'],
-            stateClassify.status['manual'],
-          ].includes(stateAnketa.anketa.resume['status']) &&
+          stateClassify.status['manual'] !=
+          stateClassify.status[stateAnketa.anketa.resume['status']]   ||
           stateAnketa.anketa.resume['user_id'] != stateUser.userId
         "
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
       />
-      <IconRelative 
+      <IconRelative
         v-show="tabsData.currentTab == 'PoligrafTab'"
         :title="`Добавить полиграф`"
         :icon-class="`bi bi-heart-pulse fs-1`"
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
       />
-      <IconRelative 
+      <IconRelative
         v-show="tabsData.currentTab == 'InvestigateTab'"
         :title="`Добавить расследование`"
         :icon-class="`bi bi-incognito fs-1`"
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
       />
-      <IconRelative 
+      <IconRelative
         v-show="tabsData.currentTab == 'InquiryTab'"
         :title="`Добавить запрос`"
         :icon-class="`bi bi-question-square fs-1`"
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create';"
+        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
       />
       <IconRelative
         :title="`Версия для печати`"
         :icon-class="`bi bi-printer fs-1`"
-        @click="stateAnketa.share.printPage = !stateAnketa.share.printPage"
+        @click="$router.push({ name: 'print' })"
       />
     </div>
   </div>
   <nav
-    v-if="!stateAnketa.share.printPage"
     class="nav nav-tabs nav-justified"
     role="tablist"
   >
@@ -119,69 +114,64 @@ const tabsData = ref({
       type="button"
       role="tab"
       @click="
-        tabsData.currentTab = (tab[0] as string); 
-        tabsData.tabAction = ''
+        tabsData.currentTab = tab[0] as string;
+        tabsData.tabAction = '';
       "
     >
       {{ tab[1] }}
     </button>
   </nav>
-  <div :class="{ 'tab-content': !stateAnketa.share.printPage }" >
+  <div class="tab-content">
     <div
-      class="py-3 show active"
       id="AnketaTab"
-      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      class="tab-pane show active fade mb-1 py-3"
       role="tabpanel"
     >
-      <AnketaTab/>
+      <AnketaTab />
     </div>
     <div
-      class="py-3"
       id="CheckTab"
-      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      class="tab-pane fade py-3"
       role="tabpanel"
     >
       <CheckTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
-       />
+      />
     </div>
     <div
-      class="py-3"
       id="PoligrafTab"
-      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      class="tab-pane fade py-3"
       role="tabpanel"
     >
       <PoligrafTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
-       />
+      />
     </div>
     <div
-      class="py-3"
       id="InvestigateTab"
-      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      class="tab-pane fade py-3"
       role="tabpanel"
     >
       <InvestigateTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
-       />
+      />
     </div>
     <div
-      class="py-3"
       id="InquiryTab"
-      :class="{ 'tab-pane fade mb-1': !stateAnketa.share.printPage }"
+      class="tab-pane fade py-3"
       role="tabpanel"
     >
       <InquiryTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
-       />
+      />
     </div>
   </div>
 </template>

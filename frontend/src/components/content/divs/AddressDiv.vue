@@ -59,7 +59,7 @@ function submitForm(form: Object) {
   />
   <div
     v-if="stateAnketa.anketa.addresses.length"
-    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    class="collapse show"
     id="address"
   >
     <div
@@ -67,8 +67,7 @@ function submitForm(form: Object) {
       :key="idx"
       @mouseover="address.showActions = true"
       @mouseout="address.showActions = false"
-      :class="{ 'card card-body': !stateAnketa.share.printPage }"
-      class="mb-3"
+      class="card card-body mb-3"
     >
       <AddressForm
         v-if="

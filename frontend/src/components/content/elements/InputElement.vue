@@ -19,7 +19,11 @@ const props = defineProps({
   need: {
     type: Boolean,
     default: false,
-  },  
+  },
+  disable: {
+    type: Boolean,
+    default: false,
+  },
   max: {
     type: [String, Number],
     default: (props: any) => {
@@ -45,6 +49,7 @@ const props = defineProps({
     :type="props.typeof"
     :max="props.max"
     :required="props.need"
+    :disabled="props.disable"
     :pattern="props.pattern"
     :placeholder="props.place"
     :list="props.lst"

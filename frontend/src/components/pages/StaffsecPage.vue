@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
-import { defineAsyncComponent, onBeforeMount } from "vue";
-import { stateClassify } from "@/state";
+import { defineAsyncComponent, onBeforeMount, onMounted } from "vue";
+import { stateClassify, stateUser } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
@@ -12,7 +12,20 @@ const MenuBar = defineAsyncComponent(
   () => import("@components/content/layouts/MenuBar.vue")
 );
 
-onBeforeMount(async () => {
+onBeforeMount( () => {
+  const token = localStorage.getItem("user_token") as string;
+  if (!token) {
+    router.push({ name: "login" });
+  }
+  const payload = window.atob(token).split(":")
+  stateUser.userId = payload[1];
+  stateUser.fullname = payload[2];
+  stateUser.username = payload[3];
+  stateUser.region = payload[4];
+  stateUser.hasAdmin = payload[5] === "1";
+});
+
+onMounted(async () => {
   try {
     const response = await axios.get(`${server}/classes`);
     [

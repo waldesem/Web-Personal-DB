@@ -30,12 +30,13 @@ def select_all(query, args=None):
         cursor = con.cursor()
         try:
             if args is None:
-                result = cursor.execute(query)
+                cursor.execute(query)
             else:
-                result = cursor.execute(query, args)
+                cursor.execute(query, args)
+            result = cursor.fetchall()
             if result:
                 columns = [desc[0] for desc in cursor.description]
-                return [dict(zip(columns, res)) for res in result.fetchall()]
+                return [dict(zip(columns, res)) for res in result]
             return []
         except sqlite3.Error as e:
             print(f"Error: {e}")
@@ -47,11 +48,14 @@ def select_single(query, args=None):
         cursor = con.cursor()
         try:
             if args is None:
-                result = cursor.execute(query)
+                cursor.execute(query)
             else:
-                result = cursor.execute(query, args)
-            columns = [desc[0] for desc in cursor.description] if result else []
-            return dict(zip(columns, result.fetchone())) if result else None
+                cursor.execute(query, args)
+            result = cursor.fetchone()
+            if result:
+                columns = [desc[0] for desc in cursor.description]
+                return dict(zip(columns, result))
+            return None
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()

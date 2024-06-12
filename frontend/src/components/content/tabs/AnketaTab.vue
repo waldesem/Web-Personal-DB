@@ -158,15 +158,15 @@ const dataResume = ref({
   <div
     class="mb-3 px-3"
     v-for="(component, idx) in [
-      PreviousDiv,
-      EducationDiv,
       StaffDiv,
+      EducationDiv,
+      WorkplaceDiv,
       DocumentDiv,
       AddressDiv,
       ContactDiv,
-      RelationDiv,
-      WorkplaceDiv,
       AffilationDiv,
+      PreviousDiv,
+      RelationDiv,
     ]"
     :key="idx"
   >

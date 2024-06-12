@@ -16,7 +16,7 @@ class AnketaView(MethodView):
         action = request.args.get("action")
         if action == "self":
             execute(
-                "UPDATE persons SET status = ? user_id = ? WHERE id = ?",
+                "UPDATE persons SET status = ?, user_id = ? WHERE id = ?",
                 (
                     Statuses.manual.name,
                     current_user["id"],
@@ -97,16 +97,21 @@ class PreviousView(MethodView):
     @jwt_required()
     def post(self, item_id):
         json_data = request.get_json()
+        json_dict = {"person_id": item_id}
+        for k, v in json_data.items():
+            if k in ["surname", "firstname", "patronymic"]:
+                json_dict[k] = v.strip().upper()
+            else:
+                json_dict[k] = v
         person = select_single("SELECT * FROM persons WHERE id = ?", (item_id,))
         exist = Resume.get_person(
-            person["surname"].strip().upper(),
-            person["firstname"].strip().upper(),
-            person.get("patronymic").strip().upper()
-            if person.get("patronymic")
-            else "",
+            json_dict["surname"],
+            json_dict["firstname"],
+            json_dict.get("patronymic", ""),
             datetime.strptime(person["birthday"], "%Y-%m-%d").date(),
         )
         if exist:
+            print(exist)
             execute(
                 "INSERT INTO relations (relation, relation_id, person_id) VALUES (?, ?, ?)",
                 [
@@ -122,11 +127,11 @@ class PreviousView(MethodView):
                     ),
                 ],
             )
-        cols = ",".join(json_data.keys())
-        vals = ",".join(["?" for _ in cols])
+        cols = ",".join(json_dict.keys())
+        vals = ",".join(["?" for _ in json_dict.keys()])
         execute(
-            "INSERT INTO previous ({}) VALUES ({})".format(cols, vals),
-            (tuple(json_data.values())),
+            "INSERT INTO previous ({}, person_id) VALUES ({}, ?)".format(cols, vals),
+            (tuple([val for val in json_dict.values()] + [item_id])),
         )
         return "", 201
 
@@ -140,7 +145,7 @@ class ItemsView(MethodView):
     def parse_json(json_data: dict):
         json_dict = {}
         for k, v in json_data.items():
-            if k not in ["updated", "created", "username"]:
+            if k not in ["updated", "created", "username", "user"] and v is not None:
                 if k in ["issue", "start_date", "end_date"]:
                     json_dict[k] = datetime.strptime(v, "%Y-%m-%d").date()
                 elif k in ["now_work", "pfo"]:
@@ -180,7 +185,7 @@ class ItemsView(MethodView):
         if item in ["checks", "poligrafs", "inquiries", "investigations"]:
             json_dict["user_id"] = current_user["id"]
         cols = ",".join(json_dict.keys())
-        vals = ",".join(["?" for _ in cols])
+        vals = ",".join(["?" for _ in json_dict.keys()])
         execute(
             f"INSERT INTO {item} ({cols}) VALUES ({vals})",
             (tuple(json_dict.values())),
@@ -208,12 +213,12 @@ class ItemsView(MethodView):
     def patch(self, item, item_id):
         json_data = request.get_json()
         json_dict = self.parse_json(json_data)
-        query = "UPDATE persons SET "
+        query = f"UPDATE {item} SET "
         args = []
         if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-            query += " updated = ? "
+            query += "updated = ?,"
             args.append(datetime.now())
-        query += {",".join([key + "=?" for key in json_dict.keys()])}
+        query += ",".join([key + "=?" for key in json_dict.keys()])
         args.extend(json_dict.values())
         execute(query + " WHERE person_id = ?", tuple(args + [item_id]))
         return "", 201
@@ -221,5 +226,7 @@ class ItemsView(MethodView):
 
 items_view = ItemsView.as_view("items")
 bp.add_url_rule(
-    "/<item>/<int:item_id>", view_func=items_view, methods=["GET", "DELETE"]
+    "/<item>/<int:item_id>",    
+    view_func=items_view,
+    methods=["GET", "DELETE", "POST", "PATCH"],
 )

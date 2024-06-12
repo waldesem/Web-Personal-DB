@@ -87,7 +87,7 @@ function submitForm(form: Object, action: string) {
           <FileForm 
             v-show="check.showActions" 
             :accept="'*'" 
-            @submit="stateAnketa.submitFile($event, 'check')" 
+            @submit="stateAnketa.submitFile($event, 'checks')" 
           />
         </ActionIcons>
         </LabelSlot>

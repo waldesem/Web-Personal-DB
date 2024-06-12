@@ -57,14 +57,13 @@ function submitForm(form: Object) {
   />
   <div
     v-if="stateAnketa.anketa.relations.length"
-    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    class="collapse show"
     id="relation"
   >
     <div
-      class="mb-3"
       v-for="(item, idx) in stateAnketa.anketa.relations"
       :key="idx"
-      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+      class="card card-body mb-3"
       @mouseover="relation.showActions = true"
       @mouseout="relation.showActions = false"
     >

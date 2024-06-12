@@ -28,7 +28,7 @@ const props = defineProps({
   },
   action: {
     type: String,
-    default: "",
+    default: "create",
   },
 });
 
@@ -59,7 +59,7 @@ const poligrafForm = toRef(props.poligraf as Pfo);
       <TextArea
         :name="'results'"
         :place="'Результат'"
-        v-model="props.poligraf['results']"
+        v-model="poligrafForm['results']"
       >
       </TextArea>
     </LabelSlot>

@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash
 
 from config import Config
 from . import bp
+from ..tools.classes import Regions
 from ..tools.depends import user_required, current_user
 from ..tools.queries import select_single, select_all, execute
 
@@ -72,7 +73,7 @@ class UserView(MethodView):
                 json_data.get("email"),
                 generate_password_hash(Config.DEFAULT_PASSWORD),
                 bool(json_data.get("has_admin")),
-                json_data.get("region"),
+                json_data.get("region") if json_data.get("region") else Regions.main.name,
             ),
         )
         return "", 201

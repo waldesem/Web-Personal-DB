@@ -56,7 +56,7 @@ const investigationForm = toRef(props.investigation as Inquisition);
       <TextArea
         :name="'info'"
         :place="'Информация'"
-        v-model="props.investigation['info']"
+        v-model="investigationForm['info']"
       >
       </TextArea>
     </LabelSlot>

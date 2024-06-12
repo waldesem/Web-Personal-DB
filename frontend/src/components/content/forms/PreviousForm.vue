@@ -62,8 +62,7 @@ const previousForm = toRef(props.previous as Previous);
     <LabelSlot :label="'Дата изменения'">
       <InputElement
         :name="'date_change'"
-        :place="'Дата изменения'"
-        :typeof="'date'"
+        :place="'Год изменения'"
         v-model="previousForm['date_change']"
       />
     </LabelSlot>

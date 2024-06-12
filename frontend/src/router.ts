@@ -13,6 +13,11 @@ export const router = createRouter({
       component: () => import("@components/pages/LoginPage.vue"),
     },
     {
+      path: "/print",
+      name: "print",
+      component: () => import("@components/pages/PrintPage.vue"),
+    },
+    {
       path: "/staffsec",
       name: "staffsec",
       component: () => import("@components/pages/StaffsecPage.vue"),

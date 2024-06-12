@@ -80,7 +80,7 @@ async function updateContact(): Promise<void> {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Вид контакта'">
+    <LabelSlot :label="'Вид организации'">
       <InputElement
         :place="'Вид'"
         :name="'name'"

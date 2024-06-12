@@ -10,8 +10,8 @@ from ..tools.queries import select_all, select_single
 from ..tools.classes import Conclusions, Regions, Statuses, Relations
 
 
-@user_required()
 @bp.route("/index/<flag>/<int:page>")
+@user_required()
 def get_index(flag, page):
     search_data = request.args.get("search", "")
     offset = (page - 1) * Config.PAGINATION
@@ -51,9 +51,9 @@ def get_index(flag, page):
     ), 200
 
 
-@jwt_required()
 @bp.route("/information")
-def get_information(query_data):
+@jwt_required()
+def get_information():
     query_data = request.args
     result = select_all(
         "SELECT checks.conclusion, count(checks.id) FROM checks \
@@ -70,8 +70,8 @@ def get_information(query_data):
     return jsonify(result), 200
 
 
-@jwt_required()
 @bp.route("/image/<int:item_id>")
+@jwt_required()
 def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.

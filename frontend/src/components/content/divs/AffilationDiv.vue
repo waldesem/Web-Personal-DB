@@ -57,16 +57,15 @@ function submitForm(form: Object) {
   />
   <div
     v-if="stateAnketa.anketa.affilations.length"
-    :class="{ 'collapse show': !stateAnketa.share.printPage }"
+    class="collapse show"
     id="affilation"
   >
     <div
-      class="mb-3"
       v-for="(item, idx) in stateAnketa.anketa.affilations"
       :key="idx"
       @mouseover="affilation.showActions = true"
       @mouseout="affilation.showActions = false"
-      :class="{ 'card card-body': !stateAnketa.share.printPage }"
+      class="card card-body mb-3"
     >
       <AffilationForm
         v-if="

@@ -13,7 +13,7 @@ const InputElement = defineAsyncComponent(
 );
 const SelectObject = defineAsyncComponent(
   () => import("@components/content/elements/SelectObject.vue")
-)
+);
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
 );
@@ -48,25 +48,15 @@ async function submitUser(): Promise<void> {
             userForm.value
           )
         : await axiosAuth.post(`${server}/user`, userForm.value);
-
-    const { message } = response.data;
-    if (message === "Changed") {
-      stateAlert.setAlert(
-        "alert-success",
-        "Пользователь успешно изменен"
-      );
+    console.log(response.status);
+    if (props.action === "edit") {
+      stateAlert.setAlert("alert-success", "Пользователь успешно изменен");
     } else {
-      stateAlert.setAlert(
-        "alert-success",
-        "Пользователь успешно создан"
-      );
+      stateAlert.setAlert("alert-success", "Пользователь успешно создан");
     }
   } catch (error) {
     console.error(error);
-    stateAlert.setAlert(
-      "alert-danger",
-      "Ошибка сохранения данных"
-    );
+    stateAlert.setAlert("alert-danger", "Ошибка сохранения данных");
   }
   clearForm(userForm.value);
   emit("update");
@@ -75,15 +65,12 @@ async function submitUser(): Promise<void> {
 
 <template>
   <div class="p-3">
-    <form
-      @submit.prevent="submitUser"
-      class="form form-check"
-      role="form"
-    >
+    <form @submit.prevent="submitUser" class="form form-check" role="form">
       <LabelSlot :label="'Имя пользователя'">
         <InputElement
           :name="'fullname'"
           :place="'Имя пользователя'"
+          :need="props.action !== 'edit'"
           :pattern="'[a-zA-Zа-яА-Я ]+'"
           v-model="userForm['fullname']"
         />
@@ -93,7 +80,8 @@ async function submitUser(): Promise<void> {
           :name="'username'"
           :place="'Учетная запись'"
           :pattern="'[a-zA-Z]+'"
-          :need="props.action === 'edit'"
+          :need="props.action !== 'edit'"
+          :disable="props.action === 'edit'"
           v-model="userForm['username']"
         />
       </LabelSlot>
@@ -102,6 +90,7 @@ async function submitUser(): Promise<void> {
           :name="'email'"
           :place="'Электронная почта'"
           :typeof="'email'"
+          :need="props.action !== 'edit'"
           v-model="userForm['email']"
         />
       </LabelSlot>
@@ -109,16 +98,14 @@ async function submitUser(): Promise<void> {
         <SelectObject
           :name="'region'"
           :place="'Регион'"
+          :need="props.action !== 'edit'"
           :select="stateClassify.regions"
           v-model="userForm['region']"
         />
       </LabelSlot>
-      <SwitchBox
-        :div-class="'offset-lg-2 col-lg-10'"
-        :name="'admin'"
-        :label="'Администратор'"
-        v-model="userForm['has_admin']"
-      />
+      <LabelSlot :label="'Администратор'">
+        <SwitchBox :name="'admin'" v-model="userForm['has_admin']" />
+      </LabelSlot>
       <div class="row m-3">
         <div class="col col-auto">
           <BtnGroup :offset="false">

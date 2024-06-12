@@ -24,7 +24,6 @@ async function userLogout(): Promise<void> {
               class="btn btn-link dropdown-toggle"
               role="button"
               data-bs-toggle="dropdown"
-              :title="stateUser.fullname"
             >
               {{ stateUser.username }}
               <i class="bi bi-person-circle fs-3"></i>

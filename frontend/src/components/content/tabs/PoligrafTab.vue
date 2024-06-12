@@ -59,10 +59,10 @@ function submitForm(form: Object, action: string) {
   />
   <div v-else-if="stateAnketa.anketa.poligrafs.length" class="py-3"> 
     <div
-      :class="{'card card-body': !stateAnketa.share.printPage}"
       v-for="(item, idx) in stateAnketa.anketa.poligrafs" :key="idx"
       @mouseover="poligraf.showActions = true"
       @mouseout="poligraf.showActions = false"
+      class="card card-body mb-3"
     >
       <PoligrafForm
         v-if="poligraf.itemId === item['id'].toString()"
@@ -84,7 +84,7 @@ function submitForm(form: Object, action: string) {
           <FileForm 
             v-show="poligraf.showActions" 
             :accept="'*'" 
-            @submit="stateAnketa.submitFile($event, 'poligraf')" 
+            @submit="stateAnketa.submitFile($event, 'poligrafs')" 
           />
         </ActionIcons>
         </LabelSlot>
