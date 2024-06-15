@@ -3,38 +3,23 @@ import re
 
 from ..tools.depends import current_user
 from ..tools.folders import Folders
+from ..models.models import Person, models_tables
 from ..tools.queries import select_single, execute
-from .classes import (
-    Addresses,
-    Affiliates,
-    Conclusions,
-    Contacts,
-    Documents,
-    Educations,
-    Poligrafs,
-    Regions,
-    Relations,
-    Statuses,
-)
+from ..classes.classes import Regions, Statuses, Relations
+
 
 class Resume:
     def __init__(self, resume: dict):
-        self.resume = {}
-        for k, v in resume.items():
-            if k in ["surname", "firstname", "patronymic"]:
-                self.resume[k] = v.strip().upper()
-            elif k == "birthday" and isinstance(v, str):
-                self.resume[k] = datetime.strptime(v, "%Y-%m-%d").date()
-            else:
-                self.resume[k] = v
+        self.resume = Person(**resume).model_dump()
+        self.resume['user_id'] = current_user['id']
 
     @staticmethod
     def get_person(surname, firstname, patronymic, birthday):
         stmt = """
         SELECT * FROM persons
-        WHERE surname LIKE '%{}%'
-        AND firstname LIKE '%{}%'
-        AND patronymic LIKE '%{}%'
+        WHERE surname LIKE upper('%{}%')
+        AND firstname LIKE upper('%{}%')
+        AND patronymic LIKE upper('%{}%')
         AND birthday = ?
         """.format(surname, firstname, patronymic)
         return select_single(stmt, (birthday,))
@@ -46,49 +31,46 @@ class Resume:
             self.resume.get("patronymic", ""),
             self.resume["birthday"],
         )
-
         if person:
             return self.update_resume(person["id"])
         else:
-            columns = ", ".join(self.resume.keys())
-            values = ", ".join(["?" for _ in self.resume.keys()])
-            args = [val for val in self.resume.values()] + [
-                Statuses.manual.name,
-                current_user["id"],
-            ]
-            stmt = "INSERT INTO persons ({}, status, user_id) VALUES ({}, ?, ?)".format(
-                columns, values
-            )
-            person_id = execute(stmt, tuple(args))
-            folders = Folders(
-                person_id,
-                self.resume["surname"],
-                self.resume["firstname"],
-                self.resume.get("patronymic", ""),
-            )
-            path = folders.create_main_folder()
-            execute(
-                "UPDATE persons SET path = ? WHERE id = ?",
-                (
-                    path,
+            try:
+                keys, args = zip(*self.resume.items())
+                stmt = "INSERT INTO persons ({}, status, user_id) VALUES ({}, ?, ?)".format(
+                    ", ".join(keys),
+                    ", ".join(["?" for _ in keys]),
+                )
+                person_id = execute(
+                    stmt, tuple(args + (Statuses.manual.name, current_user["id"]))
+                )
+                folders = Folders(
                     person_id,
-                ),
-            )
-            return person_id
+                    self.resume["surname"],
+                    self.resume["firstname"],
+                    self.resume.get("patronymic", ""),
+                )
+                path = folders.create_main_folder()
+                execute(
+                    "UPDATE persons SET path = ? WHERE id = ?",
+                    (
+                        path,
+                        person_id,
+                    ),
+                )
+                return person_id
+            except Exception as e:
+                print(e)
+
 
     def update_resume(self, person_id, manual=False):
-        columns, values = [], []
-        for key in self.resume.keys():
-            if key not in ["username", "updated", "created"]:
-                columns.append(key)
-                values.append(self.resume[key])
-        columns.extend(["updated", "user_id"])
-        values.extend([datetime.now(), current_user["id"]])
+        keys, args = zip(*self.resume.items())
         if not manual:
-            columns.append("status")
-            values.append(Statuses.manual.name)
-        sql = f"UPDATE persons SET {','.join(key + '=?' for key in columns)}"
-        execute(sql + " WHERE id = ?", tuple(values + [person_id]))
+            keys += ("status",)
+            args += (Statuses.manual.name,)
+        query = "UPDATE persons SET {} WHERE id = ?".format(
+            ", ".join(f"{key} = ?" for key in keys)
+        )
+        execute(query, args + (person_id,))
         return person_id
 
 
@@ -130,13 +112,12 @@ class Anketa(Resume):
 
     def save_items(self):
         for table, values in self.anketa.items():
-            if table != "resume":
-                for item in values:
-                    execute(
-                        f"INSERT INTO {table} ({','.join(item.keys())}, person_id) \
-                            VALUES ({','.join(['?' for _ in item.keys()])},?)",
-                        (tuple([val for val in item.values()] + [self.person_id])),
-                    )
+            for item in values:
+                json_dict = models_tables[table](**item).model_dump()
+                json_dict["person_id"] = self.person_id
+                keys, args = zip(*json_dict.items())
+                stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
+                execute(stmt, tuple(args))
 
     @staticmethod
     def parse_json(json_dict) -> None:

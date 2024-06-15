@@ -5,7 +5,7 @@ from datetime import datetime
 from config import Config
 from flask import jsonify, request, send_file
 
-from ..tools.classes import (
+from ..classes.classes import (
     Addresses,
     Affiliates,
     Conclusions,
@@ -63,10 +63,10 @@ def get_index(flag, page):
                     stmt += "AND birthday = '{}' ".format(
                         datetime.strptime(query[-1], "%d.%m.%Y").date()
                     )
-                if current_user["region"] != Regions.main.name:
+                if current_user["region"] != Regions.main.value:
                     stmt += "AND region = {} ".format(current_user["region"])
         else:
-            if current_user["region"] != Regions.main.name:
+            if current_user["region"] != Regions.main.value:
                 stmt += "WHERE region = {} ".format(current_user["region"])
     if flag == "officer":
         stmt += "WHERE status = {} AND user_id = {} ".format(

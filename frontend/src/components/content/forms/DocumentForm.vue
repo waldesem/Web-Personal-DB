@@ -10,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -39,7 +39,7 @@ const docForm = toRef(props.docs as Document);
     role="form"
   >
     <LabelSlot :label="'Вид документа'">
-      <SelectObject
+      <SelectDiv
         :name="'view'"
         :select="stateClassify.documents"
         v-model="docForm['view']"

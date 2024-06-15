@@ -1,12 +1,10 @@
-from datetime import datetime
-
 from flask import jsonify, request
 from flask.views import MethodView
 from werkzeug.security import generate_password_hash
 
 from config import Config
 from . import bp
-from ..tools.classes import Regions
+from ..models.models import User
 from ..tools.depends import user_required, current_user
 from ..tools.queries import select_single, select_all, execute
 
@@ -60,50 +58,33 @@ class UserView(MethodView):
         )
         if user:
             return "", 205
-        stmt = """
-        INSERT INTO users 
-        (fullname, username, email, password, has_admin, region)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """
-        execute(
-            stmt,
-            (
-                json_data.get("fullname"),
-                json_data.get("username"),
-                json_data.get("email"),
-                generate_password_hash(Config.DEFAULT_PASSWORD),
-                bool(json_data.get("has_admin")),
-                json_data.get("region") if json_data.get("region") else Regions.main.name,
-            ),
-        )
-        return "", 201
+        try:
+            json_dict = User(**json_data).model_dump()
+            json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
+            keys, args = zip(*json_dict.items())
+            query = "INSERT INTO users ({}) VALUES ({})".format(
+                ",".join(keys), ",".join("?" for _ in keys)
+            )
+            execute(query, args)
+            return "", 201
+        except Exception as e:
+            print(e)
+            return "", 400
 
     @user_required()
     def patch(self, user_id):
         json_data = request.get_json()
-        stmt = """
-        UPDATE users SET 
-        fullname = ?, 
-        username = ?, 
-        email = ?, 
-        has_admin = ?, 
-        updated = ?, 
-        region = ?
-        WHERE id = ?
-        """
-        execute(
-            stmt,
-            (
-                json_data.get("fullname"),
-                json_data.get("username"),
-                json_data.get("email"),
-                bool(json_data.get("has_admin")),
-                datetime.now(),
-                json_data.get("region"),
-                user_id,
-            ),
-        )
-        return "", 201
+        try:
+            json_dict = User(**json_data).model_dump()
+            keys, args = zip(*json_dict.items())
+            query = "UPDATE users SET {} WHERE id = ?".format(
+                ",".join(f"{key} = ?" for key in keys)
+            )
+            execute(query, args + (user_id,))
+            return "", 201
+        except Exception as e:
+            print(e)
+            return "", 400
 
     @user_required(admin=True)
     def delete(self, user_id):

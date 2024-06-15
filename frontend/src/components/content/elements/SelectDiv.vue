@@ -30,7 +30,7 @@ const props = defineProps({
   >
     <option v-for="value, key in props.select"
       :key="key"
-      :value="key"
+      :value="value"
     >
       {{ value }}
     </option>

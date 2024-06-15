@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import  axios  from "axios";
 import { onBeforeMount, defineAsyncComponent, ref } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
@@ -25,15 +26,12 @@ const ConnectForm = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
+  await getConnects();
   await getContacts(1);
 });
 
-const searchContacts = debounce(() => {
-  getContacts(1);
-}, 500);
-
 const contactData = ref({
-  names: [],
+  view: [],
   companies: [],
   cities: [],
   contacts: [],
@@ -44,6 +42,20 @@ const contactData = ref({
   search: "",
   item: <Connection>{},
 });
+
+async function getConnects(): Promise<void> {
+  try {
+    const response = await axios.get(`${server}/connects`);
+    const { view, companies, cities } = response.data;
+    Object.assign(contactData.value, {
+      view: view,
+      companies: companies,
+      cities: cities,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 async function getContacts(page: number): Promise<void> {
   contactData.value.action = "";
@@ -56,12 +68,9 @@ async function getContacts(page: number): Promise<void> {
         },
       }
     );
-    const { contacts, has_prev, has_next, names, companies, cities } = response.data;
+    const { contacts, has_prev, has_next} = response.data;
     Object.assign(contactData.value, {
       contacts: contacts,
-      names: names,
-      companies: companies,
-      cities: cities,
       prev: has_prev,
       next: has_next,
     });
@@ -91,6 +100,10 @@ async function deleteContact(id: string): Promise<void> {
     }
   }
 };
+
+const searchContacts = debounce(() => {
+  getContacts(1);
+}, 500);
 </script>
 
 <template>
@@ -103,7 +116,7 @@ async function deleteContact(id: string): Promise<void> {
     v-if="contactData.action" 
     :page="contactData.page"
     :action="contactData.action"
-    :names="contactData.names"
+    :names="contactData.view"
     :companies="contactData.companies"
     :cities="contactData.cities"
     :item="contactData.item"

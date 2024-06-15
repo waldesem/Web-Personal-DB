@@ -11,8 +11,8 @@ const LabelSlot = defineAsyncComponent(
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
@@ -95,10 +95,10 @@ async function submitUser(): Promise<void> {
         />
       </LabelSlot>
       <LabelSlot :label="'Регион'">
-        <SelectObject
+        <SelectDiv
           :name="'region'"
           :place="'Регион'"
-          :need="props.action !== 'edit'"
+          :need="true"
           :select="stateClassify.regions"
           v-model="userForm['region']"
         />

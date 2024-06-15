@@ -90,14 +90,14 @@ const props = defineProps({
       <LabelSlot 
         :label-class="'col-lg-4'" 
         :input-class="'col-lg-8'" 
-        :label="'Дата'"
+        :label="'Дата создания'"
       >
         {{ new Date(String(props.item['created'])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
       <LabelSlot 
         :label-class="'col-lg-4'" 
         :input-class="'col-lg-8'" 
-        :label="'Дата'"
+        :label="'Дата изменения'"
       >
         {{ new Date(String(props.item['updated'])).toLocaleDateString("ru-RU") }}
       </LabelSlot>

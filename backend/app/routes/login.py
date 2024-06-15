@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 
 from flask import jsonify, request
@@ -39,7 +39,7 @@ class LoginView(MethodView):
         if not user["change_pswd"] and delta_change.days < 365:
             execute(
                 "UPDATE users SET last_login = ?, attempt = ? WHERE id = ?",
-                (datetime.now(), 0, user["id"]),
+                (datetime.now(timezone.utc), 0, user["id"]),
             )
             return jsonify(
                 {
@@ -57,7 +57,7 @@ class LoginView(MethodView):
             "SELECT * FROM users WHERE username = ?",
             (json_data["username"],),
         )
-        pattern = r"^(?=. * [a-z])(?=. * [A-Z])(?=. * \d).{8,}$"
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"
         if (
             user
             and not user["blocked"]

@@ -10,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -39,7 +39,7 @@ const affilationForm = toRef(props.affils as Affilation);
     role="form"
   >
     <LabelSlot :label="'Тип участия'">
-      <SelectObject
+      <SelectDiv
         :name="'view'"
         :select="stateClassify.affilations"
         v-model="affilationForm['view']"

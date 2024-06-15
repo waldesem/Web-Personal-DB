@@ -10,8 +10,8 @@ const TextArea = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -46,7 +46,7 @@ const poligrafForm = toRef(props.poligraf as Pfo);
     role="form"
   >
     <LabelSlot :label="'Тема проверки'">
-      <SelectObject
+      <SelectDiv
         :name="'theme'"
         :select="stateClassify.poligrafs"
         v-model="poligrafForm['theme']"

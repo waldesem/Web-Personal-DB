@@ -100,6 +100,9 @@ async function userDelete(): Promise<void> {
     <LabelSlot :label="'ID'">
       {{ userData.profile.id }}
     </LabelSlot>
+    <LabelSlot :label="'Регион'">
+      {{ userData.profile.region }}
+    </LabelSlot>
     <LabelSlot :label="'Имя пользователя'">
       {{ userData.profile.fullname }}
     </LabelSlot>
@@ -109,7 +112,7 @@ async function userDelete(): Promise<void> {
     <LabelSlot :label="'E-mail'">
       {{ userData.profile.email }}
     </LabelSlot>
-    <LabelSlot :label="'Дата создания'">
+    <LabelSlot :label="'Дата создания пароля'">
       {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") }}
     </LabelSlot>
     <LabelSlot :label="'Требует смены пароля'">
@@ -129,6 +132,12 @@ async function userDelete(): Promise<void> {
     </LabelSlot>
     <LabelSlot :label="'Администратор'">
       {{ userData.profile.has_admin ? "Да" : "Нет" }}
+    </LabelSlot>
+    <LabelSlot :label="'Дата создания профиля'">
+      {{ new Date(userData.profile.created).toLocaleString("ru-RU") }}
+    </LabelSlot>
+    <LabelSlot :label="'Дата последнего изменения профиля'">
+      {{ new Date(userData.profile.updated).toLocaleString("ru-RU") }}
     </LabelSlot>
     <BtnGroup :offset="false">
       <button

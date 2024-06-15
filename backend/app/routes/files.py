@@ -1,7 +1,7 @@
 import json
 import os
 
-from flask import jsonify, request, send_file, abort
+from flask import request, send_file, abort
 from flask.views import MethodView
 from PIL import Image
 
@@ -42,7 +42,9 @@ class FileView(MethodView):
             json_dict = json.load(file)
             anketa = Anketa(json_dict)
             person_id = anketa.parse_anketa()
-            return jsonify({"message": person_id}), 201
+            if person_id:
+                return "", 201
+            return abort(400)
         
         person = select_single(
             "SELECT * FROM persons WHERE id = ?", 

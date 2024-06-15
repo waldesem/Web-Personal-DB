@@ -10,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -39,7 +39,7 @@ const educationForm = toRef(props.docs as Education);
     role="form"
   >
     <LabelSlot :label="'Вид образования'">
-      <SelectObject
+      <SelectDiv
         :name="'type'"
         :select="stateClassify.educations"
         v-model="educationForm['view']"

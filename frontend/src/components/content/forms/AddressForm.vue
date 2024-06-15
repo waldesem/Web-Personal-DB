@@ -10,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -39,7 +39,7 @@ const addressForm = toRef(props.addrs as Address);
     role="form"
   >
     <LabelSlot :label="'Вид адреса'">
-      <SelectObject
+      <SelectDiv
         :name="'view'"
         :select="stateClassify.addresses"
         v-model="addressForm['view']"

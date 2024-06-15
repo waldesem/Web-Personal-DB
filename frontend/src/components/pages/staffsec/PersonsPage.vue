@@ -4,7 +4,6 @@ import { debounce, server, timeSince } from "@/utilities";
 import { stateClassify, stateAlert } from "@/state";
 import { axiosAuth } from "@/auth";
 import { Resume } from "@/interfaces";
-import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -12,8 +11,8 @@ const HeaderDiv = defineAsyncComponent(
 const FileForm = defineAsyncComponent(
   () => import("@components/content/forms/FileForm.vue")
 );
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -117,8 +116,8 @@ async function submitFile(event: Event): Promise<void> {
         `${server}/file/anketa/0`,
         formData.value
       );
-      const { message } = response.data;
-      router.push({ name: "profile", params: { id: message } });
+      console.log(response.status);
+      getCandidates();
 
       stateAlert.setAlert(
         "alert-success",
@@ -153,7 +152,7 @@ async function submitFile(event: Event): Promise<void> {
   </div>
   <div class="row mb-3">
     <div class="col-md-2">
-      <SelectObject
+      <SelectDiv
         :name="'action'"
         :select="personData.items"
         v-model="personData.path"

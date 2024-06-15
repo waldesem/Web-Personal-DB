@@ -7,8 +7,8 @@ import { stateClassify} from "@/state"
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -39,7 +39,7 @@ const relationForm = toRef(props.relation as Relation);
     role="form"
   >
     <LabelSlot :label="'Тип связи'">
-      <SelectObject
+      <SelectDiv
           :name="'relation'"
           :select="stateClassify.relations"
           v-model="relationForm['relation']"

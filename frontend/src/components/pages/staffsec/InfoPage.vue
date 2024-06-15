@@ -7,8 +7,8 @@ import { server } from "@/utilities";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -51,9 +51,7 @@ onBeforeMount(async () => {
 
 <template>
   <HeaderDiv
-    :page-header="`Статистика по региону ${
-      stateClassify.regions[tableData.stat.region]
-    } 
+    :page-header="`Статистика по региону ${tableData.stat.region} 
             за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
   />
   <TableSlots :class="'table table-hover table-responsive align-middle py-3'">
@@ -75,14 +73,11 @@ onBeforeMount(async () => {
   <div class="row mb-3">
     <label class="col-form-label col-md-1" for="region"> Регион: </label>
     <div class="col-md-3">
-      <SelectObject
+      <SelectDiv
         :place="'Регион'"
         :name="'region'"
         :select="stateClassify.regions"
-        :disable="
-          stateClassify.regions['main'] !==
-          stateClassify.regions[stateUser.region]
-        "
+        :disable="'Главный офис' !== stateUser.region"
         v-model="tableData.stat.region"
         @submit-data="submitData"
       />

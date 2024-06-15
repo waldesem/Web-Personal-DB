@@ -41,7 +41,6 @@ const props = defineProps({
   },
 });
 
-
 const connectForm = toRef(props.item as Connection);
 
 async function updateContact(): Promise<void> {

@@ -9,8 +9,8 @@ const TextArea = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
@@ -180,7 +180,7 @@ watch(noNegative, () => {
         ></TextArea>
       </LabelSlot>
       <LabelSlot :label="'Результат'">
-        <SelectObject
+        <SelectDiv
           :name="'conclusion'"
           :need="true"
           :select="stateClassify.conclusions"

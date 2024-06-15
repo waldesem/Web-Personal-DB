@@ -10,8 +10,8 @@ import { axiosAuth } from "@/auth";
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-const SelectObject = defineAsyncComponent(
-  () => import("@components/content/elements/SelectObject.vue")
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -84,7 +84,7 @@ async function submitResume(): Promise<void> {
     role="form"
   >
     <LabelSlot :label="'Регион'">
-      <SelectObject
+      <SelectDiv
         :name="'region_id'"
         :select="stateClassify.regions"
         v-model="resumeForm['region']"

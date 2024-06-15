@@ -1,7 +1,7 @@
 import os
 import secrets
 
-from app.tools.classes import Regions
+from app.classes.classes import Regions
 from app.tools.queries import execute_script, execute
 from config import Config
 from werkzeug.security import generate_password_hash
@@ -34,7 +34,7 @@ def register_cli(app):
                     generate_password_hash(Config.DEFAULT_PASSWORD),
                     "admin@example.ru",
                     1,
-                    Regions.main.name,
+                    Regions.main.value,
                 ),
             )
         print("Application initialized")

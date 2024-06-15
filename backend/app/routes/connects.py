@@ -1,13 +1,31 @@
 from flask import jsonify, request
 from flask.views import MethodView
 
-from backend.app.tools.models import Connects
 
 from . import bp
 from config import Config
+from ..models.models import Connects
 from ..tools.depends import jwt_required
 from ..tools.queries import select_all, execute
 
+
+@bp.route("/connects")
+def get_connects():
+    # Retrieve distinct names, companies, and cities from the database
+    views = select_all("SELECT DISTINCT view FROM connects ORDER BY view")
+    companies = select_all(
+        "SELECT DISTINCT company FROM connects ORDER BY company"
+    )
+    cities = select_all("SELECT DISTINCT city FROM connects ORDER BY city")
+    
+    # Return the results as a JSON response
+    return jsonify(
+        {
+            "view": [v["view"] for v in views if views],
+            "companies": [c["company"] for c in companies if companies],
+            "cities": [c["city"] for c in cities if cities],
+        }
+    )
 
 class ConnnectView(MethodView):
     decorators = [jwt_required()]
@@ -21,9 +39,7 @@ class ConnnectView(MethodView):
 
         Returns:
             Flask Response: The JSON response containing the paginated list of contacts,
-                            whether there is a next page, whether there is a previous page,
-                            a list of distinct names, a list of distinct companies,
-                            and a list of distinct cities.
+                            whether there is a next page, whether there is a previous page.
         """
         # Get the search query from the request arguments
         search_data = request.args.get("search", "")
@@ -36,7 +52,7 @@ class ConnnectView(MethodView):
         query = "SELECT * FROM connects"
         if search_data:
             # Add the search condition to the query
-            query += " WHERE company LIKE '%{}%'".format(search_data)
+            query += " WHERE company LIKE '%{}%'".format(search_data.upper())
         query += " ORDER BY id DESC LIMIT ? OFFSET ?"
 
         # Execute the SQL query and retrieve the results
@@ -48,21 +64,11 @@ class ConnnectView(MethodView):
         # Truncate the results if there is a next page
         result = result[:Config.PAGINATION] if has_next else result
 
-        # Retrieve distinct names, companies, and cities from the database
-        names = select_all("SELECT DISTINCT name FROM connects ORDER BY name")
-        companies = select_all(
-            "SELECT DISTINCT company FROM connects ORDER BY company"
-        )
-        cities = select_all("SELECT DISTINCT city FROM connects ORDER BY city")
-
         # Construct the response JSON
         response = {
             "contacts": result,
             "has_next": has_next,
             "has_prev": page > 1,
-            "names": [n["name"] for n in names],
-            "companies": [c["company"] for c in companies],
-            "cities": [c["city"] for c in cities],
         }
 
         # Return the JSON response with a 200 status code
@@ -105,7 +111,8 @@ class ConnnectView(MethodView):
 
         except Exception as e:
             # Return an error response if an exception occurs
-            return str(e), 400
+            print(str(e))
+            return "", 400
 
 
     def patch(self, item_id):
@@ -140,7 +147,8 @@ class ConnnectView(MethodView):
 
         except Exception as e:
             # Return an error response if an exception occurs
-            return str(e), 400
+            print(str(e))
+            return "", 400
 
     def delete(self, item_id):
         """

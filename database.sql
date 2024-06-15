@@ -256,4 +256,3 @@ CREATE TABLE connects (
 	PRIMARY KEY (id), 
 	UNIQUE (id)
 )
-
