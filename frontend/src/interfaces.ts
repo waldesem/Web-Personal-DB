@@ -1,3 +1,20 @@
+export interface User {
+  id: string;
+  fullname: string;
+  username: string;
+  email: string;
+  pswd_create: string;
+  change_pswd: boolean;
+  last_login: string;
+  has_admin: boolean;
+  blocked: boolean;
+  deleted: boolean;
+  attempt: string;
+  region: string;
+  created: string;
+  updated: string;
+}
+
 export interface Resume {
   id: string;
   surname: string;
@@ -5,8 +22,8 @@ export interface Resume {
   patronymic: string;
   birthday: string;
   birthplace: string;
-  country: string;
-  ext_country: string;
+  citizenship: string;
+  dual: string;
   snils: string;
   inn: string;
   marital: string;
@@ -25,7 +42,7 @@ export interface Previous {
   surname: string;
   firstname: string;
   patronymic: string;
-  date_change: string;
+  changed: string;
   created: string;
   updated: string;
   reason: string;
@@ -35,7 +52,7 @@ export interface Education {
   id: string;
   view: string;
   name: string;
-  finish: string;
+  finished: string;
   speciality: string;
   created: string;
   updated: string;
@@ -87,8 +104,8 @@ export interface Relation {
 export interface Work {
   id: string;
   now_work: boolean;
-  start_date: string;
-  end_date: string;
+  started: string;
+  finished: string;
   workplace: string;
   address: string;
   reason: string;
@@ -126,7 +143,7 @@ export interface Verification {
   addition: string;
   pfo: boolean;
   conclusion: string;
-  comments: string;
+  comment: string;
   created: string;
   updated: string;
   user_id: string;
@@ -157,40 +174,23 @@ export interface Needs {
   id: string;
   info: string;
   initiator: string;
-  source: string;
   user_id: string;
   user: string;
   created: string;
   updated: string;
 }
 
-export interface User {
-  id: string;
-  fullname: string;
-  username: string;
-  email: string;
-  pswd_create: string;
-  change_pswd: boolean;
-  last_login: string;
-  has_admin: boolean;
-  blocked: boolean;
-  deleted: boolean;
-  attempt: string;
-  region: string;
-  created: string;
-  updated: string;
-}
-
 export interface Connection {
   id: string;
-  name: string;
+  view: string;
   company: string;
   city: string;
   fullname: string;
   phone: string;
   adding: string;
   mobile: string;
-  mail: string;
+  email: string;
   comment: string;
+  created: string;
   updated: string;
 }

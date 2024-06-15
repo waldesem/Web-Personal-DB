@@ -1,15 +1,26 @@
-from datetime import datetime
 import os
 import re
+from datetime import datetime
 
+from config import Config
 from flask import jsonify, request, send_file
 
-from . import bp
-from config import Config
-from ..tools.folders import Folders
+from ..tools.classes import (
+    Addresses,
+    Affiliates,
+    Conclusions,
+    Contacts,
+    Documents,
+    Educations,
+    Poligrafs,
+    Regions,
+    Relations,
+    Statuses,
+)
 from ..tools.depends import current_user, jwt_required, user_required
+from ..tools.folders import Folders
 from ..tools.queries import select_all, select_single
-from ..tools.classes import Conclusions, Regions, Statuses, Relations
+from . import bp
 
 
 @bp.route("/index/<flag>/<int:page>")
@@ -184,6 +195,12 @@ def get_classes():
             Statuses,
             Conclusions,
             Relations,
+            Affiliates,
+            Educations,
+            Addresses,
+            Contacts,
+            Poligrafs,
+            Documents,
         ]  # Iterate over each class
     ]
 

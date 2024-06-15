@@ -74,7 +74,6 @@ function submitForm(form: Object, action: string) {
         </LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
-        <LabelSlot :label="'Источник'">{{ item["source"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата запроса'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}

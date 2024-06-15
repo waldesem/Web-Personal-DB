@@ -2,6 +2,7 @@
 import { defineAsyncComponent, computed, toRef } from "vue";
 import { Contact } from "@/interfaces";
 import { clearForm } from "@/utilities";
+import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -9,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -48,9 +49,9 @@ const view = computed(() => {
     role="form"
   >
     <LabelSlot :label="'Вид контакта'">
-      <SelectArray
+      <SelectObject
         :name="'view'"
-        :select="['Телефон', 'E-mail', 'Другое']"
+        :select="stateClassify.contacts"
         v-model="contactForm['view']"
       />
     </LabelSlot>

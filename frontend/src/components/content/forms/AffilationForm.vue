@@ -2,6 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { Affilation } from "@/interfaces";
 import { clearForm } from "@/utilities";
+import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -9,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -29,13 +30,6 @@ const props = defineProps({
 });
 
 const affilationForm = toRef(props.affils as Affilation);
-
-const selected_item = [
-  "Являлся государственным/муниципальным служащим",
-  "Являлся государственным должностным лицом",
-  "Связанные лица работают в государственных организациях",
-  "Участвует в деятельности коммерческих организаций",
-];
 </script>
 
 <template>
@@ -45,9 +39,9 @@ const selected_item = [
     role="form"
   >
     <LabelSlot :label="'Тип участия'">
-      <SelectArray
+      <SelectObject
         :name="'view'"
-        :select="selected_item"
+        :select="stateClassify.affilations"
         v-model="affilationForm['view']"
       />
     </LabelSlot>

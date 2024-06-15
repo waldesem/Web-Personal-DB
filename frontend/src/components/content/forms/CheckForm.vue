@@ -191,7 +191,7 @@ watch(noNegative, () => {
         <TextArea
           :name="'comments'"
           :place="'Комментарий'"
-          v-model="checkForm['comments']"
+          v-model="checkForm['comment']"
         ></TextArea>
       </LabelSlot>
       <LabelSlot :label="'Полиграф'">

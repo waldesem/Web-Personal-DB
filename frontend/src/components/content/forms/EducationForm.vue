@@ -2,6 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { Education } from "@/interfaces";
 import { clearForm } from "@/utilities";
+import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -9,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -29,14 +30,6 @@ const props = defineProps({
 });
 
 const educationForm = toRef(props.docs as Education);
-
-const selected_item = [
-  "Среднее",
-  "Среднее специальное",
-  "Высшее",
-  "Неоконченное высшее",
-  "Другое",
-];
 </script>
 
 <template>
@@ -46,9 +39,9 @@ const selected_item = [
     role="form"
   >
     <LabelSlot :label="'Вид образования'">
-      <SelectArray
+      <SelectObject
         :name="'type'"
-        :select="selected_item"
+        :select="stateClassify.educations"
         v-model="educationForm['view']"
       />
     </LabelSlot>
@@ -64,7 +57,7 @@ const selected_item = [
         :name="'finish'"
         :place="'Год окончания'"
         :need="true"
-        v-model="educationForm['finish']"
+        v-model="educationForm['finished']"
       />
     </LabelSlot>
     <LabelSlot :label="'Специальность'">

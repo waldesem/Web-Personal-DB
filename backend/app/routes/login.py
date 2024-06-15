@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from flask import jsonify, request
 from flask.views import MethodView
@@ -26,7 +27,10 @@ class LoginView(MethodView):
             if user["attempt"] < 5:
                 execute(
                     "UPDATE users SET attempt = ? WHERE id = ?",
-                    (user["attempt"] + 1, user["id"],),
+                    (
+                        user["attempt"] + 1,
+                        user["id"],
+                    ),
                 )
             if user["attempt"] == 5:
                 execute("UPDATE users SET blocked = 1 WHERE id = ?", (user["id"],))
@@ -53,11 +57,20 @@ class LoginView(MethodView):
             "SELECT * FROM users WHERE username = ?",
             (json_data["username"],),
         )
-        if user and not user["blocked"] and not user["deleted"]:
+        pattern = r"^(?=. * [a-z])(?=. * [A-Z])(?=. * \d).{8,}$"
+        if (
+            user
+            and not user["blocked"]
+            and not user["deleted"]
+            and re.match(pattern, json_data["new_pswd"])
+        ):
             if check_password_hash(user["password"], json_data["password"]):
                 execute(
                     "UPDATE users SET password = ?, change_pswd = 0, attempt = 0 WHERE id = ?",
-                    (generate_password_hash(json_data["new_pswd"]), user["id"],),
+                    (
+                        generate_password_hash(json_data["new_pswd"]),
+                        user["id"],
+                    ),
                 )
                 return "", 201
         return "", 204

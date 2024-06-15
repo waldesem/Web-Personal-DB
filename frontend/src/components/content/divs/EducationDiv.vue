@@ -94,7 +94,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Название учебного заведения'">{{
           item["name"]
         }}</LabelSlot>
-        <LabelSlot :label="'Год окончания'">{{ item["finish"] }}</LabelSlot>
+        <LabelSlot :label="'Год окончания'">{{ item["finished"] }}</LabelSlot>
         <LabelSlot :label="'Специальность'">{{ item["speciality"] }}</LabelSlot>
         <LabelSlot :label="'Дата'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}

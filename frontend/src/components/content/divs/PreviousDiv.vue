@@ -101,9 +101,9 @@ function submitForm(form: Object) {
         <LabelSlot v-if="item['patronymic']" :label="'Отчество'">
           {{ item["patronymic"] }}
         </LabelSlot>
-        <LabelSlot v-if="item['date_change']" :label="'Дата изменения'">
+        <LabelSlot v-if="item['changed']" :label="'Дата изменения'">
           {{
-            new Date(String(item["date_change"])).toLocaleDateString("ru-RU")
+            new Date(String(item["changed"])).toLocaleDateString("ru-RU")
           }}
         </LabelSlot>
         <LabelSlot v-if="item['reason']" :label="'Причина'">

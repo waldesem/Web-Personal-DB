@@ -4,7 +4,18 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 from . import bp
-from ..tools.classes import Statuses, Relations, Conclusions
+from ..tools.classes import (
+    Addresses,
+    Affiliates,
+    Conclusions,
+    Contacts,
+    Documents,
+    Educations,
+    Poligrafs,
+    Regions,
+    Relations,
+    Statuses,
+)
 from ..tools.depends import current_user, jwt_required, user_required
 from ..tools.parsers import Resume
 from ..tools.queries import execute, select_all, select_single

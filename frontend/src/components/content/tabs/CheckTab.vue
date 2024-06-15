@@ -127,7 +127,7 @@ function submitForm(form: Object, action: string) {
           {{ item["addition"] }}
         </LabelSlot>
         <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
-        <LabelSlot :label="'Комментарии'">{{ item["comments"] }}</LabelSlot>
+        <LabelSlot :label="'Комментарии'">{{ item["comment"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ stateClassify.conclusions[item["conclusion"]] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата'">

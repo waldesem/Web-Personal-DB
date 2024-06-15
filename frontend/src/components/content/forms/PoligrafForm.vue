@@ -2,6 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { Pfo } from "@/interfaces";
 import { clearForm } from "@/utilities";
+import { stateClassify } from "@/state";
 
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")
@@ -9,8 +10,8 @@ const TextArea = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -45,13 +46,9 @@ const poligrafForm = toRef(props.poligraf as Pfo);
     role="form"
   >
     <LabelSlot :label="'Тема проверки'">
-      <SelectArray
+      <SelectObject
         :name="'theme'"
-        :select="[
-          'Проверка кандидата',
-          'Служебная проверка',
-          'Служебное расследование',
-        ]"
+        :select="stateClassify.poligrafs"
         v-model="poligrafForm['theme']"
       />
     </LabelSlot>

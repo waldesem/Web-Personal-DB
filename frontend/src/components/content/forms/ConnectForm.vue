@@ -86,7 +86,7 @@ async function updateContact(): Promise<void> {
         :name="'name'"
         :lst="'names'"
         :selects="props.names"
-        v-model="connectForm['name']"
+        v-model="connectForm['view']"
       />
     </LabelSlot>
     <LabelSlot :label="'Компания'">
@@ -139,7 +139,7 @@ async function updateContact(): Promise<void> {
       <InputElement
         :name="'mail'"
         :place="'Почта'"
-        v-model="connectForm['mail']"
+        v-model="connectForm['email']"
       />
     </LabelSlot>
     <LabelSlot :label="'Комментарий'">

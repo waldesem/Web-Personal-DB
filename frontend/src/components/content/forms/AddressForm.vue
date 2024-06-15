@@ -2,6 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { Address } from "@/interfaces";
 import { clearForm } from "@/utilities";
+import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -9,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const GroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -38,9 +39,9 @@ const addressForm = toRef(props.addrs as Address);
     role="form"
   >
     <LabelSlot :label="'Вид адреса'">
-      <SelectArray
+      <SelectObject
         :name="'view'"
-        :select="['Адрес регистрации', 'Адрес проживания', 'Другое']"
+        :select="stateClassify.addresses"
         v-model="addressForm['view']"
       />
     </LabelSlot>

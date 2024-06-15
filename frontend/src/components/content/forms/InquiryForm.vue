@@ -59,13 +59,6 @@ const inquiryForm = toRef(props.inquiry as Needs);
         v-model="inquiryForm['initiator']"
       />
     </LabelSlot>
-    <LabelSlot :label="'Источник'">
-      <InputElement
-        :name="'source'"
-        :place="'Источник'"
-        v-model="inquiryForm['source']"
-      />
-    </LabelSlot>
     <BtnGroup>
       <BtnGroupContent
         @cancel="emit('cancel')"

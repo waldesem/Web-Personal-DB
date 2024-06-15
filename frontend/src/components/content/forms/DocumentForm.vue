@@ -2,6 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { Document } from "@/interfaces";
 import { clearForm } from "@/utilities";
+import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -9,8 +10,8 @@ const InputElement = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
-const SelectArray = defineAsyncComponent(
-  () => import("@components/content/elements/SelectArray.vue")
+const SelectObject = defineAsyncComponent(
+  () => import("@components/content/elements/SelectObject.vue")
 );
 const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
@@ -29,12 +30,6 @@ const props = defineProps({
 });
 
 const docForm = toRef(props.docs as Document);
-
-const selected_item = [
-  "Паспорт гражданина России",
-  "Иностранный докумен",
-  "Другое",
-];
 </script>
 
 <template>
@@ -44,9 +39,9 @@ const selected_item = [
     role="form"
   >
     <LabelSlot :label="'Вид документа'">
-      <SelectArray
+      <SelectObject
         :name="'view'"
-        :select="selected_item"
+        :select="stateClassify.documents"
         v-model="docForm['view']"
       />
     </LabelSlot>

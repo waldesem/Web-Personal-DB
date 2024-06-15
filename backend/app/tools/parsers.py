@@ -4,8 +4,18 @@ import re
 from ..tools.depends import current_user
 from ..tools.folders import Folders
 from ..tools.queries import select_single, execute
-from .classes import Regions, Statuses, Relations
-
+from .classes import (
+    Addresses,
+    Affiliates,
+    Conclusions,
+    Contacts,
+    Documents,
+    Educations,
+    Poligrafs,
+    Regions,
+    Relations,
+    Statuses,
+)
 
 class Resume:
     def __init__(self, resume: dict):

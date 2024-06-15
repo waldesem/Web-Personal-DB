@@ -30,3 +30,45 @@ class Relations(Enum):
     husband_wife = "Супруг-Супруга"
     relatives = "Родственники"
     others = "Близкая связь"
+
+
+class Educations(Enum):
+    none = "Нет образования"
+    primary = "Основное образование"
+    secondary = "Среднее образование"
+    special = "Среднее специальное образование"
+    higher = "Высшее образование"
+    unfinished = "Неоконченное высшее образование"
+    others = "Другое образование"
+
+
+class Documents(Enum):
+    passport = "Паспорт гражданина России"
+    foreign_passport = "Загранпаспорт"
+    others = "Другое"
+
+
+class Addresses(Enum):
+    registration = "Адрес регистрации"
+    actual = "Адрес проживания"
+    others = "Другое"
+
+
+class Contacts(Enum):
+    phone = "Телефон"
+    email = "Электронная почта"
+    others = "Другое"
+
+
+class Affiliates(Enum):
+    state = "Являлся государственным/муниципальным служащим"
+    public = "Являлся государственным должностным лицом"
+    related = "Связанные лица работают в государственных организациях"
+    commercial = "Участвует в деятельности коммерческих организаций"
+
+
+class Poligrafs(Enum):
+    check = 'Проверка кандидата'
+    verification = 'Служебная проверка'
+    investigation = 'Служебное расследование'
+    planned = 'Плановое мероприятие'

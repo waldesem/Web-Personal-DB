@@ -36,7 +36,7 @@ const props = defineProps({
         :input-class="'col-lg-8'" 
         :label="'Название'"
       >
-        {{ props.item['name'] }}
+        {{ props.item['view'] }}
       </LabelSlot>
       <LabelSlot 
         :label-class="'col-lg-4'" 
@@ -78,7 +78,7 @@ const props = defineProps({
         :input-class="'col-lg-8'" 
         :label="'E-mail'"
       >
-        {{ props.item['mail'] }}
+        {{ props.item['email'] }}
       </LabelSlot>
       <LabelSlot 
         :label-class="'col-lg-4'" 
@@ -86,6 +86,13 @@ const props = defineProps({
         :label="'Комментарий'"
       >
         {{ props.item['comment'] }}
+      </LabelSlot>
+      <LabelSlot 
+        :label-class="'col-lg-4'" 
+        :input-class="'col-lg-8'" 
+        :label="'Дата'"
+      >
+        {{ new Date(String(props.item['created'])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
       <LabelSlot 
         :label-class="'col-lg-4'" 

@@ -105,10 +105,10 @@ const dataResume = ref({
       {{ stateAnketa.anketa.resume["birthplace"] }}
     </LabelSlot>
     <LabelSlot :label="'Гражданство'">
-      {{ stateAnketa.anketa.resume["country"] }}
+      {{ stateAnketa.anketa.resume["citizenship"] }}
     </LabelSlot>
     <LabelSlot :label="'Двойное гражданство'">
-      {{ stateAnketa.anketa.resume["ext_country"] }}
+      {{ stateAnketa.anketa.resume["dual"] }}
     </LabelSlot>
     <LabelSlot :label="'СНИЛС'">
       {{ stateAnketa.anketa.resume["snils"] }}
