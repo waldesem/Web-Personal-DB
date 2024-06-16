@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateAlert, stateClassify } from "@/state";
+import { stateClassify } from "@/state";
 import { server, debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
+import { AxiosError } from "axios";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -47,8 +49,12 @@ async function getUsers() {
       },
     });
     dataUsers.value.users = response.data;
-  } catch (error) {
-    stateAlert.setAlert("alert-success", error as string);
+  } catch (error: AxiosError | any) {
+    if (error.request.status == 401 || error.request.status == 403) {
+      router.push({ name: "login" });
+    } else {
+      console.error(error);
+    }
   }
 }
 </script>

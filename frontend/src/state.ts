@@ -22,7 +22,6 @@ import {
 export const stateUser = reactive({
   userId: "",
   username: "",
-  region: "",
   hasAdmin: false,
 });
 
@@ -97,9 +96,13 @@ export const stateAnketa = {
       if (action === "self") {
         stateAlert.setAlert("alert-info", "Анкета назначена на себя");
       }
-    } catch (error) {
-      console.error(error);
-      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+    } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+      }
     }
   },
 
@@ -119,9 +122,13 @@ export const stateAnketa = {
       } else {
         this.anketa[param as keyof typeof this.anketa] = response.data;
       }
-    } catch (error) {
-      console.error(error);
-      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+    } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+      }
     }
   },
 
@@ -143,8 +150,13 @@ export const stateAnketa = {
       console.log(response.status);
       stateAlert.setAlert("alert-success", "Данные успешно обновлены");
       this.getItem(param);
-    } catch (error) {
-      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+    } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+      }
     }
   },
 
@@ -157,8 +169,13 @@ export const stateAnketa = {
         ? router.push({ name: "persons" })
         : this.getItem(param);
       stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
-    } catch (error) {
-      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+    } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+      }
     }
   },
 
@@ -188,8 +205,12 @@ export const stateAnketa = {
           "alert-success",
           "Файл или файлы успешно загружен/добавлены"
         );
-      } catch (error) {
-        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+      } catch (error: any) {
+        if (error.request.status == 401 || error.request.status == 403) {
+          router.push({ name: "login" });
+        } else {
+          console.error(error);
+        }
       }
     } else {
       stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");

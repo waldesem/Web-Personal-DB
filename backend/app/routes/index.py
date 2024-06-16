@@ -21,55 +21,48 @@ from ..tools.queries import select_all
 from . import bp
 
 
-@bp.route("/index/<flag>/<int:page>")
+@bp.route("/index/<int:page>")
 @user_required()
-def get_index(flag, page):
+def get_index(page):
     """
-    Retrieves a paginated list of persons based on the given flag and page number.
+    Retrieves a paginated list of persons based on page number.
 
     Args:
-        flag (str): The type of search to perform. Can be "search" or "officer".
         page (int): The page number to retrieve.
 
     Returns:
         A JSON response containing the list of persons and pagination information.
     """
-    # Construct SQL query based on flag
+    # Construct SQL query
     stmt = "SELECT * FROM persons "
+    search_data = request.args.get("search", "")
 
-    # Perform search based on flag
-    if flag == "search":
-        # Retrieve search data from request arguments
-        search_data = request.args.get("search", "")
-        if search_data and len(search_data) > 2:
-            if search_data.isdigit():
-                stmt += "WHERE inn LIKE '%{}%' ".format(search_data)
-            else:
-                pattern = r"^\d{2}\.\d{2}\.\d{4}$"
-                query = [
-                    search.strip().upper()
-                    for search in search_data.split(maxsplit=3)
-                    if search
-                ]
-                if len(query):
-                    stmt += "WHERE surname LIKE '%{}%' ".format(*query)
-                if len(query) > 1 and not re.match(pattern, query[1]):
-                    stmt += "AND firstname LIKE '%{}%' ".format(query[1])
-                if len(query) > 2 and not re.match(pattern, query[2]):
-                    stmt += "AND patronymic LIKE '%{}%' ".format(query)
-                if len(query) > 1 and re.match(pattern, query[-1]):
-                    stmt += "AND birthday = '{}' ".format(
-                        datetime.strptime(query[-1], "%d.%m.%Y").date()
-                    )
-                if current_user["region"] != Regions.main.value:
-                    stmt += "AND region = {} ".format(current_user["region"])
+    # Retrieve search data from request arguments
+    if search_data and len(search_data) > 2:
+        if search_data.isdigit():
+            stmt += "WHERE inn LIKE '%{}%' ".format(search_data)
         else:
-            if current_user["region"] != Regions.main.value:
-                stmt += "WHERE region = {} ".format(current_user["region"])
-    if flag == "officer":
-        stmt += "WHERE status = {} AND user_id = {} ".format(
-            Statuses.manual.name, current_user["id"]
-        )
+            pattern = r"^\d{2}\.\d{2}\.\d{4}$"
+            query = [
+                search.strip().upper()
+                for search in search_data.split(maxsplit=3)
+                if search
+            ]
+            if len(query):
+                stmt += "WHERE surname LIKE '%{}%' ".format(*query)
+            if len(query) > 1 and not re.match(pattern, query[1]):
+                stmt += "AND firstname LIKE '%{}%' ".format(query[1])
+            if len(query) > 2 and not re.match(pattern, query[2]):
+                stmt += "AND patronymic LIKE '%{}%' ".format(query)
+            if len(query) > 1 and re.match(pattern, query[-1]):
+                stmt += "AND birthday = '{}' ".format(
+                    datetime.strptime(query[-1], "%d.%m.%Y").date()
+                )
+        if current_user["region"] != Regions.main.value:
+            stmt += "AND region = {} ".format(current_user["region"])
+    else:
+        if current_user["region"] != Regions.main.value:
+            stmt += "WHERE region = {} ".format(current_user["region"])
 
     # Add sorting and pagination to SQL query
     stmt += "ORDER BY {} {} LIMIT {} OFFSET {}".format(

@@ -27,7 +27,7 @@ CREATE TABLE persons (
 	patronymic VARCHAR(255), 
 	birthday DATE NOT NULL, 
 	birthplace TEXT, 
-	country VARCHAR(255), 
+	citizenship VARCHAR(255), 
 	dual VARCHAR(255), 
     snils VARCHAR(11) CHECK(LENGTH(snils) = 11),
 	inn VARCHAR(12) CHECK(LENGTH(inn) = 12), 

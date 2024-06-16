@@ -16,10 +16,11 @@ def get_connects():
     # Retrieve names, companies, and cities from the database
     with sqlite3.connect(Config.DATABASE_URI) as conn:
         cur = conn.cursor()
-        cur.executemany("SELECT view, company, city FROM connects")
+        cur.execute("SELECT view, company, city FROM connects")
         result = cur.fetchall()
-        view, company, city = zip(*result)
-    
+        view, company, city = [], [], []
+        if result:
+            view, company, city = zip(*result)
     # Return the results as a JSON response
         return jsonify(
             {
@@ -96,7 +97,7 @@ class ConnnectView(MethodView):
         try:
             # Convert the JSON payload to a dictionary and remove any keys that
             # are not in the 'connects' table
-            json_dict = Connects(**json_data).model_dump()
+            json_dict = Connects(**json_data).dict()
 
             # Generate the SQL query and arguments for inserting the new connection
             keys, args = zip(*json_dict.items())
@@ -135,7 +136,7 @@ class ConnnectView(MethodView):
         try:
             # Convert the JSON payload to a dictionary and remove any keys that
             # are not in the 'connects' table
-            json_dict = Connects(**json_data).model_dump()
+            json_dict = Connects(**json_data).dict()
 
             # Generate the SQL query and arguments for updating the item
             keys, args = zip(*json_dict.items())

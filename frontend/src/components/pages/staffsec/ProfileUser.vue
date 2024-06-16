@@ -5,6 +5,7 @@ import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 import { useRoute } from "vue-router";
 import { User } from "@/interfaces";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -53,8 +54,12 @@ async function userAction(action: String): Promise<void> {
         }`
       );
     }
-  } catch (error) {
-    stateAlert.setAlert("alert-danger", error as string);
+  } catch (error: any) {
+    if (error.request.status == 401 || error.request.status == 403) {
+      router.push({ name: "login" });
+    } else {
+      console.error(error);
+    }
   }
 }
 
@@ -74,8 +79,12 @@ async function userDelete(): Promise<void> {
       } else {
         stateAlert.setAlert("alert-danger", "Произошла ошибка");
       }
-    } catch (error) {
-      stateAlert.setAlert("alert-danger", error as string);
+    } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+      }
     }
   }
 }

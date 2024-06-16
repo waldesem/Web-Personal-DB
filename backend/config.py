@@ -1,12 +1,11 @@
 import os
-from dotenv import load_dotenv
+import secrets
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-load_dotenv(os.path.join(basedir, ".env"))
-
+    
 
 class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY")
+    SECRET_KEY = secrets.token_hex(16)
     DATABASE_URI = os.path.abspath(os.path.join("..", 'database.db'))
     DATABASE_SQL = os.path.abspath(os.path.join("..", "database.sql"))
     BASE_PATH = os.path.abspath(os.path.join("..", "persons"))

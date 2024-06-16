@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import Optional, Union
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, validator
 
 from ..classes.classes import (
     Addresses,
@@ -19,7 +19,7 @@ from ..classes.classes import (
 class QueryModel(BaseModel):
     updated: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    @field_validator("updated")
+    @validator("updated")
     def check_updated(cls, _):
         return datetime.now(timezone.utc)
 
@@ -40,7 +40,7 @@ class Name(QueryModel):
     firstname: str
     patronymic: Optional[str] = None
 
-    @field_validator("surname", "firstname", "patronymic")
+    @validator("surname", "firstname", "patronymic")
     def check_names(cls, v):
         if v:
             return v.upper().strip()
@@ -192,7 +192,7 @@ class Connects(QueryModel):
     email: Optional[str] = Field(pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$", default=None)
     comment: Optional[str] = None
 
-    @field_validator("company")
+    @validator("company")
     def check_company(cls, v):
         if v:
             return v.upper().strip()

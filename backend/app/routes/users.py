@@ -59,7 +59,7 @@ class UserView(MethodView):
         if user:
             return "", 205
         try:
-            json_dict = User(**json_data).model_dump()
+            json_dict = User(**json_data).dict()
             json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
             keys, args = zip(*json_dict.items())
             query = "INSERT INTO users ({}) VALUES ({})".format(
@@ -75,7 +75,7 @@ class UserView(MethodView):
     def patch(self, user_id):
         json_data = request.get_json()
         try:
-            json_dict = User(**json_data).model_dump()
+            json_dict = User(**json_data).dict()
             keys, args = zip(*json_dict.items())
             query = "UPDATE users SET {} WHERE id = ?".format(
                 ",".join(f"{key} = ?" for key in keys)

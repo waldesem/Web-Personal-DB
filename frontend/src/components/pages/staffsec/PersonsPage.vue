@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
-import { stateClassify, stateAlert } from "@/state";
+import { stateAlert } from "@/state";
 import { axiosAuth } from "@/auth";
 import { Resume } from "@/interfaces";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
 const FileForm = defineAsyncComponent(
   () => import("@components/content/forms/FileForm.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -29,16 +27,10 @@ onBeforeMount(async () => {
 });
 
 const statusColor = {
-  new: "success",
-  repeat: "success",
-  update: "success",
-  manual: "primary",
-  save: "primary",
-  robot: "danger",
-  poligraf: "info",
-  error: "warning",
-  cancel: "secondary",
-  finish: "secondary",
+  "Проверка": "primary",
+  "ПФО": "info",
+  "Отменено": "secondary",
+  "Окончено": "secondary",
 };
 
 const theadData = {
@@ -53,26 +45,22 @@ const theadData = {
 
 const personData = ref({
   candidates: <Resume[]>[],
-  items: {
-    officer: "Мои кандидаты",
-    search: "Все кандидаты",
-  },
   page: 1,
   prev: false,
   next: false,
   search: "",
   sort: "status",
   order: "asc",
-  path: "search",
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
 });
+
 async function getCandidates(page = 1): Promise<void> {
   personData.value.page = page;
   try {
     const response = await axiosAuth.get(
-      `${server}/index/${personData.value.path}/${personData.value.page}`,
+      `${server}/index/${personData.value.page}`,
       {
         params: {
           search: personData.value.search,
@@ -89,8 +77,12 @@ async function getCandidates(page = 1): Promise<void> {
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    if (error.request.status == 401 || error.request.status == 403) {
+      router.push({ name: "login" });
+    } else {
+      console.error(error);
+    }
   }
 }
 
@@ -101,7 +93,6 @@ function sortCandidates(sort: string, order: string): void {
 }
 
 const searchPerson = debounce(() => {
-  personData.value.path = "search";
   getCandidates();
 }, 500);
 
@@ -145,15 +136,10 @@ async function submitFile(event: Event): Promise<void> {
     </div>
   </div>
   <div class="row mb-3">
-    <div class="col-md-2">
-      <SelectDiv
-        :name="'action'"
-        :select="personData.items"
-        v-model="personData.path"
-        @submit-data="getCandidates"
-      />
-    </div>
-    <div class="col-md-10">
+    <form 
+      class="form form-check" 
+      role="form"
+    >
       <input
         @input.prevent="searchPerson"
         class="form-control"
@@ -163,7 +149,7 @@ async function submitFile(event: Event): Promise<void> {
         placeholder="поиск по фамилии, имени, отчеству, инн"
         v-model="personData.search"
       />
-    </div>
+    </form>
   </div>
   <TableSlots
     v-if="personData.candidates.length"
@@ -199,7 +185,7 @@ async function submitFile(event: Event): Promise<void> {
         height="50px"
       >
         <td>{{ candidate.id }}</td>
-        <td>{{ stateClassify.regions[candidate.region] }}</td>
+        <td>{{ candidate.region }}</td>
         <td>
           <router-link
             :to="{
@@ -221,7 +207,7 @@ async function submitFile(event: Event): Promise<void> {
           <label
             :class="`fs-6 badge bg-${statusColor[candidate.status as keyof typeof statusColor]}`"
           >
-            {{ stateClassify.status[candidate.status] }}
+            {{ candidate.status  }}
           </label>
         </td>
         <td>

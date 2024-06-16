@@ -3,6 +3,8 @@ import { onBeforeMount, ref, defineAsyncComponent } from "vue";
 import { stateClassify, stateUser } from "@/state";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
+import { AxiosError } from "axios";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -21,7 +23,7 @@ const todayDate = new Date();
 
 const tableData = ref({
   stat: {
-    region: stateUser.region,
+    region: stateClassify.regions['main'],
     checks: <Record<string, any>>{},
     start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
       .toISOString()
@@ -39,8 +41,12 @@ async function submitData(): Promise<void> {
       },
     });
     tableData.value.stat.checks = response.data;
-  } catch (error) {
-    console.log(error);
+  } catch (error: AxiosError | any) {
+    if (error.request.status == 401 || error.request.status == 403) {
+      router.push({ name: "login" });
+    } else {
+      console.error(error);
+    }
   }
 }
 
@@ -64,7 +70,7 @@ onBeforeMount(async () => {
     </template>
     <template v-slot:tbody>
       <tr v-for="(key, value) in tableData.stat.checks" :key="key">
-        <td>{{ stateClassify.conclusions[key] }}</td>
+        <td>{{ key }}</td>
         <td>{{ value }}</td>
       </tr>
     </template>
@@ -77,7 +83,7 @@ onBeforeMount(async () => {
         :place="'Регион'"
         :name="'region'"
         :select="stateClassify.regions"
-        :disable="stateUser.region != stateClassify.regions['main']"
+        :disable="!stateUser.hasAdmin"
         v-model="tableData.stat.region"
         @submit-data="submitData"
       />

@@ -3,14 +3,14 @@ import re
 
 from ..tools.depends import current_user
 from ..tools.folders import Folders
-from ..models.models import Person, models_tables
+from ..models.models import Person
 from ..tools.queries import select_single, execute
 from ..classes.classes import Regions, Statuses, Relations
 
 
 class Resume:
     def __init__(self, resume: dict):
-        self.resume = Person(**resume).model_dump()
+        self.resume = Person(**resume).dict()
         self.resume['user_id'] = current_user['id']
 
     @staticmethod
@@ -112,10 +112,11 @@ class Anketa(Resume):
 
     def save_items(self):
         for table, values in self.anketa.items():
+            if table == "resume":
+                continue
             for item in values:
-                json_dict = models_tables[table](**item).model_dump()
-                json_dict["person_id"] = self.person_id
-                keys, args = zip(*json_dict.items())
+                item["person_id"] = self.person_id
+                keys, args = zip(*item.items())
                 stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
                 execute(stmt, tuple(args))
 
@@ -128,7 +129,7 @@ class Anketa(Resume):
                 "surname": json_dict["lastName"],
                 "birthday": datetime.strptime(json_dict["birthday"], "%Y-%m-%d").date(),
                 "birthplace": json_dict["birthplace"],
-                "country": json_dict["citizen"],
+                "citizenship": json_dict["citizen"],
             },
             "previous": [],
             "educations": [],
@@ -149,7 +150,7 @@ class Anketa(Resume):
                 case "midName":
                     json_data["resume"]["patronymic"] = json_dict["midName"]
                 case "additionalCitizenship":
-                    json_data["resume"]["ext_country"] = json_dict[
+                    json_data["resume"]["dual"] = json_dict[
                         "additionalCitizenship"
                     ]
                 case "maritalStatus":
@@ -183,7 +184,7 @@ class Anketa(Resume):
                 case "passportNumber":
                     json_data["documents"].append(
                         {
-                            "view": "Паспорт",
+                            "view": "Паспорт гражданина России",
                             "number": json_dict["passportNumber"],
                             "series": json_dict.get("passportSerial"),
                             "issue": datetime.strptime(
@@ -243,7 +244,7 @@ class Anketa(Resume):
                                     case "midNameBeforeChange":
                                         previous["patronymic"] = k
                                     case "yearOfChange":
-                                        previous["date_change"] = k
+                                        previous["changed"] = k
                                     case "reason":
                                         previous["reason"] = v
                             json_data["previous"].append(previous)
@@ -258,8 +259,8 @@ class Anketa(Resume):
                                     case "institutionName":
                                         education["name"] = v
                                     case "endYear":
-                                        education["finish"] = v
-                                    case "specialty":
+                                        education["finished"] = v
+                                    case "speciality":
                                         education["specialty"] = v
                             json_data["educations"].append(education)
                 case "experience":
@@ -269,11 +270,11 @@ class Anketa(Resume):
                             for key, value in exp.items():
                                 match key:
                                     case "beginDate":
-                                        work["start_date"] = datetime.strptime(
+                                        work["started"] = datetime.strptime(
                                             value, "%Y-%m-%d"
                                         ).date()
                                     case "endDate":
-                                        work["end_date"] = datetime.strptime(
+                                        work["finished"] = datetime.strptime(
                                             value, "%Y-%m-%d"
                                         ).date()
                                     case "currentJob":

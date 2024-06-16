@@ -29,10 +29,13 @@ To create default values run in  terminal:
 ```
 flask init         # init app
 ```
-To start the application at http://localhost:5000 run the command in terminal:
+To start a development server run the command in terminal:
 ```
 flask run
-waitress-serve --host 127.0.0.1 --port 5000 --threads=8 wsgi:app  # start the waitress server
+```
+or if you want to use waitress server:
+```
+python3 wsgi.py  # start the waitress server
 ```
 
 Default user for application has name 'superadmin'.

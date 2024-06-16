@@ -17,12 +17,12 @@ onBeforeMount( () => {
   if (!token) {
     router.push({ name: "login" });
   }
-  const payload = window.atob(token).split(":")
+  const payload = decodeURIComponent(escape(window.atob(token))).split(":");
   stateUser.userId = payload[1];
   stateUser.username = payload[2];
-  stateUser.region = payload[3];
-  stateUser.hasAdmin = payload[4] === "1";
+  stateUser.hasAdmin = payload[3] === "1";
 });
+console.log(stateUser);
 
 onMounted(async () => {
   try {

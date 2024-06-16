@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import  axios  from "axios";
+import  axios from "axios";
 import { onBeforeMount, defineAsyncComponent, ref } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { debounce, server } from "@/utilities";
 import { Connection } from "@/interfaces";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -74,8 +75,12 @@ async function getContacts(page: number): Promise<void> {
       prev: has_prev,
       next: has_next,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    if (error.request.status == 401 || error.request.status == 403) {
+      router.push({ name: "login" });
+    } else {
+      console.error(error);
+    }
   }
 };
 

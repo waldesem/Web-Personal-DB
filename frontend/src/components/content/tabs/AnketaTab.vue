@@ -123,7 +123,7 @@ const dataResume = ref({
       {{ stateAnketa.anketa.resume["addition"] }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
-      {{ stateClassify.status[stateAnketa.anketa.resume["status"]] }}
+      {{ stateAnketa.anketa.resume["status"]   }}
     </LabelSlot>
     <LabelSlot :label="'Дата создания'">
       {{

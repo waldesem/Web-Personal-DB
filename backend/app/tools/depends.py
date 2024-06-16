@@ -40,7 +40,6 @@ def create_token(user):
         Config.SECRET_KEY,
         str(user["id"]),
         user["username"],
-        user["region"],
         str(user["has_admin"]),
     ]
     token = ":".join(token_parts)
@@ -71,7 +70,8 @@ def user_required(admin=False):
                     and (not admin or current_user["has_admin"])
                 ):
                     return func(*args, **kwargs)
-                abort(403 if current_user else 401)
+                abort(403)
+            abort(401)
 
         return wrapper
 
