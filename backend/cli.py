@@ -37,4 +37,4 @@ def register_cli(app):
                     Regions.main.value,
                 ),
             )
-        print("Application initialized")
+            print("Database initialized")
