@@ -57,7 +57,7 @@ const affilationForm = toRef(props.affils as Affilation);
       <InputElement
         :name="'inn'"
         :place="'ИНН'"
-        :need="true"
+        :pattern="'[0-9]{12}'"
         v-model="affilationForm['inn']"
       />
     </LabelSlot>

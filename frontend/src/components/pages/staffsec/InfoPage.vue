@@ -77,7 +77,7 @@ onBeforeMount(async () => {
         :place="'Регион'"
         :name="'region'"
         :select="stateClassify.regions"
-        :disable="'Главный офис' !== stateUser.region"
+        :disable="stateUser.region != stateClassify.regions['main']"
         v-model="tableData.stat.region"
         @submit-data="submitData"
       />

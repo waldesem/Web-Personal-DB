@@ -47,9 +47,10 @@ const workForm = toRef(props.work as Work);
     <LabelSlot :label="'Начало работы'">
       <InputElement
         :name="'start_date'"
+        :need="true"
         :place="'Начало работы'"
         :typeof="'date'"
-        v-model="workForm['start_date']"
+        v-model="workForm['started']"
       />
     </LabelSlot>
     <LabelSlot
@@ -59,7 +60,7 @@ const workForm = toRef(props.work as Work);
         :name="'end_date'"
         :place="'Окончание работы'"
         :typeof="'date'"
-        v-model="workForm['end_date']"
+        v-model="workForm['finished']"
       />
     </LabelSlot>
     <LabelSlot :label="'Место работы'">

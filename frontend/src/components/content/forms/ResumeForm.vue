@@ -133,14 +133,14 @@ async function submitResume(): Promise<void> {
     </LabelSlot>
     <LabelSlot :label="'Гражданство'">
       <InputElement
-        :name="'country'"
+        :name="'citizenship'"
         :place="'Гражданство'"
         v-model="resumeForm['citizenship']"
       />
     </LabelSlot>
     <LabelSlot :label="'Двойное гражданство'">
       <InputElement
-        :name="'ext_country'"
+        :name="'dual'"
         :place="'Двойное гражданство'"
         v-model="resumeForm['dual']"
       />

@@ -98,7 +98,7 @@ async function submitUser(): Promise<void> {
         <SelectDiv
           :name="'region'"
           :place="'Регион'"
-          :need="true"
+          :need="props.action !== 'edit'"
           :select="stateClassify.regions"
           v-model="userForm['region']"
         />

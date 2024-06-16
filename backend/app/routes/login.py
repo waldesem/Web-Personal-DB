@@ -36,7 +36,7 @@ class LoginView(MethodView):
                 execute("UPDATE users SET blocked = 1 WHERE id = ?", (user["id"],))
             return "", 204
         delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
-        if not user["change_pswd"] and delta_change.days < 365:
+        if not user["change_pswd"] and delta_change.days < 30:
             execute(
                 "UPDATE users SET last_login = ?, attempt = ? WHERE id = ?",
                 (datetime.now(timezone.utc), 0, user["id"]),

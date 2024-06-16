@@ -1,9 +1,8 @@
-import os
 import re
 from datetime import datetime
 
 from config import Config
-from flask import jsonify, request, send_file
+from flask import jsonify, request
 
 from ..classes.classes import (
     Addresses,
@@ -18,8 +17,7 @@ from ..classes.classes import (
     Statuses,
 )
 from ..tools.depends import current_user, jwt_required, user_required
-from ..tools.folders import Folders
-from ..tools.queries import select_all, select_single
+from ..tools.queries import select_all
 from . import bp
 
 
@@ -101,13 +99,7 @@ def get_index(flag, page):
                 i["username"] = names[i["user_id"]]
 
     # Return JSON response with result and pagination information
-    return jsonify(
-        {
-            "persons": result,
-            "has_next": has_next,
-            "has_prev": page > 1,
-        }
-    ), 200
+    return jsonify([result, has_next, page > 1]), 200
 
 
 @bp.route("/information")
@@ -128,7 +120,7 @@ def get_information():
         SELECT checks.conclusion, count(checks.id) FROM checks
             LEFT JOIN persons on checks.person_id = persons.id
             WHERE persons.region = ?
-                AND checks.created BETWEEN ? AND ?
+            AND checks.created BETWEEN ? AND ?
             GROUP BY conclusion
         """,
         (
@@ -140,43 +132,6 @@ def get_information():
 
     # Return the result as a JSON response
     return jsonify(result), 200
-
-
-@bp.route("/image/<int:item_id>")
-@jwt_required()
-def get_image(item_id):
-    """
-    Retrieves a file from the server and sends it as a response.
-
-    Args:
-        item_id (int): The ID of the item for which to retrieve the image.
-
-    Returns:
-        A response containing the image file if it exists, or a default image file if it does not.
-    """
-    # Retrieve the person information from the database
-    person = select_single("SELECT * FROM persons WHERE id = ?", (item_id,))
-
-    # Create a Folders object with the person's information
-    folders = Folders(
-        person["id"],
-        person["surname"],
-        person["firstname"],
-        person.get("patronymic", ""),
-    )
-
-    # Construct the file path to the image file
-    file_path = os.path.join(folders.create_main_folder(), "image", "image.jpg")
-
-    # Check if the image file exists
-    if os.path.isfile(file_path):
-        # If it does, send the file as a response
-        return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    else:
-        # If it does not, send the default image file as a response
-        return send_file(
-            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-        )
 
 
 @bp.get("/classes")

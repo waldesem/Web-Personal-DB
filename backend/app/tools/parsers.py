@@ -41,7 +41,7 @@ class Resume:
                     ", ".join(["?" for _ in keys]),
                 )
                 person_id = execute(
-                    stmt, tuple(args + (Statuses.manual.name, current_user["id"]))
+                    stmt, tuple(args + (Statuses.manual.value, current_user["id"]))
                 )
                 folders = Folders(
                     person_id,
@@ -66,7 +66,7 @@ class Resume:
         keys, args = zip(*self.resume.items())
         if not manual:
             keys += ("status",)
-            args += (Statuses.manual.name,)
+            args += (Statuses.manual.value,)
         query = "UPDATE persons SET {} WHERE id = ?".format(
             ", ".join(f"{key} = ?" for key in keys)
         )
@@ -98,12 +98,12 @@ class Anketa(Resume):
                     "INSERT INTO relations (relation, person_id, relation_id) VALUES (?, ?, ?)",
                     [
                         (
-                            Relations.similar.name,
+                            Relations.similar.value,
                             self.person_id,
                             relation.id,
                         ),
                         (
-                            Relations.similar.name,
+                            Relations.similar.value,
                             relation.id,
                             self.person_id,
                         ),
@@ -291,10 +291,10 @@ class Anketa(Resume):
 
     @staticmethod
     def get_region_id(json_dict):
-        region = Regions.main.name
+        region = Regions.main.value
         if "department" in json_dict and json_dict.get("department"):
             for reg in [r for r in Regions]:
                 if reg.value.upper() in re.split(r"/", json_dict["department"].upper()):
-                    region = reg.name
+                    region = reg.value
                     break
         return region

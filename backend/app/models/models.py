@@ -20,7 +20,7 @@ class QueryModel(BaseModel):
     updated: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @field_validator("updated")
-    def check_updated(cls, v):
+    def check_updated(cls, _):
         return datetime.now(timezone.utc)
 
 
@@ -38,7 +38,7 @@ class User(QueryModel):
 class Name(QueryModel):
     surname: str
     firstname: str
-    patronymic: Optional[str]
+    patronymic: Optional[str] = None
 
     @field_validator("surname", "firstname", "patronymic")
     def check_names(cls, v):
@@ -48,30 +48,30 @@ class Name(QueryModel):
 
 class Person(Name):
     birthday: date
-    birthplace: Optional[str]
+    birthplace: Optional[str] = "Москва"
     citizenship: str = "Россия"
-    dual: Optional[str]
-    snils: Optional[int]
-    inn: Optional[int]
-    marital: Optional[str]
-    addition: Optional[str]
-    path: Optional[str]
-    region: Optional[Regions]
+    dual: Optional[str] = None
+    snils: Optional[int] = None
+    inn: Optional[int] = None
+    marital: Optional[str] = None
+    addition: Optional[str] = None
+    path: Optional[str] = None
+    region: Optional[Regions] = None
 
     class Config:
         use_enum_values = True
 
 
 class Prev(Name):
-    changed: Optional[str]
-    reason: Optional[str]
+    changed: Optional[str] = None
+    reason: Optional[str] = None
 
 
 class Education(QueryModel):
     view: Educations
     name: str
-    finished: Optional[str]
-    speciality: Optional[str]
+    finished: Optional[str] = None
+    speciality: Optional[str] = None
 
     class Config:
         use_enum_values = True
@@ -84,10 +84,10 @@ class Staff(QueryModel):
 
 class Document(QueryModel):
     view: Documents
-    series: Optional[str]
+    series: Optional[str] = None
     number: str
-    agency: Optional[str]
-    issued: Optional[date]
+    agency: Optional[str] = None
+    issued: Optional[date] = None
 
     class Config:
         use_enum_values = True
@@ -110,19 +110,19 @@ class Contact(QueryModel):
 
 
 class Workplace(QueryModel):
-    now_work: bool = False
+    now_work: Optional[bool] = False
     started: date
-    finished: Optional[date]
+    finished: Optional[date] = None
     workplace: str
-    address: Optional[str]
+    address: Optional[str] = None
     position: str
-    reason: Optional[str]
+    reason: Optional[str] = None
 
 
 class Affilation(QueryModel):
     view: Affiliates
     name: str
-    inn: Optional[str]
+    inn: Optional[str] = None
     position: str
 
     class Config:
@@ -138,22 +138,22 @@ class Relation(QueryModel):
 
 
 class Check(QueryModel):
-    workplace: Optional[str]
-    document: Optional[str]
-    inn: Optional[str]
-    debt: Optional[str]
-    bankruptcy: Optional[str]
-    bki: Optional[str]
-    courts: Optional[str]
-    affilation: Optional[str]
-    terrorist: Optional[str]
-    mvd: Optional[str]
-    internet: Optional[str]
-    cronos: Optional[str]
-    cros: Optional[str]
-    addition: Optional[str]
-    pfo: bool = False
-    comment: Optional[str]
+    workplace: Optional[str] = None
+    document: Optional[str] = None
+    inn: Optional[str] = None
+    debt: Optional[str] = None
+    bankruptcy: Optional[str] = None
+    bki: Optional[str] = None
+    courts: Optional[str] = None
+    affilation: Optional[str] = None
+    terrorist: Optional[str] = None
+    mvd: Optional[str] = None
+    internet: Optional[str] = None
+    cronos: Optional[str] = None
+    cros: Optional[str] = None
+    addition: Optional[str] = None
+    pfo: Optional[bool] = False
+    comment: Optional[str] = None
     conclusion: Conclusions
 
     class Config:

@@ -41,6 +41,7 @@ const educationForm = toRef(props.docs as Education);
     <LabelSlot :label="'Вид образования'">
       <SelectDiv
         :name="'type'"
+        :need="true"
         :select="stateClassify.educations"
         v-model="educationForm['view']"
       />

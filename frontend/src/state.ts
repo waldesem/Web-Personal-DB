@@ -21,7 +21,6 @@ import {
 
 export const stateUser = reactive({
   userId: "",
-  fullname: "",
   username: "",
   region: "",
   hasAdmin: false,

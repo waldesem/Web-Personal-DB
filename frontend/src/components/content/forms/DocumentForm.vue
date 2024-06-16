@@ -41,6 +41,7 @@ const docForm = toRef(props.docs as Document);
     <LabelSlot :label="'Вид документа'">
       <SelectDiv
         :name="'view'"
+        :need="true"
         :select="stateClassify.documents"
         v-model="docForm['view']"
       />
@@ -70,7 +71,6 @@ const docForm = toRef(props.docs as Document);
     <LabelSlot :label="'Дата выдачи'">
       <InputElement
         :name="'issue'"
-        :need="true"
         :place="'Дата выдачи'"
         :typeof="'date'"
         v-model="docForm['issue']"

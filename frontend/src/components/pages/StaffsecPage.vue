@@ -19,10 +19,9 @@ onBeforeMount( () => {
   }
   const payload = window.atob(token).split(":")
   stateUser.userId = payload[1];
-  stateUser.fullname = payload[2];
-  stateUser.username = payload[3];
-  stateUser.region = payload[4];
-  stateUser.hasAdmin = payload[5] === "1";
+  stateUser.username = payload[2];
+  stateUser.region = payload[3];
+  stateUser.hasAdmin = payload[4] === "1";
 });
 
 onMounted(async () => {
@@ -32,7 +31,13 @@ onMounted(async () => {
       stateClassify.regions,
       stateClassify.status,
       stateClassify.conclusions,
-      stateClassify.relations
+      stateClassify.relations,
+      stateClassify.affilations,
+      stateClassify.educations,
+      stateClassify.addresses,
+      stateClassify.contacts,
+      stateClassify.documents,
+      stateClassify.poligrafs
     ] = response.data;
   } catch (error) {
     console.error(error);

@@ -41,6 +41,7 @@ const relationForm = toRef(props.relation as Relation);
     <LabelSlot :label="'Тип связи'">
       <SelectDiv
           :name="'relation'"
+          :need="true"
           :select="stateClassify.relations"
           v-model="relationForm['relation']"
         />

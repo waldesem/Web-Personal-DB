@@ -81,10 +81,11 @@ async function getCandidates(page = 1): Promise<void> {
         },
       }
     );
-    const { persons, has_next, has_prev } = response.data;
-    personData.value.candidates = persons;
-    personData.value.prev = has_prev;
-    personData.value.next = has_next;
+    [
+      personData.value.candidates,
+      personData.value.next,
+      personData.value.prev,
+    ] = response.data;
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
@@ -104,7 +105,6 @@ const searchPerson = debounce(() => {
   getCandidates();
 }, 500);
 
-
 const formData = ref(new FormData());
 
 async function submitFile(event: Event): Promise<void> {
@@ -119,20 +119,14 @@ async function submitFile(event: Event): Promise<void> {
       console.log(response.status);
       getCandidates();
 
-      stateAlert.setAlert(
-        "alert-success",
-        "Файл успешно загружен"
-      );
+      stateAlert.setAlert("alert-success", "Файл успешно загружен");
     } catch (error) {
       console.error(error);
     }
   } else {
-    stateAlert.setAlert(
-      "alert-warning",
-      "Ошибка при загрузке файла"
-    );
+    stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
   }
-};
+}
 </script>
 
 <template>
@@ -145,10 +139,10 @@ async function submitFile(event: Event): Promise<void> {
           title="Загрузить анкету"
           style="cursor: pointer"
         >
-          </i>
+        </i>
       </label>
-    <FileForm :accept="'.json'" @submit="submitFile"/>
-    </div>  
+      <FileForm :accept="'.json'" @submit="submitFile" />
+    </div>
   </div>
   <div class="row mb-3">
     <div class="col-md-2">

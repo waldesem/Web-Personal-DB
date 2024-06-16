@@ -1,3 +1,5 @@
+import sqlite3
+
 from flask import jsonify, request
 from flask.views import MethodView
 
@@ -11,21 +13,21 @@ from ..tools.queries import select_all, execute
 
 @bp.route("/connects")
 def get_connects():
-    # Retrieve distinct names, companies, and cities from the database
-    views = select_all("SELECT DISTINCT view FROM connects ORDER BY view")
-    companies = select_all(
-        "SELECT DISTINCT company FROM connects ORDER BY company"
-    )
-    cities = select_all("SELECT DISTINCT city FROM connects ORDER BY city")
+    # Retrieve names, companies, and cities from the database
+    with sqlite3.connect(Config.DATABASE_URI) as conn:
+        cur = conn.cursor()
+        cur.executemany("SELECT view, company, city FROM connects")
+        result = cur.fetchall()
+        view, company, city = zip(*result)
     
     # Return the results as a JSON response
-    return jsonify(
-        {
-            "view": [v["view"] for v in views if views],
-            "companies": [c["company"] for c in companies if companies],
-            "cities": [c["city"] for c in cities if cities],
-        }
-    )
+        return jsonify(
+            {
+                "view": list(set(view)),
+                "companies": list(set(company)),
+                "cities": list(set(city)),
+            }
+        )
 
 class ConnnectView(MethodView):
     decorators = [jwt_required()]
@@ -49,11 +51,11 @@ class ConnnectView(MethodView):
         limit = Config.PAGINATION + 1
 
         # Construct the SQL query
-        query = "SELECT * FROM connects"
+        query = "SELECT * FROM connects "
         if search_data:
             # Add the search condition to the query
-            query += " WHERE company LIKE '%{}%'".format(search_data.upper())
-        query += " ORDER BY id DESC LIMIT ? OFFSET ?"
+            query += "WHERE company LIKE '%{}%' ".format(search_data.upper())
+        query += "ORDER BY id DESC LIMIT ? OFFSET ?"
 
         # Execute the SQL query and retrieve the results
         result = select_all(query, (limit, offset,))

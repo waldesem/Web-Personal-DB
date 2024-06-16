@@ -39,7 +39,6 @@ def create_token(user):
     token_parts = [
         Config.SECRET_KEY,
         str(user["id"]),
-        user["fullname"],
         user["username"],
         user["region"],
         str(user["has_admin"]),

@@ -48,6 +48,7 @@ const poligrafForm = toRef(props.poligraf as Pfo);
     <LabelSlot :label="'Тема проверки'">
       <SelectDiv
         :name="'theme'"
+        :need="true"
         :select="stateClassify.poligrafs"
         v-model="poligrafForm['theme']"
       />
