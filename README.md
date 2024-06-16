@@ -32,7 +32,7 @@ flask init         # init app
 To start the application at http://localhost:5000 run the command in terminal:
 ```
 flask run
-<!-- waitress-serve --host 127.0.0.1 --port 5000 --threads=8 wsgi:app  # start the waitress server -->
+waitress-serve --host 127.0.0.1 --port 5000 --threads=8 wsgi:app  # start the waitress server
 ```
 
 Default user for application has name 'superadmin'.
