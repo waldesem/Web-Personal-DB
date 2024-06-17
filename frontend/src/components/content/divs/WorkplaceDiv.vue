@@ -91,9 +91,6 @@ function submitForm(form: Object) {
             "
           />
         </LabelSlot>
-        <LabelSlot :label="'ID'">
-          {{ item["id"] }}
-        </LabelSlot>
         <LabelSlot v-if="item['now_work']" :label="'Текущая работа'">
           {{ item["now_work"] ? "Да" : "Нет" }}
         </LabelSlot>
@@ -112,11 +109,8 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Должность'">
           {{ item["position"] }}
         </LabelSlot>
-        <LabelSlot :label="'Дата'">
-          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot v-if="item['updated']" :label="'Обновлено'">
-          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
+        <LabelSlot :label="'Причина увольнения'">
+          {{ item["reason"] }}
         </LabelSlot>
       </div>
     </div>

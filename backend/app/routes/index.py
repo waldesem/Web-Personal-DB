@@ -147,8 +147,8 @@ def get_classes():
             Educations,
             Addresses,
             Contacts,
-            Poligrafs,
             Documents,
+            Poligrafs,
         ]  # Iterate over each class
     ]
 

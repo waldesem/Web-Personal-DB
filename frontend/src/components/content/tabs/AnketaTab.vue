@@ -82,9 +82,6 @@ const dataResume = ref({
       />
     </ActionIcons>
     </LabelSlot>
-    <LabelSlot :label="'ID'">
-      {{ stateAnketa.anketa.resume["id"] }}
-    </LabelSlot>
     <LabelSlot :label="'Фамилия'">
       {{ stateAnketa.anketa.resume["surname"] }}
     </LabelSlot>
@@ -107,7 +104,10 @@ const dataResume = ref({
     <LabelSlot :label="'Гражданство'">
       {{ stateAnketa.anketa.resume["citizenship"] }}
     </LabelSlot>
-    <LabelSlot :label="'Двойное гражданство'">
+    <LabelSlot 
+      v-if="stateAnketa.anketa.resume['dual']"
+      :label="'Двойное гражданство'"
+    >
       {{ stateAnketa.anketa.resume["dual"] }}
     </LabelSlot>
     <LabelSlot :label="'СНИЛС'">
@@ -116,16 +116,13 @@ const dataResume = ref({
     <LabelSlot :label="'ИНН'">
       {{ stateAnketa.anketa.resume["inn"] }}
     </LabelSlot>
-    <LabelSlot :label="'Семейнное положение'">
+    <LabelSlot :label="'Семейное положение'">
       {{ stateAnketa.anketa.resume["marital"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Дополнительная информация'">
-      {{ stateAnketa.anketa.resume["addition"] }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
       {{ stateAnketa.anketa.resume["status"]   }}
     </LabelSlot>
-    <LabelSlot :label="'Дата создания'">
+    <LabelSlot :label="'Дата создания запси'">
       {{
         stateAnketa.anketa.resume["created"]
           ? new Date(
@@ -134,7 +131,7 @@ const dataResume = ref({
           : ""
       }}
     </LabelSlot>
-    <LabelSlot :label="'Дата обновления'">
+    <LabelSlot :label="'Дата обновления записи'">
       {{
         stateAnketa.anketa.resume["updated"]
           ? new Date(
@@ -152,6 +149,9 @@ const dataResume = ref({
     </LabelSlot>
     <LabelSlot :label="'Материалы'">
       {{ stateAnketa.anketa.resume["path"] }}
+    </LabelSlot>
+    <LabelSlot :label="'Дополнительная информация'">
+      {{ stateAnketa.anketa.resume["addition"] }}
     </LabelSlot>
   </div>
   <hr/>

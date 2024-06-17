@@ -75,10 +75,10 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
-        <LabelSlot :label="'Дата запроса'">
+        <LabelSlot :label="'Дата создания записи'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
-        <LabelSlot v-if="item['updated']" :label="'Обновлено'">
+        <LabelSlot v-if="item['updated']" :label="'Дата обновления записи'">
           {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>

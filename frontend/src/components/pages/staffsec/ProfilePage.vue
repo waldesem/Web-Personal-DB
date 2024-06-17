@@ -70,7 +70,7 @@ const tabsData = ref({
         :icon-class="`bi bi-journal-check fs-1`"
         :hide="
           stateClassify.status['manual'] !=
-          stateClassify.status[stateAnketa.anketa.resume['status']]   ||
+          stateAnketa.anketa.resume['status']   ||
           stateAnketa.anketa.resume['user_id'] != stateUser.userId
         "
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"

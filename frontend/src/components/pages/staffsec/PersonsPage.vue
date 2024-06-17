@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import {  defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
 import { stateAlert } from "@/state";
 import { axiosAuth } from "@/auth";
@@ -34,13 +34,13 @@ const statusColor = {
 };
 
 const theadData = {
-  id: ["#", "10%"],
+  id: ["#", "5%"],
   region_id: ["Регион", "15%"],
-  surname: ["Фамилия Имя Отчество", "20%"],
+  surname: ["Фамилия Имя Отчество", "25%"],
   birthday: ["Дата рождения", "15%"],
   status: ["Статус", "10%"],
-  created: ["Создан", "10%"],
-  user: ["Сотрудник", "20%"],
+  created: ["Создан", "15%"],
+  user: ["Сотрудник", "15%"],
 };
 
 const personData = ref({
@@ -50,7 +50,8 @@ const personData = ref({
   next: false,
   search: "",
   sort: "status",
-  order: "asc",
+  order: "desc",
+  spinner: false,
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
@@ -99,6 +100,7 @@ const searchPerson = debounce(() => {
 const formData = ref(new FormData());
 
 async function submitFile(event: Event): Promise<void> {
+  personData.value.spinner = true;
   const inputElement = event.target as HTMLInputElement;
   if (inputElement.files) {
     formData.value.append("file", inputElement.files[0]);
@@ -117,12 +119,19 @@ async function submitFile(event: Event): Promise<void> {
   } else {
     stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
   }
+  personData.value.spinner = false;
+}
+
+const shortName = (fullname: string) => {
+  const [first, second] = fullname.split(" ", )
+  return `${first} ${second}}`
 }
 </script>
 
 <template>
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
+    <span v-if="personData.spinner" class="spinner-border"></span>
     <div class="position-absolute bottom-100 end-0">
       <label for="file" class="text-primary">
         <i
@@ -153,7 +162,7 @@ async function submitFile(event: Event): Promise<void> {
   </div>
   <TableSlots
     v-if="personData.candidates.length"
-    :div-class="'table caption-top align-middle py-3'"
+    :div-class="'table align-middle py-3'"
   >
     <template v-slot:caption>
       {{ `Обновлено: ${personData.updated}` }}
@@ -214,7 +223,7 @@ async function submitFile(event: Event): Promise<void> {
           {{ timeSince(candidate.created) }}
         </td>
         <td>
-          {{ candidate.username ? candidate.username : "" }}
+          {{ candidate.username ? shortName(candidate.username.toString()) : "" }}
         </td>
       </tr>
     </template>

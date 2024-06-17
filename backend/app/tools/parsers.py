@@ -287,7 +287,7 @@ class Anketa(Resume):
                                         work["position"] = value
                                     case "fireReason":
                                         work["reason"] = value
-                        json_data["workplaces"].append(work)
+                            json_data["workplaces"].append(work)
         return json_data
 
     @staticmethod

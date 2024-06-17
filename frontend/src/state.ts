@@ -74,6 +74,7 @@ export const stateAnketa = {
   share: reactive({
     candId: "" as string,
     imageUrl: "" as string,
+    spinner: false
   }),
 
   async getResume(action = "view"): Promise<void> {
@@ -192,6 +193,7 @@ export const stateAnketa = {
           formData.append("file", inputElement.files[i]);
         }
       }
+      this.share.spinner = true;
       try {
         const response = await axiosAuth.post(
           `${server}/file/${param}/${this.share.candId}`,
@@ -212,6 +214,7 @@ export const stateAnketa = {
           console.error(error);
         }
       }
+      this.share.spinner = false;
     } else {
       stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
     }

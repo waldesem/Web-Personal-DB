@@ -97,12 +97,6 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
         <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
         <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
-        <LabelSlot :label="'Дата создания'">
-          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot :label="'Дата изменения'">
-          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
       </div>
     </div>
   </div>

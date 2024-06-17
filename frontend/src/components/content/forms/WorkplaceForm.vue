@@ -79,7 +79,7 @@ const workForm = toRef(props.work as Work);
         v-model="workForm['position']"
       />
     </LabelSlot>
-    <LabelSlot :label="'Тип занятости'">
+    <LabelSlot :label="'Адрес организации'">
       <InputElement
         :name="'address'"
         :place="'Адрес организации'"

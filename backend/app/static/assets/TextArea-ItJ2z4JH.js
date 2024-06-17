@@ -1,0 +1,2 @@
+import{d as s,I as n,J as d,s as r,v as m,o as c,c as i}from"./index-BhwzwnLH.js";const p=["id","name","placeholder"],v=s({__name:"TextArea",props:n({name:String,place:String},{modelValue:{},modelModifiers:{}}),emits:["update:modelValue"],setup(a){const o=d(a,"modelValue"),e=a;return(u,l)=>r((c(),i("textarea",{class:"form-control",id:e.name,name:e.name,placeholder:e.place,"onUpdate:modelValue":l[0]||(l[0]=t=>o.value=t)},`
+  `,8,p)),[[m,o.value,void 0,{lazy:!0}]])}});export{v as default};

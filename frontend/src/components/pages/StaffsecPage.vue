@@ -22,7 +22,6 @@ onBeforeMount( () => {
   stateUser.username = payload[2];
   stateUser.hasAdmin = payload[3] === "1";
 });
-console.log(stateUser);
 
 onMounted(async () => {
   try {
