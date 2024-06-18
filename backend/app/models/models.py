@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date
 from typing import Optional, Union
 
 from pydantic import BaseModel, Field, validator
@@ -17,11 +17,7 @@ from ..classes.classes import (
 
 
 class QueryModel(BaseModel):
-    updated: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-    @validator("updated")
-    def check_updated(cls, _):
-        return datetime.now(timezone.utc)
+    id: Optional[str | int] = None
 
 
 class User(QueryModel):

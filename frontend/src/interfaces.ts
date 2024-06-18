@@ -9,10 +9,9 @@ export interface User {
   has_admin: boolean;
   blocked: boolean;
   deleted: boolean;
+  created: string;
   attempt: string;
   region: string;
-  created: string;
-  updated: string;
 }
 
 export interface Resume {
@@ -31,7 +30,6 @@ export interface Resume {
   path: string;
   status: string;
   created: string;
-  updated: string;
   region: string;
   user_id: string;
   username: User;
@@ -44,7 +42,6 @@ export interface Previous {
   patronymic: string;
   changed: string;
   created: string;
-  updated: string;
   reason: string;
 }
 
@@ -55,7 +52,6 @@ export interface Education {
   finished: string;
   speciality: string;
   created: string;
-  updated: string;
 }
 
 export interface Staff {
@@ -63,7 +59,6 @@ export interface Staff {
   position: string;
   department: string;
   created: string;
-  updated: string;
 }
 
 export interface Document {
@@ -74,7 +69,6 @@ export interface Document {
   agency: string;
   issue: string;
   created: string;
-  updated: string;
 }
 
 export interface Address {
@@ -82,7 +76,6 @@ export interface Address {
   view: string;
   address: string;
   created: string;
-  updated: string;
 }
 
 export interface Contact {
@@ -90,7 +83,6 @@ export interface Contact {
   view: string;
   contact: string;
   created: string;
-  updated: string;
 }
 
 export interface Relation {
@@ -98,7 +90,6 @@ export interface Relation {
   relation: string;
   relation_id: string;
   created: string;
-  updated: string;
 }
 
 export interface Work {
@@ -111,7 +102,6 @@ export interface Work {
   reason: string;
   position: string;
   created: string;
-  updated: string;
 }
 
 export interface Affilation {
@@ -121,8 +111,6 @@ export interface Affilation {
   inn: string;
   position: string;
   created: string;
-  updated: string;
-  
 }
 
 export interface Verification {
@@ -145,7 +133,6 @@ export interface Verification {
   conclusion: string;
   comment: string;
   created: string;
-  updated: string;
   user_id: string;
   user: string;
 }
@@ -157,7 +144,6 @@ export interface Pfo {
   user_id: string;
   user: string;
   created: string;
-  updated: string;
 }
 
 export interface Inquisition {
@@ -167,7 +153,6 @@ export interface Inquisition {
   user_id: string;
   user: string;
   created: string;
-  updated: string;
 }
 
 export interface Needs {
@@ -177,7 +162,6 @@ export interface Needs {
   user_id: string;
   user: string;
   created: string;
-  updated: string;
 }
 
 export interface Connection {
@@ -192,5 +176,4 @@ export interface Connection {
   email: string;
   comment: string;
   created: string;
-  updated: string;
 }

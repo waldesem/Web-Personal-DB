@@ -2,7 +2,7 @@
 import { defineAsyncComponent, toRef } from "vue";
 import { stateAlert, stateAnketa, stateClassify } from "@/state";
 import { Resume } from "@/interfaces";
-import { server, clearForm } from "@/utilities";
+import { server } from "@/utilities";
 import { router } from "@/router";
 import { axiosAuth } from "@/auth";
 
@@ -54,8 +54,6 @@ async function submitResume(): Promise<void> {
             resumeForm.value
           );
     const { person_id } = response.data;
-
-    clearForm(resumeForm.value);
     
     if (props.action === "create") {
       router.push({ name: "profile", params: { id: person_id } })

@@ -29,7 +29,6 @@ onBeforeMount(async () => {
 const statusColor = {
   "Проверка": "primary",
   "ПФО": "info",
-  "Отменено": "secondary",
   "Окончено": "secondary",
 };
 
@@ -49,7 +48,7 @@ const personData = ref({
   prev: false,
   next: false,
   search: "",
-  sort: "status",
+  sort: "id",
   order: "desc",
   spinner: false,
   updated: `${new Date().toLocaleDateString(
@@ -131,8 +130,8 @@ const shortName = (fullname: string) => {
 <template>
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
-    <span v-if="personData.spinner" class="spinner-border"></span>
     <div class="position-absolute bottom-100 end-0">
+      <span v-if="personData.spinner" class="spinner-border"></span>
       <label for="file" class="text-primary">
         <i
           class="bi bi-cloud-arrow-down fs-1"

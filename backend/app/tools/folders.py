@@ -6,8 +6,9 @@ from config import Config
 
 class Folders:
 
-    def __init__(self, person_id, surname, firstname, patronymic):
+    def __init__(self, region, person_id, surname, firstname, patronymic):
         self.url = os.path.join(
+            region,
             Config.BASE_PATH,
             surname[0].upper(),
             f"{person_id}-{surname.upper()} "

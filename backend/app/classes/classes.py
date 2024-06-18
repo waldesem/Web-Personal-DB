@@ -12,7 +12,6 @@ class Regions(Enum):
 class Statuses(Enum):
     manual = "Проверка"
     poligraf = "ПФО"
-    cancel = "Отменено"
     finish = "Окончено"
 
 
@@ -20,7 +19,6 @@ class Conclusions(Enum):
     agreed = "СОГЛАСОВАНО"
     comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"
-    canceled = "СНЯТ С ПРОВЕРКИ"
 
 
 class Relations(Enum):

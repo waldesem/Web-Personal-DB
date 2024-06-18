@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
+import  axios from "axios";
+import { onBeforeMount, defineAsyncComponent, ref, toRef } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert } from "@/state";
 import { server } from "@/utilities";
@@ -21,55 +22,49 @@ const BtnGroup = defineAsyncComponent(
 const emit = defineEmits(["get-contacts", "cancel-edit"]);
 
 const props = defineProps({
-  page: Number,
-  action: String,
-  names: {
-    type: Array,
-    default: [],
-  },
-  companies: {
-    type: Array,
-    default: [],
-  },
-  cities: {
-    type: Array,
-    default: [],
-  },
   item: {
     type: Object as () => Connection,
     default: {},
   },
 });
 
+onBeforeMount(async () => {
+  await getConnectors();
+});
+
+const connectorsData = ref({
+  view: [],
+  companies: [],
+  cities: [],
+});
+
+async function getConnectors(): Promise<void> {
+  try {
+    const response = await axios.get(`${server}/connectors`);
+    const { view, companies, cities } = response.data;
+    Object.assign(connectorsData.value, {
+      view: view,
+      companies: companies,
+      cities: cities,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const connectForm = toRef(props.item as Connection);
 
 async function updateContact(): Promise<void> {
   try {
-    const response =
-      props.action === "create"
-        ? await axiosAuth.post(
-            `${server}/connect`,
-            connectForm.value
-          )
-        : await axiosAuth.patch(
-            `${server}/connect/${props.item["id"]}`,
-            connectForm.value
-          );
+    const response = await axiosAuth.post(
+      `${server}/connect`, connectForm.value
+    )
     console.log(response.status);
-
-    const alert = {
-      create: ["alert-success", "Контакт добавлен"],
-      edit: ["alert-info", "Контакт обновлен"],
-    };
-    stateAlert.setAlert(
-      alert[props.action as keyof typeof alert][0],
-      alert[props.action as keyof typeof alert][1]
-    );
-
+    stateAlert.setAlert("alert-success", "Измненения успешно записаны")
   } catch (error) {
     console.log(error);
   }
-  emit("get-contacts", props.page);
+  emit("get-contacts");
 }
 </script>
 
@@ -84,7 +79,7 @@ async function updateContact(): Promise<void> {
         :place="'Вид'"
         :name="'name'"
         :lst="'names'"
-        :selects="props.names"
+        :selects="connectorsData.view"
         v-model="connectForm['view']"
       />
     </LabelSlot>
@@ -93,7 +88,7 @@ async function updateContact(): Promise<void> {
         :place="'Название'"
         :name="'company'"
         :lst="'companies'"
-        :selects="props.companies"
+        :selects="connectorsData.companies"
         v-model="connectForm['company']"
       />
     </LabelSlot>
@@ -102,7 +97,7 @@ async function updateContact(): Promise<void> {
         :name="'city'"
         :place="'Город'"
         :lst="'cities'"
-        :selects="props.cities"
+        :selects="connectorsData.cities"
         v-model="connectForm['city']"
       />
     </LabelSlot>

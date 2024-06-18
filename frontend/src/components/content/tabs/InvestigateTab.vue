@@ -39,21 +39,24 @@ const inquisition = ref({
   showActions: false,
 });
 
-function submitForm(form: Object, action: string) {
+function cancelAction(){
+  inquisition.value.itemId = "";
+  inquisition.value.item = <Inquisition>({});
+  emit("cancel");
+};
+
+function submitForm(form: Object) {
   stateAnketa.updateItem(
-    action,
     "investigations",
-    inquisition.value.itemId,
     form
   );  
-  action === "update" ? inquisition.value.itemId = "" : emit("cancel");
+  cancelAction();
 }
 </script>
 
 <template>
   <InvestigationForm
     v-if="props.tabAction === 'create' && props.currentTab === 'InvestigateTab'"
-    :action="'create'"
     @submit="submitForm"
     @cancel="emit('cancel')"
   />
@@ -67,9 +70,8 @@ function submitForm(form: Object, action: string) {
       <InvestigationForm
         v-if="inquisition.itemId === item['id'].toString()"
         :investigation="inquisition.item"
-        :action="'update'"
         @submit="submitForm"
-        @cancel="inquisition.itemId = ''"
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
@@ -91,11 +93,8 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
-        <LabelSlot :label="'Дата создания записи'">
+        <LabelSlot :label="'Дата записи'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot v-if="item['updated']" :label="'Дата обновления записи'">
-          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

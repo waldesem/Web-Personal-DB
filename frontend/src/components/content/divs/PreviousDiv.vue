@@ -27,16 +27,18 @@ const previous = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    previous.value.action,
-    "previous",
-    previous.value.itemId,
-    form
-  );
-
+function cancelAction(){
   previous.value.action = "";
   previous.value.itemId = "";
+  previous.value.item = <Previous>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "previous",
+    form
+  );
+  cancelAction();
 }
 </script>
 
@@ -51,10 +53,7 @@ function submitForm(form: Object) {
     v-if="previous.action === 'create'"
     :previous="previous.item"
     @submit="submitForm"
-    @cancel="
-      previous.action = '';
-      previous.itemId = '';
-    "
+    @cancel="cancelAction"
   />
   <div
     v-if="stateAnketa.anketa.previous.length"
@@ -75,10 +74,7 @@ function submitForm(form: Object) {
         "
         :previous="previous.item"
         @submit="submitForm"
-        @cancel="
-          previous.action = '';
-          previous.itemId = '';
-        "
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>

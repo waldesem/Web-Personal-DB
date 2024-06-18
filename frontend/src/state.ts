@@ -133,23 +133,13 @@ export const stateAnketa = {
     }
   },
 
-  async updateItem(
-    action: string,
-    param: string,
-    itemId: string,
-    form: Object
-  ): Promise<void> {
+  async updateItem(param: string, form: Object): Promise<void> {
     try {
-      const response =
-        action === "create"
-          ? await axiosAuth.post(
-              `${server}/${param}/${this.share.candId}`,
-              form
-            )
-          : await axiosAuth.patch(`${server}/${param}/${itemId}`, form);
-
+      const response = await axiosAuth.post(
+        `${server}/${param}/${stateAnketa.share.candId}`, form
+      );
       console.log(response.status);
-      stateAlert.setAlert("alert-success", "Данные успешно обновлены");
+      stateAlert.setAlert("alert-success", "Запись успешно добавлена");
       this.getItem(param);
     } catch (error: any) {
       if (error.request.status == 401 || error.request.status == 403) {

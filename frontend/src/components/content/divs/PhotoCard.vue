@@ -23,7 +23,6 @@ const photoCard = ref({
       @mouseover="photoCard.handleMouse"
       @mouseout="photoCard.handleMouse"
     >
-      <span v-if="stateAnketa.share.spinner" class="spinner-border"></span>
       <img
         :src="stateAnketa.share.imageUrl"
         style="width: 100%; height: auto"
@@ -32,7 +31,9 @@ const photoCard = ref({
       />
       <div
         v-show="photoCard.showPhoto" 
-        class="card-img-overlay">
+        class="card-img-overlay"
+      >
+        <span v-if="stateAnketa.share.spinner" class="spinner-border"></span>
         <input
           @change="stateAnketa.submitFile($event, 'image')"
           class="form-control form-control-sm"

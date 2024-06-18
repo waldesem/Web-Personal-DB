@@ -27,11 +27,15 @@ const contact = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(contact.value.action, "contacts", contact.value.itemId, form);
+function cancelAction(){
   contact.value.action = "";
   contact.value.itemId = "";
-  
+  contact.value.item = <Contact>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem("contacts", form);
+  cancelAction();
 };
 </script>
 
@@ -45,7 +49,7 @@ function submitForm(form: Object) {
   <ContactForm v-if="contact.action === 'create'"
     :contact="contact.item" 
     @submit="submitForm" 
-    @cancel="contact.action = ''"
+    @cancel="cancelAction"
   />
   <div 
     v-if="stateAnketa.anketa.contacts.length" 
@@ -56,19 +60,31 @@ function submitForm(form: Object) {
       v-for="(item, idx) in stateAnketa.anketa.contacts" :key="idx"
       @mouseover="contact.showActions = true"
       @mouseout="contact.showActions = false" 
-      class="card card-body mb-3">
-      <LabelSlot>
-        <ActionIcons v-show="contact.showActions"
-          @delete="stateAnketa.deleteItem(item['id'].toString(), 'contacts')"
-          @update="
-            contact.action = 'update';
-            contact.item = item;
-            contact.itemId = item['id'].toString();
-          "
-        />
-      </LabelSlot>
-      <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
-      <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
+      class="card card-body mb-3"
+    >
+      <ContactForm
+        v-if="
+          contact.action === 'update' &&
+          contact.itemId === item['id'].toString()
+        "
+        :contact="contact.item"
+        @submit="submitForm"
+        @cancel="cancelAction"
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons v-show="contact.showActions"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'contacts')"
+            @update="
+              contact.action = 'update';
+              contact.item = item;
+              contact.itemId = item['id'].toString();
+            "
+          />
+        </LabelSlot>
+        <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
+        <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
+      </div>
     </div>
   </div>
   <p v-else>Данные отсутствуют</p>

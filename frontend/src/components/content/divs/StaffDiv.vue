@@ -27,11 +27,19 @@ const staff = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(staff.value.action, "staffs", staff.value.itemId, form);
+function cancelAction(){
   staff.value.action = "";
   staff.value.itemId = "";
-  
+  staff.value.item = <Staff>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem
+  (
+    "staffs", 
+    form
+  );
+  cancelAction()
 }
 </script>
 
@@ -45,10 +53,7 @@ function submitForm(form: Object) {
   <StaffForm
     v-if="staff.action === 'create'"
     @submit="submitForm"
-    @cancel="
-      staff.action = '';
-      staff.itemId = '';
-    "
+    @cancel="cancelAction"
   />
   <div
     v-if="stateAnketa.anketa.staffs.length"
@@ -68,10 +73,7 @@ function submitForm(form: Object) {
         "
         :staff="staff.item"
         @submit="submitForm"
-        @cancel="
-          staff.action = '';
-          staff.itemId = '';
-        "
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>

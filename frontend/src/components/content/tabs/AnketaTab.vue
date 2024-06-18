@@ -122,20 +122,11 @@ const dataResume = ref({
     <LabelSlot :label="'Статус'">
       {{ stateAnketa.anketa.resume["status"]   }}
     </LabelSlot>
-    <LabelSlot :label="'Дата создания запси'">
+    <LabelSlot :label="'Дата запиsси'">
       {{
         stateAnketa.anketa.resume["created"]
           ? new Date(
               String(stateAnketa.anketa.resume["created"])
-            ).toLocaleDateString("ru-RU")
-          : ""
-      }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата обновления записи'">
-      {{
-        stateAnketa.anketa.resume["updated"]
-          ? new Date(
-              String(stateAnketa.anketa.resume["updated"])
             ).toLocaleDateString("ru-RU")
           : ""
       }}

@@ -145,9 +145,6 @@ async function userDelete(): Promise<void> {
     <LabelSlot :label="'Дата создания профиля'">
       {{ new Date(userData.profile.created).toLocaleString("ru-RU") }}
     </LabelSlot>
-    <LabelSlot :label="'Дата последнего изменения профиля'">
-      {{ new Date(userData.profile.updated).toLocaleString("ru-RU") }}
-    </LabelSlot>
     <BtnGroup :offset="false">
       <button
         class="btn btn-outline-primary"

@@ -29,10 +29,6 @@ const props = defineProps({
     type: Object as () => Verification,
     default: {},
   },
-  action: {
-    type: String,
-    default: "create",
-  }
 });
 
 const checkForm = toRef(props.check as Verification);
@@ -74,7 +70,7 @@ watch(noNegative, () => {
     </form>
     <form
       @submit.prevent="
-        emit('submit', checkForm, props.action); 
+        emit('submit', checkForm); 
         noNegative = false
       "
       class="form form-check"

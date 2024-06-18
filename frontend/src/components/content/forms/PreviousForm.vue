@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Previous } from "@/interfaces";
-import { clearForm } from "@/utilities";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -30,7 +29,7 @@ const previousForm = toRef(props.previous as Previous);
 
 <template>
   <form
-    @submit.prevent="emit('submit', previousForm); clearForm(previousForm)"
+    @submit.prevent="emit('submit', previousForm)"
     class="form form-check"
     role="form"
   >

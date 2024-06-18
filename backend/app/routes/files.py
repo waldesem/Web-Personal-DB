@@ -4,7 +4,7 @@ import os
 from flask import abort, request, send_file
 from PIL import Image
 
-from ..tools.depends import jwt_required, user_required
+from ..tools.depends import user_required, current_user
 from ..tools.folders import Folders
 from ..tools.parsers import Anketa
 from ..tools.queries import select_single
@@ -12,7 +12,7 @@ from . import bp
 
 
 @bp.route("/image/<int:item_id>")
-@jwt_required()
+@user_required()
 def get_image(item_id):
     """
     Retrieves a file from the server and sends it as a response.
@@ -28,6 +28,7 @@ def get_image(item_id):
 
     # Create a Folders object with the person's information
     folders = Folders(
+        current_user["region"],
         person["id"],
         person["surname"],
         person["firstname"],
@@ -91,6 +92,7 @@ def post(action, item_id=None):
 
     # Create a Folders object with the person's information
     folders = Folders(
+        current_user["region"],
         person["id"],
         person["surname"],
         person["firstname"],

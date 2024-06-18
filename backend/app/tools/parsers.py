@@ -44,6 +44,7 @@ class Resume:
                     stmt, tuple(args + (Statuses.manual.value, current_user["id"]))
                 )
                 folders = Folders(
+                    current_user["region"],
                     person_id,
                     self.resume["surname"],
                     self.resume["firstname"],

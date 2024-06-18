@@ -22,15 +22,15 @@ const GroupContent = defineAsyncComponent(
 );
 
 const loginData = ref({
-  action: "login",
+  action: "enter",
   hidden: true,
   form: <Record<string, any>>{},
 });
 
  async function submitLogin(): Promise<void> {
   loginData.value.hidden = true;
-  if (loginData.value.action === "password") {
-    if (loginData.value.form["password"] === loginData.value.form["new_pswd"]) {
+  if (loginData.value.action === "change") {
+    if (loginData.value.form["change"] === loginData.value.form["new_pswd"]) {
       stateAlert.setAlert(
         "alert-warning",
         "Старый и новый пароли совпадают"
@@ -44,18 +44,15 @@ const loginData = ref({
       );
       return;
     }
-    delete loginData.value.form["conf_pswd"];
   }
 
   try {
-    const response =
-      loginData.value.action === "password"
-        ? await axios.patch(`${server}/login`, loginData.value.form)
-        : await axios.post(`${server}/login`, loginData.value.form);
-
+    const response = await axios.patch(
+      `${server}/login/${loginData.value.action}`, loginData.value.form
+    )
     switch (response.status) {
       case 201:
-        loginData.value.action = "login";
+        loginData.value.action = "enter";
         stateAlert.setAlert(
           "alert-success",
           "Войдите с новым паролем"
@@ -94,7 +91,7 @@ const loginData = ref({
   <div class="border border-primary rounded p-5">
     <HeaderDiv 
       :cls="'text-primary mb-3 text-center'"
-      :page-header="loginData.action === 'login'
+      :page-header="loginData.action === 'enter'
       ? 'Вход в систему'
       : 'Изменить пароль'
       "
@@ -136,23 +133,23 @@ const loginData = ref({
           </GroupInput>
         </LabelSlot>
         <div class="row mb-3 col-lg-9 offset-lg-2"
-          v-show="loginData.action === 'login'">
+          v-show="loginData.action === 'enter'">
           <a
             class="link-primary"
             href="#"
-            @click="loginData.action = 'password'"
+            @click="loginData.action = 'change'"
           >
             Изменить пароль
           </a>
         </div>
-        <div v-if="loginData.action === 'password'">
+        <div v-if="loginData.action === 'change'">
           <LabelSlot :label="'Новый пароль'">
             <GroupInput 
               :name="'new_pswd'"
               :place="'Новый'"
               :min="8"
               :max="16"
-              :pattern="'[0-9a-zA-Z]+'"
+              :pattern="'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'"
               :type="loginData.hidden ? 'password' : 'text'"
               v-model="loginData.form['new_pswd']"
             />
@@ -163,7 +160,6 @@ const loginData = ref({
               :place="'Повтор'"
               :min="8"
               :max="16"
-              :pattern="'[0-9a-zA-Z]+'"
               :type="loginData.hidden ? 'password' : 'text'"
               v-model="loginData.form['conf_pswd']"
             />
@@ -171,8 +167,8 @@ const loginData = ref({
         </div>
         <BtnGroup>
           <GroupContent
-            :submit-btn="loginData.action === 'login' ? 'Войти' : 'Изменить'"
-            @cancel="loginData.action = 'login'"
+            :submit-btn="loginData.action === 'enter' ? 'Войти' : 'Изменить'"
+            @cancel="loginData.action = 'enter'"
           />
         </BtnGroup>
       </form>

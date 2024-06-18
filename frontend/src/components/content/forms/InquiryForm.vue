@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
 import { Needs } from "@/interfaces";
-import { clearForm } from "@/utilities";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -26,10 +25,6 @@ const props = defineProps({
     type: Object as () => Needs,
     default: {},
   },
-  action: {
-    type: String,
-    default: "create",
-  }
 });
 
 const inquiryForm = toRef(props.inquiry as Needs);
@@ -37,10 +32,7 @@ const inquiryForm = toRef(props.inquiry as Needs);
 
 <template>
   <form
-    @submit.prevent="
-      emit('submit', inquiryForm, props.action); 
-      clearForm(inquiryForm)
-    "
+    @submit.prevent="emit('submit', inquiryForm)"
     class="form form-check p-3"
     role="form"
   >

@@ -2,7 +2,7 @@
 import { toRef, defineAsyncComponent } from "vue";
 import { axiosAuth } from "@/auth";
 import { stateAlert, stateClassify } from "@/state";
-import { server, clearForm } from "@/utilities";
+import { server } from "@/utilities";
 import { User } from "@/interfaces";
 
 const LabelSlot = defineAsyncComponent(
@@ -41,24 +41,18 @@ const userForm = toRef(props.item as Record<string, any>);
 
 async function submitUser(): Promise<void> {
   try {
-    const response =
-      props.action === "edit"
-        ? await axiosAuth.patch(
-            `${server}/user/${props.item["id"]}`,
-            userForm.value
-          )
-        : await axiosAuth.post(`${server}/user`, userForm.value);
-    console.log(response.status);
-    if (props.action === "edit") {
-      stateAlert.setAlert("alert-success", "Пользователь успешно изменен");
-    } else {
-      stateAlert.setAlert("alert-success", "Пользователь успешно создан");
+    const response = await axiosAuth.post(
+      `${server}/user/${props.action}`, userForm.value
+    );
+     if (response.status === 205) {
+      stateAlert.setAlert("alert-warning", "Пользователь уже существует")
+     } else {
+      stateAlert.setAlert("alert-success", "Запись успешно добавлена");
     }
   } catch (error) {
     console.error(error);
     stateAlert.setAlert("alert-danger", "Ошибка сохранения данных");
   }
-  clearForm(userForm.value);
   emit("update");
 }
 </script>

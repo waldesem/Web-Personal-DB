@@ -27,15 +27,18 @@ const document = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    document.value.action,
-    "documents",
-    document.value.itemId,
-    form
-  );
+function cancelAction(){
   document.value.action = "";
   document.value.itemId = "";
+  document.value.item = <Document>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "documents",
+    form
+  );
+  cancelAction();
 }
 </script>
 
@@ -50,10 +53,7 @@ function submitForm(form: Object) {
     v-if="document.action === 'create'"
     :docs="document.item"
     @submit="submitForm"
-    @cancel="
-      document.action = '';
-      document.itemId = '';
-    "
+    @cancel="cancelAction"
   />
   <div
     v-if="stateAnketa.anketa.documents.length"
@@ -74,10 +74,7 @@ function submitForm(form: Object) {
         "
         :docs="document.item"
         @submit="submitForm"
-        @cancel="
-          document.action = '';
-          document.itemId = '';
-        "
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>

@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
 	id INTEGER NOT NULL, 
 	fullname VARCHAR(255) NOT NULL, 
 	username VARCHAR(255) NOT NULL, 
@@ -12,7 +12,6 @@ CREATE TABLE users (
 	attempt INTEGER DEFAULT 0,
 	has_admin BOOLEAN DEFAULT 0,
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME, 
 	region VARCHAR(255) NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -20,7 +19,7 @@ CREATE TABLE users (
 	UNIQUE (email)
 )
 ;
-CREATE TABLE persons (
+CREATE TABLE IF NOT EXISTS persons (
 	id INTEGER NOT NULL, 
 	surname VARCHAR(255) NOT NULL, 
 	firstname VARCHAR(255) NOT NULL, 
@@ -35,7 +34,6 @@ CREATE TABLE persons (
 	addition TEXT, 
 	path TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME, 
 	region VARCHAR(255) NOT NULL, 
 	status VARCHAR(255) NOT NULL, 
 	user_id INTEGER, 
@@ -44,7 +42,7 @@ CREATE TABLE persons (
 	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE previous (
+CREATE TABLE IF NOT EXISTS previous (
 	id INTEGER NOT NULL, 
 	surname VARCHAR(255), 
 	firstname VARCHAR(255), 
@@ -52,40 +50,37 @@ CREATE TABLE previous (
 	changed INTEGER, 
 	reason TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE educations (
+CREATE TABLE IF NOT EXISTS educations (
 	id INTEGER NOT NULL, 
 	view VARCHAR(255), 
 	name TEXT, 
 	finished INTEGER, 
 	speciality TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE staffs (
+CREATE TABLE IF NOT EXISTS staffs (
 	id INTEGER NOT NULL, 
 	position TEXT, 
 	department TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE documents (
+CREATE TABLE IF NOT EXISTS documents (
 	id INTEGER NOT NULL, 
 	view VARCHAR(255), 
 	series VARCHAR(255), 
@@ -93,38 +88,35 @@ CREATE TABLE documents (
 	agency TEXT, 
 	issue DATE, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE addresses (
+CREATE TABLE IF NOT EXISTS addresses (
 	id INTEGER NOT NULL, 
 	view VARCHAR(255), 
 	address TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE contacts (
+CREATE TABLE IF NOT EXISTS contacts (
 	id INTEGER NOT NULL, 
 	view VARCHAR(255), 
 	contact VARCHAR(255), 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE workplaces (
+CREATE TABLE IF NOT EXISTS workplaces (
 	id INTEGER NOT NULL, 
 	now_work BOOLEAN DEFAULT 0, 
 	started DATE, 
@@ -134,14 +126,13 @@ CREATE TABLE workplaces (
 	position TEXT, 
 	reason TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE affilations (
+CREATE TABLE IF NOT EXISTS affilations (
 	id INTEGER NOT NULL, 
 	view VARCHAR(255), 
 	name TEXT, 
@@ -149,18 +140,16 @@ CREATE TABLE affilations (
 	position TEXT, 
 	data INTEGER, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE relations (
+CREATE TABLE IF NOT EXISTS relations (
 	id INTEGER NOT NULL, 
 	relation VARCHAR(255) NOT NULL, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	relation_id INTEGER NOT NULL, 
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
@@ -169,7 +158,7 @@ CREATE TABLE relations (
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE checks (
+CREATE TABLE IF NOT EXISTS checks (
 	id INTEGER NOT NULL, 
 	workplace TEXT, 
 	document TEXT, 
@@ -188,7 +177,6 @@ CREATE TABLE checks (
 	pfo BOOLEAN, 
 	comment TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	conclusion VARCHAR(255) NOT NULL, 
 	person_id INTEGER NOT NULL, 
 	user_id INTEGER, 
@@ -198,13 +186,12 @@ CREATE TABLE checks (
 	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE poligrafs (
+CREATE TABLE IF NOT EXISTS poligrafs (
 	id INTEGER NOT NULL, 
 	theme VARCHAR(255), 
 	results TEXT, 
 	user_id INTEGER, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -212,13 +199,12 @@ CREATE TABLE poligrafs (
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE investigations (
+CREATE TABLE IF NOT EXISTS investigations (
 	id INTEGER NOT NULL, 
 	theme VARCHAR(255), 
 	info TEXT, 
 	user_id INTEGER, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -226,13 +212,12 @@ CREATE TABLE investigations (
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE inquiries (
+CREATE TABLE IF NOT EXISTS inquiries (
 	id INTEGER NOT NULL, 
 	info TEXT, 
 	initiator VARCHAR(255), 
 	user_id INTEGER, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	updated DATETIME,
 	person_id INTEGER NOT NULL, 
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
@@ -240,7 +225,7 @@ CREATE TABLE inquiries (
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
 )
 ;
-CREATE TABLE connects (
+CREATE TABLE IF NOT EXISTS connects (
 	id INTEGER NOT NULL, 
 	view VARCHAR(255), 
 	company VARCHAR(255), 
@@ -252,7 +237,6 @@ CREATE TABLE connects (
 	email VARCHAR(255), 
 	comment TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')),
-	updated DATETIME, 
 	PRIMARY KEY (id), 
 	UNIQUE (id)
 )

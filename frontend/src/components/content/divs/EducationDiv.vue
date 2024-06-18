@@ -27,15 +27,18 @@ const education = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    education.value.action,
-    "educations",
-    education.value.itemId,
-    form
-  );
+function cancelAction(){
   education.value.action = "";
   education.value.itemId = "";
+  education.value.item = <Education>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "educations",
+    form
+  );
+  cancelAction();
 }
 </script>
 
@@ -49,10 +52,7 @@ function submitForm(form: Object) {
   <EducationForm
     v-if="education.action === 'create'"
     @submit="submitForm"
-    @cancel="
-      education.action = '';
-      education.itemId = '';
-    "
+    @cancel="cancelAction"
   />
   <div
     v-if="stateAnketa.anketa.educations.length"
@@ -73,10 +73,7 @@ function submitForm(form: Object) {
         "
         :education="education.item"
         @submit="submitForm"
-        @cancel="
-          education.action = '';
-          education.itemId = '';
-        "
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>

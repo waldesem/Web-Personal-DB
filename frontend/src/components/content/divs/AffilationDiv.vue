@@ -27,16 +27,18 @@ const affilation = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    affilation.value.action,
-    "affilations",
-    affilation.value.itemId,
-    form
-  );
-  
+function cancelAction(){
   affilation.value.action = "";
   affilation.value.itemId = "";
+  affilation.value.item = <Affilation>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "affilations",
+    form
+  );
+  cancelAction();
 }
 </script>
 
@@ -50,10 +52,7 @@ function submitForm(form: Object) {
     v-if="affilation.action === 'create'"
     :affils="affilation.item"
     @submit="submitForm"
-    @cancel="
-      affilation.action = '';
-      affilation.itemId = '';
-    "
+    @cancel="cancelAction"
   />
   <div
     v-if="stateAnketa.anketa.affilations.length"
@@ -74,10 +73,7 @@ function submitForm(form: Object) {
         "
         :affils="affilation.item"
         @submit="submitForm"
-        @cancel="
-          affilation.action = '';
-          affilation.itemId = '';
-        "
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>

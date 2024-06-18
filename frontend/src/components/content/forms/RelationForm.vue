@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Relation } from "@/interfaces";
-import { clearForm } from "@/utilities";
 import { stateClassify} from "@/state"
 
 const LabelSlot = defineAsyncComponent(
@@ -34,7 +33,7 @@ const relationForm = toRef(props.relation as Relation);
 
 <template>
   <form
-    @submit.prevent="emit('submit', relationForm); clearForm(relationForm)"
+    @submit.prevent="emit('submit', relationForm)"
     class="form form-check"
     role="form"
   >

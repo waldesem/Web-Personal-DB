@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Work } from "@/interfaces";
-import { clearForm } from "@/utilities";
 
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
@@ -33,7 +32,7 @@ const workForm = toRef(props.work as Work);
 
 <template>
   <form
-    @submit.prevent="emit('submit', workForm); clearForm(workForm)"
+    @submit.prevent="emit('submit', workForm)"
     class="form form-check"
     role="form"
   > 

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Education } from "@/interfaces";
-import { clearForm } from "@/utilities";
 import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
@@ -34,7 +33,7 @@ const educationForm = toRef(props.docs as Education);
 
 <template>
   <form
-    @submit.prevent="emit('submit', educationForm); clearForm(educationForm)"
+    @submit.prevent="emit('submit', educationForm)"
     class="form form-check"
     role="form"
   >

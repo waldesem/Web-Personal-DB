@@ -27,18 +27,18 @@ const address = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    address.value.action,
-    "addresses",
-    address.value.itemId,
-    form
-  );
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  })
+function cancelAction(){
   address.value.action = "";
   address.value.itemId = "";
+  address.value.item = <Address>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "addresses",
+    form
+  );
+  cancelAction();
 }
 </script>
 
@@ -52,10 +52,7 @@ function submitForm(form: Object) {
   <AddressForm
     v-if="address.action === 'create'"
     @submit="submitForm"
-    @cancel="
-      address.action = '';
-      address.itemId = '';
-    "
+    @cancel="cancelAction()"
   />
   <div
     v-if="stateAnketa.anketa.addresses.length"
@@ -76,10 +73,7 @@ function submitForm(form: Object) {
         "
         :addrs="address.item"
         @submit="submitForm"
-        @cancel="
-          address.action = '';
-          address.itemId = '';
-        "
+        @cancel="cancelAction()"
       />
       <div v-else>
         <LabelSlot>

@@ -9,22 +9,25 @@ from werkzeug.security import generate_password_hash
 def init_app():
     if not os.path.isdir(Config.BASE_PATH):
         os.mkdir(Config.BASE_PATH)
-        print("Directory BASE_PATH created")
-
-    for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ":
-        letter_path = os.path.join(Config.BASE_PATH, letter)
-        if not os.path.isdir(letter_path):
-            os.mkdir(letter_path)
-    print("Alphabet directories created")
+    for region in Regions:
+        region_path = os.path.join(Config.BASE_PATH, region.value)
+        if not os.path.isdir(region_path):
+            os.mkdir(region_path)
+        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ":
+            letter_path = os.path.join(region_path, letter)
+            if not os.path.isdir(letter_path):
+                os.mkdir(letter_path)
+    print("Default directories created")
 
     with open(Config.DATABASE_SQL, "r", encoding="utf-8") as file:
         sql = file.read()
         execute_script(sql)
         execute(
-            "INSERT INTO users (fullname, username, password, email, has_admin, region) \
-                VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO users (id, fullname, username, password, email, has_admin, region) \
+                VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
-                "Администратор",
+                None,
+                "Супер Админ",
                 "superadmin",
                 generate_password_hash(Config.DEFAULT_PASSWORD),
                 "admin@example.ru",

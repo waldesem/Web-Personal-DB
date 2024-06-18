@@ -59,10 +59,4 @@ function timeSince(date: string): string {
   return Math.floor(seconds) + " секунд назад";
 }
 
-function clearForm(form: Object) {
-  Object.keys(form).forEach((key) => {
-    delete form[key as keyof typeof form];
-  });
-}
-
-export { server, debounce, timeSince, clearForm };
+export { server, debounce, timeSince };

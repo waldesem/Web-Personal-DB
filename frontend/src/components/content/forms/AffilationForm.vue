@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Affilation } from "@/interfaces";
-import { clearForm } from "@/utilities";
 import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
@@ -34,7 +33,7 @@ const affilationForm = toRef(props.affils as Affilation);
 
 <template>
   <form
-    @submit.prevent="emit('submit', affilationForm); clearForm(affilationForm)"
+    @submit.prevent="emit('submit', affilationForm)"
     class="form form-check"
     role="form"
   >

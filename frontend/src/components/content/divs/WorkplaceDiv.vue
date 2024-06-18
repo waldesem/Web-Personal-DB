@@ -27,16 +27,18 @@ const workplace = ref({
   showActions: false,
 });
 
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    workplace.value.action,
-    "workplaces",
-    workplace.value.itemId,
-    form
-  );
-  
+function cancelAction(){
   workplace.value.action = "";
   workplace.value.itemId = "";
+  workplace.value.item = <Work>({});
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "workplaces",
+    form
+  );
+  cancelAction();
 }
 </script>
 
@@ -50,10 +52,7 @@ function submitForm(form: Object) {
   <WorkplaceForm
     v-if="workplace.action === 'create'"
     @submit="submitForm"
-    @cancel="
-      workplace.action = '';
-      workplace.itemId = '';
-    "
+    @cancel="cancelAction"
   />
   <div
     v-if="stateAnketa.anketa.workplaces.length"
@@ -74,10 +73,7 @@ function submitForm(form: Object) {
         "
         :work="workplace.item"
         @submit="submitForm"
-        @cancel="
-          workplace.action = '';
-          workplace.itemId = '';
-        "
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>

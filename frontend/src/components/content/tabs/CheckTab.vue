@@ -39,16 +39,24 @@ const check = ref({
   showActions: false
 });
 
-function submitForm(form: Object, action: string) {
-  stateAnketa.updateItem(action, "checks", check.value.itemId, form);
-  action === "update" ? check.value.itemId = "" : emit("cancel");
+function cancelAction(){
+  check.value.itemId = "";
+  check.value.item = <Verification>({});
+  emit("cancel");
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "checks", 
+    form
+  );
+  cancelAction();
 }
 </script>
 
 <template>
   <CheckForm
     v-if="props.tabAction === 'create' && props.currentTab === 'CheckTab'"
-    :action="'create'"
     @cancel="emit('cancel')"
     @submit="submitForm"
   />
@@ -62,9 +70,8 @@ function submitForm(form: Object, action: string) {
       <CheckForm
         v-if="check.itemId === item['id'].toString()"
         :check="check.item"
-        :action="'update'"
         @submit="submitForm"
-        @cancel="check.itemId = ''"
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
@@ -129,11 +136,8 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Комментарии'">{{ item["comment"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ stateClassify.conclusions[item["conclusion"]] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
-        <LabelSlot :label="'Дата создания записи'">
+        <LabelSlot :label="'Дата записи'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot v-if="item['updated']" :label="'Дата обновления записи'">
-          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

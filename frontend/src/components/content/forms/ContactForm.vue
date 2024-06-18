@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, computed, toRef } from "vue";
 import { Contact } from "@/interfaces";
-import { clearForm } from "@/utilities";
 import { stateClassify } from "@/state";
 
 const InputElement = defineAsyncComponent(
@@ -44,7 +43,7 @@ const view = computed(() => {
 
 <template>
   <form
-    @submit.prevent="emit('submit', contactForm); clearForm(contactForm)"
+    @submit.prevent="emit('submit', contactForm)"
     class="form form-check"
     role="form"
   >

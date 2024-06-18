@@ -39,21 +39,24 @@ const poligraf = ref({
   showActions: false,
 });
 
-function submitForm(form: Object, action: string) {
+function cancelAction(){
+  poligraf.value.itemId = "";
+  poligraf.value.item = <Pfo>({});
+  emit("cancel");
+};
+
+function submitForm(form: Object) {
   stateAnketa.updateItem(
-    action,
     "poligrafs",
-    poligraf.value.itemId,
     form
   );
-  action === "update" ? poligraf.value.itemId = "" : emit("cancel");
+  cancelAction();
 }
 </script>
 
 <template>
   <PoligrafForm
     v-if="props.tabAction === 'create' && props.currentTab === 'PoligrafTab'"
-    :action="'create'"
     @submit="submitForm"
     @cancel="emit('cancel')"
   />
@@ -67,9 +70,8 @@ function submitForm(form: Object, action: string) {
       <PoligrafForm
         v-if="poligraf.itemId === item['id'].toString()"
         :poligraf="poligraf.item"
-        :action="'update'"
         @submit="submitForm"
-        @cancel="poligraf.itemId = ''"
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
@@ -91,11 +93,8 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
-        <LabelSlot :label="'Дата создания записи'">
+        <LabelSlot :label="'Дата записи'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot v-if="item['updated']" :label="'Дата обновления записи'">
-          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

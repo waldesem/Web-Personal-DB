@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Pfo } from "@/interfaces";
-import { clearForm } from "@/utilities";
 import { stateClassify } from "@/state";
 
 const TextArea = defineAsyncComponent(
@@ -27,10 +26,6 @@ const props = defineProps({
     type: Object as () => Pfo,
     default: {},
   },
-  action: {
-    type: String,
-    default: "create",
-  },
 });
 
 const poligrafForm = toRef(props.poligraf as Pfo);
@@ -38,10 +33,7 @@ const poligrafForm = toRef(props.poligraf as Pfo);
 
 <template>
   <form
-    @submit.prevent="
-      emit('submit', poligrafForm, props.action);
-      clearForm(poligrafForm);
-    "
+    @submit.prevent="emit('submit', poligrafForm)"
     class="form form-check p-3"
     role="form"
   >

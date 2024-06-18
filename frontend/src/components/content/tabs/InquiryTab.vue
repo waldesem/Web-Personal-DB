@@ -36,10 +36,18 @@ const need = ref({
   showActions: false,
 });
 
-function submitForm(form: Object, action: string) {
-  stateAnketa.updateItem(action, "inquiries", need.value.itemId, form);
+function cancelAction(){
   need.value.itemId = "";
-  action === "update" ? need.value.itemId = "" : emit("cancel");
+  need.value.item = <Needs>({});
+  emit("cancel");
+};
+
+function submitForm(form: Object) {
+  stateAnketa.updateItem(
+    "inquiries", 
+    form
+  );
+  cancelAction();
 };
 </script>
 
@@ -58,9 +66,8 @@ function submitForm(form: Object, action: string) {
       <InquiryForm
         v-if="need.itemId === item['id'].toString()"
         :inquiry="need.item"
-        :action="'update'"
         @submit="submitForm"
-        @cancel="need.itemId = ''"
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
@@ -75,11 +82,8 @@ function submitForm(form: Object, action: string) {
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
-        <LabelSlot :label="'Дата создания записи'">
+        <LabelSlot :label="'Дата записи'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot v-if="item['updated']" :label="'Дата обновления записи'">
-          {{ new Date(String(item["updated"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>
