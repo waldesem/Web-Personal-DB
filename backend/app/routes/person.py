@@ -1,10 +1,8 @@
 from datetime import datetime
 
 from flask import jsonify, request
-from flask.views import MethodView
 
 from . import bp
-
 from ..models.models import Prev, models_tables
 from ..classes.classes import Statuses, Relations
 from ..tools.depends import current_user, jwt_required, user_required
@@ -12,61 +10,44 @@ from ..tools.parsers import Resume
 from ..tools.queries import execute, select_all, select_single
 
 
-class AnketaView(MethodView):
-    @user_required()
-    def get(self, person_id):
-        action = request.args.get("action")
-        if action == "self":
-            execute(
-                "UPDATE persons SET status = ?, user_id = ? WHERE id = ?",
-                (
-                    Statuses.manual.value,
-                    current_user["id"],
-                    person_id,
-                ),
-            )
-        person = select_single(
-            "SELECT * FROM persons WHERE id = ?",
-            (person_id,),
+@bp.get("/resume/<int:person_id>")
+@user_required()
+def get_resume(person_id):
+    if request.args.get("action") == "self":
+        execute(
+            "UPDATE persons SET status = ?, user_id = ? WHERE id = ?",
+            (
+                Statuses.manual.value,
+                current_user["id"],
+                person_id,
+            ),
         )
-        if person["user_id"]:
-            user_fullname = select_single(
-                "SELECT fullname FROM users WHERE id = ?", (person["user_id"],)
-            )
-            person["username"] = user_fullname["fullname"]
-        return jsonify(person), 200
-
-    @jwt_required()
-    def delete(self, person_id):
-        execute("DELETE FROM persons WHERE id = ?", (person_id,))
-        return "", 204
-
-    @user_required()
-    def patch(self, person_id):
-        json_data = request.get_json()
-        resume = Resume(json_data)
-        resume.update_resume(person_id, manual=True)
-        return jsonify({"person_id": person_id}), 201
-
-    @user_required()
-    def post(self):
-        json_data = request.get_json()
-        resume = Resume(json_data)
-        person_id = resume.update_status()
-        return jsonify({"person_id": person_id}), 201
+    person = select_single(
+        "SELECT * FROM persons WHERE id = ?",
+        (person_id,),
+    )
+    if person["user_id"]:
+        user_fullname = select_single(
+            "SELECT fullname FROM users WHERE id = ?", (person["user_id"],)
+        )
+        person["username"] = user_fullname["fullname"]
+    return jsonify(person), 200
 
 
-resume_view = AnketaView.as_view("resume")
-bp.add_url_rule(
-    "/resume",
-    view_func=resume_view,
-    methods=["POST"],
-)
-bp.add_url_rule(
-    "/resume/<int:person_id>",
-    view_func=resume_view,
-    methods=["GET", "DELETE", "PATCH"],
-)
+@bp.post("/resume")
+@user_required()
+def post_resume():
+    json_data = request.get_json()
+    resume = Resume(json_data)
+    person_id = resume.update_status()
+    return jsonify({"person_id": person_id}), 201
+
+
+@bp.delete("/resume/<int:person_id>")
+@jwt_required()
+def delete_resume(person_id):
+    execute("DELETE FROM persons WHERE id = ?", (person_id,))
+    return "", 204
 
 
 @bp.post("/relations/<int:item_id>")

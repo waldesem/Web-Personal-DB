@@ -6,7 +6,6 @@ import { server } from "@/utilities";
 import { router } from "@/router";
 import { axiosAuth } from "@/auth";
 
-
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
@@ -36,51 +35,32 @@ const props = defineProps({
   resume: {
     type: Object as () => Resume,
     default: {},
-  }
+  },
 });
 
 const resumeForm = toRef(props.resume);
 
 async function submitResume(): Promise<void> {
   try {
-    const response =
-      props.action === "create"
-        ? await axiosAuth.post(
-            `${server}/resume`,
-            resumeForm.value
-          )
-        : await axiosAuth.patch(
-            `${server}/resume/${stateAnketa.share.candId}`,
-            resumeForm.value
-          );
+    const response = await axiosAuth.post(`${server}/resume`, resumeForm.value);
     const { person_id } = response.data;
-    
+
     if (props.action === "create") {
-      router.push({ name: "profile", params: { id: person_id } })
+      router.push({ name: "profile", params: { id: person_id } });
     } else {
       emit("cancel");
-       stateAnketa.getResume();
-    };
+      stateAnketa.getResume();
+    }
 
-    stateAlert.setAlert(
-      "alert-success",
-      "Данные успешно обновлены"
-    );
+    stateAlert.setAlert("alert-success", "Данные успешно обновлены");
   } catch (error) {
-    stateAlert.setAlert(
-      "alert-danger",
-      `Возникла ошибка ${error}`
-    );
+    stateAlert.setAlert("alert-danger", `Возникла ошибка ${error}`);
   }
-};
+}
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitResume"
-    class="form form-check"
-    role="form"
-  >
+  <form @submit.prevent="submitResume" class="form form-check" role="form">
     <LabelSlot :label="'Регион'">
       <SelectDiv
         :name="'region_id'"
@@ -175,7 +155,7 @@ async function submitResume(): Promise<void> {
       ></TextArea>
     </LabelSlot>
     <BtnGroup>
-      <GroupContent @cancel="emit('cancel')"/>
+      <GroupContent @cancel="emit('cancel')" />
     </BtnGroup>
   </form>
 </template>

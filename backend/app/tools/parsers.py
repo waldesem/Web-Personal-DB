@@ -25,54 +25,33 @@ class Resume:
         return select_single(stmt, (birthday,))
 
     def update_status(self):
-        person = self.get_person(
-            self.resume["surname"],
-            self.resume["firstname"],
-            self.resume.get("patronymic", ""),
-            self.resume["birthday"],
-        )
-        if person:
-            return self.update_resume(person["id"])
-        else:
-            try:
-                keys, args = zip(*self.resume.items())
-                stmt = "INSERT INTO persons ({}, status, user_id) VALUES ({}, ?, ?)".format(
-                    ", ".join(keys),
-                    ", ".join(["?" for _ in keys]),
-                )
-                person_id = execute(
-                    stmt, tuple(args + (Statuses.manual.value, current_user["id"]))
-                )
-                folders = Folders(
-                    current_user["region"],
+        try:
+            self.resume['status'] = Statuses.manual.value
+            self.resume['user_id'] = current_user["id"]
+            keys, args = zip(*self.resume.items())
+            stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
+                ", ".join(keys),
+                ", ".join(["?" for _ in keys]),
+            )
+            person_id = execute(stmt, args)
+            folders = Folders(
+                current_user["region"],
+                person_id,
+                self.resume["surname"],
+                self.resume["firstname"],
+                self.resume.get("patronymic", ""),
+            )
+            path = folders.create_main_folder()
+            execute(
+                "UPDATE persons SET path = ? WHERE id = ?",
+                (
+                    path,
                     person_id,
-                    self.resume["surname"],
-                    self.resume["firstname"],
-                    self.resume.get("patronymic", ""),
-                )
-                path = folders.create_main_folder()
-                execute(
-                    "UPDATE persons SET path = ? WHERE id = ?",
-                    (
-                        path,
-                        person_id,
-                    ),
-                )
-                return person_id
-            except Exception as e:
-                print(e)
-
-
-    def update_resume(self, person_id, manual=False):
-        keys, args = zip(*self.resume.items())
-        if not manual:
-            keys += ("status",)
-            args += (Statuses.manual.value,)
-        query = "UPDATE persons SET {} WHERE id = ?".format(
-            ", ".join(f"{key} = ?" for key in keys)
-        )
-        execute(query, args + (person_id,))
-        return person_id
+                ),
+            )
+            return person_id
+        except Exception as e:
+            print(e)
 
 
 class Anketa(Resume):

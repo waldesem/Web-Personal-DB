@@ -108,8 +108,8 @@ async function submitFile(event: Event): Promise<void> {
         `${server}/file/anketa/0`,
         formData.value
       );
-      console.log(response.status);
-      getCandidates();
+      const { person_id } = response.data;
+      router.push({ name: "profile", params: { id: person_id } });
 
       stateAlert.setAlert("alert-success", "Файл успешно загружен");
     } catch (error) {
