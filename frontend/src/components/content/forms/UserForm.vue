@@ -42,7 +42,7 @@ const userForm = toRef(props.item as Record<string, any>);
 async function submitUser(): Promise<void> {
   try {
     const response = await axiosAuth.post(
-      `${server}/user/${props.action}`, userForm.value
+      `${server}/users`, userForm.value
     );
      if (response.status === 205) {
       stateAlert.setAlert("alert-warning", "Пользователь уже существует")

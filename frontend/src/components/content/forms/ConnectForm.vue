@@ -57,7 +57,7 @@ const connectForm = toRef(props.item as Connection);
 async function updateContact(): Promise<void> {
   try {
     const response = await axiosAuth.post(
-      `${server}/connect`, connectForm.value
+      `${server}/connects`, connectForm.value
     )
     console.log(response.status);
     stateAlert.setAlert("alert-success", "Измненения успешно записаны")

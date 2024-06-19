@@ -6,7 +6,7 @@ from flask import abort, request, g
 from werkzeug.local import LocalProxy
 
 from config import Config
-from .queries import select_single
+from ..databases.database import select_single
 
 
 current_user = LocalProxy(lambda: get_current_user())

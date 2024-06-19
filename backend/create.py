@@ -1,7 +1,7 @@
 import os
 
 from app.classes.classes import Regions
-from app.tools.queries import execute_script, execute
+from backend.app.databases.database import execute_script, execute
 from config import Config
 from werkzeug.security import generate_password_hash
 

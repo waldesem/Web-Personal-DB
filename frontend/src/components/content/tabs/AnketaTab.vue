@@ -67,7 +67,7 @@ const dataResume = ref({
       <ActionIcons
         v-show="dataResume.showActions"
         @delete="
-          stateAnketa.deleteItem(stateAnketa.anketa.resume['id'], 'resume')
+          stateAnketa.deleteItem(stateAnketa.anketa.resume['id'], 'persons')
         "
         @update="dataResume.action = 'update'"
         :disable="

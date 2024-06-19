@@ -42,7 +42,7 @@ const resumeForm = toRef(props.resume);
 
 async function submitResume(): Promise<void> {
   try {
-    const response = await axiosAuth.post(`${server}/resume`, resumeForm.value);
+    const response = await axiosAuth.post(`${server}/persons`, resumeForm.value);
     const { person_id } = response.data;
 
     if (props.action === "create") {

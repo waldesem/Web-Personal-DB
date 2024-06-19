@@ -22,15 +22,15 @@ const GroupContent = defineAsyncComponent(
 );
 
 const loginData = ref({
-  action: "enter",
+  action: "create",
   hidden: true,
   form: <Record<string, any>>{},
 });
 
  async function submitLogin(): Promise<void> {
   loginData.value.hidden = true;
-  if (loginData.value.action === "change") {
-    if (loginData.value.form["change"] === loginData.value.form["new_pswd"]) {
+  if (loginData.value.action === "update") {
+    if (loginData.value.form["password"] === loginData.value.form["new_pswd"]) {
       stateAlert.setAlert(
         "alert-warning",
         "Старый и новый пароли совпадают"
@@ -52,7 +52,7 @@ const loginData = ref({
     )
     switch (response.status) {
       case 201:
-        loginData.value.action = "enter";
+        loginData.value.action = "create";
         stateAlert.setAlert(
           "alert-success",
           "Войдите с новым паролем"
@@ -66,7 +66,7 @@ const loginData = ref({
         break;
 
       case 205:
-        loginData.value.action = "password";
+        loginData.value.action = "update";
         stateAlert.setAlert(
           "alert-warning",
           "Пароль просрочен. Измените пароль"
@@ -74,7 +74,7 @@ const loginData = ref({
         break;
 
       case 204:
-        loginData.value.action = "login";
+        loginData.value.action = "create";
         stateAlert.setAlert(
           "alert-danger",
           "Неверный логин или пароль"
@@ -91,7 +91,7 @@ const loginData = ref({
   <div class="border border-primary rounded p-5">
     <HeaderDiv 
       :cls="'text-primary mb-3 text-center'"
-      :page-header="loginData.action === 'enter'
+      :page-header="loginData.action === 'create'
       ? 'Вход в систему'
       : 'Изменить пароль'
       "
@@ -133,16 +133,16 @@ const loginData = ref({
           </GroupInput>
         </LabelSlot>
         <div class="row mb-3 col-lg-9 offset-lg-2"
-          v-show="loginData.action === 'enter'">
+          v-show="loginData.action === 'create'">
           <a
             class="link-primary"
             href="#"
-            @click="loginData.action = 'change'"
+            @click="loginData.action = 'update'"
           >
             Изменить пароль
           </a>
         </div>
-        <div v-if="loginData.action === 'change'">
+        <div v-if="loginData.action === 'update'">
           <LabelSlot :label="'Новый пароль'">
             <GroupInput 
               :name="'new_pswd'"
@@ -167,8 +167,8 @@ const loginData = ref({
         </div>
         <BtnGroup>
           <GroupContent
-            :submit-btn="loginData.action === 'enter' ? 'Войти' : 'Изменить'"
-            @cancel="loginData.action = 'enter'"
+            :submit-btn="loginData.action === 'create' ? 'Войти' : 'Изменить'"
+            @cancel="loginData.action = 'create'"
           />
         </BtnGroup>
       </form>

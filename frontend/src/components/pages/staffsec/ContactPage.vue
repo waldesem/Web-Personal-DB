@@ -18,45 +18,34 @@ const ModalWin = defineAsyncComponent(
 const ConnectDiv = defineAsyncComponent(
   () => import("@components/content/divs/ConnectDiv.vue")
 )
-const PageSwitcher = defineAsyncComponent(
-  () => import("@components/content/elements/PageSwitcher.vue")
-);
 const ConnectForm = defineAsyncComponent(
   () => import("@components/content/forms/ConnectForm.vue")
 );
 
 onBeforeMount(async () => {
-  await getContacts(1);
+  await getContacts();
 });
 
 const contactData = ref({
   contacts: [],
-  page: 1,
-  prev: false,
-  next: false,
   action: "",
   search: "",
   item: <Connection>{},
 });
 
-async function getContacts(page: number): Promise<void> {
+async function getContacts(): Promise<void> {
   contactData.value.action = "";
   contactData.value.item = <Connection>({});
   try {
     const response = await axiosAuth.get(
-      `${server}/connect/${page}`,
+      `${server}/connects}`,
       {
         params: {
           search: contactData.value.search,
         },
       }
     );
-    const { contacts, has_prev, has_next} = response.data;
-    Object.assign(contactData.value, {
-      contacts: contacts,
-      prev: has_prev,
-      next: has_next,
-    });
+    contactData.value.contacts = response.data;
   } catch (error: any) {
     if (error.request.status == 401 || error.request.status == 403) {
       router.push({ name: "login" });
@@ -70,14 +59,14 @@ async function deleteContact(id: string): Promise<void> {
   if (confirm("Вы действительно хотите удалить контакт?")) {
     try {
       const response = await axiosAuth.delete(
-        `${server}/connect/${id}`
+        `${server}/connects/${id}`
       );
       console.log(response.status);
       stateAlert.setAlert(
         "alert-success",
         `Контакт с ID ${id} удален`
       );
-      getContacts(contactData.value.page);
+      getContacts();
     } catch (error) {
       console.log(error);
       stateAlert.setAlert(
@@ -89,7 +78,7 @@ async function deleteContact(id: string): Promise<void> {
 };
 
 const searchContacts = debounce(() => {
-  getContacts(1);
+  getContacts();
 }, 500);
 </script>
 
@@ -102,7 +91,7 @@ const searchContacts = debounce(() => {
   <ConnectForm
     v-if="contactData.action" 
     :item="contactData.item"
-    @get-contacts="getContacts(contactData.page)"
+    @get-contacts="getContacts()"
     @cancel-edit="contactData.action = ''"
   />
   <div v-show="!contactData.action" class="mb-3">
@@ -145,57 +134,61 @@ const searchContacts = debounce(() => {
         </tr>
       </template>
       <template v-slot:tbody v-if="contactData.contacts.length > 0">
-        <tr
-          v-for="contact in contactData.contacts"
-          :key="contact['id']"
-        >
-          <td>{{ contact["company"] }}</td>
-          <td>
-            <a 
-              href="#" 
-              title="Посмотреть контакт"
-              data-bs-target="#modalConnect" 
-              data-bs-toggle="modal"
-              @click="contactData.item = contact"
+        <tr>
+          <td colspan="7">
+            <TableSlots
+              id="overflow"
+              :tbl-class="'table table-hover align-middle no-bottom-border'"
             >
-              {{ contact["fullname"] }}
-            </a>
-          </td>
-          <td>{{ contact["phone"] }}</td>
-          <td>{{ contact["adding"] }}</td>
-          <td>{{ contact["mobile"] }}</td>
-          <td>
-            <button
-              class="btn btn-link"
-              type="button"
-              title="Изменить контакт"
-              @click="
-                contactData.action = 'edit';
-                contactData.item = contact;
-              "
-            >
-              <i class="bi bi-pencil-square"></i>
-            </button>
-          </td>
-          <td width="5%">
-            <a
-              href="#"
-              title="Удалить"
-              @click="deleteContact(contact['id'])"
-            >
-              <i class="bi bi-trash"></i>
-            </a>
+              <template v-slot:tbody>
+                <tr
+                  v-for="contact in contactData.contacts"
+                  :key="contact['id']"
+                >
+                  <td>{{ contact["company"] }}</td>
+                  <td>
+                    <a 
+                      href="#" 
+                      title="Посмотреть контакт"
+                      data-bs-target="#modalConnect" 
+                      data-bs-toggle="modal"
+                      @click="contactData.item = contact"
+                    >
+                      {{ contact["fullname"] }}
+                    </a>
+                  </td>
+                  <td>{{ contact["phone"] }}</td>
+                  <td>{{ contact["adding"] }}</td>
+                  <td>{{ contact["mobile"] }}</td>
+                  <td>
+                    <button
+                      class="btn btn-link"
+                      type="button"
+                      title="Изменить контакт"
+                      @click="
+                        contactData.action = 'edit';
+                        contactData.item = contact;
+                      "
+                    >
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </td>
+                  <td width="5%">
+                    <a
+                      href="#"
+                      title="Удалить"
+                      @click="deleteContact(contact['id'])"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+              </template>
+            </TableSlots>
           </td>
         </tr>
       </template>
     </TableSlots>
-    <PageSwitcher
-      :has_prev="contactData.next"
-      :has_next="contactData.prev"
-      :switchPrev="contactData.page - 1"
-      :switchNext="contactData.page + 1"
-      @switch="getContacts"
-    />
   </div>
 </template>
 

@@ -156,7 +156,7 @@ export const stateAnketa = {
     try {
       const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
-      param === "resume"
+      param === "persons"
         ? router.push({ name: "persons" })
         : this.getItem(param);
       stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);

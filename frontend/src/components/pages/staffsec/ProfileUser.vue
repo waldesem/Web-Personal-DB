@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateAlert } from "@/state";
+import { stateAlert, stateUser } from "@/state";
 import { axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 import { useRoute } from "vue-router";
@@ -36,7 +36,7 @@ const userData = ref({
 async function userAction(action: String): Promise<void> {
   try {
     const response = await axiosAuth.get(
-      `${server}/user/${userData.value.id}`,
+      `${server}/users/${userData.value.id}`,
       {
         params: {
           action: action,
@@ -67,7 +67,7 @@ async function userDelete(): Promise<void> {
   if (confirm("Вы действительно хотите удалить пользователя?")) {
     try {
       const response = await axiosAuth.delete(
-        `${server}/user/${userData.value.id}`
+        `${server}/users/${userData.value.id}`
       );
       const status =response.status;
       if(status === 204) {
@@ -174,7 +174,7 @@ async function userDelete(): Promise<void> {
         @click="userDelete"
         type="button"
         class="btn btn-outline-danger"
-        :disabled="userData.profile.deleted"
+        :disabled="userData.profile.deleted || userData.id == stateUser.userId"
       >
         Удалить
       </button>
