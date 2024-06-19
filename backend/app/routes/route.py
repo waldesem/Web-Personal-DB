@@ -40,11 +40,6 @@ def static_file(path=""):
     return bp.send_static_file(path)
 
 
-@bp.errorhandler(404)
-def not_found(error):
-    return bp.redirect("/")
-
-
 @bp.get("/information")
 @jwt_required()
 def get_information():
@@ -135,6 +130,7 @@ def post_login(action):
             ),
         )
         return "", 201
+
     else:
         delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
         if not user["change_pswd"] and delta_change.days < 30:
@@ -158,6 +154,7 @@ def get_index(page):
     if search_data and len(search_data) > 2:
         if search_data.isdigit():
             stmt += "WHERE inn LIKE '%{}%' ".format(search_data)
+
         else:
             pattern = r"^\d{2}\.\d{2}\.\d{4}$"
             query = [
@@ -175,26 +172,32 @@ def get_index(page):
                 stmt += "AND birthday = '{}' ".format(
                     datetime.strptime(query[-1], "%d.%m.%Y").date()
                 )
+
         if current_user["region"] != Regions.main.value:
             stmt += "AND region = {} ".format(current_user["region"])
+
     else:
         if current_user["region"] != Regions.main.value:
             stmt += "WHERE region = {} ".format(current_user["region"])
+
     stmt += "ORDER BY {} {} LIMIT {} OFFSET {}".format(
         request.args.get("sort"),
         request.args.get("order"),
         Config.PAGINATION + 1,
         (page - 1) * Config.PAGINATION,
     )
+
     result = select_all(stmt)
     has_next = len(result) > Config.PAGINATION if result else False
     result = result[: Config.PAGINATION] if has_next else result
+
     users = select_all("SELECT id, fullname FROM users")
     names = {u["id"]: u["fullname"] for u in users}
     if result:
         for i in result:
             if i["user_id"]:
                 i["username"] = names[i["user_id"]]
+
     return jsonify([result, has_next, page > 1]), 200
 
 
@@ -248,6 +251,7 @@ def post(action, item_id=None):
         im = Image.open(file)
         rgb_im = im.convert("RGB")
         image_path = os.path.join(folder, "image.jpg")
+
         if os.path.isfile(image_path):
             os.remove(image_path)
         rgb_im.save(image_path)
@@ -292,11 +296,13 @@ def get_resume(person_id):
 def get_item(item):
     search_data = request.args.get("search", "")
     stmt = f"SELECT * FROM {item} "
+
     if search_data and len(search_data) > 2:
         if item == "users":
             stmt += "WHERE username LIKE '%{}%' ".format(search_data)
         else:
             stmt += "WHERE company LIKE '%{}%' ".format(search_data)
+
     stmt += "ORDER BY id DESC"
     result = select_all(stmt)
     return jsonify(result), 200
@@ -313,22 +319,26 @@ def post_item(item):
         resume = Resume(json_data)
         person_id = resume.update_status()
         return jsonify({"person_id": person_id}), 201
+
     try:
         json_dict = models_tables[item](**json_data).dict()
         if item == "users":
             user = select_single(
                 "SELECT * FROM users WHERE username = ?", (json_dict.get("username"),)
             )
+
             if user and not json_dict["id"]:
                 return "", 205
             if not json_dict["id"]:
                 json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
+
         keys, args = zip(*json_dict.items())
         query = "INSERT OR REPLACE INTO {} ({}) VALUES ({})".format(
             item, ",".join(keys), ",".join("?" for _ in keys)
         )
         execute(query, args)
         return "", 201
+    
     except Exception as e:
         print(e)
         return "", 400
@@ -339,27 +349,34 @@ def post_item(item):
 def get_item_id(item, item_id):
     if item == "users":
         action_data = request.args.get("action")
+        
         if action_data != "view":
             stmt = "UPDATE users SET "
             values = []
+
             if action_data == "drop":
                 stmt += "password = ?, attempt = ?, change_pswd = ? "
                 values.extend(
                     [generate_password_hash(Config.DEFAULT_PASSWORD), 0, True]
                 )
+
             elif action_data == "block":
                 stmt += "blocked = ? "
                 user = select_single(
                     "SELECT blocked FROM users WHERE id = ?", (item_id,)
                 )
                 values.append(int(not user["blocked"]))
+
             execute(stmt + "WHERE id = ?", tuple(values + [item_id]))
+
     stmt = "SELECT * FROM {item} WHERE "
     if item == "users":
         stmt += " user_id = ? "
     else:
         stmt += " person_id = ? "
+
     results = select_all(stmt + " ORDER BY id ASC", (item_id,))
+
     if item in ["checks", "poligrafs", "inquiries", "investigations"]:
         users = select_all("SELECT id, fullname FROM users")
         names = {user["id"]: user["fullname"] for user in users}
@@ -376,12 +393,15 @@ def post_item_id(item, item_id):
     try:
         json_dict = models_tables[item](**json_data).dict()
         json_dict["person_id"] = item_id
+
         if item in ["checks", "poligrafs", "inquiries", "investigations"]:
             json_dict["user_id"] = current_user["id"]
+
         keys, args = zip(*json_dict.items())
         stmt = "INSERT OR REPLACE INTO {} ({}) VALUES ({})".format(
             item, ",".join(keys), ",".join(["?"] * len(keys))
         )
+
         if item == "relations":
             args = [
                 args,
@@ -392,6 +412,7 @@ def post_item_id(item, item_id):
                 ),
             ]
         execute(stmt, args)
+
         if item in ["checks", "poligrafs"] and not json_dict["id"]:
             args = []
             if item == "checks":
@@ -399,12 +420,14 @@ def post_item_id(item, item_id):
                     args.extend([Statuses.poligraf.value, item_id])
                 else:
                     args.extend([Statuses.finish.value, item_id])
+
             if item == "poligrafs":
                 person = select_single(
                     "SELECT status FROM persons WHERE id = ?", (item_id,)
                 )
                 if person["status"] == Statuses.poligraf.value:
                     args.extend([Statuses.finish.value, item_id])
+
             if args:
                 execute("UPDATE persons SET status = ? WHERE id = ?", tuple(args))
         return "", 201
