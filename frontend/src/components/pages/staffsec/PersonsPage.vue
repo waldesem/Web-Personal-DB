@@ -105,7 +105,7 @@ async function submitFile(event: Event): Promise<void> {
     formData.value.append("file", inputElement.files[0]);
     try {
       const response = await axiosAuth.post(
-        `${server}/file/anketa/0`,
+        `${server}/file/anketa`,
         formData.value
       );
       const { person_id } = response.data;

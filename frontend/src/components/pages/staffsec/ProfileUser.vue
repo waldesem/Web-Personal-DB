@@ -46,13 +46,6 @@ async function userAction(action: String): Promise<void> {
     userData.value.profile = response.data;
     if (action === "drop") {
       stateAlert.setAlert("alert-success", "Пароль сброшен");
-    } else if (action === "block") {
-      stateAlert.setAlert(
-        "alert-success",
-        `Пользователь ${
-          userData.value.profile.blocked ? "заблокирован" : "разблокирован"
-        }`
-      );
     }
   } catch (error: any) {
     if (error.request.status == 401 || error.request.status == 403) {
@@ -156,12 +149,6 @@ async function userDelete(): Promise<void> {
         "
       >
         {{ userData.action === "" ? "Редактировать" : "Отменить" }}
-      </button>
-      <button
-        @click="userAction('block')"
-        class="btn btn-outline-info"
-      >
-        {{ userData.profile.blocked ? "Разблокировать" : "Заблокировать" }}
       </button>
       <button
         @click="userAction('drop')"

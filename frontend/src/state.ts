@@ -86,7 +86,7 @@ export const stateAnketa = {
     }
     try {
       const response = await axiosAuth.get(
-        `${server}/resume/${this.share.candId}`,
+        `${server}/persons/${this.share.candId}`,
         {
           params: {
             action: action,
