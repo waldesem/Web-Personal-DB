@@ -25,37 +25,21 @@ def execute_script(query):
         con.commit()
 
 
-def select_all(query, args=None):
+def select(query, many=False, args=None):
     with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
         cursor = con.cursor()
         try:
-            if args is None:
-                cursor.execute(query)
-            else:
-                cursor.execute(query, args)
-            result = cursor.fetchall()
+            cursor.execute(query, args) if args else cursor.execute(query) 
+            result = cursor.fetchall() if many else cursor.fetchone()
+                
             if result:
                 columns = [desc[0] for desc in cursor.description]
-                return [dict(zip(columns, res)) for res in result]
-            return []
-        except sqlite3.Error as e:
-            print(f"Error: {e}")
-            con.rollback()
-
-
-def select_single(query, args=None):
-    with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
-        cursor = con.cursor()
-        try:
-            if args is None:
-                cursor.execute(query)
-            else:
-                cursor.execute(query, args)
-            result = cursor.fetchone()
-            if result:
-                columns = [desc[0] for desc in cursor.description]
+                if many:
+                    return [dict(zip(columns, res)) for res in result]
                 return dict(zip(columns, result))
-            return None
+                    
+            return [] if many else  None            
+            
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()
