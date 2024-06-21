@@ -67,12 +67,12 @@ def get_connectors():
         result = cur.fetchall()
         view, company, city = [], [], []
         if result:
-            view, company, city = zip(*result)
+            views, companies, cities = [list(set(res)) for res in zip(*result)]
         return jsonify(
             {
-                "view": list(set(view)),
-                "companies": list(set(company)),
-                "cities": list(set(city)),
+                "view": views,
+                "companies": companies,
+                "cities": cities,
             }
         ), 200
 
