@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 
 from config import Config
 from flask import abort, jsonify, request, send_file
-from PIL import Image
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..classes.classes import (
@@ -25,7 +24,7 @@ from ..models.models import Connects, User, models_tables
 from ..depends.depend import create_token, current_user, jwt_required, user_required
 from ..tools.foldered import Folders
 from ..tools.personed import update_resume, update_person
-from ..databases.database import execute, select_all, select_single
+from ..databases.database import execute, select
 from . import bp
 
 
@@ -65,7 +64,7 @@ def get_connectors():
         cur = conn.cursor()
         cur.execute("SELECT view, company, city FROM connects")
         result = cur.fetchall()
-        view, company, city = [], [], []
+        views, companies, cities = [], [], []
         if result:
             views, companies, cities = [list(set(res)) for res in zip(*result)]
         return jsonify(
@@ -75,27 +74,6 @@ def get_connectors():
                 "cities": cities,
             }
         ), 200
-
-
-@bp.get("/information")
-@jwt_required()
-def get_information():
-    query_data = request.args
-    result = select_all(
-        """
-        SELECT checks.conclusion, count(checks.id) FROM checks
-            LEFT JOIN persons on checks.person_id = persons.id
-            WHERE persons.region = ?
-            AND checks.created BETWEEN ? AND ?
-            GROUP BY conclusion
-        """,
-        (
-            query_data["region"],
-            query_data["start"],
-            query_data["end"],
-        ),
-    )
-    return jsonify(result), 200
 
 
 @bp.post("/connects")
@@ -116,36 +94,52 @@ def post_connect():
         return "", 400
 
 
+@bp.get("/information")
+@jwt_required()
+def get_information():
+    query_data = request.args
+    result = select(
+        """
+        SELECT checks.conclusion, count(checks.id) FROM checks
+            LEFT JOIN persons on checks.person_id = persons.id
+            WHERE persons.region = ?
+            AND checks.created BETWEEN ? AND ?
+            GROUP BY conclusion
+        """,
+        many=True,
+        args=(
+            query_data["region"],
+            query_data["start"],
+            query_data["end"],
+        ),
+    )
+    return jsonify(result), 200
+
+
 @bp.post("/login/<action>")
 def post_login(action):
     json_data = request.get_json()
-    user = select_single(
-        "SELECT * FROM users WHERE username = ?", (json_data.get("username"),)
+    user = select(
+        "SELECT * FROM users WHERE username = ?", args=(json_data.get("username"),)
     )
     if not user or user["blocked"] or user["deleted"]:
         return "", 204
 
+    args = []
+    stmt = "UPDATE users SET "
     if not check_password_hash(user["password"], json_data["password"]):
         if user["attempt"] < 5:
-            execute(
-                "UPDATE users SET attempt = ? WHERE id = ?",
-                (
-                    user["attempt"] + 1,
-                    user["id"],
-                ),
-            )
+            stmt += "attempt = ? "
+            args.append(user["attempt"] + 1)
         else:
-            execute("UPDATE users SET blocked = 1 WHERE id = ?", (user["id"],))
+            stmt += "blocked = 1 "
+        execute(stmt + "WHERE id = ?", tuple(args.append(user["id"])))
         return "", 204
 
     if action == "update":
-        execute(
-            "UPDATE users SET password = ?, change_pswd = 0, attempt = 0 WHERE id = ?",
-            (
-                generate_password_hash(json_data["new_pswd"]),
-                user["id"],
-            ),
-        )
+        stmt += "password = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
+        args.extend([generate_password_hash(Config.DEFAULT_PASSWORD), user["id"]])
+        execute(stmt, tuple(args))
         return "", 201
 
     else:
@@ -153,10 +147,9 @@ def post_login(action):
             user["pswd_create"]
         )
         if not user["change_pswd"] and delta_change.days < 30:
-            execute(
-                "UPDATE users SET last_login = ?, attempt = ? WHERE id = ?",
-                (datetime.now(timezone.utc), 0, user["id"]),
-            )
+            stmt += "last_login = ?, attempt = 0 WHERE id = ?"
+            args.extend([datetime.now(timezone.utc), user["id"]])
+            execute(stmt, tuple(args))
             return jsonify(
                 {
                     "user_token": create_token(user),
@@ -168,10 +161,12 @@ def post_login(action):
 @bp.get("/index/<int:page>")
 @user_required()
 def get_index(page):
-    stmt = "SELECT * FROM persons "
+    stmt = """
+        SELECT persons.*, users.fullname AS username FROM persons 
+        LEFT JOIN users ON persons.user_id = users.id 
+        """
     search_data = request.args.get("search")
     if search_data and len(search_data) > 2:
-
         if search_data.isdigit():
             stmt += "WHERE inn LIKE '%{}%' ".format(search_data)
 
@@ -200,29 +195,24 @@ def get_index(page):
         if current_user["region"] != Regions.main.value:
             stmt += "WHERE region = {} ".format(current_user["region"])
 
-    stmt += "ORDER BY {} {} LIMIT {} OFFSET {}".format(
-        request.args.get("sort"),
-        request.args.get("order"),
+    stmt += """
+        ORDER BY id DESC LIMIT {} WHERE id <= (
+            SELECT MAX(id) FROM persons ORDER BY id DESC LIMIT {}
+        )""".format(
         Config.PAGINATION + 1,
-        (page - 1) * Config.PAGINATION,
+        page * Config.PAGINATION,
     )
 
-    result = select_all(stmt)
+    result = select(stmt, many=True)
     has_next = len(result) > Config.PAGINATION
-    if result:
-        result = result[: Config.PAGINATION] if has_next else result
-        users = select_all("SELECT id, fullname FROM users")
-        names = {u["id"]: u["fullname"] for u in users}
-        for i in result:
-            if i["user_id"]:
-                i["username"] = names[i["user_id"]]
+    result = result[: Config.PAGINATION] if has_next else result
 
     return jsonify([result, has_next, page > 1]), 200
 
 
 @bp.get("/image/<int:item_id>")
 def get_image(item_id):
-    person_path = select_single("SELECT path FROM persons WHERE id = ?", (item_id,))
+    person_path = select("SELECT path FROM persons WHERE id = ?", args=(item_id,))
     if person_path.get("path"):
         file_path = os.path.join(person_path["path"], "image", "image.jpg")
         if os.path.isfile(file_path):
@@ -230,24 +220,28 @@ def get_image(item_id):
     return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
-@bp.post("/file/<item>")
-@bp.post("/file/<item>/<int:item_id>")
+@bp.post("/file/anketa")
 @user_required()
-def post(item, item_id):
+def post_file_anketa():
     file = request.files["file"]
-    if not file.filename:
-        return abort(400)
-
-    if item == "anketa":
+    if file.filename:
         json_dict = json.load(file)
         person_id = update_person(json_dict)
         if person_id:
             return "", 201
+    return abort(400)
+
+
+@bp.post("/file/<item>/<int:item_id>")
+@jwt_required()
+def post_file(item, item_id):
+    file = request.files["file"]
+    if not file.filename:
         return abort(400)
 
-    person = select_single("SELECT * FROM persons WHERE id = ?", (item_id,))
+    person = select("SELECT * FROM persons WHERE id = ?", args=(item_id,))
     folders = Folders(
-        current_user["region"],
+        person["region"],
         person["id"],
         person["surname"],
         person["firstname"],
@@ -256,13 +250,12 @@ def post(item, item_id):
 
     if item == "image":
         folder = folders.create_parent_folder("image")
-        im = Image.open(file)
-        rgb_im = im.convert("RGB")
-        image_path = os.path.join(folder, "image.jpg")
+        endwith = file.filename.split(".")[-1]
+        image_path = os.path.join(folder, "image." + endwith)
 
         if os.path.isfile(image_path):
             os.remove(image_path)
-        rgb_im.save(image_path)
+        file.save(image_path)
         return "", 201
 
     folder = folders.create_subfolder(item)
@@ -281,8 +274,8 @@ def post_user():
     json_data = request.get_json()
     try:
         json_dict = User(**json_data).dict()
-        user = select_single(
-            "SELECT * FROM users WHERE username = ?", (json_dict.get("username"),)
+        user = select(
+            "SELECT * FROM users WHERE username = ?", args=(json_dict.get("username"),)
         )
 
         if user and not json_dict["id"]:
@@ -317,8 +310,8 @@ def get_user_id(user_id):
         )
         execute(stmt, values)
 
-    stmt = "SELECT * FROM {item} WHERE id = ?"
-    result = select_single(stmt, (user_id,))
+    stmt = "SELECT * FROM users WHERE id = ?"
+    result = select(stmt, args=(user_id,))
     return jsonify(result), 200
 
 
@@ -345,21 +338,20 @@ def get_resume(person_id):
                 person_id,
             ),
         )
-    person = select_single(
-        "SELECT * FROM persons WHERE id = ?",
-        (person_id,),
+    person = select(
+        """SELECT persons.*, users.fullname AS username
+        FROM persons
+        LEFT JOIN users ON persons.user_id = users.id
+        WHERE persons.id = ?""",
+        args=(person_id,),
     )
-    if person["user_id"]:
-        user_fullname = select_single(
-            "SELECT fullname FROM users WHERE id = ?", (person["user_id"],)
-        )
-        person["username"] = user_fullname["fullname"]
     return jsonify(person), 200
 
 
 @bp.get("/<item>")
 @jwt_required()
 def get_item(item):
+    # Get users or contacts list with optional search query
     search_data = request.args.get("search")
     stmt = f"SELECT * FROM {item} "
 
@@ -369,7 +361,7 @@ def get_item(item):
         else:
             stmt += "WHERE company LIKE '%{}%' ".format(search_data)
 
-    result = select_all(stmt + "ORDER BY id DESC")
+    result = select(stmt + "ORDER BY id DESC", many=True)
     return jsonify(result), 200
 
 
@@ -377,10 +369,10 @@ def get_item(item):
 @jwt_required()
 def get_item_id(item, item_id):
     stmt = "SELECT * FROM {item} WHERE person_id = ? ORDER BY id DESC"
-    results = select_all(stmt, (item_id,))
+    results = select(stmt, many=True, args=(item_id,))
 
     if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-        users = select_all("SELECT id, fullname FROM users")
+        users = select("SELECT id, fullname FROM users", many=True)
         names = {user["id"]: user["fullname"] for user in users}
         for res in results:
             if "user_id" in res:
@@ -424,8 +416,8 @@ def post_item_id(item, item_id):
                     args.extend([Statuses.finish.value, item_id])
 
             if item == "poligrafs":
-                person = select_single(
-                    "SELECT status FROM persons WHERE id = ?", (item_id,)
+                person = select(
+                    "SELECT status FROM persons WHERE id = ?", args=(item_id,)
                 )
                 if person["status"] == Statuses.poligraf.value:
                     args.extend([Statuses.finish.value, item_id])

@@ -6,7 +6,7 @@ from flask import abort, request, g
 from werkzeug.local import LocalProxy
 
 from config import Config
-from ..databases.database import select_single
+from ..databases.database import select
 
 
 current_user = LocalProxy(lambda: get_current_user())
@@ -22,7 +22,7 @@ def get_auth(token):
 
 
 def get_current_user():
-    user = select_single("SELECT * FROM users WHERE id = ?", (g.user_id,))
+    user = select("SELECT * FROM users WHERE id = ?", args=(g.user_id,))
     delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
     if (
         user
