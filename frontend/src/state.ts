@@ -74,7 +74,6 @@ export const stateAnketa = {
   share: reactive({
     candId: "" as string,
     imageUrl: "" as string,
-    spinner: false
   }),
 
   async getResume(action = "view"): Promise<void> {
@@ -136,7 +135,8 @@ export const stateAnketa = {
   async updateItem(param: string, form: Object): Promise<void> {
     try {
       const response = await axiosAuth.post(
-        `${server}/${param}/${stateAnketa.share.candId}`, form
+        `${server}/${param}/${stateAnketa.share.candId}`,
+        form
       );
       console.log(response.status);
       stateAlert.setAlert("alert-success", "Запись успешно добавлена");
@@ -169,44 +169,53 @@ export const stateAnketa = {
       }
     }
   },
+};
 
-  async submitFile(event: Event, param: string): Promise<void> {
-    const formData = new FormData();
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement && inputElement.files) {
-      for (let i = 0; i < inputElement.files.length; i++) {
-        if (inputElement.files[i].size > 10 * 1024 * 1024) {
-          stateAlert.setAlert("alert-warning","Превышен максимальный размер файла");
-          inputElement.value = "";
-          return;
-        } else {
-          formData.append("file", inputElement.files[i]);
-        }
-      }
-      this.share.spinner = true;
-      try {
-        const response = await axiosAuth.post(
-          `${server}/file/${param}/${this.share.candId}`,
-          formData
-        );
-        console.log(response.status);
-        if (param === "image") {
-          this.getItem(param);
-        }
+export async function submitFile(
+  event: Event,
+  param: string,
+  itemId: string = stateAnketa.share.candId
+): Promise<void> {
+  const formData = new FormData();
+  const inputElement = event.target as HTMLInputElement;
+  if (inputElement && inputElement.files) {
+    for (let i = 0; i < inputElement.files.length; i++) {
+      if (inputElement.files[i].size > 10 * 1024 * 1024) {
         stateAlert.setAlert(
-          "alert-success",
-          "Файл или файлы успешно загружен/добавлены"
+          "alert-warning",
+          "Превышен максимальный размер файла"
         );
-      } catch (error: any) {
-        if (error.request.status == 401 || error.request.status == 403) {
-          router.push({ name: "login" });
-        } else {
-          console.error(error);
-        }
+        inputElement.value = "";
+        return;
+      } else {
+        formData.append("file", inputElement.files[i]);
       }
-      this.share.spinner = false;
-    } else {
-      stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
     }
-  },
+    try {
+      const response = await axiosAuth.post(
+        `${server}/file/${param}/${itemId}`,
+        formData
+      );
+      console.log(response.status);
+      if (param === "image") {
+        stateAnketa.getItem(param);
+      }
+      if (param === "persons") {
+        const { person_id } = response.data;
+        router.push({ name: "profile", params: { id: person_id } });
+      }
+      stateAlert.setAlert(
+        "alert-success",
+        "Файл или файлы успешно загружен/добавлены"
+      );
+    } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+      }
+    }
+  } else {
+    stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
+  }
 };

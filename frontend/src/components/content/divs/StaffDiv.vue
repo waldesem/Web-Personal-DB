@@ -85,6 +85,7 @@ function submitForm(form: Object) {
               staff.item = item;
               staff.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>

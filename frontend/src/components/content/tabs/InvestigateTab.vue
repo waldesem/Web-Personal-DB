@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Inquisition } from "@/interfaces";
-import { stateAnketa } from "@/state";
+import { stateAnketa, submitFile } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -37,6 +37,7 @@ const inquisition = ref({
   itemId: "",
   item: <Inquisition>{},
   showActions: false,
+  spinner: false
 });
 
 function cancelAction(){
@@ -51,7 +52,13 @@ function submitForm(form: Object) {
     form
   );  
   cancelAction();
-}
+};
+
+function uploadInquisitionFile(event: Event) {
+  inquisition.value.spinner = true;
+  submitFile(event, "investigations");
+  inquisition.value.spinner = false;
+};
 </script>
 
 <template>
@@ -76,19 +83,21 @@ function submitForm(form: Object) {
       <div v-else>
         <LabelSlot>
           <ActionIcons v-show="inquisition.showActions"
-            :show-form="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigations')"
             @update="
               inquisition.item = item;
               inquisition.itemId = item['id'].toString();
             "
+            :for-input="'investigations-file'"
           >
-          <FileForm 
-            v-show="inquisition.showActions" 
-            :accept="'*'" 
-            @submit="stateAnketa.submitFile($event, 'investigations')" 
-          />
-          </ActionIcons>
+            <span v-if="inquisition.spinner" class="spinner-border-sm text-primary"></span>
+            <FileForm 
+              v-show="inquisition.showActions" 
+              :name-id="'investigations-file'"
+              :accept="'*'" 
+              @submit="uploadInquisitionFile($event)" 
+            />
+          </ActionIcons>  
         </LabelSlot>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>

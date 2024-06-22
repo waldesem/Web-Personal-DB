@@ -85,6 +85,7 @@ function submitForm(form: Object) {
               education.item = item;
               education.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Вид образования'">{{ item["view"] }}</LabelSlot>

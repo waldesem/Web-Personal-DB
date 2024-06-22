@@ -85,6 +85,7 @@ function submitForm(form: Object) {
               address.item = item;
               address.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Тип'">{{ item["view"] }}</LabelSlot>

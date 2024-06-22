@@ -38,8 +38,7 @@ class Name(QueryModel):
 
     @validator("surname", "firstname", "patronymic")
     def check_names(cls, v):
-        if v:
-            return v.upper().strip()
+        return v.upper().strip() if v else None
 
 
 class Person(Name):

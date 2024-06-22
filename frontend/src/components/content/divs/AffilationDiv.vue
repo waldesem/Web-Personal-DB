@@ -87,6 +87,7 @@ function submitForm(form: Object) {
               affilation.item = item;
               affilation.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>

@@ -85,6 +85,7 @@ function submitForm(form: Object) {
               workplace.item = item;
               workplace.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot v-if="item['now_work']" :label="'Текущая работа'">

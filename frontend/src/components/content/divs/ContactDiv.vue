@@ -80,6 +80,7 @@ function submitForm(form: Object) {
               contact.item = item;
               contact.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>

@@ -133,19 +133,18 @@ def post_login(action):
             args.append(user["attempt"] + 1)
         else:
             stmt += "blocked = 1 "
-        execute(stmt + "WHERE id = ?", tuple(args.append(user["id"])))
+        args.append(user["id"])
+        execute(stmt + "WHERE id = ?", tuple(args))
         return "", 204
 
     if action == "update":
         stmt += "password = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
-        args.extend([generate_password_hash(Config.DEFAULT_PASSWORD), user["id"]])
+        args.extend([generate_password_hash(json_data["new_pswd"]), user["id"]])
         execute(stmt, tuple(args))
         return "", 201
 
     else:
-        delta_change = datetime.now(timezone.utc) - datetime.fromisoformat(
-            user["pswd_create"]
-        )
+        delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
         if not user["change_pswd"] and delta_change.days < 30:
             stmt += "last_login = ?, attempt = 0 WHERE id = ?"
             args.extend([datetime.now(timezone.utc), user["id"]])
@@ -195,12 +194,11 @@ def get_index(page):
         if current_user["region"] != Regions.main.value:
             stmt += "WHERE region = {} ".format(current_user["region"])
 
-    stmt += """
-        ORDER BY id DESC LIMIT {} WHERE id <= (
-            SELECT MAX(id) FROM persons ORDER BY id DESC LIMIT {}
-        )""".format(
+    stmt += "ORDER BY {} {} LIMIT {} OFFSET {}".format(
+        request.args.get("sort"),
+        request.args.get("order"),
         Config.PAGINATION + 1,
-        page * Config.PAGINATION,
+        (page - 1) * Config.PAGINATION,
     )
 
     result = select(stmt, many=True)
@@ -220,24 +218,19 @@ def get_image(item_id):
     return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
-@bp.post("/file/anketa")
-@user_required()
-def post_file_anketa():
-    file = request.files["file"]
-    if file.filename:
-        json_dict = json.load(file)
-        person_id = update_person(json_dict)
-        if person_id:
-            return "", 201
-    return abort(400)
-
-
 @bp.post("/file/<item>/<int:item_id>")
 @jwt_required()
 def post_file(item, item_id):
     file = request.files["file"]
     if not file.filename:
         return abort(400)
+    
+    if item == "persons":
+        json_dict = json.load(file)
+        person_id = update_person(json_dict)
+        if person_id:
+            return jsonify({"person_id": person_id}), 201
+        return "", 205
 
     person = select("SELECT * FROM persons WHERE id = ?", args=(item_id,))
     folders = Folders(
@@ -277,7 +270,6 @@ def post_user():
         user = select(
             "SELECT * FROM users WHERE username = ?", args=(json_dict.get("username"),)
         )
-
         if user and not json_dict["id"]:
             return "", 205
 
@@ -288,6 +280,7 @@ def post_user():
         query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
         )
+        print(query)
         execute(query, args)
         return "", 201
 
@@ -360,7 +353,6 @@ def get_item(item):
             stmt += "WHERE username LIKE '%{}%' ".format(search_data)
         else:
             stmt += "WHERE company LIKE '%{}%' ".format(search_data)
-
     result = select(stmt + "ORDER BY id DESC", many=True)
     return jsonify(result), 200
 
@@ -368,15 +360,13 @@ def get_item(item):
 @bp.get("/<item>/<int:item_id>")
 @jwt_required()
 def get_item_id(item, item_id):
-    stmt = "SELECT * FROM {item} WHERE person_id = ? ORDER BY id DESC"
-    results = select(stmt, many=True, args=(item_id,))
-
     if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-        users = select("SELECT id, fullname FROM users", many=True)
-        names = {user["id"]: user["fullname"] for user in users}
-        for res in results:
-            if "user_id" in res:
-                res["user"] = names.get(res["user_id"])
+        stmt = f"SELECT *, users.fullname AS user FROM {item} LEFT JOIN users ON {item}.user_id = users.id "
+    else:
+        stmt = f"SELECT * FROM {item} "
+    results = select(
+        stmt + "WHERE person_id = ? ORDER BY id DESC", many=True, args=(item_id,)
+    )
     return jsonify(results), 200
 
 

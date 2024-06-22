@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS users (
 	id INTEGER NOT NULL, 
 	fullname VARCHAR(255) NOT NULL, 
 	username VARCHAR(255) NOT NULL, 
-	password VARCHAR NOT NULL, 
+	password VARCHAR (255), 
 	email VARCHAR(255) NOT NULL, 
 	pswd_create DATETIME DEFAULT (DATETIME('now')), 
 	change_pswd BOOLEAN DEFAULT 1, 

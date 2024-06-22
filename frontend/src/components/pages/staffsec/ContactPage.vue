@@ -38,7 +38,7 @@ async function getContacts(): Promise<void> {
   contactData.value.item = <Connection>({});
   try {
     const response = await axiosAuth.get(
-      `${server}/connects}`,
+      `${server}/connects`,
       {
         params: {
           search: contactData.value.search,
@@ -145,8 +145,8 @@ const searchContacts = debounce(() => {
                   v-for="contact in contactData.contacts"
                   :key="contact['id']"
                 >
-                  <td>{{ contact["company"] }}</td>
-                  <td>
+                  <td width="18%">{{ contact["company"] }}</td>
+                  <td width="18%">
                     <a 
                       href="#" 
                       title="Посмотреть контакт"
@@ -157,10 +157,10 @@ const searchContacts = debounce(() => {
                       {{ contact["fullname"] }}
                     </a>
                   </td>
-                  <td>{{ contact["phone"] }}</td>
-                  <td>{{ contact["adding"] }}</td>
-                  <td>{{ contact["mobile"] }}</td>
-                  <td>
+                  <td width="18%">{{ contact["phone"] }}</td>
+                  <td width="18%">{{ contact["adding"] }}</td>
+                  <td width="18%">{{ contact["mobile"] }}</td>
+                  <td width="5%">
                     <button
                       class="btn btn-link"
                       type="button"
@@ -192,3 +192,12 @@ const searchContacts = debounce(() => {
   </div>
 </template>
 
+<style scoped>
+#overflow {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.no-bottom-border td {
+  border-bottom: none;
+}
+</style>

@@ -47,7 +47,7 @@ const loginData = ref({
   }
 
   try {
-    const response = await axios.patch(
+    const response = await axios.post(
       `${server}/login/${loginData.value.action}`, loginData.value.form
     )
     switch (response.status) {

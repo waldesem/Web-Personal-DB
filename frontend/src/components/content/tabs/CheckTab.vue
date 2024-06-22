@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
-import { stateClassify, stateAnketa, stateUser } from "@/state";
+import { stateAnketa, submitFile } from "@/state";
 import { Verification } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
-)
+);
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 )
 const FileForm = defineAsyncComponent(
-  () => import("@components/content/elements/HeaderDiv.vue")
+  () => import("@components/content/forms/FileForm.vue")
 );
 const CheckForm = defineAsyncComponent(
   () => import("@components/content/forms/CheckForm.vue")
@@ -36,7 +36,8 @@ const props = defineProps({
 const check = ref({
   itemId: "",
   item: <Verification>{},
-  showActions: false
+  showActions: false,
+  spinner: false
 });
 
 function cancelAction(){
@@ -51,7 +52,13 @@ function submitForm(form: Object) {
     form
   );
   cancelAction();
-}
+};
+
+function uploadCheckFile(event: Event) {
+  check.value.spinner = true;
+  submitFile(event, "checks");
+  check.value.spinner = false;
+};
 </script>
 
 <template>
@@ -76,27 +83,21 @@ function submitForm(form: Object) {
       <div v-else>
         <LabelSlot>
           <ActionIcons v-show="check.showActions"
-            :show-form="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="
               check.item = item;
               check.itemId = item['id'].toString();
             "
-            :hide="
-              ![
-                stateClassify.status['save'],
-                stateClassify.status['cancel'],
-                stateClassify.status['manual'],
-              ].includes(stateClassify.status[stateAnketa.anketa.resume['status']]) &&
-              stateAnketa.anketa.resume['user_id'] != stateUser.userId
-            "
+            :for-input="'check-file'"
           >
-          <FileForm 
-            v-show="check.showActions" 
-            :accept="'*'" 
-            @submit="stateAnketa.submitFile($event, 'checks')" 
-          />
-        </ActionIcons>
+            <span v-if="check.spinner" class="spinner-border-sm text-primary"></span>
+            <FileForm 
+              v-show="check.showActions" 
+              :name-id="'check-file'"
+              :accept="'*'" 
+              @submit="uploadCheckFile($event)" 
+            />
+          </ActionIcons>
         </LabelSlot>
         <LabelSlot :label="'Проверка по местам работы'">
           {{ item["workplace"] }}
@@ -133,8 +134,8 @@ function submitForm(form: Object) {
           {{ item["addition"] }}
         </LabelSlot>
         <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
-        <LabelSlot :label="'Комментарии'">{{ item["comment"] }}</LabelSlot>
-        <LabelSlot :label="'Результат'">{{ stateClassify.conclusions[item["conclusion"]] }}</LabelSlot>
+        <LabelSlot :label="'Комментарии'">{{ item["comment"] ? item["comment"] : "-" }}</LabelSlot>
+        <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
           {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { stateClassify, stateAnketa } from "@/state";
+import { stateAnketa, submitFile } from "@/state";
 import type { Resume } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
 const FileForm = defineAsyncComponent(
-  () => import("@components/content/elements/HeaderDiv.vue")
+  () => import("@components/content/forms/FileForm.vue")
 );
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/forms/ResumeForm.vue")
@@ -47,7 +47,14 @@ const dataResume = ref({
   action: "",
   form: <Resume>{},
   showActions: false,
+  spinner: false
 });
+
+function uploadAnketaFile(event: Event) {
+  dataResume.value.spinner = true;
+  submitFile(event, "persons");
+  dataResume.value.spinner = false;
+};
 </script>
 
 <template>
@@ -70,15 +77,14 @@ const dataResume = ref({
           stateAnketa.deleteItem(stateAnketa.anketa.resume['id'], 'persons')
         "
         @update="dataResume.action = 'update'"
-        :disable="
-          stateClassify.status[stateAnketa.anketa.resume['status']] ===
-          'finish'
-        "
+        :for-input="'persons-file'"
       >
-      <FileForm 
+      <span v-if="dataResume.spinner" class="spinner-border-sm text-primary"></span>
+      <FileForm v-else
         v-show="dataResume.showActions" 
+        :name-id="'persons-file'"
         :accept="'*'" 
-        @submit="stateAnketa.submitFile($event, 'resume')" 
+        @submit="uploadAnketaFile($event)" 
       />
     </ActionIcons>
     </LabelSlot>

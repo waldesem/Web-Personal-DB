@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
-import { stateAnketa } from "@/state";
+import { stateAnketa, submitFile } from "@/state";
 
 onBeforeMount(async () => {
   await stateAnketa.getItem("image");
@@ -9,9 +9,16 @@ onBeforeMount(async () => {
 const photoCard = ref({
   formData: new FormData(),
   showPhoto: false,
+  spinner: false,
 
   handleMouse() {
     this.showPhoto = !this.showPhoto;
+  },
+
+  async submitImage(event: any) {
+    this.spinner = true;
+    await submitFile(event, "image");
+    this.spinner = false;
   },
 });
 </script>
@@ -23,7 +30,8 @@ const photoCard = ref({
       @mouseover="photoCard.handleMouse"
       @mouseout="photoCard.handleMouse"
     >
-      <img
+      <span v-if="photoCard.spinner" class="spinner-border"></span>
+      <img v-else
         :src="stateAnketa.share.imageUrl"
         style="width: 100%; height: auto"
         class="card-img-top"
@@ -33,11 +41,9 @@ const photoCard = ref({
         v-show="photoCard.showPhoto" 
         class="card-img-overlay"
       >
-        <span v-if="stateAnketa.share.spinner" class="spinner-border"></span>
         <input
-          @change="stateAnketa.submitFile($event, 'image')"
+          @change="photoCard.submitImage($event)"
           class="form-control form-control-sm"
-          :disabled="stateAnketa.share.spinner"
           id="formImage"
           type="file"
           accept="image/png, image/jpg, image/jpeg"

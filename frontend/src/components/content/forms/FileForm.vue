@@ -1,5 +1,12 @@
 <script setup lang="ts">
-const prop = defineProps(["accept"]);
+const prop = defineProps({
+  accept: String,
+  nameId: {
+    type: String,
+    default: "file",
+  },
+
+});
 const emit = defineEmits(["submit"])
 </script>
 
@@ -12,8 +19,8 @@ const emit = defineEmits(["submit"])
   >
     <input
       class="form-control form-control-sm invisible"
-      id="file"
-      name="file"
+      :id="prop.nameId"
+      :name="prop.nameId"
       type="file"
       :accept="prop.accept"
       ref="file"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {  defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
-import { stateAlert } from "@/state";
+import { submitFile } from "@/state";
 import { axiosAuth } from "@/auth";
 import { Resume } from "@/interfaces";
 import { router } from "@/router";
@@ -96,34 +96,16 @@ const searchPerson = debounce(() => {
   getCandidates();
 }, 500);
 
-const formData = ref(new FormData());
-
-async function submitFile(event: Event): Promise<void> {
+async function submitJson(event: Event): Promise<void> {
+  event.preventDefault();
   personData.value.spinner = true;
-  const inputElement = event.target as HTMLInputElement;
-  if (inputElement.files) {
-    formData.value.append("file", inputElement.files[0]);
-    try {
-      const response = await axiosAuth.post(
-        `${server}/file/anketa`,
-        formData.value
-      );
-      const { person_id } = response.data;
-      router.push({ name: "profile", params: { id: person_id } });
-
-      stateAlert.setAlert("alert-success", "Файл успешно загружен");
-    } catch (error) {
-      console.error(error);
-    }
-  } else {
-    stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
-  }
+  submitFile(event, "persons", '0');
   personData.value.spinner = false;
 }
 
 const shortName = (fullname: string) => {
   const [first, second] = fullname.split(" ", )
-  return `${first} ${second}}`
+  return `${first} ${second}`
 }
 </script>
 
@@ -131,8 +113,8 @@ const shortName = (fullname: string) => {
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
     <div class="position-absolute bottom-100 end-0">
-      <span v-if="personData.spinner" class="spinner-border"></span>
-      <label for="file" class="text-primary">
+      <span v-if="personData.spinner" class="spinner-border text-primary"></span>
+      <label v-else for="file" class="text-primary">
         <i
           class="bi bi-cloud-arrow-down fs-1"
           title="Загрузить анкету"
@@ -140,7 +122,7 @@ const shortName = (fullname: string) => {
         >
         </i>
       </label>
-      <FileForm :accept="'.json'" @submit="submitFile" />
+      <FileForm :accept="'.json'" @submit="submitJson" />
     </div>
   </div>
   <div class="row mb-3">

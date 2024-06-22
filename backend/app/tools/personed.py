@@ -8,7 +8,6 @@ from .foldered import Folders
 
 def update_resume(data):
     resume = Person(**data).dict()
-    resume['user_id'] = current_user['id']
     try:
         resume['status'] = Statuses.manual.value
         resume['user_id'] = current_user["id"]
@@ -19,7 +18,7 @@ def update_resume(data):
         )
         person_id = execute(stmt, args)
         folders = Folders(
-            current_user["region"],
+            resume["region"],
             person_id,
             resume["surname"],
             resume["firstname"],

@@ -53,7 +53,13 @@ const tabsData = ref({
     <div class="col-md-10">
       <HeaderDiv
         :cls="'text-info py-3'"
-        :page-header="`${stateAnketa.anketa.resume.surname} ${stateAnketa.anketa.resume.firstname} ${stateAnketa.anketa.resume.patronymic}`"
+        :page-header="`${stateAnketa.anketa.resume.surname} ${
+          stateAnketa.anketa.resume.firstname
+        } ${
+          stateAnketa.anketa.resume.patronymic
+            ? ' ' + stateAnketa.anketa.resume.patronymic
+            : ''
+        }`"
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end">
@@ -70,7 +76,7 @@ const tabsData = ref({
         :icon-class="`bi bi-journal-check fs-1`"
         :hide="
           stateClassify.status['manual'] !=
-          stateAnketa.anketa.resume['status']   ||
+            stateAnketa.anketa.resume['status'] ||
           stateAnketa.anketa.resume['user_id'] != stateUser.userId
         "
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
@@ -100,10 +106,7 @@ const tabsData = ref({
       />
     </div>
   </div>
-  <nav
-    class="nav nav-tabs nav-justified"
-    role="tablist"
-  >
+  <nav class="nav nav-tabs nav-justified" role="tablist">
     <button
       v-for="(tab, idx) in tabsData.tabs"
       :key="idx"
@@ -129,44 +132,28 @@ const tabsData = ref({
     >
       <AnketaTab />
     </div>
-    <div
-      id="CheckTab"
-      class="tab-pane fade py-3"
-      role="tabpanel"
-    >
+    <div id="CheckTab" class="tab-pane fade py-3" role="tabpanel">
       <CheckTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
       />
     </div>
-    <div
-      id="PoligrafTab"
-      class="tab-pane fade py-3"
-      role="tabpanel"
-    >
+    <div id="PoligrafTab" class="tab-pane fade py-3" role="tabpanel">
       <PoligrafTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
       />
     </div>
-    <div
-      id="InvestigateTab"
-      class="tab-pane fade py-3"
-      role="tabpanel"
-    >
+    <div id="InvestigateTab" class="tab-pane fade py-3" role="tabpanel">
       <InvestigateTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"
         @cancel="tabsData.tabAction = ''"
       />
     </div>
-    <div
-      id="InquiryTab"
-      class="tab-pane fade py-3"
-      role="tabpanel"
-    >
+    <div id="InquiryTab" class="tab-pane fade py-3" role="tabpanel">
       <InquiryTab
         :tab-action="tabsData.tabAction"
         :current-tab="tabsData.currentTab"

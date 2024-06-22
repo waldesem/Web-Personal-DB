@@ -68,7 +68,7 @@ def parse_json(json_dict: dict) -> dict:
         "affilations": [],
     }
     for item, values in json_dict.items():
-        if len(values):
+        if values:
             views = {
                 "publicOfficeOrganizations": "Являлся государственным или муниципальным служащим",
                 "stateOrganizations": "Являлся государственным должностным лицом",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, onBeforeMount } from "vue";
 import { Pfo } from "@/interfaces";
-import { stateAnketa } from "@/state";
+import { stateAnketa, submitFile } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -37,6 +37,7 @@ const poligraf = ref({
   itemId: "",
   item: <Pfo>{},
   showActions: false,
+  spinner: false,
 });
 
 function cancelAction(){
@@ -52,6 +53,12 @@ function submitForm(form: Object) {
   );
   cancelAction();
 }
+
+function uploadPoligrafFile(event: Event) {
+  poligraf.value.spinner = true;
+  submitFile(event, "poligrafs");
+  poligraf.value.spinner = false;
+};
 </script>
 
 <template>
@@ -76,17 +83,19 @@ function submitForm(form: Object) {
       <div v-else>
         <LabelSlot>
           <ActionIcons v-show="poligraf.showActions"
-            :show-form="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligrafs')"
             @update="
               poligraf.item = item;
               poligraf.itemId = item['id'].toString();
             "
+            :for-input="'poligrafs-file'"
           >
-          <FileForm 
+          <span v-if="poligraf.spinner" class="spinner-border-sm text-primary"></span>
+          <FileForm v-else
             v-show="poligraf.showActions" 
+            :name-id="'poligrafs-file'"
             :accept="'*'" 
-            @submit="stateAnketa.submitFile($event, 'poligrafs')" 
+            @submit="uploadPoligrafFile($event)" 
           />
         </ActionIcons>
         </LabelSlot>

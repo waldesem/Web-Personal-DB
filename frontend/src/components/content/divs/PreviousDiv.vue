@@ -86,6 +86,7 @@ function submitForm(form: Object) {
               previous.item = item;
               previous.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Фамилия'">

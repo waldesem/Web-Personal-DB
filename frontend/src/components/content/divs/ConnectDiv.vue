@@ -94,13 +94,6 @@ const props = defineProps({
       >
         {{ new Date(String(props.item['created'])).toLocaleDateString("ru-RU") }}
       </LabelSlot>
-      <LabelSlot 
-        :label-class="'col-lg-4'" 
-        :input-class="'col-lg-8'" 
-        :label="'Дата изменения'"
-      >
-        {{ new Date(String(props.item['updated'])).toLocaleDateString("ru-RU") }}
-      </LabelSlot>
     </div>
   </div>
 </template>

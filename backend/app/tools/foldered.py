@@ -8,8 +8,8 @@ class Folders:
 
     def __init__(self, region, person_id, surname, firstname, patronymic):
         self.url = os.path.join(
-            region,
             Config.BASE_PATH,
+            region,
             surname[0].upper(),
             f"{person_id}-{surname.upper()} "
             f"{firstname.upper()} "
@@ -17,15 +17,7 @@ class Folders:
         )
 
     @staticmethod
-    def _check_url(region, person_id, surname, firstname, patronymic):
-        url = os.path.join(
-            region,
-            Config.BASE_PATH,
-            surname[0].upper(),
-            f"{person_id}-{surname.upper()} "
-            f"{firstname.upper()} "
-            f"{patronymic.upper()}".rstrip(),
-        )
+    def _check_url(url):
         if not os.path.isdir(url):
             os.mkdir(url)
         return url
