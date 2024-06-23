@@ -19,6 +19,9 @@ from ..classes.classes import (
 class QueryModel(BaseModel):
     id: Optional[str | int] = None
 
+    class Config:
+        use_enum_values = True
+
 
 class User(QueryModel):
     fullname: str
@@ -27,8 +30,8 @@ class User(QueryModel):
     region: Regions
     has_admin: bool = False
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Name(QueryModel):
@@ -53,8 +56,8 @@ class Person(Name):
     path: Optional[str] = None
     region: Optional[Regions] = None
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Prev(Name):
@@ -68,8 +71,8 @@ class Education(QueryModel):
     finished: Optional[str] = None
     speciality: Optional[str] = None
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Staff(QueryModel):
@@ -84,24 +87,24 @@ class Document(QueryModel):
     agency: Optional[str] = None
     issued: Optional[date] = None
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Address(QueryModel):
     view: Addresses
     address: str
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Contact(QueryModel):
     view: Contacts
     contact: str
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Workplace(QueryModel):
@@ -120,16 +123,16 @@ class Affilation(QueryModel):
     inn: Optional[str] = None
     position: str
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Relation(QueryModel):
     relation: Relations
     relation_id: Union[int, str]
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Check(QueryModel):
@@ -151,24 +154,24 @@ class Check(QueryModel):
     comment: Optional[str] = None
     conclusion: Conclusions
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Poligraf(QueryModel):
     theme: Poligrafs
     results: str
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
 
 
 class Investigation(QueryModel):
     theme: str
     info: str
 
-    class Config:
-        use_enum_values = True
+    # class Config:
+    #     use_enum_values = True
         
 
 class Inquiry(QueryModel):
@@ -208,3 +211,21 @@ models_tables = {
     "poligrafs": Poligraf,
     "inquiries": Inquiry,
 }
+
+
+class People(BaseModel):
+    person: Person
+    staffs: Optional[Staff] = None
+    previous: Optional[Prev] = None
+    documents: Optional[Document] = None
+    addresses: Optional[Address] = None
+    contacts: Optional[Contact] = None
+    educations: Optional[Education] = None
+    workplaces: Optional[Workplace] = None
+    affilations: Optional[Affilation] = None
+    relations: Optional[Relation] = None
+    checks: Optional[Check] = None
+    investigations: Optional[Investigation] = None
+    poligrafs: Optional[Poligraf] = None
+    inquiries: Optional[Inquiry] = None
+    connects: Optional[Connects] = None

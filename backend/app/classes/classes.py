@@ -13,6 +13,7 @@ class Statuses(Enum):
     manual = "Проверка"
     poligraf = "ПФО"
     finish = "Окончено"
+    saved = "Сохранено"
 
 
 class Conclusions(Enum):

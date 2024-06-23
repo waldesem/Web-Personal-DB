@@ -178,7 +178,6 @@ watch(noNegative, () => {
       <LabelSlot :label="'Результат'">
         <SelectDiv
           :name="'conclusion'"
-          :need="true"
           :select="stateClassify.conclusions"
           v-model="checkForm['conclusion']"
         />

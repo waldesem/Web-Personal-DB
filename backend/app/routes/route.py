@@ -224,13 +224,13 @@ def post_file(item, item_id):
     file = request.files["file"]
     if not file.filename:
         return abort(400)
-    
+
     if item == "persons":
         json_dict = json.load(file)
         person_id = update_person(json_dict)
         if person_id:
             return jsonify({"person_id": person_id}), 201
-        return "", 205
+        return abort(400)
 
     person = select("SELECT * FROM persons WHERE id = ?", args=(item_id,))
     folders = Folders(
@@ -293,16 +293,13 @@ def post_user():
 @jwt_required()
 def get_user_id(user_id):
     if request.args.get("action") == "drop":
-        stmt = "UPDATE users SET password = ?, attempt = ?, blocked = ?, change_pswd = ? WHERE id = ? "
-        values = (
-            generate_password_hash(Config.DEFAULT_PASSWORD),
-            0,
-            False,
-            True,
-            user_id,
+        execute(
+            "UPDATE users SET password = ?, attempt = 0, blocked = 0, change_pswd = 1 WHERE id = ?",
+            (
+                generate_password_hash(Config.DEFAULT_PASSWORD),
+                user_id,
+            ),
         )
-        execute(stmt, values)
-
     stmt = "SELECT * FROM users WHERE id = ?"
     result = select(stmt, args=(user_id,))
     return jsonify(result), 200
@@ -332,10 +329,8 @@ def get_resume(person_id):
             ),
         )
     person = select(
-        """SELECT persons.*, users.fullname AS username
-        FROM persons
-        LEFT JOIN users ON persons.user_id = users.id
-        WHERE persons.id = ?""",
+        """SELECT persons.*, users.fullname AS username FROM persons
+        LEFT JOIN users ON persons.user_id = users.id WHERE persons.id = ?""",
         args=(person_id,),
     )
     return jsonify(person), 200
@@ -347,7 +342,6 @@ def get_item(item):
     # Get users or contacts list with optional search query
     search_data = request.args.get("search")
     stmt = f"SELECT * FROM {item} "
-
     if search_data and len(search_data) > 2:
         if item == "users":
             stmt += "WHERE username LIKE '%{}%' ".format(search_data)
@@ -385,35 +379,27 @@ def post_item_id(item, item_id):
         stmt = "INSERT OR REPLACE INTO {} ({}) VALUES ({})".format(
             item, ",".join(keys), ",".join(["?"] * len(keys))
         )
-
-        if item == "relations":
-            args = [
-                args,
-                (
-                    json_data["relation"],
-                    item_id,
-                    json_data["relation_id"],
-                ),
-            ]
         execute(stmt, args)
 
-        if item in ["checks", "poligrafs"] and not json_dict["id"]:
+        if item == "checks":
             args = []
-            if item == "checks":
-                if json_dict.get("pfo"):
-                    args.extend([Statuses.poligraf.value, item_id])
-                else:
-                    args.extend([Statuses.finish.value, item_id])
+            if not json_dict.get("conclusion"):
+                args.extend([Statuses.saved.value, item_id])
+            elif json_dict.get("pfo"):
+                args.extend([Statuses.poligraf.value, item_id])
+            else:
+                args.extend([Statuses.finish.value, item_id])
+            execute("UPDATE persons SET status = ? WHERE id = ?", tuple(args))
 
-            if item == "poligrafs":
-                person = select(
-                    "SELECT status FROM persons WHERE id = ?", args=(item_id,)
-                )
-                if person["status"] == Statuses.poligraf.value:
-                    args.extend([Statuses.finish.value, item_id])
+        if item == "poligrafs":
+            stmt = "UPDATE persons SET status = CASE WHEN status = ? THEN ? ELSE status END WHERE id = ?"
+            args = (
+                Statuses.poligraf.value,
+                Statuses.finish.value,
+                item_id,
+            )
+            execute(stmt, args)
 
-            if args:
-                execute("UPDATE persons SET status = ? WHERE id = ?", tuple(args))
         return "", 201
     except Exception as e:
         return str(e), 400
