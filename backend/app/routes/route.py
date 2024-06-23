@@ -1,13 +1,12 @@
 import json
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 
-from config import Config
 from flask import abort, Blueprint, jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
 
-
+from config import Config
 from ..classes.classes import (
     Addresses,
     Affiliates,
@@ -21,10 +20,10 @@ from ..classes.classes import (
     Statuses,
 )
 from ..models.models import User, models_tables
+from ..databases.database import execute, select
 from ..depends.depend import create_token, current_user, jwt_required, user_required
 from ..tools.foldered import Folders
 from ..tools.personed import update_resume, update_person
-from ..databases.database import execute, select
 
 
 bp = Blueprint("route", __name__)
@@ -91,7 +90,7 @@ def post_login(action):
         action (str): The action to be performed during the login process.
 
     Returns:
-        The function returns a tuple containing an empty string and a status code. 
+        The function returns a tuple containing an empty string and a status code.
         The status code is either 204, 201, or 205, depending on the outcome of the login process.
 
     Raises:
@@ -99,7 +98,11 @@ def post_login(action):
     """
     json_data = request.get_json()
     user = select(
-        "SELECT * FROM users WHERE username = ?", args=(json_data.get("username"),)
+        """
+        SELECT id, username, password, blocked, deleted, attempt, pswd_create, change_pswd, has_admin
+        FROM users WHERE username = ?
+        """,
+        args=(json_data.get("username"),),
     )
     if not user or user["blocked"] or user["deleted"]:
         return "", 204
@@ -126,7 +129,7 @@ def post_login(action):
         delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
         if not user["change_pswd"] and delta_change.days < 30:
             stmt += "last_login = ?, attempt = 0 WHERE id = ?"
-            args.extend([datetime.now(timezone.utc), user["id"]])
+            args.extend([datetime.now(), user["id"]])
             execute(stmt, tuple(args))
             return jsonify(
                 {
@@ -138,7 +141,7 @@ def post_login(action):
 
 @bp.get("/users")
 @jwt_required()
-def get_users(item):
+def get_users():
     """
     Retrieves a list of users from the database based on the provided search criteria.
 
@@ -149,20 +152,20 @@ def get_users(item):
         tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
     """
     search_data = request.args.get("search")
-    stmt = f"SELECT * FROM {item} "
+    stmt = "SELECT id, fullname, username, blocked, deleted, pswd_create, last_login, region FROM users "
     if search_data and len(search_data) > 2:
         stmt += "WHERE username LIKE '%{}%' ".format(search_data)
     result = select(stmt + "ORDER BY id DESC", many=True)
     return jsonify(result), 200
 
 
-@bp.post("/users")
+@bp.post("/users")  
 @jwt_required()
 def post_user():
     """
     Handles the POST request to create or update a user in the database.
 
-    This function is a route handler for the '/users' endpoint with the HTTP method POST. 
+    This function is a route handler for the '/users' endpoint with the HTTP method POST.
     It requires a valid JWT token for authentication.
 
     Parameters:
@@ -170,7 +173,7 @@ def post_user():
 
     Returns:
         - If the user already exists and the request does not include an 'id' field, returns an empty response with status code 205.
-        - If the request does not include an 'id' field, generates a hashed password using the default password from the Config module and inserts the user into the 'users' table. 
+        - If the request does not include an 'id' field, generates a hashed password using the default password from the Config module and inserts the user into the 'users' table.
         Returns an empty response with status code 201.
         - If an exception occurs during the execution of the function, prints the exception and returns an empty response with status code 400.
     """
@@ -178,7 +181,7 @@ def post_user():
     try:
         json_dict = User(**json_data).dict()
         user = select(
-            "SELECT * FROM users WHERE username = ?", args=(json_dict.get("username"),)
+            "SELECT id FROM users WHERE username = ?", args=(json_dict.get("username"),)
         )
         if user and not json_dict["id"]:
             return "", 205
@@ -230,15 +233,15 @@ def get_user_id(user_id):
 @user_required()
 def get_index(page):
     """
-    Retrieves a paginated list of persons from the database based on the search 
+    Retrieves a paginated list of persons from the database based on the search
     query and the user's region.
 
     Parameters:
         page (int): The page number of the results.
 
     Returns:
-        tuple: A tuple containing the list of persons, a boolean indicating if 
-        there are more results, and a boolean indicating if the page is greater 
+        tuple: A tuple containing the list of persons, a boolean indicating if
+        there are more results, and a boolean indicating if the page is greater
         than 1.
 
     Raises:
@@ -338,9 +341,12 @@ def post_file(item, item_id):
             return jsonify({"person_id": person_id}), 201
         return abort(400)
 
-    person = select("SELECT * FROM persons WHERE id = ?", args=(item_id,))
+    person = select(
+        "SELECT id, region, surname, firstname, patronymic FROM persons WHERE id = ?",
+        args=(item_id,),
+    )
     folders = Folders(
-        person["region"],
+        person.get("region"),
         person["id"],
         person["surname"],
         person["firstname"],
@@ -373,21 +379,21 @@ def get_all_in_one(person_id):
     """
     Retrieves all information related to a person in one request.
 
-    This function takes a person_id as a parameter and retrieves all information 
-    related to that person, including their resume and other items. 
-    It first calls the get_resume function to retrieve the person's resume, and 
-    then iterates over the models_tables dictionary to retrieve information for 
-    each item related to the person. 
-    The retrieved information is then loaded into a list of dictionaries using 
-    json.loads. 
-    Finally, the function returns the list of dictionaries as a response along 
+    This function takes a person_id as a parameter and retrieves all information
+    related to that person, including their resume and other items.
+    It first calls the get_resume function to retrieve the person's resume, and
+    then iterates over the models_tables dictionary to retrieve information for
+    each item related to the person.
+    The retrieved information is then loaded into a list of dictionaries using
+    json.loads.
+    Finally, the function returns the list of dictionaries as a response along
     with an HTTP status code of 200.
 
     Parameters:
         person_id (int): The ID of the person for whom to retrieve all information.
 
     Returns:
-        Tuple[List[Dict[str, Any]], int]: 
+        Tuple[List[Dict[str, Any]], int]:
         A tuple containing a list of dictionaries representing the person's i
         nformation and an HTTP status code of 200.
     """
@@ -426,14 +432,14 @@ def get_resume(person_id):
     """
     Retrieves the resume of a person with the given person_id.
 
-    If the query parameter "action" is set to "self", the function updates 
+    If the query parameter "action" is set to "self", the function updates
     the status and user_id of the person with the given person_id in the database.
 
     Parameters:
         person_id (int): The ID of the person whose resume is to be retrieved.
 
     Returns:
-        Tuple[Response, int]: A tuple containing the JSON response containing 
+        Tuple[Response, int]: A tuple containing the JSON response containing
         the person's resume and an HTTP status code of 200.
     """
     if request.args.get("action") == "self":
@@ -464,7 +470,7 @@ def get_item_id(item, item_id):
         item_id (int): The ID of the item to retrieve.
 
     Returns:
-        Tuple[Response, int]: A tuple containing the JSON response containing 
+        Tuple[Response, int]: A tuple containing the JSON response containing
         the retrieved item(s) and an HTTP status code of 200.
     """
     if item in ["checks", "poligrafs", "inquiries", "investigations"]:
@@ -494,9 +500,9 @@ def post_item_id(item, item_id):
         item_id (int): The ID of the record to insert or replace.
 
     Returns:
-        Tuple[str, int]: A tuple containing an empty string and an HTTP status 
+        Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 201 if the operation is successful,
-        otherwise a string containing the exception message and an HTTP status 
+        otherwise a string containing the exception message and an HTTP status
         code of 400.
     """
     json_data = request.get_json()
@@ -548,7 +554,7 @@ def delete_item(item, item_id):
         item_id (int): The ID of the item to delete.
 
     Returns:
-        Tuple[str, int]: A tuple containing an empty string and an HTTP status 
+        Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 204 if the operation is successful.
     """
     stmt = "DELETE FROM {} WHERE id = ?".format(item)

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
-import { stateClassify } from "@/state";
 import { server, debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
 import { AxiosError } from "axios";
@@ -49,6 +48,7 @@ async function getUsers() {
       },
     });
     dataUsers.value.users = response.data;
+    console.log(response.data);
   } catch (error: AxiosError | any) {
     if (error.request.status == 401 || error.request.status == 403) {
       router.push({ name: "login" });
@@ -142,7 +142,7 @@ async function getUsers() {
                   {{ timeSince(user.last_login) }}
                 </td>
                 <td width="15%">
-                  {{ stateClassify.regions[user.region] }}
+                  {{ user.region }}
                 </td>
               </tr>
             </template>
