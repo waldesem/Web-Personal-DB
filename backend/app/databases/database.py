@@ -4,6 +4,20 @@ from config import Config
 
 
 def execute(query, args=None):
+    """
+    Executes a SQL query on the database using the provided query and arguments.
+
+    Args:
+        query (str): The SQL query to execute.
+        args (Optional[list]): The arguments to pass to the query. Defaults to None.
+
+    Returns:
+        Union[int, None]: The last inserted row ID if the query is an INSERT statement, None otherwise.
+
+    Raises:
+        sqlite3.Error: If an error occurs while executing the query.
+
+    """
     with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
         cursor = con.cursor()
         try:
@@ -22,6 +36,22 @@ def execute(query, args=None):
 
 
 def select(query, many=False, args=None):
+    """
+    Executes a SQL query on the database using the provided query and arguments.
+
+    Args:
+        query (str): The SQL query to execute.
+        many (bool, optional): Whether to fetch multiple rows. Defaults to False.
+        args (Optional[list], optional): The arguments to pass to the query. Defaults to None.
+
+    Returns:
+        Union[list, dict, None]: A list of dictionaries if `many` is True, a dictionary if `many` is False,
+        and None if no rows are returned.
+
+    Raises:
+        sqlite3.Error: If an error occurs while executing the query.
+
+    """
     with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
         cursor = con.cursor()
         try:

@@ -13,6 +13,15 @@ current_user = LocalProxy(lambda: get_current_user())
 
 
 def get_auth(token):
+    """
+    Decode the given token and check if it matches the secret key.
+
+    Args:
+        token (str): The token to be decoded.
+
+    Returns:
+        bool: True if the decoded token matches the secret key, False otherwise.
+    """
     try:
         decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 2)
         g.user_id = decoded[1]
@@ -22,6 +31,11 @@ def get_auth(token):
 
 
 def get_current_user():
+    """
+    Retrieves the current user details based on the user ID stored in the global variable 'g.user_id'.
+    If the user is not blocked, not deleted, has not been requested to change the password, and the password was created less than a year ago,
+    returns the user details. Otherwise, returns None.
+    """
     user = select("SELECT * FROM users WHERE id = ?", args=(g.user_id,))
     delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
     if (
@@ -36,6 +50,17 @@ def get_current_user():
 
 
 def create_token(user):
+    """
+    Generate a token for the given user.
+
+    Args:
+        user (dict): A dictionary containing the user's information, including the user's id, username, and has_admin status.
+
+    Returns:
+        str: The generated token, encoded in base64.
+
+    This function takes a dictionary containing the user's information and generates a token using the secret key, the user's id, the user's username, and the user's has_admin status. The token is then encoded in base64 and returned as a string.
+    """
     token_parts = [
         Config.SECRET_KEY,
         str(user["id"]),
@@ -47,6 +72,24 @@ def create_token(user):
 
 
 def jwt_required():
+    """
+    Decorator function that checks if the request contains a valid JWT token.
+
+    The decorated function checks if the request contains a valid JWT token in the
+    'Authorization' header. If the token is valid, the decorated function is executed.
+    Otherwise, a 401 HTTP status code is returned.
+
+    Parameters:
+        func (function): The function to be decorated.
+
+    Returns:
+        function: The decorated function.
+
+    Example:
+        @jwt_required()
+        def my_function():
+            # Function logic
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -59,6 +102,16 @@ def jwt_required():
 
 
 def user_required(admin=False):
+    """
+    A decorator function that checks if the user is authorized to access a specific resource.
+    
+    Parameters:
+        admin (bool): A boolean indicating whether the user is an admin or not. Default is False.
+        func (function): The function to be decorated.
+    
+    Returns:
+        function: The decorated function that checks user authorization before executing the original function.
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

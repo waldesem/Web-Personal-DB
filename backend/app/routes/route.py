@@ -1,12 +1,12 @@
 import json
 import os
 import re
-import sqlite3
 from datetime import datetime, timezone
 
 from config import Config
-from flask import abort, jsonify, request, send_file
+from flask import abort, Blueprint, jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
+
 
 from ..classes.classes import (
     Addresses,
@@ -20,12 +20,14 @@ from ..classes.classes import (
     Relations,
     Statuses,
 )
-from ..models.models import Connects, User, models_tables
+from ..models.models import User, models_tables
 from ..depends.depend import create_token, current_user, jwt_required, user_required
 from ..tools.foldered import Folders
 from ..tools.personed import update_resume, update_person
 from ..databases.database import execute, select
-from . import bp
+
+
+bp = Blueprint("route", __name__)
 
 
 @bp.get("/", defaults={"path": ""})
@@ -58,49 +60,13 @@ def get_classes():
     return jsonify(results), 200
 
 
-@bp.route("/connectors")
-def get_connectors():
-    with sqlite3.connect(Config.DATABASE_URI) as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT view, company, city FROM connects")
-        result = cur.fetchall()
-        views, companies, cities = [], [], []
-        if result:
-            views, companies, cities = [list(set(res)) for res in zip(*result)]
-        return jsonify(
-            {
-                "view": views,
-                "companies": companies,
-                "cities": cities,
-            }
-        ), 200
-
-
-@bp.post("/connects")
-@jwt_required()
-def post_connect():
-    json_data = request.get_json()
-    try:
-        json_dict = Connects(**json_data).dict()
-        keys, args = zip(*json_dict.items())
-        query = "INSERT OR REPLACE INTO connects ({}) VALUES ({})".format(
-            ",".join(keys), ",".join("?" for _ in keys)
-        )
-        execute(query, args)
-        return "", 201
-
-    except Exception as e:
-        print(e)
-        return "", 400
-
-
 @bp.get("/information")
 @jwt_required()
 def get_information():
     query_data = request.args
     result = select(
         """
-        SELECT checks.conclusion, count(checks.id) FROM checks
+        SELECT checks.conclusion, count(checks.id) as count FROM checks
             LEFT JOIN persons on checks.person_id = persons.id
             WHERE persons.region = ?
             AND checks.created BETWEEN ? AND ?
@@ -118,6 +84,19 @@ def get_information():
 
 @bp.post("/login/<action>")
 def post_login(action):
+    """
+    A function that handles the login process.
+
+    Parameters:
+        action (str): The action to be performed during the login process.
+
+    Returns:
+        The function returns a tuple containing an empty string and a status code. 
+        The status code is either 204, 201, or 205, depending on the outcome of the login process.
+
+    Raises:
+        None
+    """
     json_data = request.get_json()
     user = select(
         "SELECT * FROM users WHERE username = ?", args=(json_data.get("username"),)
@@ -157,9 +136,114 @@ def post_login(action):
         return "", 205
 
 
+@bp.get("/users")
+@jwt_required()
+def get_users(item):
+    """
+    Retrieves a list of users from the database based on the provided search criteria.
+
+    Parameters:
+        item (str): The table name from which to retrieve the users.
+
+    Returns:
+        tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
+    """
+    search_data = request.args.get("search")
+    stmt = f"SELECT * FROM {item} "
+    if search_data and len(search_data) > 2:
+        stmt += "WHERE username LIKE '%{}%' ".format(search_data)
+    result = select(stmt + "ORDER BY id DESC", many=True)
+    return jsonify(result), 200
+
+
+@bp.post("/users")
+@jwt_required()
+def post_user():
+    """
+    Handles the POST request to create or update a user in the database.
+
+    This function is a route handler for the '/users' endpoint with the HTTP method POST. 
+    It requires a valid JWT token for authentication.
+
+    Parameters:
+        None
+
+    Returns:
+        - If the user already exists and the request does not include an 'id' field, returns an empty response with status code 205.
+        - If the request does not include an 'id' field, generates a hashed password using the default password from the Config module and inserts the user into the 'users' table. 
+        Returns an empty response with status code 201.
+        - If an exception occurs during the execution of the function, prints the exception and returns an empty response with status code 400.
+    """
+    json_data = request.get_json()
+    try:
+        json_dict = User(**json_data).dict()
+        user = select(
+            "SELECT * FROM users WHERE username = ?", args=(json_dict.get("username"),)
+        )
+        if user and not json_dict["id"]:
+            return "", 205
+
+        if not json_dict["id"]:
+            json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
+
+        keys, args = zip(*json_dict.items())
+        query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
+            ",".join(keys), ",".join("?" for _ in keys)
+        )
+        print(query)
+        execute(query, args)
+        return "", 201
+
+    except Exception as e:
+        print(e)
+        return "", 400
+
+
+@bp.get("/users/<int:user_id>")
+@jwt_required()
+def get_user_id(user_id):
+    """
+    Retrieves a user's information from the database based on their user ID.
+
+    Parameters:
+        user_id (int): The ID of the user.
+
+    Returns:
+        tuple: A tuple containing the user's information and the HTTP status code.
+            The user's information is returned as a JSON object.
+            The HTTP status code is 200 if the user is found, otherwise it is 404.
+    """
+    if request.args.get("action") == "drop":
+        execute(
+            "UPDATE users SET password = ?, attempt = 0, blocked = 0, change_pswd = 1 WHERE id = ?",
+            (
+                generate_password_hash(Config.DEFAULT_PASSWORD),
+                user_id,
+            ),
+        )
+    stmt = "SELECT * FROM users WHERE id = ?"
+    result = select(stmt, args=(user_id,))
+    return jsonify(result), 200
+
+
 @bp.get("/index/<int:page>")
 @user_required()
 def get_index(page):
+    """
+    Retrieves a paginated list of persons from the database based on the search 
+    query and the user's region.
+
+    Parameters:
+        page (int): The page number of the results.
+
+    Returns:
+        tuple: A tuple containing the list of persons, a boolean indicating if 
+        there are more results, and a boolean indicating if the page is greater 
+        than 1.
+
+    Raises:
+        None
+    """
     stmt = """
         SELECT persons.*, users.fullname AS username FROM persons 
         LEFT JOIN users ON persons.user_id = users.id 
@@ -194,9 +278,7 @@ def get_index(page):
         if current_user["region"] != Regions.main.value:
             stmt += "WHERE region = {} ".format(current_user["region"])
 
-    stmt += "ORDER BY {} {} LIMIT {} OFFSET {}".format(
-        request.args.get("sort"),
-        request.args.get("order"),
+    stmt += "ORDER BY id LIMIT {} OFFSET {}".format(
         Config.PAGINATION + 1,
         (page - 1) * Config.PAGINATION,
     )
@@ -210,6 +292,18 @@ def get_index(page):
 
 @bp.get("/image/<int:item_id>")
 def get_image(item_id):
+    """
+    Retrieves an image file associated with a person's ID.
+
+    Args:
+        item_id (int): The ID of the person.
+
+    Returns:
+        Response: A Flask Response object containing the image file.
+
+    Raises:
+        None.
+    """
     person_path = select("SELECT path FROM persons WHERE id = ?", args=(item_id,))
     if person_path.get("path"):
         file_path = os.path.join(person_path["path"], "image", "image.jpg")
@@ -221,6 +315,18 @@ def get_image(item_id):
 @bp.post("/file/<item>/<int:item_id>")
 @jwt_required()
 def post_file(item, item_id):
+    """
+    Retrieves an image file associated with a person's ID.
+
+    Args:
+        item_id (int): The ID of the person.
+
+    Returns:
+        Response: A Flask Response object containing the image file.
+
+    Raises:
+        None.
+    """
     file = request.files["file"]
     if not file.filename:
         return abort(400)
@@ -261,48 +367,35 @@ def post_file(item, item_id):
     return "", 201
 
 
-@bp.post("/users")
+@bp.get("/allinone/<int:person_id>")
 @jwt_required()
-def post_user():
-    json_data = request.get_json()
-    try:
-        json_dict = User(**json_data).dict()
-        user = select(
-            "SELECT * FROM users WHERE username = ?", args=(json_dict.get("username"),)
-        )
-        if user and not json_dict["id"]:
-            return "", 205
+def get_all_in_one(person_id):
+    """
+    Retrieves all information related to a person in one request.
 
-        if not json_dict["id"]:
-            json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
+    This function takes a person_id as a parameter and retrieves all information 
+    related to that person, including their resume and other items. 
+    It first calls the get_resume function to retrieve the person's resume, and 
+    then iterates over the models_tables dictionary to retrieve information for 
+    each item related to the person. 
+    The retrieved information is then loaded into a list of dictionaries using 
+    json.loads. 
+    Finally, the function returns the list of dictionaries as a response along 
+    with an HTTP status code of 200.
 
-        keys, args = zip(*json_dict.items())
-        query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
-            ",".join(keys), ",".join("?" for _ in keys)
-        )
-        print(query)
-        execute(query, args)
-        return "", 201
+    Parameters:
+        person_id (int): The ID of the person for whom to retrieve all information.
 
-    except Exception as e:
-        print(e)
-        return "", 400
-
-
-@bp.get("/users/<int:user_id>")
-@jwt_required()
-def get_user_id(user_id):
-    if request.args.get("action") == "drop":
-        execute(
-            "UPDATE users SET password = ?, attempt = 0, blocked = 0, change_pswd = 1 WHERE id = ?",
-            (
-                generate_password_hash(Config.DEFAULT_PASSWORD),
-                user_id,
-            ),
-        )
-    stmt = "SELECT * FROM users WHERE id = ?"
-    result = select(stmt, args=(user_id,))
-    return jsonify(result), 200
+    Returns:
+        Tuple[List[Dict[str, Any]], int]: 
+        A tuple containing a list of dictionaries representing the person's i
+        nformation and an HTTP status code of 200.
+    """
+    allinone = [get_resume(person_id)[0]]
+    for item, _ in models_tables.items():
+        allinone.append(get_item_id(item, person_id)[0])
+    response = [json.loads(r.data) for r in allinone]
+    return response, 200
 
 
 @bp.post("/persons")
@@ -310,7 +403,18 @@ def get_user_id(user_id):
 def post_resume():
     """
     Creates a new user, person or contact based on the provided JSON data.
+
+    This function is a route handler for the POST request to "/persons" endpoint.
+    It is decorated with `@user_required()` to ensure that the user is authenticated.
+
+    Parameters:
+        None
+
+    Returns:
+        A JSON response containing the person ID and an HTTP status code of 201.
+        The person ID is the ID of the newly created user, person, or contact.
     """
+
     json_data = request.get_json()
     person_id = update_resume(json_data)
     return jsonify({"person_id": person_id}), 201
@@ -319,6 +423,19 @@ def post_resume():
 @bp.get("/persons/<int:person_id>")
 @user_required()
 def get_resume(person_id):
+    """
+    Retrieves the resume of a person with the given person_id.
+
+    If the query parameter "action" is set to "self", the function updates 
+    the status and user_id of the person with the given person_id in the database.
+
+    Parameters:
+        person_id (int): The ID of the person whose resume is to be retrieved.
+
+    Returns:
+        Tuple[Response, int]: A tuple containing the JSON response containing 
+        the person's resume and an HTTP status code of 200.
+    """
     if request.args.get("action") == "self":
         execute(
             "UPDATE persons SET status = ?, user_id = ? WHERE id = ?",
@@ -336,24 +453,20 @@ def get_resume(person_id):
     return jsonify(person), 200
 
 
-@bp.get("/<item>")
-@jwt_required()
-def get_item(item):
-    # Get users or contacts list with optional search query
-    search_data = request.args.get("search")
-    stmt = f"SELECT * FROM {item} "
-    if search_data and len(search_data) > 2:
-        if item == "users":
-            stmt += "WHERE username LIKE '%{}%' ".format(search_data)
-        else:
-            stmt += "WHERE company LIKE '%{}%' ".format(search_data)
-    result = select(stmt + "ORDER BY id DESC", many=True)
-    return jsonify(result), 200
-
-
 @bp.get("/<item>/<int:item_id>")
 @jwt_required()
 def get_item_id(item, item_id):
+    """
+    Retrieves an item from the database based on the provided item name and item ID.
+
+    Parameters:
+        item (str): The name of the table to retrieve the item from.
+        item_id (int): The ID of the item to retrieve.
+
+    Returns:
+        Tuple[Response, int]: A tuple containing the JSON response containing 
+        the retrieved item(s) and an HTTP status code of 200.
+    """
     if item in ["checks", "poligrafs", "inquiries", "investigations"]:
         stmt = f"SELECT *, users.fullname AS user FROM {item} LEFT JOIN users ON {item}.user_id = users.id "
     else:
@@ -367,6 +480,25 @@ def get_item_id(item, item_id):
 @bp.post("/<item>/<int:item_id>")
 @user_required()
 def post_item_id(item, item_id):
+    """
+    Inserts or replaces a record in the specified table with the given item ID.
+    The item ID is passed as a path parameter. The record is constructed from
+    the JSON data in the request body. If the item is one of 'checks', 'poligrafs',
+    'inquiries', or 'investigations', the 'user_id' field is set to the current
+    user's ID. The function returns an empty string and an HTTP status code of 201
+    if the operation is successful. If an exception occurs, the function returns
+    the exception message and an HTTP status code of 400.
+
+    Parameters:
+        item (str): The name of the table to insert or replace the record in.
+        item_id (int): The ID of the record to insert or replace.
+
+    Returns:
+        Tuple[str, int]: A tuple containing an empty string and an HTTP status 
+        code of 201 if the operation is successful,
+        otherwise a string containing the exception message and an HTTP status 
+        code of 400.
+    """
     json_data = request.get_json()
     try:
         json_dict = models_tables[item](**json_data).dict()
@@ -408,6 +540,17 @@ def post_item_id(item, item_id):
 @bp.delete("/<item>/<int:item_id>")
 @user_required()
 def delete_item(item, item_id):
+    """
+    Deletes an item from the database based on the provided item name and item ID.
+
+    Parameters:
+        item (str): The name of the table to delete the item from.
+        item_id (int): The ID of the item to delete.
+
+    Returns:
+        Tuple[str, int]: A tuple containing an empty string and an HTTP status 
+        code of 204 if the operation is successful.
+    """
     stmt = "DELETE FROM {} WHERE id = ?".format(item)
     if item == "users":
         stmt = "UPDATE users SET deleted = 1 WHERE id = ?"

@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateClassify, stateUser, stateAnketa } from "@/state";
+import { stateUser, stateAnketa, stateAlert } from "@/state";
 import { useRoute } from "vue-router";
+import { server } from "@/utilities";
+import { axiosAuth } from "@/auth";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -31,7 +34,35 @@ const InquiryTab = defineAsyncComponent(
 onBeforeMount(async () => {
   const route = useRoute();
   stateAnketa.share.candId = route.params.id as string;
-  await stateAnketa.getResume();
+  try {
+      const response = await axiosAuth.get(
+        `${server}/allinone/${stateAnketa.share.candId}`,
+      );
+      [
+        stateAnketa.anketa.resume,
+        stateAnketa.anketa.previous,
+        stateAnketa.anketa.staffs,
+        stateAnketa.anketa.documents,
+        stateAnketa.anketa.addresses,
+        stateAnketa.anketa.contacts,
+        stateAnketa.anketa.educations,
+        stateAnketa.anketa.workplaces,
+        stateAnketa.anketa.affilations,
+        stateAnketa.anketa.relations,
+        stateAnketa.anketa.checks,
+        stateAnketa.anketa.investigations,
+        stateAnketa.anketa.poligrafs,
+        stateAnketa.anketa.inquiries,
+      ] = response.data;
+
+    } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
+      }
+    }
 });
 
 const tabsData = ref({
@@ -74,10 +105,7 @@ const tabsData = ref({
         v-show="tabsData.currentTab == 'CheckTab'"
         :title="`Добавить проверку`"
         :icon-class="`bi bi-journal-check fs-1`"
-        :hide="
-          stateClassify.status['manual'] !=
-            stateAnketa.anketa.resume['status'] ||
-          stateAnketa.anketa.resume['user_id'] != stateUser.userId
+        :hide="stateAnketa.anketa.resume['user_id'] != stateUser.userId
         "
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
       />

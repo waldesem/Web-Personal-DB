@@ -30,9 +30,6 @@ class User(QueryModel):
     region: Regions
     has_admin: bool = False
 
-    # class Config:
-    #     use_enum_values = True
-
 
 class Name(QueryModel):
     surname: str
@@ -56,9 +53,6 @@ class Person(Name):
     path: Optional[str] = None
     region: Optional[Regions] = None
 
-    # class Config:
-    #     use_enum_values = True
-
 
 class Prev(Name):
     changed: Optional[str] = None
@@ -70,9 +64,6 @@ class Education(QueryModel):
     name: str
     finished: Optional[str] = None
     speciality: Optional[str] = None
-
-    # class Config:
-    #     use_enum_values = True
 
 
 class Staff(QueryModel):
@@ -87,24 +78,16 @@ class Document(QueryModel):
     agency: Optional[str] = None
     issued: Optional[date] = None
 
-    # class Config:
-    #     use_enum_values = True
 
 
 class Address(QueryModel):
     view: Addresses
     address: str
 
-    # class Config:
-    #     use_enum_values = True
-
 
 class Contact(QueryModel):
     view: Contacts
     contact: str
-
-    # class Config:
-    #     use_enum_values = True
 
 
 class Workplace(QueryModel):
@@ -123,16 +106,10 @@ class Affilation(QueryModel):
     inn: Optional[str] = None
     position: str
 
-    # class Config:
-    #     use_enum_values = True
-
 
 class Relation(QueryModel):
     relation: Relations
     relation_id: Union[int, str]
-
-    # class Config:
-    #     use_enum_values = True
 
 
 class Check(QueryModel):
@@ -152,27 +129,18 @@ class Check(QueryModel):
     addition: Optional[str] = None
     pfo: Optional[bool] = False
     comment: Optional[str] = None
-    conclusion: Conclusions
-
-    # class Config:
-    #     use_enum_values = True
+    conclusion: Optional[Conclusions] = None
 
 
 class Poligraf(QueryModel):
     theme: Poligrafs
     results: str
 
-    # class Config:
-    #     use_enum_values = True
-
 
 class Investigation(QueryModel):
     theme: str
     info: str
 
-    # class Config:
-    #     use_enum_values = True
-        
 
 class Inquiry(QueryModel):
     info: str
@@ -197,8 +165,8 @@ class Connects(QueryModel):
 
 
 models_tables = {
-    "staffs": Staff,
     "previous": Prev,
+    "staffs": Staff,
     "documents": Document,
     "addresses": Address,
     "contacts": Contact,

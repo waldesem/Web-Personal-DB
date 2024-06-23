@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { stateAnketa, submitFile } from "@/state";
 import { Verification } from "@/interfaces";
 
@@ -15,10 +15,6 @@ const FileForm = defineAsyncComponent(
 const CheckForm = defineAsyncComponent(
   () => import("@components/content/forms/CheckForm.vue")
 );
-
-onBeforeMount(async () => {
-  await stateAnketa.getItem("checks");
-});
 
 const emit = defineEmits(["cancel"]);
 

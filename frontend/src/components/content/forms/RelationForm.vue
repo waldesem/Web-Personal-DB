@@ -47,6 +47,7 @@ const relationForm = toRef(props.relation as Relation);
     </LabelSlot>
     <LabelSlot :label="'ID связи'">
       <InputElement
+        :typeof="'number'"
         :name="'relation_id'"
         :place="'ID связи'"
         :need="true"

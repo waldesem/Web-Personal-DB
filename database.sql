@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS checks (
 	pfo BOOLEAN, 
 	comment TEXT, 
 	created DATETIME DEFAULT (DATETIME('now')), 
-	conclusion VARCHAR(255) NOT NULL, 
+	conclusion VARCHAR(255), 
 	person_id INTEGER NOT NULL, 
 	user_id INTEGER, 
 	PRIMARY KEY (id), 
@@ -223,20 +223,4 @@ CREATE TABLE IF NOT EXISTS inquiries (
 	UNIQUE (id), 
 	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
 	FOREIGN KEY(person_id) REFERENCES persons (id) ON DELETE CASCADE
-)
-;
-CREATE TABLE IF NOT EXISTS connects (
-	id INTEGER NOT NULL, 
-	view VARCHAR(255), 
-	company VARCHAR(255), 
-	city VARCHAR(255), 
-	fullname VARCHAR(255), 
-	phone VARCHAR(255), 
-	adding VARCHAR(255), 
-	mobile VARCHAR(255), 
-	email VARCHAR(255), 
-	comment TEXT, 
-	created DATETIME DEFAULT (DATETIME('now')),
-	PRIMARY KEY (id), 
-	UNIQUE (id)
 )

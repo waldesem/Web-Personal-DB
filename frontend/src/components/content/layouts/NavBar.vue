@@ -25,13 +25,6 @@
         Информация
       </router-link>
       <hr class="text-info">
-      <router-link
-        :to="{ name: 'contacts' }"
-        class="nav-link active"
-      >
-        Контакты
-      </router-link>
-      <hr class="text-info">
     </div>
   </div>
 </template>

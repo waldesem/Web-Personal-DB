@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Education } from "@/interfaces";
 
@@ -15,10 +15,6 @@ const EducationForm = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-
-onBeforeMount(async () => {
-  await stateAnketa.getItem("educations");
-});
 
 const education = ref({
   action: "",

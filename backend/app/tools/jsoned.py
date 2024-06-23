@@ -5,6 +5,16 @@ from ..classes.classes import Regions
 
 
 def get_region_id(json_dict):
+    """
+    Retrieves the region ID from a given JSON dictionary.
+
+    Args:
+        json_dict (dict): The JSON dictionary to extract the region ID from.
+
+    Returns:
+        str: The region ID.
+
+    """
     region = Regions.main.value
     if "department" in json_dict and json_dict.get("department"):
         for reg in [r for r in Regions]:

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onBeforeMount } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { Needs } from "@/interfaces";
 import { stateAnketa } from "@/state";
 
@@ -12,10 +12,6 @@ const InquiryForm = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-
-onBeforeMount(async() => {
-  await stateAnketa.getItem("inquiries");
-});
 
 const emit = defineEmits(["cancel"]);
 

@@ -15,9 +15,6 @@ const FileForm = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
-const AscDesc = defineAsyncComponent(
-  () => import("@components/content/elements/AscDesc.vue")
-);
 const PageSwitcher = defineAsyncComponent(
   () => import("@components/content/elements/PageSwitcher.vue")
 );
@@ -48,8 +45,6 @@ const personData = ref({
   prev: false,
   next: false,
   search: "",
-  sort: "id",
-  order: "desc",
   spinner: false,
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
@@ -64,8 +59,6 @@ async function getCandidates(page = 1): Promise<void> {
       {
         params: {
           search: personData.value.search,
-          sort: personData.value.sort,
-          order: personData.value.order,
         },
       }
     );
@@ -84,12 +77,6 @@ async function getCandidates(page = 1): Promise<void> {
       console.error(error);
     }
   }
-}
-
-function sortCandidates(sort: string, order: string): void {
-  personData.value.sort = sort;
-  personData.value.order = order;
-  getCandidates();
 }
 
 const searchPerson = debounce(() => {
@@ -155,16 +142,6 @@ const shortName = (fullname: string) => {
       <tr height="50px">
         <th v-for="(thead, key) in theadData" :key="key" :width="thead[1]">
           {{ thead[0] }}
-          <AscDesc
-            :order="'desc'"
-            :sort="key"
-            @sort-candidates="sortCandidates"
-          />
-          <AscDesc
-            :order="'asc'"
-            :sort="key"
-            @sort-candidates="sortCandidates"
-          />
         </th>
       </tr>
     </template>

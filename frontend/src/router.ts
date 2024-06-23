@@ -43,11 +43,6 @@ export const router = createRouter({
           component: () => import("@components/pages/staffsec/InfoPage.vue"),
         },
         {
-          path: "contacts",
-          name: "contacts",
-          component: () => import("@components/pages/staffsec/ContactPage.vue"),
-        },
-        {
           path: "users",
           name: "users",
           component: () => import("@components/pages/staffsec/UsersPage.vue"),

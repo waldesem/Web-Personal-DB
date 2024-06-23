@@ -24,7 +24,7 @@ const todayDate = new Date();
 const tableData = ref({
   stat: {
     region: stateClassify.regions['main'],
-    checks: <Record<string, any>>{},
+    checks: <Array<any>>{},
     start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
       .toISOString()
       .slice(0, 10),
@@ -41,6 +41,7 @@ async function submitData(): Promise<void> {
       },
     });
     tableData.value.stat.checks = response.data;
+    console.log(tableData.value.stat.checks);
   } catch (error: AxiosError | any) {
     if (error.request.status == 401 || error.request.status == 403) {
       router.push({ name: "login" });
@@ -69,9 +70,9 @@ onBeforeMount(async () => {
       </tr>
     </template>
     <template v-slot:tbody>
-      <tr v-for="(key, value) in tableData.stat.checks" :key="key">
-        <td>{{ key }}</td>
-        <td>{{ value }}</td>
+      <tr v-for="(row, idx) in tableData.stat.checks" :key="idx">
+        <td>{{ row['conclusion'] }}</td>
+        <td>{{ row['count'] }}</td>
       </tr>
     </template>
   </TableSlots>

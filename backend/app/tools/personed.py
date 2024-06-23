@@ -7,6 +7,19 @@ from .foldered import Folders
 
 
 def update_resume(data):
+    """
+    Updates a resume in the database with the provided data.
+
+    Args:
+        data (dict): A dictionary containing the resume data.
+
+    Returns:
+        int: The ID of the updated resume.
+
+    Raises:
+        Exception: If there is an error updating the resume.
+
+    """
     resume = Person(**data).dict()
     try:
         resume['status'] = Statuses.manual.value
@@ -38,6 +51,19 @@ def update_resume(data):
 
 
 def update_person(json_data):
+    """
+    Updates a person's information in the database.
+
+    Args:
+        json_data (str): The JSON data containing the person's information.
+
+    Returns:
+        int: The ID of the updated person.
+
+    Raises:
+        Exception: If there is an error updating the person's information.
+
+    """
     anketa = parse_json(json_data)
     person_id = update_resume(anketa["resume"])
     for table, values in anketa.items():

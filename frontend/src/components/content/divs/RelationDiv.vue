@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Relation } from "@/interfaces";
 
@@ -15,10 +15,6 @@ const RelationForm = defineAsyncComponent(
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-
-onBeforeMount(async () => {
-  await stateAnketa.getItem("relations");
-});
 
 const relation = ref({
   action: "",
@@ -66,29 +62,40 @@ function submitForm(form: Object) {
       @mouseover="relation.showActions = true"
       @mouseout="relation.showActions = false"
     >
-      <LabelSlot>
-        <ActionIcons
-          v-show="relation.showActions"
-          :hide="true"
-          @delete="stateAnketa.deleteItem(item['id'].toString(), 'relations')"
-          @update="
-            relation.action = 'update';
-            relation.item = item;
-            relation.itemId = item['id'].toString();
-          "
-        />
-      </LabelSlot>
-      <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
-      <LabelSlot :label="'Связь'" :no-print="true">
-        <router-link
-          :to="{
-            name: 'profile',
-            params: { id: String(item['relation_id']) },
-          }"
-        >
-          ID #{{ item["relation_id"] }}
-        </router-link>
-      </LabelSlot>
+      <RelationForm
+        v-if="
+          relation.action === 'update' &&
+          relation.itemId === item['id'].toString()
+        "
+        :relation="relation.item"
+        @submit="submitForm"
+        @cancel="cancelAction"
+      />
+      <div v-else>
+        <LabelSlot>
+          <ActionIcons
+            v-show="relation.showActions"
+            :hide="true"
+            @delete="stateAnketa.deleteItem(item['id'].toString(), 'relations')"
+            @update="
+              relation.action = 'update';
+              relation.item = item;
+              relation.itemId = item['id'].toString();
+            "
+          />
+        </LabelSlot>
+        <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
+        <LabelSlot :label="'Связь'">
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { id: item['relation_id'] },
+            }"
+          >
+            ID #{{ item["relation_id"] }}
+          </router-link>
+        </LabelSlot>
+      </div>
     </div>
   </div>
   <p v-else>Данные отсутствуют</p>
