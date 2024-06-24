@@ -1,105 +1,98 @@
 from datetime import datetime
+import os
 import re
 
-from ..classes.classes import Statuses, Regions
-from ..databases.database import execute
-from ..depends.depend import current_user
-from ..models.models import Person
-from .foldered import Folders
+from config import Config
+from ..classes.classes import Regions
 
 
-def update_resume(data):
-    """
-    Updates a resume in the database with the provided data.
+class Folders:
+
+    """Create folder structure for person
 
     Args:
-        data (dict): A dictionary containing the resume data.
+        region (str): region
+        person_id (str): person id
+        surname (str): surname
+        firstname (str): firstname
+        patronymic (str): patronymic
 
-    Returns:
-        int: The ID of the updated resume.
-
-    Raises:
-        Exception: If there is an error updating the resume.
+    Attributes:
+        url (str): path to main folder
 
     """
-    resume = Person(**data).dict()
-    try:
-        resume['status'] = Statuses.manual.value
-        resume['user_id'] = current_user["id"]
-        keys, args = zip(*resume.items())
-        stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
-            ", ".join(keys),
-            ", ".join(["?" for _ in keys]),
+
+    def __init__(self, region, person_id, surname, firstname, patronymic):
+        self.url = os.path.join(
+            Config.BASE_PATH,
+            region,
+            surname[0].upper(),
+            f"{person_id}-{surname.upper()} "
+            f"{firstname.upper()} "
+            f"{patronymic.upper()}".rstrip(),
         )
-        person_id = execute(stmt, args)
-        folders = Folders(
-            resume["region"],
-            person_id,
-            resume["surname"],
-            resume["firstname"],
-            resume.get("patronymic", ""),
+
+    @staticmethod
+    def _check_url(url):
+        """Check if folder exists and create it if not
+
+        Args:
+            url (str): folder path
+
+        Returns:
+            str: folder path
+        """
+        if not os.path.isdir(url):
+            os.mkdir(url)
+        return url
+
+    def create_main_folder(self):
+        """Create main folder for person
+
+        Returns:
+            str: path to main folder
+        """
+        return self._check_url(self.url)
+
+    def create_parent_folder(self, folder_name):
+        """Create parent folder for person
+
+        Args:
+            folder_name (str): parent folder name
+
+        Returns:
+            str: path to parent folder
+        """
+        parent_folder = os.path.join(self.create_main_folder(), folder_name)
+        return self._check_url(parent_folder)
+
+    def create_subfolder(self, parent_folder):
+        """Create subfolder for person
+
+        Args:
+            parent_folder (str): parent folder name
+
+        Returns:
+            str: path to subfolder
+        """
+        subfolder = os.path.join(
+            self.url,
+            self.create_parent_folder(parent_folder),
+            datetime.now().strftime("%Y-%m-%d"),
         )
-        path = folders.create_main_folder()
-        execute(
-            "UPDATE persons SET path = ? WHERE id = ?",
-            (
-                path,
-                person_id,
-            ),
-        )
-        return person_id
-    except Exception as e:
-        print(e)
-
-
-def update_person(json_data):
-    """
-    Updates a person's information in the database.
-
-    Args:
-        json_data (str): The JSON data containing the person's information.
-
-    Returns:
-        int: The ID of the updated person.
-
-    Raises:
-        Exception: If there is an error updating the person's information.
-
-    """
-    anketa = parse_json(json_data)
-    person_id = update_resume(anketa["resume"])
-    for table, values in anketa.items():
-        if table == "resume":
-            continue
-        for item in values:
-            item["person_id"] = person_id
-            keys, args = zip(*item.items())
-            stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
-            execute(stmt, tuple(args))
-    return person_id
-
-
-def get_region_id(json_dict):
-    """
-    Retrieves the region ID from a given JSON dictionary.
-
-    Args:
-        json_dict (dict): The JSON dictionary to extract the region ID from.
-
-    Returns:
-        str: The region ID.
-
-    """
-    region = Regions.main.value
-    if "department" in json_dict and json_dict.get("department"):
-        for reg in [r for r in Regions]:
-            if reg.value.upper() in re.split(r"/", json_dict["department"].upper()):
-                region = reg.value
-                break
-    return region
+        return self._check_url(subfolder)    
 
 
 def parse_json(json_dict: dict) -> dict:
+    def get_region_id(json_dict):
+        region = Regions.main.value
+        if "department" in json_dict and json_dict.get("department"):
+            for reg in [r for r in Regions]:
+                if reg.value.upper() in re.split(r"/", json_dict["department"].upper()):
+                    region = reg.value
+                    break
+        return region
+    
     json_data = {
         "resume": {
             "region": get_region_id(json_dict),

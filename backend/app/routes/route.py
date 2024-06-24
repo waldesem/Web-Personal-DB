@@ -19,11 +19,16 @@ from ..classes.classes import (
     Relations,
     Statuses,
 )
-from ..models.models import User, models_tables
 from ..databases.database import execute, select
 from ..depends.depend import create_token, current_user, jwt_required, user_required
-from ..tools.foldered import Folders
-from ..tools.personed import update_resume, update_person
+from ..handles.handlers import (
+    handle_get_item,
+    handle_get_person,
+    handle_post_resume,
+    handle_update_person,
+)
+from ..models.models import User, models_tables
+from ..tools.tool import Folders
 
 
 bp = Blueprint("route", __name__)
@@ -159,7 +164,7 @@ def get_users():
     return jsonify(result), 200
 
 
-@bp.post("/users")  
+@bp.post("/users")
 @jwt_required()
 def post_user():
     """
@@ -336,7 +341,7 @@ def post_file(item, item_id):
 
     if item == "persons":
         json_dict = json.load(file)
-        person_id = update_person(json_dict)
+        person_id = handle_update_person(json_dict)
         if person_id:
             return jsonify({"person_id": person_id}), 201
         return abort(400)
@@ -374,20 +379,13 @@ def post_file(item, item_id):
 
 
 @bp.get("/allinone/<int:person_id>")
-@jwt_required()
+@user_required()
 def get_all_in_one(person_id):
     """
     Retrieves all information related to a person in one request.
 
     This function takes a person_id as a parameter and retrieves all information
     related to that person, including their resume and other items.
-    It first calls the get_resume function to retrieve the person's resume, and
-    then iterates over the models_tables dictionary to retrieve information for
-    each item related to the person.
-    The retrieved information is then loaded into a list of dictionaries using
-    json.loads.
-    Finally, the function returns the list of dictionaries as a response along
-    with an HTTP status code of 200.
 
     Parameters:
         person_id (int): The ID of the person for whom to retrieve all information.
@@ -397,11 +395,10 @@ def get_all_in_one(person_id):
         A tuple containing a list of dictionaries representing the person's i
         nformation and an HTTP status code of 200.
     """
-    allinone = [get_resume(person_id)[0]]
-    for item, _ in models_tables.items():
-        allinone.append(get_item_id(item, person_id)[0])
-    response = [json.loads(r.data) for r in allinone]
-    return response, 200
+    response = [handle_get_person(person_id)]
+    for item in models_tables.keys():
+        response.append(handle_get_item(item, person_id))
+    return jsonify(response), 200
 
 
 @bp.post("/persons")
@@ -409,9 +406,6 @@ def get_all_in_one(person_id):
 def post_resume():
     """
     Creates a new user, person or contact based on the provided JSON data.
-
-    This function is a route handler for the POST request to "/persons" endpoint.
-    It is decorated with `@user_required()` to ensure that the user is authenticated.
 
     Parameters:
         None
@@ -422,7 +416,7 @@ def post_resume():
     """
 
     json_data = request.get_json()
-    person_id = update_resume(json_data)
+    person_id = handle_post_resume(json_data)
     return jsonify({"person_id": person_id}), 201
 
 
@@ -473,13 +467,7 @@ def get_item_id(item, item_id):
         Tuple[Response, int]: A tuple containing the JSON response containing
         the retrieved item(s) and an HTTP status code of 200.
     """
-    if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-        stmt = f"SELECT *, users.fullname AS user FROM {item} LEFT JOIN users ON {item}.user_id = users.id "
-    else:
-        stmt = f"SELECT * FROM {item} "
-    results = select(
-        stmt + "WHERE person_id = ? ORDER BY id DESC", many=True, args=(item_id,)
-    )
+    results = handle_get_item(item, item_id)
     return jsonify(results), 200
 
 
@@ -488,12 +476,8 @@ def get_item_id(item, item_id):
 def post_item_id(item, item_id):
     """
     Inserts or replaces a record in the specified table with the given item ID.
-    The item ID is passed as a path parameter. The record is constructed from
-    the JSON data in the request body. If the item is one of 'checks', 'poligrafs',
-    'inquiries', or 'investigations', the 'user_id' field is set to the current
-    user's ID. The function returns an empty string and an HTTP status code of 201
-    if the operation is successful. If an exception occurs, the function returns
-    the exception message and an HTTP status code of 400.
+    If the item is one of 'checks', 'poligrafs', 'inquiries', or 'investigations', 
+    the 'user_id' field is set to the current user's ID.
 
     Parameters:
         item (str): The name of the table to insert or replace the record in.
