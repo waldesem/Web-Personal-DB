@@ -108,29 +108,33 @@ const tabsData = ref({
         :hide="stateAnketa.anketa.resume['user_id'] != stateUser.userId
         "
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
+        @cancel="tabsData.tabAction = ''"
       />
       <IconRelative
         v-show="tabsData.currentTab == 'PoligrafTab'"
         :title="`Добавить полиграф`"
         :icon-class="`bi bi-heart-pulse fs-1`"
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
+        @cancel="tabsData.tabAction = ''"
       />
       <IconRelative
         v-show="tabsData.currentTab == 'InvestigateTab'"
         :title="`Добавить расследование`"
         :icon-class="`bi bi-incognito fs-1`"
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
+        @cancel="tabsData.tabAction = ''"
       />
       <IconRelative
         v-show="tabsData.currentTab == 'InquiryTab'"
         :title="`Добавить запрос`"
         :icon-class="`bi bi-question-square fs-1`"
         @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
+        @cancel="tabsData.tabAction = ''"
       />
       <IconRelative
         :title="`Версия для печати`"
         :icon-class="`bi bi-printer fs-1`"
-        @click="$router.push({ name: 'print' })"
+        @onclick="$router.push({ name: 'print' })"
       />
     </div>
   </div>

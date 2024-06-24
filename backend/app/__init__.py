@@ -14,4 +14,16 @@ def create_app(config_class=Config):
 
     app.register_blueprint(route_bp)
 
+    @app.get("/", defaults={"path": ""})
+    def main(path=""):
+        return app.send_static_file("index.html")
+
+    @app.get("/<path:path>")
+    def static_file(path=""):
+        return app.send_static_file(path)
+    
+    @app.errorhandler(404)
+    def not_found(error):
+        return app.redirect("/")
+
     return app

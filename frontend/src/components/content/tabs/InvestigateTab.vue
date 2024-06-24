@@ -26,35 +26,28 @@ const props = defineProps({
   currentTab: {
     type: String,
     default: "",
-  }
-})
+  },
+});
 
 const inquisition = ref({
   itemId: "",
   item: <Inquisition>{},
   showActions: false,
-  spinner: false
 });
 
-function cancelAction(){
+function cancelAction() {
   inquisition.value.itemId = "";
-  inquisition.value.item = <Inquisition>({});
+  Object.keys(inquisition.value.item).forEach(
+    (key) =>
+      delete inquisition.value.item[key as keyof typeof inquisition.value.item]
+  );
   emit("cancel");
-};
+}
 
 function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "investigations",
-    form
-  );  
+  stateAnketa.updateItem("investigations", form);
   cancelAction();
-};
-
-function uploadInquisitionFile(event: Event) {
-  inquisition.value.spinner = true;
-  submitFile(event, "investigations");
-  inquisition.value.spinner = false;
-};
+}
 </script>
 
 <template>
@@ -63,9 +56,10 @@ function uploadInquisitionFile(event: Event) {
     @submit="submitForm"
     @cancel="emit('cancel')"
   />
-  <div v-else-if="stateAnketa.anketa.investigations.length" class="py-3"> 
-    <div 
-      v-for="(item, idx) in stateAnketa.anketa.investigations" :key="idx"
+  <div v-else-if="stateAnketa.anketa.investigations.length" class="py-3">
+    <div
+      v-for="(item, idx) in stateAnketa.anketa.investigations"
+      :key="idx"
       @mouseover="inquisition.showActions = true"
       @mouseout="inquisition.showActions = false"
       class="card card-body mb-3"
@@ -78,28 +72,30 @@ function uploadInquisitionFile(event: Event) {
       />
       <div v-else>
         <LabelSlot>
-          <ActionIcons v-show="inquisition.showActions"
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'investigations')"
+          <ActionIcons
+            v-show="inquisition.showActions"
+            @delete="
+              stateAnketa.deleteItem(item['id'].toString(), 'investigations')
+            "
             @update="
               inquisition.item = item;
               inquisition.itemId = item['id'].toString();
             "
             :for-input="'investigations-file'"
           >
-            <span v-if="inquisition.spinner" class="spinner-border-sm text-primary"></span>
-            <FileForm 
-              v-show="inquisition.showActions" 
+            <FileForm
+              v-show="inquisition.showActions"
               :name-id="'investigations-file'"
-              :accept="'*'" 
-              @submit="uploadInquisitionFile($event)" 
+              :accept="'*'"
+              @submit="submitFile($event, 'investigations')"
             />
-          </ActionIcons>  
+          </ActionIcons>
         </LabelSlot>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

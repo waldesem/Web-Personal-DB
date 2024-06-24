@@ -5,7 +5,7 @@ import { stateAnketa, submitFile } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
-)
+);
 const PoligrafForm = defineAsyncComponent(
   () => import("@components/content/forms/PoligrafForm.vue")
 );
@@ -26,35 +26,27 @@ const props = defineProps({
   currentTab: {
     type: String,
     default: "",
-  }
-})
+  },
+});
 
 const poligraf = ref({
   itemId: "",
   item: <Pfo>{},
   showActions: false,
-  spinner: false,
 });
 
-function cancelAction(){
+function cancelAction() {
   poligraf.value.itemId = "";
-  poligraf.value.item = <Pfo>({});
-  emit("cancel");
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "poligrafs",
-    form
+  Object.keys(poligraf.value.item).forEach(
+    (key) => delete poligraf.value.item[key as keyof typeof poligraf.value.item]
   );
-  cancelAction();
+  emit("cancel");
 }
 
-function uploadPoligrafFile(event: Event) {
-  poligraf.value.spinner = true;
-  submitFile(event, "poligrafs");
-  poligraf.value.spinner = false;
-};
+function submitForm(form: Object) {
+  stateAnketa.updateItem("poligrafs", form);
+  cancelAction();
+}
 </script>
 
 <template>
@@ -63,9 +55,10 @@ function uploadPoligrafFile(event: Event) {
     @submit="submitForm"
     @cancel="emit('cancel')"
   />
-  <div v-else-if="stateAnketa.anketa.poligrafs.length" class="py-3"> 
+  <div v-else-if="stateAnketa.anketa.poligrafs.length" class="py-3">
     <div
-      v-for="(item, idx) in stateAnketa.anketa.poligrafs" :key="idx"
+      v-for="(item, idx) in stateAnketa.anketa.poligrafs"
+      :key="idx"
       @mouseover="poligraf.showActions = true"
       @mouseout="poligraf.showActions = false"
       class="card card-body mb-3"
@@ -78,7 +71,8 @@ function uploadPoligrafFile(event: Event) {
       />
       <div v-else>
         <LabelSlot>
-          <ActionIcons v-show="poligraf.showActions"
+          <ActionIcons
+            v-show="poligraf.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligrafs')"
             @update="
               poligraf.item = item;
@@ -86,20 +80,19 @@ function uploadPoligrafFile(event: Event) {
             "
             :for-input="'poligrafs-file'"
           >
-          <span v-if="poligraf.spinner" class="spinner-border-sm text-primary"></span>
-          <FileForm v-else
-            v-show="poligraf.showActions" 
-            :name-id="'poligrafs-file'"
-            :accept="'*'" 
-            @submit="uploadPoligrafFile($event)" 
-          />
-        </ActionIcons>
+            <FileForm
+              v-show="poligraf.showActions"
+              :name-id="'poligrafs-file'"
+              :accept="'*'"
+              @submit="submitFile($event, 'poligrafs')"
+            />
+          </ActionIcons>
         </LabelSlot>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

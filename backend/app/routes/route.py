@@ -34,16 +34,6 @@ from ..tools.tool import Folders
 bp = Blueprint("route", __name__)
 
 
-@bp.get("/", defaults={"path": ""})
-def main(path=""):
-    return bp.send_static_file("index.html")
-
-
-@bp.get("/<path:path>")
-def static_file(path=""):
-    return bp.send_static_file(path)
-
-
 @bp.get("/classes")
 def get_classes():
     results = [
@@ -198,7 +188,6 @@ def post_user():
         query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
         )
-        print(query)
         execute(query, args)
         return "", 201
 
@@ -398,6 +387,7 @@ def get_all_in_one(person_id):
     response = [handle_get_person(person_id)]
     for item in models_tables.keys():
         response.append(handle_get_item(item, person_id))
+    print(response)
     return jsonify(response), 200
 
 
@@ -528,7 +518,7 @@ def post_item_id(item, item_id):
 
 
 @bp.delete("/<item>/<int:item_id>")
-@user_required()
+@jwt_required()
 def delete_item(item, item_id):
     """
     Deletes an item from the database based on the provided item name and item ID.

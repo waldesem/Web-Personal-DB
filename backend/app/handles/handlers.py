@@ -18,7 +18,7 @@ def handle_get_person(person_id):
     
 def handle_get_item(item, item_id):
     if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-        stmt = f"SELECT *, users.fullname AS user FROM {item} LEFT JOIN users ON {item}.user_id = users.id "
+        stmt = f"SELECT {item}.*, users.fullname AS user FROM {item} LEFT JOIN users ON {item}.user_id = users.id "
     else:
         stmt = f"SELECT * FROM {item} "
     return select(

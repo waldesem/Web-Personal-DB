@@ -149,7 +149,7 @@ const loginData = ref({
               :place="'Новый'"
               :min="8"
               :max="16"
-              :pattern="'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'"
+              :pattern="'(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'"
               :type="loginData.hidden ? 'password' : 'text'"
               v-model="loginData.form['new_pswd']"
             />

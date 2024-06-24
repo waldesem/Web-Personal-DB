@@ -47,14 +47,7 @@ const dataResume = ref({
   action: "",
   form: <Resume>{},
   showActions: false,
-  spinner: false
-});
-
-function uploadAnketaFile(event: Event) {
-  dataResume.value.spinner = true;
-  submitFile(event, "persons");
-  dataResume.value.spinner = false;
-};
+})
 </script>
 
 <template>
@@ -79,12 +72,11 @@ function uploadAnketaFile(event: Event) {
         @update="dataResume.action = 'update'"
         :for-input="'persons-file'"
       >
-      <span v-if="dataResume.spinner" class="spinner-border-sm text-primary"></span>
-      <FileForm v-else
+      <FileForm
         v-show="dataResume.showActions" 
         :name-id="'persons-file'"
         :accept="'*'" 
-        @submit="uploadAnketaFile($event)" 
+        @submit="submitFile($event, 'persons')" 
       />
     </ActionIcons>
     </LabelSlot>

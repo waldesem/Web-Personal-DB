@@ -34,8 +34,9 @@ const need = ref({
 
 function cancelAction(){
   need.value.itemId = "";
-  need.value.item = <Needs>({});
-  emit("cancel");
+  Object.keys(need.value.item).forEach(
+    (key) => delete need.value.item[key as keyof typeof need.value.item]
+  );  emit("cancel");
 };
 
 function submitForm(form: Object) {
@@ -79,7 +80,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

@@ -160,11 +160,11 @@ def parse_json(json_dict: dict) -> dict:
                     for k, v in org.items():
                         match k:
                             case "name":
-                                org["name"] = v
+                                organization["name"] = v
                             case "position":
-                                org["position"] = v
+                                organization["position"] = v
                             case "inn":
-                                org["inn"] = v
+                                organization["inn"] = v
                     json_data["affilations"].append(organization)
 
             elif item == "previous":
@@ -173,13 +173,13 @@ def parse_json(json_dict: dict) -> dict:
                     for k, v in prev.items():
                         match k:
                             case "firstNameBeforeChange":
-                                previous["firstname"] = k
+                                previous["firstname"] = v
                             case "lastNameBeforeChange":
-                                previous["surname"] = k
+                                previous["surname"] = v
                             case "midNameBeforeChange":
-                                previous["patronymic"] = k
+                                previous["patronymic"] = v
                             case "yearOfChange":
-                                previous["changed"] = k
+                                previous["changed"] = v
                             case "reason":
                                 previous["reason"] = v
                     json_data["previous"].append(previous)

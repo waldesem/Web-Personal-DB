@@ -8,7 +8,7 @@ const ActionIcons = defineAsyncComponent(
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
-)
+);
 const FileForm = defineAsyncComponent(
   () => import("@components/content/forms/FileForm.vue")
 );
@@ -26,46 +26,39 @@ const props = defineProps({
   currentTab: {
     type: String,
     default: "",
-  }
-})
+  },
+});
 
 const check = ref({
   itemId: "",
   item: <Verification>{},
   showActions: false,
-  spinner: false
 });
 
-function cancelAction(){
+function cancelAction() {
   check.value.itemId = "";
-  check.value.item = <Verification>({});
+  Object.keys(check.value.item).forEach(
+    (key) => delete check.value.item[key as keyof typeof check.value.item]
+  );
   emit("cancel");
-};
+}
 
 function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "checks", 
-    form
-  );
+  stateAnketa.updateItem("checks", form);
   cancelAction();
-};
-
-function uploadCheckFile(event: Event) {
-  check.value.spinner = true;
-  submitFile(event, "checks");
-  check.value.spinner = false;
-};
+}
 </script>
 
 <template>
   <CheckForm
     v-if="props.tabAction === 'create' && props.currentTab === 'CheckTab'"
-    @cancel="emit('cancel')"
+    @cancel="cancelAction"
     @submit="submitForm"
   />
-  <div v-else-if="stateAnketa.anketa.checks.length" class='py-3'> 
+  <div v-if="stateAnketa.anketa.checks.length" class="py-3">
     <div
-      v-for="(item, idx) in stateAnketa.anketa.checks" :key="idx" 
+      v-for="(item, idx) in stateAnketa.anketa.checks"
+      :key="idx"
       @mouseover="check.showActions = true"
       @mouseout="check.showActions = false"
       class="card card-body mb-3"
@@ -78,7 +71,8 @@ function uploadCheckFile(event: Event) {
       />
       <div v-else>
         <LabelSlot>
-          <ActionIcons v-show="check.showActions"
+          <ActionIcons
+            v-show="check.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="
               check.item = item;
@@ -86,12 +80,11 @@ function uploadCheckFile(event: Event) {
             "
             :for-input="'check-file'"
           >
-            <span v-if="check.spinner" class="spinner-border-sm text-primary"></span>
-            <FileForm 
-              v-show="check.showActions" 
+            <FileForm
+              v-show="check.showActions"
               :name-id="'check-file'"
-              :accept="'*'" 
-              @submit="uploadCheckFile($event)" 
+              :accept="'*'"
+              @submit="submitFile($event, 'checks')"
             />
           </ActionIcons>
         </LabelSlot>
@@ -130,11 +123,13 @@ function uploadCheckFile(event: Event) {
           {{ item["addition"] }}
         </LabelSlot>
         <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
-        <LabelSlot :label="'Комментарии'">{{ item["comment"] ? item["comment"] : "-" }}</LabelSlot>
+        <LabelSlot :label="'Комментарии'">{{
+          item["comment"] ? item["comment"] : "-"
+        }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleDateString("ru-RU") }}
+          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>
