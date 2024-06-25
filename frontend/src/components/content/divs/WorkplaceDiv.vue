@@ -26,16 +26,10 @@ const workplace = ref({
 function cancelAction(){
   workplace.value.action = "";
   workplace.value.itemId = "";
-  workplace.value.item = <Work>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "workplaces",
-    form
+  Object.keys(workplace.value.item).forEach(
+    (key) => delete workplace.value.item[key as keyof typeof workplace.value.item]
   );
-  cancelAction();
-}
+};
 </script>
 
 <template>
@@ -47,7 +41,6 @@ function submitForm(form: Object) {
   />
   <WorkplaceForm
     v-if="workplace.action === 'create'"
-    @submit="submitForm"
     @cancel="cancelAction"
   />
   <div
@@ -68,7 +61,6 @@ function submitForm(form: Object) {
           workplace.itemId === item['id'].toString()
         "
         :work="workplace.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>
@@ -102,7 +94,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Должность'">
           {{ item["position"] }}
         </LabelSlot>
-        <LabelSlot :label="'Причина увольнения'">
+        <LabelSlot v-if="item['reason']" :label="'Причина увольнения'">
           {{ item["reason"] }}
         </LabelSlot>
       </div>

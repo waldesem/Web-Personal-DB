@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Relation } from "@/interfaces";
-import { stateClassify} from "@/state"
+import { stateClassify, stateAnketa } from "@/state"
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -19,7 +19,7 @@ const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   relation: {
@@ -29,11 +29,19 @@ const props = defineProps({
 });
 
 const relationForm = toRef(props.relation as Relation);
+
+function submitRelation() {
+  stateAnketa.updateItem("relations", relationForm.value)
+  emit('cancel');
+  Object.keys(relationForm.value).forEach(
+    (key) => delete relationForm.value[key as keyof typeof relationForm.value]
+  );
+}
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', relationForm)"
+    @submit.prevent="submitRelation"
     class="form form-check"
     role="form"
   >

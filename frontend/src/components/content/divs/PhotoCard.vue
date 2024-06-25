@@ -30,8 +30,7 @@ const photoCard = ref({
       @mouseover="photoCard.handleMouse"
       @mouseout="photoCard.handleMouse"
     >
-      <span v-if="photoCard.spinner" class="spinner-border"></span>
-      <img v-else
+      <img
         :src="stateAnketa.share.imageUrl"
         style="width: 100%; height: auto"
         class="card-img-top"
@@ -40,13 +39,18 @@ const photoCard = ref({
       <div
         v-show="photoCard.showPhoto" 
         class="card-img-overlay"
-      >
-        <input
+      > 
+        <span 
+          v-if="photoCard.spinner" 
+          class="spinner-border"
+          role="status">
+        </span>
+        <input v-else
           @change="photoCard.submitImage($event)"
           class="form-control form-control-sm"
           id="formImage"
           type="file"
-          accept="image/png, image/jpg, image/jpeg"
+          accept="image/jpg, image/jpeg"
         />
       </div>
     </div>

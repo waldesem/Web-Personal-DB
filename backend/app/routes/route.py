@@ -275,7 +275,7 @@ def get_index(page):
         if current_user["region"] != Regions.main.value:
             stmt += "WHERE region = {} ".format(current_user["region"])
 
-    stmt += "ORDER BY id LIMIT {} OFFSET {}".format(
+    stmt += "ORDER BY id DESC LIMIT {} OFFSET {}".format(
         Config.PAGINATION + 1,
         (page - 1) * Config.PAGINATION,
     )
@@ -310,7 +310,7 @@ def get_image(item_id):
 
 
 @bp.post("/file/<item>/<int:item_id>")
-@jwt_required()
+@user_required()
 def post_file(item, item_id):
     """
     Retrieves an image file associated with a person's ID.
@@ -387,7 +387,6 @@ def get_all_in_one(person_id):
     response = [handle_get_person(person_id)]
     for item in models_tables.keys():
         response.append(handle_get_item(item, person_id))
-    print(response)
     return jsonify(response), 200
 
 
@@ -495,7 +494,7 @@ def post_item_id(item, item_id):
 
         if item == "checks":
             args = []
-            if not json_dict.get("conclusion"):
+            if json_dict.get("conclusion") == Conclusions.saved.value:
                 args.extend([Statuses.saved.value, item_id])
             elif json_dict.get("pfo"):
                 args.extend([Statuses.poligraf.value, item_id])

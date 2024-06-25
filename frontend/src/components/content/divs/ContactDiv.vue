@@ -26,12 +26,9 @@ const contact = ref({
 function cancelAction(){
   contact.value.action = "";
   contact.value.itemId = "";
-  contact.value.item = <Contact>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem("contacts", form);
-  cancelAction();
+  Object.keys(contact.value.item).forEach(
+    (key) => delete contact.value.item[key as keyof typeof contact.value.item]
+  );
 };
 </script>
 
@@ -44,7 +41,6 @@ function submitForm(form: Object) {
   />
   <ContactForm v-if="contact.action === 'create'"
     :contact="contact.item" 
-    @submit="submitForm" 
     @cancel="cancelAction"
   />
   <div 
@@ -64,7 +60,6 @@ function submitForm(form: Object) {
           contact.itemId === item['id'].toString()
         "
         :contact="contact.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>

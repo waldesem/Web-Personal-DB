@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Previous } from "@/interfaces";
+import { stateAnketa } from "@/state";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -15,7 +16,7 @@ const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   previous: {
@@ -25,11 +26,19 @@ const props = defineProps({
 });
 
 const previousForm = toRef(props.previous as Previous);
+
+function submitPrevious() {
+  stateAnketa.updateItem("previous", previousForm.value)
+  emit('cancel');
+  Object.keys(previousForm.value).forEach(
+    (key) => delete previousForm.value[key as keyof typeof previousForm.value]
+  );
+}
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', previousForm)"
+    @submit.prevent="submitPrevious"
     class="form form-check"
     role="form"
   >

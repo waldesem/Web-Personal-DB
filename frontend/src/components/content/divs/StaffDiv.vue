@@ -26,17 +26,10 @@ const staff = ref({
 function cancelAction(){
   staff.value.action = "";
   staff.value.itemId = "";
-  staff.value.item = <Staff>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem
-  (
-    "staffs", 
-    form
+  Object.keys(staff.value.item).forEach(
+    (key) => delete staff.value.item[key as keyof typeof staff.value.item]
   );
-  cancelAction()
-}
+};
 </script>
 
 <template>
@@ -48,7 +41,6 @@ function submitForm(form: Object) {
   />
   <StaffForm
     v-if="staff.action === 'create'"
-    @submit="submitForm"
     @cancel="cancelAction"
   />
   <div
@@ -68,7 +60,6 @@ function submitForm(form: Object) {
           staff.action === 'update' && staff.itemId === item['id'].toString()
         "
         :staff="staff.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>

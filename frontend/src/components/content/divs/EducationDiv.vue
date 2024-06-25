@@ -26,16 +26,10 @@ const education = ref({
 function cancelAction(){
   education.value.action = "";
   education.value.itemId = "";
-  education.value.item = <Education>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "educations",
-    form
+  Object.keys(education.value.item).forEach(
+    (key) => delete education.value.item[key as keyof typeof education.value.item]
   );
-  cancelAction();
-}
+};
 </script>
 
 <template>
@@ -47,7 +41,6 @@ function submitForm(form: Object) {
   />
   <EducationForm
     v-if="education.action === 'create'"
-    @submit="submitForm"
     @cancel="cancelAction"
   />
   <div
@@ -68,7 +61,6 @@ function submitForm(form: Object) {
           education.itemId === item['id'].toString()
         "
         :education="education.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>

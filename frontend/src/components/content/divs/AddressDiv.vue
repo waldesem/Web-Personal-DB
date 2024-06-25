@@ -26,16 +26,10 @@ const address = ref({
 function cancelAction(){
   address.value.action = "";
   address.value.itemId = "";
-  address.value.item = <Address>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "addresses",
-    form
+  Object.keys(address.value.item).forEach(
+    (key) => delete address.value.item[key as keyof typeof address.value.item]
   );
-  cancelAction();
-}
+};
 </script>
 
 <template>
@@ -47,8 +41,7 @@ function submitForm(form: Object) {
   />
   <AddressForm
     v-if="address.action === 'create'"
-    @submit="submitForm"
-    @cancel="cancelAction()"
+    @cancel="cancelAction"
   />
   <div
     v-if="stateAnketa.anketa.addresses.length"
@@ -68,8 +61,7 @@ function submitForm(form: Object) {
           address.itemId === item['id'].toString()
         "
         :addrs="address.item"
-        @submit="submitForm"
-        @cancel="cancelAction()"
+        @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>

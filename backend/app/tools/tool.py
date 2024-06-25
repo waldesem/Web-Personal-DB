@@ -4,6 +4,7 @@ import re
 
 from config import Config
 from ..classes.classes import Regions
+from ..depends.depend import current_user
 
 
 class Folders:
@@ -95,7 +96,7 @@ def parse_json(json_dict: dict) -> dict:
     
     json_data = {
         "resume": {
-            "region": get_region_id(json_dict),
+            "region": current_user['region'],
             "firstname": json_dict["firstName"],
             "surname": json_dict["lastName"],
             "patronymic": json_dict.get("midName"),
@@ -195,8 +196,8 @@ def parse_json(json_dict: dict) -> dict:
                                 education["name"] = v
                             case "endYear":
                                 education["finished"] = v
-                            case "speciality":
-                                education["specialty"] = v
+                            case "specialty":
+                                education["speciality"] = v
                     json_data["educations"].append(education)
 
             elif item == "experience":

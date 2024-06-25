@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, computed, toRef } from "vue";
 import { Contact } from "@/interfaces";
-import { stateClassify } from "@/state";
+import { stateClassify, stateAnketa } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -19,7 +19,7 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   contact: {
@@ -29,6 +29,14 @@ const props = defineProps({
 });
 
 const contactForm = toRef(props.contact as Contact);
+
+function submitContact() {
+  stateAnketa.updateItem("contacts", contactForm.value)
+  emit('cancel');
+  Object.keys(contactForm.value).forEach(
+    (key) => delete contactForm.value[key as keyof typeof contactForm.value]
+  );
+}
 
 const view = computed(() => {
   if (contactForm.value["view"] === "Телефон") {
@@ -43,7 +51,7 @@ const view = computed(() => {
 
 <template>
   <form
-    @submit.prevent="emit('submit', contactForm)"
+    @submit.prevent="submitContact"
     class="form form-check"
     role="form"
   >

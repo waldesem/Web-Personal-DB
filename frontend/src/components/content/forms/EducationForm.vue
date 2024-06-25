@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Education } from "@/interfaces";
-import { stateClassify } from "@/state";
+import { stateClassify, stateAnketa } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -19,7 +19,7 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   docs: {
@@ -29,11 +29,19 @@ const props = defineProps({
 });
 
 const educationForm = toRef(props.docs as Education);
+
+function submitEducation() {
+  stateAnketa.updateItem("educations", educationForm.value)
+  emit('cancel');
+  Object.keys(educationForm.value).forEach(
+    (key) => delete educationForm.value[key as keyof typeof educationForm.value]
+  );
+}
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', educationForm)"
+    @submit.prevent="submitEducation"
     class="form form-check"
     role="form"
   >

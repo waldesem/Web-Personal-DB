@@ -45,6 +45,9 @@ async function submitResume(): Promise<void> {
     const response = await axiosAuth.post(`${server}/persons`, resumeForm.value);
     const { person_id } = response.data;
 
+    Object.keys(resumeForm.value).forEach(
+      (key) => delete resumeForm.value[key as keyof typeof resumeForm.value]
+    );
     if (props.action === "create") {
       router.push({ name: "profile", params: { id: person_id } });
     } else {

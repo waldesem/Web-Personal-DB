@@ -26,16 +26,10 @@ const document = ref({
 function cancelAction(){
   document.value.action = "";
   document.value.itemId = "";
-  document.value.item = <Document>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "documents",
-    form
+  Object.keys(document.value.item).forEach(
+    (key) => delete document.value.item[key as keyof typeof document.value.item]
   );
-  cancelAction();
-}
+};
 </script>
 
 <template>
@@ -48,7 +42,6 @@ function submitForm(form: Object) {
   <DocumentForm
     v-if="document.action === 'create'"
     :docs="document.item"
-    @submit="submitForm"
     @cancel="cancelAction"
   />
   <div
@@ -69,7 +62,6 @@ function submitForm(form: Object) {
           document.itemId === item['id'].toString()
         "
         :docs="document.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>

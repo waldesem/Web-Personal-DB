@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Work } from "@/interfaces";
+import { stateAnketa } from "@/state";
 
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
@@ -18,7 +19,7 @@ const BtnGroupContent = defineAsyncComponent(
   () => import("@components/content/elements/GroupContent.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   work: {
@@ -28,11 +29,19 @@ const props = defineProps({
 });
 
 const workForm = toRef(props.work as Work);
+
+function submitWorkplace() {
+  stateAnketa.updateItem("workplaces", workForm.value)
+  emit('cancel');
+  Object.keys(workForm.value).forEach(
+    (key) => delete workForm.value[key as keyof typeof workForm.value]
+  );
+}
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', workForm)"
+    @submit.prevent="submitWorkplace"
     class="form form-check"
     role="form"
   > 

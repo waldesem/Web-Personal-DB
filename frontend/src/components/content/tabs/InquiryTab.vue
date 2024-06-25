@@ -36,21 +36,13 @@ function cancelAction(){
   need.value.itemId = "";
   Object.keys(need.value.item).forEach(
     (key) => delete need.value.item[key as keyof typeof need.value.item]
-  );  emit("cancel");
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "inquiries", 
-    form
-  );
-  cancelAction();
+  );  
+  emit("cancel");
 };
 </script>
 
 <template>
   <InquiryForm v-if="props.tabAction === 'create' && props.currentTab === 'InquiryTab'"
-    @submit="submitForm"
     @cancel="emit('cancel')"
   />
   <div v-else-if="stateAnketa.anketa.inquiries.length" class="py-3"> 
@@ -63,7 +55,6 @@ function submitForm(form: Object) {
       <InquiryForm
         v-if="need.itemId === item['id'].toString()"
         :inquiry="need.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>
@@ -80,7 +71,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
+          {{ new Date(item["created"]).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

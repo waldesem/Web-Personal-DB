@@ -27,6 +27,7 @@ const statusColor = {
   "Проверка": "primary",
   "ПФО": "info",
   "Окончено": "secondary",
+  "Сохранено": "danger"
 };
 
 const theadData = {
@@ -84,7 +85,6 @@ const searchPerson = debounce(() => {
 }, 500);
 
 async function submitJson(event: Event): Promise<void> {
-  event.preventDefault();
   personData.value.spinner = true;
   submitFile(event, "persons", '0');
   personData.value.spinner = false;
@@ -100,7 +100,12 @@ const shortName = (fullname: string) => {
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
     <div class="position-absolute bottom-100 end-0">
-      <span v-if="personData.spinner" class="spinner-border text-primary"></span>
+      <span 
+        v-if="personData.spinner" 
+        class="spinner-border text-primary" 
+        style="width: 3rem; height: 3rem;"
+        role="status">
+      </span>
       <label v-else for="file" class="text-primary">
         <i
           class="bi bi-cloud-arrow-down fs-1"

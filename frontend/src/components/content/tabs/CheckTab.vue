@@ -42,18 +42,12 @@ function cancelAction() {
   );
   emit("cancel");
 }
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem("checks", form);
-  cancelAction();
-}
 </script>
 
 <template>
   <CheckForm
     v-if="props.tabAction === 'create' && props.currentTab === 'CheckTab'"
     @cancel="cancelAction"
-    @submit="submitForm"
   />
   <div v-if="stateAnketa.anketa.checks.length" class="py-3">
     <div
@@ -66,7 +60,6 @@ function submitForm(form: Object) {
       <CheckForm
         v-if="check.itemId === item['id'].toString()"
         :check="check.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>
@@ -129,7 +122,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
+          {{ new Date(item["created"]).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

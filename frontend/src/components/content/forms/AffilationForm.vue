@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Affilation } from "@/interfaces";
-import { stateClassify } from "@/state";
+import { stateClassify, stateAnketa } from "@/state";
 
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
@@ -19,7 +19,7 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   affils: {
@@ -29,11 +29,19 @@ const props = defineProps({
 });
 
 const affilationForm = toRef(props.affils as Affilation);
+
+function submitAffilation() {
+  stateAnketa.updateItem("affilations", affilationForm.value)
+  emit('cancel');
+  Object.keys(affilationForm.value).forEach(
+    (key) => delete affilationForm.value[key as keyof typeof affilationForm.value]
+  );
+}
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', affilationForm)"
+    @submit.prevent="submitAffilation"
     class="form form-check"
     role="form"
   >

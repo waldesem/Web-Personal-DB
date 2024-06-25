@@ -42,17 +42,11 @@ function cancelAction() {
   );
   emit("cancel");
 }
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem("poligrafs", form);
-  cancelAction();
-}
 </script>
 
 <template>
   <PoligrafForm
     v-if="props.tabAction === 'create' && props.currentTab === 'PoligrafTab'"
-    @submit="submitForm"
     @cancel="emit('cancel')"
   />
   <div v-else-if="stateAnketa.anketa.poligrafs.length" class="py-3">
@@ -66,7 +60,6 @@ function submitForm(form: Object) {
       <PoligrafForm
         v-if="poligraf.itemId === item['id'].toString()"
         :poligraf="poligraf.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>
@@ -92,7 +85,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
+          {{ new Date(item["created"]).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

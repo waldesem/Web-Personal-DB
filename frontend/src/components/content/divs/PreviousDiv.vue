@@ -26,16 +26,10 @@ const previous = ref({
 function cancelAction(){
   previous.value.action = "";
   previous.value.itemId = "";
-  previous.value.item = <Previous>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "previous",
-    form
+  Object.keys(previous.value.item).forEach(
+    (key) => delete previous.value.item[key as keyof typeof previous.value.item]
   );
-  cancelAction();
-}
+};
 </script>
 
 <template>
@@ -48,7 +42,6 @@ function submitForm(form: Object) {
   <PreviousForm
     v-if="previous.action === 'create'"
     :previous="previous.item"
-    @submit="submitForm"
     @cancel="cancelAction"
   />
   <div
@@ -69,7 +62,6 @@ function submitForm(form: Object) {
           previous.itemId === item['id'].toString()
         "
         :previous="previous.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>

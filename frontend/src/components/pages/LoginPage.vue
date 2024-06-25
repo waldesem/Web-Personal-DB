@@ -10,9 +10,6 @@ const AlertMessage = defineAsyncComponent(
 const LoginForm = defineAsyncComponent(
   () => import("@components/content/forms/LoginForm.vue")
 );
-const FooterDiv = defineAsyncComponent(
-  () => import("@components/content/layouts/FooterDiv.vue")
-);
 </script>
 
 <template>
@@ -23,13 +20,12 @@ const FooterDiv = defineAsyncComponent(
       :page-header="'StaffSec - кадровая безопасность'"/>
     <LoginForm/>
   </div>
-  <FooterDiv/>
 </template>
 
 <style scoped>
 .container {
-  height: 65vh;
-  width: 50vh;
-  margin-top: 10vh;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
 }
 </style>

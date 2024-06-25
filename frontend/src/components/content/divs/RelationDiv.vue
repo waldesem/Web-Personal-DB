@@ -26,16 +26,10 @@ const relation = ref({
 function cancelAction(){
   relation.value.action = "";
   relation.value.itemId = "";
-  relation.value.item = <Relation>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "relations",
-    form
+  Object.keys(relation.value.item).forEach(
+    (key) => delete relation.value.item[key as keyof typeof relation.value.item]
   );
-  cancelAction();
-}
+};
 </script>
 
 <template>
@@ -47,7 +41,6 @@ function submitForm(form: Object) {
   />
   <RelationForm
     v-if="relation.action === 'create'"
-    @submit="submitForm"
     @cancel="cancelAction"
   />
   <div
@@ -68,7 +61,6 @@ function submitForm(form: Object) {
           relation.itemId === item['id'].toString()
         "
         :relation="relation.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>

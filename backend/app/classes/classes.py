@@ -17,6 +17,7 @@ class Statuses(Enum):
 
 
 class Conclusions(Enum):
+    saved = "СОХРАНЕНО"
     agreed = "СОГЛАСОВАНО"
     comments = "СОГЛАСОВАНО С КОММЕНТАРИЕМ"
     denied = "ОТКАЗАНО В СОГЛАСОВАНИИ"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, toRef, watch } from "vue";
-import { stateClassify } from "@/state";
+import { stateClassify, stateAnketa } from "@/state";
 import { Verification } from "@/interfaces";
 
 const TextArea = defineAsyncComponent(
@@ -22,7 +22,7 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   check: {
@@ -34,6 +34,15 @@ const props = defineProps({
 const checkForm = toRef(props.check as Verification);
 
 const noNegative = ref(false);
+
+function submitCheck() {
+  stateAnketa.updateItem("checks", checkForm.value)
+  noNegative.value = false;
+  emit('cancel');
+  Object.keys(checkForm.value).forEach(
+    (key) => delete checkForm.value[key as keyof typeof checkForm.value]
+  );
+}
 
 watch(noNegative, () => {
   if (noNegative.value) {
@@ -69,10 +78,7 @@ watch(noNegative, () => {
       </LabelSlot>
     </form>
     <form
-      @submit.prevent="
-        emit('submit', checkForm); 
-        noNegative = false
-      "
+      @submit.prevent="submitCheck"
       class="form form-check"
       role="form"
       id="checkFormId"

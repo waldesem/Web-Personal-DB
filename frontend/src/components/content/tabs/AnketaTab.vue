@@ -120,12 +120,12 @@ const dataResume = ref({
     <LabelSlot :label="'Статус'">
       {{ stateAnketa.anketa.resume["status"]   }}
     </LabelSlot>
-    <LabelSlot :label="'Дата запиsси'">
+    <LabelSlot :label="'Дата записи'">
       {{
         stateAnketa.anketa.resume["created"]
           ? new Date(
-              String(stateAnketa.anketa.resume["created"])
-            ).toLocaleDateString("ru-RU")
+              stateAnketa.anketa.resume["created"]
+            ).toLocaleString("ru-RU")
           : ""
       }}
     </LabelSlot>
@@ -140,7 +140,8 @@ const dataResume = ref({
       {{ stateAnketa.anketa.resume["path"] }}
     </LabelSlot>
     <LabelSlot :label="'Дополнительная информация'">
-      {{ stateAnketa.anketa.resume["addition"] }}
+      {{ stateAnketa.anketa.resume["addition"] 
+      ? stateAnketa.anketa.resume["addition"] : "-" }}
     </LabelSlot>
   </div>
   <hr/>

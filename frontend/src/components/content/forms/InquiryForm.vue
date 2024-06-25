@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
 import { Needs } from "@/interfaces";
+import { stateAnketa } from "@/state";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -18,7 +19,7 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   inquiry: {
@@ -28,11 +29,19 @@ const props = defineProps({
 });
 
 const inquiryForm = toRef(props.inquiry as Needs);
+
+function submitIquiry() {
+  stateAnketa.updateItem("inquiries", inquiryForm.value)
+  emit('cancel');
+  Object.keys(inquiryForm.value).forEach(
+    (key) => delete inquiryForm.value[key as keyof typeof inquiryForm.value]
+  );
+}
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', inquiryForm)"
+    @submit.prevent="submitIquiry"
     class="form form-check p-3"
     role="form"
   >

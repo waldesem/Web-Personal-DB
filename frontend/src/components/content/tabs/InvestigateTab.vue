@@ -43,17 +43,11 @@ function cancelAction() {
   );
   emit("cancel");
 }
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem("investigations", form);
-  cancelAction();
-}
 </script>
 
 <template>
   <InvestigationForm
     v-if="props.tabAction === 'create' && props.currentTab === 'InvestigateTab'"
-    @submit="submitForm"
     @cancel="emit('cancel')"
   />
   <div v-else-if="stateAnketa.anketa.investigations.length" class="py-3">
@@ -67,7 +61,6 @@ function submitForm(form: Object) {
       <InvestigationForm
         v-if="inquisition.itemId === item['id'].toString()"
         :investigation="inquisition.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>
@@ -95,7 +88,7 @@ function submitForm(form: Object) {
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(String(item["created"])).toLocaleString("ru-RU") }}
+          {{ new Date(item["created"]).toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

@@ -26,16 +26,10 @@ const affilation = ref({
 function cancelAction(){
   affilation.value.action = "";
   affilation.value.itemId = "";
-  affilation.value.item = <Affilation>({});
-};
-
-function submitForm(form: Object) {
-  stateAnketa.updateItem(
-    "affilations",
-    form
+  Object.keys(affilation.value.item).forEach(
+    (key) => delete affilation.value.item[key as keyof typeof affilation.value.item]
   );
-  cancelAction();
-}
+};
 </script>
 
 <template>
@@ -47,7 +41,6 @@ function submitForm(form: Object) {
   <AffilationForm
     v-if="affilation.action === 'create'"
     :affils="affilation.item"
-    @submit="submitForm"
     @cancel="cancelAction"
   />
   <div
@@ -68,7 +61,6 @@ function submitForm(form: Object) {
           affilation.itemId === item['id'].toString()
         "
         :affils="affilation.item"
-        @submit="submitForm"
         @cancel="cancelAction"
       />
       <div v-else>

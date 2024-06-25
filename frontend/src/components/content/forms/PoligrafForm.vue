@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { Pfo } from "@/interfaces";
-import { stateClassify } from "@/state";
+import { stateClassify, stateAnketa } from "@/state";
 
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")
@@ -19,7 +19,7 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
   poligraf: {
@@ -29,11 +29,19 @@ const props = defineProps({
 });
 
 const poligrafForm = toRef(props.poligraf as Pfo);
+
+function submitPoligraf() {
+  stateAnketa.updateItem("poligrafs", poligrafForm.value)
+  emit('cancel');
+  Object.keys(poligrafForm.value).forEach(
+    (key) => delete poligrafForm.value[key as keyof typeof poligrafForm.value]
+  );
+}
 </script>
 
 <template>
   <form
-    @submit.prevent="emit('submit', poligrafForm)"
+    @submit.prevent="submitPoligraf"
     class="form form-check p-3"
     role="form"
   >
