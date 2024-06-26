@@ -76,7 +76,7 @@ class Document(QueryModel):
     series: Optional[str] = None
     number: str
     agency: Optional[str] = None
-    issued: Optional[date] = None
+    issue: Optional[date] = None
 
 
 

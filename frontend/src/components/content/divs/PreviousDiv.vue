@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Previous } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,38 +17,27 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const previous = ref({
-  action: "",
   itemId: "",
   item: <Previous>{},
   showActions: false,
 });
 
 function cancelAction(){
-  previous.value.action = "";
   previous.value.itemId = "";
   Object.keys(previous.value.item).forEach(
     (key) => delete previous.value.item[key as keyof typeof previous.value.item]
   );
+  const collapsePrevious = document.getElementById('previous');
+  collapsePrevious?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'previous'"
-    :header="'Изменение имени'"
-    :action="previous.action"
-    @action="previous.action = previous.action ? '' : 'create'"
-  />
-  <PreviousForm
-    v-if="previous.action === 'create'"
-    :previous="previous.item"
-    @cancel="cancelAction"
-  />
-  <div
-    v-if="stateAnketa.anketa.previous.length"
-    class="collapse show"
-    id="previous"
-  >
+  <DropDownHead :id="'previous'" :header="'Изменение имени'"/>
+  <div class="collapse card card-body mb-3" id="previous">
+    <PreviousForm @cancel="cancelAction"/>
+  </div>
+  <div v-if="stateAnketa.anketa.previous.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.previous"
       :key="idx"
@@ -57,10 +46,7 @@ function cancelAction(){
       class="card card-body mb-3"
     >
       <PreviousForm
-        v-if="
-          previous.action === 'update' &&
-          previous.itemId === item['id'].toString()
-        "
+        v-if="previous.itemId === item['id'].toString()"
         :previous="previous.item"
         @cancel="cancelAction"
       />
@@ -70,7 +56,6 @@ function cancelAction(){
             v-show="previous.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'previous')"
             @update="
-              previous.action = 'update';
               previous.item = item;
               previous.itemId = item['id'].toString();
             "

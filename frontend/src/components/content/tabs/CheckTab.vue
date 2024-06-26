@@ -3,6 +3,9 @@ import { ref, defineAsyncComponent } from "vue";
 import { stateAnketa, submitFile } from "@/state";
 import { Verification } from "@/interfaces";
 
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -16,19 +19,6 @@ const CheckForm = defineAsyncComponent(
   () => import("@components/content/forms/CheckForm.vue")
 );
 
-const emit = defineEmits(["cancel"]);
-
-const props = defineProps({
-  tabAction: {
-    type: String,
-    default: "",
-  },
-  currentTab: {
-    type: String,
-    default: "",
-  },
-});
-
 const check = ref({
   itemId: "",
   item: <Verification>{},
@@ -40,22 +30,25 @@ function cancelAction() {
   Object.keys(check.value.item).forEach(
     (key) => delete check.value.item[key as keyof typeof check.value.item]
   );
-  emit("cancel");
+  const collapseCheck = document.getElementById('check');
+  collapseCheck?.setAttribute('class', 'collapse card card-body mb-3');
 }
 </script>
 
 <template>
-  <CheckForm
-    v-if="props.tabAction === 'create' && props.currentTab === 'CheckTab'"
-    @cancel="cancelAction"
+  <DropDownHead 
+    :id="'check'" 
+    :header="'Проверки кандидата на работу:'"
   />
+  <div class="collapse card card-body mb-3" id="check">
+    <CheckForm @cancel="cancelAction"/>
+  </div>
   <div v-if="stateAnketa.anketa.checks.length" class="py-3">
     <div
       v-for="(item, idx) in stateAnketa.anketa.checks"
       :key="idx"
       @mouseover="check.showActions = true"
       @mouseout="check.showActions = false"
-      class="card card-body mb-3"
     >
       <CheckForm
         v-if="check.itemId === item['id'].toString()"
@@ -127,5 +120,5 @@ function cancelAction() {
       </div>
     </div>
   </div>
-  <p v-else>Данные отсутствуют</p>
+  <p class="px-3" v-else>Не проводились</p>
 </template>

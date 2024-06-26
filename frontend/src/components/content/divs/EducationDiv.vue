@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Education } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,37 +17,27 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const education = ref({
-  action: "",
   itemId: "",
   item: <Education>{},
   showActions: false,
 });
 
 function cancelAction(){
-  education.value.action = "";
   education.value.itemId = "";
   Object.keys(education.value.item).forEach(
     (key) => delete education.value.item[key as keyof typeof education.value.item]
   );
+  const collapsePrevious = document.getElementById('education');
+  collapsePrevious?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'education'"
-    :header="'Образование'"
-    :action="education.action"
-    @action="education.action = education.action ? '' : 'create'"
-  />
-  <EducationForm
-    v-if="education.action === 'create'"
-    @cancel="cancelAction"
-  />
-  <div
-    v-if="stateAnketa.anketa.educations.length"
-    class="collapse show"
-    id="education"
-  >
+  <DropDownHead :id="'education'" :header="'Образование'"/>
+  <div class="collapse card card-body mb-3" id="education">
+    <EducationForm @cancel="cancelAction"/>
+  </div>
+  <div v-if="stateAnketa.anketa.educations.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.educations"
       :key="idx"
@@ -56,10 +46,7 @@ function cancelAction(){
       class="card card-body mb-3"
     >
       <EducationForm
-        v-if="
-          education.action === 'update' &&
-          education.itemId === item['id'].toString()
-        "
+        v-if="education.itemId === item['id'].toString()"
         :education="education.item"
         @cancel="cancelAction"
       />
@@ -69,7 +56,6 @@ function cancelAction(){
             v-show="education.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'educations')"
             @update="
-              education.action = 'update';
               education.item = item;
               education.itemId = item['id'].toString();
             "

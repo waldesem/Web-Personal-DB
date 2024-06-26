@@ -59,7 +59,7 @@ const dataResume = ref({
   />
   <div
     v-else
-    class="px-3"
+    class="card card-body mb-3"
     @mouseover="dataResume.showActions = true"
     @mouseout="dataResume.showActions = false"
   >
@@ -144,7 +144,6 @@ const dataResume = ref({
       ? stateAnketa.anketa.resume["addition"] : "-" }}
     </LabelSlot>
   </div>
-  <hr/>
   <div
     class="mb-3 px-3"
     v-for="(component, idx) in [

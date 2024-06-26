@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Relation } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,37 +17,27 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const relation = ref({
-  action: "",
   itemId: "",
   item: <Relation>{},
   showActions: false,
 });
 
 function cancelAction(){
-  relation.value.action = "";
   relation.value.itemId = "";
   Object.keys(relation.value.item).forEach(
     (key) => delete relation.value.item[key as keyof typeof relation.value.item]
   );
+  const collapseRelation = document.getElementById('relation');
+  collapseRelation?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'relation'"
-    :header="'Связи'"
-    :action="relation.action"
-    @action="relation.action = relation.action ? '' : 'create'"
-  />
-  <RelationForm
-    v-if="relation.action === 'create'"
-    @cancel="cancelAction"
-  />
-  <div
-    v-if="stateAnketa.anketa.relations.length"
-    class="collapse show"
-    id="relation"
-  >
+  <DropDownHead :id="'relation'" :header="'Связи'"/>
+  <div class="collapse card card-body mb-3" id="relation">
+    <RelationForm @cancel="cancelAction"/>
+  </div>
+  <div v-if="stateAnketa.anketa.relations.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.relations"
       :key="idx"
@@ -56,10 +46,7 @@ function cancelAction(){
       @mouseout="relation.showActions = false"
     >
       <RelationForm
-        v-if="
-          relation.action === 'update' &&
-          relation.itemId === item['id'].toString()
-        "
+        v-if="relation.itemId === item['id'].toString()"
         :relation="relation.item"
         @cancel="cancelAction"
       />
@@ -70,7 +57,6 @@ function cancelAction(){
             :hide="true"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'relations')"
             @update="
-              relation.action = 'update';
               relation.item = item;
               relation.itemId = item['id'].toString();
             "

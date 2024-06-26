@@ -3,6 +3,9 @@ import { ref, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces";
 import { stateAnketa, submitFile } from "@/state";
 
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -16,19 +19,6 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["cancel"]);
-
-const props = defineProps({
-  tabAction: {
-    type: String,
-    default: "",
-  },
-  currentTab: {
-    type: String,
-    default: "",
-  },
-});
-
 const inquisition = ref({
   itemId: "",
   item: <Inquisition>{},
@@ -41,16 +31,20 @@ function cancelAction() {
     (key) =>
       delete inquisition.value.item[key as keyof typeof inquisition.value.item]
   );
-  emit("cancel");
+  const collapseInvestigation = document.getElementById("investigation");
+  collapseInvestigation?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
 <template>
-  <InvestigationForm
-    v-if="props.tabAction === 'create' && props.currentTab === 'InvestigateTab'"
-    @cancel="emit('cancel')"
+  <DropDownHead
+    :id="'investigation'"
+    :header="'Расследования и служебные проверки:'"
   />
-  <div v-else-if="stateAnketa.anketa.investigations.length" class="py-3">
+  <div class="collapse card card-body mb-3" id="investigation">
+    <InvestigationForm @cancel="cancelAction" />
+  </div>
+  <div v-if="stateAnketa.anketa.investigations.length" class="py-3">
     <div
       v-for="(item, idx) in stateAnketa.anketa.investigations"
       :key="idx"
@@ -93,5 +87,5 @@ function cancelAction() {
       </div>
     </div>
   </div>
-  <p v-else>Данные отсутствуют</p>
+  <p class="px-3" v-else>Не проводились</p>
 </template>

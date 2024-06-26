@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Address } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,32 +17,26 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const address = ref({
-  action: "",
   itemId: "",
   item: <Address>{},
   showActions: false,
 });
 
 function cancelAction(){
-  address.value.action = "";
   address.value.itemId = "";
   Object.keys(address.value.item).forEach(
     (key) => delete address.value.item[key as keyof typeof address.value.item]
   );
+  const collapseAddress = document.getElementById('address');
+  collapseAddress?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'address'"
-    :header="'Адреса'"
-    :action="address.action"
-    @action="address.action = address.action ? '' : 'create'"
-  />
-  <AddressForm
-    v-if="address.action === 'create'"
-    @cancel="cancelAction"
-  />
+  <DropDownHead :id="'address'" :header="'Адреса'"/>
+  <div class="collapse card card-body mb-3" id="address">
+    <AddressForm @cancel="cancelAction" />
+  </div>
   <div
     v-if="stateAnketa.anketa.addresses.length"
     class="collapse show"
@@ -56,10 +50,7 @@ function cancelAction(){
       class="card card-body mb-3"
     >
       <AddressForm
-        v-if="
-          address.action === 'update' &&
-          address.itemId === item['id'].toString()
-        "
+        v-if="address.itemId === item['id'].toString()"
         :addrs="address.item"
         @cancel="cancelAction"
       />
@@ -69,7 +60,6 @@ function cancelAction(){
             v-show="address.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'addresses')"
             @update="
-              address.action = 'update';
               address.item = item;
               address.itemId = item['id'].toString();
             "

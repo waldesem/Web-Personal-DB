@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Document } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -16,63 +16,48 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const document = ref({
-  action: "",
+const doc = ref({
   itemId: "",
   item: <Document>{},
   showActions: false,
 });
 
 function cancelAction(){
-  document.value.action = "";
-  document.value.itemId = "";
-  Object.keys(document.value.item).forEach(
-    (key) => delete document.value.item[key as keyof typeof document.value.item]
+  doc.value.itemId = "";
+  Object.keys(doc.value.item).forEach(
+    (key) => delete doc.value.item[key as keyof typeof doc.value.item]
   );
+  const collapseDocument = document.getElementById('document');
+  collapseDocument?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'document'"
-    :header="'Документы'"
-    :action="document.action"
-    @action="document.action = document.action ? '' : 'create'"
-  />
-  <DocumentForm
-    v-if="document.action === 'create'"
-    :docs="document.item"
-    @cancel="cancelAction"
-  />
-  <div
-    v-if="stateAnketa.anketa.documents.length"
-    class="collapse show"
-    id="document"
-  >
+  <DropDownHead :id="'document'" :header="'Документы'"/>
+  <div class="collapse card card-body mb-3" id="document">
+    <DocumentForm @cancel="cancelAction"/>
+  </div>
+  <div v-if="stateAnketa.anketa.documents.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.documents"
       :key="idx"
-      @mouseover="document.showActions = true"
-      @mouseout="document.showActions = false"
+      @mouseover="doc.showActions = true"
+      @mouseout="doc.showActions = false"
       class="card card-body mb-3"
     >
       <DocumentForm
-        v-if="
-          document.action === 'update' &&
-          document.itemId === item['id'].toString()
-        "
-        :docs="document.item"
+        v-if="doc.itemId === item['id'].toString()"
+        :docs="doc.item"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="document.showActions"
+            v-show="doc.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'documents')"
             @update="
-              document.action = 'update';
-              document.item = item;
-              document.itemId = item['id'].toString();
+              doc.item = item;
+              doc.itemId = item['id'].toString();
             "
             :hide="true"
           />

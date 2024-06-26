@@ -3,6 +3,9 @@ import { ref, defineAsyncComponent } from "vue";
 import { Pfo } from "@/interfaces";
 import { stateAnketa, submitFile } from "@/state";
 
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -16,19 +19,6 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const emit = defineEmits(["cancel"]);
-
-const props = defineProps({
-  tabAction: {
-    type: String,
-    default: "",
-  },
-  currentTab: {
-    type: String,
-    default: "",
-  },
-});
-
 const poligraf = ref({
   itemId: "",
   item: <Pfo>{},
@@ -40,16 +30,20 @@ function cancelAction() {
   Object.keys(poligraf.value.item).forEach(
     (key) => delete poligraf.value.item[key as keyof typeof poligraf.value.item]
   );
-  emit("cancel");
+  const collapsePoligraf = document.getElementById("poligraf");
+  collapsePoligraf?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
 <template>
-  <PoligrafForm
-    v-if="props.tabAction === 'create' && props.currentTab === 'PoligrafTab'"
-    @cancel="emit('cancel')"
+  <DropDownHead
+    :id="'poligraf'"
+    :header="'Психофизиологические обследования:'"
   />
-  <div v-else-if="stateAnketa.anketa.poligrafs.length" class="py-3">
+  <div class="collapse card card-body mb-3" id="poligraf">
+    <PoligrafForm @cancel="cancelAction" />
+  </div>
+  <div v-if="stateAnketa.anketa.poligrafs.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.poligrafs"
       :key="idx"
@@ -90,5 +84,5 @@ function cancelAction() {
       </div>
     </div>
   </div>
-  <p v-else>Данные отсутствуют</p>
+  <p class="px-3" v-else>Не проводились</p>
 </template>

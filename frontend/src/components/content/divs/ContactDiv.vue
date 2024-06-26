@@ -3,9 +3,9 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Contact } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
-)
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 )
@@ -17,37 +17,27 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const contact = ref({
-  action: "",
   itemId: "",
   item: <Contact>{},
   showActions: false,
 });
 
 function cancelAction(){
-  contact.value.action = "";
   contact.value.itemId = "";
   Object.keys(contact.value.item).forEach(
     (key) => delete contact.value.item[key as keyof typeof contact.value.item]
   );
+  const collapseContact = document.getElementById('contact');
+  collapseContact?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'contact'"
-    :header="'Контакты'"
-    :action="contact.action"
-    @action="contact.action = contact.action ? '' : 'create'"
-  />
-  <ContactForm v-if="contact.action === 'create'"
-    :contact="contact.item" 
-    @cancel="cancelAction"
-  />
-  <div 
-    v-if="stateAnketa.anketa.contacts.length" 
-    class="collapse show" 
-    id="contact"
-  > 
+  <DropDownHead :id="'contact'" :header="'Контакты'"/>
+  <div class="collapse card card-body mb-3" id="contact">
+    <ContactForm @cancel="cancelAction"/>
+  </div>
+  <div v-if="stateAnketa.anketa.contacts.length"> 
     <div 
       v-for="(item, idx) in stateAnketa.anketa.contacts" :key="idx"
       @mouseover="contact.showActions = true"
@@ -55,10 +45,7 @@ function cancelAction(){
       class="card card-body mb-3"
     >
       <ContactForm
-        v-if="
-          contact.action === 'update' &&
-          contact.itemId === item['id'].toString()
-        "
+        v-if="contact.itemId === item['id'].toString()"
         :contact="contact.item"
         @cancel="cancelAction"
       />
@@ -67,7 +54,6 @@ function cancelAction(){
           <ActionIcons v-show="contact.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'contacts')"
             @update="
-              contact.action = 'update';
               contact.item = item;
               contact.itemId = item['id'].toString();
             "

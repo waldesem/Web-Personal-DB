@@ -11,7 +11,7 @@ const emit = defineEmits(["switch"])
 
 <template>
   <nav 
-    class="d-flex justify-content-center py-5"
+    class="d-flex justify-content-center py-3"
     v-if="props.has_prev || props.has_next">
     <ul class="pagination justify-content-center">
       <li v-bind:class="{ 'page-item': true, disabled: !props.has_prev }">

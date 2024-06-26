@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Staff } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,37 +17,27 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const staff = ref({
-  action: "",
   itemId: "",
   item: <Staff>{},
   showActions: false,
 });
 
 function cancelAction(){
-  staff.value.action = "";
   staff.value.itemId = "";
   Object.keys(staff.value.item).forEach(
     (key) => delete staff.value.item[key as keyof typeof staff.value.item]
   );
+  const collapseStaff = document.getElementById('staff');
+  collapseStaff?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'staff'"
-    :header="'Должности'"
-    :action="staff.action"
-    @action="staff.action = staff.action ? '' : 'create'"
-  />
-  <StaffForm
-    v-if="staff.action === 'create'"
-    @cancel="cancelAction"
-  />
-  <div
-    v-if="stateAnketa.anketa.staffs.length"
-    class="collapse show"
-    id="staff"
-  >
+  <DropDownHead :id="'staff'" :header="'Должности'"/>
+  <div class="collapse card card-body mb-3" id="staff">
+    <StaffForm @cancel="cancelAction"/>
+  </div>
+  <div v-if="stateAnketa.anketa.staffs.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.staffs"
       :key="idx"
@@ -56,9 +46,7 @@ function cancelAction(){
       class="card card-body mb-3"
     >
       <StaffForm
-        v-if="
-          staff.action === 'update' && staff.itemId === item['id'].toString()
-        "
+        v-if="staff.itemId === item['id'].toString()"
         :staff="staff.item"
         @cancel="cancelAction"
       />
@@ -68,7 +56,6 @@ function cancelAction(){
             v-show="staff.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'staffs')"
             @update="
-              staff.action = 'update';
               staff.item = item;
               staff.itemId = item['id'].toString();
             "

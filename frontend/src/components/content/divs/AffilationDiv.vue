@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Affilation } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,37 +17,26 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const affilation = ref({
-  action: "",
   itemId: "",
   item: <Affilation>{},
   showActions: false,
 });
 
 function cancelAction(){
-  affilation.value.action = "";
   affilation.value.itemId = "";
   Object.keys(affilation.value.item).forEach(
     (key) => delete affilation.value.item[key as keyof typeof affilation.value.item]
   );
+  const collapseContact = document.getElementById('affilation');
+  collapseContact?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :header="'Аффилированность'"
-    :action="affilation.action"
-    @action="affilation.action = affilation.action ? '' : 'create'"
-  />
-  <AffilationForm
-    v-if="affilation.action === 'create'"
-    :affils="affilation.item"
-    @cancel="cancelAction"
-  />
-  <div
-    v-if="stateAnketa.anketa.affilations.length"
-    class="collapse show"
-    id="affilation"
-  >
+  <DropDownHead :id="'affilation'" :header="'Аффилированность'"/>  <div class="collapse card card-body mb-3" id="affilation">
+    <AffilationForm @cancel="cancelAction"/>
+  </div>
+  <div v-if="stateAnketa.anketa.affilations.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.affilations"
       :key="idx"
@@ -56,10 +45,7 @@ function cancelAction(){
       class="card card-body mb-3"
     >
       <AffilationForm
-        v-if="
-          affilation.action === 'update' &&
-          affilation.itemId === item['id'].toString()
-        "
+        v-if="affilation.itemId === item['id'].toString()"
         :affils="affilation.item"
         @cancel="cancelAction"
       />
@@ -71,7 +57,6 @@ function cancelAction(){
               stateAnketa.deleteItem(item['id'].toString(), 'affilations')
             "
             @update="
-              affilation.action = 'update';
               affilation.item = item;
               affilation.itemId = item['id'].toString();
             "

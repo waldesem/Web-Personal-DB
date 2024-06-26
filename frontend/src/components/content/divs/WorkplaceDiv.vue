@@ -3,8 +3,8 @@ import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Work } from "@/interfaces";
 
-const ActionHeader = defineAsyncComponent(
-  () => import("@components/content/elements/ActionHeader.vue")
+const DropDownHead = defineAsyncComponent(
+  () => import("@components/content/elements/DropDownHead.vue")
 );
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -17,37 +17,28 @@ const LabelSlot = defineAsyncComponent(
 );
 
 const workplace = ref({
-  action: "",
   itemId: "",
   item: <Work>{},
   showActions: false,
 });
 
 function cancelAction(){
-  workplace.value.action = "";
   workplace.value.itemId = "";
   Object.keys(workplace.value.item).forEach(
     (key) => delete workplace.value.item[key as keyof typeof workplace.value.item]
   );
+  const collapseWork = document.getElementById('work');
+  collapseWork?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <ActionHeader
-    :id="'work'"
-    :header="'Работа'"
-    :action="workplace.action"
-    @action="workplace.action = workplace.action ? '' : 'create'"
-  />
-  <WorkplaceForm
-    v-if="workplace.action === 'create'"
-    @cancel="cancelAction"
-  />
+  <DropDownHead :id="'work'" :header="'Работа'"/>
+  <div class="collapse card card-body mb-3" id="work">
+    <WorkplaceForm @cancel="cancelAction" />
+  </div>
   <div
-    v-if="stateAnketa.anketa.workplaces.length"
-    class="collapse show"
-    id="work"
-  >
+    v-if="stateAnketa.anketa.workplaces.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.workplaces"
       :key="idx"
@@ -56,10 +47,7 @@ function cancelAction(){
       class="card card-body mb-3"
     >
       <WorkplaceForm
-        v-if="
-          workplace.action === 'update' &&
-          workplace.itemId === item['id'].toString()
-        "
+        v-if="workplace.itemId === item['id'].toString()"
         :work="workplace.item"
         @cancel="cancelAction"
       />
@@ -69,7 +57,6 @@ function cancelAction(){
             v-show="workplace.showActions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'workplaces')"
             @update="
-              workplace.action = 'update';
               workplace.item = item;
               workplace.itemId = item['id'].toString();
             "

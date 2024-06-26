@@ -44,6 +44,13 @@ const loginData = ref({
       );
       return;
     }
+    if ((loginData.value.form["new_pswd"] as string).match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)) {
+      stateAlert.setAlert(
+        "alert-warning",
+        "Пароль должен содержать от 8 до 16 латинских символов в верхнем и нижнем регистре, а также цифры"
+      );
+      return;
+    }
   }
 
   try {
@@ -108,7 +115,6 @@ const loginData = ref({
             :place="'Логин'"
             :min="3"
             :max="16"
-            :pattern="'[a-zA-Z]+'"
             v-model="loginData.form['username']"
           />        
         </LabelSlot>
@@ -118,7 +124,6 @@ const loginData = ref({
             :place="'Пароль'"
             :min="8"
             :max="16"
-            :pattern="'[0-9a-zA-Z]+'"
             :type="loginData.hidden ? 'password' : 'text'"
             v-model="loginData.form['password']"
           >         
@@ -149,7 +154,6 @@ const loginData = ref({
               :place="'Новый'"
               :min="8"
               :max="16"
-              :pattern="'(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'"
               :type="loginData.hidden ? 'password' : 'text'"
               v-model="loginData.form['new_pswd']"
             />

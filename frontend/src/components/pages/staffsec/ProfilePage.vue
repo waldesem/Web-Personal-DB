@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount } from "vue";
 import { stateUser, stateAnketa, stateAlert } from "@/state";
 import { useRoute } from "vue-router";
 import { server } from "@/utilities";
@@ -54,7 +54,6 @@ onBeforeMount(async () => {
         stateAnketa.anketa.poligrafs,
         stateAnketa.anketa.inquiries,
       ] = response.data;
-
     } catch (error: any) {
       if (error.request.status == 401 || error.request.status == 403) {
         router.push({ name: "login" });
@@ -65,17 +64,13 @@ onBeforeMount(async () => {
     }
 });
 
-const tabsData = ref({
-  tabs: [
-    ["AnketaTab", "Анкета", AnketaTab],
-    ["CheckTab", "Проверки", CheckTab],
-    ["PoligrafTab", "Полиграф", PoligrafTab],
-    ["InvestigateTab", "Расследования", InvestigateTab],
-    ["InquiryTab", "Запросы", InquiryTab],
-  ],
-  currentTab: "AnketaTab",
-  tabAction: "",
-});
+const tabsData = [
+  ["AnketaTab", "Анкета", "person-vcard", AnketaTab],
+  ["CheckTab", "Проверки", "journal-check", CheckTab],
+  ["PoligrafTab", "Полиграф", "heart-pulse", PoligrafTab],
+  ["InvestigateTab", "Расследования", "incognito", InvestigateTab],
+  ["InquiryTab", "Запросы", "card-text", InquiryTab],
+];
 </script>
 
 <template>
@@ -93,104 +88,41 @@ const tabsData = ref({
         }`"
       />
     </div>
-    <div class="col-md-2 d-flex justify-content-end">
+    <div class="col-md-2 d-flex justify-content-end d-print-none">
       <IconRelative
-        v-show="tabsData.currentTab == 'AnketaTab'"
         :title="`Взять на проверку`"
         :icon-class="`bi bi-person-plus fs-1`"
         :hide="stateAnketa.anketa.resume.user_id == stateUser.userId"
         @onclick="stateAnketa.getResume('self')"
       />
       <IconRelative
-        v-show="tabsData.currentTab == 'CheckTab'"
-        :title="`Добавить проверку`"
-        :icon-class="`bi bi-journal-check fs-1`"
-        :hide="stateAnketa.anketa.resume['user_id'] != stateUser.userId
-        "
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
-        @cancel="tabsData.tabAction = ''"
-      />
-      <IconRelative
-        v-show="tabsData.currentTab == 'PoligrafTab'"
-        :title="`Добавить полиграф`"
-        :icon-class="`bi bi-heart-pulse fs-1`"
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
-        @cancel="tabsData.tabAction = ''"
-      />
-      <IconRelative
-        v-show="tabsData.currentTab == 'InvestigateTab'"
-        :title="`Добавить расследование`"
-        :icon-class="`bi bi-incognito fs-1`"
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
-        @cancel="tabsData.tabAction = ''"
-      />
-      <IconRelative
-        v-show="tabsData.currentTab == 'InquiryTab'"
-        :title="`Добавить запрос`"
-        :icon-class="`bi bi-question-square fs-1`"
-        @onclick="tabsData.tabAction = tabsData.tabAction ? '' : 'create'"
-        @cancel="tabsData.tabAction = ''"
-      />
-      <IconRelative
         :title="`Версия для печати`"
         :icon-class="`bi bi-printer fs-1`"
-        @onclick="$router.push({ name: 'print' })"
       />
     </div>
   </div>
   <nav class="nav nav-tabs nav-justified" role="tablist">
     <button
-      v-for="(tab, idx) in tabsData.tabs"
-      :key="idx"
+      v-for="(tab, idx) in tabsData" :key="idx"
       class="nav-link"
       :class="{ active: idx === 0 }"
       :data-bs-target="`#${tab[0]}`"
       data-bs-toggle="tab"
       type="button"
       role="tab"
-      @click="
-        tabsData.currentTab = tab[0] as string;
-        tabsData.tabAction = '';
-      "
     >
+      <i :class="`bi bi-${tab[2]}`"></i>
       {{ tab[1] }}
     </button>
   </nav>
   <div class="tab-content">
-    <div
-      id="AnketaTab"
-      class="tab-pane show active fade mb-1 py-3"
+    <div v-for="(tab, idx) in tabsData" :key="idx"
+      :id="`${tab[0]}`"
+      class="tab-pane show fade mb-1 py-3"
+      :class="{ active: idx === 0 }"
       role="tabpanel"
     >
-      <AnketaTab />
-    </div>
-    <div id="CheckTab" class="tab-pane fade py-3" role="tabpanel">
-      <CheckTab
-        :tab-action="tabsData.tabAction"
-        :current-tab="tabsData.currentTab"
-        @cancel="tabsData.tabAction = ''"
-      />
-    </div>
-    <div id="PoligrafTab" class="tab-pane fade py-3" role="tabpanel">
-      <PoligrafTab
-        :tab-action="tabsData.tabAction"
-        :current-tab="tabsData.currentTab"
-        @cancel="tabsData.tabAction = ''"
-      />
-    </div>
-    <div id="InvestigateTab" class="tab-pane fade py-3" role="tabpanel">
-      <InvestigateTab
-        :tab-action="tabsData.tabAction"
-        :current-tab="tabsData.currentTab"
-        @cancel="tabsData.tabAction = ''"
-      />
-    </div>
-    <div id="InquiryTab" class="tab-pane fade py-3" role="tabpanel">
-      <InquiryTab
-        :tab-action="tabsData.tabAction"
-        :current-tab="tabsData.currentTab"
-        @cancel="tabsData.tabAction = ''"
-      />
+      <component :is="tab[3]"></component>
     </div>
   </div>
 </template>
