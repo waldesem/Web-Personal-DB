@@ -7,10 +7,10 @@ import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
-)
+);
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
-)
+);
 const GroupInput = defineAsyncComponent(
   () => import("@components/content/elements/GroupInput.vue")
 );
@@ -27,27 +27,19 @@ const loginData = ref({
   form: <Record<string, any>>{},
 });
 
- async function submitLogin(): Promise<void> {
+async function submitLogin(): Promise<void> {
   loginData.value.hidden = true;
   if (loginData.value.action === "update") {
     if (loginData.value.form["password"] === loginData.value.form["new_pswd"]) {
-      stateAlert.setAlert(
-        "alert-warning",
-        "Старый и новый пароли совпадают"
-      );
+      stateAlert.setAlert("alert-warning", "Старый и новый пароли совпадают");
       return;
     }
-    if (loginData.value.form["conf_pswd"] !== loginData.value.form["new_pswd"]) {
+    if (
+      loginData.value.form["conf_pswd"] !== loginData.value.form["new_pswd"]
+    ) {
       stateAlert.setAlert(
         "alert-warning",
         "Новый пароль и подтверждение не совпадают"
-      );
-      return;
-    }
-    if ((loginData.value.form["new_pswd"] as string).match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/)) {
-      stateAlert.setAlert(
-        "alert-warning",
-        "Пароль должен содержать от 8 до 16 латинских символов в верхнем и нижнем регистре, а также цифры"
       );
       return;
     }
@@ -55,21 +47,19 @@ const loginData = ref({
 
   try {
     const response = await axios.post(
-      `${server}/login/${loginData.value.action}`, loginData.value.form
-    )
+      `${server}/login/${loginData.value.action}`,
+      loginData.value.form
+    );
     switch (response.status) {
       case 201:
         loginData.value.action = "create";
-        stateAlert.setAlert(
-          "alert-success",
-          "Войдите с новым паролем"
-        );
-        break
-        
+        stateAlert.setAlert("alert-success", "Войдите с новым паролем");
+        break;
+
       case 200:
         const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
-        router.push({name: "persons"});
+        router.push({ name: "persons" });
         break;
 
       case 205:
@@ -82,10 +72,7 @@ const loginData = ref({
 
       case 204:
         loginData.value.action = "create";
-        stateAlert.setAlert(
-          "alert-danger",
-          "Неверный логин или пароль"
-        );
+        stateAlert.setAlert("alert-danger", "Неверный логин или пароль");
         break;
     }
   } catch (error) {
@@ -96,19 +83,14 @@ const loginData = ref({
 
 <template>
   <div class="border border-primary rounded p-5">
-    <HeaderDiv 
+    <HeaderDiv
       :cls="'text-primary mb-3 text-center'"
-      :page-header="loginData.action === 'create'
-      ? 'Вход в систему'
-      : 'Изменить пароль'
+      :page-header="
+        loginData.action === 'create' ? 'Вход в систему' : 'Изменить пароль'
       "
     />
     <div class="mb-3">
-      <form
-        class="form form-check"
-        role="form"
-        @submit.prevent="submitLogin"
-      > 
+      <form class="form form-check" role="form" @submit.prevent="submitLogin">
         <LabelSlot :label="'Логин'">
           <GroupInput
             :name="'username'"
@@ -116,7 +98,7 @@ const loginData = ref({
             :min="3"
             :max="16"
             v-model="loginData.form['username']"
-          />        
+          />
         </LabelSlot>
         <LabelSlot :label="'Пароль'">
           <GroupInput
@@ -126,30 +108,27 @@ const loginData = ref({
             :max="16"
             :type="loginData.hidden ? 'password' : 'text'"
             v-model="loginData.form['password']"
-          >         
+          >
             <span class="input-group-text">
-                <a
-                  role="button"
-                  @click="loginData.hidden = !loginData.hidden"
-                >
-                  <i :class="loginData.hidden ? 'bi bi-eye' : 'bi bi-eye-slash'"></i>
-                </a>
+              <a role="button" @click="loginData.hidden = !loginData.hidden">
+                <i
+                  :class="loginData.hidden ? 'bi bi-eye' : 'bi bi-eye-slash'"
+                ></i>
+              </a>
             </span>
           </GroupInput>
         </LabelSlot>
-        <div class="row mb-3 col-lg-9 offset-lg-2"
-          v-show="loginData.action === 'create'">
-          <a
-            class="link-primary"
-            href="#"
-            @click="loginData.action = 'update'"
-          >
+        <div
+          class="row mb-3 col-lg-9 offset-lg-2"
+          v-show="loginData.action === 'create'"
+        >
+          <a class="link-primary" href="#" @click="loginData.action = 'update'">
             Изменить пароль
           </a>
         </div>
         <div v-if="loginData.action === 'update'">
           <LabelSlot :label="'Новый пароль'">
-            <GroupInput 
+            <GroupInput
               :name="'new_pswd'"
               :place="'Новый'"
               :min="8"

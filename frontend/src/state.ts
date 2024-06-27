@@ -139,8 +139,9 @@ export const stateAnketa = {
         form
       );
       console.log(response.status);
-      stateAlert.setAlert("alert-success", "Запись успешно добавлена");
+      if (['checks', 'poligrafs'].includes(param)) this.getResume();
       this.getItem(param);
+      stateAlert.setAlert("alert-success", "Запись успешно добавлена");
     } catch (error: any) {
       if (error.request.status == 401 || error.request.status == 403) {
         router.push({ name: "login" });

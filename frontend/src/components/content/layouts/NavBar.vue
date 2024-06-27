@@ -1,6 +1,6 @@
 <script setup lang="ts"></script>
 <template>
-  <div class="navbar navbar-expand sticky-top fs-5 d-print-none p-3">
+  <div class="navbar navbar-expand sticky-top fs-5 p-3">
     <div class="nav flex-column">
       <a class="nav-link text-info fs-3 fw-bold">STAFFSEC - MTS Bank</a>
       <hr class="text-info">

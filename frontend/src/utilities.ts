@@ -1,5 +1,5 @@
-// const server = "http://localhost:5000";
-const server = '';
+export const server = "http://localhost:5000";
+// export const server = '';
 
 /**
  * Debounces a function, ensuring it's not called again until a certain amount of time has passed.
@@ -8,7 +8,7 @@ const server = '';
  * @param {number} delay - The delay in milliseconds
  * @return {Function} - The debounced function
  */
-function debounce(
+export function debounce(
   func: (...args: any[]) => void,
   delay: number
 ): (...args: any[]) => void {
@@ -30,7 +30,7 @@ function debounce(
  * @param {string} date - The date to calculate the time since
  * @return {string} A string representing the time elapsed in a human-readable format
  */
-function timeSince(date: string): string {
+export function timeSince(date: string): string {
   let seconds =
     (new Date().getTime() -
       new Date(date).getTime() +
@@ -58,5 +58,3 @@ function timeSince(date: string): string {
   }
   return Math.floor(seconds) + " секунд назад";
 }
-
-export { server, debounce, timeSince };

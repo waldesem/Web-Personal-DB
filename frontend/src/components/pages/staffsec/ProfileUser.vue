@@ -115,13 +115,13 @@ async function userDelete(): Promise<void> {
       {{ userData.profile.email }}
     </LabelSlot>
     <LabelSlot :label="'Дата создания пароля'">
-      {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") }}
+      {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") + ' UTC' }}
     </LabelSlot>
     <LabelSlot :label="'Требует смены пароля'">
       {{ userData.profile.change_pswd ? "Да" : "Нет" }}
     </LabelSlot>
     <LabelSlot :label="'Дата последнего входа'">
-      {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") }}
+      {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") + ' UTC' }}
     </LabelSlot>
     <LabelSlot :label="'Попытки входа'">
       {{ userData.profile.attempt }}
@@ -136,7 +136,7 @@ async function userDelete(): Promise<void> {
       {{ userData.profile.has_admin ? "Да" : "Нет" }}
     </LabelSlot>
     <LabelSlot :label="'Дата создания профиля'">
-      {{ new Date(userData.profile.created).toLocaleString("ru-RU") }}
+      {{ new Date(userData.profile.created).toLocaleString("ru-RU") + ' UTC' }}
     </LabelSlot>
     <BtnGroup :offset="false">
       <button

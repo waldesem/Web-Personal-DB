@@ -33,11 +33,10 @@ class Relations(Enum):
 
 
 class Educations(Enum):
-    none = "Нет образования"
-    primary = "Основное образование"
-    secondary = "Среднее образование"
-    special = "Среднее специальное образование"
-    higher = "Высшее образование"
+    primary = "Основное общее"
+    secondary = "Среднее общее"
+    special = "Среднее профессиональное"
+    higher = "Высшее"
     unfinished = "Неоконченное высшее образование"
     others = "Другое образование"
 

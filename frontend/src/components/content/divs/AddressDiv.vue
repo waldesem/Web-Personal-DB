@@ -73,3 +73,12 @@ function cancelAction(){
   </div>
   <p v-else>Данные отсутствуют</p>
 </template>
+
+<style scoped>
+@media print {
+  .card {
+    margin: 1px !important;
+    padding: 1px !important;
+  }
+}
+</style>

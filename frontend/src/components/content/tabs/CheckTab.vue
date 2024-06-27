@@ -3,9 +3,6 @@ import { ref, defineAsyncComponent } from "vue";
 import { stateAnketa, submitFile } from "@/state";
 import { Verification } from "@/interfaces";
 
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -36,16 +33,13 @@ function cancelAction() {
 </script>
 
 <template>
-  <DropDownHead 
-    :id="'check'" 
-    :header="'Проверки кандидата на работу:'"
-  />
   <div class="collapse card card-body mb-3" id="check">
     <CheckForm @cancel="cancelAction"/>
   </div>
-  <div v-if="stateAnketa.anketa.checks.length" class="py-3">
+  <div v-if="stateAnketa.anketa.checks.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.checks"
+      class="card card-body mb-3"
       :key="idx"
       @mouseover="check.showActions = true"
       @mouseout="check.showActions = false"
@@ -74,6 +68,9 @@ function cancelAction() {
             />
           </ActionIcons>
         </LabelSlot>
+        <p class="fs-5 fw-medium text-primary p-1">
+          {{ "Проверка кандидата #" + (idx+1) }}
+        </p>
         <LabelSlot :label="'Проверка по местам работы'">
           {{ item["workplace"] }}
         </LabelSlot>
@@ -115,10 +112,19 @@ function cancelAction() {
         <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"]).toLocaleString("ru-RU") }}
+          {{ new Date(item["created"]).toLocaleString("ru-RU") + ' UTC' }}
         </LabelSlot>
       </div>
     </div>
   </div>
-  <p class="px-3" v-else>Не проводились</p>
+  <p class="p-3" v-else>Проверка кандидата отсутствует</p>
 </template>
+
+<style scoped>
+@media print {
+  .card {
+    margin: 1px !important;
+    padding: 1px !important;
+  }
+}
+</style>

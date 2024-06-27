@@ -3,9 +3,6 @@ import { ref, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces";
 import { stateAnketa, submitFile } from "@/state";
 
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -31,20 +28,16 @@ function cancelAction() {
     (key) =>
       delete inquisition.value.item[key as keyof typeof inquisition.value.item]
   );
-  const collapseInvestigation = document.getElementById("investigation");
+  const collapseInvestigation = document.getElementById("investigate");
   collapseInvestigation?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
 <template>
-  <DropDownHead
-    :id="'investigation'"
-    :header="'Расследования и служебные проверки:'"
-  />
-  <div class="collapse card card-body mb-3" id="investigation">
+  <div class="collapse card card-body mb-3" id="investigate">
     <InvestigationForm @cancel="cancelAction" />
   </div>
-  <div v-if="stateAnketa.anketa.investigations.length" class="py-3">
+  <div v-if="stateAnketa.anketa.investigations.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.investigations"
       :key="idx"
@@ -78,14 +71,26 @@ function cancelAction() {
             />
           </ActionIcons>
         </LabelSlot>
+        <p class="fs-5 fw-medium text-primary p-1">
+          {{ "Расследование/Проверка #" + (idx+1) }}
+        </p>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"]).toLocaleString("ru-RU") }}
+          {{ new Date(item["created"]).toLocaleString("ru-RU") + ' UTC' }}
         </LabelSlot>
       </div>
     </div>
   </div>
-  <p class="px-3" v-else>Не проводились</p>
+  <p class="p-3" v-else>Расследования/Проверки не проводились</p>
 </template>
+
+<style scoped>
+@media print {
+  .card {
+    margin: 1px !important;
+    padding: 1px !important;
+  }
+}
+</style>

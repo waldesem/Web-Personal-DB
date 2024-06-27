@@ -3,9 +3,6 @@ import { ref, defineAsyncComponent } from "vue";
 import { Pfo } from "@/interfaces";
 import { stateAnketa, submitFile } from "@/state";
 
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -36,10 +33,6 @@ function cancelAction() {
 </script>
 
 <template>
-  <DropDownHead
-    :id="'poligraf'"
-    :header="'Психофизиологические обследования:'"
-  />
   <div class="collapse card card-body mb-3" id="poligraf">
     <PoligrafForm @cancel="cancelAction" />
   </div>
@@ -75,14 +68,26 @@ function cancelAction() {
             />
           </ActionIcons>
         </LabelSlot>
+        <p class="fs-5 fw-medium text-primary p-1">
+          {{ "Обследование на полиграфе #" + (idx+1) }}
+        </p>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"]).toLocaleString("ru-RU") }}
+          {{ new Date(item["created"]).toLocaleString("ru-RU") + ' UTC' }}
         </LabelSlot>
       </div>
     </div>
   </div>
-  <p class="px-3" v-else>Не проводились</p>
+  <p class="p-3" v-else>Обследование на полиграфе не проводилось</p>
 </template>
+
+<style scoped>
+@media print {
+  .card {
+    margin: 1px !important;
+    padding: 1px !important;
+  }
+}
+</style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {  defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
 import { submitFile } from "@/state";
 import { axiosAuth } from "@/auth";
@@ -24,10 +24,10 @@ onBeforeMount(async () => {
 });
 
 const statusColor = {
-  "Проверка": "primary",
-  "ПФО": "info",
-  "Окончено": "secondary",
-  "Сохранено": "danger"
+  Проверка: "primary",
+  ПФО: "info",
+  Окончено: "secondary",
+  Сохранено: "danger",
 };
 
 const theadData = {
@@ -86,25 +86,26 @@ const searchPerson = debounce(() => {
 
 async function submitJson(event: Event): Promise<void> {
   personData.value.spinner = true;
-  submitFile(event, "persons", '0');
+  submitFile(event, "persons", "0");
   personData.value.spinner = false;
 }
 
 const shortName = (fullname: string) => {
-  const [first, second] = fullname.split(" ", )
-  return `${first} ${second}`
-}
+  const [first, second] = fullname.split(" ");
+  return `${first} ${second}`;
+};
 </script>
 
 <template>
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
     <div class="position-absolute bottom-100 end-0">
-      <span 
-        v-if="personData.spinner" 
-        class="spinner-border text-primary" 
-        style="width: 3rem; height: 3rem;"
-        role="status">
+      <span
+        v-if="personData.spinner"
+        class="spinner-border text-primary"
+        style="width: 3rem; height: 3rem"
+        role="status"
+      >
       </span>
       <label v-else for="file" class="text-primary">
         <i
@@ -118,10 +119,7 @@ const shortName = (fullname: string) => {
     </div>
   </div>
   <div class="row mb-3">
-    <form 
-      class="form form-check" 
-      role="form"
-    >
+    <form class="form form-check" role="form">
       <input
         @input.prevent="searchPerson"
         class="form-control"
@@ -179,14 +177,16 @@ const shortName = (fullname: string) => {
           <label
             :class="`fs-6 badge bg-${statusColor[candidate.status as keyof typeof statusColor]}`"
           >
-            {{ candidate.status  }}
+            {{ candidate.status }}
           </label>
         </td>
         <td>
           {{ timeSince(candidate.created) }}
         </td>
         <td>
-          {{ candidate.username ? shortName(candidate.username.toString()) : "" }}
+          {{
+            candidate.username ? shortName(candidate.username.toString()) : ""
+          }}
         </td>
       </tr>
     </template>

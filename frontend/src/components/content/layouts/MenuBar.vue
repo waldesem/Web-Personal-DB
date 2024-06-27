@@ -13,7 +13,7 @@ async function userLogout(): Promise<void> {
 </script>
 
 <template>
-  <div class="d-print-none sticky-top bg-white p-3">
+  <div class="sticky-top bg-white d-print-none p-3">
       <div class="row">
         <div class="col-10 text-center">
           <AlertMessage/>

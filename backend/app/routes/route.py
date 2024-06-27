@@ -115,6 +115,9 @@ def post_login(action):
         return "", 204
 
     if action == "update":
+        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$'
+        if not re.match(pattern, json_data["new_pswd"]):
+            return "", 205
         stmt += "password = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
         args.extend([generate_password_hash(json_data["new_pswd"]), user["id"]])
         execute(stmt, tuple(args))
@@ -367,7 +370,7 @@ def post_file(item, item_id):
     return "", 201
 
 
-@bp.get("/allinone/<int:person_id>")
+@bp.get("/profile/<int:person_id>")
 @user_required()
 def get_all_in_one(person_id):
     """

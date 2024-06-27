@@ -45,7 +45,7 @@ function submitEducation() {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Вид образования'">
+    <LabelSlot :label="'Уровень образования'">
       <SelectDiv
         :name="'type'"
         :need="true"

@@ -124,7 +124,7 @@ const dataResume = ref({
       {{
         stateAnketa.anketa.resume["created"]
           ? new Date(
-              stateAnketa.anketa.resume["created"]
+              stateAnketa.anketa.resume["created"] + ' UTC'
             ).toLocaleString("ru-RU")
           : ""
       }}
@@ -145,7 +145,6 @@ const dataResume = ref({
     </LabelSlot>
   </div>
   <div
-    class="mb-3 px-3"
     v-for="(component, idx) in [
       StaffDiv,
       EducationDiv,
@@ -161,5 +160,4 @@ const dataResume = ref({
   >
     <component :is="component"/>
   </div>
-  <hr/>
 </template>

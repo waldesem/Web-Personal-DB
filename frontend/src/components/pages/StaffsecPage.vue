@@ -48,29 +48,23 @@ onMounted(async () => {
 
 <template>
   <div class="container-fluid row px-3">
-    <div class="col-2">
+    <div class="col-2 d-print-none ">
       <NavBar/>
     </div>
-    <div class="col-9">
+    <div class="col-9" id="staffsec">
       <MenuBar/>
       <router-view v-slot="{ Component }" :key="$route.fullPath">
-        <transition name="fade">
-          <div><component :is="Component"/></div>
-        </transition>
+        <div><component :is="Component"/></div>
       </router-view>
     </div>
-    <div class="col-1"></div>
+    <div class="col-1 d-print-none "></div>
   </div>
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+@media print{
+  #staffsec {
+    width: 100% !important;
+  }
 }
 </style>

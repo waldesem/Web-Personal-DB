@@ -62,7 +62,7 @@ function cancelAction(){
             :hide="true"
           />
         </LabelSlot>
-        <LabelSlot :label="'Вид образования'">{{ item["view"] }}</LabelSlot>
+        <LabelSlot :label="'Уровень образования'">{{ item["view"] }}</LabelSlot>
         <LabelSlot :label="'Название учебного заведения'">{{
           item["name"]
         }}</LabelSlot>
@@ -73,3 +73,12 @@ function cancelAction(){
   </div>
   <p v-else>Данные отсутствуют</p>
 </template>
+
+<style scoped>
+@media print {
+  .card {
+    margin: 1px !important;
+    padding: 1px !important;
+  }
+}
+</style>
