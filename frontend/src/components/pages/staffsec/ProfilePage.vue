@@ -63,12 +63,12 @@ onBeforeMount(async () => {
 
 const currentTab = ref("anketaTab");
 
-const tabsData = [
-  ["anketa", "Взять анкету", "Анкета", AnketaTab],
-  ["check", "Добавить проверку", "Проверки", CheckTab],
-  ["poligraf", "Добавить полиграф", "Полиграф", PoligrafTab],
-  ["investigate", "Добавить расследования", "Расследования", InvestigateTab],
-  ["inquiry", "Добавить запрос", "Запросы", InquiryTab],
+const tabsData = {
+  anketaTab: ["Взять анкету", "Анкета", AnketaTab],
+  checkTab: ["Добавить проверку", "Проверки", CheckTab],
+  poligrafTab: ["Добавить полиграф", "Полиграф", PoligrafTab],
+  investigateTab: ["Добавить расследования", "Расследования", InvestigateTab],
+  inquiryTab: ["Добавить запрос", "Запросы", InquiryTab],
 ];
 </script>
 
@@ -88,11 +88,9 @@ const tabsData = [
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
-      <div 
-        v-show="currentTab == tabsData[0][0] + 'Tab'"
-        class="position-relative text-end flex-grow-1"
-      >
+      <div class="position-relative text-end">
         <button
+          v-show="currentTab == 'anketaTab'"
           type="button"
           class="btn btn-lg btn-outline-info"
           :title="'Взять анкету'"
@@ -101,50 +99,42 @@ const tabsData = [
         >
           &equiv;
         </button>
-      </div>
-      <div 
-        v-show="currentTab == value[0] + 'Tab'"
-        v-for="(value, idx) in tabsData.slice(1)" :key="idx"
-        class="position-relative text-end flex-grow-1"
-      >
         <button
-          :title="(value[1] as string)"
+          v-show="currentTab != 'anketaTab'"
+          :title="(tabsData[currentTab][0] as string)"
           type="button"
           class="btn btn-lg btn-outline-info"
           :disabled="stateAnketa.anketa.persons['user_id'] != stateUser.userId"
           data-bs-toggle="collapse"
-          :href="`#${(value[0] as string)}`"
+          :href="`#${(currentTab.split('T')[0]}`"
         >
           &equiv;
         </button>
-      </div>
     </div>
   </div>
   <nav class="nav nav-tabs nav-justified" role="tablist">
     <button
-      v-for="(values, idx) in tabsData"
-      :key="idx"
+      v-for="(values, key) in tabsData :key="key"
       class="nav-link"
-      :class="{ active: values[0] == tabsData[0][0] }"
-      :data-bs-target="`#${tabsData[idx][0]}Tab`"
+      :class="{ active: key == 'anketaTab' }"
+      :data-bs-target="'#' + key.split('T')[0]"
       data-bs-toggle="tab"
       type="button"
       role="tab"
-      @click="currentTab = tabsData[idx][0] + 'Tab'"
+      @click="currentTab = key"
     >
-      {{ values[2] }}
+      {{ values[1] }}
     </button>
   </nav>
   <div class="tab-content">
     <div
-      v-for="(values, idx) in tabsData"
-      :key="idx"
-      :id="tabsData[idx][0] + 'Tab'"
+      v-for="(values, key) in tabsData" :key="key"
+      :id="key.split('T')[0]"
       class="tab-pane show fade pt-3"
-      :class="{ active: values[0] == tabsData[0][0] }"
+      :class="{ active: key == 'anketaTab' }"
       role="tabpanel"
     >
-      <component :is="values[4]"></component>
+      <component :is="values[2]"></component>
     </div>
   </div>
 </template>
