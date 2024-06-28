@@ -41,6 +41,7 @@ def handle_post_resume(data):
 
     """
     resume = Person(**data).dict()
+    if not resume["id"]:
     stmt = """
         SELECT * FROM persons 
         WHERE surname LIKE '%{}%' 
