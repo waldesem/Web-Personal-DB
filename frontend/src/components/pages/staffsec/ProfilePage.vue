@@ -9,12 +9,6 @@ import { router } from "@/router";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const IconRelative = defineAsyncComponent(
-  () => import("@components/content/elements/IconRelative.vue")
-);
-const CollapseRelative = defineAsyncComponent(
-  () => import("@components/content/elements/CollapseRelative.vue")
-);
 const PhotoCard = defineAsyncComponent(
   () => import("@components/content/divs//PhotoCard.vue")
 );
@@ -42,7 +36,7 @@ onBeforeMount(async () => {
       `${server}/profile/${stateAnketa.share.candId}`
     );
     [
-      stateAnketa.anketa.resume,
+      stateAnketa.anketa.persons,
       stateAnketa.anketa.previous,
       stateAnketa.anketa.staffs,
       stateAnketa.anketa.documents,
@@ -70,17 +64,11 @@ onBeforeMount(async () => {
 const currentTab = ref("anketaTab");
 
 const tabsData = [
-  ["anketa", "Взять на проверку", "Анкета", "person-add", AnketaTab],
-  ["check", "Добавить проверку", "Проверки", "journal-check", CheckTab],
-  ["poligraf", "Добавить полиграф", "Полиграф", "heart-pulse", PoligrafTab],
-  [
-    "investigate",
-    "Добавить расследования",
-    "Расследования",
-    "incognito",
-    InvestigateTab,
-  ],
-  ["inquiry", "Добавить запрос", "Запросы", "question-square", InquiryTab],
+  ["anketa", "Взять анкету", "Анкета", AnketaTab],
+  ["check", "Добавить проверку", "Проверки", CheckTab],
+  ["poligraf", "Добавить полиграф", "Полиграф", PoligrafTab],
+  ["investigate", "Добавить расследования", "Расследования", InvestigateTab],
+  ["inquiry", "Добавить запрос", "Запросы", InquiryTab],
 ];
 </script>
 
@@ -90,32 +78,46 @@ const tabsData = [
     <div class="col-md-10">
       <HeaderDiv
         :cls="'text-info py-3'"
-        :page-header="`${stateAnketa.anketa.resume.surname} ${
-          stateAnketa.anketa.resume.firstname
+        :page-header="`${stateAnketa.anketa.persons.surname} ${
+          stateAnketa.anketa.persons.firstname
         } ${
-          stateAnketa.anketa.resume.patronymic
-            ? ' ' + stateAnketa.anketa.resume.patronymic
+          stateAnketa.anketa.persons.patronymic
+            ? ' ' + stateAnketa.anketa.persons.patronymic
             : ''
         }`"
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
-      <IconRelative
+      <div 
         v-show="currentTab == tabsData[0][0] + 'Tab'"
-        :title="(tabsData[0][1] as string)"
-        :icon-class="`bi bi-${tabsData[0][3]} fs-1`"
-        :hide="stateAnketa.anketa.resume.user_id == stateUser.userId"
-        @onclick="stateAnketa.getResume('self')"
-      />
-      <CollapseRelative
-        v-for="(value, idx) in tabsData.slice(1)"
-        :key="idx"
+        class="position-relative text-end flex-grow-1"
+      >
+        <button
+          type="button"
+          class="btn btn-lg btn-outline-info"
+          :title="'Взять анкету'"
+          @click="stateAnketa.getItem('persons', 'self')"
+          :disabled="stateAnketa.anketa.persons.user_id == stateUser.userId"
+        >
+          &equiv;
+        </button>
+      </div>
+      <div 
         v-show="currentTab == value[0] + 'Tab'"
-        :title="(value[1] as string)"
-        :icon-class="`bi bi-${value[3]} fs-1`"
-        :hide="stateAnketa.anketa.resume['user_id'] != stateUser.userId"
-        :id="(value[0] as string)"
-      />
+        v-for="(value, idx) in tabsData.slice(1)" :key="idx"
+        class="position-relative text-end flex-grow-1"
+      >
+        <button
+          :title="(value[1] as string)"
+          type="button"
+          class="btn btn-lg btn-outline-info"
+          :disabled="stateAnketa.anketa.persons['user_id'] != stateUser.userId"
+          data-bs-toggle="collapse"
+          :href="`#${(value[0] as string)}`"
+        >
+          &equiv;
+        </button>
+      </div>
     </div>
   </div>
   <nav class="nav nav-tabs nav-justified" role="tablist">
@@ -130,7 +132,6 @@ const tabsData = [
       role="tab"
       @click="currentTab = tabsData[idx][0] + 'Tab'"
     >
-      <i :class="`bi bi-${values[3]} d-print-none`"></i>
       {{ values[2] }}
     </button>
   </nav>

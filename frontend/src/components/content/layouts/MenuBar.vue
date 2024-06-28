@@ -25,8 +25,7 @@ async function userLogout(): Promise<void> {
               role="button"
               data-bs-toggle="dropdown"
             >
-              {{ stateUser.username }}
-              <i class="bi bi-person-circle fs-3"></i>
+              {{ stateUser.username.toUpperCase() }}
             </button>
             <ul class="dropdown-menu">
               <li v-if="stateUser.hasAdmin" class="dropdown-item">

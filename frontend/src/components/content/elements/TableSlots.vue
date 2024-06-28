@@ -2,11 +2,11 @@
 const props = defineProps({
   divClass: {
     type: String,
-    default: "table-responsive",
+    default: "pt-3",
   },
   tblClass: {
     type: String,
-    default: "table align-middle",
+    default: "table align-middle caption-top",
   },
 })
 </script>

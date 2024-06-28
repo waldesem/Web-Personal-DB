@@ -245,7 +245,8 @@ def get_index(page):
         None
     """
     stmt = """
-        SELECT persons.*, users.fullname AS username FROM persons 
+        SELECT persons.*, users.fullname AS username 
+        FROM persons 
         LEFT JOIN users ON persons.user_id = users.id 
         """
     search_data = request.args.get("search")
@@ -372,7 +373,7 @@ def post_file(item, item_id):
 
 @bp.get("/profile/<int:person_id>")
 @user_required()
-def get_all_in_one(person_id):
+def get_profile(person_id):
     """
     Retrieves all information related to a person in one request.
 
@@ -412,44 +413,13 @@ def post_resume():
     return jsonify({"person_id": person_id}), 201
 
 
-@bp.get("/persons/<int:person_id>")
-@user_required()
-def get_resume(person_id):
-    """
-    Retrieves the resume of a person with the given person_id.
-
-    If the query parameter "action" is set to "self", the function updates
-    the status and user_id of the person with the given person_id in the database.
-
-    Parameters:
-        person_id (int): The ID of the person whose resume is to be retrieved.
-
-    Returns:
-        Tuple[Response, int]: A tuple containing the JSON response containing
-        the person's resume and an HTTP status code of 200.
-    """
-    if request.args.get("action") == "self":
-        execute(
-            "UPDATE persons SET status = ?, user_id = ? WHERE id = ?",
-            (
-                Statuses.manual.value,
-                current_user["id"],
-                person_id,
-            ),
-        )
-    person = select(
-        """SELECT persons.*, users.fullname AS username FROM persons
-        LEFT JOIN users ON persons.user_id = users.id WHERE persons.id = ?""",
-        args=(person_id,),
-    )
-    return jsonify(person), 200
-
-
 @bp.get("/<item>/<int:item_id>")
 @jwt_required()
 def get_item_id(item, item_id):
     """
     Retrieves an item from the database based on the provided item name and item ID.
+    If the query parameter "action" is set to "self", the function updates
+    the status and user_id of the person with the given person_id in the database.
 
     Parameters:
         item (str): The name of the table to retrieve the item from.
@@ -459,7 +429,19 @@ def get_item_id(item, item_id):
         Tuple[Response, int]: A tuple containing the JSON response containing
         the retrieved item(s) and an HTTP status code of 200.
     """
-    results = handle_get_item(item, item_id)
+    if item == "persons":
+        if request.args.get("action") == "self":
+            execute(
+                "UPDATE persons SET status = ?, user_id = ? WHERE id = ?",
+                (
+                    Statuses.manual.value,
+                    current_user["id"],
+                    item_id,
+                ),
+            )
+        results = handle_get_person(item_id)
+    else:
+        results = handle_get_item(item, item_id)
     return jsonify(results), 200
 
 

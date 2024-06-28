@@ -14,7 +14,7 @@ export interface User {
   region: string;
 }
 
-export interface Resume {
+export interface Persons {
   id: string;
   surname: string;
   firstname: string;

@@ -20,24 +20,30 @@ const props = defineProps({
         title="Изменить"
         @click="emit('update')"
       >
-        <i class="bi bi-pencil-square"></i>
+        <div class="fs-5">&plusmn;</div>
       </a>
       <a 
         class="btn btn-link"
         title="Удалить"
         @click="emit('delete')" 
       >
-        <i class="bi bi-trash"></i>
+        <div class="fs-5">&times;</div>
       </a>
       <label 
         :for="props.forInput"
         :hidden="props.hide"
       >
         <a class="btn btn-link" title="Загрузить">
-          <i class="bi bi-cloud-arrow-up-fill"></i>
+          <div class="fs-5">&infin;</div>
         </a>
       </label>  
       <slot></slot>
     </div>
   </div>
 </template>
+
+<style scoped>
+.btn {
+  text-decoration: none;
+}
+</style>

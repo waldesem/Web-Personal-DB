@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
 import { stateAlert, stateAnketa, stateClassify } from "@/state";
-import { Resume } from "@/interfaces";
+import { Persons } from "@/interfaces";
 import { server } from "@/utilities";
 import { router } from "@/router";
 import { axiosAuth } from "@/auth";
@@ -33,7 +33,7 @@ const props = defineProps({
     default: "create",
   },
   resume: {
-    type: Object as () => Resume,
+    type: Object as () => Persons,
     default: {},
   },
 });
@@ -52,7 +52,7 @@ async function submitResume(): Promise<void> {
       router.push({ name: "profile", params: { id: person_id } });
     } else {
       emit("cancel");
-      stateAnketa.getResume();
+      stateAnketa.getItem("persons");
     }
 
     stateAlert.setAlert("alert-success", "Данные успешно обновлены");

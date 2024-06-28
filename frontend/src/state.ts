@@ -3,7 +3,7 @@ import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import { server } from "@/utilities";
 import {
-  Resume,
+  Persons,
   Previous,
   Education,
   Staff,
@@ -56,7 +56,7 @@ export const stateAlert = {
 
 export const stateAnketa = {
   anketa: reactive({
-    resume: {} as Resume,
+    persons: {} as Persons,
     previous: [] as Previous[],
     educations: [] as Education[],
     staffs: [] as Staff[],
@@ -76,7 +76,7 @@ export const stateAnketa = {
     imageUrl: "" as string,
   }),
 
-  async getResume(action = "view"): Promise<void> {
+  async getItem(param: string, action = "view"): Promise<void> {
     if (
       action === "self" &&
       !confirm("Вы действительно назначить проверку кандидата на себя?")
@@ -84,43 +84,25 @@ export const stateAnketa = {
       return;
     }
     try {
-      const response = await axiosAuth.get(
-        `${server}/persons/${this.share.candId}`,
-        {
-          params: {
-            action: action,
-          },
-        }
-      );
-      this.anketa.resume = response.data;
-      if (action === "self") {
-        stateAlert.setAlert("alert-info", "Анкета назначена на себя");
-      }
-    } catch (error: any) {
-      if (error.request.status == 401 || error.request.status == 403) {
-        router.push({ name: "login" });
-      } else {
-        console.error(error);
-        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
-      }
-    }
-  },
-
-  async getItem(param: string): Promise<void> {
-    try {
       const response =
         param === "image"
           ? await axiosAuth.get(`${server}/image/${this.share.candId}`, {
               responseType: "blob",
             })
-          : await axiosAuth.get(`${server}/${param}/${this.share.candId}`);
-
+          : await axiosAuth.get(`${server}/${param}/${this.share.candId}`, {
+              params: {
+                action: action,
+              },
+            });
       if (param === "image") {
         this.share.imageUrl = window.URL.createObjectURL(
           new Blob([response.data])
         );
       } else {
         this.anketa[param as keyof typeof this.anketa] = response.data;
+      }
+      if (action === "self") {
+        stateAlert.setAlert("alert-info", "Анкета назначена пользователю");
       }
     } catch (error: any) {
       if (error.request.status == 401 || error.request.status == 403) {
@@ -139,7 +121,7 @@ export const stateAnketa = {
         form
       );
       console.log(response.status);
-      if (['checks', 'poligrafs'].includes(param)) this.getResume();
+      if (["checks", "poligrafs"].includes(param)) this.getItem("persons");
       this.getItem(param);
       stateAlert.setAlert("alert-success", "Запись успешно добавлена");
     } catch (error: any) {
@@ -219,4 +201,4 @@ export async function submitFile(
   } else {
     stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
   }
-};
+}

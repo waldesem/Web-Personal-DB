@@ -41,6 +41,20 @@ def handle_post_resume(data):
 
     """
     resume = Person(**data).dict()
+    stmt = """
+        SELECT * FROM persons 
+        WHERE surname LIKE '%{}%' 
+        AND firstname LIKE '%{}%' 
+        AND patronymic LIKE '%{}%'
+        AND birthday = ?
+        """.format(
+            resume['surname'],
+            resume['firstname'],
+            resume['patronymic'],
+            )
+    person = execute(stmt, (resume['birthday'],))
+    if person:
+        resume['id'] = person['id']
     try:
         resume.update({'status': Statuses.manual.value, 'user_id': current_user["id"]})
         keys, args = zip(*resume.items())

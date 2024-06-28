@@ -13,7 +13,7 @@ const LoginForm = defineAsyncComponent(
 </script>
 
 <template>
-  <div class="container">
+  <div class="container pt-5">
     <AlertMessage/>
     <HeaderDiv 
       :cls="'text-info py-3'"

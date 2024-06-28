@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
 import { stateAnketa, submitFile } from "@/state";
-import type { Resume } from "@/interfaces";
+import type { Persons } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -45,7 +45,7 @@ const LabelSlot = defineAsyncComponent(
 
 const dataResume = ref({
   action: "",
-  form: <Resume>{},
+  form: <Persons>{},
   showActions: false,
 })
 </script>
@@ -54,7 +54,7 @@ const dataResume = ref({
   <ResumeForm
     v-if="dataResume.action"
     :action="dataResume.action"
-    :resume="stateAnketa.anketa.resume"
+    :resume="stateAnketa.anketa.persons"
     @cancel="dataResume.action = ''"
   />
   <div
@@ -67,7 +67,7 @@ const dataResume = ref({
       <ActionIcons
         v-show="dataResume.showActions"
         @delete="
-          stateAnketa.deleteItem(stateAnketa.anketa.resume['id'], 'persons')
+          stateAnketa.deleteItem(stateAnketa.anketa.persons['id'], 'persons')
         "
         @update="dataResume.action = 'update'"
         :for-input="'persons-file'"
@@ -81,67 +81,67 @@ const dataResume = ref({
     </ActionIcons>
     </LabelSlot>
     <LabelSlot :label="'Фамилия'">
-      {{ stateAnketa.anketa.resume["surname"] }}
+      {{ stateAnketa.anketa.persons["surname"] }}
     </LabelSlot>
     <LabelSlot :label="'Имя'">
-      {{ stateAnketa.anketa.resume["firstname"] }}
+      {{ stateAnketa.anketa.persons["firstname"] }}
     </LabelSlot>
     <LabelSlot :label="'Отчество'">
-      {{ stateAnketa.anketa.resume["patronymic"] }}
+      {{ stateAnketa.anketa.persons["patronymic"] }}
     </LabelSlot>
     <LabelSlot :label="'Дата рождения'">
       {{
         new Date(
-          String(stateAnketa.anketa.resume["birthday"])
+          String(stateAnketa.anketa.persons["birthday"])
         ).toLocaleDateString("ru-RU")
       }}
     </LabelSlot>
     <LabelSlot :label="'Место рождения'">
-      {{ stateAnketa.anketa.resume["birthplace"] }}
+      {{ stateAnketa.anketa.persons["birthplace"] }}
     </LabelSlot>
     <LabelSlot :label="'Гражданство'">
-      {{ stateAnketa.anketa.resume["citizenship"] }}
+      {{ stateAnketa.anketa.persons["citizenship"] }}
     </LabelSlot>
     <LabelSlot 
-      v-if="stateAnketa.anketa.resume['dual']"
+      v-if="stateAnketa.anketa.persons['dual']"
       :label="'Двойное гражданство'"
     >
-      {{ stateAnketa.anketa.resume["dual"] }}
+      {{ stateAnketa.anketa.persons["dual"] }}
     </LabelSlot>
     <LabelSlot :label="'СНИЛС'">
-      {{ stateAnketa.anketa.resume["snils"] }}
+      {{ stateAnketa.anketa.persons["snils"] }}
     </LabelSlot>
     <LabelSlot :label="'ИНН'">
-      {{ stateAnketa.anketa.resume["inn"] }}
+      {{ stateAnketa.anketa.persons["inn"] }}
     </LabelSlot>
     <LabelSlot :label="'Семейное положение'">
-      {{ stateAnketa.anketa.resume["marital"] }}
+      {{ stateAnketa.anketa.persons["marital"] }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
-      {{ stateAnketa.anketa.resume["status"]   }}
+      {{ stateAnketa.anketa.persons["status"]   }}
     </LabelSlot>
     <LabelSlot :label="'Дата записи'">
       {{
-        stateAnketa.anketa.resume["created"]
+        stateAnketa.anketa.persons["created"]
           ? new Date(
-              stateAnketa.anketa.resume["created"] + ' UTC'
+              stateAnketa.anketa.persons["created"] + ' UTC'
             ).toLocaleString("ru-RU")
           : ""
       }}
     </LabelSlot>
     <LabelSlot :label="'Пользователь'">
       {{
-        stateAnketa.anketa.resume["username"]
-          ? stateAnketa.anketa.resume["username"]
+        stateAnketa.anketa.persons["username"]
+          ? stateAnketa.anketa.persons["username"]
           : ""
       }}
     </LabelSlot>
     <LabelSlot :label="'Материалы'">
-      {{ stateAnketa.anketa.resume["path"] }}
+      {{ stateAnketa.anketa.persons["path"] }}
     </LabelSlot>
     <LabelSlot :label="'Дополнительная информация'">
-      {{ stateAnketa.anketa.resume["addition"] 
-      ? stateAnketa.anketa.resume["addition"] : "-" }}
+      {{ stateAnketa.anketa.persons["addition"] 
+      ? stateAnketa.anketa.persons["addition"] : "-" }}
     </LabelSlot>
   </div>
   <div

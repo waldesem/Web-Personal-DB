@@ -3,7 +3,7 @@ import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
 import { submitFile } from "@/state";
 import { axiosAuth } from "@/auth";
-import { Resume } from "@/interfaces";
+import { Persons } from "@/interfaces";
 import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
@@ -41,12 +41,12 @@ const theadData = {
 };
 
 const personData = ref({
-  candidates: <Resume[]>[],
+  candidates: <Persons[]>[],
   page: 1,
   prev: false,
   next: false,
   search: "",
-  spinner: false,
+  upload: true,
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
@@ -85,9 +85,9 @@ const searchPerson = debounce(() => {
 }, 500);
 
 async function submitJson(event: Event): Promise<void> {
-  personData.value.spinner = true;
+  personData.value.upload = false;
   submitFile(event, "persons", "0");
-  personData.value.spinner = false;
+  personData.value.upload = true;
 }
 
 const shortName = (fullname: string) => {
@@ -100,20 +100,13 @@ const shortName = (fullname: string) => {
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
     <div class="position-absolute bottom-100 end-0">
-      <span
-        v-if="personData.spinner"
-        class="spinner-border text-primary"
-        style="width: 3rem; height: 3rem"
-        role="status"
+      <label v-if="personData.upload" 
+        for="file" 
+        title="Загрузить анкету"
+        class="text-primary fs-1 fw-normal"
+        style="cursor: pointer;"
       >
-      </span>
-      <label v-else for="file" class="text-primary">
-        <i
-          class="bi bi-cloud-arrow-down fs-1"
-          title="Загрузить анкету"
-          style="cursor: pointer"
-        >
-        </i>
+        &oplus;
       </label>
       <FileForm :accept="'.json'" @submit="submitJson" />
     </div>
@@ -131,14 +124,11 @@ const shortName = (fullname: string) => {
       />
     </form>
   </div>
-  <TableSlots
-    v-if="personData.candidates.length"
-    :div-class="'table align-middle py-3'"
-  >
+  <TableSlots v-if="personData.candidates.length">
     <template v-slot:caption>
       {{ `Обновлено: ${personData.updated}` }}
       <a href="#" :title="`Обновить`" @click="getCandidates()">
-        <i class="bi bi-arrow-clockwise"></i>
+        <div class="fs-3">&bull;</div>
       </a>
     </template>
     <template v-slot:thead>
