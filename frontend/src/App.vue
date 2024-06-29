@@ -3,7 +3,11 @@ import { onMounted } from "vue";
 import { router } from "@/router";
 
 onMounted( () => {
-  router.push({ name: "persons" });
+  if (localStorage.getItem("user_token")) {
+    router.push({ name: "staffsec" })
+  } else {
+    router.push({ name: "login" })
+  }
 });
 </script>
 

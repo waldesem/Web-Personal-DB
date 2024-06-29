@@ -23,11 +23,17 @@ onBeforeMount(async () => {
   await getCandidates();
 });
 
-const statusColor = {
-  Проверка: "primary",
-  ПФО: "info",
-  Окончено: "secondary",
-  Сохранено: "danger",
+const statusColor = (status: string) => {
+  switch (status) {
+    case "Проверка":
+      return "primary";
+    case "ПФО":
+      return "info";
+    case "Окончено":
+      return "secondary";
+    case "Сохранено":
+      return "warning";
+  }
 };
 
 const theadData = {
@@ -99,14 +105,14 @@ const shortName = (fullname: string) => {
 <template>
   <HeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
-    <div class="position-absolute bottom-100 end-0">
+    <div class="position-absolute bottom-100 end-0 px-3">
       <label v-if="personData.upload" 
         for="file" 
         title="Загрузить анкету"
-        class="text-primary fs-1 fw-normal"
+        class="text-primary fs-1 fw-light"
         style="cursor: pointer;"
       >
-        &oplus;
+      &#x272A;
       </label>
       <FileForm :accept="'.json'" @submit="submitJson" />
     </div>
@@ -125,10 +131,15 @@ const shortName = (fullname: string) => {
     </form>
   </div>
   <TableSlots v-if="personData.candidates.length">
-    <template v-slot:caption>
-      {{ `Обновлено: ${personData.updated}` }}
-      <a href="#" :title="`Обновить`" @click="getCandidates()">
-        <div class="fs-3">&bull;</div>
+    <template v-slot:caption>{{ `Обновлено: ${personData.updated}` }}
+      <a 
+        class="btn btn-link fs-5" 
+        href="#" 
+        style="text-decoration: none;"
+        :title="`Обновить`" 
+        @click="getCandidates()"
+      >
+        &#8635
       </a>
     </template>
     <template v-slot:thead>
@@ -165,7 +176,7 @@ const shortName = (fullname: string) => {
         </td>
         <td>
           <label
-            :class="`fs-6 badge bg-${statusColor[candidate.status as keyof typeof statusColor]}`"
+            :class="`fs-6 badge bg-${statusColor(candidate.status)}`"
           >
             {{ candidate.status }}
           </label>

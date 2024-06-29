@@ -6,7 +6,7 @@ const props = defineProps({
   },
   tblClass: {
     type: String,
-    default: "table align-middle caption-top",
+    default: "table align-middle",
   },
 })
 </script>

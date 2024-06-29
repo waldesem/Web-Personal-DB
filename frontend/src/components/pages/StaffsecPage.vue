@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from "axios";
+import { axiosAuth } from "@/auth";
 import { defineAsyncComponent, onBeforeMount, onMounted } from "vue";
 import { stateClassify, stateUser } from "@/state";
 import { server } from "@/utilities";
@@ -14,18 +14,15 @@ const MenuBar = defineAsyncComponent(
 
 onBeforeMount( () => {
   const token = localStorage.getItem("user_token") as string;
-  if (!token) {
-    router.push({ name: "login" });
-  }
-  const payload = decodeURIComponent(escape(window.atob(token))).split(":");
+  const payload = window.atob(token).split(":");
   stateUser.userId = payload[1];
   stateUser.username = payload[2];
-  stateUser.hasAdmin = payload[3] === "1";
+  stateUser.hasAdmin = payload[3] == "1";
 });
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`${server}/classes`);
+    const response = await axiosAuth.get(`${server}/classes`);
     [
       stateClassify.regions,
       stateClassify.status,
@@ -38,10 +35,14 @@ onMounted(async () => {
       stateClassify.documents,
       stateClassify.poligrafs
     ] = response.data;
-  } catch (error) {
-    console.error(error);
-  }
-  router.push({ name: "persons" });
+    router.push({ name: "persons" });
+  } catch (error: any) {
+      if (error.request.status == 401 || error.request.status == 403) {
+        router.push({ name: "login" });
+      } else {
+        console.error(error);
+      }
+    }
 });
 
 </script>

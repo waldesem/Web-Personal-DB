@@ -41,7 +41,7 @@ async function submitData(): Promise<void> {
       },
     });
     tableData.value.stat.checks = response.data;
-    console.log(tableData.value.stat.checks);
+
   } catch (error: AxiosError | any) {
     if (error.request.status == 401 || error.request.status == 403) {
       router.push({ name: "login" });

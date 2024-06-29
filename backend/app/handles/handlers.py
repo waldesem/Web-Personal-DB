@@ -51,9 +51,9 @@ def handle_post_resume(data):
             """.format(
                 resume['surname'],
                 resume['firstname'],
-                resume['patronymic'],
+                resume['patronymic']
                 )
-        person = execute(stmt, (resume['birthday'],))
+        person = select(stmt, args=(resume['birthday'],))
         if person:
             resume['id'] = person['id']
             

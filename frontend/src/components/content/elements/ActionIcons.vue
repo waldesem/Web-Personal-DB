@@ -20,21 +20,21 @@ const props = defineProps({
         title="Изменить"
         @click="emit('update')"
       >
-        <div class="fs-5">&plusmn;</div>
+        <div class="fs-5 text-primary">&plusmn;</div>
       </a>
       <a 
         class="btn btn-link"
         title="Удалить"
         @click="emit('delete')" 
       >
-        <div class="fs-5">&times;</div>
+        <div class="fs-5 text-danger">&times;</div>
       </a>
       <label 
         :for="props.forInput"
         :hidden="props.hide"
       >
         <a class="btn btn-link" title="Загрузить">
-          <div class="fs-5">&infin;</div>
+          <div class="fs-5 text-secondary">&infin;</div>
         </a>
       </label>  
       <slot></slot>

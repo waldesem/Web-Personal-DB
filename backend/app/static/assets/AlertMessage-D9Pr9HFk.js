@@ -1,0 +1,1 @@
+import{d as e}from"./state-Kk6UeE2d.js";import{d as t,o as s,c as r,x as o,u as a,z as l}from"./index-DCiFGIcJ.js";import"./utilities-DksN3XFX.js";const _=t({__name:"AlertMessage",setup(n){return(c,i)=>(s(),r("div",{class:l(["alert",a(e).alertMessage.attr]),role:"info",fade:"",show:""},o(a(e).alertMessage.text),3))}});export{_ as default};

@@ -35,6 +35,7 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/classes")
+@jwt_required()
 def get_classes():
     results = [
         {item.name: item.value for item in items}
@@ -266,7 +267,7 @@ def get_index(page):
             if len(query) > 1 and not re.match(pattern, query[1]):
                 stmt += "AND firstname LIKE '%{}%' ".format(query[1])
             if len(query) > 2 and not re.match(pattern, query[2]):
-                stmt += "AND patronymic LIKE '%{}%' ".format(query)
+                stmt += "AND patronymic LIKE '%{}%' ".format(query[2])
             if len(query) > 1 and re.match(pattern, query[-1]):
                 stmt += "AND birthday = '{}' ".format(
                     datetime.strptime(query[-1], "%d.%m.%Y").date()
@@ -283,7 +284,6 @@ def get_index(page):
         Config.PAGINATION + 1,
         (page - 1) * Config.PAGINATION,
     )
-
     result = select(stmt, many=True)
     has_next = len(result) > Config.PAGINATION
     result = result[: Config.PAGINATION] if has_next else result

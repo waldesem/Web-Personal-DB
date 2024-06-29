@@ -16,7 +16,7 @@ const LoginForm = defineAsyncComponent(
   <div class="container pt-5">
     <AlertMessage/>
     <HeaderDiv 
-      :cls="'text-info py-3'"
+      :cls="'text-danger py-3'"
       :page-header="'StaffSec - кадровая безопасность'"/>
     <LoginForm/>
   </div>

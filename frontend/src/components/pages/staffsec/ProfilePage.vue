@@ -77,7 +77,7 @@ const tabsData = {
   <div class="row mb-3">
     <div class="col-md-10">
       <HeaderDiv
-        :cls="'text-info py-3'"
+        :cls="'text-danger py-3'"
         :page-header="`${stateAnketa.anketa.persons.surname} ${
           stateAnketa.anketa.persons.firstname
         } ${
@@ -88,25 +88,29 @@ const tabsData = {
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
-      <div class="position-relative text-end">
-        <button
-          v-show="currentTab === 'anketaTab'"
+      <div v-if="currentTab === 'anketaTab'" class="position-relative text-end">
+        <button 
           type="button"
-          class="btn btn-lg btn-outline-info"
+          class="btn btn-lg btn-outline-danger"
           :title="'Взять анкету'"
           @click="stateAnketa.getItem('persons', 'self')"
           :disabled="stateAnketa.anketa.persons.user_id == stateUser.userId"
         >
           &equiv;
         </button>
+      </div>
+      <div 
+        v-for="(item, idx) in Object.keys(tabsData).slice(1,)" :key=idx 
+        class="position-relative text-end"
+      >
         <button
-          v-show="currentTab !== 'anketaTab'"
+          v-if="currentTab === item"
           :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
           type="button"
-          class="btn btn-lg btn-outline-info"
+          class="btn btn-lg btn-outline-danger"
           :disabled="stateAnketa.anketa.persons['user_id'] != stateUser.userId"
           data-bs-toggle="collapse"
-          :href="'#' + currentTab.split('T')[0]"
+          :href="'#' + item.split('T')[0]"
         >
           &equiv;
         </button>
@@ -115,11 +119,10 @@ const tabsData = {
   </div>
   <nav class="nav nav-tabs nav-justified" role="tablist">
     <button
-      v-for="(values, key) in tabsData"
-      :key="key"
+      v-for="(values, key) in tabsData" :key="key"
       class="nav-link"
       :class="{ active: key === 'anketaTab' }"
-      :data-bs-target="'#' + key.split('T')[0]"
+      :data-bs-target="'#' + key"
       data-bs-toggle="tab"
       type="button"
       role="tab"
@@ -130,9 +133,8 @@ const tabsData = {
   </nav>
   <div class="tab-content">
     <div
-      v-for="(values, key) in tabsData"
-      :key="key"
-      :id="key.split('T')[0]"
+      v-for="(values, key) in tabsData" :key="key"
+      :id="key"
       class="tab-pane show fade pt-3"
       :class="{ active: key == 'anketaTab' }"
       role="tabpanel"

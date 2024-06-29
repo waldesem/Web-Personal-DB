@@ -8,11 +8,8 @@ import { router } from "@/router";
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
-const GroupInput = defineAsyncComponent(
-  () => import("@components/content/elements/GroupInput.vue")
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
 );
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
@@ -89,72 +86,69 @@ async function submitLogin(): Promise<void> {
         loginData.action === 'create' ? 'Вход в систему' : 'Изменить пароль'
       "
     />
-    <div class="mb-3">
       <form class="form form-check" role="form" @submit.prevent="submitLogin">
-        <LabelSlot :label="'Логин'">
-          <GroupInput
+        <div class="mb-3">
+          <InputElement
+            :need="true"
             :name="'username'"
             :place="'Логин'"
-            :min="3"
-            :max="16"
             v-model="loginData.form['username']"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Пароль'">
-          <GroupInput
+        </div>
+        <div class="mb-3">
+          <InputElement
+            :need="true"
             :name="'password'"
             :place="'Пароль'"
-            :min="8"
-            :max="16"
-            :type="loginData.hidden ? 'password' : 'text'"
+            :typeof="loginData.hidden ? 'password' : 'text'"
             v-model="loginData.form['password']"
-          >
-            <span class="input-group-text">
-              <a role="button" @click="loginData.hidden = !loginData.hidden">
-                <i
-                  :class="loginData.hidden ? 'bi bi-eye' : 'bi bi-eye-slash'"
-                ></i>
-              </a>
-            </span>
-          </GroupInput>
-        </LabelSlot>
-        <div
-          class="row mb-3 col-lg-9 offset-lg-2"
-          v-show="loginData.action === 'create'"
-        >
-          <a class="link-primary" href="#" @click="loginData.action = 'update'">
-            Изменить пароль
-          </a>
+          />
         </div>
         <div v-if="loginData.action === 'update'">
-          <LabelSlot :label="'Новый пароль'">
-            <GroupInput
+          <div class="mb-3">
+            <InputElement
+              :need="true"
               :name="'new_pswd'"
               :place="'Новый'"
               :min="8"
               :max="16"
-              :type="loginData.hidden ? 'password' : 'text'"
+              :typeof="loginData.hidden ? 'password' : 'text'"
               v-model="loginData.form['new_pswd']"
             />
-          </LabelSlot>
-          <LabelSlot :label="'Повтор пароля'">
-            <GroupInput
+          </div>
+          <div class="mb-3">
+            <InputElement
+              :need="true"
               :name="'conf_pswd'"
               :place="'Повтор'"
-              :min="8"
-              :max="16"
-              :type="loginData.hidden ? 'password' : 'text'"
+              :typeof="loginData.hidden ? 'password' : 'text'"
               v-model="loginData.form['conf_pswd']"
             />
-          </LabelSlot>
+          </div>
         </div>
-        <BtnGroup>
+        <div class="row mb-3 col-lg-9">
+          <a 
+            v-show="loginData.action === 'create'" 
+            class="link-primary mb-2" 
+            href="#" 
+            @click="loginData.action = 'update'"
+            >
+            Изменить пароль
+          </a>
+          <a 
+            class="link-primary" 
+            href="#" 
+            @click="loginData.hidden = !loginData.hidden"
+          >
+            {{ loginData.hidden ? "Показать" : "Скрыть" }} пароль
+          </a>
+        </div>
+        <BtnGroup :offset="false">
           <GroupContent
             :submit-btn="loginData.action === 'create' ? 'Войти' : 'Изменить'"
             @cancel="loginData.action = 'create'"
           />
         </BtnGroup>
       </form>
-    </div>
   </div>
 </template>

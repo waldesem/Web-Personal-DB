@@ -51,12 +51,14 @@ const dataResume = ref({
 </script>
 
 <template>
-  <ResumeForm
-    v-if="dataResume.action"
-    :action="dataResume.action"
-    :resume="stateAnketa.anketa.persons"
-    @cancel="dataResume.action = ''"
-  />
+  <div v-if="dataResume.action" class="card card-body mb-3">
+    <ResumeForm
+      
+      :action="dataResume.action"
+      :resume="stateAnketa.anketa.persons"
+      @cancel="dataResume.action = ''"
+    />
+  </div>
   <div
     v-else
     class="card card-body mb-3"

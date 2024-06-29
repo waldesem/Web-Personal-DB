@@ -24,15 +24,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  min: {
+    type: [String, Number],
+    default: "",
+  },
   max: {
     type: [String, Number],
-    default: (props: any) => {
-      if (props.typeof === "date") {
-        return new Date().toISOString().split("T")[0];
-      } else {
-        return "255";
-      }
-    },
+    default: "",
   },
   pattern: {
     type: String,
@@ -43,11 +41,13 @@ const props = defineProps({
 
 <template>
   <input
+    autocomplete="new-password username"
     class="form-control"
     :id="props.name"
     :name="props.name"
     :type="props.typeof"
-    :max="props.max"
+    :minlength="props.min"
+    :maxlength="props.max"
     :required="props.need"
     :disabled="props.disable"
     :pattern="props.pattern"

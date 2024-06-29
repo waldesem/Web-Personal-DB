@@ -55,17 +55,3 @@ export const router = createRouter({
   ],
   history: createWebHistory(),
 });
-
-// router.beforeEach(async (to, _from, next) => {
-//   if ((to.name as string) === "login") {
-//     next();
-//     return;
-//   }
-  
-//   if (localStorage.getItem("user_token")) {
-//     next();
-//   } else {
-//     next({ name: "login" });
-//   }
-//   return;
-// });
