@@ -69,7 +69,7 @@ const tabsData = {
   poligrafTab: ["Добавить полиграф", "Полиграф", PoligrafTab],
   investigateTab: ["Добавить расследования", "Расследования", InvestigateTab],
   inquiryTab: ["Добавить запрос", "Запросы", InquiryTab],
-];
+};
 </script>
 
 <template>
@@ -90,7 +90,7 @@ const tabsData = {
     <div class="col-md-2 d-flex justify-content-end d-print-none">
       <div class="position-relative text-end">
         <button
-          v-show="currentTab == 'anketaTab'"
+          v-show="currentTab === 'anketaTab'"
           type="button"
           class="btn btn-lg btn-outline-info"
           :title="'Взять анкету'"
@@ -100,23 +100,25 @@ const tabsData = {
           &equiv;
         </button>
         <button
-          v-show="currentTab != 'anketaTab'"
-          :title="(tabsData[currentTab][0] as string)"
+          v-show="currentTab !== 'anketaTab'"
+          :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
           type="button"
           class="btn btn-lg btn-outline-info"
           :disabled="stateAnketa.anketa.persons['user_id'] != stateUser.userId"
           data-bs-toggle="collapse"
-          :href="`#${(currentTab.split('T')[0]}`"
+          :href="'#' + currentTab.split('T')[0]"
         >
           &equiv;
         </button>
+      </div>
     </div>
   </div>
   <nav class="nav nav-tabs nav-justified" role="tablist">
     <button
-      v-for="(values, key) in tabsData :key="key"
+      v-for="(values, key) in tabsData"
+      :key="key"
       class="nav-link"
-      :class="{ active: key == 'anketaTab' }"
+      :class="{ active: key === 'anketaTab' }"
       :data-bs-target="'#' + key.split('T')[0]"
       data-bs-toggle="tab"
       type="button"
@@ -128,7 +130,8 @@ const tabsData = {
   </nav>
   <div class="tab-content">
     <div
-      v-for="(values, key) in tabsData" :key="key"
+      v-for="(values, key) in tabsData"
+      :key="key"
       :id="key.split('T')[0]"
       class="tab-pane show fade pt-3"
       :class="{ active: key == 'anketaTab' }"
