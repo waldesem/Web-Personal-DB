@@ -17,7 +17,7 @@ import time
 import traceback
 
 from .buffers import OverflowableBuffer, ReadOnlyFileBasedBuffer
-from .parser_1 import HTTPRequestParser
+from .request_parser import HTTPRequestParser
 from .task import ErrorTask, WSGITask
 from .utilities import InternalServerError
 

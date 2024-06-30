@@ -258,11 +258,7 @@ def get_index(page):
 
         else:
             pattern = r"^\d{2}\.\d{2}\.\d{4}$"
-            query = [
-                search.strip().upper()
-                for search in search_data.split(maxsplit=3)
-                if search
-            ]
+            query = list(map(str.upper, search_data.split()))
             if len(query):
                 stmt += "WHERE surname LIKE '%{}%' ".format(*query)
             if len(query) > 1 and not re.match(pattern, query[1]):
@@ -499,7 +495,8 @@ def post_item_id(item, item_id):
 
         return "", 201
     except Exception as e:
-        return str(e), 400
+        print(e)
+        return "", 400
 
 
 @bp.delete("/<item>/<int:item_id>")

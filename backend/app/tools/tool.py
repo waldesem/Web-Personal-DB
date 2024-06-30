@@ -1,14 +1,11 @@
 from datetime import datetime
 import os
-import re
 
 from config import Config
-from ..classes.classes import Regions
 from ..depends.depend import current_user
 
 
 class Folders:
-
     """Create folder structure for person
 
     Args:
@@ -81,26 +78,28 @@ class Folders:
             self.create_parent_folder(parent_folder),
             datetime.now().strftime("%Y-%m-%d"),
         )
-        return self._check_url(subfolder)    
+        return self._check_url(subfolder)
 
 
 def parse_json(json_dict: dict) -> dict:
-    def get_region_id(json_dict):
-        region = Regions.main.value
-        if "department" in json_dict and json_dict.get("department"):
-            for reg in [r for r in Regions]:
-                if reg.value.upper() in re.split(r"/", json_dict["department"].upper()):
-                    region = reg.value
-                    break
-        return region
-    
+    """
+    Parses a JSON dictionary and returns a dictionary with the parsed data.
+
+    Args:
+        json_dict (dict): The JSON dictionary to parse.
+
+    Returns:
+        dict: The parsed dictionary containing the resume, addresses, contacts, documents, staffs, previous, educations, and workplaces.
+    """
     json_data = {
         "resume": {
-            "region": current_user['region'],
-            "firstname": json_dict["firstName"],
-            "surname": json_dict["lastName"],
+            "region": current_user["region"],
+            "firstname": json_dict.get("firstName"),
+            "surname": json_dict.get("lastName"),
             "patronymic": json_dict.get("midName"),
-            "birthday": datetime.strptime(json_dict["birthday"], "%Y-%m-%d").date(),
+            "birthday": datetime.strptime(json_dict["birthDate"], "%Y-%m-%d").date()
+            if json_dict.get("birthDate")
+            else None,
             "birthplace": json_dict.get("birthplace"),
             "citizenship": json_dict.get("citizen"),
             "dual": json_dict.get("additionalCitizenship"),
@@ -224,4 +223,10 @@ def parse_json(json_dict: dict) -> dict:
                             case "fireReason":
                                 work["reason"] = value
                     json_data["workplaces"].append(work)
-    return json_data
+    return (
+        json_data
+        if json_data["resume"]["surname"]
+        and json_data["resume"]["firstname"]
+        and json_data["resume"]["birthday"]
+        else None
+    )
