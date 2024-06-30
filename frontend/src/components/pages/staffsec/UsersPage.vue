@@ -47,7 +47,7 @@ async function getUsers() {
       },
     });
     dataUsers.value.users = response.data;
-    console.log(response.data);
+
   } catch (error: AxiosError | any) {
     authErrorHandler(error);
   }
@@ -104,7 +104,7 @@ async function getUsers() {
     </template>
     <template v-slot:thead>
       <tr>
-        <th width="10%">#</th>
+        <th width="5%">#</th>
         <th>Имя пользователя</th>
         <th width="15%">Логин</th>
         <th width="10%">Блокировка</th>
@@ -122,7 +122,7 @@ async function getUsers() {
           >
             <template v-slot:tbody>
               <tr height="50px" v-for="user in users" :key="user.id">
-                <td width="10%">{{ user.id }}</td>
+                <td width="5%">{{ user.id }}</td>
                 <td>{{ user.fullname }}</td>
                 <td width="15%">
                   <router-link :to="{ name: 'user', params: { id: user.id } }">

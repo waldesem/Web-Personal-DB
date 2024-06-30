@@ -70,7 +70,7 @@ def get_information():
         """,
         many=True,
         args=(
-            query_data.get("region", current_user["region"]),
+            query_data["region"] if query_data["region"] else current_user["region"],
             Conclusions.saved.value,
             query_data["start"],
             query_data["end"],
@@ -104,7 +104,7 @@ def post_login(action):
     )
     if not user or user["blocked"] or user["deleted"]:
         return "", 204
-
+    print(user)
     args = []
     stmt = "UPDATE users SET "
     if not check_password_hash(user["password"], json_data["password"]):
@@ -187,13 +187,12 @@ def post_user():
         if user and not json_dict["id"]:
             return "", 205
 
-        if not json_dict["id"]:
-            json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
-
+        json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
         keys, args = zip(*json_dict.items())
         query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
         )
+        print(query, args)
         execute(query, args)
         return "", 201
 

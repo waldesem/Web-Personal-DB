@@ -1,5 +1,5 @@
-export const server = "http://localhost:5000";
-// export const server = '';
+// export const server = "http://localhost:5000";
+export const server = '';
 
 /**
  * Debounces a function, ensuring it's not called again until a certain amount of time has passed.
@@ -37,6 +37,7 @@ export function timeSince(date: string): string {
       new Date().getTimezoneOffset() * 60000) /
     1000;
   let interval = seconds / 31536000;
+
   if (interval > 1) {
     return Math.floor(interval) + " лет назад";
   }

@@ -53,6 +53,9 @@ async function submitUser(): Promise<void> {
     authErrorHandler(error);
   }
   emit("update");
+  Object.keys(userForm.value).forEach(
+    (key) => delete userForm.value[key as keyof typeof userForm.value]
+  );
 }
 </script>
 
@@ -64,7 +67,7 @@ async function submitUser(): Promise<void> {
           :name="'fullname'"
           :place="'Имя пользователя'"
           :need="props.action !== 'edit'"
-          :pattern="'[a-zA-Zа-яА-Я ]+'"
+          :pattern="'[А-Яа-я- ]+'"
           v-model="userForm['fullname']"
         />
       </LabelSlot>
@@ -72,7 +75,7 @@ async function submitUser(): Promise<void> {
         <InputElement
           :name="'username'"
           :place="'Учетная запись'"
-          :pattern="'[a-zA-Z]+'"
+          :pattern="'[a-zA-Z_]+'"
           :need="props.action !== 'edit'"
           :disable="props.action === 'edit'"
           v-model="userForm['username']"

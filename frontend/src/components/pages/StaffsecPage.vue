@@ -6,10 +6,10 @@ import { server } from "@/utilities";
 import { router } from "@/router";
 
 const NavBar = defineAsyncComponent(
-  () => import("@components/content/layouts/NavBar.vue")
+  () => import("@components/content/elements/NavBar.vue")
 );
 const MenuBar = defineAsyncComponent(
-  () => import("@components/content/layouts/MenuBar.vue")
+  () => import("@components/content/elements/MenuBar.vue")
 );
 
 onBeforeMount(async () => {

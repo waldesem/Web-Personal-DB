@@ -88,46 +88,48 @@ async function userDelete(): Promise<void> {
     "
     @cancel="userData.action = '';"
   />
-  <div v-else class="mb-3">
-    <LabelSlot :label="'ID'">
-      {{ userData.profile.id }}
-    </LabelSlot>
-    <LabelSlot :label="'Регион'">
-      {{ userData.profile.region }}
-    </LabelSlot>
-    <LabelSlot :label="'Имя пользователя'">
-      {{ userData.profile.fullname }}
-    </LabelSlot>
-    <LabelSlot :label="'Логин'">
-      {{ userData.profile.username }}
-    </LabelSlot>
-    <LabelSlot :label="'E-mail'">
-      {{ userData.profile.email }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата создания пароля'">
-      {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") + ' UTC' }}
-    </LabelSlot>
-    <LabelSlot :label="'Требует смены пароля'">
-      {{ userData.profile.change_pswd ? "Да" : "Нет" }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата последнего входа'">
-      {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") + ' UTC' }}
-    </LabelSlot>
-    <LabelSlot :label="'Попытки входа'">
-      {{ userData.profile.attempt }}
-    </LabelSlot>
-    <LabelSlot :label="'Заблокирован'">
-      {{ userData.profile.blocked ? "Заблокирован" : "Разблокирован" }}
-    </LabelSlot>
-    <LabelSlot :label="'Активность'">
-      {{ userData.profile.deleted ? "Удален" : "Активен" }}
-    </LabelSlot>
-    <LabelSlot :label="'Администратор'">
-      {{ userData.profile.has_admin ? "Да" : "Нет" }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата создания профиля'">
-      {{ new Date(userData.profile.created).toLocaleString("ru-RU") + ' UTC' }}
-    </LabelSlot>
+  <div v-else>
+    <div class="mb-5">
+      <LabelSlot :label="'ID'">
+        {{ userData.profile.id }}
+      </LabelSlot>
+      <LabelSlot :label="'Регион'">
+        {{ userData.profile.region }}
+      </LabelSlot>
+      <LabelSlot :label="'Имя пользователя'">
+        {{ userData.profile.fullname }}
+      </LabelSlot>
+      <LabelSlot :label="'Логин'">
+        {{ userData.profile.username }}
+      </LabelSlot>
+      <LabelSlot :label="'E-mail'">
+        {{ userData.profile.email }}
+      </LabelSlot>
+      <LabelSlot :label="'Дата создания пароля'">
+        {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") + ' UTC' }}
+      </LabelSlot>
+      <LabelSlot :label="'Требует смены пароля'">
+        {{ userData.profile.change_pswd ? "Да" : "Нет" }}
+      </LabelSlot>
+      <LabelSlot :label="'Дата последнего входа'">
+        {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") + ' UTC' }}
+      </LabelSlot>
+      <LabelSlot :label="'Попытки входа'">
+        {{ userData.profile.attempt }}
+      </LabelSlot>
+      <LabelSlot :label="'Заблокирован'">
+        {{ userData.profile.blocked ? "Заблокирован" : "Разблокирован" }}
+      </LabelSlot>
+      <LabelSlot :label="'Активность'">
+        {{ userData.profile.deleted ? "Удален" : "Активен" }}
+      </LabelSlot>
+      <LabelSlot :label="'Администратор'">
+        {{ userData.profile.has_admin ? "Да" : "Нет" }}
+      </LabelSlot>
+      <LabelSlot :label="'Дата создания профиля'">
+        {{ new Date(userData.profile.created).toLocaleString("ru-RU") + ' UTC' }}
+      </LabelSlot>
+    </div>
     <BtnGroup :offset="false">
       <button
         class="btn btn-outline-primary"

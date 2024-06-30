@@ -67,7 +67,7 @@ def create_token(user):
         Config.SECRET_KEY, 
         str(user["id"]),
         user["username"],
-        user["has_admin"],
+        str(user["has_admin"]),
     ]
     token = ":".join(token_parts)
     return b64encode(token.encode()).decode()

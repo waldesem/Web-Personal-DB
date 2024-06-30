@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
-import { submitFile } from "@/state";
 import { authErrorHandler, axiosAuth } from "@/auth";
 import { Persons } from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
-);
-const FileForm = defineAsyncComponent(
-  () => import("@components/content/forms/FileForm.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -51,7 +47,6 @@ const personData = ref({
   prev: false,
   next: false,
   search: "",
-  upload: true,
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
@@ -85,12 +80,6 @@ const searchPerson = debounce(() => {
   getCandidates();
 }, 500);
 
-async function submitJson(event: Event): Promise<void> {
-  personData.value.upload = false;
-  submitFile(event, "persons", "0");
-  personData.value.upload = true;
-}
-
 const shortName = (fullname: string) => {
   const [first, second] = fullname.split(" ");
   return `${first} ${second}`;
@@ -99,19 +88,7 @@ const shortName = (fullname: string) => {
 
 <template>
   <HeaderDiv :page-header="'Кандидаты'" />
-  <div class="position-relative">
-    <div class="position-absolute bottom-100 end-0 px-3">
-      <label v-if="personData.upload" 
-        for="file" 
-        title="Загрузить анкету"
-        class="text-primary fs-1 fw-light"
-        style="cursor: pointer;"
-      >
-      &#x272A;
-      </label>
-      <FileForm :accept="'.json'" @submit="submitJson" />
-    </div>
-  </div>
+  
   <div class="row mb-3">
     <form class="form form-check" role="form">
       <input
