@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import abort, Blueprint, jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -56,20 +56,22 @@ def get_classes():
 
 
 @bp.get("/information")
-@jwt_required()
+@user_required()
 def get_information():
     query_data = request.args
     result = select(
         """
         SELECT checks.conclusion, count(checks.id) as count FROM checks
-            LEFT JOIN persons on checks.person_id = persons.id
-            WHERE persons.region = ?
-            AND checks.created BETWEEN ? AND ?
-            GROUP BY conclusion
+        LEFT JOIN persons on checks.person_id = persons.id
+        WHERE persons.region = ?
+        AND checks.conclusion <> ?
+        AND checks.created BETWEEN ? AND ?
+        GROUP BY conclusion
         """,
         many=True,
         args=(
-            query_data["region"],
+            query_data.get("region", current_user["region"]),
+            Conclusions.saved.value,
             query_data["start"],
             query_data["end"],
         ),
@@ -116,7 +118,7 @@ def post_login(action):
         return "", 204
 
     if action == "update":
-        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$'
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
         if not re.match(pattern, json_data["new_pswd"]):
             return "", 205
         stmt += "password = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
@@ -128,7 +130,7 @@ def post_login(action):
         delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
         if not user["change_pswd"] and delta_change.days < 30:
             stmt += "last_login = ?, attempt = 0 WHERE id = ?"
-            args.extend([datetime.now(), user["id"]])
+            args.extend([datetime.now(timezone.utc), user["id"]])
             execute(stmt, tuple(args))
             return jsonify(
                 {
@@ -139,7 +141,7 @@ def post_login(action):
 
 
 @bp.get("/users")
-@jwt_required()
+@user_required(admin=True)
 def get_users():
     """
     Retrieves a list of users from the database based on the provided search criteria.
@@ -159,7 +161,7 @@ def get_users():
 
 
 @bp.post("/users")
-@jwt_required()
+@user_required(admin=True)
 def post_user():
     """
     Handles the POST request to create or update a user in the database.
@@ -201,7 +203,7 @@ def post_user():
 
 
 @bp.get("/users/<int:user_id>")
-@jwt_required()
+@user_required(admin=True)
 def get_user_id(user_id):
     """
     Retrieves a user's information from the database based on their user ID.
@@ -450,7 +452,7 @@ def get_item_id(item, item_id):
 def post_item_id(item, item_id):
     """
     Inserts or replaces a record in the specified table with the given item ID.
-    If the item is one of 'checks', 'poligrafs', 'inquiries', or 'investigations', 
+    If the item is one of 'checks', 'poligrafs', 'inquiries', or 'investigations',
     the 'user_id' field is set to the current user's ID.
 
     Parameters:

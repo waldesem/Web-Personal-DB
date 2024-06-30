@@ -1,5 +1,5 @@
 import { reactive, ref } from "vue";
-import { axiosAuth } from "@/auth";
+import { axiosAuth, authErrorHandler } from "@/auth";
 import { router } from "@/router";
 import { server } from "@/utilities";
 import {
@@ -105,12 +105,7 @@ export const stateAnketa = {
         stateAlert.setAlert("alert-info", "Анкета назначена пользователю");
       }
     } catch (error: any) {
-      if (error.request.status == 401 || error.request.status == 403) {
-        router.push({ name: "login" });
-      } else {
-        console.error(error);
-        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
-      }
+      authErrorHandler(error);
     }
   },
 
@@ -125,12 +120,7 @@ export const stateAnketa = {
       this.getItem(param);
       stateAlert.setAlert("alert-success", "Запись успешно добавлена");
     } catch (error: any) {
-      if (error.request.status == 401 || error.request.status == 403) {
-        router.push({ name: "login" });
-      } else {
-        console.error(error);
-        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
-      }
+      authErrorHandler(error);
     }
   },
 
@@ -144,12 +134,7 @@ export const stateAnketa = {
         : this.getItem(param);
       stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error: any) {
-      if (error.request.status == 401 || error.request.status == 403) {
-        router.push({ name: "login" });
-      } else {
-        console.error(error);
-        stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
-      }
+      authErrorHandler(error);
     }
   },
 };
@@ -192,11 +177,7 @@ export async function submitFile(
         "Файл или файлы успешно загружен/добавлены"
       );
     } catch (error: any) {
-      if (error.request.status == 401 || error.request.status == 403) {
-        router.push({ name: "login" });
-      } else {
-        console.error(error);
-      }
+      authErrorHandler(error);
     }
   } else {
     stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");

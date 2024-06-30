@@ -54,18 +54,20 @@ def create_token(user):
     Generate a token for the given user.
 
     Args:
-        user (dict): A dictionary containing the user's information, including the user's id, username, and has_admin status.
+        user (dict): A dictionary containing the user's information.
 
     Returns:
         str: The generated token, encoded in base64.
 
-    This function takes a dictionary containing the user's information and generates a token using the secret key, the user's id, the user's username, and the user's has_admin status. The token is then encoded in base64 and returned as a string.
+    This function takes a dictionary containing the user's information 
+    and generates a token using the secret key and the user's id. 
+    The token is then encoded in base64 and returned as a string.
     """
     token_parts = [
-        Config.SECRET_KEY,
+        Config.SECRET_KEY, 
         str(user["id"]),
         user["username"],
-        str(user["has_admin"]),
+        user["has_admin"],
     ]
     token = ":".join(token_parts)
     return b64encode(token.encode()).decode()

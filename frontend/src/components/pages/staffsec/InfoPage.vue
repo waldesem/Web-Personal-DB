@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, defineAsyncComponent } from "vue";
 import { stateClassify, stateUser } from "@/state";
-import { axiosAuth } from "@/auth";
+import { authErrorHandler, axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 import { AxiosError } from "axios";
-import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -23,7 +22,7 @@ const todayDate = new Date();
 
 const tableData = ref({
   stat: {
-    region: stateClassify.regions['main'],
+    region: "",
     checks: <Array<any>>{},
     start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
       .toISOString()
@@ -43,11 +42,7 @@ async function submitData(): Promise<void> {
     tableData.value.stat.checks = response.data;
 
   } catch (error: AxiosError | any) {
-    if (error.request.status == 401 || error.request.status == 403) {
-      router.push({ name: "login" });
-    } else {
-      console.error(error);
-    }
+    authErrorHandler(error);
   }
 }
 

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { axiosAuth } from "@/auth";
+import { authErrorHandler, axiosAuth } from "@/auth";
 import { server, debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
 import { AxiosError } from "axios";
-import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -50,11 +49,7 @@ async function getUsers() {
     dataUsers.value.users = response.data;
     console.log(response.data);
   } catch (error: AxiosError | any) {
-    if (error.request.status == 401 || error.request.status == 403) {
-      router.push({ name: "login" });
-    } else {
-      console.error(error);
-    }
+    authErrorHandler(error);
   }
 }
 </script>

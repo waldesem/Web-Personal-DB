@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa, stateAlert } from "@/state";
+import { stateUser, stateAnketa } from "@/state";
 import { useRoute } from "vue-router";
 import { server } from "@/utilities";
-import { axiosAuth } from "@/auth";
-import { router } from "@/router";
+import { authErrorHandler, axiosAuth } from "@/auth";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -52,12 +51,7 @@ onBeforeMount(async () => {
       stateAnketa.anketa.inquiries,
     ] = response.data;
   } catch (error: any) {
-    if (error.request.status == 401 || error.request.status == 403) {
-      router.push({ name: "login" });
-    } else {
-      console.error(error);
-      stateAlert.setAlert("alert-danger", `Ошибка: ${error}`);
-    }
+    authErrorHandler(error);
   }
 });
 

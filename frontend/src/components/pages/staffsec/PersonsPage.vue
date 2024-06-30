@@ -2,9 +2,8 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, server, timeSince } from "@/utilities";
 import { submitFile } from "@/state";
-import { axiosAuth } from "@/auth";
+import { authErrorHandler, axiosAuth } from "@/auth";
 import { Persons } from "@/interfaces";
-import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -78,11 +77,7 @@ async function getCandidates(page = 1): Promise<void> {
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
   } catch (error: any) {
-    if (error.request.status == 401 || error.request.status == 403) {
-      router.push({ name: "login" });
-    } else {
-      console.error(error);
-    }
+    authErrorHandler(error);
   }
 }
 

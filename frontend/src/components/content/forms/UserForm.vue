@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
-import { axiosAuth } from "@/auth";
+import { authErrorHandler, axiosAuth } from "@/auth";
 import { stateAlert, stateClassify } from "@/state";
 import { server } from "@/utilities";
 import { User } from "@/interfaces";
@@ -50,8 +50,7 @@ async function submitUser(): Promise<void> {
       stateAlert.setAlert("alert-success", "Запись успешно добавлена");
     }
   } catch (error) {
-    console.error(error);
-    stateAlert.setAlert("alert-danger", "Ошибка сохранения данных");
+    authErrorHandler(error);
   }
   emit("update");
 }

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateAlert, stateUser } from "@/state";
-import { axiosAuth } from "@/auth";
+import { authErrorHandler, axiosAuth } from "@/auth";
 import { server } from "@/utilities";
 import { useRoute } from "vue-router";
 import { User } from "@/interfaces";
-import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -29,7 +28,6 @@ onBeforeMount(async () => {
 const userData = ref({
   id: "",
   action: "",
-  role: "",
   profile: <User>{},
 });
 
@@ -48,11 +46,7 @@ async function userAction(action: String): Promise<void> {
       stateAlert.setAlert("alert-success", "Пароль сброшен");
     }
   } catch (error: any) {
-    if (error.request.status == 401 || error.request.status == 403) {
-      router.push({ name: "login" });
-    } else {
-      console.error(error);
-    }
+    authErrorHandler(error);
   }
 }
 
@@ -73,11 +67,7 @@ async function userDelete(): Promise<void> {
         stateAlert.setAlert("alert-danger", "Произошла ошибка");
       }
     } catch (error: any) {
-      if (error.request.status == 401 || error.request.status == 403) {
-        router.push({ name: "login" });
-      } else {
-        console.error(error);
-      }
+      authErrorHandler(error);
     }
   }
 }

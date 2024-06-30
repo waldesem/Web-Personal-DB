@@ -18,3 +18,11 @@ axiosAuth.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+export function authErrorHandler(error: any) {
+  if (error.request.status == 401 || error.request.status == 403) {
+    router.push({ name: "login" });
+  } else {
+    console.error(error);
+  }
+}
