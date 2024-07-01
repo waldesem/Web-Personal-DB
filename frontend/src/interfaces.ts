@@ -163,17 +163,3 @@ export interface Needs {
   user: string;
   created: string;
 }
-
-export interface Connection {
-  id: string;
-  view: string;
-  company: string;
-  city: string;
-  fullname: string;
-  phone: string;
-  adding: string;
-  mobile: string;
-  email: string;
-  comment: string;
-  created: string;
-}
