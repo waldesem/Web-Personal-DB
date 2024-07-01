@@ -1,4 +1,4 @@
-import { reactive, ref } from "vue";
+import { reactive } from "vue";
 import { axiosAuth, authErrorHandler } from "@/auth";
 import { router } from "@/router";
 import { server } from "@/utilities";
@@ -24,8 +24,6 @@ export const stateUser = reactive({
   username: "",
   hasAdmin: false,
 });
-
-export const userToken = ref(localStorage.getItem("user_token") as any) || "";
 
 export const stateClassify = reactive({
   regions: <Record<string, any>>{},
