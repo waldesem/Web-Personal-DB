@@ -12,9 +12,6 @@ const FileForm = defineAsyncComponent(
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/forms/ResumeForm.vue")
 );
-
-async function submitJson(event: Event): Promise<void> {
-  submitFile(event, "persons", "0");}
 </script>
 
 <template>
@@ -28,7 +25,7 @@ async function submitJson(event: Event): Promise<void> {
       >Загрузить json
       &#9735;
       </label>
-      <FileForm :accept="'.json'" @submit="submitJson" />
+      <FileForm :accept="'.json'" @submit="submitFile($event, 'persons', '0')" />
     </div>
   </div>
   <ResumeForm @cancel="router.push({ name: 'persons' })"/>

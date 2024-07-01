@@ -12,9 +12,6 @@ const LabelSlot = defineAsyncComponent(
 const SelectDiv = defineAsyncComponent(
   () => import("@components/content/elements/SelectDiv.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/GroupContent.vue")
-);
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
@@ -83,10 +80,6 @@ function submitDocument() {
         v-model="docForm['issue']"
       />
     </LabelSlot>
-    <BtnGroup>
-      <BtnGroupContent
-        @cancel="emit('cancel')"
-      />
-    </BtnGroup>
+    <BtnGroup @cancel="emit('cancel')" />
   </form>
 </template>

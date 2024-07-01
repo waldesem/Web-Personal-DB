@@ -15,9 +15,6 @@ const InputElement = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/GroupContent.vue")
-);
 
 const emit = defineEmits(["cancel"]);
 
@@ -62,10 +59,6 @@ function submitRelation() {
         v-model="relationForm['relation_id']"
       />
     </LabelSlot>
-    <BtnGroup>
-      <BtnGroupContent
-        @cancel="emit('cancel')"
-      />
-    </BtnGroup>
+    <BtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

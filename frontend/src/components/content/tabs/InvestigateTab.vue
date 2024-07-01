@@ -29,12 +29,12 @@ function cancelAction() {
       delete inquisition.value.item[key as keyof typeof inquisition.value.item]
   );
   const collapseInvestigation = document.getElementById("investigate");
-  collapseInvestigation?.setAttribute("class", "collapse card card-body mb-3");
+  collapseInvestigation?.setAttribute("class", "collapse card card-body");
 }
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="investigate">
+  <div class="collapse card card-body" id="investigate">
     <InvestigationForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.investigations.length">
@@ -78,7 +78,7 @@ function cancelAction() {
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"]).toLocaleString("ru-RU") + ' UTC' }}
+          {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

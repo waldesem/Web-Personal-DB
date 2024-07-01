@@ -28,13 +28,13 @@ function cancelAction(){
     (key) => delete contact.value.item[key as keyof typeof contact.value.item]
   );
   const collapseContact = document.getElementById('contact');
-  collapseContact?.setAttribute('class', 'collapse card card-body mb-3');
+  collapseContact?.setAttribute('class', 'collapse card card-body');
 };
 </script>
 
 <template>
   <DropDownHead :id="'contact'" :header="'Контакты'"/>
-  <div class="collapse card card-body mb-3" id="contact">
+  <div class="collapse card card-body" id="contact">
     <ContactForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.contacts.length"> 

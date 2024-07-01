@@ -28,13 +28,13 @@ function cancelAction(){
     (key) => delete workplace.value.item[key as keyof typeof workplace.value.item]
   );
   const collapseWork = document.getElementById('work');
-  collapseWork?.setAttribute('class', 'collapse card card-body mb-3');
+  collapseWork?.setAttribute('class', 'collapse card card-body');
 };
 </script>
 
 <template>
   <DropDownHead :id="'work'" :header="'Работа'"/>
-  <div class="collapse card card-body mb-3" id="work">
+  <div class="collapse card card-body" id="work">
     <WorkplaceForm @cancel="cancelAction" />
   </div>
   <div

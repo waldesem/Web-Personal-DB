@@ -28,12 +28,12 @@ function cancelAction(){
     (key) => delete affilation.value.item[key as keyof typeof affilation.value.item]
   );
   const collapseContact = document.getElementById('affilation');
-  collapseContact?.setAttribute('class', 'collapse card card-body mb-3');
+  collapseContact?.setAttribute('class', 'collapse card card-body');
 };
 </script>
 
 <template>
-  <DropDownHead :id="'affilation'" :header="'Аффилированность'"/>  <div class="collapse card card-body mb-3" id="affilation">
+  <DropDownHead :id="'affilation'" :header="'Аффилированность'"/>  <div class="collapse card card-body" id="affilation">
     <AffilationForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.affilations.length">

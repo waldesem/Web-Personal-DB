@@ -28,13 +28,13 @@ function cancelAction(){
     (key) => delete education.value.item[key as keyof typeof education.value.item]
   );
   const collapsePrevious = document.getElementById('education');
-  collapsePrevious?.setAttribute('class', 'collapse card card-body mb-3');
+  collapsePrevious?.setAttribute('class', 'collapse card card-body');
 };
 </script>
 
 <template>
   <DropDownHead :id="'education'" :header="'Образование'"/>
-  <div class="collapse card card-body mb-3" id="education">
+  <div class="collapse card card-body" id="education">
     <EducationForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.educations.length">

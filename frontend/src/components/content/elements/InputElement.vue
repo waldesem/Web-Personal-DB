@@ -4,14 +4,6 @@ const model = defineModel();
 const props = defineProps({
   name: String,
   place: String,
-  lst: {
-    type: String,
-    default: ""
-  },
-  selects: {
-    type: Array,
-    default: []
-  },
   typeof: {
     type: String,
     default: "text",
@@ -52,13 +44,7 @@ const props = defineProps({
     :disabled="props.disable"
     :pattern="props.pattern"
     :placeholder="props.place"
-    :list="props.lst"
     v-model.trim.lazy="model"
     @change="emit('submit-data')"
   />
-  <datalist v-if="props.lst" :id="props.lst">
-    <option v-for="item in selects" 
-      :value="item">
-    </option>
-  </datalist>
 </template>

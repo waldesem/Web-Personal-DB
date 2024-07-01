@@ -104,7 +104,7 @@ def post_login(action):
     )
     if not user or user["blocked"] or user["deleted"]:
         return "", 204
-    print(user)
+
     args = []
     stmt = "UPDATE users SET "
     if not check_password_hash(user["password"], json_data["password"]):
@@ -192,7 +192,6 @@ def post_user():
         query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
         )
-        print(query, args)
         execute(query, args)
         return "", 201
 

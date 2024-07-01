@@ -10,9 +10,6 @@ const HeaderDiv = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
-const PageSwitcher = defineAsyncComponent(
-  () => import("@components/content/elements/PageSwitcher.vue")
-);
 
 onBeforeMount(async () => {
   await getCandidates();
@@ -165,11 +162,26 @@ const shortName = (fullname: string) => {
     </template>
   </TableSlots>
   <p v-else>Ничего не найдено</p>
-  <PageSwitcher
-    :has_prev="personData.prev"
-    :has_next="personData.next"
-    :switchPrev="personData.page - 1"
-    :switchNext="personData.page + 1"
-    @switch="getCandidates"
-  />
+  <nav v-if="personData.prev || personData.next">
+    <ul class="pagination justify-content-center py-3">
+      <li class="page-item" :disabled="!personData.prev">
+        <a
+          class="page-link"
+          href="#"
+          @click="getCandidates(personData.page - 1)"
+        >
+          Предыдущая
+        </a>
+      </li>
+      <li class="page-item" :disabled="!personData.next">
+        <a
+          class="page-link"
+          href="#"
+          @click="getCandidates(personData.page + 1)"
+        >
+          Следующая
+        </a>
+      </li>
+    </ul>
+  </nav>
 </template>

@@ -15,9 +15,6 @@ const InputElement = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-const BtnGroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/GroupContent.vue")
-);
 
 const emit = defineEmits(["cancel"]);
 
@@ -101,10 +98,6 @@ function submitWorkplace() {
         v-model="workForm['reason']"
       />
     </LabelSlot>
-    <BtnGroup>
-      <BtnGroupContent 
-        @cancel="emit('cancel')"
-      />
-    </BtnGroup>
+    <BtnGroup @cancel="emit('cancel')" />
   </form>
 </template>

@@ -15,9 +15,6 @@ const LabelSlot = defineAsyncComponent(
 const UserForm = defineAsyncComponent(
   () => import("@components/content/forms/UserForm.vue")
 );
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
 
 onBeforeMount(async () => {
   const route = useRoute();
@@ -130,7 +127,7 @@ async function userDelete(): Promise<void> {
         {{ new Date(userData.profile.created).toLocaleString("ru-RU") + ' UTC' }}
       </LabelSlot>
     </div>
-    <BtnGroup :offset="false">
+    <div class="btn-group row mb-3" role="group">
       <button
         class="btn btn-outline-primary"
         type="button"
@@ -157,7 +154,7 @@ async function userDelete(): Promise<void> {
       >
         Удалить
       </button>
-    </BtnGroup>
+    </div>
   </div>
 </template>
 

@@ -28,13 +28,13 @@ function cancelAction(){
     (key) => delete doc.value.item[key as keyof typeof doc.value.item]
   );
   const collapseDocument = document.getElementById('document');
-  collapseDocument?.setAttribute('class', 'collapse card card-body mb-3');
+  collapseDocument?.setAttribute('class', 'collapse card card-body');
 };
 </script>
 
 <template>
   <DropDownHead :id="'document'" :header="'Документы'"/>
-  <div class="collapse card card-body mb-3" id="document">
+  <div class="collapse card card-body" id="document">
     <DocumentForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.documents.length">

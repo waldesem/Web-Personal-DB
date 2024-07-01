@@ -14,9 +14,6 @@ const InputElement = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-const GroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/GroupContent.vue")
-);
 
 const loginData = ref({
   action: "create",
@@ -143,12 +140,11 @@ async function submitLogin(): Promise<void> {
             {{ loginData.hidden ? "Показать" : "Скрыть" }} пароль
           </a>
         </div>
-        <BtnGroup :offset="false">
-          <GroupContent
-            :submit-btn="loginData.action === 'create' ? 'Войти' : 'Изменить'"
-            @cancel="loginData.action = 'create'"
+        <BtnGroup 
+          :offset="false" 
+          :submit-btn="loginData.action === 'create' ? 'Войти' : 'Изменить'"
+          @cancel="loginData.action = 'create'"
           />
-        </BtnGroup>
       </form>
   </div>
 </template>

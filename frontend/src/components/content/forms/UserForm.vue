@@ -20,9 +20,6 @@ const SwitchBox = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-const GroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/GroupContent.vue")
-);
 
 const emit = defineEmits(["update", "cancel"]);
 
@@ -104,12 +101,11 @@ async function submitUser(): Promise<void> {
       </LabelSlot>
       <div class="row m-3">
         <div class="col col-auto">
-          <BtnGroup :offset="false">
-            <GroupContent
-              :submit-btn="props.action === 'create' ? 'Создать' : 'Изменить'"
-              @cancel="emit('cancel')"
-            />
-          </BtnGroup>
+          <BtnGroup 
+            :offset="false"
+            :submit-btn="props.action === 'create' ? 'Создать' : 'Изменить'"
+            @cancel="emit('cancel')"
+          />
         </div>
       </div>
     </form>

@@ -1,2 +1,0 @@
-import{d as n,E as s,G as d,m,v as r,o as c,c as i}from"./index-8uvu1PmF.js";const p=["id","name","placeholder"],v=n({__name:"TextArea",props:s({name:String,place:String},{modelValue:{},modelModifiers:{}}),emits:["update:modelValue"],setup(a){const o=d(a,"modelValue"),e=a;return(u,l)=>m((c(),i("textarea",{class:"form-control",id:e.name,name:e.name,placeholder:e.place,"onUpdate:modelValue":l[0]||(l[0]=t=>o.value=t)},`
-  `,8,p)),[[r,o.value,void 0,{lazy:!0}]])}});export{v as default};

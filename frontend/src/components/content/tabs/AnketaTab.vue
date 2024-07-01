@@ -53,7 +53,6 @@ const dataResume = ref({
 <template>
   <div v-if="dataResume.action" class="card card-body mb-3">
     <ResumeForm
-      
       :action="dataResume.action"
       :resume="stateAnketa.anketa.persons"
       @cancel="dataResume.action = ''"

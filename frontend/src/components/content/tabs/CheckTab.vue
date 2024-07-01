@@ -28,12 +28,12 @@ function cancelAction() {
     (key) => delete check.value.item[key as keyof typeof check.value.item]
   );
   const collapseCheck = document.getElementById('check');
-  collapseCheck?.setAttribute('class', 'collapse card card-body mb-3');
+  collapseCheck?.setAttribute('class', 'collapse card card-body');
 }
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="check">
+  <div class="collapse card card-body" id="check">
     <CheckForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.checks.length">
@@ -112,7 +112,7 @@ function cancelAction() {
         <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"]).toLocaleString("ru-RU") + ' UTC' }}
+          {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

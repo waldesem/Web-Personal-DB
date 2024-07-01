@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { axiosAuth, authErrorHandler } from "@/auth";
-import { defineAsyncComponent, onBeforeMount } from "vue";
+import { onBeforeMount, defineAsyncComponent } from "vue";
 import { stateClassify, stateUser } from "@/state";
 import { server } from "@/utilities";
 import { router } from "@/router";
 
-const NavBar = defineAsyncComponent(
-  () => import("@components/content/elements/NavBar.vue")
-);
-const MenuBar = defineAsyncComponent(
-  () => import("@components/content/elements/MenuBar.vue")
+const AlertMessage = defineAsyncComponent(
+  () => import("@components/content/elements/AlertMessage.vue")
 );
 
 onBeforeMount(async () => {
@@ -39,17 +36,83 @@ onBeforeMount(async () => {
     authErrorHandler(error);
   }
 });
+
+async function userLogout(): Promise<void> {
+  localStorage.removeItem("user_token");
+  router.push({ name: "login" });
+}
 </script>
 
 <template>
   <div class="container-fluid row px-3">
     <div class="col-2 d-print-none">
-      <NavBar />
+      <div class="navbar navbar-expand sticky-top fs-5 p-3">
+        <div class="nav flex-column">
+          <a class="nav-link text-danger fs-3 fw-bold">STAFFSEC - MTS Bank</a>
+          <hr class="text-info">
+          <router-link
+            :to="{ name: 'persons' }"
+            class="nav-link active"
+          >
+            Кандидаты
+          </router-link>
+          <hr class="text-info">
+          <router-link
+            :to="{ name: 'resume' }"
+            class="nav-link active"
+          >
+            Создать
+          </router-link>
+          <hr class="text-info">
+          <router-link
+            :to="{ name: 'information' }"
+            class="nav-link active"
+          >
+            Информация
+          </router-link>
+          <hr class="text-info">
+        </div>
+      </div>
     </div>
     <div class="col-9" id="staffsec">
-      <MenuBar />
+      <div class="sticky-top bg-white d-print-none p-3">
+        <div class="row">
+          <div class="col-10 text-center">
+            <AlertMessage/>
+          </div>
+          <div class="col-2 text-end">
+            <div class="dropdown">
+              <button
+                class="btn btn-link btn-lg dropdown-toggle"
+                style="text-decoration: none;"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                &#x272A; {{ stateUser.username }}
+              </button>
+              <ul class="dropdown-menu">
+                <li v-if="stateUser.hasAdmin" class="dropdown-item">
+                  <router-link
+                    :to="{ name: 'users' }"
+                    class="link-opacity-50-hover"
+                  >
+                    Пользователи
+                  </router-link>
+                </li >
+                <li class="dropdown-item" >
+                  <a
+                    class="link-opacity-50-hover" href="#"
+                    @click="userLogout">
+                    Выход
+                  </a>
+                </li >
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
       <router-view v-slot="{ Component }" :key="$route.fullPath">
-        <div><component :is="Component" /></div>
+        <component :is="Component" />
       </router-view>
     </div>
     <div class="col-1 d-print-none"></div>

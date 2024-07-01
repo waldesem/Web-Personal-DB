@@ -28,12 +28,12 @@ function cancelAction() {
     (key) => delete poligraf.value.item[key as keyof typeof poligraf.value.item]
   );
   const collapsePoligraf = document.getElementById("poligraf");
-  collapsePoligraf?.setAttribute("class", "collapse card card-body mb-3");
+  collapsePoligraf?.setAttribute("class", "collapse card card-body");
 }
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="poligraf">
+  <div class="collapse card card-body" id="poligraf">
     <PoligrafForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.poligrafs.length">
@@ -75,7 +75,7 @@ function cancelAction() {
         <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"]).toLocaleString("ru-RU") + ' UTC' }}
+          {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

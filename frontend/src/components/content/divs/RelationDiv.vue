@@ -28,13 +28,13 @@ function cancelAction(){
     (key) => delete relation.value.item[key as keyof typeof relation.value.item]
   );
   const collapseRelation = document.getElementById('relation');
-  collapseRelation?.setAttribute('class', 'collapse card card-body mb-3');
+  collapseRelation?.setAttribute('class', 'collapse card card-body');
 };
 </script>
 
 <template>
   <DropDownHead :id="'relation'" :header="'Связи'"/>
-  <div class="collapse card card-body mb-3" id="relation">
+  <div class="collapse card card-body" id="relation">
     <RelationForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.relations.length">

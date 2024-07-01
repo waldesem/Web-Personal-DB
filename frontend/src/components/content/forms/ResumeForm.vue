@@ -21,9 +21,6 @@ const TextArea = defineAsyncComponent(
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
-const GroupContent = defineAsyncComponent(
-  () => import("@components/content/elements/GroupContent.vue")
-);
 
 const emit = defineEmits(["cancel"]);
 
@@ -157,8 +154,6 @@ async function submitResume(): Promise<void> {
         v-model="resumeForm['addition']"
       ></TextArea>
     </LabelSlot>
-    <BtnGroup>
-      <GroupContent @cancel="emit('cancel')" />
-    </BtnGroup>
+    <BtnGroup @cancel="emit('cancel')" />
   </form>
 </template>

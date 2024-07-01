@@ -25,12 +25,12 @@ function cancelAction(){
     (key) => delete need.value.item[key as keyof typeof need.value.item]
   );
   const collapseInquiry = document.getElementById('inquiry');
-  collapseInquiry?.setAttribute('class', 'collapse card card-body mb-3');
+  collapseInquiry?.setAttribute('class', 'collapse card card-body');
 };
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="inquiry">
+  <div class="collapse card card-body" id="inquiry">
     <InquiryForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.inquiries.length"> 
@@ -53,6 +53,7 @@ function cancelAction(){
               need.item = item;
               need.itemId = item['id'].toString();
             "
+            :hide="true"
           />
         </LabelSlot>
         <p class="fs-5 fw-medium text-primary p-1">
@@ -61,7 +62,7 @@ function cancelAction(){
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"]).toLocaleString("ru-RU") + ' UTC' }}
+          {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

@@ -1,0 +1,1 @@
+import{d as t,o as s,c as r,g as n,t as o,y as c}from"./index-Cj2pYzZu.js";const d=t({__name:"HeaderDiv",props:{pageHeader:String,cls:{type:String,default:"text-danger py-5"}},setup(e){const a=e;return(l,p)=>(s(),r("div",{class:c(["text-opacity-85",e.cls])},[n("h3",null,o(a.pageHeader),1)],2))}});export{d as default};
