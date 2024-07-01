@@ -51,7 +51,7 @@ export const router = createRouter({
         },
       ],
     },
-    { path: "/:pathMatch(.*)*", redirect: { name: "index" } },
+    { path: "/:pathMatch(.*)*", redirect: { name: "persons" } },
   ],
   history: createWebHistory(),
 });
