@@ -17,12 +17,12 @@ const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
 
-const hideNew = ref(true);
+const showPswd = ref(false);
 const loginAction = ref("create");
 const loginForm = reactive(<Record<string, any>>{});
 
 async function submitLogin(): Promise<void> {
-  hideNew.value = true;
+  showPswd.value = false;
   if (loginAction.value === "update") {
     if (loginForm["password"] === loginForm["new_pswd"]) {
       stateAlert.setAlert("alert-warning", "Старый и новый пароли совпадают");
@@ -102,7 +102,7 @@ async function submitLogin(): Promise<void> {
               :need="true"
               :name="'password'"
               :place="'Пароль'"
-              :typeof="hideNew ? 'password' : 'text'"
+              :typeof="showPswd ? 'password' : 'text'"
               v-model="loginForm['password']"
             />
           </div>
@@ -114,7 +114,7 @@ async function submitLogin(): Promise<void> {
                 :place="'Новый пароль'"
                 :min="8"
                 :max="16"
-                :typeof="hideNew ? 'password' : 'text'"
+                :typeof="showPswd ? 'password' : 'text'"
                 v-model="loginForm['new_pswd']"
               />
             </div>
@@ -123,7 +123,7 @@ async function submitLogin(): Promise<void> {
                 :need="true"
                 :name="'conf_pswd'"
                 :place="'Повтор пароля'"
-                :typeof="hideNew ? 'password' : 'text'"
+                :typeof="showPswd ? 'password' : 'text'"
                 v-model="loginForm['conf_pswd']"
               />
             </div>
@@ -140,9 +140,9 @@ async function submitLogin(): Promise<void> {
             <a 
               class="link-primary" 
               href="#" 
-              @click="hideNew = !hideNew"
+              @click="showPswd = !showPswd"
             >
-              {{ hideNew ? "Показать" : "Скрыть" }} пароль
+              {{ showPswd ? "Показать" : "Скрыть" }} пароль
             </a>
           </div>
           <BtnGroup 
