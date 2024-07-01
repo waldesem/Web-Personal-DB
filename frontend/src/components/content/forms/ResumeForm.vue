@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { stateAlert, stateAnketa, stateClassify } from "@/state";
+import { stateAlert, stateAnketa, stateClassify, server } from "@/state";
 import { Persons } from "@/interfaces";
-import { server } from "@/utilities";
 import { router } from "@/router";
 import { axiosAuth } from "@/auth";
 

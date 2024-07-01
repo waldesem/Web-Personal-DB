@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa } from "@/state";
+import { stateUser, stateAnketa, server } from "@/state";
 import { useRoute } from "vue-router";
-import { server } from "@/utilities";
 import { authErrorHandler, axiosAuth } from "@/auth";
 
 const HeaderDiv = defineAsyncComponent(

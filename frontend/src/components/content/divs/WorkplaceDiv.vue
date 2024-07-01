@@ -44,7 +44,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="workplace.showActions = true"
       @mouseout="workplace.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <WorkplaceForm
         v-if="workplace.itemId === item['id'].toString()"

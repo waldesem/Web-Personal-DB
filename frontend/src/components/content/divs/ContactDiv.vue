@@ -42,7 +42,7 @@ function cancelAction(){
       v-for="(item, idx) in stateAnketa.anketa.contacts" :key="idx"
       @mouseover="contact.showActions = true"
       @mouseout="contact.showActions = false" 
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <ContactForm
         v-if="contact.itemId === item['id'].toString()"

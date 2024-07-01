@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { axiosAuth, authErrorHandler } from "@/auth";
 import { onBeforeMount, defineAsyncComponent } from "vue";
-import { stateClassify, stateUser } from "@/state";
-import { server } from "@/utilities";
+import { stateClassify, stateUser, server } from "@/state";
 import { router } from "@/router";
 
 const AlertMessage = defineAsyncComponent(

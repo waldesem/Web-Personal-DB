@@ -43,7 +43,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="staff.showActions = true"
       @mouseout="staff.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <StaffForm
         v-if="staff.itemId === item['id'].toString()"

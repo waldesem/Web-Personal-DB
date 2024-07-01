@@ -42,7 +42,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="affilation.showActions = true"
       @mouseout="affilation.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <AffilationForm
         v-if="affilation.itemId === item['id'].toString()"

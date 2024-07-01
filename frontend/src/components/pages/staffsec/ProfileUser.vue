@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateAlert, stateUser } from "@/state";
+import { stateAlert, stateUser, server } from "@/state";
 import { authErrorHandler, axiosAuth } from "@/auth";
-import { server } from "@/utilities";
 import { useRoute } from "vue-router";
 import { User } from "@/interfaces";
 
@@ -103,13 +102,13 @@ async function userDelete(): Promise<void> {
         {{ userData.profile.email }}
       </LabelSlot>
       <LabelSlot :label="'Дата создания пароля'">
-        {{ new Date(userData.profile.pswd_create).toLocaleString("ru-RU") + ' UTC' }}
+        {{ new Date(userData.profile.pswd_create + ' UTC').toLocaleString("ru-RU") }}
       </LabelSlot>
       <LabelSlot :label="'Требует смены пароля'">
         {{ userData.profile.change_pswd ? "Да" : "Нет" }}
       </LabelSlot>
       <LabelSlot :label="'Дата последнего входа'">
-        {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") + ' UTC' }}
+        {{ new Date(userData.profile.last_login + ' UTC').toLocaleString("ru-RU") }}
       </LabelSlot>
       <LabelSlot :label="'Попытки входа'">
         {{ userData.profile.attempt }}
@@ -124,7 +123,7 @@ async function userDelete(): Promise<void> {
         {{ userData.profile.has_admin ? "Да" : "Нет" }}
       </LabelSlot>
       <LabelSlot :label="'Дата создания профиля'">
-        {{ new Date(userData.profile.created).toLocaleString("ru-RU") + ' UTC' }}
+        {{ new Date(userData.profile.created + ' UTC').toLocaleString("ru-RU")}}
       </LabelSlot>
     </div>
     <div class="btn-group row mb-3" role="group">

@@ -43,7 +43,7 @@ function cancelAction() {
       :key="idx"
       @mouseover="inquisition.showActions = true"
       @mouseout="inquisition.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <InvestigationForm
         v-if="inquisition.itemId === item['id'].toString()"

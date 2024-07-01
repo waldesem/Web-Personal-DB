@@ -43,7 +43,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="doc.showActions = true"
       @mouseout="doc.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <DocumentForm
         v-if="doc.itemId === item['id'].toString()"

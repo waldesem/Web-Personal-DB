@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { authErrorHandler, axiosAuth } from "@/auth";
-import { server, debounce, timeSince } from "@/utilities";
+import { debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
+import { server } from "@/state";
 import { AxiosError } from "axios";
 
 const HeaderDiv = defineAsyncComponent(

@@ -1,6 +1,3 @@
-// export const server = "http://localhost:5000";
-export const server = '';
-
 /**
  * Debounces a function, ensuring it's not called again until a certain amount of time has passed.
  *

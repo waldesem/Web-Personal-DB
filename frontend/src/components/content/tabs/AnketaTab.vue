@@ -51,7 +51,7 @@ const dataResume = ref({
 </script>
 
 <template>
-  <div v-if="dataResume.action" class="card card-body mb-3">
+  <div v-if="dataResume.action" class="card card-body">
     <ResumeForm
       :action="dataResume.action"
       :resume="stateAnketa.anketa.persons"
@@ -60,7 +60,7 @@ const dataResume = ref({
   </div>
   <div
     v-else
-    class="card card-body mb-3"
+    class="card card-body"
     @mouseover="dataResume.showActions = true"
     @mouseout="dataResume.showActions = false"
   >

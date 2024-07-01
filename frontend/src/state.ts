@@ -1,7 +1,6 @@
 import { reactive } from "vue";
 import { axiosAuth, authErrorHandler } from "@/auth";
 import { router } from "@/router";
-import { server } from "@/utilities";
 import {
   Persons,
   Previous,
@@ -18,6 +17,9 @@ import {
   Inquisition,
   Needs,
 } from "@/interfaces";
+
+// export const server = "http://localhost:5000";
+export const server = '';
 
 export const stateUser = reactive({
   userId: "",

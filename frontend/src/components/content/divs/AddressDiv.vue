@@ -43,7 +43,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="address.showActions = true"
       @mouseout="address.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <AddressForm
         v-if="address.itemId === item['id'].toString()"

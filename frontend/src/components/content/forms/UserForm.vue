@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
 import { authErrorHandler, axiosAuth } from "@/auth";
-import { stateAlert, stateClassify } from "@/state";
-import { server } from "@/utilities";
+import { stateAlert, stateClassify, server } from "@/state";
 import { User } from "@/interfaces";
 
 const LabelSlot = defineAsyncComponent(

@@ -43,7 +43,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="education.showActions = true"
       @mouseout="education.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <EducationForm
         v-if="education.itemId === item['id'].toString()"

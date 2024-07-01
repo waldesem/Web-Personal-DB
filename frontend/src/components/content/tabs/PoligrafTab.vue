@@ -42,7 +42,7 @@ function cancelAction() {
       :key="idx"
       @mouseover="poligraf.showActions = true"
       @mouseout="poligraf.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <PoligrafForm
         v-if="poligraf.itemId === item['id'].toString()"
@@ -69,13 +69,13 @@ function cancelAction() {
           </ActionIcons>
         </LabelSlot>
         <p class="fs-5 fw-medium text-primary p-1">
-          {{ "Обследование на полиграфе #" + (idx+1) }}
+          {{ "Обследование на полиграфе #" + (idx + 1) }}
         </p>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["results"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
+          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

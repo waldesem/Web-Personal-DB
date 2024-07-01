@@ -41,7 +41,7 @@ function cancelAction(){
     <div
       v-for="(item, idx) in stateAnketa.anketa.relations"
       :key="idx"
-      class="card card-body mb-3"
+      class="card card-body"
       @mouseover="relation.showActions = true"
       @mouseout="relation.showActions = false"
     >

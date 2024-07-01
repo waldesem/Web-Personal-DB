@@ -43,7 +43,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="previous.showActions = true"
       @mouseout="previous.showActions = false"
-      class="card card-body mb-3"
+      class="card card-body"
     >
       <PreviousForm
         v-if="previous.itemId === item['id'].toString()"

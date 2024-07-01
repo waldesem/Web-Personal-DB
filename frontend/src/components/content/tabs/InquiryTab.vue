@@ -35,7 +35,7 @@ function cancelAction(){
   </div>
   <div v-if="stateAnketa.anketa.inquiries.length"> 
     <div
-      class="card card-body mb-3"
+      class="card card-body"
       v-for="(item, idx) in stateAnketa.anketa.inquiries" :key="idx"
       @mouseover="need.showActions = true"
       @mouseout="need.showActions = false" 
