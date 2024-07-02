@@ -27,8 +27,8 @@ export interface Persons {
   inn: string;
   marital: string;
   addition: string;
-  path: string;
-  status: string;
+  destination: string;
+  standing: string;
   created: string;
   region: string;
   user_id: string;
@@ -48,7 +48,7 @@ export interface Previous {
 export interface Education {
   id: string;
   view: string;
-  name: string;
+  institution: string;
   finished: string;
   speciality: string;
   created: string;
@@ -65,7 +65,7 @@ export interface Document {
   id: string;
   view: string;
   series: string;
-  number: string;
+  digits: string;
   agency: string;
   issue: string;
   created: string;
@@ -74,7 +74,7 @@ export interface Document {
 export interface Address {
   id: string;
   view: string;
-  address: string;
+  addresses: string;
   created: string;
 }
 
@@ -95,10 +95,10 @@ export interface Relation {
 export interface Work {
   id: string;
   now_work: boolean;
-  started: string;
+  starts: string;
   finished: string;
   workplace: string;
-  address: string;
+  addresses: string;
   reason: string;
   position: string;
   created: string;
@@ -107,7 +107,7 @@ export interface Work {
 export interface Affilation {
   id: string;
   view: string;
-  name: string;
+  organization: string;
   inn: string;
   position: string;
   created: string;
@@ -158,7 +158,7 @@ export interface Inquisition {
 export interface Needs {
   id: string;
   info: string;
-  initiator: string;
+  origins: string;
   user_id: string;
   user: string;
   created: string;

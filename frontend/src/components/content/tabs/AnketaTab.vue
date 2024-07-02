@@ -51,7 +51,7 @@ const dataResume = ref({
 </script>
 
 <template>
-  <div v-if="dataResume.action" class="card card-body">
+  <div v-if="dataResume.action" class="card card-body mb-3">
     <ResumeForm
       :action="dataResume.action"
       :resume="stateAnketa.anketa.persons"
@@ -60,7 +60,7 @@ const dataResume = ref({
   </div>
   <div
     v-else
-    class="card card-body"
+    class="card card-body mb-3"
     @mouseover="dataResume.showActions = true"
     @mouseout="dataResume.showActions = false"
   >
@@ -119,7 +119,7 @@ const dataResume = ref({
       {{ stateAnketa.anketa.persons["marital"] }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
-      {{ stateAnketa.anketa.persons["status"]   }}
+      {{ stateAnketa.anketa.persons["standing"]   }}
     </LabelSlot>
     <LabelSlot :label="'Дата записи'">
       {{
@@ -138,7 +138,7 @@ const dataResume = ref({
       }}
     </LabelSlot>
     <LabelSlot :label="'Материалы'">
-      {{ stateAnketa.anketa.persons["path"] }}
+      {{ stateAnketa.anketa.persons["destination"] }}
     </LabelSlot>
     <LabelSlot :label="'Дополнительная информация'">
       {{ stateAnketa.anketa.persons["addition"] 

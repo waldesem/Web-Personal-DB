@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Relation } from "@/interfaces";
 
@@ -16,50 +16,48 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const relation = ref({
-  itemId: "",
-  item: <Relation>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const relation = reactive(<Relation>{});
 
-function cancelAction(){
-  relation.value.itemId = "";
-  Object.keys(relation.value.item).forEach(
-    (key) => delete relation.value.item[key as keyof typeof relation.value.item]
-  );
-  const collapseRelation = document.getElementById('relation');
-  collapseRelation?.setAttribute('class', 'collapse card card-body');
-};
+function cancelAction() {
+  edit.value = false;
+  itemId.value = "";
+  const collapseRelation = document.getElementById("relationer");
+  collapseRelation?.setAttribute("class", "collapse card card-body mb-3");
+}
 </script>
 
 <template>
-  <DropDownHead :id="'relation'" :header="'Связи'"/>
-  <div class="collapse card card-body" id="relation">
-    <RelationForm @cancel="cancelAction"/>
+  <DropDownHead :id="'relationer'" :header="'Связи'" />
+  <div class="collapse card card-body mb-3" id="relationer">
+    <RelationForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.relations.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.relations"
       :key="idx"
-      class="card card-body"
-      @mouseover="relation.showActions = true"
-      @mouseout="relation.showActions = false"
+      class="card card-body mb-3"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
     >
       <RelationForm
-        v-if="relation.itemId === item['id'].toString()"
-        :relation="relation.item"
-        @cancel="cancelAction"
+        v-if="edit && itemId == item['id'].toString()" 
+        :relation="relation"
+        @cancel="edit = !edit"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="relation.showActions"
-            :hide="true"
+            v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'relations')"
             @update="
-              relation.item = item;
-              relation.itemId = item['id'].toString();
+              relation = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
+            :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>

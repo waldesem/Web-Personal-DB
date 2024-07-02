@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Document } from "@/interfaces";
 
@@ -16,54 +16,52 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const doc = ref({
-  itemId: "",
-  item: <Document>{},
-  showActions: false,
-});
+const actions = ref(false);
+const itemId = ref('');
+const edit = ref(false);
+const doc = reactive(<Document>{});
 
 function cancelAction(){
-  doc.value.itemId = "";
-  Object.keys(doc.value.item).forEach(
-    (key) => delete doc.value.item[key as keyof typeof doc.value.item]
-  );
-  const collapseDocument = document.getElementById('document');
-  collapseDocument?.setAttribute('class', 'collapse card card-body');
+  edit.value = false;
+  itemId.value = "";
+  const collapseDocument = document.getElementById('documenter');
+  collapseDocument?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <DropDownHead :id="'document'" :header="'Документы'"/>
-  <div class="collapse card card-body" id="document">
+  <DropDownHead :id="'documenter'" :header="'Документы'"/>
+  <div class="collapse card card-body mb-3" id="documenter">
     <DocumentForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.documents.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.documents"
       :key="idx"
-      @mouseover="doc.showActions = true"
-      @mouseout="doc.showActions = false"
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
+      class="card card-body mb-3"
     >
       <DocumentForm
-        v-if="doc.itemId === item['id'].toString()"
-        :docs="doc.item"
+        v-if="edit && itemId == item['id'].toString()" 
+        :docs="doc"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="doc.showActions"
+            v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'documents')"
             @update="
-              doc.item = item;
-              doc.itemId = item['id'].toString();
+              doc = item;
+              itemId = item['id'].toString()
+              edit  = true;
             "
             :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Вид документа'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Номер документа'">{{ item["number"] }}</LabelSlot>
+        <LabelSlot :label="'Номер документа'">{{ item["digits"] }}</LabelSlot>
         <LabelSlot :label="'Серия документа'">{{ item["series"] }}</LabelSlot>
         <LabelSlot :label="'Дата выдачи'">
           {{ new Date(String(item["issue"])).toLocaleDateString("ru-RU") }}

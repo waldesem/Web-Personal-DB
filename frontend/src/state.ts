@@ -29,7 +29,7 @@ export const stateUser = reactive({
 
 export const stateClassify = reactive({
   regions: <Record<string, any>>{},
-  status: <Record<string, any>>{},
+  standing: <Record<string, any>>{},
   conclusions: <Record<string, any>>{},
   relations: <Record<string, any>>{},
   affilations: <Record<string, any>>{},

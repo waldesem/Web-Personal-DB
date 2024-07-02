@@ -56,7 +56,7 @@ function submitAddress() {
         :name="'address'"
         :place="'Адрес'"
         :need="true"
-        v-model="addressForm['address']"
+        v-model="addressForm['addresses']"
       />
     </LabelSlot>
     <BtnGroup @cancel="emit('cancel')"/>

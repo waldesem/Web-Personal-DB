@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Contact } from "@/interfaces";
 
@@ -16,46 +16,45 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const contact = ref({
-  itemId: "",
-  item: <Contact>{},
-  showActions: false,
-});
+
+const actions = ref(false);
+const itemId = ref('');
+const edit = ref(false);
+const contact = reactive(<Contact>{});
 
 function cancelAction(){
-  contact.value.itemId = "";
-  Object.keys(contact.value.item).forEach(
-    (key) => delete contact.value.item[key as keyof typeof contact.value.item]
-  );
-  const collapseContact = document.getElementById('contact');
-  collapseContact?.setAttribute('class', 'collapse card card-body');
+  edit.value = false;
+  itemId.value = "";
+  const collapseContact = document.getElementById('contacter');
+  collapseContact?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <DropDownHead :id="'contact'" :header="'Контакты'"/>
-  <div class="collapse card card-body" id="contact">
+  <DropDownHead :id="'contacter'" :header="'Контакты'"/>
+  <div class="collapse card card-body mb-3" id="contacter">
     <ContactForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.contacts.length"> 
     <div 
       v-for="(item, idx) in stateAnketa.anketa.contacts" :key="idx"
-      @mouseover="contact.showActions = true"
-      @mouseout="contact.showActions = false" 
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false" 
+      class="card card-body mb-3"
     >
       <ContactForm
-        v-if="contact.itemId === item['id'].toString()"
-        :contact="contact.item"
+        v-if="edit && itemId == item['id'].toString()" 
+        :contact="contact"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
-          <ActionIcons v-show="contact.showActions"
+          <ActionIcons v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'contacts')"
             @update="
-              contact.item = item;
-              contact.itemId = item['id'].toString();
+              contact = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :hide="true"
           />

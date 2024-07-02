@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Address } from "@/interfaces";
 
@@ -16,54 +16,52 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const address = ref({
-  itemId: "",
-  item: <Address>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const address = reactive(<Address>{});
 
-function cancelAction(){
-  address.value.itemId = "";
-  Object.keys(address.value.item).forEach(
-    (key) => delete address.value.item[key as keyof typeof address.value.item]
-  );
-  const collapseAddress = document.getElementById('address');
-  collapseAddress?.setAttribute('class', 'collapse card card-body');
-};
+function cancelAction() {
+  edit.value = false;
+  itemId.value = "";
+  const collapseAddress = document.getElementById("addresser");
+  collapseAddress?.setAttribute("class", "collapse card card-body mb-3");
+}
 </script>
 
 <template>
-  <DropDownHead :id="'address'" :header="'Адреса'"/>
-  <div class="collapse card card-body" id="address">
+  <DropDownHead :id="'addresser'" :header="'Адреса'" />
+  <div class="collapse card card-body mb-3" id="addresser">
     <AddressForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.addresses.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.addresses"
       :key="idx"
-      @mouseover="address.showActions = true"
-      @mouseout="address.showActions = false"
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
+      class="card card-body mb-3"
     >
-      <AddressForm
-        v-if="address.itemId === item['id'].toString()"
-        :addrs="address.item"
-        @cancel="cancelAction"
+      <AddressForm 
+        v-if="edit && itemId == item['id'].toString()" 
+        :addrs="address" 
+        @cancel="cancelAction" 
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="address.showActions"
+            v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'addresses')"
             @update="
-              address.item = item;
-              address.itemId = item['id'].toString();
+              address = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Тип'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Адрес'">{{ item["address"] }}</LabelSlot>
+        <LabelSlot :label="'Адрес'">{{ item["addresses"] }}</LabelSlot>
       </div>
     </div>
   </div>

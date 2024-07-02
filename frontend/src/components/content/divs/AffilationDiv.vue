@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Affilation } from "@/interfaces";
 
@@ -16,55 +16,54 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const affilation = ref({
-  itemId: "",
-  item: <Affilation>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const affilation = reactive(<Affilation>{});
 
 function cancelAction(){
-  affilation.value.itemId = "";
-  Object.keys(affilation.value.item).forEach(
-    (key) => delete affilation.value.item[key as keyof typeof affilation.value.item]
-  );
-  const collapseContact = document.getElementById('affilation');
-  collapseContact?.setAttribute('class', 'collapse card card-body');
+  edit.value = false;
+  itemId.value = "";
+  const collapseContact = document.getElementById('affilationer');
+  collapseContact?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <DropDownHead :id="'affilation'" :header="'Аффилированность'"/>  <div class="collapse card card-body" id="affilation">
+  <DropDownHead :id="'affilationer'" :header="'Аффилированность'"/>  
+  <div class="collapse card card-body mb-3" id="affilationer">
     <AffilationForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.affilations.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.affilations"
       :key="idx"
-      @mouseover="affilation.showActions = true"
-      @mouseout="affilation.showActions = false"
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
+      class="card card-body mb-3"
     >
       <AffilationForm
-        v-if="affilation.itemId === item['id'].toString()"
-        :affils="affilation.item"
+        v-if="edit && itemId == item['id'].toString()" 
+        :affils="affilation"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="affilation.showActions"
+            v-show="actions"
             @delete="
               stateAnketa.deleteItem(item['id'].toString(), 'affilations')
             "
             @update="
-              affilation.item = item;
-              affilation.itemId = item['id'].toString();
+              affilation = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :hide="true"
           />
         </LabelSlot>
         <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Организация'">{{ item["name"] }}</LabelSlot>
+        <LabelSlot :label="'Организация'">{{ item["organization"] }}</LabelSlot>
         <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
         <LabelSlot :label="'Должность'">{{ item["position"] }}</LabelSlot>
       </div>

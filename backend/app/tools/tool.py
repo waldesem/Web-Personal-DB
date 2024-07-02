@@ -97,8 +97,8 @@ def parse_json(json_dict: dict) -> dict:
             "firstname": json_dict.get("firstName"),
             "surname": json_dict.get("lastName"),
             "patronymic": json_dict.get("midName"),
-            "birthday": datetime.strptime(json_dict["birthDate"], "%Y-%m-%d").date()
-            if json_dict.get("birthDate")
+            "birthday": datetime.strptime(json_dict["birthday"], "%Y-%m-%d").date()
+            if json_dict.get("birthday")
             else None,
             "birthplace": json_dict.get("birthplace"),
             "citizenship": json_dict.get("citizen"),
@@ -110,11 +110,11 @@ def parse_json(json_dict: dict) -> dict:
         "addresses": [
             {
                 "view": "Адрес проживания",
-                "address": json_dict.get("validAddress"),
+                "addresses": json_dict.get("validAddress"),
             },
             {
                 "view": "Адрес регистрации",
-                "address": json_dict.get("regAddress"),
+                "addresses": json_dict.get("regAddress"),
             },
         ],
         "contacts": [
@@ -125,7 +125,7 @@ def parse_json(json_dict: dict) -> dict:
             {
                 "view": "Паспорт гражданина России",
                 "number": json_dict.get("passportNumber"),
-                "series": json_dict.get("passportSerial"),
+                "digits": json_dict.get("passportSerial"),
                 "issue": datetime.strptime(
                     json_dict["passportIssueDate"], "%Y-%m-%d"
                 ).date()
@@ -159,7 +159,7 @@ def parse_json(json_dict: dict) -> dict:
                     organization["view"] = views[item]
                     for k, v in org.items():
                         match k:
-                            case "name":
+                            case "organization":
                                 organization["name"] = v
                             case "position":
                                 organization["position"] = v
@@ -192,7 +192,7 @@ def parse_json(json_dict: dict) -> dict:
                             case "educationType":
                                 education["view"] = v
                             case "institutionName":
-                                education["name"] = v
+                                education["institution"] = v
                             case "endYear":
                                 education["finished"] = v
                             case "specialty":
@@ -205,7 +205,7 @@ def parse_json(json_dict: dict) -> dict:
                     for key, value in exp.items():
                         match key:
                             case "beginDate":
-                                work["started"] = datetime.strptime(
+                                work["starts"] = datetime.strptime(
                                     value, "%Y-%m-%d"
                                 ).date()
                             case "endDate":
@@ -217,7 +217,7 @@ def parse_json(json_dict: dict) -> dict:
                             case "name":
                                 work["workplace"] = value
                             case "address":
-                                work["address"] = value
+                                work["addresses"] = value
                             case "position":
                                 work["position"] = value
                             case "fireReason":

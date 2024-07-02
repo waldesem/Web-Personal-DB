@@ -20,25 +20,24 @@ const TableSlots = defineAsyncComponent(
 const todayDate = new Date();
 
 const tableData = ref({
-  stat: {
-    region: "",
-    checks: <Array<any>>{},
-    start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
-      .toISOString()
-      .slice(0, 10),
-    end: todayDate.toISOString().slice(0, 10),
-  },
+  region: "",
+  checks: <Array<any>>{},
+  start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
+    .toISOString()
+    .slice(0, 10),
+  end: todayDate.toISOString().slice(0, 10),
 });
+
 async function submitData(): Promise<void> {
   try {
     const response = await axiosAuth.get(`${server}/information`, {
       params: {
-        start: tableData.value.stat.start,
-        end: tableData.value.stat.end,
-        region: tableData.value.stat.region,
+        start: tableData.value.start,
+        end: tableData.value.end,
+        region: tableData.value.region,
       },
     });
-    tableData.value.stat.checks = response.data;
+    tableData.value.checks = response.data;
 
   } catch (error: AxiosError | any) {
     authErrorHandler(error);
@@ -52,8 +51,8 @@ onBeforeMount(async () => {
 
 <template>
   <HeaderDiv
-    :page-header="`Статистика по региону ${tableData.stat.region} 
-            за период c ${tableData.stat.start} по ${tableData.stat.end} г.`"
+    :page-header="`Статистика по региону ${tableData.region} 
+            за период c ${tableData.start} по ${tableData.end} г.`"
   />
   <TableSlots :class="'table table-hover table-responsive align-middle py-3'">
     <template v-slot:caption>{{ `Решения по кандидатам` }}</template>
@@ -64,7 +63,7 @@ onBeforeMount(async () => {
       </tr>
     </template>
     <template v-slot:tbody>
-      <tr v-for="(row, idx) in tableData.stat.checks" :key="idx">
+      <tr v-for="(row, idx) in tableData.checks" :key="idx">
         <td>{{ row['conclusion'] }}</td>
         <td>{{ row['count'] }}</td>
       </tr>
@@ -79,7 +78,7 @@ onBeforeMount(async () => {
         :name="'region'"
         :select="stateClassify.regions"
         :disable="!stateUser.hasAdmin"
-        v-model="tableData.stat.region"
+        v-model="tableData.region"
         @submit-data="submitData"
       />
     </div>
@@ -88,7 +87,7 @@ onBeforeMount(async () => {
       <InputElement
         :name="'start'"
         :typeof="'date'"
-        v-model="tableData.stat.start"
+        v-model="tableData.start"
         @submit-data="submitData"
       />
     </div>
@@ -96,7 +95,7 @@ onBeforeMount(async () => {
       <InputElement
         :name="'end'"
         :typeof="'date'"
-        v-model="tableData.stat.end"
+        v-model="tableData.end"
         @submit-data="submitData"
       />
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, reactive, defineAsyncComponent } from "vue";
 import { Needs } from "@/interfaces";
 import { stateAnketa } from "@/state";
 
@@ -13,45 +13,43 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const need = ref({
-  itemId: "",
-  item: <Needs>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const need = reactive(<Needs>{});
 
 function cancelAction(){
-  need.value.itemId = "";
-  Object.keys(need.value.item).forEach(
-    (key) => delete need.value.item[key as keyof typeof need.value.item]
-  );
-  const collapseInquiry = document.getElementById('inquiry');
-  collapseInquiry?.setAttribute('class', 'collapse card card-body');
+  edit.value = false;
+  itemId.value = "";
+  const collapseInquiry = document.getElementById('clps_inquiry');
+  collapseInquiry?.setAttribute('class', 'collapse card card-body mb-3');
 };
 </script>
 
 <template>
-  <div class="collapse card card-body" id="inquiry">
+  <div class="collapse card card-body mb-3" id="clps_inquiry">
     <InquiryForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.inquiries.length"> 
     <div
-      class="card card-body"
+      class="card card-body mb-3"
       v-for="(item, idx) in stateAnketa.anketa.inquiries" :key="idx"
-      @mouseover="need.showActions = true"
-      @mouseout="need.showActions = false" 
+      @mouseover="actions = true"
+      @mouseout="actions = false" 
     >
       <InquiryForm
-        v-if="need.itemId === item['id'].toString()"
-        :inquiry="need.item"
+        v-if="edit && itemId == item['id'].toString()" 
+        :inquiry="need"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
-          <ActionIcons v-show="need.showActions"
+          <ActionIcons v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiries')"
             @update="
-              need.item = item;
-              need.itemId = item['id'].toString();
+              need = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :hide="true"
           />
@@ -60,7 +58,7 @@ function cancelAction(){
           {{ "Запросы о сотруднике #" + (idx+1) }}
         </p>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-        <LabelSlot :label="'Иннициатор'">{{ item["initiator"] }}</LabelSlot>
+        <LabelSlot :label="'Иннициатор'">{{ item["origins"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
         </LabelSlot>

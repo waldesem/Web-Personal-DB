@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, reactive, defineAsyncComponent } from "vue";
 import { Pfo } from "@/interfaces";
 import { stateAnketa, submitFile } from "@/state";
 
@@ -16,52 +16,50 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const poligraf = ref({
-  itemId: "",
-  item: <Pfo>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const poligraf = reactive(<Pfo>{});
 
 function cancelAction() {
-  poligraf.value.itemId = "";
-  Object.keys(poligraf.value.item).forEach(
-    (key) => delete poligraf.value.item[key as keyof typeof poligraf.value.item]
-  );
-  const collapsePoligraf = document.getElementById("poligraf");
+  edit.value = false
+  itemId.value = "";
+  const collapsePoligraf = document.getElementById("clps_poligraf");
   collapsePoligraf?.setAttribute("class", "collapse card card-body");
 }
 </script>
 
 <template>
-  <div class="collapse card card-body" id="poligraf">
+  <div class="collapse card card-body mb-3" id="clps_poligraf">
     <PoligrafForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.poligrafs.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.poligrafs"
       :key="idx"
-      @mouseover="poligraf.showActions = true"
-      @mouseout="poligraf.showActions = false"
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
+      class="card card-body mb-3"
     >
       <PoligrafForm
-        v-if="poligraf.itemId === item['id'].toString()"
-        :poligraf="poligraf.item"
+        v-if="edit && itemId == item['id'].toString()" 
+        :poligraf="poligraf"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="poligraf.showActions"
+            v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligrafs')"
             @update="
-              poligraf.item = item;
-              poligraf.itemId = item['id'].toString();
+              poligraf = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :for-input="'poligrafs-file'"
           >
             <FileForm
-              v-show="poligraf.showActions"
+              v-show="actions"
               :name-id="'poligrafs-file'"
               :accept="'*'"
               @submit="submitFile($event, 'poligrafs')"

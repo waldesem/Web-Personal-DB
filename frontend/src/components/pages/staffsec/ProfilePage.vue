@@ -103,7 +103,7 @@ const tabsData = {
           class="btn btn-lg btn-outline-danger"
           :disabled="stateAnketa.anketa.persons['user_id'] != stateUser.userId"
           data-bs-toggle="collapse"
-          :href="'#' + item.split('T')[0]"
+          :href="'#clps_' + item.split('T')[0]"
         >
           &equiv;
         </button>

@@ -146,9 +146,9 @@ const shortName = (fullname: string) => {
         </td>
         <td>
           <label
-            :class="`fs-6 badge bg-${statusColor(candidate.status)}`"
+            :class="`fs-6 badge bg-${statusColor(candidate.standing)}`"
           >
-            {{ candidate.status }}
+            {{ candidate.standing }}
           </label>
         </td>
         <td>

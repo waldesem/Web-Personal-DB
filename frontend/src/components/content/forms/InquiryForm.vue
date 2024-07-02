@@ -52,9 +52,9 @@ function submitIquiry() {
     </LabelSlot>
     <LabelSlot :label="'Инициатор'">
       <InputElement
-        :name="'initiator'"
+        :name="'origins'"
         :place="'Инициатор'"
-        v-model="inquiryForm['initiator']"
+        v-model="inquiryForm['origins']"
       />
     </LabelSlot>
     <BtnGroup @cancel="emit('cancel')"/>

@@ -1,7 +1,7 @@
 import os
-import sqlite3
 
 from app.classes.classes import Regions
+from app.databases.database import execute, scriptexec
 from config import Config
 from werkzeug.security import generate_password_hash
 
@@ -21,28 +21,14 @@ def init_app():
 
     with open(Config.DATABASE_SQL, "r", encoding="utf-8") as file:
         sql = file.read()
-        with sqlite3.connect(Config.DATABASE_URI) as con:
-            
-            cursor = con.cursor()
-            cursor.executescript(sql)
-            con.commit()
-
-            cursor.execute(
-                """INSERT OR REPLACE INTO users 
-                (id, fullname, username, password, email, has_admin, region) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    None,
-                    "Супер Админ",
-                    "superadmin",
-                    generate_password_hash(Config.DEFAULT_PASSWORD),
-                    "admin@example.ru",
-                    1,
-                    Regions.main.value,
-                ),
-            )
-            con.commit()
-
+        scriptexec(sql)
+        execute(
+            """INSERT OR REPLACE INTO users 
+            (id, fullname, username, passhash, email, has_admin, region) 
+            VALUES (NULL, 'Супер Админ', 'superadmin', ?, 'admin@example.ru', '1', ?)""", (
+                generate_password_hash(Config.DEFAULT_PASSWORD), Regions.main.value,
+                )
+        )
         print("Database initialized")
 
 if __name__ == "__main__":

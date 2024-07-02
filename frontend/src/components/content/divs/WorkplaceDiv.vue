@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Work } from "@/interfaces";
 
@@ -16,49 +16,48 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const workplace = ref({
-  itemId: "",
-  item: <Work>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const workplace = reactive(<Work>{});
 
-function cancelAction(){
-  workplace.value.itemId = "";
-  Object.keys(workplace.value.item).forEach(
-    (key) => delete workplace.value.item[key as keyof typeof workplace.value.item]
-  );
-  const collapseWork = document.getElementById('work');
-  collapseWork?.setAttribute('class', 'collapse card card-body');
-};
+function cancelAction() {
+  edit.value = false;
+  itemId.value = "";
+  const collapseWork = document.getElementById("worker");
+  collapseWork?.setAttribute("class", "collapse card card-body mb-3");
+}
 </script>
 
 <template>
-  <DropDownHead :id="'work'" :header="'Работа'"/>
-  <div class="collapse card card-body" id="work">
+  <DropDownHead :id="'worker'" :header="'Работа'" />
+  <div class="collapse card card-body mb-3" id="worker">
     <WorkplaceForm @cancel="cancelAction" />
   </div>
-  <div
-    v-if="stateAnketa.anketa.workplaces.length">
+  <div v-if="stateAnketa.anketa.workplaces.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.workplaces"
       :key="idx"
-      @mouseover="workplace.showActions = true"
-      @mouseout="workplace.showActions = false"
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
+      class="card card-body mb-3"
     >
-      <WorkplaceForm
-        v-if="workplace.itemId === item['id'].toString()"
-        :work="workplace.item"
-        @cancel="cancelAction"
+      <WorkplaceForm 
+        v-if="edit && itemId == item['id'].toString()" 
+        :work="workplace" 
+        @cancel="cancelAction" 
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="workplace.showActions"
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'workplaces')"
+            v-show="actions"
+            @delete="
+              stateAnketa.deleteItem(item['id'].toString(), 'workplaces')
+            "
             @update="
-              workplace.item = item;
-              workplace.itemId = item['id'].toString();
+              workplace = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :hide="true"
           />
@@ -67,7 +66,7 @@ function cancelAction(){
           {{ item["now_work"] ? "Да" : "Нет" }}
         </LabelSlot>
         <LabelSlot :label="'Начало работы'">
-          {{ new Date(item["started"]).toLocaleDateString("ru-RU") }}
+          {{ new Date(item["starts"]).toLocaleDateString("ru-RU") }}
         </LabelSlot>
         <LabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
           {{ new Date(item["finished"]).toLocaleDateString("ru-RU") }}
@@ -76,7 +75,7 @@ function cancelAction(){
           {{ item["workplace"] }}
         </LabelSlot>
         <LabelSlot :label="'Адрес'">
-          {{ item["address"] }}
+          {{ item["addresses"] }}
         </LabelSlot>
         <LabelSlot :label="'Должность'">
           {{ item["position"] }}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, reactive, defineAsyncComponent } from "vue";
 import { stateAnketa, submitFile } from "@/state";
 import { Verification } from "@/interfaces";
 
@@ -16,52 +16,50 @@ const CheckForm = defineAsyncComponent(
   () => import("@components/content/forms/CheckForm.vue")
 );
 
-const check = ref({
-  itemId: "",
-  item: <Verification>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const check = reactive(<Verification>{});
 
 function cancelAction() {
-  check.value.itemId = "";
-  Object.keys(check.value.item).forEach(
-    (key) => delete check.value.item[key as keyof typeof check.value.item]
-  );
-  const collapseCheck = document.getElementById('check');
-  collapseCheck?.setAttribute('class', 'collapse card card-body');
+  edit.value = false;
+  itemId.value = "";
+  const collapseCheck = document.getElementById('clps_check');
+  collapseCheck?.setAttribute('class', 'collapse card card-body mb-3');
 }
 </script>
 
 <template>
-  <div class="collapse card card-body" id="check">
+  <div class="collapse card card-body mb-3" id="clps_check">
     <CheckForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.checks.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.checks"
-      class="card card-body"
+      class="card card-body mb-3"
       :key="idx"
-      @mouseover="check.showActions = true"
-      @mouseout="check.showActions = false"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
     >
       <CheckForm
-        v-if="check.itemId === item['id'].toString()"
-        :check="check.item"
+        v-if="edit && itemId == item['id'].toString()" 
+        :check="check"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="check.showActions"
+            v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="
-              check.item = item;
-              check.itemId = item['id'].toString();
+              check = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :for-input="'check-file'"
           >
             <FileForm
-              v-show="check.showActions"
+              v-show="actions"
               :name-id="'check-file'"
               :accept="'*'"
               @submit="submitFile($event, 'checks')"

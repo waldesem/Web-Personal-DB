@@ -1,5 +1,5 @@
 from ..classes.classes import Statuses
-from ..databases.database import execute, select
+from ..databases.database import execute, select, scriptexec
 from ..depends.depend import current_user
 from ..models.models import Person
 from ..tools.tool import Folders, parse_json
@@ -54,7 +54,7 @@ def handle_post_resume(data):
             resume["id"] = person["id"]
 
     try:
-        resume.update({"status": Statuses.manual.value, "user_id": current_user["id"]})
+        resume.update({"standing": Statuses.manual.value, "user_id": current_user["id"]})
         keys, args = zip(*resume.items())
         stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
             ", ".join(keys),
@@ -101,12 +101,15 @@ def handle_update_person(json_data):
     if anketa:
         person_id = handle_post_resume(anketa["resume"])
         if person_id:
+            stmt =''
             for table, values in anketa.items():
                 if table == "resume":
                     continue
                 for item in values:
                     item["person_id"] = person_id
                     keys, args = zip(*item.items())
-                    stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
-                    execute(stmt, tuple(args))
+                    values = f"{', '.join(list(map(str, args)))}".replace(";", ",")
+                    stmt += f"INSERT INTO {table} ({', '.join(keys)}) VALUES ({values}); "
+            print(stmt)
+            scriptexec(stmt)
     return person_id

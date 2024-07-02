@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Previous } from "@/interfaces";
 
@@ -16,48 +16,46 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const previous = ref({
-  itemId: "",
-  item: <Previous>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const previous = reactive(<Previous>{});
 
-function cancelAction(){
-  previous.value.itemId = "";
-  Object.keys(previous.value.item).forEach(
-    (key) => delete previous.value.item[key as keyof typeof previous.value.item]
-  );
-  const collapsePrevious = document.getElementById('previous');
-  collapsePrevious?.setAttribute('class', 'collapse card card-body');
-};
+function cancelAction() {
+  edit.value = false;
+  itemId.value = "";
+  const collapsePrevious = document.getElementById("previouser");
+  collapsePrevious?.setAttribute("class", "collapse card card-body mb-3");
+}
 </script>
 
 <template>
-  <DropDownHead :id="'previous'" :header="'Изменение имени'"/>
-  <div class="collapse card card-body" id="previous">
-    <PreviousForm @cancel="cancelAction"/>
+  <DropDownHead :id="'previouser'" :header="'Изменение имени'" />
+  <div class="collapse card card-body mb-3" id="previouser">
+    <PreviousForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.previous.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.previous"
       :key="idx"
-      @mouseover="previous.showActions = true"
-      @mouseout="previous.showActions = false"
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
+      class="card card-body mb-3"
     >
-      <PreviousForm
-        v-if="previous.itemId === item['id'].toString()"
-        :previous="previous.item"
-        @cancel="cancelAction"
+      <PreviousForm 
+        v-if="edit && itemId == item['id'].toString()" 
+        :previous="previous" 
+        @cancel="cancelAction" 
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="previous.showActions"
+            v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'previous')"
             @update="
-              previous.item = item;
-              previous.itemId = item['id'].toString();
+              previous = item;
+              itemId = item['id'].toString()
+              edit = true;
             "
             :hide="true"
           />
@@ -72,9 +70,7 @@ function cancelAction(){
           {{ item["patronymic"] }}
         </LabelSlot>
         <LabelSlot v-if="item['changed']" :label="'Дата изменения'">
-          {{
-            new Date(String(item["changed"])).toLocaleDateString("ru-RU")
-          }}
+          {{ new Date(String(item["changed"])).toLocaleDateString("ru-RU") }}
         </LabelSlot>
         <LabelSlot v-if="item['reason']" :label="'Причина'">
           {{ item["reason"] }}

@@ -55,7 +55,7 @@ function submitWorkplace() {
         :need="true"
         :place="'Начало работы'"
         :typeof="'date'"
-        v-model="workForm['started']"
+        v-model="workForm['starts']"
       />
     </LabelSlot>
     <LabelSlot
@@ -88,7 +88,7 @@ function submitWorkplace() {
       <InputElement
         :name="'address'"
         :place="'Адрес организации'"
-        v-model="workForm['address']"
+        v-model="workForm['addresses']"
       />
     </LabelSlot>
     <LabelSlot :label="'Причина увольнения'">

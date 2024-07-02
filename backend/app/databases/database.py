@@ -35,6 +35,17 @@ def execute(query, args=None):
             con.rollback()
 
 
+def scriptexec(script):
+    with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
+        cursor = con.cursor()
+        try:
+            cursor.executescript(script)
+            con.commit()
+        except sqlite3.Error as e:
+            print(f"Error: {e}")
+            con.rollback()
+
+
 def select(query, many=False, args=None):
     """
     Executes a SQL query on the database using the provided query and arguments.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, reactive, ref } from "vue";
 import { stateAnketa } from "@/state";
 import { Staff } from "@/interfaces";
 
@@ -16,48 +16,46 @@ const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
 
-const staff = ref({
-  itemId: "",
-  item: <Staff>{},
-  showActions: false,
-});
+const actions = ref(false);
+const edit = ref(false);
+const itemId = ref('');
+const staff = reactive(<Staff>{});
 
-function cancelAction(){
-  staff.value.itemId = "";
-  Object.keys(staff.value.item).forEach(
-    (key) => delete staff.value.item[key as keyof typeof staff.value.item]
-  );
-  const collapseStaff = document.getElementById('staff');
-  collapseStaff?.setAttribute('class', 'collapse card card-body');
-};
+function cancelAction() {
+  edit.value = false;
+  itemId.value = "";
+  const collapseStaff = document.getElementById("staffer");
+  collapseStaff?.setAttribute("class", "collapse card card-body mb-3");
+}
 </script>
 
 <template>
-  <DropDownHead :id="'staff'" :header="'Должности'"/>
-  <div class="collapse card card-body" id="staff">
-    <StaffForm @cancel="cancelAction"/>
+  <DropDownHead :id="'staffer'" :header="'Должности'" />
+  <div class="collapse card card-body mb-3" id="staffer">
+    <StaffForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.staffs.length">
     <div
       v-for="(item, idx) in stateAnketa.anketa.staffs"
       :key="idx"
-      @mouseover="staff.showActions = true"
-      @mouseout="staff.showActions = false"
-      class="card card-body"
+      @mouseover="actions = true"
+      @mouseout="actions = false"
+      class="card card-body mb-3"
     >
-      <StaffForm
-        v-if="staff.itemId === item['id'].toString()"
-        :staff="staff.item"
-        @cancel="cancelAction"
+      <StaffForm 
+        v-if="edit && itemId == item['id'].toString()"  
+        :staff="staff"
+        @cancel="cancelAction" 
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="staff.showActions"
+            v-show="actions"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'staffs')"
             @update="
-              staff.item = item;
-              staff.itemId = item['id'].toString();
+              staff = item;
+              edit = true;
+              itemId = item['id'].toString()
             "
             :hide="true"
           />

@@ -24,7 +24,7 @@ const loginForm = reactive(<Record<string, any>>{});
 async function submitLogin(): Promise<void> {
   showPswd.value = false;
   if (loginAction.value === "update") {
-    if (loginForm["password"] === loginForm["new_pswd"]) {
+    if (loginForm["passhash"] === loginForm["new_pswd"]) {
       stateAlert.setAlert("alert-warning", "Старый и новый пароли совпадают");
       return;
     }
@@ -100,10 +100,10 @@ async function submitLogin(): Promise<void> {
           <div class="mb-3">
             <InputElement
               :need="true"
-              :name="'password'"
+              :name="'passhash'"
               :place="'Пароль'"
-              :typeof="showPswd ? 'password' : 'text'"
-              v-model="loginForm['password']"
+              :typeof="!showPswd ? 'password' : 'text'"
+              v-model="loginForm['passhash']"
             />
           </div>
           <div v-if="loginAction === 'update'">
@@ -114,7 +114,7 @@ async function submitLogin(): Promise<void> {
                 :place="'Новый пароль'"
                 :min="8"
                 :max="16"
-                :typeof="showPswd ? 'password' : 'text'"
+                :typeof="!showPswd ? 'password' : 'text'"
                 v-model="loginForm['new_pswd']"
               />
             </div>
@@ -123,7 +123,7 @@ async function submitLogin(): Promise<void> {
                 :need="true"
                 :name="'conf_pswd'"
                 :place="'Повтор пароля'"
-                :typeof="showPswd ? 'password' : 'text'"
+                :typeof="!showPswd ? 'password' : 'text'"
                 v-model="loginForm['conf_pswd']"
               />
             </div>
@@ -142,7 +142,7 @@ async function submitLogin(): Promise<void> {
               href="#" 
               @click="showPswd = !showPswd"
             >
-              {{ showPswd ? "Показать" : "Скрыть" }} пароль
+              {{ !showPswd ? "Показать" : "Скрыть" }} пароль
             </a>
           </div>
           <BtnGroup 

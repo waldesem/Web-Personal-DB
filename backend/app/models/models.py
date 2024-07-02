@@ -50,7 +50,7 @@ class Person(Name):
     inn: Optional[int] = None
     marital: Optional[str] = None
     addition: Optional[str] = None
-    path: Optional[str] = None
+    destination: Optional[str] = None
     region: Optional[Regions] = None
 
 
@@ -61,7 +61,7 @@ class Prev(Name):
 
 class Education(QueryModel):
     view: Educations
-    name: str
+    institution: str
     finished: Optional[str] = None
     speciality: Optional[str] = None
 
@@ -74,7 +74,7 @@ class Staff(QueryModel):
 class Document(QueryModel):
     view: Documents
     series: Optional[str] = None
-    number: str
+    digits: str
     agency: Optional[str] = None
     issue: Optional[date] = None
 
@@ -82,7 +82,7 @@ class Document(QueryModel):
 
 class Address(QueryModel):
     view: Addresses
-    address: str
+    addresses: str
 
 
 class Contact(QueryModel):
@@ -92,17 +92,17 @@ class Contact(QueryModel):
 
 class Workplace(QueryModel):
     now_work: Optional[bool] = False
-    started: date
+    starts: date
     finished: Optional[date] = None
     workplace: str
-    address: Optional[str] = None
+    addresses: Optional[str] = None
     position: str
     reason: Optional[str] = None
 
 
 class Affilation(QueryModel):
     view: Affiliates
-    name: str
+    organization: str
     inn: Optional[str] = None
     position: str
 
@@ -144,24 +144,7 @@ class Investigation(QueryModel):
 
 class Inquiry(QueryModel):
     info: str
-    initiator: str
-
-
-class Connects(QueryModel):
-    view: Optional[str] = None
-    company: Optional[str] = None
-    city: Optional[str] = "Москва"
-    fullname: Optional[str] = None
-    phone: Optional[str] = None
-    adding: Optional[str] = None
-    mobile: Optional[str] = None
-    email: Optional[str] = Field(pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$", default=None)
-    comment: Optional[str] = None
-
-    @validator("company")
-    def check_company(cls, v):
-        if v:
-            return v.upper().strip()
+    origins: str
 
 
 models_tables = {
@@ -179,21 +162,3 @@ models_tables = {
     "poligrafs": Poligraf,
     "inquiries": Inquiry,
 }
-
-
-class People(BaseModel):
-    person: Person
-    staffs: Optional[Staff] = None
-    previous: Optional[Prev] = None
-    documents: Optional[Document] = None
-    addresses: Optional[Address] = None
-    contacts: Optional[Contact] = None
-    educations: Optional[Education] = None
-    workplaces: Optional[Workplace] = None
-    affilations: Optional[Affilation] = None
-    relations: Optional[Relation] = None
-    checks: Optional[Check] = None
-    investigations: Optional[Investigation] = None
-    poligrafs: Optional[Poligraf] = None
-    inquiries: Optional[Inquiry] = None
-    connects: Optional[Connects] = None

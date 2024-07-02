@@ -62,7 +62,7 @@ function submitDocument() {
         :name="'number'"
         :place="'Номер документа'"
         :need="true"
-        v-model="docForm['number']"
+        v-model="docForm['digits']"
       />
     </LabelSlot>
     <LabelSlot :label="'Кем выдан'">

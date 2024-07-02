@@ -54,7 +54,7 @@ function submitEducation() {
       <InputElement
         :name="'name'"
         :place="'Название учебного заведения'"
-        v-model="educationForm['name']"
+        v-model="educationForm['institution']"
       />
     </LabelSlot>
     <LabelSlot :label="'Год окончания'">

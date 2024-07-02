@@ -97,7 +97,7 @@ def post_login(action):
     json_data = request.get_json()
     user = select(
         """
-        SELECT id, username, password, blocked, deleted, attempt, pswd_create, change_pswd, has_admin
+        SELECT id, username, passhash, blocked, deleted, attempt, pswd_create, change_pswd, has_admin
         FROM users WHERE username = ?
         """,
         args=(json_data.get("username"),),
@@ -107,7 +107,7 @@ def post_login(action):
 
     args = []
     stmt = "UPDATE users SET "
-    if not check_password_hash(user["password"], json_data["password"]):
+    if not check_password_hash(user["passhash"], json_data["passhash"]):
         if user["attempt"] < 5:
             stmt += "attempt = ? "
             args.append(user["attempt"] + 1)
@@ -121,7 +121,7 @@ def post_login(action):
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
         if not re.match(pattern, json_data["new_pswd"]):
             return "", 205
-        stmt += "password = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
+        stmt += "passhash = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
         args.extend([generate_password_hash(json_data["new_pswd"]), user["id"]])
         execute(stmt, tuple(args))
         return "", 201
@@ -187,7 +187,7 @@ def post_user():
         if user and not json_dict["id"]:
             return "", 205
 
-        json_dict["password"] = generate_password_hash(Config.DEFAULT_PASSWORD)
+        json_dict["passhash"] = generate_password_hash(Config.DEFAULT_PASSWORD)
         keys, args = zip(*json_dict.items())
         query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
@@ -216,7 +216,7 @@ def get_user_id(user_id):
     """
     if request.args.get("action") == "drop":
         execute(
-            "UPDATE users SET password = ?, attempt = 0, blocked = 0, change_pswd = 1 WHERE id = ?",
+            "UPDATE users SET passhash = ?, attempt = 0, blocked = 0, change_pswd = 1 WHERE id = ?",
             (
                 generate_password_hash(Config.DEFAULT_PASSWORD),
                 user_id,
@@ -302,8 +302,8 @@ def get_image(item_id):
         None.
     """
     person_path = select("SELECT path FROM persons WHERE id = ?", args=(item_id,))
-    if person_path.get("path"):
-        file_path = os.path.join(person_path["path"], "image", "image.jpg")
+    if person_path.get("destination"):
+        file_path = os.path.join(person_path["destination"], "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
     return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
@@ -481,10 +481,10 @@ def post_item_id(item, item_id):
                 args.extend([Statuses.poligraf.value, item_id])
             else:
                 args.extend([Statuses.finish.value, item_id])
-            execute("UPDATE persons SET status = ? WHERE id = ?", tuple(args))
+            execute("UPDATE persons SET standing = ? WHERE id = ?", tuple(args))
 
         if item == "poligrafs":
-            stmt = "UPDATE persons SET status = CASE WHEN status = ? THEN ? ELSE status END WHERE id = ?"
+            stmt = "UPDATE persons SET standing = CASE WHEN standing = ? THEN ? ELSE standing END WHERE id = ?"
             args = (
                 Statuses.poligraf.value,
                 Statuses.finish.value,

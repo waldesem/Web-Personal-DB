@@ -54,7 +54,7 @@ function submitAffilation() {
         :name="'name'"
         :place="'Организация'"
         :need="true"
-        v-model="affilationForm['name']"
+        v-model="affilationForm['organization']"
       />
     </LabelSlot>
     <LabelSlot :label="'ИНН'">
