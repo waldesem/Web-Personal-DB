@@ -1,5 +1,5 @@
 from ..classes.classes import Statuses
-from ..databases.database import execute, select, scriptexec
+from ..databases.database import execute, select
 from ..depends.depend import current_user
 from ..models.models import Person
 from ..tools.tool import Folders, parse_json
@@ -101,15 +101,12 @@ def handle_update_person(json_data):
     if anketa:
         person_id = handle_post_resume(anketa["resume"])
         if person_id:
-            stmt =''
             for table, values in anketa.items():
                 if table == "resume":
                     continue
                 for item in values:
                     item["person_id"] = person_id
                     keys, args = zip(*item.items())
-                    values = f"{', '.join(list(map(str, args)))}".replace(";", ",")
-                    stmt += f"INSERT INTO {table} ({', '.join(keys)}) VALUES ({values}); "
-            print(stmt)
-            scriptexec(stmt)
+                    stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
+                    execute(stmt, tuple(args))
     return person_id
