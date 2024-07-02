@@ -155,74 +155,47 @@ def parse_json(json_dict: dict) -> dict:
             }
             if item in views.keys():
                 for org in values:
-                    organization = {}
-                    organization["view"] = views[item]
-                    for k, v in org.items():
-                        match k:
-                            case "organization":
-                                organization["name"] = v
-                            case "position":
-                                organization["position"] = v
-                            case "inn":
-                                organization["inn"] = v
-                    json_data["affilations"].append(organization)
+                    json_data["affilations"].append({
+                        "view": views[item],
+                        "organization": org.get("organization"),
+                        "position": org.get("position"),
+                        "inn": org.get("inn")
+                    })
 
             elif item == "previous":
                 for prev in values:
-                    previous = {}
-                    for k, v in prev.items():
-                        match k:
-                            case "firstNameBeforeChange":
-                                previous["firstname"] = v
-                            case "lastNameBeforeChange":
-                                previous["surname"] = v
-                            case "midNameBeforeChange":
-                                previous["patronymic"] = v
-                            case "yearOfChange":
-                                previous["changed"] = v
-                            case "reason":
-                                previous["reason"] = v
-                    json_data["previous"].append(previous)
-
+                    json_data["previous"].append({
+                        "firstname": prev.get("firstNameBeforeChange"),
+                        "surname": prev.get("lastNameBeforeChange"),
+                        "patronymic": prev.get("midNameBeforeChange"),
+                        "changed": prev.get("yearOfChange"),
+                        "reason": prev.get("reason")
+                    })
+                    
             elif item == "education":
                 for edu in values:
-                    education = {}
-                    for k, v in edu.items():
-                        match k:
-                            case "educationType":
-                                education["view"] = v
-                            case "institutionName":
-                                education["institution"] = v
-                            case "endYear":
-                                education["finished"] = v
-                            case "specialty":
-                                education["speciality"] = v
-                    json_data["educations"].append(education)
-
+                    json_data["educations"].append({
+                        "view": edu.get("educationType"),
+                        "institution": edu.get("institutionName"),
+                        "finished": edu.get("endYear"),
+                        "speciality": edu.get("specialty")
+                    })
+                    
             elif item == "experience":
                 for exp in values:
-                    work = {}
-                    for key, value in exp.items():
-                        match key:
-                            case "beginDate":
-                                work["starts"] = datetime.strptime(
-                                    value, "%Y-%m-%d"
-                                ).date()
-                            case "endDate":
-                                work["finished"] = datetime.strptime(
-                                    value, "%Y-%m-%d"
-                                ).date()
-                            case "currentJob":
-                                work["now_work"] = bool(value)
-                            case "name":
-                                work["workplace"] = value
-                            case "address":
-                                work["addresses"] = value
-                            case "position":
-                                work["position"] = value
-                            case "fireReason":
-                                work["reason"] = value
-                    json_data["workplaces"].append(work)
+                    json_data["workplaces"].append({
+                        "starts": datetime.strptime(
+                                    exp["beginDate"], "%Y-%m-%d"
+                                ).date() if exp.get("beginDate") else None,
+                        "finished": datetime.strptime(
+                                    exp["endDate"], "%Y-%m-%d"
+                                ).date() if exp.get("endDate") else None,
+                        "now_work":  True if exp.get("currentJob") else False 
+                        "workplace": exp.get("name"),
+                        "addresses": exp.get("address"),
+                        "position": exp.get("position")
+                        "reason": exp.get("fireReason")
+                    })
     return (
         json_data
         if json_data["resume"]["surname"]
