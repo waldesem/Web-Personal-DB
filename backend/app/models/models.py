@@ -26,7 +26,6 @@ class QueryModel(BaseModel):
 class User(QueryModel):
     fullname: str
     username: str
-    email: str = Field(pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
     region: Regions
     has_admin: bool = False
 
