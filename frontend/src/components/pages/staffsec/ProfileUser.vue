@@ -98,9 +98,6 @@ async function userDelete(): Promise<void> {
       <LabelSlot :label="'Логин'">
         {{ userData.profile.username }}
       </LabelSlot>
-      <LabelSlot :label="'E-mail'">
-        {{ userData.profile.email }}
-      </LabelSlot>
       <LabelSlot :label="'Дата создания пароля'">
         {{ new Date(userData.profile.pswd_create + ' UTC').toLocaleString("ru-RU") }}
       </LabelSlot>
