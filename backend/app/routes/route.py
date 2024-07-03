@@ -70,12 +70,16 @@ def get_information():
         """,
         many=True,
         args=(
-            query_data["region"] if query_data["region"] else current_user["region"],
+            query_data["region"]
+            if query_data.get("region")
+            else current_user["region"],
             Conclusions.saved.value,
             query_data["start"],
             query_data["end"],
         ),
     )
+    if result == "Error":
+        return abort(400)
     return jsonify(result), 200
 
 
@@ -102,6 +106,8 @@ def post_login(action):
         """,
         args=(json_data.get("username"),),
     )
+    if user == "Error":
+        return abort(400)
     if not user or user["blocked"] or user["deleted"]:
         return "", 204
 
@@ -250,6 +256,7 @@ def get_index(page):
         FROM persons 
         LEFT JOIN users ON persons.user_id = users.id 
         """
+    args = []
     search_data = request.args.get("search")
     if search_data and len(search_data) > 2:
         if search_data.isdigit():
@@ -265,22 +272,22 @@ def get_index(page):
             if len(query) > 2 and not re.match(pattern, query[2]):
                 stmt += "AND patronymic LIKE '%{}%' ".format(query[2])
             if len(query) > 1 and re.match(pattern, query[-1]):
-                stmt += "AND birthday = '{}' ".format(
-                    datetime.strptime(query[-1], "%d.%m.%Y").date()
-                )
+                stmt += "AND birthday = ? "
+                args.append(datetime.strptime(query[-1], "%d.%m.%Y").date())
 
         if current_user["region"] != Regions.main.value:
-            stmt += "AND region = {} ".format(current_user["region"])
-
+            stmt += "AND persons.region = ? "
+            args.append(current_user["region"])
     else:
         if current_user["region"] != Regions.main.value:
-            stmt += "WHERE region = {} ".format(current_user["region"])
+            stmt += "WHERE persons.region = ? "
+            args.append(current_user["region"])
 
     stmt += "ORDER BY id DESC LIMIT {} OFFSET {}".format(
         Config.PAGINATION + 1,
         (page - 1) * Config.PAGINATION,
     )
-    result = select(stmt, many=True)
+    result = select(stmt, args=tuple(args), many=True)
     has_next = len(result) > Config.PAGINATION
     result = result[: Config.PAGINATION] if has_next else result
 
@@ -301,7 +308,9 @@ def get_image(item_id):
     Raises:
         None.
     """
-    person_path = select("SELECT path FROM persons WHERE id = ?", args=(item_id,))
+    person_path = select(
+        "SELECT destination FROM persons WHERE id = ?", args=(item_id,)
+    )
     if person_path.get("destination"):
         file_path = os.path.join(person_path["destination"], "image", "image.jpg")
         if os.path.isfile(file_path):
@@ -381,13 +390,13 @@ def get_profile(person_id):
 
     Returns:
         Tuple[List[Dict[str, Any]], int]:
-        A tuple containing a list of dictionaries representing the person's i
-        nformation and an HTTP status code of 200.
+        A tuple containing a list of dictionaries representing the person's
+        information and an HTTP status code of 200.
     """
-    response = [handle_get_person(person_id)]
+    result = [handle_get_person(person_id)]
     for item in models_tables.keys():
-        response.append(handle_get_item(item, person_id))
-    return jsonify(response), 200
+        result.append(handle_get_item(item, person_id))
+    return jsonify(result), 200
 
 
 @bp.post("/persons")
@@ -428,7 +437,7 @@ def get_item_id(item, item_id):
     if item == "persons":
         if request.args.get("action") == "self":
             execute(
-                "UPDATE persons SET status = ?, user_id = ? WHERE id = ?",
+                "UPDATE persons SET standing = ?, user_id = ? WHERE id = ?",
                 (
                     Statuses.manual.value,
                     current_user["id"],

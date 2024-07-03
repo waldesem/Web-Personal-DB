@@ -33,7 +33,7 @@ def execute(query, args=None):
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()
-
+            return "Error"
 
 def scriptexec(script):
     with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
@@ -44,6 +44,7 @@ def scriptexec(script):
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()
+            return "Error"
 
 
 def select(query, many=False, args=None):
@@ -80,3 +81,4 @@ def select(query, many=False, args=None):
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()
+            return "Error"

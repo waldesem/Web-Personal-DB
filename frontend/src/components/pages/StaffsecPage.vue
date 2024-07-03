@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { axiosAuth, authErrorHandler } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { onBeforeMount, defineAsyncComponent } from "vue";
 import { stateClassify, stateUser, server } from "@/state";
 import { router } from "@/router";
@@ -13,7 +13,7 @@ onBeforeMount(async () => {
     const response = await axiosAuth.get(`${server}/classes`);
     [
       stateClassify.regions,
-      stateClassify.status,
+      stateClassify.standing,
       stateClassify.conclusions,
       stateClassify.relations,
       stateClassify.affilations,
@@ -32,7 +32,7 @@ onBeforeMount(async () => {
 
     router.push({ name: "persons" });
   } catch (error: any) {
-    authErrorHandler(error);
+    console.error(error);
   }
 });
 

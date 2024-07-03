@@ -6,7 +6,7 @@ from ..tools.tool import Folders, parse_json
 
 
 def handle_get_person(person_id):
-    return select(
+    result = select(
         """
         SELECT persons.*, users.fullname AS username 
         FROM persons
@@ -14,17 +14,17 @@ def handle_get_person(person_id):
         WHERE persons.id = ?""",
         args=(person_id,),
     )
-
+    return result
 
 def handle_get_item(item, item_id):
     if item in ["checks", "poligrafs", "inquiries", "investigations"]:
         stmt = f"SELECT {item}.*, users.fullname AS user FROM {item} LEFT JOIN users ON {item}.user_id = users.id "
     else:
         stmt = f"SELECT * FROM {item} "
-    return select(
+    result = select(
         stmt + "WHERE person_id = ? ORDER BY id DESC", many=True, args=(item_id,)
     )
-
+    return result
 
 def handle_post_resume(data):
     """
@@ -70,7 +70,7 @@ def handle_post_resume(data):
         )
         path = folders.create_main_folder()
         execute(
-            "UPDATE persons SET path = ? WHERE id = ?",
+            "UPDATE persons SET destination = ? WHERE id = ?",
             (
                 path,
                 person_id,
@@ -101,11 +101,11 @@ def handle_update_person(json_data):
     if anketa:
         person_id = handle_post_resume(anketa["resume"])
         if person_id:
-            for table, values in anketa.items():
-                if table == "resume" or not values:
+            for table, contents in anketa.items():
+                if table == "resume" or not contents:
                     continue 
-                keys = contents[0].keys() + ["person_id"]
-                args = [tuple(cont.values() + [person_id] for cont in contents]
+                keys = list(contents[0].keys()) + ["person_id"]
+                args = [tuple(list(cont.values()) + [person_id]) for cont in contents]
                 stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
-                execute(stmt, args=args, many=True)
+                execute(stmt, args)
     return person_id

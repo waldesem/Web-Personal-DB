@@ -79,7 +79,6 @@ class Document(QueryModel):
     issue: Optional[date] = None
 
 
-
 class Address(QueryModel):
     view: Addresses
     addresses: str

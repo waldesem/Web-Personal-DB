@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateAlert, stateUser, server } from "@/state";
-import { authErrorHandler, axiosAuth } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { useRoute } from "vue-router";
 import { User } from "@/interfaces";
 
@@ -42,7 +42,7 @@ async function userAction(action: String): Promise<void> {
       stateAlert.setAlert("alert-success", "Пароль сброшен");
     }
   } catch (error: any) {
-    authErrorHandler(error);
+    console.error(error);
   }
 }
 
@@ -63,7 +63,7 @@ async function userDelete(): Promise<void> {
         stateAlert.setAlert("alert-danger", "Произошла ошибка");
       }
     } catch (error: any) {
-      authErrorHandler(error);
+      console.error(error);
     }
   }
 }
@@ -108,7 +108,7 @@ async function userDelete(): Promise<void> {
         {{ userData.profile.change_pswd ? "Да" : "Нет" }}
       </LabelSlot>
       <LabelSlot :label="'Дата последнего входа'">
-        {{ new Date(userData.profile.last_login + ' UTC').toLocaleString("ru-RU") }}
+        {{ new Date(userData.profile.last_login).toLocaleString("ru-RU") }}
       </LabelSlot>
       <LabelSlot :label="'Попытки входа'">
         {{ userData.profile.attempt }}
@@ -126,7 +126,7 @@ async function userDelete(): Promise<void> {
         {{ new Date(userData.profile.created + ' UTC').toLocaleString("ru-RU")}}
       </LabelSlot>
     </div>
-    <div class="btn-group row mb-3" role="group">
+    <div class="btn-group" role="group">
       <button
         class="btn btn-outline-primary"
         type="button"

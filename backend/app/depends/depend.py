@@ -24,8 +24,8 @@ def get_auth(token):
     """
     try:
         decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 2)
-        g.user_id = decoded[1]
-        return decoded[0] == Config.SECRET_KEY
+        secret_key, g.user_id, _ = decoded
+        return secret_key == Config.SECRET_KEY
     except (IndexError, UnicodeDecodeError):
         return False
 
@@ -86,11 +86,6 @@ def jwt_required():
 
     Returns:
         function: The decorated function.
-
-    Example:
-        @jwt_required()
-        def my_function():
-            # Function logic
     """
     def decorator(func):
         @wraps(func)
@@ -120,9 +115,7 @@ def user_required(admin=False):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
                 if current_user and (
-                    not current_user["blocked"]
-                    and not current_user["deleted"]
-                    and (not admin or current_user["has_admin"])
+                    not admin or current_user["has_admin"]
                 ):
                     return func(*args, **kwargs)
                 abort(403)

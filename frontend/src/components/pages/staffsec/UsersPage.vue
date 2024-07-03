@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { authErrorHandler, axiosAuth } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { debounce, timeSince } from "@/utilities";
 import { User } from "@/interfaces";
 import { server } from "@/state";
@@ -50,7 +50,7 @@ async function getUsers() {
     dataUsers.value.users = response.data;
 
   } catch (error: AxiosError | any) {
-    authErrorHandler(error);
+    console.error(error);
   }
 }
 </script>
@@ -111,7 +111,7 @@ async function getUsers() {
         <th width="10%">Блокировка</th>
         <th width="15%">Создан</th>
         <th width="15%">Вход</th>
-        <th width="15%">Регион</th>
+        <th width="20%">Регион</th>
       </tr>
     </template>
     <template v-slot:tbody>
@@ -131,15 +131,9 @@ async function getUsers() {
                   </router-link>
                 </td>
                 <td width="10%">{{ user.blocked ? "Да" : "Нет" }}</td>
-                <td width="15%">
-                  {{ timeSince(user.pswd_create) }}
-                </td>
-                <td width="15%">
-                  {{ timeSince(user.last_login) }}
-                </td>
-                <td width="15%">
-                  {{ user.region }}
-                </td>
+                <td width="15%">{{ timeSince(user.pswd_create) }}</td>
+                <td width="15%">{{ new Date(user.last_login).toLocaleString() }}</td>
+                <td width="20%">{{ user.region }}</td>
               </tr>
             </template>
           </TableSlots>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce, timeSince } from "@/utilities";
-import { authErrorHandler, axiosAuth } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { server } from "@/state";
 import { Persons } from "@/interfaces";
 
@@ -70,7 +70,7 @@ async function getCandidates(page = 1): Promise<void> {
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
   } catch (error: any) {
-    authErrorHandler(error);
+    console.error(error);
   }
 }
 

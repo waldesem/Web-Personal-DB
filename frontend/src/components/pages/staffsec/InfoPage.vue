@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, defineAsyncComponent } from "vue";
 import { stateClassify, stateUser, server } from "@/state";
-import { authErrorHandler, axiosAuth } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { AxiosError } from "axios";
 
 const HeaderDiv = defineAsyncComponent(
@@ -40,7 +40,7 @@ async function submitData(): Promise<void> {
     tableData.value.checks = response.data;
 
   } catch (error: AxiosError | any) {
-    authErrorHandler(error);
+    console.error(error);
   }
 }
 

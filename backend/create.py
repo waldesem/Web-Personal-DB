@@ -27,7 +27,7 @@ def init_app():
             (id, fullname, username, passhash, email, has_admin, region) 
             VALUES (NULL, 'Супер Админ', 'superadmin', ?, 'admin@example.ru', '1', ?)""", (
                 generate_password_hash(Config.DEFAULT_PASSWORD), Regions.main.value,
-                )
+            )
         )
         print("Database initialized")
 

@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import re
 
 from config import Config
 from ..depends.depend import current_user
@@ -89,8 +90,8 @@ def parse_json(json_dict: dict) -> dict:
         json_dict (dict): The JSON dictionary to parse.
 
     Returns:
-        dict: The parsed dictionary containing the resume, addresses, contacts, documents, staffs, previous, educations, and workplaces.
-    """
+        dict: The parsed dictionary.
+    """   
     json_data = {
         "resume": {
             "region": current_user["region"],
@@ -98,7 +99,7 @@ def parse_json(json_dict: dict) -> dict:
             "surname": json_dict.get("lastName"),
             "patronymic": json_dict.get("midName"),
             "birthday": datetime.strptime(json_dict["birthday"], "%Y-%m-%d").date()
-            if json_dict.get("birthday")
+            if json_dict.get("birthday") and re.match(r"^\d{4}-\d{2}-\d{2}$")
             else None,
             "birthplace": json_dict.get("birthplace"),
             "citizenship": json_dict.get("citizen"),
@@ -124,12 +125,13 @@ def parse_json(json_dict: dict) -> dict:
         "documents": [
             {
                 "view": "Паспорт гражданина России",
-                "number": json_dict.get("passportNumber"),
-                "digits": json_dict.get("passportSerial"),
+                "digits": json_dict.get("passportNumber"),
+                "series": json_dict.get("passportSerial"),
                 "issue": datetime.strptime(
                     json_dict["passportIssueDate"], "%Y-%m-%d"
                 ).date()
                 if json_dict.get("passportIssueDate")
+                and re.match(r"^\d{4}-\d{2}-\d{2}$")
                 else None,
                 "agency": json_dict.get("passportIssuedBy"),
             }
@@ -140,62 +142,65 @@ def parse_json(json_dict: dict) -> dict:
                 "department": json_dict.get("department"),
             }
         ],
-        "previous": [],
-        "educations": [],
-        "workplaces": [],
+        "previous": [
+            {
+                "firstname": prev.get("firstNameBeforeChange"),
+                "surname": prev.get("lastNameBeforeChange"),
+                "patronymic": prev.get("midNameBeforeChange"),
+                "changed": prev.get("yearOfChange"),
+                "reason": prev.get("reason"),
+            }
+            for prev in json_dict["previous"] if json_dict.get("previous")
+        ],
+        "educations": [
+            {
+                "view": edu.get("educationType"),
+                "institution": edu.get("institutionName"),
+                "finished": edu.get("endYear"),
+                "speciality": edu.get("specialty"),
+            }
+            for edu in json_dict["education"] if json_dict.get("education")
+        ],
+        "workplaces": [
+            {
+                "starts": datetime.strptime(
+                    exp["beginDate"], "%Y-%m-%d"
+                ).date()
+                if exp.get("beginDate") and re.match(r"^\d{4}-\d{2}-\d{2}$")
+                else None,
+                "finished": datetime.strptime(
+                    exp["endDate"], "%Y-%m-%d"
+                ).date()
+                if exp.get("endDate") and re.match(r"^\d{4}-\d{2}-\d{2}$")
+                else None,
+                "now_work": True if exp.get("currentJob") else False,
+                "workplace": exp.get("name"),
+                "addresses": exp.get("address"),
+                "position": exp.get("position"),
+                "reason": exp.get("fireReason"),
+            }
+            for exp in json_dict["experience"] if json_dict.get("experience")
+        ],
         "affilations": [],
     }
-    for item, values in json_dict.items():
-        if values:
-            views = {
+    views = {
                 "publicOfficeOrganizations": "Являлся государственным или муниципальным служащим",
                 "stateOrganizations": "Являлся государственным должностным лицом",
                 "relatedPersonsOrganizations": "Связанные лица работают в госудраственных организациях",
                 "organizations": "Участвует в деятельности коммерческих организаций",
             }
-            if item in views.keys():
-                for org in values:
-                    json_data["affilations"].append({
-                        "view": views[item],
-                        "organization": org.get("organization"),
-                        "position": org.get("position"),
-                        "inn": org.get("inn")
-                    })
+    for item, value in views.items():
+        affils = json_dict[item] if json_dict.get(item) else []
+        for org in affils:
+            json_data["affilations"].append(
+                {
+                    "view": value,
+                    "organization": org.get("organization"),
+                    "position": org.get("position"),
+                    "inn": org.get("inn"),
+                }
+            )
 
-            elif item == "previous":
-                for prev in values:
-                    json_data["previous"].append({
-                        "firstname": prev.get("firstNameBeforeChange"),
-                        "surname": prev.get("lastNameBeforeChange"),
-                        "patronymic": prev.get("midNameBeforeChange"),
-                        "changed": prev.get("yearOfChange"),
-                        "reason": prev.get("reason")
-                    })
-                    
-            elif item == "education":
-                for edu in values:
-                    json_data["educations"].append({
-                        "view": edu.get("educationType"),
-                        "institution": edu.get("institutionName"),
-                        "finished": edu.get("endYear"),
-                        "speciality": edu.get("specialty")
-                    })
-                    
-            elif item == "experience":
-                for exp in values:
-                    json_data["workplaces"].append({
-                        "starts": datetime.strptime(
-                                    exp["beginDate"], "%Y-%m-%d"
-                                ).date() if exp.get("beginDate") else None,
-                        "finished": datetime.strptime(
-                                    exp["endDate"], "%Y-%m-%d"
-                                ).date() if exp.get("endDate") else None,
-                        "now_work":  True if exp.get("currentJob") else False 
-                        "workplace": exp.get("name"),
-                        "addresses": exp.get("address"),
-                        "position": exp.get("position")
-                        "reason": exp.get("fireReason")
-                    })
     return (
         json_data
         if json_data["resume"]["surname"]

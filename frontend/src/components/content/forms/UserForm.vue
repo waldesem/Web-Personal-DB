@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef, defineAsyncComponent } from "vue";
-import { authErrorHandler, axiosAuth } from "@/auth";
+import { axiosAuth } from "@/auth";
 import { stateAlert, stateClassify, server } from "@/state";
 import { User } from "@/interfaces";
 
@@ -46,7 +46,7 @@ async function submitUser(): Promise<void> {
       stateAlert.setAlert("alert-success", "Запись успешно добавлена");
     }
   } catch (error) {
-    authErrorHandler(error);
+    console.error(error);
   }
   emit("update");
   Object.keys(userForm.value).forEach(
@@ -63,7 +63,6 @@ async function submitUser(): Promise<void> {
           :name="'fullname'"
           :place="'Имя пользователя'"
           :need="props.action !== 'edit'"
-          :pattern="'[А-Яа-я- ]+'"
           v-model="userForm['fullname']"
         />
       </LabelSlot>

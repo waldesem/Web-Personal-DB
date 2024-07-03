@@ -2,7 +2,7 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateUser, stateAnketa, server } from "@/state";
 import { useRoute } from "vue-router";
-import { authErrorHandler, axiosAuth } from "@/auth";
+import { axiosAuth } from "@/auth";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -50,7 +50,7 @@ onBeforeMount(async () => {
       stateAnketa.anketa.inquiries,
     ] = response.data;
   } catch (error: any) {
-    authErrorHandler(error);
+    console.error(error);
   }
 });
 
