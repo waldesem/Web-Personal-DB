@@ -102,15 +102,10 @@ def handle_update_person(json_data):
         person_id = handle_post_resume(anketa["resume"])
         if person_id:
             for table, values in anketa.items():
-                if table == "resume":
+                if table == "resume" or not values:
                     continue 
-                keys = []
-                args = []
-                for item in values:
-                    item["person_id"] = person_id
-                    keys, arg = zip(*item.items())
-                    args.append(tuple(arg))
-
+                keys = contents[0].keys() + ["person_id"]
+                args = [tuple(cont.values() + [person_id] for cont in contents]
                 stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
                 execute(stmt, args=args, many=True)
     return person_id
