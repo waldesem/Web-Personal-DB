@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS users (
 	fullname VARCHAR(255) NOT NULL, 
 	username VARCHAR(255) NOT NULL, 
 	passhash VARCHAR (255),
-	email VARCHAR(255) NOT NULL, 
 	pswd_create DATETIME DEFAULT (DATETIME('now')), 
 	change_pswd BOOLEAN DEFAULT 1, 
 	last_login DATETIME, 
