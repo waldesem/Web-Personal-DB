@@ -76,15 +76,6 @@ async function submitUser(): Promise<void> {
           v-model="userForm['username']"
         />
       </LabelSlot>
-      <LabelSlot :label="'Электронная почта'">
-        <InputElement
-          :name="'email'"
-          :place="'Электронная почта'"
-          :typeof="'email'"
-          :need="props.action !== 'edit'"
-          v-model="userForm['email']"
-        />
-      </LabelSlot>
       <LabelSlot :label="'Регион'">
         <SelectDiv
           :name="'region'"
