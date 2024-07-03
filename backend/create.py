@@ -24,8 +24,8 @@ def init_app():
         scriptexec(sql)
         execute(
             """INSERT OR REPLACE INTO users 
-            (id, fullname, username, passhash, email, has_admin, region) 
-            VALUES (NULL, 'Супер Админ', 'superadmin', ?, 'admin@example.ru', '1', ?)""", (
+            (id, fullname, username, passhash, has_admin, region) 
+            VALUES (NULL, 'Супер Админ', 'superadmin', ?, '1', ?)""", (
                 generate_password_hash(Config.DEFAULT_PASSWORD), Regions.main.value,
             )
         )
