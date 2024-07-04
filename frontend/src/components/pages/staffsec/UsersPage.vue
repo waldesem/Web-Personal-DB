@@ -106,8 +106,8 @@ function cancelOperations() {
   Object.keys(dataUsers.value.profile).forEach(
     (key) => delete dataUsers.value[key as keyof typeof dataUsers.value]
   );
-  const collapsePoligraf = document.getElementById("user-form");
-  collapsePoligraf?.setAttribute("class", "collapse card card-body mb-3");
+  const collapse = document.getElementById("user-form");
+  collapse?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
