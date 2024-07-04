@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from functools import lru_cache
 from datetime import datetime, timezone
 
 from flask import abort, Blueprint, jsonify, request, send_file
@@ -36,6 +37,7 @@ bp = Blueprint("route", __name__)
 
 @bp.get("/classes")
 @jwt_required()
+@lru_cache
 def get_classes():
     results = [
         {item.name: item.value for item in items}
