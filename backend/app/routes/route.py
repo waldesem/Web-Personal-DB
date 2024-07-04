@@ -1,7 +1,6 @@
 import json
 import os
 import re
-from functools import lru_cache
 from datetime import datetime, timezone
 
 from flask import abort, Blueprint, jsonify, request, send_file
@@ -37,7 +36,6 @@ bp = Blueprint("route", __name__)
 
 @bp.get("/classes")
 @jwt_required()
-@lru_cache
 def get_classes():
     results = [
         {item.name: item.value for item in items}
@@ -161,7 +159,7 @@ def get_users():
         tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
     """
     search_data = request.args.get("search")
-    stmt = "SELECT id, fullname, username, blocked, deleted, pswd_create, last_login, region FROM users "
+    stmt = "SELECT * FROM users "
     if search_data and len(search_data) > 2:
         stmt += "WHERE username LIKE '%{}%' ".format(search_data)
     result = select(stmt + "ORDER BY id DESC", many=True)
@@ -172,19 +170,21 @@ def get_users():
 @user_required(admin=True)
 def post_user():
     """
-    Handles the POST request to create or update a user in the database.
+    Handles the POST request to create a user in the database.
 
     This function is a route handler for the '/users' endpoint with the HTTP method POST.
-    It requires a valid JWT token for authentication.
+    It requires a valid token for authentication.
 
     Parameters:
         None
 
     Returns:
-        - If the user already exists and the request does not include an 'id' field, returns an empty response with status code 205.
-        - If the request does not include an 'id' field, generates a hashed password using the default password from the Config module and inserts the user into the 'users' table.
+        - If the user already exists returns an empty response with status code 205.
+        - Else generates a hashed password using the default password
+        from the Config module and inserts the user into the 'users' table.
         Returns an empty response with status code 201.
-        - If an exception occurs during the execution of the function, prints the exception and returns an empty response with status code 400.
+        - If an exception occurs during the execution of the function,
+        returns an empty response with status code 400.
     """
     json_data = request.get_json()
     try:
@@ -192,12 +192,12 @@ def post_user():
         user = select(
             "SELECT id FROM users WHERE username = ?", args=(json_dict.get("username"),)
         )
-        if user and not json_dict["id"]:
+        if user:
             return "", 205
 
         json_dict["passhash"] = generate_password_hash(Config.DEFAULT_PASSWORD)
         keys, args = zip(*json_dict.items())
-        query = "INSERT OR REPLACE INTO users ({}) VALUES ({})".format(
+        query = "INSERT INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
         )
         execute(query, args)
@@ -210,29 +210,28 @@ def post_user():
 
 @bp.get("/users/<int:user_id>")
 @user_required(admin=True)
-def get_user_id(user_id):
+def get_user_actions(user_id):
     """
-    Retrieves a user's information from the database based on their user ID.
+    Change a user's information in the database based on their user ID.
 
     Parameters:
         user_id (int): The ID of the user.
 
     Returns:
-        tuple: A tuple containing the user's information and the HTTP status code.
-            The user's information is returned as a JSON object.
-            The HTTP status code is 200 if the user is found, otherwise it is 404.
+        The HTTP status code is 201.
     """
+    stmt = "UPDATE users SET "
+    args = []
     if request.args.get("action") == "drop":
-        execute(
-            "UPDATE users SET passhash = ?, attempt = 0, blocked = 0, change_pswd = 1 WHERE id = ?",
-            (
-                generate_password_hash(Config.DEFAULT_PASSWORD),
-                user_id,
-            ),
-        )
-    stmt = "SELECT * FROM users WHERE id = ?"
-    result = select(stmt, args=(user_id,))
-    return jsonify(result), 200
+        stmt += "passhash = ?, attempt = 0, blocked = 0, change_pswd = 1 "
+        args.append(generate_password_hash(Config.DEFAULT_PASSWORD))
+    elif request.args.get("action") == "admin":
+        stmt += "has_admin = CASE WHEN has_admin = 0 THEN 1 ELSE 0 END "
+    elif request.args.get("delete") == "admin":
+        stmt += "deleted = 1 "
+    stmt += "WHERE id = ?"
+    execute(stmt, tuple(args.append(user_id)))
+    return "", 201
 
 
 @bp.get("/index/<int:page>")
@@ -524,7 +523,5 @@ def delete_item(item, item_id):
         code of 204 if the operation is successful.
     """
     stmt = "DELETE FROM {} WHERE id = ?".format(item)
-    if item == "users":
-        stmt = "UPDATE users SET deleted = 1 WHERE id = ?"
     execute(stmt, (item_id,))
     return "", 204

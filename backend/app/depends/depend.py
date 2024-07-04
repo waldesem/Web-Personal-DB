@@ -30,12 +30,11 @@ def get_auth(token):
     except (IndexError, UnicodeDecodeError):
         return False
 
-@lru_cache(maxsize=4)
+
+@lru_cache
 def get_current_user(user_id=g.user_id):
     """
-    Retrieves the current user details based on the user ID stored in the global variable 'g.user_id'.
-    If the user is not blocked, not deleted, has not been requested to change the password, and the password was created less than a year ago,
-    returns the user details. Otherwise, returns None.
+    Retrieves the current user based on the user ID stored in the global variable 'g.user_id'.
     """
     user = select("SELECT * FROM users WHERE id = ?", args=(user_id,))
     delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])

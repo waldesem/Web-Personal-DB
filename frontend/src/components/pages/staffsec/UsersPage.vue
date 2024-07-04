@@ -1,27 +1,32 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
-import { debounce, timeSince } from "@/utilities";
+import { debounce } from "@/utilities";
 import { User } from "@/interfaces";
-import { server } from "@/state";
+import { stateAlert, stateClassify, stateUser, server } from "@/state";
 import { AxiosError } from "axios";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
 );
-const UserForm = defineAsyncComponent(
-  () => import("@components/content/forms/UserForm.vue")
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+);
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
+);
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
 );
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/content/elements/BtnGroup.vue")
+);
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
-
-const searchUsers = debounce(() => {
-  getUsers();
-}, 500);
 
 onBeforeMount(() => {
   getUsers();
@@ -34,10 +39,10 @@ const users = computed(() => {
 });
 
 const dataUsers = ref({
-  action: "",
   search: "",
-  viewDeleted: false,
   users: <User[]>[],
+  profile: <User>{},
+  viewDeleted: false,
 });
 
 async function getUsers() {
@@ -48,21 +53,72 @@ async function getUsers() {
       },
     });
     dataUsers.value.users = response.data;
-
   } catch (error: AxiosError | any) {
     console.error(error);
   }
 }
+
+const searching = debounce(() => {
+  getUsers();
+}, 500);
+
+async function userAction(action: String): Promise<void> {
+  if (action === "delete") {
+    if (!confirm("Вы действительно хотите удалить пользователя?")) {
+      return
+    }
+  };
+  try {
+    const response = await axiosAuth.get(
+      `${server}/users/${dataUsers.value.profile.id}`,
+      {
+        params: {
+          action: action,
+        },
+      }
+    );
+    console.log(response.status);
+    getUsers();
+  } catch (error: any) {
+    console.error(error);
+  }
+}
+
+async function submitUser(): Promise<void> {
+  try {
+    const response = await axiosAuth.post(
+      `${server}/users`,
+      dataUsers.value.profile
+    );
+    if (response.status === 205) {
+      stateAlert.setAlert("alert-warning", "Пользователь уже существует");
+    } else {
+      stateAlert.setAlert("alert-success", "Запись успешно добавлена");
+    }
+    cancelOperations();
+    getUsers();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function cancelOperations() {
+  Object.keys(dataUsers.value.profile).forEach(
+    (key) => delete dataUsers.value[key as keyof typeof dataUsers.value]
+  );
+  const collapsePoligraf = document.getElementById("user-form");
+  collapsePoligraf?.setAttribute("class", "collapse card card-body mb-3");
+}
 </script>
 
 <template>
-  <HeaderDiv 
-    :page-header="'Список пользователей'" 
+  <HeaderDiv
+    :page-header="'Список пользователей'"
     :cls="'text-secondary py-5'"
   />
   <div class="row mb-3">
     <input
-      @input.prevent="searchUsers"
+      @input.prevent="searching"
       class="form-control mb-3"
       name="search"
       id="search"
@@ -78,27 +134,51 @@ async function getUsers() {
       v-model="dataUsers.viewDeleted"
     />
   </div>
-  <UserForm
-    v-show="dataUsers.action"
-    :action="dataUsers.action"
-    @update="
-      dataUsers.action = '';
-      getUsers();
-    "
-    @cancel="dataUsers.action = ''"
-  />
-  <TableSlots 
-    v-show="dataUsers.action === ''"
-    :tbl-class="'table align-middle'">
+  <div class="collapse card card-body my-3" id="user-form">
+    <form @submit.prevent="submitUser" class="form form-check" role="form">
+      <div class="row mb-3">
+        <div class="col-3">
+          <InputElement
+            :name="'fullname'"
+            :place="'Имя пользователя'"
+            :need="true"
+            v-model="dataUsers.profile['fullname']"
+          />
+        </div>
+        <div class="col-3">
+          <InputElement
+            :name="'username'"
+            :place="'Учетная запись'"
+            :pattern="'[a-zA-Z_]+'"
+            :need="true"
+            v-model="dataUsers.profile['username']"
+          />
+        </div>
+        <div class="col-3">
+          <SelectDiv
+            :name="'region'"
+            :place="'Регион'"
+            :need="true"
+            :select="stateClassify.regions"
+            v-model="dataUsers.profile['region']"
+          />
+        </div>
+        <div class="col-1">
+          <SwitchBox :name="'admin'" v-model="dataUsers.profile['has_admin']"/>
+        </div>
+        <div class="col-2">
+          <BtnGroup :offset="false" @cancel="cancelOperations" />
+        </div>
+      </div>
+    </form>
+  </div>
+  <TableSlots :tbl-class="'table align-middle'">
     <template v-slot:caption>
       <button
         class="btn btn-link text-secondary"
         type="button"
-        @click="
-          dataUsers.action === ''
-            ? (dataUsers.action = 'create')
-            : (dataUsers.action = '')
-        "
+        data-bs-toggle="collapse"
+        href="#user-form"
       >
         Добавить пользователя
       </button>
@@ -126,13 +206,23 @@ async function getUsers() {
                 <td width="5%">{{ user.id }}</td>
                 <td>{{ user.fullname }}</td>
                 <td width="15%">
-                  <router-link :to="{ name: 'user', params: { id: user.id } }">
+                  <button
+                    class="btn btn-link text-secondary"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#user-modal"
+                    @click="dataUsers.profile = user"
+                  >
                     {{ user.username }}
-                  </router-link>
+                  </button>
                 </td>
                 <td width="10%">{{ user.blocked ? "Да" : "Нет" }}</td>
-                <td width="15%">{{ timeSince(user.pswd_create) }}</td>
-                <td width="15%">{{ new Date(user.last_login).toLocaleString() }}</td>
+                <td width="15%">
+                  {{ new Date(user.pswd_create).toLocaleString() }}
+                </td>
+                <td width="15%">
+                  {{ new Date(user.last_login).toLocaleString() }}
+                </td>
                 <td width="20%">{{ user.region }}</td>
               </tr>
             </template>
@@ -141,6 +231,94 @@ async function getUsers() {
       </tr>
     </template>
   </TableSlots>
+  <div class="modal fade" id="user-modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="user-modal"
+        ></button>
+        <div class="modal-body">
+          <div class="mb-5">
+            <LabelSlot :label="'ID'">
+              {{ dataUsers.profile.id }}
+            </LabelSlot>
+            <LabelSlot :label="'Регион'">
+              {{ dataUsers.profile.region }}
+            </LabelSlot>
+            <LabelSlot :label="'Имя пользователя'">
+              {{ dataUsers.profile.fullname }}
+            </LabelSlot>
+            <LabelSlot :label="'Логин'">
+              {{ dataUsers.profile.username }}
+            </LabelSlot>
+            <LabelSlot :label="'Дата создания пароля'">
+              {{
+                new Date(dataUsers.profile.pswd_create + " UTC").toLocaleString(
+                  "ru-RU"
+                )
+              }}
+            </LabelSlot>
+            <LabelSlot :label="'Требует смены пароля'">
+              {{ dataUsers.profile.change_pswd ? "Да" : "Нет" }}
+            </LabelSlot>
+            <LabelSlot :label="'Дата последнего входа'">
+              {{
+                new Date(dataUsers.profile.last_login).toLocaleString("ru-RU")
+              }}
+            </LabelSlot>
+            <LabelSlot :label="'Попытки входа'">
+              {{ dataUsers.profile.attempt }}
+            </LabelSlot>
+            <LabelSlot :label="'Заблокирован'">
+              {{ dataUsers.profile.blocked ? "Заблокирован" : "Разблокирован" }}
+            </LabelSlot>
+            <LabelSlot :label="'Активность'">
+              {{ dataUsers.profile.deleted ? "Удален" : "Активен" }}
+            </LabelSlot>
+            <LabelSlot :label="'Администратор'">
+              {{ dataUsers.profile.has_admin ? "Да" : "Нет" }}
+            </LabelSlot>
+            <LabelSlot :label="'Дата создания профиля'">
+              {{
+                new Date(dataUsers.profile.created + " UTC").toLocaleString(
+                  "ru-RU"
+                )
+              }}
+            </LabelSlot>
+          </div>
+          <div class="btn-group" role="group">
+            <button
+              class="btn btn-outline-primary"
+              type="button"
+              @click="userAction('admin')"
+            >
+              {{ stateUser.hasAdmin ? "Отобрать админа" : "Сделать админом" }}
+            </button>
+            <button
+              @click="userAction('drop')"
+              type="button"
+              class="btn btn-outline-secondary"
+            >
+              Сбросить пароль
+            </button>
+            <button
+              @click="userAction('delete')"
+              type="button"
+              class="btn btn-outline-danger"
+              :disabled="
+                dataUsers.profile.deleted ||
+                dataUsers.profile.id == stateUser.userId
+              "
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>

@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS users (
 	PRIMARY KEY (id), 
 	UNIQUE (id), 
 	UNIQUE (username), 
-	UNIQUE (email)
 )
 ;
 CREATE TABLE IF NOT EXISTS persons (
