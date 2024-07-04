@@ -31,7 +31,7 @@ def get_auth(token):
         return False
 
 
-@lru_cache
+@lru_cache(maxsize=8)
 def get_current_user(user_id=g.user_id):
     """
     Retrieves the current user based on the user ID stored in the global variable 'g.user_id'.
