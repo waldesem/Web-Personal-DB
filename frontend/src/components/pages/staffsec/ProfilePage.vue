@@ -81,13 +81,12 @@ const tabsData = {
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
-      <div v-if="currentTab === 'anketaTab'" class="position-relative text-end">
+      <div v-if="currentTab === 'anketaTab' && stateAnketa.anketa.persons['user_id'] != stateUser.userId" class="position-relative text-end">
         <button 
           type="button"
           class="btn btn-lg btn-outline-danger"
           :title="'Взять анкету'"
-          @click="stateAnketa.getItem('persons', 'self')"
-          :disabled="stateAnketa.anketa.persons.user_id == stateUser.userId"
+ @click="stateAnketa.getItem('persons', 'self')"
         >
           &equiv;
         </button>
