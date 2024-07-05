@@ -64,7 +64,7 @@ const dataResume = ref({
     @mouseover="dataResume.showActions = true"
     @mouseout="dataResume.showActions = false"
   >
-    <LabelSlot>
+    <LabelSlot v-if="stateAnketa.anketa.persons['user_id'] == stateUser.userId">
       <ActionIcons
         v-show="dataResume.showActions"
         @delete="
