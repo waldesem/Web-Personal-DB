@@ -6,7 +6,6 @@ from datetime import datetime
 from flask import abort, Blueprint, current_app, jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from config import Config
 from ..classes.classes import (
     Addresses,
     Affiliates,
