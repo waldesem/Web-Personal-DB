@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, defineAsyncComponent } from "vue";
-import { stateAnketa, submitFile } from "@/state";
+import { stateAnketa, stateUser, submitFile } from "@/state";
 import { Verification } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
@@ -18,20 +18,20 @@ const CheckForm = defineAsyncComponent(
 
 const actions = ref(false);
 const edit = ref(false);
-const itemId = ref('');
+const itemId = ref("");
 const check = reactive(<Verification>{});
 
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
-  const collapseCheck = document.getElementById('clps_check');
-  collapseCheck?.setAttribute('class', 'collapse card card-body mb-3');
+  const collapseCheck = document.getElementById("clps_check");
+  collapseCheck?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
 <template>
   <div class="collapse card card-body mb-3" id="clps_check">
-    <CheckForm @cancel="cancelAction"/>
+    <CheckForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.checks.length">
     <div
@@ -42,18 +42,21 @@ function cancelAction() {
       @mouseout="actions = false"
     >
       <CheckForm
-        v-if="edit && itemId == item['id'].toString()" 
+        v-if="edit && itemId == item['id'].toString()"
         :check="check"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="actions"
+            v-show="
+              actions &&
+              stateAnketa.anketa.persons['user_id'] == stateUser.userId
+            "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="
               check = item;
-              itemId = item['id'].toString()
+              itemId = item['id'].toString();
               edit = true;
             "
             :for-input="'check-file'"
@@ -67,7 +70,7 @@ function cancelAction() {
           </ActionIcons>
         </LabelSlot>
         <p class="fs-5 fw-medium text-primary p-1">
-          {{ "Проверка кандидата #" + (idx+1) }}
+          {{ "Проверка кандидата #" + (idx + 1) }}
         </p>
         <LabelSlot :label="'Проверка по местам работы'">
           {{ item["workplace"] }}
@@ -110,7 +113,7 @@ function cancelAction() {
         <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
+          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

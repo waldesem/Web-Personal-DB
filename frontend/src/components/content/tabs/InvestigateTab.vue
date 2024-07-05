@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces";
-import { stateAnketa, submitFile } from "@/state";
+import { stateAnketa, stateUser, submitFile } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -18,7 +18,7 @@ const LabelSlot = defineAsyncComponent(
 
 const actions = ref(false);
 const edit = ref(false);
-const itemId = ref('');
+const itemId = ref("");
 const inquisition = reactive(<Inquisition>{});
 
 function cancelAction() {
@@ -42,20 +42,23 @@ function cancelAction() {
       class="card card-body mb-3"
     >
       <InvestigationForm
-        v-if="edit && itemId == item['id'].toString()" 
+        v-if="edit && itemId == item['id'].toString()"
         :investigation="inquisition"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="actions"
+            v-show="
+              actions &&
+              stateAnketa.anketa.persons['user_id'] == stateUser.userId
+            "
             @delete="
               stateAnketa.deleteItem(item['id'].toString(), 'investigations')
             "
             @update="
               inquisition = item;
-              itemId = item['id'].toString()
+              itemId = item['id'].toString();
               edit = true;
             "
             :for-input="'investigations-file'"
@@ -69,13 +72,13 @@ function cancelAction() {
           </ActionIcons>
         </LabelSlot>
         <p class="fs-5 fw-medium text-primary p-1">
-          {{ "Расследование/Проверка #" + (idx+1) }}
+          {{ "Расследование/Проверка #" + (idx + 1) }}
         </p>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
         <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"] + ' UTC').toLocaleString("ru-RU") }}
+          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </LabelSlot>
       </div>
     </div>

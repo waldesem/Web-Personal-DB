@@ -28,7 +28,6 @@ from ..handles.handlers import (
     handle_update_person,
 )
 from ..models.models import User, models_tables
-from ..tools.tool import Folders
 
 
 bp = Blueprint("route", __name__)
@@ -345,37 +344,44 @@ def post_file(item, item_id):
             return jsonify({"person_id": person_id}), 201
         return abort(400)
 
-    person = select(
-        "SELECT id, region, surname, firstname, patronymic FROM persons WHERE id = ?",
+    person_dir = select(
+        "SELECT destination FROM persons WHERE id = ?",
         args=(item_id,),
     )
-    folders = Folders(
-        person.get("region"),
-        person["id"],
-        person["surname"],
-        person["firstname"],
-        person.get("patronymic", ""),
-    )
+    try:
+        if not os.path.isdir(person_dir):
+            os.mkdir(person_dir)
 
-    if item == "image":
-        folder = folders.create_parent_folder("image")
-        endwith = file.filename.split(".")[-1]
-        image_path = os.path.join(folder, "image." + endwith)
+        if item == "image":
+            image_dir = os.path.isdir(person_dir, "image")
+            if not os.path.isdir(image_dir):
+                os.mkdir(image_dir)
+            endwith = file.filename.split(".")[-1]
+            image_file = os.path.join(image_dir, "image." + endwith)
 
-        if os.path.isfile(image_path):
-            os.remove(image_path)
-        file.save(image_path)
+            if os.path.isfile(image_file):
+                os.remove(image_file)
+            file.save(image_file)
+            return "", 201
+
+        item_dir = os.path.isdir(person_dir, item)
+        if not os.path.isdir(item_dir):
+            os.mkdir(item_dir)
+        date_subfolder = os.path.join(
+            item_dir,
+            datetime.now().strftime("%Y-%m-%d"),
+        )
+        
+        files = request.files.getlist("file")
+        for file in files:
+            if file.filename:
+                file_path = os.path.join(date_subfolder, file.filename)
+                if not os.path.isfile(file_path):
+                    file.save(file_path)
         return "", 201
-
-    folder = folders.create_subfolder(item)
-    files = request.files.getlist("file")
-    for file in files:
-        if file.filename:
-            file_path = os.path.join(folder, file.filename)
-            if not os.path.isfile(file_path):
-                file.save(file_path)
-    return "", 201
-
+    except OSError as e:
+        print(e)
+        return abort(400)
 
 @bp.get("/profile/<int:person_id>")
 @user_required()

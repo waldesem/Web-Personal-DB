@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, defineAsyncComponent } from "vue";
 import { Pfo } from "@/interfaces";
-import { stateAnketa, submitFile } from "@/state";
+import { stateAnketa, stateUser, submitFile } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -18,11 +18,11 @@ const LabelSlot = defineAsyncComponent(
 
 const actions = ref(false);
 const edit = ref(false);
-const itemId = ref('');
+const itemId = ref("");
 const poligraf = reactive(<Pfo>{});
 
 function cancelAction() {
-  edit.value = false
+  edit.value = false;
   itemId.value = "";
   const collapsePoligraf = document.getElementById("clps_poligraf");
   collapsePoligraf?.setAttribute("class", "collapse card card-body");
@@ -42,18 +42,21 @@ function cancelAction() {
       class="card card-body mb-3"
     >
       <PoligrafForm
-        v-if="edit && itemId == item['id'].toString()" 
+        v-if="edit && itemId == item['id'].toString()"
         :poligraf="poligraf"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="actions"
+            v-show="
+              actions &&
+              stateAnketa.anketa.persons['user_id'] == stateUser.userId
+            "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligrafs')"
             @update="
               poligraf = item;
-              itemId = item['id'].toString()
+              itemId = item['id'].toString();
               edit = true;
             "
             :for-input="'poligrafs-file'"

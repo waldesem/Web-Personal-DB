@@ -81,22 +81,32 @@ const tabsData = {
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
-      <div v-if="currentTab === 'anketaTab' && stateAnketa.anketa.persons['user_id'] != stateUser.userId" class="position-relative text-end">
-        <button 
+      <div
+        v-if="
+          currentTab === 'anketaTab' &&
+          stateAnketa.anketa.persons['user_id'] != stateUser.userId
+        "
+        class="position-relative text-end"
+      >
+        <button
           type="button"
           class="btn btn-lg btn-outline-danger"
           :title="'Взять анкету'"
- @click="stateAnketa.getItem('persons', 'self')"
+          @click="stateAnketa.getItem('persons', 'self')"
         >
           &equiv;
         </button>
       </div>
-      <div 
-        v-for="(item, idx) in Object.keys(tabsData).slice(1,)" :key=idx 
+      <div
+        v-for="(item, idx) in Object.keys(tabsData).slice(1)"
+        :key="idx"
         class="position-relative text-end"
       >
         <button
-          v-if="currentTab == item && stateAnketa.anketa.persons['user_id'] == stateUser.userId"
+          v-if="
+            currentTab == item &&
+            stateAnketa.anketa.persons['user_id'] == stateUser.userId
+          "
           :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
           type="button"
           class="btn btn-lg btn-outline-danger"
@@ -110,7 +120,8 @@ const tabsData = {
   </div>
   <nav class="nav nav-tabs nav-justified" role="tablist">
     <button
-      v-for="(values, key) in tabsData" :key="key"
+      v-for="(values, key) in tabsData"
+      :key="key"
       class="nav-link"
       :class="{ active: key === 'anketaTab' }"
       :data-bs-target="'#' + key"
@@ -124,7 +135,8 @@ const tabsData = {
   </nav>
   <div class="tab-content">
     <div
-      v-for="(values, key) in tabsData" :key="key"
+      v-for="(values, key) in tabsData"
+      :key="key"
       :id="key"
       class="tab-pane show fade pt-3"
       :class="{ active: key == 'anketaTab' }"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, submitFile } from "@/state";
+import { stateAnketa, stateUser, submitFile } from "@/state";
 import type { Persons } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
@@ -47,7 +47,7 @@ const dataResume = ref({
   action: "",
   form: <Persons>{},
   showActions: false,
-})
+});
 </script>
 
 <template>
@@ -64,22 +64,25 @@ const dataResume = ref({
     @mouseover="dataResume.showActions = true"
     @mouseout="dataResume.showActions = false"
   >
-    <LabelSlot v-if="stateAnketa.anketa.persons['user_id'] == stateUser.userId">
+    <LabelSlot>
       <ActionIcons
-        v-show="dataResume.showActions"
+        v-show="
+          dataResume.showActions &&
+          stateAnketa.anketa.persons['user_id'] == stateUser.userId
+        "
         @delete="
           stateAnketa.deleteItem(stateAnketa.anketa.persons['id'], 'persons')
         "
         @update="dataResume.action = 'update'"
         :for-input="'persons-file'"
       >
-      <FileForm
-        v-show="dataResume.showActions" 
-        :name-id="'persons-file'"
-        :accept="'*'" 
-        @submit="submitFile($event, 'persons')" 
-      />
-    </ActionIcons>
+        <FileForm
+          v-show="dataResume.showActions"
+          :name-id="'persons-file'"
+          :accept="'*'"
+          @submit="submitFile($event, 'persons')"
+        />
+      </ActionIcons>
     </LabelSlot>
     <LabelSlot :label="'Фамилия'">
       {{ stateAnketa.anketa.persons["surname"] }}
@@ -103,7 +106,7 @@ const dataResume = ref({
     <LabelSlot :label="'Гражданство'">
       {{ stateAnketa.anketa.persons["citizenship"] }}
     </LabelSlot>
-    <LabelSlot 
+    <LabelSlot
       v-if="stateAnketa.anketa.persons['dual']"
       :label="'Двойное гражданство'"
     >
@@ -119,13 +122,13 @@ const dataResume = ref({
       {{ stateAnketa.anketa.persons["marital"] }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
-      {{ stateAnketa.anketa.persons["standing"]   }}
+      {{ stateAnketa.anketa.persons["standing"] }}
     </LabelSlot>
     <LabelSlot :label="'Дата записи'">
       {{
         stateAnketa.anketa.persons["created"]
           ? new Date(
-              stateAnketa.anketa.persons["created"] + ' UTC'
+              stateAnketa.anketa.persons["created"] + " UTC"
             ).toLocaleString("ru-RU")
           : ""
       }}
@@ -141,8 +144,11 @@ const dataResume = ref({
       {{ stateAnketa.anketa.persons["destination"] }}
     </LabelSlot>
     <LabelSlot :label="'Дополнительная информация'">
-      {{ stateAnketa.anketa.persons["addition"] 
-      ? stateAnketa.anketa.persons["addition"] : "-" }}
+      {{
+        stateAnketa.anketa.persons["addition"]
+          ? stateAnketa.anketa.persons["addition"]
+          : "-"
+      }}
     </LabelSlot>
   </div>
   <div
@@ -159,6 +165,6 @@ const dataResume = ref({
     ]"
     :key="idx"
   >
-    <component :is="component"/>
+    <component :is="component" />
   </div>
 </template>
