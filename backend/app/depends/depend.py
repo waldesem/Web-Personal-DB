@@ -3,10 +3,9 @@ from base64 import b64decode, b64encode
 from datetime import datetime
 from functools import wraps
 
-from flask import abort, request, g
+from flask import abort, current_app,  request, g
 from werkzeug.local import LocalProxy
 
-from config import Config
 from ..databases.database import select
 
 
