@@ -1,6 +1,7 @@
 import os
 
-from config import Config
+from flask import current_app 
+
 from ..classes.classes import Statuses
 from ..databases.database import execute, select
 from ..depends.depend import current_user
