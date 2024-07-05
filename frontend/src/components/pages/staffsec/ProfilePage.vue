@@ -97,11 +97,10 @@ const tabsData = {
         class="position-relative text-end"
       >
         <button
-          v-if="currentTab === item"
+          v-if="currentTab == item && stateAnketa.anketa.persons['user_id'] == stateUser.userId"
           :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
           type="button"
           class="btn btn-lg btn-outline-danger"
-          :disabled="stateAnketa.anketa.persons['user_id'] != stateUser.userId"
           data-bs-toggle="collapse"
           :href="'#clps_' + item.split('T')[0]"
         >
