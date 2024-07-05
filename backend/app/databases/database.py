@@ -1,6 +1,6 @@
 import sqlite3
 
-from config import Config
+from flask import current_app 
 
 
 def execute(query, args=None):
