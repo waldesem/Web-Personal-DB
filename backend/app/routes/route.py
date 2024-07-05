@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 
 from flask import abort, Blueprint, jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -98,51 +98,43 @@ def post_login(action):
         None
     """
     json_data = request.get_json()
-    user = select(
-        """
-        SELECT id, username, passhash, blocked, deleted, attempt, pswd_create, change_pswd, has_admin
-        FROM users WHERE username = ?
-        """,
+    user = select("SELECT * FROM users WHERE username = ?",
         args=(json_data.get("username"),),
     )
-    if user == "Error":
-        return abort(400)
     if not user or user["blocked"] or user["deleted"]:
         return "", 204
 
     args = []
     stmt = "UPDATE users SET "
-    if not check_password_hash(user["passhash"], json_data["passhash"]):
+    if not check_password_hash(user["passhash"], json_data["passwword"]):
         if user["attempt"] < 5:
             stmt += "attempt = ? "
             args.append(user["attempt"] + 1)
         else:
             stmt += "blocked = 1 "
-        args.append(user["id"])
-        execute(stmt + "WHERE id = ?", tuple(args))
+        execute(stmt + "WHERE id = ?", tuple(args.append(user["id"])))
         return "", 204
 
     if action == "update":
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
-        if not re.match(pattern, json_data["new_pswd"]):
-            return "", 205
-        stmt += "passhash = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
-        args.extend([generate_password_hash(json_data["new_pswd"]), user["id"]])
-        execute(stmt, tuple(args))
-        return "", 201
-
-    else:
-        delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
-        if not user["change_pswd"] and delta_change.days < 30:
-            stmt += "last_login = ?, attempt = 0 WHERE id = ?"
-            args.extend([datetime.now(timezone.utc), user["id"]])
+        if re.match(pattern, json_data["new_pswd"]):
+            stmt += "passhash = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
+            args.extend([generate_password_hash(json_data["new_pswd"]), user["id"]])
             execute(stmt, tuple(args))
-            return jsonify(
-                {
-                    "user_token": create_token(user),
-                }
-            ), 200
+            return "", 201
         return "", 205
+
+    delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
+    if not user["change_pswd"] and delta_change.days < 365:
+        if user["attempt"] > 0:
+            stmt += "attempt = 0 WHERE id = ?"
+            execute(stmt, (user["id"],))
+        return jsonify(
+            {
+                "user_token": create_token(user),
+            }
+        ), 200
+    return "", 205
 
 
 @bp.get("/users")
@@ -179,8 +171,7 @@ def post_user():
 
     Returns:
         - If the user already exists returns an empty response with status code 205.
-        - Else generates a hashed password using the default password
-        from the Config module and inserts the user into the 'users' table.
+        - Else generates a hashed password using the default password.
         Returns an empty response with status code 201.
         - If an exception occurs during the execution of the function,
         returns an empty response with status code 400.
@@ -228,8 +219,7 @@ def get_user_actions(user_id):
         stmt += "has_admin = CASE WHEN has_admin = 0 THEN 1 ELSE 0 END "
     elif request.args.get("delete") == "admin":
         stmt += "deleted = 1 "
-    stmt += "WHERE id = ?"
-    execute(stmt, tuple(args.append(user_id)))
+    execute(stmt + "WHERE id = ?", tuple(args.append(user_id)))
     return "", 201
 
 
@@ -352,26 +342,26 @@ def post_file(item, item_id):
         if not os.path.isdir(person_dir):
             os.mkdir(person_dir)
 
-        if item == "image":
-            image_dir = os.path.isdir(person_dir, "image")
-            if not os.path.isdir(image_dir):
-                os.mkdir(image_dir)
-            endwith = file.filename.split(".")[-1]
-            image_file = os.path.join(image_dir, "image." + endwith)
+        item_dir = os.path.isdir(person_dir, item)
+        if not os.path.isdir(item_dir):
+            os.mkdir(item_dir)
 
+        if item == "image":
+            endwith = file.filename.split(".")[-1]
+            image_file = os.path.join(item_dir, "image." + endwith)
             if os.path.isfile(image_file):
                 os.remove(image_file)
             file.save(image_file)
             return "", 201
 
-        item_dir = os.path.isdir(person_dir, item)
-        if not os.path.isdir(item_dir):
-            os.mkdir(item_dir)
+        
         date_subfolder = os.path.join(
             item_dir,
             datetime.now().strftime("%Y-%m-%d"),
         )
-        
+        if not os.path.isdir(date_subfolder):
+            os.mkdir(date_subfolder)
+
         files = request.files.getlist("file")
         for file in files:
             if file.filename:
@@ -388,9 +378,6 @@ def post_file(item, item_id):
 def get_profile(person_id):
     """
     Retrieves all information related to a person in one request.
-
-    This function takes a person_id as a parameter and retrieves all information
-    related to that person, including their resume and other items.
 
     Parameters:
         person_id (int): The ID of the person for whom to retrieve all information.
@@ -430,8 +417,6 @@ def post_resume():
 def get_item_id(item, item_id):
     """
     Retrieves an item from the database based on the provided item name and item ID.
-    If the query parameter "action" is set to "self", the function updates
-    the status and user_id of the person with the given person_id in the database.
 
     Parameters:
         item (str): The name of the table to retrieve the item from.
@@ -462,8 +447,6 @@ def get_item_id(item, item_id):
 def post_item_id(item, item_id):
     """
     Inserts or replaces a record in the specified table with the given item ID.
-    If the item is one of 'checks', 'poligrafs', 'inquiries', or 'investigations',
-    the 'user_id' field is set to the current user's ID.
 
     Parameters:
         item (str): The name of the table to insert or replace the record in.

@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
 	passhash VARCHAR (255),
 	pswd_create DATETIME DEFAULT (DATETIME('now')), 
 	change_pswd BOOLEAN DEFAULT 1, 
-	last_login DATETIME, 
 	blocked BOOLEAN DEFAULT 0,
 	deleted BOOLEAN DEFAULT 0,
 	attempt INTEGER DEFAULT 0,

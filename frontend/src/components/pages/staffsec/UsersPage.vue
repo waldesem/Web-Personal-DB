@@ -190,7 +190,7 @@ function cancelOperations() {
         <th width="15%">Логин</th>
         <th width="10%">Блокировка</th>
         <th width="15%">Создан</th>
-        <th width="15%">Вход</th>
+        <th width="15%">Администратор</th>
         <th width="20%">Регион</th>
       </tr>
     </template>
@@ -221,7 +221,7 @@ function cancelOperations() {
                   {{ new Date(user.pswd_create).toLocaleString() }}
                 </td>
                 <td width="15%">
-                  {{ new Date(user.last_login).toLocaleString() }}
+                  {{ user.has_admin ? 'Да' : 'Нет' }}
                 </td>
                 <td width="20%">{{ user.region }}</td>
               </tr>
@@ -262,11 +262,6 @@ function cancelOperations() {
             </LabelSlot>
             <LabelSlot :label="'Требует смены пароля'">
               {{ dataUsers.profile.change_pswd ? "Да" : "Нет" }}
-            </LabelSlot>
-            <LabelSlot :label="'Дата последнего входа'">
-              {{
-                new Date(dataUsers.profile.last_login).toLocaleString("ru-RU")
-              }}
             </LabelSlot>
             <LabelSlot :label="'Попытки входа'">
               {{ dataUsers.profile.attempt }}

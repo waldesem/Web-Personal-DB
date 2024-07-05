@@ -46,7 +46,7 @@ def parse_json(json_dict: dict) -> dict:
         ],
         "documents": [
             {
-                "view": "Паспорт гражданина России",
+                "view": "Паспорт",
                 "digits": json_dict.get("passportNumber"),
                 "series": json_dict.get("passportSerial"),
                 "issue": datetime.strptime(
@@ -108,7 +108,7 @@ def parse_json(json_dict: dict) -> dict:
     views = {
                 "publicOfficeOrganizations": "Являлся государственным или муниципальным служащим",
                 "stateOrganizations": "Являлся государственным должностным лицом",
-                "relatedPersonsOrganizations": "Связанные лица работают в госудраственных организациях",
+                "relatedPersonsOrganizations": "Связанные лица работают в государственных организациях",
                 "organizations": "Участвует в деятельности коммерческих организаций",
             }
     for item, value in views.items():

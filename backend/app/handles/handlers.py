@@ -1,11 +1,11 @@
 import os
 
-from backend.config import Config
+from config import Config
 from ..classes.classes import Statuses
 from ..databases.database import execute, select
 from ..depends.depend import current_user
 from ..models.models import Person
-from ..tools.tool import parse_json
+from ..tools.jsonylize import parse_json
 
 
 def handle_get_person(person_id):
@@ -45,49 +45,49 @@ def handle_post_resume(data):
         Exception: If there is an error updating the resume.
 
     """
-    resume = Person(**data).dict()
-    if not resume["id"]:
-        stmt = """
-            SELECT * FROM persons 
-            WHERE surname LIKE '%{}%' 
-            AND firstname LIKE '%{}%' 
-            AND patronymic LIKE '%{}%'
-            AND birthday = ?
-            """.format(resume["surname"], resume["firstname"], resume["patronymic"])
-        person = select(stmt, args=(resume["birthday"],))
-        if person:
-            resume["id"] = person["id"]
-
     try:
-        resume.update(
-            {"standing": Statuses.manual.value, "user_id": current_user["id"]}
-        )
-        keys, args = zip(*resume.items())
-        stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
-            ", ".join(keys),
-            ", ".join(["?" for _ in keys]),
-        )
-        person_id = execute(stmt, args)
+        resume = Person(**data).dict()
+        if not resume["id"]:
+            stmt = """
+                SELECT * FROM persons 
+                WHERE surname LIKE '%{}%' 
+                AND firstname LIKE '%{}%' 
+                AND patronymic LIKE '%{}%'
+                AND birthday = ?
+                """.format(resume["surname"], resume["firstname"], resume["patronymic"])
+            person = select(stmt, args=(resume["birthday"],))
+            if person:
+                resume["id"] = person["id"]
 
-        person_dir = os.path.join(
-            Config.BASE_PATH,
-            resume["region"],
-            resume["surname"][0].upper(),
-            f"{person_id}-{resume["surname"].upper()} "
-            f"{resume["firstname"].upper()} "
-            f"{resume.get("patronymic", "").upper()}".rstrip(),
-        )
-        if not os.path.isdir(person_dir):
-            os.mkdir(person_dir)
+            resume["standing"] = Statuses.manual.value
+            resume["user_id"] = current_user["id"]
+            
+            keys, args = zip(*resume.items())
+            stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
+                ", ".join(keys),
+                ", ".join(["?" for _ in keys]),
+            )
+            person_id = execute(stmt, args)
 
-        execute(
-            "UPDATE persons SET destination = ? WHERE id = ?",
-            (
-                person_dir,
-                person_id,
-            ),
-        )
-        return person_id
+            person_dir = os.path.join(
+                Config.BASE_PATH,
+                resume["region"],
+                resume["surname"][0].upper(),
+                f"{person_id}-{resume["surname"].upper()} "
+                f"{resume["firstname"].upper()} "
+                f"{resume.get("patronymic", "").upper()}".rstrip(),
+            )
+            if not os.path.isdir(person_dir):
+                os.mkdir(person_dir)
+
+            execute(
+                "UPDATE persons SET destination = ? WHERE id = ?",
+                (
+                    person_dir,
+                    person_id,
+                ),
+            )
+            return person_id
     except Exception as e:
         print(e)
         return None

@@ -24,16 +24,14 @@ def execute(query, args=None):
             if isinstance(args, list):
                 cursor.executemany(query, args)
             else:
-                if args:
-                    result = cursor.execute(query, args)
-                else:
-                    result = cursor.execute(query)
+                result = cursor.execute(query, args) if args else cursor.execute(query)
                 con.commit()
-                return result.lastrowid if "INSERT" in query else None
+                return result.lastrowid
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()
             return "Error"
+
 
 def scriptexec(script):
     with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:

@@ -100,10 +100,10 @@ async function submitLogin(): Promise<void> {
           <div class="mb-3">
             <InputElement
               :need="true"
-              :name="'passhash'"
+              :name="'password'"
               :place="'Пароль'"
               :typeof="!showPswd ? 'password' : 'text'"
-              v-model="loginForm['passhash']"
+              v-model="loginForm['password']"
             />
           </div>
           <div v-if="loginAction === 'update'">

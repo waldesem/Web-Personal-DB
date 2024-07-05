@@ -4,7 +4,6 @@ export interface User {
   username: string;
   pswd_create: string;
   change_pswd: boolean;
-  last_login: string;
   has_admin: boolean;
   blocked: boolean;
   deleted: boolean;
