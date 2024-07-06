@@ -1,0 +1,1 @@
+import{s as e}from"./state-u74uZLPD.js";import{d as s,o as t,c as r,t as o,u as a,A as l}from"./index-D1U1a8b2.js";const f=s({__name:"AlertMessage",setup(n){return(c,i)=>(t(),r("div",{class:l(["alert",a(e).alertMessage.attr]),role:"info",fade:"",show:""},o(a(e).alertMessage.text),3))}});export{f as default};

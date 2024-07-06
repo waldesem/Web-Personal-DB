@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, defineAsyncComponent } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { stateAnketa, stateUser, submitFile } from "@/state";
 import { Verification } from "@/interfaces";
 
@@ -19,7 +19,7 @@ const CheckForm = defineAsyncComponent(
 const actions = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const check = reactive(<Verification>{});
+const check = ref(<Verification>{});
 
 function cancelAction() {
   edit.value = false;

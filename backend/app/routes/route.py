@@ -254,6 +254,7 @@ def get_index(page):
         FROM persons 
         LEFT JOIN users ON persons.user_id = users.id 
         """
+    cur_user = current_user
     pagination = 14
     args = []
     search_data = request.args.get("search")
@@ -274,13 +275,13 @@ def get_index(page):
                 stmt += "AND birthday = ? "
                 args.append(datetime.strptime(query[-1], "%d.%m.%Y").date())
 
-        if current_user["region"] != Regions.main.value:
+        if cur_user["region"] != Regions.main.value:
             stmt += "AND persons.region = ? "
-            args.append(current_user["region"])
+            args.append(cur_user["region"])
     else:
-        if current_user["region"] != Regions.main.value:
+        if cur_user["region"] != Regions.main.value:
             stmt += "WHERE persons.region = ? "
-            args.append(current_user["region"])
+            args.append(cur_user["region"])
 
     stmt += "ORDER BY id DESC LIMIT {} OFFSET {}".format(
         pagination + 1,

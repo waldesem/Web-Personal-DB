@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, defineAsyncComponent } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { Pfo } from "@/interfaces";
 import { stateAnketa, stateUser, submitFile } from "@/state";
 
@@ -19,7 +19,7 @@ const LabelSlot = defineAsyncComponent(
 const actions = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const poligraf = reactive(<Pfo>{});
+const poligraf = ref(<Pfo>{});
 
 function cancelAction() {
   edit.value = false;

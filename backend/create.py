@@ -19,7 +19,7 @@ def init_app():
                 os.mkdir(letter_path)
     print("Default directories created")
 
-    with open(Config.DATABASE_SQL, "r", encoding="utf-8") as file:
+    with open("tables.sql", "r", encoding="utf-8") as file:
         sql = file.read()
         with sqlite3.connect(Config.DATABASE_URI) as con:
             cursor = con.cursor()

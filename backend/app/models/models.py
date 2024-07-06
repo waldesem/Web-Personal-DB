@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 
 from ..classes.classes import (
     Addresses,

@@ -3,7 +3,7 @@ from base64 import b64decode, b64encode
 from datetime import datetime
 from functools import wraps
 
-from flask import abort, current_app,  request, g
+from flask import abort, current_app, request, g
 from werkzeug.local import LocalProxy
 
 from ..databases.database import select
@@ -33,7 +33,15 @@ def get_auth(token):
 @lru_cache(maxsize=8)
 def get_current_user(user_id):
     """
-    Retrieves the current user based on the user ID stored in the global variable 'g.user_id'.
+    Retrieve the current user based on the user ID stored in the global variable 'g.user_id'.
+
+    Args:
+        user_id (int): The ID of the user.
+
+    Returns:
+        dict or None: A dictionary containing the user's information if the user exists,
+            is not blocked, not deleted, and has not changed password in the last year.
+            Otherwise, returns None.
     """
     user = select("SELECT * FROM users WHERE id = ?", args=(user_id,))
     delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
@@ -58,12 +66,12 @@ def create_token(user):
     Returns:
         str: The generated token, encoded in base64.
 
-    This function takes a dictionary containing the user's information 
-    and generates a token using the secret key and the user's id. 
+    This function takes a dictionary containing the user's information
+    and generates a token using the secret key and the user's id.
     The token is then encoded in base64 and returned as a string.
     """
     token_parts = [
-        current_app.config["SECRET_KEY"], 
+        current_app.config["SECRET_KEY"],
         str(user["id"]),
         user["username"],
         str(user["has_admin"]),
@@ -86,6 +94,7 @@ def jwt_required():
     Returns:
         function: The decorated function.
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -93,30 +102,31 @@ def jwt_required():
             if header and get_auth(header):
                 return func(*args, **kwargs)
             abort(401)
+
         return wrapper
+
     return decorator
 
 
 def user_required(admin=False):
     """
     A decorator function that checks if the user is authorized to access a specific resource.
-    
+
     Parameters:
         admin (bool): A boolean indicating whether the user is an admin or not. Default is False.
         func (function): The function to be decorated.
-    
+
     Returns:
         function: The decorated function that checks user authorization before executing the original function.
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
-                cu = current_user
-                if cu and (
-                    not admin or cu["has_admin"]
-                ):
+                cur_user = current_user
+                if cur_user and (not admin or cur_user["has_admin"]):
                     return func(*args, **kwargs)
                 abort(403)
             abort(401)

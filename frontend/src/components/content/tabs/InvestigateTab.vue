@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, defineAsyncComponent } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces";
 import { stateAnketa, stateUser, submitFile } from "@/state";
 
@@ -19,7 +19,7 @@ const LabelSlot = defineAsyncComponent(
 const actions = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const inquisition = reactive(<Inquisition>{});
+const inquisition = ref(<Inquisition>{});
 
 function cancelAction() {
   edit.value = false;

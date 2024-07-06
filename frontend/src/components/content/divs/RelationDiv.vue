@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, reactive, ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { stateAnketa, stateUser } from "@/state";
 import { Relation } from "@/interfaces";
 
@@ -19,7 +19,7 @@ const LabelSlot = defineAsyncComponent(
 const actions = ref(false);
 const edit = ref(false);
 const itemId = ref('');
-const relation = reactive(<Relation>{});
+const relation = ref(<Relation>{});
 
 function cancelAction() {
   edit.value = false;
