@@ -9,16 +9,13 @@ onBeforeMount(async () => {
 const photoCard = ref({
   formData: new FormData(),
   showPhoto: false,
-  upload: true,
 
   handleMouse() {
     this.showPhoto = !this.showPhoto;
   },
 
   async submitImage(event: any) {
-    this.upload = false;
     await submitFile(event, "image");
-    this.upload = true;
   },
 });
 </script>
@@ -40,7 +37,7 @@ const photoCard = ref({
         v-show="photoCard.showPhoto" 
         class="card-img-overlay"
       > 
-        <input v-if="photoCard.upload" 
+        <input
           @change="photoCard.submitImage($event)"
           class="form-control form-control-sm"
           id="formImage"

@@ -30,12 +30,12 @@ const props = defineProps({
         <div class="fs-5 text-danger">&times;</div>
       </button>
       <label 
+        class="text-success"
         :for="props.forInput"
         :hidden="props.hide"
+        style="cursor: pointer;"
       >
-        <button class="btn btn-link" title="Загрузить">
-          <div class="fs-5 text-secondary">&infin;</div>
-        </button>
+        &infin;
       </label>  
       <slot></slot>
     </div>

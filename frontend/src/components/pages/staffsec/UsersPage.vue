@@ -3,7 +3,7 @@ import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
 import { debounce } from "@/utilities";
 import { User } from "@/interfaces";
-import { stateAlert, stateClassify, stateUser, server } from "@/state";
+import { stateAlert, stateClassify, server } from "@/state";
 import { AxiosError } from "axios";
 
 const HeaderDiv = defineAsyncComponent(
@@ -20,9 +20,6 @@ const SelectDiv = defineAsyncComponent(
 );
 const SwitchBox = defineAsyncComponent(
   () => import("@components/content/elements/SwitchBox.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -64,7 +61,7 @@ const searching = debounce(() => {
 
 async function userAction(action: String): Promise<void> {
   if (action === "delete") {
-    if (!confirm("Вы действительно хотите удалить пользователя?")) {
+    if (!confirm("Вы действительно хотите удалить/восстановить пользователя?")) {
       return
     }
   };
@@ -133,11 +130,19 @@ function cancelOperations() {
       :label="'Показать удаленные'"
       v-model="dataUsers.viewDeleted"
     />
+    <button
+      class="btn btn-link text-secondary"
+      type="button"
+      data-bs-toggle="collapse"
+      href="#user-form"
+    >
+      Добавить пользователя
+    </button>
   </div>
-  <div class="collapse card card-body my-3" id="user-form">
+  <div class="collapse card card-body" id="user-form">
     <form @submit.prevent="submitUser" class="form form-check" role="form">
-      <div class="row mb-3">
-        <div class="col-3">
+      <div class="row">
+        <div class="col-4">
           <InputElement
             :name="'fullname'"
             :place="'Имя пользователя'"
@@ -164,25 +169,21 @@ function cancelOperations() {
           />
         </div>
         <div class="col-1">
-          <SwitchBox :name="'admin'" v-model="dataUsers.profile['has_admin']"/>
+          <SwitchBox :name="'admin'" :title="'Администратор'" v-model="dataUsers.profile['has_admin']"/>
         </div>
-        <div class="col-2">
-          <BtnGroup :offset="false" @cancel="cancelOperations" />
+        <div class="col-1">
+          <button
+            class="btn btn-md btn-outline-primary"
+            name="submit"
+            type="submit"
+          >
+            Сохранить
+        </button>
         </div>
       </div>
     </form>
   </div>
   <TableSlots :tbl-class="'table align-middle'">
-    <template v-slot:caption>
-      <button
-        class="btn btn-link text-secondary"
-        type="button"
-        data-bs-toggle="collapse"
-        href="#user-form"
-      >
-        Добавить пользователя
-      </button>
-    </template>
     <template v-slot:thead>
       <tr>
         <th width="5%">#</th>
@@ -231,51 +232,79 @@ function cancelOperations() {
       </tr>
     </template>
   </TableSlots>
-  <div class="modal fade" id="user-modal" tabindex="-1">
+  <div class="modal modal fade" id="user-modal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="user-modal"
-        ></button>
         <div class="modal-body">
-          <div class="mb-5">
-            <LabelSlot :label="'ID'">
+          <div class="p-3">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'ID'">
               {{ dataUsers.profile.id }}
             </LabelSlot>
-            <LabelSlot :label="'Регион'">
+            <LabelSlot 
+            :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Регион'">
               {{ dataUsers.profile.region }}
             </LabelSlot>
-            <LabelSlot :label="'Имя пользователя'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Имя пользователя'">
               {{ dataUsers.profile.fullname }}
             </LabelSlot>
-            <LabelSlot :label="'Логин'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"              
+              :label="'Логин'">
               {{ dataUsers.profile.username }}
             </LabelSlot>
-            <LabelSlot :label="'Дата создания пароля'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Дата создания пароля'">
               {{
                 new Date(dataUsers.profile.pswd_create + " UTC").toLocaleString(
                   "ru-RU"
                 )
               }}
             </LabelSlot>
-            <LabelSlot :label="'Требует смены пароля'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Требует смены пароля'">
               {{ dataUsers.profile.change_pswd ? "Да" : "Нет" }}
             </LabelSlot>
-            <LabelSlot :label="'Попытки входа'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Попытки входа'">
               {{ dataUsers.profile.attempt }}
             </LabelSlot>
-            <LabelSlot :label="'Заблокирован'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Заблокирован'">
               {{ dataUsers.profile.blocked ? "Заблокирован" : "Разблокирован" }}
             </LabelSlot>
-            <LabelSlot :label="'Активность'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Активность'">
               {{ dataUsers.profile.deleted ? "Удален" : "Активен" }}
             </LabelSlot>
-            <LabelSlot :label="'Администратор'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Администратор'">
               {{ dataUsers.profile.has_admin ? "Да" : "Нет" }}
             </LabelSlot>
-            <LabelSlot :label="'Дата создания профиля'">
+            <LabelSlot 
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Дата создания профиля'">
               {{
                 new Date(dataUsers.profile.created + " UTC").toLocaleString(
                   "ru-RU"
@@ -283,13 +312,13 @@ function cancelOperations() {
               }}
             </LabelSlot>
           </div>
-          <div class="btn-group" role="group">
+          <div class="btn-group p-3" role="group">
             <button
               class="btn btn-outline-primary"
               type="button"
               @click="userAction('admin')"
             >
-              {{ stateUser.hasAdmin ? "Отобрать админа" : "Сделать админом" }}
+              {{ dataUsers.profile.has_admin ? "Отобрать админа" : "Сделать админом" }}
             </button>
             <button
               @click="userAction('drop')"
@@ -302,12 +331,8 @@ function cancelOperations() {
               @click="userAction('delete')"
               type="button"
               class="btn btn-outline-danger"
-              :disabled="
-                dataUsers.profile.deleted ||
-                dataUsers.profile.id == stateUser.userId
-              "
             >
-              Удалить
+              {{ dataUsers.profile.deleted ? "Восстановить" : "Удалить"}}
             </button>
           </div>
         </div>

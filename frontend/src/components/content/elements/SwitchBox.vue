@@ -3,6 +3,10 @@ const model = defineModel();
 const props = defineProps({
   name: String,
   label: String,
+  title: {
+    type: String,
+    default: "",
+  }
 })
 </script>
 <template>
@@ -13,6 +17,7 @@ const props = defineProps({
       role="switch"
       :id="props.name"
       :name="props.name"
+      :title="props.label"
       v-model="model"
     />
     <label 

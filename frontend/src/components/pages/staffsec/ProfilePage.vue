@@ -118,7 +118,7 @@ const tabsData = {
       </div>
     </div>
   </div>
-  <nav class="nav nav-tabs nav-justified" role="tablist">
+  <nav class="nav nav-tabs nav-justified d-print-none" role="tablist">
     <button
       v-for="(values, key) in tabsData"
       :key="key"
@@ -147,13 +147,16 @@ const tabsData = {
   </div>
 </template>
 
-<style scoped>
+<style>
 @media print {
   .tab-content > .tab-pane {
     display: block;
   }
   .tab-pane {
     padding-top: 1px !important;
+  }
+  .card, .card-body {
+    border: none !important;
   }
 }
 </style>

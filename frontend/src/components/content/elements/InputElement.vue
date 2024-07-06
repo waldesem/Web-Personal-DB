@@ -33,7 +33,6 @@ const props = defineProps({
 
 <template>
   <input
-    autocomplete="new-password username"
     class="form-control"
     :id="props.name"
     :name="props.name"

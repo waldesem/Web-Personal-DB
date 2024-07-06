@@ -70,6 +70,12 @@ async function userLogout(): Promise<void> {
             Информация
           </router-link>
           <hr class="text-info">
+          <router-link v-if="stateUser.hasAdmin" 
+            :to="{ name: 'users' }"
+            class="nav-link active"
+          >
+            Пользователи
+          </router-link>
         </div>
       </div>
     </div>
@@ -90,14 +96,6 @@ async function userLogout(): Promise<void> {
                 &#x272A; {{ stateUser.username }}
               </button>
               <ul class="dropdown-menu">
-                <li v-if="stateUser.hasAdmin" class="dropdown-item">
-                  <router-link
-                    :to="{ name: 'users' }"
-                    class="link-opacity-50-hover"
-                  >
-                    Пользователи
-                  </router-link>
-                </li >
                 <li class="dropdown-item" >
                   <a
                     class="link-opacity-50-hover" href="#"

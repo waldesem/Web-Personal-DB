@@ -3,7 +3,7 @@ import os
 import re
 from datetime import datetime
 
-from flask import abort, Blueprint, current_app, jsonify, request, send_file
+from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..classes.classes import (
@@ -19,7 +19,13 @@ from ..classes.classes import (
     Statuses,
 )
 from ..databases.database import execute, select
-from ..depends.depend import create_token, current_user, jwt_required, user_required
+from ..depends.depend import (
+    create_token,
+    current_user,
+    get_current_user,
+    jwt_required,
+    user_required,
+)
 from ..handles.handlers import (
     handle_get_item,
     handle_get_person,
@@ -27,7 +33,6 @@ from ..handles.handlers import (
     handle_update_person,
 )
 from ..models.models import User, models_tables
-
 
 bp = Blueprint("route", __name__)
 
@@ -105,7 +110,7 @@ def post_login(action):
 
     args = []
     stmt = "UPDATE users SET "
-    if not check_password_hash(user["passhash"], json_data["passwword"]):
+    if not check_password_hash(user["passhash"], json_data["password"]):
         if user["attempt"] < 5:
             stmt += "attempt = ? "
             args.append(user["attempt"] + 1)
@@ -200,6 +205,8 @@ def post_user():
 @bp.get("/users/<int:user_id>")
 @user_required(admin=True)
 def get_user_actions(user_id):
+    if current_user["id"] == user_id:
+        return "", 205  # forbidden
     """
     Change a user's information in the database based on their user ID.
 
@@ -216,9 +223,11 @@ def get_user_actions(user_id):
         args.append(generate_password_hash(current_app.config["DEFAULT_PASSWORD"]))
     elif request.args.get("action") == "admin":
         stmt += "has_admin = CASE WHEN has_admin = 0 THEN 1 ELSE 0 END "
-    elif request.args.get("delete") == "admin":
-        stmt += "deleted = 1 "
-    execute(stmt + "WHERE id = ?", tuple(args.append(user_id)))
+    elif request.args.get("action") == "delete":
+        stmt += "deleted = CASE WHEN deleted = 0 THEN 1 ELSE 0 END "
+        get_current_user.cache_clear()
+    args.append(user_id)
+    execute(stmt + "WHERE id = ?", tuple(args))
     return "", 201
 
 
@@ -339,10 +348,10 @@ def post_file(item, item_id):
         args=(item_id,),
     )
     try:
-        if not os.path.isdir(person_dir):
-            os.mkdir(person_dir)
+        if not os.path.isdir(person_dir['destination']):
+            os.mkdir(person_dir['destination'])
 
-        item_dir = os.path.isdir(person_dir, item)
+        item_dir = os.path.join(person_dir['destination'], item)
         if not os.path.isdir(item_dir):
             os.mkdir(item_dir)
 
