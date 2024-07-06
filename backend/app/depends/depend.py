@@ -9,7 +9,7 @@ from werkzeug.local import LocalProxy
 from ..databases.database import select
 
 
-current_user = LocalProxy(lambda: get_current_user())
+current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
 def get_auth(token):
@@ -25,13 +25,13 @@ def get_auth(token):
     try:
         decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 2)
         secret_key, g.user_id, _ = decoded
-        return secret_key == Config.SECRET_KEY
+        return secret_key == current_app.config["SECRET_KEY"]
     except (IndexError, UnicodeDecodeError):
         return False
 
 
 @lru_cache(maxsize=8)
-def get_current_user(user_id=g.user_id):
+def get_current_user(user_id):
     """
     Retrieves the current user based on the user ID stored in the global variable 'g.user_id'.
     """
@@ -63,7 +63,7 @@ def create_token(user):
     The token is then encoded in base64 and returned as a string.
     """
     token_parts = [
-        Config.SECRET_KEY, 
+        current_app.config["SECRET_KEY"], 
         str(user["id"]),
         user["username"],
         str(user["has_admin"]),
@@ -113,8 +113,9 @@ def user_required(admin=False):
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
-                if current_user and (
-                    not admin or current_user["has_admin"]
+                cu = current_user
+                if cu and (
+                    not admin or cu["has_admin"]
                 ):
                     return func(*args, **kwargs)
                 abort(403)

@@ -184,7 +184,7 @@ def post_user():
         if user:
             return "", 205
 
-        json_dict["passhash"] = generate_password_hash(Config.DEFAULT_PASSWORD)
+        json_dict["passhash"] = generate_password_hash(current_app.config["DEFAULT_PASSWORD"])
         keys, args = zip(*json_dict.items())
         query = "INSERT INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
@@ -213,7 +213,7 @@ def get_user_actions(user_id):
     args = []
     if request.args.get("action") == "drop":
         stmt += "passhash = ?, attempt = 0, blocked = 0, change_pswd = 1 "
-        args.append(generate_password_hash(Config.DEFAULT_PASSWORD))
+        args.append(generate_password_hash(current_app.config["DEFAULT_PASSWORD"]))
     elif request.args.get("action") == "admin":
         stmt += "has_admin = CASE WHEN has_admin = 0 THEN 1 ELSE 0 END "
     elif request.args.get("delete") == "admin":
@@ -245,6 +245,7 @@ def get_index(page):
         FROM persons 
         LEFT JOIN users ON persons.user_id = users.id 
         """
+    pagination = 14
     args = []
     search_data = request.args.get("search")
     if search_data and len(search_data) > 2:
@@ -273,12 +274,12 @@ def get_index(page):
             args.append(current_user["region"])
 
     stmt += "ORDER BY id DESC LIMIT {} OFFSET {}".format(
-        Config.PAGINATION + 1,
-        (page - 1) * Config.PAGINATION,
+        pagination + 1,
+        (page - 1) * pagination,
     )
     result = select(stmt, args=tuple(args), many=True)
-    has_next = len(result) > Config.PAGINATION
-    result = result[: Config.PAGINATION] if has_next else result
+    has_next = len(result) > pagination
+    result = result[: pagination] if has_next else result
 
     return jsonify([result, has_next, page > 1]), 200
 
@@ -461,9 +462,7 @@ def post_item_id(item, item_id):
     try:
         json_dict = models_tables[item](**json_data).dict()
         json_dict["person_id"] = item_id
-
-        if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-            json_dict["user_id"] = current_user["id"]
+        json_dict["user_id"] = current_user["id"]
 
         keys, args = zip(*json_dict.items())
         stmt = "INSERT OR REPLACE INTO {} ({}) VALUES ({})".format(

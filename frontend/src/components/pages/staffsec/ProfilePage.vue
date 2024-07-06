@@ -91,7 +91,7 @@ const tabsData = {
         <button
           type="button"
           class="btn btn-lg btn-outline-danger"
-          :title="'Взять анкету'"
+          :title="'Назначить анкету себе'"
           @click="stateAnketa.getItem('persons', 'self')"
         >
           &equiv;

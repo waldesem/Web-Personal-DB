@@ -71,12 +71,12 @@ def handle_post_resume(data):
             person_id = execute(stmt, args)
 
             person_dir = os.path.join(
-                Config.BASE_PATH,
+                current_app.config["BASE_PATH"],
                 resume["region"],
                 resume["surname"][0].upper(),
-                f"{person_id}-{resume["surname"].upper()} "
-                f"{resume["firstname"].upper()} "
-                f"{resume.get("patronymic", "").upper()}".rstrip(),
+                f"{person_id}-{resume['surname'].upper()} "
+                f"{resume['firstname'].upper()} "
+                f"{resume.get('patronymic', '').upper()}".rstrip(),
             )
             if not os.path.isdir(person_dir):
                 os.mkdir(person_dir)

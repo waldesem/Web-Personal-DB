@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import current_app 
+from flask import current_app
 
 
 def execute(query, args=None):
@@ -18,7 +18,7 @@ def execute(query, args=None):
         sqlite3.Error: If an error occurs while executing the query.
 
     """
-    with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
+    with sqlite3.connect(current_app.config["DATABASE_URI"], timeout=1) as con:
         cursor = con.cursor()
         try:
             if isinstance(args, list):
@@ -27,18 +27,6 @@ def execute(query, args=None):
                 result = cursor.execute(query, args) if args else cursor.execute(query)
                 con.commit()
                 return result.lastrowid
-        except sqlite3.Error as e:
-            print(f"Error: {e}")
-            con.rollback()
-            return "Error"
-
-
-def scriptexec(script):
-    with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
-        cursor = con.cursor()
-        try:
-            cursor.executescript(script)
-            con.commit()
         except sqlite3.Error as e:
             print(f"Error: {e}")
             con.rollback()
@@ -62,7 +50,7 @@ def select(query, many=False, args=None):
         sqlite3.Error: If an error occurs while executing the query.
 
     """
-    with sqlite3.connect(Config.DATABASE_URI, timeout=1) as con:
+    with sqlite3.connect(current_app.config["DATABASE_URI"], timeout=1) as con:
         cursor = con.cursor()
         try:
             cursor.execute(query, args) if args else cursor.execute(query)
