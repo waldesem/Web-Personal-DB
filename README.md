@@ -2,7 +2,7 @@
 
 StaffSec is a web interface for managing a candidate database.
 
-### The technology stack used in this project includes:
+### The technology stack used in this project:
 
 - Flask;
 - Sqlite3;
@@ -14,7 +14,6 @@ StaffSec is a web interface for managing a candidate database.
 To use this project, you will need to have Python 3.10 or higher.
 For installiing the required Python packages run commands:
 ```
-sudo apt install python3 python3-pip python3-venv # if not install venv yet
 git clone https://github.com/waldesem/Web-Personal-DB.git
 cd Web-Personal-DB/backend
 python3 -m venv venv
@@ -31,10 +30,10 @@ python3 create.py
 To start a server run the command in terminal:
 ```
 python server.py # for debug mode; 
-python server.py --actions develop # for development mode 
-python server.py --actions prod # for wsgi waitress server
+python server.py --mode develop # for development mode 
+python server.py --mode prod # for wsgi waitress server
 ```
-Default user for application has name 'superadmin'.
+Default admin user for application has name `superadmin`.
 DEFAULT_PASSWORD for all created users - `88888888`.
 
 ### License

@@ -1,6 +1,7 @@
+import argparse
+
 from app import create_app
 from waitress import serve
-import argparse
 
 
 def main():
@@ -9,13 +10,13 @@ def main():
 
     Example usage:
         For debugging:
-            python server.py --host 127.0.0.1 --port 5000 --actions debug
+            python server.py --host 127.0.0.1 --port 5000 --mode debug
 
         For development:
-            python server.py --host 127.0.0.1 --port 5000 --actions dev
+            python server.py --host 127.0.0.1 --port 5000 --mode dev
 
         For production:
-            python server.py --host 127.0.0.1 --port 8000 --actions prod
+            python server.py --host 127.0.0.1 --port 8000 --mode prod
 
     """
     parser = argparse.ArgumentParser(description="Run the application server.")
@@ -29,18 +30,18 @@ def main():
         "--threads", default=8, type=int, help="The number of threads to use."
     )
     parser.add_argument(
-        "--actions",
+        "--mode",
         choices=["debug", "develop", "prod"],
         default="debug",
-        help="The action to run the server in.",
+        help="The mode to run the server in (debug, develop, prod).",
     )
     args = parser.parse_args()
 
     app = create_app()
 
-    if args.actions == "debug":
+    if args.mode == "debug":
         app.run(host=args.host, port=args.port, debug=True)
-    elif args.actions == "develop":
+    elif args.mode == "develop":
         app.run(host=args.host, port=args.port, debug=False)
     else:
         serve(app, host=args.host, port=args.port, threads=8)

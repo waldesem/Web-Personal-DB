@@ -490,9 +490,9 @@ def post_item_id(item, item_id):
                 args.extend([Statuses.finish.value, item_id])
             execute("UPDATE persons SET standing = ? WHERE id = ?", tuple(args))
 
-        if item == "poligrafs":
+        elif item == "poligrafs":
             stmt = "UPDATE persons SET standing = CASE WHEN standing = ? THEN ? ELSE standing END WHERE id = ?"
-            args = (
+            (
                 Statuses.poligraf.value,
                 Statuses.finish.value,
                 item_id,

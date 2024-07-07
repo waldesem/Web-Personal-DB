@@ -1,13 +1,11 @@
-from functools import lru_cache
 from base64 import b64decode, b64encode
 from datetime import datetime
-from functools import wraps
+from functools import lru_cache, wraps
 
-from flask import abort, current_app, request, g
+from flask import abort, current_app, g, request
 from werkzeug.local import LocalProxy
 
 from ..databases.database import select
-
 
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
