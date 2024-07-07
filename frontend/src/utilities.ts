@@ -20,39 +20,3 @@ export function debounce(
     }, delay);
   };
 }
-
-/**
- * Calculates the time interval since the given date and returns a human-readable string representing the time elapsed.
- *
- * @param {string} date - The date to calculate the time since
- * @return {string} A string representing the time elapsed in a human-readable format
- */
-export function timeSince(date: string): string {
-  let seconds =
-    (new Date().getTime() -
-      new Date(date).getTime() +
-      new Date().getTimezoneOffset() * 60000) /
-    1000;
-  let interval = seconds / 31536000;
-
-  if (interval > 1) {
-    return Math.floor(interval) + " лет назад";
-  }
-  interval = seconds / 2592000;
-  if (interval > 1) {
-    return Math.floor(interval) + " месяцев назад";
-  }
-  interval = seconds / 86400;
-  if (interval > 1) {
-    return Math.floor(interval) + " дней назад";
-  }
-  interval = seconds / 3600;
-  if (interval > 1) {
-    return Math.floor(interval) + " часов назад";
-  }
-  interval = seconds / 60;
-  if (interval > 1) {
-    return Math.floor(interval) + " минут назад";
-  }
-  return Math.floor(seconds) + " секунд назад";
-}

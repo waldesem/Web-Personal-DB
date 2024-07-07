@@ -27,7 +27,7 @@ def handle_get_item(item, item_id):
     else:
         stmt = f"SELECT * FROM {item} "
     result = select(
-        stmt + "WHERE person_id = ? ORDER BY id DESC", many=True, args=(item_id,)
+        stmt + "WHERE person_id = ? ORDER BY id ASC", many=True, args=(item_id,)
     )
     return result
 

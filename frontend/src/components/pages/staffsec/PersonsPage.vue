@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { debounce, timeSince } from "@/utilities";
+import { debounce } from "@/utilities";
 import { axiosAuth } from "@/auth";
 import { server } from "@/state";
 import { Persons } from "@/interfaces";
@@ -27,16 +27,6 @@ const statusColor = (status: string) => {
     case "Сохранено":
       return "warning";
   }
-};
-
-const theadData = {
-  id: ["#", "5%"],
-  region_id: ["Регион", "15%"],
-  surname: ["Фамилия Имя Отчество", "25%"],
-  birthday: ["Дата рождения", "15%"],
-  status: ["Статус", "10%"],
-  created: ["Создан", "15%"],
-  user: ["Сотрудник", "15%"],
 };
 
 const personData = ref({
@@ -77,11 +67,6 @@ async function getCandidates(page = 1): Promise<void> {
 const searchPerson = debounce(() => {
   getCandidates();
 }, 500);
-
-const shortName = (fullname: string) => {
-  const [first, second] = fullname.split(" ");
-  return `${first} ${second}`;
-};
 </script>
 
 <template>
@@ -114,9 +99,13 @@ const shortName = (fullname: string) => {
     </template>
     <template v-slot:thead>
       <tr height="50px">
-        <th v-for="(thead, key) in theadData" :key="key" :width="thead[1]">
-          {{ thead[0] }}
-        </th>
+        <th width="5%">#</th>
+        <th width="15%">Регион</th>
+        <th width="25%">Фамилия Имя Отчество</th>
+        <th width="15%">Дата рождения</th>
+        <th width="10%">Статус</th>
+        <th width="15%">Обновлено</th>
+        <th width="15%">Сотрудник</th>
       </tr>
     </template>
     <template v-slot:tbody>
@@ -152,11 +141,11 @@ const shortName = (fullname: string) => {
           </label>
         </td>
         <td>
-          {{ timeSince(candidate.created) }}
+          {{ new Date (candidate.created).toLocaleDateString("ru-RU") }}
         </td>
         <td>
           {{
-            candidate.username ? shortName(candidate.username.toString()) : ""
+            candidate.username ? candidate.username.toString().split(" ")[0] : ""
           }}
         </td>
       </tr>

@@ -156,7 +156,7 @@ def get_users():
     search_data = request.args.get("search")
     stmt = "SELECT * FROM users "
     if search_data and len(search_data) > 2:
-        stmt += "WHERE username LIKE '%{}%' ".format(search_data)
+        stmt += "WHERE fullname LIKE '%{}%' ".format(search_data)
     result = select(stmt + "ORDER BY id DESC", many=True)
     return jsonify(result), 200
 
