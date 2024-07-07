@@ -27,11 +27,11 @@ pip install -r requirements.txt
 
 To create default values run in  terminal:
 ```
-flask init         # init app
+python3 create.py
 ```
 To start a development server run the command in terminal:
 ```
-flask run
+python3 main.py
 ```
 or if you want to use waitress server:
 ```
