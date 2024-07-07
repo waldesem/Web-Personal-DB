@@ -1,12 +1,21 @@
 from flask import Flask
 
-# from flask_cors import CORS
+# from flask_cors import CORS # needed for using with frontend development server
 
 from config import Config
 from .routes.route import bp as route_bp
 
 
 def create_app(config_class=Config):
+    """
+    Create and configure the Flask application.
+
+    Parameters:
+        config_class: The configuration class to use for the application.
+
+    Returns:
+        Flask: The configured Flask application instance.
+    """
     app = Flask(__name__)
 
     app.config.from_object(config_class)
