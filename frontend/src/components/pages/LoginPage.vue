@@ -62,14 +62,9 @@ async function submitLogin(): Promise<void> {
           "Пароль просрочен. Измените пароль"
         );
         break;
-
-      case 204:
-        loginAction.value = "create";
-        stateAlert.setAlert("alert-danger", "Неверный логин или пароль");
-        break;
     }
   } catch (error) {
-    stateAlert.setAlert("alert-warning", error as string);
+    stateAlert.setAlert("alert-warning", "Неправильный логин или пароль");
   }
 }
 </script>

@@ -106,7 +106,7 @@ def post_login(action):
         args=(json_data.get("username"),),
     )
     if not user or user["blocked"] or user["deleted"]:
-        return "", 204
+        return abort(400)
 
     args = []
     stmt = "UPDATE users SET "
@@ -117,7 +117,7 @@ def post_login(action):
         else:
             stmt += "blocked = 1 "
         execute(stmt + "WHERE id = ?", tuple(args.append(user["id"])))
-        return "", 204
+        return abort(400)
 
     if action == "update":
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
