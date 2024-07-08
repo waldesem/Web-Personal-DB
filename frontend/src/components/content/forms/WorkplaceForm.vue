@@ -45,7 +45,6 @@ function submitWorkplace() {
     <LabelSlot :label="'Текущая работа'">
     <SwitchBox
         :name="'now_work'"
-        :place="'Текущая работа'"
         v-model="workForm['now_work']"
       />
     </LabelSlot>

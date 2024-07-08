@@ -47,7 +47,7 @@ class Person(Name):
     dual: Optional[str] = None
     snils: Optional[int] = None
     inn: Optional[int] = None
-    marital: Optional[str] = None
+    marital: Optional[bool] = False
     addition: Optional[str] = None
     destination: Optional[str] = None
     region: Optional[Regions] = None

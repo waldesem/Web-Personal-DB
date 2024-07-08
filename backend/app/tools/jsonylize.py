@@ -4,7 +4,7 @@ import re
 from ..depends.depend import current_user
 
 
-def parse_json(json_dict: dict) -> dict:
+def parse_json(json_dict: dict):
     """
     Parses a JSON dictionary and returns a dictionary with the parsed data.
 
@@ -73,7 +73,7 @@ def parse_json(json_dict: dict) -> dict:
                 "changed": prev.get("yearOfChange"),
                 "reason": prev.get("reason"),
             }
-            for prev in json_dict["nameWasChanged"]
+            for prev in json_dict.get("nameWasChanged", [])
             if json_dict.get("nameWasChanged")
         ],
         "educations": [
@@ -83,7 +83,7 @@ def parse_json(json_dict: dict) -> dict:
                 "finished": edu.get("endYear"),
                 "speciality": edu.get("specialty"),
             }
-            for edu in json_dict["education"]
+            for edu in json_dict.get("education", [])
             if json_dict.get("education")
         ],
         "workplaces": [
@@ -102,7 +102,7 @@ def parse_json(json_dict: dict) -> dict:
                 "position": exp.get("position"),
                 "reason": exp.get("fireReason"),
             }
-            for exp in json_dict["experience"]
+            for exp in json_dict.get("experience", [])
             if json_dict.get("experience")
         ],
         "affilations": [],
@@ -114,7 +114,7 @@ def parse_json(json_dict: dict) -> dict:
         "organizations": "Участвует в деятельности коммерческих организаций",
     }
     for item, value in views.items():
-        affils = json_dict[item] if json_dict.get(item) else []
+        affils = json_dict.get(item) if json_dict.get(item) else []
         for org in affils:
             json_data["affilations"].append(
                 {

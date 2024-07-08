@@ -14,6 +14,9 @@ const SelectDiv = defineAsyncComponent(
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
+const SwitchBox = defineAsyncComponent(
+  () => import("@components/content/elements/SwitchBox.vue")
+);
 const TextArea = defineAsyncComponent(
   () => import("@components/content/elements/TextArea.vue")
 );
@@ -140,9 +143,8 @@ async function submitResume(): Promise<void> {
       />
     </LabelSlot>
     <LabelSlot :label="'Семейное положение'">
-      <InputElement
+      <SwitchBox
         :name="'marital'"
-        :place="'Семейное положение'"
         v-model="resumeForm['marital']"
       />
     </LabelSlot>

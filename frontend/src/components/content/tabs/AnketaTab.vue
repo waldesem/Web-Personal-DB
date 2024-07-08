@@ -80,7 +80,7 @@ const dataResume = ref({
           v-show="dataResume.showActions"
           :name-id="'persons-file'"
           :accept="'*'"
-          @submit="submitFile($event, 'persons')"
+          @submit="submitFile($event, 'anketa')"
         />
       </ActionIcons>
     </LabelSlot>
@@ -119,7 +119,9 @@ const dataResume = ref({
       {{ stateAnketa.anketa.persons["inn"] }}
     </LabelSlot>
     <LabelSlot :label="'Семейное положение'">
-      {{ stateAnketa.anketa.persons["marital"] }}
+      {{ stateAnketa.anketa.persons["marital"] 
+        ? "Женат/замужем" 
+        : "Не женат/не замужем" }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
       {{ stateAnketa.anketa.persons["standing"] }}

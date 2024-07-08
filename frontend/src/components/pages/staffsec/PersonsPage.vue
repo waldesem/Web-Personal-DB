@@ -101,9 +101,9 @@ const searchPerson = debounce(() => {
       <tr height="50px">
         <th width="5%">#</th>
         <th width="15%">Регион</th>
-        <th width="25%">Фамилия Имя Отчество</th>
+        <th>Фамилия Имя Отчество</th>
         <th width="15%">Дата рождения</th>
-        <th width="10%">Статус</th>
+        <th width="15%">Статус</th>
         <th width="15%">Обновлено</th>
         <th width="15%">Сотрудник</th>
       </tr>

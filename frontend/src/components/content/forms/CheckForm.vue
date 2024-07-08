@@ -69,7 +69,6 @@ watch(noNegative, () => {
       <LabelSlot :label="'Негатива нет'">
         <SwitchBox
           :name="'noNegative'"
-          :place="'Негатива нет'"
           v-model="noNegative"
         />
       </LabelSlot>
@@ -196,7 +195,6 @@ watch(noNegative, () => {
       <LabelSlot :label="'Полиграф'">
         <SwitchBox
           :name="'pfo'"
-          :place="'Полиграф'"
           v-model="checkForm['pfo']"
         />
       </LabelSlot>
