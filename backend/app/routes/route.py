@@ -441,9 +441,9 @@ def get_item_id(item, item_id):
             execute(
                 "UPDATE persons SET standing = CASE WHEN standing <> ? THEN ? ELSE ? END user_id = ? WHERE id = ?",
                 (
-                    Statuses.edit.value,
-Statuses.edit.value,
-Statuses.finish.value,
+                    Statuses.manual.value,
+                    Statuses.manual.value,
+                    Statuses.finish.value,
                     current_user["id"],
                     item_id,
                 ),

@@ -29,7 +29,7 @@ CREATE TABLE
 		dual VARCHAR(255),
 		snils VARCHAR(255),
 		inn VARCHAR(255),
-		marital BOOLEAN,
+		marital VARCHAR(255),
 		addition TEXT,
 		destination TEXT,
 		created DATETIME DEFAULT (DATETIME ('now')),

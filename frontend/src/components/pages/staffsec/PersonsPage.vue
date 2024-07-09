@@ -18,13 +18,13 @@ onBeforeMount(async () => {
 
 const statusColor = (status: string) => {
   switch (status) {
-    case "Проверка":
+    case "Правка":
       return "primary";
     case "ПФО":
       return "info";
-    case "Окончено":
+    case "Окончен":
       return "secondary";
-    case "Сохранено":
+    case "Сохранен":
       return "warning";
   }
 };
@@ -154,7 +154,7 @@ const searchPerson = debounce(() => {
   <p v-else>Ничего не найдено</p>
   <nav v-if="personData.prev || personData.next">
     <ul class="pagination justify-content-center py-3">
-      <li class="page-item" :disabled="!personData.prev">
+      <li class="page-item" :class="{disabled: !personData.prev}">
         <a
           class="page-link"
           href="#"
@@ -163,7 +163,7 @@ const searchPerson = debounce(() => {
           Предыдущая
         </a>
       </li>
-      <li class="page-item" :disabled="!personData.next">
+      <li class="page-item" :class="{disabled: !personData.next}">
         <a
           class="page-link"
           href="#"

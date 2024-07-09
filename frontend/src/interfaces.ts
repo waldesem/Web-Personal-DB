@@ -23,7 +23,7 @@ export interface Persons {
   dual: string;
   snils: string;
   inn: string;
-  marital: boolean;
+  marital: string;
   addition: string;
   destination: string;
   standing: string;

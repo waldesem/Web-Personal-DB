@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
+import { stateAnketa, stateUser, stateClassify } from "@/state";
 import { Document } from "@/interfaces";
 
 const DropDownHead = defineAsyncComponent(
@@ -52,7 +52,9 @@ function cancelAction(){
           <ActionIcons
             v-show="
                 actions &&
-                stateAnketa.anketa.persons['user_id'] == stateUser.userId
+                stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+                stateAnketa.anketa.persons['standing'] ==
+                  stateClassify.standing['manual']
               "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'documents')"
             @update="
@@ -67,7 +69,7 @@ function cancelAction(){
         <LabelSlot :label="'Номер документа'">{{ item["digits"] }}</LabelSlot>
         <LabelSlot :label="'Серия документа'">{{ item["series"] }}</LabelSlot>
         <LabelSlot :label="'Дата выдачи'">
-          {{ new Date(String(item["issue"])).toLocaleDateString("ru-RU") }}
+          {{ item["issue"] ? new Date(String(item["issue"])).toLocaleDateString("ru-RU") : '' }}
         </LabelSlot>
         <LabelSlot :label="'Кем выдан'">{{ item["agency"] }}</LabelSlot>
       </div>

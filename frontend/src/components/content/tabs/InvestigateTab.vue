@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
 import { Inquisition } from "@/interfaces";
-import { stateAnketa, stateUser, submitFile } from "@/state";
+import { stateAnketa, stateUser, stateClassify } from "@/state";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
@@ -51,7 +51,9 @@ function cancelAction() {
           <ActionIcons
             v-show="
               actions &&
-              stateAnketa.anketa.persons['user_id'] == stateUser.userId
+              stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+              stateAnketa.anketa.persons['standing'] ==
+                stateClassify.standing['manual']
             "
             @delete="
               stateAnketa.deleteItem(item['id'].toString(), 'investigations')
@@ -67,7 +69,13 @@ function cancelAction() {
               v-show="actions"
               :name-id="'investigations-file'"
               :accept="'*'"
-              @submit="submitFile($event, 'investigations')"
+              @submit="
+                stateAnketa.submitFile(
+                  $event,
+                  'investigations',
+                  stateAnketa.share.candId
+                )
+              "
             />
           </ActionIcons>
         </LabelSlot>

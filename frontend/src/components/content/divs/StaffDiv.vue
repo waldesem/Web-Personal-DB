@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa } from "@/state";
+import { stateAnketa, stateClassify, stateUser } from "@/state";
 import { Staff } from "@/interfaces";
 
 const DropDownHead = defineAsyncComponent(
@@ -50,7 +50,10 @@ function cancelAction() {
       <div v-else>
         <LabelSlot>
           <ActionIcons
-            v-show="actions"
+            v-show="actions &&
+                stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+                stateAnketa.anketa.persons['standing'] ==
+                  stateClassify.standing['manual']"
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'staffs')"
             @update="
               staff = item;

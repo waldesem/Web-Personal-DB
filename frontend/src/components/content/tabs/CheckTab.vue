@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateUser, submitFile } from "@/state";
+import { stateAnketa, stateUser, stateClassify } from "@/state";
 import { Verification } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
@@ -51,7 +51,9 @@ function cancelAction() {
           <ActionIcons
             v-show="
               actions &&
-              stateAnketa.anketa.persons['user_id'] == stateUser.userId
+              stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+              stateAnketa.anketa.persons['standing'] ==
+                stateClassify.standing['manual']
             "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="
@@ -65,7 +67,13 @@ function cancelAction() {
               v-show="actions"
               :name-id="'check-file'"
               :accept="'*'"
-              @submit="submitFile($event, 'checks')"
+              @submit="
+                stateAnketa.submitFile(
+                  $event,
+                  'checks',
+                  stateAnketa.share.candId
+                )
+              "
             />
           </ActionIcons>
         </LabelSlot>

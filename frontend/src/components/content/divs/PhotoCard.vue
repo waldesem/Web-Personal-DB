@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
-import { stateAnketa, submitFile } from "@/state";
+import { stateAnketa, stateClassify, stateUser } from "@/state";
 
 onBeforeMount(async () => {
   await stateAnketa.getItem("image");
@@ -15,7 +15,7 @@ const photoCard = ref({
   },
 
   async submitImage(event: any) {
-    await submitFile(event, "image");
+    await stateAnketa.submitFile(event, "image", stateAnketa.share.candId);
   },
 });
 </script>
@@ -34,9 +34,14 @@ const photoCard = ref({
         alt="..."
       />
       <div
-        v-show="photoCard.showPhoto" 
+        v-show="
+          photoCard.showPhoto &&
+          stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+          stateAnketa.anketa.persons['standing'] ==
+            stateClassify.standing['manual']
+        "
         class="card-img-overlay"
-      > 
+      >
         <input
           @change="photoCard.submitImage($event)"
           class="form-control form-control-sm"

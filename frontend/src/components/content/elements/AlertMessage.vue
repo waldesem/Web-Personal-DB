@@ -4,8 +4,9 @@ import { stateAlert } from "@/state";
 
 <template>
   <div
+    v-show="stateAlert.alertMessage.show"
     class="alert"
-    role="info"
+    role="alert"
     fade
     show
     :class="stateAlert.alertMessage.attr"

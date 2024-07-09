@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import { router } from "@/router";
-import { submitFile } from "@/state";
+import { stateAnketa } from "@/state";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -25,7 +25,7 @@ const ResumeForm = defineAsyncComponent(
       >Загрузить json
       &#9735;
       </label>
-      <FileForm :accept="'.json'" @submit="submitFile($event, 'persons', '0')" />
+      <FileForm :accept="'.json'" @submit="stateAnketa.submitFile($event, 'persons', '0')" />
     </div>
   </div>
   <ResumeForm @cancel="router.push({ name: 'persons' })"/>

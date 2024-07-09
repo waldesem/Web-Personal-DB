@@ -1,6 +1,5 @@
 from flask import Flask
-
-# from flask_cors import CORS # needed for using with frontend development server
+# from flask_cors import CORS # needed for frontend development server
 
 from config import Config
 from .routes.route import bp as route_bp
@@ -20,9 +19,9 @@ def create_app(config_class=Config):
 
     app.config.from_object(config_class)
 
-    # CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-
     app.register_blueprint(route_bp)
+
+    # CORS(app, resources={r"/*": {"origins": "*"}})
 
     @app.get("/", defaults={"path": ""})
     def main(path=""):

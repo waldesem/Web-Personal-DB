@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateUser, submitFile } from "@/state";
+import { stateAnketa, stateUser, stateClassify } from "@/state";
 import type { Persons } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
@@ -68,7 +68,9 @@ const dataResume = ref({
       <ActionIcons
         v-show="
           dataResume.showActions &&
-          stateAnketa.anketa.persons['user_id'] == stateUser.userId
+          stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+          stateAnketa.anketa.persons['standing'] ==
+            stateClassify.standing['manual']
         "
         @delete="
           stateAnketa.deleteItem(stateAnketa.anketa.persons['id'], 'persons')
@@ -80,7 +82,7 @@ const dataResume = ref({
           v-show="dataResume.showActions"
           :name-id="'persons-file'"
           :accept="'*'"
-          @submit="submitFile($event, 'anketa')"
+          @submit="stateAnketa.submitFile($event, 'anketa', stateAnketa.share.candId)"
         />
       </ActionIcons>
     </LabelSlot>
@@ -119,9 +121,7 @@ const dataResume = ref({
       {{ stateAnketa.anketa.persons["inn"] }}
     </LabelSlot>
     <LabelSlot :label="'Семейное положение'">
-      {{ stateAnketa.anketa.persons["marital"] 
-        ? "Женат/замужем" 
-        : "Не женат/не замужем" }}
+      {{ stateAnketa.anketa.persons["marital"] }}
     </LabelSlot>
     <LabelSlot :label="'Статус'">
       {{ stateAnketa.anketa.persons["standing"] }}

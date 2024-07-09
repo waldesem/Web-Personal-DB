@@ -19,7 +19,7 @@ import {
 } from "@/interfaces";
 
 // export const server = "http://localhost:5000";
-export const server = '';
+export const server = "";
 
 export const stateUser = reactive({
   userId: "",
@@ -44,12 +44,14 @@ export const stateAlert = {
   alertMessage: reactive({
     attr: "",
     text: "",
+    show: false,
   }),
-  setAlert(attr: string = "", text: string = "") {
+  setAlert(attr: string, text: string) {
+    this.alertMessage.show = true;
     this.alertMessage.attr = attr;
     this.alertMessage.text = text;
     setTimeout(() => {
-      this.setAlert();
+      this.alertMessage.show = false;
     }, 10000);
   },
 };
@@ -79,7 +81,9 @@ export const stateAnketa = {
   async getItem(param: string, action = "view"): Promise<void> {
     if (
       action === "self" &&
-      !confirm("Вы действительно назначить проверку кандидата на себя?")
+      !confirm(
+        "Вы действительно хотите включить/выключить режим правки"
+      )
     ) {
       return;
     }
@@ -112,7 +116,7 @@ export const stateAnketa = {
   async updateItem(param: string, form: Object): Promise<void> {
     try {
       const response = await axiosAuth.post(
-        `${server}/${param}/${stateAnketa.share.candId}`,
+        `${server}/${param}/${this.share.candId}`,
         form
       );
       console.log(response.status);
@@ -137,49 +141,49 @@ export const stateAnketa = {
       console.error(error);
     }
   },
-};
 
-export async function submitFile(
-  event: Event,
-  param: string,
-  itemId: string = stateAnketa.share.candId
-): Promise<void> {
-  const formData = new FormData();
-  const inputElement = event.target as HTMLInputElement;
-  if (inputElement && inputElement.files) {
-    for (let i = 0; i < inputElement.files.length; i++) {
-      if (inputElement.files[i].size > 10 * 1024 * 1024) {
-        stateAlert.setAlert(
-          "alert-warning",
-          "Превышен максимальный размер файла"
+  async submitFile(
+    event: Event,
+    param: string,
+    itemId: string
+  ): Promise<void> {
+    const formData = new FormData();
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement && inputElement.files) {
+      for (let i = 0; i < inputElement.files.length; i++) {
+        if (inputElement.files[i].size > 10 * 1024 * 1024) {
+          stateAlert.setAlert(
+            "alert-warning",
+            "Превышен максимальный размер файла"
+          );
+          inputElement.value = "";
+          return;
+        } else {
+          formData.append("file", inputElement.files[i]);
+        }
+      }
+      try {
+        const response = await axiosAuth.post(
+          `${server}/file/${param}/${itemId}`,
+          formData
         );
-        inputElement.value = "";
-        return;
-      } else {
-        formData.append("file", inputElement.files[i]);
+        console.log(response.status);
+        if (param === "image") {
+          this.getItem(param);
+        }
+        if (param === "persons") {
+          const { person_id } = response.data;
+          router.push({ name: "profile", params: { id: person_id } });
+        }
+        stateAlert.setAlert(
+          "alert-success",
+          "Файл или файлы успешно загружен/добавлены"
+        );
+      } catch (error: any) {
+        console.error(error);
       }
+    } else {
+      stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
     }
-    try {
-      const response = await axiosAuth.post(
-        `${server}/file/${param}/${itemId}`,
-        formData
-      );
-      console.log(response.status);
-      if (param === "image") {
-        stateAnketa.getItem(param);
-      }
-      if (param === "persons") {
-        const { person_id } = response.data;
-        router.push({ name: "profile", params: { id: person_id } });
-      }
-      stateAlert.setAlert(
-        "alert-success",
-        "Файл или файлы успешно загружен/добавлены"
-      );
-    } catch (error: any) {
-      console.error(error);
-    }
-  } else {
-    stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
   }
 }

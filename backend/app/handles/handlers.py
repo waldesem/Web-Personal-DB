@@ -60,35 +60,35 @@ def handle_post_resume(data):
             if person:
                 resume["id"] = person["id"]
 
-            resume["standing"] = Statuses.edit.value
+            resume["standing"] = Statuses.manual.value
             resume["user_id"] = current_user["id"]
             
-            keys, args = zip(*resume.items())
-            stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
-                ", ".join(keys),
-                ", ".join(["?" for _ in keys]),
-            )
-            person_id = execute(stmt, args)
+        keys, args = zip(*resume.items())
+        stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
+            ", ".join(keys),
+            ", ".join(["?" for _ in keys]),
+        )
+        person_id = execute(stmt, args)
 
-            person_dir = os.path.join(
-                current_app.config["BASE_PATH"],
-                resume["region"],
-                resume["surname"][0].upper(),
-                f"{person_id}-{resume['surname'].upper()} "
-                f"{resume['firstname'].upper()} "
-                f"{resume.get('patronymic', '').upper()}".rstrip(),
-            )
-            if not os.path.isdir(person_dir):
-                os.mkdir(person_dir)
+        person_dir = os.path.join(
+            current_app.config["BASE_PATH"],
+            resume["region"],
+            resume["surname"][0].upper(),
+            f"{person_id}-{resume['surname'].upper()} "
+            f"{resume['firstname'].upper()} "
+            f"{resume.get('patronymic', '').upper()}".rstrip(),
+        )
+        if not os.path.isdir(person_dir):
+            os.mkdir(person_dir)
 
-            execute(
-                "UPDATE persons SET destination = ? WHERE id = ?",
-                (
-                    person_dir,
-                    person_id,
-                ),
-            )
-            return person_id
+        execute(
+            "UPDATE persons SET destination = ? WHERE id = ?",
+            (
+                person_dir,
+                person_id,
+            ),
+        )
+        return person_id
     except Exception as e:
         print(e)
         return None
