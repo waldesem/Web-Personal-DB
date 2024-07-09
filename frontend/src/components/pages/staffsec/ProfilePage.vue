@@ -88,11 +88,7 @@ const title = computed(() => {
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
-      <div
-        v-if="
-          currentTab === 'anketaTab'"
-        class="position-relative text-end"
-      >
+      <div class="position-relative text-end">
         <button
           type="button"
           class="btn btn-lg btn-outline-danger"
