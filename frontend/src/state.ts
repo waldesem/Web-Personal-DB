@@ -106,7 +106,7 @@ export const stateAnketa = {
         this.anketa[param as keyof typeof this.anketa] = response.data;
       }
       if (action === "self") {
-        stateAlert.setAlert("alert-info", "Анкета назначена пользователю");
+        stateAlert.setAlert("alert-info", "Режим правки включен/отключен");
       }
     } catch (error: any) {
       console.error(error);

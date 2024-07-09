@@ -12,8 +12,8 @@ class Regions(Enum):
 class Statuses(Enum):
     manual = "Правка"
     poligraf = "ПФО"
-    finish = "Окончен"
-    saved = "Сохранен"
+    finish = "Окончено"
+    saved = "Сохранено"
 
 
 class Conclusions(Enum):

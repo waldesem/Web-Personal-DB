@@ -73,104 +73,91 @@ const title = computed(() => {
 </script>
 
 <template>
-  <div
-    :class="{
-      'bg-danger bg-opacity-75 border border-danger rounded':
-        stateAnketa.anketa.persons['standing'] !=
-        stateClassify.standing['manual'],
-    }"
-  >
-    <PhotoCard />
-    <div class="row mb-3">
-      <div class="col-md-10">
-        <HeaderDiv
-          :cls="'text-danger py-3'"
-          :page-header="`${stateAnketa.anketa.persons.surname} ${
-            stateAnketa.anketa.persons.firstname
-          } ${
-            stateAnketa.anketa.persons.patronymic
-              ? ' ' + stateAnketa.anketa.persons.patronymic
-              : ''
-          }`"
-        />
-        <span
-          v-show="
-            stateAnketa.anketa.persons['standing'] ==
-            stateClassify.standing['manual']
-          "
-          class="position-absolute top-0 start-100 translate-middle badge bg-info"
+  <PhotoCard />
+  <div class="row mb-3">
+    <div class="col-md-10">
+      <HeaderDiv
+        :cls="'text-danger py-3'"
+        :page-header="`${stateAnketa.anketa.persons.surname} ${
+          stateAnketa.anketa.persons.firstname
+        } ${
+          stateAnketa.anketa.persons.patronymic
+            ? ' ' + stateAnketa.anketa.persons.patronymic
+            : ''
+        }`"
+      />
+    </div>
+    <div class="col-md-2 d-flex justify-content-end d-print-none">
+      <div
+        v-if="
+          currentTab === 'anketaTab'"
+        class="position-relative text-end"
+      >
+        <button
+          type="button"
+          class="btn btn-lg btn-outline-danger"
+          :title="title"
+          @click="stateAnketa.getItem('persons', 'self')"
         >
-          Включен режим правки
-        </span>
+          <span 
+            v-if="
+              stateAnketa.anketa.persons['standing'] ==
+              stateClassify.standing['manual']
+            "
+            class="spinner-grow text-danger" role="status"
+          >
+          </span>
+          <div v-else>&equiv;</div>
+        </button>
       </div>
-      <div class="col-md-2 d-flex justify-content-end d-print-none">
-        <div
+      <div
+        v-for="(item, idx) in Object.keys(tabsData).slice(1)"
+        :key="idx"
+        class="position-relative text-end"
+      >
+        <button
           v-if="
-            currentTab === 'anketaTab' &&
-            stateAnketa.anketa.persons['user_id'] != stateUser.userId &&
-            stateAnketa.anketa.persons['standing'] !=
+            currentTab == item &&
+            stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+            stateAnketa.anketa.persons['standing'] ==
               stateClassify.standing['manual']
           "
-          class="position-relative text-end"
+          :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
+          type="button"
+          class="btn btn-lg btn-outline-danger"
+          data-bs-toggle="collapse"
+          :href="'#clps_' + item.split('T')[0]"
         >
-          <button
-            type="button"
-            class="btn btn-lg btn-outline-danger"
-            :title="title"
-            @click="stateAnketa.getItem('persons', 'self')"
-          >
-            &equiv;
-          </button>
-        </div>
-        <div
-          v-for="(item, idx) in Object.keys(tabsData).slice(1)"
-          :key="idx"
-          class="position-relative text-end"
-        >
-          <button
-            v-if="
-              currentTab == item &&
-              stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
-              stateAnketa.anketa.persons['standing'] ==
-                stateClassify.standing['manual']
-            "
-            :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
-            type="button"
-            class="btn btn-lg btn-outline-danger"
-            data-bs-toggle="collapse"
-            :href="'#clps_' + item.split('T')[0]"
-          >
-            &equiv;
-          </button>
-        </div>
+          &equiv;
+        </button>
       </div>
     </div>
-    <nav class="nav nav-tabs nav-justified d-print-none" role="tablist">
-      <button
-        v-for="(values, key) in tabsData"
-        :key="key"
-        class="nav-link"
-        :class="{ active: key === 'anketaTab' }"
-        :data-bs-target="'#' + key"
-        data-bs-toggle="tab"
-        type="button"
-        role="tab"
-        @click="currentTab = key"
-      >
-        {{ values[1] }}
-      </button>
-    </nav>
-    <div class="tab-content">
-      <div
-        v-for="(values, key) in tabsData"
-        :key="key"
-        :id="key"
-        class="tab-pane show fade pt-3"
-        :class="{ active: key == 'anketaTab' }"
-        role="tabpanel"
-      >
-        <component :is="values[2]"></component>
-      </div>
+  </div>
+  <nav class="nav nav-tabs nav-justified d-print-none" role="tablist">
+    <button
+      v-for="(values, key) in tabsData"
+      :key="key"
+      class="nav-link"
+      :class="{ active: key === 'anketaTab' }"
+      :data-bs-target="'#' + key"
+      data-bs-toggle="tab"
+      type="button"
+      role="tab"
+      @click="currentTab = key"
+    >
+      {{ values[1] }}
+    </button>
+  </nav>
+  <div class="tab-content">
+    <div
+      v-for="(values, key) in tabsData"
+      :key="key"
+      :id="key"
+      class="tab-pane show fade pt-3"
+      :class="{ active: key == 'anketaTab' }"
+      role="tabpanel"
+    >
+      <component :is="values[2]"></component>
     </div>
   </div>
 </template>

@@ -22,9 +22,9 @@ const statusColor = (status: string) => {
       return "primary";
     case "ПФО":
       return "info";
-    case "Окончен":
+    case "Окончено":
       return "secondary";
-    case "Сохранен":
+    case "Сохранено":
       return "warning";
   }
 };
