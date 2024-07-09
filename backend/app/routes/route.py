@@ -439,8 +439,11 @@ def get_item_id(item, item_id):
     if item == "persons":
         if request.args.get("action") == "self":
             execute(
-                "UPDATE persons SET user_id = ? WHERE id = ?",
+                "UPDATE persons SET standing = CASE WHEN standing <> ? THEN ? ELSE ? END user_id = ? WHERE id = ?",
                 (
+                    Statuses.edit.value,
+Statuses.edit.value,
+Statuses.finish.value,
                     current_user["id"],
                     item_id,
                 ),
