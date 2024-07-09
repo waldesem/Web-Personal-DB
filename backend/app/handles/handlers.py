@@ -60,7 +60,7 @@ def handle_post_resume(data):
             if person:
                 resume["id"] = person["id"]
 
-            resume["standing"] = Statuses.manual.value
+            resume["standing"] = Statuses.edit.value
             resume["user_id"] = current_user["id"]
             
             keys, args = zip(*resume.items())
