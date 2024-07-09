@@ -116,7 +116,7 @@ def parse_json(json_dict: dict):
             json_data["affilations"].append(
                 {
                     "view": value,
-                    "organization": org.get("organization"),
+                    "organization": org.get("name"),
                     "position": org.get("position"),
                     "inn": org.get("inn"),
                 }
