@@ -105,7 +105,7 @@ def post_login(action):
     user = select("SELECT * FROM users WHERE username = ?",
         args=(json_data.get("username"),),
     )
-    if not user or user["blocked"] or user["deleted"]:
+    if not user or user.get("blocked") or user.get("deleted"):
         return abort(400)
 
     args = []
@@ -116,7 +116,7 @@ def post_login(action):
             args.append(user["attempt"] + 1)
         else:
             stmt += "blocked = 1 "
-        execute(stmt + "WHERE id = ?", tuple(args.append(user["id"])))
+        execute(stmt + "WHERE id = ?", tuple(args.append(user.get("id"))))
         return abort(400)
 
     if action == "update":
