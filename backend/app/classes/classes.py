@@ -10,7 +10,6 @@ class Regions(Enum):
 
 
 class Statuses(Enum):
-    manual = "Проверка"
     edit = "Редакция"
     poligraf = "ПФО"
     finish = "Окончено"
