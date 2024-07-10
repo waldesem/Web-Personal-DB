@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { stateUser, stateAnketa, stateClassify, server } from "@/state";
 import { useRoute } from "vue-router";
 import { axiosAuth } from "@/auth";
@@ -66,27 +66,23 @@ const tabsData = {
 
 async function closeCollapses() {
   const collapseCollection = document.getElementsByClassName("collapse");
-  collapseCollection.forEach((elem) => {
-    elem?.setAttribute("class", "collapse card card-body mb-3");
-  })
-};
+  for (let i = 0; i < collapseCollection.length; i++) {
+    collapseCollection[i]?.setAttribute(
+      "class",
+      "collapse card card-body mb-3"
+    );
+  }
+}
 
 async function switchStandings() {
   await closeCollapses();
-  stateAnketa.getItem('persons', 'self')
-};
+  stateAnketa.getItem("persons", "self");
+}
 
-async function switchTabs() {
+async function switchTabs(tab: string) {
   await closeCollapses();
-  currentTab.value= key
-};
-
-const title = computed(() => {
-  return stateAnketa.anketa.persons["standing"] !=
-    stateClassify.standing["manual"]
-    ? "Включить режим правки"
-    : "Отключить режим правки";
-});
+  currentTab.value = tab;
+}
 </script>
 
 <template>
@@ -108,7 +104,7 @@ const title = computed(() => {
       <div
         v-for="(item, idx) in Object.keys(tabsData).slice(1)"
         :key="idx"
-        class="position-relative text-end"
+        class="position-relative"
       >
         <button
           v-if="
@@ -126,19 +122,28 @@ const title = computed(() => {
           &equiv;
         </button>
       </div>
-      <div class="position-relative text-end">
+      <div class="position-relative px-3">
         <button
           type="button"
-          class="btn btn-lg btn-outline-danger"
-          :title="title"
+          :class="
+            stateAnketa.anketa.persons['standing'] ==
+            stateClassify.standing['manual']
+              ? 'btn btn-link'
+              : 'btn btn-lg btn-outline-primary'
+          "
+          :title="stateAnketa.anketa.persons['standing'] !=
+            stateClassify.standing['manual']
+            ? 'Включить режим правки'
+            : 'Отключить режим правки'"
           @click="switchStandings"
         >
-          <span 
+          <span
             v-if="
               stateAnketa.anketa.persons['standing'] ==
               stateClassify.standing['manual']
             "
-            class="spinner-grow text-danger" role="status"
+            class="spinner-grow text-danger"
+            role="status"
           >
           </span>
           <div v-else>&equiv;</div>

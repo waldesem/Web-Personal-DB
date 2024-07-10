@@ -2,7 +2,7 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce } from "@/utilities";
 import { axiosAuth } from "@/auth";
-import { server } from "@/state";
+import { stateClassify, server } from "@/state";
 import { Persons } from "@/interfaces";
 
 const HeaderDiv = defineAsyncComponent(
@@ -19,7 +19,7 @@ onBeforeMount(async () => {
 const statusColor = (status: string) => {
   switch (status) {
     case "Правка":
-      return "primary";
+      return "danger";
     case "ПФО":
       return "info";
     case "Окончено":
@@ -100,12 +100,12 @@ const searchPerson = debounce(() => {
     <template v-slot:thead>
       <tr height="50px">
         <th width="5%">#</th>
-        <th width="15%">Регион</th>
+        <th width="13%">Регион</th>
         <th>Фамилия Имя Отчество</th>
-        <th width="15%">Дата рождения</th>
-        <th width="15%">Статус</th>
-        <th width="15%">Обновлено</th>
-        <th width="15%">Сотрудник</th>
+        <th width="13%">Дата рождения</th>
+        <th width="13%">Статус</th>
+        <th width="13%">Обновлено</th>
+        <th width="13%">Сотрудник</th>
       </tr>
     </template>
     <template v-slot:tbody>
@@ -138,7 +138,14 @@ const searchPerson = debounce(() => {
             :class="`fs-6 badge bg-${statusColor(candidate.standing)}`"
           >
             {{ candidate.standing }}
-          </label>
+          <span
+            v-if="candidate.standing == stateClassify.standing['manual']"
+            class="spinner-grow spinner-grow-sm"
+            role="status"
+          >
+          </span>
+        </label>
+
         </td>
         <td>
           {{ new Date (candidate.created).toLocaleDateString("ru-RU") }}
@@ -151,7 +158,7 @@ const searchPerson = debounce(() => {
       </tr>
     </template>
   </TableSlots>
-  <p v-else>Ничего не найдено</p>
+  <p class="fs-6 taxt-danger" v-else>Ничего не найдено</p>
   <nav v-if="personData.prev || personData.next">
     <ul class="pagination justify-content-center py-3">
       <li class="page-item" :class="{disabled: !personData.prev}">

@@ -3,10 +3,10 @@ from enum import Enum
 
 class Regions(Enum):
     main = "Главный офис"
-    south = "Региональный центр Юг"
-    west = "Региональный центр Запад"
-    ural = "Региональный центр Урал"
-    east = "Региональный центр Восток"
+    south = "РЦ Юг"
+    west = "РЦ Запад"
+    ural = "РЦ Урал"
+    east = "РЦ Восток"
 
 
 class Statuses(Enum):
