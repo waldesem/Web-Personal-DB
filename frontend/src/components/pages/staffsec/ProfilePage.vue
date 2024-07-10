@@ -64,6 +64,23 @@ const tabsData = {
   inquiryTab: ["Добавить запрос", "Запросы", InquiryTab],
 };
 
+async function closeCollapses() {
+  const collapseCollection = document.getElementsByClassName("collapse");
+  collapseCollection.forEach((elem) => {
+    elem?.setAttribute("class", "collapse card card-body mb-3");
+  })
+};
+
+async function switchStandings() {
+  await closeCollapses();
+  stateAnketa.getItem('persons', 'self')
+};
+
+async function switchTabs() {
+  await closeCollapses();
+  currentTab.value= key
+};
+
 const title = computed(() => {
   return stateAnketa.anketa.persons["standing"] !=
     stateClassify.standing["manual"]
@@ -88,24 +105,6 @@ const title = computed(() => {
       />
     </div>
     <div class="col-md-2 d-flex justify-content-end d-print-none">
-      <div class="position-relative text-end">
-        <button
-          type="button"
-          class="btn btn-lg btn-outline-danger"
-          :title="title"
-          @click="stateAnketa.getItem('persons', 'self')"
-        >
-          <span 
-            v-if="
-              stateAnketa.anketa.persons['standing'] ==
-              stateClassify.standing['manual']
-            "
-            class="spinner-grow text-danger" role="status"
-          >
-          </span>
-          <div v-else>&equiv;</div>
-        </button>
-      </div>
       <div
         v-for="(item, idx) in Object.keys(tabsData).slice(1)"
         :key="idx"
@@ -127,6 +126,24 @@ const title = computed(() => {
           &equiv;
         </button>
       </div>
+      <div class="position-relative text-end">
+        <button
+          type="button"
+          class="btn btn-lg btn-outline-danger"
+          :title="title"
+          @click="switchStandings"
+        >
+          <span 
+            v-if="
+              stateAnketa.anketa.persons['standing'] ==
+              stateClassify.standing['manual']
+            "
+            class="spinner-grow text-danger" role="status"
+          >
+          </span>
+          <div v-else>&equiv;</div>
+        </button>
+      </div>
     </div>
   </div>
   <nav class="nav nav-tabs nav-justified d-print-none" role="tablist">
@@ -139,7 +156,7 @@ const title = computed(() => {
       data-bs-toggle="tab"
       type="button"
       role="tab"
-      @click="currentTab = key"
+      @click="switchTabs(key)"
     >
       {{ values[1] }}
     </button>
