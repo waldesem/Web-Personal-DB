@@ -16,7 +16,6 @@ from ..classes.classes import (
     Poligrafs,
     Regions,
     Relations,
-    Statuses,
 )
 from ..databases.database import execute, select
 from ..depends.depend import (
@@ -44,7 +43,6 @@ def get_classes():
         {item.name: item.value for item in items}
         for items in [
             Regions,
-            Statuses,
             Conclusions,
             Relations,
             Affiliates,
@@ -443,7 +441,7 @@ def get_item_id(item, item_id):
     if item == "persons":
         if request.args.get("action") == "self":
             execute(
-                "UPDATE persons SET standing = CASE WHEN standing = ? THEN ? ELSE ? END, user_id = ? WHERE id = ?",
+                "UPDATE persons SET standing = CASE WHEN standing = 0 THEN 1 ELSE 0 END, user_id = ? WHERE id = ?",
                 (
                     Statuses.manual.value,
                     Statuses.finish.value,
