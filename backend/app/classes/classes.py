@@ -9,12 +9,6 @@ class Regions(Enum):
     east = "РЦ Восток"
 
 
-class Statuses(Enum):
-    manual = "Проверка"
-    poligraf = "ПФО"
-    finish = "Окончено"
-
-
 class Conclusions(Enum):
     saved = "СОХРАНЕНО"
     agreed = "СОГЛАСОВАНО"
