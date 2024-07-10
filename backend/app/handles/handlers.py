@@ -2,7 +2,6 @@ import os
 
 from flask import current_app 
 
-from ..classes.classes import Statuses
 from ..databases.database import execute, select
 from ..depends.depend import current_user
 from ..models.models import Person
@@ -60,7 +59,7 @@ def handle_post_resume(data):
             if person:
                 resume["id"] = person["id"]
 
-            resume["standing"] = Statuses.manual.value
+            resume["standing"] = False
             resume["user_id"] = current_user["id"]
             
         keys, args = zip(*resume.items())
