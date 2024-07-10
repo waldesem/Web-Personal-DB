@@ -133,8 +133,8 @@ async function switchTabs(tab: string) {
           "
           :title="stateAnketa.anketa.persons['standing'] !=
             stateClassify.standing['manual']
-            ? 'Включить режим правки'
-            : 'Отключить режим правки'"
+            ? 'Включить режим проверки'
+            : 'Отключить режим проверки'"
           @click="switchStandings"
         >
           <span

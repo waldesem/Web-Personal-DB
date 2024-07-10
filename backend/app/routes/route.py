@@ -75,7 +75,7 @@ def get_information():
         args=(
             query_data["region"]
             if query_data.get("region")
-            else current_user["region"],
+            else current_user.get("region"),
             Conclusions.saved.value,
             query_data["start"],
             query_data["end"],
@@ -102,7 +102,8 @@ def post_login(action):
         None
     """
     json_data = request.get_json()
-    user = select("SELECT * FROM users WHERE username = ?",
+    user = select(
+        "SELECT * FROM users WHERE username = ?",
         args=(json_data.get("username"),),
     )
     if not user or user.get("blocked") or user.get("deleted"):
@@ -116,7 +117,8 @@ def post_login(action):
             args.append(user["attempt"] + 1)
         else:
             stmt += "blocked = 1 "
-        execute(stmt + "WHERE id = ?", tuple(args.append(user.get("id"))))
+        args.append(user.get("id"))
+        execute(stmt + "WHERE id = ?", tuple(args))
         return abort(400)
 
     if action == "update":
@@ -189,7 +191,9 @@ def post_user():
         if user:
             return "", 205
 
-        json_dict["passhash"] = generate_password_hash(current_app.config["DEFAULT_PASSWORD"])
+        json_dict["passhash"] = generate_password_hash(
+            current_app.config["DEFAULT_PASSWORD"]
+        )
         keys, args = zip(*json_dict.items())
         query = "INSERT INTO users ({}) VALUES ({})".format(
             ",".join(keys), ",".join("?" for _ in keys)
@@ -289,7 +293,7 @@ def get_index(page):
     )
     result = select(stmt, args=tuple(args), many=True)
     has_next = len(result) > pagination
-    result = result[: pagination] if has_next else result
+    result = result[:pagination] if has_next else result
 
     return jsonify([result, has_next, page > 1]), 200
 
@@ -349,10 +353,10 @@ def post_file(item, item_id):
         args=(item_id,),
     )
     try:
-        if not os.path.isdir(person_dir['destination']):
-            os.mkdir(person_dir['destination'])
+        if not os.path.isdir(person_dir["destination"]):
+            os.mkdir(person_dir["destination"])
 
-        item_dir = os.path.join(person_dir['destination'], item)
+        item_dir = os.path.join(person_dir["destination"], item)
         if not os.path.isdir(item_dir):
             os.mkdir(item_dir)
 
@@ -364,7 +368,6 @@ def post_file(item, item_id):
             file.save(image_file)
             return "", 201
 
-        
         date_subfolder = os.path.join(
             item_dir,
             datetime.now().strftime("%Y-%m-%d"),
@@ -382,6 +385,7 @@ def post_file(item, item_id):
     except OSError as e:
         print(e)
         return abort(400)
+
 
 @bp.get("/profile/<int:person_id>")
 @user_required()
@@ -482,25 +486,18 @@ def post_item_id(item, item_id):
         )
         execute(stmt, args)
 
-        if item == "checks":
-            args = []
-            if json_dict.get("conclusion") == Conclusions.saved.value:
-                args.extend([Statuses.saved.value, item_id])
-            elif json_dict.get("pfo"):
-                args.extend([Statuses.poligraf.value, item_id])
-            else:
-                args.extend([Statuses.finish.value, item_id])
-            execute("UPDATE persons SET standing = ? WHERE id = ?", tuple(args))
-
-        elif item == "poligrafs":
-            stmt = "UPDATE persons SET standing = CASE WHEN standing = ? THEN ? ELSE standing END WHERE id = ?"
-            (
-                Statuses.poligraf.value,
-                Statuses.finish.value,
-                item_id,
+        if (
+            item == "checks"
+            and json_dict.get("conclusion") != Conclusions.saved.value
+            and json_dict.get("pfo")
+        ):
+            execute(
+                "UPDATE persons SET standing = ? WHERE id = ?",
+                (
+                    Statuses.poligraf.value,
+                    item_id,
+                ),
             )
-            execute(stmt, args)
-
         return "", 201
     except Exception as e:
         print(e)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { debounce } from "@/utilities";
+import { debounce, statusColor } from "@/utilities";
 import { axiosAuth } from "@/auth";
 import { stateClassify, server } from "@/state";
 import { Persons } from "@/interfaces";
@@ -15,19 +15,6 @@ const TableSlots = defineAsyncComponent(
 onBeforeMount(async () => {
   await getCandidates();
 });
-
-const statusColor = (status: string) => {
-  switch (status) {
-    case "Правка":
-      return "danger";
-    case "ПФО":
-      return "info";
-    case "Окончено":
-      return "secondary";
-    case "Сохранено":
-      return "warning";
-  }
-};
 
 const personData = ref({
   candidates: <Persons[]>[],
@@ -138,12 +125,12 @@ const searchPerson = debounce(() => {
             :class="`fs-6 badge bg-${statusColor(candidate.standing)}`"
           >
             {{ candidate.standing }}
-          <span
-            v-if="candidate.standing == stateClassify.standing['manual']"
-            class="spinner-grow spinner-grow-sm"
-            role="status"
-          >
-          </span>
+            <span
+              v-if="candidate.standing == stateClassify.standing['manual']"
+              class="spinner-grow spinner-grow-sm"
+              role="status"
+            >
+            </span>
         </label>
 
         </td>
