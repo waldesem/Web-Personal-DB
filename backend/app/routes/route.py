@@ -424,6 +424,21 @@ def post_resume():
     return jsonify({"person_id": person_id}), 201
 
 
+@bp.get("/persons/<int:item_id>")
+@user_required()
+def get_resume(item, item_id):
+    if request.args.get("action") == "self":
+        execute(
+                "UPDATE persons SET standing = CASE WHEN standing = 0 THEN 1 ELSE 0 END, user_id = ? WHERE id = ?",
+                (
+                    current_user["id"],
+                    item_id,
+                ),
+            )
+    result =      handle_get_person(item_id)
+    return jsonify(result), 200
+
+
 @bp.get("/<item>/<int:item_id>")
 @jwt_required()
 def get_item_id(item, item_id):
@@ -438,18 +453,7 @@ def get_item_id(item, item_id):
         Tuple[Response, int]: A tuple containing the JSON response containing
         the retrieved item(s) and an HTTP status code of 200.
     """
-    if item == "persons":
-        if request.args.get("action") == "self":
-            execute(
-                "UPDATE persons SET standing = CASE WHEN standing = 0 THEN 1 ELSE 0 END, user_id = ? WHERE id = ?",
-                (
-                    current_user["id"],
-                    item_id,
-                ),
-            )
-        results = handle_get_person(item_id)
-    else:
-        results = handle_get_item(item, item_id)
+    results = handle_get_item(item, item_id)
     return jsonify(results), 200
 
 
