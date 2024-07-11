@@ -26,7 +26,7 @@ export interface Persons {
   marital: string;
   addition: string;
   destination: string;
-  standing: string;
+  standing: boolean;
   created: string;
   region: string;
   user_id: string;
@@ -127,7 +127,6 @@ export interface Verification {
   cronos: string;
   cros: string;
   addition: string;
-  pfo: boolean;
   conclusion: string;
   comment: string;
   created: string;
