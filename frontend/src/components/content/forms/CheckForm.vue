@@ -192,12 +192,6 @@ watch(noNegative, () => {
           v-model="checkForm['comment']"
         ></TextArea>
       </LabelSlot>
-      <LabelSlot :label="'Полиграф'">
-        <SwitchBox
-          :name="'pfo'"
-          v-model="checkForm['pfo']"
-        />
-      </LabelSlot>
       <BtnGroup @cancel="emit('cancel')"/>
     </form>
   </div>
