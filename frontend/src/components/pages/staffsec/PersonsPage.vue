@@ -164,3 +164,8 @@ const searchPerson = debounce(() => {
     </ul>
   </nav>
 </template>
+
+<style scoped>
+.spinner-grow .text-secondary {
+  animation: none 
+}
