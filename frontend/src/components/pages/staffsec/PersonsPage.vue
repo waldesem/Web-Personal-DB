@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { debounce, statusColor } from "@/utilities";
+import { debounce } from "@/utilities";
 import { axiosAuth } from "@/auth";
 import { stateClassify, server } from "@/state";
 import { Persons } from "@/interfaces";
@@ -121,18 +121,13 @@ const searchPerson = debounce(() => {
           {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
         </td>
         <td>
-          <label
-            :class="`fs-6 badge bg-${statusColor(candidate.standing)}`"
+          <div
+            v-if="candidate.standing"
+            class="spinner-grow spinner-grow-sm"
+:class="candidate.standing ? 'text-danger': 'textsecondary'}"
+            role="status"
           >
-            {{ candidate.standing }}
-            <span
-              v-if="candidate.standing == stateClassify.standing['manual']"
-              class="spinner-grow spinner-grow-sm"
-              role="status"
-            >
-            </span>
-        </label>
-
+          </div>
         </td>
         <td>
           {{ new Date (candidate.created).toLocaleDateString("ru-RU") }}
