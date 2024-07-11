@@ -53,8 +53,7 @@ function cancelAction() {
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
-                stateAnketa.anketa.persons['standing'] ==
-                  stateClassify.standing['manual']
+                stateAnketa.anketa.persons['standing']
               "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'relations')"
             @update="
