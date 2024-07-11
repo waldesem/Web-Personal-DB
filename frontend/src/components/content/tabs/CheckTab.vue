@@ -114,7 +114,6 @@ function cancelAction() {
         <LabelSlot :label="'Дополнительная информация'">
           {{ item["addition"] }}
         </LabelSlot>
-        <LabelSlot :label="'ПФО'">{{ item["pfo"] ? "Да" : "Нет" }}</LabelSlot>
         <LabelSlot :label="'Комментарии'">{{
           item["comment"] ? item["comment"] : "-"
         }}</LabelSlot>
