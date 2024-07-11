@@ -443,9 +443,6 @@ def get_item_id(item, item_id):
             execute(
                 "UPDATE persons SET standing = CASE WHEN standing = 0 THEN 1 ELSE 0 END, user_id = ? WHERE id = ?",
                 (
-                    Statuses.manual.value,
-                    Statuses.finish.value,
-                    Statuses.manual.value,
                     current_user["id"],
                     item_id,
                 ),
@@ -483,20 +480,6 @@ def post_item_id(item, item_id):
             item, ",".join(keys), ",".join(["?"] * len(keys))
         )
         execute(stmt, args)
-
-        if (
-            item == "checks"
-            and json_dict.get("conclusion") != Conclusions.saved.value
-            and json_dict.get("pfo")
-        ):
-            execute(
-                "UPDATE persons SET standing = ? WHERE id = ?",
-                (
-                    Statuses.poligraf.value,
-                    item_id,
-                ),
-            )
-        return "", 201
     except Exception as e:
         print(e)
         return "", 400
