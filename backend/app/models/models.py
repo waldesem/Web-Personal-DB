@@ -125,7 +125,6 @@ class Check(QueryModel):
     cronos: Optional[str] = None
     cros: Optional[str] = None
     addition: Optional[str] = None
-    pfo: Optional[bool] = False
     comment: Optional[str] = None
     conclusion: Optional[Conclusions] = None
 
