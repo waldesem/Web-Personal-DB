@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateUser, stateClassify } from "@/state";
+import { stateAnketa, stateUser } from "@/state";
 import { Verification } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
@@ -52,8 +52,7 @@ function cancelAction() {
             v-show="
               actions &&
               stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
-              stateAnketa.anketa.persons['standing'] ==
-                stateClassify.standing['manual']
+              stateAnketa.anketa.persons['standing']
             "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="

@@ -470,6 +470,7 @@ def post_item_id(item, item_id):
         code of 400.
     """
     json_data = request.get_json()
+    print(json_data)
     try:
         json_dict = models_tables[item](**json_data).dict()
         json_dict["person_id"] = item_id
@@ -480,9 +481,10 @@ def post_item_id(item, item_id):
             item, ",".join(keys), ",".join(["?"] * len(keys))
         )
         execute(stmt, args)
+        return "", 201
     except Exception as e:
         print(e)
-        return "", 400
+        return abort(400)
 
 
 @bp.delete("/<item>/<int:item_id>")
@@ -497,8 +499,10 @@ def delete_item(item, item_id):
 
     Returns:
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
-        code of 204 if the operation is successful.
+        code of 204 if the operation is successful or an HTTP status
+        code of 400.
     """
     stmt = "DELETE FROM {} WHERE id = ?".format(item)
-    execute(stmt, (item_id,))
+    if execute(stmt, (item_id,)) == "Error":
+        return abort(400)
     return "", 204

@@ -35,7 +35,7 @@ class Educations(Enum):
 
 
 class Documents(Enum):
-    passport = "Паспорт гражданина России"
+    passport = "Паспорт"
     foreign_passport = "Загранпаспорт"
     others = "Другое"
 

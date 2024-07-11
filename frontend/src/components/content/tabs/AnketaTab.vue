@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateUser, stateClassify } from "@/state";
-import { statusColor } from "@/utilities";
+import { stateAnketa, stateUser } from "@/state";
 import type { Persons } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
@@ -70,8 +69,7 @@ const dataResume = ref({
         v-show="
           dataResume.showActions &&
           stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
-          stateAnketa.anketa.persons['standing'] ==
-            stateClassify.standing['manual']
+          stateAnketa.anketa.persons['standing']
         "
         @delete="
           stateAnketa.deleteItem(stateAnketa.anketa.persons['id'], 'persons')
@@ -123,13 +121,6 @@ const dataResume = ref({
     </LabelSlot>
     <LabelSlot :label="'Семейное положение'">
       {{ stateAnketa.anketa.persons["marital"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Статус'">
-      <label 
-        :class="`fs-6 badge bg-${statusColor(stateAnketa.anketa.persons['standing'])}`"
-      >
-      {{ stateAnketa.anketa.persons["standing"] }}
-    </label>
     </LabelSlot>
     <LabelSlot :label="'Дата записи'">
       {{

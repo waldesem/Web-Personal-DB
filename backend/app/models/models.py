@@ -146,16 +146,16 @@ class Inquiry(QueryModel):
 
 models_tables = {
     "previous": Prev,
+    "educations": Education,
     "staffs": Staff,
     "documents": Document,
     "addresses": Address,
     "contacts": Contact,
-    "educations": Education,
+    "relations": Relation,
     "workplaces": Workplace,
     "affilations": Affilation,
-    "relations": Relation,
     "checks": Check,
-    "investigations": Investigation,
     "poligrafs": Poligraf,
+    "investigations": Investigation,
     "inquiries": Inquiry,
 }

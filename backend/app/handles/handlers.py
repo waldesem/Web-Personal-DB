@@ -59,7 +59,7 @@ def handle_post_resume(data):
             if person:
                 resume["id"] = person["id"]
 
-            resume["standing"] = False
+            resume["standing"] = True
             resume["user_id"] = current_user["id"]
             
         keys, args = zip(*resume.items())

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
-import { stateAnketa, stateClassify, stateUser } from "@/state";
+import { stateAnketa, stateUser } from "@/state";
 
 onBeforeMount(async () => {
   await stateAnketa.getItem("image");
@@ -37,8 +37,7 @@ const photoCard = ref({
         v-show="
           photoCard.showPhoto &&
           stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
-          stateAnketa.anketa.persons['standing'] ==
-            stateClassify.standing['manual']
+          stateAnketa.anketa.persons['standing']
         "
         class="card-img-overlay"
       >

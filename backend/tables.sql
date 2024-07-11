@@ -34,7 +34,7 @@ CREATE TABLE
 		destination TEXT,
 		created DATETIME DEFAULT (DATETIME ('now')),
 		region VARCHAR(255) NOT NULL,
-		standing BOOLEAN DEFAULT 1,
+		standing BOOLEAN DEFAULT 0,
 		user_id INTEGER,
 		PRIMARY KEY (id),
 		UNIQUE (id),

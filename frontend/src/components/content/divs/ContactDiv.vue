@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateClassify, stateUser } from "@/state";
+import { stateAnketa, stateUser } from "@/state";
 import { Contact } from "@/interfaces";
 
 const DropDownHead = defineAsyncComponent(

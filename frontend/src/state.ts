@@ -29,7 +29,6 @@ export const stateUser = reactive({
 
 export const stateClassify = reactive({
   regions: <Record<string, any>>{},
-  standing: <Record<string, any>>{},
   conclusions: <Record<string, any>>{},
   relations: <Record<string, any>>{},
   affilations: <Record<string, any>>{},
@@ -120,7 +119,6 @@ export const stateAnketa = {
         form
       );
       console.log(response.status);
-      if (["checks", "poligrafs"].includes(param)) this.getItem("persons");
       this.getItem(param);
       stateAlert.setAlert("alert-success", "Запись успешно добавлена");
     } catch (error: any) {

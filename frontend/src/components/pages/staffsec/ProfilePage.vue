@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa, stateClassify, server } from "@/state";
+import { stateUser, stateAnketa, server } from "@/state";
 import { useRoute } from "vue-router";
 import { axiosAuth } from "@/auth";
 
@@ -33,22 +33,12 @@ onBeforeMount(async () => {
     const response = await axiosAuth.get(
       `${server}/profile/${stateAnketa.share.candId}`
     );
-    [
-      stateAnketa.anketa.persons,
-      stateAnketa.anketa.previous,
-      stateAnketa.anketa.staffs,
-      stateAnketa.anketa.documents,
-      stateAnketa.anketa.addresses,
-      stateAnketa.anketa.contacts,
-      stateAnketa.anketa.educations,
-      stateAnketa.anketa.workplaces,
-      stateAnketa.anketa.affilations,
-      stateAnketa.anketa.relations,
-      stateAnketa.anketa.checks,
-      stateAnketa.anketa.investigations,
-      stateAnketa.anketa.poligrafs,
-      stateAnketa.anketa.inquiries,
-    ] = response.data;
+    const resp = response.data;
+    const anketaKeys = Object.keys(stateAnketa.anketa);
+    for (let i = 0; i < anketaKeys.length; i++) {
+      stateAnketa.anketa[anketaKeys[i] as keyof typeof stateAnketa.anketa] =
+        resp[i];
+    }
   } catch (error: any) {
     console.error(error);
   }
@@ -129,16 +119,15 @@ async function switchTabs(tab: string) {
               ? 'btn btn-link'
               : 'btn btn-lg btn-outline-primary'
           "
-          :title="stateAnketa.anketa.persons['standing']
-            ? 'Включить режим проверки'
-            : 'Отключить режим проверки'"
+          :title="
+            stateAnketa.anketa.persons['standing']
+              ? 'Отключить режим проверки'
+              : 'Включить режим проверки'
+          "
           @click="switchStandings"
         >
           <span
-            v-if="
-              stateAnketa.anketa.persons['standing'] ==
-              stateClassify.standing['manual']
-            "
+            v-if="stateAnketa.anketa.persons['standing']"
             class="spinner-grow text-danger"
             role="status"
           >

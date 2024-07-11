@@ -2,8 +2,9 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce } from "@/utilities";
 import { axiosAuth } from "@/auth";
-import { stateClassify, server } from "@/state";
+import { server } from "@/state";
 import { Persons } from "@/interfaces";
+import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
@@ -54,6 +55,10 @@ async function getCandidates(page = 1): Promise<void> {
 const searchPerson = debounce(() => {
   getCandidates();
 }, 500);
+
+function openProfile (person_id: string) {
+  router.push({ name: "profile", params: { id: person_id } });
+}
 </script>
 
 <template>
@@ -72,7 +77,10 @@ const searchPerson = debounce(() => {
       />
     </form>
   </div>
-  <TableSlots v-if="personData.candidates.length">
+  <TableSlots 
+    :class="'table align-middle table-hover'"
+    v-if="personData.candidates.length"
+    >
     <template v-slot:caption>{{ `Обновлено: ${personData.updated}` }}
       <a 
         class="btn btn-link fs-5" 
@@ -87,12 +95,12 @@ const searchPerson = debounce(() => {
     <template v-slot:thead>
       <tr height="50px">
         <th width="5%">#</th>
-        <th width="13%">Регион</th>
+        <th width="15%">Регион</th>
         <th>Фамилия Имя Отчество</th>
-        <th width="13%">Дата рождения</th>
-        <th width="13%">Статус</th>
-        <th width="13%">Обновлено</th>
-        <th width="13%">Сотрудник</th>
+        <th width="15%">Дата рождения</th>
+        <th width="15%">Обновлено</th>
+        <th width="15%">Сотрудник</th>
+        <th width="5%" class="text-center">Статус</th>
       </tr>
     </template>
     <template v-slot:tbody>
@@ -100,34 +108,19 @@ const searchPerson = debounce(() => {
         v-for="candidate in personData.candidates"
         :key="candidate.id"
         height="50px"
+        @click="openProfile(candidate.id)"
       >
         <td>{{ candidate.id }}</td>
         <td>{{ candidate.region }}</td>
-        <td>
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { id: candidate.id },
-            }"
-          >
-            {{
-              `${candidate.surname} ${candidate.firstname} ${
-                candidate.patronymic ? candidate.patronymic : ""
-              }`
-            }}
-          </router-link>
+        <td> 
+          {{
+            `${candidate.surname} ${candidate.firstname} ${
+              candidate.patronymic ? candidate.patronymic : ""
+            }`
+          }}
         </td>
         <td>
           {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
-        </td>
-        <td>
-          <div
-            v-if="candidate.standing"
-            class="spinner-grow spinner-grow-sm"
-:class="candidate.standing ? 'text-danger': 'textsecondary'}"
-            role="status"
-          >
-          </div>
         </td>
         <td>
           {{ new Date (candidate.created).toLocaleDateString("ru-RU") }}
@@ -136,6 +129,16 @@ const searchPerson = debounce(() => {
           {{
             candidate.username ? candidate.username.toString().split(" ")[0] : ""
           }}
+        </td>
+        <td class="text-center">
+          <div
+            v-if="candidate.standing"
+            class="spinner-grow spinner-grow-sm text-danger"
+            role="status"
+            :title="'Проверка'"
+          >
+          </div>
+          <div v-else :title="'Окончено'">&#128994</div>
         </td>
       </tr>
     </template>
@@ -166,6 +169,7 @@ const searchPerson = debounce(() => {
 </template>
 
 <style scoped>
-.spinner-grow .text-secondary {
-  animation: none;!important 
+tbody td {
+  cursor: pointer;
 }
+</style>

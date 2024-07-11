@@ -13,7 +13,6 @@ onBeforeMount(async () => {
     const response = await axiosAuth.get(`${server}/classes`);
     [
       stateClassify.regions,
-      stateClassify.standing,
       stateClassify.conclusions,
       stateClassify.relations,
       stateClassify.affilations,
