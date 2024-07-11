@@ -200,7 +200,6 @@ CREATE TABLE
 		cronos TEXT,
 		cros TEXT,
 		addition TEXT,
-		pfo BOOLEAN,
 		comment TEXT,
 		created DATETIME DEFAULT (DATETIME ('now')),
 		conclusion VARCHAR(255),
