@@ -426,16 +426,16 @@ def post_resume():
 
 @bp.get("/persons/<int:item_id>")
 @user_required()
-def get_resume(item, item_id):
+def get_resume(item_id):
     if request.args.get("action") == "self":
         execute(
-                "UPDATE persons SET standing = CASE WHEN standing = 0 THEN 1 ELSE 0 END, user_id = ? WHERE id = ?",
-                (
-                    current_user["id"],
-                    item_id,
-                ),
-            )
-    result =      handle_get_person(item_id)
+            "UPDATE persons SET standing = CASE WHEN standing = 0 THEN 1 ELSE 0 END, user_id = ? WHERE id = ?",
+            (
+                current_user["id"],
+                item_id,
+            ),
+        )
+    result = handle_get_person(item_id)
     return jsonify(result), 200
 
 

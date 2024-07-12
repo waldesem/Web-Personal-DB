@@ -11,6 +11,8 @@ def main():
     Example usage:
         For debugging:
             python server.py --host 127.0.0.1 --port 5000 --mode debug
+        or:
+            python server.py
 
         For development:
             python server.py --host 127.0.0.1 --port 5000 --mode dev

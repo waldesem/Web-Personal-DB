@@ -1,9 +1,10 @@
 import os
 import sqlite3
 
+from werkzeug.security import generate_password_hash
+
 from app.classes.classes import Regions
 from config import Config
-from werkzeug.security import generate_password_hash
 
 
 def init_app():
