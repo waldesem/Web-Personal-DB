@@ -15,10 +15,10 @@ def main():
             python server.py
 
         For development:
-            python server.py --host 127.0.0.1 --port 5000 --mode dev
+            python server.py --host 127.0.0.1 --port 5000 --mode develop
 
         For production:
-            python server.py --host 127.0.0.1 --port 8000 --mode prod
+            python server.py --host 127.0.0.1 --port 5000 --mode prod
 
     """
     parser = argparse.ArgumentParser(description="Run the application server.")

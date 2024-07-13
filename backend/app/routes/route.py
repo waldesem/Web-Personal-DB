@@ -65,7 +65,6 @@ def get_information():
         SELECT checks.conclusion, count(checks.id) as count FROM checks
         LEFT JOIN persons on checks.person_id = persons.id
         WHERE persons.region = ?
-        AND checks.conclusion <> ?
         AND checks.created BETWEEN ? AND ?
         GROUP BY conclusion
         """,
@@ -74,7 +73,6 @@ def get_information():
             query_data["region"]
             if query_data.get("region")
             else current_user.get("region"),
-            Conclusions.saved.value,
             query_data["start"],
             query_data["end"],
         ),
@@ -474,7 +472,6 @@ def post_item_id(item, item_id):
         code of 400.
     """
     json_data = request.get_json()
-    print(json_data)
     try:
         json_dict = models_tables[item](**json_data).dict()
         json_dict["person_id"] = item_id
