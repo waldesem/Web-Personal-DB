@@ -20,6 +20,22 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+To Use a PostgreSQL Database in Application install PostgreSQL
+```
+sudo apt-get -y install postgresql postgresql-contrib
+sudo systemctl start postgresql.service
+sudo systemctl enable postgresql.service
+```
+Creating the PostgreSQL Database and User
+
+```
+sudo -iu postgres psql
+CREATE DATABASE personal;
+CREATE USER flask WITH PASSWORD 'flask';
+GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
+\q
+```
+Change DATABASE_URI in config.py
 
 ### Start backend
 

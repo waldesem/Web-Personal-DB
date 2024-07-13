@@ -1,6 +1,17 @@
 import sqlite3
 
+import psycopg2
+
 from flask import current_app
+
+
+def connect_to_database():
+    connection = (
+        sqlite3.connect(current_app.config["SQLITE_URI"])
+        if "sqlite" in current_app.config["DATABASE_URI"]
+        else psycopg2.connect(current_app.config["POSTGRE_URI"])
+    )
+    return connection
 
 
 def execute(query, args=None):
@@ -18,7 +29,7 @@ def execute(query, args=None):
         sqlite3.Error: If an error occurs while executing the query.
 
     """
-    with sqlite3.connect(current_app.config["DATABASE_URI"], timeout=1) as con:
+    with connect_to_database() as con:
         cursor = con.cursor()
         try:
             if isinstance(args, list):
@@ -27,7 +38,7 @@ def execute(query, args=None):
                 result = cursor.execute(query, args) if args else cursor.execute(query)
                 con.commit()
                 return result.lastrowid
-        except sqlite3.Error as e:
+        except con.Error as e:
             print(f"Error: {e}")
             con.rollback()
             return "Error"
@@ -50,7 +61,7 @@ def select(query, many=False, args=None):
         sqlite3.Error: If an error occurs while executing the query.
 
     """
-    with sqlite3.connect(current_app.config["DATABASE_URI"], timeout=1) as con:
+    with connect_to_database() as con:
         cursor = con.cursor()
         try:
             cursor.execute(query, args) if args else cursor.execute(query)
@@ -64,7 +75,7 @@ def select(query, many=False, args=None):
 
             return [] if many else None
 
-        except sqlite3.Error as e:
+        except con.Error as e:
             print(f"Error: {e}")
             con.rollback()
             return "Error"

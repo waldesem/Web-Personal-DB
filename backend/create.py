@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import psycopg2
 
 from werkzeug.security import generate_password_hash
 
@@ -20,31 +21,47 @@ def init_app():
                 os.mkdir(letter_path)
     print("Default directories created")
 
-    with open("tables.sql", "r", encoding="utf-8") as file:
+    file = (
+        open("sqlite.sql", "r", encoding="utf-8")
+        if "sqlite" in Config.DATABASE_URI
+        else open("psql.sql", "r", encoding="utf-8")
+    )
+    with file:
         sql = file.read()
-        with sqlite3.connect(Config.DATABASE_URI) as con:
-            cursor = con.cursor()
+        connection = (
+            sqlite3.connect(Config.SQLITE_URI)
+            if "sqlite" in Config.DATABASE_URI
+            else psycopg2.connect(Config.POSTGRE_URI)
+        )
+
+        with connection:
+            cursor = connection.cursor()
             try:
-                cursor.executescript(sql)
-                con.commit()
+                if "sqlite" in Config.DATABASE_URI:
+                    cursor.executescript(sql)
+                else:
+                    cursor.execute(sql)
+                connection.commit()
                 print("Database created")
 
                 cursor.execute(
                     """
-                    INSERT OR REPLACE INTO users 
+                    INSERT INTO users 
                     (fullname, username, passhash, has_admin, region) 
-                    VALUES ('Супер Админ', 'superadmin', ?, 1, ?)
+                    VALUES ('Супер Админ', 'superadmin', %s, %s, %s)
+                    ON CONFLICT DO NOTHING
                     """,
                     (
                         generate_password_hash(Config.DEFAULT_PASSWORD),
+                        True,
                         Regions.main.value,
                     ),
                 )
-                con.commit()
+                connection.commit()
                 print("Superadmin created")
-            except sqlite3.Error as e:
+            except connection.Error as e:
                 print(f"Error: {e}")
-                con.rollback()
+                connection.rollback()
 
 
 if __name__ == "__main__":

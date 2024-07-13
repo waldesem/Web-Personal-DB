@@ -17,6 +17,6 @@ class Config:
         setting["Postgre"]["port"],
         setting["Postgre"]["dbname"],
     )
-    DATABASE_URI = SQLITE_URI
+    DATABASE_URI = 'sqlite' # psycopg2 or sqlite
     BASE_PATH = os.path.join(basedir, "..", "persons")
     DEFAULT_PASSWORD = "8" * 8
