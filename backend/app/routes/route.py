@@ -4,6 +4,8 @@ import re
 from datetime import datetime
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
+from sqlalchemy import desc, func, select
+from sqlalchemy.orm import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..classes.classes import (
@@ -17,7 +19,6 @@ from ..classes.classes import (
     Regions,
     Relations,
 )
-from ..databases.database import execute, select
 from ..depends.depend import (
     create_token,
     current_user,
@@ -27,11 +28,11 @@ from ..depends.depend import (
 )
 from ..handles.handlers import (
     handle_get_item,
-    handle_get_person,
     handle_post_resume,
     handle_update_person,
 )
-from ..models.models import User, models_tables
+from ..model.models import User, models_tables
+from ..model.tables import Checks, Persons, Users, engine, tables_models
 
 bp = Blueprint("route", __name__)
 
@@ -60,26 +61,19 @@ def get_classes():
 @user_required()
 def get_information():
     query_data = request.args
-    result = select(
-        """
-        SELECT checks.conclusion, count(checks.id) as count FROM checks
-        LEFT JOIN persons on checks.person_id = persons.id
-        WHERE persons.region = ?
-        AND checks.created BETWEEN ? AND ?
-        GROUP BY conclusion
-        """,
-        many=True,
-        args=(
-            query_data["region"]
-            if query_data.get("region")
-            else current_user.get("region"),
-            query_data["start"],
-            query_data["end"],
-        ),
-    )
-    if result == "Error":
-        return abort(400)
-    return jsonify(result), 200
+    with Session(engine) as session:
+        result = session.execute(
+            select(Checks.conclusion, func.count(Checks.id))
+            .join(Persons, Checks.person_id == Persons.id)
+            .filter(
+                Checks.created.between(
+                    query_data["start"],
+                    query_data["end"]),
+                    Persons.region == query_data["region"],
+            )
+            .group_by(Checks.conclusion)
+        ).all()
+        return jsonify(result), 200
 
 
 @bp.post("/login/<action>")
@@ -98,45 +92,42 @@ def post_login(action):
         None
     """
     json_data = request.get_json()
-    user = select(
-        "SELECT * FROM users WHERE username = ?",
-        args=(json_data.get("username"),),
-    )
-    if not user or user.get("blocked") or user.get("deleted"):
-        return abort(400)
+    with Session(engine) as session:
+        user = session.execute(
+            select(Users).where(Users.username == json_data.get("username"))
+        ).scalar_one_or_none()
+        if not user or user.blocked or user.deleted:
+            return abort(400)
 
-    args = []
-    stmt = "UPDATE users SET "
-    if not check_password_hash(user["passhash"], json_data["password"]):
-        if user["attempt"] < 5:
-            stmt += "attempt = ? "
-            args.append(user["attempt"] + 1)
-        else:
-            stmt += "blocked = 1 "
-        args.append(user.get("id"))
-        execute(stmt + "WHERE id = ?", tuple(args))
-        return abort(400)
+        if not check_password_hash(user.passhash, json_data["password"]):
+            if user.attempt < 5:
+                user.attempt += 1
+            else:
+                user.blocked = True
+            session.commit()
+            return abort(400)
 
-    if action == "update":
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
-        if re.match(pattern, json_data["new_pswd"]):
-            stmt += "passhash = ?, change_pswd = 0, attempt = 0 WHERE id = ?"
-            args.extend([generate_password_hash(json_data["new_pswd"]), user["id"]])
-            execute(stmt, tuple(args))
-            return "", 201
+        if action == "update":
+            pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
+            if re.match(pattern, json_data["new_pswd"]):
+                user.passhash = generate_password_hash(json_data["new_pswd"])
+                user.change_pswd = False
+                user.attempt = 0
+                session.commit()
+                return "", 201
+            return "", 205
+
+        delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
+        if not user.change_pswd and delta_change.days < 365:
+            if user.attempt > 0:
+                user.attempt = 0
+                session.commit()
+            return jsonify(
+                {
+                    "user_token": create_token(user),
+                }
+            ), 200
         return "", 205
-
-    delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
-    if not user["change_pswd"] and delta_change.days < 365:
-        if user["attempt"] > 0:
-            stmt += "attempt = 0 WHERE id = ?"
-            execute(stmt, (user["id"],))
-        return jsonify(
-            {
-                "user_token": create_token(user),
-            }
-        ), 200
-    return "", 205
 
 
 @bp.get("/users")
@@ -151,12 +142,14 @@ def get_users():
     Returns:
         tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
     """
-    search_data = request.args.get("search")
-    stmt = "SELECT * FROM users "
-    if search_data and len(search_data) > 2:
-        stmt += "WHERE fullname LIKE '%{}%' ".format(search_data)
-    result = select(stmt + "ORDER BY id DESC", many=True)
-    return jsonify(result), 200
+    with Session(engine) as session:
+        search_data = request.args.get("search")
+        stmt = select(Users)
+        if search_data and len(search_data) > 2:
+            stmt.filter(Users.fullname.like("%" + search_data + "%"))
+        query = session.execute(stmt.order_by(desc(Users.id))).all()
+        result = [q.dict() for q in query]
+        return jsonify(result), 200
 
 
 @bp.post("/users")
@@ -179,27 +172,25 @@ def post_user():
         returns an empty response with status code 400.
     """
     json_data = request.get_json()
-    try:
-        json_dict = User(**json_data).dict()
-        user = select(
-            "SELECT id FROM users WHERE username = ?", args=(json_dict.get("username"),)
-        )
-        if user:
-            return "", 205
+    with Session(engine) as session:
+        try:
+            json_dict = User(**json_data).dict()
+            user = session.execute(
+                select(Users).where(Users.username == json_dict.get("username"))
+            ).all()
+            if user:
+                return "", 205
 
-        json_dict["passhash"] = generate_password_hash(
-            current_app.config["DEFAULT_PASSWORD"]
-        )
-        keys, args = zip(*json_dict.items())
-        query = "INSERT INTO users ({}) VALUES ({})".format(
-            ",".join(keys), ",".join("?" for _ in keys)
-        )
-        execute(query, args)
-        return "", 201
+            json_dict["passhash"] = generate_password_hash(
+                current_app.config["DEFAULT_PASSWORD"]
+            )
+            session.add(Users(**json_dict))
+            session.commit()
+            return "", 201
 
-    except Exception as e:
-        print(e)
-        return "", 400
+        except Exception as e:
+            print(e)
+            return "", 400
 
 
 @bp.get("/users/<int:user_id>")
@@ -216,19 +207,22 @@ def get_user_actions(user_id):
     Returns:
         The HTTP status code is 201.
     """
-    stmt = "UPDATE users SET "
-    args = []
-    if request.args.get("action") == "drop":
-        stmt += "passhash = ?, attempt = 0, blocked = 0, change_pswd = 1 "
-        args.append(generate_password_hash(current_app.config["DEFAULT_PASSWORD"]))
-    elif request.args.get("action") == "admin":
-        stmt += "has_admin = CASE WHEN has_admin = 0 THEN 1 ELSE 0 END "
-    elif request.args.get("action") == "delete":
-        stmt += "deleted = CASE WHEN deleted = 0 THEN 1 ELSE 0 END "
-        get_current_user.cache_clear()
-    args.append(user_id)
-    execute(stmt + "WHERE id = ?", tuple(args))
-    return "", 201
+    with Session(engine) as session:
+        user = session.get(Users, user_id)
+        if request.args.get("action") == "drop":
+            user.passhash = generate_password_hash(
+                current_app.config["DEFAULT_PASSWORD"]
+            )
+            user.attempt = 0
+            user.blocked = False
+            user.change_pswd = True
+        elif request.args.get("action") == "admin":
+            user.has_admin = not user.has_admin
+        elif request.args.get("action") == "delete":
+            user.deleted = not user.deleted
+            get_current_user.cache_clear()
+        session.commit()
+        return "", 201
 
 
 @bp.get("/index/<int:page>")
@@ -249,49 +243,44 @@ def get_index(page):
     Raises:
         None
     """
-    stmt = """
-        SELECT persons.*, users.fullname AS username 
-        FROM persons 
-        LEFT JOIN users ON persons.user_id = users.id 
-        """
-    cur_user = current_user
-    pagination = 14
-    args = []
-    search_data = request.args.get("search")
-    if search_data and len(search_data) > 2:
-        if search_data.isdigit():
-            stmt += "WHERE inn LIKE '%{}%' ".format(search_data)
 
+    with Session(engine) as session:
+        stmt = select(Persons, Users.fullname)
+        cur_user = current_user
+        pagination = 14
+        search_data = request.args.get("search")
+        if search_data and len(search_data) > 2:
+            if search_data.isdigit():
+                stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
+            else:
+                pattern = r"^\d{2}\.\d{2}\.\d{4}$"
+                query = list(map(str.upper, search_data.split()))
+                if len(query):
+                    stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
+                if len(query) > 1 and not re.match(pattern, query[1]):
+                    stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
+                if len(query) > 2 and not re.match(pattern, query[2]):
+                    stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
+                if len(query) > 1 and re.match(pattern, query[-1]):
+                    stmt.filter(
+                        Persons.birthday
+                        == datetime.strptime(query[-1], "%d.%m.%Y").date()
+                    )
+            if cur_user.region != Regions.main.value:
+                stmt.filter(Persons.region == cur_user.region)
         else:
-            pattern = r"^\d{2}\.\d{2}\.\d{4}$"
-            query = list(map(str.upper, search_data.split()))
-            if len(query):
-                stmt += "WHERE surname LIKE '%{}%' ".format(*query)
-            if len(query) > 1 and not re.match(pattern, query[1]):
-                stmt += "AND firstname LIKE '%{}%' ".format(query[1])
-            if len(query) > 2 and not re.match(pattern, query[2]):
-                stmt += "AND patronymic LIKE '%{}%' ".format(query[2])
-            if len(query) > 1 and re.match(pattern, query[-1]):
-                stmt += "AND birthday = ? "
-                args.append(datetime.strptime(query[-1], "%d.%m.%Y").date())
-
-        if cur_user["region"] != Regions.main.value:
-            stmt += "AND persons.region = ? "
-            args.append(cur_user["region"])
-    else:
-        if cur_user["region"] != Regions.main.value:
-            stmt += "WHERE persons.region = ? "
-            args.append(cur_user["region"])
-
-    stmt += "ORDER BY id DESC LIMIT {} OFFSET {}".format(
-        pagination + 1,
-        (page - 1) * pagination,
-    )
-    result = select(stmt, args=tuple(args), many=True)
-    has_next = len(result) > pagination
-    result = result[:pagination] if has_next else result
-
-    return jsonify([result, has_next, page > 1]), 200
+            if cur_user.region != Regions.main.value:
+                stmt.filter(Persons.region == cur_user.region)
+        stmt = (
+            stmt.order_by(desc(Persons.id))
+            .limit(pagination + 1)
+            .offset((page - 1) * pagination)
+        )
+        query = session.execute(stmt.join(Users, Persons.user_id == Users.id)).all()
+        has_next = len(query) > pagination
+        query = query[:pagination] if has_next else query
+        result = [row.__dict__ for row in query]
+        return jsonify([result, has_next, page > 1]), 200
 
 
 @bp.get("/image/<int:item_id>")
@@ -308,14 +297,17 @@ def get_image(item_id):
     Raises:
         None.
     """
-    person_path = select(
-        "SELECT destination FROM persons WHERE id = ?", args=(item_id,)
-    )
-    if person_path.get("destination"):
-        file_path = os.path.join(person_path["destination"], "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
+    with Session(engine) as session:
+        person_path = session.execute(
+            select(Persons.destination).where(Persons.id == item_id)
+        ).scalar_one_or_none()
+        if person_path.get("destination"):
+            file_path = os.path.join(person_path["destination"], "image", "image.jpg")
+            if os.path.isfile(file_path):
+                return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+        return send_file(
+            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+        )
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -344,43 +336,45 @@ def post_file(item, item_id):
             return jsonify({"person_id": person_id}), 201
         return abort(400)
 
-    person_dir = select(
-        "SELECT destination FROM persons WHERE id = ?",
-        args=(item_id,),
-    )
-    try:
-        if not os.path.isdir(person_dir["destination"]):
-            os.mkdir(person_dir["destination"])
+    with Session(engine) as session:
+        person_dir = session.scalars(
+            select(Persons.destination).where(Persons.id == item_id)
+        ).first()
+        if not person_dir:
+            return abort(400)
+        try:
+            if not os.path.isdir(person_dir["destination"]):
+                os.mkdir(person_dir["destination"])
 
-        item_dir = os.path.join(person_dir["destination"], item)
-        if not os.path.isdir(item_dir):
-            os.mkdir(item_dir)
+            item_dir = os.path.join(person_dir["destination"], item)
+            if not os.path.isdir(item_dir):
+                os.mkdir(item_dir)
 
-        if item == "image":
-            endwith = file.filename.split(".")[-1]
-            image_file = os.path.join(item_dir, "image." + endwith)
-            if os.path.isfile(image_file):
-                os.remove(image_file)
-            file.save(image_file)
+            if item == "image":
+                endwith = file.filename.split(".")[-1]
+                image_file = os.path.join(item_dir, "image." + endwith)
+                if os.path.isfile(image_file):
+                    os.remove(image_file)
+                file.save(image_file)
+                return "", 201
+
+            date_subfolder = os.path.join(
+                item_dir,
+                datetime.now().strftime("%Y-%m-%d"),
+            )
+            if not os.path.isdir(date_subfolder):
+                os.mkdir(date_subfolder)
+
+            files = request.files.getlist("file")
+            for file in files:
+                if file.filename:
+                    file_path = os.path.join(date_subfolder, file.filename)
+                    if not os.path.isfile(file_path):
+                        file.save(file_path)
             return "", 201
-
-        date_subfolder = os.path.join(
-            item_dir,
-            datetime.now().strftime("%Y-%m-%d"),
-        )
-        if not os.path.isdir(date_subfolder):
-            os.mkdir(date_subfolder)
-
-        files = request.files.getlist("file")
-        for file in files:
-            if file.filename:
-                file_path = os.path.join(date_subfolder, file.filename)
-                if not os.path.isfile(file_path):
-                    file.save(file_path)
-        return "", 201
-    except OSError as e:
-        print(e)
-        return abort(400)
+        except OSError as e:
+            print(e)
+            return abort(400)
 
 
 @bp.get("/profile/<int:person_id>")
@@ -397,10 +391,11 @@ def get_profile(person_id):
         A tuple containing a list of dictionaries representing the person's
         information and an HTTP status code of 200.
     """
-    result = [handle_get_person(person_id)]
-    for item in models_tables.keys():
-        result.append(handle_get_item(item, person_id))
-    return jsonify(result), 200
+    with Session(engine) as session:
+        result = [session.get(Persons, person_id).to_dict()]
+        for item in models_tables.keys():
+            result.append(handle_get_item(item, person_id))
+        return jsonify(result), 200
 
 
 @bp.post("/persons")
@@ -425,16 +420,28 @@ def post_resume():
 @bp.get("/persons/<int:item_id>")
 @user_required()
 def get_resume(item_id):
-    if request.args.get("action") == "self":
-        execute(
-            "UPDATE persons SET standing = CASE WHEN standing = 0 THEN 1 ELSE 0 END, user_id = ? WHERE id = ?",
-            (
-                current_user["id"],
-                item_id,
-            ),
-        )
-    result = handle_get_person(item_id)
-    return jsonify(result), 200
+    """
+    Retrieves information related to a person.
+
+    Parameters:
+        person_id (int): The ID of the person for whom to retrieve all information.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the person's
+        information and an HTTP status code of 200.
+    """
+    with Session(engine) as session:
+        person = session.get(Persons, item_id)
+        if request.args.get("action") == "self":
+            person.standing = not person.standing
+            person.user_id = current_user.id
+            session.commit()
+        result = session.execute(
+            select(Persons, User.fullname)
+            .filter(Persons.id == item_id)
+            .join(User.fullname, person.user_id == User.id)
+        ).one_or_none()
+        return jsonify(result), 200
 
 
 @bp.get("/<item>/<int:item_id>")
@@ -477,11 +484,9 @@ def post_item_id(item, item_id):
         json_dict["person_id"] = item_id
         json_dict["user_id"] = current_user["id"]
 
-        keys, args = zip(*json_dict.items())
-        stmt = "INSERT OR REPLACE INTO {} ({}) VALUES ({})".format(
-            item, ",".join(keys), ",".join(["?"] * len(keys))
-        )
-        execute(stmt, args)
+        with Session(engine) as session:
+            session.merge(tables_models[item](**json_dict))
+            session.commit()
         return "", 201
     except Exception as e:
         print(e)
@@ -503,7 +508,9 @@ def delete_item(item, item_id):
         code of 204 if the operation is successful or an HTTP status
         code of 400.
     """
-    stmt = "DELETE FROM {} WHERE id = ?".format(item)
-    if execute(stmt, (item_id,)) == "Error":
-        return abort(400)
+    with Session(engine) as session:
+        item = session.get(tables_models[item], item_id)
+        if not item:
+            return abort(400)
+        session.delete(item)
     return "", 204

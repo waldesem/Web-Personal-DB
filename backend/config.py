@@ -9,7 +9,7 @@ setting.read(os.path.join(basedir, "settings.ini"))
 
 class Config:
     SECRET_KEY = secrets.token_hex(16)
-    SQLITE_URI = os.path.join(basedir, "..", "database.db")
+    SQLITE_URI = os.path.join("sqlite:///database.db")
     POSTGRE_URI = "postgresql://{}:{}@{}:{}/{}".format(
         setting["Postgre"]["user"],
         setting["Postgre"]["password"],
@@ -17,6 +17,6 @@ class Config:
         setting["Postgre"]["port"],
         setting["Postgre"]["dbname"],
     )
-    DATABASE_URI = 'sqlite' # psycopg2 or sqlite
+    DATABASE_URI = POSTGRE_URI
     BASE_PATH = os.path.join(basedir, "..", "persons")
     DEFAULT_PASSWORD = "8" * 8

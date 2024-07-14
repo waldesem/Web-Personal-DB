@@ -39,10 +39,6 @@ Change DATABASE_URI in config.py
 
 ### Start backend
 
-To create database and default admin user run in terminal:
-```
-python create.py
-```
 To start a server run the command in terminal:
 ```
 python server.py # for debug mode; more options see in the server.py

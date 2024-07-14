@@ -3,9 +3,10 @@ from datetime import datetime
 from functools import lru_cache, wraps
 
 from flask import abort, current_app, g, request
+from sqlmodel import Session
 from werkzeug.local import LocalProxy
 
-from ..databases.database import select
+from ..model.tables import Users, engine
 
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
@@ -37,21 +38,22 @@ def get_current_user(user_id):
         user_id (int): The ID of the user.
 
     Returns:
-        dict or None: A dictionary containing the user's information if the user exists,
+        dict or None: A instance containing the user's information if the user exists,
             is not blocked, not deleted, and has not changed password in the last year.
             Otherwise, returns None.
     """
-    user = select("SELECT * FROM users WHERE id = ?", args=(user_id,))
-    delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
-    if (
-        user
-        and not user["blocked"]
-        and not user["deleted"]
-        and not user["change_pswd"]
-        and delta_change.days < 365
-    ):
-        return user
-    return None
+    with Session(engine) as session:
+        user = session.get(Users, user_id)
+        delta_change = datetime.now() - datetime.fromisoformat(user.change_pswd)
+        if (
+            user
+            and not user.blocked
+            and not user.deleted
+            and not user.change_pswd
+            and delta_change.days < 365
+        ):
+            return user
+        return None
 
 
 def create_token(user):
@@ -70,9 +72,9 @@ def create_token(user):
     """
     token_parts = [
         current_app.config["SECRET_KEY"],
-        str(user["id"]),
-        user["username"],
-        str(user["has_admin"]),
+        str(user.id),
+        user.username,
+        str(user.has_admin),
     ]
     token = ":".join(token_parts)
     return b64encode(token.encode()).decode()

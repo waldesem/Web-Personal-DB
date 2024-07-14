@@ -1,34 +1,24 @@
 import os
 
-from flask import current_app 
+from flask import current_app
+from sqlalchemy import desc, select
+from sqlalchemy.orm import Session
 
-from ..databases.database import execute, select
 from ..depends.depend import current_user
-from ..models.models import Person
+from ..model.models import Person
+from ..model.tables import Users, engine, Persons, tables_models
 from ..tools.jsonylize import parse_json
 
 
-def handle_get_person(person_id):
-    result = select(
-        """
-        SELECT persons.*, users.fullname AS username 
-        FROM persons
-        LEFT JOIN users ON persons.user_id = users.id 
-        WHERE persons.id = ?""",
-        args=(person_id,),
-    )
-    return result
-
-
 def handle_get_item(item, item_id):
-    if item in ["checks", "poligrafs", "inquiries", "investigations"]:
-        stmt = f"SELECT {item}.*, users.fullname AS user FROM {item} LEFT JOIN users ON {item}.user_id = users.id "
-    else:
-        stmt = f"SELECT * FROM {item} "
-    result = select(
-        stmt + "WHERE person_id = ? ORDER BY id ASC", many=True, args=(item_id,)
-    )
-    return result
+    with Session(engine) as session:
+        results = session.execute(
+            select(tables_models[item], Users.fullname)
+            .where(tables_models[item].person_id == item_id)
+            .join(Users, tables_models[item].user_id == Persons.user_id)
+            .order_by(desc(tables_models[item].id))
+        ).all()
+    return [result.__dict__ for result in results]
 
 
 def handle_post_resume(data):
@@ -45,52 +35,44 @@ def handle_post_resume(data):
         Exception: If there is an error updating the resume.
 
     """
-    try:
-        resume = Person(**data).dict()
-        if not resume["id"]:
-            stmt = """
-                SELECT * FROM persons 
-                WHERE surname LIKE '%{}%' 
-                AND firstname LIKE '%{}%' 
-                AND patronymic LIKE '%{}%'
-                AND birthday = ?
-                """.format(resume["surname"], resume["firstname"], resume["patronymic"])
-            person = select(stmt, args=(resume["birthday"],))
-            if person:
-                resume["id"] = person["id"]
-
+    with Session(engine) as session:
+        try:
+            resume = Person(**data).dict()
             resume["standing"] = True
-            resume["user_id"] = current_user["id"]
-            
-        keys, args = zip(*resume.items())
-        stmt = "INSERT OR REPLACE INTO persons ({}) VALUES ({})".format(
-            ", ".join(keys),
-            ", ".join(["?" for _ in keys]),
-        )
-        person_id = execute(stmt, args)
+            resume["user_id"] = current_user.id
+            if not resume["id"]:
+                person = session.execute(
+                    select(Persons).where(
+                        Persons.surname.ilike("%{}%".format(resume["surname"])),
+                        Persons.firstname.ilike("%{}%".format(resume["firstname"])),
+                        Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
+                        Persons.birthday == resume["birthday"],
+                    )
+                ).one_or_none()
+                if person:
+                    resume['id'] = person.id
+           
+            result = session.merge(Persons(**resume))
+            session.commit()
 
-        person_dir = os.path.join(
-            current_app.config["BASE_PATH"],
-            resume["region"],
-            resume["surname"][0].upper(),
-            f"{person_id}-{resume['surname'].upper()} "
-            f"{resume['firstname'].upper()} "
-            f"{resume.get('patronymic', '').upper()}".rstrip(),
-        )
-        if not os.path.isdir(person_dir):
-            os.mkdir(person_dir)
+            person_dir = os.path.join(
+                current_app.config["BASE_PATH"],
+                resume["region"],
+                resume["surname"][0].upper(),
+                f"{result.id}-{resume['surname'].upper()} "
+                f"{resume['firstname'].upper()} "
+                f"{resume.get('patronymic', '').upper()}".rstrip(),
+            )
+            if not os.path.isdir(person_dir):
+                os.mkdir(person_dir)
 
-        execute(
-            "UPDATE persons SET destination = ? WHERE id = ?",
-            (
-                person_dir,
-                person_id,
-            ),
-        )
-        return person_id
-    except Exception as e:
-        print(e)
-        return None
+            person = session.get(Person, result.id)
+            person.destination = person_dir
+            session.commit()
+            return result.id
+        except Exception as e:
+            print(e)
+            return None
 
 
 def handle_update_person(json_data):
@@ -112,11 +94,13 @@ def handle_update_person(json_data):
     if anketa:
         person_id = handle_post_resume(anketa["resume"])
         if person_id:
-            for table, contents in anketa.items():
-                if table == "resume" or not contents:
-                    continue
-                keys = list(contents[0].keys()) + ["person_id"]
-                args = [tuple(list(cont.values()) + [person_id]) for cont in contents]
-                stmt = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(['?' for _ in keys])})"
-                execute(stmt, args)
+            with Session(engine) as session:
+                for table, contents in anketa.items():
+                    if table == "resume" or not contents:
+                        continue
+                    items = [
+                        content.update({"person_id": person_id}) for content in contents
+                    ]
+                    session.add_all(tables_models[table](**item) for item in items)
+                    session.commit()
     return person_id
