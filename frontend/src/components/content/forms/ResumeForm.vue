@@ -142,7 +142,7 @@ async function submitResume(): Promise<void> {
     <LabelSlot :label="'Семейное положение'">
       <InputElement
         :name="'marital'"
-        :place="'marital'"
+        :place="'Семейное положение'"
         v-model="resumeForm['marital']"
       />
     </LabelSlot>

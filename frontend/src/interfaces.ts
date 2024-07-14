@@ -48,7 +48,7 @@ export interface Education {
   view: string;
   institution: string;
   finished: string;
-  speciality: string;
+  specialty: string;
   created: string;
 }
 

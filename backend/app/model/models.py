@@ -42,8 +42,8 @@ class Name(QueryModel):
 
 class Person(Name):
     birthday: date
-    birthplace: Optional[str] = "Москва"
-    citizenship: str = "Россия"
+    birthplace: Optional[str] = None
+    citizenship: str = None
     dual: Optional[str] = None
     snils: Optional[int] = None
     inn: Optional[int] = None
@@ -62,7 +62,7 @@ class Education(QueryModel):
     view: Educations
     institution: str
     finished: Optional[str] = None
-    speciality: Optional[str] = None
+    specialty: Optional[str] = None
 
 
 class Staff(QueryModel):

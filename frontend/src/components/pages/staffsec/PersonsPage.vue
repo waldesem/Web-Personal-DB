@@ -44,6 +44,7 @@ async function getCandidates(page = 1): Promise<void> {
       personData.value.next,
       personData.value.prev,
     ] = response.data;
+
     personData.value.updated = `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`;

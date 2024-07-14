@@ -18,7 +18,9 @@ from config import Config
 
 
 class Base(DeclarativeBase):
-    pass
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Users(Base):
@@ -57,9 +59,6 @@ class Users(Base):
     investigations: Mapped[List["Investigations"]] = relationship(back_populates="users")
     inquiries: Mapped[List["Inquiries"]] = relationship(back_populates="users")
 
-    def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
 
 class Persons(Base):
     __tablename__ = "persons"
@@ -83,7 +82,7 @@ class Persons(Base):
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
     region: Mapped[str] = mapped_column(String(255), nullable=True)
-    standing: Mapped[str] = mapped_column(String(255), nullable=True)
+    standing: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
@@ -127,9 +126,6 @@ class Persons(Base):
         back_populates="persons", cascade="all, delete, delete-orphan"
     )
     users: Mapped[List["Users"]] = relationship(back_populates="persons")
-
-    def to_dict(self):
-            return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Previous(Base):
@@ -325,7 +321,7 @@ class Checks(Base):
     comment: Mapped[str] = mapped_column(Text, nullable=True)
     conclusion: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        Date, default=func.now(), onupdate=func.now(), nullable=True
+        DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
@@ -344,7 +340,7 @@ class Poligrafs(Base):
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     results: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
-        Date, default=func.now(), onupdate=func.now(), nullable=True
+        DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
@@ -362,7 +358,7 @@ class Investigations(Base):
     )
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     info: Mapped[str] = mapped_column(Text, nullable=True)
-    created: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
@@ -380,7 +376,7 @@ class Inquiries(Base):
     info: Mapped[str] = mapped_column(Text, nullable=True)
     initiator: Mapped[str] = mapped_column(String(255), nullable=True)
     origins: Mapped[str] = mapped_column(String(255), nullable=True)
-    created: Mapped[datetime] = mapped_column(Date, default=func.now(), nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
@@ -394,6 +390,7 @@ Base.metadata.create_all(engine)
 
 
 tables_models = {
+    "persons": Persons,
     "previous": Previous,
     "educations": Educations,
     "staffs": Staffs,

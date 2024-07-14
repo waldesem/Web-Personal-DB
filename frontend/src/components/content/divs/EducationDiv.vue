@@ -69,7 +69,7 @@ function cancelAction(){
           item["institution"]
         }}</LabelSlot>
         <LabelSlot :label="'Год окончания'">{{ item["finished"] }}</LabelSlot>
-        <LabelSlot :label="'Специальность'">{{ item["speciality"] }}</LabelSlot>
+        <LabelSlot :label="'Специальность'">{{ item["specialty"] }}</LabelSlot>
       </div>
     </div>
   </div>

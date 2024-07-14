@@ -60,16 +60,36 @@ def get_classes():
 @bp.get("/information")
 @user_required()
 def get_information():
+    """
+    Retrieves information based on the provided query parameters.
+
+    Returns:
+        A JSON response containing the count of checks for each conclusion within the specified date range and region.
+        The JSON response has the following structure:
+        The HTTP status code is 200 if the information is successfully retrieved.
+
+    Raises:
+        None
+
+    This function requires the user to be authenticated.
+
+    Parameters:
+        None
+
+    Query Parameters:
+        start (str): The start date of the date range in the format "YYYY-MM-DD".
+        end (str): The end date of the date range in the format "YYYY-MM-DD".
+        region (str): The region to filter the checks by.
+
+    """
     query_data = request.args
     with Session(engine) as session:
         result = session.execute(
             select(Checks.conclusion, func.count(Checks.id))
             .join(Persons, Checks.person_id == Persons.id)
             .filter(
-                Checks.created.between(
-                    query_data["start"],
-                    query_data["end"]),
-                    Persons.region == query_data["region"],
+                Checks.created.between(query_data["start"], query_data["end"]),
+                Persons.region == query_data["region"],
             )
             .group_by(Checks.conclusion)
         ).all()
@@ -117,7 +137,7 @@ def post_login(action):
                 return "", 201
             return "", 205
 
-        delta_change = datetime.now() - datetime.fromisoformat(user["pswd_create"])
+        delta_change = datetime.now() - user.pswd_create
         if not user.change_pswd and delta_change.days < 365:
             if user.attempt > 0:
                 user.attempt = 0
@@ -146,9 +166,9 @@ def get_users():
         search_data = request.args.get("search")
         stmt = select(Users)
         if search_data and len(search_data) > 2:
-            stmt.filter(Users.fullname.like("%" + search_data + "%"))
-        query = session.execute(stmt.order_by(desc(Users.id))).all()
-        result = [q.dict() for q in query]
+            stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
+        query = session.execute(stmt.order_by(desc(Users.id))).scalars()
+        result = [person.to_dict() for person in query]
         return jsonify(result), 200
 
 
@@ -196,7 +216,7 @@ def post_user():
 @bp.get("/users/<int:user_id>")
 @user_required(admin=True)
 def get_user_actions(user_id):
-    if current_user["id"] == user_id:
+    if current_user.id == user_id:
         return "", 205  # forbidden
     """
     Change a user's information in the database based on their user ID.
@@ -272,14 +292,19 @@ def get_index(page):
             if cur_user.region != Regions.main.value:
                 stmt.filter(Persons.region == cur_user.region)
         stmt = (
-            stmt.order_by(desc(Persons.id))
+            stmt.filter(Persons.user_id == Users.id)
+            .order_by(desc(Persons.id))
             .limit(pagination + 1)
             .offset((page - 1) * pagination)
         )
-        query = session.execute(stmt.join(Users, Persons.user_id == Users.id)).all()
-        has_next = len(query) > pagination
-        query = query[:pagination] if has_next else query
-        result = [row.__dict__ for row in query]
+        query = session.execute(stmt).all()
+        result = []
+        for row in query:
+            item = row[0].to_dict()
+            item["username"] = row[1]
+            result.append(item)
+        has_next = len(result) > pagination
+        result = result[:pagination] if has_next else result
         return jsonify([result, has_next, page > 1]), 200
 
 
@@ -301,8 +326,8 @@ def get_image(item_id):
         person_path = session.execute(
             select(Persons.destination).where(Persons.id == item_id)
         ).scalar_one_or_none()
-        if person_path.get("destination"):
-            file_path = os.path.join(person_path["destination"], "image", "image.jpg")
+        if person_path:
+            file_path = os.path.join(person_path, "image", "image.jpg")
             if os.path.isfile(file_path):
                 return send_file(file_path, as_attachment=True, mimetype="image/jpg")
         return send_file(
@@ -343,10 +368,10 @@ def post_file(item, item_id):
         if not person_dir:
             return abort(400)
         try:
-            if not os.path.isdir(person_dir["destination"]):
-                os.mkdir(person_dir["destination"])
+            if not os.path.isdir(person_dir):
+                os.mkdir(person_dir)
 
-            item_dir = os.path.join(person_dir["destination"], item)
+            item_dir = os.path.join(person_dir, item)
             if not os.path.isdir(item_dir):
                 os.mkdir(item_dir)
 
@@ -392,8 +417,17 @@ def get_profile(person_id):
         information and an HTTP status code of 200.
     """
     with Session(engine) as session:
-        result = [session.get(Persons, person_id).to_dict()]
-        for item in models_tables.keys():
+        query = session.execute(
+            select(Persons, Users.fullname)
+            .filter(Persons.id == person_id)
+            .filter(Persons.user_id == Users.id)
+            .order_by(desc(Persons.id))
+        ).one_or_none()
+        result = query[0].to_dict()
+        result["username"] = query[1]
+        for item in tables_models.keys():
+            if item == "persons":
+                continue
             result.append(handle_get_item(item, person_id))
         return jsonify(result), 200
 
@@ -417,9 +451,9 @@ def post_resume():
     return jsonify({"person_id": person_id}), 201
 
 
-@bp.get("/persons/<int:item_id>")
+@bp.get("/persons/<int:person_id>")
 @user_required()
-def get_resume(item_id):
+def get_resume(person_id):
     """
     Retrieves information related to a person.
 
@@ -431,16 +465,18 @@ def get_resume(item_id):
         information and an HTTP status code of 200.
     """
     with Session(engine) as session:
-        person = session.get(Persons, item_id)
-        if request.args.get("action") == "self":
-            person.standing = not person.standing
-            person.user_id = current_user.id
-            session.commit()
-        result = session.execute(
-            select(Persons, User.fullname)
-            .filter(Persons.id == item_id)
-            .join(User.fullname, person.user_id == User.id)
+        person = session.execute(
+            select(Persons, Users.fullname)
+            .filter(Persons.id == person_id)
+            .filter(Persons.user_id == Users.id)
+            .order_by(desc(Persons.id))
         ).one_or_none()
+        if request.args.get("action") == "self":
+            person[0].standing = not person[0].standing
+            person[0].user_id = current_user.id
+            session.commit()
+        result = person[0].to_dict()
+        result["username"] = person[1]
         return jsonify(result), 200
 
 
@@ -479,18 +515,14 @@ def post_item_id(item, item_id):
         code of 400.
     """
     json_data = request.get_json()
-    try:
-        json_dict = models_tables[item](**json_data).dict()
-        json_dict["person_id"] = item_id
-        json_dict["user_id"] = current_user["id"]
+    json_dict = models_tables[item](**json_data).dict()
+    json_dict["person_id"] = item_id
+    json_dict["user_id"] = current_user.id
 
-        with Session(engine) as session:
-            session.merge(tables_models[item](**json_dict))
-            session.commit()
+    with Session(engine) as session:
+        session.merge(tables_models[item](**json_dict))
+        session.commit()
         return "", 201
-    except Exception as e:
-        print(e)
-        return abort(400)
 
 
 @bp.delete("/<item>/<int:item_id>")
@@ -513,4 +545,5 @@ def delete_item(item, item_id):
         if not item:
             return abort(400)
         session.delete(item)
+        session.commit()
     return "", 204

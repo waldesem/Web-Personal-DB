@@ -27,8 +27,7 @@ onBeforeMount(async () => {
     const payload = window.atob(token).split(":");
     stateUser.userId = payload[1];
     stateUser.username = payload[2];
-    stateUser.hasAdmin = payload[3] == "1";
-
+    stateUser.hasAdmin = payload[3] == "True";
     router.push({ name: "persons" });
   } catch (error: any) {
     console.error(error);

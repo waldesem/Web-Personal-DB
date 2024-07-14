@@ -3,7 +3,7 @@ from datetime import datetime
 from functools import lru_cache, wraps
 
 from flask import abort, current_app, g, request
-from sqlmodel import Session
+from sqlalchemy.orm import Session
 from werkzeug.local import LocalProxy
 
 from ..model.tables import Users, engine
@@ -44,7 +44,7 @@ def get_current_user(user_id):
     """
     with Session(engine) as session:
         user = session.get(Users, user_id)
-        delta_change = datetime.now() - datetime.fromisoformat(user.change_pswd)
+        delta_change = datetime.now() - user.pswd_create
         if (
             user
             and not user.blocked
@@ -126,7 +126,7 @@ def user_required(admin=False):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
                 cur_user = current_user
-                if cur_user and (not admin or cur_user["has_admin"]):
+                if cur_user and (not admin or cur_user.has_admin):
                     return func(*args, **kwargs)
                 abort(403)
             abort(401)

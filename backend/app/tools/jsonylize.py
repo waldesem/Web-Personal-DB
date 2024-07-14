@@ -16,7 +16,7 @@ def parse_json(json_dict: dict):
     """
     json_data = {
         "resume": {
-            "region": current_user["region"],
+            "region": current_user.region,
             "firstname": json_dict.get("firstName"),
             "surname": json_dict.get("lastName"),
             "patronymic": json_dict.get("midName"),
@@ -80,7 +80,7 @@ def parse_json(json_dict: dict):
                 "view": edu.get("educationType"),
                 "institution": edu.get("institutionName"),
                 "finished": edu.get("endYear"),
-                "speciality": edu.get("specialty"),
+                "specialty": edu.get("specialty"),
             }
             for edu in json_dict.get("education", [])
         ],

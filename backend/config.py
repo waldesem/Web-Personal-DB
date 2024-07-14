@@ -17,6 +17,6 @@ class Config:
         setting["Postgre"]["port"],
         setting["Postgre"]["dbname"],
     )
-    DATABASE_URI = POSTGRE_URI
+    DATABASE_URI = SQLITE_URI
     BASE_PATH = os.path.join(basedir, "..", "persons")
     DEFAULT_PASSWORD = "8" * 8

@@ -12,13 +12,18 @@ from ..tools.jsonylize import parse_json
 
 def handle_get_item(item, item_id):
     with Session(engine) as session:
-        results = session.execute(
+        query = session.execute(
             select(tables_models[item], Users.fullname)
-            .where(tables_models[item].person_id == item_id)
-            .join(Users, tables_models[item].user_id == Persons.user_id)
+            .filter(tables_models[item].person_id == item_id)
+            .filter(tables_models[item].user_id == Users.id)
             .order_by(desc(tables_models[item].id))
         ).all()
-    return [result.__dict__ for result in results]
+        result = []
+        for row in query:
+            item = row[0].to_dict()
+            item["user"] = row[1]
+            result.append(item)
+    return result
 
 
 def handle_post_resume(data):
@@ -36,43 +41,38 @@ def handle_post_resume(data):
 
     """
     with Session(engine) as session:
-        try:
-            resume = Person(**data).dict()
-            resume["standing"] = True
-            resume["user_id"] = current_user.id
-            if not resume["id"]:
-                person = session.execute(
-                    select(Persons).where(
-                        Persons.surname.ilike("%{}%".format(resume["surname"])),
-                        Persons.firstname.ilike("%{}%".format(resume["firstname"])),
-                        Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
-                        Persons.birthday == resume["birthday"],
-                    )
-                ).one_or_none()
-                if person:
-                    resume['id'] = person.id
-           
-            result = session.merge(Persons(**resume))
-            session.commit()
+        resume = Person(**data).dict()
+        resume["standing"] = True
+        resume["user_id"] = current_user.id
+        if not resume.get("id"):
+            person = session.execute(
+                select(Persons).where(
+                    Persons.surname.ilike("%{}%".format(resume["surname"])),
+                    Persons.firstname.ilike("%{}%".format(resume["firstname"])),
+                    Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
+                    Persons.birthday == resume["birthday"],
+                )
+            ).scalar_one_or_none()
+            if person:
+                resume["id"] = person.id
+        result = session.merge(Persons(**resume))
+        session.commit()
 
-            person_dir = os.path.join(
-                current_app.config["BASE_PATH"],
-                resume["region"],
-                resume["surname"][0].upper(),
-                f"{result.id}-{resume['surname'].upper()} "
-                f"{resume['firstname'].upper()} "
-                f"{resume.get('patronymic', '').upper()}".rstrip(),
-            )
-            if not os.path.isdir(person_dir):
-                os.mkdir(person_dir)
+        person_dir = os.path.join(
+            current_app.config["BASE_PATH"],
+            resume["region"],
+            resume["surname"][0].upper(),
+            f"{result.id}-{resume['surname'].upper()} "
+            f"{resume['firstname'].upper()} "
+            f"{resume.get('patronymic', '').upper()}".rstrip(),
+        )
+        if not os.path.isdir(person_dir):
+            os.mkdir(person_dir)
 
-            person = session.get(Person, result.id)
-            person.destination = person_dir
-            session.commit()
-            return result.id
-        except Exception as e:
-            print(e)
-            return None
+        person = session.get(Persons, result.id)
+        person.destination = person_dir
+        session.commit()
+        return result.id
 
 
 def handle_update_person(json_data):
@@ -98,9 +98,12 @@ def handle_update_person(json_data):
                 for table, contents in anketa.items():
                     if table == "resume" or not contents:
                         continue
-                    items = [
-                        content.update({"person_id": person_id}) for content in contents
+                    [
+                        content.update(
+                            {"person_id": person_id, "user_id": current_user.id}
+                        )
+                        for content in contents
                     ]
-                    session.add_all(tables_models[table](**item) for item in items)
+                    session.add_all(tables_models[table](**item) for item in contents)
                     session.commit()
     return person_id

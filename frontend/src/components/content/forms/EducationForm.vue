@@ -19,13 +19,13 @@ const BtnGroup = defineAsyncComponent(
 const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
-  docs: {
+  education: {
     type: Object as () => Education,
     default: {},
   },
 });
 
-const educationForm = toRef(props.docs as Education);
+const educationForm = toRef(props.education as Education);
 
 function submitEducation() {
   stateAnketa.updateItem("educations", educationForm.value)
@@ -67,9 +67,9 @@ function submitEducation() {
     </LabelSlot>
     <LabelSlot :label="'Специальность'">
       <InputElement
-        :name="'speciality'"
+        :name="'specialty'"
         :place="'Специальность'"
-        v-model="educationForm['speciality']"
+        v-model="educationForm['specialty']"
       />
     </LabelSlot>
     <BtnGroup @cancel="emit('cancel')"/>
