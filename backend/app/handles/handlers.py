@@ -14,8 +14,10 @@ def handle_get_item(item, item_id):
     with Session(engine) as session:
         query = session.execute(
             select(tables_models[item], Users.fullname)
-            .filter(tables_models[item].person_id == item_id)
-            .filter(tables_models[item].user_id == Users.id)
+            .filter(
+                tables_models[item].person_id == item_id,
+                tables_models[item].user_id == Users.id,
+            )
             .order_by(desc(tables_models[item].id))
         ).all()
         result = []
@@ -56,7 +58,7 @@ def handle_post_resume(data):
             if person:
                 resume["id"] = person.id
         result = session.merge(Persons(**resume))
-        session.commit()
+        session.flush()
 
         person_dir = os.path.join(
             current_app.config["BASE_PATH"],
@@ -68,9 +70,7 @@ def handle_post_resume(data):
         )
         if not os.path.isdir(person_dir):
             os.mkdir(person_dir)
-
-        person = session.get(Persons, result.id)
-        person.destination = person_dir
+        result.destination = person_dir
         session.commit()
         return result.id
 
@@ -105,5 +105,5 @@ def handle_update_person(json_data):
                         for content in contents
                     ]
                     session.add_all(tables_models[table](**item) for item in contents)
-                    session.commit()
+                session.commit()
     return person_id

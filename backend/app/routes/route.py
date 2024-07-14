@@ -89,7 +89,9 @@ def get_information():
             .join(Persons, Checks.person_id == Persons.id)
             .filter(
                 Checks.created.between(query_data["start"], query_data["end"]),
-                Persons.region == query_data["region"],
+                Persons.region == query_data.get("region")
+                if query_data.get("region")
+                else current_user.region,
             )
             .group_by(Checks.conclusion)
         ).all()
@@ -168,7 +170,7 @@ def get_users():
         if search_data and len(search_data) > 2:
             stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
         query = session.execute(stmt.order_by(desc(Users.id))).scalars()
-        result = [person.to_dict() for person in query]
+        result = [user.to_dict() for user in query]
         return jsonify(result), 200
 
 
@@ -196,7 +198,7 @@ def post_user():
         try:
             json_dict = User(**json_data).dict()
             user = session.execute(
-                select(Users).where(Users.username == json_dict.get("username"))
+                select(Users).filter(Users.username == json_dict.get("username"))
             ).all()
             if user:
                 return "", 205
@@ -265,10 +267,10 @@ def get_index(page):
     """
 
     with Session(engine) as session:
-        stmt = select(Persons, Users.fullname)
         cur_user = current_user
         pagination = 14
         search_data = request.args.get("search")
+        stmt = select(Persons, Users.fullname)
         if search_data and len(search_data) > 2:
             if search_data.isdigit():
                 stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
@@ -276,21 +278,21 @@ def get_index(page):
                 pattern = r"^\d{2}\.\d{2}\.\d{4}$"
                 query = list(map(str.upper, search_data.split()))
                 if len(query):
-                    stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
+                    stmt = stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
                 if len(query) > 1 and not re.match(pattern, query[1]):
-                    stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
+                    stmt = stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
                 if len(query) > 2 and not re.match(pattern, query[2]):
-                    stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
+                    stmt = stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
                 if len(query) > 1 and re.match(pattern, query[-1]):
-                    stmt.filter(
+                    stmt = stmt.filter(
                         Persons.birthday
                         == datetime.strptime(query[-1], "%d.%m.%Y").date()
                     )
             if cur_user.region != Regions.main.value:
-                stmt.filter(Persons.region == cur_user.region)
+                stmt = stmt.filter(Persons.region == cur_user.region)
         else:
             if cur_user.region != Regions.main.value:
-                stmt.filter(Persons.region == cur_user.region)
+                stmt = stmt.filter(Persons.region == cur_user.region)
         stmt = (
             stmt.filter(Persons.user_id == Users.id)
             .order_by(desc(Persons.id))
@@ -363,7 +365,7 @@ def post_file(item, item_id):
 
     with Session(engine) as session:
         person_dir = session.scalars(
-            select(Persons.destination).where(Persons.id == item_id)
+            select(Persons.destination).filter(Persons.id == item_id)
         ).first()
         if not person_dir:
             return abort(400)
@@ -419,12 +421,13 @@ def get_profile(person_id):
     with Session(engine) as session:
         query = session.execute(
             select(Persons, Users.fullname)
-            .filter(Persons.id == person_id)
-            .filter(Persons.user_id == Users.id)
+            .filter(Persons.id == person_id, Persons.user_id == Users.id)
             .order_by(desc(Persons.id))
         ).one_or_none()
-        result = query[0].to_dict()
-        result["username"] = query[1]
+        result = []
+        person = query[0].to_dict()
+        person["username"] = query[1]
+        result.append(person)
         for item in tables_models.keys():
             if item == "persons":
                 continue
@@ -467,8 +470,7 @@ def get_resume(person_id):
     with Session(engine) as session:
         person = session.execute(
             select(Persons, Users.fullname)
-            .filter(Persons.id == person_id)
-            .filter(Persons.user_id == Users.id)
+            .filter(Persons.id == person_id, Persons.user_id == Users.id)
             .order_by(desc(Persons.id))
         ).one_or_none()
         if request.args.get("action") == "self":
