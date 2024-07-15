@@ -57,6 +57,12 @@ def get_classes():
     return jsonify(results), 200
 
 
+@bp.get("/auth")
+@user_required()
+def get_auth()
+    return jsonify(current_user.to_dict()), 200
+
+
 @bp.get("/information")
 @user_required()
 def get_information():
