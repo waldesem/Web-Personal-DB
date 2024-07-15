@@ -73,8 +73,6 @@ def create_token(user):
     token_parts = [
         current_app.config["SECRET_KEY"],
         str(user.id),
-        user.username,
-        str(user.has_admin),
     ]
     token = ":".join(token_parts)
     return b64encode(token.encode()).decode()
