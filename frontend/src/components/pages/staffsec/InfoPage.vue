@@ -20,7 +20,7 @@ const TableSlots = defineAsyncComponent(
 const todayDate = new Date();
 
 const tableData = ref({
-  region: "",
+  region: stateUser.region,
   checks: <Array<any>>{},
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
     .toISOString()
@@ -77,7 +77,7 @@ onBeforeMount(async () => {
         :place="'Регион'"
         :name="'region'"
         :select="stateClassify.regions"
-        :disable="!stateUser.hasAdmin"
+        :disable="!stateUser.region != stateClassify.regions['main']"
         v-model="tableData.region"
         @submit-data="submitData"
       />
