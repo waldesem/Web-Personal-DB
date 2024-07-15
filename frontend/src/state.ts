@@ -25,6 +25,7 @@ export const stateUser = reactive({
   userId: "",
   username: "",
   hasAdmin: false,
+  region: ""
 });
 
 export const stateClassify = reactive({
