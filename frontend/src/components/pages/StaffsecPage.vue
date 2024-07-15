@@ -23,11 +23,11 @@ onBeforeMount(async () => {
       stateClassify.poligrafs,
     ] = response.data;
 
-    const token = localStorage.getItem("user_token") as string;
-    const payload = window.atob(token).split(":");
-    stateUser.userId = payload[1];
-    stateUser.username = payload[2];
-    stateUser.hasAdmin = payload[3] == "True";
+    const response = await axiosAuth.get(`{server}/auth`);
+    stateUser.userId = response.data['id'];
+    stateUser.username = response.data['username'];
+    stateUser.hasAdmin = response.data['has_admin'];
+    stateUser.region = response.data['region'];
     router.push({ name: "persons" });
   } catch (error: any) {
     console.error(error);
