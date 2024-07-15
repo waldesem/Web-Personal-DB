@@ -3,10 +3,9 @@ from datetime import datetime
 from functools import lru_cache, wraps
 
 from flask import abort, current_app, g, request
-from sqlalchemy.orm import Session
 from werkzeug.local import LocalProxy
 
-from ..model.tables import Users, engine
+from ..model.tables import Users, db_session
 
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
@@ -22,8 +21,8 @@ def get_auth(token):
         bool: True if the decoded token matches the secret key, False otherwise.
     """
     try:
-        decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 2)
-        secret_key, g.user_id, _ = decoded
+        decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 1)
+        secret_key, g.user_id = decoded
         return secret_key == current_app.config["SECRET_KEY"]
     except (IndexError, UnicodeDecodeError):
         return False
@@ -42,18 +41,17 @@ def get_current_user(user_id):
             is not blocked, not deleted, and has not changed password in the last year.
             Otherwise, returns None.
     """
-    with Session(engine) as session:
-        user = session.get(Users, user_id)
-        delta_change = datetime.now() - user.pswd_create
-        if (
-            user
-            and not user.blocked
-            and not user.deleted
-            and not user.change_pswd
-            and delta_change.days < 365
-        ):
-            return user
-        return None
+    user = db_session.get(Users, user_id)
+    delta_change = datetime.now() - user.pswd_create
+    if (
+        user
+        and not user.blocked
+        and not user.deleted
+        and not user.change_pswd
+        and delta_change.days < 365
+    ):
+        return user
+    return None
 
 
 def create_token(user):

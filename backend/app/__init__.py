@@ -1,13 +1,12 @@
 import os
 from flask import Flask
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
 # from flask_cors import CORS # needed for frontend development server
 
 from config import Config
 from .classes.classes import Regions
-from .model.tables import engine, Users
+from .model.tables import db_session, Users
 from .routes.route import bp as route_bp
 
 
@@ -40,19 +39,21 @@ def create_app(config_class=Config):
             if not os.path.isdir(letter_path):
                 os.mkdir(letter_path)
 
-    with Session(engine) as session:
-        user = Users(
-            fullname="Администратор",
-            username="superadmin",
-            passhash=generate_password_hash(Config.DEFAULT_PASSWORD),
-            has_admin=True,
-            region=Regions.main.value,
+    if not db_session.execute(select(Users)).scalars():
+        db_session.add(
+            Users(
+                fullname="Администратор",
+                username="superadmin",
+                passhash=generate_password_hash(Config.DEFAULT_PASSWORD),
+                has_admin=True,
+                region=Regions.main.value,
+            )
         )
-        if not session.execute(
-            select(Users.username).filter_by(username=user.username)
-        ).one_or_none():
-            session.add(user)
-            session.commit()
+        db_session.commit()
+
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        db_session.remove()
 
     @app.get("/", defaults={"path": ""})
     def main(path=""):

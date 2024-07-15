@@ -1,24 +1,29 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import (
-    ForeignKey,
-    String,
-    Integer,
+    Boolean,
     Date,
     DateTime,
+    ForeignKey,
+    Integer,
+    String,
     Text,
-    Boolean,
     create_engine,
     func,
 )
-
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+    relationship,
+    scoped_session,
+    sessionmaker,
+)
 from config import Config
 
 
 class Base(DeclarativeBase):
-
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
@@ -56,7 +61,9 @@ class Users(Base):
     relations: Mapped[List["Relations"]] = relationship(back_populates="users")
     checks: Mapped[List["Checks"]] = relationship(back_populates="users")
     poligrafs: Mapped[List["Poligrafs"]] = relationship(back_populates="users")
-    investigations: Mapped[List["Investigations"]] = relationship(back_populates="users")
+    investigations: Mapped[List["Investigations"]] = relationship(
+        back_populates="users"
+    )
     inquiries: Mapped[List["Inquiries"]] = relationship(back_populates="users")
 
 
@@ -358,7 +365,9 @@ class Investigations(Base):
     )
     theme: Mapped[str] = mapped_column(String(255), nullable=True)
     info: Mapped[str] = mapped_column(Text, nullable=True)
-    created: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=True)
+    created: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), nullable=True
+    )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
@@ -376,17 +385,15 @@ class Inquiries(Base):
     info: Mapped[str] = mapped_column(Text, nullable=True)
     initiator: Mapped[str] = mapped_column(String(255), nullable=True)
     origins: Mapped[str] = mapped_column(String(255), nullable=True)
-    created: Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=True)
+    created: Mapped[datetime] = mapped_column(
+        DateTime, default=func.now(), nullable=True
+    )
     person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )
     persons: Mapped[List["Persons"]] = relationship(back_populates="inquiries")
     users: Mapped[List["Users"]] = relationship(back_populates="inquiries")
-
-engine = create_engine(Config.DATABASE_URI)
-Base.metadata.create_all(engine)
-
 
 
 tables_models = {
@@ -405,3 +412,7 @@ tables_models = {
     "investigations": Investigations,
     "inquiries": Inquiries,
 }
+
+engine = create_engine(Config.DATABASE_URI)
+db_session = scoped_session(sessionmaker(autoflush=False, bind=engine))
+Base.metadata.create_all(bind=engine)

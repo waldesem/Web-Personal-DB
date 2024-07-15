@@ -5,7 +5,6 @@ from datetime import datetime
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..classes.classes import (
@@ -32,7 +31,7 @@ from ..handles.handlers import (
     handle_update_person,
 )
 from ..model.models import User, models_tables
-from ..model.tables import Checks, Persons, Users, engine, tables_models
+from ..model.tables import Checks, Persons, Users, db_session, tables_models
 
 bp = Blueprint("route", __name__)
 
@@ -59,7 +58,7 @@ def get_classes():
 
 @bp.get("/auth")
 @user_required()
-def get_auth()
+def get_auth():
     return jsonify(current_user.to_dict()), 200
 
 
@@ -89,19 +88,18 @@ def get_information():
 
     """
     query_data = request.args
-    with Session(engine) as session:
-        result = session.execute(
-            select(Checks.conclusion, func.count(Checks.id))
-            .join(Persons, Checks.person_id == Persons.id)
-            .filter(
-                Checks.created.between(query_data["start"], query_data["end"]),
-                Persons.region == query_data.get("region")
-                if query_data.get("region")
-                else current_user.region,
-            )
-            .group_by(Checks.conclusion)
-        ).all()
-        return jsonify(result), 200
+    result = db_session.execute(
+        select(Checks.conclusion, func.count(Checks.id))
+        .join(Persons, Checks.person_id == Persons.id)
+        .filter(
+            Checks.created.between(query_data["start"], query_data["end"]),
+            Persons.region == query_data.get("region")
+            if query_data.get("region")
+            else current_user.region,
+        )
+        .group_by(Checks.conclusion)
+    ).all()
+    return jsonify(result), 200
 
 
 @bp.post("/login/<action>")
@@ -120,42 +118,41 @@ def post_login(action):
         None
     """
     json_data = request.get_json()
-    with Session(engine) as session:
-        user = session.execute(
-            select(Users).where(Users.username == json_data.get("username"))
-        ).scalar_one_or_none()
-        if not user or user.blocked or user.deleted:
-            return abort(400)
+    user = db_session.execute(
+        select(Users).where(Users.username == json_data.get("username"))
+    ).scalar_one_or_none()
+    if not user or user.blocked or user.deleted:
+        return abort(400)
 
-        if not check_password_hash(user.passhash, json_data["password"]):
-            if user.attempt < 5:
-                user.attempt += 1
-            else:
-                user.blocked = True
-            session.commit()
-            return abort(400)
+    if not check_password_hash(user.passhash, json_data["password"]):
+        if user.attempt < 5:
+            user.attempt += 1
+        else:
+            user.blocked = True
+        db_session.commit()
+        return abort(400)
 
-        if action == "update":
-            pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
-            if re.match(pattern, json_data["new_pswd"]):
-                user.passhash = generate_password_hash(json_data["new_pswd"])
-                user.change_pswd = False
-                user.attempt = 0
-                session.commit()
-                return "", 201
-            return "", 205
-
-        delta_change = datetime.now() - user.pswd_create
-        if not user.change_pswd and delta_change.days < 365:
-            if user.attempt > 0:
-                user.attempt = 0
-                session.commit()
-            return jsonify(
-                {
-                    "user_token": create_token(user),
-                }
-            ), 200
+    if action == "update":
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
+        if re.match(pattern, json_data["new_pswd"]):
+            user.passhash = generate_password_hash(json_data["new_pswd"])
+            user.change_pswd = False
+            user.attempt = 0
+            db_session.commit()
+            return "", 201
         return "", 205
+
+    delta_change = datetime.now() - user.pswd_create
+    if not user.change_pswd and delta_change.days < 365:
+        if user.attempt > 0:
+            user.attempt = 0
+            db_session.commit()
+        return jsonify(
+            {
+                "user_token": create_token(user),
+            }
+        ), 200
+    return "", 205
 
 
 @bp.get("/users")
@@ -170,14 +167,13 @@ def get_users():
     Returns:
         tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
     """
-    with Session(engine) as session:
-        search_data = request.args.get("search")
-        stmt = select(Users)
-        if search_data and len(search_data) > 2:
-            stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
-        query = session.execute(stmt.order_by(desc(Users.id))).scalars()
-        result = [user.to_dict() for user in query]
-        return jsonify(result), 200
+    search_data = request.args.get("search")
+    stmt = select(Users)
+    if search_data and len(search_data) > 2:
+        stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
+    query = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
+    result = [user.to_dict() for user in query]
+    return jsonify(result), 200
 
 
 @bp.post("/users")
@@ -200,25 +196,24 @@ def post_user():
         returns an empty response with status code 400.
     """
     json_data = request.get_json()
-    with Session(engine) as session:
-        try:
-            json_dict = User(**json_data).dict()
-            user = session.execute(
-                select(Users).filter(Users.username == json_dict.get("username"))
-            ).all()
-            if user:
-                return "", 205
+    try:
+        json_dict = User(**json_data).dict()
+        user = db_session.execute(
+            select(Users).filter(Users.username == json_dict.get("username"))
+        ).all()
+        if user:
+            return "", 205
 
-            json_dict["passhash"] = generate_password_hash(
-                current_app.config["DEFAULT_PASSWORD"]
-            )
-            session.add(Users(**json_dict))
-            session.commit()
-            return "", 201
+        json_dict["passhash"] = generate_password_hash(
+            current_app.config["DEFAULT_PASSWORD"]
+        )
+        db_session.add(Users(**json_dict))
+        db_session.commit()
+        return "", 201
 
-        except Exception as e:
-            print(e)
-            return "", 400
+    except Exception as e:
+        print(e)
+        return "", 400
 
 
 @bp.get("/users/<int:user_id>")
@@ -235,22 +230,21 @@ def get_user_actions(user_id):
     Returns:
         The HTTP status code is 201.
     """
-    with Session(engine) as session:
-        user = session.get(Users, user_id)
-        if request.args.get("action") == "drop":
-            user.passhash = generate_password_hash(
-                current_app.config["DEFAULT_PASSWORD"]
-            )
-            user.attempt = 0
-            user.blocked = False
-            user.change_pswd = True
-        elif request.args.get("action") == "admin":
-            user.has_admin = not user.has_admin
-        elif request.args.get("action") == "delete":
-            user.deleted = not user.deleted
-            get_current_user.cache_clear()
-        session.commit()
-        return "", 201
+    user = db_session.get(Users, user_id)
+    if request.args.get("action") == "drop":
+        user.passhash = generate_password_hash(
+            current_app.config["DEFAULT_PASSWORD"]
+        )
+        user.attempt = 0
+        user.blocked = False
+        user.change_pswd = True
+    elif request.args.get("action") == "admin":
+        user.has_admin = not user.has_admin
+    elif request.args.get("action") == "delete":
+        user.deleted = not user.deleted
+        get_current_user.cache_clear()
+    db_session.commit()
+    return "", 201
 
 
 @bp.get("/index/<int:page>")
@@ -271,49 +265,47 @@ def get_index(page):
     Raises:
         None
     """
-
-    with Session(engine) as session:
-        cur_user = current_user
-        pagination = 14
-        search_data = request.args.get("search")
-        stmt = select(Persons, Users.fullname)
-        if search_data and len(search_data) > 2:
-            if search_data.isdigit():
-                stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
-            else:
-                pattern = r"^\d{2}\.\d{2}\.\d{4}$"
-                query = list(map(str.upper, search_data.split()))
-                if len(query):
-                    stmt = stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
-                if len(query) > 1 and not re.match(pattern, query[1]):
-                    stmt = stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
-                if len(query) > 2 and not re.match(pattern, query[2]):
-                    stmt = stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
-                if len(query) > 1 and re.match(pattern, query[-1]):
-                    stmt = stmt.filter(
-                        Persons.birthday
-                        == datetime.strptime(query[-1], "%d.%m.%Y").date()
-                    )
-            if cur_user.region != Regions.main.value:
-                stmt = stmt.filter(Persons.region == cur_user.region)
+    cur_user = current_user
+    pagination = 14
+    search_data = request.args.get("search")
+    stmt = select(Persons, Users.fullname)
+    if search_data and len(search_data) > 2:
+        if search_data.isdigit():
+            stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
         else:
-            if cur_user.region != Regions.main.value:
-                stmt = stmt.filter(Persons.region == cur_user.region)
-        stmt = (
-            stmt.filter(Persons.user_id == Users.id)
-            .order_by(desc(Persons.id))
-            .limit(pagination + 1)
-            .offset((page - 1) * pagination)
-        )
-        query = session.execute(stmt).all()
-        result = []
-        for row in query:
-            item = row[0].to_dict()
-            item["username"] = row[1]
-            result.append(item)
-        has_next = len(result) > pagination
-        result = result[:pagination] if has_next else result
-        return jsonify([result, has_next, page > 1]), 200
+            pattern = r"^\d{2}\.\d{2}\.\d{4}$"
+            query = list(map(str.upper, search_data.split()))
+            if len(query):
+                stmt = stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
+            if len(query) > 1 and not re.match(pattern, query[1]):
+                stmt = stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
+            if len(query) > 2 and not re.match(pattern, query[2]):
+                stmt = stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
+            if len(query) > 1 and re.match(pattern, query[-1]):
+                stmt = stmt.filter(
+                    Persons.birthday
+                    == datetime.strptime(query[-1], "%d.%m.%Y").date()
+                )
+        if cur_user.region != Regions.main.value:
+            stmt = stmt.filter(Persons.region == cur_user.region)
+    else:
+        if cur_user.region != Regions.main.value:
+            stmt = stmt.filter(Persons.region == cur_user.region)
+    stmt = (
+        stmt.filter(Persons.user_id == Users.id)
+        .order_by(desc(Persons.id))
+        .limit(pagination + 1)
+        .offset((page - 1) * pagination)
+    )
+    query = db_session.execute(stmt).all()
+    result = []
+    for row in query:
+        item = row[0].to_dict()
+        item["username"] = row[1]
+        result.append(item)
+    has_next = len(result) > pagination
+    result = result[:pagination] if has_next else result
+    return jsonify([result, has_next, page > 1]), 200
 
 
 @bp.get("/image/<int:item_id>")
@@ -330,17 +322,16 @@ def get_image(item_id):
     Raises:
         None.
     """
-    with Session(engine) as session:
-        person_path = session.execute(
-            select(Persons.destination).where(Persons.id == item_id)
-        ).scalar_one_or_none()
-        if person_path:
-            file_path = os.path.join(person_path, "image", "image.jpg")
-            if os.path.isfile(file_path):
-                return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-        return send_file(
-            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-        )
+    person_path = db_session.execute(
+        select(Persons.destination).where(Persons.id == item_id)
+    ).scalar_one_or_none()
+    if person_path:
+        file_path = os.path.join(person_path, "image", "image.jpg")
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+    return send_file(
+        "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+    )
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -369,45 +360,44 @@ def post_file(item, item_id):
             return jsonify({"person_id": person_id}), 201
         return abort(400)
 
-    with Session(engine) as session:
-        person_dir = session.scalars(
-            select(Persons.destination).filter(Persons.id == item_id)
-        ).first()
-        if not person_dir:
-            return abort(400)
-        try:
-            if not os.path.isdir(person_dir):
-                os.mkdir(person_dir)
+    person_dir = db_session.scalars(
+        select(Persons.destination).filter(Persons.id == item_id)
+    ).first()
+    if not person_dir:
+        return abort(400)
+    try:
+        if not os.path.isdir(person_dir):
+            os.mkdir(person_dir)
 
-            item_dir = os.path.join(person_dir, item)
-            if not os.path.isdir(item_dir):
-                os.mkdir(item_dir)
+        item_dir = os.path.join(person_dir, item)
+        if not os.path.isdir(item_dir):
+            os.mkdir(item_dir)
 
-            if item == "image":
-                endwith = file.filename.split(".")[-1]
-                image_file = os.path.join(item_dir, "image." + endwith)
-                if os.path.isfile(image_file):
-                    os.remove(image_file)
-                file.save(image_file)
-                return "", 201
-
-            date_subfolder = os.path.join(
-                item_dir,
-                datetime.now().strftime("%Y-%m-%d"),
-            )
-            if not os.path.isdir(date_subfolder):
-                os.mkdir(date_subfolder)
-
-            files = request.files.getlist("file")
-            for file in files:
-                if file.filename:
-                    file_path = os.path.join(date_subfolder, file.filename)
-                    if not os.path.isfile(file_path):
-                        file.save(file_path)
+        if item == "image":
+            endwith = file.filename.split(".")[-1]
+            image_file = os.path.join(item_dir, "image." + endwith)
+            if os.path.isfile(image_file):
+                os.remove(image_file)
+            file.save(image_file)
             return "", 201
-        except OSError as e:
-            print(e)
-            return abort(400)
+
+        date_subfolder = os.path.join(
+            item_dir,
+            datetime.now().strftime("%Y-%m-%d"),
+        )
+        if not os.path.isdir(date_subfolder):
+            os.mkdir(date_subfolder)
+
+        files = request.files.getlist("file")
+        for file in files:
+            if file.filename:
+                file_path = os.path.join(date_subfolder, file.filename)
+                if not os.path.isfile(file_path):
+                    file.save(file_path)
+        return "", 201
+    except OSError as e:
+        print(e)
+        return abort(400)
 
 
 @bp.get("/profile/<int:person_id>")
@@ -424,21 +414,20 @@ def get_profile(person_id):
         A tuple containing a list of dictionaries representing the person's
         information and an HTTP status code of 200.
     """
-    with Session(engine) as session:
-        query = session.execute(
-            select(Persons, Users.fullname)
-            .filter(Persons.id == person_id, Persons.user_id == Users.id)
-            .order_by(desc(Persons.id))
-        ).one_or_none()
-        result = []
-        person = query[0].to_dict()
-        person["username"] = query[1]
-        result.append(person)
-        for item in tables_models.keys():
-            if item == "persons":
-                continue
-            result.append(handle_get_item(item, person_id))
-        return jsonify(result), 200
+    query = db_session.execute(
+        select(Persons, Users.fullname)
+        .filter(Persons.id == person_id, Persons.user_id == Users.id)
+        .order_by(desc(Persons.id))
+    ).one_or_none()
+    result = []
+    person = query[0].to_dict()
+    person["username"] = query[1]
+    result.append(person)
+    for item in tables_models.keys():
+        if item == "persons":
+            continue
+        result.append(handle_get_item(item, person_id))
+    return jsonify(result), 200
 
 
 @bp.post("/persons")
@@ -473,19 +462,18 @@ def get_resume(person_id):
         Dict[str, Any]: A dictionary containing the person's
         information and an HTTP status code of 200.
     """
-    with Session(engine) as session:
-        person = session.execute(
-            select(Persons, Users.fullname)
-            .filter(Persons.id == person_id, Persons.user_id == Users.id)
-            .order_by(desc(Persons.id))
-        ).one_or_none()
-        if request.args.get("action") == "self":
-            person[0].standing = not person[0].standing
-            person[0].user_id = current_user.id
-            session.commit()
-        result = person[0].to_dict()
-        result["username"] = person[1]
-        return jsonify(result), 200
+    person = db_session.execute(
+        select(Persons, Users.fullname)
+        .filter(Persons.id == person_id, Persons.user_id == Users.id)
+        .order_by(desc(Persons.id))
+    ).one_or_none()
+    if request.args.get("action") == "self":
+        person[0].standing = not person[0].standing
+        person[0].user_id = current_user.id
+        db_session.commit()
+    result = person[0].to_dict()
+    result["username"] = person[1]
+    return jsonify(result), 200
 
 
 @bp.get("/<item>/<int:item_id>")
@@ -527,10 +515,9 @@ def post_item_id(item, item_id):
     json_dict["person_id"] = item_id
     json_dict["user_id"] = current_user.id
 
-    with Session(engine) as session:
-        session.merge(tables_models[item](**json_dict))
-        session.commit()
-        return "", 201
+    db_session.merge(tables_models[item](**json_dict))
+    db_session.commit()
+    return "", 201
 
 
 @bp.delete("/<item>/<int:item_id>")
@@ -548,10 +535,9 @@ def delete_item(item, item_id):
         code of 204 if the operation is successful or an HTTP status
         code of 400.
     """
-    with Session(engine) as session:
-        item = session.get(tables_models[item], item_id)
-        if not item:
-            return abort(400)
-        session.delete(item)
-        session.commit()
+    item = db_session.get(tables_models[item], item_id)
+    if not item:
+        return abort(400)
+    db_session.delete(item)
+    db_session.commit()
     return "", 204

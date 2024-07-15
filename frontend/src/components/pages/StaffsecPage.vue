@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { axiosAuth } from "@/auth";
-import { onBeforeMount, defineAsyncComponent } from "vue";
+import { onBeforeMount, defineAsyncComponent, onMounted } from "vue";
 import { stateClassify, stateUser, server } from "@/state";
 import { router } from "@/router";
 
@@ -10,7 +10,7 @@ const AlertMessage = defineAsyncComponent(
 
 onBeforeMount(async () => {
   try {
-    const response = await axiosAuth.get(`${server}/classes`);
+    const classes = await axiosAuth.get(`${server}/classes`);
     [
       stateClassify.regions,
       stateClassify.conclusions,
@@ -21,15 +21,21 @@ onBeforeMount(async () => {
       stateClassify.contacts,
       stateClassify.documents,
       stateClassify.poligrafs,
-    ] = response.data;
-
-    const response = await axiosAuth.get(`{server}/auth`);
-    stateUser.userId = response.data['id'];
-    stateUser.username = response.data['username'];
-    stateUser.hasAdmin = response.data['has_admin'];
-    stateUser.region = response.data['region'];
-    router.push({ name: "persons" });
+    ] = classes.data;
   } catch (error: any) {
+    console.error(error);
+  }
+});
+
+onMounted(async () => {
+  try {
+    const auth = await axiosAuth.get(`${server}/auth`);
+    stateUser.userId = auth.data['id'];
+    stateUser.username = auth.data['username'];
+    stateUser.hasAdmin = auth.data['has_admin'];
+    stateUser.region = auth.data['region'];
+    router.push({ name: "persons" });
+  }catch (error: any) {
     console.error(error);
   }
 });
