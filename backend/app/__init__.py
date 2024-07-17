@@ -1,4 +1,5 @@
 import os
+
 from flask import Flask
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
@@ -21,11 +22,8 @@ def create_app(config_class=Config):
         Flask: The configured Flask application instance.
     """
     app = Flask(__name__)
-
     app.config.from_object(config_class)
-
     app.register_blueprint(route_bp)
-
     # CORS(app, resources={r"/*": {"origins": "*"}})
 
     if not os.path.isdir(Config.BASE_PATH):
@@ -34,12 +32,12 @@ def create_app(config_class=Config):
         region_path = os.path.join(Config.BASE_PATH, region.value)
         if not os.path.isdir(region_path):
             os.mkdir(region_path)
-        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ":
+        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
             letter_path = os.path.join(region_path, letter)
             if not os.path.isdir(letter_path):
                 os.mkdir(letter_path)
 
-    if not db_session.execute(select(Users)).scalars():
+    if not db_session.execute(select(Users)).all():
         db_session.add(
             Users(
                 fullname="Администратор",

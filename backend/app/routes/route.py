@@ -87,14 +87,14 @@ def get_information():
         region (str): The region to filter the checks by.
 
     """
-    query_data = request.args
+    data = request.args
     result = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
         .join(Persons, Checks.person_id == Persons.id)
         .filter(
-            Checks.created.between(query_data["start"], query_data["end"]),
-            Persons.region == query_data.get("region")
-            if query_data.get("region")
+            Checks.created.between(data["start"], data["end"]),
+            Persons.region == data.get("region")
+            if data.get("region")
             else current_user.region,
         )
         .group_by(Checks.conclusion)
@@ -170,9 +170,12 @@ def get_users():
     search_data = request.args.get("search")
     stmt = select(Users)
     if search_data and len(search_data) > 2:
-        stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
-    query = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
-    result = [user.to_dict() for user in query]
+        if re.match(r"^[a-zA-z]+", search_data):
+            stmt = stmt.filter(Users.username.like("%" + search_data + "%"))
+        else:
+            stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
+    users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
+    result = [user.to_dict() for user in users]
     return jsonify(result), 200
 
 
@@ -232,9 +235,7 @@ def get_user_actions(user_id):
     """
     user = db_session.get(Users, user_id)
     if request.args.get("action") == "drop":
-        user.passhash = generate_password_hash(
-            current_app.config["DEFAULT_PASSWORD"]
-        )
+        user.passhash = generate_password_hash(current_app.config["DEFAULT_PASSWORD"])
         user.attempt = 0
         user.blocked = False
         user.change_pswd = True
@@ -277,32 +278,26 @@ def get_index(page):
             query = list(map(str.upper, search_data.split()))
             if len(query):
                 stmt = stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
-            if len(query) > 1 and not re.match(pattern, query[1]):
+            if len(query) > 1 and not re.match(pattern, query[-1]):
                 stmt = stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
-            if len(query) > 2 and not re.match(pattern, query[2]):
+            if len(query) > 2 and not re.match(pattern, query[-1]):
                 stmt = stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
             if len(query) > 1 and re.match(pattern, query[-1]):
                 stmt = stmt.filter(
-                    Persons.birthday
-                    == datetime.strptime(query[-1], "%d.%m.%Y").date()
+                    Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
                 )
         if cur_user.region != Regions.main.value:
             stmt = stmt.filter(Persons.region == cur_user.region)
     else:
         if cur_user.region != Regions.main.value:
             stmt = stmt.filter(Persons.region == cur_user.region)
-    stmt = (
+    query = db_session.execute(
         stmt.filter(Persons.user_id == Users.id)
         .order_by(desc(Persons.id))
         .limit(pagination + 1)
         .offset((page - 1) * pagination)
-    )
-    query = db_session.execute(stmt).all()
-    result = []
-    for row in query:
-        item = row[0].to_dict()
-        item["username"] = row[1]
-        result.append(item)
+    ).all()
+    result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
     return jsonify([result, has_next, page > 1]), 200
@@ -329,9 +324,7 @@ def get_image(item_id):
         file_path = os.path.join(person_path, "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file(
-        "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-    )
+    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -419,13 +412,8 @@ def get_profile(person_id):
         .filter(Persons.id == person_id, Persons.user_id == Users.id)
         .order_by(desc(Persons.id))
     ).one_or_none()
-    result = []
-    person = query[0].to_dict()
-    person["username"] = query[1]
-    result.append(person)
+    result = [query[0].to_dict() | {"username": query[1]}]
     for item in tables_models.keys():
-        if item == "persons":
-            continue
         result.append(handle_get_item(item, person_id))
     return jsonify(result), 200
 
@@ -443,37 +431,9 @@ def post_resume():
         A JSON response containing the person ID and an HTTP status code of 201.
         The person ID is the ID of the newly created user, person, or contact.
     """
-
     json_data = request.get_json()
     person_id = handle_post_resume(json_data)
     return jsonify({"person_id": person_id}), 201
-
-
-@bp.get("/persons/<int:person_id>")
-@user_required()
-def get_resume(person_id):
-    """
-    Retrieves information related to a person.
-
-    Parameters:
-        person_id (int): The ID of the person for whom to retrieve all information.
-
-    Returns:
-        Dict[str, Any]: A dictionary containing the person's
-        information and an HTTP status code of 200.
-    """
-    person = db_session.execute(
-        select(Persons, Users.fullname)
-        .filter(Persons.id == person_id, Persons.user_id == Users.id)
-        .order_by(desc(Persons.id))
-    ).one_or_none()
-    if request.args.get("action") == "self":
-        person[0].standing = not person[0].standing
-        person[0].user_id = current_user.id
-        db_session.commit()
-    result = person[0].to_dict()
-    result["username"] = person[1]
-    return jsonify(result), 200
 
 
 @bp.get("/<item>/<int:item_id>")
@@ -490,6 +450,11 @@ def get_item_id(item, item_id):
         Tuple[Response, int]: A tuple containing the JSON response containing
         the retrieved item(s) and an HTTP status code of 200.
     """
+    if item == "persons" and request.args.get("action") == "self":
+        person = db_session.get(Persons, item_id)
+        person.standing = not person.standing
+        person.user_id = current_user.id
+        db_session.commit()
     results = handle_get_item(item, item_id)
     return jsonify(results), 200
 
@@ -512,9 +477,7 @@ def post_item_id(item, item_id):
     """
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
-    json_dict["person_id"] = item_id
-    json_dict["user_id"] = current_user.id
-
+    json_dict.update({"person_id": item_id, "user_id": current_user.id})
     db_session.merge(tables_models[item](**json_dict))
     db_session.commit()
     return "", 201

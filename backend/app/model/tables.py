@@ -1,7 +1,6 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from flask.globals import app_ctx
 from sqlalchemy import (
     Boolean,
     Date,
@@ -415,5 +414,5 @@ tables_models = {
 }
 
 engine = create_engine(Config.DATABASE_URI)
-db_session = scoped_session(sessionmaker(id(app_ctx._get_current_object()), autoflush=False, bind=engine))
+db_session = scoped_session(sessionmaker(autoflush=False, bind=engine))
 Base.metadata.create_all(bind=engine)

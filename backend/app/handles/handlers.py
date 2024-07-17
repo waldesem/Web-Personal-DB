@@ -18,12 +18,7 @@ def handle_get_item(item, item_id):
         )
         .order_by(desc(tables_models[item].id))
     ).all()
-    result = []
-    for row in query:
-        item = row[0].to_dict()
-        item["user"] = row[1]
-        result.append(item)
-    return result
+    return [row[0].to_dict() | {"user": row[1]} for row in query]
 
 
 def handle_post_resume(data):
