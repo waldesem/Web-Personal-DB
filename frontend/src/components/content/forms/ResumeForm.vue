@@ -24,10 +24,6 @@ const BtnGroup = defineAsyncComponent(
 const emit = defineEmits(["cancel"]);
 
 const props = defineProps({
-  id: {
-    type: String,
-    default: ""
-  },
   action: {
     type: String,
     default: "create",
@@ -41,7 +37,7 @@ const props = defineProps({
 const resumeForm = toRef(props.resume);
 
 async function submitResume(): Promise<void> {
-  const url = props.action == "create" ? "persons" : `resume/${id}`;
+  const url = props.action == "create" ? "resume" : `persons/${resume['id']}`;
   try {
     const response = await axiosAuth.post(`${server}/${url}`, resumeForm.value);
     const { person_id } = response.data;
