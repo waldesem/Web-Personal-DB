@@ -403,22 +403,15 @@ def get_profile(person_id):
         person_id (int): The ID of the person for whom to retrieve all information.
 
     Returns:
-        Tuple[List[Dict[str, Any]], int]:
-        A tuple containing a list of dictionaries representing the person's
+        List[Dict[str, Any]]:
+        A list of dictionaries representing the person's
         information and an HTTP status code of 200.
     """
-    query = db_session.execute(
-        select(Persons, Users.fullname)
-        .filter(Persons.id == person_id, Persons.user_id == Users.id)
-        .order_by(desc(Persons.id))
-    ).one_or_none()
-    result = [query[0].to_dict() | {"username": query[1]}]
-    for item in tables_models.keys():
-        result.append(handle_get_item(item, person_id))
+    result = [handle_get_item(item, person_id) for item in tables_models.keys()]
     return jsonify(result), 200
 
 
-@bp.post("/persons")
+@bp.post("/resume")
 @user_required()
 def post_resume():
     """
