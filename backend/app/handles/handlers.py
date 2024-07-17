@@ -10,15 +10,18 @@ from ..tools.jsonylize import parse_json
 
 
 def handle_get_item(item, item_id):
-    query = db_session.execute(
-        select(tables_models[item], Users.fullname)
-        .filter(
-            tables_models[item].person_id == item_id,
-            tables_models[item].user_id == Users.id,
+    stmt = select(tables_models[item], Users.fullname)
+    if item == "persons":
+        stmt = stmt.filter(Person.id == item_id)
+    else:
+        stmt = stmt.filter(
+            tables_models[item].person_id == item_id)
+    stmt = db_session.execute (stmt.filter(
+        tables_models[item].user_id == Users.id,
         )
         .order_by(desc(tables_models[item].id))
     ).all()
-    return [row[0].to_dict() | {"user": row[1]} for row in query]
+    return [row[0].to_dict() | {"username": row[1]} for row in query]
 
 
 def handle_post_resume(data):
