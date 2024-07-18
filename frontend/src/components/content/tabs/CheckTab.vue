@@ -117,7 +117,7 @@ function cancelAction() {
           item["comment"] ? item["comment"] : "-"
         }}</LabelSlot>
         <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["username"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </LabelSlot>

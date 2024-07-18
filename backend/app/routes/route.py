@@ -25,13 +25,14 @@ from ..depends.depend import (
     jwt_required,
     user_required,
 )
-from ..handles.handlers import (
-    handle_get_item,
-    handle_post_resume,
-    handle_update_person,
-)
-from ..model.models import User, models_tables
+from ..model.models import User
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
+from ..tools.tool import (
+    handle_get_item,
+    handle_post_item,
+    handle_post_resume,
+    parse_json,
+)
 
 bp = Blueprint("route", __name__)
 
@@ -223,7 +224,7 @@ def post_user():
 @user_required(admin=True)
 def get_user_actions(user_id):
     if current_user.id == user_id:
-        return "", 205  # forbidden
+        return "", 205
     """
     Change a user's information in the database based on their user ID.
 
@@ -348,9 +349,15 @@ def post_file(item, item_id):
 
     if item == "persons":
         json_dict = json.load(file)
-        person_id = handle_update_person(json_dict)
-        if person_id:
-            return jsonify({"person_id": person_id}), 201
+        anketa = parse_json(json_dict)
+        if anketa:
+            person_id = handle_post_resume(anketa["resume"])
+            if person_id:
+                for table, contents in anketa.items():
+                    for content in contents:
+                        if content and table != "resume":
+                            handle_post_item(content, table, person_id)
+                return jsonify({"person_id": person_id}), 201
         return abort(400)
 
     person_dir = db_session.scalars(
@@ -467,16 +474,10 @@ def post_item_id(item, item_id):
     Returns:
         Tuple[str, int]: A tuple containing an empty string and an HTTP status
         code of 201 if the operation is successful,
-        otherwise a string containing the exception message and an HTTP status
-        code of 400.
+        otherwise a string containing the exception message and an HTTP status code of 400.
     """
     json_data = request.get_json()
-    json_dict = models_tables[item](**json_data).dict()
-    if item != "persons":
-        json_dict["person_id"] = item_id
-    json_dict["user_id"] = current_user.id
-    db_session.merge(tables_models[item](**json_dict))
-    db_session.commit()
+    handle_post_item(json_data, item, item_id)
     return "", 201
 
 

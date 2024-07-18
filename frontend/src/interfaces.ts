@@ -131,7 +131,7 @@ export interface Verification {
   comment: string;
   created: string;
   user_id: string;
-  user: string;
+  username: string;
 }
 
 export interface Pfo {
@@ -139,7 +139,7 @@ export interface Pfo {
   theme: string;
   results: string;
   user_id: string;
-  user: string;
+  username: string;
   created: string;
 }
 
@@ -148,7 +148,7 @@ export interface Inquisition {
   theme: string;
   info: string;
   user_id: string;
-  user: string;
+  username: string;
   created: string;
 }
 
@@ -157,6 +157,6 @@ export interface Needs {
   info: string;
   origins: string;
   user_id: string;
-  user: string;
+  username: string;
   created: string;
 }

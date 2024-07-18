@@ -1,8 +1,13 @@
 from datetime import datetime
+import os
 import re
 
-from ..depends.depend import current_user
+from flask import current_app
+from sqlalchemy import desc, select
 
+from ..depends.depend import current_user
+from ..model.models import Person, models_tables
+from ..model.tables import Users, db_session, Persons, tables_models
 
 def parse_json(json_dict: dict):
     """
@@ -129,3 +134,73 @@ def parse_json(json_dict: dict):
         and json_data["resume"]["birthday"]
         else None
     )
+
+
+def handle_get_item(item, item_id):
+    stmt = select(tables_models[item], Users.fullname).filter(
+        tables_models[item].user_id == Users.id
+    )
+    if item == "persons":
+        stmt = stmt.filter(Person.id == item_id)
+    else:
+        stmt = stmt.filter(tables_models[item].person_id == item_id).order_by(
+            desc(tables_models[item].id)
+        )
+    query = db_session.execute(stmt).all()
+    result = [row[0].to_dict() | {"username": row[1]} for row in query]
+    return result[0] if item == "persons" else result
+
+
+def handle_post_resume(data):
+    """
+    Updates a resume in the database with the provided data.
+
+    Args:
+        data (dict): A dictionary containing the resume data.
+
+    Returns:
+        int: The ID of the updated resume.
+
+    Raises:
+        Exception: If there is an error updating the resume.
+
+    """
+    resume = Person(**data).dict()
+    resume["standing"] = True
+    resume["user_id"] = current_user.id
+    if not resume.get("id"):
+        person = db_session.execute(
+            select(Persons).where(
+                Persons.surname.ilike("%{}%".format(resume["surname"])),
+                Persons.firstname.ilike("%{}%".format(resume["firstname"])),
+                Persons.patronymic.ilike("%{}%".format(resume["patronymic"])),
+                Persons.birthday == resume["birthday"],
+            )
+        ).scalar_one_or_none()
+        if person:
+            resume["id"] = person.id
+    result = db_session.merge(Persons(**resume))
+    db_session.flush()
+
+    person_dir = os.path.join(
+        current_app.config["BASE_PATH"],
+        resume["region"],
+        resume["surname"][0].upper(),
+        f"{result.id}-{resume['surname'].upper()} "
+        f"{resume['firstname'].upper()} "
+        f"{resume.get('patronymic', '').upper()}".rstrip(),
+    )
+    if not os.path.isdir(person_dir):
+        os.mkdir(person_dir)
+    result.destination = person_dir
+    db_session.commit()
+    return result.id
+
+
+def handle_post_item(json_data, item, item_id):
+    json_dict = models_tables[item](**json_data).dict()
+    if item != "persons":
+        json_dict["person_id"] = item_id
+    json_dict["user_id"] = current_user.id
+    db_session.merge(tables_models[item](**json_dict))
+    db_session.commit()

@@ -83,7 +83,7 @@ function cancelAction() {
         </p>
         <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
         <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ item["user"] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["username"] }}</LabelSlot>
         <LabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </LabelSlot>
