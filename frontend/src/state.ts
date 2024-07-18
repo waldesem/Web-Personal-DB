@@ -58,7 +58,7 @@ export const stateAlert = {
 
 export const stateAnketa = {
   anketa: reactive({
-    persons: {} as Persons,
+    persons: [] as Persons[],
     previous: [] as Previous[],
     educations: [] as Education[],
     staffs: [] as Staff[],
