@@ -25,7 +25,7 @@ export const stateUser = reactive({
   userId: "",
   username: "",
   hasAdmin: false,
-  region: ""
+  region: "",
 });
 
 export const stateClassify = reactive({
@@ -58,7 +58,7 @@ export const stateAlert = {
 
 export const stateAnketa = {
   anketa: reactive({
-    persons: [] as Persons[],
+    persons: {} as Persons,
     previous: [] as Previous[],
     educations: [] as Education[],
     staffs: [] as Staff[],
@@ -81,9 +81,7 @@ export const stateAnketa = {
   async getItem(param: string, action = "view"): Promise<void> {
     if (
       action === "self" &&
-      !confirm(
-        "Вы действительно хотите включить/выключить режим правки"
-      )
+      !confirm("Вы действительно хотите включить/выключить режим правки")
     ) {
       return;
     }
@@ -141,11 +139,7 @@ export const stateAnketa = {
     }
   },
 
-  async submitFile(
-    event: Event,
-    param: string,
-    itemId: string
-  ): Promise<void> {
+  async submitFile(event: Event, param: string, itemId: string): Promise<void> {
     const formData = new FormData();
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
@@ -184,5 +178,20 @@ export const stateAnketa = {
     } else {
       stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
     }
-  }
-}
+  },
+
+  async submitResume(action: string, form: Object): Promise<void> {
+    if (action == "create") {
+      try {
+        const response = await axiosAuth.post(`${server}/resume`, form);
+        const { person_id } = response.data;
+        router.push({ name: "profile", params: { id: person_id } });
+        stateAlert.setAlert("alert-success", "Данные успешно добавлены");
+      } catch (error) {
+        stateAlert.setAlert("alert-danger", `Возникла ошибка ${error}`);
+      }
+    } else {
+      this.updateItem("persons", form);
+    }
+  },
+};

@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { stateAlert, stateAnketa, stateClassify, server } from "@/state";
+import { stateAnketa, stateClassify } from "@/state";
 import { Persons } from "@/interfaces";
-import { router } from "@/router";
-import { axiosAuth } from "@/auth";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -36,31 +34,25 @@ const props = defineProps({
 
 const resumeForm = toRef(props.resume);
 
-async function submitResume(): Promise<void> {
-  const url = props.action == "create" ? "resume" : `persons/${resume['id']}`;
-  try {
-    const response = await axiosAuth.post(`${server}/${url}`, resumeForm.value);
-    const { person_id } = response.data;
+function clearForm() {
+  Object.keys(resumeForm.value).forEach(
+    (key) => delete resumeForm.value[key as keyof typeof resumeForm.value]
+  );
+};
 
-    Object.keys(resumeForm.value).forEach(
-      (key) => delete resumeForm.value[key as keyof typeof resumeForm.value]
-    );
-    if (props.action === "create") {
-      router.push({ name: "profile", params: { id: person_id } });
-    } else {
-      emit("cancel");
-      stateAnketa.getItem("persons");
-    }
+function cancelEdit() {
+  clearForm();
+  emit('cancel')
+}
 
-    stateAlert.setAlert("alert-success", "Данные успешно обновлены");
-  } catch (error) {
-    stateAlert.setAlert("alert-danger", `Возникла ошибка ${error}`);
-  }
+async function submitForm(): Promise<void> {
+  stateAnketa.submitResume(props.action, resumeForm.value)
+  clearForm();
 }
 </script>
 
 <template>
-  <form @submit.prevent="submitResume" class="form form-check" role="form">
+  <form @submit.prevent="submitForm" class="form form-check" role="form">
     <LabelSlot :label="'Регион'">
       <SelectDiv
         :name="'region_id'"
@@ -154,6 +146,6 @@ async function submitResume(): Promise<void> {
         v-model="resumeForm['addition']"
       ></TextArea>
     </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')" />
+    <BtnGroup @cancel="cancelEdit" />
   </form>
 </template>

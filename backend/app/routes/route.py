@@ -393,6 +393,26 @@ def post_file(item, item_id):
         return abort(400)
 
 
+@bp.post("/resume")
+@user_required()
+def post_resume():
+    """
+    Creates a new user, person or contact based on the provided JSON data.
+
+    Parameters:
+        None
+
+    Returns:
+        A JSON response containing the person ID and an HTTP status code of 201.
+        The person ID is the ID of the newly created user, person, or contact.
+    """
+    json_data = request.get_json()
+    person_id = handle_post_resume(json_data)
+    if not person_id:
+        return abort(400)
+    return jsonify({"person_id": person_id}), 201
+
+
 @bp.get("/profile/<int:person_id>")
 @user_required()
 def get_profile(person_id):
@@ -409,24 +429,6 @@ def get_profile(person_id):
     """
     result = [handle_get_item(item, person_id) for item in tables_models.keys()]
     return jsonify(result), 200
-
-
-@bp.post("/resume")
-@user_required()
-def post_resume():
-    """
-    Creates a new user, person or contact based on the provided JSON data.
-
-    Parameters:
-        None
-
-    Returns:
-        A JSON response containing the person ID and an HTTP status code of 201.
-        The person ID is the ID of the newly created user, person, or contact.
-    """
-    json_data = request.get_json()
-    person_id = handle_post_resume(json_data)
-    return jsonify({"person_id": person_id}), 201
 
 
 @bp.get("/<item>/<int:item_id>")
@@ -448,8 +450,8 @@ def get_item_id(item, item_id):
         person.standing = not person.standing
         person.user_id = current_user.id
         db_session.commit()
-    results = handle_get_item(item, item_id)
-    return jsonify(results), 200
+    result = handle_get_item(item, item_id)
+    return jsonify(result), 200
 
 
 @bp.post("/<item>/<int:item_id>")

@@ -10,18 +10,18 @@ from ..tools.jsonylize import parse_json
 
 
 def handle_get_item(item, item_id):
-    stmt = select(tables_models[item], Users.fullname)
+    stmt = select(tables_models[item], Users.fullname).filter(
+        tables_models[item].user_id == Users.id
+    )
     if item == "persons":
         stmt = stmt.filter(Person.id == item_id)
     else:
-        stmt = stmt.filter(
-            tables_models[item].person_id == item_id)
-    stmt = db_session.execute (stmt.filter(
-        tables_models[item].user_id == Users.id,
+        stmt = stmt.filter(tables_models[item].person_id == item_id).order_by(
+            desc(tables_models[item].id)
         )
-        .order_by(desc(tables_models[item].id))
-    ).all()
-    return [row[0].to_dict() | {"username": row[1]} for row in query]
+    query = db_session.execute(stmt).all()
+    result = [row[0].to_dict() | {"username": row[1]} for row in query]
+    return result[0] if item == "persons" else result
 
 
 def handle_post_resume(data):
@@ -93,9 +93,7 @@ def handle_update_person(json_data):
                 if table == "resume" or not contents:
                     continue
                 [
-                    content.update(
-                        {"person_id": person_id, "user_id": current_user.id}
-                    )
+                    content.update({"person_id": person_id, "user_id": current_user.id})
                     for content in contents
                 ]
                 db_session.add_all(tables_models[table](**item) for item in contents)
