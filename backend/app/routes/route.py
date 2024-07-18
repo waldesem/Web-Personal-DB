@@ -470,7 +470,9 @@ def post_item_id(item, item_id):
     """
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
-    json_dict.update({"person_id": item_id, "user_id": current_user.id})
+    if item != "persons":
+        json_dict["person_id"] = item_id
+    json_dict["user_id"] = current_user.id
     db_session.merge(tables_models[item](**json_dict))
     db_session.commit()
     return "", 201
