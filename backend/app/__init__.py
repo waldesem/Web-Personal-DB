@@ -1,9 +1,9 @@
 import os
 
 from flask import Flask
+# from flask_cors import CORS # needed for frontend development server
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
-# from flask_cors import CORS # needed for frontend development server
 
 from config import Config
 from .classes.classes import Regions

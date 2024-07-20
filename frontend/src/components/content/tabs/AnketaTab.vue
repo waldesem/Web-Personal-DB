@@ -68,7 +68,7 @@ const dataResume = ref({
       <ActionIcons
         v-show="
           dataResume.showActions &&
-          stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+          stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
           stateAnketa.anketa.persons['standing']
         "
         @delete="

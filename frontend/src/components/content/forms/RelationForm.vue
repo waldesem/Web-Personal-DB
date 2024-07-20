@@ -46,7 +46,7 @@ function submitRelation() {
       <SelectDiv
           :name="'relation'"
           :need="true"
-          :select="stateClassify.relations"
+          :select="stateClassify.classes.relations"
           v-model="relationForm['relation']"
         />
     </LabelSlot>

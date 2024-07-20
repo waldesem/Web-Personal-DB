@@ -46,7 +46,7 @@ function submitEducation() {
       <SelectDiv
         :name="'type'"
         :need="true"
-        :select="stateClassify.educations"
+        :select="stateClassify.classes.educations"
         v-model="educationForm['view']"
       />
     </LabelSlot>

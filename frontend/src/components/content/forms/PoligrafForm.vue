@@ -46,7 +46,7 @@ function submitPoligraf() {
       <SelectDiv
         :name="'theme'"
         :need="true"
-        :select="stateClassify.poligrafs"
+        :select="stateClassify.classes.poligrafs"
         v-model="poligrafForm['theme']"
       />
     </LabelSlot>

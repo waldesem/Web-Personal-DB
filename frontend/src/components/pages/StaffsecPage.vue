@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { axiosAuth } from "@/auth";
-import { onBeforeMount, defineAsyncComponent, onMounted } from "vue";
-import { stateClassify, stateUser, server } from "@/state";
+import { onBeforeMount, defineAsyncComponent } from "vue";
+import { stateUser } from "@/state";
 import { router } from "@/router";
 
 const AlertMessage = defineAsyncComponent(
@@ -9,35 +8,7 @@ const AlertMessage = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  try {
-    const classes = await axiosAuth.get(`${server}/classes`);
-    [
-      stateClassify.regions,
-      stateClassify.conclusions,
-      stateClassify.relations,
-      stateClassify.affilations,
-      stateClassify.educations,
-      stateClassify.addresses,
-      stateClassify.contacts,
-      stateClassify.documents,
-      stateClassify.poligrafs,
-    ] = classes.data;
-  } catch (error: any) {
-    console.error(error);
-  }
-});
-
-onMounted(async () => {
-  try {
-    const auth = await axiosAuth.get(`${server}/auth`);
-    stateUser.userId = auth.data['id'];
-    stateUser.username = auth.data['username'];
-    stateUser.hasAdmin = auth.data['has_admin'];
-    stateUser.region = auth.data['region'];
-    router.push({ name: "persons" });
-  }catch (error: any) {
-    console.error(error);
-  }
+  await stateUser.getCurrentUser();
 });
 
 async function userLogout(): Promise<void> {
@@ -74,7 +45,7 @@ async function userLogout(): Promise<void> {
             Информация
           </router-link>
           <hr class="text-info">
-          <router-link v-if="stateUser.hasAdmin" 
+          <router-link v-if="stateUser.user.hasAdmin" 
             :to="{ name: 'users' }"
             class="nav-link active"
           >
@@ -97,7 +68,7 @@ async function userLogout(): Promise<void> {
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                &#x272A; {{ stateUser.username }}
+                &#x272A; {{ stateUser.user.username }}
               </button>
               <ul class="dropdown-menu">
                 <li class="dropdown-item" >
@@ -118,6 +89,12 @@ async function userLogout(): Promise<void> {
     </div>
     <div class="col-1 d-print-none"></div>
   </div>
+  <footer 
+    id="footer" 
+    class="d-flex justify-content-center py-3 border-top bg-white d-print-none"
+  >
+    <p class="text-muted">© 2024 STAFFSEC FINTECH</p>
+  </footer>
 </template>
 
 <style scoped>
@@ -125,5 +102,10 @@ async function userLogout(): Promise<void> {
   #staffsec {
     width: 100% !important;
   }
+}
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 </style>

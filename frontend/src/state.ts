@@ -21,24 +21,55 @@ import {
 // export const server = "http://localhost:5000";
 export const server = "";
 
-export const stateUser = reactive({
-  userId: "",
-  username: "",
-  hasAdmin: false,
-  region: "",
-});
+export const stateUser = {
+  user: reactive({
+    userId: "",
+    username: "",
+    hasAdmin: false,
+    region: "",
+  }),
+  async getCurrentUser(): Promise<void> {
+    try {
+      const auth = await axiosAuth.get(`${server}/auth`);
+      const user = auth.data;
+      this.user.userId = user['id'];
+      this.user.username = user['username'];
+      this.user.hasAdmin = user['has_admin'];
+      this.user.region = user['region'];
+      await stateClassify.getClassify();
+      router.push({ name: "persons" });
+    } catch (error: any) {
+      console.error(error);
+    }
+  },
+};
 
-export const stateClassify = reactive({
-  regions: <Record<string, any>>{},
-  conclusions: <Record<string, any>>{},
-  relations: <Record<string, any>>{},
-  affilations: <Record<string, any>>{},
-  educations: <Record<string, any>>{},
-  addresses: <Record<string, any>>{},
-  contacts: <Record<string, any>>{},
-  documents: <Record<string, any>>{},
-  poligrafs: <Record<string, any>>{},
-});
+export const stateClassify = {
+  classes: reactive({
+    regions: <Record<string, any>>{},
+    conclusions: <Record<string, any>>{},
+    relations: <Record<string, any>>{},
+    affilations: <Record<string, any>>{},
+    educations: <Record<string, any>>{},
+    addresses: <Record<string, any>>{},
+    contacts: <Record<string, any>>{},
+    documents: <Record<string, any>>{},
+    poligrafs: <Record<string, any>>{},
+  }),
+  async getClassify(): Promise<void> {
+    try {
+      const classes = await axiosAuth.get(`${server}/classes`);
+      const resp = classes.data;
+      const classifyKeys = Object.keys(stateClassify);
+      for (let i = 0; i < classifyKeys.length; i++) {
+        this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
+          resp[i];
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
+  }
+};
 
 export const stateAlert = {
   alertMessage: reactive({

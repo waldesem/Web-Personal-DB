@@ -137,11 +137,26 @@ def parse_json(json_dict: dict):
 
 
 def handle_get_item(item, item_id):
+    """
+    Retrieves an item from the database based on the provided item and item_id.
+
+    Args:
+        item (str): The type of item to retrieve.
+        item_id (int): The ID of the item to retrieve.
+
+    Returns:
+        dict or list: If item is "persons", a dictionary containing the item's data and the associated user's fullname.
+                      Otherwise, a list of dictionaries containing the item's data and the associated user's fullname,
+                      ordered by descending item ID.
+
+    Raises:
+        None
+    """
     stmt = select(tables_models[item], Users.fullname).filter(
         tables_models[item].user_id == Users.id
     )
     if item == "persons":
-        stmt = stmt.filter(Person.id == item_id)
+        stmt = stmt.filter(Persons.id == item_id)
     else:
         stmt = stmt.filter(tables_models[item].person_id == item_id).order_by(
             desc(tables_models[item].id)
@@ -177,27 +192,41 @@ def handle_post_resume(data):
                 Persons.birthday == resume["birthday"],
             )
         ).scalar_one_or_none()
-        if person:
-            resume["id"] = person.id
-    result = db_session.merge(Persons(**resume))
-    db_session.flush()
+        if not person:
+            person = Persons(**resume)
+            db_session.add(person)
+            db_session.flush()
+            person_id = person.id
 
-    person_dir = os.path.join(
-        current_app.config["BASE_PATH"],
-        resume["region"],
-        resume["surname"][0].upper(),
-        f"{result.id}-{resume['surname'].upper()} "
-        f"{resume['firstname'].upper()} "
-        f"{resume.get('patronymic', '').upper()}".rstrip(),
-    )
-    if not os.path.isdir(person_dir):
-        os.mkdir(person_dir)
-    result.destination = person_dir
-    db_session.commit()
-    return result.id
+            person.destination = os.path.join(
+                current_app.config["BASE_PATH"],
+                resume["region"],
+                resume["surname"][0].upper(),
+                f"{person_id}-{resume['surname'].upper()} "
+                f"{resume['firstname'].upper()} "
+                f"{resume.get('patronymic', '').upper()}".rstrip(),
+            )
+            if not os.path.isdir(person.destination):
+                os.mkdir(person.destination)
+            db_session.commit()
+            return person.id
+        else:
+            resume["id"] = person.id
+    handle_post_item(resume, "persons", resume["id"])
 
 
 def handle_post_item(json_data, item, item_id):
+    """
+    Updates an item in the database based on the provided JSON data, item, and item_id.
+
+    Args:
+        json_data (dict): A dictionary containing the data to update the item.
+        item (str): The type of item to update in the database.
+        item_id (int): The ID of the item to update.
+
+    Returns:
+        None
+    """
     json_dict = models_tables[item](**json_data).dict()
     if item != "persons":
         json_dict["person_id"] = item_id

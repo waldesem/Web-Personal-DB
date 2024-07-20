@@ -2,7 +2,7 @@
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { debounce } from "@/utilities";
 import { axiosAuth } from "@/auth";
-import { server } from "@/state";
+import { server, stateAlert } from "@/state";
 import { Persons } from "@/interfaces";
 import { router } from "@/router";
 
@@ -14,6 +14,7 @@ const TableSlots = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
+  stateAlert.alertMessage.show = false;
   await getCandidates();
 });
 

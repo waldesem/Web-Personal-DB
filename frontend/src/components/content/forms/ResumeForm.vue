@@ -34,20 +34,16 @@ const props = defineProps({
 
 const resumeForm = toRef(props.resume);
 
-function clearForm() {
+function cancelEdit() {
   Object.keys(resumeForm.value).forEach(
     (key) => delete resumeForm.value[key as keyof typeof resumeForm.value]
   );
-};
-
-function cancelEdit() {
-  clearForm();
   emit('cancel')
 }
 
 async function submitForm(): Promise<void> {
   stateAnketa.submitResume(props.action, resumeForm.value)
-  clearForm();
+  cancelEdit();
 }
 </script>
 
@@ -56,7 +52,7 @@ async function submitForm(): Promise<void> {
     <LabelSlot :label="'Регион'">
       <SelectDiv
         :name="'region_id'"
-        :select="stateClassify.regions"
+        :select="stateClassify.classes.regions"
         v-model="resumeForm['region']"
       />
     </LabelSlot>

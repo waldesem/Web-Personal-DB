@@ -55,7 +55,7 @@ const view = computed(() => {
     <LabelSlot :label="'Вид контакта'">
       <SelectDiv
         :name="'view'"
-        :select="stateClassify.contacts"
+        :select="stateClassify.classes.contacts"
         v-model="contactForm['view']"
       />
     </LabelSlot>

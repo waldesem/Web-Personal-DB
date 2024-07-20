@@ -99,7 +99,7 @@ async function switchTabs(tab: string) {
         <button
           v-if="
             currentTab == item &&
-            stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+            stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
             stateAnketa.anketa.persons['standing']
           "
           :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"

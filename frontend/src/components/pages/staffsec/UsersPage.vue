@@ -61,10 +61,12 @@ const searching = debounce(() => {
 
 async function userAction(action: String): Promise<void> {
   if (action === "delete") {
-    if (!confirm("Вы действительно хотите удалить/восстановить пользователя?")) {
-      return
+    if (
+      !confirm("Вы действительно хотите удалить/восстановить пользователя?")
+    ) {
+      return;
     }
-  };
+  }
   try {
     const response = await axiosAuth.get(
       `${server}/users/${dataUsers.value.profile.id}`,
@@ -154,7 +156,7 @@ function cancelOperations() {
           <InputElement
             :name="'username'"
             :place="'Учетная запись'"
-            :pattern="'[a-zA-Z_]+'"
+            :pattern="'[a-z_]+'"
             :need="true"
             v-model="dataUsers.profile['username']"
           />
@@ -164,21 +166,25 @@ function cancelOperations() {
             :name="'region'"
             :place="'Регион'"
             :need="true"
-            :select="stateClassify.regions"
+            :select="stateClassify.classes.regions"
             v-model="dataUsers.profile['region']"
           />
         </div>
         <div class="col-1">
-          <SwitchBox :name="'admin'" :title="'Администратор'" v-model="dataUsers.profile['has_admin']"/>
+          <SwitchBox
+            :name="'admin'"
+            :title="'Администратор'"
+            v-model="dataUsers.profile['has_admin']"
+          />
         </div>
         <div class="col-1">
           <button
-            class="btn btn-md btn-outline-primary"
+            class="btn btn-md btn-outline-secondary"
             name="submit"
             type="submit"
           >
             Сохранить
-        </button>
+          </button>
         </div>
       </div>
     </form>
@@ -222,7 +228,7 @@ function cancelOperations() {
                   {{ new Date(user.pswd_create).toLocaleString() }}
                 </td>
                 <td width="15%">
-                  {{ user.has_admin ? 'Да' : 'Нет' }}
+                  {{ user.has_admin ? "Да" : "Нет" }}
                 </td>
                 <td width="20%">{{ user.region }}</td>
               </tr>
@@ -237,74 +243,85 @@ function cancelOperations() {
       <div class="modal-content">
         <div class="modal-body">
           <div class="p-3">
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'ID'">
+              :label="'ID'"
+            >
               {{ dataUsers.profile.id }}
             </LabelSlot>
-            <LabelSlot 
-            :label-class="'col-5'"
+            <LabelSlot
+              :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Регион'">
+              :label="'Регион'"
+            >
               {{ dataUsers.profile.region }}
             </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Имя пользователя'">
+              :label="'Имя пользователя'"
+            >
               {{ dataUsers.profile.fullname }}
             </LabelSlot>
-            <LabelSlot 
-              :label-class="'col-5'"
-              :input-class="'col-7'"              
-              :label="'Логин'">
-              {{ dataUsers.profile.username }}
-            </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Дата создания пароля'">
+              :label="'Логин'"
+            >
+              {{ dataUsers.profile.username }}
+            </LabelSlot>
+            <LabelSlot
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              :label="'Дата создания пароля'"
+            >
               {{
                 new Date(dataUsers.profile.pswd_create + " UTC").toLocaleString(
                   "ru-RU"
                 )
               }}
             </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Требует смены пароля'">
+              :label="'Требует смены пароля'"
+            >
               {{ dataUsers.profile.change_pswd ? "Да" : "Нет" }}
             </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Попытки входа'">
+              :label="'Попытки входа'"
+            >
               {{ dataUsers.profile.attempt }}
             </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Заблокирован'">
+              :label="'Заблокирован'"
+            >
               {{ dataUsers.profile.blocked ? "Заблокирован" : "Разблокирован" }}
             </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Активность'">
+              :label="'Активность'"
+            >
               {{ dataUsers.profile.deleted ? "Удален" : "Активен" }}
             </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Администратор'">
+              :label="'Администратор'"
+            >
               {{ dataUsers.profile.has_admin ? "Да" : "Нет" }}
             </LabelSlot>
-            <LabelSlot 
+            <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Дата создания профиля'">
+              :label="'Дата создания профиля'"
+            >
               {{
                 new Date(dataUsers.profile.created + " UTC").toLocaleString(
                   "ru-RU"
@@ -318,7 +335,11 @@ function cancelOperations() {
               type="button"
               @click="userAction('admin')"
             >
-              {{ dataUsers.profile.has_admin ? "Отобрать админа" : "Сделать админом" }}
+              {{
+                dataUsers.profile.has_admin
+                  ? "Отобрать админа"
+                  : "Сделать админом"
+              }}
             </button>
             <button
               @click="userAction('drop')"
@@ -332,7 +353,7 @@ function cancelOperations() {
               type="button"
               class="btn btn-outline-danger"
             >
-              {{ dataUsers.profile.deleted ? "Восстановить" : "Удалить"}}
+              {{ dataUsers.profile.deleted ? "Восстановить" : "Удалить" }}
             </button>
           </div>
         </div>

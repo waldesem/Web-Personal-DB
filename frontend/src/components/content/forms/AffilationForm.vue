@@ -45,7 +45,7 @@ function submitAffilation() {
     <LabelSlot :label="'Тип участия'">
       <SelectDiv
         :name="'view'"
-        :select="stateClassify.affilations"
+        :select="stateClassify.classes.affilations"
         v-model="affilationForm['view']"
       />
     </LabelSlot>

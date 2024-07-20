@@ -36,7 +36,7 @@ const photoCard = ref({
       <div
         v-show="
           photoCard.showPhoto &&
-          stateAnketa.anketa.persons['user_id'] == stateUser.userId &&
+          stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
           stateAnketa.anketa.persons['standing']
         "
         class="card-img-overlay"

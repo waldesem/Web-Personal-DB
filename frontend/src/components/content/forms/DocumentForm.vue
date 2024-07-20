@@ -46,7 +46,7 @@ function submitDocument() {
       <SelectDiv
         :name="'view'"
         :need="true"
-        :select="stateClassify.documents"
+        :select="stateClassify.classes.documents"
         v-model="docForm['view']"
       />
     </LabelSlot>

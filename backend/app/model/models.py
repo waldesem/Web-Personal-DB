@@ -4,11 +4,7 @@ from typing import Optional, Union
 from pydantic import BaseModel, validator
 
 from ..classes.classes import (
-    Addresses,
     Affiliates,
-    Contacts,
-    Documents,
-    Educations,
     Poligrafs,
     Regions,
     Conclusions,
@@ -59,7 +55,7 @@ class Prev(Name):
 
 
 class Education(QueryModel):
-    view: Educations
+    view: str
     institution: str
     finished: Optional[str] = None
     specialty: Optional[str] = None
@@ -71,7 +67,7 @@ class Staff(QueryModel):
 
 
 class Document(QueryModel):
-    view: Documents
+    view: str
     series: Optional[str] = None
     digits: str
     agency: Optional[str] = None
@@ -79,12 +75,12 @@ class Document(QueryModel):
 
 
 class Address(QueryModel):
-    view: Addresses
+    view: str
     addresses: str
 
 
 class Contact(QueryModel):
-    view: Contacts
+    view: str
     contact: str
 
 
@@ -145,6 +141,7 @@ class Inquiry(QueryModel):
 
 
 models_tables = {
+    "persons": Person,
     "previous": Prev,
     "educations": Education,
     "staffs": Staff,

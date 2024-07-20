@@ -45,7 +45,7 @@ function submitAddress() {
     <LabelSlot :label="'Вид адреса'">
       <SelectDiv
         :name="'view'"
-        :select="stateClassify.addresses"
+        :select="stateClassify.classes.addresses"
         v-model="addressForm['view']"
       />
     </LabelSlot>

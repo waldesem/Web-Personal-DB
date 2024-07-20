@@ -38,7 +38,6 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/classes")
-@jwt_required()
 def get_classes():
     results = [
         {item.name: item.value for item in items}
@@ -60,7 +59,26 @@ def get_classes():
 @bp.get("/auth")
 @user_required()
 def get_auth():
-    return jsonify(current_user.to_dict()), 200
+    """
+    Retrieves the current user's information.
+
+    Returns:
+        A JSON response containing the current user's information. The JSON response has the following structure:
+        The HTTP status code is 200 if the user information is successfully retrieved.
+
+    Raises:
+        None
+
+    This function requires the user to be authenticated.
+
+    Parameters:
+        None
+
+    Query Parameters:
+        None
+
+    """
+    return jsonify(User(**current_user.to_dict()).dict()), 200
 
 
 @bp.get("/information")
