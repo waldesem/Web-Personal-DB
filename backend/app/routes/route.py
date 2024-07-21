@@ -38,31 +38,6 @@ from ..tools.tool import (
 bp = Blueprint("route", __name__)
 
 
-@bp.get("/classes")
-def get_classes():
-    """
-    Retrieves classes information and returns a JSON response.
-
-    Returns:
-        A JSON response containing information about Regions, Conclusions, Relations, Affiliates, Educations, Addresses, Contacts, Documents, and Poligrafs.
-    """
-    results = [
-        {item.name: item.value for item in items}
-        for items in [
-            Regions,
-            Conclusions,
-            Relations,
-            Affiliates,
-            Educations,
-            Addresses,
-            Contacts,
-            Documents,
-            Poligrafs,
-        ]
-    ]
-    return jsonify(results), 200
-
-
 @bp.get("/auth")
 @user_required()
 def get_auth():
@@ -72,60 +47,8 @@ def get_auth():
     Returns:
         A JSON response containing the current user's information. The JSON response has the following structure:
         The HTTP status code is 200 if the user information is successfully retrieved.
-
-    Raises:
-        None
-
-    This function requires the user to be authenticated.
-
-    Parameters:
-        None
-
-    Query Parameters:
-        None
-
     """
     return jsonify(User(**current_user).dict()), 200
-
-
-@bp.get("/information")
-@user_required()
-def get_information():
-    """
-    Retrieves information based on the provided query parameters.
-
-    Returns:
-        A JSON response containing the count of checks for each conclusion within the specified date range and region.
-        The JSON response has the following structure:
-        The HTTP status code is 200 if the information is successfully retrieved.
-
-    Raises:
-        None
-
-    This function requires the user to be authenticated.
-
-    Parameters:
-        None
-
-    Query Parameters:
-        start (str): The start date of the date range in the format "YYYY-MM-DD".
-        end (str): The end date of the date range in the format "YYYY-MM-DD".
-        region (str): The region to filter the checks by.
-
-    """
-    data = request.args
-    result = db_session.execute(
-        select(Checks.conclusion, func.count(Checks.id))
-        .join(Persons, Checks.person_id == Persons.id)
-        .filter(
-            Checks.created.between(data["start"], data["end"]),
-            Persons.region == data.get("region")
-            if data.get("region")
-            else current_user["region"],
-        )
-        .group_by(Checks.conclusion)
-    ).all()
-    return jsonify(result), 200
 
 
 @bp.post("/login/<action>")
@@ -260,21 +183,23 @@ def get_user_actions(user_id):
         The HTTP status code is 201.
     """
     user = db_session.get(Users, user_id)
-    if request.args.get("action") == "drop":
-        user.passhash = generate_password_hash(current_app.config["DEFAULT_PASSWORD"])
-        user.attempt = 0
-        user.blocked = False
-        user.change_pswd = True
-    elif request.args.get("action") == "admin":
-        user.has_admin = not user.has_admin
-    elif request.args.get("action") == "delete":
-        user.deleted = not user.deleted
-        get_current_user.cache_clear()
-    else:
-        if request.args.get("region") in [e.value for e in Regions]:
-            user.region = request.args.get("region")
-    db_session.commit()
-    return "", 201
+    item = request.args.get("item")
+    if user and item:
+        if item == "drop":
+            user.passhash = generate_password_hash(current_app.config["DEFAULT_PASSWORD"])
+            user.attempt = 0
+            user.blocked = False
+            user.change_pswd = True
+        elif item == "admin":
+            user.has_admin = not user.has_admin
+        elif item == "delete":
+            user.deleted = not user.deleted
+            get_current_user.cache_clear()
+        elif item in [e.value for e in Regions]:
+            user.region = request.args.get("item")
+        db_session.commit()
+        return "", 201
+    return abort(400)
 
 
 @bp.get("/index/<int:page>")
@@ -533,3 +458,68 @@ def delete_item(item, item_id):
     db_session.delete(item)
     db_session.commit()
     return "", 204
+
+
+@bp.get("/information")
+@user_required()
+def get_information():
+    """
+    Retrieves information based on the provided query parameters.
+
+    Returns:
+        A JSON response containing the count of checks for each conclusion within the specified date range and region.
+        The JSON response has the following structure:
+        The HTTP status code is 200 if the information is successfully retrieved.
+
+    Raises:
+        None
+
+    This function requires the user to be authenticated.
+
+    Parameters:
+        None
+
+    Query Parameters:
+        start (str): The start date of the date range in the format "YYYY-MM-DD".
+        end (str): The end date of the date range in the format "YYYY-MM-DD".
+        region (str): The region to filter the checks by.
+
+    """
+    data = request.args
+    result = db_session.execute(
+        select(Checks.conclusion, func.count(Checks.id))
+        .join(Persons, Checks.person_id == Persons.id)
+        .filter(
+            Checks.created.between(data["start"], data["end"]),
+            Persons.region == data.get("region")
+            if data.get("region")
+            else current_user["region"],
+        )
+        .group_by(Checks.conclusion)
+    ).all()
+    return jsonify(result), 200
+
+
+@bp.get("/classes")
+def get_classes():
+    """
+    Retrieves classes information and returns a JSON response.
+
+    Returns:
+        A JSON response containing information about Regions, Conclusions, Relations, Affiliates, Educations, Addresses, Contacts, Documents, and Poligrafs.
+    """
+    results = [
+        {item.name: item.value for item in items}
+        for items in [
+            Regions,
+            Conclusions,
+            Relations,
+            Affiliates,
+            Educations,
+            Addresses,
+            Contacts,
+            Documents,
+            Poligrafs,
+        ]
+    ]
+    return jsonify(results), 200

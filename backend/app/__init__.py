@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, send_file
-from flask_cors import CORS  # needed for frontend development server
+# from flask_cors import CORS  # needed for frontend development server
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
@@ -24,7 +24,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    # CORS(app, resources={r"/*": {"origins": "*"}})
 
     if not os.path.isdir(Config.BASE_PATH):
         os.mkdir(Config.BASE_PATH)
@@ -59,14 +59,12 @@ def create_app(config_class=Config):
 
     @app.get("/<path:path>")
     def static_file(path=""):
-        if path.startswith("image"):
-            image_path = path[6:]
-            if os.path.isdir(image_path):
-                file_path = os.path.join(image_path, "image", "image.jpg")
-                if os.path.isfile(file_path):
-                    return send_file(
-                        file_path, as_attachment=True, mimetype="image/jpg"
-                    )
+        if path.startswith("image") and os.path.isdir(path[6:]):
+            file_path = os.path.join(path[6:], "image", "image.jpg")
+            if os.path.isfile(file_path):
+                return send_file(
+                    file_path, as_attachment=True, mimetype="image/jpg"
+                )
             return send_file(
                 "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
             )

@@ -252,7 +252,6 @@ function cancelOperations() {
             </LabelSlot>
             <LabelSlot :label="'Регион'">
               <SelectDiv
-                :width="'20%'"
                 :name="'region'"
                 :select="stateClassify.classes.regions"
                 v-model="dataUsers.profile.region"

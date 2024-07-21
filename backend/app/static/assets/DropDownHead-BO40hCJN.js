@@ -1,1 +1,0 @@
-import{d as o,o as n,c as a,e as s,t as r}from"./index-D1cK-JSR.js";const c=["href"],i=o({__name:"DropDownHead",props:{id:String,header:String},setup(t){const e=t;return(p,l)=>(n(),a("h6",null,[s("button",{type:"button",class:"btn btn-link","data-bs-toggle":"collapse",href:`#${e.id}`},r(e.header),9,c)]))}});export{i as default};
