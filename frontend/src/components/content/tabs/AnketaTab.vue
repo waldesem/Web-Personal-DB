@@ -58,7 +58,10 @@ const dataResume = ref({
     <ResumeForm
       :action="dataResume.action"
       :resume="stateAnketa.anketa.persons"
-      @cancel="dataResume.action = ''; stateAnketa.getItem('persons')"
+      @cancel="
+        dataResume.action = '';
+        stateAnketa.getItem('persons');
+      "
     />
   </div>
   <div
@@ -84,7 +87,9 @@ const dataResume = ref({
           v-show="dataResume.showActions"
           :name-id="'persons-file'"
           :accept="'*'"
-          @submit="stateAnketa.submitFile($event, 'anketa', stateAnketa.share.candId)"
+          @submit="
+            stateAnketa.submitFile($event, 'anketa', stateAnketa.share.candId)
+          "
         />
       </ActionIcons>
     </LabelSlot>
@@ -92,6 +97,10 @@ const dataResume = ref({
       <SelectDiv
         width="20%"
         :name="'region'"
+        :disable="
+          stateUser.user.userId != stateAnketa.anketa.persons['user_id'] ||
+          !stateAnketa.anketa.persons['standing']
+        "
         :select="stateClassify.classes.regions"
         v-model="stateAnketa.anketa.persons['region']"
         @submit-data="stateAnketa.changeRegion()"

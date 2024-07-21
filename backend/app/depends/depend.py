@@ -50,7 +50,7 @@ def get_current_user(user_id):
         and not user.change_pswd
         and delta_change.days < 365
     ):
-        return user
+        return user.to_dict()
     return None
 
 
@@ -122,7 +122,7 @@ def user_required(admin=False):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
                 cur_user = current_user
-                if cur_user and (not admin or cur_user.has_admin):
+                if cur_user and (not admin or cur_user['has_admin']):
                     return func(*args, **kwargs)
                 abort(403)
             abort(401)

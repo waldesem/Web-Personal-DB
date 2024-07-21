@@ -22,7 +22,7 @@ def parse_json(json_dict: dict):
     """
     json_data = {
         "resume": {
-            "region": current_user.region,
+            "region": current_user['region'],
             "firstname": json_dict.get("firstName"),
             "surname": json_dict.get("lastName"),
             "patronymic": json_dict.get("midName"),
@@ -197,7 +197,7 @@ def handle_post_resume(data):
     """
     resume = Person(**data).dict()
     resume["standing"] = True
-    resume["user_id"] = current_user.id
+    resume["user_id"] = current_user['id']
     if not resume.get("id"):
         person = db_session.execute(
             select(Persons).where(
@@ -221,7 +221,7 @@ def handle_post_resume(data):
             db_session.commit()
             return person.id
         else:
-            if person.user_id != current_user.id:
+            if person.user_id != current_user['id']:
                 return None
             resume["id"] = person.id
     handle_post_item(resume, "persons", resume["id"])
@@ -243,6 +243,6 @@ def handle_post_item(json_data, item, item_id):
     json_dict = models_tables[item](**json_data).dict()
     if item != "persons":
         json_dict["person_id"] = item_id
-    json_dict["user_id"] = current_user.id
+    json_dict["user_id"] = current_user['id']
     db_session.merge(tables_models[item](**json_dict))
     db_session.commit()

@@ -8,7 +8,7 @@ setting.read(os.path.join(basedir, "settings.ini"))
 
 
 class Config:
-    SECRET_KEY = "secrets.token_hex(16)"
+    SECRET_KEY = secrets.token_hex(16)
     SQLITE_URI = os.path.join("sqlite:///database.db")
     POSTGRE_URI = "postgresql://{}:{}@{}:{}/{}".format(
         setting["Postgre"]["user"],

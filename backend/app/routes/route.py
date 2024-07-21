@@ -1,8 +1,7 @@
+from datetime import datetime
 import json
 import os
 import re
-from datetime import datetime
-import shutil
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from sqlalchemy import desc, func, select
@@ -80,7 +79,7 @@ def get_auth():
         None
 
     """
-    return jsonify(User(**current_user.to_dict()).dict()), 200
+    return jsonify(User(**current_user).dict()), 200
 
 
 @bp.get("/information")
@@ -116,7 +115,7 @@ def get_information():
             Checks.created.between(data["start"], data["end"]),
             Persons.region == data.get("region")
             if data.get("region")
-            else current_user.region,
+            else current_user['region'],
         )
         .group_by(Checks.conclusion)
     ).all()
@@ -243,7 +242,7 @@ def post_user():
 @bp.get("/users/<int:user_id>")
 @user_required(admin=True)
 def get_user_actions(user_id):
-    if current_user.id == user_id:
+    if current_user['id'] == user_id:
         return "", 205
     """
     Change a user's information in the database based on their user ID.
@@ -307,11 +306,11 @@ def get_index(page):
                 stmt = stmt.filter(
                     Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
                 )
-        if cur_user.region != Regions.main.value:
-            stmt = stmt.filter(Persons.region == cur_user.region)
+        if cur_user['region'] != Regions.main.value:
+            stmt = stmt.filter(Persons.region == cur_user['region'])
     else:
-        if cur_user.region != Regions.main.value:
-            stmt = stmt.filter(Persons.region == cur_user.region)
+        if cur_user['region'] != Regions.main.value:
+            stmt = stmt.filter(Persons.region == cur_user['region'])
     query = db_session.execute(
         stmt.filter(Persons.user_id == Users.id)
         .order_by(desc(Persons.id))
@@ -455,14 +454,12 @@ def change_region(person_id):
     region = request.args.get("region")
     if region:
         person = db_session.get(Persons, person_id)
-        person.region = region
         destination = make_destination(
             region, person.surname, person.firstname, person.patronymic, person.id
         )
-        for item in os.listdir(person.destination):
-            shutil.copy2(os.path.join(person.destination, item), destination)
-        os.rmdir(person.destination)
+        os.rename(person.destination, destination)
         person.destination = destination
+        person.region = region
         db_session.commit()
         return "", 201
     return abort(400)
@@ -503,7 +500,7 @@ def get_item_id(item, item_id):
     if item == "persons" and request.args.get("action") == "self":
         person = db_session.get(Persons, item_id)
         person.standing = not person.standing
-        person.user_id = current_user.id
+        person.user_id = current_user['id']
         db_session.commit()
     result = handle_get_item(item, item_id)
     return jsonify(result), 200
