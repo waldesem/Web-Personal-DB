@@ -18,8 +18,8 @@ import {
   Needs,
 } from "@/interfaces";
 
-// export const server = "http://localhost:5000";
-export const server = "";
+export const server = "http://localhost:5000";
+// export const server = "";
 
 export const stateUser = {
   user: reactive({
@@ -60,7 +60,7 @@ export const stateClassify = {
     try {
       const classes = await axiosAuth.get(`${server}/classes`);
       const resp = classes.data;
-      const classifyKeys = Object.keys(stateClassify);
+      const classifyKeys = Object.keys(this.classes);
       for (let i = 0; i < classifyKeys.length; i++) {
         this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
           resp[i];
@@ -137,6 +137,21 @@ export const stateAnketa = {
       if (action === "self") {
         stateAlert.setAlert("alert-info", "Режим проверки включен/отключен");
       }
+    } catch (error: any) {
+      console.error(error);
+    }
+  },
+
+  async changeRegion(): Promise<void> {
+    if (!confirm("Вы действительно хотите изменить регион?")) return;
+    try {
+      const response = await axiosAuth.get(`${server}/region/${this.share.candId}`, {
+        params: {
+          region: this.anketa.persons['region'],
+        },
+      });
+      console.log(response.status);
+      this.getItem("persons");
     } catch (error: any) {
       console.error(error);
     }

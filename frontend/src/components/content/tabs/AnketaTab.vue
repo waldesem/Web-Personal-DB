@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateUser } from "@/state";
+import { stateAnketa, stateClassify, stateUser } from "@/state";
 import type { Persons } from "@/interfaces";
 
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
+);
+const SelectDiv = defineAsyncComponent(
+  () => import("@components/content/elements/SelectDiv.vue")
 );
 const FileForm = defineAsyncComponent(
   () => import("@components/content/forms/FileForm.vue")
@@ -55,7 +58,7 @@ const dataResume = ref({
     <ResumeForm
       :action="dataResume.action"
       :resume="stateAnketa.anketa.persons"
-      @cancel="dataResume.action = ''"
+      @cancel="dataResume.action = ''; stateAnketa.getItem('persons')"
     />
   </div>
   <div
@@ -84,6 +87,15 @@ const dataResume = ref({
           @submit="stateAnketa.submitFile($event, 'anketa', stateAnketa.share.candId)"
         />
       </ActionIcons>
+    </LabelSlot>
+    <LabelSlot :label="'Регион'">
+      <SelectDiv
+        width="20%"
+        :name="'region'"
+        :select="stateClassify.classes.regions"
+        v-model="stateAnketa.anketa.persons['region']"
+        @submit-data="stateAnketa.changeRegion()"
+      />
     </LabelSlot>
     <LabelSlot :label="'Фамилия'">
       {{ stateAnketa.anketa.persons["surname"] }}

@@ -9,6 +9,7 @@ from ..depends.depend import current_user
 from ..model.models import Person, models_tables
 from ..model.tables import Users, db_session, Persons, tables_models
 
+
 def parse_json(json_dict: dict):
     """
     Parses a JSON dictionary and returns a dictionary with the parsed data.
@@ -136,6 +137,20 @@ def parse_json(json_dict: dict):
     )
 
 
+def make_destination(region, surname, firstname, patronymic, person_id):
+    destination = os.path.join(
+        current_app.config["BASE_PATH"],
+        region,
+        surname[0].upper(),
+        f"{person_id}-{surname.upper()} "
+        f"{firstname.upper()} "
+        f"{patronymic.upper()}".rstrip(),
+    )
+    if not os.path.isdir(destination):
+        os.mkdir(destination)
+    return destination
+
+
 def handle_get_item(item, item_id):
     """
     Retrieves an item from the database based on the provided item and item_id.
@@ -196,23 +211,21 @@ def handle_post_resume(data):
             person = Persons(**resume)
             db_session.add(person)
             db_session.flush()
-            person_id = person.id
-
-            person.destination = os.path.join(
-                current_app.config["BASE_PATH"],
+            person.destination = make_destination(
                 resume["region"],
-                resume["surname"][0].upper(),
-                f"{person_id}-{resume['surname'].upper()} "
-                f"{resume['firstname'].upper()} "
-                f"{resume.get('patronymic', '').upper()}".rstrip(),
+                resume["surname"],
+                resume["firstname"],
+                resume.get("patronymic", ""),
+                person.id,
             )
-            if not os.path.isdir(person.destination):
-                os.mkdir(person.destination)
             db_session.commit()
             return person.id
         else:
+            if person.user_id != current_user.id:
+                return None
             resume["id"] = person.id
     handle_post_item(resume, "persons", resume["id"])
+    return resume["id"]
 
 
 def handle_post_item(json_data, item, item_id):

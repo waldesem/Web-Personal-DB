@@ -57,7 +57,7 @@ class Prev(Name):
 class Education(QueryModel):
     view: str
     institution: str
-    finished: Optional[str] = None
+    finished: Union[str, int] = None
     specialty: Optional[str] = None
 
 

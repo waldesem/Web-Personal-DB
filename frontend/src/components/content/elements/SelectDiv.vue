@@ -3,6 +3,10 @@ const model = defineModel();
 const emit = defineEmits(["submit-data"]);
 const props = defineProps({
   name: String,
+  width: {
+    type: String,
+    default: "100%",
+  },
   need: {
     type: Boolean,
     default: false,
@@ -20,6 +24,7 @@ const props = defineProps({
 
 <template>
   <select
+    :style="`width: ${props.width}`"
     @change="emit('submit-data')"
     class="form-select"
     :disabled="props.disable"

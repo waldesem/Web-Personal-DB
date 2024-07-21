@@ -2,6 +2,7 @@ import json
 import os
 import re
 from datetime import datetime
+import shutil
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from sqlalchemy import desc, func, select
@@ -31,6 +32,7 @@ from ..tools.tool import (
     handle_get_item,
     handle_post_item,
     handle_post_resume,
+    make_destination,
     parse_json,
 )
 
@@ -436,6 +438,34 @@ def post_resume():
     if not person_id:
         return abort(400)
     return jsonify({"person_id": person_id}), 201
+
+
+@bp.get("/region/<int:person_id>")
+@user_required()
+def change_region(person_id):
+    """
+    Change a person's region in the database based on their person ID.
+
+    Parameters:
+        person_id (int): The ID of the person.
+
+    Returns:
+        The HTTP status code is 200.
+    """
+    region = request.args.get("region")
+    if region:
+        person = db_session.get(Persons, person_id)
+        person.region = region
+        destination = make_destination(
+            region, person.surname, person.firstname, person.patronymic, person.id
+        )
+        for item in os.listdir(person.destination):
+            shutil.copy2(os.path.join(person.destination, item), destination)
+        os.rmdir(person.destination)
+        person.destination = destination
+        db_session.commit()
+        return "", 201
+    return abort(400)
 
 
 @bp.get("/profile/<int:person_id>")

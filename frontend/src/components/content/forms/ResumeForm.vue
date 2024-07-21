@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { defineAsyncComponent, toRef } from "vue";
-import { stateAnketa, stateClassify } from "@/state";
+import { stateAnketa } from "@/state";
 import { Persons } from "@/interfaces";
 
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
+
 const InputElement = defineAsyncComponent(
   () => import("@components/content/elements/InputElement.vue")
 );
@@ -49,13 +47,6 @@ async function submitForm(): Promise<void> {
 
 <template>
   <form @submit.prevent="submitForm" class="form form-check" role="form">
-    <LabelSlot :label="'Регион'">
-      <SelectDiv
-        :name="'region_id'"
-        :select="stateClassify.classes.regions"
-        v-model="resumeForm['region']"
-      />
-    </LabelSlot>
     <LabelSlot :label="'Фамилия'">
       <InputElement
         :need="true"
