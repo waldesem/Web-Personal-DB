@@ -95,7 +95,7 @@ const dataResume = ref({
     </LabelSlot>
     <LabelSlot :label="'Регион'">
       <SelectDiv
-        width="20%"
+        :width="'20%'"
         :name="'region'"
         :disable="
           stateUser.user.userId != stateAnketa.anketa.persons['user_id'] ||

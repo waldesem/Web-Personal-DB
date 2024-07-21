@@ -59,8 +59,8 @@ const searching = debounce(() => {
   getUsers();
 }, 500);
 
-async function userAction(action: String): Promise<void> {
-  if (action === "delete") {
+async function userAction(item: String): Promise<void> {
+  if (item === "delete") {
     if (
       !confirm("Вы действительно хотите удалить/восстановить пользователя?")
     ) {
@@ -72,7 +72,7 @@ async function userAction(action: String): Promise<void> {
       `${server}/users/${dataUsers.value.profile.id}`,
       {
         params: {
-          action: action,
+          item: item,
         },
       }
     );
@@ -250,12 +250,14 @@ function cancelOperations() {
             >
               {{ dataUsers.profile.id }}
             </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Регион'"
-            >
-              {{ dataUsers.profile.region }}
+            <LabelSlot :label="'Регион'">
+              <SelectDiv
+                :width="'20%'"
+                :name="'region'"
+                :select="stateClassify.classes.regions"
+                v-model="dataUsers.profile.region"
+                @submit-data="userAction(dataUsers.profile.region)"
+              />
             </LabelSlot>
             <LabelSlot
               :label-class="'col-5'"

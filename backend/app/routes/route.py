@@ -3,7 +3,7 @@ import json
 import os
 import re
 
-from flask import Blueprint, abort, current_app, jsonify, request, send_file
+from flask import Blueprint, abort, current_app, jsonify, request
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -40,6 +40,12 @@ bp = Blueprint("route", __name__)
 
 @bp.get("/classes")
 def get_classes():
+    """
+    Retrieves classes information and returns a JSON response.
+
+    Returns:
+        A JSON response containing information about Regions, Conclusions, Relations, Affiliates, Educations, Addresses, Contacts, Documents, and Poligrafs.
+    """
     results = [
         {item.name: item.value for item in items}
         for items in [
@@ -115,7 +121,7 @@ def get_information():
             Checks.created.between(data["start"], data["end"]),
             Persons.region == data.get("region")
             if data.get("region")
-            else current_user['region'],
+            else current_user["region"],
         )
         .group_by(Checks.conclusion)
     ).all()
@@ -190,7 +196,7 @@ def get_users():
     search_data = request.args.get("search")
     stmt = select(Users)
     if search_data and len(search_data) > 2:
-        if re.match(r"^[a-zA-z]+", search_data):
+        if re.match(r"^[a-zA-z_]+", search_data):
             stmt = stmt.filter(Users.username.like("%" + search_data + "%"))
         else:
             stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
@@ -242,7 +248,7 @@ def post_user():
 @bp.get("/users/<int:user_id>")
 @user_required(admin=True)
 def get_user_actions(user_id):
-    if current_user['id'] == user_id:
+    if current_user["id"] == user_id:
         return "", 205
     """
     Change a user's information in the database based on their user ID.
@@ -264,6 +270,9 @@ def get_user_actions(user_id):
     elif request.args.get("action") == "delete":
         user.deleted = not user.deleted
         get_current_user.cache_clear()
+    else:
+        if request.args.get("region") in [e.value for e in Regions]:
+            user.region = request.args.get("region")
     db_session.commit()
     return "", 201
 
@@ -306,11 +315,11 @@ def get_index(page):
                 stmt = stmt.filter(
                     Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
                 )
-        if cur_user['region'] != Regions.main.value:
-            stmt = stmt.filter(Persons.region == cur_user['region'])
+        if cur_user["region"] != Regions.main.value:
+            stmt = stmt.filter(Persons.region == cur_user["region"])
     else:
-        if cur_user['region'] != Regions.main.value:
-            stmt = stmt.filter(Persons.region == cur_user['region'])
+        if cur_user["region"] != Regions.main.value:
+            stmt = stmt.filter(Persons.region == cur_user["region"])
     query = db_session.execute(
         stmt.filter(Persons.user_id == Users.id)
         .order_by(desc(Persons.id))
@@ -321,30 +330,6 @@ def get_index(page):
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
     return jsonify([result, has_next, page > 1]), 200
-
-
-@bp.get("/image/<int:item_id>")
-def get_image(item_id):
-    """
-    Retrieves an image file associated with a person's ID.
-
-    Args:
-        item_id (int): The ID of the person.
-
-    Returns:
-        Response: A Flask Response object containing the image file.
-
-    Raises:
-        None.
-    """
-    person_path = db_session.execute(
-        select(Persons.destination).where(Persons.id == item_id)
-    ).scalar_one_or_none()
-    if person_path:
-        file_path = os.path.join(person_path, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -434,9 +419,9 @@ def post_resume():
     """
     json_data = request.get_json()
     person_id = handle_post_resume(json_data)
-    if not person_id:
-        return abort(400)
-    return jsonify({"person_id": person_id}), 201
+    if person_id:
+        return jsonify({"person_id": person_id}), 201
+    return abort(400)
 
 
 @bp.get("/region/<int:person_id>")
@@ -460,6 +445,7 @@ def change_region(person_id):
         os.rename(person.destination, destination)
         person.destination = destination
         person.region = region
+        person.standing = False
         db_session.commit()
         return "", 201
     return abort(400)
@@ -500,7 +486,7 @@ def get_item_id(item, item_id):
     if item == "persons" and request.args.get("action") == "self":
         person = db_session.get(Persons, item_id)
         person.standing = not person.standing
-        person.user_id = current_user['id']
+        person.user_id = current_user["id"]
         db_session.commit()
     result = handle_get_item(item, item_id)
     return jsonify(result), 200

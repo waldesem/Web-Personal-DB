@@ -39,6 +39,7 @@ onBeforeMount(async () => {
       stateAnketa.anketa[anketaKeys[i] as keyof typeof stateAnketa.anketa] =
         resp[i];
     }
+    stateAnketa.getImage();
   } catch (error: any) {
     console.error(error);
   }

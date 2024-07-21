@@ -18,8 +18,8 @@ import {
   Needs,
 } from "@/interfaces";
 
-// export const server = "http://localhost:5000";
-export const server = "";
+export const server = "http://localhost:5000";
+// export const server = "";
 
 export const stateUser = {
   user: reactive({
@@ -32,10 +32,10 @@ export const stateUser = {
     try {
       const auth = await axiosAuth.get(`${server}/auth`);
       const user = auth.data;
-      this.user.userId = user['id'];
-      this.user.username = user['username'];
-      this.user.hasAdmin = user['has_admin'];
-      this.user.region = user['region'];
+      this.user.userId = user["id"];
+      this.user.username = user["username"];
+      this.user.hasAdmin = user["has_admin"];
+      this.user.region = user["region"];
       await stateClassify.getClassify();
       router.push({ name: "persons" });
     } catch (error: any) {
@@ -68,7 +68,7 @@ export const stateClassify = {
     } catch (error: any) {
       console.error(error);
     }
-  }
+  },
 };
 
 export const stateAlert = {
@@ -109,7 +109,7 @@ export const stateAnketa = {
     imageUrl: "" as string,
   }),
 
-  async getItem(param: string, action = "view"): Promise<void> {
+  async getItem(item: string, action = "view"): Promise<void> {
     if (
       action === "self" &&
       !confirm("Вы действительно хотите включить/выключить режим правки")
@@ -117,23 +117,15 @@ export const stateAnketa = {
       return;
     }
     try {
-      const response =
-        param === "image"
-          ? await axiosAuth.get(`${server}/image/${this.share.candId}`, {
-              responseType: "blob",
-            })
-          : await axiosAuth.get(`${server}/${param}/${this.share.candId}`, {
-              params: {
-                action: action,
-              },
-            });
-      if (param === "image") {
-        this.share.imageUrl = window.URL.createObjectURL(
-          new Blob([response.data])
-        );
-      } else {
-        this.anketa[param as keyof typeof this.anketa] = response.data;
-      }
+      const response = await axiosAuth.get(
+        `${server}/${item}/${this.share.candId}`,
+        {
+          params: {
+            action: action,
+          },
+        }
+      );
+      this.anketa[item as keyof typeof this.anketa] = response.data;
       if (action === "self") {
         stateAlert.setAlert("alert-info", "Режим проверки включен/отключен");
       }
@@ -142,14 +134,27 @@ export const stateAnketa = {
     }
   },
 
+  async getImage() {
+    const image = await axiosAuth.get(
+      `${server}/image/${this.anketa.persons.destination}`,
+      {
+        responseType: "blob",
+      }
+    );
+    this.share.imageUrl = window.URL.createObjectURL(new Blob([image.data]));
+  },
+
   async changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
     try {
-      const response = await axiosAuth.get(`${server}/region/${this.share.candId}`, {
-        params: {
-          region: this.anketa.persons['region'],
-        },
-      });
+      const response = await axiosAuth.get(
+        `${server}/region/${this.share.candId}`,
+        {
+          params: {
+            region: this.anketa.persons["region"],
+          },
+        }
+      );
       console.log(response.status);
       this.getItem("persons");
     } catch (error: any) {
@@ -208,7 +213,7 @@ export const stateAnketa = {
         );
         console.log(response.status);
         if (param === "image") {
-          this.getItem(param);
+          this.getImage();
         }
         if (param === "persons") {
           const { person_id } = response.data;

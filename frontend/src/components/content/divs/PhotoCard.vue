@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
+import { ref } from "vue";
 import { stateAnketa, stateUser } from "@/state";
-
-onBeforeMount(async () => {
-  await stateAnketa.getItem("image");
-});
 
 const photoCard = ref({
   formData: new FormData(),
