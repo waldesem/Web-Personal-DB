@@ -179,7 +179,7 @@ function cancelOperations() {
         </div>
         <div class="col-1">
           <button
-            class="btn btn-md btn-outline-secondary"
+            class="btn btn-outline-secondary"
             name="submit"
             type="submit"
           >

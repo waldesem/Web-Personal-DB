@@ -91,9 +91,9 @@ async function userLogout(): Promise<void> {
   </div>
   <footer 
     id="footer" 
-    class="d-flex justify-content-center py-3 border-top bg-white d-print-none"
+    class="d-flex justify-content-center border-top bg-white d-print-none"
   >
-    <p class="text-muted">© 2024 STAFFSEC FINTECH</p>
+    <p class="text-muted mt-2">© 2024 STAFFSEC FINTECH</p>
   </footer>
 </template>
 
@@ -103,9 +103,13 @@ async function userLogout(): Promise<void> {
     width: 100% !important;
   }
 }
+#staffsec {
+  padding-bottom: 5vh;
+}
 footer {
   position: fixed;
   bottom: 0;
   width: 100%;
+  height: 5vh;
 }
 </style>

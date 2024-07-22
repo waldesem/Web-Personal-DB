@@ -144,7 +144,7 @@ class Previous(Base):
     surname: Mapped[str] = mapped_column(String(255), nullable=True)
     firstname: Mapped[str] = mapped_column(String(255), nullable=True)
     patronymic: Mapped[str] = mapped_column(String(255), nullable=True)
-    changed: Mapped[date] = mapped_column(Date, nullable=True)
+    changed: Mapped[str] = mapped_column(String(255), nullable=True)
     reason: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True

@@ -63,7 +63,7 @@ class Education(QueryModel):
 
 class Staff(QueryModel):
     position: str
-    department: str = "Прямое подчинение ПП"
+    department: str = "Прямое подчинение"
 
 
 class Document(QueryModel):

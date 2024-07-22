@@ -64,7 +64,7 @@ function submitPrevious() {
         v-model="previousForm['patronymic']"
       />
     </LabelSlot>
-    <LabelSlot :label="'Дата изменения'">
+    <LabelSlot :label="'Год изменения'">
       <InputElement
         :name="'date_change'"
         :place="'Год изменения'"

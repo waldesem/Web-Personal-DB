@@ -73,8 +73,8 @@ function cancelAction() {
         <LabelSlot v-if="item['patronymic']" :label="'Отчество'">
           {{ item["patronymic"] }}
         </LabelSlot>
-        <LabelSlot v-if="item['changed']" :label="'Дата изменения'">
-          {{ new Date(String(item["changed"])).toLocaleDateString("ru-RU") }}
+        <LabelSlot v-if="item['changed']" :label="'Год изменения'">
+          {{ item["changed"] }}
         </LabelSlot>
         <LabelSlot v-if="item['reason']" :label="'Причина'">
           {{ item["reason"] }}
