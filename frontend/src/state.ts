@@ -76,12 +76,14 @@ export const stateAlert = {
     attr: "",
     text: "",
     show: false,
+    timeOut: 0,
   }),
   setAlert(attr: string, text: string) {
+    window.clearTimeout(this.alertMessage.timeOut);
     this.alertMessage.show = true;
     this.alertMessage.attr = attr;
     this.alertMessage.text = text;
-    setTimeout(() => {
+    this.alertMessage.timeOut = window.setTimeout(() => {
       this.alertMessage.show = false;
     }, 10000);
   },
@@ -195,14 +197,11 @@ export const stateAnketa = {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
       for (let i = 0; i < inputElement.files.length; i++) {
-        if (inputElement.files[i].size > 10 * 1024 * 1024) {
+        if (inputElement.files[i].size > 1024 * 1024) {
           stateAlert.setAlert(
             "alert-warning",
             "Превышен максимальный размер файла"
           );
-          inputElement.value = "";
-          return;
-        } else {
           formData.append("file", inputElement.files[i]);
         }
       }

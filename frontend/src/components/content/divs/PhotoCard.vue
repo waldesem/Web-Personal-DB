@@ -42,7 +42,7 @@ const photoCard = ref({
           class="form-control form-control-sm"
           id="formImage"
           type="file"
-          accept="image/jpg, image/jpeg"
+          accept="image/*"
         />
       </div>
     </div>
