@@ -4,6 +4,7 @@ import os
 import re
 
 from flask import Blueprint, abort, current_app, jsonify, request
+from PIL import Image
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -303,11 +304,11 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            endwith = file.filename.split(".")[-1]
-            image_file = os.path.join(item_dir, "image." + endwith)
+            image = Image.open(file)
+            image_file = os.path.join(item_dir, "image.jpg")
             if os.path.isfile(image_file):
                 os.remove(image_file)
-            file.save(image_file)
+            image.save(image_file)
             return "", 201
 
         date_subfolder = os.path.join(
