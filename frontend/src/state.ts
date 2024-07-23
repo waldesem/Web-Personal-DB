@@ -200,8 +200,9 @@ export const stateAnketa = {
         if (inputElement.files[i].size > 1024 * 1024) {
           stateAlert.setAlert(
             "alert-warning",
-            "Превышен максимальный размер файла"
+            "Превышен максимальный размер файла. Часть файлов не будет загружена"
           );
+        } else {
           formData.append("file", inputElement.files[i]);
         }
       }
@@ -220,7 +221,7 @@ export const stateAnketa = {
         }
         stateAlert.setAlert(
           "alert-success",
-          "Файл или файлы успешно загружен/добавлены"
+          "Файл или файлы успешно загружены"
         );
       } catch (error: any) {
         console.error(error);

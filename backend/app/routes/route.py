@@ -28,12 +28,12 @@ from ..depends.depend import (
 )
 from ..model.models import User
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
-from ..tools.tool import (
+from ..handlers.handler import (
+    handle_json_to_dict,
     handle_get_item,
     handle_post_item,
     handle_post_resume,
     make_destination,
-    parse_json,
 )
 
 bp = Blueprint("route", __name__)
@@ -279,7 +279,7 @@ def post_file(item, item_id):
 
     if item == "persons":
         json_dict = json.load(file)
-        anketa = parse_json(json_dict)
+        anketa = handle_json_to_dict(json_dict)
         if anketa:
             person_id = handle_post_resume(anketa["resume"])
             if person_id:
