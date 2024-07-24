@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, send_file
+from flask import Flask
 # from flask_cors import CORS  # needed for frontend development server
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
@@ -59,15 +59,6 @@ def create_app(config_class=Config):
 
     @app.get("/<path:path>")
     def static_file(path=""):
-        if path.startswith("image") and os.path.isdir(path[6:]):
-            file_path = os.path.join(path[6:], "image", "image.jpg")
-            if os.path.isfile(file_path):
-                return send_file(
-                    file_path, as_attachment=True, mimetype="image/jpg"
-                )
-            return send_file(
-                "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-            )
         return app.send_static_file(path)
 
     @app.errorhandler(404)

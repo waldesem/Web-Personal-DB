@@ -3,7 +3,7 @@ import json
 import os
 import re
 
-from flask import Blueprint, abort, current_app, jsonify, request
+from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from PIL import Image
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -330,6 +330,20 @@ def post_file(item, item_id):
         return abort(400)
 
 
+@bp.get("/image")
+def get_image():
+    image_path = request.args.get("image")
+    if image_path:
+        file_path = os.path.join(image_path, "image", "image.jpg")
+        if os.path.isfile(file_path):
+            return send_file(
+                file_path, as_attachment=True, mimetype="image/jpg"
+            )
+        return send_file(
+            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+        )
+
+
 @bp.post("/resume")
 @user_required()
 def post_resume():
@@ -489,7 +503,7 @@ def get_information():
 
     """
     data = request.args
-    result = db_session.execute(
+    results = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
         .join(Persons, Checks.person_id == Persons.id)
         .filter(
@@ -500,7 +514,7 @@ def get_information():
         )
         .group_by(Checks.conclusion)
     ).all()
-    return jsonify(result), 200
+    return jsonify([list(result) for result in results]), 200
 
 
 @bp.get("/classes")

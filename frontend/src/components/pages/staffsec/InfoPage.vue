@@ -21,7 +21,7 @@ const todayDate = new Date();
 
 const tableData = ref({
   region: stateUser.user.region,
-  checks: <Array<any>>{},
+  checks: <Array<any>>[],
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
     .toISOString()
     .slice(0, 10),
@@ -64,8 +64,8 @@ onBeforeMount(async () => {
     </template>
     <template v-slot:tbody>
       <tr v-for="(row, idx) in tableData.checks" :key="idx">
-        <td>{{ row['conclusion'] }}</td>
-        <td>{{ row['count'] }}</td>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
       </tr>
     </template>
   </TableSlots>

@@ -137,9 +137,11 @@ export const stateAnketa = {
   },
 
   async getImage() {
-    const image = await axiosAuth.get(
-      `${server}/image/${this.anketa.persons.destination}`,
+    const image = await axiosAuth.get(`${server}/image`,
       {
+        params: {
+          image: this.anketa.persons.destination,
+        },
         responseType: "blob",
       }
     );
