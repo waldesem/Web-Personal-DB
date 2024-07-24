@@ -232,7 +232,7 @@ class AnketaSchemaJson(BaseModel):
     department: Optional[str] = None
     passportSerial: Optional[str] = None
     passportNumber: Optional[str] = None
-    passportIssueDate: Optional[str] = None
+    passportIssueDate: Optional[date] = None
     passportIssuedBy: Optional[str] = None
     validAddress: Optional[str] = None
     regAddress: Optional[str] = None

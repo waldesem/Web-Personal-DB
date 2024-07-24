@@ -26,7 +26,7 @@ from ..depends.depend import (
     jwt_required,
     user_required,
 )
-from ..model.models import User
+from ..model.models import Person, User, models_tables
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
 from ..handlers.handler import (
     handle_json_to_dict,
@@ -344,7 +344,8 @@ def post_resume():
         The person ID is the ID of the newly created user, person, or contact.
     """
     json_data = request.get_json()
-    person_id = handle_post_resume(json_data)
+    resume = Person(**json_data).dict()
+    person_id = handle_post_resume(resume)
     if person_id:
         return jsonify({"person_id": person_id}), 201
     return abort(400)
@@ -434,7 +435,8 @@ def post_item_id(item, item_id):
         otherwise a string containing the exception message and an HTTP status code of 400.
     """
     json_data = request.get_json()
-    handle_post_item(json_data, item, item_id)
+    json_dict = models_tables[item](**json_data).dict()
+    handle_post_item(json_dict, item, item_id)
     return "", 201
 
 

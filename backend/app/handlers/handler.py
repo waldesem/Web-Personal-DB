@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
-from ..model.models import AnketaSchemaJson, Person, models_tables
+from ..model.models import AnketaSchemaJson
 from ..model.tables import Users, db_session, Persons, tables_models
 
 
@@ -39,7 +39,7 @@ def handle_get_item(item, item_id):
     return result[0] if item == "persons" else result
 
 
-def handle_post_resume(data):
+def handle_post_resume(resume):
     """
     Updates a resume in the database with the provided data.
 
@@ -53,9 +53,8 @@ def handle_post_resume(data):
         Exception: If there is an error updating the resume.
 
     """
-    resume = Person(**data).dict()
     resume["standing"] = True
-    resume["user_id"] = current_user['id']
+    resume["user_id"] = current_user["id"]
     if not resume.get("id"):
         person = db_session.execute(
             select(Persons).where(
@@ -79,14 +78,18 @@ def handle_post_resume(data):
             db_session.commit()
             return person.id
         else:
-            if person.user_id != current_user['id']:
+            if person.user_id != current_user["id"]:
                 return None
             resume["id"] = person.id
-    handle_post_item(resume, "persons", resume["id"])
+            for k, v in resume.items():
+                setattr(person, k, v)
+            db_session.commit()
+            return resume["id"]
+    handle_post_item(resume, "persons")
     return resume["id"]
 
 
-def handle_post_item(json_data, item, item_id):
+def handle_post_item(json_dict, item, item_id = ""):
     """
     Updates an item in the database based on the provided JSON data, item, and item_id.
 
@@ -98,10 +101,9 @@ def handle_post_item(json_data, item, item_id):
     Returns:
         None
     """
-    json_dict = models_tables[item](**json_data).dict()
     if item != "persons":
         json_dict["person_id"] = item_id
-    json_dict["user_id"] = current_user['id']
+        json_dict["user_id"] = current_user["id"]
     db_session.merge(tables_models[item](**json_dict))
     db_session.commit()
 
@@ -110,10 +112,10 @@ def handle_json_to_dict(data):
     try:
         anketa = AnketaSchemaJson(**data).dict()
         anketa["resume"] = {
-            "region": current_user['region'],
-            "surname": anketa.pop("surname", ""),
-            "firstname": anketa.pop("firstname", ""),
-            "patronymic": anketa.pop("patronymic", ""),
+            "region": current_user["region"],
+            "surname": anketa.pop("surname", "").upper(),
+            "firstname": anketa.pop("firstname", "").upper(),
+            "patronymic": anketa.pop("patronymic", "").upper(),
             "birthday": anketa.pop("birthday", ""),
             "birthplace": anketa.pop("birthplace", ""),
             "citizenship": anketa.pop("citizenship", ""),
@@ -139,8 +141,14 @@ def handle_json_to_dict(data):
         )
         anketa["addresses"].extend(
             [
-                {"view": "Адрес проживания", "addresses": anketa.pop("validAddress", "")},
-                {"view": "Адрес регистрации", "addresses": anketa.pop("regAddress", "")},
+                {
+                    "view": "Адрес проживания",
+                    "addresses": anketa.pop("validAddress", ""),
+                },
+                {
+                    "view": "Адрес регистрации",
+                    "addresses": anketa.pop("regAddress", ""),
+                },
             ]
         )
         anketa["contacts"].extend(
@@ -150,16 +158,16 @@ def handle_json_to_dict(data):
             ]
         )
         anketa["affilations"].extend(
-            anketa.pop("organizations") +
-            anketa.pop("stateOrganizations") +
-            anketa.pop("publicOfficeOrganizations") +
-            anketa.pop("relatedPersonsOrganizations")
+            anketa.pop("organizations")
+            + anketa.pop("stateOrganizations")
+            + anketa.pop("publicOfficeOrganizations")
+            + anketa.pop("relatedPersonsOrganizations")
         )
         return anketa
     except ValidationError as e:
         print(e)
         return None
-    
+
 
 def make_destination(region, surname, firstname, patronymic, person_id):
     destination = os.path.join(
