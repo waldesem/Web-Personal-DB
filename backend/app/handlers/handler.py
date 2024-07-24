@@ -81,15 +81,11 @@ def handle_post_resume(resume):
             if person.user_id != current_user["id"]:
                 return None
             resume["id"] = person.id
-            for k, v in resume.items():
-                setattr(person, k, v)
-            db_session.commit()
-            return resume["id"]
     handle_post_item(resume, "persons")
     return resume["id"]
 
 
-def handle_post_item(json_dict, item, item_id = ""):
+def handle_post_item(json_dict, item, item_id=""):
     """
     Updates an item in the database based on the provided JSON data, item, and item_id.
 
@@ -115,7 +111,9 @@ def handle_json_to_dict(data):
             "region": current_user["region"],
             "surname": anketa.pop("surname", "").upper(),
             "firstname": anketa.pop("firstname", "").upper(),
-            "patronymic": anketa.pop("patronymic", "").upper(),
+            "patronymic": anketa.pop("patronymic", "").upper()
+            if anketa.get("patronymic")
+            else anketa.pop("patronymic", ""),
             "birthday": anketa.pop("birthday", ""),
             "birthplace": anketa.pop("birthplace", ""),
             "citizenship": anketa.pop("citizenship", ""),
@@ -173,10 +171,10 @@ def make_destination(region, surname, firstname, patronymic, person_id):
     destination = os.path.join(
         current_app.config["BASE_PATH"],
         region,
-        surname[0].upper(),
-        f"{person_id}-{surname.upper()} "
-        f"{firstname.upper()} "
-        f"{patronymic.upper()}".rstrip(),
+        surname[0],
+        f"{person_id}-{surname} "
+        f"{firstname} "
+        f"{patronymic if patronymic else ''}".rstrip(),
     )
     if not os.path.isdir(destination):
         os.mkdir(destination)
