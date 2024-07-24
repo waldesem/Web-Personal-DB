@@ -172,8 +172,7 @@ def make_destination(region, surname, firstname, patronymic, person_id):
         current_app.config["BASE_PATH"],
         region,
         surname[0],
-        f"{person_id}-{surname} "
-        f"{firstname} "
+        f"{person_id}-{surname} {firstname} "
         f"{patronymic if patronymic else ''}".rstrip(),
     )
     if not os.path.isdir(destination):
