@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import os
 import re
+import shutil
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from PIL import Image
@@ -383,7 +384,7 @@ def change_region(person_id):
         destination = make_destination(
             region, person.surname, person.firstname, person.patronymic, person.id
         )
-        os.rename(person.destination, destination)
+        shutil.move(person.destination, destination)
         person.destination = destination
         person.region = region
         person.standing = False
