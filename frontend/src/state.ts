@@ -217,6 +217,9 @@ export const stateAnketa = {
         if (param === "image") {
           this.getImage();
         }
+        if (param === "xml") {
+          this.getItem("checks");
+        }
         if (param === "persons") {
           const { person_id } = response.data;
           router.push({ name: "profile", params: { id: person_id } });

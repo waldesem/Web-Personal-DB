@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, h, VNode } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { stateAnketa, stateUser } from "@/state";
 import { Verification } from "@/interfaces";
 
@@ -28,30 +28,29 @@ function cancelAction() {
   collapseCheck?.setAttribute("class", "collapse card card-body mb-3");
 }
 
-function createElement(json: Object) {
-  const el = h("div");
-  for (const [key, value] of Object.entries(json)) {
-    const labelText = h(
-      LabelSlot,
-      { label: key, labelClass: "col-sm-3", inputClass: "col-sm-9" },
-      {
-        default: () =>
-          typeof value == "object" ? createElement(value) : value,
-      }
-    );
-    (el.children as Array<VNode>).push(labelText);
+function createElement(jsonList: Array<Object>) {
+  let elems = "";
+  for (let json of jsonList) {
+    let elem = "";
+    for (const [key, value] of Object.entries(json)) {
+      let label1 = `<div class="col-sm-3">${key}</div>`;
+      let label2 = `<div class="col-sm-9">${value}</div>`;
+      let div =
+        `<div class="row mb-3">` +
+        label1 +
+        (typeof value === "string" ? label2 : createElement(value)) +
+        `</div>`;
+      elem += div;
+    }
+    elems += elem;
   }
-  return el;
+  return elems;
 }
 
-const renderVNode = (jsonString: string) => {
+const renderAdditional = (jsonString: string) => {
   try {
     const jsonList = JSON.parse(jsonString);
-    const elems = h("div", { class: "row" });
-    for (const json of jsonList) {
-      (elems.children as Array<VNode>).push(createElement(json));
-    }
-    return createElement(elems);
+    return createElement(jsonList);
   } catch (e) {
     console.error(e);
     return null;
@@ -140,13 +139,31 @@ const renderVNode = (jsonString: string) => {
         <LabelSlot :label="'Проверка в Крос'">
           {{ item["cros"] }}
         </LabelSlot>
-        <LabelSlot :label="'Дополнительная информация'">
-          <template v-if="item['addition']">{{ renderVNode(item["addition"]) }}</template>
-          <FileForm
+        <LabelSlot :label="'Дополнительная информация'" 
+          style="text-decoration: underline;"
+          data-bs-toggle="collapse" 
+          href="#clps_additional"
+          role="button"
+        >
+          <div 
+            v-if="item['addition']" 
+            class="collapse card card-body mb-3"
+            id="clps_additional"
+            v-html="renderAdditional(item['addition'])">
+          </div>
+          <label
             v-else
-            :accept="'.xml'"
-            @submit="stateAnketa.submitFile($event, 'xml', item['id'])"
-          />
+            class="form-label text-primary text-decoration-underline"
+            for="xml-file"
+            style="cursor: pointer"
+          >
+            Загрузить XML
+            <FileForm
+              :accept="'.xml'"
+              :name-id="'xml-file'"
+              @submit="stateAnketa.submitFile($event, 'xml', item['id'])"
+            />
+          </label>
         </LabelSlot>
         <LabelSlot :label="'Комментарии'">{{
           item["comment"] ? item["comment"] : "-"

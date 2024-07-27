@@ -1,11 +1,14 @@
 <script setup lang="ts">
-const prop = defineProps({
+const props = defineProps({
   accept: String,
   nameId: {
     type: String,
     default: "file",
   },
-
+  display: {
+    type: Boolean,
+    default: false,
+  }
 });
 const emit = defineEmits(["submit"])
 </script>
@@ -18,19 +21,15 @@ const emit = defineEmits(["submit"])
     enctype="multipart/form-data"
   >
     <input
-      class="form-control form-control-sm invisible"
-      :id="prop.nameId"
-      :name="prop.nameId"
+      v-show="props.display"
+      class="form-control form-control-sm"
+      :class="props.display ? 'visible' : 'hidden'"
+      :id="props.nameId"
+      :name="props.nameId"
       type="file"
-      :accept="prop.accept"
+      :accept="props.accept"
       ref="file"
       multiple
     />
   </form>
-</template>
-
-<style scoped>
-input[type="file"] {
-  display: none;
-}
-</style>
+</template> 
