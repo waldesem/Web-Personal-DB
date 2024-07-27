@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, defineAsyncComponent, h, VNode } from "vue";
 import { stateAnketa, stateUser } from "@/state";
 import { Verification } from "@/interfaces";
 
@@ -27,6 +27,36 @@ function cancelAction() {
   const collapseCheck = document.getElementById("clps_check");
   collapseCheck?.setAttribute("class", "collapse card card-body mb-3");
 }
+
+function createElement(json: Object) {
+  const el = h("div");
+  for (const [key, value] of Object.entries(json)) {
+    const labelText = h(
+      LabelSlot,
+      { label: key, labelClass: "col-sm-3", inputClass: "col-sm-9" },
+      {
+        default: () =>
+          typeof value == "object" ? createElement(value) : value,
+      }
+    );
+    (el.children as Array<VNode>).push(labelText);
+  }
+  return el;
+}
+
+const renderVNode = (jsonString: string) => {
+  try {
+    const jsonList = JSON.parse(jsonString);
+    const elems = h("div", { class: "row" });
+    for (const json of jsonList) {
+      (elems.children as Array<VNode>).push(createElement(json));
+    }
+    return createElement(elems);
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
 </script>
 
 <template>
@@ -111,7 +141,12 @@ function cancelAction() {
           {{ item["cros"] }}
         </LabelSlot>
         <LabelSlot :label="'Дополнительная информация'">
-          {{ item["addition"] }}
+          <template v-if="item['addition']">{{ renderVNode(item["addition"]) }}</template>
+          <FileForm
+            v-else
+            :accept="'.xml'"
+            @submit="stateAnketa.submitFile($event, 'xml', item['id'])"
+          />
         </LabelSlot>
         <LabelSlot :label="'Комментарии'">{{
           item["comment"] ? item["comment"] : "-"

@@ -1,4 +1,5 @@
 import os
+import xml.etree.ElementTree as ET
 
 from flask import current_app
 from pydantic import ValidationError
@@ -166,8 +167,44 @@ def handle_json_to_dict(data):
         print(e)
         return None
 
+def parse_xml(elem_tree):
+    results = []
+    for sources in elem_tree:
+        if sources:
+            source_dict = {}
+            for source in sources:
+                source_dict.update({source.tag: source.text})
+                record = parse_xml(source)
+                if record:
+                    source_dict["Record"] = record
+            results.append(source_dict)
+    return results
+
+
+def handle_xml(path):
+    tree = ET.parse(path)
+    root = tree.getroot()
+    sources = root.findall("./Source")
+    return parse_xml(sources)
+
 
 def make_destination(region, surname, firstname, patronymic, person_id):
+    """
+    Generate the destination directory path for a given set of parameters.
+
+    Args:
+        region (str): The region of the destination directory.
+        surname (str): The surname of the person.
+        firstname (str): The firstname of the person.
+        patronymic (str): The patronymic of the person.
+        person_id (str): The unique identifier of the person.
+
+    Returns:
+        str: The full path of the destination directory.
+
+    Raises:
+        None
+    """
     destination = os.path.join(
         current_app.config["BASE_PATH"],
         region,

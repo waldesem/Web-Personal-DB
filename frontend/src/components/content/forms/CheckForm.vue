@@ -170,11 +170,11 @@ watch(noNegative, () => {
           v-model="checkForm['cros']"
         ></TextArea>
       </LabelSlot>
-      <LabelSlot :label="'Дополнительная информация'">
+      <LabelSlot :label="'Комментарии'">
         <TextArea
-          :name="'addition'"
-          :place="'Дополнительная информация'"
-          v-model="checkForm['addition']"
+          :name="'comments'"
+          :place="'Комментарий'"
+          v-model="checkForm['comment']"
         ></TextArea>
       </LabelSlot>
       <LabelSlot :label="'Результат'">
@@ -184,13 +184,6 @@ watch(noNegative, () => {
           :select="stateClassify.classes.conclusions"
           v-model="checkForm['conclusion']"
         />
-      </LabelSlot>
-      <LabelSlot :label="'Комментарий'">
-        <TextArea
-          :name="'comments'"
-          :place="'Комментарий'"
-          v-model="checkForm['comment']"
-        ></TextArea>
       </LabelSlot>
       <BtnGroup @cancel="emit('cancel')"/>
     </form>

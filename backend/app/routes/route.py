@@ -34,6 +34,7 @@ from ..handlers.handler import (
     handle_get_item,
     handle_post_item,
     handle_post_resume,
+    handle_xml,
     make_destination,
 )
 
@@ -311,6 +312,15 @@ def post_file(item, item_id):
                 os.remove(image_file)
             image.save(image_file)
             return "", 201
+        
+        if item == "xml":
+            json_str = json.dumps(handle_xml(file))
+            check = db_session.get(Checks, item_id)
+            if check:
+                check.addition = json_str
+                db_session.commit()
+                return "", 201
+            return abort(400)
 
         date_subfolder = os.path.join(
             item_dir,
