@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount } from "vue";
 import { debounce } from "@/utilities";
-import { axiosAuth } from "@/auth";
-import { server, stateAlert } from "@/state";
-import { Persons } from "@/interfaces";
+import { stateAlert, stateAnketa, statePersons } from "@/state";
 import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
   () => import("@components/content/elements/HeaderDiv.vue")
+);
+
+const FileForm = defineAsyncComponent(
+  () => import("@components/content/forms/FileForm.vue")
 );
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
@@ -15,47 +17,11 @@ const TableSlots = defineAsyncComponent(
 
 onBeforeMount(async () => {
   stateAlert.alertMessage.show = false;
-  await getCandidates();
+  await statePersons.getCandidates();
 });
-
-const personData = ref({
-  candidates: <Persons[]>[],
-  page: 1,
-  prev: false,
-  next: false,
-  search: "",
-  updated: `${new Date().toLocaleDateString(
-    "ru-RU"
-  )} в ${new Date().toLocaleTimeString("ru-RU")}`,
-});
-
-async function getCandidates(page = 1): Promise<void> {
-  personData.value.page = page;
-  try {
-    const response = await axiosAuth.get(
-      `${server}/index/${personData.value.page}`,
-      {
-        params: {
-          search: personData.value.search,
-        },
-      }
-    );
-    [
-      personData.value.candidates,
-      personData.value.next,
-      personData.value.prev,
-    ] = response.data;
-
-    personData.value.updated = `${new Date().toLocaleDateString(
-      "ru-RU"
-    )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-  } catch (error: any) {
-    console.error(error);
-  }
-}
 
 const searchPerson = debounce(() => {
-  getCandidates();
+  statePersons.getCandidates();
 }, 500);
 
 function openProfile (person_id: string) {
@@ -65,7 +31,18 @@ function openProfile (person_id: string) {
 
 <template>
   <HeaderDiv :page-header="'Кандидаты'" />
-  
+  <div class="position-relative">
+    <div class="position-absolute bottom-100 end-0 px-3">
+      <label
+        for="file" 
+        class="text-primary fs-5"
+        style="cursor: pointer;"
+      >Загрузить json
+      &#9735;
+      </label>
+      <FileForm :accept="'.json'" @submit="stateAnketa.submitFile($event, 'persons', '0')" />
+    </div>
+  </div>
   <div class="row mb-3">
     <form class="form form-check" role="form">
       <input
@@ -75,21 +52,21 @@ function openProfile (person_id: string) {
         id="search"
         type="text"
         placeholder="поиск по фамилии, имени, отчеству, инн"
-        v-model="personData.search"
+        v-model="statePersons.persons.search"
       />
     </form>
   </div>
   <TableSlots 
     :class="'table align-middle table-hover'"
-    v-if="personData.candidates.length"
+    v-if="statePersons.persons.candidates.length"
     >
-    <template v-slot:caption>{{ `Обновлено: ${personData.updated}` }}
+    <template v-slot:caption>{{ `Обновлено: ${statePersons.persons.updated}` }}
       <a 
         class="btn btn-link fs-5" 
         href="#" 
         style="text-decoration: none;"
         :title="`Обновить`" 
-        @click="getCandidates()"
+        @click="statePersons.getCandidates()"
       >
         &#8635
       </a>
@@ -107,7 +84,7 @@ function openProfile (person_id: string) {
     </template>
     <template v-slot:tbody>
       <tr
-        v-for="candidate in personData.candidates"
+        v-for="candidate in statePersons.persons.candidates"
         :key="candidate.id"
         height="50px"
         @click="openProfile(candidate.id)"
@@ -146,22 +123,22 @@ function openProfile (person_id: string) {
     </template>
   </TableSlots>
   <p class="fs-6 taxt-danger" v-else>Ничего не найдено</p>
-  <nav v-if="personData.prev || personData.next">
+  <nav v-if="statePersons.persons.prev || statePersons.persons.next">
     <ul class="pagination justify-content-center py-3">
-      <li class="page-item" :class="{disabled: !personData.prev}">
+      <li class="page-item" :class="{disabled: !statePersons.persons.prev}">
         <a
           class="page-link"
           href="#"
-          @click="getCandidates(personData.page - 1)"
+          @click="statePersons.getCandidates(statePersons.persons.page - 1)"
         >
           Предыдущая
         </a>
       </li>
-      <li class="page-item" :class="{disabled: !personData.next}">
+      <li class="page-item" :class="{disabled: !statePersons.persons.next}">
         <a
           class="page-link"
           href="#"
-          @click="getCandidates(personData.page + 1)"
+          @click="statePersons.getCandidates(statePersons.persons.page + 1)"
         >
           Следующая
         </a>

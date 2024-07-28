@@ -275,23 +275,35 @@ def post_file(item, item_id):
     Raises:
         None.
     """
-    file = request.files["file"]
-    if not file.filename:
+    files = request.files.getlist("file")
+    if not files[0].filename:
         return abort(400)
 
     if item == "persons":
-        json_dict = json.load(file)
-        anketa = handle_json_to_dict(json_dict)
-        if anketa:
+        for file in files:
+            json_dict = json.load(file)
+            anketa = handle_json_to_dict(json_dict)
+            if not anketa:
+                return abort(400)
             person_id = handle_post_resume(anketa["resume"])
-            if person_id:
-                for table, contents in anketa.items():
+            if not person_id:
+                return abort(400)
+            for table, contents in anketa.items():
+                if contents and table != "resume":
                     for content in contents:
-                        if content and table != "resume":
+                        if content:
                             handle_post_item(content, table, person_id)
-                return jsonify({"person_id": person_id}), 201
+        return "", 201
+            
+    if item == "xml":
+        json_str = json.dumps(handle_xml(files[0]))
+        check = db_session.get(Checks, item_id)
+        if check:
+            check.addition = json_str
+            db_session.commit()
+            return "", 201
         return abort(400)
-
+    
     person_dir = db_session.scalars(
         select(Persons.destination).filter(Persons.id == item_id)
     ).first()
@@ -306,21 +318,12 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            image = Image.open(file)
+            image = Image.open(files[0])
             image_file = os.path.join(item_dir, "image.jpg")
             if os.path.isfile(image_file):
                 os.remove(image_file)
             image.save(image_file)
             return "", 201
-        
-        if item == "xml":
-            json_str = json.dumps(handle_xml(file))
-            check = db_session.get(Checks, item_id)
-            if check:
-                check.addition = json_str
-                db_session.commit()
-                return "", 201
-            return abort(400)
 
         date_subfolder = os.path.join(
             item_dir,
@@ -328,8 +331,6 @@ def post_file(item, item_id):
         )
         if not os.path.isdir(date_subfolder):
             os.mkdir(date_subfolder)
-
-        files = request.files.getlist("file")
         for file in files:
             if file.filename:
                 file_path = os.path.join(date_subfolder, file.filename)

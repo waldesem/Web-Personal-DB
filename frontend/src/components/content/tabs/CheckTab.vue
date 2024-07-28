@@ -33,14 +33,13 @@ function createElement(jsonList: Array<Object>) {
   for (let json of jsonList) {
     let elem = "";
     for (const [key, value] of Object.entries(json)) {
-      let label1 = `<div class="col-sm-3">${key}</div>`;
-      let label2 = `<div class="col-sm-9">${value}</div>`;
-      let div =
+      elem +=
         `<div class="row mb-3">` +
-        label1 +
-        (typeof value === "string" ? label2 : createElement(value)) +
+        `<div class="col-sm-3">${key}</div>` +
+        (typeof value === "string"
+          ? `<div class="col-sm-9">${value}</div>`
+          : createElement(value)) +
         `</div>`;
-      elem += div;
     }
     elems += elem;
   }
@@ -139,18 +138,25 @@ const renderAdditional = (jsonString: string) => {
         <LabelSlot :label="'Проверка в Крос'">
           {{ item["cros"] }}
         </LabelSlot>
-        <LabelSlot :label="'Дополнительная информация'" 
-          style="text-decoration: underline;"
-          data-bs-toggle="collapse" 
-          href="#clps_additional"
-          role="button"
+        <LabelSlot :label="'Дополнительная информация'">
+          <button
+            type="button"
+            class="btn btn-link"
+            data-bs-toggle="collapse"
+            href="#clps_additional"
+            role="button"
+          >
+            Показать
+          </button>
+        </LabelSlot> 
+        <LabelSlot
+          class="collapse card card-body mb-3"
+          id="clps_additional"
         >
-          <div 
-            v-if="item['addition']" 
-            class="collapse card card-body mb-3"
-            id="clps_additional"
-            v-html="renderAdditional(item['addition'])">
-          </div>
+          <div
+            v-if="item['addition']"
+            v-html="renderAdditional(item['addition'])"
+          ></div>
           <label
             v-else
             class="form-label text-primary text-decoration-underline"

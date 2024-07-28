@@ -18,8 +18,8 @@ import {
   Needs,
 } from "@/interfaces";
 
-// export const server = "http://localhost:5000";
-export const server = "";
+export const server = "http://localhost:5000";
+// export const server = "";
 
 export const stateUser = {
   user: reactive({
@@ -87,6 +87,44 @@ export const stateAlert = {
       this.alertMessage.show = false;
     }, 10000);
   },
+};
+
+export const statePersons = {
+  persons: reactive({
+    candidates: <Persons[]>[],
+    page: 1,
+    prev: false,
+    next: false,
+    search: "",
+    updated: `${new Date().toLocaleDateString(
+      "ru-RU"
+    )} в ${new Date().toLocaleTimeString("ru-RU")}`,
+  }),
+
+  async getCandidates(page = 1): Promise<void> {
+    this.persons.page = page;
+    try {
+      const response = await axiosAuth.get(
+        `${server}/index/${this.persons.page}`,
+        {
+          params: {
+            search: this.persons.search,
+          },
+        }
+      );
+      [
+        this.persons.candidates,
+        this.persons.next,
+        this.persons.prev,
+      ] = response.data;
+
+      this.persons.updated = `${new Date().toLocaleDateString(
+        "ru-RU"
+      )} в ${new Date().toLocaleTimeString("ru-RU")}`;
+    } catch (error: any) {
+      console.error(error);
+    }
+  }
 };
 
 export const stateAnketa = {
@@ -221,8 +259,7 @@ export const stateAnketa = {
           this.getItem("checks");
         }
         if (param === "persons") {
-          const { person_id } = response.data;
-          router.push({ name: "profile", params: { id: person_id } });
+          statePersons.getCandidates(1);
         }
         stateAlert.setAlert(
           "alert-success",
