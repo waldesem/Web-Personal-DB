@@ -250,7 +250,11 @@ function cancelOperations() {
             >
               {{ dataUsers.profile.id }}
             </LabelSlot>
-            <LabelSlot :label="'Регион'">
+            <LabelSlot 
+              :label="'Регион'"
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              >
               <SelectDiv
                 :name="'region'"
                 :select="stateClassify.classes.regions"
