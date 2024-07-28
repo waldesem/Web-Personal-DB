@@ -57,7 +57,7 @@ function openProfile (person_id: string) {
     </form>
   </div>
   <TableSlots 
-    :class="'table align-middle table-hover'"
+    :tbl-class="'table align-middle table-hover'"
     v-if="statePersons.persons.candidates.length"
     >
     <template v-slot:caption>{{ `Обновлено: ${statePersons.persons.updated}` }}

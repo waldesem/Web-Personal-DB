@@ -18,8 +18,8 @@ import {
   Needs,
 } from "@/interfaces";
 
-export const server = "http://localhost:5000";
-// export const server = "";
+// export const server = "http://localhost:5000";
+export const server = "";
 
 export const stateUser = {
   user: reactive({
@@ -56,6 +56,7 @@ export const stateClassify = {
     documents: <Record<string, any>>{},
     poligrafs: <Record<string, any>>{},
   }),
+  
   async getClassify(): Promise<void> {
     try {
       const classes = await axiosAuth.get(`${server}/classes`);

@@ -276,7 +276,7 @@ def post_file(item, item_id):
         None.
     """
     files = request.files.getlist("file")
-    if not files[0].filename:
+    if not files or not files[0].filename:
         return abort(400)
 
     if item == "persons":

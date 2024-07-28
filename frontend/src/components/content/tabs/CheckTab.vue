@@ -16,14 +16,16 @@ const CheckForm = defineAsyncComponent(
   () => import("@components/content/forms/CheckForm.vue")
 );
 
-const actions = ref(false);
-const edit = ref(false);
-const itemId = ref("");
-const check = ref(<Verification>{});
+const checkData = ref({
+  actions: false,
+  edit: false,
+  itemId: "",
+  check: <Verification>{},
+});
 
 function cancelAction() {
-  edit.value = false;
-  itemId.value = "";
+  checkData.value.edit = false;
+  checkData.value.itemId = "";
   const collapseCheck = document.getElementById("clps_check");
   collapseCheck?.setAttribute("class", "collapse card card-body mb-3");
 }
@@ -34,16 +36,16 @@ function createElement(jsonList: Array<Object>) {
     let elem = "";
     for (const [key, value] of Object.entries(json)) {
       elem +=
-        `<div class="row mb-3">` +
-        `<div class="col-sm-3">${key}</div>` +
+        `<tr>` +
+        `<td>${key}</td>` +
         (typeof value === "string"
-          ? `<div class="col-sm-9">${value}</div>`
-          : createElement(value)) +
-        `</div>`;
+          ? `<td>${value}</td>`
+          : `<td>${createElement(value)}</td>`) +
+        `</tr>`;
     }
     elems += elem;
   }
-  return elems;
+  return `<table class="table table-striped align-middle">${elems}</table>`;
 }
 
 const renderAdditional = (jsonString: string) => {
@@ -66,32 +68,32 @@ const renderAdditional = (jsonString: string) => {
       v-for="(item, idx) in stateAnketa.anketa.checks"
       class="card card-body mb-3"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
+      @mouseover="checkData.actions = true"
+      @mouseout="checkData.actions = false"
     >
       <CheckForm
-        v-if="edit && itemId == item['id'].toString()"
-        :check="check"
+        v-if="checkData.edit && checkData.itemId == item['id'].toString()"
+        :check="checkData.check"
         @cancel="cancelAction"
       />
       <div v-else>
         <LabelSlot>
           <ActionIcons
             v-show="
-              actions &&
+              checkData.actions &&
               stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
               stateAnketa.anketa.persons['standing']
             "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
             @update="
-              check = item;
-              itemId = item['id'].toString();
-              edit = true;
+              checkData.check = item;
+              checkData.itemId = item['id'].toString();
+              checkData.edit = true;
             "
             :for-input="'check-file'"
           >
             <FileForm
-              v-show="actions"
+              v-show="checkData.actions"
               :name-id="'check-file'"
               :accept="'*'"
               @submit="
@@ -138,7 +140,18 @@ const renderAdditional = (jsonString: string) => {
         <LabelSlot :label="'Проверка в Крос'">
           {{ item["cros"] }}
         </LabelSlot>
-        <LabelSlot :label="'Дополнительная информация'">
+        <LabelSlot :label="'Комментарии'">{{
+          item["comment"] ? item["comment"] : "-"
+        }}</LabelSlot>
+        <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
+        <LabelSlot :label="'Сотрудник'">{{ item["username"] }}</LabelSlot>
+        <LabelSlot :label="'Дата записи'">
+          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
+        </LabelSlot>
+        <LabelSlot
+          class="d-print-none"
+          :label="'Дополнительная информация'"
+        >
           <button
             type="button"
             class="btn btn-link"
@@ -148,8 +161,8 @@ const renderAdditional = (jsonString: string) => {
           >
             Показать
           </button>
-        </LabelSlot> 
-        <LabelSlot
+        </LabelSlot>
+        <div
           class="collapse card card-body mb-3"
           id="clps_additional"
         >
@@ -170,15 +183,7 @@ const renderAdditional = (jsonString: string) => {
               @submit="stateAnketa.submitFile($event, 'xml', item['id'])"
             />
           </label>
-        </LabelSlot>
-        <LabelSlot :label="'Комментарии'">{{
-          item["comment"] ? item["comment"] : "-"
-        }}</LabelSlot>
-        <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ item["username"] }}</LabelSlot>
-        <LabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
-        </LabelSlot>
+        </div>
       </div>
     </div>
   </div>
