@@ -6,11 +6,11 @@ const props = defineProps({
   },
   labelClass: {
     type: String,
-    default: "col-lg-2",
+    default: "col-lg-3",
   },
   inputClass: {
     type: String,
-    default: "col-lg-10",
+    default: "col-lg-9",
   }
 });
 </script>
