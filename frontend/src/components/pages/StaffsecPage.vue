@@ -9,6 +9,7 @@ const AlertMessage = defineAsyncComponent(
 
 onBeforeMount(async () => {
   await stateUser.getCurrentUser();
+  if (!stateUser.username) router.push({name: "login"});
 });
 
 async function userLogout(): Promise<void> {
