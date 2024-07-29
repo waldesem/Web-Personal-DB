@@ -151,4 +151,7 @@ function openProfile (person_id: string) {
 tbody td {
   cursor: pointer;
 }
+.page-link:focus {
+  box-shadow: none;
+}
 </style>

@@ -45,7 +45,7 @@ function createElement(jsonList: Array<Object>) {
     }
     elems += elem;
   }
-  return `<table class="table table-striped align-middle">${elems}</table>`;
+  return `<table class="table table-sm table-responsive table-striped">${elems}</table>`;
 }
 
 const renderAdditional = (jsonString: string) => {

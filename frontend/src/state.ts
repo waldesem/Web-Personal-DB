@@ -56,7 +56,7 @@ export const stateClassify = {
     documents: <Record<string, any>>{},
     poligrafs: <Record<string, any>>{},
   }),
-  
+
   async getClassify(): Promise<void> {
     try {
       const classes = await axiosAuth.get(`${server}/classes`);
@@ -95,7 +95,7 @@ export const statePersons = {
     candidates: <Persons[]>[],
     page: 1,
     prev: false,
-    next: false,
+    next: true,
     search: "",
     updated: `${new Date().toLocaleDateString(
       "ru-RU"
@@ -103,7 +103,12 @@ export const statePersons = {
   }),
 
   async getCandidates(page = 1): Promise<void> {
-    this.persons.page = page;
+    if (this.persons.page < 1) {
+      this.persons.page = 1;
+      return;
+    } else {
+      this.persons.page = page;
+    }
     try {
       const response = await axiosAuth.get(
         `${server}/index/${this.persons.page}`,
@@ -113,11 +118,8 @@ export const statePersons = {
           },
         }
       );
-      [
-        this.persons.candidates,
-        this.persons.next,
-        this.persons.prev,
-      ] = response.data;
+      [this.persons.candidates, this.persons.next, this.persons.prev] =
+        response.data;
 
       this.persons.updated = `${new Date().toLocaleDateString(
         "ru-RU"
@@ -125,7 +127,7 @@ export const statePersons = {
     } catch (error: any) {
       console.error(error);
     }
-  }
+  },
 };
 
 export const stateAnketa = {
@@ -176,14 +178,12 @@ export const stateAnketa = {
   },
 
   async getImage() {
-    const image = await axiosAuth.get(`${server}/image`,
-      {
-        params: {
-          image: this.anketa.persons.destination,
-        },
-        responseType: "blob",
-      }
-    );
+    const image = await axiosAuth.get(`${server}/image`, {
+      params: {
+        image: this.anketa.persons.destination,
+      },
+      responseType: "blob",
+    });
     this.share.imageUrl = window.URL.createObjectURL(new Blob([image.data]));
   },
 
