@@ -278,7 +278,6 @@ class Affilations(Base):
     view: Mapped[str] = mapped_column(String(255), nullable=True)
     organization: Mapped[str] = mapped_column(Text, nullable=True)
     inn: Mapped[str] = mapped_column(String(255), nullable=True)
-    position: Mapped[str] = mapped_column(Text, nullable=True)
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )

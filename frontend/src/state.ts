@@ -1,22 +1,7 @@
 import { reactive } from "vue";
 import { axiosAuth } from "@/auth";
 import { router } from "@/router";
-import {
-  Persons,
-  Previous,
-  Education,
-  Staff,
-  Document,
-  Address,
-  Contact,
-  Relation,
-  Work,
-  Affilation,
-  Verification,
-  Pfo,
-  Inquisition,
-  Needs,
-} from "@/interfaces";
+import * as interfaces from "@/interfaces";
 
 // export const server = "http://localhost:5000";
 export const server = "";
@@ -92,7 +77,7 @@ export const stateAlert = {
 
 export const statePersons = {
   persons: reactive({
-    candidates: <Persons[]>[],
+    candidates: <interfaces.Persons[]>[],
     page: 1,
     prev: false,
     next: true,
@@ -132,20 +117,20 @@ export const statePersons = {
 
 export const stateAnketa = {
   anketa: reactive({
-    persons: {} as Persons,
-    previous: [] as Previous[],
-    educations: [] as Education[],
-    staffs: [] as Staff[],
-    documents: [] as Document[],
-    addresses: [] as Address[],
-    contacts: [] as Contact[],
-    relations: [] as Relation[],
-    workplaces: [] as Work[],
-    affilations: [] as Affilation[],
-    checks: [] as Verification[],
-    poligrafs: [] as Pfo[],
-    investigations: [] as Inquisition[],
-    inquiries: [] as Needs[],
+    persons: {} as interfaces.Persons,
+    previous: [] as interfaces.Previous[],
+    educations: [] as interfaces.Education[],
+    staffs: [] as interfaces.Staff[],
+    documents: [] as interfaces.Document[],
+    addresses: [] as interfaces.Address[],
+    contacts: [] as interfaces.Contact[],
+    relations: [] as interfaces.Relation[],
+    workplaces: [] as interfaces.Work[],
+    affilations: [] as interfaces.Affilation[],
+    checks: [] as interfaces.Verification[],
+    poligrafs: [] as interfaces.Pfo[],
+    investigations: [] as interfaces.Inquisition[],
+    inquiries: [] as interfaces.Needs[],
   }),
   share: reactive({
     candId: "" as string,

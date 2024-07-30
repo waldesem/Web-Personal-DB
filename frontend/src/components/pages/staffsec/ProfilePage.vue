@@ -4,12 +4,6 @@ import { stateUser, stateAnketa, server } from "@/state";
 import { useRoute } from "vue-router";
 import { axiosAuth } from "@/auth";
 
-const HeaderDiv = defineAsyncComponent(
-  () => import("@components/content/elements/HeaderDiv.vue")
-);
-const PhotoCard = defineAsyncComponent(
-  () => import("@components/content/divs//PhotoCard.vue")
-);
 const AnketaTab = defineAsyncComponent(
   () => import("@components/content/tabs/AnketaTab.vue")
 );
@@ -24,6 +18,12 @@ const InvestigateTab = defineAsyncComponent(
 );
 const InquiryTab = defineAsyncComponent(
   () => import("@components/content/tabs/InquiryTab.vue")
+);
+const HeaderDiv = defineAsyncComponent(
+  () => import("@components/content/elements/HeaderDiv.vue")
+);
+const PhotoCard = defineAsyncComponent(
+  () => import("@components/content/divs//PhotoCard.vue")
 );
 
 onBeforeMount(async () => {
@@ -105,14 +105,14 @@ async function switchTabs(tab: string) {
           "
           :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
           type="button"
-          class="btn btn-lg btn-outline-danger"
+          class="btn btn-md btn-outline-danger"
           data-bs-toggle="collapse"
           :href="'#clps_' + item.split('T')[0]"
         >
           &equiv;
         </button>
       </div>
-      <div class="position-relative px-3">
+      <div v-if="currentTab == 'anketaTab'" class="position-relative">
         <button
           type="button"
           :class="

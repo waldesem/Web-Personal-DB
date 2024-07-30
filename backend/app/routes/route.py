@@ -189,7 +189,9 @@ def get_user_actions(user_id):
     item = request.args.get("item")
     if user and item:
         if item == "drop":
-            user.passhash = generate_password_hash(current_app.config["DEFAULT_PASSWORD"])
+            user.passhash = generate_password_hash(
+                current_app.config["DEFAULT_PASSWORD"]
+            )
             user.attempt = 0
             user.blocked = False
             user.change_pswd = True
@@ -197,9 +199,9 @@ def get_user_actions(user_id):
             user.has_admin = not user.has_admin
         elif item == "delete":
             user.deleted = not user.deleted
-            get_current_user.cache_clear()
         elif item in [e.value for e in Regions]:
             user.region = request.args.get("item")
+        get_current_user.cache_clear()
         db_session.commit()
         return "", 201
     return abort(400)
@@ -235,21 +237,18 @@ def get_index(page):
             query = list(map(str.upper, search_data.split()))
             if len(query):
                 stmt = stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
-            if len(query) > 1 and not re.match(pattern, query[-1]):
+            if len(query) > 1 and not re.match(pattern, query[1]):
                 stmt = stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
-            if len(query) > 2 and not re.match(pattern, query[-1]):
+            if len(query) > 2 and not re.match(pattern, query[2]):
                 stmt = stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
             if len(query) > 1 and re.match(pattern, query[-1]):
                 stmt = stmt.filter(
                     Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
                 )
-        if cur_user["region"] != Regions.main.value:
-            stmt = stmt.filter(Persons.region == cur_user["region"])
-    else:
-        if cur_user["region"] != Regions.main.value:
-            stmt = stmt.filter(Persons.region == cur_user["region"])
+    if cur_user["region"] != Regions.main.value:
+        stmt = stmt.filter(Persons.region == cur_user["region"])
     query = db_session.execute(
-        stmt.filter(Persons.user_id == Users.id)
+        stmt.join(Users)
         .order_by(desc(Persons.id))
         .limit(pagination + 1)
         .offset((page - 1) * pagination)
@@ -294,7 +293,7 @@ def post_file(item, item_id):
                         if content:
                             handle_post_item(content, table, person_id)
         return "", 201
-            
+
     if item == "xml":
         json_str = json.dumps(handle_xml(files[0]))
         check = db_session.get(Checks, item_id)
@@ -303,17 +302,25 @@ def post_file(item, item_id):
             db_session.commit()
             return "", 201
         return abort(400)
-    
-    person_dir = db_session.scalars(
-        select(Persons.destination).filter(Persons.id == item_id)
-    ).first()
-    if not person_dir:
+
+    person = db_session.get(Persons, item_id)
+    if not person:
         return abort(400)
     try:
-        if not os.path.isdir(person_dir):
-            os.mkdir(person_dir)
+        if not person.destination:
+            destination = make_destination(
+                current_user["id"],
+                person.surname,
+                person.firstname,
+                person.patronymic,
+                item_id,
+            )
+            person.destination = destination
+            db_session.commit()
+        if not os.path.isdir(person.destination):
+            os.mkdir(person.destination)
 
-        item_dir = os.path.join(person_dir, item)
+        item_dir = os.path.join(person.destination, item)
         if not os.path.isdir(item_dir):
             os.mkdir(item_dir)
 
@@ -348,9 +355,7 @@ def get_image():
     if image_path:
         file_path = os.path.join(image_path, "image", "image.jpg")
         if os.path.isfile(file_path):
-            return send_file(
-                file_path, as_attachment=True, mimetype="image/jpg"
-            )
+            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
         return send_file(
             "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
         )

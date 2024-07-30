@@ -65,14 +65,6 @@ function submitAffilation() {
         v-model="affilationForm['inn']"
       />
     </LabelSlot>
-    <LabelSlot :label="'Должность'">
-      <InputElement
-        :name="'position'"
-        :place="'Должность'"
-        :need="true"
-        v-model="affilationForm['position']"
-      />
-    </LabelSlot>
     <BtnGroup @cancel="emit('cancel')" />
   </form>
 </template>

@@ -3,6 +3,33 @@ import { ref, defineAsyncComponent } from "vue";
 import { stateAnketa, stateClassify, stateUser } from "@/state";
 import type { Persons } from "@/interfaces";
 
+const PrevDiv = defineAsyncComponent(
+  () => import("@components/content/divs/PrevDiv.vue")
+);
+const EducateDiv = defineAsyncComponent(
+  () => import("@components/content/divs/EducateDiv.vue")
+);
+const StaffDiv = defineAsyncComponent(
+  () => import("@components/content/divs/StaffDiv.vue")
+);
+const DocumDiv = defineAsyncComponent(
+  () => import("@components/content/divs/DocumDiv.vue")
+);
+const AddressDiv = defineAsyncComponent(
+  () => import("@components/content/divs/AddressDiv.vue")
+);
+const ContactDiv = defineAsyncComponent(
+  () => import("@components/content/divs/ContactDiv.vue")
+);
+const RelateDiv = defineAsyncComponent(
+  () => import("@components/content/divs/RelateDiv.vue")
+);
+const WorkDiv = defineAsyncComponent(
+  () => import("@components/content/divs/WorkDiv.vue")
+);
+const AffilDiv = defineAsyncComponent(
+  () => import("@components/content/divs/AffilDiv.vue")
+);
 const ActionIcons = defineAsyncComponent(
   () => import("@components/content/elements/ActionIcons.vue")
 );
@@ -14,33 +41,6 @@ const FileForm = defineAsyncComponent(
 );
 const ResumeForm = defineAsyncComponent(
   () => import("@components/content/forms/ResumeForm.vue")
-);
-const PreviousDiv = defineAsyncComponent(
-  () => import("@components/content/divs/PreviousDiv.vue")
-);
-const EducationDiv = defineAsyncComponent(
-  () => import("@components/content/divs/EducationDiv.vue")
-);
-const StaffDiv = defineAsyncComponent(
-  () => import("@components/content/divs/StaffDiv.vue")
-);
-const DocumentDiv = defineAsyncComponent(
-  () => import("@components/content/divs/DocumentDiv.vue")
-);
-const AddressDiv = defineAsyncComponent(
-  () => import("@components/content/divs/AddressDiv.vue")
-);
-const ContactDiv = defineAsyncComponent(
-  () => import("@components/content/divs/ContactDiv.vue")
-);
-const RelationDiv = defineAsyncComponent(
-  () => import("@components/content/divs/RelationDiv.vue")
-);
-const WorkplaceDiv = defineAsyncComponent(
-  () => import("@components/content/divs/WorkplaceDiv.vue")
-);
-const AffilationDiv = defineAsyncComponent(
-  () => import("@components/content/divs/AffilationDiv.vue")
 );
 const LabelSlot = defineAsyncComponent(
   () => import("@components/content/elements/LabelSlot.vue")
@@ -173,14 +173,14 @@ const dataResume = ref({
   <div
     v-for="(component, idx) in [
       StaffDiv,
-      EducationDiv,
-      WorkplaceDiv,
-      DocumentDiv,
+      EducateDiv,
+      WorkDiv,
+      DocumDiv,
       AddressDiv,
       ContactDiv,
-      AffilationDiv,
-      PreviousDiv,
-      RelationDiv,
+      AffilDiv,
+      PrevDiv,
+      RelateDiv,
     ]"
     :key="idx"
   >

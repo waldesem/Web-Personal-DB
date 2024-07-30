@@ -98,7 +98,6 @@ class Affilation(QueryModel):
     view: Affiliates
     organization: str
     inn: Optional[str] = None
-    position: str
 
 
 class Relation(QueryModel):

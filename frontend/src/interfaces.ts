@@ -107,7 +107,6 @@ export interface Affilation {
   view: string;
   organization: string;
   inn: string;
-  position: string;
   created: string;
 }
 

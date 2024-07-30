@@ -20,6 +20,7 @@ const checkData = ref({
   actions: false,
   edit: false,
   itemId: "",
+  isAddition: false,
   check: <Verification>{},
 });
 
@@ -45,7 +46,7 @@ function createElement(jsonList: Array<Object>) {
     }
     elems += elem;
   }
-  return `<table class="table table-sm table-responsive table-striped">${elems}</table>`;
+  return `<table class="table table-sm table-striped text-break">${elems}</table>`;
 }
 
 const renderAdditional = (jsonString: string) => {
@@ -158,12 +159,13 @@ const renderAdditional = (jsonString: string) => {
             data-bs-toggle="collapse"
             href="#clps_additional"
             role="button"
+            @click="checkData.isAddition = !checkData.isAddition"
           >
-            Показать
+            {{ checkData.isAddition ? 'Скрыть' : 'Показать' }}
           </button>
         </LabelSlot>
         <div
-          class="collapse card card-body mb-3"
+          class="collapse card card-body"
           id="clps_additional"
         >
           <div
@@ -178,6 +180,7 @@ const renderAdditional = (jsonString: string) => {
           >
             Загрузить XML
             <FileForm
+              style="display: none;"
               :accept="'.xml'"
               :name-id="'xml-file'"
               @submit="stateAnketa.submitFile($event, 'xml', item['id'])"

@@ -22,7 +22,7 @@ const props = defineProps({
 
 <template>
   <div class="row mb-3">
-    <div :class="{'offset-lg-2 col-lg-10' : props.offset}">
+    <div :class="{'offset-lg-3 col-lg-9' : props.offset}">
       <div class="btn-group" role="group">
         <button
           class="btn btn-md btn-outline-primary"
