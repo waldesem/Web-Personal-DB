@@ -51,7 +51,7 @@ function openProfile (person_id: string) {
         name="search"
         id="search"
         type="text"
-        placeholder="поиск по фамилии, имени, отчеству, инн"
+        placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
         v-model="statePersons.persons.search"
       />
     </form>

@@ -236,11 +236,11 @@ def get_index(page):
             pattern = r"^\d{2}\.\d{2}\.\d{4}$"
             query = list(map(str.upper, search_data.split()))
             if len(query):
-                stmt = stmt.filter(Persons.surname.ilike("%" + query[0] + "%"))
+                stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
             if len(query) > 1 and not re.match(pattern, query[1]):
-                stmt = stmt.filter(Persons.firstname.ilike("%" + query[1] + "%"))
+                stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
             if len(query) > 2 and not re.match(pattern, query[2]):
-                stmt = stmt.filter(Persons.patronymic.ilike("%" + query[2] + "%"))
+                stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
             if len(query) > 1 and re.match(pattern, query[-1]):
                 stmt = stmt.filter(
                     Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()

@@ -32,21 +32,21 @@ function cancelAction() {
 }
 
 function createElement(jsonList: Array<Object>) {
-  let elems = "";
+  let divs = "";
   for (let json of jsonList) {
-    let elem = "";
+    let table = "";
     for (const [key, value] of Object.entries(json)) {
-      elem +=
+      table +=
         `<tr>` +
-        `<td>${key}</td>` +
+        `<td style="width:30%">${key}</td>` +
         (typeof value === "string"
           ? `<td>${value}</td>`
-          : `<td>${createElement(value)}</td>`) +
+          : `<td style="width:30%">${createElement(value)}</td>`) +
         `</tr>`;
     }
-    elems += elem;
+    divs += `<table class="table table-sm table-striped text-break">${table}</table>`;
   }
-  return `<table class="table table-sm table-striped text-break">${elems}</table>`;
+  return divs;
 }
 
 const renderAdditional = (jsonString: string) => {

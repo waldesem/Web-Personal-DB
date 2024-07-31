@@ -191,27 +191,23 @@ class ExperienceJson(BaseModel):
 class OrganizationsJson(BaseModel):
     view: str = "Участвует в деятельности коммерческих организаций"
     organization: Optional[str] = Field(alias="name", default=None)
-    position: Optional[str] = None
     inn: Optional[str] = None
 
 
 class RelatedPersonsOrganizationsJson(BaseModel):
     view: str = "Связанные лица работают в государственных организациях"
     organization: Optional[str] = Field(alias="name", default=None)
-    position: Optional[str] = None
     inn: Optional[str] = None
 
 
 class StateOrganizationsJson(BaseModel):
     view: str = "Являлся государственным должностным лицом"
     organization: Optional[str] = Field(alias="name", default=None)
-    position: Optional[str] = None
 
 
 class PublicOfficeOrganizationsJson(BaseModel):
     view: str = "Являлся государственным или муниципальным служащим"
     organization: Optional[str] = Field(alias="name", default=None)
-    position: Optional[str] = None
 
 
 class AnketaSchemaJson(BaseModel):

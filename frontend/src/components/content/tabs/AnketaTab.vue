@@ -93,7 +93,10 @@ const dataResume = ref({
         />
       </ActionIcons>
     </LabelSlot>
-    <LabelSlot :label="'Регион'">
+    <LabelSlot
+      class="d-print-none"
+      :label="'Регион'"
+    >
       <SelectDiv
         :width="'20%'"
         :name="'region'"
