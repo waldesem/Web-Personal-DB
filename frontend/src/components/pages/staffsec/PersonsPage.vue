@@ -123,35 +123,35 @@ function openProfile (person_id: string) {
     </template>
   </TableSlots>
   <p class="fs-6 taxt-danger" v-else>Ничего не найдено</p>
-  <nav v-if="statePersons.persons.prev || statePersons.persons.next">
-    <ul class="pagination justify-content-center py-3">
-      <li class="page-item" :class="{disabled: !statePersons.persons.prev}">
-        <a
-          class="page-link"
-          href="#"
-          @click="statePersons.getCandidates(statePersons.persons.page - 1)"
-        >
-          Предыдущая
-        </a>
-      </li>
-      <li class="page-item" :class="{disabled: !statePersons.persons.next}">
-        <a
-          class="page-link"
-          href="#"
-          @click="statePersons.getCandidates(statePersons.persons.page + 1)"
-        >
-          Следующая
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <div 
+    v-if="statePersons.persons.prev || statePersons.persons.next"
+    class="text-center py-3"
+  >
+    <div class="btn-group" role="group">
+      <button 
+        type="button" 
+        class="btn btn-outline-primary" 
+        :class="{disabled: !statePersons.persons.prev}"
+        @click="statePersons.getCandidates(statePersons.persons.page - 1)"
+      >
+        <i class="bi bi-chevron-double-left"></i>
+        Предыдущая
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-outline-primary" 
+        :class="{disabled: !statePersons.persons.next}"
+        @click="statePersons.getCandidates(statePersons.persons.page + 1)"
+      >
+        Следующая
+        <i class="bi bi-chevron-double-right"></i>
+      </button>
+    </div>
+  </div>
 </template>
 
 <style scoped>
 tbody td {
   cursor: pointer;
-}
-.page-link:focus {
-  box-shadow: none;
 }
 </style>
