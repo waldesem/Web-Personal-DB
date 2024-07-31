@@ -24,6 +24,7 @@ export const stateUser = {
       await stateClassify.getClassify();
       router.push({ name: "persons" });
     } catch (error: any) {
+      router.push({ name: "login" });
       console.error(error);
     }
   },

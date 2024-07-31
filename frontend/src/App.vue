@@ -1,14 +1,6 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
 import { router } from "@/router";
-
-onMounted( () => {
-  if (localStorage.getItem("user_token")) {
-    router.push({ name: "staffsec" })
-  } else {
-    router.push({ name: "login" })
-  }
-});
+router.push({ name: "staffsec" })
 </script>
 
 <template>

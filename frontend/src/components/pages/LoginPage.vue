@@ -52,7 +52,7 @@ async function submitLogin(): Promise<void> {
       case 200:
         const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
-        router.push({ name: "persons" });
+        router.push({ name: "staffsec" });
         break;
 
       case 205:
