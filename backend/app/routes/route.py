@@ -294,15 +294,6 @@ def post_file(item, item_id):
                             handle_post_item(content, table, person_id)
         return "", 201
 
-    if item == "xml":
-        json_str = json.dumps(handle_xml(files[0]))
-        check = db_session.get(Checks, item_id)
-        if check:
-            check.addition = json_str
-            db_session.commit()
-            return "", 201
-        return abort(400)
-
     person = db_session.get(Persons, item_id)
     if not person:
         return abort(400)
@@ -339,10 +330,17 @@ def post_file(item, item_id):
         if not os.path.isdir(date_subfolder):
             os.mkdir(date_subfolder)
         for file in files:
-            if file.filename:
-                file_path = os.path.join(date_subfolder, file.filename)
-                if not os.path.isfile(file_path):
-                    file.save(file_path)
+            if item == "checks" and file.filename.endswith("xml"):
+                check = db_session.execute(
+                    select(Checks)
+                    .filter(Checks.person_id == item_id)
+                    .order_by(desc(Checks.id))
+                ).scalars().first()
+                check.addition = json.dumps(handle_xml(file))
+                db_session.commit()
+            file_path = os.path.join(date_subfolder, file.filename)
+            if not os.path.isfile(file_path):
+                file.save(file_path)
         return "", 201
     except OSError as e:
         print(e)

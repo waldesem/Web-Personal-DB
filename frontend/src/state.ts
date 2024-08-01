@@ -239,15 +239,12 @@ export const stateAnketa = {
           formData
         );
         console.log(response.status);
-        if (param === "image") {
-          this.getImage();
-        }
-        if (param === "xml") {
-          this.getItem("checks");
-        }
         if (param === "persons") {
           statePersons.getCandidates(1);
-        }
+        } else if (param === "image") {
+          this.getImage();
+        } else this.getItem(param);
+
         stateAlert.setAlert(
           "alert-success",
           "Файл или файлы успешно загружены"

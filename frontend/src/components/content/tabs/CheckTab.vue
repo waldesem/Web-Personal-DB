@@ -20,7 +20,6 @@ const checkData = ref({
   actions: false,
   edit: false,
   itemId: "",
-  isAddition: false,
   check: <Verification>{},
 });
 
@@ -41,7 +40,7 @@ function createElement(jsonList: Array<Object>) {
         `<td style="width:30%">${key}</td>` +
         (typeof value === "string"
           ? `<td>${value}</td>`
-          : `<td style="width:30%">${createElement(value)}</td>`) +
+          : `<td>${createElement(value)}</td>`) +
         `</tr>`;
     }
     divs += `<table class="table table-sm table-striped text-break">${table}</table>`;
@@ -81,7 +80,7 @@ const renderAdditional = (jsonString: string) => {
         <LabelSlot>
           <ActionIcons
             v-show="
-              checkData.actions &&
+              checkData.actions && !idx &&
               stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
               stateAnketa.anketa.persons['standing']
             "
@@ -150,8 +149,9 @@ const renderAdditional = (jsonString: string) => {
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </LabelSlot>
         <LabelSlot
+          v-if="item['addition']"
           class="d-print-none"
-          :label="'Дополнительная информация'"
+          :label="'Дополнительно'"
         >
           <button
             type="button"
@@ -159,34 +159,16 @@ const renderAdditional = (jsonString: string) => {
             data-bs-toggle="collapse"
             href="#clps_additional"
             role="button"
-            @click="checkData.isAddition = !checkData.isAddition"
           >
-            {{ checkData.isAddition ? 'Скрыть' : 'Показать' }}
+            Информация
           </button>
         </LabelSlot>
         <div
           class="collapse card card-body"
           id="clps_additional"
-        >
-          <div
-            v-if="item['addition']"
-            v-html="renderAdditional(item['addition'])"
-          ></div>
-          <label
-            v-else
-            class="form-label text-primary text-decoration-underline"
-            for="xml-file"
-            style="cursor: pointer"
-          >
-            Загрузить XML
-            <FileForm
-              style="display: none;"
-              :accept="'.xml'"
-              :name-id="'xml-file'"
-              @submit="stateAnketa.submitFile($event, 'xml', item['id'])"
-            />
-          </label>
-        </div>
+          v-if="item['addition']"
+          v-html="renderAdditional(item['addition'])"
+        ></div>
       </div>
     </div>
   </div>

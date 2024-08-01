@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 from flask import current_app
 from pydantic import ValidationError
-from sqlalchemy import desc, select
+from sqlalchemy import select
 
 from ..depends.depend import current_user
 from ..model.models import AnketaSchemaJson
@@ -33,7 +33,7 @@ def handle_get_item(item, item_id):
         stmt = stmt.filter(Persons.id == item_id)
     else:
         stmt = stmt.filter(tables_models[item].person_id == item_id).order_by(
-            desc(tables_models[item].id)
+            tables_models[item].id
         )
     query = db_session.execute(stmt).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
@@ -166,6 +166,7 @@ def handle_json_to_dict(data):
     except ValidationError as e:
         print(e)
         return None
+
 
 def parse_xml(elem_tree):
     results = []
