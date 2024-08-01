@@ -20,14 +20,3 @@ export function debounce(
     }, delay);
   };
 }
-
-export const statusColor = (status: string) => {
-  switch (status) {
-    case "Проверка":
-      return "danger";
-    case "ПФО":
-      return "primary";
-    case "Окончено":
-      return "secondary";
-  }
-};
