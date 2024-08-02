@@ -24,6 +24,9 @@ const SwitchBox = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/content/elements/BtnGroup.vue")
+);
 
 onBeforeMount(() => {
   getUsers();
@@ -84,6 +87,10 @@ async function userAction(item: String): Promise<void> {
 }
 
 async function submitUser(): Promise<void> {
+  Object.assign(dataUsers.value.profile, {
+    role: stateClassify.classes.roles['guest'],
+    region: stateClassify.classes.regions['main']
+  });
   try {
     const response = await axiosAuth.post(
       `${server}/users`,
@@ -92,7 +99,7 @@ async function submitUser(): Promise<void> {
     if (response.status === 205) {
       stateAlert.setAlert("alert-warning", "Пользователь уже существует");
     } else {
-      stateAlert.setAlert("alert-success", "Запись успешно добавлена");
+      stateAlert.setAlert("alert-success", "Пользователь успешно создан");
     }
     cancelOperations();
     getUsers();
@@ -105,8 +112,6 @@ function cancelOperations() {
   Object.keys(dataUsers.value.profile).forEach(
     (key) => delete dataUsers.value[key as keyof typeof dataUsers.value]
   );
-  const collapse = document.getElementById("user-form");
-  collapse?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
@@ -132,62 +137,39 @@ function cancelOperations() {
       :label="'Показать удаленные'"
       v-model="dataUsers.viewDeleted"
     />
-    <button
-      class="btn btn-link text-secondary"
-      type="button"
-      data-bs-toggle="collapse"
-      href="#user-form"
-    >
-      Добавить пользователя
-    </button>
-  </div>
-  <div class="collapse card card-body" id="user-form">
-    <form @submit.prevent="submitUser" class="form form-check" role="form">
-      <div class="row">
-        <div class="col-4">
-          <InputElement
-            :name="'fullname'"
-            :place="'Имя пользователя'"
-            :need="true"
-            v-model="dataUsers.profile['fullname']"
-          />
-        </div>
-        <div class="col-3">
-          <InputElement
-            :name="'username'"
-            :place="'Учетная запись'"
-            :pattern="'[a-z_]+'"
-            :need="true"
-            v-model="dataUsers.profile['username']"
-          />
-        </div>
-        <div class="col-3">
-          <SelectDiv
-            :name="'region'"
-            :place="'Регион'"
-            :need="true"
-            :select="stateClassify.classes.regions"
-            v-model="dataUsers.profile['region']"
-          />
-        </div>
-        <div class="col-1">
-          <SwitchBox
-            :name="'admin'"
-            :title="'Администратор'"
-            v-model="dataUsers.profile['has_admin']"
-          />
-        </div>
-        <div class="col-1">
-          <button
-            class="btn btn-outline-secondary"
-            name="submit"
-            type="submit"
-          >
-            Сохранить
-          </button>
-        </div>
+    <div class="dropdown">
+      <button
+        class="btn btn-link text-secondary dropdown-toogle"
+        type="button"
+        data-bs-toggle="dropdown"
+      >
+        Добавить пользователя
+      </button>
+      <div class="dropdown-menu">
+        <form @submit.prevent="submitUser" class="form form-check" role="form">
+          <div class="p-3">
+            <div class="mb-3">
+              <InputElement
+                :name="'fullname'"
+                :place="'Имя пользователя'"
+                :need="true"
+                v-model="dataUsers.profile['fullname']"
+              />
+            </div>
+            <div class="mb-3">
+              <InputElement
+                :name="'username'"
+                :place="'Учетная запись'"
+                :pattern="'[a-z_]+'"
+                :need="true"
+                v-model="dataUsers.profile['username']"
+              />
+            </div>
+            <BtnGroup :offset="false" />
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
   <TableSlots :tbl-class="'table align-middle'">
     <template v-slot:thead>
@@ -228,7 +210,7 @@ function cancelOperations() {
                   {{ new Date(user.pswd_create).toLocaleString() }}
                 </td>
                 <td width="15%">
-                  {{ user.has_admin ? "Да" : "Нет" }}
+                  {{ user.role }}
                 </td>
                 <td width="20%">{{ user.region }}</td>
               </tr>
@@ -260,6 +242,18 @@ function cancelOperations() {
                 :select="stateClassify.classes.regions"
                 v-model="dataUsers.profile.region"
                 @submit-data="userAction(dataUsers.profile.region)"
+              />
+            </LabelSlot>
+            <LabelSlot 
+              :label="'Роль'"
+              :label-class="'col-5'"
+              :input-class="'col-7'"
+              >
+              <SelectDiv
+                :name="'role'"
+                :select="stateClassify.classes.roles"
+                v-model="dataUsers.profile['role']"
+                @submit-data="userAction(dataUsers.profile.role)"
               />
             </LabelSlot>
             <LabelSlot
@@ -318,9 +312,9 @@ function cancelOperations() {
             <LabelSlot
               :label-class="'col-5'"
               :input-class="'col-7'"
-              :label="'Администратор'"
+              :label="'Роль'"
             >
-              {{ dataUsers.profile.has_admin ? "Да" : "Нет" }}
+              {{ dataUsers.profile.role }}
             </LabelSlot>
             <LabelSlot
               :label-class="'col-5'"
@@ -335,17 +329,6 @@ function cancelOperations() {
             </LabelSlot>
           </div>
           <div class="btn-group p-3" role="group">
-            <button
-              class="btn btn-outline-primary"
-              type="button"
-              @click="userAction('admin')"
-            >
-              {{
-                dataUsers.profile.has_admin
-                  ? "Отобрать админа"
-                  : "Сделать админом"
-              }}
-            </button>
             <button
               @click="userAction('drop')"
               type="button"

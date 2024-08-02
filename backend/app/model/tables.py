@@ -44,7 +44,7 @@ class Users(Base):
     blocked: Mapped[bool] = mapped_column(Boolean(), default=False)
     deleted: Mapped[bool] = mapped_column(Boolean(), default=False)
     attempt: Mapped[int] = mapped_column(Integer(), default=0, nullable=True)
-    has_admin: Mapped[bool] = mapped_column(Boolean(), default=False)
+    role: Mapped[str] = mapped_column(String(), nullable=False)
     created: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
     )

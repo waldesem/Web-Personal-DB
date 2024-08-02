@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class Roles(Enum):
+    admin = "admin"
+    user = "user"
+    guest = "guest"
+    
+
 class Regions(Enum):
     main = "Главный офис"
     south = "РЦ Юг"

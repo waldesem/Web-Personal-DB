@@ -4,12 +4,12 @@ export interface User {
   username: string;
   pswd_create: string;
   change_pswd: boolean;
-  has_admin: boolean;
   blocked: boolean;
   deleted: boolean;
   created: string;
   attempt: string;
   region: string;
+  role: string
 }
 
 export interface Persons {

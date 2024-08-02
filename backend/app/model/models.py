@@ -9,6 +9,7 @@ from ..classes.classes import (
     Regions,
     Conclusions,
     Relations,
+    Role
 )
 
 
@@ -23,7 +24,7 @@ class User(QueryModel):
     fullname: str
     username: str
     region: Regions
-    has_admin: bool = False
+    role: Role
 
 
 class Name(QueryModel):

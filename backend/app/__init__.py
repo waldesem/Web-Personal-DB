@@ -1,12 +1,13 @@
 import os
 
 from flask import Flask
-# from flask_cors import CORS
+
+from flask_cors import CORS
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
 from config import Config
-from .classes.classes import Regions
+from .classes.classes import Regions, Roles
 from .model.tables import db_session, Users
 from .routes.route import bp as route_bp
 
@@ -24,7 +25,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
-    # CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     if not os.path.isdir(Config.BASE_PATH):
         os.mkdir(Config.BASE_PATH)
@@ -38,16 +39,16 @@ def create_app(config_class=Config):
                 os.mkdir(letter_path)
 
     if not db_session.execute(select(Users)).all():
-        db_session.add(
-            Users(
-                fullname="Администратор",
-                username="superadmin",
-                passhash=generate_password_hash(Config.DEFAULT_PASSWORD),
-                has_admin=True,
-                region=Regions.main.value,
-            )
+        admin = Users(
+            fullname="Администратор",
+            username="superadmin",
+            role=Roles.admin.value,
+            passhash=generate_password_hash(Config.DEFAULT_PASSWORD),
+            region=Regions.main.value,
         )
+        db_session.add(admin)
         db_session.commit()
+        db_session.remove()
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):

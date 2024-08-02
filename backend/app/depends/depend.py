@@ -104,17 +104,7 @@ def jwt_required():
     return decorator
 
 
-def user_required(admin=False):
-    """
-    A decorator function that checks if the user is authorized to access a specific resource.
-
-    Parameters:
-        admin (bool): A boolean indicating whether the user is an admin or not. Default is False.
-        func (function): The function to be decorated.
-
-    Returns:
-        function: The decorated function that checks user authorization before executing the original function.
-    """
+def roles_required(*roles):
 
     def decorator(func):
         @wraps(func)
@@ -122,7 +112,7 @@ def user_required(admin=False):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
                 cur_user = current_user
-                if cur_user and (not admin or cur_user['has_admin']):
+                if cur_user and cur_user['role'] in roles:
                     return func(*args, **kwargs)
                 abort(403)
             abort(401)

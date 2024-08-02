@@ -5,7 +5,6 @@ import re
 import shutil
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
-from PIL import Image
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -25,11 +24,13 @@ from ..depends.depend import (
     current_user,
     get_current_user,
     jwt_required,
-    user_required,
+    roles_required,
 )
+from ..classes.classes import Roles
 from ..model.models import Person, User, models_tables
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
 from ..handlers.handler import (
+    handle_image,
     handle_json_to_dict,
     handle_get_item,
     handle_post_item,
@@ -42,7 +43,7 @@ bp = Blueprint("route", __name__)
 
 
 @bp.get("/auth")
-@user_required()
+@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
 def get_auth():
     """
     Retrieves the current user's information.
@@ -54,7 +55,6 @@ def get_auth():
     return jsonify(User(**current_user).dict()), 200
 
 
-@bp.post("/login/<action>")
 def post_login(action):
     """
     A function that handles the login process.
@@ -108,7 +108,7 @@ def post_login(action):
 
 
 @bp.get("/users")
-@user_required(admin=True)
+@roles_required(Roles.admin.value)
 def get_users():
     """
     Retrieves a list of users from the database based on the provided search criteria.
@@ -132,7 +132,7 @@ def get_users():
 
 
 @bp.post("/users")
-@user_required(admin=True)
+@roles_required(Roles.admin.value)
 def post_user():
     """
     Handles the POST request to create a user in the database.
@@ -172,7 +172,7 @@ def post_user():
 
 
 @bp.get("/users/<int:user_id>")
-@user_required(admin=True)
+@roles_required(Roles.admin.value)
 def get_user_actions(user_id):
     if current_user["id"] == user_id:
         return "", 205
@@ -195,12 +195,12 @@ def get_user_actions(user_id):
             user.attempt = 0
             user.blocked = False
             user.change_pswd = True
-        elif item == "admin":
-            user.has_admin = not user.has_admin
         elif item == "delete":
             user.deleted = not user.deleted
-        elif item in [e.value for e in Regions]:
-            user.region = request.args.get("item")
+        elif item in [reg.value for reg in Roles]:
+            user.role = item
+        elif item in [reg.value for reg in Regions]:
+            user.region = item
         get_current_user.cache_clear()
         db_session.commit()
         return "", 201
@@ -208,7 +208,7 @@ def get_user_actions(user_id):
 
 
 @bp.get("/index/<int:page>")
-@user_required()
+@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
 def get_index(page):
     """
     Retrieves a paginated list of persons from the database based on the search
@@ -226,7 +226,7 @@ def get_index(page):
         None
     """
     cur_user = current_user
-    pagination = 16
+    pagination = 12
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
     if search_data and len(search_data) > 2:
@@ -260,7 +260,7 @@ def get_index(page):
 
 
 @bp.post("/file/<item>/<int:item_id>")
-@user_required()
+@roles_required(Roles.user.value)
 def post_file(item, item_id):
     """
     Retrieves an image file associated with a person's ID.
@@ -316,11 +316,7 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            image = Image.open(files[0])
-            image_file = os.path.join(item_dir, "image.jpg")
-            if os.path.isfile(image_file):
-                os.remove(image_file)
-            image.save(image_file)
+            handle_image(files[0], item_dir)
             return "", 201
 
         date_subfolder = os.path.join(
@@ -330,14 +326,8 @@ def post_file(item, item_id):
         if not os.path.isdir(date_subfolder):
             os.mkdir(date_subfolder)
         for file in files:
-            if item == "checks" and file.filename.endswith("xml"):
-                check = db_session.execute(
-                    select(Checks)
-                    .filter(Checks.person_id == item_id)
-                    .order_by(desc(Checks.id))
-                ).scalars().first()
-                check.addition = json.dumps(handle_xml(file))
-                db_session.commit()
+            if item == "checks" and file.filename == "showresult.xml":
+                handle_xml(file, item_id)
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
@@ -360,7 +350,7 @@ def get_image():
 
 
 @bp.post("/resume")
-@user_required()
+@roles_required(Roles.user.value)
 def post_resume():
     """
     Creates a new user, person or contact based on the provided JSON data.
@@ -381,7 +371,7 @@ def post_resume():
 
 
 @bp.get("/region/<int:person_id>")
-@user_required()
+@roles_required(Roles.user.value)
 def change_region(person_id):
     """
     Change a person's region in the database based on their person ID.
@@ -408,7 +398,7 @@ def change_region(person_id):
 
 
 @bp.get("/profile/<int:person_id>")
-@user_required()
+@jwt_required()
 def get_profile(person_id):
     """
     Retrieves all information related to a person in one request.
@@ -426,7 +416,7 @@ def get_profile(person_id):
 
 
 @bp.get("/<item>/<int:item_id>")
-@jwt_required()
+@roles_required(Roles.user.value)
 def get_item_id(item, item_id):
     """
     Retrieves an item from the database based on the provided item name and item ID.
@@ -449,7 +439,7 @@ def get_item_id(item, item_id):
 
 
 @bp.post("/<item>/<int:item_id>")
-@user_required()
+@roles_required(Roles.user.value)
 def post_item_id(item, item_id):
     """
     Inserts or replaces a record in the specified table with the given item ID.
@@ -470,7 +460,7 @@ def post_item_id(item, item_id):
 
 
 @bp.delete("/<item>/<int:item_id>")
-@jwt_required()
+@roles_required(Roles.admin.value, Roles.user.value)
 def delete_item(item, item_id):
     """
     Deletes an item from the database based on the provided item name and item ID.
@@ -493,7 +483,7 @@ def delete_item(item, item_id):
 
 
 @bp.get("/information")
-@user_required()
+@roles_required(Roles.admin.value, Roles.user.value)
 def get_information():
     """
     Retrieves information based on the provided query parameters.
@@ -552,6 +542,7 @@ def get_classes():
             Contacts,
             Documents,
             Poligrafs,
+            Roles
         ]
     ]
     return jsonify(results), 200

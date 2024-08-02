@@ -3,24 +3,26 @@ import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import * as interfaces from "@/interfaces";
 
-// export const server = "http://localhost:5000";
-export const server = "";
+export const server = "http://localhost:5000";
+// export const server = "";
 
 export const stateUser = {
   user: reactive({
     userId: "",
     username: "",
-    hasAdmin: false,
+    role: "",
     region: "",
   }),
   async getCurrentUser(): Promise<void> {
     try {
       const auth = await axiosAuth.get(`${server}/auth`);
       const user = auth.data;
-      this.user.userId = user["id"];
-      this.user.username = user["username"];
-      this.user.hasAdmin = user["has_admin"];
-      this.user.region = user["region"];
+      Object.assign(this.user, {
+        userId: user["id"],
+        username: user["username"],
+        role: user["roles"],
+        region: user["region"],
+      })
       await stateClassify.getClassify();
       router.push({ name: "persons" });
     } catch (error: any) {
@@ -41,6 +43,7 @@ export const stateClassify = {
     contacts: <Record<string, any>>{},
     documents: <Record<string, any>>{},
     poligrafs: <Record<string, any>>{},
+    roles: <Record<string, any>>{},
   }),
 
   async getClassify(): Promise<void> {
@@ -223,14 +226,9 @@ export const stateAnketa = {
     const formData = new FormData();
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
-      for (let i = 0; i < inputElement.files.length; i++) {
-        if (inputElement.files[i].size > 1024 * 1024) {
-          stateAlert.setAlert(
-            "alert-warning",
-            "Превышен максимальный размер файла. Часть файлов не будет загружена"
-          );
-        } else {
-          formData.append("file", inputElement.files[i]);
+      for (let file of inputElement.files) {
+        if (file.size < (1024 * 1024) * 2) {
+          formData.append("file", file);
         }
       }
       try {

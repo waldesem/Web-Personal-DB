@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount, defineAsyncComponent } from "vue";
-import { stateUser } from "@/state";
+import { stateUser, stateClassify } from "@/state";
 import { router } from "@/router";
 
 const AlertMessage = defineAsyncComponent(
@@ -23,29 +23,21 @@ async function userLogout(): Promise<void> {
       <div class="navbar navbar-expand sticky-top fs-5 p-3">
         <div class="nav flex-column">
           <a class="nav-link text-danger fs-3 fw-bold">STAFFSEC FINTECH</a>
-          <hr class="text-info">
-          <router-link
-            :to="{ name: 'persons' }"
-            class="nav-link active"
-          >
+          <hr class="text-info" />
+          <router-link :to="{ name: 'persons' }" class="nav-link active">
             Кандидаты
           </router-link>
-          <hr class="text-info">
-          <router-link
-            :to="{ name: 'resume' }"
-            class="nav-link active"
-          >
+          <hr class="text-info" />
+          <router-link :to="{ name: 'resume' }" class="nav-link active">
             Создать
           </router-link>
-          <hr class="text-info">
-          <router-link
-            :to="{ name: 'information' }"
-            class="nav-link active"
-          >
+          <hr class="text-info" />
+          <router-link :to="{ name: 'information' }" class="nav-link active">
             Информация
           </router-link>
-          <hr class="text-info">
-          <router-link v-if="stateUser.user.hasAdmin" 
+          <hr class="text-info" />
+          <router-link
+            v-if="stateUser.user.role == stateClassify.classes.roles['admin']"
             :to="{ name: 'users' }"
             class="nav-link active"
           >
@@ -59,26 +51,28 @@ async function userLogout(): Promise<void> {
         <div class="sticky-top bg-white d-print-none p-3">
           <div class="row">
             <div class="col-10 text-center">
-              <AlertMessage/>
+              <AlertMessage />
             </div>
             <div class="col-2 text-end">
               <div class="dropdown">
                 <button
                   class="btn btn-link btn-lg dropdown-toggle"
-                  style="text-decoration: none;"
+                  style="text-decoration: none"
                   role="button"
                   data-bs-toggle="dropdown"
                 >
                   &#x272A; {{ stateUser.user.username }}
                 </button>
                 <ul class="dropdown-menu">
-                  <li class="dropdown-item" >
+                  <li class="dropdown-item">
                     <a
-                      class="link-opacity-50-hover" href="#"
-                      @click="userLogout">
+                      class="link-opacity-50-hover"
+                      href="#"
+                      @click="userLogout"
+                    >
                       Выход
                     </a>
-                  </li >
+                  </li>
                 </ul>
               </div>
             </div>
@@ -91,8 +85,8 @@ async function userLogout(): Promise<void> {
       <div class="col-1 d-print-none"></div>
     </div>
   </div>
-  <footer 
-    id="footer" 
+  <footer
+    id="footer"
     class="d-flex justify-content-center border-top bg-white d-print-none"
   >
     <p class="text-muted mt-2">© 2024 STAFFSEC FINTECH</p>

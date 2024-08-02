@@ -1,13 +1,15 @@
+import json
 import os
 import xml.etree.ElementTree as ET
 
 from flask import current_app
+from PIL import Image
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import desc, select
 
 from ..depends.depend import current_user
 from ..model.models import AnketaSchemaJson
-from ..model.tables import Users, db_session, Persons, tables_models
+from ..model.tables import Checks, Users, db_session, Persons, tables_models
 
 
 def handle_get_item(item, item_id):
@@ -182,11 +184,27 @@ def parse_xml(elem_tree):
     return results
 
 
-def handle_xml(path):
-    tree = ET.parse(path)
-    root = tree.getroot()
-    sources = root.findall("./Source")
-    return parse_xml(sources)
+def handle_xml(file, item_id):
+    check = db_session.execute(
+        select(Checks)
+        .filter(Checks.person_id == item_id)
+        .order_by(desc(Checks.id))
+    ).scalars().first()
+    with open(file, 'r') as xml_file:
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+        sources = root.findall("./Source")
+        check.addition = json.dumps(parse_xml(sources))
+        db_session.commit()
+
+
+def handle_image(file, item_dir):
+    with open(file, 'r+') as image_file:
+        image = Image.open(image_file)
+        new_file = os.path.join(item_dir, "image.jpg")
+        if os.path.isfile(new_file):
+            os.remove(new_file)
+        image.save(new_file)
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):
