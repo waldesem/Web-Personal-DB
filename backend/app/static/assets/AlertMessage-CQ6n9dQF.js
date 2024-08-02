@@ -1,1 +1,0 @@
-import{d as a,g as t,v as r,u as e,o,c as l,t as n,A as c}from"./index-CwoCbLJx.js";import{s}from"./state-Ckk4aSZX.js";const g=a({__name:"AlertMessage",setup(i){return(m,p)=>t((o(),l("div",{class:c(["alert",e(s).alertMessage.attr]),role:"alert",fade:"",show:""},n(e(s).alertMessage.text),3)),[[r,e(s).alertMessage.show]])}});export{g as default};
