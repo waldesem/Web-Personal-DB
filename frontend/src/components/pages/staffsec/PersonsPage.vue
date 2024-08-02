@@ -123,25 +123,29 @@ function openProfile (person_id: string) {
     </template>
   </TableSlots>
   <p class="fs-6 taxt-danger" v-else>Ничего не найдено</p>
-  <nav class="mb-4">
+  <nav
+    v-if="statePersons.persons.prev || statePersons.persons.next"
+    class="mb-4">
     <ul class="pagination justify-content-center">
       <li class="page-item">
         <button
+          :disabled="!statePersons.persons.prev"
           type="button"
           class="btn btn-link btn-outline-primary" 
           @click="statePersons.getCandidates(statePersons.persons.page - 1)"
         >
           <i class="bi bi-chevron-double-left"></i>
-          Предыдущая
+          Назад 
       </button>
       </li>
       <li class="page-item">
         <button 
+          :disabled="!statePersons.persons.next"
           type="button" 
           class="btn btn-link btn-outline-primary" 
           @click="statePersons.getCandidates(statePersons.persons.page + 1)"
         >
-          Следующая
+          Вперёд
           <i class="bi bi-chevron-double-right"></i>
         </button>
       </li>
