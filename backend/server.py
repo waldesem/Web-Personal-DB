@@ -2,7 +2,7 @@ import argparse
 
 from app import create_app
 from waitress import serve
-from flaskwebgui import FlaskUI
+from webgui import FlaskUI
 
 
 def main():

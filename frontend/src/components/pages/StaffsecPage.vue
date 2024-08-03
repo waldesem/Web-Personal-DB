@@ -1,10 +1,23 @@
 <script setup lang="ts">
-import { onBeforeMount, defineAsyncComponent } from "vue";
-import { stateUser, stateClassify } from "@/state";
+import { onBeforeMount, defineAsyncComponent, ref } from "vue";
+import { stateUser, stateClassify, server } from "@/state";
+import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 
 const AlertMessage = defineAsyncComponent(
   () => import("@components/content/elements/AlertMessage.vue")
+);
+const ModalWin = defineAsyncComponent(
+  () => import("@components/content/elements/ModalWin.vue")
+);
+const LabelSlot = defineAsyncComponent(
+  () => import("@components/content/elements/LabelSlot.vue")
+);
+const InputElement = defineAsyncComponent(
+  () => import("@components/content/elements/InputElement.vue")
+);
+const BtnGroup = defineAsyncComponent(
+  () => import("@components/content/elements/BtnGroup.vue")
 );
 
 onBeforeMount(async () => {
@@ -14,6 +27,16 @@ onBeforeMount(async () => {
 async function userLogout(): Promise<void> {
   localStorage.removeItem("user_token");
   router.push({ name: "login" });
+}
+
+const settings = ref({
+  uri: "",
+  path: "",
+})
+
+async function submitSettings(): Promise<void> {
+  const setting = await axiosAuth.post(`${server}/settings`, settings.value);
+  console.log(setting.status);
 }
 </script>
 
@@ -60,9 +83,22 @@ async function userLogout(): Promise<void> {
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                &#x272A; {{ stateUser.user.username }}
+              <i class="bi bi-person-circle"></i>
+              {{ stateUser.user.username }}
               </button>
               <ul class="dropdown-menu">
+                <li
+                  v-if="stateUser.user.role == stateClassify.classes.roles['admin']" 
+                  class="dropdown-item">
+                  <a 
+                    class="link-opacity-50-hover" 
+                    href="#" 
+                    data-bs-toggle="modal"
+                    data-bs-target="#settings-modal"
+                  >
+                    Настроики
+                  </a>
+                </li>
                 <li class="dropdown-item">
                   <a
                     class="link-opacity-50-hover"
@@ -89,6 +125,31 @@ async function userLogout(): Promise<void> {
   >
     <p class="text-muted mt-2">© 2024 STAFFSEC FINTECH</p>
   </footer>
+  <ModalWin :elem-id="'settings-modal'">
+    <form @submit.prevent="submitSettings" class="form form-check p-3" role="form">
+      <LabelSlot 
+        :label="'Папка базы данных'"
+      >
+        <InputElement
+          :name="'path'"
+          :need="true"
+          :place="'Папка базы данных'"
+          v-model="settings['path']"
+        />
+      </LabelSlot>
+      <LabelSlot 
+        :label="'URI базы данных'"
+      >
+        <InputElement
+          :name="'uri'"
+          :need="true"
+          :place="'URI базы данных'"
+          v-model="settings['uri']"
+        />
+      </LabelSlot>
+      <BtnGroup />
+    </form>
+  </ModalWin>
 </template>
 
 <style scoped>

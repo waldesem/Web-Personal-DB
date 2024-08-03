@@ -24,6 +24,9 @@ const SwitchBox = defineAsyncComponent(
 const TableSlots = defineAsyncComponent(
   () => import("@components/content/elements/TableSlots.vue")
 );
+const ModalWin = defineAsyncComponent(
+  () => import("@components/content/elements/ModalWin.vue")
+)
 const BtnGroup = defineAsyncComponent(
   () => import("@components/content/elements/BtnGroup.vue")
 );
@@ -220,141 +223,135 @@ function cancelOperations() {
       </tr>
     </template>
   </TableSlots>
-  <div class="modal modal fade" id="user-modal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-body">
-          <div class="p-3">
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'ID'"
-            >
-              {{ dataUsers.profile.id }}
-            </LabelSlot>
-            <LabelSlot 
-              :label="'Регион'"
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              >
-              <SelectDiv
-                :name="'region'"
-                :select="stateClassify.classes.regions"
-                v-model="dataUsers.profile.region"
-                @submit-data="userAction(dataUsers.profile.region)"
-              />
-            </LabelSlot>
-            <LabelSlot 
-              :label="'Роль'"
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              >
-              <SelectDiv
-                :name="'role'"
-                :select="stateClassify.classes.roles"
-                v-model="dataUsers.profile['role']"
-                @submit-data="userAction(dataUsers.profile.role)"
-              />
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Имя пользователя'"
-            >
-              {{ dataUsers.profile.fullname }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Логин'"
-            >
-              {{ dataUsers.profile.username }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Дата создания пароля'"
-            >
-              {{
-                new Date(dataUsers.profile.pswd_create + " UTC").toLocaleString(
-                  "ru-RU"
-                )
-              }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Требует смены пароля'"
-            >
-              {{ dataUsers.profile.change_pswd ? "Да" : "Нет" }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Попытки входа'"
-            >
-              {{ dataUsers.profile.attempt }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Заблокирован'"
-            >
-              {{ dataUsers.profile.blocked ? "Заблокирован" : "Разблокирован" }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Активность'"
-            >
-              {{ dataUsers.profile.deleted ? "Удален" : "Активен" }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Роль'"
-            >
-              {{ dataUsers.profile.role }}
-            </LabelSlot>
-            <LabelSlot
-              :label-class="'col-5'"
-              :input-class="'col-7'"
-              :label="'Дата создания профиля'"
-            >
-              {{
-                new Date(dataUsers.profile.created + " UTC").toLocaleString(
-                  "ru-RU"
-                )
-              }}
-            </LabelSlot>
-          </div>
-          <div class="btn-group p-3" role="group">
-            <button
-              @click="userAction('drop')"
-              type="button"
-              class="btn btn-outline-secondary"
-            >
-              Сбросить пароль
-            </button>
-            <button
-              @click="userAction('delete')"
-              type="button"
-              class="btn btn-outline-danger"
-            >
-              {{ dataUsers.profile.deleted ? "Восстановить" : "Отметить к удалению" }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-primary"
-              data-bs-dismiss="modal"
-            >
-              Закрыть
-            </button>
-          </div>
-        </div>
-      </div>
+  <ModalWin :elem-id="'user-modal'">
+    <div class="p-3">
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'ID'"
+      >
+        {{ dataUsers.profile.id }}
+      </LabelSlot>
+      <LabelSlot 
+        :label="'Регион'"
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        >
+        <SelectDiv
+          :name="'region'"
+          :select="stateClassify.classes.regions"
+          v-model="dataUsers.profile.region"
+          @submit-data="userAction(dataUsers.profile.region)"
+        />
+      </LabelSlot>
+      <LabelSlot 
+        :label="'Роль'"
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        >
+        <SelectDiv
+          :name="'role'"
+          :select="stateClassify.classes.roles"
+          v-model="dataUsers.profile['role']"
+          @submit-data="userAction(dataUsers.profile.role)"
+        />
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Имя пользователя'"
+      >
+        {{ dataUsers.profile.fullname }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Логин'"
+      >
+        {{ dataUsers.profile.username }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Дата создания пароля'"
+      >
+        {{
+          new Date(dataUsers.profile.pswd_create + " UTC").toLocaleString(
+            "ru-RU"
+          )
+        }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Требует смены пароля'"
+      >
+        {{ dataUsers.profile.change_pswd ? "Да" : "Нет" }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Попытки входа'"
+      >
+        {{ dataUsers.profile.attempt }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Заблокирован'"
+      >
+        {{ dataUsers.profile.blocked ? "Заблокирован" : "Разблокирован" }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Активность'"
+      >
+        {{ dataUsers.profile.deleted ? "Удален" : "Активен" }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Роль'"
+      >
+        {{ dataUsers.profile.role }}
+      </LabelSlot>
+      <LabelSlot
+        :label-class="'col-5'"
+        :input-class="'col-7'"
+        :label="'Дата создания профиля'"
+      >
+        {{
+          new Date(dataUsers.profile.created + " UTC").toLocaleString(
+            "ru-RU"
+          )
+        }}
+      </LabelSlot>
     </div>
-  </div>
+    <div class="btn-group p-3" role="group">
+      <button
+        @click="userAction('drop')"
+        type="button"
+        class="btn btn-outline-secondary"
+      >
+        Сбросить пароль
+      </button>
+      <button
+        @click="userAction('delete')"
+        type="button"
+        class="btn btn-outline-danger"
+      >
+        {{ dataUsers.profile.deleted ? "Восстановить" : "Отметить к удалению" }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        data-bs-dismiss="modal"
+      >
+        Закрыть
+      </button>
+    </div>
+  </ModalWin>
 </template>
 
 <style scoped>
