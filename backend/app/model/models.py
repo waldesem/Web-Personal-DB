@@ -9,7 +9,7 @@ from ..classes.classes import (
     Regions,
     Conclusions,
     Relations,
-    Role
+    Roles
 )
 
 
@@ -23,8 +23,8 @@ class QueryModel(BaseModel):
 class User(QueryModel):
     fullname: str
     username: str
-    region: Regions
-    role: Role
+    region: Optional[Regions] = None
+    role: Optional[Roles] = None
 
 
 class Name(QueryModel):

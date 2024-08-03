@@ -28,9 +28,7 @@ async function submitLogin(): Promise<void> {
       stateAlert.setAlert("alert-warning", "Старый и новый пароли совпадают");
       return;
     }
-    if (
-      loginForm["conf_pswd"] !== loginForm["new_pswd"]
-    ) {
+    if (loginForm["conf_pswd"] !== loginForm["new_pswd"]) {
       stateAlert.setAlert(
         "alert-warning",
         "Новый пароль и подтверждение не совпадают"
@@ -41,7 +39,8 @@ async function submitLogin(): Promise<void> {
 
   try {
     const response = await axios.post(
-      `${server}/login/${loginAction.value}`, loginForm
+      `${server}/login/${loginAction.value}`,
+      loginForm
     );
     switch (response.status) {
       case 201:
@@ -71,8 +70,8 @@ async function submitLogin(): Promise<void> {
 
 <template>
   <div class="container pt-5">
-    <AlertMessage/>
-    <HeaderDiv 
+    <AlertMessage />
+    <HeaderDiv
       :cls="'text-danger py-3'"
       :page-header="'StaffSec - кадровая безопасность'"
     />
@@ -83,69 +82,73 @@ async function submitLogin(): Promise<void> {
           loginAction === 'create' ? 'Вход в систему' : 'Изменить пароль'
         "
       />
-        <form class="form form-check" role="form" @submit.prevent="submitLogin">
+      <form class="form form-check" role="form" @submit.prevent="submitLogin">
+        <div class="mb-3">
+          <InputElement
+            :need="true"
+            :name="'username'"
+            :place="'Логин'"
+            v-model="loginForm['username']"
+          />
+        </div>
+        <div class="input-group mb-3">
+          <input
+            :name="'password'"
+            id="password"
+            :type="!showPswd ? 'password' : 'text'"
+            class="form-control"
+            placeholder="Пароль"
+            required
+            v-model="loginForm['password']"
+          />
+          <button
+            class="btn btn-outline-primary"
+            type="button"
+            :title="!showPswd ? 'Показать' : 'Скрыть'"
+            @click="showPswd = !showPswd"
+          >
+            <i v-if="!showPswd" class="bi bi-eye"></i>
+            <i v-else class="bi bi-eye-slash"></i>
+          </button>
+        </div>
+        <div v-if="loginAction === 'update'">
           <div class="mb-3">
             <InputElement
               :need="true"
-              :name="'username'"
-              :place="'Логин'"
-              v-model="loginForm['username']"
-            />
-          </div>
-          <div class="mb-3">
-            <InputElement
-              :need="true"
-              :name="'password'"
-              :place="'Пароль'"
+              :name="'new_pswd'"
+              :place="'Новый пароль'"
+              :min="8"
+              :max="16"
               :typeof="!showPswd ? 'password' : 'text'"
-              v-model="loginForm['password']"
+              v-model="loginForm['new_pswd']"
             />
           </div>
-          <div v-if="loginAction === 'update'">
-            <div class="mb-3">
-              <InputElement
-                :need="true"
-                :name="'new_pswd'"
-                :place="'Новый пароль'"
-                :min="8"
-                :max="16"
-                :typeof="!showPswd ? 'password' : 'text'"
-                v-model="loginForm['new_pswd']"
-              />
-            </div>
-            <div class="mb-3">
-              <InputElement
-                :need="true"
-                :name="'conf_pswd'"
-                :place="'Повтор пароля'"
-                :typeof="!showPswd ? 'password' : 'text'"
-                v-model="loginForm['conf_pswd']"
-              />
-            </div>
-          </div>
-          <div class="row mb-3 col-lg-9">
-            <a 
-              v-show="loginAction === 'create'" 
-              class="link-primary mb-2" 
-              href="#" 
-              @click="loginAction = 'update'"
-              >
-              Изменить пароль
-            </a>
-            <a 
-              class="link-primary" 
-              href="#" 
-              @click="showPswd = !showPswd"
-            >
-              {{ !showPswd ? "Показать" : "Скрыть" }} пароль
-            </a>
-          </div>
-          <BtnGroup 
-            :offset="false" 
-            :submit-btn="loginAction === 'create' ? 'Войти' : 'Изменить'"
-            @cancel="loginAction = 'create'"
+          <div class="mb-3">
+            <InputElement
+              :need="true"
+              :name="'conf_pswd'"
+              :place="'Повтор пароля'"
+              :typeof="!showPswd ? 'password' : 'text'"
+              v-model="loginForm['conf_pswd']"
             />
-        </form>
+          </div>
+        </div>
+        <div class="row mb-3 col-lg-9">
+          <a
+            v-show="loginAction === 'create'"
+            class="link-primary mb-2"
+            href="#"
+            @click="loginAction = 'update'"
+          >
+            Изменить пароль
+          </a>
+        </div>
+        <BtnGroup
+          :offset="false"
+          :submit-btn="loginAction === 'create' ? 'Войти' : 'Изменить'"
+          @cancel="loginAction = 'create'"
+        />
+      </form>
     </div>
   </div>
 </template>

@@ -55,6 +55,7 @@ def get_auth():
     return jsonify(User(**current_user).dict()), 200
 
 
+@bp.post("/login/<action>")
 def post_login(action):
     """
     A function that handles the login process.
@@ -158,7 +159,8 @@ def post_user():
         ).all()
         if user:
             return "", 205
-
+        json_dict["role"] = Roles.guest.value
+        json_dict["region"] = Regions.main.value
         json_dict["passhash"] = generate_password_hash(
             current_app.config["DEFAULT_PASSWORD"]
         )

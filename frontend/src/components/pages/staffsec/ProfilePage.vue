@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa, server } from "@/state";
+import { stateUser, stateAnketa, stateClassify, server } from "@/state";
 import { useRoute } from "vue-router";
 import { axiosAuth } from "@/auth";
 
@@ -48,11 +48,11 @@ onBeforeMount(async () => {
 const currentTab = ref("anketaTab");
 
 const tabsData = {
-  anketaTab: ["Взять анкету", "Анкета", AnketaTab],
-  checkTab: ["Добавить проверку", "Проверки", CheckTab],
-  poligrafTab: ["Добавить полиграф", "Полиграф", PoligrafTab],
-  investigateTab: ["Добавить расследования", "Расследования", InvestigateTab],
-  inquiryTab: ["Добавить запрос", "Запросы", InquiryTab],
+  anketaTab: ["Взять анкету", "Анкета", AnketaTab,],
+  checkTab: ["Добавить проверку", "Проверки", CheckTab, "bi-person-check"],
+  poligrafTab: ["Добавить полиграф", "Полиграф", PoligrafTab, "bi-heart-pulse"],
+  investigateTab: ["Добавить расследования", "Расследования", InvestigateTab, "bi-incognito"],
+  inquiryTab: ["Добавить запрос", "Запросы", InquiryTab, "bi-journal-check"],
 };
 
 async function closeCollapses() {
@@ -91,26 +91,29 @@ async function switchTabs(tab: string) {
         }`"
       />
     </div>
-    <div class="col-md-2 d-flex justify-content-end d-print-none">
+    <div 
+      v-if="stateUser.user.role == stateClassify.classes.roles['user']"
+      class="col-md-2 d-flex justify-content-end d-print-none"
+    >
       <div
         v-for="(item, idx) in Object.keys(tabsData).slice(1)"
         :key="idx"
         class="position-relative"
       >
-        <button
+        <div
           v-if="
             currentTab == item &&
             stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
             stateAnketa.anketa.persons['standing']
           "
           :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
-          type="button"
-          class="btn btn-md btn-outline-danger"
+          class="text-danger fs-1"
+          style="cursor: pointer"
           data-bs-toggle="collapse"
           :href="'#clps_' + item.split('T')[0]"
         >
-          &equiv;
-        </button>
+        <i class="bi" :class="tabsData[currentTab as keyof typeof tabsData][3]"></i>
+        </div>
       </div>
       <div v-if="currentTab == 'anketaTab'" class="position-relative">
         <button
@@ -118,7 +121,7 @@ async function switchTabs(tab: string) {
           :class="
             stateAnketa.anketa.persons['standing']
               ? 'btn btn-link'
-              : 'btn btn-lg btn-outline-primary'
+              : 'btn btn-outline-danger'
           "
           :title="
             stateAnketa.anketa.persons['standing']
@@ -133,7 +136,8 @@ async function switchTabs(tab: string) {
             role="status"
           >
           </span>
-          <div v-else>&equiv;</div>
+          <div class="text-danger fs-5" v-else><i class="bi bi-pencil-square"></i>
+          </div>
         </button>
       </div>
     </div>

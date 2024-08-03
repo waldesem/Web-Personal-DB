@@ -20,7 +20,7 @@ export const stateUser = {
       Object.assign(this.user, {
         userId: user["id"],
         username: user["username"],
-        role: user["roles"],
+        role: user["role"],
         region: user["region"],
       })
       await stateClassify.getClassify();
@@ -55,6 +55,7 @@ export const stateClassify = {
         this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
           resp[i];
       }
+      console.log(this.classes);
     } catch (error: any) {
       console.error(error);
     }
@@ -241,6 +242,8 @@ export const stateAnketa = {
           statePersons.getCandidates(1);
         } else if (param === "image") {
           this.getImage();
+        } else if (param === "anketa") {
+          this.getItem("persons");
         } else this.getItem(param);
 
         stateAlert.setAlert(

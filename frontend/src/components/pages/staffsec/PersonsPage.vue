@@ -34,11 +34,12 @@ function openProfile (person_id: string) {
   <div class="position-relative">
     <div class="position-absolute bottom-100 end-0 px-3">
       <label
+        title="Загрузить json"
         for="file" 
         class="text-primary fs-5"
         style="cursor: pointer;"
-      >Загрузить json
-      &#9735;
+      >
+        <i class="bi bi-filetype-json fs-1"></i>
       </label>
       <FileForm :accept="'.json'" @submit="stateAnketa.submitFile($event, 'persons', '0')" />
     </div>
@@ -117,7 +118,8 @@ function openProfile (person_id: string) {
             :title="'Проверка'"
           >
           </div>
-          <div v-else :title="'Окончено'">&#128994</div>
+          <div v-else class="text-success fs-5" title="Окончено"><i class="bi bi-emoji-smile"></i>
+          </div>
         </td>
       </tr>
     </template>

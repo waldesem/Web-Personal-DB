@@ -6,11 +6,11 @@ const props = defineProps({
   },
   labelClass: {
     type: String,
-    default: "col-lg-3",
+    default: "col-3",
   },
   inputClass: {
     type: String,
-    default: "col-lg-9",
+    default: "col-9 text-break",
   }
 });
 </script>
@@ -29,7 +29,7 @@ const props = defineProps({
 
 <style scoped>
 @media print {
-  .col-lg-2, .col-lg-10 {
+  .col-lg-3, .col-lg-9 {
     float: left!important;
   }
   .col-lg-10 {

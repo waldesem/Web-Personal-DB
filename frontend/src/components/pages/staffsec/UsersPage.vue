@@ -42,6 +42,7 @@ const dataUsers = ref({
   search: "",
   users: <User[]>[],
   profile: <User>{},
+  form: <User>{},
   viewDeleted: false,
 });
 
@@ -79,22 +80,21 @@ async function userAction(item: String): Promise<void> {
         },
       }
     );
-    console.log(response.status);
-    getUsers();
+    if (response.status === 205) {
+      stateAlert.setAlert("alert-warning", "Невозможно выполнить операцию");
+    } else {
+      getUsers();
+    }
   } catch (error: any) {
     console.error(error);
   }
 }
 
 async function submitUser(): Promise<void> {
-  Object.assign(dataUsers.value.profile, {
-    role: stateClassify.classes.roles['guest'],
-    region: stateClassify.classes.regions['main']
-  });
   try {
     const response = await axiosAuth.post(
       `${server}/users`,
-      dataUsers.value.profile
+      dataUsers.value.form
     );
     if (response.status === 205) {
       stateAlert.setAlert("alert-warning", "Пользователь уже существует");
@@ -153,7 +153,7 @@ function cancelOperations() {
                 :name="'fullname'"
                 :place="'Имя пользователя'"
                 :need="true"
-                v-model="dataUsers.profile['fullname']"
+                v-model="dataUsers.form['fullname']"
               />
             </div>
             <div class="mb-3">
@@ -162,7 +162,7 @@ function cancelOperations() {
                 :place="'Учетная запись'"
                 :pattern="'[a-z_]+'"
                 :need="true"
-                v-model="dataUsers.profile['username']"
+                v-model="dataUsers.form['username']"
               />
             </div>
             <BtnGroup :offset="false" />
@@ -179,7 +179,7 @@ function cancelOperations() {
         <th width="15%">Логин</th>
         <th width="10%">Блокировка</th>
         <th width="15%">Создан</th>
-        <th width="15%">Администратор</th>
+        <th width="15%">Роль</th>
         <th width="20%">Регион</th>
       </tr>
     </template>
@@ -341,7 +341,14 @@ function cancelOperations() {
               type="button"
               class="btn btn-outline-danger"
             >
-              {{ dataUsers.profile.deleted ? "Восстановить" : "Удалить" }}
+              {{ dataUsers.profile.deleted ? "Восстановить" : "Отметить к удалению" }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              data-bs-dismiss="modal"
+            >
+              Закрыть
             </button>
           </div>
         </div>

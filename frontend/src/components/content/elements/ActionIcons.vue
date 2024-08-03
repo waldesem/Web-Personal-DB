@@ -7,36 +7,28 @@ const props = defineProps({
   },
   forInput: {
     type: String,
-    default: "file"
-  }
-})
+    default: "file",
+  },
+});
 </script>
 
 <template>
   <div class="position-relative d-print-none">
     <div class="position-absolute top-0 end-0">
-      <button
-        class="btn btn-link"
-        title="Изменить"
-        @click="emit('update')"
-      >
-        <div class="fs-5 text-primary">&plusmn;</div>
+      <button class="btn btn-link" title="Изменить" @click="emit('update')">
+        <div class="fs-6 text-primary"><i class="bi bi-pencil-square"></i></div>
       </button>
-      <button 
-        class="btn btn-link"
-        title="Удалить"
-        @click="emit('delete')" 
-      >
-        <div class="fs-5 text-danger">&times;</div>
+      <button class="btn btn-link" title="Удалить" @click="emit('delete')">
+        <div class="fs-6 text-danger"><i class="bi bi-trash"></i></div>
       </button>
-      <label 
-        class="text-success"
+      <label
+        class="text-body-secondary fs-5 mt-2"
         :for="props.forInput"
         :hidden="props.hide"
-        style="cursor: pointer;"
+        style="cursor: pointer"
       >
-        &infin;
-      </label>  
+        <i class="bi bi-cloud-arrow-up"></i>
+      </label>
       <slot></slot>
     </div>
   </div>

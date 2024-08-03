@@ -46,44 +46,42 @@ async function userLogout(): Promise<void> {
         </div>
       </div>
     </div>
-    <div class="col-10" id="staffsec">
-      <div class="col-11">
-        <div class="sticky-top bg-white d-print-none p-3">
-          <div class="row">
-            <div class="col-10 text-center">
-              <AlertMessage />
-            </div>
-            <div class="col-2 text-end">
-              <div class="dropdown">
-                <button
-                  class="btn btn-link btn-lg dropdown-toggle"
-                  style="text-decoration: none"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                >
-                  &#x272A; {{ stateUser.user.username }}
-                </button>
-                <ul class="dropdown-menu">
-                  <li class="dropdown-item">
-                    <a
-                      class="link-opacity-50-hover"
-                      href="#"
-                      @click="userLogout"
-                    >
-                      Выход
-                    </a>
-                  </li>
-                </ul>
-              </div>
+    <div class="col-9" id="staffsec">
+      <div class="sticky-top bg-white d-print-none p-3">
+        <div class="row">
+          <div class="col-10 text-center">
+            <AlertMessage />
+          </div>
+          <div class="col-2 text-end">
+            <div class="dropdown">
+              <button
+                class="btn btn-link btn-lg dropdown-toggle"
+                style="text-decoration: none"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                &#x272A; {{ stateUser.user.username }}
+              </button>
+              <ul class="dropdown-menu">
+                <li class="dropdown-item">
+                  <a
+                    class="link-opacity-50-hover"
+                    href="#"
+                    @click="userLogout"
+                  >
+                    Выход
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
-        <router-view v-slot="{ Component }" :key="$route.fullPath">
-          <component :is="Component" />
-        </router-view>
       </div>
-      <div class="col-1 d-print-none"></div>
+      <router-view v-slot="{ Component }" :key="$route.fullPath">
+        <component :is="Component" />
+      </router-view>
     </div>
+    <div class="col-1 d-print-none"></div>
   </div>
   <footer
     id="footer"
