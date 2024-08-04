@@ -6,4 +6,9 @@ export default defineNuxtConfig({
     "bootstrap/dist/css/bootstrap.min.css",
     "bootstrap-icons/font/bootstrap-icons.min.css",
   ],
+  nitro: {
+    output: {
+      publicDir: "../backend/app/static",
+    }
+  }
 });
