@@ -10,7 +10,7 @@ setting.read(os.path.join(basedir, "settings.ini"))
 class Config:
     SECRET_KEY = "secrets.token_hex(16)"
     SQLITE_URI = (
-        f"sqlite:///{setting['SQLite'].get('uri')}/database.db"
+        os.path.join("sqlite:///", setting["SQLite"].get("uri"), "database.db")
         if setting["SQLite"].get("uri")
         else os.path.join("sqlite:///database.db")
     )

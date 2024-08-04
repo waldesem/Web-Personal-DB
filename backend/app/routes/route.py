@@ -8,7 +8,6 @@ from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from config import basedir, setting
 from ..classes.classes import (
     Addresses,
     Affiliates,
@@ -207,21 +206,6 @@ def get_user_actions(user_id):
         get_current_user.cache_clear()
         db_session.commit()
         return "", 201
-    return abort(400)
-
-
-@bp.post("/settings")
-@roles_required(Roles.admin.value)
-def post_settings():
-    data = request.get_json()
-    uri = data.get("uri")
-    path = data.get("path")
-    if uri and path:
-        setting["SQLite"]["uri"] = data.get("uri")
-        setting["Destination"]["path"] = data.get("path")
-        with open(os.path.join(basedir, "settings.ini"), "w") as config_file:
-            setting.write(config_file)
-            return "", 201
     return abort(400)
 
 
