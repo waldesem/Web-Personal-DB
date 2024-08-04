@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, computed, toRef } from "vue";
-import { Contact } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state";
-
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { computed, toRef } from "vue";
+import type { Contact } from "../../utils/interfaces";
+import { stateClassify, stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -52,22 +39,22 @@ const view = computed(() => {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Вид контакта'">
-      <SelectDiv
+    <ElementsLabelSlot :label="'Вид контакта'">
+      <ElementsSelectDiv
         :name="'view'"
         :select="stateClassify.classes.contacts"
         v-model="contactForm['view']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Контакт'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Контакт'">
+      <ElementsInputElement
         :name="'contact'"
         :place="'Контакт'"
         :typeof="view"
         :need="true"
         v-model="contactForm['contact']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')"/>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

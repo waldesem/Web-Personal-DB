@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { Pfo } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state";
-
-const TextArea = defineAsyncComponent(
-  () => import("@components/content/elements/TextArea.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Pfo } from "../../utils/interfaces";
+import { stateClassify, stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -42,22 +29,22 @@ function submitPoligraf() {
     class="form form-check p-3"
     role="form"
   >
-    <LabelSlot :label="'Тема проверки'">
-      <SelectDiv
+    <ElementsLabelSlot :label="'Тема проверки'">
+      <ElementsSelectDiv
         :name="'theme'"
         :need="true"
         :select="stateClassify.classes.poligrafs"
         v-model="poligrafForm['theme']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Результат'">
-      <TextArea
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Результат'">
+      <ElementsTextArea
         :name="'results'"
         :place="'Результат'"
         v-model="poligrafForm['results']"
       >
-      </TextArea>
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')"/>
+      </ElementsTextArea>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

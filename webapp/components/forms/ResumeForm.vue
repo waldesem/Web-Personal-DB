@@ -1,21 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { stateAnketa } from "@/state";
-import { Persons } from "@/interfaces";
-
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
-
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const TextArea = defineAsyncComponent(
-  () => import("@components/content/elements/TextArea.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import { stateAnketa } from "../../utils/state";
+import type { Persons } from "../../utils/interfaces";
 
 const emit = defineEmits(["cancel"]);
 
@@ -47,92 +33,92 @@ async function submitForm(): Promise<void> {
 
 <template>
   <form @submit.prevent="submitForm" class="form form-check" role="form">
-    <LabelSlot :label="'Фамилия'">
-      <InputElement
+    <ElementsLabelSlot :label="'Фамилия'">
+      <ElementsInputElement
         :need="true"
         :name="'surname'"
         :place="'Фамилия*'"
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
         v-model="resumeForm['surname']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Имя'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Имя'">
+      <ElementsInputElement
         :need="true"
         :name="'firstname'"
         :place="'Имя*'"
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
         v-model="resumeForm['firstname']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Отчество'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Отчество'">
+      <ElementsInputElement
         :name="'patronymic'"
         :place="'Отчество'"
         v-model="resumeForm['patronymic']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Дата рождения*'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Дата рождения*'">
+      <ElementsInputElement
         :need="true"
         :name="'birthday'"
         :place="'Дата рождения*'"
         :typeof="'date'"
         v-model="resumeForm['birthday']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Место рождения'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Место рождения'">
+      <ElementsInputElement
         :name="'birthplace'"
         :place="'Место рождения'"
         v-model="resumeForm['birthplace']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Гражданство'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Гражданство'">
+      <ElementsInputElement
         :name="'citizenship'"
         :place="'Гражданство'"
         v-model="resumeForm['citizenship']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Двойное гражданство'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Двойное гражданство'">
+      <ElementsInputElement
         :name="'dual'"
         :place="'Двойное гражданство'"
         v-model="resumeForm['dual']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'СНИЛС'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'СНИЛС'">
+      <ElementsInputElement
         :name="'snils'"
         :place="'СНИЛС'"
         :pattern="'[0-9]{11}'"
         v-model="resumeForm['snils']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'ИНН'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'ИНН'">
+      <ElementsInputElement
         :name="'inn'"
         :place="'ИНН'"
         :max="'12'"
         :pattern="'[0-9]{12}'"
         v-model="resumeForm['inn']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Семейное положение'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Семейное положение'">
+      <ElementsInputElement
         :name="'marital'"
         :place="'Семейное положение'"
         v-model="resumeForm['marital']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Дополнительно'">
-      <TextArea
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Дополнительно'">
+      <ElementsTextArea
         :name="'addition'"
         :place="'Дополнительно'"
         v-model="resumeForm['addition']"
-      ></TextArea>
-    </LabelSlot>
-    <BtnGroup @cancel="cancelEdit" />
+      ></ElementsTextArea>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="cancelEdit" />
   </form>
 </template>

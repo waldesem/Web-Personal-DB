@@ -1,29 +1,22 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa, stateClassify, server } from "@/state";
-import { useRoute } from "vue-router";
-import { axiosAuth } from "@/auth";
+import { stateUser, stateAnketa, stateClassify, server } from "../../../utils/state";
+import { axiosAuth } from "../../../utils/auth";
 
 const AnketaTab = defineAsyncComponent(
-  () => import("@components/content/tabs/AnketaTab.vue")
+  () => import("@/components/tabs/AnketaTab.vue")
 );
 const CheckTab = defineAsyncComponent(
-  () => import("@components/content/tabs/CheckTab.vue")
+  () => import("@/components/tabs/CheckTab.vue")
 );
 const PoligrafTab = defineAsyncComponent(
-  () => import("@components/content/tabs/PoligrafTab.vue")
+  () => import("@/components/tabs/PoligrafTab.vue")
 );
 const InvestigateTab = defineAsyncComponent(
-  () => import("@components/content/tabs/InvestigateTab.vue")
+  () => import("@/components/tabs/InvestigateTab.vue")
 );
 const InquiryTab = defineAsyncComponent(
-  () => import("@components/content/tabs/InquiryTab.vue")
-);
-const HeaderDiv = defineAsyncComponent(
-  () => import("@components/content/elements/HeaderDiv.vue")
-);
-const PhotoCard = defineAsyncComponent(
-  () => import("@components/content/divs//PhotoCard.vue")
+  () => import("@/components/tabs/InquiryTab.vue")
 );
 
 onBeforeMount(async () => {
@@ -77,6 +70,7 @@ async function switchTabs(tab: string) {
 </script>
 
 <template>
+  <StaffSec>
   <PhotoCard />
   <div class="row mb-3">
     <div class="col-md-10">
@@ -169,6 +163,7 @@ async function switchTabs(tab: string) {
       <component :is="values[2]"></component>
     </div>
   </div>
+  </StaffSec>
 </template>
 
 <style>

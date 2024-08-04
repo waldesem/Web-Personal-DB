@@ -1,19 +1,11 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount } from "vue";
-import { debounce } from "@/utilities";
-import { stateAlert, stateAnketa, statePersons } from "@/state";
-import { router } from "@/router";
+import { onBeforeMount } from "vue";
+import { debounce } from "../../utils/utilities";
+import { stateAlert, stateAnketa, statePersons } from "../../utils/state";
 
-const HeaderDiv = defineAsyncComponent(
-  () => import("@components/content/elements/HeaderDiv.vue")
-);
-
-const FileForm = defineAsyncComponent(
-  () => import("@components/content/forms/FileForm.vue")
-);
-const TableSlots = defineAsyncComponent(
-  () => import("@components/content/elements/TableSlots.vue")
-);
+definePageMeta({
+  layout: "staffsec",
+})
 
 onBeforeMount(async () => {
   stateAlert.alertMessage.show = false;
@@ -25,12 +17,14 @@ const searchPerson = debounce(() => {
 }, 500);
 
 function openProfile (person_id: string) {
+  const router = useRouter();
   router.push({ name: "profile", params: { id: person_id } });
 }
 </script>
 
 <template>
-  <HeaderDiv :page-header="'Кандидаты'" />
+  <LayoutsStaffsec>
+  <ElementsHeaderDiv :page-header="'Кандидаты'" />
   <div class="position-relative">
     <div class="position-absolute bottom-100 end-0 px-3">
       <label
@@ -41,7 +35,7 @@ function openProfile (person_id: string) {
       >
         <i class="bi bi-filetype-json fs-1"></i>
       </label>
-      <FileForm :accept="'.json'" @submit="stateAnketa.submitFile($event, 'persons', '0')" />
+      <FormsFileForm :accept="'.json'" @submit="stateAnketa.submitFile($event, 'persons', '0')" />
     </div>
   </div>
   <div class="row mb-3">
@@ -57,7 +51,7 @@ function openProfile (person_id: string) {
       />
     </form>
   </div>
-  <TableSlots 
+  <ElementsTableSlots 
     :tbl-class="'table align-middle table-hover'"
     v-if="statePersons.persons.candidates.length"
     >
@@ -123,7 +117,7 @@ function openProfile (person_id: string) {
         </td>
       </tr>
     </template>
-  </TableSlots>
+  </ElementsTableSlots>
   <p class="fs-6 taxt-danger" v-else>Ничего не найдено</p>
   <nav
     v-if="statePersons.persons.prev || statePersons.persons.next"
@@ -153,6 +147,7 @@ function openProfile (person_id: string) {
       </li>
     </ul>
   </nav>
+  </LayoutsStaffsec>
 </template>
 
 <style scoped>

@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Relation } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const RelationForm = defineAsyncComponent(
-  () => import("@components/content/forms/RelationForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Relation } from "../../utils/interfaces";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -30,9 +17,9 @@ function cancelAction() {
 </script>
 
 <template>
-  <DropDownHead :id="'relationer'" :header="'Связи'" />
+  <ElementsDropDownHead :id="'relationer'" :header="'Связи'" />
   <div class="collapse card card-body mb-3" id="relationer">
-    <RelationForm @cancel="cancelAction" />
+    <FormsRelationForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.relations.length">
     <div
@@ -42,14 +29,14 @@ function cancelAction() {
       @mouseover="actions = true"
       @mouseout="actions = false"
     >
-      <RelationForm
+      <FormsRelationForm
         v-if="edit && itemId == item['id'].toString()" 
         :relation="relation"
         @cancel="edit = !edit"
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -63,9 +50,9 @@ function cancelAction() {
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
-        <LabelSlot :label="'Связь'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Тип'">{{ item["relation"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Связь'">
           <router-link
             :to="{
               name: 'profile',
@@ -74,7 +61,7 @@ function cancelAction() {
           >
             ID #{{ item["relation_id"] }}
           </router-link>
-        </LabelSlot>
+        </ElementsLabelSlot>
       </div>
     </div>
   </div>

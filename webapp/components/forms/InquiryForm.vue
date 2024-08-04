@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { toRef, defineAsyncComponent } from "vue";
-import { Needs } from "@/interfaces";
-import { stateAnketa } from "@/state";
-
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const TextArea = defineAsyncComponent(
-  () => import("@components/content/elements/TextArea.vue")
-);
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Needs } from "../../utils/interfaces";
+import { stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -42,21 +29,21 @@ function submitIquiry() {
     class="form form-check p-3"
     role="form"
   >
-    <LabelSlot :label="'Информация'">
-      <TextArea
+    <ElementsLabelSlot :label="'Информация'">
+      <ElementsTextArea
         :name="'info'"
         :place="'Информация'"
         v-model="inquiryForm['info']"
       >
-      </TextArea>
-    </LabelSlot>
-    <LabelSlot :label="'Инициатор'">
-      <InputElement
+      </ElementsTextArea>
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Инициатор'">
+      <ElementsInputElement
         :name="'origins'"
         :place="'Инициатор'"
         v-model="inquiryForm['origins']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')"/>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

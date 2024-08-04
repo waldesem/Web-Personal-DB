@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
+import { stateAnketa, stateUser } from "../../utils/state";
 
 const photoCard = ref({
   formData: new FormData(),

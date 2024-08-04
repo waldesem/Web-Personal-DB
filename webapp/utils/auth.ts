@@ -1,6 +1,5 @@
 import axios from "axios";
-import { router } from "@/router";
-import { stateAlert } from "@/state";
+import { stateAlert } from "./state";
 
 export const axiosAuth = axios.create();
 
@@ -11,6 +10,7 @@ axiosAuth.interceptors.request.use(
       config.headers["Authorization"] = `Basic ${user_token}`;
       return config;
     } else {
+      const router = useRouter();
       router.push({ name: "login" });
       return Promise.reject("Token not available");
     }
@@ -26,6 +26,7 @@ axiosAuth.interceptors.response.use(
   },
   async (error: any) => {
     if (error.request.status == 401 || error.request.status == 403) {
+      const router = useRouter();
       router.push({ name: "login" });
     } else if (error.request.status == 400) {
       stateAlert.setAlert("alert-warning", "Операция завершилась неудачно")

@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Work } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const WorkplaceForm = defineAsyncComponent(
-  () => import("@components/content/forms/WorkplaceForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Work } from "../../utils/interfaces";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -30,9 +17,9 @@ function cancelAction() {
 </script>
 
 <template>
-  <DropDownHead :id="'worker'" :header="'Работа'" />
+  <ElementsDropDownHead :id="'worker'" :header="'Работа'" />
   <div class="collapse card card-body mb-3" id="worker">
-    <WorkplaceForm @cancel="cancelAction" />
+    <FormsWorkplaceForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.workplaces.length">
     <div
@@ -42,14 +29,14 @@ function cancelAction() {
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <WorkplaceForm 
+      <FormsWorkplaceForm 
         v-if="edit && itemId == item['id'].toString()" 
         :work="workplace" 
         @cancel="cancelAction" 
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -65,28 +52,28 @@ function cancelAction() {
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot v-if="item['now_work']" :label="'Текущая работа'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
           {{ item["now_work"] ? "Да" : "Нет" }}
-        </LabelSlot>
-        <LabelSlot :label="'Начало работы'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Начало работы'">
           {{ new Date(item["starts"]).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
           {{ new Date(item["finished"]).toLocaleDateString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot :label="'Место работы'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Место работы'">
           {{ item["workplace"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Адрес'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Адрес'">
           {{ item["addresses"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Должность'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Должность'">
           {{ item["position"] }}
-        </LabelSlot>
-        <LabelSlot v-if="item['reason']" :label="'Причина увольнения'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
           {{ item["reason"] }}
-        </LabelSlot>
+        </ElementsLabelSlot>
       </div>
     </div>
   </div>

@@ -1,49 +1,34 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateClassify, stateUser } from "@/state";
-import type { Persons } from "@/interfaces";
+import { defineAsyncComponent, ref } from "vue";
+import { stateAnketa, stateClassify, stateUser } from "../../utils/state";
+import type { Persons } from "../../utils/interfaces";
 
-const PrevDiv = defineAsyncComponent(
-  () => import("@components/content/divs/PrevDiv.vue")
+const StaffDiv = defineAsyncComponent(
+  () => import("../../components/divs/StaffDiv.vue")
 );
 const EducateDiv = defineAsyncComponent(
-  () => import("@components/content/divs/EducateDiv.vue")
-);
-const StaffDiv = defineAsyncComponent(
-  () => import("@components/content/divs/StaffDiv.vue")
-);
-const DocumDiv = defineAsyncComponent(
-  () => import("@components/content/divs/DocumDiv.vue")
-);
-const AddressDiv = defineAsyncComponent(
-  () => import("@components/content/divs/AddressDiv.vue")
-);
-const ContactDiv = defineAsyncComponent(
-  () => import("@components/content/divs/ContactDiv.vue")
-);
-const RelateDiv = defineAsyncComponent(
-  () => import("@components/content/divs/RelateDiv.vue")
+  () => import("../../components/divs/EducateDiv.vue")
 );
 const WorkDiv = defineAsyncComponent(
-  () => import("@components/content/divs/WorkDiv.vue")
+  () => import("../../components/divs/WorkDiv.vue")
+);
+const DocumDiv = defineAsyncComponent(
+  () => import("../../components/divs/DocumDiv.vue")
+);
+const AddressDiv = defineAsyncComponent(
+  () => import("../../components/divs/AddressDiv.vue")
+);
+const ContactDiv = defineAsyncComponent(
+  () => import("../../components/divs/ContactDiv.vue")
 );
 const AffilDiv = defineAsyncComponent(
-  () => import("@components/content/divs/AffilDiv.vue")
+  () => import("../../components/divs/AffilDiv.vue")
 );
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
+const PrevDiv = defineAsyncComponent(
+  () => import("../../components/divs/PrevDiv.vue")
 );
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const FileForm = defineAsyncComponent(
-  () => import("@components/content/forms/FileForm.vue")
-);
-const ResumeForm = defineAsyncComponent(
-  () => import("@components/content/forms/ResumeForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
+const RelateDiv = defineAsyncComponent(
+  () => import("../../components/divs/RelateDiv.vue")
 );
 
 const dataResume = ref({
@@ -70,8 +55,8 @@ const dataResume = ref({
     @mouseover="dataResume.showActions = true"
     @mouseout="dataResume.showActions = false"
   >
-    <LabelSlot>
-      <ActionIcons
+    <ElementsLabelSlot>
+      <ElementsActionIcons
         v-show="
           dataResume.showActions &&
           stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -91,13 +76,10 @@ const dataResume = ref({
             stateAnketa.submitFile($event, 'anketa', stateAnketa.share.candId)
           "
         />
-      </ActionIcons>
-    </LabelSlot>
-    <LabelSlot
-      class="d-print-none"
-      :label="'Регион'"
-    >
-      <SelectDiv
+      </ElementsActionIcons>
+    </ElementsLabelSlot>
+    <ElementsLabelSlot class="d-print-none" :label="'Регион'">
+      <ElementsSelectDiv
         :width="'20%'"
         :name="'region'"
         :disable="
@@ -108,45 +90,45 @@ const dataResume = ref({
         v-model="stateAnketa.anketa.persons['region']"
         @submit-data="stateAnketa.changeRegion()"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Фамилия'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Фамилия'">
       {{ stateAnketa.anketa.persons["surname"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Имя'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Имя'">
       {{ stateAnketa.anketa.persons["firstname"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Отчество'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Отчество'">
       {{ stateAnketa.anketa.persons["patronymic"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата рождения'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Дата рождения'">
       {{
         new Date(
           String(stateAnketa.anketa.persons["birthday"])
         ).toLocaleDateString("ru-RU")
       }}
-    </LabelSlot>
-    <LabelSlot :label="'Место рождения'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Место рождения'">
       {{ stateAnketa.anketa.persons["birthplace"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Гражданство'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Гражданство'">
       {{ stateAnketa.anketa.persons["citizenship"] }}
-    </LabelSlot>
-    <LabelSlot
+    </ElementsLabelSlot>
+    <ElementsLabelSlot
       v-if="stateAnketa.anketa.persons['dual']"
       :label="'Двойное гражданство'"
     >
       {{ stateAnketa.anketa.persons["dual"] }}
-    </LabelSlot>
-    <LabelSlot :label="'СНИЛС'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'СНИЛС'">
       {{ stateAnketa.anketa.persons["snils"] }}
-    </LabelSlot>
-    <LabelSlot :label="'ИНН'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'ИНН'">
       {{ stateAnketa.anketa.persons["inn"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Семейное положение'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Семейное положение'">
       {{ stateAnketa.anketa.persons["marital"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата записи'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Дата записи'">
       {{
         stateAnketa.anketa.persons["created"]
           ? new Date(
@@ -154,24 +136,24 @@ const dataResume = ref({
             ).toLocaleString("ru-RU")
           : ""
       }}
-    </LabelSlot>
-    <LabelSlot :label="'Пользователь'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Пользователь'">
       {{
         stateAnketa.anketa.persons["username"]
           ? stateAnketa.anketa.persons["username"]
           : ""
       }}
-    </LabelSlot>
-    <LabelSlot :label="'Материалы'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Материалы'">
       {{ stateAnketa.anketa.persons["destination"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Дополнительная информация'">
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Дополнительная информация'">
       {{
         stateAnketa.anketa.persons["addition"]
           ? stateAnketa.anketa.persons["addition"]
           : "-"
       }}
-    </LabelSlot>
+    </ElementsLabelSlot>
   </div>
   <div
     v-for="(component, idx) in [

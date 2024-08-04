@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { toRef, defineAsyncComponent } from "vue";
-import { Inquisition } from "@/interfaces";
-import { stateAnketa } from "@/state";
-
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
-const TextArea = defineAsyncComponent(
-  () => import("@components/content/elements/TextArea.vue")
-);
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Inquisition } from "../../utils/interfaces";
+import { stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -42,22 +29,22 @@ function submitInvestigations() {
     class="form form-check p-3"
     role="form"
   >
-    <LabelSlot :label="'Тема проверки'">
-      <InputElement
+    <ElementsLabelSlot :label="'Тема проверки'">
+      <ElementsInputElement
         :name="'theme'"
         :place="'Тема проверки'"
         :need="true"
         v-model="investigationForm['theme']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Информация'">
-      <TextArea
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Информация'">
+      <ElementsTextArea
         :name="'info'"
         :place="'Информация'"
         v-model="investigationForm['info']"
       >
-      </TextArea>
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')"/>
+      </ElementsTextArea>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

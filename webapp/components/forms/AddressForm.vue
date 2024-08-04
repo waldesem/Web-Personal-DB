@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { Address } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state";
-
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Address } from "../../utils/interfaces";
+import { stateClassify, stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -42,23 +29,23 @@ function submitAddress() {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Вид адреса'">
-      <SelectDiv
+    <ElementsLabelSlot :label="'Вид адреса'">
+      <ElementsSelectDiv
         :name="'view'"
         :select="stateClassify.classes.addresses"
         v-model="addressForm['view']"
       />
-    </LabelSlot>
-    <LabelSlot
+    </ElementsLabelSlot>
+    <ElementsLabelSlot
       :label="'Адрес'"
     >
-      <InputElement
+      <ElementsInputElement
         :name="'address'"
         :place="'Адрес'"
         :need="true"
         v-model="addressForm['addresses']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')"/>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

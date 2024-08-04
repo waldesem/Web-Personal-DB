@@ -17,7 +17,9 @@
     "vue": "latest"
   },
   "devDependencies": {
+    "@types/node": "^22.1.0",
     "eslint": "^9.8.0",
-    "eslint-plugin-vue": "^9.27.0"
+    "eslint-plugin-vue": "^9.27.0",
+    "vue-tsc": "^2.0.29"
   }
 }

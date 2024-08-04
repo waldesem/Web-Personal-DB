@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Affilation } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const AffilationForm = defineAsyncComponent(
-  () => import("@components/content/forms/AffilationForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Affilation } from "../../utils/interfaces";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -30,9 +17,9 @@ function cancelAction(){
 </script>
 
 <template>
-  <DropDownHead :id="'affilationer'" :header="'Аффилированность'"/>  
+  <ElementsDropDownHead :id="'affilationer'" :header="'Аффилированность'"/>  
   <div class="collapse card card-body mb-3" id="affilationer">
-    <AffilationForm @cancel="cancelAction"/>
+    <FormsAffilationForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.affilations.length">
     <div
@@ -42,14 +29,14 @@ function cancelAction(){
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <AffilationForm
+      <FormsAffilationForm
         v-if="edit && itemId == item['id'].toString()" 
         :affils="affilation"
         @cancel="cancelAction"
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -65,10 +52,10 @@ function cancelAction(){
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Тип участия'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Организация'">{{ item["organization"] }}</LabelSlot>
-        <LabelSlot :label="'ИНН'">{{ item["inn"] }}</LabelSlot>
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Тип участия'">{{ item["view"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Организация'">{{ item["organization"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
       </div>
     </div>
   </div>

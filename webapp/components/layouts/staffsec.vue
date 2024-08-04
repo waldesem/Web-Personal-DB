@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { onBeforeMount, defineAsyncComponent } from "vue";
-import { stateUser, stateClassify } from "@/state";
-import { router } from "@/router";
-
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/elements/AlertMessage.vue")
-);
+import { onBeforeMount } from "vue";
+import { stateUser, stateClassify } from "../../utils/state";
 
 onBeforeMount(async () => {
   await stateUser.getCurrentUser();
@@ -13,7 +8,8 @@ onBeforeMount(async () => {
 
 async function userLogout(): Promise<void> {
   localStorage.removeItem("user_token");
-  router.push({ name: "login" });
+  const router = useRouter();
+  router.push("/login");
 }
 </script>
 
@@ -24,25 +20,25 @@ async function userLogout(): Promise<void> {
         <div class="nav flex-column">
           <a class="nav-link text-danger fs-3 fw-bold">STAFFSEC FINTECH</a>
           <hr class="text-info" />
-          <router-link :to="{ name: 'persons' }" class="nav-link active">
+          <NuxtLink to="/staffsec/persons" class="nav-link active">
             Кандидаты
-          </router-link>
+          </NuxtLink>
           <hr class="text-info" />
-          <router-link :to="{ name: 'resume' }" class="nav-link active">
+          <NuxtLink to="/staffsec/resume" class="nav-link active">
             Создать
-          </router-link>
+          </NuxtLink>
           <hr class="text-info" />
-          <router-link :to="{ name: 'information' }" class="nav-link active">
+          <NuxtLink to="/staffsec/info" class="nav-link active">
             Информация
-          </router-link>
+          </NuxtLink>
           <hr class="text-info" />
-          <router-link
+          <NuxtLink
             v-if="stateUser.user.role == stateClassify.classes.roles['admin']"
-            :to="{ name: 'users' }"
+            to="/staffsec/users"
             class="nav-link active"
           >
             Пользователи
-          </router-link>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -50,7 +46,7 @@ async function userLogout(): Promise<void> {
       <div class="sticky-top bg-white d-print-none p-3">
         <div class="row">
           <div class="col-10 text-center">
-            <AlertMessage />
+            <DivsAlertMessage />
           </div>
           <div class="col-2 text-end">
             <div class="dropdown">
@@ -78,9 +74,7 @@ async function userLogout(): Promise<void> {
           </div>
         </div>
       </div>
-      <router-view v-slot="{ Component }" :key="$route.fullPath">
-        <component :is="Component" />
-      </router-view>
+      <slot></slot>
     </div>
     <div class="col-1 d-print-none"></div>
   </div>

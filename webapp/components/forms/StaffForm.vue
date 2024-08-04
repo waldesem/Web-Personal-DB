@@ -1,17 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { Staff } from "@/interfaces";
-import { stateAnketa } from "@/state";
-
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Staff } from "../../utils/interfaces";
+import { stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -39,21 +29,21 @@ function submitStaff() {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Должность'">
-      <InputElement
+    <ElementsLabelSlot :label="'Должность'">
+      <ElementsInputElement
         :name="'position'"
         :place="'Должность'"
         :need="true"
         v-model="staffForm['position']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Подразделение'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Подразделение'">
+      <ElementsInputElement
         :name="'department'"
         :place="'Подразделение'"
         v-model="staffForm['department']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')" />
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </form>
 </template>

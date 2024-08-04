@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { Work } from "@/interfaces";
-import { stateAnketa } from "@/state";
-
-const SwitchBox = defineAsyncComponent(
-  () => import("@components/content/elements/SwitchBox.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Work } from "../../utils/interfaces";
+import { stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -42,61 +29,61 @@ function submitWorkplace() {
     class="form form-check"
     role="form"
   > 
-    <LabelSlot :label="'Текущая работа'">
-    <SwitchBox
+    <ElementsLabelSlot :label="'Текущая работа'">
+    <ElementsSwitchBox
         :name="'now_work'"
         v-model="workForm['now_work']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Начало работы'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Начало работы'">
+      <ElementsInputElement
         :name="'start_date'"
         :need="true"
         :place="'Начало работы'"
         :typeof="'date'"
         v-model="workForm['starts']"
       />
-    </LabelSlot>
-    <LabelSlot
+    </ElementsLabelSlot>
+    <ElementsLabelSlot
       v-if="!workForm['now_work']" 
       :label="'Окончание работы'">
-      <InputElement
+      <ElementsInputElement
         :name="'end_date'"
         :place="'Окончание работы'"
         :typeof="'date'"
         v-model="workForm['finished']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Место работы'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Место работы'">
+      <ElementsInputElement
         :name="'workplace'"
         :place="'Место работы'"
         :need="true"
         v-model="workForm['workplace']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Должность'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Должность'">
+      <ElementsInputElement
         :name="'position'"
         :place="'Должность'"
         :need="true"
         v-model="workForm['position']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Адрес организации'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Адрес организации'">
+      <ElementsInputElement
         :name="'address'"
         :place="'Адрес организации'"
         v-model="workForm['addresses']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Причина увольнения'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Причина увольнения'">
+      <ElementsInputElement
         :name="'reason'"
         :place="'Причина увольнения'"
         v-model="workForm['reason']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')" />
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </form>
 </template>

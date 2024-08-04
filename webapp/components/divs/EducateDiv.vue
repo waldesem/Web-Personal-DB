@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Education } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const EducationForm = defineAsyncComponent(
-  () => import("@components/content/forms/EducationForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Education } from "../../utils/interfaces";
 
 const actions = ref(false);
 const itemId = ref('');
@@ -30,9 +17,9 @@ function cancelAction(){
 </script>
 
 <template>
-  <DropDownHead :id="'educationer'" :header="'Образование'"/>
+  <ElementsDropDownHead :id="'educationer'" :header="'Образование'"/>
   <div class="collapse card card-body mb-3" id="educationer">
-    <EducationForm @cancel="cancelAction"/>
+    <FormsEducationForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.educations.length">
     <div
@@ -42,14 +29,14 @@ function cancelAction(){
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <EducationForm
+      <FormsEducationForm
         v-if="edit && itemId == item['id'].toString()" 
         :education="education"
         @cancel="cancelAction"
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -63,13 +50,13 @@ function cancelAction(){
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Уровень образования'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Название учебного заведения'">{{
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Уровень образования'">{{ item["view"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Название учебного заведения'">{{
           item["institution"]
-        }}</LabelSlot>
-        <LabelSlot :label="'Год окончания'">{{ item["finished"] }}</LabelSlot>
-        <LabelSlot :label="'Специальность'">{{ item["specialty"] }}</LabelSlot>
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Год окончания'">{{ item["finished"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Специальность'">{{ item["specialty"] }}</ElementsLabelSlot>
       </div>
     </div>
   </div>

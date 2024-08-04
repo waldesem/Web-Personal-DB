@@ -1,17 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { Previous } from "@/interfaces";
-import { stateAnketa } from "@/state";
-
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Previous } from "../../utils/interfaces";
+import { stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -39,45 +29,45 @@ function submitPrevious() {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Фамилия'">
-      <InputElement
+    <ElementsLabelSlot :label="'Фамилия'">
+      <ElementsInputElement
           :need="true"
           :name="'surname'"
           :place="'Фамилия*'"
           :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
           v-model="previousForm['surname']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Имя'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Имя'">
+      <ElementsInputElement
         :need="true"
         :name="'firstname'"
         :place="'Имя*'"
         :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
         v-model="previousForm['firstname']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Отчество'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Отчество'">
+      <ElementsInputElement
         :name="'patronymic'"
         :place="'Отчество'"
         v-model="previousForm['patronymic']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Год изменения'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Год изменения'">
+      <ElementsInputElement
         :name="'date_change'"
         :place="'Год изменения'"
         v-model="previousForm['changed']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Причина изменения'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Причина изменения'">
+      <ElementsInputElement
         :name="'reason'"
         :place="'Причина изменения'"
         v-model="previousForm['reason']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')"/>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

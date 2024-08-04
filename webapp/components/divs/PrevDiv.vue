@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Previous } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const PreviousForm = defineAsyncComponent(
-  () => import("@components/content/forms/PreviousForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Previous } from "../../utils/interfaces";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -30,9 +17,9 @@ function cancelAction() {
 </script>
 
 <template>
-  <DropDownHead :id="'previouser'" :header="'Изменение имени'" />
+  <ElementsDropDownHead :id="'previouser'" :header="'Изменение имени'" />
   <div class="collapse card card-body mb-3" id="previouser">
-    <PreviousForm @cancel="cancelAction" />
+    <FormsPreviousForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.previous.length">
     <div
@@ -42,14 +29,14 @@ function cancelAction() {
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <PreviousForm 
+      <FormsPreviousForm 
         v-if="edit && itemId == item['id'].toString()" 
         :previous="previous" 
         @cancel="cancelAction" 
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -63,22 +50,22 @@ function cancelAction() {
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Фамилия'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Фамилия'">
           {{ item["surname"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Имя'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Имя'">
           {{ item["firstname"] }}
-        </LabelSlot>
-        <LabelSlot v-if="item['patronymic']" :label="'Отчество'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item['patronymic']" :label="'Отчество'">
           {{ item["patronymic"] }}
-        </LabelSlot>
-        <LabelSlot v-if="item['changed']" :label="'Год изменения'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item['changed']" :label="'Год изменения'">
           {{ item["changed"] }}
-        </LabelSlot>
-        <LabelSlot v-if="item['reason']" :label="'Причина'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot v-if="item['reason']" :label="'Причина'">
           {{ item["reason"] }}
-        </LabelSlot>
+        </ElementsLabelSlot>
       </div>
     </div>
   </div>

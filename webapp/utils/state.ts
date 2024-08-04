@@ -1,7 +1,6 @@
 import { reactive } from "vue";
-import { axiosAuth } from "@/auth";
-import { router } from "@/router";
-import * as interfaces from "@/interfaces";
+import { axiosAuth } from "./auth";
+import * as interfaces from "./interfaces";
 
 export const server = "http://localhost:5000";
 // export const server = "";
@@ -14,6 +13,7 @@ export const stateUser = {
     region: "",
   }),
   async getCurrentUser(): Promise<void> {
+    const router = useRouter();
     try {
       const auth = await axiosAuth.get(`${server}/auth`);
       const user = auth.data;
@@ -24,7 +24,7 @@ export const stateUser = {
         region: user["region"],
       })
       await stateClassify.getClassify();
-      router.push({ name: "persons" });
+      router.push("/staffsec/persons");
     } catch (error: any) {
       router.push({ name: "login" });
       console.error(error);
@@ -55,7 +55,6 @@ export const stateClassify = {
         this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
           resp[i];
       }
-      console.log(this.classes);
     } catch (error: any) {
       console.error(error);
     }
@@ -214,8 +213,9 @@ export const stateAnketa = {
     try {
       const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
+      const router = useRouter();
       param === "persons"
-        ? router.push({ name: "persons" })
+        ? router.push("/persons")
         : this.getItem(param);
       stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error: any) {
@@ -263,6 +263,7 @@ export const stateAnketa = {
       try {
         const response = await axiosAuth.post(`${server}/resume`, form);
         const { person_id } = response.data;
+        const router = useRouter();
         router.push({ name: "profile", params: { id: person_id } });
         stateAlert.setAlert("alert-success", "Данные успешно добавлены");
       } catch (error) {

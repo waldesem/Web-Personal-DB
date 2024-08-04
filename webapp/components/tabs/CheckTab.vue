@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Verification } from "@/interfaces";
-
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
-const FileForm = defineAsyncComponent(
-  () => import("@components/content/forms/FileForm.vue")
-);
-const CheckForm = defineAsyncComponent(
-  () => import("@components/content/forms/CheckForm.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Verification } from "../../utils/interfaces";
 
 const checkData = ref({
   actions: false,
@@ -77,8 +64,8 @@ const renderAdditional = (jsonString: string) => {
         @cancel="cancelAction"
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
               checkData.actions && !idx &&
               stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -104,51 +91,51 @@ const renderAdditional = (jsonString: string) => {
                 )
               "
             />
-          </ActionIcons>
-        </LabelSlot>
+          </ElementsActionIcons>
+        </ElementsLabelSlot>
         <p class="fs-5 fw-medium text-primary p-1">
           {{ "Проверка кандидата #" + (idx + 1) }}
         </p>
-        <LabelSlot :label="'Проверка по местам работы'">
+        <ElementsLabelSlot :label="'Проверка по местам работы'">
           {{ item["workplace"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка паспорта'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка паспорта'">
           {{ item["document"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</LabelSlot>
-        <LabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</LabelSlot>
-        <LabelSlot :label="'Проверка банкротства'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка банкротства'">
           {{ item["bankruptcy"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</LabelSlot>
-        <LabelSlot :label="'Проверка судебных решений'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка судебных решений'">
           {{ item["courts"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка аффилированности'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка аффилированности'">
           {{ item["affilation"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка по списку террористов'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка по списку террористов'">
           {{ item["terrorist"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</LabelSlot>
-        <LabelSlot :label="'Проверка в открытых источниках'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка в открытых источниках'">
           {{ item["internet"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка в Кронос'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка в Кронос'">
           {{ item["cronos"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Проверка в Крос'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка в Крос'">
           {{ item["cros"] }}
-        </LabelSlot>
-        <LabelSlot :label="'Комментарии'">{{
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Комментарии'">{{
           item["comment"] ? item["comment"] : "-"
-        }}</LabelSlot>
-        <LabelSlot :label="'Результат'">{{ item["conclusion"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ item["username"] }}</LabelSlot>
-        <LabelSlot :label="'Дата записи'">
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Результат'">{{ item["conclusion"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Сотрудник'">{{ item["username"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
-        </LabelSlot>
-        <LabelSlot
+        </ElementsLabelSlot>
+        <ElementsLabelSlot
           v-if="item['addition']"
           class="d-print-none"
           :label="'Дополнительно'"
@@ -162,7 +149,7 @@ const renderAdditional = (jsonString: string) => {
           >
             Информация
           </button>
-        </LabelSlot>
+        </ElementsLabelSlot>
         <div
           class="collapse card card-body"
           id="clps_additional"

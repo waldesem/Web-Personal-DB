@@ -1,21 +1,8 @@
 <script setup lang="ts">
-import { onBeforeMount, ref, defineAsyncComponent } from "vue";
-import { stateClassify, stateUser, server } from "@/state";
-import { axiosAuth } from "@/auth";
+import { onBeforeMount, ref } from "vue";
+import { stateClassify, stateUser, server } from "../../utils/state";
+import { axiosAuth } from "../../utils/auth";
 import { AxiosError } from "axios";
-
-const HeaderDiv = defineAsyncComponent(
-  () => import("@components/content/elements/HeaderDiv.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const TableSlots = defineAsyncComponent(
-  () => import("@components/content/elements/TableSlots.vue")
-);
 
 const todayDate = new Date();
 
@@ -50,11 +37,12 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <HeaderDiv
+<LayoutsStaffsec>
+  <ElementsHeaderDiv
     :page-header="`Статистика по региону ${tableData.region} 
             за период c ${tableData.start} по ${tableData.end} г.`"
   />
-  <TableSlots :class="'table table-hover table-responsive align-middle py-3'">
+  <ElementsTableSlots :class="'table table-hover table-responsive align-middle py-3'">
     <template v-slot:caption>{{ `Решения по кандидатам` }}</template>
     <template v-slot:thead>
       <tr>
@@ -68,12 +56,12 @@ onBeforeMount(async () => {
         <td>{{ row[1] }}</td>
       </tr>
     </template>
-  </TableSlots>
+  </ElementsTableSlots>
 
   <div class="row mb-3">
     <label class="col-form-label col-md-1" for="region"> Регион: </label>
     <div class="col-md-3">
-      <SelectDiv
+      <ElementsSelectDiv
         :place="'Регион'"
         :name="'region'"
         :select="stateClassify.classes.regions"
@@ -84,7 +72,7 @@ onBeforeMount(async () => {
     </div>
     <label class="col-form-label col-md-1" for="start"> Период: </label>
     <div class="col-md-2">
-      <InputElement
+      <ElementsInputElement
         :name="'start'"
         :typeof="'date'"
         v-model="tableData.start"
@@ -92,7 +80,7 @@ onBeforeMount(async () => {
       />
     </div>
     <div class="col-md-2">
-      <InputElement
+      <ElementsInputElement
         :name="'end'"
         :typeof="'date'"
         v-model="tableData.end"
@@ -100,4 +88,5 @@ onBeforeMount(async () => {
       />
     </div>
   </div>
+</LayoutsStaffsec>
 </template>

@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Address } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const AddressForm = defineAsyncComponent(
-  () => import("@components/content/forms/AddressForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Address } from "../../utils/interfaces";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -30,9 +17,9 @@ function cancelAction() {
 </script>
 
 <template>
-  <DropDownHead :id="'addresser'" :header="'Адреса'" />
+  <ElementsDropDownHead :id="'addresser'" :header="'Адреса'" />
   <div class="collapse card card-body mb-3" id="addresser">
-    <AddressForm @cancel="cancelAction" />
+    <FormsAddressForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.addresses.length">
     <div
@@ -42,14 +29,14 @@ function cancelAction() {
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <AddressForm 
+      <FormsAddressForm 
         v-if="edit && itemId == item['id'].toString()" 
         :addrs="address" 
         @cancel="cancelAction" 
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -63,9 +50,9 @@ function cancelAction() {
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Тип'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Адрес'">{{ item["addresses"] }}</LabelSlot>
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Тип'">{{ item["view"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Адрес'">{{ item["addresses"] }}</ElementsLabelSlot>
       </div>
     </div>
   </div>

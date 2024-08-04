@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Document } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const DocumentForm = defineAsyncComponent(
-  () => import("@components/content/forms/DocumentForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Document } from "../../utils/interfaces";
 
 const actions = ref(false);
 const itemId = ref('');
@@ -30,9 +17,9 @@ function cancelAction(){
 </script>
 
 <template>
-  <DropDownHead :id="'documenter'" :header="'Документы'"/>
+  <ElementsDropDownHead :id="'documenter'" :header="'Документы'"/>
   <div class="collapse card card-body mb-3" id="documenter">
-    <DocumentForm @cancel="cancelAction"/>
+    <FormsDocumentForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.documents.length">
     <div
@@ -42,14 +29,14 @@ function cancelAction(){
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <DocumentForm
+      <FormsDocumentForm
         v-if="edit && itemId == item['id'].toString()" 
         :docs="doc"
         @cancel="cancelAction"
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
                 actions &&
                 stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -63,14 +50,14 @@ function cancelAction(){
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Вид документа'">{{ item["view"] }}</LabelSlot>
-        <LabelSlot :label="'Номер документа'">{{ item["digits"] }}</LabelSlot>
-        <LabelSlot :label="'Серия документа'">{{ item["series"] }}</LabelSlot>
-        <LabelSlot :label="'Дата выдачи'">
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Вид документа'">{{ item["view"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Номер документа'">{{ item["digits"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Серия документа'">{{ item["series"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Дата выдачи'">
           {{ item["issue"] ? new Date(String(item["issue"])).toLocaleDateString("ru-RU") : '' }}
-        </LabelSlot>
-        <LabelSlot :label="'Кем выдан'">{{ item["agency"] }}</LabelSlot>
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Кем выдан'">{{ item["agency"] }}</ElementsLabelSlot>
       </div>
     </div>
   </div>

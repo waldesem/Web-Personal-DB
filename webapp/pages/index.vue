@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { router } from "@/router";
-router.push({ name: "staffsec" })
+import { onBeforeMount } from "vue";
+import { stateUser } from "../utils/state";
+
+onBeforeMount(async () => {
+  await stateUser.getCurrentUser();
+});
+
+async function userLogout(): Promise<void> {
+  localStorage.removeItem("user_token");
+  const router = useRouter();
+  router.push("/login");
+}
 </script>
 
 <template>
-  <RouterView />
+   <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
-
-<style>
-html,
-body {
-  scrollbar-gutter: stable;
-}
-</style>

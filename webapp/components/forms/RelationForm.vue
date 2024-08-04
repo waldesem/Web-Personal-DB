@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { Relation } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state"
-
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Relation } from "../../utils/interfaces";
+import { stateClassify, stateAnketa } from "../../utils/state"
 
 const emit = defineEmits(["cancel"]);
 
@@ -42,23 +29,23 @@ function submitRelation() {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Тип связи'">
-      <SelectDiv
+    <ElementsLabelSlot :label="'Тип связи'">
+      <ElementsSelectDiv
           :name="'relation'"
           :need="true"
           :select="stateClassify.classes.relations"
           v-model="relationForm['relation']"
         />
-    </LabelSlot>
-    <LabelSlot :label="'ID связи'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'ID связи'">
+      <ElementsInputElement
         :typeof="'number'"
         :name="'relation_id'"
         :place="'ID связи'"
         :need="true"
         v-model="relationForm['relation_id']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')"/>
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
   </form>
 </template>

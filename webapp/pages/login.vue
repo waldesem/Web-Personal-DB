@@ -1,21 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
-import { defineAsyncComponent, reactive, ref } from "vue";
-import { stateAlert, server } from "@/state";
-import { router } from "@/router";
-
-const HeaderDiv = defineAsyncComponent(
-  () => import("@components/content/elements/HeaderDiv.vue")
-);
-const AlertMessage = defineAsyncComponent(
-  () => import("@components/content/elements/AlertMessage.vue")
-);
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { reactive, ref } from "vue";
+import { stateAlert, server } from "@/utils/state";
 
 const showPswd = ref(false);
 const loginAction = ref("create");
@@ -51,7 +37,8 @@ async function submitLogin(): Promise<void> {
       case 200:
         const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
-        router.push({ name: "staffsec" });
+        const router = useRouter();
+        router.push("/staffsec/persons");
         break;
 
       case 205:
@@ -70,13 +57,13 @@ async function submitLogin(): Promise<void> {
 
 <template>
   <div class="container pt-5">
-    <AlertMessage />
-    <HeaderDiv
+    <DivsAlertMessage />
+    <ElementsHeaderDiv
       :cls="'text-danger py-3'"
       :page-header="'StaffSec - кадровая безопасность'"
     />
     <div class="border border-primary rounded p-5">
-      <HeaderDiv
+      <ElementsHeaderDiv
         :cls="'text-primary mb-3 text-center'"
         :page-header="
           loginAction === 'create' ? 'Вход в систему' : 'Изменить пароль'
@@ -84,7 +71,7 @@ async function submitLogin(): Promise<void> {
       />
       <form class="form form-check" role="form" @submit.prevent="submitLogin">
         <div class="mb-3">
-          <InputElement
+          <ElementsInputElement
             :need="true"
             :name="'username'"
             :place="'Логин'"
@@ -113,7 +100,7 @@ async function submitLogin(): Promise<void> {
         </div>
         <div v-if="loginAction === 'update'">
           <div class="mb-3">
-            <InputElement
+            <ElementsInputElement
               :need="true"
               :name="'new_pswd'"
               :place="'Новый пароль'"
@@ -124,7 +111,7 @@ async function submitLogin(): Promise<void> {
             />
           </div>
           <div class="mb-3">
-            <InputElement
+            <ElementsInputElement
               :need="true"
               :name="'conf_pswd'"
               :place="'Повтор пароля'"
@@ -143,7 +130,7 @@ async function submitLogin(): Promise<void> {
             Изменить пароль
           </a>
         </div>
-        <BtnGroup
+        <ElementsBtnGroup
           :offset="false"
           :submit-btn="loginAction === 'create' ? 'Войти' : 'Изменить'"
           @cancel="loginAction = 'create'"

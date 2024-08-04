@@ -1,21 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Contact } from "@/interfaces";
-
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-)
-const ContactForm = defineAsyncComponent(
-  () => import("@components/content/forms/ContactForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
-
+import { ref } from "vue";
+import { stateAnketa, stateUser } from "../../utils/state";
+import type { Contact } from "../../utils/interfaces";
 
 const actions = ref(false);
 const itemId = ref('');
@@ -31,9 +17,9 @@ function cancelAction(){
 </script>
 
 <template>
-  <DropDownHead :id="'contacter'" :header="'Контакты'"/>
+  <ElementsDropDownHead :id="'contacter'" :header="'Контакты'"/>
   <div class="collapse card card-body mb-3" id="contacter">
-    <ContactForm @cancel="cancelAction"/>
+    <FormsContactForm @cancel="cancelAction"/>
   </div>
   <div v-if="stateAnketa.anketa.contacts.length"> 
     <div 
@@ -42,14 +28,14 @@ function cancelAction(){
       @mouseout="actions = false" 
       class="card card-body mb-3"
     >
-      <ContactForm
+      <FormsContactForm
         v-if="edit && itemId == item['id'].toString()" 
         :contact="contact"
         @cancel="cancelAction"
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons 
+        <ElementsLabelSlot>
+          <ElementsActionIcons 
             v-show="actions &&
               stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
               stateAnketa.anketa.persons['standing']"
@@ -61,9 +47,9 @@ function cancelAction(){
             "
             :hide="true"
           />
-        </LabelSlot>
-        <LabelSlot :label="'Вид'">{{ item['view'] }}</LabelSlot>
-        <LabelSlot :label="'Контакт'">{{ item['contact'] }}</LabelSlot>
+        </ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Вид'">{{ item['view'] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Контакт'">{{ item['contact'] }}</ElementsLabelSlot>
       </div>
     </div>
   </div>

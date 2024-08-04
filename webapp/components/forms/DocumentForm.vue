@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { defineAsyncComponent, toRef } from "vue";
-import { Document } from "@/interfaces";
-import { stateClassify, stateAnketa } from "@/state";
-
-const InputElement = defineAsyncComponent(
-  () => import("@components/content/elements/InputElement.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { toRef } from "vue";
+import type { Document } from "../../utils/interfaces";
+import { stateClassify, stateAnketa } from "../../utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -42,44 +29,44 @@ function submitDocument() {
     class="form form-check"
     role="form"
   >
-    <LabelSlot :label="'Вид документа'">
-      <SelectDiv
+    <ElementsLabelSlot :label="'Вид документа'">
+      <ElementsSelectDiv
         :name="'view'"
         :need="true"
         :select="stateClassify.classes.documents"
         v-model="docForm['view']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Серия документа'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Серия документа'">
+      <ElementsInputElement
         :name="'series'"
         :place="'Серия документа'"
         v-model="docForm['series']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Номер документа'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Номер документа'">
+      <ElementsInputElement
         :name="'number'"
         :place="'Номер документа'"
         :need="true"
         v-model="docForm['digits']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Кем выдан'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Кем выдан'">
+      <ElementsInputElement
         :name="'agency'"
         :place="'Орган выдавший'"
         v-model="docForm['agency']"
       />
-    </LabelSlot>
-    <LabelSlot :label="'Дата выдачи'">
-      <InputElement
+    </ElementsLabelSlot>
+    <ElementsLabelSlot :label="'Дата выдачи'">
+      <ElementsInputElement
         :name="'issue'"
         :place="'Дата выдачи'"
         :typeof="'date'"
         v-model="docForm['issue']"
       />
-    </LabelSlot>
-    <BtnGroup @cancel="emit('cancel')" />
+    </ElementsLabelSlot>
+    <ElementsBtnGroup @cancel="emit('cancel')" />
   </form>
 </template>

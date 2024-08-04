@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
-import { Inquisition } from "@/interfaces";
-import { stateAnketa, stateUser } from "@/state";
-
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const InvestigationForm = defineAsyncComponent(
-  () => import("@components/content/forms/InvestigationForm.vue")
-);
-const FileForm = defineAsyncComponent(
-  () => import("@components/content/forms/FileForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+import { ref } from "vue";
+import type { Inquisition } from "../../utils/interfaces";
+import { stateAnketa, stateUser } from "../../utils/state";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -47,8 +34,8 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <LabelSlot>
-          <ActionIcons
+        <ElementsLabelSlot>
+          <ElementsActionIcons
             v-show="
               actions && idx &&
               stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
@@ -76,17 +63,17 @@ function cancelAction() {
                 )
               "
             />
-          </ActionIcons>
-        </LabelSlot>
+          </ElementsActionIcons>
+        </ElementsLabelSlot>
         <p class="fs-5 fw-medium text-primary p-1">
           {{ "Расследование/Проверка #" + (idx + 1) }}
         </p>
-        <LabelSlot :label="'Тема проверки'">{{ item["theme"] }}</LabelSlot>
-        <LabelSlot :label="'Информация'">{{ item["info"] }}</LabelSlot>
-        <LabelSlot :label="'Сотрудник'">{{ item["username"] }}</LabelSlot>
-        <LabelSlot :label="'Дата записи'">
+        <ElementsLabelSlot :label="'Тема проверки'">{{ item["theme"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Информация'">{{ item["info"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Сотрудник'">{{ item["username"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
-        </LabelSlot>
+        </ElementsLabelSlot>
       </div>
     </div>
   </div>

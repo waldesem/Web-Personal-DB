@@ -1,23 +1,7 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, toRef, watch } from "vue";
-import { stateClassify, stateAnketa } from "@/state";
-import { Verification } from "@/interfaces";
-
-const TextArea = defineAsyncComponent(
-  () => import("@components/content/elements/TextArea.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-)
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const SwitchBox = defineAsyncComponent(
-  () => import("@components/content/elements/SwitchBox.vue")
-);
-const BtnGroup = defineAsyncComponent(
-  () => import("@components/content/elements/BtnGroup.vue")
-);
+import { ref, toRef, watch } from "vue";
+import { stateClassify, stateAnketa } from "../../utils/state";
+import type { Verification } from "../../utils/interfaces";
 
 const emit = defineEmits(["cancel"]);
 
@@ -65,12 +49,12 @@ watch(noNegative, () => {
 <template>
   <div class="p-3">
     <form class="form form-check" role="form">
-      <LabelSlot :label="'Негатива нет'">
-        <SwitchBox
+      <ElementsLabelSlot :label="'Негатива нет'">
+        <ElementsSwitchBox
           :name="'noNegative'"
           v-model="noNegative"
         />
-      </LabelSlot>
+      </ElementsLabelSlot>
     </form>
     <form
       @submit.prevent="submitCheck"
@@ -78,113 +62,113 @@ watch(noNegative, () => {
       role="form"
       id="checkFormId"
     >
-      <LabelSlot :label="'Проверка по местам работы'">
-        <TextArea
+      <ElementsLabelSlot :label="'Проверка по местам работы'">
+        <ElementsTextArea
           :name="'workplace'"
           :place="'Проверка по местам работы'"
           v-model="checkForm['workplace']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка документов'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка документов'">
+        <ElementsTextArea
           :name="'document'"
           :place="'Проверка документов'"
           v-model="checkForm['document']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка ИНН'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка ИНН'">
+        <ElementsTextArea
           :name="'inn'"
           :place="'Проверка ИНН'"
           v-model="checkForm['inn']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка задолженностей'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка задолженностей'">
+        <ElementsTextArea
           :name="'debt'"
           :place="'Проверка задолженностей'"
           v-model="checkForm['debt']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка решений о признании банкротом'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка решений о признании банкротом'">
+        <ElementsTextArea
           :name="'bankruptcy'"
           :place="'Проверка решений о признании банкротом'"
           v-model="checkForm['bankruptcy']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка кредитной истории'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка кредитной истории'">
+        <ElementsTextArea
           :name="'bki'"
           :place="'Проверка кредитной истории'"
           v-model="checkForm['bki']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка судебных дел'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка судебных дел'">
+        <ElementsTextArea
           :name="'courts'"
           :place="'Проверка судебных дел'"
           v-model="checkForm['courts']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка аффилированности'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка аффилированности'">
+        <ElementsTextArea
           :name="'affilation'"
           :place="'Проверка аффилированности'"
           v-model="checkForm['affilation']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка в списке террористов'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка в списке террористов'">
+        <ElementsTextArea
           :name="'terrorist'"
           :place="'Проверка в списке террористов'"
           v-model="checkForm['terrorist']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка в розыск'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка в розыск'">
+        <ElementsTextArea
           :name="'mvd'"
           :place="'Проверка в розыск'"
           v-model="checkForm['mvd']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка в открытых источниках'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка в открытых источниках'">
+        <ElementsTextArea
           :name="'internet'"
           :place="'Проверка в открытых источниках'"
           v-model="checkForm['internet']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка в Кронос'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка в Кронос'">
+        <ElementsTextArea
           :name="'cronos'"
           :place="'Проверка в Кронос'"
           v-model="checkForm['cronos']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Проверка в Крос'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Проверка в Крос'">
+        <ElementsTextArea
           :name="'cros'"
           :place="'Проверка в Крос'"
           v-model="checkForm['cros']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Комментарии'">
-        <TextArea
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Комментарии'">
+        <ElementsTextArea
           :name="'comments'"
           :place="'Комментарий'"
           v-model="checkForm['comment']"
-        ></TextArea>
-      </LabelSlot>
-      <LabelSlot :label="'Результат'">
-        <SelectDiv
+        ></ElementsTextArea>
+      </ElementsLabelSlot>
+      <ElementsLabelSlot :label="'Результат'">
+        <ElementsSelectDiv
           :name="'conclusion'"
           :need="true"
           :select="stateClassify.classes.conclusions"
           v-model="checkForm['conclusion']"
         />
-      </LabelSlot>
-      <BtnGroup @cancel="emit('cancel')"/>
+      </ElementsLabelSlot>
+      <ElementsBtnGroup @cancel="emit('cancel')"/>
     </form>
   </div>
 </template>
