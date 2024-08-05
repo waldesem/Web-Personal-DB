@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { onBeforeMount } from "vue";
-import { stateUser, stateClassify } from "../../utils/state";
+import { stateUser, stateClassify } from "@/utils/state";
 
-onBeforeMount(async () => {
-  await stateUser.getCurrentUser();
-});
-
-async function userLogout(): Promise<void> {
+async function removeToken(): Promise<void> {
   localStorage.removeItem("user_token");
-  const router = useRouter();
-  router.push("/login");
 }
 </script>
 
@@ -24,10 +17,17 @@ async function userLogout(): Promise<void> {
             Кандидаты
           </NuxtLink>
           <hr class="text-info" />
-          <NuxtLink to="/staffsec/resume" class="nav-link active">
+          <NuxtLink
+            v-if="stateUser.user.role == stateClassify.classes.roles['user']"
+            to="/staffsec/resume"
+            class="nav-link active"
+          >
             Создать
           </NuxtLink>
-          <hr class="text-info" />
+          <hr
+            v-if="stateUser.user.role == stateClassify.classes.roles['user']"
+            class="text-info"
+          />
           <NuxtLink to="/staffsec/info" class="nav-link active">
             Информация
           </NuxtLink>
@@ -56,18 +56,18 @@ async function userLogout(): Promise<void> {
                 role="button"
                 data-bs-toggle="dropdown"
               >
-              <i class="bi bi-person-circle"></i>
-              {{ stateUser.user.username }}
+                <i class="bi bi-person-circle"></i>
+                {{ stateUser.user.username }}
               </button>
               <ul class="dropdown-menu">
                 <li class="dropdown-item">
-                  <a
+                  <NuxtLink
+                    to="/login"
                     class="link-opacity-50-hover"
-                    href="#"
-                    @click="userLogout"
+                    @click="removeToken"
                   >
                     Выход
-                  </a>
+                  </NuxtLink>
                 </li>
               </ul>
             </div>

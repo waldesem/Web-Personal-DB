@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa } from "../../utils/state";
-import type { Persons } from "../../utils/interfaces";
+import { stateAnketa } from "@/utils/state";
+import type { Persons } from "@/utils/interfaces";
 
 const emit = defineEmits(["cancel"]);
 

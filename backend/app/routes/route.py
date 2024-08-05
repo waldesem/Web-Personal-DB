@@ -485,7 +485,7 @@ def delete_item(item, item_id):
 
 
 @bp.get("/information")
-@roles_required(Roles.admin.value, Roles.user.value)
+@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
 def get_information():
     """
     Retrieves information based on the provided query parameters.

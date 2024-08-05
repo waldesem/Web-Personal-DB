@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateClassify, stateUser } from "../../utils/state";
-import type { Persons } from "../../utils/interfaces";
+import { stateAnketa, stateClassify, stateUser } from "@/utils/state";
+import type { Persons } from "@/utils/interfaces";
 
 const StaffDiv = defineAsyncComponent(
   () => import("../../components/divs/StaffDiv.vue")
@@ -40,7 +40,7 @@ const dataResume = ref({
 
 <template>
   <div v-if="dataResume.action" class="card card-body mb-3">
-    <ResumeForm
+    <FormsResumeForm
       :action="dataResume.action"
       :resume="stateAnketa.anketa.persons"
       @cancel="
@@ -68,7 +68,7 @@ const dataResume = ref({
         @update="dataResume.action = 'update'"
         :for-input="'persons-file'"
       >
-        <FileForm
+        <FormsFileForm
           v-show="dataResume.showActions"
           :name-id="'persons-file'"
           :accept="'*'"

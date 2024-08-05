@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
-import { stateClassify, stateUser, server } from "../../utils/state";
-import { axiosAuth } from "../../utils/auth";
+import { stateClassify, stateUser, server } from "@/utils/state";
+import { axiosAuth } from "@/utils/auth";
 import { AxiosError } from "axios";
 
 const todayDate = new Date();

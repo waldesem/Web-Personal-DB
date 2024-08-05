@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, toRef, watch } from "vue";
-import { stateClassify, stateAnketa } from "../../utils/state";
-import type { Verification } from "../../utils/interfaces";
+import { stateClassify, stateAnketa } from "@/utils/state";
+import type { Verification } from "@/utils/interfaces";
 
 const emit = defineEmits(["cancel"]);
 

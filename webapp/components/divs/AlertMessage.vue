@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { stateAlert } from "../../utils/state";
+import { stateAlert } from "@/utils/state";
 </script>
 
 <template>

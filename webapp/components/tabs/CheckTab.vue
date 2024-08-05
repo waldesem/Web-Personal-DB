@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { stateAnketa, stateUser } from "../../utils/state";
-import type { Verification } from "../../utils/interfaces";
+import { stateAnketa, stateUser } from "@/utils/state";
+import type { Verification } from "@/utils/interfaces";
 
 const checkData = ref({
   actions: false,
@@ -48,7 +48,7 @@ const renderAdditional = (jsonString: string) => {
 
 <template>
   <div class="collapse card card-body mb-3" id="clps_check">
-    <CheckForm @cancel="cancelAction" />
+    <FormsCheckForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.checks.length">
     <div
@@ -58,7 +58,7 @@ const renderAdditional = (jsonString: string) => {
       @mouseover="checkData.actions = true"
       @mouseout="checkData.actions = false"
     >
-      <CheckForm
+      <FormsCheckForm
         v-if="checkData.edit && checkData.itemId == item['id'].toString()"
         :check="checkData.check"
         @cancel="cancelAction"
@@ -79,7 +79,7 @@ const renderAdditional = (jsonString: string) => {
             "
             :for-input="'check-file'"
           >
-            <FileForm
+            <FormsFileForm
               v-show="checkData.actions"
               :name-id="'check-file'"
               :accept="'*'"

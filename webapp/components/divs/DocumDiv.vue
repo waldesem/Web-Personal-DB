@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { stateAnketa, stateUser } from "../../utils/state";
-import type { Document } from "../../utils/interfaces";
+import { stateAnketa, stateUser } from "@/utils/state";
+import type { Document } from "@/utils/interfaces";
 
 const actions = ref(false);
 const itemId = ref('');

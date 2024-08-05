@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { Inquisition } from "../../utils/interfaces";
-import { stateAnketa, stateUser } from "../../utils/state";
+import type { Inquisition } from "@/utils/interfaces";
+import { stateAnketa, stateUser } from "@/utils/state";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -18,7 +18,7 @@ function cancelAction() {
 
 <template>
   <div class="collapse card card-body mb-3" id="clps_investigate">
-    <InvestigationForm @cancel="cancelAction" />
+    <FormsInvestigationForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.investigations.length">
     <div
@@ -28,7 +28,7 @@ function cancelAction() {
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <InvestigationForm
+      <FormsInvestigationForm
         v-if="edit && itemId == item['id'].toString()"
         :investigation="inquisition"
         @cancel="cancelAction"
@@ -51,7 +51,7 @@ function cancelAction() {
             "
             :for-input="'investigations-file'"
           >
-            <FileForm
+            <FormsFileForm
               v-show="actions"
               :name-id="'investigations-file'"
               :accept="'*'"

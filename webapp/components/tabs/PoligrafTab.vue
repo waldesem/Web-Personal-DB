@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { Pfo } from "../../utils/interfaces";
-import { stateAnketa, stateUser } from "../../utils/state";
+import type { Pfo } from "@/utils/interfaces";
+import { stateAnketa, stateUser } from "@/utils/state";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -18,7 +18,7 @@ function cancelAction() {
 
 <template>
   <div class="collapse card card-body mb-3" id="clps_poligraf">
-    <PoligrafForm @cancel="cancelAction" />
+    <FormsPoligrafForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.poligrafs.length">
     <div
@@ -28,7 +28,7 @@ function cancelAction() {
       @mouseout="actions = false"
       class="card card-body mb-3"
     >
-      <PoligrafForm
+      <FormsPoligrafForm
         v-if="edit && itemId == item['id'].toString()"
         :poligraf="poligraf"
         @cancel="cancelAction"
@@ -49,7 +49,7 @@ function cancelAction() {
             "
             :for-input="'poligrafs-file'"
           >
-            <FileForm
+            <FormsFileForm
               v-show="actions"
               :name-id="'poligrafs-file'"
               :accept="'*'"

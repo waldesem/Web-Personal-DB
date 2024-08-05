@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { Needs } from "../../utils/interfaces";
-import { stateAnketa, stateUser } from "../../utils/state";
+import type { Needs } from "@/utils/interfaces";
+import { stateAnketa, stateUser } from "@/utils/state";
 
 const actions = ref(false);
 const edit = ref(false);
@@ -18,7 +18,7 @@ function cancelAction() {
 
 <template>
   <div class="collapse card card-body mb-3" id="clps_inquiry">
-    <InquiryForm @cancel="cancelAction" />
+    <FormsInquiryForm @cancel="cancelAction" />
   </div>
   <div v-if="stateAnketa.anketa.inquiries.length">
     <div
@@ -28,7 +28,7 @@ function cancelAction() {
       @mouseover="actions = true"
       @mouseout="actions = false"
     >
-      <InquiryForm
+      <FormsInquiryForm
         v-if="edit && itemId == item['id'].toString()"
         :inquiry="need"
         @cancel="cancelAction"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa, stateClassify, server } from "../../../utils/state";
-import { axiosAuth } from "../../../utils/auth";
+import { stateUser, stateAnketa, stateClassify, server } from "@/utils/state";
+import { axiosAuth } from "@/utils/auth";
 
 const AnketaTab = defineAsyncComponent(
   () => import("@/components/tabs/AnketaTab.vue")
@@ -70,11 +70,11 @@ async function switchTabs(tab: string) {
 </script>
 
 <template>
-  <StaffSec>
-  <PhotoCard />
+  <LayoutsStaffsec>
+  <DivsPhotoCard />
   <div class="row mb-3">
     <div class="col-md-10">
-      <HeaderDiv
+      <ElementsHeaderDiv
         :cls="'text-danger py-3'"
         :page-header="`${stateAnketa.anketa.persons.surname} ${
           stateAnketa.anketa.persons.firstname
@@ -163,7 +163,7 @@ async function switchTabs(tab: string) {
       <component :is="values[2]"></component>
     </div>
   </div>
-  </StaffSec>
+</LayoutsStaffsec>
 </template>
 
 <style>

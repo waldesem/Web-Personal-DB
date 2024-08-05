@@ -37,8 +37,7 @@ async function submitLogin(): Promise<void> {
       case 200:
         const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
-        const router = useRouter();
-        router.push("/staffsec/persons");
+        await stateUser.getCurrentUser();
         break;
 
       case 205:

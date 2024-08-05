@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount } from "vue";
 import { debounce } from "@/utilities";
-import { stateAlert, stateAnketa, statePersons } from "@/state";
+import * as state from "@/state";
 import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
@@ -16,12 +16,12 @@ const TableSlots = defineAsyncComponent(
 );
 
 onBeforeMount(async () => {
-  stateAlert.alertMessage.show = false;
-  await statePersons.getCandidates();
+  state.stateAlert.alertMessage.show = false;
+  await state.statePersons.getCandidates();
 });
 
 const searchPerson = debounce(() => {
-  statePersons.getCandidates();
+  state.statePersons.getCandidates();
 }, 500);
 
 function openProfile (person_id: string) {
@@ -31,7 +31,10 @@ function openProfile (person_id: string) {
 
 <template>
   <HeaderDiv :page-header="'Кандидаты'" />
-  <div class="position-relative">
+  <div
+    v-if="state.stateUser.user.role == state.stateClassify.classes.roles['user']"  
+    class="position-relative"
+  >
     <div class="position-absolute bottom-100 end-0 px-3">
       <label
         title="Загрузить json"
@@ -41,7 +44,7 @@ function openProfile (person_id: string) {
       >
         <i class="bi bi-filetype-json fs-1"></i>
       </label>
-      <FileForm :accept="'.json'" @submit="stateAnketa.submitFile($event, 'persons', '0')" />
+      <FileForm :accept="'.json'" @submit="state.stateAnketa.submitFile($event, 'persons', '0')" />
     </div>
   </div>
   <div class="row mb-3">
@@ -53,21 +56,21 @@ function openProfile (person_id: string) {
         id="search"
         type="text"
         placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
-        v-model="statePersons.persons.search"
+        v-model="state.statePersons.persons.search"
       />
     </form>
   </div>
   <TableSlots 
     :tbl-class="'table align-middle table-hover'"
-    v-if="statePersons.persons.candidates.length"
+    v-if="state.statePersons.persons.candidates.length"
     >
-    <template v-slot:caption>{{ `Обновлено: ${statePersons.persons.updated}` }}
+    <template v-slot:caption>{{ `Обновлено: ${state.statePersons.persons.updated}` }}
       <a 
         class="btn btn-link fs-5" 
         href="#" 
         style="text-decoration: none;"
         :title="`Обновить`" 
-        @click="statePersons.getCandidates()"
+        @click="state.statePersons.getCandidates()"
       >
         &#8635
       </a>
@@ -85,7 +88,7 @@ function openProfile (person_id: string) {
     </template>
     <template v-slot:tbody>
       <tr
-        v-for="candidate in statePersons.persons.candidates"
+        v-for="candidate in state.statePersons.persons.candidates"
         :key="candidate.id"
         height="50px"
         @click="openProfile(candidate.id)"
@@ -126,15 +129,15 @@ function openProfile (person_id: string) {
   </TableSlots>
   <p class="fs-6 taxt-danger" v-else>Ничего не найдено</p>
   <nav
-    v-if="statePersons.persons.prev || statePersons.persons.next"
+    v-if="state.statePersons.persons.prev || state.statePersons.persons.next"
     class="mb-4">
     <ul class="pagination justify-content-center">
       <li class="page-item">
         <button
-          :disabled="!statePersons.persons.prev"
+          :disabled="!state.statePersons.persons.prev"
           type="button"
           class="btn btn-link btn-outline-primary" 
-          @click="statePersons.getCandidates(statePersons.persons.page - 1)"
+          @click="state.statePersons.getCandidates(state.statePersons.persons.page - 1)"
         >
           <i class="bi bi-chevron-double-left"></i>
           Назад 
@@ -142,10 +145,10 @@ function openProfile (person_id: string) {
       </li>
       <li class="page-item">
         <button 
-          :disabled="!statePersons.persons.next"
+          :disabled="!state.statePersons.persons.next"
           type="button" 
           class="btn btn-link btn-outline-primary" 
-          @click="statePersons.getCandidates(statePersons.persons.page + 1)"
+          @click="state.statePersons.getCandidates(state.statePersons.persons.page + 1)"
         >
           Вперёд
           <i class="bi bi-chevron-double-right"></i>

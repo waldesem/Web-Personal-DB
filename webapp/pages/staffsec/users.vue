@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from "vue";
-import { axiosAuth } from "../../utils/auth";
-import { debounce } from "../../utils/utilities";
-import { stateAlert, stateClassify, server } from "../../utils/state";
+import { axiosAuth } from "@/utils/auth";
+import { debounce } from "@/utils/utilities";
+import { stateAlert, stateClassify, server } from "@/utils/state";
 import { AxiosError } from "axios";
-import type { User } from "../../utils/interfaces";
-
-definePageMeta({
-  layout: "staffsec",
-})
+import type { User } from "@/utils/interfaces";
 
 onBeforeMount(() => {
   getUsers();
@@ -114,7 +110,7 @@ function cancelOperations() {
         v-model="dataUsers.search"
       />
     </div>
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between">
       <ElementsSwitchBox
         :name="'viewDeleted'"
         :label="'Показать удаленные'"

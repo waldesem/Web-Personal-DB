@@ -28,10 +28,17 @@ async function userLogout(): Promise<void> {
             Кандидаты
           </router-link>
           <hr class="text-info" />
-          <router-link :to="{ name: 'resume' }" class="nav-link active">
+          <router-link
+            v-if="stateUser.user.role == stateClassify.classes.roles['user']"
+            :to="{ name: 'resume' }"
+            class="nav-link active"
+          >
             Создать
           </router-link>
-          <hr class="text-info" />
+          <hr
+            v-if="stateUser.user.role == stateClassify.classes.roles['user']"
+            class="text-info"
+          />
           <router-link :to="{ name: 'information' }" class="nav-link active">
             Информация
           </router-link>
@@ -60,16 +67,12 @@ async function userLogout(): Promise<void> {
                 role="button"
                 data-bs-toggle="dropdown"
               >
-              <i class="bi bi-person-circle"></i>
-              {{ stateUser.user.username }}
+                <i class="bi bi-person-circle"></i>
+                {{ stateUser.user.username }}
               </button>
               <ul class="dropdown-menu">
                 <li class="dropdown-item">
-                  <a
-                    class="link-opacity-50-hover"
-                    href="#"
-                    @click="userLogout"
-                  >
+                  <a class="link-opacity-50-hover" href="#" @click="userLogout">
                     Выход
                   </a>
                 </li>

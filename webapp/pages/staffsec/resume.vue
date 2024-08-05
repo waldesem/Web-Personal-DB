@@ -5,6 +5,6 @@ const router = useRouter();
 <template>
   <LayoutsStaffsec>
   <ElementsHeaderDiv :page-header="'Создать анкету'"/>
-  <FormsResumeForm @cancel="router.push({ name: 'persons' })"/>
+  <FormsResumeForm @cancel="router.push('/staffsec/persons')"/>
   </LayoutsStaffsec>
 </template>
