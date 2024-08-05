@@ -20,6 +20,10 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+### Database
+
+SQLite3 Database will be used by default and crated automatically in the first run.
 To Use a PostgreSQL Database in Application install PostgreSQL
 ```
 sudo apt-get -y install postgresql postgresql-contrib
@@ -34,31 +38,35 @@ CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
-Change DATABASE_URI and base_path in config.py and settings.ini
 
-### Start backend
+### Build frontend
 
-To start a server run the command in terminal:
-```
-python server.py # for debug mode; more options see in the server.py
-```
-Default admin user for application has name `superadmin`.
-DEFAULT_PASSWORD for all created users - `88888888`.
-
-### Build or rebuild frontend (Optional)
-
-To build or rebuild Vue3 frontend run the command in terminal:
+To build Vue3 frontend run the command in terminal:
 ```
 cd frontend
 npm i
 npm run build
 ```
-To build or rebuild Nuxt3 clienrun the command in terminal:
+To build Nuxt3 with Client-side Only Rendering run the command:
 ```
 cd webapp
 npm i
 npx nuxi generate
 ```
+Builded files can be found in `backend/app/static`.
+
+### Settings
+
+Change DATABASE_URI and base_path in config.py and settings.ini
+
+### Start application
+
+To start a server run the command in terminal:
+```
+python server.py # for desktop mode; more options see in the server.py
+```
+Default admin user for application has name `superadmin`.
+DEFAULT_PASSWORD for created user - `88888888`.
 
 ### License
 
