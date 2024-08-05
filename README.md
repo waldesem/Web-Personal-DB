@@ -53,7 +53,7 @@ cd frontend
 npm i
 npm run build
 ```
-To build or rebuild Nuxt3 frontend run the command in terminal:
+To build or rebuild Nuxt3 clienrun the command in terminal:
 ```
 cd webapp
 npm i

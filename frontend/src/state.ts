@@ -3,8 +3,8 @@ import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import * as interfaces from "@/interfaces";
 
-export const server = "http://localhost:5000";
-// export const server = "";
+// export const server = "http://localhost:5000";
+export const server = "";
 
 export const stateUser = {
   user: reactive({
