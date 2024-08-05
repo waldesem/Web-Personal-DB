@@ -8,12 +8,10 @@ from webgui import FlaskUI
 def main():
     """
     A function that runs the application server based on the provided arguments.
-
+    You also need to check config.py for configuration class.
     Example usage:
         For debugging:
             python server.py --host 127.0.0.1 --port 5000 --mode debug
-        or:
-            python server.py
 
         For development:
             python server.py --host 127.0.0.1 --port 5000 --mode develop
@@ -22,7 +20,7 @@ def main():
             python server.py --host 127.0.0.1 --port 5000 --mode prod
 
         For desktop:
-            python server.py --host 127.0.0.1 --port 5000 --mode desktop
+            python server.py
 
     """
     parser = argparse.ArgumentParser(description="Run the application server.")
@@ -38,7 +36,7 @@ def main():
     parser.add_argument(
         "--mode",
         choices=["debug", "develop", "prod", "desktop"],
-        default="debug",
+        default="desktop",
         help="The mode to run the server in (debug, develop, prod, desktop).",
     )
     args = parser.parse_args()

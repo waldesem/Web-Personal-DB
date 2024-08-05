@@ -1,1 +1,0 @@
-import{n,q as o,s as a,w as s,u as _,o as r,b as c,v as u}from"./Dinf_0xm.js";import{s as p}from"./DyhWwMfy.js";const d=n({__name:"index",setup(m){return o(async()=>{await p.getCurrentUser()}),(x,f)=>{const t=u,e=_;return r(),a(e,null,{default:s(()=>[c(t)]),_:1})}}});export{d as default};

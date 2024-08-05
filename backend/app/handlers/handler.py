@@ -171,6 +171,18 @@ def handle_json_to_dict(data):
 
 
 def parse_xml(elem_tree):
+    """
+    Recursively parses an XML element tree and returns a list of dictionaries representing the parsed XML data.
+
+    Parameters:
+        elem_tree (xml.etree.ElementTree.Element): The root element of the XML element tree.
+
+    Returns:
+        list: A list of dictionaries, where each dictionary represents a parsed XML element and its child elements.
+            The keys of the dictionaries are the XML element tags, and the values are the corresponding text values.
+            If an XML element has child elements, the value of the key "Record" is a list of dictionaries representing
+            the child elements.
+    """
     results = []
     for sources in elem_tree:
         if sources:
@@ -185,6 +197,19 @@ def parse_xml(elem_tree):
 
 
 def handle_xml(file, item_id):
+    """
+    Parses an XML file and updates the 'addition' field of a Checks object in the database with the parsed data.
+
+    Args:
+        file (str): The path to the XML file to be parsed.
+        item_id (int): The ID of the Checks object to be updated.
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
     check = db_session.execute(
         select(Checks)
         .filter(Checks.person_id == item_id)
@@ -199,6 +224,16 @@ def handle_xml(file, item_id):
 
 
 def handle_image(file, item_dir):
+    """
+    Opens a file, reads the image data, saves it to a new file in a specified directory.
+
+    Args:
+        file (str): The path to the file containing the image.
+        item_dir (str): The directory where the new image file will be saved.
+
+    Returns:
+        None
+    """
     with open(file, 'r+') as image_file:
         image = Image.open(image_file)
         new_file = os.path.join(item_dir, "image.jpg")

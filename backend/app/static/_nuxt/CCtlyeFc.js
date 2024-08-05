@@ -1,1 +1,0 @@
-import{n,o,c as a,a as s,t as r}from"./Dinf_0xm.js";const c=["href"],d=n({__name:"DropDownHead",props:{id:String,header:String},setup(t){const e=t;return(p,i)=>(o(),a("h6",null,[s("button",{type:"button",class:"btn btn-link","data-bs-toggle":"collapse",href:`#${e.id}`},r(e.header),9,c)]))}});export{d as _};
