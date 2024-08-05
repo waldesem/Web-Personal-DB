@@ -213,5 +213,5 @@ logs
 !.env.example
 
 # Project files & folders
-persons/
+PersonalDB/
 # backend/app/static
