@@ -2,8 +2,8 @@ import { reactive } from "vue";
 import { axiosAuth } from "./auth";
 import * as interfaces from "./interfaces";
 
-export const server = "http://localhost:5000";
-// export const server = "";
+// export const server = "http://localhost:5000";
+export const server = "";
 
 export const stateUser = {
   user: reactive({

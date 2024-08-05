@@ -27,7 +27,6 @@ sudo systemctl start postgresql.service
 sudo systemctl enable postgresql.service
 ```
 Creating the PostgreSQL Database and User
-
 ```
 sudo -iu postgres psql
 CREATE DATABASE personal;
@@ -35,7 +34,7 @@ CREATE USER flask WITH PASSWORD 'flask';
 GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 \q
 ```
-Change DATABASE_URI in config.py
+Change DATABASE_URI and base_path in config.py and settings.ini
 
 ### Start backend
 
@@ -45,6 +44,21 @@ python server.py # for debug mode; more options see in the server.py
 ```
 Default admin user for application has name `superadmin`.
 DEFAULT_PASSWORD for all created users - `88888888`.
+
+### Build or rebuild frontend (Optional)
+
+To build or rebuild Vue3 frontend run the command in terminal:
+```
+cd frontend
+npm i
+npm run build
+```
+To build or rebuild Nuxt3 frontend run the command in terminal:
+```
+cd webapp
+npm i
+npx nuxi generate
+```
 
 ### License
 

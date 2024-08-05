@@ -31,8 +31,8 @@ function openProfile (person_id: string) {
         for="file" 
         class="text-primary fs-5"
         style="cursor: pointer;"
-      >
-        <i class="bi bi-filetype-json fs-1"></i>
+      >Загрузить
+        <i class="bi bi-filetype-json fs-5"></i>
       </label>
       <FormsFileForm :accept="'.json'" @submit="state.stateAnketa.submitFile($event, 'persons', '0')" />
     </div>
