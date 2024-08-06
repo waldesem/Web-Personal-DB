@@ -13,13 +13,13 @@ async function removeToken(): Promise<void> {
         <div class="nav flex-column">
           <a class="nav-link text-danger fs-3 fw-bold">STAFFSEC FINTECH</a>
           <hr class="text-info" />
-          <NuxtLink to="/staffsec/persons" class="nav-link active">
+          <NuxtLink to="/persons" class="nav-link active">
             Кандидаты
           </NuxtLink>
           <hr class="text-info" />
           <NuxtLink
             v-if="stateUser.user.role == stateClassify.classes.roles['user']"
-            to="/staffsec/resume"
+            to="/resume"
             class="nav-link active"
           >
             Создать
@@ -28,13 +28,13 @@ async function removeToken(): Promise<void> {
             v-if="stateUser.user.role == stateClassify.classes.roles['user']"
             class="text-info"
           />
-          <NuxtLink to="/staffsec/info" class="nav-link active">
+          <NuxtLink to="/info" class="nav-link active">
             Информация
           </NuxtLink>
           <hr class="text-info" />
           <NuxtLink
             v-if="stateUser.user.role == stateClassify.classes.roles['admin']"
-            to="/staffsec/users"
+            to="/users"
             class="nav-link active"
           >
             Пользователи

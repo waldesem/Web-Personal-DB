@@ -5,10 +5,10 @@ import { stateUser } from "@/utils/state";
 onBeforeMount(async () => {
   await stateUser.getCurrentUser();
 });
-
 </script>
 
 <template>
+  <NuxtLoadingIndicator />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

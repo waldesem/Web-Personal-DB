@@ -94,7 +94,7 @@ function cancelOperations() {
 </script>
 
 <template>
-  <LayoutsStaffsec>
+  <LayoutsMenu>
     <ElementsHeaderDiv
       :page-header="'Список пользователей'"
       :cls="'text-secondary py-5'"
@@ -328,7 +328,7 @@ function cancelOperations() {
         </button>
       </div>
     </ElementsModalWin>
-  </LayoutsStaffsec>
+  </LayoutsMenu>
 </template>
 
 <style scoped>

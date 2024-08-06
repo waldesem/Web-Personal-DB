@@ -14,12 +14,12 @@ const searchPerson = debounce(() => {
 
 function openProfile (person_id: string) {
   const router = useRouter();
-  router.push(`/staffsec/profile/${person_id}`);
+  router.push(`/profile/${person_id}`);
 }
 </script>
 
 <template>
-  <LayoutsStaffsec>
+  <LayoutsMenu>
   <ElementsHeaderDiv :page-header="'Кандидаты'" />
   <div 
     v-if="state.stateUser.user.role == state.stateClassify.classes.roles['user']" 
@@ -146,7 +146,7 @@ function openProfile (person_id: string) {
       </li>
     </ul>
   </nav>
-  </LayoutsStaffsec>
+  </LayoutsMenu>
 </template>
 
 <style scoped>

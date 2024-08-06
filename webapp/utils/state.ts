@@ -2,16 +2,17 @@ import { reactive } from "vue";
 import { axiosAuth } from "./auth";
 import * as interfaces from "./interfaces";
 
-// export const server = "http://localhost:5000";
-export const server = "";
+export const server = "http://localhost:5000";
+// export const server = "";
 
 export const stateUser = {
-  user: reactive({
+  user: useState('user', () => ({
     userId: "",
     username: "",
     role: "",
     region: "",
-  }),
+  })),
+
   async getCurrentUser(): Promise<void> {
     const router = useRouter();
     try {
@@ -24,7 +25,7 @@ export const stateUser = {
         region: user["region"],
       })
       await stateClassify.getClassify();
-      router.push("/staffsec/persons");
+      router.push("/persons");
     } catch (error: any) {
       router.push({ name: "login" });
       console.error(error);
@@ -33,7 +34,7 @@ export const stateUser = {
 };
 
 export const stateClassify = {
-  classes: reactive({
+  classes: useState('classes', () => ({
     regions: <Record<string, any>>{},
     conclusions: <Record<string, any>>{},
     relations: <Record<string, any>>{},
@@ -44,30 +45,46 @@ export const stateClassify = {
     documents: <Record<string, any>>{},
     poligrafs: <Record<string, any>>{},
     roles: <Record<string, any>>{},
-  }),
+  })),
+
+  // async getClassify(): Promise<void> {
+  //   try {
+  //     const classes = await axiosAuth.get(`${server}/classes`);
+  //     const resp = classes.data;
+  //     const classifyKeys = Object.keys(this.classes);
+  //     for (let i = 0; i < classifyKeys.length; i++) {
+  //       this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
+  //         resp[i];
+  //     }
+  //   } catch (error: any) {
+  //     console.error(error);
+  //   }
+  // },
 
   async getClassify(): Promise<void> {
-    try {
-      const classes = await axiosAuth.get(`${server}/classes`);
-      const resp = classes.data;
+    const { data, error } = await useFetch(`${server}/classes`)
+    if (error) {
+      console.error(error);
+    } else {
+      const resp = data.value;
       const classifyKeys = Object.keys(this.classes);
       for (let i = 0; i < classifyKeys.length; i++) {
         this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
           resp[i];
       }
-    } catch (error: any) {
-      console.error(error);
     }
-  },
+  }
 };
 
+
 export const stateAlert = {
-  alertMessage: reactive({
+  alertMessage: useState('alert', () => ({
     attr: "",
     text: "",
     show: false,
     timeOut: 0,
-  }),
+  })),
+
   setAlert(attr: string, text: string) {
     window.clearTimeout(this.alertMessage.timeOut);
     this.alertMessage.show = true;
@@ -80,7 +97,7 @@ export const stateAlert = {
 };
 
 export const statePersons = {
-  persons: reactive({
+  persons: useState('persons', () => ({
     candidates: <interfaces.Persons[]>[],
     page: 1,
     prev: false,
@@ -89,7 +106,7 @@ export const statePersons = {
     updated: `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`,
-  }),
+  })),
 
   async getCandidates(page = 1): Promise<void> {
     if (this.persons.page < 1) {
@@ -120,7 +137,7 @@ export const statePersons = {
 };
 
 export const stateAnketa = {
-  anketa: reactive({
+  anketa: useState('anketa', () => ({
     persons: {} as interfaces.Persons,
     previous: [] as interfaces.Previous[],
     educations: [] as interfaces.Education[],
@@ -135,8 +152,8 @@ export const stateAnketa = {
     poligrafs: [] as interfaces.Pfo[],
     investigations: [] as interfaces.Inquisition[],
     inquiries: [] as interfaces.Needs[],
-  }),
-  share: reactive({
+  })),
+  share: useState('share', () => {})({
     candId: "" as string,
     imageUrl: "" as string,
   }),
