@@ -70,7 +70,7 @@ async function switchTabs(tab: string) {
 </script>
 
 <template>
-  <LayoutsStaffsec>
+  <LayoutsMenu>
   <DivsPhotoCard />
   <div class="row mb-3">
     <div class="col-md-10">
@@ -163,7 +163,7 @@ async function switchTabs(tab: string) {
       <component :is="values[2]"></component>
     </div>
   </div>
-</LayoutsStaffsec>
+</LayoutsMenu>
 </template>
 
 <style>

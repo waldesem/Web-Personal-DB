@@ -3,8 +3,8 @@ const router = useRouter();
 </script>
 
 <template>
-  <LayoutsStaffsec>
+  <LayoutsMenu>
   <ElementsHeaderDiv :page-header="'Создать анкету'"/>
-  <FormsResumeForm @cancel="router.push('/staffsec/persons')"/>
-  </LayoutsStaffsec>
+  <FormsResumeForm @cancel="router.push('/persons')"/>
+  </LayoutsMenu>
 </template>

@@ -37,7 +37,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-<LayoutsStaffsec>
+<LayoutsMenu>
   <ElementsHeaderDiv
     :page-header="`Статистика по региону ${tableData.region} 
             за период c ${tableData.start} по ${tableData.end} г.`"
@@ -88,5 +88,5 @@ onBeforeMount(async () => {
       />
     </div>
   </div>
-</LayoutsStaffsec>
+</LayoutsMenu>
 </template>
