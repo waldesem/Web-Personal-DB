@@ -8,6 +8,9 @@ onBeforeMount(async () => {
   await state.statePersons.getCandidates();
 });
 
+const userState = stateUser();
+const classifyState = stateClassify();
+
 const searchPerson = debounce(() => {
   state.statePersons.getCandidates();
 }, 500);
@@ -22,7 +25,7 @@ function openProfile (person_id: string) {
   <LayoutsMenu>
   <ElementsHeaderDiv :page-header="'Кандидаты'" />
   <div 
-    v-if="state.stateUser.user.role == state.stateClassify.classes.roles['user']" 
+    v-if="userState.user.value.role == classifyState.classes.value.roles['user']" 
     class="position-relative"
   >
     <div class="position-absolute bottom-100 end-0 px-3">

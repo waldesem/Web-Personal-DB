@@ -1,40 +1,43 @@
-import { reactive } from "vue";
 import { axiosAuth } from "./auth";
 import * as interfaces from "./interfaces";
 
 export const server = "http://localhost:5000";
 // export const server = "";
 
-export const stateUser = {
-  user: useState('user', () => ({
+export const stateUser = () => {
+  const user = useState("user", () => ({
+    auth: false,
     userId: "",
     username: "",
     role: "",
     region: "",
-  })),
+  }));
 
-  async getCurrentUser(): Promise<void> {
-    const router = useRouter();
+  async function getCurrentUser(): Promise<void> {
     try {
       const auth = await axiosAuth.get(`${server}/auth`);
-      const user = auth.data;
-      Object.assign(this.user, {
-        userId: user["id"],
-        username: user["username"],
-        role: user["role"],
-        region: user["region"],
+      const data = auth.data;
+      Object.assign(user.value, {
+        auth: true,
+        userId: data["id"],
+        username: data["username"],
+        role: data["role"],
+        region: data["region"],
       });
-      await stateClassify.getClassify();
-      router.push("/persons");
+      const classifyState = stateClassify();
+      await classifyState.getClassify();
+      navigateTo("/persons");
     } catch (error: any) {
-      router.push({ name: "login" });
       console.error(error);
+      navigateTo("/login");
     }
-  },
+  }
+
+  return { user, getCurrentUser };
 };
 
-export const stateClassify = {
-  classes: useState('classes', () => ({
+export const stateClassify = () => {
+  const classes = useState("classes", () => ({
     regions: <Record<string, any>>{},
     conclusions: <Record<string, any>>{},
     relations: <Record<string, any>>{},
@@ -45,59 +48,45 @@ export const stateClassify = {
     documents: <Record<string, any>>{},
     poligrafs: <Record<string, any>>{},
     roles: <Record<string, any>>{},
-  })),
+  }));
 
-  // async getClassify(): Promise<void> {
-  //   try {
-  //     const classes = await axiosAuth.get(`${server}/classes`);
-  //     const resp = classes.data;
-  //     const classifyKeys = Object.keys(this.classes);
-  //     for (let i = 0; i < classifyKeys.length; i++) {
-  //       this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
-  //         resp[i];
-  //     }
-  //   } catch (error: any) {
-  //     console.error(error);
-  //   }
-  // },
-
-  async getClassify(): Promise<void> {
-    const { data, error } = await useFetch(`${server}/classes`)
-    if (error) {
-      console.error(error);
-    } else {
-      const resp = data.value;
-      const classifyKeys = Object.keys(this.classes);
-      for (let i = 0; i < classifyKeys.length; i++) {
-        this.classes[classifyKeys[i] as keyof typeof stateClassify.classes] =
-          resp[i];
-      }
+  async function getClassify(): Promise<void> {
+    const data = await $fetch(`${server}/classes`);
+    const resp = data as Record<string, any>;
+    const classifyKeys = Object.keys(classes.value);
+    for (let i = 0; i < classifyKeys.length; i++) {
+      classes.value[classifyKeys[i] as keyof typeof classes.value] = resp[i];
     }
   }
+
+  return { classes, getClassify };
 };
 
-
-export const stateAlert = {
-  alertMessage: useState('alert', () => ({
+export const stateAlert = () => {
+  const alertMessage = useState("alertMessage", () => ({
     attr: "",
     text: "",
     show: false,
     timeOut: 0,
-  })),
+  }));
 
-  setAlert(attr: string, text: string) {
-    window.clearTimeout(this.alertMessage.timeOut);
-    this.alertMessage.show = true;
-    this.alertMessage.attr = attr;
-    this.alertMessage.text = text;
-    this.alertMessage.timeOut = window.setTimeout(() => {
-      this.alertMessage.show = false;
-    }, 10000);
-  },
+  function setAlert(attr: string, text: string) {
+    window.clearTimeout(alertMessage.value.timeOut);
+    Object.assign(alertMessage.value, {
+      show: true,
+      attr: attr,
+      text: text,
+      timeOut: window.setTimeout(() => {
+        alertMessage.value.show = false;
+      }, 10000),
+    });
+  }
+
+  return { alertMessage, setAlert };
 };
 
-export const statePersons = {
-  persons: useState('persons', () => ({
+export const statePersons = () => {
+  const persons = useState("persons", () => ({
     candidates: <interfaces.Persons[]>[],
     page: 1,
     prev: false,
@@ -106,38 +95,41 @@ export const statePersons = {
     updated: `${new Date().toLocaleDateString(
       "ru-RU"
     )} в ${new Date().toLocaleTimeString("ru-RU")}`,
-  })),
+  }));
 
-  async getCandidates(page = 1): Promise<void> {
-    if (this.persons.page < 1) {
-      this.persons.page = 1;
+  async function getCandidates(page = 1): Promise<void> {
+    if (persons.value.page < 1) {
+      persons.value.page = 1;
       return;
     } else {
-      this.persons.page = page;
+      persons.value.page = page;
     }
     try {
       const response = await axiosAuth.get(
-        `${server}/index/${this.persons.page}`,
+        `${server}/index/${persons.value.page}`,
         {
           params: {
-            search: this.persons.search,
+            search: persons.value.search,
           },
         }
       );
-      [this.persons.candidates, this.persons.next, this.persons.prev] =
+      [persons.value.candidates, persons.value.next, persons.value.prev] =
         response.data;
 
-      this.persons.updated = `${new Date().toLocaleDateString(
+      persons.value.updated = `${new Date().toLocaleDateString(
         "ru-RU"
       )} в ${new Date().toLocaleTimeString("ru-RU")}`;
     } catch (error: any) {
       console.error(error);
     }
-  },
+  }
+
+  return { persons, getCandidates };
 };
 
-export const stateAnketa = {
-  anketa: useState('anketa', () => ({
+export const stateAnketa = () => {
+  const alertState = stateAlert();
+  const anketa = useState("anketa", () => ({
     persons: {} as interfaces.Persons,
     previous: [] as interfaces.Previous[],
     educations: [] as interfaces.Education[],
@@ -152,13 +144,14 @@ export const stateAnketa = {
     poligrafs: [] as interfaces.Pfo[],
     investigations: [] as interfaces.Inquisition[],
     inquiries: [] as interfaces.Needs[],
-  })),
-  share: useState('share', () => {})({
+  }));
+
+  const share = useState("share", () => ({
     candId: "" as string,
     imageUrl: "" as string,
-  }),
+  }));
 
-  async getItem(item: string, action = "view"): Promise<void> {
+  async function getItem(item: string, action = "view"): Promise<void> {
     if (
       action === "self" &&
       !confirm("Вы действительно хотите включить/выключить режим правки")
@@ -167,78 +160,82 @@ export const stateAnketa = {
     }
     try {
       const response = await axiosAuth.get(
-        `${server}/${item}/${this.share.candId}`,
+        `${server}/${item}/${share.value.candId}`,
         {
           params: {
             action: action,
           },
         }
       );
-      this.anketa[item as keyof typeof this.anketa] = response.data;
+      anketa[item as keyof typeof anketa] = response.data;
       if (action === "self") {
-        stateAlert.setAlert("alert-info", "Режим проверки включен/отключен");
+        alertState.setAlert("alert-info", "Режим проверки включен/отключен");
       }
     } catch (error: any) {
       console.error(error);
     }
-  },
+  }
 
-  async getImage() {
+  async function getImage() {
     const image = await axiosAuth.get(`${server}/image`, {
       params: {
-        image: this.anketa.persons.destination,
+        image: anketa.value.persons.destination,
       },
       responseType: "blob",
     });
-    this.share.imageUrl = window.URL.createObjectURL(new Blob([image.data]));
-  },
+    share.value.imageUrl = window.URL.createObjectURL(new Blob([image.data]));
+  }
 
-  async changeRegion(): Promise<void> {
+  async function changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
     try {
       const response = await axiosAuth.get(
-        `${server}/region/${this.share.candId}`,
+        `${server}/region/${share.value.candId}`,
         {
           params: {
-            region: this.anketa.persons["region"],
+            region: anketa.value.persons["region"],
           },
         }
       );
       console.log(response.status);
-      this.getItem("persons");
+      getItem("persons");
     } catch (error: any) {
       console.error(error);
     }
-  },
+  }
 
-  async updateItem(param: string, form: Object): Promise<void> {
+  async function updateItem(param: string, form: Object): Promise<void> {
     try {
       const response = await axiosAuth.post(
-        `${server}/${param}/${this.share.candId}`,
+        `${server}/${param}/${share.value.candId}`,
         form
       );
       console.log(response.status);
-      this.getItem(param);
-      stateAlert.setAlert("alert-success", "Запись успешно добавлена");
+      getItem(param);
+      alertState.setAlert("alert-success", "Запись успешно добавлена");
     } catch (error: any) {
       console.error(error);
     }
-  },
+  }
 
-  async deleteItem(id: string, param: string): Promise<void> {
+  async function deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
     try {
       const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
       const router = useRouter();
-      param === "persons" ? router.push("/persons") : this.getItem(param);
-      stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
+      param === "persons" ? router.push("/persons") : getItem(param);
+      alertState.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error: any) {
       console.error(error);
     }
-  },
+  }
 
-  async submitFile(event: Event, param: string, itemId: string): Promise<void> {
+  async function submitFile(
+    event: Event,
+    param: string,
+    itemId: string
+  ): Promise<void> {
     const formData = new FormData();
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
@@ -254,14 +251,15 @@ export const stateAnketa = {
         );
         console.log(response.status);
         if (param === "persons") {
-          statePersons.getCandidates(1);
+          const personsState = statePersons();
+          personsState.getCandidates(1);
         } else if (param === "image") {
-          this.getImage();
+          getImage();
         } else if (param === "anketa") {
-          this.getItem("persons");
-        } else this.getItem(param);
+          getItem("persons");
+        } else getItem(param);
 
-        stateAlert.setAlert(
+        alertState.setAlert(
           "alert-success",
           "Файл или файлы успешно загружены"
         );
@@ -269,23 +267,23 @@ export const stateAnketa = {
         console.error(error);
       }
     } else {
-      stateAlert.setAlert("alert-warning", "Ошибка при загрузке файла");
+      alertState.setAlert("alert-warning", "Ошибка при загрузке файла");
     }
-  },
+  }
 
-  async submitResume(action: string, form: Object): Promise<void> {
+  async function submitResume(action: string, form: Object): Promise<void> {
     if (action == "create") {
       try {
         const response = await axiosAuth.post(`${server}/resume`, form);
         const { person_id } = response.data;
         const router = useRouter();
         router.push({ name: "profile", params: { id: person_id } });
-        stateAlert.setAlert("alert-success", "Данные успешно добавлены");
+        alertState.setAlert("alert-success", "Данные успешно добавлены");
       } catch (error) {
-        stateAlert.setAlert("alert-danger", `Возникла ошибка ${error}`);
+        alertState.setAlert("alert-danger", `Возникла ошибка ${error}`);
       }
     } else {
-      this.updateItem("persons", form);
+      updateItem("persons", form);
     }
-  },
+  }
 };

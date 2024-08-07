@@ -37,7 +37,8 @@ async function submitLogin(): Promise<void> {
       case 200:
         const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
-        await stateUser.getCurrentUser();
+        const user = stateUser()
+        await user.getCurrentUser();
         break;
 
       case 205:

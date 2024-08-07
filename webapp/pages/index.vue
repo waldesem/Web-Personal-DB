@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { onBeforeMount } from "vue";
-import { stateUser } from "@/utils/state";
+import  { stateUser } from "@/utils/state";
 
 onBeforeMount(async () => {
-  await stateUser.getCurrentUser();
+  const user = stateUser();
+  await user.getCurrentUser();
 });
 </script>
 
 <template>
-  <NuxtLoadingIndicator />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div></div>
 </template>

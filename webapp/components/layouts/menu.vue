@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { stateUser, stateClassify } from "@/utils/state";
 
+const userState = stateUser();
+
 async function removeToken(): Promise<void> {
   localStorage.removeItem("user_token");
 }
@@ -18,14 +20,14 @@ async function removeToken(): Promise<void> {
           </NuxtLink>
           <hr class="text-info" />
           <NuxtLink
-            v-if="stateUser.user.role == stateClassify.classes.roles['user']"
+            v-if="userState.user.value.role == stateClassify.classes.roles['user']"
             to="/resume"
             class="nav-link active"
           >
             Создать
           </NuxtLink>
           <hr
-            v-if="stateUser.user.role == stateClassify.classes.roles['user']"
+            v-if="userState.user.value.role == stateClassify.classes.roles['user']"
             class="text-info"
           />
           <NuxtLink to="/info" class="nav-link active">
@@ -33,7 +35,7 @@ async function removeToken(): Promise<void> {
           </NuxtLink>
           <hr class="text-info" />
           <NuxtLink
-            v-if="stateUser.user.role == stateClassify.classes.roles['admin']"
+            v-if="userState.user.value.role == stateClassify.classes.roles['admin']"
             to="/users"
             class="nav-link active"
           >
@@ -57,7 +59,7 @@ async function removeToken(): Promise<void> {
                 data-bs-toggle="dropdown"
               >
                 <i class="bi bi-person-circle"></i>
-                {{ stateUser.user.username }}
+                {{ userState.user.value.username }}
               </button>
               <ul class="dropdown-menu">
                 <li class="dropdown-item">

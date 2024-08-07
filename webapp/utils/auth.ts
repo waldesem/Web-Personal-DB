@@ -10,8 +10,7 @@ axiosAuth.interceptors.request.use(
       config.headers["Authorization"] = `Basic ${user_token}`;
       return config;
     } else {
-      const router = useRouter();
-      router.push({ name: "login" });
+      navigateTo("/login");
       return Promise.reject("Token not available");
     }
   },
@@ -26,8 +25,7 @@ axiosAuth.interceptors.response.use(
   },
   async (error: any) => {
     if (error.request.status == 401 || error.request.status == 403) {
-      const router = useRouter();
-      router.push({ name: "login" });
+      navigateTo("/login");
     } else if (error.request.status == 400) {
       stateAlert.setAlert("alert-warning", "Операция завершилась неудачно")
     } else {

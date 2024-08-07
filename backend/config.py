@@ -40,5 +40,5 @@ class PostgreServerConfig(Configuration):
     )
 
 
-class Config(DesktopConfig):
+class Config(SqliteServerConfig):
     pass
