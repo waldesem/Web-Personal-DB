@@ -6,12 +6,13 @@ import * as interfaces from "./interfaces";
 export const server = "";
 
 export const stateUser = {
-  user: reactive({
+  user: useState("user", () => ({
     userId: "",
     username: "",
     role: "",
     region: "",
-  }),
+  })),
+
   async getCurrentUser(): Promise<void> {
     const router = useRouter();
     try {
@@ -22,7 +23,7 @@ export const stateUser = {
         username: user["username"],
         role: user["role"],
         region: user["region"],
-      })
+      });
       await stateClassify.getClassify();
       router.push("/staffsec/persons");
     } catch (error: any) {
@@ -68,6 +69,7 @@ export const stateAlert = {
     show: false,
     timeOut: 0,
   }),
+  
   setAlert(attr: string, text: string) {
     window.clearTimeout(this.alertMessage.timeOut);
     this.alertMessage.show = true;
@@ -214,9 +216,7 @@ export const stateAnketa = {
       const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
       const router = useRouter();
-      param === "persons"
-        ? router.push("/persons")
-        : this.getItem(param);
+      param === "persons" ? router.push("/persons") : this.getItem(param);
       stateAlert.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error: any) {
       console.error(error);
@@ -228,7 +228,7 @@ export const stateAnketa = {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
       for (let file of inputElement.files) {
-        if (file.size < (1024 * 1024) * 2) {
+        if (file.size < 1024 * 1024 * 2) {
           formData.append("file", file);
         }
       }
