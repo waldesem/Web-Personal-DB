@@ -1,8 +1,8 @@
 import { axiosAuth } from "../utils/auth";
 import * as interfaces from "../utils/interfaces";
 
-// export const server = "http://localhost:5000";
-export const server = "";
+export const server = "http://localhost:5000";
+// export const server = "";
 
 export const stateUser = () => {
   const user = useState("user", () => ({
@@ -223,8 +223,7 @@ export const stateAnketa = () => {
     try {
       const response = await axiosAuth.delete(`${server}/${param}/${id}`);
       console.log(response.status);
-      const router = useRouter();
-      param === "persons" ? router.push("/persons") : getItem(param);
+      param === "persons" ? navigateTo("/persons") : getItem(param);
       alertState.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error: any) {
       console.error(error);
@@ -276,8 +275,7 @@ export const stateAnketa = () => {
       try {
         const response = await axiosAuth.post(`${server}/resume`, form);
         const { person_id } = response.data;
-        const router = useRouter();
-        router.push({ name: "profile", params: { id: person_id } });
+        navigateTo({ name: "profile", params: { id: person_id } });
         alertState.setAlert("alert-success", "Данные успешно добавлены");
       } catch (error) {
         alertState.setAlert("alert-danger", `Возникла ошибка ${error}`);

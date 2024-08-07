@@ -26,9 +26,8 @@ const photoCard = ref({
       @mouseover="photoCard.handleMouse"
       @mouseout="photoCard.handleMouse"
     >
-      <img
+      <NuxtImg
         :src="anketaState.share.value.imageUrl"
-        style="width: 100%; height: auto"
         class="card-img-top"
         alt="..."
       />

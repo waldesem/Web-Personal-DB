@@ -1,5 +1,4 @@
 import axios from "axios";
-import { stateAlert } from "@/state/state";
 
 export const axiosAuth = axios.create();
 
@@ -9,10 +8,8 @@ axiosAuth.interceptors.request.use(
     if (user_token) {
       config.headers["Authorization"] = `Basic ${user_token}`;
       return config;
-    } else {
-      navigateTo("/login");
-      return Promise.reject("Token not available");
-    }
+    } 
+    return navigateTo("/login");
   },
   (error) => {
     return Promise.reject(error);
@@ -23,15 +20,8 @@ axiosAuth.interceptors.response.use(
   (response) => {
     return response;
   },
-  async (error: any) => {
-    if (error.request.status == 401 || error.request.status == 403) {
-      navigateTo("/login");
-    } else if (error.request.status == 400) {
-      const alertState = stateAlert();
-      alertState.setAlert("alert-warning", "Операция завершилась неудачно")
-    } else {
-      return Promise.reject(error);
-    }
+  (error: any) => {
+    return Promise.reject(error);
   }
 );
 

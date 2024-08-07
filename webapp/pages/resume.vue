@@ -1,10 +1,8 @@
-<script setup lang="ts">
-const router = useRouter();
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <LayoutsMenu>
   <ElementsHeaderDiv :page-header="'Создать анкету'"/>
-  <FormsResumeForm @cancel="router.push('/persons')"/>
+  <FormsResumeForm @cancel="navigateTo('/persons')"/>
   </LayoutsMenu>
 </template>

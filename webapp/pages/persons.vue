@@ -26,7 +26,7 @@ const searchPerson = debounce(() => {
 
 function openProfile(person_id: string) {
   const router = useRouter();
-  router.push(`/profile/${person_id}`);
+  navigateTo(`/profile/${person_id}`);
 }
 </script>
 
