@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa } from "@/utils/state";
+import { stateAnketa } from "@/state/state";
 import type { Persons } from "@/utils/interfaces";
 
 const emit = defineEmits(["cancel"]);
@@ -16,6 +16,8 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+
 const resumeForm = toRef(props.resume);
 
 function cancelEdit() {
@@ -26,7 +28,7 @@ function cancelEdit() {
 }
 
 async function submitForm(): Promise<void> {
-  stateAnketa.submitResume(props.action, resumeForm.value)
+  anketaState.submitResume(props.action, resumeForm.value)
   cancelEdit();
 }
 </script>

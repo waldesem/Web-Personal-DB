@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
+import { stateAnketa } from "@/state/state";
 import type { Work } from "@/utils/interfaces";
-import { stateAnketa } from "@/utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -12,10 +12,12 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+
 const workForm = toRef(props.work as Work);
 
 function submitWorkplace() {
-  stateAnketa.updateItem("workplaces", workForm.value)
+  anketaState.updateItem("workplaces", workForm.value)
   emit('cancel');
   Object.keys(workForm.value).forEach(
     (key) => delete workForm.value[key as keyof typeof workForm.value]

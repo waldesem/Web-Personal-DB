@@ -1,8 +1,8 @@
-import { axiosAuth } from "./auth";
-import * as interfaces from "./interfaces";
+import { axiosAuth } from "../utils/auth";
+import * as interfaces from "../utils/interfaces";
 
-export const server = "http://localhost:5000";
-// export const server = "";
+// export const server = "http://localhost:5000";
+export const server = "";
 
 export const stateUser = () => {
   const user = useState("user", () => ({
@@ -167,7 +167,7 @@ export const stateAnketa = () => {
           },
         }
       );
-      anketa[item as keyof typeof anketa] = response.data;
+      anketa.value[item as keyof typeof anketa.value] = response.data;
       if (action === "self") {
         alertState.setAlert("alert-info", "Режим проверки включен/отключен");
       }
@@ -286,4 +286,16 @@ export const stateAnketa = () => {
       updateItem("persons", form);
     }
   }
-};
+
+  return {
+    anketa,
+    share,
+    getItem,
+    changeRegion,
+    updateItem,
+    deleteItem,
+    submitFile,
+    submitResume,
+    getImage,
+  }
+}

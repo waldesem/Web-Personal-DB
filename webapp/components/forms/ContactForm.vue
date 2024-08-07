@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, toRef } from "vue";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Contact } from "@/utils/interfaces";
-import { stateClassify, stateAnketa } from "@/utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -12,10 +12,13 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+
 const contactForm = toRef(props.contact as Contact);
 
 function submitContact() {
-  stateAnketa.updateItem("contacts", contactForm.value)
+  anketaState.updateItem("contacts", contactForm.value)
   emit('cancel');
   Object.keys(contactForm.value).forEach(
     (key) => delete contactForm.value[key as keyof typeof contactForm.value]
@@ -42,7 +45,7 @@ const view = computed(() => {
     <ElementsLabelSlot :label="'Вид контакта'">
       <ElementsSelectDiv
         :name="'view'"
-        :select="stateClassify.classes.contacts"
+        :select="classifyState.classes.value.contacts"
         v-model="contactForm['view']"
       />
     </ElementsLabelSlot>

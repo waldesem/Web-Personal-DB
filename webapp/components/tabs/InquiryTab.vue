@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { stateAnketa, stateUser } from "@/state/state";
 import type { Needs } from "@/utils/interfaces";
-import { stateAnketa, stateUser } from "@/utils/state";
+
+const anketaState = stateAnketa();
+const userState = stateUser();
 
 const actions = ref(false);
 const edit = ref(false);
@@ -20,10 +23,10 @@ function cancelAction() {
   <div class="collapse card card-body mb-3" id="clps_inquiry">
     <FormsInquiryForm @cancel="cancelAction" />
   </div>
-  <div v-if="stateAnketa.anketa.inquiries.length">
+  <div v-if="anketaState.anketa.value.inquiries.length">
     <div
       class="card card-body mb-3"
-      v-for="(item, idx) in stateAnketa.anketa.inquiries"
+      v-for="(item, idx) in anketaState.anketa.value.inquiries"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
@@ -38,10 +41,10 @@ function cancelAction() {
           <ElementsActionIcons
             v-show="
               actions && idx &&
-              stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-              stateAnketa.anketa.persons['standing']
+              anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
             "
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'inquiries')"
+            @delete="anketaState.deleteItem(item['id'].toString(), 'inquiries')"
             @update="
               need = item;
               itemId = item['id'].toString();

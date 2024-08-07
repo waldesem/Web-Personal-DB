@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { stateAnketa, stateUser } from "@/utils/state";
+import { stateAnketa, stateUser } from "@/state/state";
 import type { Verification } from "@/utils/interfaces";
+
+const anketaState = stateAnketa();
+const userState = stateUser();
 
 const checkData = ref({
   actions: false,
@@ -50,9 +53,9 @@ const renderAdditional = (jsonString: string) => {
   <div class="collapse card card-body mb-3" id="clps_check">
     <FormsCheckForm @cancel="cancelAction" />
   </div>
-  <div v-if="stateAnketa.anketa.checks.length">
+  <div v-if="anketaState.anketa.value.checks.length">
     <div
-      v-for="(item, idx) in stateAnketa.anketa.checks"
+      v-for="(item, idx) in anketaState.anketa.value.checks"
       class="card card-body mb-3"
       :key="idx"
       @mouseover="checkData.actions = true"
@@ -68,10 +71,10 @@ const renderAdditional = (jsonString: string) => {
           <ElementsActionIcons
             v-show="
               checkData.actions && !idx &&
-              stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-              stateAnketa.anketa.persons['standing']
+              anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
             "
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'checks')"
+            @delete="anketaState.deleteItem(item['id'].toString(), 'checks')"
             @update="
               checkData.check = item;
               checkData.itemId = item['id'].toString();
@@ -84,10 +87,10 @@ const renderAdditional = (jsonString: string) => {
               :name-id="'check-file'"
               :accept="'*'"
               @submit="
-                stateAnketa.submitFile(
+                anketaState.submitFile(
                   $event,
                   'checks',
-                  stateAnketa.share.candId
+                  anketaState.share.value.candId
                 )
               "
             />

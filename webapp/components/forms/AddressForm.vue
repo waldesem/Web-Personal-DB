@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Address } from "@/utils/interfaces";
-import { stateClassify, stateAnketa } from "@/utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -12,10 +12,13 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+
 const addressForm = toRef(props.addrs as Address);
 
 function submitAddress() {
-  stateAnketa.updateItem("addresses", addressForm.value)
+  anketaState.updateItem("addresses", addressForm.value)
   emit('cancel');
   Object.keys(addressForm.value).forEach(
     (key) => delete addressForm.value[key as keyof typeof addressForm.value]
@@ -32,7 +35,7 @@ function submitAddress() {
     <ElementsLabelSlot :label="'Вид адреса'">
       <ElementsSelectDiv
         :name="'view'"
-        :select="stateClassify.classes.addresses"
+        :select="classifyState.classes.value.addresses"
         v-model="addressForm['view']"
       />
     </ElementsLabelSlot>

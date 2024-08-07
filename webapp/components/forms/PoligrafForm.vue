@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Pfo } from "@/utils/interfaces";
-import { stateClassify, stateAnketa } from "@/utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -12,10 +12,13 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+
 const poligrafForm = toRef(props.poligraf as Pfo);
 
 function submitPoligraf() {
-  stateAnketa.updateItem("poligrafs", poligrafForm.value)
+  anketaState.updateItem("poligrafs", poligrafForm.value)
   emit('cancel');
   Object.keys(poligrafForm.value).forEach(
     (key) => delete poligrafForm.value[key as keyof typeof poligrafForm.value]
@@ -33,7 +36,7 @@ function submitPoligraf() {
       <ElementsSelectDiv
         :name="'theme'"
         :need="true"
-        :select="stateClassify.classes.poligrafs"
+        :select="classifyState.classes.value.poligrafs"
         v-model="poligrafForm['theme']"
       />
     </ElementsLabelSlot>

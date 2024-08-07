@@ -2,12 +2,15 @@
 import { computed, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/utils/auth";
 import { debounce } from "@/utils/utilities";
-import { stateAlert, stateClassify, server } from "@/utils/state";
+import { server, stateAlert, stateClassify } from "@/state/state";
 import { AxiosError } from "axios";
 import type { User } from "@/utils/interfaces";
 
-onBeforeMount(() => {
-  getUsers();
+const classifyState = stateClassify();
+const alertState = stateAlert();
+
+onBeforeMount(async() => {
+  await getUsers();
 });
 
 const users = computed(() => {
@@ -59,7 +62,7 @@ async function userAction(item: String): Promise<void> {
       }
     );
     if (response.status === 205) {
-      stateAlert.setAlert("alert-warning", "Невозможно выполнить операцию");
+      alertState.setAlert("alert-warning", "Невозможно выполнить операцию");
     } else {
       getUsers();
     }
@@ -75,9 +78,9 @@ async function submitUser(): Promise<void> {
       dataUsers.value.form
     );
     if (response.status === 205) {
-      stateAlert.setAlert("alert-warning", "Пользователь уже существует");
+      alertState.setAlert("alert-warning", "Пользователь уже существует");
     } else {
-      stateAlert.setAlert("alert-success", "Пользователь успешно создан");
+      alertState.setAlert("alert-success", "Пользователь успешно создан");
     }
     cancelOperations();
     getUsers();
@@ -215,7 +218,7 @@ function cancelOperations() {
           >
           <ElementsSelectDiv
             :name="'region'"
-            :select="stateClassify.classes.regions"
+            :select="classifyState.classes.value.regions"
             v-model="dataUsers.profile.region"
             @submit-data="userAction(dataUsers.profile.region)"
           />
@@ -227,7 +230,7 @@ function cancelOperations() {
           >
           <ElementsSelectDiv
             :name="'role'"
-            :select="stateClassify.classes.roles"
+            :select="classifyState.classes.value.roles"
             v-model="dataUsers.profile['role']"
             @submit-data="userAction(dataUsers.profile.role)"
           />

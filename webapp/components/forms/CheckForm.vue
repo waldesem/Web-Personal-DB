@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, toRef, watch } from "vue";
-import { stateClassify, stateAnketa } from "@/utils/state";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Verification } from "@/utils/interfaces";
 
 const emit = defineEmits(["cancel"]);
@@ -12,12 +12,15 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+
 const checkForm = toRef(props.check as Verification);
 
 const noNegative = ref(false);
 
 function submitCheck() {
-  stateAnketa.updateItem("checks", checkForm.value)
+  anketaState.updateItem("checks", checkForm.value)
   noNegative.value = false;
   emit('cancel');
   Object.keys(checkForm.value).forEach(
@@ -164,7 +167,7 @@ watch(noNegative, () => {
         <ElementsSelectDiv
           :name="'conclusion'"
           :need="true"
-          :select="stateClassify.classes.conclusions"
+          :select="classifyState.classes.value.conclusions"
           v-model="checkForm['conclusion']"
         />
       </ElementsLabelSlot>

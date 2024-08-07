@@ -1,35 +1,21 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateClassify, stateUser } from "@/utils/state";
+import { ref } from "vue";
+import { stateAnketa, stateClassify, stateUser } from "@/state/state";
 import type { Persons } from "@/utils/interfaces";
 
-const StaffDiv = defineAsyncComponent(
-  () => import("../../components/divs/StaffDiv.vue")
-);
-const EducateDiv = defineAsyncComponent(
-  () => import("../../components/divs/EducateDiv.vue")
-);
-const WorkDiv = defineAsyncComponent(
-  () => import("../../components/divs/WorkDiv.vue")
-);
-const DocumDiv = defineAsyncComponent(
-  () => import("../../components/divs/DocumDiv.vue")
-);
-const AddressDiv = defineAsyncComponent(
-  () => import("../../components/divs/AddressDiv.vue")
-);
-const ContactDiv = defineAsyncComponent(
-  () => import("../../components/divs/ContactDiv.vue")
-);
-const AffilDiv = defineAsyncComponent(
-  () => import("../../components/divs/AffilDiv.vue")
-);
-const PrevDiv = defineAsyncComponent(
-  () => import("../../components/divs/PrevDiv.vue")
-);
-const RelateDiv = defineAsyncComponent(
-  () => import("../../components/divs/RelateDiv.vue")
-);
+const StaffDiv = resolveComponent('DivsStaffDiv');
+const EducateDiv = resolveComponent('DivsEducateDiv');
+const WorkDiv = resolveComponent('DivsWorkDiv');
+const DocumDiv = resolveComponent('DivsDocumDiv');
+const AddressDiv = resolveComponent('DivsAddressDiv');
+const ContactDiv = resolveComponent('DivsContactDiv');
+const AffilDiv = resolveComponent('DivsAffilDiv');
+const PrevDiv = resolveComponent('DivsPrevDiv');
+const RelateDiv = resolveComponent('DivsRelateDiv');
+
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+const userState = stateUser();
 
 const dataResume = ref({
   action: "",
@@ -42,10 +28,10 @@ const dataResume = ref({
   <div v-if="dataResume.action" class="card card-body mb-3">
     <FormsResumeForm
       :action="dataResume.action"
-      :resume="stateAnketa.anketa.persons"
+      :resume="anketaState.anketa.value.persons"
       @cancel="
         dataResume.action = '';
-        stateAnketa.getItem('persons');
+        anketaState.getItem('persons');
       "
     />
   </div>
@@ -59,11 +45,11 @@ const dataResume = ref({
       <ElementsActionIcons
         v-show="
           dataResume.showActions &&
-          stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-          stateAnketa.anketa.persons['standing']
+          anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+          anketaState.anketa.value.persons['standing']
         "
         @delete="
-          stateAnketa.deleteItem(stateAnketa.anketa.persons['id'], 'persons')
+          anketaState.deleteItem(anketaState.anketa.value.persons['id'], 'persons')
         "
         @update="dataResume.action = 'update'"
         :for-input="'persons-file'"
@@ -73,7 +59,7 @@ const dataResume = ref({
           :name-id="'persons-file'"
           :accept="'*'"
           @submit="
-            stateAnketa.submitFile($event, 'anketa', stateAnketa.share.candId)
+            anketaState.submitFile($event, 'anketa', anketaState.share.value.candId)
           "
         />
       </ElementsActionIcons>
@@ -83,74 +69,74 @@ const dataResume = ref({
         :width="'20%'"
         :name="'region'"
         :disable="
-          stateUser.user.userId != stateAnketa.anketa.persons['user_id'] ||
-          !stateAnketa.anketa.persons['standing']
+          userState.user.value.userId != anketaState.anketa.value.persons['user_id'] ||
+          !anketaState.anketa.value.persons['standing']
         "
-        :select="stateClassify.classes.regions"
-        v-model="stateAnketa.anketa.persons['region']"
-        @submit-data="stateAnketa.changeRegion()"
+        :select="classifyState.classes.value.regions"
+        v-model="anketaState.anketa.value.persons['region']"
+        @submit-data="anketaState.changeRegion()"
       />
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Фамилия'">
-      {{ stateAnketa.anketa.persons["surname"] }}
+      {{ anketaState.anketa.value.persons["surname"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Имя'">
-      {{ stateAnketa.anketa.persons["firstname"] }}
+      {{ anketaState.anketa.value.persons["firstname"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Отчество'">
-      {{ stateAnketa.anketa.persons["patronymic"] }}
+      {{ anketaState.anketa.value.persons["patronymic"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Дата рождения'">
       {{
         new Date(
-          String(stateAnketa.anketa.persons["birthday"])
+          String(anketaState.anketa.value.persons["birthday"])
         ).toLocaleDateString("ru-RU")
       }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Место рождения'">
-      {{ stateAnketa.anketa.persons["birthplace"] }}
+      {{ anketaState.anketa.value.persons["birthplace"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Гражданство'">
-      {{ stateAnketa.anketa.persons["citizenship"] }}
+      {{ anketaState.anketa.value.persons["citizenship"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot
-      v-if="stateAnketa.anketa.persons['dual']"
+      v-if="anketaState.anketa.value.persons['dual']"
       :label="'Двойное гражданство'"
     >
-      {{ stateAnketa.anketa.persons["dual"] }}
+      {{ anketaState.anketa.value.persons["dual"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'СНИЛС'">
-      {{ stateAnketa.anketa.persons["snils"] }}
+      {{ anketaState.anketa.value.persons["snils"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'ИНН'">
-      {{ stateAnketa.anketa.persons["inn"] }}
+      {{ anketaState.anketa.value.persons["inn"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Семейное положение'">
-      {{ stateAnketa.anketa.persons["marital"] }}
+      {{ anketaState.anketa.value.persons["marital"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Дата записи'">
       {{
-        stateAnketa.anketa.persons["created"]
+        anketaState.anketa.value.persons["created"]
           ? new Date(
-              stateAnketa.anketa.persons["created"] + " UTC"
+            anketaState.anketa.value.persons["created"] + " UTC"
             ).toLocaleString("ru-RU")
           : ""
       }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Пользователь'">
       {{
-        stateAnketa.anketa.persons["username"]
-          ? stateAnketa.anketa.persons["username"]
+        anketaState.anketa.value.persons["username"]
+          ? anketaState.anketa.value.persons["username"]
           : ""
       }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Материалы'">
-      {{ stateAnketa.anketa.persons["destination"] }}
+      {{ anketaState.anketa.value.persons["destination"] }}
     </ElementsLabelSlot>
     <ElementsLabelSlot :label="'Дополнительная информация'">
       {{
-        stateAnketa.anketa.persons["addition"]
-          ? stateAnketa.anketa.persons["addition"]
+        anketaState.anketa.value.persons["addition"]
+          ? anketaState.anketa.value.persons["addition"]
           : "-"
       }}
     </ElementsLabelSlot>

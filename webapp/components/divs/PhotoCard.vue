@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { stateAnketa, stateUser } from "@/utils/state";
+import { stateAnketa, stateUser } from "@/state/state";
+
+const anketaState = stateAnketa();
+const userState = stateUser();
 
 const photoCard = ref({
   formData: new FormData(),
@@ -11,7 +14,7 @@ const photoCard = ref({
   },
 
   async submitImage(event: any) {
-    await stateAnketa.submitFile(event, "image", stateAnketa.share.candId);
+    await anketaState.submitFile(event, "image", anketaState.share.value.candId);
   },
 });
 </script>
@@ -24,7 +27,7 @@ const photoCard = ref({
       @mouseout="photoCard.handleMouse"
     >
       <img
-        :src="stateAnketa.share.imageUrl"
+        :src="anketaState.share.value.imageUrl"
         style="width: 100%; height: auto"
         class="card-img-top"
         alt="..."
@@ -32,8 +35,8 @@ const photoCard = ref({
       <div
         v-show="
           photoCard.showPhoto &&
-          stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-          stateAnketa.anketa.persons['standing']
+          anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+          anketaState.anketa.value.persons['standing']
         "
         class="card-img-overlay"
       >

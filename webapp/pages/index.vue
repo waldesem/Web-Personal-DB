@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount } from "vue";
-import  { stateUser } from "@/utils/state";
+import  { stateUser } from "@/state/state";
 
 onBeforeMount(async () => {
   const user = stateUser();

@@ -1,38 +1,33 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa, stateClassify, server } from "@/utils/state";
+import { onBeforeMount, ref } from "vue";
+import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
 import { axiosAuth } from "@/utils/auth";
 
-const AnketaTab = defineAsyncComponent(
-  () => import("@/components/tabs/AnketaTab.vue")
-);
-const CheckTab = defineAsyncComponent(
-  () => import("@/components/tabs/CheckTab.vue")
-);
-const PoligrafTab = defineAsyncComponent(
-  () => import("@/components/tabs/PoligrafTab.vue")
-);
-const InvestigateTab = defineAsyncComponent(
-  () => import("@/components/tabs/InvestigateTab.vue")
-);
-const InquiryTab = defineAsyncComponent(
-  () => import("@/components/tabs/InquiryTab.vue")
-);
+const AnketaTab = resolveComponent('TabsAnketaTab');
+const CheckTab = resolveComponent('TabsCheckTab');
+const PoligrafTab = resolveComponent('TabsPoligrafTab');
+const InvestigateTab = resolveComponent('TabsInvestigateTab');
+const InquiryTab = resolveComponent('TabsInquiryTab');
+
+const route = useRoute();
+
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+const userState = stateUser();
 
 onBeforeMount(async () => {
-  const route = useRoute();
-  stateAnketa.share.candId = route.params.id as string;
+  anketaState.share.value.candId = route.params.id as string;
   try {
     const response = await axiosAuth.get(
-      `${server}/profile/${stateAnketa.share.candId}`
+      `${server}/profile/${anketaState.share.value.candId}`
     );
     const resp = response.data;
-    const anketaKeys = Object.keys(stateAnketa.anketa);
+    const anketaKeys = Object.keys(anketaState.anketa.value);
     for (let i = 0; i < anketaKeys.length; i++) {
-      stateAnketa.anketa[anketaKeys[i] as keyof typeof stateAnketa.anketa] =
+      anketaState.anketa.value[anketaKeys[i] as keyof typeof anketaState.anketa.value] =
         resp[i];
     }
-    stateAnketa.getImage();
+    anketaState.getImage();
   } catch (error: any) {
     console.error(error);
   }
@@ -41,11 +36,26 @@ onBeforeMount(async () => {
 const currentTab = ref("anketaTab");
 
 const tabsData = {
-  anketaTab: ["Взять анкету", "Анкета", AnketaTab,],
+  anketaTab: ["Взять анкету", "Анкета", AnketaTab],
   checkTab: ["Добавить проверку", "Проверки", CheckTab, "bi-person-check"],
-  poligrafTab: ["Добавить полиграф", "Полиграф", PoligrafTab, "bi-heart-pulse"],
-  investigateTab: ["Добавить расследования", "Расследования", InvestigateTab, "bi-incognito"],
-  inquiryTab: ["Добавить запрос", "Запросы", InquiryTab, "bi-journal-check"],
+  poligrafTab: [
+    "Добавить полиграф",
+    "Полиграф",
+    PoligrafTab,
+    "bi-heart-pulse",
+  ],
+  investigateTab: [
+    "Добавить расследования",
+    "Расследования",
+    InvestigateTab,
+    "bi-incognito",
+  ],
+  inquiryTab: [
+    "Добавить запрос",
+    "Запросы",
+    InquiryTab,
+    "bi-journal-check",
+  ],
 };
 
 async function closeCollapses() {
@@ -60,7 +70,7 @@ async function closeCollapses() {
 
 async function switchStandings() {
   await closeCollapses();
-  stateAnketa.getItem("persons", "self");
+  anketaState.getItem("persons", "self");
 }
 
 async function switchTabs(tab: string) {
@@ -71,99 +81,106 @@ async function switchTabs(tab: string) {
 
 <template>
   <LayoutsMenu>
-  <DivsPhotoCard />
-  <div class="row mb-3">
-    <div class="col-md-10">
-      <ElementsHeaderDiv
-        :cls="'text-danger py-3'"
-        :page-header="`${stateAnketa.anketa.persons.surname} ${
-          stateAnketa.anketa.persons.firstname
-        } ${
-          stateAnketa.anketa.persons.patronymic
-            ? ' ' + stateAnketa.anketa.persons.patronymic
-            : ''
-        }`"
-      />
-    </div>
-    <div 
-      v-if="stateUser.user.role == stateClassify.classes.roles['user']"
-      class="col-md-2 d-flex justify-content-end d-print-none"
-    >
+    <DivsPhotoCard />
+    <div class="row mb-3">
+      <div class="col-md-10">
+        <ElementsHeaderDiv
+          :cls="'text-danger py-3'"
+          :page-header="`${anketaState.anketa.value.persons.surname} ${
+            anketaState.anketa.value.persons.firstname
+          } ${
+            anketaState.anketa.value.persons.patronymic
+              ? ' ' + anketaState.anketa.value.persons.patronymic
+              : ''
+          }`"
+        />
+      </div>
       <div
-        v-for="(item, idx) in Object.keys(tabsData).slice(1)"
-        :key="idx"
-        class="position-relative"
+        v-if="
+          userState.user.value.role == classifyState.classes.value.roles['user']
+        "
+        class="col-md-2 d-flex justify-content-end d-print-none"
       >
         <div
-          v-if="
-            currentTab == item &&
-            stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-            stateAnketa.anketa.persons['standing']
-          "
-          :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
-          class="text-danger fs-1"
-          style="cursor: pointer"
-          data-bs-toggle="collapse"
-          :href="'#clps_' + item.split('T')[0]"
+          v-for="(item, idx) in Object.keys(tabsData).slice(1)"
+          :key="idx"
+          class="position-relative"
         >
-        <i class="bi" :class="tabsData[currentTab as keyof typeof tabsData][3]"></i>
+          <div
+            v-if="
+              currentTab == item &&
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
+            :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
+            class="text-danger fs-1"
+            style="cursor: pointer"
+            data-bs-toggle="collapse"
+            :href="'#clps_' + item.split('T')[0]"
+          >
+            <i
+              class="bi"
+              :class="tabsData[currentTab as keyof typeof tabsData][3]"
+            ></i>
+          </div>
+        </div>
+        <div v-if="currentTab == 'anketaTab'" class="position-relative">
+          <button
+            type="button"
+            :class="
+              anketaState.anketa.value.persons['standing']
+                ? 'btn btn-link'
+                : 'btn btn-outline-danger'
+            "
+            :title="
+              anketaState.anketa.value.persons['standing']
+                ? 'Отключить режим проверки'
+                : 'Включить режим проверки'
+            "
+            @click="switchStandings"
+          >
+            <span
+              v-if="anketaState.anketa.value.persons['standing']"
+              class="spinner-grow text-danger"
+              role="status"
+            >
+            </span>
+            <div class="text-danger fs-5" v-else>
+              <i class="bi bi-pencil-square"></i>
+            </div>
+          </button>
         </div>
       </div>
-      <div v-if="currentTab == 'anketaTab'" class="position-relative">
-        <button
-          type="button"
-          :class="
-            stateAnketa.anketa.persons['standing']
-              ? 'btn btn-link'
-              : 'btn btn-outline-danger'
-          "
-          :title="
-            stateAnketa.anketa.persons['standing']
-              ? 'Отключить режим проверки'
-              : 'Включить режим проверки'
-          "
-          @click="switchStandings"
-        >
-          <span
-            v-if="stateAnketa.anketa.persons['standing']"
-            class="spinner-grow text-danger"
-            role="status"
-          >
-          </span>
-          <div class="text-danger fs-5" v-else><i class="bi bi-pencil-square"></i>
-          </div>
-        </button>
+    </div>
+    <nav class="nav nav-tabs nav-justified d-print-none" role="tablist">
+      <button
+        v-for="(values, key) in tabsData"
+        :key="key"
+        class="nav-link"
+        :class="{ active: key === 'anketaTab' }"
+        :data-bs-target="'#' + key"
+        data-bs-toggle="tab"
+        type="button"
+        role="tab"
+        @click="switchTabs(key)"
+      >
+        {{ values[1] }}
+      </button>
+    </nav>
+    <div class="tab-content">
+      <div
+        v-for="(values, key) in tabsData"
+        :key="key"
+        :id="key"
+        class="tab-pane show fade pt-3"
+        :class="{ active: key == 'anketaTab' }"
+        role="tabpanel"
+      >
+        <component :is="values[2]"></component>
       </div>
     </div>
-  </div>
-  <nav class="nav nav-tabs nav-justified d-print-none" role="tablist">
-    <button
-      v-for="(values, key) in tabsData"
-      :key="key"
-      class="nav-link"
-      :class="{ active: key === 'anketaTab' }"
-      :data-bs-target="'#' + key"
-      data-bs-toggle="tab"
-      type="button"
-      role="tab"
-      @click="switchTabs(key)"
-    >
-      {{ values[1] }}
-    </button>
-  </nav>
-  <div class="tab-content">
-    <div
-      v-for="(values, key) in tabsData"
-      :key="key"
-      :id="key"
-      class="tab-pane show fade pt-3"
-      :class="{ active: key == 'anketaTab' }"
-      role="tabpanel"
-    >
-      <component :is="values[2]"></component>
-    </div>
-  </div>
-</LayoutsMenu>
+  </LayoutsMenu>
 </template>
 
 <style>

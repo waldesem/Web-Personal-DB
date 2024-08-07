@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { stateUser, stateClassify } from "@/utils/state";
+import { stateUser, stateClassify } from "@/state/state";
 
+const classify = stateClassify();
 const userState = stateUser();
 
 async function removeToken(): Promise<void> {
@@ -20,14 +21,14 @@ async function removeToken(): Promise<void> {
           </NuxtLink>
           <hr class="text-info" />
           <NuxtLink
-            v-if="userState.user.value.role == stateClassify.classes.roles['user']"
+            v-if="userState.user.value.role == classify.classes.value.roles['user']"
             to="/resume"
             class="nav-link active"
           >
             Создать
           </NuxtLink>
           <hr
-            v-if="userState.user.value.role == stateClassify.classes.roles['user']"
+            v-if="userState.user.value.role == classify.classes.value.roles['user']"
             class="text-info"
           />
           <NuxtLink to="/info" class="nav-link active">
@@ -35,7 +36,7 @@ async function removeToken(): Promise<void> {
           </NuxtLink>
           <hr class="text-info" />
           <NuxtLink
-            v-if="userState.user.value.role == stateClassify.classes.roles['admin']"
+            v-if="userState.user.value.role == classify.classes.value.roles['admin']"
             to="/users"
             class="nav-link active"
           >

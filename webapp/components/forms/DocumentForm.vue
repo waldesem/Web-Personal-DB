@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Document } from "@/utils/interfaces";
-import { stateClassify, stateAnketa } from "@/utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -12,10 +12,13 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+
 const docForm = toRef(props.docs as Document);
 
 function submitDocument() {
-  stateAnketa.updateItem("documents", docForm.value)
+  anketaState.updateItem("documents", docForm.value)
   emit('cancel');
   Object.keys(docForm.value).forEach(
     (key) => delete docForm.value[key as keyof typeof docForm.value]
@@ -33,7 +36,7 @@ function submitDocument() {
       <ElementsSelectDiv
         :name="'view'"
         :need="true"
-        :select="stateClassify.classes.documents"
+        :select="classifyState.classes.value.documents"
         v-model="docForm['view']"
       />
     </ElementsLabelSlot>

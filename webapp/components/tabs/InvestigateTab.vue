@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { stateAnketa, stateUser } from "@/state/state";
 import type { Inquisition } from "@/utils/interfaces";
-import { stateAnketa, stateUser } from "@/utils/state";
+
+const anketaState = stateAnketa();
+const userState = stateUser();
 
 const actions = ref(false);
 const edit = ref(false);
@@ -20,9 +23,9 @@ function cancelAction() {
   <div class="collapse card card-body mb-3" id="clps_investigate">
     <FormsInvestigationForm @cancel="cancelAction" />
   </div>
-  <div v-if="stateAnketa.anketa.investigations.length">
+  <div v-if="anketaState.anketa.value.investigations.length">
     <div
-      v-for="(item, idx) in stateAnketa.anketa.investigations"
+      v-for="(item, idx) in anketaState.anketa.value.investigations"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
@@ -38,11 +41,11 @@ function cancelAction() {
           <ElementsActionIcons
             v-show="
               actions && idx &&
-              stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-              stateAnketa.anketa.persons['standing']
+              anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
             "
             @delete="
-              stateAnketa.deleteItem(item['id'].toString(), 'investigations')
+              anketaState.deleteItem(item['id'].toString(), 'investigations')
             "
             @update="
               inquisition = item;
@@ -56,10 +59,10 @@ function cancelAction() {
               :name-id="'investigations-file'"
               :accept="'*'"
               @submit="
-                stateAnketa.submitFile(
+                anketaState.submitFile(
                   $event,
                   'investigations',
-                  stateAnketa.share.candId
+                  anketaState.share.value.candId
                 )
               "
             />

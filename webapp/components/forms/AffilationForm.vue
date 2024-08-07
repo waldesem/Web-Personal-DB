@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Affilation } from "@/utils/interfaces";
-import { stateClassify, stateAnketa } from "@/utils/state";
 
 const emit = defineEmits(["cancel"]);
 
@@ -12,10 +12,13 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+
 const affilationForm = toRef(props.affils as Affilation);
 
 function submitAffilation() {
-  stateAnketa.updateItem("affilations", affilationForm.value)
+  anketaState.updateItem("affilations", affilationForm.value)
   emit('cancel');
   Object.keys(affilationForm.value).forEach(
     (key) => delete affilationForm.value[key as keyof typeof affilationForm.value]
@@ -32,7 +35,7 @@ function submitAffilation() {
     <ElementsLabelSlot :label="'Тип участия'">
       <ElementsSelectDiv
         :name="'view'"
-        :select="stateClassify.classes.affilations"
+        :select="classifyState.classes.value.affilations"
         v-model="affilationForm['view']"
       />
     </ElementsLabelSlot>

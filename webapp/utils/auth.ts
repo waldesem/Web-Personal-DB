@@ -1,5 +1,5 @@
 import axios from "axios";
-import { stateAlert } from "./state";
+import { stateAlert } from "@/state/state";
 
 export const axiosAuth = axios.create();
 
@@ -27,7 +27,8 @@ axiosAuth.interceptors.response.use(
     if (error.request.status == 401 || error.request.status == 403) {
       navigateTo("/login");
     } else if (error.request.status == 400) {
-      stateAlert.setAlert("alert-warning", "Операция завершилась неудачно")
+      const alertState = stateAlert();
+      alertState.setAlert("alert-warning", "Операция завершилась неудачно")
     } else {
       return Promise.reject(error);
     }

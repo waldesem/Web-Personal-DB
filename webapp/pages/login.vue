@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import axios from "axios";
 import { reactive, ref } from "vue";
-import { stateAlert, server } from "@/utils/state";
+import { server, stateAlert, stateUser } from "@/state/state";
+
+const alertState = stateAlert();
+const userState = stateUser();
 
 const showPswd = ref(false);
 const loginAction = ref("create");
@@ -11,11 +14,11 @@ async function submitLogin(): Promise<void> {
   showPswd.value = false;
   if (loginAction.value === "update") {
     if (loginForm["passhash"] === loginForm["new_pswd"]) {
-      stateAlert.setAlert("alert-warning", "Старый и новый пароли совпадают");
+      alertState.setAlert("alert-warning", "Старый и новый пароли совпадают");
       return;
     }
     if (loginForm["conf_pswd"] !== loginForm["new_pswd"]) {
-      stateAlert.setAlert(
+      alertState.setAlert(
         "alert-warning",
         "Новый пароль и подтверждение не совпадают"
       );
@@ -31,26 +34,25 @@ async function submitLogin(): Promise<void> {
     switch (response.status) {
       case 201:
         loginAction.value = "create";
-        stateAlert.setAlert("alert-success", "Войдите с новым паролем");
+        alertState.setAlert("alert-success", "Войдите с новым паролем");
         break;
 
       case 200:
         const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
-        const user = stateUser()
-        await user.getCurrentUser();
+        await userState.getCurrentUser();
         break;
 
       case 205:
         loginAction.value = "update";
-        stateAlert.setAlert(
+        alertState.setAlert(
           "alert-warning",
           "Пароль просрочен. Измените пароль"
         );
         break;
     }
   } catch (error) {
-    stateAlert.setAlert("alert-warning", "Неправильный логин или пароль");
+    alertState.setAlert("alert-warning", "Неправильный логин или пароль");
   }
 }
 </script>

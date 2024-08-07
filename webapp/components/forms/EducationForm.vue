@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Education } from "@/utils/interfaces";
-import { stateClassify, stateAnketa } from "@/utils/state";
-
 
 const emit = defineEmits(["cancel"]);
 
@@ -13,10 +12,13 @@ const props = defineProps({
   },
 });
 
+const anketaState = stateAnketa();
+const classifyState = stateClassify();
+
 const educationForm = toRef(props.education as Education);
 
 function submitEducation() {
-  stateAnketa.updateItem("educations", educationForm.value)
+  anketaState.updateItem("educations", educationForm.value)
   emit('cancel');
   Object.keys(educationForm.value).forEach(
     (key) => delete educationForm.value[key as keyof typeof educationForm.value]
@@ -34,7 +36,7 @@ function submitEducation() {
       <ElementsSelectDiv
         :name="'type'"
         :need="true"
-        :select="stateClassify.classes.educations"
+        :select="classifyState.classes.value.educations"
         v-model="educationForm['view']"
       />
     </ElementsLabelSlot>

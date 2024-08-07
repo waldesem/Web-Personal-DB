@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { stateAlert } from "@/utils/state";
+import { stateAlert } from "@/state/state";
+const alertState = stateAlert();
 </script>
 
 <template>
   <div
-    v-show="stateAlert.alertMessage.show"
+    v-show="alertState.alertMessage.value.show"
     class="alert"
     role="alert"
     fade
     show
-    :class="stateAlert.alertMessage.attr"
+    :class="alertState.alertMessage.value.attr"
   >
-    {{ stateAlert.alertMessage.text }}
+    {{ alertState.alertMessage.value.text }}
   </div>
 </template>
