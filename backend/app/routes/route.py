@@ -387,11 +387,12 @@ def change_region(person_id):
     region = request.args.get("region")
     if region:
         person = db_session.get(Persons, person_id)
-        destination = make_destination(
-            region, person.surname, person.firstname, person.patronymic, person.id
-        )
-        shutil.move(person.destination, destination)
-        person.destination = destination
+        if person.destination:
+            destination = make_destination(
+                region, person.surname, person.firstname, person.patronymic, person.id
+            )
+            shutil.move(person.destination, destination)
+            person.destination = destination
         person.region = region
         person.standing = False
         db_session.commit()

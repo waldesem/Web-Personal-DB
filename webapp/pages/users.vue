@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from "vue";
-import { axiosAuth } from "@/utils/auth";
 import { debounce } from "@/utils/utilities";
 import { server, stateAlert, stateClassify } from "@/state/state";
-import { AxiosError } from "axios";
 import type { User } from "@/utils/interfaces";
 
 const classifyState = stateClassify();
@@ -29,13 +27,18 @@ const dataUsers = ref({
 
 async function getUsers() {
   try {
-    const response = await axiosAuth.get(`${server}/users`, {
+    const { data } = await useLazyFetch(`${server}/users`, {
+      onRequest({request, options}) {
+          options.headers = {
+            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
+          };
+        },
       params: {
         search: dataUsers.value.search,
       },
     });
-    dataUsers.value.users = response.data;
-  } catch (error: AxiosError | any) {
+    dataUsers.value.users = data as unknown as User[];
+  } catch (error: any) {
     console.error(error);
   }
 }

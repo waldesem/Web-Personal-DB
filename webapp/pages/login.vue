@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import axios from "axios";
 import { reactive, ref } from "vue";
 import { server, stateAlert, stateUser } from "@/state/state";
 
@@ -25,20 +24,21 @@ async function submitLogin(): Promise<void> {
       return;
     }
   }
-
   try {
-    const response = await axios.post(
-      `${server}/login/${loginAction.value}`,
-      loginForm
+    const { data, status } = await useLazyFetch(
+      `${server}/login/${loginAction.value}`, {
+        method: "POST",
+        body: loginForm
+      }
     );
-    switch (response.status) {
+    switch (status.value as unknown as number) {
       case 201:
         loginAction.value = "create";
         alertState.setAlert("alert-success", "Войдите с новым паролем");
         break;
 
       case 200:
-        const { user_token } = response.data;
+        const { user_token } = data.value as { user_token: string };
         localStorage.setItem("user_token", user_token);
         await userState.getCurrentUser();
         break;

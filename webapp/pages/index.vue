@@ -1,15 +1,11 @@
 <script setup lang="ts">
-// import { onBeforeMount } from "vue";
-// import  { stateUser } from "@/state/state";
+import { onBeforeMount } from "vue";
+import  { stateUser } from "@/state/state";
 
-// onBeforeMount(async () => {
-//   const user = stateUser();
-//   await user.getCurrentUser();
-// });
-
-definePageMeta({
-  middleware: "auth",
-})
+onBeforeMount(async () => {
+  const user = stateUser();
+  await user.getCurrentUser();
+});
 </script>
 
 <template>

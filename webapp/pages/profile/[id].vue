@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
-import { axiosAuth } from "@/utils/auth";
 
 const AnketaTab = resolveComponent('TabsAnketaTab');
 const CheckTab = resolveComponent('TabsCheckTab');
@@ -18,10 +17,17 @@ const userState = stateUser();
 onBeforeMount(async () => {
   anketaState.share.value.candId = route.params.id as string;
   try {
-    const response = await axiosAuth.get(
-      `${server}/profile/${anketaState.share.value.candId}`
+    const { data } = await useLazyFetch(
+      `${server}/profile/${anketaState.share.value.candId}`,
+      {
+        onRequest({request, options}) {
+          options.headers = {
+            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
+          };
+        }
+      }
     );
-    const resp = response.data;
+    const resp = data as any;
     const anketaKeys = Object.keys(anketaState.anketa.value);
     for (let i = 0; i < anketaKeys.length; i++) {
       anketaState.anketa.value[anketaKeys[i] as keyof typeof anketaState.anketa.value] =

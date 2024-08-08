@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import { server, stateClassify, stateUser } from "@/state/state";
-import { axiosAuth } from "@/utils/auth";
-import { AxiosError } from "axios";
 
 const classifyState = stateClassify();
 const userState = stateUser();
@@ -19,15 +17,20 @@ const tableData = ref({
 
 async function submitData(): Promise<void> {
   try {
-    const response = await axiosAuth.get(`${server}/information`, {
+    const { data } = await useLazyFetch(`${server}/information`, {
+      onRequest({request, options}) {
+          options.headers = {
+            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
+          };
+        },
       params: {
         start: tableData.value.start,
         end: tableData.value.end,
         region: tableData.value.region,
       },
     });
-    tableData.value.checks = response.data;
-  } catch (error: AxiosError | any) {
+    tableData.value.checks = data as unknown as Array<any>;
+  } catch (error: any) {
     console.error(error);
   }
 }

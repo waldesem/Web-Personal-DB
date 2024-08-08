@@ -234,12 +234,11 @@ def handle_image(file, item_dir):
     Returns:
         None
     """
-    with open(file, 'r+') as image_file:
-        image = Image.open(image_file)
-        new_file = os.path.join(item_dir, "image.jpg")
-        if os.path.isfile(new_file):
-            os.remove(new_file)
-        image.save(new_file)
+    image = Image.open(file)
+    new_file = os.path.join(item_dir, "image.jpg")
+    if os.path.isfile(new_file):
+        os.remove(new_file)
+    image.save(new_file)
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):

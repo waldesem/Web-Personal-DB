@@ -1,27 +1,23 @@
-import axios from "axios";
-
-export const axiosAuth = axios.create();
-
-axiosAuth.interceptors.request.use(
-  async (config: any) => {
+export const useFetchAuth = () => {
+  const fetchAuth = async (url: string, options: any = {}) => {
     const user_token = localStorage.getItem("user_token");
     if (user_token) {
-      config.headers["Authorization"] = `Basic ${user_token}`;
-      return config;
-    } 
-    return navigateTo("/login");
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+      options.headers = {
+        ...options.headers,
+        Authorization: `Basic ${user_token}`
+      };
+    } else {
+      navigateTo("/login");
+      return Promise.reject(new Error("Unauthorized"));
+    }
 
-axiosAuth.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error: any) => {
-    return Promise.reject(error);
-  }
-);
+    try {
+      const response = await $fetch(url, options);
+      return response;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  };
 
+  return fetchAuth;
+};

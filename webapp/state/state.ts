@@ -1,4 +1,4 @@
-import { axiosAuth } from "../utils/auth";
+import { useFetchAuth } from "../utils/auth";
 import * as interfaces from "../utils/interfaces";
 
 export const server = "http://localhost:5000";
@@ -15,8 +15,9 @@ export const stateUser = () => {
 
   async function getCurrentUser(): Promise<void> {
     try {
-      const auth = await axiosAuth.get(`${server}/auth`);
-      const data = auth.data;
+      const authFetch = useFetchAuth();
+      const response = authFetch(`${server}/auth`);
+      const data = (await response) as Record<string, any>;
       Object.assign(user.value, {
         auth: true,
         userId: data["id"],
@@ -32,7 +33,6 @@ export const stateUser = () => {
       navigateTo("/login");
     }
   }
-
   return { user, getCurrentUser };
 };
 
@@ -58,7 +58,6 @@ export const stateClassify = () => {
       classes.value[classifyKeys[i] as keyof typeof classes.value] = resp[i];
     }
   }
-
   return { classes, getClassify };
 };
 
@@ -81,7 +80,6 @@ export const stateAlert = () => {
       }, 10000),
     });
   }
-
   return { alertMessage, setAlert };
 };
 
@@ -104,8 +102,9 @@ export const statePersons = () => {
     } else {
       persons.value.page = page;
     }
+    const authFetch = useFetchAuth();
     try {
-      const response = await axiosAuth.get(
+      const response = await authFetch(
         `${server}/index/${persons.value.page}`,
         {
           params: {
@@ -114,7 +113,7 @@ export const statePersons = () => {
         }
       );
       [persons.value.candidates, persons.value.next, persons.value.prev] =
-        response.data;
+        response as [interfaces.Persons[], boolean, boolean];
 
       persons.value.updated = `${new Date().toLocaleDateString(
         "ru-RU"
@@ -123,7 +122,6 @@ export const statePersons = () => {
       console.error(error);
     }
   }
-
   return { persons, getCandidates };
 };
 
@@ -159,7 +157,8 @@ export const stateAnketa = () => {
       return;
     }
     try {
-      const response = await axiosAuth.get(
+      const authFetch = useFetchAuth();
+      const response = await authFetch(
         `${server}/${item}/${share.value.candId}`,
         {
           params: {
@@ -167,7 +166,7 @@ export const stateAnketa = () => {
           },
         }
       );
-      anketa.value[item as keyof typeof anketa.value] = response.data;
+      anketa.value[item as keyof typeof anketa.value] = response as any;
       if (action === "self") {
         alertState.setAlert("alert-info", "Режим проверки включен/отключен");
       }
@@ -177,19 +176,20 @@ export const stateAnketa = () => {
   }
 
   async function getImage() {
-    const image = await axiosAuth.get(`${server}/image`, {
+    const image: Blob = await $fetch(`${server}/image`, {
       params: {
         image: anketa.value.persons.destination,
       },
       responseType: "blob",
     });
-    share.value.imageUrl = window.URL.createObjectURL(new Blob([image.data]));
+    share.value.imageUrl = window.URL.createObjectURL(new Blob([image]));
   }
 
   async function changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
     try {
-      const response = await axiosAuth.get(
+      const authFetch = useFetchAuth();
+      const response = await authFetch(
         `${server}/region/${share.value.candId}`,
         {
           params: {
@@ -197,7 +197,7 @@ export const stateAnketa = () => {
           },
         }
       );
-      console.log(response.status);
+      console.log(response);
       getItem("persons");
     } catch (error: any) {
       console.error(error);
@@ -206,11 +206,14 @@ export const stateAnketa = () => {
 
   async function updateItem(param: string, form: Object): Promise<void> {
     try {
-      const response = await axiosAuth.post(
-        `${server}/${param}/${share.value.candId}`,
-        form
+      const authFetch = useFetchAuth();
+      const response = await authFetch(
+        `${server}/${param}/${share.value.candId}`, {
+          method: "POST",
+          body: form,
+        }
       );
-      console.log(response.status);
+      console.log(response);
       getItem(param);
       alertState.setAlert("alert-success", "Запись успешно добавлена");
     } catch (error: any) {
@@ -221,8 +224,11 @@ export const stateAnketa = () => {
   async function deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
     try {
-      const response = await axiosAuth.delete(`${server}/${param}/${id}`);
-      console.log(response.status);
+      const authFetch = useFetchAuth();
+      const response = await authFetch(`${server}/${param}/${id}`, {
+        method: "DELETE",
+      });
+      console.log(response);
       param === "persons" ? navigateTo("/persons") : getItem(param);
       alertState.setAlert("alert-info", `Запись с ID ${id} удалена`);
     } catch (error: any) {
@@ -244,11 +250,14 @@ export const stateAnketa = () => {
         }
       }
       try {
-        const response = await axiosAuth.post(
-          `${server}/file/${param}/${itemId}`,
-          formData
+        const authFetch = useFetchAuth();
+        const response = await authFetch(
+          `${server}/file/${param}/${itemId}`, {
+            method: "POST",
+            body: formData,
+          }
         );
-        console.log(response.status);
+        console.log(response);
         if (param === "persons") {
           const personsState = statePersons();
           personsState.getCandidates(1);
@@ -273,8 +282,12 @@ export const stateAnketa = () => {
   async function submitResume(action: string, form: Object): Promise<void> {
     if (action == "create") {
       try {
-        const response = await axiosAuth.post(`${server}/resume`, form);
-        const { person_id } = response.data;
+        const authFetch = useFetchAuth();
+        const response = await authFetch(`${server}/resume`, {
+          method: "POST",
+          body: form,
+        });
+        const person_id = response as string;
         navigateTo({ name: "profile", params: { id: person_id } });
         alertState.setAlert("alert-success", "Данные успешно добавлены");
       } catch (error) {
@@ -295,5 +308,5 @@ export const stateAnketa = () => {
     submitFile,
     submitResume,
     getImage,
-  }
-}
+  };
+};
