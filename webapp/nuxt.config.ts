@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     head: {
-      title: "StaffSec",
+      htmlAttrs: { lang: "ru" },
       meta: [
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { charset: "utf-8" },
@@ -28,16 +28,10 @@ export default defineNuxtConfig({
     },
   },
 
-  css: [
-    "bootstrap/dist/css/bootstrap.min.css",
-    "bootstrap-icons/font/bootstrap-icons.min.css",
-  ],
-
-  nitro: {
-    output: {
-      publicDir: "../backend/app/static",
-    }
-  },
+  // css: [
+  //   "bootstrap/dist/css/bootstrap.min.css",
+  //   "bootstrap-icons/font/bootstrap-icons.min.css",
+  // ],
 
   alias: {
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
@@ -46,11 +40,22 @@ export default defineNuxtConfig({
     "@/utils": fileURLToPath(new URL("./utils", import.meta.url)),
   },
 
+  routeRules: {
+    '/api/**': { proxy: 'http://127.0.0.1:5000/api/**' }
+  },
+
+  nitro: {
+    compressPublicAssets: true,
+    output: {
+      publicDir: "../backend/app/static",
+    }
+  },
+
   vite: {
     build: {
       emptyOutDir: true,
     }
   },
 
-  modules: ["@nuxt/image"]
+  modules: ["@nuxt/image", "nuxt-purgecss"],
 });

@@ -1,8 +1,7 @@
 import { useFetchAuth } from "../utils/auth";
 import * as interfaces from "../utils/interfaces";
 
-export const server = "http://localhost:5000";
-// export const server = "";
+export const server = "/api";
 
 export const stateUser = () => {
   const user = useState("user", () => ({
@@ -16,7 +15,7 @@ export const stateUser = () => {
   async function getCurrentUser(): Promise<void> {
     try {
       const authFetch = useFetchAuth();
-      const response = authFetch(`/auth`);
+      const response = authFetch(`${server}/auth`);
       const data = (await response) as Record<string, any>;
       Object.assign(user.value, {
         auth: true,
@@ -37,7 +36,7 @@ export const stateUser = () => {
 };
 
 export const stateClassify = () => {
-  const classes = useState("classes", () => ({
+  const classes = useState(`${server}/classes`, () => ({
     regions: <Record<string, any>>{},
     conclusions: <Record<string, any>>{},
     relations: <Record<string, any>>{},
@@ -84,7 +83,7 @@ export const stateAlert = () => {
 };
 
 export const statePersons = () => {
-  const persons = useState("persons", () => ({
+  const persons = useState(`${server}/persons`, () => ({
     candidates: <interfaces.Persons[]>[],
     page: 1,
     prev: false,

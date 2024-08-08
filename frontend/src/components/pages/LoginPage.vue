@@ -42,24 +42,26 @@ async function submitLogin(): Promise<void> {
       `${prefix}/login/${loginAction.value}`,
       loginForm
     );
-    switch (response.status) {
-      case 201:
-        loginAction.value = "create";
-        stateAlert.setAlert("alert-success", "Войдите с новым паролем");
-        break;
-
-      case 200:
+    const { message } = response.data;
+    switch (message) {
+      case "Success": 
         const { user_token } = response.data;
         localStorage.setItem("user_token", user_token);
         router.push({ name: "staffsec" });
         break;
 
-      case 205:
+      case "Updated":
+        loginAction.value = "create";
+        stateAlert.setAlert("alert-success", "Войдите с новым паролем");
+        break;
+
+      case "Denied":
         loginAction.value = "update";
-        stateAlert.setAlert(
-          "alert-warning",
-          "Пароль просрочен. Измените пароль"
-        );
+        stateAlert.setAlert("alert-warning", "Пароль просрочен");
+        break;
+
+      default:
+      stateAlert.setAlert("alert-warning", "Неправильный логин или пароль");
         break;
     }
   } catch (error) {

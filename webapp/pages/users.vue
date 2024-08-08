@@ -3,6 +3,7 @@ import { computed, onBeforeMount, ref } from "vue";
 import { debounce } from "@/utils/utilities";
 import { server, stateAlert, stateClassify } from "@/state/state";
 import type { User } from "@/utils/interfaces";
+import { useFetchAuth } from "@/utils/auth";
 
 const classifyState = stateClassify();
 const alertState = stateAlert();
@@ -27,12 +28,8 @@ const dataUsers = ref({
 
 async function getUsers() {
   try {
-    const { data } = await useLazyFetch(`${server}/users`, {
-      onRequest({request, options}) {
-          options.headers = {
-            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
-          };
-        },
+    const fetchAuth = useFetchAuth();
+    const data = await fetchAuth(`${server}/users`, {
       params: {
         search: dataUsers.value.search,
       },
@@ -56,7 +53,8 @@ async function userAction(item: String): Promise<void> {
     }
   }
   try {
-    const response = await axiosAuth.get(
+    const fetchAuth = useFetchAuth();
+    const response = await fetchAuth(
       `${server}/users/${dataUsers.value.profile.id}`,
       {
         params: {
@@ -64,30 +62,27 @@ async function userAction(item: String): Promise<void> {
         },
       }
     );
-    if (response.status === 205) {
-      alertState.setAlert("alert-warning", "Невозможно выполнить операцию");
-    } else {
-      getUsers();
-    }
+    console.log(response);
+    getUsers();
   } catch (error: any) {
+    alertState.setAlert("alert-warning", "Невозможно выполнить операцию");
     console.error(error);
   }
 }
 
 async function submitUser(): Promise<void> {
   try {
-    const response = await axiosAuth.post(
+    const fetchAuth = useFetchAuth();
+    const response = await fetchAuth(
       `${server}/users`,
       dataUsers.value.form
     );
-    if (response.status === 205) {
-      alertState.setAlert("alert-warning", "Пользователь уже существует");
-    } else {
-      alertState.setAlert("alert-success", "Пользователь успешно создан");
-    }
+    console.log(response);
+    alertState.setAlert("alert-success", "Пользователь успешно создан");
     cancelOperations();
     getUsers();
   } catch (error) {
+    alertState.setAlert("alert-warning", "Возможно, пользователь уже существует");
     console.error(error);
   }
 }

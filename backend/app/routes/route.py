@@ -159,19 +159,18 @@ def post_user():
             select(Users).filter(Users.username == json_dict.get("username"))
         ).all()
         if user:
-            return "", 205
-        json_dict["role"] = Roles.guest.value
-        json_dict["region"] = Regions.main.value
-        json_dict["passhash"] = generate_password_hash(
-            current_app.config["DEFAULT_PASSWORD"]
-        )
-        db_session.add(Users(**json_dict))
-        db_session.commit()
-        return "", 201
-
+            json_dict["role"] = Roles.guest.value
+            json_dict["region"] = Regions.main.value
+            json_dict["passhash"] = generate_password_hash(
+                current_app.config["DEFAULT_PASSWORD"]
+            )
+            db_session.add(Users(**json_dict))
+            db_session.commit()
+            return "", 201
+        return abort(400)
     except Exception as e:
         print(e)
-        return "", 400
+        return abort(400)
 
 
 @bp.get("/users/<int:user_id>")
