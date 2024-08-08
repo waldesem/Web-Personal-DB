@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import { defineAsyncComponent, reactive, ref } from "vue";
-import { stateAlert, server } from "@/state";
+import { stateAlert, prefix } from "@/state";
 import { router } from "@/router";
 
 const HeaderDiv = defineAsyncComponent(
@@ -39,7 +39,7 @@ async function submitLogin(): Promise<void> {
 
   try {
     const response = await axios.post(
-      `${server}/login/${loginAction.value}`,
+      `${prefix}/login/${loginAction.value}`,
       loginForm
     );
     switch (response.status) {

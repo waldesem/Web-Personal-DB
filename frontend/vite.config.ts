@@ -18,7 +18,17 @@ export default defineConfig({
       },
     ],
   },
-  base: "./",
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:5000/api",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        secure: false,
+        ws: true,
+      }
+    }
+  },
   build: {
     outDir: "../backend/app/static",
     emptyOutDir: true,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
+import { useFetchAuth } from "@/utils/auth";
 
 const AnketaTab = resolveComponent('TabsAnketaTab');
 const CheckTab = resolveComponent('TabsCheckTab');
@@ -17,15 +18,9 @@ const userState = stateUser();
 onBeforeMount(async () => {
   anketaState.share.value.candId = route.params.id as string;
   try {
-    const { data } = await useLazyFetch(
+    const authFetch = useFetchAuth();
+    const data = await authFetch(
       `${server}/profile/${anketaState.share.value.candId}`,
-      {
-        onRequest({request, options}) {
-          options.headers = {
-            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
-          };
-        }
-      }
     );
     const resp = data as any;
     const anketaKeys = Object.keys(anketaState.anketa.value);

@@ -3,8 +3,7 @@ import { axiosAuth } from "@/auth";
 import { router } from "@/router";
 import * as interfaces from "@/interfaces";
 
-// export const server = "http://localhost:5000";
-export const server = "";
+export const prefix = "/api";
 
 export const stateUser = {
   user: reactive({
@@ -15,7 +14,7 @@ export const stateUser = {
   }),
   async getCurrentUser(): Promise<void> {
     try {
-      const auth = await axiosAuth.get(`${server}/auth`);
+      const auth = await axiosAuth.get(`${prefix}/auth`);
       const user = auth.data;
       Object.assign(this.user, {
         userId: user["id"],
@@ -48,7 +47,7 @@ export const stateClassify = {
 
   async getClassify(): Promise<void> {
     try {
-      const classes = await axiosAuth.get(`${server}/classes`);
+      const classes = await axiosAuth.get(`${prefix}/classes`);
       const resp = classes.data;
       const classifyKeys = Object.keys(this.classes);
       for (let i = 0; i < classifyKeys.length; i++) {
@@ -101,7 +100,7 @@ export const statePersons = {
     }
     try {
       const response = await axiosAuth.get(
-        `${server}/index/${this.persons.page}`,
+        `${prefix}/index/${this.persons.page}`,
         {
           params: {
             search: this.persons.search,
@@ -151,7 +150,7 @@ export const stateAnketa = {
     }
     try {
       const response = await axiosAuth.get(
-        `${server}/${item}/${this.share.candId}`,
+        `${prefix}/${item}/${this.share.candId}`,
         {
           params: {
             action: action,
@@ -168,7 +167,7 @@ export const stateAnketa = {
   },
 
   async getImage() {
-    const image = await axiosAuth.get(`${server}/image`, {
+    const image = await axiosAuth.get(`${prefix}/image`, {
       params: {
         image: this.anketa.persons.destination,
       },
@@ -181,7 +180,7 @@ export const stateAnketa = {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
     try {
       const response = await axiosAuth.get(
-        `${server}/region/${this.share.candId}`,
+        `${prefix}/region/${this.share.candId}`,
         {
           params: {
             region: this.anketa.persons["region"],
@@ -198,7 +197,7 @@ export const stateAnketa = {
   async updateItem(param: string, form: Object): Promise<void> {
     try {
       const response = await axiosAuth.post(
-        `${server}/${param}/${this.share.candId}`,
+        `${prefix}/${param}/${this.share.candId}`,
         form
       );
       console.log(response.status);
@@ -212,7 +211,7 @@ export const stateAnketa = {
   async deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
     try {
-      const response = await axiosAuth.delete(`${server}/${param}/${id}`);
+      const response = await axiosAuth.delete(`${prefix}/${param}/${id}`);
       console.log(response.status);
       param === "persons"
         ? router.push({ name: "persons" })
@@ -234,7 +233,7 @@ export const stateAnketa = {
       }
       try {
         const response = await axiosAuth.post(
-          `${server}/file/${param}/${itemId}`,
+          `${prefix}/file/${param}/${itemId}`,
           formData
         );
         console.log(response.status);
@@ -261,7 +260,7 @@ export const stateAnketa = {
   async submitResume(action: string, form: Object): Promise<void> {
     if (action == "create") {
       try {
-        const response = await axiosAuth.post(`${server}/resume`, form);
+        const response = await axiosAuth.post(`${prefix}/resume`, form);
         const { person_id } = response.data;
         router.push({ name: "profile", params: { id: person_id } });
         stateAlert.setAlert("alert-success", "Данные успешно добавлены");

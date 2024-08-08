@@ -3,7 +3,7 @@ import { computed, defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { axiosAuth } from "@/auth";
 import { debounce } from "@/utilities";
 import { User } from "@/interfaces";
-import { stateAlert, stateClassify, server } from "@/state";
+import { stateAlert, stateClassify, prefix } from "@/state";
 import { AxiosError } from "axios";
 
 const HeaderDiv = defineAsyncComponent(
@@ -51,7 +51,7 @@ const dataUsers = ref({
 
 async function getUsers() {
   try {
-    const response = await axiosAuth.get(`${server}/users`, {
+    const response = await axiosAuth.get(`${prefix}/users`, {
       params: {
         search: dataUsers.value.search,
       },
@@ -76,7 +76,7 @@ async function userAction(item: String): Promise<void> {
   }
   try {
     const response = await axiosAuth.get(
-      `${server}/users/${dataUsers.value.profile.id}`,
+      `${prefix}/users/${dataUsers.value.profile.id}`,
       {
         params: {
           item: item,
@@ -96,7 +96,7 @@ async function userAction(item: String): Promise<void> {
 async function submitUser(): Promise<void> {
   try {
     const response = await axiosAuth.post(
-      `${server}/users`,
+      `${prefix}/users`,
       dataUsers.value.form
     );
     if (response.status === 205) {

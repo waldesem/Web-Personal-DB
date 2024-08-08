@@ -25,30 +25,30 @@ async function submitLogin(): Promise<void> {
     }
   }
   try {
-    const { data, status } = await useLazyFetch(
-      `${server}/login/${loginAction.value}`, {
-        method: "POST",
-        body: loginForm
-      }
-    );
-    switch (status.value as unknown as number) {
-      case 201:
-        loginAction.value = "create";
-        alertState.setAlert("alert-success", "Войдите с новым паролем");
-        break;
-
-      case 200:
-        const { user_token } = data.value as { user_token: string };
+    const data = await $fetch(`${server}/login/${loginAction.value}`, {
+      method: "POST",
+      body: loginForm,
+    });
+    const { message } = data as { message: string };
+    switch (message) {
+      case "Success":
+        const { user_token } = data as { user_token: string };
         localStorage.setItem("user_token", user_token);
         await userState.getCurrentUser();
         break;
 
-      case 205:
+      case "Updated":
+        loginAction.value = "create";
+        alertState.setAlert("alert-success", "Войдите с новым паролем");
+        break;
+
+      case "Denied":
         loginAction.value = "update";
-        alertState.setAlert(
-          "alert-warning",
-          "Пароль просрочен. Измените пароль"
-        );
+        alertState.setAlert("alert-warning", "Пароль просрочен");
+        break;
+
+      default:
+        alertState.setAlert("alert-warning", "Неправильный логин или пароль");
         break;
     }
   } catch (error) {

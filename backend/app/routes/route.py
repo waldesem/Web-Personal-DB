@@ -39,7 +39,7 @@ from ..handlers.handler import (
     make_destination,
 )
 
-bp = Blueprint("route", __name__)
+bp = Blueprint("route", __name__, url_prefix="/api")
 
 
 @bp.get("/auth")
@@ -83,7 +83,7 @@ def post_login(action):
         else:
             user.blocked = True
         db_session.commit()
-        return abort(400)
+        return {"message": "Invalid"}, 200
 
     if action == "update":
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
@@ -92,8 +92,8 @@ def post_login(action):
             user.change_pswd = False
             user.attempt = 0
             db_session.commit()
-            return "", 201
-        return "", 205
+            return {"message": "Updated"}, 201
+        return {"message": "Invalid"}, 200
 
     delta_change = datetime.now() - user.pswd_create
     if not user.change_pswd and delta_change.days < 365:
@@ -101,11 +101,12 @@ def post_login(action):
             user.attempt = 0
             db_session.commit()
         return jsonify(
-            {
+            {   
+                "message": "Success",
                 "user_token": create_token(user),
             }
         ), 200
-    return "", 205
+    return {"message": "Denied"}, 200
 
 
 @bp.get("/users")

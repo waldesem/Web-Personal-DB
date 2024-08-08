@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { stateUser, stateAnketa, stateClassify, server } from "@/state";
+import { stateUser, stateAnketa, stateClassify, prefix } from "@/state";
 import { useRoute } from "vue-router";
 import { axiosAuth } from "@/auth";
 
@@ -31,7 +31,7 @@ onBeforeMount(async () => {
   stateAnketa.share.candId = route.params.id as string;
   try {
     const response = await axiosAuth.get(
-      `${server}/profile/${stateAnketa.share.candId}`
+      `${prefix}/profile/${stateAnketa.share.candId}`
     );
     const resp = response.data;
     const anketaKeys = Object.keys(stateAnketa.anketa);

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import { server, stateClassify, stateUser } from "@/state/state";
+import { useFetchAuth } from "@/utils/auth";
 
 const classifyState = stateClassify();
 const userState = stateUser();
@@ -17,12 +18,8 @@ const tableData = ref({
 
 async function submitData(): Promise<void> {
   try {
-    const { data } = await useLazyFetch(`${server}/information`, {
-      onRequest({request, options}) {
-          options.headers = {
-            Authorization: `Bearer ${localStorage.getItem("user_token")}`,
-          };
-        },
+    const authFetch = useFetchAuth();
+    const data = await authFetch(`${server}/information`, {
       params: {
         start: tableData.value.start,
         end: tableData.value.end,

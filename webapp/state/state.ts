@@ -16,7 +16,7 @@ export const stateUser = () => {
   async function getCurrentUser(): Promise<void> {
     try {
       const authFetch = useFetchAuth();
-      const response = authFetch(`${server}/auth`);
+      const response = authFetch(`/auth`);
       const data = (await response) as Record<string, any>;
       Object.assign(user.value, {
         auth: true,

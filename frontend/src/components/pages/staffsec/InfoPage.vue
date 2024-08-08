@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, defineAsyncComponent } from "vue";
-import { stateClassify, stateUser, server } from "@/state";
+import { stateClassify, stateUser, prefix } from "@/state";
 import { axiosAuth } from "@/auth";
 import { AxiosError } from "axios";
 
@@ -30,7 +30,7 @@ const tableData = ref({
 
 async function submitData(): Promise<void> {
   try {
-    const response = await axiosAuth.get(`${server}/information`, {
+    const response = await axiosAuth.get(`${prefix}/information`, {
       params: {
         start: tableData.value.start,
         end: tableData.value.end,
