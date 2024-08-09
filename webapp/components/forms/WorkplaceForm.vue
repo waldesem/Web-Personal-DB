@@ -26,65 +26,50 @@ function submitWorkplace() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitWorkplace"
-    class="form form-check"
-  > 
-    <ElementsLabelSlot :label="'Текущая работа'">
-    <ElementsSwitchBox
-        :name="'now_work'"
+  <UForm class="mt-4" @submit.prevent="submitWorkplace"> 
+    <UFormGroup class="mb-3" size="md" label="Текущая работа">
+      <UCheckbox
         v-model="workForm['now_work']"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Начало работы'">
-      <ElementsInputElement
-        :name="'start_date'"
-        :need="true"
-        :place="'Начало работы'"
-        :typeof="'date'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Начало работы" required>
+      <UInput
         v-model="workForm['starts']"
+        placeholder="Начало работы"
+        type="date"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot
-      v-if="!workForm['now_work']" 
-      :label="'Окончание работы'">
-      <ElementsInputElement
-        :name="'end_date'"
-        :place="'Окончание работы'"
-        :typeof="'date'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Окончание работы">
+      <UInput
         v-model="workForm['finished']"
+        placeholder="Окончание работы"
+        type="date"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Место работы'">
-      <ElementsInputElement
-        :name="'workplace'"
-        :place="'Место работы'"
-        :need="true"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Место работы" required>
+      <UInput
         v-model="workForm['workplace']"
+        placeholder="Место работы"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Должность'">
-      <ElementsInputElement
-        :name="'position'"
-        :place="'Должность'"
-        :need="true"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Должность" required>
+      <UInput
         v-model="workForm['position']"
+        placeholder="Должность"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Адрес организации'">
-      <ElementsInputElement
-        :name="'address'"
-        :place="'Адрес организации'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Адрес организации">
+      <UInput
         v-model="workForm['addresses']"
+        placeholder="Адрес организации"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Причина увольнения'">
-      <ElementsInputElement
-        :name="'reason'"
-        :place="'Причина увольнения'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Причина увольнения">
+      <UInput
         v-model="workForm['reason']"
+        placeholder="Причина увольнения"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
-  </form>
+  </UForm>
 </template>

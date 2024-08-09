@@ -27,27 +27,19 @@ function submitAddress() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitAddress"
-    class="form form-check"
-  >
-    <ElementsLabelSlot :label="'Вид адреса'">
-      <ElementsSelectDiv
-        :name="'view'"
-        :select="classifyState.classes.value.addresses"
+  <UForm class="mt-4" @submit.prevent="submitAddress">
+    <UFormGroup class="mb-3" size="md" label="Вид адреса">
+      <USelect
         v-model="addressForm['view']"
+        :options="classifyState.classes.value.addresses"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot
-      :label="'Адрес'"
-    >
-      <ElementsInputElement
-        :name="'address'"
-        :place="'Адрес'"
-        :need="true"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Адрес" required>
+      <UInput
         v-model="addressForm['addresses']"
+        placeholder="Адрес"
       />
-    </ElementsLabelSlot>
-    <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+    </UFormGroup>
+    <ElementsBtnGroup @cancel="emit('cancel')" />
+  </UForm>
 </template>

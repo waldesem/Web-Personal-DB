@@ -27,33 +27,25 @@ function submitAffilation() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitAffilation"
-    class="form form-check"
-  >
-    <ElementsLabelSlot :label="'Тип участия'">
-      <ElementsSelectDiv
-        :name="'view'"
-        :select="classifyState.classes.value.affilations"
+  <UForm class="mt-4" @submit.prevent="submitAffilation">
+    <UFormGroup class="mb-3" size="md" label="Тип участия">
+      <USelect
         v-model="affilationForm['view']"
+        :options="classifyState.classes.value.affilations"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Организация'">
-      <ElementsInputElement
-        :name="'name'"
-        :place="'Организация'"
-        :need="true"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Организация" required>
+      <UInput
         v-model="affilationForm['organization']"
+        placeholder="Организация"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'ИНН'">
-      <ElementsInputElement
-        :name="'inn'"
-        :place="'ИНН'"
-        :pattern="'[0-9]{12}'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="ИНН" required>
+      <UInput
         v-model="affilationForm['inn']"
+        placeholder="ИНН"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
-  </form>
+  </UForm>
 </template>
