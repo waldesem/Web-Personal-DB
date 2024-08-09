@@ -4,14 +4,10 @@ const alertState = stateAlert();
 </script>
 
 <template>
-  <div
+  <UAlert
     v-show="alertState.alertMessage.value.show"
-    class="alert"
-    role="alert"
-    fade
-    show
-    :class="alertState.alertMessage.value.attr"
-  >
-    {{ alertState.alertMessage.value.text }}
-  </div>
+    :color="alertState.alertMessage.value.attr"
+    :title="alertState.alertMessage.value.title"
+    :description="alertState.alertMessage.value.text"
+    />
 </template>

@@ -10,7 +10,6 @@ const loginAction = ref("create");
 const loginForm = reactive(<Record<string, unknown>>{});
 
 async function submitLogin(): Promise<void> {
-  showPswd.value = false;
   if (loginAction.value === "update") {
     if (loginForm["passhash"] === loginForm["new_pswd"]) {
       alertState.setAlert("alert-warning", "Старый и новый пароли совпадают");
@@ -31,116 +30,113 @@ async function submitLogin(): Promise<void> {
     });
     const { message } = data as { message: string };
     switch (message) {
-      case "Success":
-        { const { user_token } = data as { user_token: string };
+      case "Success": {
+        const { user_token } = data as { user_token: string };
         localStorage.setItem("user_token", user_token);
         await userState.getCurrentUser();
-        break; }
+        break;
+      }
 
       case "Updated":
         loginAction.value = "create";
-        alertState.setAlert("alert-success", "Войдите с новым паролем");
+        alertState.setAlert("green", "Войдите с новым паролем");
         break;
 
       case "Denied":
         loginAction.value = "update";
-        alertState.setAlert("alert-warning", "Пароль просрочен");
+        alertState.setAlert("purple", "Пароль просрочен");
         break;
 
       default:
-        alertState.setAlert("alert-warning", "Неправильный логин или пароль");
+        alertState.setAlert("red", "Неправильный логин или пароль");
         break;
     }
   } catch (error: unknown) {
     console.error(error);
-    alertState.setAlert("alert-warning", "Неправильный логин или пароль");
+    alertState.setAlert("red", "Неправильный логин или пароль");
   }
+  showPswd.value = false;
 }
 </script>
 
 <template>
-  <div class="container pt-5">
-    <DivsAlertMessage />
-    <ElementsHeaderDiv
-      :cls="'text-danger py-3'"
-      :page-header="'StaffSec - кадровая безопасность'"
-    />
-    <div class="border border-primary rounded p-5">
-      <ElementsHeaderDiv
-        :cls="'text-primary mb-3 text-center'"
-        :page-header="
-          loginAction === 'create' ? 'Вход в систему' : 'Изменить пароль'
-        "
-      />
-      <form class="form form-check" @submit.prevent="submitLogin">
-        <div class="mb-3">
-          <ElementsInputElement
-            :need="true"
-            :name="'username'"
-            :place="'Логин'"
-            v-model="loginForm['username']"
-          />
-        </div>
-        <div class="input-group mb-3">
-          <input
-            :name="'password'"
-            id="password"
-            :type="!showPswd ? 'password' : 'text'"
-            class="form-control"
-            placeholder="Пароль"
-            required
-            v-model="loginForm['password']"
-          />
-          <button
-            class="btn btn-outline-primary"
-            type="button"
-            :title="!showPswd ? 'Показать' : 'Скрыть'"
-            @click="showPswd = !showPswd"
-          >
-            <i v-if="!showPswd" class="bi bi-eye"></i>
-            <i v-else class="bi bi-eye-slash"></i>
-          </button>
-        </div>
-        <div v-if="loginAction === 'update'">
-          <div class="mb-3">
-            <ElementsInputElement
-              :need="true"
-              :name="'new_pswd'"
-              :place="'Новый пароль'"
-              :min="8"
-              :max="16"
-              :typeof="!showPswd ? 'password' : 'text'"
-              v-model="loginForm['new_pswd']"
+  <UContainer class="flex justify-center py-5">
+    <div>
+      <DivsAlertMessage />
+      <div class="py-5">
+        <h3 class="text-2xl text-opacity-75 text-red-600 font-bold">
+          StaffSec - кадровая безопасность
+        </h3>
+      </div>
+      <div class="border border-red-600 rounded-md p-5">
+        <h3 class="text-xl text-opacity-75 text-red-600 font-bold">
+          {{ loginAction === "create" ? "Вход в систему" : "Изменить пароль" }}
+        </h3>
+        <UForm class="mt-4" @submit.prevent="submitLogin">
+          <UFormGroup class="mb-3" size="md" label="Логин" required>
+            <UInput
+              placeholder="username"
+              icon="i-bi-person"
+              v-model="loginForm['username']"
             />
+          </UFormGroup>
+          <UFormGroup class="mb-3" size="md" label="Пароль" required>
+            <UButtonGroup size="md" orientation="horizontal">
+              <UInput
+                :type="!showPswd ? 'password' : 'text'"
+                placeholder="password"
+                icon="i-bi-lock"
+                v-model="loginForm['password']"
+              />
+              <UButton
+                :title="!showPswd ? 'Показать' : 'Скрыть'"
+                :icon="showPswd ? 'i-bi-eye-slash' : 'i-bi-eye'"
+                color="gray"
+                @click="showPswd = !showPswd"
+              />
+            </UButtonGroup>
+          </UFormGroup>
+          <div v-if="loginAction === 'update'">
+            <UFormGroup class="mb-3" size="md" label="Новый пароль" required>
+              <UInput
+                :type="!showPswd ? 'password' : 'text'"
+                placeholder="password"
+                v-model="loginForm['new_pswd']"
+              />
+            </UFormGroup>
+            <UFormGroup class="mb-3" size="md" label="Повтор пароля" required>
+              <UInput
+                :type="!showPswd ? 'password' : 'text'"
+                placeholder="password"
+                v-model="loginForm['conf_pswd']"
+              />
+            </UFormGroup>
           </div>
-          <div class="mb-3">
-            <ElementsInputElement
-              :need="true"
-              :name="'conf_pswd'"
-              :place="'Повтор пароля'"
-              :typeof="!showPswd ? 'password' : 'text'"
-              v-model="loginForm['conf_pswd']"
+          <UButtonGroup class="mt-3" size="md" orientation="horizontal">
+            <UButton
+              label="Принять"
+              color="green"
+              variant="outline"
+              type="submit"
             />
-          </div>
-        </div>
-        <div class="row mb-3 col-lg-9">
-          <a
-            v-show="loginAction === 'create'"
-            class="link-primary mb-2"
-            href="#"
-            @click="loginAction = 'update'"
-          >
-            Изменить пароль
-          </a>
-        </div>
-        <ElementsBtnGroup
-          :offset="false"
-          :submit-btn="loginAction === 'create' ? 'Войти' : 'Изменить'"
-          @cancel="loginAction = 'create'"
-        />
-      </form>
+            <UButton
+              v-show="loginAction === 'create'"
+              label="Изменить"
+              color="blue"
+              variant="outline"
+              @click="loginAction = 'update'"
+            />
+            <UButton
+              label="Отмена"
+              color="red"
+              variant="outline"
+              @click="loginAction = 'create'"
+            />
+          </UButtonGroup>
+        </UForm>
+      </div>
     </div>
-  </div>
+  </UContainer>
 </template>
 
 <style scoped>

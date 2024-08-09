@@ -102,20 +102,20 @@ function cancelOperations() {
     />
     <div class="row mb-3">
       <input
-        @input.prevent="searching"
+        id="search"
+        v-model="dataUsers.search"
         class="form-control mb-3"
         name="search"
-        id="search"
         type="text"
         placeholder="Поиск по имени пользователя"
-        v-model="dataUsers.search"
-      />
+        @input.prevent="searching"
+      >
     </div>
     <div class="d-flex justify-content-between">
       <ElementsSwitchBox
+        v-model="dataUsers.viewDeleted"
         :name="'viewDeleted'"
         :label="'Показать удаленные'"
-        v-model="dataUsers.viewDeleted"
       />
       <div class="dropdown">
         <button
@@ -126,23 +126,23 @@ function cancelOperations() {
           Добавить пользователя
         </button>
         <div class="dropdown-menu">
-          <form @submit.prevent="submitUser" class="form form-check">
+          <form class="form form-check" @submit.prevent="submitUser">
             <div class="p-3">
               <div class="mb-3">
                 <ElementsInputElement
+                  v-model="dataUsers.form['fullname']"
                   :name="'fullname'"
                   :place="'Имя пользователя'"
                   :need="true"
-                  v-model="dataUsers.form['fullname']"
                 />
               </div>
               <div class="mb-3">
                 <ElementsInputElement
+                  v-model="dataUsers.form['username']"
                   :name="'username'"
                   :place="'Учетная запись'"
                   :pattern="'[a-z_]+'"
                   :need="true"
-                  v-model="dataUsers.form['username']"
                 />
               </div>
               <ElementsBtnGroup :offset="false" />
@@ -152,7 +152,7 @@ function cancelOperations() {
       </div>
     </div>
     <ElementsTableSlots :tbl-class="'table align-middle'">
-      <template v-slot:thead>
+      <template #thead>
         <tr>
           <th width="5%">#</th>
           <th>Имя пользователя</th>
@@ -163,15 +163,15 @@ function cancelOperations() {
           <th width="20%">Регион</th>
         </tr>
       </template>
-      <template v-slot:tbody>
+      <template #tbody>
         <tr>
           <td colspan="7">
             <ElementsTableSlots
               id="overflow"
               :tbl-class="'table table-hover align-middle no-bottom-border'"
             >
-              <template v-slot:tbody>
-                <tr height="50px" v-for="user in users" :key="user.id">
+              <template #tbody>
+                <tr v-for="user in users" :key="user.id" height="50px">
                   <td width="5%">{{ user.id }}</td>
                   <td>{{ user.fullname }}</td>
                   <td width="15%">
@@ -215,9 +215,9 @@ function cancelOperations() {
           :input-class="'col-7'"
           >
           <ElementsSelectDiv
+            v-model="dataUsers.profile.region"
             :name="'region'"
             :select="classifyState.classes.value.regions"
-            v-model="dataUsers.profile.region"
             @submit-data="userAction(dataUsers.profile.region)"
           />
         </ElementsLabelSlot>
@@ -227,9 +227,9 @@ function cancelOperations() {
           :input-class="'col-7'"
           >
           <ElementsSelectDiv
+            v-model="dataUsers.profile['role']"
             :name="'role'"
             :select="classifyState.classes.value.roles"
-            v-model="dataUsers.profile['role']"
             @submit-data="userAction(dataUsers.profile.role)"
           />
         </ElementsLabelSlot>
@@ -307,16 +307,16 @@ function cancelOperations() {
       </div>
       <div class="btn-group p-3" role="group">
         <button
-          @click="userAction('drop')"
           type="button"
           class="btn btn-outline-secondary"
+          @click="userAction('drop')"
         >
           Сбросить пароль
         </button>
         <button
-          @click="userAction('delete')"
           type="button"
           class="btn btn-outline-danger"
+          @click="userAction('delete')"
         >
           {{ dataUsers.profile.deleted ? "Восстановить" : "Отметить к удалению" }}
         </button>

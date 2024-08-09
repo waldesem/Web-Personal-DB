@@ -1,15 +1,24 @@
 <script setup lang="ts">
 const props = defineProps({
-  pageHeader: String,
+  pageHeader: {
+    type: String,
+    default: "",
+  },
   cls: {
     type: String,
-    default: "text-danger py-5",
+    default: "py-5",
+  },
+  clsHead: {
+    type: String,
+    default: "text-red-600",
   },
 });
 </script>
 
 <template>
-  <div class="text-opacity-85" :class="cls">
-    <h3>{{ props.pageHeader }}</h3>
+  <div :class="props.cls">
+    <h3 class="text-2xl text-opacity-75 font-bold" :class="props.clsHead">
+      {{ props.pageHeader }}
+    </h3>
   </div>
 </template>

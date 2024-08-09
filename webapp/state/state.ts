@@ -62,8 +62,9 @@ export const stateClassify = () => {
 
 export const stateAlert = () => {
   const alertMessage = useState("alertMessage", () => ({
-    attr: "",
-    text: "",
+    attr: "red",
+    title: "Внимание!",
+    text: "Обнаружена ошибка. Пожалуйста, обратитесь к разработчику.",
     show: false,
     timeOut: 0,
   }));
