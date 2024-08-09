@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   check: {
     type: Object as () => Verification,
-    default: {},
+    default: <Verification>({}),
   },
 });
 
@@ -51,7 +51,7 @@ watch(noNegative, () => {
 
 <template>
   <div class="p-3">
-    <form class="form form-check" role="form">
+    <form class="form form-check">
       <ElementsLabelSlot :label="'Негатива нет'">
         <ElementsSwitchBox
           :name="'noNegative'"
@@ -62,7 +62,6 @@ watch(noNegative, () => {
     <form
       @submit.prevent="submitCheck"
       class="form form-check"
-      role="form"
       id="checkFormId"
     >
       <ElementsLabelSlot :label="'Проверка по местам работы'">

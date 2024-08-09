@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   staff: {
     type: Object as () => Staff,
-    default: {},
+    default: <Staff>({}),
   },
 });
 
@@ -29,7 +29,6 @@ function submitStaff() {
   <form
     @submit.prevent="submitStaff"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Должность'">
       <ElementsInputElement

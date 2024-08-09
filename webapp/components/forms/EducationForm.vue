@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   education: {
     type: Object as () => Education,
-    default: {},
+    default: <Education>({}),
   },
 });
 
@@ -30,7 +30,6 @@ function submitEducation() {
   <form
     @submit.prevent="submitEducation"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Уровень образования'">
       <ElementsSelectDiv

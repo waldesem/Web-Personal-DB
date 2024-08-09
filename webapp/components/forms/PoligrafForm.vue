@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   poligraf: {
     type: Object as () => Pfo,
-    default: {},
+    default: <Pfo>({}),
   },
 });
 
@@ -30,7 +30,6 @@ function submitPoligraf() {
   <form
     @submit.prevent="submitPoligraf"
     class="form form-check p-3"
-    role="form"
   >
     <ElementsLabelSlot :label="'Тема проверки'">
       <ElementsSelectDiv

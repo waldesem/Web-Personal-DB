@@ -25,7 +25,6 @@ const searchPerson = debounce(() => {
 }, 500);
 
 function openProfile(person_id: string) {
-  const router = useRouter();
   navigateTo(`/profile/${person_id}`);
 }
 </script>
@@ -46,7 +45,7 @@ function openProfile(person_id: string) {
           class="text-primary fs-5"
           style="cursor: pointer"
           >Загрузить
-          <i class="bi bi-filetype-json fs-5"></i>
+          <i class="bi bi-filetype-json fs-5"/>
         </label>
         <FormsFileForm
           :accept="'.json'"
@@ -55,7 +54,7 @@ function openProfile(person_id: string) {
       </div>
     </div>
     <div class="row mb-3">
-      <form class="form form-check" role="form">
+      <form class="form form-check">
         <input
           @input.prevent="searchPerson"
           class="form-control"
@@ -64,7 +63,7 @@ function openProfile(person_id: string) {
           type="text"
           placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
           v-model="personState.persons.value.search"
-        />
+        >
       </form>
     </div>
     <ElementsTableSlots

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.min.css";
 
-// eslint-disable-next-line no-undef
 useHead({
   title: "StaffSec - кадровая безопасность",
   meta: [
@@ -14,7 +11,6 @@ useHead({
   script: [ { innerHTML: 'console.log(\'Hello world\')' } ]
 })
 
-// eslint-disable-next-line no-undef
 useSeoMeta({
   title: 'StaffSec - кадровая безопасность',
   ogTitle: 'StaffSec - кадровая безопасность',

@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   affils: {
     type: Object as () => Affilation,
-    default: {},
+    default: <Affilation>({}),
   },
 });
 
@@ -30,7 +30,6 @@ function submitAffilation() {
   <form
     @submit.prevent="submitAffilation"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Тип участия'">
       <ElementsSelectDiv

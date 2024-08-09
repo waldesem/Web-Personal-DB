@@ -16,7 +16,6 @@ const emit = defineEmits(["submit"])
 <template>
   <form 
     class="form form-check" 
-    role="form" 
     @change="emit('submit', $event)" 
     enctype="multipart/form-data"
   >

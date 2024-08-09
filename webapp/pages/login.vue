@@ -7,7 +7,7 @@ const userState = stateUser();
 
 const showPswd = ref(false);
 const loginAction = ref("create");
-const loginForm = reactive(<Record<string, any>>{});
+const loginForm = reactive(<Record<string, unknown>>{});
 
 async function submitLogin(): Promise<void> {
   showPswd.value = false;
@@ -32,10 +32,10 @@ async function submitLogin(): Promise<void> {
     const { message } = data as { message: string };
     switch (message) {
       case "Success":
-        const { user_token } = data as { user_token: string };
+        { const { user_token } = data as { user_token: string };
         localStorage.setItem("user_token", user_token);
         await userState.getCurrentUser();
-        break;
+        break; }
 
       case "Updated":
         loginAction.value = "create";
@@ -51,7 +51,8 @@ async function submitLogin(): Promise<void> {
         alertState.setAlert("alert-warning", "Неправильный логин или пароль");
         break;
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error(error);
     alertState.setAlert("alert-warning", "Неправильный логин или пароль");
   }
 }
@@ -71,7 +72,7 @@ async function submitLogin(): Promise<void> {
           loginAction === 'create' ? 'Вход в систему' : 'Изменить пароль'
         "
       />
-      <form class="form form-check" role="form" @submit.prevent="submitLogin">
+      <form class="form form-check" @submit.prevent="submitLogin">
         <div class="mb-3">
           <ElementsInputElement
             :need="true"

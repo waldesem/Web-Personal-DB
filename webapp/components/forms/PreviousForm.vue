@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   previous: {
     type: Object as () => Previous,
-    default: {},
+    default: <Previous>({}),
   },
 });
 
@@ -29,7 +29,6 @@ function submitPrevious() {
   <form
     @submit.prevent="submitPrevious"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Фамилия'">
       <ElementsInputElement

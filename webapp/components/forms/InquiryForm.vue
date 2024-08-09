@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   inquiry: {
     type: Object as () => Needs,
-    default: {},
+    default: <Needs>({}),
   },
 });
 
@@ -29,7 +29,6 @@ function submitIquiry() {
   <form
     @submit.prevent="submitIquiry"
     class="form form-check p-3"
-    role="form"
   >
     <ElementsLabelSlot :label="'Информация'">
       <ElementsTextArea

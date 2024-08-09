@@ -6,12 +6,12 @@
  * @return {Function} - The debounced function
  */
 export function debounce(
-  func: (...args: any[]) => void,
+  func: (...args: unknown[]) => void,
   delay: number
-): (...args: any[]) => void {
+): (...args: unknown[]) => void {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
-  return function (this: any, ...args: any[]) {
+  return function (this: unknown, ...args: unknown[]) {
     if (timer) clearTimeout(timer);
 
     timer = setTimeout(() => {

@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   docs: {
     type: Object as () => Document,
-    default: {},
+    default: <Document>({}),
   },
 });
 
@@ -30,7 +30,6 @@ function submitDocument() {
   <form
     @submit.prevent="submitDocument"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Вид документа'">
       <ElementsSelectDiv

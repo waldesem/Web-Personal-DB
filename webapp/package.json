@@ -10,17 +10,19 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/eslint": "^0.5.0",
     "@nuxt/image": "^1.7.0",
-    "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
+    "@nuxt/ui": "^2.18.4",
+    "eslint-plugin-vue": "^9.27.0",
     "nuxt": "^3.12.4",
+    "nuxt-csurf": "^1.6.1",
+    "nuxt-security": "^2.0.0-rc.9",
     "vue": "latest"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
     "@types/node": "^22.1.0",
     "eslint": "^9.8.0",
-    "eslint-plugin-vue": "^9.27.0",
     "globals": "^15.9.0",
     "nuxt-purgecss": "^2.0.0",
     "typescript-eslint": "^8.0.1",

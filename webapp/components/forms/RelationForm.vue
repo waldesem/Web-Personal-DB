@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   relation: {
     type: Object as () => Relation,
-    default: {},
+    default: <Relation>({}),
   },
 });
 
@@ -30,7 +30,6 @@ function submitRelation() {
   <form
     @submit.prevent="submitRelation"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Тип связи'">
       <ElementsSelectDiv

@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   addrs: {
     type: Object as () => Address,
-    default: {},
+    default: <Address>({}),
   },
 });
 
@@ -30,7 +30,6 @@ function submitAddress() {
   <form
     @submit.prevent="submitAddress"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Вид адреса'">
       <ElementsSelectDiv

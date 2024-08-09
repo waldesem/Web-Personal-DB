@@ -1,5 +1,5 @@
 import { useFetchAuth } from "../utils/auth";
-import * as interfaces from "../utils/interfaces";
+import type * as interfaces from "../utils/interfaces";
 
 export const server = "/api";
 
@@ -16,7 +16,7 @@ export const stateUser = () => {
     try {
       const authFetch = useFetchAuth();
       const response = authFetch(`${server}/auth`);
-      const data = (await response) as Record<string, any>;
+      const data = (await response) as Record<string, unknown>;
       Object.assign(user.value, {
         auth: true,
         userId: data["id"],
@@ -27,7 +27,7 @@ export const stateUser = () => {
       const classifyState = stateClassify();
       await classifyState.getClassify();
       navigateTo("/persons");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
       navigateTo("/login");
     }
@@ -37,16 +37,16 @@ export const stateUser = () => {
 
 export const stateClassify = () => {
   const classes = useState(`${server}/classes`, () => ({
-    regions: <Record<string, any>>{},
-    conclusions: <Record<string, any>>{},
-    relations: <Record<string, any>>{},
-    affilations: <Record<string, any>>{},
-    educations: <Record<string, any>>{},
-    addresses: <Record<string, any>>{},
-    contacts: <Record<string, any>>{},
-    documents: <Record<string, any>>{},
-    poligrafs: <Record<string, any>>{},
-    roles: <Record<string, any>>{},
+    regions: <Record<string, unknown>>{},
+    conclusions: <Record<string, unknown>>{},
+    relations: <Record<string, unknown>>{},
+    affilations: <Record<string, unknown>>{},
+    educations: <Record<string, unknown>>{},
+    addresses: <Record<string, unknown>>{},
+    contacts: <Record<string, unknown>>{},
+    documents: <Record<string, unknown>>{},
+    poligrafs: <Record<string, unknown>>{},
+    roles: <Record<string, unknown>>{},
   }));
 
   async function getClassify(): Promise<void> {
@@ -117,7 +117,7 @@ export const statePersons = () => {
       persons.value.updated = `${new Date().toLocaleDateString(
         "ru-RU"
       )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
     }
   }
@@ -169,7 +169,7 @@ export const stateAnketa = () => {
       if (action === "self") {
         alertState.setAlert("alert-info", "Режим проверки включен/отключен");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
     }
   }
@@ -198,12 +198,12 @@ export const stateAnketa = () => {
       );
       console.log(response);
       getItem("persons");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
     }
   }
 
-  async function updateItem(param: string, form: Object): Promise<void> {
+  async function updateItem(param: string, form: object): Promise<void> {
     try {
       const authFetch = useFetchAuth();
       const response = await authFetch(
@@ -215,7 +215,7 @@ export const stateAnketa = () => {
       console.log(response);
       getItem(param);
       alertState.setAlert("alert-success", "Запись успешно добавлена");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
     }
   }
@@ -228,9 +228,11 @@ export const stateAnketa = () => {
         method: "DELETE",
       });
       console.log(response);
-      param === "persons" ? navigateTo("/persons") : getItem(param);
+      if (param === "persons") {
+        navigateTo("/persons") 
+      } else getItem(param);
       alertState.setAlert("alert-info", `Запись с ID ${id} удалена`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
     }
   }
@@ -243,7 +245,7 @@ export const stateAnketa = () => {
     const formData = new FormData();
     const inputElement = event.target as HTMLInputElement;
     if (inputElement && inputElement.files) {
-      for (let file of inputElement.files) {
+      for (const file of inputElement.files) {
         if (file.size < 1024 * 1024 * 2) {
           formData.append("file", file);
         }
@@ -270,7 +272,7 @@ export const stateAnketa = () => {
           "alert-success",
           "Файл или файлы успешно загружены"
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error(error);
       }
     } else {
@@ -278,7 +280,7 @@ export const stateAnketa = () => {
     }
   }
 
-  async function submitResume(action: string, form: Object): Promise<void> {
+  async function submitResume(action: string, form: object): Promise<void> {
     if (action == "create") {
       try {
         const authFetch = useFetchAuth();

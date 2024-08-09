@@ -14,7 +14,7 @@ async function removeToken(): Promise<void> {
     <div class="col-2 d-print-none">
       <div class="navbar navbar-expand sticky-top fs-5 p-3">
         <div class="nav flex-column">
-          <a class="nav-link text-danger fs-3 fw-bold">STAFFSEC FINTECH</a>
+          <a class="nav-link text-danger fs-3 fw-bold" href="/">STAFFSEC FINTECH</a>
           <hr class="text-info" />
           <NuxtLink to="/persons" class="nav-link active">
             Кандидаты

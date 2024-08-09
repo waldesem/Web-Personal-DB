@@ -15,11 +15,6 @@ export default defineNuxtConfig({
           children: "body { scrollbar-gutter: stable; }",
         },
       ],
-      script: [
-        {
-          src: "/js/bootstrap.bundle.min.js",
-        },
-      ],
       noscript: [
         {
           children: "An application doesn't work without JavaScript",
@@ -27,11 +22,6 @@ export default defineNuxtConfig({
       ]
     },
   },
-
-  // css: [
-  //   "bootstrap/dist/css/bootstrap.min.css",
-  //   "bootstrap-icons/font/bootstrap-icons.min.css",
-  // ],
 
   alias: {
     "@/": fileURLToPath(new URL("./src", import.meta.url)),
@@ -57,5 +47,17 @@ export default defineNuxtConfig({
     }
   },
 
-  modules: ["@nuxt/image", "nuxt-purgecss"],
+  csurf: {
+    https: false,
+    methodsToProtect: ["POST"],
+  },
+
+  modules: [
+    "@nuxt/image",
+    "nuxt-purgecss",
+    "nuxt-security",
+    "nuxt-csurf",
+    "@nuxt/ui",
+    "@nuxt/eslint"
+  ],
 });

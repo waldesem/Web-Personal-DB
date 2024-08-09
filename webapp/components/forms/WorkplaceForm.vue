@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   work: {
     type: Object as () => Work,
-    default: {},
+    default: <Work>({}),
   },
 });
 
@@ -29,7 +29,6 @@ function submitWorkplace() {
   <form
     @submit.prevent="submitWorkplace"
     class="form form-check"
-    role="form"
   > 
     <ElementsLabelSlot :label="'Текущая работа'">
     <ElementsSwitchBox

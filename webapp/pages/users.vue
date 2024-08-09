@@ -20,10 +20,10 @@ const users = computed(() => {
 
 const dataUsers = ref({
   search: "",
-  users: <User[]>[],
-  profile: <User>{},
-  form: <User>{},
-  viewDeleted: false,
+  users: [] as User[],
+  profile: {} as User,
+  form: {} as User,
+  viewDeleted: false
 });
 
 async function getUsers() {
@@ -35,7 +35,7 @@ async function getUsers() {
       },
     });
     dataUsers.value.users = data as unknown as User[];
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
   }
 }
@@ -44,7 +44,7 @@ const searching = debounce(() => {
   getUsers();
 }, 500);
 
-async function userAction(item: String): Promise<void> {
+async function userAction(item: string): Promise<void> {
   if (item === "delete") {
     if (
       !confirm("Вы действительно хотите удалить/восстановить пользователя?")
@@ -64,7 +64,7 @@ async function userAction(item: String): Promise<void> {
     );
     console.log(response);
     getUsers();
-  } catch (error: any) {
+  } catch (error: unknown) {
     alertState.setAlert("alert-warning", "Невозможно выполнить операцию");
     console.error(error);
   }
@@ -126,7 +126,7 @@ function cancelOperations() {
           Добавить пользователя
         </button>
         <div class="dropdown-menu">
-          <form @submit.prevent="submitUser" class="form form-check" role="form">
+          <form @submit.prevent="submitUser" class="form form-check">
             <div class="p-3">
               <div class="mb-3">
                 <ElementsInputElement

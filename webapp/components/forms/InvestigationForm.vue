@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   investigation: {
     type: Object as () => Inquisition,
-    default: {},
+    default: <Inquisition>({}),
   },
 });
 
@@ -29,7 +29,6 @@ function submitInvestigations() {
   <form
     @submit.prevent="submitInvestigations"
     class="form form-check p-3"
-    role="form"
   >
     <ElementsLabelSlot :label="'Тема проверки'">
       <ElementsInputElement

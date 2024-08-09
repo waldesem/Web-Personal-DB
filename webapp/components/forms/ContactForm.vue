@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   contact: {
     type: Object as () => Contact,
-    default: {},
+    default: <Contact>({}),
   },
 });
 
@@ -40,7 +40,6 @@ const view = computed(() => {
   <form
     @submit.prevent="submitContact"
     class="form form-check"
-    role="form"
   >
     <ElementsLabelSlot :label="'Вид контакта'">
       <ElementsSelectDiv

@@ -12,7 +12,7 @@ const props = defineProps({
   },
   resume: {
     type: Object as () => Persons,
-    default: {},
+    default: <Persons>({}),
   },
 });
 
@@ -34,7 +34,7 @@ async function submitForm(): Promise<void> {
 </script>
 
 <template>
-  <form @submit.prevent="submitForm" class="form form-check" role="form">
+  <form @submit.prevent="submitForm" class="form form-check">
     <ElementsLabelSlot :label="'Фамилия'">
       <ElementsInputElement
         :need="true"
