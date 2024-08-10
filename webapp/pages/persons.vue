@@ -32,7 +32,7 @@ function openProfile(person_id: string) {
 <template>
   <LayoutsMenu>
     <div class="py-5">
-      <h3 class="text-2xl text-opacity-75 text-red-600 font-bold">
+      <h3 class="text-2xl text-opacity-75 text-red-800 font-bold">
         Кандидаты
       </h3>
     </div>

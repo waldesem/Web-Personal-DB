@@ -7,94 +7,82 @@ const userState = stateUser();
 async function removeToken(): Promise<void> {
   localStorage.removeItem("user_token");
 }
+
+const colors = [
+  { name: "system", value: "system" },
+  { name: "light", value: "light" },
+  { name: "dark", value: "dark" },
+  { name: "sepia", value: "sepia" },
+]
 </script>
 
 <template>
-  <div class="container-fluid row ps-3">
-    <div class="col-2 d-print-none">
-      <div class="navbar navbar-expand sticky-top fs-5 p-3">
-        <div class="nav flex-column">
-          <a class="nav-link text-danger fs-3 fw-bold" href="/">STAFFSEC FINTECH</a>
-          <hr class="text-info" >
-          <NuxtLink to="/persons" class="nav-link active">
-            Кандидаты
-          </NuxtLink>
-          <hr class="text-info" >
-          <NuxtLink
-            v-if="userState.user.value.role == classify.classes.value.roles['user']"
-            to="/resume"
-            class="nav-link active"
-          >
-            Создать
-          </NuxtLink>
-          <hr
-            v-if="userState.user.value.role == classify.classes.value.roles['user']"
-            class="text-info"
-          >
-          <NuxtLink to="/info" class="nav-link active">
-            Информация
-          </NuxtLink>
-          <hr class="text-info" >
-          <NuxtLink
-            v-if="userState.user.value.role == classify.classes.value.roles['admin']"
-            to="/users"
-            class="nav-link active"
-          >
-            Пользователи
-          </NuxtLink>
+  <header class="bg-background/75 backdrop-blur border-b -mb-px sticky top-0 z-50 border-gray-200 dark:border-gray-800">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between gap-3 h-[--header-height]">
+      <div class="lg:flex-1 flex items-center gap-1.5">
+        <h3 class="text-2xl text-opacity-75 text-primary font-bold">
+          STAFFSEC FINTECH
+        </h3>
+      </div>
+      <div class="items-center gap-x-8 hidden lg:flex">
+        <DivsAlertMessage />
+      </div>
+      <div class="flex items-center justify-end lg:flex-1 gap-1.5">
+        <div>
+          <USelect
+            v-model="$colorMode.preference"
+            :options="colors"
+          />
         </div>
       </div>
     </div>
-    <div id="staffsec" class="col-9">
-      <div class="sticky-top bg-white d-print-none p-3">
-        <div class="row">
-          <div class="col-10 text-center">
-            <DivsAlertMessage />
-          </div>
-          <div class="col-2 text-end">
-            <div class="dropdown">
-              <button
-                class="btn btn-link btn-lg dropdown-toggle"
-                style="text-decoration: none"
-                role="button"
-                data-bs-toggle="dropdown"
-              >
-                <i class="bi bi-person-circle"/>
-                {{ userState.user.value.username }}
-              </button>
-              <ul class="dropdown-menu">
-                <li class="dropdown-item">
-                  <NuxtLink
-                    to="/login"
-                    class="link-opacity-50-hover"
-                    @click="removeToken"
-                  >
-                    Выход
-                  </NuxtLink>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+  </header>
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+    <div class="flex flex-col lg:grid lg:grid-cols-10 lg:gap-8">
+      <div class="lg:col-span-2">
+        <NuxtLink to="/persons" class="nav-link active"> Кандидаты </NuxtLink>
+        <NuxtLink
+          v-if="
+            userState.user.value.role == classify.classes.value.roles['user']
+          "
+          to="/resume"
+          class="nav-link active"
+        >
+          Создать
+        </NuxtLink>
+        <NuxtLink to="/info" class="nav-link active"> Информация </NuxtLink>
+        <NuxtLink
+          v-if="
+            userState.user.value.role == classify.classes.value.roles['admin']
+          "
+          to="/users"
+          class="nav-link active"
+        >
+          Пользователи
+        </NuxtLink>
+        <NuxtLink
+          to="/login"
+          class="link-opacity-50-hover"
+          @click="removeToken"
+        >
+          Выход
+        </NuxtLink>
       </div>
-      <slot/>
+      <div class="lg:col-span-8">
+        <slot />
+      </div>
     </div>
-    <div class="col-1 d-print-none"/>
   </div>
-  <footer
-    id="footer"
-    class="d-flex justify-content-center border-top bg-white d-print-none"
-  >
-    <p class="text-muted mt-2">© 2024 STAFFSEC FINTECH</p>
+  <footer class="relative">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8 lg:py-4 lg:flex lg:items-center lg:justify-between lg:gap-x-3">
+      <div class="mt-3 lg:mt-0 lg:order-2 flex items-center justify-center">
+        <p>2024 STAFFSEC FINTECH</p>
+      </div>
+    </div>
   </footer>
 </template>
 
 <style scoped>
-@media print {
-  #staffsec {
-    width: 100% !important;
-  }
-}
 #staffsec {
   padding-bottom: 5vh;
 }

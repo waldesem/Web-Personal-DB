@@ -12,12 +12,13 @@ const loginForm = reactive(<Record<string, unknown>>{});
 async function submitLogin(): Promise<void> {
   if (loginAction.value === "update") {
     if (loginForm["passhash"] === loginForm["new_pswd"]) {
-      alertState.setAlert("alert-warning", "Старый и новый пароли совпадают");
+      alertState.setAlert("purple", "Предупреждение", "Старый и новый пароли совпадают");
       return;
     }
     if (loginForm["conf_pswd"] !== loginForm["new_pswd"]) {
       alertState.setAlert(
-        "alert-warning",
+        "purple",
+        "Предупреждение",
         "Новый пароль и подтверждение не совпадают"
       );
       return;
@@ -39,21 +40,21 @@ async function submitLogin(): Promise<void> {
 
       case "Updated":
         loginAction.value = "create";
-        alertState.setAlert("green", "Войдите с новым паролем");
+        alertState.setAlert("green", "Продолжение", "Войдите с новым паролем");
         break;
 
       case "Denied":
         loginAction.value = "update";
-        alertState.setAlert("purple", "Пароль просрочен");
+        alertState.setAlert("purple", "Предупреждение", "Пароль просрочен");
         break;
 
       default:
-        alertState.setAlert("red", "Неправильный логин или пароль");
+        alertState.setAlert("red", "Внимание", "Неправильный логин или пароль");
         break;
     }
   } catch (error: unknown) {
     console.error(error);
-    alertState.setAlert("red", "Неправильный логин или пароль");
+    alertState.setAlert("red", "Внимание", "Неправильный логин или пароль");
   }
   showPswd.value = false;
 }
@@ -64,19 +65,19 @@ async function submitLogin(): Promise<void> {
     <div>
       <DivsAlertMessage />
       <div class="py-5">
-        <h3 class="text-2xl text-opacity-75 text-red-600 font-bold">
-          StaffSec - кадровая безопасность
+        <h3 class="text-2xl text-primary font-bold">
+          Кадровая безопасность
         </h3>
       </div>
       <div class="border border-red-600 rounded-md p-5">
-        <h3 class="text-xl text-opacity-75 text-red-600 font-bold">
+        <h3 class="text-xl text-opacity-75 text-red-800 font-bold">
           {{ loginAction === "create" ? "Вход в систему" : "Изменить пароль" }}
         </h3>
-        <UForm class="mt-4" @submit.prevent="submitLogin">
+        <UForm :state="loginForm" class="mt-4" @submit.prevent="submitLogin">
           <UFormGroup class="mb-3" size="md" label="Логин" required>
             <UInput
               placeholder="username"
-              icon="i-bi-person"
+              icon="i-heroicons-user"
               v-model="loginForm['username']"
             />
           </UFormGroup>
@@ -85,7 +86,7 @@ async function submitLogin(): Promise<void> {
               <UInput
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
-                icon="i-bi-lock"
+                icon="i-heroicons-lock-closed"
                 v-model="loginForm['password']"
               />
               <UButton
@@ -138,11 +139,3 @@ async function submitLogin(): Promise<void> {
     </div>
   </UContainer>
 </template>
-
-<style scoped>
-.container {
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-}
-</style>

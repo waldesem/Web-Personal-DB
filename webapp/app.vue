@@ -5,10 +5,6 @@ useHead({
   meta: [
     { name: 'description', content: 'Кадровая безопасность' }
   ],
-  bodyAttrs: {
-    class: 'test'
-  },
-  script: [ { innerHTML: 'console.log(\'Hello world\')' } ]
 })
 
 useSeoMeta({

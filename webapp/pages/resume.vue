@@ -2,7 +2,13 @@
 
 <template>
   <LayoutsMenu>
-  <ElementsHeaderDiv :page-header="'Создать анкету'"/>
-  <FormsResumeForm @cancel="navigateTo('/persons')"/>
+    <div class="py-5">
+      <h3 class="text-2xl text-opacity-75 text-red-800 font-bold">
+        Создать анкету
+      </h3>
+    </div>
+    <div class="border rounded m-3">
+      <FormsResumeForm @cancel="navigateTo('/persons')"/>
+    </div>
   </LayoutsMenu>
 </template>

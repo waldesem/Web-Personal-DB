@@ -25,7 +25,7 @@ const dataResume = ref({
 </script>
 
 <template>
-  <div v-if="dataResume.action" class="card card-body mb-3">
+  <div v-if="dataResume.action" class="cborder rounded m-3">
     <FormsResumeForm
       :action="dataResume.action"
       :resume="anketaState.anketa.value.persons"
@@ -37,7 +37,7 @@ const dataResume = ref({
   </div>
   <div
     v-else
-    class="card card-body mb-3"
+    class="border rounded m-3"
     @mouseover="dataResume.showActions = true"
     @mouseout="dataResume.showActions = false"
   >

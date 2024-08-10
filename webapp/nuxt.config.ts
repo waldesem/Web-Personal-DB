@@ -58,6 +58,7 @@ export default defineNuxtConfig({
     "nuxt-security",
     "nuxt-csurf",
     "@nuxt/ui",
-    "@nuxt/eslint"
+    "@nuxt/eslint",
+    "@nuxtjs/color-mode"
   ],
 });
