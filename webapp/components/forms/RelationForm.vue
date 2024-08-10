@@ -27,10 +27,20 @@ function submitRelation() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitRelation"
-    class="form form-check"
-  >
+  <UForm @submit.prevent="submitRelation">
+    <UFormGroup class="mb-3" size="md" label="Тип связи" required>
+      <USelect
+        v-model="relationForm['relation']"
+        :options="classifyState.classes.value.relations"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="ID связи" required>
+      <UInput
+        v-model="relationForm['relation_id']"
+        placeholder="ID связи"
+        type="number"
+      />
+    </UFormGroup>
     <ElementsLabelSlot :label="'Тип связи'">
       <ElementsSelectDiv
           :name="'relation'"
@@ -49,5 +59,5 @@ function submitRelation() {
       />
     </ElementsLabelSlot>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+  </UForm>
 </template>

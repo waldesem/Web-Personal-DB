@@ -16,7 +16,6 @@ const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
 const checkForm = toRef(props.check as Verification);
-
 const noNegative = ref(false);
 
 function submitCheck() {
@@ -50,127 +49,94 @@ watch(noNegative, () => {
 </script>
 
 <template>
-  <div class="p-3">
-    <form class="form form-check">
-      <ElementsLabelSlot :label="'Негатива нет'">
-        <ElementsSwitchBox
-          :name="'noNegative'"
-          v-model="noNegative"
-        />
-      </ElementsLabelSlot>
-    </form>
-    <form
-      @submit.prevent="submitCheck"
-      class="form form-check"
-      id="checkFormId"
-    >
-      <ElementsLabelSlot :label="'Проверка по местам работы'">
-        <ElementsTextArea
-          :name="'workplace'"
-          :place="'Проверка по местам работы'"
-          v-model="checkForm['workplace']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка документов'">
-        <ElementsTextArea
-          :name="'document'"
-          :place="'Проверка документов'"
-          v-model="checkForm['document']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка ИНН'">
-        <ElementsTextArea
-          :name="'inn'"
-          :place="'Проверка ИНН'"
-          v-model="checkForm['inn']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка задолженностей'">
-        <ElementsTextArea
-          :name="'debt'"
-          :place="'Проверка задолженностей'"
-          v-model="checkForm['debt']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка решений о признании банкротом'">
-        <ElementsTextArea
-          :name="'bankruptcy'"
-          :place="'Проверка решений о признании банкротом'"
-          v-model="checkForm['bankruptcy']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка кредитной истории'">
-        <ElementsTextArea
-          :name="'bki'"
-          :place="'Проверка кредитной истории'"
-          v-model="checkForm['bki']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка судебных дел'">
-        <ElementsTextArea
-          :name="'courts'"
-          :place="'Проверка судебных дел'"
-          v-model="checkForm['courts']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка аффилированности'">
-        <ElementsTextArea
-          :name="'affilation'"
-          :place="'Проверка аффилированности'"
-          v-model="checkForm['affilation']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка в списке террористов'">
-        <ElementsTextArea
-          :name="'terrorist'"
-          :place="'Проверка в списке террористов'"
-          v-model="checkForm['terrorist']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка в розыск'">
-        <ElementsTextArea
-          :name="'mvd'"
-          :place="'Проверка в розыск'"
-          v-model="checkForm['mvd']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка в открытых источниках'">
-        <ElementsTextArea
-          :name="'internet'"
-          :place="'Проверка в открытых источниках'"
-          v-model="checkForm['internet']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка в Кронос'">
-        <ElementsTextArea
-          :name="'cronos'"
-          :place="'Проверка в Кронос'"
-          v-model="checkForm['cronos']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Проверка в Крос'">
-        <ElementsTextArea
-          :name="'cros'"
-          :place="'Проверка в Крос'"
-          v-model="checkForm['cros']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Комментарии'">
-        <ElementsTextArea
-          :name="'comments'"
-          :place="'Комментарий'"
-          v-model="checkForm['comment']"
-        ></ElementsTextArea>
-      </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Результат'">
-        <ElementsSelectDiv
-          :name="'conclusion'"
-          :need="true"
-          :select="classifyState.classes.value.conclusions"
-          v-model="checkForm['conclusion']"
-        />
-      </ElementsLabelSlot>
-      <ElementsBtnGroup @cancel="emit('cancel')"/>
-    </form>
-  </div>
+  <UFormGroup class="mb-3" size="md" label="Негатива нет">
+    <UToggle v-model="noNegative"/>
+  </UFormGroup>
+  <UForm @submit.prevent="submitCheck">
+    <UFormGroup class="mb-3" size="md" label="Проверка по местам работы">
+      <UTextarea
+        v-model="checkForm['workplace']"
+        placeholder="Проверка по местам работы"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка документов">
+      <UTextarea
+        v-model="checkForm['document']"
+        placeholder="Проверка документов"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка ИНН">
+      <UTextarea
+        v-model="checkForm['inn']"
+        placeholder="Проверка ИНН"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка задолженностей">
+      <UTextarea
+        v-model="checkForm['debt']"
+        placeholder="Проверка задолженностей"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка банкротства">
+      <UTextarea
+        v-model="checkForm['bankruptcy']"
+        placeholder="Проверка банкротства"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка Кредитной истории">
+      <UTextarea
+        v-model="checkForm['bki']"
+        placeholder="Проверка Кредитной истории"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка судебных дел">
+      <UTextarea
+        v-model="checkForm['courts']"
+        placeholder="Проверка судебных дел"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка аффилированности">
+      <UTextarea
+        v-model="checkForm['affilation']"
+        placeholder="Проверка аффилированности"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка в списке террористов">
+      <UTextarea
+        v-model="checkForm['terrorist']"
+        placeholder="Проверка в списке террористов"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка в розыск">
+      <UTextarea
+        v-model="checkForm['mvd']"
+        placeholder="Проверка в розыск"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка в открытых источниках">
+      <UTextarea
+        v-model="checkForm['internet']"
+        placeholder="Проверка в открытых источниках"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Проверка в Кронос">
+      <UTextarea
+        v-model="checkForm['cronos']"
+        placeholder="Проверка в Кронос/Крос"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Комментарии">
+      <UTextarea
+        v-model="checkForm['comment']"
+        placeholder="Комментарии"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Результат">
+      <USelect
+        v-model="checkForm['conclusion']"
+        :options="classifyState.classes.value.conclusions"
+      />
+    </UFormGroup>
+    <ElementsBtnGroup @cancel="emit('cancel')"/>
+  </UForm>
 </template>

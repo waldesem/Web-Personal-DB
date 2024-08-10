@@ -26,7 +26,7 @@ function submitWorkplace() {
 </script>
 
 <template>
-  <UForm class="mt-4" @submit.prevent="submitWorkplace"> 
+  <UForm @submit.prevent="submitWorkplace"> 
     <UFormGroup class="mb-3" size="md" label="Текущая работа">
       <UCheckbox
         v-model="workForm['now_work']"

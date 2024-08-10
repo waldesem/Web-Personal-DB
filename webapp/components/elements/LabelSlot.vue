@@ -6,37 +6,22 @@ const props = defineProps({
   },
   labelClass: {
     type: String,
-    default: "col-3",
+    default: "text-md",
   },
   inputClass: {
     type: String,
-    default: "col-9 text-break",
+    default: "text-md break-words",
   }
 });
 </script>
 
 <template>
-  <div class="row mb-3">
+  <div class="row columns-2 mb-3">
     <div :class="props.labelClass">
       {{ props.label }}
     </div>
     <div :class="props.inputClass">
-      <slot></slot>
+      <slot/>
     </div>
   </div>
 </template>
-
-
-<style scoped>
-@media print {
-  .col-lg-3, .col-lg-9 {
-    float: left!important;
-  }
-  .col-lg-10 {
-    width: 70%;
-  }
-  .col-lg-2 {
-    width: 30%;
-  }
-}
-</style>

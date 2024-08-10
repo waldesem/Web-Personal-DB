@@ -26,26 +26,19 @@ function submitInvestigations() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitInvestigations"
-    class="form form-check p-3"
-  >
-    <ElementsLabelSlot :label="'Тема проверки'">
-      <ElementsInputElement
-        :name="'theme'"
-        :place="'Тема проверки'"
-        :need="true"
+  <UForm @submit.prevent="submitInvestigations">
+    <UFormGroup class="mb-3" size="md" label="Тема проверки" required>
+      <UInput
         v-model="investigationForm['theme']"
+        placeholder="Тема проверки"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Информация'">
-      <ElementsTextArea
-        :name="'info'"
-        :place="'Информация'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Информация" required>
+      <UTextarea
         v-model="investigationForm['info']"
-      >
-      </ElementsTextArea>
-    </ElementsLabelSlot>
+        placeholder="Информация"
+      />
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+  </UForm>
 </template>

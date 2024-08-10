@@ -27,26 +27,19 @@ function submitPoligraf() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitPoligraf"
-    class="form form-check p-3"
-  >
-    <ElementsLabelSlot :label="'Тема проверки'">
-      <ElementsSelectDiv
-        :name="'theme'"
-        :need="true"
-        :select="classifyState.classes.value.poligrafs"
+  <UForm @submit.prevent="submitPoligraf">
+    <UFormGroup class="mb-3" size="md" label="Тема проверки" required>
+      <USelect
         v-model="poligrafForm['theme']"
+        :options="classifyState.classes.value.poligrafs"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Результат'">
-      <ElementsTextArea
-        :name="'results'"
-        :place="'Результат'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Результат" required>
+      <UTextarea
         v-model="poligrafForm['results']"
-      >
-      </ElementsTextArea>
-    </ElementsLabelSlot>
+        placeholder="Результат"
+      />
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+  </UForm>
 </template>

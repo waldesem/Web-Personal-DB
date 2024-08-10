@@ -26,25 +26,19 @@ function submitIquiry() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitIquiry"
-    class="form form-check p-3"
-  >
-    <ElementsLabelSlot :label="'Информация'">
-      <ElementsTextArea
-        :name="'info'"
-        :place="'Информация'"
+  <UForm @submit.prevent="submitIquiry">
+    <UFormGroup class="mb-3" size="md" label="Информация" required>
+      <UInput
         v-model="inquiryForm['info']"
-      >
-      </ElementsTextArea>
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Инициатор'">
-      <ElementsInputElement
-        :name="'origins'"
-        :place="'Инициатор'"
-        v-model="inquiryForm['origins']"
+        placeholder="Информация"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Инициатор" required>
+      <UInput
+        v-model="inquiryForm['origins']"
+        placeholder="Инициатор"
+      />
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+  </UForm>
 </template>

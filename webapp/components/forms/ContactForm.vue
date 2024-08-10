@@ -37,26 +37,19 @@ const view = computed(() => {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitContact"
-    class="form form-check"
-  >
-    <ElementsLabelSlot :label="'Вид контакта'">
-      <ElementsSelectDiv
-        :name="'view'"
-        :select="classifyState.classes.value.contacts"
+  <UForm @submit.prevent="submitContact">
+    <UFormGroup class="mb-3" size="md" label="Вид контакта" required>
+      <USelect
         v-model="contactForm['view']"
+        :options="classifyState.classes.value.contacts"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Контакт'">
-      <ElementsInputElement
-        :name="'contact'"
-        :place="'Контакт'"
-        :typeof="view"
-        :need="true"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Контакт" required>
+      <UInput
         v-model="contactForm['contact']"
+        placeholder="Контакт"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+  </UForm>
 </template>

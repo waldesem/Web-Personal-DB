@@ -27,7 +27,7 @@ function submitAddress() {
 </script>
 
 <template>
-  <UForm class="mt-4" @submit.prevent="submitAddress">
+  <UForm @submit.prevent="submitAddress">
     <UFormGroup class="mb-3" size="md" label="Вид адреса">
       <USelect
         v-model="addressForm['view']"

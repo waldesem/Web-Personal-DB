@@ -26,49 +26,37 @@ function submitPrevious() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitPrevious"
-    class="form form-check"
-  >
-    <ElementsLabelSlot :label="'Фамилия'">
-      <ElementsInputElement
-          :need="true"
-          :name="'surname'"
-          :place="'Фамилия*'"
-          :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
-          v-model="previousForm['surname']"
+  <UForm @submit.prevent="submitPrevious">
+    <UFormGroup class="mb-3" size="md" label="Фамилия" required>
+      <UInput
+        v-model="previousForm['surname']"
+        placeholder="Фамилия"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Имя'">
-      <ElementsInputElement
-        :need="true"
-        :name="'firstname'"
-        :place="'Имя*'"
-        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Имя" required>
+      <UInput
         v-model="previousForm['firstname']"
+        placeholder="Имя"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Отчество'">
-      <ElementsInputElement
-        :name="'patronymic'"
-        :place="'Отчество'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Отчество">
+      <UInput
         v-model="previousForm['patronymic']"
+        placeholder="Отчество"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Год изменения'">
-      <ElementsInputElement
-        :name="'date_change'"
-        :place="'Год изменения'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Год изменения">
+      <UInput
         v-model="previousForm['changed']"
+        placeholder="Год изменения"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Причина изменения'">
-      <ElementsInputElement
-        :name="'reason'"
-        :place="'Причина изменения'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Причина изменения">
+      <UInput
         v-model="previousForm['reason']"
+        placeholder="Причина изменения"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+  </UForm>
 </template>

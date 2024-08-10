@@ -34,93 +34,73 @@ async function submitForm(): Promise<void> {
 </script>
 
 <template>
-  <form @submit.prevent="submitForm" class="form form-check">
-    <ElementsLabelSlot :label="'Фамилия'">
-      <ElementsInputElement
-        :need="true"
-        :name="'surname'"
-        :place="'Фамилия*'"
-        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+  <UForm @submit.prevent="submitForm">
+    <UFormGroup class="mb-3" size="md" label="Фамилия" required>
+      <UInput
         v-model="resumeForm['surname']"
+        placeholder="Фамилия"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Имя'">
-      <ElementsInputElement
-        :need="true"
-        :name="'firstname'"
-        :place="'Имя*'"
-        :pattern="'[А-Яа-яЁё\\-\'\\s]+'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Имя" required>
+      <UInput
         v-model="resumeForm['firstname']"
+        placeholder="Имя"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Отчество'">
-      <ElementsInputElement
-        :name="'patronymic'"
-        :place="'Отчество'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Отчество">
+      <UInput
         v-model="resumeForm['patronymic']"
+        placeholder="Отчество"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Дата рождения*'">
-      <ElementsInputElement
-        :need="true"
-        :name="'birthday'"
-        :place="'Дата рождения*'"
-        :typeof="'date'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Дата рождения" required>
+      <UInput
         v-model="resumeForm['birthday']"
+        type="date"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Место рождения'">
-      <ElementsInputElement
-        :name="'birthplace'"
-        :place="'Место рождения'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Место рождения" required>
+      <UTextarea
         v-model="resumeForm['birthplace']"
+        placeholder="Место рождения"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Гражданство'">
-      <ElementsInputElement
-        :name="'citizenship'"
-        :place="'Гражданство'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Гражданство">
+      <UInput
         v-model="resumeForm['citizenship']"
+        placeholder="Гражданство"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Двойное гражданство'">
-      <ElementsInputElement
-        :name="'dual'"
-        :place="'Двойное гражданство'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Двойное гражданство">
+      <UInput
         v-model="resumeForm['dual']"
+        placeholder="Двойное гражданство"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'СНИЛС'">
-      <ElementsInputElement
-        :name="'snils'"
-        :place="'СНИЛС'"
-        :pattern="'[0-9]{11}'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="СНИЛС">
+      <UInput
         v-model="resumeForm['snils']"
+        placeholder="СНИЛС"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'ИНН'">
-      <ElementsInputElement
-        :name="'inn'"
-        :place="'ИНН'"
-        :max="'12'"
-        :pattern="'[0-9]{12}'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="ИНН">
+      <UInput
         v-model="resumeForm['inn']"
+        placeholder="ИНН"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Семейное положение'">
-      <ElementsInputElement
-        :name="'marital'"
-        :place="'Семейное положение'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Семейное положение">
+      <UTextarea
         v-model="resumeForm['marital']"
+        placeholder="Семейное положение"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Дополнительно'">
-      <ElementsTextArea
-        :name="'addition'"
-        :place="'Дополнительно'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Дополнительно">
+      <UTextarea
         v-model="resumeForm['addition']"
-      ></ElementsTextArea>
-    </ElementsLabelSlot>
+        placeholder="Дополнительно"
+      />
+    </UFormGroup>
     <ElementsBtnGroup @cancel="cancelEdit" />
-  </form>
+  </UForm>
 </template>

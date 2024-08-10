@@ -26,25 +26,19 @@ function submitStaff() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitStaff"
-    class="form form-check"
-  >
-    <ElementsLabelSlot :label="'Должность'">
-      <ElementsInputElement
-        :name="'position'"
-        :place="'Должность'"
-        :need="true"
+  <UForm @submit.prevent="submitStaff">
+    <UFormGroup class="mb-3" size="md" label="Должность" required>
+      <UInput
         v-model="staffForm['position']"
+        placeholder="Должность"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Подразделение'">
-      <ElementsInputElement
-        :name="'department'"
-        :place="'Подразделение'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Подразделение">
+      <UInput
         v-model="staffForm['department']"
+        placeholder="Подразделение"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
-  </form>
+  </UForm>
 </template>

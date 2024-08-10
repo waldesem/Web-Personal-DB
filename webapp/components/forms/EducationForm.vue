@@ -27,40 +27,31 @@ function submitEducation() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitEducation"
-    class="form form-check"
-  >
-    <ElementsLabelSlot :label="'Уровень образования'">
-      <ElementsSelectDiv
-        :name="'type'"
-        :need="true"
-        :select="classifyState.classes.value.educations"
+  <UForm @submit.prevent="submitEducation">
+    <UFormGroup class="mb-3" size="md" label="Вид образования" required>
+      <USelect
         v-model="educationForm['view']"
+        :options="classifyState.classes.value.educations"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Название учебного заведения'">
-      <ElementsInputElement
-        :name="'name'"
-        :place="'Название учебного заведения'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Название учебного заведения" required>
+      <UInput
         v-model="educationForm['institution']"
+        placeholder="Название учебного заведения"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Год окончания'">
-      <ElementsInputElement
-        :name="'finish'"
-        :place="'Год окончания'"
-        :need="true"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Год окончания" required>
+      <UInput
         v-model="educationForm['finished']"
+        placeholder="Год окончания"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Специальность'">
-      <ElementsInputElement
-        :name="'specialty'"
-        :place="'Специальность'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Специальность" required>
+      <UInput
         v-model="educationForm['specialty']"
+        placeholder="Специальность"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
-  </form>
+  </UForm>
 </template>

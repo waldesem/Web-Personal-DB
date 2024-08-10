@@ -1,6 +1,9 @@
 <script setup lang="ts">
 const props = defineProps({
-  accept: String,
+  accept: {
+    type: String,
+    default: "*",
+  },
   nameId: {
     type: String,
     default: "file",
@@ -14,21 +17,16 @@ const emit = defineEmits(["submit"])
 </script>
 
 <template>
-  <form 
-    class="form form-check" 
-    @change="emit('submit', $event)" 
+  <UForm 
     enctype="multipart/form-data"
-  >
-    <input
+    @change="emit('submit', $event)" 
+    >
+    <UInput
       v-show="props.display"
-      class="form-control form-control-sm"
-      :class="props.display ? 'visible' : 'hidden'"
       :id="props.nameId"
-      :name="props.nameId"
       type="file"
       :accept="props.accept"
-      ref="file"
       multiple
     />
-  </form>
+  </UForm>
 </template> 

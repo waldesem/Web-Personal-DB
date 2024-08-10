@@ -27,48 +27,37 @@ function submitDocument() {
 </script>
 
 <template>
-  <form
-    @submit.prevent="submitDocument"
-    class="form form-check"
-  >
-    <ElementsLabelSlot :label="'Вид документа'">
-      <ElementsSelectDiv
-        :name="'view'"
-        :need="true"
-        :select="classifyState.classes.value.documents"
+  <UForm @submit.prevent="submitDocument">
+    <UFormGroup class="mb-3" size="md" label="Вид документа" required>
+      <USelect
         v-model="docForm['view']"
+        :options="classifyState.classes.value.documents"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Серия документа'">
-      <ElementsInputElement
-        :name="'series'"
-        :place="'Серия документа'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Серия документа" required>
+      <UInput
         v-model="docForm['series']"
+        placeholder="Серия документа"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Номер документа'">
-      <ElementsInputElement
-        :name="'number'"
-        :place="'Номер документа'"
-        :need="true"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Номер документа" required>
+      <UInput
         v-model="docForm['digits']"
+        placeholder="Номер документа"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Кем выдан'">
-      <ElementsInputElement
-        :name="'agency'"
-        :place="'Орган выдавший'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Кем выдан" required>
+      <UInput
         v-model="docForm['agency']"
+        placeholder="Кем выдан"
       />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'Дата выдачи'">
-      <ElementsInputElement
-        :name="'issue'"
-        :place="'Дата выдачи'"
-        :typeof="'date'"
+    </UFormGroup>
+    <UFormGroup class="mb-3" size="md" label="Дата выдачи" required>
+      <UInput
         v-model="docForm['issue']"
+        type="date"
       />
-    </ElementsLabelSlot>
+    </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
-  </form>
+  </UForm>
 </template>

@@ -27,7 +27,7 @@ function submitAffilation() {
 </script>
 
 <template>
-  <UForm class="mt-4" @submit.prevent="submitAffilation">
+  <UForm @submit.prevent="submitAffilation">
     <UFormGroup class="mb-3" size="md" label="Тип участия">
       <USelect
         v-model="affilationForm['view']"
