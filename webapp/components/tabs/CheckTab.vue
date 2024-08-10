@@ -51,6 +51,11 @@ const renderAdditional = (jsonString: string) => {
 </script>
 
 <template>
+  <UButton
+    label="Добавить запись"
+    variant="link"
+    @click="checkData.collapse = !checkData.collapse"
+  />
   <Transition name="slide-fade">
     <div class="border rounded m-3">
       <FormsCheckForm @cancel="cancelAction" />
@@ -73,8 +78,10 @@ const renderAdditional = (jsonString: string) => {
         <ElementsLabelSlot>
           <ElementsActionIcons
             v-show="
-              checkData.actions && !idx &&
-              anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+              checkData.actions &&
+              !idx &&
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
               anketaState.anketa.value.persons['standing']
             "
             @delete="anketaState.deleteItem(item['id'].toString(), 'checks')"
@@ -105,12 +112,18 @@ const renderAdditional = (jsonString: string) => {
         <ElementsLabelSlot :label="'Проверка паспорта'">
           {{ item["document"] }}
         </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка ФССП'">{{ item["debt"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка ИНН'">{{
+          item["inn"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка ФССП'">{{
+          item["debt"]
+        }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Проверка банкротства'">
           {{ item["bankruptcy"] }}
         </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка БКИ'">{{ item["bki"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка БКИ'">{{
+          item["bki"]
+        }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Проверка судебных решений'">
           {{ item["courts"] }}
         </ElementsLabelSlot>
@@ -120,7 +133,9 @@ const renderAdditional = (jsonString: string) => {
         <ElementsLabelSlot :label="'Проверка по списку террористов'">
           {{ item["terrorist"] }}
         </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка в розыск'">{{ item["mvd"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Проверка в розыск'">{{
+          item["mvd"]
+        }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Проверка в открытых источниках'">
           {{ item["internet"] }}
         </ElementsLabelSlot>
@@ -133,15 +148,16 @@ const renderAdditional = (jsonString: string) => {
         <ElementsLabelSlot :label="'Комментарии'">{{
           item["comment"] ? item["comment"] : "-"
         }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Результат'">{{ item["conclusion"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{ item["username"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Результат'">{{
+          item["conclusion"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Сотрудник'">{{
+          item["username"]
+        }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </ElementsLabelSlot>
-        <ElementsLabelSlot
-          v-if="item['addition']"
-          :label="'Дополнительно'"
-        >
+        <ElementsLabelSlot v-if="item['addition']" :label="'Дополнительно'">
           <UButton
             label="Информация"
             variant="link"
@@ -150,7 +166,9 @@ const renderAdditional = (jsonString: string) => {
         </ElementsLabelSlot>
         <div
           class="border rounded m-3"
-          v-if="item['addition']" && checkData.collapseAdd
+          v-if="item['addition']"
+          &&
+          checkData.collapseAdd
           v-html="renderAdditional(item['addition'])"
         ></div>
       </div>

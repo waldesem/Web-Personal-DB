@@ -31,47 +31,32 @@ function openProfile(person_id: string) {
 
 <template>
   <LayoutsMenu>
-    <ElementsHeaderDiv :page-header="'Кандидаты'" />
+    <div class="py-5">
+      <h3 class="text-2xl text-opacity-75 text-red-600 font-bold">
+        Кандидаты
+      </h3>
+    </div>
     <div
       v-if="
         userState.user.value.role == classifyState.classes.value.roles['user']
       "
-      class="position-relative"
+      class="relative"
     >
-      <div class="position-absolute bottom-100 end-0 px-3">
-        <label
-          title="Загрузить json"
-          for="file"
-          class="text-primary fs-5"
-          style="cursor: pointer"
-          >Загрузить
-          <i class="bi bi-filetype-json fs-5"/>
-        </label>
+      <div class="absolute object-right">
         <FormsFileForm
           :accept="'.json'"
           @submit="anketaState.submitFile($event, 'persons', '0')"
         />
       </div>
     </div>
-    <div class="row mb-3">
-      <form class="form form-check">
-        <input
-          @input.prevent="searchPerson"
-          class="form-control"
-          name="search"
-          id="search"
-          type="text"
-          placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
-          v-model="personState.persons.value.search"
-        >
-      </form>
-    </div>
-    <ElementsTableSlots
-      :tbl-class="'table align-middle table-hover'"
-      v-if="personState.persons.value.candidates.length"
-    >
-      <template v-slot:caption
-        >{{ `Обновлено: ${personState.persons.value.updated}` }}
+    <UInput 
+      v-model="personState.persons.value.search"
+      placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
+      @input="searchPerson"
+    />
+    <table v-if="personState.persons.value.candidates.length">
+      <caption>
+        {{ `Обновлено: ${personState.persons.value.updated}` }}
         <a
           class="btn btn-link fs-5"
           href="#"
@@ -79,10 +64,10 @@ function openProfile(person_id: string) {
           :title="`Обновить`"
           @click="personState.getCandidates()"
         >
-          <i class="bi bi-arrow-clockwise"></i>
+          <i class="bi bi-arrow-clockwise"/>
         </a>
-      </template>
-      <template v-slot:thead>
+      </caption>
+      <thead>
         <tr height="50px">
           <th width="5%">#</th>
           <th width="15%">Регион</th>
@@ -92,8 +77,8 @@ function openProfile(person_id: string) {
           <th width="15%">Сотрудник</th>
           <th width="5%" class="text-center">Статус</th>
         </tr>
-      </template>
-      <template v-slot:tbody>
+      </thead>
+      <tbody>
         <tr
           v-for="candidate in personState.persons.value.candidates"
           :key="candidate.id"
@@ -123,58 +108,38 @@ function openProfile(person_id: string) {
             }}
           </td>
           <td class="text-center">
-            <div
+            <UIcon
               v-if="candidate.standing"
-              class="spinner-border spinner-grow-sm text-danger"
-              role="status"
-              :title="'Проверка'"
-            ></div>
-            <div v-else class="text-success fs-5" title="Окончено">
-              <i class="bi bi-emoji-smile"></i>
-            </div>
+              name="i-heroicons-status-online"
+            />
+            <UIcon v-else name="i-heroicons-status-offline" />
           </td>
         </tr>
-      </template>
-    </ElementsTableSlots>
-    <p class="fs-6 taxt-danger" v-else>Ничего не найдено</p>
+      </tbody>
+    </table>
+    <p v-else class="p-3">Ничего не найдено</p>
     <nav
       v-if="personState.persons.value.prev || personState.persons.value.next"
       class="mb-4"
     >
-      <ul class="pagination justify-content-center">
-        <li class="page-item">
-          <button
-            :disabled="!personState.persons.value.prev"
-            type="button"
-            class="btn btn-link btn-outline-primary"
-            @click="
-              personState.getCandidates(personState.persons.value.page - 1)
-            "
-          >
-            <i class="bi bi-chevron-double-left"></i>
-            Назад
-          </button>
-        </li>
-        <li class="page-item">
-          <button
-            :disabled="!personState.persons.value.next"
-            type="button"
-            class="btn btn-link btn-outline-primary"
-            @click="
-              personState.getCandidates(personState.persons.value.page + 1)
-            "
-          >
-            Вперёд
-            <i class="bi bi-chevron-double-right"></i>
-          </button>
-        </li>
-      </ul>
+      <UButtonGroup size="sm" orientation="horizontal">
+        <UButton
+          :disabled="!personState.persons.value.prev"
+          variant="link"
+          icon="i-heroicons-chevron-left"
+          @click="
+            personState.getCandidates(personState.persons.value.page - 1)
+          "
+        />
+        <UButton
+          :disabled="!personState.persons.value.next"
+          variant="link"
+          icon="i-heroicons-chevron-right"
+          @click="
+            personState.getCandidates(personState.persons.value.page + 1)
+          "
+        />
+      </UButtonGroup>
     </nav>
   </LayoutsMenu>
 </template>
-
-<style scoped>
-td {
-  cursor: pointer;
-}
-</style>

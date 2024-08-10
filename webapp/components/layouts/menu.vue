@@ -15,11 +15,11 @@ async function removeToken(): Promise<void> {
       <div class="navbar navbar-expand sticky-top fs-5 p-3">
         <div class="nav flex-column">
           <a class="nav-link text-danger fs-3 fw-bold" href="/">STAFFSEC FINTECH</a>
-          <hr class="text-info" />
+          <hr class="text-info" >
           <NuxtLink to="/persons" class="nav-link active">
             Кандидаты
           </NuxtLink>
-          <hr class="text-info" />
+          <hr class="text-info" >
           <NuxtLink
             v-if="userState.user.value.role == classify.classes.value.roles['user']"
             to="/resume"
@@ -30,11 +30,11 @@ async function removeToken(): Promise<void> {
           <hr
             v-if="userState.user.value.role == classify.classes.value.roles['user']"
             class="text-info"
-          />
+          >
           <NuxtLink to="/info" class="nav-link active">
             Информация
           </NuxtLink>
-          <hr class="text-info" />
+          <hr class="text-info" >
           <NuxtLink
             v-if="userState.user.value.role == classify.classes.value.roles['admin']"
             to="/users"
@@ -45,7 +45,7 @@ async function removeToken(): Promise<void> {
         </div>
       </div>
     </div>
-    <div class="col-9" id="staffsec">
+    <div id="staffsec" class="col-9">
       <div class="sticky-top bg-white d-print-none p-3">
         <div class="row">
           <div class="col-10 text-center">
@@ -59,7 +59,7 @@ async function removeToken(): Promise<void> {
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <i class="bi bi-person-circle"></i>
+                <i class="bi bi-person-circle"/>
                 {{ userState.user.value.username }}
               </button>
               <ul class="dropdown-menu">
@@ -77,9 +77,9 @@ async function removeToken(): Promise<void> {
           </div>
         </div>
       </div>
-      <slot></slot>
+      <slot/>
     </div>
-    <div class="col-1 d-print-none"></div>
+    <div class="col-1 d-print-none"/>
   </div>
   <footer
     id="footer"

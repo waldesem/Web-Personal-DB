@@ -39,60 +39,43 @@ onBeforeMount(async () => {
 
 <template>
   <LayoutsMenu>
-    <ElementsHeaderDiv
-      :page-header="`Статистика по региону ${tableData.region} 
-            за период c ${tableData.start} по ${tableData.end} г.`"
-    />
-    <ElementsTableSlots
-      :class="'table table-hover table-responsive align-middle py-3'"
-    >
-      <template v-slot:caption>{{ `Решения по кандидатам` }}</template>
-      <template v-slot:thead>
-        <tr>
-          <th width="45%">Решение</th>
-          <th>Количество</th>
-        </tr>
+    <div class="py-5">
+      <h3 class="text-2xl text-opacity-75 text-red-600 font-bold">
+        {{
+          `Статистика по региону ${tableData.region} 
+            за период c ${tableData.start} по ${tableData.end} г.`
+        }}
+      </h3>
+    </div>
+    <UTable :rows="tableData.checks" :columns="['Решение', 'Количество']">
+      <template #caption>
+        <caption>Решения по кандидатам</caption>
       </template>
-      <template v-slot:tbody>
-        <tr v-for="(row, idx) in tableData.checks" :key="idx">
-          <td>{{ row[0] }}</td>
-          <td>{{ row[1] }}</td>
-        </tr>
-      </template>
-    </ElementsTableSlots>
-
-    <div class="row mb-3">
-      <label class="col-form-label col-md-1" for="region"> Регион: </label>
-      <div class="col-md-3">
-        <ElementsSelectDiv
-          :place="'Регион'"
-          :name="'region'"
-          :select="classifyState.classes.value.regions"
+    </UTable>
+    <UForm>
+      <UFormGroup class="mb-3" size="md" label="Регион">
+        <USelect
           :disable="
             userState.user.value.region !=
             classifyState.classes.value.regions['main']
           "
           v-model="tableData.region"
+          :options="classifyState.classes.value.regions"
           @submit-data="submitData"
         />
-      </div>
-      <label class="col-form-label col-md-1" for="start"> Период: </label>
-      <div class="col-md-2">
-        <ElementsInputElement
-          :name="'start'"
-          :typeof="'date'"
+      </UFormGroup>
+      <UFormGroup class="mb-3" size="md" label="Период">
+        <UInput
           v-model="tableData.start"
+          type="date"
           @submit-data="submitData"
         />
-      </div>
-      <div class="col-md-2">
-        <ElementsInputElement
-          :name="'end'"
-          :typeof="'date'"
+        <UInput
           v-model="tableData.end"
+          type="date"
           @submit-data="submitData"
         />
-      </div>
-    </div>
+      </UFormGroup>
+    </UForm>
   </LayoutsMenu>
 </template>

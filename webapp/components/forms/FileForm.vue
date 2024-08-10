@@ -1,5 +1,9 @@
 <script setup lang="ts">
 const props = defineProps({
+  label: {
+    type: String,
+    default: "Файл",
+  },
   accept: {
     type: String,
     default: "*",
@@ -21,12 +25,14 @@ const emit = defineEmits(["submit"])
     enctype="multipart/form-data"
     @change="emit('submit', $event)" 
     >
-    <UInput
-      v-show="props.display"
-      :id="props.nameId"
-      type="file"
-      :accept="props.accept"
-      multiple
-    />
+    <UFormGroup class="mb-3" size="md" label="Файл">
+      <UInput
+        v-show="props.display"
+        :id="props.nameId"
+        type="file"
+        :accept="props.accept"
+        multiple
+      />
+    </UFormGroup>
   </UForm>
 </template> 

@@ -20,6 +20,7 @@ function cancelAction() {
 </script>
 
 <template>
+  <UButton label="Добавить запись" variant="link" @click="collapse = !collapse" />
   <Transition name="slide-fade">
     <div class="border rounded m-3" v-if="collapse">
       <FormsPoligrafForm @cancel="cancelAction" />
