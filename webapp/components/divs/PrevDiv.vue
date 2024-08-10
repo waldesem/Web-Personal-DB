@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref('');
 const previous = ref(<Previous>{});
@@ -14,14 +15,13 @@ const previous = ref(<Previous>{});
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
-  const collapsePrevious = document.getElementById("previouser");
-  collapsePrevious?.setAttribute("class", "collapse card card-body mb-3");
+  collapse.value = false;
 }
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'previouser'" :header="'Изменение имени'" />
-  <div class="collapse card card-body mb-3" id="previouser">
+  <UButton label="Предыдущие" variant="link" @click="collapse = !collapse" />
+  <div class="border rounded m-3">
     <FormsPreviousForm @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.previous.length">
@@ -30,7 +30,7 @@ function cancelAction() {
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
       <FormsPreviousForm 
         v-if="edit && itemId == item['id'].toString()" 
@@ -74,12 +74,3 @@ function cancelAction() {
   </div>
   <p v-else>Данные отсутствуют</p>
 </template>
-
-<style scoped>
-@media print {
-  .card {
-    margin: 1px !important;
-    padding: 1px !important;
-  }
-}
-</style>

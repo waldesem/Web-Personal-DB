@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const inquisition = ref(<Inquisition>{});
@@ -14,22 +15,23 @@ const inquisition = ref(<Inquisition>{});
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
-  const collapseInvestigation = document.getElementById("clps_investigate");
-  collapseInvestigation?.setAttribute("class", "collapse card card-body");
+  collapse.value = false;
 }
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="clps_investigate">
-    <FormsInvestigationForm @cancel="cancelAction" />
-  </div>
+  <Transition name="slide-fade">
+    <div class="border rounded m-3">
+      <FormsInvestigationForm @cancel="cancelAction" />
+    </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.investigations.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.investigations"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
       <FormsInvestigationForm
         v-if="edit && itemId == item['id'].toString()"
@@ -40,8 +42,10 @@ function cancelAction() {
         <ElementsLabelSlot>
           <ElementsActionIcons
             v-show="
-              actions && idx &&
-              anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+              actions &&
+              idx &&
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
               anketaState.anketa.value.persons['standing']
             "
             @delete="
@@ -52,11 +56,8 @@ function cancelAction() {
               itemId = item['id'].toString();
               edit = true;
             "
-            :for-input="'investigations-file'"
           >
             <FormsFileForm
-              v-show="actions"
-              :name-id="'investigations-file'"
               :accept="'*'"
               @submit="
                 anketaState.submitFile(
@@ -68,12 +69,18 @@ function cancelAction() {
             />
           </ElementsActionIcons>
         </ElementsLabelSlot>
-        <p class="fs-5 fw-medium text-primary p-1">
+        <p class="text-primary">
           {{ "Расследование/Проверка #" + (idx + 1) }}
         </p>
-        <ElementsLabelSlot :label="'Тема проверки'">{{ item["theme"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Информация'">{{ item["info"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{ item["username"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Тема проверки'">{{
+          item["theme"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Информация'">{{
+          item["info"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Сотрудник'">{{
+          item["username"]
+        }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </ElementsLabelSlot>

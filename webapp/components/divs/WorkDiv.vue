@@ -7,50 +7,53 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
-const itemId = ref('');
+const itemId = ref("");
 const workplace = ref(<Work>{});
 
 function cancelAction() {
   edit.value = false;
+  collapse.value = false;
   itemId.value = "";
-  const collapseWork = document.getElementById("worker");
-  collapseWork?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'worker'" :header="'Работа'" />
-  <div class="collapse card card-body mb-3" id="worker">
-    <FormsWorkplaceForm @cancel="cancelAction" />
-  </div>
+  <UButton label="Работа" variant="link" @click="collapse = !collapse" />
+  <Transition name="slide-fade">
+    <div class="border rounded m-3">
+      <FormsWorkplaceForm v-if="collapse" @cancel="cancelAction" />
+    </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.workplaces.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.workplaces"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
-      <FormsWorkplaceForm 
-        v-if="edit && itemId == item['id'].toString()" 
-        :work="workplace" 
-        @cancel="cancelAction" 
+      <FormsWorkplaceForm
+        v-if="edit && itemId == item['id'].toString()"
+        :work="workplace"
+        @cancel="cancelAction"
       />
       <div v-else>
         <ElementsLabelSlot>
           <ElementsActionIcons
             v-show="
-                actions &&
-                anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
-                anketaState.anketa.value.persons['standing']
-              "
+              actions &&
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
             @delete="
               anketaState.deleteItem(item['id'].toString(), 'workplaces')
             "
             @update="
               workplace = item;
-              itemId = item['id'].toString()
+              itemId = item['id'].toString();
               edit = true;
             "
             :hide="true"
@@ -82,12 +85,3 @@ function cancelAction() {
   </div>
   <p v-else>Данные отсутствуют</p>
 </template>
-
-<style scoped>
-@media print {
-  .card {
-    margin: 1px !important;
-    padding: 1px !important;
-  }
-}
-</style>

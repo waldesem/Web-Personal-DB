@@ -8,6 +8,8 @@ const userState = stateUser();
 
 const checkData = ref({
   actions: false,
+  collapse: false,
+  collapseAdd: false,
   edit: false,
   itemId: "",
   check: <Verification>{},
@@ -16,8 +18,7 @@ const checkData = ref({
 function cancelAction() {
   checkData.value.edit = false;
   checkData.value.itemId = "";
-  const collapseCheck = document.getElementById("clps_check");
-  collapseCheck?.setAttribute("class", "collapse card card-body mb-3");
+  checkData.value.collapse = false;
 }
 
 function createElement(jsonList: Array<Object>) {
@@ -33,7 +34,7 @@ function createElement(jsonList: Array<Object>) {
           : `<td>${createElement(value)}</td>`) +
         `</tr>`;
     }
-    divs += `<table class="table table-sm table-striped text-break">${table}</table>`;
+    divs += `<table break-words">${table}</table>`;
   }
   return divs;
 }
@@ -50,13 +51,15 @@ const renderAdditional = (jsonString: string) => {
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="clps_check">
-    <FormsCheckForm @cancel="cancelAction" />
-  </div>
+  <Transition name="slide-fade">
+    <div class="border rounded m-3">
+      <FormsCheckForm @cancel="cancelAction" />
+    </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.checks.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.checks"
-      class="card card-body mb-3"
+      class="border rounded m-3"
       :key="idx"
       @mouseover="checkData.actions = true"
       @mouseout="checkData.actions = false"
@@ -80,11 +83,8 @@ const renderAdditional = (jsonString: string) => {
               checkData.itemId = item['id'].toString();
               checkData.edit = true;
             "
-            :for-input="'check-file'"
           >
             <FormsFileForm
-              v-show="checkData.actions"
-              :name-id="'check-file'"
               :accept="'*'"
               @submit="
                 anketaState.submitFile(
@@ -96,7 +96,7 @@ const renderAdditional = (jsonString: string) => {
             />
           </ElementsActionIcons>
         </ElementsLabelSlot>
-        <p class="fs-5 fw-medium text-primary p-1">
+        <p class="text-primary">
           {{ "Проверка кандидата #" + (idx + 1) }}
         </p>
         <ElementsLabelSlot :label="'Проверка по местам работы'">
@@ -140,23 +140,17 @@ const renderAdditional = (jsonString: string) => {
         </ElementsLabelSlot>
         <ElementsLabelSlot
           v-if="item['addition']"
-          class="d-print-none"
           :label="'Дополнительно'"
         >
-          <button
-            type="button"
-            class="btn btn-link"
-            data-bs-toggle="collapse"
-            href="#clps_additional"
-            role="button"
-          >
-            Информация
-          </button>
+          <UButton
+            label="Информация"
+            variant="link"
+            @click="checkData.collapseAdd = !checkData.collapseAdd"
+          />
         </ElementsLabelSlot>
         <div
-          class="collapse card card-body"
-          id="clps_additional"
-          v-if="item['addition']"
+          class="border rounded m-3"
+          v-if="item['addition']" && checkData.collapseAdd
           v-html="renderAdditional(item['addition'])"
         ></div>
       </div>
@@ -164,12 +158,3 @@ const renderAdditional = (jsonString: string) => {
   </div>
   <p class="p-3" v-else>Проверка кандидата отсутствует</p>
 </template>
-
-<style scoped>
-@media print {
-  .card {
-    margin: 1px !important;
-    padding: 1px !important;
-  }
-}
-</style>

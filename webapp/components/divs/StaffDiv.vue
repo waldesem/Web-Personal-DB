@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref('');
 const staff = ref(<Staff>{});
@@ -14,23 +15,24 @@ const staff = ref(<Staff>{});
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
-  const collapseStaff = document.getElementById("staffer");
-  collapseStaff?.setAttribute("class", "collapse card card-body mb-3");
+  collapse.value = false;
 }
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'staffer'" :header="'Должности'" />
-  <div class="collapse card card-body mb-3" id="staffer">
-    <FormsStaffForm @cancel="cancelAction" />
-  </div>
+  <UButton label="Должности" variant="link" @click="collapse = !collapse"/>
+  <Transition name="slide-fade">
+    <div class="border rounded m-3">
+      <FormsStaffForm @cancel="cancelAction" />
+    </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.staffs.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.staffs"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
       <FormsStaffForm 
         v-if="edit && itemId == item['id'].toString()"  
@@ -59,12 +61,3 @@ function cancelAction() {
   </div>
   <p v-else>Данные отсутствуют</p>
 </template>
-
-<style scoped>
-@media print {
-  .card {
-    margin: 1px !important;
-    padding: 1px !important;
-  }
-}
-</style>

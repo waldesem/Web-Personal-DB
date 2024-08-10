@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const itemId = ref('');
 const edit = ref(false);
 const education = ref(<Education>{});
@@ -14,14 +15,13 @@ const education = ref(<Education>{});
 function cancelAction(){
   edit.value = false;
   itemId.value = "";
-  const collapsePrevious = document.getElementById('educationer');
-  collapsePrevious?.setAttribute('class', 'collapse card card-body mb-3');
+  collapse.value = false;
 };
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'educationer'" :header="'Образование'"/>
-  <div class="collapse card card-body mb-3" id="educationer">
+  <UButton label="Образование" variant="link" @click="collapse = !collapse"/>
+  <div class="border rounded m-3">
     <FormsEducationForm @cancel="cancelAction"/>
   </div>
   <div v-if="anketaState.anketa.value.educations.length">
@@ -30,7 +30,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
       <FormsEducationForm
         v-if="edit && itemId == item['id'].toString()" 

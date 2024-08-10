@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref('');
 const affilation = ref(<Affilation>{});
@@ -14,14 +15,13 @@ const affilation = ref(<Affilation>{});
 function cancelAction(){
   edit.value = false;
   itemId.value = "";
-  const collapseContact = document.getElementById('affilationer');
-  collapseContact?.setAttribute('class', 'collapse card card-body mb-3');
+  collapse.value = false;
 };
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'affilationer'" :header="'Аффилированность'"/>  
-  <div class="collapse card card-body mb-3" id="affilationer">
+  <UButton label="Аффилирован" variant="link" @click="collapse = !collapse" />  
+  <div class="border rounded m-3">
     <FormsAffilationForm @cancel="cancelAction"/>
   </div>
   <div v-if="anketaState.anketa.value.affilations.length">
@@ -30,7 +30,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
       <FormsAffilationForm
         v-if="edit && itemId == item['id'].toString()" 

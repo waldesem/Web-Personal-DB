@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const itemId = ref('');
 const edit = ref(false);
 const doc = ref(<Document>{});
@@ -14,14 +15,13 @@ const doc = ref(<Document>{});
 function cancelAction(){
   edit.value = false;
   itemId.value = "";
-  const collapseDocument = document.getElementById('documenter');
-  collapseDocument?.setAttribute('class', 'collapse card card-body mb-3');
+  collapse.value = false;
 };
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'documenter'" :header="'Документы'"/>
-  <div class="collapse card card-body mb-3" id="documenter">
+  <UButton label="Документы" variant="link" @click="collapse = !collapse"/>
+  <div class="border rounded m-3">
     <FormsDocumentForm @cancel="cancelAction"/>
   </div>
   <div v-if="anketaState.anketa.value.documents.length">
@@ -30,7 +30,7 @@ function cancelAction(){
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
       <FormsDocumentForm
         v-if="edit && itemId == item['id'].toString()" 

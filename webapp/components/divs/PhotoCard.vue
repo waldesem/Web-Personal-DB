@@ -14,44 +14,38 @@ const photoCard = ref({
   },
 
   async submitImage(event: any) {
-    await anketaState.submitFile(event, "image", anketaState.share.value.candId);
+    await anketaState.submitFile(
+      event,
+      "image",
+      anketaState.share.value.candId
+    );
   },
 });
 </script>
 
 <template>
-  <div class="card mb-3" style="width: 16rem">
-    <div
-      class="card-img-container"
-      @mouseover="photoCard.handleMouse"
-      @mouseout="photoCard.handleMouse"
-    >
-      <NuxtImg
-        :src="anketaState.share.value.imageUrl"
-        class="card-img-top"
-        alt="..."
-      />
+  <div class="border rounded">
+    <div @mouseover="photoCard.handleMouse" @mouseout="photoCard.handleMouse">
+      <NuxtImg :src="anketaState.share.value.imageUrl" alt="..." />
       <div
         v-show="
           photoCard.showPhoto &&
-          anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
+          anketaState.anketa.value.persons['user_id'] ==
+            userState.user.value.userId &&
           anketaState.anketa.value.persons['standing']
         "
-        class="card-img-overlay"
       >
-        <input
-          @change="photoCard.submitImage($event)"
-          class="form-control form-control-sm"
-          id="formImage"
+        <UInput
+          multiple
           type="file"
           accept="image/*"
+          @change="photoCard.submitImage($event)"
         />
       </div>
-    </div>
   </div>
-</template>
+</div></template>
 
-<style scoped>
+<!-- <style scoped>
 .card-img-container {
   position: relative;
   display: inline-block;
@@ -68,4 +62,4 @@ const photoCard = ref({
 .form-visible {
   visibility: visible;
 }
-</style>
+</style> -->

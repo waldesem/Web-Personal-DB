@@ -7,22 +7,22 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
-const itemId = ref('');
+const itemId = ref("");
 const address = ref(<Address>{});
 
 function cancelAction() {
   edit.value = false;
+  collapse.value = false;
   itemId.value = "";
-  const collapseAddress = document.getElementById("addresser");
-  collapseAddress?.setAttribute("class", "collapse card card-body mb-3");
 }
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'addresser'" :header="'Адреса'" />
-  <div class="collapse card card-body mb-3" id="addresser">
-    <FormsAddressForm @cancel="cancelAction" />
+  <UButton label="Адреса" variant="link" @click="collapse = !collapse" />
+  <div class="border rounded m-3">
+    <FormsAddressForm v-if="collapse" @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.addresses.length">
     <div
@@ -30,32 +30,35 @@ function cancelAction() {
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
-      <FormsAddressForm 
-        v-if="edit && itemId == item['id'].toString()" 
-        :addrs="address" 
-        @cancel="cancelAction" 
+      <FormsAddressForm
+        v-if="edit && itemId == item['id'].toString()"
+        :addrs="address"
+        @cancel="cancelAction"
       />
       <div v-else>
         <ElementsLabelSlot>
           <ElementsActionIcons
             v-show="
-                actions &&
-                anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
-                anketaState.anketa.value.persons['standing']
-              "
+              actions &&
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
             @delete="anketaState.deleteItem(item['id'].toString(), 'addresses')"
             @update="
               address = item;
-              itemId = item['id'].toString()
+              itemId = item['id'].toString();
               edit = true;
             "
             :hide="true"
           />
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Тип'">{{ item["view"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Адрес'">{{ item["addresses"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Адрес'">{{
+          item["addresses"]
+        }}</ElementsLabelSlot>
       </div>
     </div>
   </div>

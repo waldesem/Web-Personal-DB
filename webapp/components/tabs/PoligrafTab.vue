@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const poligraf = ref(<Pfo>{});
@@ -14,22 +15,23 @@ const poligraf = ref(<Pfo>{});
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
-  const collapsePoligraf = document.getElementById("clps_poligraf");
-  collapsePoligraf?.setAttribute("class", "collapse card card-body");
+  collapse.value = false;
 }
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="clps_poligraf">
-    <FormsPoligrafForm @cancel="cancelAction" />
-  </div>
+  <Transition name="slide-fade">
+    <div class="border rounded m-3" v-if="collapse">
+      <FormsPoligrafForm @cancel="cancelAction" />
+    </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.poligrafs.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.poligrafs"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="card card-body mb-3"
+      class="border rounded m-3"
     >
       <FormsPoligrafForm
         v-if="edit && itemId == item['id'].toString()"
@@ -50,11 +52,8 @@ function cancelAction() {
               itemId = item['id'].toString();
               edit = true;
             "
-            :for-input="'poligrafs-file'"
           >
             <FormsFileForm
-              v-show="actions"
-              :name-id="'poligrafs-file'"
               :accept="'*'"
               @submit="
                 anketaState.submitFile(
@@ -66,7 +65,7 @@ function cancelAction() {
             />
           </ElementsActionIcons>
         </ElementsLabelSlot>
-        <p class="fs-5 fw-medium text-primary p-1">
+        <p class="text-primary">
           {{ "Обследование на полиграфе #" + (idx + 1) }}
         </p>
         <ElementsLabelSlot :label="'Тема проверки'">{{ item["theme"] }}</ElementsLabelSlot>
@@ -80,12 +79,3 @@ function cancelAction() {
   </div>
   <p class="p-3" v-else>Обследование на полиграфе не проводилось</p>
 </template>
-
-<style scoped>
-@media print {
-  .card {
-    margin: 1px !important;
-    padding: 1px !important;
-  }
-}
-</style>

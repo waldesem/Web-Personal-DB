@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref('');
 const relation = ref(<Relation>{});
@@ -14,21 +15,20 @@ const relation = ref(<Relation>{});
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
-  const collapseRelation = document.getElementById("relationer");
-  collapseRelation?.setAttribute("class", "collapse card card-body mb-3");
+  collapse.value = false;
 }
 </script>
 
 <template>
-  <ElementsDropDownHead :id="'relationer'" :header="'Связи'" />
-  <div class="collapse card card-body mb-3" id="relationer">
+  <UButton label="Связи" variant="link" @click="collapse = !collapse"/>
+  <div class="border rounded m-3">
     <FormsRelationForm @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.relations.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.relations"
       :key="idx"
-      class="card card-body mb-3"
+      class="border rounded m-3"
       @mouseover="actions = true"
       @mouseout="actions = false"
     >

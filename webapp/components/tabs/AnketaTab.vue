@@ -52,11 +52,8 @@ const dataResume = ref({
           anketaState.deleteItem(anketaState.anketa.value.persons['id'], 'persons')
         "
         @update="dataResume.action = 'update'"
-        :for-input="'persons-file'"
       >
         <FormsFileForm
-          v-show="dataResume.showActions"
-          :name-id="'persons-file'"
           :accept="'*'"
           @submit="
             anketaState.submitFile($event, 'anketa', anketaState.share.value.candId)
@@ -64,7 +61,7 @@ const dataResume = ref({
         />
       </ElementsActionIcons>
     </ElementsLabelSlot>
-    <ElementsLabelSlot class="d-print-none" :label="'Регион'">
+    <ElementsLabelSlot :label="'Регион'">
       <ElementsSelectDiv
         :width="'20%'"
         :name="'region'"

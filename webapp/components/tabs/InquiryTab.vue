@@ -7,6 +7,7 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const actions = ref(false);
+const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const need = ref(<Needs>{});
@@ -14,18 +15,19 @@ const need = ref(<Needs>{});
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
-  const collapseInquiry = document.getElementById("clps_inquiry");
-  collapseInquiry?.setAttribute("class", "collapse card card-body mb-3");
+  collapse.value = false;
 }
 </script>
 
 <template>
-  <div class="collapse card card-body mb-3" id="clps_inquiry">
-    <FormsInquiryForm @cancel="cancelAction" />
-  </div>
+  <Transition name="slide-fade">
+    <div class="border rounded m-3">
+      <FormsInquiryForm @cancel="cancelAction" />
+    </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.inquiries.length">
     <div
-      class="card card-body mb-3"
+      class="border rounded m-3"
       v-for="(item, idx) in anketaState.anketa.value.inquiries"
       :key="idx"
       @mouseover="actions = true"
@@ -53,7 +55,7 @@ function cancelAction() {
             :hide="true"
           />
         </ElementsLabelSlot>
-        <p class="fs-5 fw-medium text-primary p-1">
+        <p class="text-primary">
           {{ "Запросы о сотруднике #" + (idx + 1) }}
         </p>
         <ElementsLabelSlot :label="'Информация'">{{ item["info"] }}</ElementsLabelSlot>
