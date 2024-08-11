@@ -72,7 +72,7 @@ export const stateAlert = () => {
   function setAlert(attr: string, title: string, text: string) {
     window.clearTimeout(alertMessage.value.timeOut);
     Object.assign(alertMessage.value, {
-      show: true,
+      show: false,
       attr: attr,
       title: title,
       text: text,
@@ -169,7 +169,7 @@ export const stateAnketa = () => {
       );
       anketa.value[item as keyof typeof anketa.value] = response as any;
       if (action === "self") {
-        alertState.setAlert("alert-info", "Режим проверки включен/отключен");
+        alertState.setAlert("primary", "Информация", "Режим проверки включен/отключен");
       }
     } catch (error: unknown) {
       console.error(error);
@@ -216,7 +216,7 @@ export const stateAnketa = () => {
       );
       console.log(response);
       getItem(param);
-      alertState.setAlert("alert-success", "Запись успешно добавлена");
+      alertState.setAlert("green", "Успешно", "Запись успешно добавлена");
     } catch (error: unknown) {
       console.error(error);
     }
@@ -233,7 +233,7 @@ export const stateAnketa = () => {
       if (param === "persons") {
         navigateTo("/persons") 
       } else getItem(param);
-      alertState.setAlert("alert-info", `Запись с ID ${id} удалена`);
+      alertState.setAlert("primary", "Информация", `Запись с ID ${id} удалена`);
     } catch (error: unknown) {
       console.error(error);
     }
@@ -271,14 +271,15 @@ export const stateAnketa = () => {
         } else getItem(param);
 
         alertState.setAlert(
-          "alert-success",
+          "green",
+          "Успешно",
           "Файл или файлы успешно загружены"
         );
       } catch (error: unknown) {
         console.error(error);
       }
     } else {
-      alertState.setAlert("alert-warning", "Ошибка при загрузке файла");
+      alertState.setAlert("red", "Внимание", "Ошибка при загрузке файла");
     }
   }
 
@@ -292,9 +293,9 @@ export const stateAnketa = () => {
         });
         const person_id = response as string;
         navigateTo({ name: "profile", params: { id: person_id } });
-        alertState.setAlert("alert-success", "Данные успешно добавлены");
+        alertState.setAlert("green", "Успешно", "Данные успешно добавлены");
       } catch (error) {
-        alertState.setAlert("alert-danger", `Возникла ошибка ${error}`);
+        alertState.setAlert("red", "Внимание", `Возникла ошибка ${error}`);
       }
     } else {
       updateItem("persons", form);

@@ -23,123 +23,111 @@ onBeforeMount(async () => {
 const searchPerson = debounce(() => {
   personState.getCandidates();
 }, 500);
-
-function openProfile(person_id: string) {
-  navigateTo(`/profile/${person_id}`);
-}
 </script>
 
 <template>
   <LayoutsMenu>
-    <div class="py-5">
-      <h3 class="text-2xl text-opacity-75 text-red-800 font-bold">
-        Кандидаты
-      </h3>
-    </div>
     <div
       v-if="
         userState.user.value.role == classifyState.classes.value.roles['user']
       "
       class="relative"
     >
-      <div class="absolute object-right">
-        <FormsFileForm
-          :accept="'.json'"
-          @submit="anketaState.submitFile($event, 'persons', '0')"
-        />
+      <div class="absolute inset-y-0 right-0" title="Загрузить json">
+        <UFormGroup class="mb-3" size="md">
+          <template #label>
+            <UIcon name="i-heroicons-cloud-arrow-up" class="w-8 h-8" />
+          </template>
+          <UInput
+            v-show="false"
+            type="file"
+            accept=".json"
+            multiple
+            @change="anketaState.submitFile($event, 'persons', '0')"
+          />
+        </UFormGroup>
       </div>
     </div>
-    <UInput 
-      v-model="personState.persons.value.search"
-      placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
-      @input="searchPerson"
-    />
-    <table v-if="personState.persons.value.candidates.length">
-      <caption>
-        {{ `Обновлено: ${personState.persons.value.updated}` }}
-        <a
-          class="btn btn-link fs-5"
-          href="#"
-          style="text-decoration: none"
-          :title="`Обновить`"
-          @click="personState.getCandidates()"
-        >
-          <i class="bi bi-arrow-clockwise"/>
-        </a>
-      </caption>
-      <thead>
-        <tr height="50px">
-          <th width="5%">#</th>
-          <th width="15%">Регион</th>
-          <th>Фамилия Имя Отчество</th>
-          <th width="15%">Дата рождения</th>
-          <th width="15%">Обновлено</th>
-          <th width="15%">Сотрудник</th>
-          <th width="5%" class="text-center">Статус</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="candidate in personState.persons.value.candidates"
-          :key="candidate.id"
-          height="50px"
-          @click="openProfile(candidate.id)"
-        >
-          <td>{{ candidate.id }}</td>
-          <td>{{ candidate.region }}</td>
-          <td>
-            {{
-              `${candidate.surname} ${candidate.firstname} ${
-                candidate.patronymic ? candidate.patronymic : ""
-              }`
-            }}
-          </td>
-          <td>
-            {{ new Date(candidate.birthday).toLocaleDateString("ru-RU") }}
-          </td>
-          <td>
-            {{ new Date(candidate.created).toLocaleDateString("ru-RU") }}
-          </td>
-          <td>
-            {{
-              candidate.username
-                ? candidate.username.toString().split(" ")[0]
-                : ""
-            }}
-          </td>
-          <td class="text-center">
-            <UIcon
-              v-if="candidate.standing"
-              name="i-heroicons-status-online"
-            />
-            <UIcon v-else name="i-heroicons-status-offline" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <p v-else class="p-3">Ничего не найдено</p>
-    <nav
-      v-if="personState.persons.value.prev || personState.persons.value.next"
-      class="mb-4"
+    <div class="py-8">
+      <h3 class="text-2xl text-red-800 font-bold">Кандидаты</h3>
+    </div>
+    <div class="mb-8">
+      <UInput
+        v-model="personState.persons.value.search"
+        placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
+        size="lg"
+        @input="searchPerson"
+      />
+    </div>
+    <UTable
+      :columns="[
+        { key: 'id', label: '#' },
+        { key: 'region', label: 'Регион' },
+        { key: 'surname', label: 'Фамилия Имя Отчество' },
+        { key: 'birthday', label: 'Дата рождения' },
+        { key: 'birthplace', label: 'Место рождения' },
+        { key: 'inn', label: 'ИНН' },
+        { key: 'created', label: 'Обновлено' },
+        { key: 'username', label: 'Сотрудник' },
+        { key: 'standing', label: 'Статус' },
+      ]"
+      :rows="personState.persons.value.candidates"
     >
-      <UButtonGroup size="sm" orientation="horizontal">
+      <template #id-data="{ row }">{{ row.id }}</template>
+      <template #region-data="{ row }">{{ row.region }}</template>
+      <template #surname-data="{ row }">
+        <NuxtLink :to="`/profile/${row.id}`">
+          {{
+          `${row.surname} ${row.firstname} ${
+            row.patronymic ? row.patronymic : ""
+          }`
+        }}
+        </NuxtLink>
+      </template>
+      <template #birthday-data="{ row }">{{
+        new Date(row.birthday).toLocaleDateString()
+      }}</template>
+      <template #birthplace-data="{ row }">{{
+        row.birthplace ? row.birthplace : ""
+      }}</template>
+      <template #inn-data="{ row }">{{ row.inn }}</template>
+      <template #created-data="{ row }">{{
+        new Date(row.created).toLocaleDateString()
+      }}</template>
+      <template #username-data="{ row }">{{
+        row.username ? row.username.toString().split(" ")[0] : ""
+      }}</template>
+      <template #standing-data="{ row }">
+        <UIcon v-if="row.standing" name="i-heroicons-face-frown" class="w-6 h-6" />
+        <UIcon v-else name="i-heroicons-face-smile" class="w-6 h-6" />
+      </template>
+      <template #caption>
+        <caption>
+          <UButton
+            variant="link"
+            icon="i-heroicons-arrow-path"
+            :label="`Обновлено: ${personState.persons.value.updated}`"
+            @click="personState.getCandidates()"
+          />
+        </caption>
+      </template>
+    </UTable>
+    <div class="grid place-items-center py-8">
+      <UButtonGroup orientation="horizontal">
         <UButton
           :disabled="!personState.persons.value.prev"
           variant="link"
-          icon="i-heroicons-chevron-left"
-          @click="
-            personState.getCandidates(personState.persons.value.page - 1)
-          "
+          icon="i-heroicons-chevron-double-left"
+          @click="personState.getCandidates(personState.persons.value.page - 1)"
         />
         <UButton
           :disabled="!personState.persons.value.next"
           variant="link"
-          icon="i-heroicons-chevron-right"
-          @click="
-            personState.getCandidates(personState.persons.value.page + 1)
-          "
+          icon="i-heroicons-chevron-double-right"
+          @click="personState.getCandidates(personState.persons.value.page + 1)"
         />
       </UButtonGroup>
-    </nav>
+    </div>
   </LayoutsMenu>
 </template>
+ v-if="personState.persons.value.prev || personState.persons.value.next"

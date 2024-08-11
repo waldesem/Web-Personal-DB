@@ -59,7 +59,7 @@ async function submitForm(): Promise<void> {
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Место рождения" required>
+    <UFormGroup class="mb-3" size="md" label="Место рождения">
       <UTextarea
         v-model="resumeForm['birthplace']"
         placeholder="Место рождения"

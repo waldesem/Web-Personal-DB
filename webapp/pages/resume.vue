@@ -7,7 +7,7 @@
         Создать анкету
       </h3>
     </div>
-    <div class="border rounded m-3">
+    <div class="border rounded p-5">
       <FormsResumeForm @cancel="navigateTo('/persons')"/>
     </div>
   </LayoutsMenu>
