@@ -19,6 +19,7 @@ const users = computed(() => {
 });
 
 const isOpen = ref(false);
+const isCollapsed = ref(false);
 
 const dataUsers = ref({
   search: "",
@@ -67,7 +68,7 @@ async function userAction(item: string): Promise<void> {
     console.log(response);
     getUsers();
   } catch (error: unknown) {
-    alertState.setAlert("alert-warning", "Невозможно выполнить операцию");
+    alertState.setAlert("red", "Внимание", "Невозможно выполнить операцию");
     console.error(error);
   }
 }
@@ -75,104 +76,112 @@ async function userAction(item: string): Promise<void> {
 async function submitUser(): Promise<void> {
   try {
     const fetchAuth = useFetchAuth();
-    const response = await fetchAuth(`${server}/users`, dataUsers.value.form);
+    const response = await fetchAuth(`${server}/users`, {
+      method: "POST",
+      body: dataUsers.value.form,
+    });
     console.log(response);
-    alertState.setAlert("alert-success", "Пользователь успешно создан");
-    cancelOperations();
+    isCollapsed.value = false;
+    alertState.setAlert("green", "Успешно", "Пользователь успешно создан");
     getUsers();
   } catch (error) {
-    alertState.setAlert(
-      "alert-warning",
-      "Возможно, пользователь уже существует"
-    );
+    alertState.setAlert("red", "Внимание", "Ошибка при создании пользователя");
     console.error(error);
   }
-}
-
-function cancelOperations() {
-  Object.keys(dataUsers.value.profile).forEach(
-    (key) => delete dataUsers.value[key as keyof typeof dataUsers.value]
-  );
 }
 </script>
 
 <template>
   <LayoutsMenu>
-    <div class="py-5">
-      <h3 class="text-2xl text-opacity-75 text-grey-600 font-bold">
-        Список пользователей
-      </h3>
+    <div class="py-8">
+      <h3 class="text-2xl text-gray-600 font-bold">Пользователи</h3>
     </div>
-    <UInput
-      v-model="dataUsers.search"
-      placeholder="Поиск по имени пользователя"
-      @input.prevent="searching"
-    />
-    <div class="d-flex justify-content-between">
+    <div class="mb-8">
+      <UInput
+        v-model="dataUsers.search"
+        size="lg"
+        placeholder="Поиск по имени пользователя"
+        @input.prevent="searching"
+      />
+    </div>
+    <div class="flex items-center justify-between mb-4">
       <UToggle v-model="dataUsers.viewDeleted" :label="'Показать удаленные'" />
-      <UDropdown>
-        <UButton
-          color="white"
-          label="Добавить пользователя"
-          trailing-icon="i-heroicons-chevron-down-20-solid"
-        />
-        <UForm @submit.prevent="submitUser">
-          <UFormGroup class="mb-3" size="md" label="Имя пользователя" required>
-            <UInput
-              v-model="dataUsers.form['fullname']"
-              placeholder="Имя пользователя"
-            />
-          </UFormGroup>
-          <UFormGroup class="mb-3" size="md" label="Логин" required>
-            <UInput v-model="dataUsers.form['username']" placeholder="Логин" />
-          </UFormGroup>
-          <ElementsBtnGroup :offset="false" />
-        </UForm>
-      </UDropdown>
+      <UButton
+        variant="link"
+        label="Добавить пользователя"
+        @click="isCollapsed = !isCollapsed"
+      />
     </div>
-    <table :tbl-class="'table align-middle'">
-      <thead>
-        <tr>
-          <th width="5%">#</th>
-          <th>Имя пользователя</th>
-          <th width="15%">Логин</th>
-          <th width="10%">Блокировка</th>
-          <th width="15%">Создан</th>
-          <th width="15%">Роль</th>
-          <th width="20%">Регион</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td colspan="7">
-            <table
-              id="overflow"
-              :tbl-class="'table table-hover align-middle no-bottom-border'"
-            >
-              <tbody>
-                <tr v-for="user in users" :key="user.id" height="50px">
-                  <td width="5%">{{ user.id }}</td>
-                  <td>{{ user.fullname }}</td>
-                  <td width="15%">
-                    <UButton variant="link" @click="isOpen = true">
-                      {{ user.username }}
-                    </UButton>
-                  </td>
-                  <td width="10%">{{ user.blocked ? "Да" : "Нет" }}</td>
-                  <td width="15%">
-                    {{ new Date(user.pswd_create).toLocaleString() }}
-                  </td>
-                  <td width="15%">
-                    {{ user.role }}
-                  </td>
-                  <td width="20%">{{ user.region }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <Transition name="slide-fade">
+      <UForm
+        v-if="isCollapsed"
+        :state="dataUsers.form"
+        @submit.prevent="submitUser"
+      >
+        <div class="flex grid grid-cols-5 gap-3 border rounded p-3">
+          <div class="col-span-2">
+            <UFormGroup required class="mb-3">
+              <UInput
+                v-model="dataUsers.form['fullname']"
+                placeholder="Имя пользователя"
+              />
+            </UFormGroup>
+          </div>
+          <div class="col-span-2">
+            <UFormGroup required class="mb-3">
+              <UInput
+                v-model="dataUsers.form['username']"
+                placeholder="Логин"
+              />
+            </UFormGroup>
+          </div>
+          <div class="col-span-1">
+            <UButton
+              block
+              variant="outline"
+              color="gray"
+              label="Создать"
+              type="submit"
+            />
+          </div>
+        </div>
+      </UForm>
+    </Transition>
+    <UTable
+      :columns="[
+        { key: 'id', label: '#' },
+        { key: 'fullname', label: 'Имя пользователя' },
+        { key: 'username', label: 'Логин' },
+        { key: 'change_pswd', label: 'Изменить пароль' },
+        { key: 'blocked', label: 'Блокировка' },
+        { key: 'created', label: 'Создан' },
+        { key: 'role', label: 'Роль' },
+        { key: 'region', label: 'Регион' },
+      ]"
+      :rows="users"
+    >
+      <template #id-data="{ row }">{{ row.id }}</template>
+      <template #fullname-data="{ row }">{{ row.fullname }}</template>
+      <template #username-data="{ row }"
+        ><UButton variant="link" @click="isOpen = true">
+          {{ row.username }}
+        </UButton></template
+      >
+      <template #change_pswd-data="{ row }">{{ row.change_pswd }}</template>
+      <template #blocked-data="{ row }">
+        <UIcon
+          v-if="row.blocked"
+          name="i-heroicons-face-frown"
+          class="w-6 h-6"
+        />
+        <UIcon v-else name="i-heroicons-face-smile" class="w-6 h-6" />
+      </template>
+      <template #created-data="{ row }">{{
+        new Date(row.created).toLocaleDateString()
+      }}</template>
+      <template #role-data="{ row }">{{ row.role }}</template>
+      <template #region-data="{ row }">{{ row.region }}</template>
+    </UTable>
     <UModal v-model="isOpen">
       <UCard>
         <template #header>
@@ -180,18 +189,17 @@ function cancelOperations() {
             {{ dataUsers.profile.id }}
           </ElementsLabelSlot>
         </template>
-
         <ElementsLabelSlot :label="'Регион'">
           <USelect
             v-model="dataUsers.profile.region"
-            :options="classifyState.classes.value.regions"
+            :options="Object.values(classifyState.classes.value.regions)"
             @change="userAction(dataUsers.profile.region)"
           />
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Роль'">
           <USelect
             v-model="dataUsers.profile['role']"
-            :select="classifyState.classes.value.roles"
+            :options="Object.values(classifyState.classes.value.roles)"
             @submit-data="userAction(dataUsers.profile.role)"
           />
         </ElementsLabelSlot>
@@ -228,7 +236,6 @@ function cancelOperations() {
             new Date(dataUsers.profile.created + " UTC").toLocaleString("ru-RU")
           }}
         </ElementsLabelSlot>
-
         <template #footer>
           <UButtonGroup size="md" orientation="horizontal">
             <UButton
@@ -263,11 +270,8 @@ function cancelOperations() {
 </template>
 
 <style scoped>
-#overflow {
+table {
   max-height: 50vh;
   overflow-y: auto;
-}
-.no-bottom-border td {
-  border-bottom: none;
 }
 </style>

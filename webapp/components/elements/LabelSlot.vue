@@ -6,17 +6,17 @@ const props = defineProps({
   },
   labelClass: {
     type: String,
-    default: "text-md",
+    default: "col-span-2",
   },
   inputClass: {
     type: String,
-    default: "text-md break-words",
+    default: "col-span-4 break-words",
   }
 });
 </script>
 
 <template>
-  <div class="row columns-2 mb-3">
+  <div class="flex grid grid-cols-6 gap-3 mb-3">
     <div :class="props.labelClass">
       {{ props.label }}
     </div>

@@ -39,8 +39,8 @@ onBeforeMount(async () => {
 
 <template>
   <LayoutsMenu>
-    <div class="py-5">
-      <h3 class="text-2xl text-opacity-75 text-red-800 font-bold">
+    <div class="py-8">
+      <h3 class="text-2xl text-red-800 font-bold">
         {{
           `Статистика по региону ${tableData.region} 
             за период c ${tableData.start} по ${tableData.end} г.`
@@ -52,30 +52,42 @@ onBeforeMount(async () => {
         <caption>Решения по кандидатам</caption>
       </template>
     </UTable>
-    <UForm>
-      <UFormGroup class="mb-3" size="md" label="Регион">
-        <USelect
-          :disable="
-            userState.user.value.region !=
-            classifyState.classes.value.regions['main']
-          "
-          v-model="tableData.region"
-          :options="classifyState.classes.value.regions"
-          @submit-data="submitData"
-        />
-      </UFormGroup>
-      <UFormGroup class="mb-3" size="md" label="Период">
-        <UInput
-          v-model="tableData.start"
-          type="date"
-          @submit-data="submitData"
-        />
-        <UInput
-          v-model="tableData.end"
-          type="date"
-          @submit-data="submitData"
-        />
-      </UFormGroup>
-    </UForm>
+    <div class="flex grid grid-cols-12 gap-3">
+      <div class="col-span-2">
+        <UFormGroup class="mb-3" size="md" label="Регион">
+          <USelect
+            :disable="
+              userState.user.value.region !=
+              classifyState.classes.value.regions['main']
+            "
+            v-model="tableData.region"
+            :options="Object.values(classifyState.classes.value.regions)"
+            @submit-data="submitData"
+          />
+        </UFormGroup>
+      </div>
+      <div class="flex col-span-2">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="col-span-1">
+            <UFormGroup size="md" label="Начало периода">
+              <UInput
+                v-model="tableData.start"
+                type="date"
+                @submit-data="submitData"
+              />
+            </UFormGroup>     
+          </div>     
+          <div class="col-span-1">
+            <UFormGroup size="md" label="Конец периода">
+              <UInput
+                v-model="tableData.end"
+                type="date"
+                @submit-data="submitData"
+              />
+            </UFormGroup>
+          </div>
+        </div>
+      </div>
+    </div>
   </LayoutsMenu>
 </template>

@@ -38,7 +38,7 @@ async function removeToken(): Promise<void> {
     </header>
     <div class="flex-col grid grid-cols-9 gap-8">
       <div class="col-span-1 py-2">
-        <div class="text-xl text-primary mb-3">
+        <div class="text-xl text-primary mb-4">
           <NuxtLink to="/persons"> Кандидаты </NuxtLink>
         </div>
         <UDivider />
@@ -46,7 +46,7 @@ async function removeToken(): Promise<void> {
           v-if="
             userState.user.value.role == classify.classes.value.roles['user']
           "
-          class="text-xl text-primary py-3"
+          class="text-xl text-primary py-4"
         >
           <NuxtLink to="/resume">Создать</NuxtLink>
         </div>
@@ -55,7 +55,7 @@ async function removeToken(): Promise<void> {
             userState.user.value.role == classify.classes.value.roles['user']
           "
         />
-        <div class="text-xl text-primary py-3">
+        <div class="text-xl text-primary py-4">
           <NuxtLink to="/info"> Информация</NuxtLink>
         </div>
         <UDivider />
@@ -63,7 +63,7 @@ async function removeToken(): Promise<void> {
           v-if="
             userState.user.value.role == classify.classes.value.roles['admin']
           "
-          class="text-xl text-primary py-3"
+          class="text-xl text-primary py-4"
         >
           <NuxtLink to="/users">Пользователи</NuxtLink>
         </div>
@@ -72,7 +72,7 @@ async function removeToken(): Promise<void> {
             userState.user.value.role == classify.classes.value.roles['admin']
           "
         />
-        <div class="text-xl text-primary py-3">
+        <div class="text-xl text-primary py-4">
           <NuxtLink to="/" @click="removeToken">Выход</NuxtLink>
         </div>
       </div>

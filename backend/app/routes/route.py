@@ -158,7 +158,7 @@ def post_user():
         user = db_session.execute(
             select(Users).filter(Users.username == json_dict.get("username"))
         ).all()
-        if user:
+        if not user:
             json_dict["role"] = Roles.guest.value
             json_dict["region"] = Regions.main.value
             json_dict["passhash"] = generate_password_hash(

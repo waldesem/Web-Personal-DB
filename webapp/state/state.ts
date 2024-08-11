@@ -72,13 +72,13 @@ export const stateAlert = () => {
   function setAlert(attr: string, title: string, text: string) {
     window.clearTimeout(alertMessage.value.timeOut);
     Object.assign(alertMessage.value, {
-      show: false,
+      show: true,
       attr: attr,
       title: title,
       text: text,
       timeOut: window.setTimeout(() => {
         alertMessage.value.show = false;
-      }, 10000),
+      }, 6000),
     });
   }
   return { alertMessage, setAlert };
