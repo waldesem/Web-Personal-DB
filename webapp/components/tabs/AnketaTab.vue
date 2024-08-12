@@ -9,8 +9,12 @@ const userState = stateUser();
 
 const dataResume = ref({
   action: "",
-  form: <Persons>{},
   showActions: false,
+  form: <Persons>{},
+
+  openFileForm(elementId: string) {
+    document.getElementById(elementId)?.click();
+  }
 });
 
 const items = [
@@ -87,34 +91,6 @@ const items = [
         @mouseover="dataResume.showActions = true"
         @mouseout="dataResume.showActions = false"
       >
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              dataResume.showActions &&
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="
-              anketaState.deleteItem(
-                anketaState.anketa.value.persons['id'],
-                'persons'
-              )
-            "
-            @update="dataResume.action = 'update'"
-          >
-            <FormsFileForm
-              :accept="'*'"
-              @submit="
-                anketaState.submitFile(
-                  $event,
-                  'anketa',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </ElementsActionIcons>
-        </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Регион'">
           <USelect
             v-model="anketaState.anketa.value.persons['region']"
@@ -190,6 +166,35 @@ const items = [
               : "-"
           }}
         </ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          @delete="
+            anketaState.deleteItem(
+              anketaState.anketa.value.persons['id'],
+              'persons'
+            )
+          "
+          @update="dataResume.action = 'update'"
+          @upload="dataResume.openFileForm('resume-file')"
+        >        
+        </ElementsNaviHorizontal>
+        <div v-show="false">
+          <UInput
+            id="resume-file"
+            type="file"
+            accept="*"
+            multiple
+            @change="anketaState.submitFile(
+                $event,
+                'anketa',
+                anketaState.share.value.candId
+              )" 
+          />
+        </div>
       </div>
     </template>
     <template #staff="{ item }"><DivsStaffDiv /></template>

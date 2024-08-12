@@ -67,8 +67,7 @@ onBeforeMount(async () => {
         </UFormGroup>
       </div>
       <div class="flex col-span-2">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="col-span-1">
+          <div class="px-3">
             <UFormGroup size="md" label="Начало периода">
               <UInput
                 v-model="tableData.start"
@@ -77,7 +76,7 @@ onBeforeMount(async () => {
               />
             </UFormGroup>     
           </div>     
-          <div class="col-span-1">
+          <div class="px-3">
             <UFormGroup size="md" label="Конец периода">
               <UInput
                 v-model="tableData.end"
@@ -87,7 +86,6 @@ onBeforeMount(async () => {
             </UFormGroup>
           </div>
         </div>
-      </div>
     </div>
   </LayoutsMenu>
 </template>

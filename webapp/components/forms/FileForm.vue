@@ -21,7 +21,7 @@ const emit = defineEmits(["submit"])
 </script>
 
 <template>
-  <UFormGroup class="mb-3" size="md" label="Файл">
+  <UFormGroup class="mb-3" size="md">
     <UInput
       v-show="props.display"
       :id="props.nameId"

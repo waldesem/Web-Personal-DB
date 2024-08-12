@@ -9,10 +9,6 @@ const photoCard = ref({
   formData: new FormData(),
   showPhoto: false,
 
-  handleMouse() {
-    this.showPhoto = !this.showPhoto;
-  },
-
   async submitImage(event: any) {
     await anketaState.submitFile(
       event,
@@ -24,14 +20,17 @@ const photoCard = ref({
 </script>
 
 <template>
-  <div class="flex relative">
+  <div class="flex justify-left">
     <div
       class="border rounded p-3"
-      @mouseover="photoCard.handleMouse" @mouseout="photoCard.handleMouse">
-      <NuxtImg 
+      @mouseover="photoCard.showPhoto = true"
+      @mouseout="photoCard.showPhoto = false"
+    >
+      <NuxtImg
         :src="anketaState.share.value.imageUrl"
-        width="240" height="240" 
-        />
+        width="240"
+        height="240"
+      />
       <div
         v-show="
           photoCard.showPhoto &&
