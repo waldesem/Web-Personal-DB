@@ -27,44 +27,44 @@ function submitWorkplace() {
 
 <template>
   <UForm :state="workForm" @submit.prevent="submitWorkplace"> 
-    <UFormGroup class="mb-3" size="lg" label="Текущая работа">
+    <UFormGroup class="mb-3" label="Текущая работа">
       <UCheckbox
         v-model="workForm['now_work']"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Начало работы" required>
+    <UFormGroup class="mb-3" label="Начало работы" required>
       <UInput
         v-model="workForm['starts']"
         placeholder="Начало работы"
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Окончание работы">
+    <UFormGroup class="mb-3" label="Окончание работы">
       <UInput
         v-model="workForm['finished']"
         placeholder="Окончание работы"
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Место работы" required>
+    <UFormGroup class="mb-3" label="Место работы" required>
       <UInput
         v-model="workForm['workplace']"
         placeholder="Место работы"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Должность" required>
+    <UFormGroup class="mb-3" label="Должность" required>
       <UInput
         v-model="workForm['position']"
         placeholder="Должность"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Адрес организации">
+    <UFormGroup class="mb-3" label="Адрес организации">
       <UInput
         v-model="workForm['addresses']"
         placeholder="Адрес организации"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Причина увольнения">
+    <UFormGroup class="mb-3" label="Причина увольнения">
       <UInput
         v-model="workForm['reason']"
         placeholder="Причина увольнения"

@@ -20,19 +20,21 @@ function cancelAction() {
 </script>
 
 <template>
-  <UButton label="Работа" variant="link" @click="collapse = !collapse" />
-  <Transition name="slide-fade">
-    <div class="border rounded m-3">
-      <FormsWorkplaceForm v-if="collapse" @cancel="cancelAction" />
-    </div>
-  </Transition>
+  <UButton
+    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    variant="link"
+    @click="collapse = !collapse"
+  />
+  <div v-if="collapse" class="border rounded p-3">
+    <FormsWorkplaceForm @cancel="cancelAction" />
+  </div>
   <div v-if="anketaState.anketa.value.workplaces.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.workplaces"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="border rounded m-3"
+      class="border rounded p-3"
     >
       <FormsWorkplaceForm
         v-if="edit && itemId == item['id'].toString()"
@@ -83,5 +85,7 @@ function cancelAction() {
       </div>
     </div>
   </div>
-  <p v-else>Данные отсутствуют</p>
+  <div v-else class="p-3">
+    <p class="text-primary">Данные о работе отсутствуют</p>
+  </div>
 </template>

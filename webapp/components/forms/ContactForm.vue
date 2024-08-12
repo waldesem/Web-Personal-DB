@@ -38,13 +38,13 @@ const view = computed(() => {
 
 <template>
   <UForm :state="contactForm" @submit.prevent="submitContact">
-    <UFormGroup class="mb-3" size="lg" label="Вид контакта" required>
+    <UFormGroup class="mb-3" label="Вид контакта" required>
       <USelect
         v-model="contactForm['view']"
-        :options="classifyState.classes.value.contacts"
+        :options="Object.values(classifyState.classes.value.contacts)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Контакт" required>
+    <UFormGroup class="mb-3" label="Контакт" required>
       <UInput
         v-model="contactForm['contact']"
         placeholder="Контакт"

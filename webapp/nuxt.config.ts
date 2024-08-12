@@ -12,7 +12,7 @@ export default defineNuxtConfig({
       ],
       style: [
         {
-          children: "body { scrollbar-gutter: stable; }",
+          children: "html, body { scrollbar-gutter: stable; }",
         },
       ],
       noscript: [
@@ -55,7 +55,7 @@ export default defineNuxtConfig({
   modules: [
     "@nuxt/image",
     "nuxt-purgecss",
-    "nuxt-security",
+    // "nuxt-security",
     "nuxt-csurf",
     "@nuxt/ui",
     "@nuxt/eslint",

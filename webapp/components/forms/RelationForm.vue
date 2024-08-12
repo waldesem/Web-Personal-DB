@@ -28,36 +28,19 @@ function submitRelation() {
 
 <template>
   <UForm :state="relationForm" @submit.prevent="submitRelation">
-    <UFormGroup class="mb-3" size="lg" label="Тип связи" required>
+    <UFormGroup class="mb-3" label="Тип связи" required>
       <USelect
         v-model="relationForm['relation']"
-        :options="classifyState.classes.value.relations"
+        :options="Object.values(classifyState.classes.value.relations)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="ID связи" required>
+    <UFormGroup class="mb-3" label="ID связи" required>
       <UInput
         v-model="relationForm['relation_id']"
         placeholder="ID связи"
         type="number"
       />
     </UFormGroup>
-    <ElementsLabelSlot :label="'Тип связи'">
-      <ElementsSelectDiv
-          :name="'relation'"
-          :need="true"
-          :select="classifyState.classes.value.relations"
-          v-model="relationForm['relation']"
-        />
-    </ElementsLabelSlot>
-    <ElementsLabelSlot :label="'ID связи'">
-      <ElementsInputElement
-        :typeof="'number'"
-        :name="'relation_id'"
-        :place="'ID связи'"
-        :need="true"
-        v-model="relationForm['relation_id']"
-      />
-    </ElementsLabelSlot>
     <ElementsBtnGroup @cancel="emit('cancel')"/>
   </UForm>
 </template>

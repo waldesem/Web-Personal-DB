@@ -8,21 +8,25 @@ const userState = stateUser();
 
 const actions = ref(false);
 const collapse = ref(false);
-const itemId = ref('');
+const itemId = ref("");
 const edit = ref(false);
 const education = ref(<Education>{});
 
-function cancelAction(){
+function cancelAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
-};
+}
 </script>
 
 <template>
-  <UButton label="Образование" variant="link" @click="collapse = !collapse"/>
-  <div class="border rounded m-3">
-    <FormsEducationForm @cancel="cancelAction"/>
+  <UButton
+    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    variant="link"
+    @click="collapse = !collapse"
+  />
+  <div v-if="collapse" class="border rounded p-3">
+    <FormsEducationForm @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.educations.length">
     <div
@@ -30,10 +34,10 @@ function cancelAction(){
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="border rounded m-3"
+      class="border rounded p-3"
     >
       <FormsEducationForm
-        v-if="edit && itemId == item['id'].toString()" 
+        v-if="edit && itemId == item['id'].toString()"
         :education="education"
         @cancel="cancelAction"
       />
@@ -41,36 +45,38 @@ function cancelAction(){
         <ElementsLabelSlot>
           <ElementsActionIcons
             v-show="
-                actions &&
-                anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
-                anketaState.anketa.value.persons['standing']
-              "
-            @delete="anketaState.deleteItem(item['id'].toString(), 'educations')"
+              actions &&
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
+            @delete="
+              anketaState.deleteItem(item['id'].toString(), 'educations')
+            "
             @update="
               education = item;
-              itemId = item['id'].toString()
+              itemId = item['id'].toString();
               edit = true;
             "
             :hide="true"
           />
         </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Уровень образования'">{{ item["view"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Уровень образования'">{{
+          item["view"]
+        }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Название учебного заведения'">{{
           item["institution"]
         }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Год окончания'">{{ item["finished"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Специальность'">{{ item["specialty"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Год окончания'">{{
+          item["finished"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Специальность'">{{
+          item["specialty"]
+        }}</ElementsLabelSlot>
       </div>
     </div>
   </div>
-  <p v-else>Данные отсутствуют</p>
+  <div v-else class="p-3">
+    <p class="text-primary">Данные отсутствуют</p>
+  </div>
 </template>
-
-<style scoped>
-@media print {
-  .card {
-    margin: 1px !important;
-    padding: 1px !important;
-  }
-}
-</style>

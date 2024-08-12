@@ -35,31 +35,31 @@ onBeforeMount(async () => {
   }
 });
 
-// const items = [{
-//   slot: 'anketaTab',
-//   label: 'Anketa',
-//   component: AnketaTab
-// }, {
-//   slot: 'checkTab',
-//   label: 'Check',
-//   component: CheckTab
-// }, {
-//   slot: 'poligrafTab',
-//   label: 'Poligraf',
-//   component: PoligrafTab
-// }, {
-//   slot: 'investigateTab',
-//   label: 'Investigate',
-//   component: InvestigateTab
-// }, {
-//   slot: 'inquiryTab',
-//   label: 'Inquiry',
-//   component: InquiryTab
-// }]
-
 async function switchStandings() {
   anketaState.getItem("persons", "self");
 }
+
+const tabs = [{
+  slot: 'anketaTab',
+  label: 'Анкета',
+  component: AnketaTab
+}, {
+  slot: 'checkTab',
+  label: 'Проверки',
+  component: CheckTab
+}, {
+  slot: 'poligrafTab',
+  label: 'Полиграф',
+  component: PoligrafTab
+}, {
+  slot: 'investigateTab',
+  label: 'Расследования',
+  component: InvestigateTab
+}, {
+  slot: 'inquiryTab',
+  label: 'Запросы',
+  component: InquiryTab
+}]
 </script>
 
 <template>
@@ -99,10 +99,10 @@ async function switchStandings() {
         @click="switchStandings"
       />
     </div>
-    <!-- <UTabs :items="items" class="w-full">
-      <template v-for="item, idx in items" #[item.slot] :key="idx">
+    <UTabs :items="tabs" class="w-full">
+      <template v-for="item, idx in tabs" #[item.slot] :key="idx">
         <component :is="item['component']" />
       </template>
-    </UTabs> -->
+    </UTabs>
   </LayoutsMenu>
 </template>

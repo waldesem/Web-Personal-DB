@@ -52,19 +52,17 @@ const renderAdditional = (jsonString: string) => {
 
 <template>
   <UButton
-    label="Добавить запись"
+    :label="!checkData.collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="checkData.collapse = !checkData.collapse"
   />
-  <Transition name="slide-fade">
-    <div class="border rounded m-3">
-      <FormsCheckForm @cancel="cancelAction" />
-    </div>
-  </Transition>
+  <div v-if="checkData.collapse" class="border rounded p-3">
+    <FormsCheckForm @cancel="cancelAction" />
+  </div>
   <div v-if="anketaState.anketa.value.checks.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.checks"
-      class="border rounded m-3"
+      class="border rounded p-3"
       :key="idx"
       @mouseover="checkData.actions = true"
       @mouseout="checkData.actions = false"
@@ -165,7 +163,7 @@ const renderAdditional = (jsonString: string) => {
           />
         </ElementsLabelSlot>
         <div
-          class="border rounded m-3"
+          class="border rounded p-3"
           v-if="item['addition']"
           &&
           checkData.collapseAdd
@@ -174,5 +172,7 @@ const renderAdditional = (jsonString: string) => {
       </div>
     </div>
   </div>
-  <p class="p-3" v-else>Проверка кандидата отсутствует</p>
+  <div v-else class="p-3">
+  <p class="text-primary">Проверка кандидата отсутствует</p>
+  </div>
 </template>

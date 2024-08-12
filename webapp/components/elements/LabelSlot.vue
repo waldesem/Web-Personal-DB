@@ -6,11 +6,11 @@ const props = defineProps({
   },
   labelClass: {
     type: String,
-    default: "col-span-2",
+    default: "col-span-1",
   },
   inputClass: {
     type: String,
-    default: "col-span-4 break-words",
+    default: "col-span-5 break-words",
   }
 });
 </script>

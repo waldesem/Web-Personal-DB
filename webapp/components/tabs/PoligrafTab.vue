@@ -20,19 +20,21 @@ function cancelAction() {
 </script>
 
 <template>
-  <UButton label="Добавить запись" variant="link" @click="collapse = !collapse" />
-  <Transition name="slide-fade">
-    <div class="border rounded m-3" v-if="collapse">
-      <FormsPoligrafForm @cancel="cancelAction" />
-    </div>
-  </Transition>
+  <UButton
+    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    variant="link"
+    @click="collapse = !collapse"
+  />  
+  <div v-if="collapse" class="border rounded p-3">
+    <FormsPoligrafForm @cancel="cancelAction" />
+  </div>
   <div v-if="anketaState.anketa.value.poligrafs.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.poligrafs"
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="border rounded m-3"
+      class="border rounded p-3"
     >
       <FormsPoligrafForm
         v-if="edit && itemId == item['id'].toString()"
@@ -78,5 +80,7 @@ function cancelAction() {
       </div>
     </div>
   </div>
-  <p class="p-3" v-else>Обследование на полиграфе не проводилось</p>
+  <div v-else class="p-3">
+  <p class="text-primary">Обследование на полиграфе не проводилось</p>
+  </div>
 </template>

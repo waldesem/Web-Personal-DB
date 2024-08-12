@@ -27,13 +27,13 @@ function submitStaff() {
 
 <template>
   <UForm :state="staffForm" @submit.prevent="submitStaff">
-    <UFormGroup class="mb-3" size="lg" label="Должность" required>
+    <UFormGroup class="mb-3" label="Должность" required>
       <UInput
         v-model="staffForm['position']"
         placeholder="Должность"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Подразделение">
+    <UFormGroup class="mb-3" label="Подразделение">
       <UInput
         v-model="staffForm['department']"
         placeholder="Подразделение"

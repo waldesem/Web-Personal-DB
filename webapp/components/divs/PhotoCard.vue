@@ -24,9 +24,14 @@ const photoCard = ref({
 </script>
 
 <template>
-  <div class="border rounded">
-    <div @mouseover="photoCard.handleMouse" @mouseout="photoCard.handleMouse">
-      <NuxtImg :src="anketaState.share.value.imageUrl" alt="..." />
+  <div class="flex relative">
+    <div
+      class="border rounded p-3"
+      @mouseover="photoCard.handleMouse" @mouseout="photoCard.handleMouse">
+      <NuxtImg 
+        :src="anketaState.share.value.imageUrl"
+        width="240" height="240" 
+        />
       <div
         v-show="
           photoCard.showPhoto &&
@@ -42,24 +47,6 @@ const photoCard = ref({
           @change="photoCard.submitImage($event)"
         />
       </div>
+    </div>
   </div>
-</div></template>
-
-<!-- <style scoped>
-.card-img-container {
-  position: relative;
-  display: inline-block;
-}
-
-.form {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  visibility: hidden;
-}
-
-.form-visible {
-  visibility: visible;
-}
-</style> -->
+</template>

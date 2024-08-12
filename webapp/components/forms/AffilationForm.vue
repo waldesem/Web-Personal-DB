@@ -28,19 +28,19 @@ function submitAffilation() {
 
 <template>
   <UForm :state="affilationForm" @submit.prevent="submitAffilation">
-    <UFormGroup class="mb-3" size="lg" label="Тип участия">
+    <UFormGroup class="mb-3" label="Тип участия">
       <USelect
         v-model="affilationForm['view']"
-        :options="classifyState.classes.value.affilations"
+        :options="Object.values(classifyState.classes.value.affilations)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="Организация" required>
+    <UFormGroup class="mb-3" label="Организация" required>
       <UInput
         v-model="affilationForm['organization']"
         placeholder="Организация"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="lg" label="ИНН" required>
+    <UFormGroup class="mb-3" label="ИНН" required>
       <UInput
         v-model="affilationForm['inn']"
         placeholder="ИНН"

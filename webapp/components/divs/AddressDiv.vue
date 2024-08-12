@@ -20,9 +20,13 @@ function cancelAction() {
 </script>
 
 <template>
-  <UButton label="Адреса" variant="link" @click="collapse = !collapse" />
-  <div class="border rounded m-3">
-    <FormsAddressForm v-if="collapse" @cancel="cancelAction" />
+  <UButton
+    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    variant="link"
+    @click="collapse = !collapse"
+  />
+  <div v-if="collapse" class="border rounded p-3">
+    <FormsAddressForm @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.addresses.length">
     <div
@@ -30,7 +34,7 @@ function cancelAction() {
       :key="idx"
       @mouseover="actions = true"
       @mouseout="actions = false"
-      class="border rounded m-3"
+      class="border rounded p-3"
     >
       <FormsAddressForm
         v-if="edit && itemId == item['id'].toString()"
@@ -62,5 +66,7 @@ function cancelAction() {
       </div>
     </div>
   </div>
-  <p v-else>Данные отсутствуют</p>
+  <div v-else class="p-3">
+    <p class="text-primary">Адреса отсутствуют</p>
+  </div>
 </template>

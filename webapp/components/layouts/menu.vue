@@ -15,14 +15,14 @@ const links = [
   [
     {
       label: "Кандидаты",
-      labelClass: "text-xl text-primary mb-4",
+      labelClass: "text-xl text-primary mb-3",
       to: "/persons",
     },
   ],
   [
     {
       label: "Создать",
-      labelClass: "text-xl text-primary py-4",
+      labelClass: "text-xl text-primary py-3",
       to: "/resume",
       disabled: userState.user.value.role !== classify.classes.value.roles["user"],
     },
@@ -30,14 +30,14 @@ const links = [
   [
     {
       label: "Информация",
-      labelClass: "text-xl text-primary py-4",
+      labelClass: "text-xl text-primary py-3",
       to: "/info",
     },
   ],
   [
     {
       label: "Пользователи",
-      labelClass: "text-xl text-primary py-4",
+      labelClass: "text-xl text-primary py-3",
       to: "/users",
       disabled: userState.user.value.role !== classify.classes.value.roles["admin"],
     },
@@ -45,7 +45,7 @@ const links = [
   [
     {
       label: "Выход",
-      labelClass: "text-xl text-primary mt-4",
+      labelClass: "text-xl text-primary mt-3",
       to: "/login",
       click: () => removeToken(),
     },
@@ -56,14 +56,14 @@ const links = [
 <template>
   <div class="mx-auto px-16">
     <header class="sticky py-8">
-      <div class="flex items-center justify-between grid grid-cols-12 gap-3">
+      <div class="flex justify-between grid grid-cols-12 gap-3">
         <div class="col-span-2">
-          <h3 class="text-2xl text-primary font-bold">STAFFSEC FINTECH</h3>
+          <h3 class="text-2xl text-red-800 font-bold">STAFFSEC FINTECH</h3>
         </div>
         <div class="col-span-9 h-[--header-height]">
           <DivsAlertMessage />
         </div>
-        <div class="col-span-1">
+        <div class="col-span-1 content-right">
           <UButton
             icon="i-heroicons-moon"
             :variant="$colorMode.preference == 'dark' ? 'soft' : 'ghost'"
@@ -77,14 +77,14 @@ const links = [
         </div>
       </div>
     </header>
-    <div class="grid grid-cols-9 gap-8">
-      <div class="flex-col col-span-1 py-3">
+    <div class="flex flex-col grid grid-cols-12 gap-3">
+      <div class="col-span-2 py-3">
         <UVerticalNavigation 
           :links="links"
           :ui="{ active: '' }" 
         />
       </div>
-      <div class="flex-col col-span-8 py-3">
+      <div class="col-span-10 py-3">
         <slot />
       </div>
     </div>
