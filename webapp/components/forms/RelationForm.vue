@@ -27,14 +27,14 @@ function submitRelation() {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitRelation">
-    <UFormGroup class="mb-3" size="md" label="Тип связи" required>
+  <UForm :state="relationForm" @submit.prevent="submitRelation">
+    <UFormGroup class="mb-3" size="lg" label="Тип связи" required>
       <USelect
         v-model="relationForm['relation']"
         :options="classifyState.classes.value.relations"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="ID связи" required>
+    <UFormGroup class="mb-3" size="lg" label="ID связи" required>
       <UInput
         v-model="relationForm['relation_id']"
         placeholder="ID связи"

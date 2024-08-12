@@ -2,7 +2,7 @@
 
 <template>
   <LayoutsMenu>
-    <div class="py-5">
+    <div class="py-8">
       <h3 class="text-2xl text-opacity-75 text-red-800 font-bold">
         Создать анкету
       </h3>

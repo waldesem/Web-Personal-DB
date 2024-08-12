@@ -49,12 +49,12 @@ async function submitLogin(): Promise<void> {
         break;
 
       default:
-        alertState.setAlert("red", "Внимание", "Неправильный логин или пароль");
+        alertState.setAlert("rose", "Внимание", "Неправильный логин или пароль");
         break;
     }
   } catch (error: unknown) {
     console.error(error);
-    alertState.setAlert("red", "Внимание", "Неправильный логин или пароль");
+    alertState.setAlert("rose", "Внимание", "Неправильный логин или пароль");
   }
   showPswd.value = false;
 }

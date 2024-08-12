@@ -42,17 +42,17 @@ onBeforeMount(async () => {
     <div class="py-8">
       <h3 class="text-2xl text-red-800 font-bold">
         {{
-          `Статистика по региону ${tableData.region} 
+          `Информация по региону ${tableData.region} 
             за период c ${tableData.start} по ${tableData.end} г.`
         }}
       </h3>
     </div>
     <UTable :rows="tableData.checks" :columns="['Решение', 'Количество']">
       <template #caption>
-        <caption>Решения по кандидатам</caption>
+        <caption class="text-left">Решения по кандидатам</caption>
       </template>
     </UTable>
-    <div class="flex grid grid-cols-12 gap-3">
+    <div class="flex grid grid-cols-12 gap-3 mt-4">
       <div class="col-span-2">
         <UFormGroup class="mb-3" size="md" label="Регион">
           <USelect

@@ -26,32 +26,32 @@ function submitPrevious() {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitPrevious">
-    <UFormGroup class="mb-3" size="md" label="Фамилия" required>
+  <UForm :state="previousForm" @submit.prevent="submitPrevious">
+    <UFormGroup class="mb-3" size="lg" label="Фамилия" required>
       <UInput
         v-model="previousForm['surname']"
         placeholder="Фамилия"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Имя" required>
+    <UFormGroup class="mb-3" size="lg" label="Имя" required>
       <UInput
         v-model="previousForm['firstname']"
         placeholder="Имя"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Отчество">
+    <UFormGroup class="mb-3" size="lg" label="Отчество">
       <UInput
         v-model="previousForm['patronymic']"
         placeholder="Отчество"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Год изменения">
+    <UFormGroup class="mb-3" size="lg" label="Год изменения">
       <UInput
         v-model="previousForm['changed']"
         placeholder="Год изменения"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Причина изменения">
+    <UFormGroup class="mb-3" size="lg" label="Причина изменения">
       <UInput
         v-model="previousForm['reason']"
         placeholder="Причина изменения"

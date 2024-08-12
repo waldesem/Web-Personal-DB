@@ -37,14 +37,14 @@ const view = computed(() => {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitContact">
-    <UFormGroup class="mb-3" size="md" label="Вид контакта" required>
+  <UForm :state="contactForm" @submit.prevent="submitContact">
+    <UFormGroup class="mb-3" size="lg" label="Вид контакта" required>
       <USelect
         v-model="contactForm['view']"
         :options="classifyState.classes.value.contacts"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Контакт" required>
+    <UFormGroup class="mb-3" size="lg" label="Контакт" required>
       <UInput
         v-model="contactForm['contact']"
         placeholder="Контакт"

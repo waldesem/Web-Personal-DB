@@ -34,68 +34,68 @@ async function submitForm(): Promise<void> {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitForm">
-    <UFormGroup class="mb-3" size="md" label="Фамилия" required>
+  <UForm :state="resumeForm" @submit.prevent="submitForm">
+    <UFormGroup class="mb-3" size="lg" label="Фамилия" required>
       <UInput
         v-model="resumeForm['surname']"
         placeholder="Фамилия"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Имя" required>
+    <UFormGroup class="mb-3" size="lg" label="Имя" required>
       <UInput
         v-model="resumeForm['firstname']"
         placeholder="Имя"
-      />
+      />  
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Отчество">
+    <UFormGroup class="mb-3" size="lg" label="Отчество">
       <UInput
         v-model="resumeForm['patronymic']"
         placeholder="Отчество"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Дата рождения" required>
+    <UFormGroup class="mb-3" size="lg" label="Дата рождения" required>
       <UInput
         v-model="resumeForm['birthday']"
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Место рождения">
+    <UFormGroup class="mb-3" size="lg" label="Место рождения">
       <UTextarea
         v-model="resumeForm['birthplace']"
         placeholder="Место рождения"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Гражданство">
+    <UFormGroup class="mb-3" size="lg" label="Гражданство">
       <UInput
         v-model="resumeForm['citizenship']"
         placeholder="Гражданство"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Двойное гражданство">
+    <UFormGroup class="mb-3" size="lg" label="Двойное гражданство">
       <UInput
         v-model="resumeForm['dual']"
         placeholder="Двойное гражданство"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="СНИЛС">
+    <UFormGroup class="mb-3" size="lg" label="СНИЛС">
       <UInput
         v-model="resumeForm['snils']"
         placeholder="СНИЛС"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="ИНН">
+    <UFormGroup class="mb-3" size="lg" label="ИНН">
       <UInput
         v-model="resumeForm['inn']"
         placeholder="ИНН"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Семейное положение">
+    <UFormGroup class="mb-3" size="lg" label="Семейное положение">
       <UTextarea
         v-model="resumeForm['marital']"
         placeholder="Семейное положение"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Дополнительно">
+    <UFormGroup class="mb-3" size="lg" label="Дополнительно">
       <UTextarea
         v-model="resumeForm['addition']"
         placeholder="Дополнительно"

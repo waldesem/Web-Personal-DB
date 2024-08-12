@@ -35,27 +35,27 @@ onBeforeMount(async () => {
   }
 });
 
-const items = [{
-  slot: 'anketaTab',
-  label: 'Anketa',
-  component: AnketaTab
-}, {
-  slot: 'checkTab',
-  label: 'Check',
-  component: CheckTab
-}, {
-  slot: 'poligrafTab',
-  label: 'Poligraf',
-  component: PoligrafTab
-}, {
-  slot: 'investigateTab',
-  label: 'Investigate',
-  component: InvestigateTab
-}, {
-  slot: 'inquiryTab',
-  label: 'Inquiry',
-  component: InquiryTab
-}]
+// const items = [{
+//   slot: 'anketaTab',
+//   label: 'Anketa',
+//   component: AnketaTab
+// }, {
+//   slot: 'checkTab',
+//   label: 'Check',
+//   component: CheckTab
+// }, {
+//   slot: 'poligrafTab',
+//   label: 'Poligraf',
+//   component: PoligrafTab
+// }, {
+//   slot: 'investigateTab',
+//   label: 'Investigate',
+//   component: InvestigateTab
+// }, {
+//   slot: 'inquiryTab',
+//   label: 'Inquiry',
+//   component: InquiryTab
+// }]
 
 async function switchStandings() {
   anketaState.getItem("persons", "self");
@@ -65,8 +65,8 @@ async function switchStandings() {
 <template>
   <LayoutsMenu>
     <DivsPhotoCard />
-    <div class="py-5">
-      <h3 class="text-2xl text-opacity-75 text-red-800 font-bold">
+    <div class="py-8">
+      <h3 class="text-2xl text-red-800 font-bold">
         {{
           `${anketaState.anketa.value.persons.surname} ${
             anketaState.anketa.value.persons.firstname
@@ -99,10 +99,10 @@ async function switchStandings() {
         @click="switchStandings"
       />
     </div>
-    <UTabs :items="items" class="w-full">
+    <!-- <UTabs :items="items" class="w-full">
       <template v-for="item, idx in items" #[item.slot] :key="idx">
         <component :is="item['component']" />
       </template>
-    </UTabs>
+    </UTabs> -->
   </LayoutsMenu>
 </template>

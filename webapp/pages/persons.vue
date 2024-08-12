@@ -51,7 +51,7 @@ const searchPerson = debounce(() => {
     <div class="py-8">
       <h3 class="text-2xl text-red-800 font-bold">Кандидаты</h3>
     </div>
-    <div class="mb-8">
+    <div class="mb-16">
       <UInput
         v-model="personState.persons.value.search"
         placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
@@ -98,11 +98,10 @@ const searchPerson = debounce(() => {
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #standing-data="{ row }">
-        <UIcon v-if="row.standing" name="i-heroicons-face-frown" class="w-6 h-6" />
-        <UIcon v-else name="i-heroicons-face-smile" class="w-6 h-6" />
+        <UChip size="2xl" :color="row.standing ? 'red' : 'green'"/>
       </template>
       <template #caption>
-        <caption>
+        <caption class="caption-bottom text-left">
           <UButton
             variant="link"
             icon="i-heroicons-arrow-path"

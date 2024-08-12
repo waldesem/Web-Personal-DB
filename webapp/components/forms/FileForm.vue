@@ -21,18 +21,14 @@ const emit = defineEmits(["submit"])
 </script>
 
 <template>
-  <UForm 
-    enctype="multipart/form-data"
-    @change="emit('submit', $event)" 
-    >
-    <UFormGroup class="mb-3" size="md" label="Файл">
-      <UInput
-        v-show="props.display"
-        :id="props.nameId"
-        type="file"
-        :accept="props.accept"
-        multiple
-      />
-    </UFormGroup>
-  </UForm>
+  <UFormGroup class="mb-3" size="md" label="Файл">
+    <UInput
+      v-show="props.display"
+      :id="props.nameId"
+      type="file"
+      :accept="props.accept"
+      multiple
+      @change="emit('submit', $event)" 
+    />
+  </UFormGroup>
 </template> 

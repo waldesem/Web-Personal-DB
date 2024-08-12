@@ -279,7 +279,7 @@ export const stateAnketa = () => {
         console.error(error);
       }
     } else {
-      alertState.setAlert("red", "Внимание", "Ошибка при загрузке файла");
+      alertState.setAlert("rose", "Внимание", "Ошибка при загрузке файла");
     }
   }
 
@@ -292,10 +292,10 @@ export const stateAnketa = () => {
           body: form,
         });
         const person_id = response as string;
-        navigateTo({ name: "profile", params: { id: person_id } });
+        navigateTo(`/profile/${person_id}`);
         alertState.setAlert("green", "Успешно", "Данные успешно добавлены");
       } catch (error) {
-        alertState.setAlert("red", "Внимание", `Возникла ошибка ${error}`);
+        alertState.setAlert("rose", "Внимание", `Возникла ошибка ${error}`);
       }
     } else {
       updateItem("persons", form);

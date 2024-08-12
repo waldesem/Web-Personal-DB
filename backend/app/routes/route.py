@@ -197,6 +197,8 @@ def get_user_actions(user_id):
             user.attempt = 0
             user.blocked = False
             user.change_pswd = True
+        elif item == "block":
+            user.blocked = not user.blocked
         elif item == "delete":
             user.deleted = not user.deleted
         elif item in [reg.value for reg in Roles]:

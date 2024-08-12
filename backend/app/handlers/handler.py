@@ -58,6 +58,7 @@ def handle_post_resume(resume):
     """
     resume["standing"] = True
     resume["user_id"] = current_user["id"]
+    resume["region"] = current_user["region"]
     if not resume.get("id"):
         person = db_session.execute(
             select(Persons).where(

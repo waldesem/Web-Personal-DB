@@ -27,20 +27,20 @@ function submitAffilation() {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitAffilation">
-    <UFormGroup class="mb-3" size="md" label="Тип участия">
+  <UForm :state="affilationForm" @submit.prevent="submitAffilation">
+    <UFormGroup class="mb-3" size="lg" label="Тип участия">
       <USelect
         v-model="affilationForm['view']"
         :options="classifyState.classes.value.affilations"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Организация" required>
+    <UFormGroup class="mb-3" size="lg" label="Организация" required>
       <UInput
         v-model="affilationForm['organization']"
         placeholder="Организация"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="ИНН" required>
+    <UFormGroup class="mb-3" size="lg" label="ИНН" required>
       <UInput
         v-model="affilationForm['inn']"
         placeholder="ИНН"

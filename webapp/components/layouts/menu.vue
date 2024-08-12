@@ -10,6 +10,47 @@ async function removeToken(): Promise<void> {
     localStorage.removeItem("user_token");
   }
 }
+
+const links = [
+  [
+    {
+      label: "Кандидаты",
+      labelClass: "text-xl text-primary mb-4",
+      to: "/persons",
+    },
+  ],
+  [
+    {
+      label: "Создать",
+      labelClass: "text-xl text-primary py-4",
+      to: "/resume",
+      disabled: userState.user.value.role !== classify.classes.value.roles["user"],
+    },
+  ],
+  [
+    {
+      label: "Информация",
+      labelClass: "text-xl text-primary py-4",
+      to: "/info",
+    },
+  ],
+  [
+    {
+      label: "Пользователи",
+      labelClass: "text-xl text-primary py-4",
+      to: "/users",
+      disabled: userState.user.value.role !== classify.classes.value.roles["admin"],
+    },
+  ],
+  [
+    {
+      label: "Выход",
+      labelClass: "text-xl text-primary mt-4",
+      to: "/login",
+      click: () => removeToken(),
+    },
+  ],
+];
 </script>
 
 <template>
@@ -36,47 +77,14 @@ async function removeToken(): Promise<void> {
         </div>
       </div>
     </header>
-    <div class="flex-col grid grid-cols-9 gap-8">
-      <div class="col-span-1 py-2">
-        <div class="text-xl text-primary mb-4">
-          <NuxtLink to="/persons"> Кандидаты </NuxtLink>
-        </div>
-        <UDivider />
-        <div
-          v-if="
-            userState.user.value.role == classify.classes.value.roles['user']
-          "
-          class="text-xl text-primary py-4"
-        >
-          <NuxtLink to="/resume">Создать</NuxtLink>
-        </div>
-        <UDivider
-          v-if="
-            userState.user.value.role == classify.classes.value.roles['user']
-          "
+    <div class="grid grid-cols-9 gap-8">
+      <div class="flex-col col-span-1 py-3">
+        <UVerticalNavigation 
+          :links="links"
+          :ui="{ active: '' }" 
         />
-        <div class="text-xl text-primary py-4">
-          <NuxtLink to="/info"> Информация</NuxtLink>
-        </div>
-        <UDivider />
-        <div
-          v-if="
-            userState.user.value.role == classify.classes.value.roles['admin']
-          "
-          class="text-xl text-primary py-4"
-        >
-          <NuxtLink to="/users">Пользователи</NuxtLink>
-        </div>
-        <UDivider
-          v-if="
-            userState.user.value.role == classify.classes.value.roles['admin']
-          "
-        />
-        <div class="text-xl text-primary py-4">
-          <NuxtLink to="/" @click="removeToken">Выход</NuxtLink>
-        </div>
       </div>
-      <div class="col-span-8 py-3">
+      <div class="flex-col col-span-8 py-3">
         <slot />
       </div>
     </div>

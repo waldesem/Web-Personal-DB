@@ -26,14 +26,14 @@ function submitIquiry() {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitIquiry">
-    <UFormGroup class="mb-3" size="md" label="Информация" required>
+  <UForm :state="inquiryForm" @submit.prevent="submitIquiry">
+    <UFormGroup class="mb-3" size="lg" label="Информация" required>
       <UInput
         v-model="inquiryForm['info']"
         placeholder="Информация"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Инициатор" required>
+    <UFormGroup class="mb-3" size="lg" label="Инициатор" required>
       <UInput
         v-model="inquiryForm['origins']"
         placeholder="Инициатор"

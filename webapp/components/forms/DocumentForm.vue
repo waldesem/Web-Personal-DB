@@ -27,32 +27,32 @@ function submitDocument() {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitDocument">
-    <UFormGroup class="mb-3" size="md" label="Вид документа" required>
+  <UForm :state="docForm" @submit.prevent="submitDocument">
+    <UFormGroup class="mb-3" size="lg" label="Вид документа" required>
       <USelect
         v-model="docForm['view']"
         :options="classifyState.classes.value.documents"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Серия документа" required>
+    <UFormGroup class="mb-3" size="lg" label="Серия документа" required>
       <UInput
         v-model="docForm['series']"
         placeholder="Серия документа"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Номер документа" required>
+    <UFormGroup class="mb-3" size="lg" label="Номер документа" required>
       <UInput
         v-model="docForm['digits']"
         placeholder="Номер документа"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Кем выдан" required>
+    <UFormGroup class="mb-3" size="lg" label="Кем выдан" required>
       <UInput
         v-model="docForm['agency']"
         placeholder="Кем выдан"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Дата выдачи" required>
+    <UFormGroup class="mb-3" size="lg" label="Дата выдачи" required>
       <UInput
         v-model="docForm['issue']"
         type="date"

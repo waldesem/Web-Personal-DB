@@ -27,14 +27,14 @@ function submitPoligraf() {
 </script>
 
 <template>
-  <UForm @submit.prevent="submitPoligraf">
-    <UFormGroup class="mb-3" size="md" label="Тема проверки" required>
+  <UForm :state="poligrafForm" @submit.prevent="submitPoligraf">
+    <UFormGroup class="mb-3" size="lg" label="Тема проверки" required>
       <USelect
         v-model="poligrafForm['theme']"
         :options="classifyState.classes.value.poligrafs"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" size="md" label="Результат" required>
+    <UFormGroup class="mb-3" size="lg" label="Результат" required>
       <UTextarea
         v-model="poligrafForm['results']"
         placeholder="Результат"

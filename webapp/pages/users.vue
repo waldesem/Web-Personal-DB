@@ -18,13 +18,14 @@ const users = computed(() => {
   );
 });
 
-const isOpen = ref(false);
 const isCollapsed = ref(false);
 
 const dataUsers = ref({
   search: "",
+  userId: "",
+  region: "",
+  role: "",
   users: [] as User[],
-  profile: {} as User,
   form: {} as User,
   viewDeleted: false,
 });
@@ -43,32 +44,36 @@ async function getUsers() {
   }
 }
 
-const searching = debounce(() => {
-  getUsers();
-}, 500);
-
-async function userAction(item: string): Promise<void> {
+async function userAction(
+  item: string,
+  id: string = dataUsers.value.userId
+): Promise<void> {
+  const matched = {
+    delete: "удалить/восстановить",
+    drop: "сбросить пароль",
+    block: "заблокировать/разблокировать",
+  };
   if (item === "delete") {
-    if (
-      !confirm("Вы действительно хотите удалить/восстановить пользователя?")
-    ) {
+    if (!confirm(`Вы действительно хотите ${matched[item]} пользователя?`)) {
       return;
     }
   }
   try {
     const fetchAuth = useFetchAuth();
-    const response = await fetchAuth(
-      `${server}/users/${dataUsers.value.profile.id}`,
-      {
-        params: {
-          item: item,
-        },
-      }
-    );
+    const response = await fetchAuth(`${server}/users/${id}`, {
+      params: {
+        item: item,
+      },
+    });
     console.log(response);
+    Object.assign(dataUsers.value, {
+      userId: "",
+      region: "",
+      role: "",
+    })
     getUsers();
   } catch (error: unknown) {
-    alertState.setAlert("red", "Внимание", "Невозможно выполнить операцию");
+    alertState.setAlert("rose", "Внимание", "Невозможно выполнить операцию");
     console.error(error);
   }
 }
@@ -85,10 +90,35 @@ async function submitUser(): Promise<void> {
     alertState.setAlert("green", "Успешно", "Пользователь успешно создан");
     getUsers();
   } catch (error) {
-    alertState.setAlert("red", "Внимание", "Ошибка при создании пользователя");
+    alertState.setAlert("rose", "Внимание", "Ошибка при создании пользователя");
     console.error(error);
   }
 }
+
+const searching = debounce(() => {
+  getUsers();
+}, 500);
+
+const items = [
+  [
+    {
+      label: "Сбросить пароль",
+      click: () => userAction("drop"),
+    },
+  ],
+  [
+    {
+      label: "Заблокировать/разблокировать",
+      click: () => userAction("block"),
+    },
+  ],
+  [
+    {
+      label: "Удалить/восстановить",
+      click: () => userAction("delete"),
+    },
+  ],
+];
 </script>
 
 <template>
@@ -124,6 +154,7 @@ async function submitUser(): Promise<void> {
               <UInput
                 v-model="dataUsers.form['fullname']"
                 placeholder="Имя пользователя"
+                size="lg"
               />
             </UFormGroup>
           </div>
@@ -132,6 +163,7 @@ async function submitUser(): Promise<void> {
               <UInput
                 v-model="dataUsers.form['username']"
                 placeholder="Логин"
+                size="lg"
               />
             </UFormGroup>
           </div>
@@ -142,6 +174,7 @@ async function submitUser(): Promise<void> {
               color="gray"
               label="Создать"
               type="submit"
+              size="lg"
             />
           </div>
         </div>
@@ -150,128 +183,57 @@ async function submitUser(): Promise<void> {
     <UTable
       :columns="[
         { key: 'id', label: '#' },
-        { key: 'fullname', label: 'Имя пользователя' },
+        { key: 'fullname', label: 'Пользователь' },
         { key: 'username', label: 'Логин' },
-        { key: 'change_pswd', label: 'Изменить пароль' },
-        { key: 'blocked', label: 'Блокировка' },
-        { key: 'created', label: 'Создан' },
-        { key: 'role', label: 'Роль' },
         { key: 'region', label: 'Регион' },
+        { key: 'role', label: 'Роль' },
+        { key: 'created', label: 'Создан' },
+        { key: 'attempt', label: 'Попытки' },
+        { key: 'blocked', label: 'Блокировка' },
+        { key: 'pswd_create', label: 'Обновлено' },
+        { key: 'change_pswd', label: 'Изменение' },
       ]"
       :rows="users"
     >
       <template #id-data="{ row }">{{ row.id }}</template>
       <template #fullname-data="{ row }">{{ row.fullname }}</template>
-      <template #username-data="{ row }"
-        ><UButton variant="link" @click="isOpen = true">
-          {{ row.username }}
-        </UButton></template
-      >
-      <template #change_pswd-data="{ row }">{{ row.change_pswd }}</template>
-      <template #blocked-data="{ row }">
-        <UIcon
-          v-if="row.blocked"
-          name="i-heroicons-face-frown"
-          class="w-6 h-6"
+      <template #username-data="{ row }">
+        <UDropdown :items="items">
+          <UButton
+            variant="link"
+            :label="row.username"
+            @click="dataUsers.userId = row.id"
+          />
+        </UDropdown>
+      </template>
+      <template #region-data="{ row }">
+        <USelect
+          v-model="dataUsers.region"
+          :placeholder="row.region"
+          :options="Object.values(classifyState.classes.value.regions)"
+          @change="userAction(dataUsers.region, row.id)"
         />
-        <UIcon v-else name="i-heroicons-face-smile" class="w-6 h-6" />
+      </template>
+      <template #role-data="{ row }">
+        <USelect
+          v-model="dataUsers.role"
+          :placeholder="row.role"
+          :options="Object.values(classifyState.classes.value.roles)"
+          @change="userAction(dataUsers.role, row.id)"
+        />
       </template>
       <template #created-data="{ row }">{{
         new Date(row.created).toLocaleDateString()
       }}</template>
-      <template #role-data="{ row }">{{ row.role }}</template>
-      <template #region-data="{ row }">{{ row.region }}</template>
+      <template #blocked-data="{ row }">
+        <UChip size="2xl" :color="row.blocked ? 'red' : 'green'"/>
+      </template>
+      <template #pswd_create-data="{ row }">{{
+        new Date(row.pswd_create).toLocaleDateString()
+      }}</template>
+      <template #change_pswd-data="{ row }">
+        <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'"/>
+      </template>
     </UTable>
-    <UModal v-model="isOpen">
-      <UCard>
-        <template #header>
-          <ElementsLabelSlot :label="'ID'">
-            {{ dataUsers.profile.id }}
-          </ElementsLabelSlot>
-        </template>
-        <ElementsLabelSlot :label="'Регион'">
-          <USelect
-            v-model="dataUsers.profile.region"
-            :options="Object.values(classifyState.classes.value.regions)"
-            @change="userAction(dataUsers.profile.region)"
-          />
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Роль'">
-          <USelect
-            v-model="dataUsers.profile['role']"
-            :options="Object.values(classifyState.classes.value.roles)"
-            @submit-data="userAction(dataUsers.profile.role)"
-          />
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Имя пользователя'">
-          {{ dataUsers.profile.fullname }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Логин'">
-          {{ dataUsers.profile.username }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата создания пароля'">
-          {{
-            new Date(dataUsers.profile.pswd_create + " UTC").toLocaleString(
-              "ru-RU"
-            )
-          }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Требует смены пароля'">
-          {{ dataUsers.profile.change_pswd ? "Да" : "Нет" }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Попытки входа'">
-          {{ dataUsers.profile.attempt }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Заблокирован'">
-          {{ dataUsers.profile.blocked ? "Заблокирован" : "Разблокирован" }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Активность'">
-          {{ dataUsers.profile.deleted ? "Удален" : "Активен" }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Роль'">
-          {{ dataUsers.profile.role }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата создания профиля'">
-          {{
-            new Date(dataUsers.profile.created + " UTC").toLocaleString("ru-RU")
-          }}
-        </ElementsLabelSlot>
-        <template #footer>
-          <UButtonGroup size="md" orientation="horizontal">
-            <UButton
-              label="Сбросить пароль"
-              color="green"
-              variant="outline"
-              @click="userAction('drop')"
-            />
-            <UButton
-              :label="
-                dataUsers.profile.deleted ? 'Заблокировать' : 'Разблокировать'
-              "
-              color="primary"
-              variant="outline"
-              @click="userAction('block')"
-            />
-            <UButton
-              :label="
-                dataUsers.profile.deleted
-                  ? 'Восстановить'
-                  : 'Отметить к удалению'
-              "
-              color="red"
-              variant="outline"
-              @click="userAction('delete')"
-            />
-          </UButtonGroup>
-        </template>
-      </UCard>
-    </UModal>
   </LayoutsMenu>
 </template>
-
-<style scoped>
-table {
-  max-height: 50vh;
-  overflow-y: auto;
-}
-</style>
