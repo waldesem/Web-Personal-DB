@@ -63,12 +63,13 @@ async function submitLogin(): Promise<void> {
 <template>
   <UContainer class="flex justify-center py-5">
     <div>
-      <UAlert
-        v-show="alertState.alertMessage.value.show"
-        :color="alertState.alertMessage.value.attr"
-        :title="alertState.alertMessage.value.title"
-        :description="alertState.alertMessage.value.text"
-        />
+      <!-- <div v-show="alertState.alertMessage.value.show">
+        <UAlert
+          :color="alertState.alertMessage.value.attr"
+          :title="alertState.alertMessage.value.title"
+          :description="alertState.alertMessage.value.text"
+          />
+      </div> -->
       <div class="py-5">
         <h3 class="text-2xl text-primary font-bold">
           Кадровая безопасность

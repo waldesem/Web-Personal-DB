@@ -62,12 +62,13 @@ const links = [
           <h3 class="text-2xl text-red-800 font-bold">STAFFSEC FINTECH</h3>
         </div>
         <div class="col-span-9 h-[--header-height]">
-          <UAlert
-            v-show="alertState.alertMessage.value.show"
-            :color="alertState.alertMessage.value.attr"
-            :title="alertState.alertMessage.value.title"
-            :description="alertState.alertMessage.value.text"
-            />
+          <!-- <div v-show="alertState.alertMessage.value.show">
+            <UAlert
+              :color="alertState.alertMessage.value.attr"
+              :title="alertState.alertMessage.value.title"
+              :description="alertState.alertMessage.value.text"
+              />
+          </div> -->
         </div>
         <div class="col-span-1 content-right">
           <UButton

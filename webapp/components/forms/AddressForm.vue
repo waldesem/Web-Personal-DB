@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   addrs: {
     type: Object as () => Address,
-    default: <Address>({}),
+    default: {} as Address,
   },
 });
 
@@ -20,9 +20,7 @@ const addressForm = toRef(props.addrs as Address);
 function submitAddress() {
   anketaState.updateItem("addresses", addressForm.value)
   emit('cancel');
-  Object.keys(addressForm.value).forEach(
-    (key) => delete addressForm.value[key as keyof typeof addressForm.value]
-  );
+  addressForm.value = {} as Address;
 }
 </script>
 

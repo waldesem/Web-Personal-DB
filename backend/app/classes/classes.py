@@ -69,3 +69,5 @@ class Poligrafs(Enum):
     verification = 'Служебная проверка'
     investigation = 'Служебное расследование'
     planned = 'Плановое мероприятие'
+
+print(Poligrafs.__name__.lower())

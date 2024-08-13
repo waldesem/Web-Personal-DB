@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, toRef } from "vue";
+import { toRef } from "vue";
 import { stateAnketa, stateClassify } from "@/state/state";
 import type { Contact } from "@/utils/interfaces";
 
@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   contact: {
     type: Object as () => Contact,
-    default: <Contact>({}),
+    default: {} as Contact,
   },
 });
 
@@ -20,20 +20,8 @@ const contactForm = toRef(props.contact as Contact);
 function submitContact() {
   anketaState.updateItem("contacts", contactForm.value)
   emit('cancel');
-  Object.keys(contactForm.value).forEach(
-    (key) => delete contactForm.value[key as keyof typeof contactForm.value]
-  );
+ contactForm.value = {} as Contact
 }
-
-const view = computed(() => {
-  if (contactForm.value["view"] === "Телефон") {
-    return "tel";
-  } else if (contactForm.value["view"] === "E-mail") {
-    return "email";
-  } else {
-    return "text";
-  }
-});
 </script>
 
 <template>

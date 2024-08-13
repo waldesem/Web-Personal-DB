@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   affils: {
     type: Object as () => Affilation,
-    default: <Affilation>({}),
+    default: {} as Affilation,
   },
 });
 
@@ -20,9 +20,7 @@ const affilationForm = toRef(props.affils as Affilation);
 function submitAffilation() {
   anketaState.updateItem("affilations", affilationForm.value)
   emit('cancel');
-  Object.keys(affilationForm.value).forEach(
-    (key) => delete affilationForm.value[key as keyof typeof affilationForm.value]
-  );
+  affilationForm.value = {} as Affilation;
 }
 </script>
 
@@ -31,7 +29,7 @@ function submitAffilation() {
     <UFormGroup class="mb-3" label="Тип участия">
       <USelect
         v-model="affilationForm['view']"
-        :options="Object.values(classifyState.classes.value.affilations)"
+        :options="Object.values(classifyState.classes.value.affilates)"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Организация" required>

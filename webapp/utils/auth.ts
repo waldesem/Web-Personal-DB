@@ -1,10 +1,26 @@
+import type { NitroFetchOptions } from "nitropack";
+
+type Method =
+  | "get"
+  | "post"
+  | "put"
+  | "delete"
+  | "patch"
+  | "head"
+  | "connect"
+  | "options"
+  | "trace";
+
 export const useFetchAuth = () => {
-  const fetchAuth = async (url: string, options: any = {}) => {
+  const fetchAuth = async (
+    url: string,
+    options: NitroFetchOptions<ResponseType, Method> = {}
+  ) => {
     const user_token = localStorage.getItem("user_token");
     if (user_token) {
       options.headers = {
         ...options.headers,
-        Authorization: `Basic ${user_token}`
+        Authorization: `Basic ${user_token}`,
       };
     } else {
       navigateTo("/login");

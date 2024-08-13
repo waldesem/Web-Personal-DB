@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   work: {
     type: Object as () => Work,
-    default: <Work>({}),
+    default: {} as Work,
   },
 });
 
@@ -19,9 +19,7 @@ const workForm = toRef(props.work as Work);
 function submitWorkplace() {
   anketaState.updateItem("workplaces", workForm.value)
   emit('cancel');
-  Object.keys(workForm.value).forEach(
-    (key) => delete workForm.value[key as keyof typeof workForm.value]
-  );
+  workForm.value = {} as Work
 }
 </script>
 

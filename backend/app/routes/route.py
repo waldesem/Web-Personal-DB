@@ -101,7 +101,7 @@ def post_login(action):
             user.attempt = 0
             db_session.commit()
         return jsonify(
-            {   
+            {
                 "message": "Success",
                 "user_token": create_token(user),
             }
@@ -416,7 +416,7 @@ def get_profile(person_id):
         A list of dictionaries representing the person's
         information and an HTTP status code of 200.
     """
-    result = [handle_get_item(item, person_id) for item in tables_models.keys()]
+    result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
     return jsonify(result), 200
 
 
@@ -535,8 +535,8 @@ def get_classes():
     Returns:
         A JSON response containing information about Regions, Conclusions, Relations, Affiliates, Educations, Addresses, Contacts, Documents, and Poligrafs.
     """
-    results = [
-        {item.name: item.value for item in items}
+    results = {
+        items.__name__.lower(): {item.name: item.value for item in items}
         for items in [
             Regions,
             Conclusions,
@@ -547,7 +547,7 @@ def get_classes():
             Contacts,
             Documents,
             Poligrafs,
-            Roles
+            Roles,
         ]
-    ]
+    }
     return jsonify(results), 200

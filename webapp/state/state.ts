@@ -1,5 +1,5 @@
 import { useFetchAuth } from "../utils/auth";
-import type * as interfaces from "../utils/interfaces";
+import type { Classes, Persons, Profile } from "../utils/interfaces";
 
 export const server = "/api";
 
@@ -36,26 +36,10 @@ export const stateUser = () => {
 };
 
 export const stateClassify = () => {
-  const classes = useState(`${server}/classes`, () => ({
-    regions: <Record<string, unknown>>{},
-    conclusions: <Record<string, unknown>>{},
-    relations: <Record<string, unknown>>{},
-    affilations: <Record<string, unknown>>{},
-    educations: <Record<string, unknown>>{},
-    addresses: <Record<string, unknown>>{},
-    contacts: <Record<string, unknown>>{},
-    documents: <Record<string, unknown>>{},
-    poligrafs: <Record<string, unknown>>{},
-    roles: <Record<string, unknown>>{},
-  }));
+  const classes = useState(`${server}/classes`, () => ({} as Classes));
 
   async function getClassify(): Promise<void> {
-    const data = await $fetch(`${server}/classes`);
-    const resp = data as Record<string, any>;
-    const classifyKeys = Object.keys(classes.value);
-    for (let i = 0; i < classifyKeys.length; i++) {
-      classes.value[classifyKeys[i] as keyof typeof classes.value] = resp[i];
-    }
+    classes.value = await $fetch(`${server}/classes`);
   }
   return { classes, getClassify };
 };
@@ -86,7 +70,7 @@ export const stateAlert = () => {
 
 export const statePersons = () => {
   const persons = useState(`${server}/persons`, () => ({
-    candidates: <interfaces.Persons[]>[],
+    candidates: <Persons[]>[],
     page: 1,
     prev: false,
     next: true,
@@ -114,7 +98,7 @@ export const statePersons = () => {
         }
       );
       [persons.value.candidates, persons.value.next, persons.value.prev] =
-        response as [interfaces.Persons[], boolean, boolean];
+        response as [Persons[], boolean, boolean];
 
       persons.value.updated = `${new Date().toLocaleDateString(
         "ru-RU"
@@ -128,23 +112,7 @@ export const statePersons = () => {
 
 export const stateAnketa = () => {
   const alertState = stateAlert();
-  const anketa = useState("anketa", () => ({
-    persons: {} as interfaces.Persons,
-    previous: [] as interfaces.Previous[],
-    educations: [] as interfaces.Education[],
-    staffs: [] as interfaces.Staff[],
-    documents: [] as interfaces.Document[],
-    addresses: [] as interfaces.Address[],
-    contacts: [] as interfaces.Contact[],
-    relations: [] as interfaces.Relation[],
-    workplaces: [] as interfaces.Work[],
-    affilations: [] as interfaces.Affilation[],
-    checks: [] as interfaces.Verification[],
-    poligrafs: [] as interfaces.Pfo[],
-    investigations: [] as interfaces.Inquisition[],
-    inquiries: [] as interfaces.Needs[],
-  }));
-
+  const anketa = useState("anketa", () => ({} as Profile));
   const share = useState("share", () => ({
     candId: "" as string,
     imageUrl: "" as string,
@@ -159,7 +127,7 @@ export const stateAnketa = () => {
     }
     try {
       const authFetch = useFetchAuth();
-      const response = await authFetch(
+      anketa.value[item as keyof Profile] = await authFetch(
         `${server}/${item}/${share.value.candId}`,
         {
           params: {
@@ -167,7 +135,6 @@ export const stateAnketa = () => {
           },
         }
       );
-      anketa.value[item as keyof typeof anketa.value] = response as any;
       if (action === "self") {
         alertState.setAlert("primary", "Информация", "Режим проверки включен/отключен");
       }

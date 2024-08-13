@@ -111,7 +111,9 @@ const searchPerson = debounce(() => {
         </caption>
       </template>
     </UTable>
-    <div class="grid place-items-center py-8">
+    <div
+      v-if="personState.persons.value.prev || personState.persons.value.next"
+      class="grid place-items-center py-8">
       <UButtonGroup orientation="horizontal">
         <UButton
           :disabled="!personState.persons.value.prev"
@@ -129,4 +131,3 @@ const searchPerson = debounce(() => {
     </div>
   </LayoutsMenu>
 </template>
- v-if="personState.persons.value.prev || personState.persons.value.next"

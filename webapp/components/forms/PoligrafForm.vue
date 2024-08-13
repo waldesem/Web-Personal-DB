@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   poligraf: {
     type: Object as () => Pfo,
-    default: <Pfo>({}),
+    default: {} as Pfo,
   },
 });
 
@@ -20,9 +20,7 @@ const poligrafForm = toRef(props.poligraf as Pfo);
 function submitPoligraf() {
   anketaState.updateItem("poligrafs", poligrafForm.value)
   emit('cancel');
-  Object.keys(poligrafForm.value).forEach(
-    (key) => delete poligrafForm.value[key as keyof typeof poligrafForm.value]
-  );
+  poligrafForm.value = {} as Pfo
 }
 </script>
 

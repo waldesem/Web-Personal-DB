@@ -2,6 +2,7 @@
 import { onBeforeMount } from "vue";
 import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
+import type { Profile } from "@/utils/interfaces";
 
 const AnketaTab = resolveComponent("TabsAnketaTab");
 const CheckTab = resolveComponent("TabsCheckTab");
@@ -19,16 +20,9 @@ onBeforeMount(async () => {
   anketaState.share.value.candId = route.params.id as string;
   try {
     const authFetch = useFetchAuth();
-    const data = await authFetch(
+    anketaState.anketa.value = await authFetch(
       `${server}/profile/${anketaState.share.value.candId}`
-    );
-    const resp = data as any;
-    const anketaKeys = Object.keys(anketaState.anketa.value);
-    for (let i = 0; i < anketaKeys.length; i++) {
-      anketaState.anketa.value[
-        anketaKeys[i] as keyof typeof anketaState.anketa.value
-      ] = resp[i];
-    }
+    ) as Profile;
     anketaState.getImage();
   } catch (error: unknown) {
     console.error(error);

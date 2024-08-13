@@ -12,7 +12,7 @@ const props = defineProps({
   },
   resume: {
     type: Object as () => Persons,
-    default: <Persons>({}),
+    default: {} as Persons,
   },
 });
 
@@ -21,9 +21,7 @@ const anketaState = stateAnketa();
 const resumeForm = toRef(props.resume);
 
 function cancelEdit() {
-  Object.keys(resumeForm.value).forEach(
-    (key) => delete resumeForm.value[key as keyof typeof resumeForm.value]
-  );
+  resumeForm.value = {} as Persons;
   emit('cancel')
 }
 

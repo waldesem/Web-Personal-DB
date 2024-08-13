@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   relation: {
     type: Object as () => Relation,
-    default: <Relation>({}),
+    default: {} as Relation,
   },
 });
 
@@ -20,9 +20,7 @@ const relationForm = toRef(props.relation as Relation);
 function submitRelation() {
   anketaState.updateItem("relations", relationForm.value)
   emit('cancel');
-  Object.keys(relationForm.value).forEach(
-    (key) => delete relationForm.value[key as keyof typeof relationForm.value]
-  );
+  relationForm.value = {} as Relation
 }
 </script>
 

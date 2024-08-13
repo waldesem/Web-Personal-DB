@@ -43,35 +43,6 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              idx &&
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="
-              anketaState.deleteItem(item['id'].toString(), 'investigations')
-            "
-            @update="
-              inquisition = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          >
-            <FormsFileForm
-              :accept="'*'"
-              @submit="
-                anketaState.submitFile(
-                  $event,
-                  'investigations',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </ElementsActionIcons>
-        </ElementsLabelSlot>
         <p class="text-primary">
           {{ "Расследование/Проверка #" + (idx + 1) }}
         </p>

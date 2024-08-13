@@ -9,7 +9,7 @@ export interface User {
   created: string;
   attempt: string;
   region: string;
-  role: string
+  role: string;
 }
 
 export interface Persons {
@@ -158,4 +158,34 @@ export interface Needs {
   user_id: string;
   username: string;
   created: string;
+}
+
+export interface Profile {
+  persons: Persons;
+  previous: Previous[];
+  educations: Education[];
+  staffs: Staff[];
+  documents: Document[];
+  addresses: Address[];
+  contacts: Contact[];
+  relations: Relation[];
+  workplaces: Work[];
+  affilations: Affilation[];
+  checks: Verification[];
+  poligrafs: Pfo[];
+  investigations: Inquisition[];
+  inquiries: Needs[];
+}
+
+export interface Classes {
+  regions: Record<string, unknown>;
+  conclusions: Record<string, unknown>;
+  relations: Record<string, unknown>;
+  affilates: Record<string, unknown>;
+  educations: Record<string, unknown>;
+  addresses: Record<string, unknown>;
+  contacts: Record<string, unknown>;
+  documents: Record<string, unknown>;
+  poligrafs: Record<string, unknown>;
+  roles: Record<string, unknown>;
 }

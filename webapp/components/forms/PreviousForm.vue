@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   previous: {
     type: Object as () => Previous,
-    default: <Previous>({}),
+    default: {} as Previous,
   },
 });
 
@@ -19,9 +19,7 @@ const previousForm = toRef(props.previous as Previous);
 function submitPrevious() {
   anketaState.updateItem("previous", previousForm.value)
   emit('cancel');
-  Object.keys(previousForm.value).forEach(
-    (key) => delete previousForm.value[key as keyof typeof previousForm.value]
-  );
+  previousForm.value = {} as Previous
 }
 </script>
 

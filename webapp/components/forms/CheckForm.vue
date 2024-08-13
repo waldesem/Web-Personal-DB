@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   check: {
     type: Object as () => Verification,
-    default: <Verification>({}),
+    default: {} as Verification,
   },
 });
 
@@ -22,9 +22,7 @@ function submitCheck() {
   anketaState.updateItem("checks", checkForm.value)
   noNegative.value = false;
   emit('cancel');
-  Object.keys(checkForm.value).forEach(
-    (key) => delete checkForm.value[key as keyof typeof checkForm.value]
-  );
+  checkForm.value = {} as Verification
 }
 
 watch(noNegative, () => {

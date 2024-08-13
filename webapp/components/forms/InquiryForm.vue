@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   inquiry: {
     type: Object as () => Needs,
-    default: <Needs>({}),
+    default: {} as Needs,
   },
 });
 
@@ -19,9 +19,7 @@ const inquiryForm = toRef(props.inquiry as Needs);
 function submitIquiry() {
   anketaState.updateItem("inquiries", inquiryForm.value)
   emit('cancel');
-  Object.keys(inquiryForm.value).forEach(
-    (key) => delete inquiryForm.value[key as keyof typeof inquiryForm.value]
-  );
+  inquiryForm.value = {} as Needs
 }
 </script>
 

@@ -8,7 +8,7 @@ const emit = defineEmits(["cancel"]);
 const props = defineProps({
   education: {
     type: Object as () => Education,
-    default: <Education>({}),
+    default: {} as Education,
   },
 });
 
@@ -20,9 +20,7 @@ const educationForm = toRef(props.education as Education);
 function submitEducation() {
   anketaState.updateItem("educations", educationForm.value)
   emit('cancel');
-  Object.keys(educationForm.value).forEach(
-    (key) => delete educationForm.value[key as keyof typeof educationForm.value]
-  );
+  educationForm.value = {} as Education
 }
 </script>
 
