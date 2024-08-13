@@ -6,11 +6,14 @@ import type { Pfo } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const userState = stateUser();
 
-const actions = ref(false);
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const poligraf = ref(<Pfo>{});
+const poligraf = ref({} as Pfo);
+
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
 
 function cancelAction() {
   edit.value = false;
@@ -32,8 +35,6 @@ function cancelAction() {
     <div
       v-for="(item, idx) in anketaState.anketa.value.poligrafs"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
       class="border rounded p-3"
     >
       <FormsPoligrafForm
@@ -42,32 +43,6 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              actions && idx &&
-              anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="anketaState.deleteItem(item['id'].toString(), 'poligrafs')"
-            @update="
-              poligraf = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-          >
-            <FormsFileForm
-              :accept="'*'"
-              @submit="
-                anketaState.submitFile(
-                  $event,
-                  'poligrafs',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </ElementsActionIcons>
-        </ElementsLabelSlot>
         <p class="text-primary">
           {{ "Обследование на полиграфе #" + (idx + 1) }}
         </p>
@@ -77,6 +52,36 @@ function cancelAction() {
         <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            !idx &&
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          @update="
+            poligraf = item;
+            itemId = item['id'].toString();
+            edit = true;
+          "
+          @delete="anketaState.deleteItem(item['id'].toString(), 'poligrafs')"
+          @upload="openFileForm('poligraf-file')"
+        />
+        <div v-show="false">
+          <UInput
+            id="poligraf-file"
+            type="file"
+            accept="*"
+            multiple
+            @change="
+              anketaState.submitFile(
+                $event,
+                'poligrafs',
+                anketaState.share.value.candId
+              )
+            "
+          />
+        </div>
       </div>
     </div>
   </div>

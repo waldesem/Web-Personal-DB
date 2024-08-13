@@ -6,11 +6,10 @@ import type { Previous } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const userState = stateUser();
 
-const actions = ref(false);
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const previous = ref(<Previous>{});
+const previous = ref({} as Previous);
 
 function cancelAction() {
   edit.value = false;
@@ -32,8 +31,6 @@ function cancelAction() {
     <div
       v-for="(item, idx) in anketaState.anketa.value.previous"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
       class="border rounded p-3"
     >
       <FormsPreviousForm
@@ -42,23 +39,6 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              actions &&
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="anketaState.deleteItem(item['id'].toString(), 'previous')"
-            @update="
-              previous = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-            :hide="true"
-          />
-        </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Фамилия'">
           {{ item["surname"] }}
         </ElementsLabelSlot>
@@ -74,6 +54,20 @@ function cancelAction() {
         <ElementsLabelSlot v-if="item['reason']" :label="'Причина'">
           {{ item["reason"] }}
         </ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          :last-index="2"
+          @delete="anketaState.deleteItem(item['id'].toString(), 'previous')"
+          @update="
+            previous = item;
+            itemId = item['id'].toString();
+            edit = true;
+          "
+        />
       </div>
     </div>
   </div>

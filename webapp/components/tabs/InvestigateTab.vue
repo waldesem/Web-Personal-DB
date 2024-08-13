@@ -6,11 +6,14 @@ import type { Inquisition } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const userState = stateUser();
 
-const actions = ref(false);
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const inquisition = ref(<Inquisition>{});
+const inquisition = ref({} as Inquisition);
+
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
 
 function cancelAction() {
   edit.value = false;
@@ -32,8 +35,6 @@ function cancelAction() {
     <div
       v-for="(item, idx) in anketaState.anketa.value.investigations"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
       class="border rounded p-3"
     >
       <FormsInvestigationForm
@@ -45,7 +46,6 @@ function cancelAction() {
         <ElementsLabelSlot>
           <ElementsActionIcons
             v-show="
-              actions &&
               idx &&
               anketaState.anketa.value.persons['user_id'] ==
                 userState.user.value.userId &&
@@ -87,6 +87,36 @@ function cancelAction() {
         <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            !idx &&
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          @update="
+            inquisition = item;
+            itemId = item['id'].toString();
+            edit = true;
+          "
+          @delete="anketaState.deleteItem(item['id'].toString(), 'investigations')"
+          @upload="openFileForm('investigation-file')"
+        />
+        <div v-show="false">
+          <UInput
+            id="investigation-file"
+            type="file"
+            accept="*"
+            multiple
+            @change="
+              anketaState.submitFile(
+                $event,
+                'investigations',
+                anketaState.share.value.candId
+              )
+            "
+          />
+        </div>
       </div>
     </div>
   </div>

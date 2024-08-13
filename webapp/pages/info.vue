@@ -9,7 +9,7 @@ const todayDate = new Date();
 
 const tableData = ref({
   region: userState.user.value.region,
-  checks: <Array<any>>[],
+  checks:[] as Array<unknown>,
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
     .toISOString()
     .slice(0, 10),
@@ -26,8 +26,8 @@ async function submitData(): Promise<void> {
         region: tableData.value.region,
       },
     });
-    tableData.value.checks = data as unknown as Array<any>;
-  } catch (error: any) {
+    tableData.value.checks = data as Array<unknown>;
+  } catch (error: unknown) {
     console.error(error);
   }
 }
@@ -56,11 +56,11 @@ onBeforeMount(async () => {
       <div class="col-span-2">
         <UFormGroup class="mb-3" size="md" label="Регион">
           <USelect
+            v-model="tableData.region"
             :disable="
               userState.user.value.region !=
               classifyState.classes.value.regions['main']
             "
-            v-model="tableData.region"
             :options="Object.values(classifyState.classes.value.regions)"
             @submit-data="submitData"
           />

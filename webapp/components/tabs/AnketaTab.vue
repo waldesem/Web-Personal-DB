@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { stateAnketa, stateClassify, stateUser } from "@/state/state";
 import type { Persons } from "@/utils/interfaces";
+import NaviHorizontal from "../elements/NaviHorizontal.vue";
 
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
@@ -10,11 +11,11 @@ const userState = stateUser();
 const dataResume = ref({
   action: "",
   showActions: false,
-  form: <Persons>{},
+  form: {} as Persons,
 
   openFileForm(elementId: string) {
     document.getElementById(elementId)?.click();
-  }
+  },
 });
 
 const items = [
@@ -95,12 +96,12 @@ const items = [
           <USelect
             v-model="anketaState.anketa.value.persons['region']"
             :options="Object.values(classifyState.classes.value.regions)"
-            @change="anketaState.changeRegion()"
             :disable="
               userState.user.value.userId !=
                 anketaState.anketa.value.persons['user_id'] ||
               !anketaState.anketa.value.persons['standing']
             "
+            @change="anketaState.changeRegion()"
           />
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Фамилия'">
@@ -166,7 +167,7 @@ const items = [
               : "-"
           }}
         </ElementsLabelSlot>
-        <ElementsNaviHorizontal
+        <NaviHorizontal
           v-show="
             anketaState.anketa.value.persons['user_id'] ==
               userState.user.value.userId &&
@@ -180,19 +181,20 @@ const items = [
           "
           @update="dataResume.action = 'update'"
           @upload="dataResume.openFileForm('resume-file')"
-        >        
-        </ElementsNaviHorizontal>
+        />
         <div v-show="false">
           <UInput
             id="resume-file"
             type="file"
             accept="*"
             multiple
-            @change="anketaState.submitFile(
+            @change="
+              anketaState.submitFile(
                 $event,
                 'anketa',
                 anketaState.share.value.candId
-              )" 
+              )
+            "
           />
         </div>
       </div>

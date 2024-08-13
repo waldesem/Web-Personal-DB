@@ -7,12 +7,11 @@ const anketaState = stateAnketa();
 const userState = stateUser();
 
 const checkData = ref({
-  actions: false,
   collapse: false,
   collapseAdd: false,
   edit: false,
   itemId: "",
-  check: <Verification>{},
+  check: {} as Verification,
 });
 
 function cancelAction() {
@@ -21,9 +20,13 @@ function cancelAction() {
   checkData.value.collapse = false;
 }
 
-function createElement(jsonList: Array<Object>) {
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
+
+function createElement(jsonList: Array<object>) {
   let divs = "";
-  for (let json of jsonList) {
+  for (const json of jsonList) {
     let table = "";
     for (const [key, value] of Object.entries(json)) {
       table +=
@@ -62,10 +65,8 @@ const renderAdditional = (jsonString: string) => {
   <div v-if="anketaState.anketa.value.checks.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.checks"
-      class="border rounded p-3"
       :key="idx"
-      @mouseover="checkData.actions = true"
-      @mouseout="checkData.actions = false"
+      class="border rounded p-3"
     >
       <FormsCheckForm
         v-if="checkData.edit && checkData.itemId == item['id'].toString()"
@@ -73,34 +74,6 @@ const renderAdditional = (jsonString: string) => {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              checkData.actions &&
-              !idx &&
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="anketaState.deleteItem(item['id'].toString(), 'checks')"
-            @update="
-              checkData.check = item;
-              checkData.itemId = item['id'].toString();
-              checkData.edit = true;
-            "
-          >
-            <FormsFileForm
-              :accept="'*'"
-              @submit="
-                anketaState.submitFile(
-                  $event,
-                  'checks',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </ElementsActionIcons>
-        </ElementsLabelSlot>
         <p class="text-primary">
           {{ "Проверка кандидата #" + (idx + 1) }}
         </p>
@@ -163,16 +136,44 @@ const renderAdditional = (jsonString: string) => {
           />
         </ElementsLabelSlot>
         <div
+          v-if="item['addition'] && checkData.collapseAdd"
           class="border rounded p-3"
-          v-if="item['addition']"
-          &&
-          checkData.collapseAdd
           v-html="renderAdditional(item['addition'])"
-        ></div>
+        />
+        <ElementsNaviHorizontal
+          v-show="
+            !idx &&
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          @update="
+            checkData.check = item;
+            checkData.itemId = item['id'].toString();
+            checkData.edit = true;
+          "
+          @delete="anketaState.deleteItem(item['id'].toString(), 'checks')"
+          @upload="openFileForm('check-file')"
+        />
+        <div v-show="false">
+          <UInput
+            id="check-file"
+            type="file"
+            accept="*"
+            multiple
+            @change="
+              anketaState.submitFile(
+                $event,
+                'checks',
+                anketaState.share.value.candId
+              )
+            "
+          />
+        </div>
       </div>
     </div>
   </div>
   <div v-else class="p-3">
-  <p class="text-primary">Проверка кандидата отсутствует</p>
+    <p class="text-primary">Проверка кандидата отсутствует</p>
   </div>
 </template>

@@ -6,11 +6,10 @@ import type { Staff } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const userState = stateUser();
 
-const actions = ref(false);
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const staff = ref(<Staff>{});
+const staff = ref({} as Staff);
 
 function cancelAction() {
   edit.value = false;
@@ -32,8 +31,6 @@ function cancelAction() {
     <div
       v-for="(item, idx) in anketaState.anketa.value.staffs"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
       class="border rounded p-3"
     >
       <FormsStaffForm
@@ -42,29 +39,26 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              actions &&
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="anketaState.deleteItem(item['id'].toString(), 'staffs')"
-            @update="
-              staff = item;
-              edit = true;
-              itemId = item['id'].toString();
-            "
-            :hide="true"
-          />
-        </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Должность'">{{
           item["position"]
         }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Департамент'">{{
           item["department"]
         }}</ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          :last-index="2"
+          @delete="anketaState.deleteItem(item['id'].toString(), 'staffs')"
+          @update="
+            staff = item;
+            itemId = item['id'].toString();
+            edit = true;
+          "
+        />
       </div>
     </div>
   </div>

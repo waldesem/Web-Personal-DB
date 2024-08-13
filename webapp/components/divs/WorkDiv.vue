@@ -6,11 +6,10 @@ import type { Work } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const userState = stateUser();
 
-const actions = ref(false);
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const workplace = ref(<Work>{});
+const workplace = ref({} as Work);
 
 function cancelAction() {
   edit.value = false;
@@ -32,8 +31,6 @@ function cancelAction() {
     <div
       v-for="(item, idx) in anketaState.anketa.value.workplaces"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
       class="border rounded p-3"
     >
       <FormsWorkplaceForm
@@ -42,25 +39,6 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              actions &&
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="
-              anketaState.deleteItem(item['id'].toString(), 'workplaces')
-            "
-            @update="
-              workplace = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-            :hide="true"
-          />
-        </ElementsLabelSlot>
         <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
           {{ item["now_work"] ? "Да" : "Нет" }}
         </ElementsLabelSlot>
@@ -82,6 +60,20 @@ function cancelAction() {
         <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
           {{ item["reason"] }}
         </ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          :last-index="2"
+          @delete="anketaState.deleteItem(item['id'].toString(), 'workplaces')"
+          @update="
+            workplace = item;
+            itemId = item['id'].toString();
+            edit = true;
+          "
+        />
       </div>
     </div>
   </div>

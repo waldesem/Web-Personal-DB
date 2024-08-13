@@ -9,7 +9,7 @@ const photoCard = ref({
   formData: new FormData(),
   showPhoto: false,
 
-  async submitImage(event: any) {
+  async submitImage(event: Event) {
     await anketaState.submitFile(
       event,
       "image",

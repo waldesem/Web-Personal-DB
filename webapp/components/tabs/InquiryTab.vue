@@ -6,11 +6,10 @@ import type { Needs } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const userState = stateUser();
 
-const actions = ref(false);
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const need = ref(<Needs>{});
+const need = ref({} as Needs);
 
 function cancelAction() {
   edit.value = false;
@@ -30,11 +29,9 @@ function cancelAction() {
   </div>
   <div v-if="anketaState.anketa.value.inquiries.length">
     <div
-      class="border rounded p-3"
       v-for="(item, idx) in anketaState.anketa.value.inquiries"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
+      class="border rounded p-3"
     >
       <FormsInquiryForm
         v-if="edit && itemId == item['id'].toString()"
@@ -42,35 +39,40 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              actions && idx &&
-              anketaState.anketa.value.persons['user_id'] == userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="anketaState.deleteItem(item['id'].toString(), 'inquiries')"
-            @update="
-              need = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-            :hide="true"
-          />
-        </ElementsLabelSlot>
         <p class="text-primary">
           {{ "Запросы о сотруднике #" + (idx + 1) }}
         </p>
-        <ElementsLabelSlot :label="'Информация'">{{ item["info"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Иннициатор'">{{ item["origins"] }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{ item["username"] }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Информация'">{{
+          item["info"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Иннициатор'">{{
+          item["origins"]
+        }}</ElementsLabelSlot>
+        <ElementsLabelSlot :label="'Сотрудник'">{{
+          item["username"]
+        }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Дата записи'">
           {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
         </ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            !idx &&
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          :last-index="2"
+          @delete="anketaState.deleteItem(item['id'].toString(), 'inquiries')"
+          @update="
+            need = item;
+            itemId = item['id'].toString();
+            edit = true;
+          "
+        />
       </div>
     </div>
   </div>
   <div v-else class="p-3">
-  <p class="text-primary">Запросы о сотруднике не поступали</p>
+    <p class="text-primary">Запросы о сотруднике не поступали</p>
   </div>
 </template>

@@ -6,11 +6,10 @@ import type { Contact } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const userState = stateUser();
 
-const actions = ref(false);
 const collapse = ref(false);
 const itemId = ref("");
 const edit = ref(false);
-const contact = ref(<Contact>{});
+const contact = ref({} as Contact);
 
 function cancelAction() {
   edit.value = false;
@@ -32,8 +31,6 @@ function cancelAction() {
     <div
       v-for="(item, idx) in anketaState.anketa.value.contacts"
       :key="idx"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
       class="border rounded p-3"
     >
       <FormsContactForm
@@ -42,27 +39,24 @@ function cancelAction() {
         @cancel="cancelAction"
       />
       <div v-else>
-        <ElementsLabelSlot>
-          <ElementsActionIcons
-            v-show="
-              actions &&
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
-            "
-            @delete="anketaState.deleteItem(item['id'].toString(), 'contacts')"
-            @update="
-              contact = item;
-              itemId = item['id'].toString();
-              edit = true;
-            "
-            :hide="true"
-          />
-        </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Вид'">{{ item["view"] }}</ElementsLabelSlot>
         <ElementsLabelSlot :label="'Контакт'">{{
           item["contact"]
         }}</ElementsLabelSlot>
+        <ElementsNaviHorizontal
+          v-show="
+            anketaState.anketa.value.persons['user_id'] ==
+              userState.user.value.userId &&
+            anketaState.anketa.value.persons['standing']
+          "
+          :last-index="2"
+          @delete="anketaState.deleteItem(item['id'].toString(), 'contacts')"
+          @update="
+            contact = item;
+            itemId = item['id'].toString();
+            edit = true;
+          "
+        />
       </div>
     </div>
   </div>

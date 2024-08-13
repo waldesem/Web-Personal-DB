@@ -1,4 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const switchToPersons = () => {
+  navigateTo('/persons');
+}
+</script>
 
 <template>
   <LayoutsMenu>
@@ -8,7 +12,7 @@
       </h3>
     </div>
     <div class="border rounded p-5">
-      <FormsResumeForm @cancel="navigateTo('/persons')"/>
+      <FormsResumeForm @cancel="switchToPersons"/>
     </div>
   </LayoutsMenu>
 </template>

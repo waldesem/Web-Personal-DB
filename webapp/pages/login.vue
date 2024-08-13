@@ -7,7 +7,7 @@ const userState = stateUser();
 
 const showPswd = ref(false);
 const loginAction = ref("create");
-const loginForm = reactive(<Record<string, unknown>>{});
+const loginForm = reactive({} as Record<string, unknown>);
 
 async function submitLogin(): Promise<void> {
   if (loginAction.value === "update") {
@@ -63,7 +63,12 @@ async function submitLogin(): Promise<void> {
 <template>
   <UContainer class="flex justify-center py-5">
     <div>
-      <DivsAlertMessage />
+      <UAlert
+        v-show="alertState.alertMessage.value.show"
+        :color="alertState.alertMessage.value.attr"
+        :title="alertState.alertMessage.value.title"
+        :description="alertState.alertMessage.value.text"
+        />
       <div class="py-5">
         <h3 class="text-2xl text-primary font-bold">
           Кадровая безопасность
@@ -76,18 +81,18 @@ async function submitLogin(): Promise<void> {
         <UForm :state="loginForm" class="mt-4" @submit.prevent="submitLogin">
           <UFormGroup class="mb-3" size="md" label="Логин" required>
             <UInput
+              v-model="loginForm['username']"
               placeholder="username"
               icon="i-heroicons-user"
-              v-model="loginForm['username']"
             />
           </UFormGroup>
           <UFormGroup class="mb-3" size="md" label="Пароль" required>
             <UButtonGroup size="md" orientation="horizontal">
               <UInput
+                v-model="loginForm['password']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
                 icon="i-heroicons-lock-closed"
-                v-model="loginForm['password']"
               />
               <UButton
                 :title="!showPswd ? 'Показать' : 'Скрыть'"
@@ -100,16 +105,16 @@ async function submitLogin(): Promise<void> {
           <div v-if="loginAction === 'update'">
             <UFormGroup class="mb-3" size="md" label="Новый пароль" required>
               <UInput
+                v-model="loginForm['new_pswd']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
-                v-model="loginForm['new_pswd']"
               />
             </UFormGroup>
             <UFormGroup class="mb-3" size="md" label="Повтор пароля" required>
               <UInput
+                v-model="loginForm['conf_pswd']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
-                v-model="loginForm['conf_pswd']"
               />
             </UFormGroup>
           </div>
