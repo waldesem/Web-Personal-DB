@@ -20,37 +20,17 @@ function cancelAction() {
   checkData.value.collapse = false;
 }
 
+const items = ref(
+  anketaState.anketa.value.inquiries.map((item) => {
+    return {
+      label: "Запрос о сотруднике ID #" + item["id"],
+    };
+  })
+);
+
 function openFileForm(elementId: string) {
   document.getElementById(elementId)?.click();
 }
-
-function createElement(jsonList: Array<object>) {
-  let divs = "";
-  for (const json of jsonList) {
-    let table = "";
-    for (const [key, value] of Object.entries(json)) {
-      table +=
-        `<tr>` +
-        `<td style="width:30%">${key}</td>` +
-        (typeof value === "string"
-          ? `<td>${value}</td>`
-          : `<td>${createElement(value)}</td>`) +
-        `</tr>`;
-    }
-    divs += `<table break-words">${table}</table>`;
-  }
-  return divs;
-}
-
-const renderAdditional = (jsonString: string) => {
-  try {
-    const jsonList = JSON.parse(jsonString);
-    return createElement(jsonList);
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
 </script>
 
 <template>
@@ -63,115 +43,161 @@ const renderAdditional = (jsonString: string) => {
     <FormsCheckForm @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.checks.length">
-    <div
-      v-for="(item, idx) in anketaState.anketa.value.checks"
-      :key="idx"
-      class="border rounded p-3"
-    >
-      <FormsCheckForm
-        v-if="checkData.edit && checkData.itemId == item['id'].toString()"
-        :check="checkData.check"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <p class="text-primary">
-          {{ "Проверка кандидата #" + (idx + 1) }}
-        </p>
-        <ElementsLabelSlot :label="'Проверка по местам работы'">
-          {{ item["workplace"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка паспорта'">
-          {{ item["document"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка ИНН'">{{
-          item["inn"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка ФССП'">{{
-          item["debt"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка банкротства'">
-          {{ item["bankruptcy"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка БКИ'">{{
-          item["bki"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка судебных решений'">
-          {{ item["courts"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка аффилированности'">
-          {{ item["affilation"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка по списку террористов'">
-          {{ item["terrorist"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка в розыск'">{{
-          item["mvd"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка в открытых источниках'">
-          {{ item["internet"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка в Кронос'">
-          {{ item["cronos"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Проверка в Крос'">
-          {{ item["cros"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Комментарии'">{{
-          item["comment"] ? item["comment"] : "-"
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Результат'">{{
-          item["conclusion"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{
-          item["username"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot v-if="item['addition']" :label="'Дополнительно'">
-          <UButton
-            label="Информация"
-            variant="link"
-            @click="checkData.collapseAdd = !checkData.collapseAdd"
-          />
-        </ElementsLabelSlot>
-        <div
-          v-if="item['addition'] && checkData.collapseAdd"
-          class="border rounded p-3"
-          v-html="renderAdditional(item['addition'])"
-        />
-        <ElementsNaviHorizontal
-          v-show="
-            !idx &&
-            anketaState.anketa.value.persons['user_id'] ==
-              userState.user.value.userId &&
-            anketaState.anketa.value.persons['standing']
-          "
-          @update="
-            checkData.check = item;
-            checkData.itemId = item['id'].toString();
-            checkData.edit = true;
-          "
-          @delete="anketaState.deleteItem(item['id'].toString(), 'checks')"
-          @upload="openFileForm('check-file')"
-        />
-        <div v-show="false">
-          <UInput
-            id="check-file"
-            type="file"
-            accept="*"
-            multiple
-            @change="
-              anketaState.submitFile(
-                $event,
-                'checks',
-                anketaState.share.value.candId
-              )
+    <UAccordion :items="items" size="lg" multiple>
+      <template #item="{ index }">
+        <div class="border rounded p-3">
+          <FormsCheckForm
+            v-if="
+              checkData.edit &&
+              checkData.itemId ==
+                anketaState.anketa.value.checks[index]['id'].toString()
             "
+            :check="checkData.check"
+            @cancel="cancelAction"
           />
-        </div>
-      </div>
-    </div>
+          <div v-else>
+            <ElementsLabelSlot :label="'Проверка по местам работы'">
+              {{ anketaState.anketa.value.checks[index]["workplace"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка паспорта'">
+              {{ anketaState.anketa.value.checks[index]["document"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка ИНН'">{{
+              anketaState.anketa.value.checks[index]["inn"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка ФССП'">{{
+              anketaState.anketa.value.checks[index]["debt"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка банкротства'">
+              {{ anketaState.anketa.value.checks[index]["bankruptcy"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка БКИ'">{{
+              anketaState.anketa.value.checks[index]["bki"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка судебных решений'">
+              {{ anketaState.anketa.value.checks[index]["courts"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка аффилированности'">
+              {{ anketaState.anketa.value.checks[index]["affilation"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка по списку террористов'">
+              {{ anketaState.anketa.value.checks[index]["terrorist"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка в розыск'">{{
+              anketaState.anketa.value.checks[index]["mvd"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка в открытых источниках'">
+              {{ anketaState.anketa.value.checks[index]["internet"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка в Кронос'">
+              {{ anketaState.anketa.value.checks[index]["cronos"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Проверка в Крос'">
+              {{ anketaState.anketa.value.checks[index]["cros"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Комментарии'"
+              >{{ anketaState.anketa.value.checks[index]["comment"] }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Результат'">{{
+              anketaState.anketa.value.checks[index]["conclusion"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Сотрудник'">{{
+              anketaState.anketa.value.checks[index]["username"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Дата записи'">
+              {{
+                new Date(
+                  anketaState.anketa.value.checks[index]["created"] + " UTC"
+                ).toLocaleString("ru-RU")
+              }}
+            </ElementsLabelSlot>
+            <ElementsLabelSlot
+              v-if="anketaState.anketa.value.checks[index]['addition']"
+              :label="'Дополнительно'"
+            >
+              <UButton
+                label="Информация"
+                variant="link"
+                @click="checkData.collapseAdd = !checkData.collapseAdd"
+              />
+            </ElementsLabelSlot>
+            <div
+              v-if="
+                anketaState.anketa.value.checks[index]['addition'] &&
+                checkData.collapseAdd
+              "
+            >
+              <div
+                v-for="(item, idx) in JSON.parse(
+                  anketaState.anketa.value.checks[index]['addition']
+                )"
+                :key="idx"
+              >
+                <div
+                  v-for="(value, key) in (item as Record<string, any>)"
+                  :key="key"
+                  class="border rounded p-3"
+                >
+                  <ElementsLabelSlot
+                    v-if="typeof value === 'string'"
+                    :label="key"
+                    >{{ value }}</ElementsLabelSlot
+                  >
+                  <ElementsLabelSlot v-else :label="key">
+                    <div v-for="(itm, i) in value" :key="i">
+                      <div
+                        v-for="(v, k) in (itm as Record<string, any>)"
+                        :key="k"
+                        class="border rounded p-3"
+                      >
+                        <ElementsLabelSlot :label="k">{{
+                          v
+                        }}</ElementsLabelSlot>
+                      </div>
+                    </div>
+                  </ElementsLabelSlot>
+                </div>
+              </div>
+              <ElementsNaviHorizontal
+                v-show="
+                  !index &&
+                  anketaState.anketa.value.persons['user_id'] ==
+                    userState.user.value.userId &&
+                  anketaState.anketa.value.persons['standing']
+                "
+                @update="
+                  checkData.check = anketaState.anketa.value.checks[index];
+                  checkData.itemId =
+                    anketaState.anketa.value.checks[index]['id'].toString();
+                  checkData.edit = true;
+                "
+                @delete="
+                  anketaState.deleteItem(
+                    anketaState.anketa.value.checks[index]['id'].toString(),
+                    'checks'
+                  )
+                "
+                @upload="openFileForm('check-file')"
+              />
+              <div v-show="false">
+                <UInput
+                  id="check-file"
+                  type="file"
+                  accept="*"
+                  multiple
+                  @change="
+                    anketaState.submitFile(
+                      $event,
+                      'checks',
+                      anketaState.share.value.candId
+                    )
+                  "
+                />
+              </div>
+            </div>
+          </div></div
+      ></template>
+    </UAccordion>
   </div>
   <div v-else class="p-3">
     <p class="text-primary">Проверка кандидата отсутствует</p>

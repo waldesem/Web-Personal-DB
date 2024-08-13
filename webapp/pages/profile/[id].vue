@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import { onBeforeMount } from "vue";
 import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 import type { Profile } from "@/utils/interfaces";
-
-const AnketaTab = resolveComponent("TabsAnketaTab");
-const CheckTab = resolveComponent("TabsCheckTab");
-const PoligrafTab = resolveComponent("TabsPoligrafTab");
-const InvestigateTab = resolveComponent("TabsInvestigateTab");
-const InquiryTab = resolveComponent("TabsInquiryTab");
 
 const route = useRoute();
 
@@ -16,44 +9,43 @@ const anketaState = stateAnketa();
 const classifyState = stateClassify();
 const userState = stateUser();
 
-onBeforeMount(async () => {
-  anketaState.share.value.candId = route.params.id as string;
-  try {
-    const authFetch = useFetchAuth();
-    anketaState.anketa.value = await authFetch(
-      `${server}/profile/${anketaState.share.value.candId}`
-    ) as Profile;
-    anketaState.getImage();
-  } catch (error: unknown) {
-    console.error(error);
-  }
-});
+anketaState.share.value.candId = route.params.id as string;
+try {
+  const authFetch = useFetchAuth();
+  anketaState.anketa.value = (await authFetch(
+    `${server}/profile/${anketaState.share.value.candId}`
+  )) as Profile;
+  anketaState.getImage();
+} catch (error: unknown) {
+  console.error(error);
+}
+
+const tabs = [
+  {
+    slot: "anketaTab",
+    label: "Анкета",
+  },
+  {
+    slot: "checkTab",
+    label: "Проверки",
+  },
+  {
+    slot: "poligrafTab",
+    label: "Полиграф",
+  },
+  {
+    slot: "investigateTab",
+    label: "Расследования",
+  },
+  {
+    slot: "inquiryTab",
+    label: "Запросы",
+  },
+];
 
 async function switchStandings() {
   anketaState.getItem("persons", "self");
 }
-
-const tabs = [{
-  slot: 'anketaTab',
-  label: 'Анкета',
-  component: AnketaTab
-}, {
-  slot: 'checkTab',
-  label: 'Проверки',
-  component: CheckTab
-}, {
-  slot: 'poligrafTab',
-  label: 'Полиграф',
-  component: PoligrafTab
-}, {
-  slot: 'investigateTab',
-  label: 'Расследования',
-  component: InvestigateTab
-}, {
-  slot: 'inquiryTab',
-  label: 'Запросы',
-  component: InquiryTab
-}]
 </script>
 
 <template>
@@ -72,7 +64,7 @@ const tabs = [{
         }}
       </h3>
     </div>
-    <div 
+    <div
       v-if="
         userState.user.value.role == classifyState.classes.value.roles['user']
       "
@@ -94,9 +86,11 @@ const tabs = [{
       />
     </div>
     <UTabs :items="tabs" class="w-full">
-      <template v-for="item, idx in tabs" #[item.slot] :key="idx">
-        <component :is="item['component']" />
-      </template>
+      <template #anketaTab><TabsAnketaTab /></template>
+      <template #checkTab><TabsCheckTab /></template>
+      <template #poligrafTab><TabsPoligrafTab /></template>
+      <template #investigateTab><TabsInvestigateTab /></template>
+      <template #inquiryTab><TabsInquiryTab /></template>
     </UTabs>
   </LayoutsMenu>
 </template>

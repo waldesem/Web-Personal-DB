@@ -2,6 +2,7 @@ import { useFetchAuth } from "../utils/auth";
 import type { Classes, Persons, Profile } from "../utils/interfaces";
 
 export const server = "/api";
+export const userToken = ref("");
 
 export const stateUser = () => {
   const user = useState("user", () => ({
@@ -70,7 +71,7 @@ export const stateAlert = () => {
 
 export const statePersons = () => {
   const persons = useState(`${server}/persons`, () => ({
-    candidates: <Persons[]>[],
+    candidates: [] as Persons[],
     page: 1,
     prev: false,
     next: true,
@@ -127,7 +128,7 @@ export const stateAnketa = () => {
     }
     try {
       const authFetch = useFetchAuth();
-      anketa.value[item as keyof Profile] = await authFetch(
+      const response = await authFetch(
         `${server}/${item}/${share.value.candId}`,
         {
           params: {
@@ -135,6 +136,7 @@ export const stateAnketa = () => {
           },
         }
       );
+      anketa.value[item as keyof typeof anketa.value] = response as any;
       if (action === "self") {
         alertState.setAlert("primary", "Информация", "Режим проверки включен/отключен");
       }

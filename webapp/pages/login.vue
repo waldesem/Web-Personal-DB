@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
-import { server, stateAlert, stateUser } from "@/state/state";
+import { server, stateAlert, stateUser, userToken } from "@/state/state";
 
 const alertState = stateAlert();
 const userState = stateUser();
@@ -33,7 +33,7 @@ async function submitLogin(): Promise<void> {
     switch (message) {
       case "Success": {
         const { user_token } = data as { user_token: string };
-        localStorage.setItem("user_token", user_token);
+        userToken.value = user_token;
         await userState.getCurrentUser();
         break;
       }
@@ -63,13 +63,7 @@ async function submitLogin(): Promise<void> {
 <template>
   <UContainer class="flex justify-center py-5">
     <div>
-      <!-- <div v-show="alertState.alertMessage.value.show">
-        <UAlert
-          :color="alertState.alertMessage.value.attr"
-          :title="alertState.alertMessage.value.title"
-          :description="alertState.alertMessage.value.text"
-          />
-      </div> -->
+      <ElementsAlertMessage />
       <div class="py-5">
         <h3 class="text-2xl text-primary font-bold">
           Кадровая безопасность

@@ -1,4 +1,5 @@
 import type { NitroFetchOptions } from "nitropack";
+import { userToken } from "@/state/state";
 
 type Method =
   | "get"
@@ -16,11 +17,10 @@ export const useFetchAuth = () => {
     url: string,
     options: NitroFetchOptions<ResponseType, Method> = {}
   ) => {
-    const user_token = localStorage.getItem("user_token");
-    if (user_token) {
+    if (userToken.value) {
       options.headers = {
         ...options.headers,
-        Authorization: `Basic ${user_token}`,
+        Authorization: `Basic ${userToken.value}`,
       };
     } else {
       navigateTo("/login");

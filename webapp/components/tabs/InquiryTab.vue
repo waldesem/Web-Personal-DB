@@ -16,6 +16,12 @@ function cancelAction() {
   itemId.value = "";
   collapse.value = false;
 }
+
+const items = ref(anketaState.anketa.value.inquiries.map((item) => {
+  return {
+    label: "Запрос о сотруднике ID #" + item["id"],
+  }
+}))
 </script>
 
 <template>
@@ -28,49 +34,46 @@ function cancelAction() {
     <FormsInquiryForm @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.inquiries.length">
-    <div
-      v-for="(item, idx) in anketaState.anketa.value.inquiries"
-      :key="idx"
-      class="border rounded p-3"
-    >
-      <FormsInquiryForm
-        v-if="edit && itemId == item['id'].toString()"
-        :inquiry="need"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <p class="text-primary">
-          {{ "Запросы о сотруднике #" + (idx + 1) }}
-        </p>
-        <ElementsLabelSlot :label="'Информация'">{{
-          item["info"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Иннициатор'">{{
-          item["origins"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{
-          item["username"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
-        </ElementsLabelSlot>
-        <ElementsNaviHorizontal
-          v-show="
-            !idx &&
-            anketaState.anketa.value.persons['user_id'] ==
-              userState.user.value.userId &&
-            anketaState.anketa.value.persons['standing']
-          "
-          :last-index="2"
-          @delete="anketaState.deleteItem(item['id'].toString(), 'inquiries')"
-          @update="
-            need = item;
-            itemId = item['id'].toString();
-            edit = true;
-          "
-        />
-      </div>
-    </div>
+    <UAccordion :items="items" size="lg" multiple>
+      <template #item="{ index }">
+        <div class="border rounded p-3">
+          <FormsInquiryForm
+            v-if="edit && itemId == anketaState.anketa.value.inquiries[index]['id'].toString()"
+            :inquiry="need"
+            @cancel="cancelAction"
+          />
+          <div v-else>
+            <ElementsLabelSlot :label="'Информация'">{{
+              anketaState.anketa.value.inquiries[index]["info"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Иннициатор'">{{
+              anketaState.anketa.value.inquiries[index]["origins"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Сотрудник'">{{
+              anketaState.anketa.value.inquiries[index]["username"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Дата записи'">
+              {{ new Date(anketaState.anketa.value.inquiries[index]["created"] + " UTC").toLocaleString("ru-RU") }}
+            </ElementsLabelSlot>
+            <ElementsNaviHorizontal
+              v-show="
+                !index &&
+                anketaState.anketa.value.persons['user_id'] ==
+                  userState.user.value.userId &&
+                anketaState.anketa.value.persons['standing']
+              "
+              :last-index="2"
+              @delete="anketaState.deleteItem(anketaState.anketa.value.inquiries[index]['id'].toString(), 'inquiries')"
+              @update="
+                need = anketaState.anketa.value.inquiries[index];
+                itemId = anketaState.anketa.value.inquiries[index]['id'].toString();
+                edit = true;
+              "
+            />
+          </div>
+        </div>
+      </template>
+    </UAccordion>
   </div>
   <div v-else class="p-3">
     <p class="text-primary">Запросы о сотруднике не поступали</p>

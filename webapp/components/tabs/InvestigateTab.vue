@@ -20,6 +20,14 @@ function cancelAction() {
   itemId.value = "";
   collapse.value = false;
 }
+
+const items = ref(
+  anketaState.anketa.value.inquiries.map((item) => {
+    return {
+      label: "Запрос о сотруднике ID #" + item["id"],
+    };
+  })
+);
 </script>
 
 <template>
@@ -32,66 +40,82 @@ function cancelAction() {
     <FormsInvestigationForm @cancel="cancelAction" />
   </div>
   <div v-if="anketaState.anketa.value.investigations.length">
-    <div
-      v-for="(item, idx) in anketaState.anketa.value.investigations"
-      :key="idx"
-      class="border rounded p-3"
-    >
-      <FormsInvestigationForm
-        v-if="edit && itemId == item['id'].toString()"
-        :investigation="inquisition"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <p class="text-primary">
-          {{ "Расследование/Проверка #" + (idx + 1) }}
-        </p>
-        <ElementsLabelSlot :label="'Тема проверки'">{{
-          item["theme"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Информация'">{{
-          item["info"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{
-          item["username"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
-        </ElementsLabelSlot>
-        <ElementsNaviHorizontal
-          v-show="
-            !idx &&
-            anketaState.anketa.value.persons['user_id'] ==
-              userState.user.value.userId &&
-            anketaState.anketa.value.persons['standing']
-          "
-          @update="
-            inquisition = item;
-            itemId = item['id'].toString();
-            edit = true;
-          "
-          @delete="anketaState.deleteItem(item['id'].toString(), 'investigations')"
-          @upload="openFileForm('investigation-file')"
-        />
-        <div v-show="false">
-          <UInput
-            id="investigation-file"
-            type="file"
-            accept="*"
-            multiple
-            @change="
-              anketaState.submitFile(
-                $event,
-                'investigations',
-                anketaState.share.value.candId
-              )
+    <UAccordion :items="items" size="lg" multiple>
+      <template #item="{ index }">
+        <div class="border rounded p-3">
+          <FormsInvestigationForm
+            v-if="
+              edit &&
+              itemId ==
+                anketaState.anketa.value.investigations[index]['id'].toString()
             "
+            :investigation="inquisition"
+            @cancel="cancelAction"
           />
+          <div v-else>
+            <ElementsLabelSlot :label="'Тема проверки'">{{
+              anketaState.anketa.value.investigations[index]["theme"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Информация'">{{
+              anketaState.anketa.value.investigations[index]["info"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Сотрудник'">{{
+              anketaState.anketa.value.investigations[index]["username"]
+            }}</ElementsLabelSlot>
+            <ElementsLabelSlot :label="'Дата записи'">
+              {{
+                new Date(
+                  anketaState.anketa.value.investigations[index]["created"] +
+                    " UTC"
+                ).toLocaleString("ru-RU")
+              }}
+            </ElementsLabelSlot>
+            <ElementsNaviHorizontal
+              v-show="
+                !index &&
+                anketaState.anketa.value.persons['user_id'] ==
+                  userState.user.value.userId &&
+                anketaState.anketa.value.persons['standing']
+              "
+              @update="
+                inquisition = anketaState.anketa.value.investigations[index];
+                itemId =
+                  anketaState.anketa.value.investigations[index][
+                    'id'
+                  ].toString();
+                edit = true;
+              "
+              @delete="
+                anketaState.deleteItem(
+                  anketaState.anketa.value.investigations[index][
+                    'id'
+                  ].toString(),
+                  'investigations'
+                )
+              "
+              @upload="openFileForm('investigation-file')"
+            />
+            <div v-show="false">
+              <UInput
+                id="investigation-file"
+                type="file"
+                accept="*"
+                multiple
+                @change="
+                  anketaState.submitFile(
+                    $event,
+                    'investigations',
+                    anketaState.share.value.candId
+                  )
+                "
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </template>
+    </UAccordion>
   </div>
   <div v-else class="p-3">
-  <p class="text-primary">Расследования/Проверки не проводились</p>
+    <p class="text-primary">Расследования/Проверки не проводились</p>
   </div>
 </template>
