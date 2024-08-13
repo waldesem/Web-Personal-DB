@@ -34,7 +34,7 @@ async function submitLogin(): Promise<void> {
       case "Success": {
         const { user_token } = data as { user_token: string };
         userToken.value = user_token;
-        await userState.getCurrentUser();
+        userState.getCurrentUser();
         break;
       }
 

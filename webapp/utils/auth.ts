@@ -23,8 +23,7 @@ export const useFetchAuth = () => {
         Authorization: `Basic ${userToken.value}`,
       };
     } else {
-      navigateTo("/login");
-      return Promise.reject(new Error("Unauthorized"));
+      return navigateTo("/login");
     }
 
     try {
@@ -34,6 +33,5 @@ export const useFetchAuth = () => {
       return Promise.reject(error);
     }
   };
-
   return fetchAuth;
 };

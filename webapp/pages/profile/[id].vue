@@ -3,11 +3,10 @@ import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 import type { Profile } from "@/utils/interfaces";
 
-const route = useRoute();
-
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
 const userState = stateUser();
+const route = useRoute();
 
 anketaState.share.value.candId = route.params.id as string;
 try {
@@ -15,7 +14,7 @@ try {
   anketaState.anketa.value = (await authFetch(
     `${server}/profile/${anketaState.share.value.candId}`
   )) as Profile;
-  anketaState.getImage();
+  await anketaState.getImage();
 } catch (error: unknown) {
   console.error(error);
 }
@@ -51,6 +50,31 @@ async function switchStandings() {
 <template>
   <LayoutsMenu>
     <DivsPhotoCard />
+    <div
+      v-if="
+        userState.user.value.role == classifyState.classes.value.roles['user']
+      "
+      class="relative"
+    >
+      <div class="absolute top-0 right-0" title="Загрузить json">
+        <UButton
+          :title="
+            anketaState.anketa.value.persons['standing']
+              ? 'Отключить режим проверки'
+              : 'Включить режим проверки'
+          "
+          variant="link"
+          size="xl"
+          :color="anketaState.anketa.value.persons['standing'] ? 'red' : 'green'"
+          :icon="
+            anketaState.anketa.value.persons['standing']
+              ? 'i-heroicons-bolt'
+              : 'i-heroicons-bolt-slash'
+          "
+          @click="switchStandings"
+        />
+      </div>
+    </div>  
     <div class="py-8">
       <h3 class="text-2xl text-red-800 font-bold">
         {{
@@ -63,27 +87,6 @@ async function switchStandings() {
           }`
         }}
       </h3>
-    </div>
-    <div
-      v-if="
-        userState.user.value.role == classifyState.classes.value.roles['user']
-      "
-      class="absolute object-right"
-    >
-      <UButton
-        :title="
-          anketaState.anketa.value.persons['standing']
-            ? 'Отключить режим проверки'
-            : 'Включить режим проверки'
-        "
-        variant="link"
-        :icon="
-          anketaState.anketa.value.persons['standing']
-            ? 'i-heroicons-x'
-            : 'i-heroicons-suitcase'
-        "
-        @click="switchStandings"
-      />
     </div>
     <UTabs :items="tabs" class="w-full">
       <template #anketaTab><TabsAnketaTab /></template>

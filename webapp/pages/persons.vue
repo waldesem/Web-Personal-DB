@@ -17,12 +17,14 @@ const userState = stateUser();
 
 onBeforeMount(async () => {
   alertState.alertMessage.value.show = false;
-  await personState.getCandidates();
+  personState.getCandidates();
 });
 
-const searchPerson = debounce(() => {
-  personState.getCandidates();
-}, 500);
+function searchPerson() {
+  debounce(() => {
+    personState.getCandidates();
+  }, 500);
+}
 </script>
 
 <template>
@@ -78,10 +80,10 @@ const searchPerson = debounce(() => {
       <template #surname-data="{ row }">
         <NuxtLink :to="`/profile/${row.id}`">
           {{
-          `${row.surname} ${row.firstname} ${
-            row.patronymic ? row.patronymic : ""
-          }`
-        }}
+            `${row.surname} ${row.firstname} ${
+              row.patronymic ? row.patronymic : ""
+            }`
+          }}
         </NuxtLink>
       </template>
       <template #birthday-data="{ row }">{{
@@ -98,7 +100,17 @@ const searchPerson = debounce(() => {
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #standing-data="{ row }">
-        <UChip size="2xl" :color="row.standing ? 'red' : 'green'"/>
+        <UButton
+          :title="
+            row.standing
+              ? 'Отключить режим проверки'
+              : 'Включить режим проверки'
+          "
+          variant="link"
+          @click="anketaState.getItem('persons', 'self', row.id)"
+        >
+          <UChip size="2xl" :color="row.standing ? 'red' : 'green'" />
+        </UButton>
       </template>
       <template #caption>
         <caption class="caption-bottom text-left">
@@ -113,7 +125,8 @@ const searchPerson = debounce(() => {
     </UTable>
     <div
       v-if="personState.persons.value.prev || personState.persons.value.next"
-      class="grid place-items-center py-8">
+      class="grid place-items-center py-8"
+    >
       <UButtonGroup orientation="horizontal">
         <UButton
           :disabled="!personState.persons.value.prev"

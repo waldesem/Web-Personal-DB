@@ -1,5 +1,5 @@
 import { useFetchAuth } from "../utils/auth";
-import type { Classes, Persons, Profile } from "../utils/interfaces";
+import type { Classes, Persons, Profile } from "@/utils/interfaces";
 
 export const server = "/api";
 export const userToken = ref("");
@@ -16,8 +16,8 @@ export const stateUser = () => {
   async function getCurrentUser(): Promise<void> {
     try {
       const authFetch = useFetchAuth();
-      const response = authFetch(`${server}/auth`);
-      const data = (await response) as Record<string, unknown>;
+      const response = await authFetch(`${server}/auth`);
+      const data = response as Record<string, unknown>;
       Object.assign(user.value, {
         auth: true,
         userId: data["id"],
@@ -119,7 +119,11 @@ export const stateAnketa = () => {
     imageUrl: "" as string,
   }));
 
-  async function getItem(item: string, action = "view"): Promise<void> {
+  async function getItem(
+    item: string,
+    action = "view",
+    id: string = share.value.candId
+  ): Promise<void> {
     if (
       action === "self" &&
       !confirm("Вы действительно хотите включить/выключить режим правки")
@@ -128,20 +132,15 @@ export const stateAnketa = () => {
     }
     try {
       const authFetch = useFetchAuth();
-      const response = await authFetch(
-        `${server}/${item}/${share.value.candId}`,
-        {
-          params: {
-            action: action,
-          },
-        }
-      );
+      const response = await authFetch(`${server}/${item}/${id}`, {
+        params: {
+          action: action,
+        },
+      });
       anketa.value[item as keyof typeof anketa.value] = response as any;
-      if (action === "self") {
-        alertState.setAlert("primary", "Информация", "Режим проверки включен/отключен");
-      }
     } catch (error: unknown) {
       console.error(error);
+      alertState.setAlert("rose", "Внимание", "Возникла ошибка");
     }
   }
 
@@ -178,16 +177,17 @@ export const stateAnketa = () => {
     try {
       const authFetch = useFetchAuth();
       const response = await authFetch(
-        `${server}/${param}/${share.value.candId}`, {
+        `${server}/${param}/${share.value.candId}`,
+        {
           method: "POST",
           body: form,
         }
       );
       console.log(response);
       getItem(param);
-      alertState.setAlert("green", "Успешно", "Запись успешно добавлена");
     } catch (error: unknown) {
       console.error(error);
+      alertState.setAlert("rose", "Внимание", "Произошла ошибка");
     }
   }
 
@@ -200,7 +200,7 @@ export const stateAnketa = () => {
       });
       console.log(response);
       if (param === "persons") {
-        navigateTo("/persons") 
+        navigateTo("/persons");
       } else getItem(param);
       alertState.setAlert("primary", "Информация", `Запись с ID ${id} удалена`);
     } catch (error: unknown) {
@@ -223,12 +223,10 @@ export const stateAnketa = () => {
       }
       try {
         const authFetch = useFetchAuth();
-        const response = await authFetch(
-          `${server}/file/${param}/${itemId}`, {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const response = await authFetch(`${server}/file/${param}/${itemId}`, {
+          method: "POST",
+          body: formData,
+        });
         console.log(response);
         if (param === "persons") {
           const personsState = statePersons();
