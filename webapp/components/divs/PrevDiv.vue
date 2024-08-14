@@ -68,6 +68,7 @@ function cancelAction() {
             edit = true;
           "
         />
+        <UDivider v-show="idx < anketaState.anketa.value.previous.length - 1" />
       </div>
     </div>
   </div>

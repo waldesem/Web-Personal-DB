@@ -9,15 +9,12 @@ const userState = stateUser();
 const route = useRoute();
 
 anketaState.share.value.candId = route.params.id as string;
-try {
-  const authFetch = useFetchAuth();
-  anketaState.anketa.value = (await authFetch(
-    `${server}/profile/${anketaState.share.value.candId}`
-  )) as Profile;
-  await anketaState.getImage();
-} catch (error: unknown) {
-  console.error(error);
-}
+
+const authFetch = useFetchAuth();
+anketaState.anketa.value = (await authFetch(
+  `${server}/profile/${anketaState.share.value.candId}`
+)) as Profile;
+await anketaState.getImage();
 
 const tabs = [
   {
@@ -41,10 +38,6 @@ const tabs = [
     label: "Запросы",
   },
 ];
-
-async function switchStandings() {
-  anketaState.getItem("persons", "self");
-}
 </script>
 
 <template>
@@ -65,16 +58,18 @@ async function switchStandings() {
           "
           variant="link"
           size="xl"
-          :color="anketaState.anketa.value.persons['standing'] ? 'red' : 'green'"
+          :color="
+            anketaState.anketa.value.persons['standing'] ? 'red' : 'green'
+          "
           :icon="
             anketaState.anketa.value.persons['standing']
               ? 'i-heroicons-bolt'
               : 'i-heroicons-bolt-slash'
           "
-          @click="switchStandings"
+          @click="anketaState.getItem('persons', 'self')"
         />
       </div>
-    </div>  
+    </div>
     <div class="py-8">
       <h3 class="text-2xl text-red-800 font-bold">
         {{

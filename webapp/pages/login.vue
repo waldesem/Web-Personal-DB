@@ -1,21 +1,32 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import { server, stateAlert, stateUser, userToken } from "@/state/state";
 
 const alertState = stateAlert();
+
 const userState = stateUser();
 
 const showPswd = ref(false);
-const loginAction = ref("create");
-const loginForm = reactive({} as Record<string, unknown>);
 
+const loginAction = ref("create");
+
+const loginForm = ref({} as Record<string, unknown>);
+
+/**
+ * Submit login form to server and get a new token.
+ * @returns {Promise<void>}
+ */
 async function submitLogin(): Promise<void> {
   if (loginAction.value === "update") {
-    if (loginForm["passhash"] === loginForm["new_pswd"]) {
-      alertState.setAlert("purple", "Предупреждение", "Старый и новый пароли совпадают");
+    if (loginForm.value["passhash"] === loginForm.value["new_pswd"]) {
+      alertState.setAlert(
+        "purple",
+        "Предупреждение",
+        "Старый и новый пароли совпадают"
+      );
       return;
     }
-    if (loginForm["conf_pswd"] !== loginForm["new_pswd"]) {
+    if (loginForm.value["conf_pswd"] !== loginForm.value["new_pswd"]) {
       alertState.setAlert(
         "purple",
         "Предупреждение",
@@ -24,36 +35,24 @@ async function submitLogin(): Promise<void> {
       return;
     }
   }
-  try {
-    const data = await $fetch(`${server}/login/${loginAction.value}`, {
+  const { message, user_token } = (await $fetch(
+    `${server}/login/${loginAction.value}`,
+    {
       method: "POST",
-      body: loginForm,
-    });
-    const { message } = data as { message: string };
-    switch (message) {
-      case "Success": {
-        const { user_token } = data as { user_token: string };
-        userToken.value = user_token;
-        userState.getCurrentUser();
-        break;
-      }
-
-      case "Updated":
-        loginAction.value = "create";
-        alertState.setAlert("green", "Продолжение", "Войдите с новым паролем");
-        break;
-
-      case "Denied":
-        loginAction.value = "update";
-        alertState.setAlert("purple", "Предупреждение", "Пароль просрочен");
-        break;
-
-      default:
-        alertState.setAlert("rose", "Внимание", "Неправильный логин или пароль");
-        break;
+      body: loginForm.value,
     }
-  } catch (error: unknown) {
-    console.error(error);
+  )) as { message: string; user_token: string };
+
+  if (message === "Success") {
+    userToken.value = user_token;
+    userState.getCurrentUser();
+  } else if (message === "Updated") {
+    loginAction.value = "create";
+    alertState.setAlert("primary", "Продолжение", "Войдите с новым паролем");
+  } else if (message === "Denied") {
+    loginAction.value = "update";
+    alertState.setAlert("purple", "Предупреждение", "Пароль просрочен");
+  } else {
     alertState.setAlert("rose", "Внимание", "Неправильный логин или пароль");
   }
   showPswd.value = false;
@@ -65,9 +64,7 @@ async function submitLogin(): Promise<void> {
     <div>
       <ElementsAlertMessage />
       <div class="py-5">
-        <h3 class="text-2xl text-primary font-bold">
-          Кадровая безопасность
-        </h3>
+        <h3 class="text-2xl text-primary font-bold">Кадровая безопасность</h3>
       </div>
       <div class="border border-red-600 rounded-md p-5">
         <h3 class="text-xl text-opacity-75 text-red-800 font-bold">

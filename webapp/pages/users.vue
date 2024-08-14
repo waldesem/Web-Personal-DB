@@ -1,24 +1,11 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref } from "vue";
+import { computed, ref } from "vue";
 import { debounce } from "@/utils/utilities";
-import { server, stateAlert, stateClassify } from "@/state/state";
+import { server, stateClassify } from "@/state/state";
 import type { User } from "@/utils/interfaces";
 import { useFetchAuth } from "@/utils/auth";
 
 const classifyState = stateClassify();
-const alertState = stateAlert();
-
-onBeforeMount(async () => {
-  await getUsers();
-});
-
-const users = computed(() => {
-  return dataUsers.value.users.filter(
-    (user: User) => user.deleted == dataUsers.value.viewDeleted
-  );
-});
-
-const isCollapsed = ref(false);
 
 const dataUsers = ref({
   search: "",
@@ -27,78 +14,87 @@ const dataUsers = ref({
   role: "",
   users: [] as User[],
   form: {} as User,
+  collapsed: false,
   viewDeleted: false,
 });
 
+/**
+ * Filters the list of users based on the current search query.
+ *
+ * @return {User[]} An array of user objects
+ */
+const users = computed(() => {
+  return dataUsers.value.users.filter(
+    (user: User) => user.deleted == dataUsers.value.viewDeleted
+  );
+});
+
+/**
+ * Fetches a list of users from the server based on the current search query.
+ *
+ * @return {User[]} An array of user objects
+ */
 async function getUsers() {
-  try {
-    const fetchAuth = useFetchAuth();
-    const data = await fetchAuth(`${server}/users`, {
-      params: {
-        search: dataUsers.value.search,
-      },
-    });
-    dataUsers.value.users = data as unknown as User[];
-  } catch (error: unknown) {
-    console.error(error);
-  }
+  const fetchAuth = useFetchAuth();
+  dataUsers.value.users = (await fetchAuth(`${server}/users`, {
+    params: {
+      search: dataUsers.value.search,
+    },
+  })) as unknown as User[];
 }
 
+/**
+ * Performs an action on a user, such as blocking or deleting them.
+ * 
+ * @param {string} item The action to perform
+ * @param {string} id The ID of the user to perform the action on
+ * @returns {Promise<void>}
+ */
 async function userAction(
   item: string,
   id: string = dataUsers.value.userId
 ): Promise<void> {
-  const matched = {
-    delete: "удалить/восстановить",
-    drop: "сбросить пароль",
-    block: "заблокировать/разблокировать",
-  };
-  if (item === "delete") {
-    if (!confirm(`Вы действительно хотите ${matched[item]} пользователя?`)) {
-      return;
-    }
+  if (!confirm("Подтвердите действие!")) {
+    return;
   }
-  try {
-    const fetchAuth = useFetchAuth();
-    const response = await fetchAuth(`${server}/users/${id}`, {
-      params: {
-        item: item,
-      },
-    });
-    console.log(response);
-    Object.assign(dataUsers.value, {
-      userId: "",
-      region: "",
-      role: "",
-    })
-    getUsers();
-  } catch (error: unknown) {
-    alertState.setAlert("rose", "Внимание", "Невозможно выполнить операцию");
-    console.error(error);
-  }
+  const fetchAuth = useFetchAuth();
+  await fetchAuth(`${server}/users/${id}`, {
+    params: {
+      item: item,
+    },
+  });
+  Object.assign(dataUsers.value, {
+    userId: "",
+    region: "",
+    role: "",
+  });
+  await getUsers();
 }
 
+/**
+ * Submits a new user to the server.
+ * @returns {Promise<void>}
+ */
 async function submitUser(): Promise<void> {
-  try {
-    const fetchAuth = useFetchAuth();
-    const response = await fetchAuth(`${server}/users`, {
-      method: "POST",
-      body: dataUsers.value.form,
-    });
-    console.log(response);
-    isCollapsed.value = false;
-    alertState.setAlert("green", "Успешно", "Пользователь успешно создан");
-    getUsers();
-  } catch (error) {
-    alertState.setAlert("rose", "Внимание", "Ошибка при создании пользователя");
-    console.error(error);
-  }
+  const fetchAuth = useFetchAuth();
+  await fetchAuth(`${server}/users`, {
+    method: "POST",
+    body: dataUsers.value.form,
+  });
+  dataUsers.value.collapsed = false;
+  await getUsers();
 }
 
-const searching = debounce(() => {
-  getUsers();
+/**
+ * Searches for users based on the current search query.
+ */
+const searchUser = debounce(async () => {
+  await getUsers();
 }, 500);
 
+/**
+ * The dropdown menu items for a user action.
+ */
 const items = [
   [
     {
@@ -119,6 +115,8 @@ const items = [
     },
   ],
 ];
+
+await getUsers();
 </script>
 
 <template>
@@ -131,7 +129,7 @@ const items = [
         v-model="dataUsers.search"
         size="lg"
         placeholder="Поиск по имени пользователя"
-        @input.prevent="searching"
+        @input.prevent="searchUser"
       />
     </div>
     <div class="flex items-center justify-between mb-4">
@@ -139,12 +137,12 @@ const items = [
       <UButton
         variant="link"
         label="Добавить пользователя"
-        @click="isCollapsed = !isCollapsed"
+        @click="dataUsers.collapsed = !dataUsers.collapsed"
       />
     </div>
     <Transition name="slide-fade">
       <UForm
-        v-if="isCollapsed"
+        v-if="dataUsers.collapsed"
         :state="dataUsers.form"
         @submit.prevent="submitUser"
       >
@@ -226,13 +224,13 @@ const items = [
         new Date(row.created).toLocaleDateString()
       }}</template>
       <template #blocked-data="{ row }">
-        <UChip size="2xl" :color="row.blocked ? 'red' : 'green'"/>
+        <UChip size="2xl" :color="row.blocked ? 'red' : 'green'" />
       </template>
       <template #pswd_create-data="{ row }">{{
         new Date(row.pswd_create).toLocaleDateString()
       }}</template>
       <template #change_pswd-data="{ row }">
-        <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'"/>
+        <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'" />
       </template>
     </UTable>
   </LayoutsMenu>

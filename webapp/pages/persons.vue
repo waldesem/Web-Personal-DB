@@ -1,30 +1,27 @@
 <script setup lang="ts">
-import { onBeforeMount } from "vue";
 import { debounce } from "@/utils/utilities";
 import {
-  stateAlert,
   stateAnketa,
   stateClassify,
   statePersons,
   stateUser,
 } from "@/state/state";
 
-const alertState = stateAlert();
 const anketaState = stateAnketa();
-const classifyState = stateClassify();
-const personState = statePersons();
-const userState = stateUser();
 
-onBeforeMount(async () => {
-  alertState.alertMessage.value.show = false;
-  personState.getCandidates();
-});
+const classifyState = stateClassify();
+
+const personState = statePersons();
+
+const userState = stateUser();
 
 function searchPerson() {
   debounce(() => {
     personState.getCandidates();
   }, 500);
 }
+
+await personState.getCandidates();
 </script>
 
 <template>
@@ -107,7 +104,10 @@ function searchPerson() {
               : 'Включить режим проверки'
           "
           variant="link"
-          @click="anketaState.getItem('persons', 'self', row.id)"
+          @click="
+            anketaState.getItem('persons', 'self', row.id);
+            personState.getCandidates();
+          "
         >
           <UChip size="2xl" :color="row.standing ? 'red' : 'green'" />
         </UButton>

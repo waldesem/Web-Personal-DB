@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
+import { ref } from "vue";
 import { server, stateClassify, stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 
@@ -9,32 +9,28 @@ const todayDate = new Date();
 
 const tableData = ref({
   region: userState.user.value.region,
-  checks:[] as Array<unknown>,
+  checks: [] as Array<unknown>,
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
     .toISOString()
     .slice(0, 10),
   end: todayDate.toISOString().slice(0, 10),
 });
 
-async function submitData(): Promise<void> {
-  try {
-    const authFetch = useFetchAuth();
-    const data = await authFetch(`${server}/information`, {
-      params: {
-        start: tableData.value.start,
-        end: tableData.value.end,
-        region: tableData.value.region,
-      },
-    });
-    tableData.value.checks = data as Array<unknown>;
-  } catch (error: unknown) {
-    console.error(error);
-  }
+/**
+ * Get statistics from server
+ */
+async function getStatData(): Promise<void> {
+  const authFetch = useFetchAuth();
+  tableData.value.checks = (await authFetch(`${server}/information`, {
+    params: {
+      start: tableData.value.start,
+      end: tableData.value.end,
+      region: tableData.value.region,
+    },
+  })) as Array<unknown>;
 }
 
-onBeforeMount(async () => {
-  await submitData();
-});
+await getStatData();
 </script>
 
 <template>
@@ -49,7 +45,9 @@ onBeforeMount(async () => {
     </div>
     <UTable :rows="tableData.checks" :columns="['Решение', 'Количество']">
       <template #caption>
-        <caption class="text-left">Решения по кандидатам</caption>
+        <caption class="text-left">
+          Решения по кандидатам
+        </caption>
       </template>
     </UTable>
     <div class="flex grid grid-cols-12 gap-3 mt-4">
@@ -62,30 +60,30 @@ onBeforeMount(async () => {
               classifyState.classes.value.regions['main']
             "
             :options="Object.values(classifyState.classes.value.regions)"
-            @submit-data="submitData"
+            @submit-data="getStatData"
           />
         </UFormGroup>
       </div>
       <div class="flex col-span-2">
-          <div class="px-3">
-            <UFormGroup size="md" label="Начало периода">
-              <UInput
-                v-model="tableData.start"
-                type="date"
-                @submit-data="submitData"
-              />
-            </UFormGroup>     
-          </div>     
-          <div class="px-3">
-            <UFormGroup size="md" label="Конец периода">
-              <UInput
-                v-model="tableData.end"
-                type="date"
-                @submit-data="submitData"
-              />
-            </UFormGroup>
-          </div>
+        <div class="px-3">
+          <UFormGroup size="md" label="Начало периода">
+            <UInput
+              v-model="tableData.start"
+              type="date"
+              @submit-data="getStatData"
+            />
+          </UFormGroup>
         </div>
+        <div class="px-3">
+          <UFormGroup size="md" label="Конец периода">
+            <UInput
+              v-model="tableData.end"
+              type="date"
+              @submit-data="getStatData"
+            />
+          </UFormGroup>
+        </div>
+      </div>
     </div>
   </LayoutsMenu>
 </template>

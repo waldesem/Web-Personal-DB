@@ -1,6 +1,8 @@
 import { useFetchAuth } from "../utils/auth";
 import type { Classes, Persons, Profile } from "@/utils/interfaces";
 
+const authFetch = useFetchAuth();
+
 export const server = "/api";
 export const userToken = ref("");
 
@@ -15,7 +17,6 @@ export const stateUser = () => {
 
   async function getCurrentUser(): Promise<void> {
     try {
-      const authFetch = useFetchAuth();
       const response = await authFetch(`${server}/auth`);
       const data = response as Record<string, unknown>;
       Object.assign(user.value, {
@@ -88,7 +89,6 @@ export const statePersons = () => {
     } else {
       persons.value.page = page;
     }
-    const authFetch = useFetchAuth();
     try {
       const response = await authFetch(
         `${server}/index/${persons.value.page}`,
@@ -131,7 +131,6 @@ export const stateAnketa = () => {
       return;
     }
     try {
-      const authFetch = useFetchAuth();
       const response = await authFetch(`${server}/${item}/${id}`, {
         params: {
           action: action,
@@ -157,7 +156,6 @@ export const stateAnketa = () => {
   async function changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
     try {
-      const authFetch = useFetchAuth();
       const response = await authFetch(
         `${server}/region/${share.value.candId}`,
         {
@@ -175,7 +173,6 @@ export const stateAnketa = () => {
 
   async function updateItem(param: string, form: object): Promise<void> {
     try {
-      const authFetch = useFetchAuth();
       const response = await authFetch(
         `${server}/${param}/${share.value.candId}`,
         {
@@ -194,7 +191,6 @@ export const stateAnketa = () => {
   async function deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
     try {
-      const authFetch = useFetchAuth();
       const response = await authFetch(`${server}/${param}/${id}`, {
         method: "DELETE",
       });
@@ -222,7 +218,6 @@ export const stateAnketa = () => {
         }
       }
       try {
-        const authFetch = useFetchAuth();
         const response = await authFetch(`${server}/file/${param}/${itemId}`, {
           method: "POST",
           body: formData,
@@ -253,7 +248,6 @@ export const stateAnketa = () => {
   async function submitResume(action: string, form: object): Promise<void> {
     if (action == "create") {
       try {
-        const authFetch = useFetchAuth();
         const response = await authFetch(`${server}/resume`, {
           method: "POST",
           body: form,
