@@ -24,49 +24,52 @@ function cancelAction() {
     variant="link"
     @click="collapse = !collapse"
   />
-  <div v-if="collapse" class="border rounded p-3">
-    <FormsRelationForm @cancel="cancelAction" />
+  <div v-if="collapse" class="p-1">
+    <div class="border rounded p-3">
+      <FormsRelationForm @cancel="cancelAction" />
+    </div>
   </div>
   <div v-if="anketaState.anketa.value.relations.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.relations"
       :key="idx"
-      class="border rounded p-3"
+      class="p-1"
     >
-      <FormsRelationForm
-        v-if="edit && itemId == item['id'].toString()"
-        :relation="relation"
-        @cancel="edit = !edit"
-      />
-      <div v-else>
-        <ElementsLabelSlot :label="'Тип'">{{
-          item["relation"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Связь'">
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { id: item['relation_id'] },
-            }"
-          >
-            ID #{{ item["relation_id"] }}
-          </router-link>
-        </ElementsLabelSlot>
-        <ElementsNaviHorizontal
-          v-show="
-            anketaState.anketa.value.persons['user_id'] ==
-              userState.user.value.userId &&
-            anketaState.anketa.value.persons['standing']
-          "
-          :last-index="2"
-          @delete="anketaState.deleteItem(item['id'].toString(), 'relations')"
-          @update="
-            relation = item;
-            itemId = item['id'].toString();
-            edit = true;
-          "
+      <div class="border rounded pt-3 pb-1 px-3">
+        <FormsRelationForm
+          v-if="edit && itemId == item['id'].toString()"
+          :relation="relation"
+          @cancel="edit = !edit"
         />
-        <UDivider v-show="idx < anketaState.anketa.value.relations.length - 1" />
+        <div v-else>
+          <ElementsLabelSlot :label="'Тип'">{{
+            item["relation"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Связь'">
+            <router-link
+              :to="{
+                name: 'profile',
+                params: { id: item['relation_id'] },
+              }"
+            >
+              ID #{{ item["relation_id"] }}
+            </router-link>
+          </ElementsLabelSlot>
+          <ElementsNaviHorizontal
+            v-show="
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
+            :last-index="2"
+            @delete="anketaState.deleteItem(item['id'].toString(), 'relations')"
+            @update="
+              relation = item;
+              itemId = item['id'].toString();
+              edit = true;
+            "
+          />
+        </div>
       </div>
     </div>
   </div>

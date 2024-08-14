@@ -113,7 +113,7 @@ export const statePersons = () => {
 
 export const stateAnketa = () => {
   const alertState = stateAlert();
-  const anketa = useState("anketa", () => ({} as Profile));
+  const anketa = useState("anketa", () => ({}) as Profile);
   const share = useState("share", () => ({
     candId: "" as string,
     imageUrl: "" as string,
@@ -130,17 +130,14 @@ export const stateAnketa = () => {
     ) {
       return;
     }
-    try {
-      const response = await authFetch(`${server}/${item}/${id}`, {
+    anketa.value[item as keyof typeof anketa.value] = await authFetch(
+      `${server}/${item}/${id}`,
+      {
         params: {
           action: action,
         },
-      });
-      anketa.value[item as keyof typeof anketa.value] = response as any;
-    } catch (error: unknown) {
-      console.error(error);
-      alertState.setAlert("rose", "Внимание", "Возникла ошибка");
-    }
+      }
+    ) as never;
   }
 
   async function getImage() {

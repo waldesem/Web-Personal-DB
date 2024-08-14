@@ -18,17 +18,19 @@ const dataResume = ref({
 </script>
 
 <template>
-  <div v-if="dataResume.action" class="border rounded p-3">
-    <FormsResumeForm
-      :action="dataResume.action"
-      :resume="anketaState.anketa.value.persons"
-      @cancel="
-        dataResume.action = '';
-        anketaState.getItem('persons');
-      "
-    />
+  <div v-if="dataResume.action" class="p-1">
+    <div class="border rounded p-3">
+      <FormsResumeForm
+        :action="dataResume.action"
+        :resume="anketaState.anketa.value.persons"
+        @cancel="
+          dataResume.action = '';
+          anketaState.getItem('persons');
+        "
+      />
+      </div>
   </div>
-  <div v-else class="border rounded p-3">
+  <div v-else class="border rounded pt-3 pb-1 px-3">
     <ElementsLabelSlot :label="'Регион'">
       <USelect
         v-model="anketaState.anketa.value.persons['region']"

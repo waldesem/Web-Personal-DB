@@ -24,55 +24,58 @@ function cancelAction() {
     variant="link"
     @click="collapse = !collapse"
   />
-  <div v-if="collapse" class="border rounded p-3">
-    <FormsDocumentForm @cancel="cancelAction" />
+  <div v-if="collapse" class="p-1">
+    <div class="border rounded p-3">
+      <FormsDocumentForm @cancel="cancelAction" />
+    </div>
   </div>
   <div v-if="anketaState.anketa.value.documents.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.documents"
       :key="idx"
-      class="border rounded p-3"
+      class="p-1"
     >
-      <FormsDocumentForm
-        v-if="edit && itemId == item['id'].toString()"
-        :docs="doc"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <ElementsLabelSlot :label="'Вид документа'">{{
-          item["view"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Номер документа'">{{
-          item["digits"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Серия документа'">{{
-          item["series"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата выдачи'">
-          {{
-            item["issue"]
-              ? new Date(String(item["issue"])).toLocaleDateString("ru-RU")
-              : ""
-          }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Кем выдан'">{{
-          item["agency"]
-        }}</ElementsLabelSlot>
-        <ElementsNaviHorizontal
-          v-show="
-            anketaState.anketa.value.persons['user_id'] ==
-              userState.user.value.userId &&
-            anketaState.anketa.value.persons['standing']
-          "
-          :last-index="2"
-          @delete="anketaState.deleteItem(item['id'].toString(), 'documents')"
-          @update="
-            doc = item;
-            itemId = item['id'].toString();
-            edit = true;
-          "
+      <div class="border rounded pt-3 pb-1 px-3">
+        <FormsDocumentForm
+          v-if="edit && itemId == item['id'].toString()"
+          :docs="doc"
+          @cancel="cancelAction"
         />
-        <UDivider v-show="idx < anketaState.anketa.value.documents.length - 1" />
+        <div v-else>
+          <ElementsLabelSlot :label="'Вид документа'">{{
+            item["view"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Номер документа'">{{
+            item["digits"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Серия документа'">{{
+            item["series"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Дата выдачи'">
+            {{
+              item["issue"]
+                ? new Date(String(item["issue"])).toLocaleDateString("ru-RU")
+                : ""
+            }}
+          </ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Кем выдан'">{{
+            item["agency"]
+          }}</ElementsLabelSlot>
+          <ElementsNaviHorizontal
+            v-show="
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
+            :last-index="2"
+            @delete="anketaState.deleteItem(item['id'].toString(), 'documents')"
+            @update="
+              doc = item;
+              itemId = item['id'].toString();
+              edit = true;
+            "
+          />
+        </div>
       </div>
     </div>
   </div>

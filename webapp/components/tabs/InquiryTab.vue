@@ -17,11 +17,14 @@ function cancelAction() {
   collapse.value = false;
 }
 
-const items = ref(anketaState.anketa.value.inquiries.map((item) => {
-  return {
-    label: "Запрос о сотруднике ID #" + item["id"],
-  }
-}))
+const items = computed(() =>
+  anketaState.anketa.value.inquiries.map((item, index) => {
+    return {
+      label: "Запрос о сотруднике ID #" + item["id"],
+      defaultOpen: index === 0,
+    };
+  })
+);
 </script>
 
 <template>
@@ -30,15 +33,21 @@ const items = ref(anketaState.anketa.value.inquiries.map((item) => {
     variant="link"
     @click="collapse = !collapse"
   />
-  <div v-if="collapse" class="border rounded p-3">
-    <FormsInquiryForm @cancel="cancelAction" />
+  <div v-if="collapse" class="p-1">
+    <div class="border rounded p-3">
+      <FormsInquiryForm @cancel="cancelAction" />
+    </div>
   </div>
   <div v-if="anketaState.anketa.value.inquiries.length">
     <UAccordion :items="items" size="lg" multiple>
       <template #item="{ index }">
-        <div class="border rounded p-3">
+        <div class="border rounded pt-3 pb-1 px-3">
           <FormsInquiryForm
-            v-if="edit && itemId == anketaState.anketa.value.inquiries[index]['id'].toString()"
+            v-if="
+              edit &&
+              itemId ==
+                anketaState.anketa.value.inquiries[index]['id'].toString()
+            "
             :inquiry="need"
             @cancel="cancelAction"
           />
@@ -53,7 +62,11 @@ const items = ref(anketaState.anketa.value.inquiries.map((item) => {
               anketaState.anketa.value.inquiries[index]["username"]
             }}</ElementsLabelSlot>
             <ElementsLabelSlot :label="'Дата записи'">
-              {{ new Date(anketaState.anketa.value.inquiries[index]["created"] + " UTC").toLocaleString("ru-RU") }}
+              {{
+                new Date(
+                  anketaState.anketa.value.inquiries[index]["created"] + " UTC"
+                ).toLocaleString("ru-RU")
+              }}
             </ElementsLabelSlot>
             <ElementsNaviHorizontal
               v-show="
@@ -63,10 +76,16 @@ const items = ref(anketaState.anketa.value.inquiries.map((item) => {
                 anketaState.anketa.value.persons['standing']
               "
               :last-index="2"
-              @delete="anketaState.deleteItem(anketaState.anketa.value.inquiries[index]['id'].toString(), 'inquiries')"
+              @delete="
+                anketaState.deleteItem(
+                  anketaState.anketa.value.inquiries[index]['id'].toString(),
+                  'inquiries'
+                )
+              "
               @update="
                 need = anketaState.anketa.value.inquiries[index];
-                itemId = anketaState.anketa.value.inquiries[index]['id'].toString();
+                itemId =
+                  anketaState.anketa.value.inquiries[index]['id'].toString();
                 edit = true;
               "
             />

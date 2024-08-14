@@ -24,57 +24,60 @@ function cancelAction() {
     variant="link"
     @click="collapse = !collapse"
   />
-  <div v-if="collapse" class="border rounded p-3">
-    <FormsWorkplaceForm @cancel="cancelAction" />
+  <div v-if="collapse" class="p-1">
+    <div class="border rounded p-3">
+      <FormsWorkplaceForm @cancel="cancelAction" />
+    </div>
   </div>
   <div v-if="anketaState.anketa.value.workplaces.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.workplaces"
       :key="idx"
-      class="border rounded p-3"
+      class="p-1"
     >
-      <FormsWorkplaceForm
-        v-if="edit && itemId == item['id'].toString()"
-        :work="workplace"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
-          {{ item["now_work"] ? "Да" : "Нет" }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Начало работы'">
-          {{ new Date(item["starts"]).toLocaleDateString("ru-RU") }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
-          {{ new Date(item["finished"]).toLocaleDateString("ru-RU") }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Место работы'">
-          {{ item["workplace"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Адрес'">
-          {{ item["addresses"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Должность'">
-          {{ item["position"] }}
-        </ElementsLabelSlot>
-        <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
-          {{ item["reason"] }}
-        </ElementsLabelSlot>
-        <ElementsNaviHorizontal
-          v-show="
-            anketaState.anketa.value.persons['user_id'] ==
-              userState.user.value.userId &&
-            anketaState.anketa.value.persons['standing']
-          "
-          :last-index="2"
-          @delete="anketaState.deleteItem(item['id'].toString(), 'workplaces')"
-          @update="
-            workplace = item;
-            itemId = item['id'].toString();
-            edit = true;
-          "
+      <div class="border rounded pt-3 pb-1 px-3">
+        <FormsWorkplaceForm
+          v-if="edit && itemId == item['id'].toString()"
+          :work="workplace"
+          @cancel="cancelAction"
         />
-        <UDivider v-show="idx < anketaState.anketa.value.workplaces.length - 1" />
+        <div v-else>
+          <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">
+            {{ item["now_work"] ? "Да" : "Нет" }}
+          </ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Начало работы'">
+            {{ new Date(item["starts"]).toLocaleDateString("ru-RU") }}
+          </ElementsLabelSlot>
+          <ElementsLabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
+            {{ new Date(item["finished"]).toLocaleDateString("ru-RU") }}
+          </ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Место работы'">
+            {{ item["workplace"] }}
+          </ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Адрес'">
+            {{ item["addresses"] }}
+          </ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Должность'">
+            {{ item["position"] }}
+          </ElementsLabelSlot>
+          <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
+            {{ item["reason"] }}
+          </ElementsLabelSlot>
+          <ElementsNaviHorizontal
+            v-show="
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
+            :last-index="2"
+            @delete="anketaState.deleteItem(item['id'].toString(), 'workplaces')"
+            @update="
+              workplace = item;
+              itemId = item['id'].toString();
+              edit = true;
+            "
+          />
+        </div>
       </div>
     </div>
   </div>

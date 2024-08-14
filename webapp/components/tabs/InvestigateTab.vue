@@ -21,7 +21,7 @@ function cancelAction() {
   collapse.value = false;
 }
 
-const items = ref(
+const items = computed(() => 
   anketaState.anketa.value.inquiries.map((item) => {
     return {
       label: "Запрос о сотруднике ID #" + item["id"],
@@ -36,13 +36,15 @@ const items = ref(
     variant="link"
     @click="collapse = !collapse"
   />
-  <div v-if="collapse" class="border rounded p-3">
-    <FormsInvestigationForm @cancel="cancelAction" />
+  <div v-if="collapse" class="p-1">
+    <div class="border rounded p-3">
+      <FormsInvestigationForm @cancel="cancelAction" />
+    </div>
   </div>
   <div v-if="anketaState.anketa.value.investigations.length">
     <UAccordion :items="items" size="lg" multiple>
       <template #item="{ index }">
-        <div class="border rounded p-3">
+        <div class="border rounded pt-3 pb-1 px-3">
           <FormsInvestigationForm
             v-if="
               edit &&

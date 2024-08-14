@@ -24,48 +24,51 @@ function cancelAction() {
     variant="link"
     @click="collapse = !collapse"
   />
-  <div v-if="collapse" class="border rounded p-3">
-    <FormsEducationForm @cancel="cancelAction" />
+  <div v-if="collapse" class="p-1">
+    <div class="border rounded p-3">
+      <FormsEducationForm @cancel="cancelAction" />
+    </div>
   </div>
   <div v-if="anketaState.anketa.value.educations.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.educations"
       :key="idx"
-      class="border rounded p-3"
+      class="p-1"
     >
-      <FormsEducationForm
-        v-if="edit && itemId == item['id'].toString()"
-        :education="education"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <ElementsLabelSlot :label="'Уровень образования'">{{
-          item["view"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Название учебного заведения'">{{
-          item["institution"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Год окончания'">{{
-          item["finished"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Специальность'">{{
-          item["specialty"]
-        }}</ElementsLabelSlot>
-        <ElementsNaviHorizontal
-          v-show="
-            anketaState.anketa.value.persons['user_id'] ==
-              userState.user.value.userId &&
-            anketaState.anketa.value.persons['standing']
-          "
-          :last-index="2"
-          @delete="anketaState.deleteItem(item['id'].toString(), 'educations')"
-          @update="
-            education = item;
-            itemId = item['id'].toString();
-            edit = true;
-          "
+      <div class="border rounded pt-3 pb-1 px-3">
+        <FormsEducationForm
+          v-if="edit && itemId == item['id'].toString()"
+          :education="education"
+          @cancel="cancelAction"
         />
-        <UDivider v-show="idx < anketaState.anketa.value.educations.length - 1" />
+        <div v-else>
+          <ElementsLabelSlot :label="'Уровень образования'">{{
+            item["view"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Название учебного заведения'">{{
+            item["institution"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Год окончания'">{{
+            item["finished"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Специальность'">{{
+            item["specialty"]
+          }}</ElementsLabelSlot>
+          <ElementsNaviHorizontal
+            v-show="
+              anketaState.anketa.value.persons['user_id'] ==
+                userState.user.value.userId &&
+              anketaState.anketa.value.persons['standing']
+            "
+            :last-index="2"
+            @delete="anketaState.deleteItem(item['id'].toString(), 'educations')"
+            @update="
+              education = item;
+              itemId = item['id'].toString();
+              edit = true;
+            "
+          />
+        </div>
       </div>
     </div>
   </div>

@@ -4,6 +4,7 @@ import { stateAnketa, stateUser } from "@/state/state";
 import type { Verification } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
+
 const userState = stateUser();
 
 const checkData = ref({
@@ -20,7 +21,7 @@ function cancelAction() {
   checkData.value.collapse = false;
 }
 
-const items = ref(
+const items = computed(() =>
   anketaState.anketa.value.inquiries.map((item) => {
     return {
       label: "Запрос о сотруднике ID #" + item["id"],
@@ -39,13 +40,15 @@ function openFileForm(elementId: string) {
     variant="link"
     @click="checkData.collapse = !checkData.collapse"
   />
-  <div v-if="checkData.collapse" class="border rounded p-3">
-    <FormsCheckForm @cancel="cancelAction" />
+  <div v-if="checkData.collapse" class="p-1">
+    <div class="border rounded p-3">
+      <FormsCheckForm @cancel="cancelAction" />
+    </div>
   </div>
   <div v-if="anketaState.anketa.value.checks.length">
     <UAccordion :items="items" size="lg" multiple>
       <template #item="{ index }">
-        <div class="border rounded p-3">
+        <div class="border rounded pt-3 pb-1 px-3">
           <FormsCheckForm
             v-if="
               checkData.edit &&
