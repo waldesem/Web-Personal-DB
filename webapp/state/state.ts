@@ -202,41 +202,36 @@ export const stateAnketa = () => {
   }
 
   async function submitFile(
-    event: Event,
+    fileList: FileList,
     param: string,
     itemId: string
   ): Promise<void> {
     const formData = new FormData();
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement && inputElement.files) {
-      for (const file of inputElement.files) {
+    if (fileList) {
+      for (const file of fileList) {
         if (file.size < 1024 * 1024 * 2) {
           formData.append("file", file);
         }
       }
-      try {
-        const response = await authFetch(`${server}/file/${param}/${itemId}`, {
-          method: "POST",
-          body: formData,
-        });
-        console.log(response);
-        if (param === "persons") {
-          const personsState = statePersons();
-          personsState.getCandidates(1);
-        } else if (param === "image") {
-          getImage();
-        } else if (param === "anketa") {
-          getItem("persons");
-        } else getItem(param);
+      const response = await authFetch(`${server}/file/${param}/${itemId}`, {
+        method: "POST",
+        body: formData,
+      });
+      console.log(response);
+      if (param === "persons") {
+        const personsState = statePersons();
+        personsState.getCandidates(1);
+      } else if (param === "image") {
+        getImage();
+      } else if (param === "anketa") {
+        getItem("persons");
+      } else getItem(param);
 
-        alertState.setAlert(
-          "green",
-          "Успешно",
-          "Файл или файлы успешно загружены"
-        );
-      } catch (error: unknown) {
-        console.error(error);
-      }
+      alertState.setAlert(
+        "green",
+        "Успешно",
+        "Файл или файлы успешно загружены"
+      );
     } else {
       alertState.setAlert("rose", "Внимание", "Ошибка при загрузке файла");
     }

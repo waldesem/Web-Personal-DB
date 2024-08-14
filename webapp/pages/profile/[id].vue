@@ -63,8 +63,8 @@ const tabs = [
           "
           :icon="
             anketaState.anketa.value.persons['standing']
-              ? 'i-heroicons-bolt'
-              : 'i-heroicons-bolt-slash'
+              ? 'i-heroicons-bolt-slash'
+              : 'i-heroicons-bolt'
           "
           @click="anketaState.getItem('persons', 'self')"
         />

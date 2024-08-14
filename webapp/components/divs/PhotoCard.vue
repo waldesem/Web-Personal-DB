@@ -9,10 +9,6 @@ const userState = stateUser();
 const photoCard = ref({
   formData: new FormData(),
 
-  submitImage(event: Event) {
-    console.log(event.target);
-    anketaState.submitFile(event, "image", anketaState.share.value.candId);
-  },
   openFileForm(elementId: string) {
     document.getElementById(elementId)?.click();
   },
@@ -51,8 +47,14 @@ function onContextMenu() {
         id="image-file"
         multiple
         type="file"
-        accept="image/*"
-        @change="photoCard.submitImage($event)"
+        accept=".jpg, .jpeg"
+        @change="
+          anketaState.submitFile(
+            $event,
+            'image',
+            anketaState.share.value.candId
+          )
+        "
       />
       <UContextMenu
         v-if="
