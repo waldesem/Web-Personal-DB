@@ -1,0 +1,105 @@
+{% block head %}
+{{ super() }}
+<style type="text/css">
+  .container {
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+  }
+</style>
+{% endblock %}
+{% block title %}
+{{ super() }}
+Вход в систему
+{% endblock %}
+<template>
+  <div class="container pt-5">
+    <HeaderDiv
+      :cls="'text-danger py-3'"
+      :page-header="'StaffSec - кадровая безопасность'"
+    />
+    <div class="border border-primary rounded p-5">
+      <HeaderDiv
+        :cls="'text-primary mb-3 text-center'"
+        :page-header="
+          loginAction === 'create' ? 'Вход в систему' : 'Изменить пароль'
+        "
+      />
+      <form class="form form-check" role="form" @submit.prevent="submitLogin">
+        <div class="mb-3">
+          <InputElement
+            :need="true"
+            :name="'username'"
+            :place="'Логин'"
+            v-model="loginForm['username']"
+          />
+        </div>
+        <div class="input-group mb-3">
+          <input
+            :name="'password'"
+            id="password"
+            :type="!showPswd ? 'password' : 'text'"
+            class="form-control"
+            placeholder="Пароль"
+            required
+            v-model="loginForm['password']"
+          />
+          <button
+            class="btn btn-outline-primary"
+            type="button"
+            :title="!showPswd ? 'Показать' : 'Скрыть'"
+            @click="showPswd = !showPswd"
+          >
+            <i v-if="!showPswd" class="bi bi-eye"></i>
+            <i v-else class="bi bi-eye-slash"></i>
+          </button>
+        </div>
+        <div v-if="loginAction === 'update'">
+          <div class="mb-3">
+            <InputElement
+              :need="true"
+              :name="'new_pswd'"
+              :place="'Новый пароль'"
+              :min="8"
+              :max="16"
+              :typeof="!showPswd ? 'password' : 'text'"
+              v-model="loginForm['new_pswd']"
+            />
+          </div>
+          <div class="mb-3">
+            <InputElement
+              :need="true"
+              :name="'conf_pswd'"
+              :place="'Повтор пароля'"
+              :typeof="!showPswd ? 'password' : 'text'"
+              v-model="loginForm['conf_pswd']"
+            />
+          </div>
+        </div>
+        <div class="row mb-3 col-lg-9">
+          <a
+            v-show="loginAction === 'create'"
+            class="link-primary mb-2"
+            href="#"
+            @click="loginAction = 'update'"
+          >
+            Изменить пароль
+          </a>
+        </div>
+        <BtnGroup
+          :offset="false"
+          :submit-btn="loginAction === 'create' ? 'Войти' : 'Изменить'"
+          @cancel="loginAction = 'create'"
+        />
+      </form>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.container {
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+}
+</style>
