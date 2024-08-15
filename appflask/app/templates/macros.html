@@ -1,0 +1,43 @@
+{% macro input_macro(name, placeholder, type='text', required=False) %}
+<input
+  class="form-control"
+  id="{{ name }}"
+  name="{{ name }}"
+  placeholder="{{ placeholder }}"
+  type="{{ type }}"
+  {% if required %}required{% endif %}
+/>
+{% endmacro %} 
+
+{% macro btn_group_macro(submit_btn, id_submit, reset_btn,
+id_reset, cancel_btn, id_cancel, func=null) %}
+<div class="row mb-3">
+  <div class="btn-group" role="group">
+    <button
+      class="btn btn-md btn-outline-primary"
+      id="{{ id_submit }}"
+      name="submit"
+      type="submit"
+    >
+      {{ submit_btn }}
+    </button>
+    <button
+      class="btn btn-md btn-outline-danger"
+      id="{{ id_reset }}"
+      name="reset"
+      type="reset"
+    >
+      {{ reset_btn }}
+    </button>
+    <button
+      class="btn btn-md btn-outline-secondary"
+      id="{{ id_cancel }}"
+      name="cancel"
+      type="button"
+      @onclick="func"
+    >
+      {{ cancel_btn }}
+    </button>
+  </div>
+</div>
+{% endmacro %}

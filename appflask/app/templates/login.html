@@ -1,5 +1,74 @@
-{% block head %}
-{{ super() }}
+{% from "macros.html" import input_macro, btn_group_macro %}
+
+{% extends "base.html" %}
+
+{% block title %}
+Вход в систему
+{% endblock %}
+
+{% block body %}
+<div class="container pt-5">
+  <div class="text-opacity-85" class="text-danger py-3">
+    <h3>StaffSec - кадровая безопасность</h3>
+  </div>
+  <div class="border border-primary rounded p-5">
+    <div class="text-opacity-85" class="text-primary mb-3 text-center">
+      <h3>Вход в систему</h3>
+    </div>
+    <form class="form form-check" role="form" method="post" action="{{ url_for('route.post_login', action='create') }}">
+      <div class="mb-3">
+        {{ input_macro("login", "Логин", "text", true) }}
+      </div>
+      <div class="input-group mb-3">
+        {{ input_macro("password", "Пароль", "password", true) }}
+        <button
+          class="btn btn-outline-primary"
+          type="button"
+          @onclick="showPswd"
+        >
+          <i class="bi bi-eye" id="eye"></i>
+        </button>
+      </div>
+      <div id="change_pswd d-none">
+        <div class="mb-3">
+          {{ input_macro("new_pswd", "Новый пароль", "password", true) }}
+        </div>
+        <div class="mb-3">
+          {{ input_macro("conf_pswd", "Повтор пароля", "password", true) }}
+        </div>
+      </div>
+      <div class="row mb-3 col-lg-9">
+        <button
+          class="btn btn-link mb-2"
+          @onclick="changePswd"
+        >
+          Изменить пароль
+      </button>
+      </div>
+      {{ btn_group_macro("Войти", "submit_login", "Очистить", "reset_login", "Отмена", "cancel_login") }}
+    </form>
+  </div>
+</div>
+
+<script>
+function showPswd() {
+  const eye = document.getElementById("eye");
+  const [password, new_pswd, conf_pswd] = document.forms["login"].querySelectorAll("input[type='password']");
+  if (eye.classList.toggle("bi-eye-slash")) {
+    [password, new_pswd, conf_pswd].forEach(el => el.type = "text");
+  } else {
+    [password, new_pswd, conf_pswd].forEach(el => el.type = "password");
+  }
+}
+
+function changePswd() {
+  document.getElementById("change_pswd").classList.toggle("d-none");
+  const action = document.forms["login"].action;
+  console.log(action);
+  action.replace("/api/login/create", "/api/login/update");
+}
+</script>
+
 <style type="text/css">
   .container {
     justify-content: center;
@@ -8,98 +77,3 @@
   }
 </style>
 {% endblock %}
-{% block title %}
-{{ super() }}
-Вход в систему
-{% endblock %}
-<template>
-  <div class="container pt-5">
-    <HeaderDiv
-      :cls="'text-danger py-3'"
-      :page-header="'StaffSec - кадровая безопасность'"
-    />
-    <div class="border border-primary rounded p-5">
-      <HeaderDiv
-        :cls="'text-primary mb-3 text-center'"
-        :page-header="
-          loginAction === 'create' ? 'Вход в систему' : 'Изменить пароль'
-        "
-      />
-      <form class="form form-check" role="form" @submit.prevent="submitLogin">
-        <div class="mb-3">
-          <InputElement
-            :need="true"
-            :name="'username'"
-            :place="'Логин'"
-            v-model="loginForm['username']"
-          />
-        </div>
-        <div class="input-group mb-3">
-          <input
-            :name="'password'"
-            id="password"
-            :type="!showPswd ? 'password' : 'text'"
-            class="form-control"
-            placeholder="Пароль"
-            required
-            v-model="loginForm['password']"
-          />
-          <button
-            class="btn btn-outline-primary"
-            type="button"
-            :title="!showPswd ? 'Показать' : 'Скрыть'"
-            @click="showPswd = !showPswd"
-          >
-            <i v-if="!showPswd" class="bi bi-eye"></i>
-            <i v-else class="bi bi-eye-slash"></i>
-          </button>
-        </div>
-        <div v-if="loginAction === 'update'">
-          <div class="mb-3">
-            <InputElement
-              :need="true"
-              :name="'new_pswd'"
-              :place="'Новый пароль'"
-              :min="8"
-              :max="16"
-              :typeof="!showPswd ? 'password' : 'text'"
-              v-model="loginForm['new_pswd']"
-            />
-          </div>
-          <div class="mb-3">
-            <InputElement
-              :need="true"
-              :name="'conf_pswd'"
-              :place="'Повтор пароля'"
-              :typeof="!showPswd ? 'password' : 'text'"
-              v-model="loginForm['conf_pswd']"
-            />
-          </div>
-        </div>
-        <div class="row mb-3 col-lg-9">
-          <a
-            v-show="loginAction === 'create'"
-            class="link-primary mb-2"
-            href="#"
-            @click="loginAction = 'update'"
-          >
-            Изменить пароль
-          </a>
-        </div>
-        <BtnGroup
-          :offset="false"
-          :submit-btn="loginAction === 'create' ? 'Войти' : 'Изменить'"
-          @cancel="loginAction = 'create'"
-        />
-      </form>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-.container {
-  justify-content: center;
-  align-items: center;
-  width: fit-content;
-}
-</style>

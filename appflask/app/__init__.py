@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
 
 from flask_cors import CORS
 from sqlalchemy import select
@@ -56,7 +56,7 @@ def create_app(config_class=Config):
 
     @app.get("/", defaults={"path": ""})
     def main(path=""):
-        return app.send_static_file("index.html")
+        return render_template("login.html")
 
     @app.get("/<path:path>")
     def static_file(path=""):
