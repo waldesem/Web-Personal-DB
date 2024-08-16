@@ -41,10 +41,21 @@
     <div class="sticky-top bg-white d-print-none p-3">
       <div class="row">
         <div class="col-10 text-center">
-          {% block message %}{% endblock %}
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="py-3">
+              {% for message in messages %}
+              <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% endwith %}
         </div>
-        <div class="col-2 text-end">
-          <i class="bi bi-person-circle"></i>
+        <div class="col-2 text-end text-primary">
+          <i class="bi bi-person-circle fs-5">{{ session.user.username }}</i>
         </div>
       </div>
     </div>
@@ -54,9 +65,7 @@
 </div>
 {% endblock %}
 {% block footer %}
-<footer
-  class="d-flex justify-content-center border-top bg-white d-print-none"
->
+<footer class="d-flex justify-content-center border-top bg-white d-print-none">
   <p class="text-muted mt-2">2024 STAFFSEC FINTECH</p>
 </footer>
 {% endblock %}

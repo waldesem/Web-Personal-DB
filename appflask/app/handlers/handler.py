@@ -2,12 +2,11 @@ import json
 import os
 import xml.etree.ElementTree as ET
 
-from flask import current_app
+from flask import current_app, session
 from PIL import Image
 from pydantic import ValidationError
 from sqlalchemy import desc, select
 
-from ..depends.depend import current_user
 from ..model.models import AnketaSchemaJson
 from ..model.tables import Checks, Users, db_session, Persons, tables_models
 
@@ -57,8 +56,8 @@ def handle_post_resume(resume):
 
     """
     resume["standing"] = True
-    resume["user_id"] = current_user["id"]
-    resume["region"] = current_user["region"]
+    resume["user_id"] = session["user"]["id"]
+    resume["region"] = session["user"]["region"]
     if not resume.get("id"):
         person = db_session.execute(
             select(Persons).where(
@@ -82,7 +81,7 @@ def handle_post_resume(resume):
             db_session.commit()
             return person.id
         else:
-            if person.user_id != current_user["id"]:
+            if person.user_id != session["user"]["id"]:
                 return None
             resume["id"] = person.id
     handle_post_item(resume, "persons")
@@ -103,7 +102,7 @@ def handle_post_item(json_dict, item, item_id=""):
     """
     if item != "persons":
         json_dict["person_id"] = item_id
-        json_dict["user_id"] = current_user["id"]
+        json_dict["user_id"] = session["user"]["id"]
     db_session.merge(tables_models[item](**json_dict))
     db_session.commit()
 
@@ -112,7 +111,7 @@ def handle_json_to_dict(data):
     try:
         anketa = AnketaSchemaJson(**data).dict()
         anketa["resume"] = {
-            "region": current_user["region"],
+            "region": session["user"]["region"],
             "surname": anketa.pop("surname", "").upper(),
             "firstname": anketa.pop("firstname", "").upper(),
             "patronymic": anketa.pop("patronymic", "").upper()

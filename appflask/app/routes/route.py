@@ -8,10 +8,13 @@ from flask import (
     Blueprint,
     abort,
     current_app,
+    flash,
     jsonify,
+    redirect,
     render_template,
     request,
     send_file,
+    session,
 )
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -27,11 +30,7 @@ from ..classes.classes import (
     Regions,
     Relations,
 )
-from ..depends.depend import (
-    create_token,
-    current_user,
-    get_current_user,
-)
+from ..depends.depend import login_required
 from ..classes.classes import Roles
 from ..model.models import Person, User, models_tables
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
@@ -46,18 +45,6 @@ from ..handlers.handler import (
 )
 
 bp = Blueprint("route", __name__, url_prefix="/api")
-
-
-@bp.get("/auth")
-def get_auth():
-    """
-    Retrieves the current user's information.
-
-    Returns:
-        A JSON response containing the current user's information. The JSON response has the following structure:
-        The HTTP status code is 200 if the user information is successfully retrieved.
-    """
-    return jsonify(User(**current_user).dict()), 200
 
 
 @bp.post("/login/<action>")
@@ -75,43 +62,43 @@ def post_login(action):
     Raises:
         None
     """
-    json_data = request.get_json()
     user = db_session.execute(
-        select(Users).where(Users.username == json_data.get("username"))
+        select(Users).where(Users.username == request.form.get("login"))
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
-        return abort(400)
+        flash("Неверные данные", "danger")
+        return render_template("/login/login.html")
 
-    if not check_password_hash(user.passhash, json_data["password"]):
+    if not check_password_hash(user.passhash, request.form["password"]):
         if user.attempt < 5:
             user.attempt += 1
         else:
             user.blocked = True
         db_session.commit()
-        return {"message": "Invalid"}, 200
+        flash("Неверные данные", "danger")
+        return render_template("/login/login.html")
 
     if action == "update":
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
-        if re.match(pattern, json_data["new_pswd"]):
-            user.passhash = generate_password_hash(json_data["new_pswd"])
+        if re.match(pattern, request.form["new_pswd"]):
+            user.passhash = generate_password_hash(request.form["new_pswd"])
             user.change_pswd = False
             user.attempt = 0
             db_session.commit()
-            return {"message": "Updated"}, 201
-        return {"message": "Invalid"}, 200
+            flash("Пароль успешно изменен", "success")
+            return render_template("/login/login.html")
+
+        flash("Новый пароль не соответствует требованиям", "danger")
+        return render_template("/login/login.html")
 
     delta_change = datetime.now() - user.pswd_create
     if not user.change_pswd and delta_change.days < 365:
-        if user.attempt > 0:
-            user.attempt = 0
-            db_session.commit()
-        return jsonify(
-            {
-                "message": "Success",
-                "user_token": create_token(user),
-            }
-        ), 200
-    return {"message": "Denied"}, 200
+        session["user"] = user.to_dict()
+        user.attempt = 0
+        db_session.commit()
+        return redirect("/api/index/1")
+    flash("Пароль устарел и должен быть сменен", "danger")
+    return render_template("/login/password.html")
 
 
 @bp.get("/users")
@@ -178,7 +165,7 @@ def post_user():
 
 @bp.get("/users/<int:user_id>")
 def get_user_actions(user_id):
-    if current_user["id"] == user_id:
+    if session["user"]["id"] == user_id:
         return "", 205
     """
     Change a user's information in the database based on their user ID.
@@ -207,13 +194,13 @@ def get_user_actions(user_id):
             user.role = item
         elif item in [reg.value for reg in Regions]:
             user.region = item
-        get_current_user.cache_clear()
         db_session.commit()
         return "", 201
     return abort(400)
 
 
 @bp.get("/index/<int:page>")
+@login_required()
 def get_index(page):
     """
     Retrieves a paginated list of persons from the database based on the search
@@ -230,7 +217,6 @@ def get_index(page):
     Raises:
         None
     """
-    cur_user = current_user
     pagination = 12
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
@@ -250,8 +236,8 @@ def get_index(page):
                 stmt = stmt.filter(
                     Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
                 )
-    if cur_user["region"] != Regions.main.value:
-        stmt = stmt.filter(Persons.region == cur_user["region"])
+    if session["user"]["region"] != Regions.main.value:
+        stmt = stmt.filter(Persons.region == session["user"]["region"])
     query = db_session.execute(
         stmt.join(Users)
         .order_by(desc(Persons.id))
@@ -262,7 +248,11 @@ def get_index(page):
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
     return render_template(
-        "persons.html", candidates=result, has_next=has_next, has_prev=page > 1, page=page
+        "persons.html",
+        candidates=result,
+        has_next=has_next,
+        has_prev=page > 1,
+        page=page,
     ), 200
 
 
@@ -306,7 +296,7 @@ def post_file(item, item_id):
     try:
         if not person.destination:
             destination = make_destination(
-                current_user["id"],
+                session["user"]["id"],
                 person.surname,
                 person.firstname,
                 person.patronymic,
@@ -435,7 +425,7 @@ def get_item_id(item, item_id):
     if item == "persons" and request.args.get("action") == "self":
         person = db_session.get(Persons, item_id)
         person.standing = not person.standing
-        person.user_id = current_user["id"]
+        person.user_id = session["user"]["id"]
         db_session.commit()
     result = handle_get_item(item, item_id)
     return jsonify(result), 200
@@ -515,7 +505,7 @@ def get_information():
             Checks.created.between(data["start"], data["end"]),
             Persons.region == data.get("region")
             if data.get("region")
-            else current_user["region"],
+            else session["user"]["region"],
         )
         .group_by(Checks.conclusion)
     ).all()
