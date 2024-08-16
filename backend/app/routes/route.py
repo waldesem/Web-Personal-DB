@@ -75,7 +75,7 @@ def post_login(action):
         select(Users).where(Users.username == json_data.get("username"))
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
-        return abort(400)
+        return {"message": "Invalid"}, 200
 
     if not check_password_hash(user.passhash, json_data["password"]):
         if user.attempt < 5:

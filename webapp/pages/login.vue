@@ -35,25 +35,29 @@ async function submitLogin(): Promise<void> {
       return;
     }
   }
-  const { message, user_token } = (await $fetch(
-    `${server}/login/${loginAction.value}`,
-    {
-      method: "POST",
-      body: loginForm.value,
+  try {
+    const { message, user_token } = (await $fetch(
+      `${server}/login/${loginAction.value}`,
+      {
+        method: "POST",
+        body: loginForm.value,
+      }
+    )) as { message: string; user_token: string };
+    console.log(message);
+    if (message === "Success") {
+      userToken.value = user_token;
+      userState.getCurrentUser();
+    } else if (message === "Updated") {
+      loginAction.value = "create";
+      alertState.setAlert("primary", "Продолжение", "Войдите с новым паролем");
+    } else if (message === "Denied") {
+      loginAction.value = "update";
+      alertState.setAlert("purple", "Предупреждение", "Пароль просрочен");
+    } else {
+      alertState.setAlert("rose", "Внимание", "Неправильный логин или пароль");
     }
-  )) as { message: string; user_token: string };
-
-  if (message === "Success") {
-    userToken.value = user_token;
-    userState.getCurrentUser();
-  } else if (message === "Updated") {
-    loginAction.value = "create";
-    alertState.setAlert("primary", "Продолжение", "Войдите с новым паролем");
-  } else if (message === "Denied") {
-    loginAction.value = "update";
-    alertState.setAlert("purple", "Предупреждение", "Пароль просрочен");
-  } else {
-    alertState.setAlert("rose", "Внимание", "Неправильный логин или пароль");
+  } catch (error) {
+    console.log(error);
   }
   showPswd.value = false;
 }
@@ -71,20 +75,22 @@ async function submitLogin(): Promise<void> {
           {{ loginAction === "create" ? "Вход в систему" : "Изменить пароль" }}
         </h3>
         <UForm :state="loginForm" class="mt-4" @submit.prevent="submitLogin">
-          <UFormGroup class="mb-3" size="md" label="Логин" required>
+          <UFormGroup class="mb-3" size="md" label="Логин">
             <UInput
               v-model="loginForm['username']"
               placeholder="username"
               icon="i-heroicons-user"
+              required
             />
           </UFormGroup>
-          <UFormGroup class="mb-3" size="md" label="Пароль" required>
+          <UFormGroup class="mb-3" size="md" label="Пароль">
             <UButtonGroup size="md" orientation="horizontal">
               <UInput
                 v-model="loginForm['password']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
                 icon="i-heroicons-lock-closed"
+                required
               />
               <UButton
                 :title="!showPswd ? 'Показать' : 'Скрыть'"
@@ -95,18 +101,20 @@ async function submitLogin(): Promise<void> {
             </UButtonGroup>
           </UFormGroup>
           <div v-if="loginAction === 'update'">
-            <UFormGroup class="mb-3" size="md" label="Новый пароль" required>
+            <UFormGroup class="mb-3" size="md" label="Новый пароль">
               <UInput
                 v-model="loginForm['new_pswd']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
+                required
               />
             </UFormGroup>
-            <UFormGroup class="mb-3" size="md" label="Повтор пароля" required>
+            <UFormGroup class="mb-3" size="md" label="Повтор пароля">
               <UInput
                 v-model="loginForm['conf_pswd']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
+                required
               />
             </UFormGroup>
           </div>
