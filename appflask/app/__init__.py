@@ -1,8 +1,7 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template
 
-from flask_cors import CORS
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
@@ -25,7 +24,6 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
-    CORS(app, resources={r"/*": {"origins": "*"}})
 
     if not os.path.isdir(Config.BASE_PATH):
         os.mkdir(Config.BASE_PATH)
@@ -56,7 +54,15 @@ def create_app(config_class=Config):
 
     @app.get("/", defaults={"path": ""})
     def main(path=""):
-        return render_template("login.html")
+        return redirect("/login")
+    
+    @app.get("/login")
+    def login():
+        return render_template("/login/login.html")
+    
+    @app.get("/password")
+    def password():
+        return render_template("/login/password.html")
 
     @app.get("/<path:path>")
     def static_file(path=""):

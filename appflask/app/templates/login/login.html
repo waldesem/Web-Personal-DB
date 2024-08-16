@@ -1,0 +1,47 @@
+{% from "macros.html" import input_macro, btn_group_macro %}
+
+{% extends "/login/logopass.html" %}
+
+{% block title %}
+Вход в систему
+{% endblock %}
+
+{% block header %}
+<h3>Вход в систему</h3>
+{% endblock %}
+
+{% block form %}
+<form class="form form-check" role="form" method="post" id="login-form" name="login-form" action="{{ url_for('route.post_login', action='create') }}">
+  <div class="mb-3">
+    {{ input_macro("login", "Логин", "text", true) }}
+  </div>
+  <div class="input-group mb-3">
+    {{ input_macro("password", "Пароль", "password", true) }}
+    <button
+      class="btn btn-outline-secondary"
+      type="button"
+      onclick=showPswd()
+    >
+      <i class="bi bi-eye" id="eye"></i>
+    </button>
+  </div>
+  <div class="row mb-2">
+    <a
+      class="link-primary text-start mb-2"
+      href="/password"
+    >
+      Изменить пароль
+  </a>
+  </div>
+  {{ btn_group_macro("Войти", "submit_login", "Очистить", "reset_login", "Отмена", "cancel_login") }}
+</form>
+
+<script>
+function showPswd() {
+  const element = document.getElementById("password");
+  const eye = document.getElementById("eye");
+  eye.classList.toggle("bi-eye-slash");
+  element.type = eye.classList.contains("bi-eye-slash") ? "text" : "password";
+}
+</script>
+{% endblock %}

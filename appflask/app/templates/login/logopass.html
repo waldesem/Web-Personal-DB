@@ -1,0 +1,29 @@
+{% from "macros.html" import input_macro, btn_group_macro %}
+
+{% extends "base.html" %}
+
+{% block title %}
+Вход в систему
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="text-opacity-85 text-danger py-3">
+    <h3>StaffSec - кадровая безопасность</h3>
+  </div>
+  <div class="border border-danger rounded p-5">
+    <div class="text-opacity-85 text-primary p-3">
+        {% block header %}{% endblock %}
+    </div>
+    <div class="row mb-3">
+      {% block form %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<style type="text/css">
+  .container {
+    width: fit-content;
+  }
+</style>
+{% endblock %}
