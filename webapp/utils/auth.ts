@@ -1,5 +1,7 @@
 import type { NitroFetchOptions } from "nitropack";
-import { userToken } from "@/state/state";
+import { userToken, stateAlert} from "@/state/state";
+
+const alertState = stateAlert();
 
 type Method =
   | "get"
@@ -30,6 +32,7 @@ export const useFetchAuth = () => {
       const response = await $fetch(url, options);
       return response;
     } catch (error) {
+      alertState.setAlert("rose", "Внимание", "Произошла ошибка");
       return Promise.reject(error);
     }
   };

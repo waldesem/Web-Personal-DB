@@ -47,16 +47,8 @@ export default defineNuxtConfig({
     }
   },
 
-  csurf: {
-    https: false,
-    methodsToProtect: ["POST"],
-  },
-
   modules: [
     "@nuxt/image",
-    "nuxt-purgecss",
-    // "nuxt-security",
-    "nuxt-csurf",
     "@nuxt/ui",
     "@nuxt/eslint",
     "@nuxtjs/color-mode"

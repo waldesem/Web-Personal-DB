@@ -14,7 +14,7 @@ To use this project, you will need to have Python 3.10 or higher.
 For installiing the required Python packages run commands:
 ```
 git clone https://github.com/waldesem/Web-Personal-DB.git
-cd Web-Personal-DB/backend
+cd Web-Personal-DB/backend # or `cd Web-Personal-DB/appflask` for pure flask application (in dev now)
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
