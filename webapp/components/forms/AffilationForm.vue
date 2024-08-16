@@ -29,16 +29,18 @@ function submitAffilation() {
     <UFormGroup class="mb-3" label="Тип участия">
       <USelect
         v-model="affilationForm['view']"
+        required
         :options="Object.values(classifyState.classes.value.affilates)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Организация" required>
+    <UFormGroup class="mb-3" label="Организация">
       <UInput
         v-model="affilationForm['organization']"
+        required
         placeholder="Организация"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="ИНН" required>
+    <UFormGroup class="mb-3" label="ИНН">
       <UInput
         v-model="affilationForm['inn']"
         placeholder="ИНН"

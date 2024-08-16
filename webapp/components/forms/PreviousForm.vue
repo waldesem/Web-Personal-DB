@@ -25,15 +25,17 @@ function submitPrevious() {
 
 <template>
   <UForm :state="previousForm" @submit.prevent="submitPrevious">
-    <UFormGroup class="mb-3" label="Фамилия" required>
+    <UFormGroup class="mb-3" label="Фамилия">
       <UInput
         v-model="previousForm['surname']"
+        required
         placeholder="Фамилия"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Имя" required>
+    <UFormGroup class="mb-3" label="Имя">
       <UInput
         v-model="previousForm['firstname']"
+        required
         placeholder="Имя"
       />
     </UFormGroup>

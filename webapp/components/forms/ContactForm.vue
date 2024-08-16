@@ -26,15 +26,17 @@ function submitContact() {
 
 <template>
   <UForm :state="contactForm" @submit.prevent="submitContact">
-    <UFormGroup class="mb-3" label="Вид контакта" required>
+    <UFormGroup class="mb-3" label="Вид контакта">
       <USelect
         v-model="contactForm['view']"
+        required
         :options="Object.values(classifyState.classes.value.contacts)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Контакт" required>
+    <UFormGroup class="mb-3" label="Контакт">
       <UInput
         v-model="contactForm['contact']"
+        required
         placeholder="Контакт"
       />
     </UFormGroup>

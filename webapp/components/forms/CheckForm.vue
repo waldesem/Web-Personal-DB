@@ -132,6 +132,7 @@ watch(noNegative, () => {
     <UFormGroup class="mb-3" label="Результат">
       <USelect
         v-model="checkForm['conclusion']"
+        required
         :options="Object.values(classifyState.classes.value.conclusions)"
       />
     </UFormGroup>

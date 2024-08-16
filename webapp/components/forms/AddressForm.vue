@@ -26,15 +26,17 @@ function submitAddress() {
 
 <template>
   <UForm :state="addressForm" @submit.prevent="submitAddress">
-    <UFormGroup class="mb-3" label="Вид адреса" required>
+    <UFormGroup class="mb-3" label="Вид адреса">
       <USelect
         v-model="addressForm['view']"
+        required
         :options="Object.values(classifyState.classes.value.addresses)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Адрес" required>
+    <UFormGroup class="mb-3" label="Адрес">
       <UInput
         v-model="addressForm['addresses']"
+        required
         placeholder="Адрес"
       />
     </UFormGroup>

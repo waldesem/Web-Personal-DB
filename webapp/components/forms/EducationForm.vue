@@ -26,25 +26,27 @@ function submitEducation() {
 
 <template>
   <UForm :state="educationForm" @submit.prevent="submitEducation">
-    <UFormGroup class="mb-3" label="Вид образования" required>
+    <UFormGroup class="mb-3" label="Вид образования">
       <USelect
         v-model="educationForm['view']"
+        required
         :options="Object.values(classifyState.classes.value.educations)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Название учебного заведения" required>
+    <UFormGroup class="mb-3" label="Название учебного заведения">
       <UInput
         v-model="educationForm['institution']"
+        required
         placeholder="Название учебного заведения"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Год окончания" required>
+    <UFormGroup class="mb-3" label="Год окончания">
       <UInput
         v-model="educationForm['finished']"
         placeholder="Год окончания"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Специальность" required>
+    <UFormGroup class="mb-3" label="Специальность">
       <UInput
         v-model="educationForm['specialty']"
         placeholder="Специальность"

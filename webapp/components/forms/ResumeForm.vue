@@ -33,15 +33,17 @@ async function submitForm(): Promise<void> {
 
 <template>
   <UForm :state="resumeForm" @submit.prevent="submitForm">
-    <UFormGroup class="mb-3" label="Фамилия" required>
+    <UFormGroup class="mb-3" label="Фамилия">
       <UInput
         v-model="resumeForm['surname']"
+        required
         placeholder="Фамилия"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Имя" required>
+    <UFormGroup class="mb-3" label="Имя">
       <UInput
         v-model="resumeForm['firstname']"
+        required
         placeholder="Имя"
       />  
     </UFormGroup>
@@ -51,9 +53,10 @@ async function submitForm(): Promise<void> {
         placeholder="Отчество"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Дата рождения" required>
+    <UFormGroup class="mb-3" label="Дата рождения">
       <UInput
         v-model="resumeForm['birthday']"
+        required
         type="date"
       />
     </UFormGroup>

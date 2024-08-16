@@ -30,7 +30,7 @@ function submitWorkplace() {
         v-model="workForm['now_work']"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Начало работы" required>
+    <UFormGroup class="mb-3" label="Начало работы">
       <UInput
         v-model="workForm['starts']"
         placeholder="Начало работы"
@@ -44,15 +44,17 @@ function submitWorkplace() {
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Место работы" required>
+    <UFormGroup class="mb-3" label="Место работы">
       <UInput
         v-model="workForm['workplace']"
+        required
         placeholder="Место работы"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Должность" required>
+    <UFormGroup class="mb-3" label="Должность">
       <UInput
         v-model="workForm['position']"
+        required
         placeholder="Должность"
       />
     </UFormGroup>

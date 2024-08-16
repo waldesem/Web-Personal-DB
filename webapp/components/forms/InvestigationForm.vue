@@ -25,15 +25,17 @@ function submitInvestigations() {
 
 <template>
   <UForm :state="investigationForm" @submit.prevent="submitInvestigations">
-    <UFormGroup class="mb-3" label="Тема проверки" required>
+    <UFormGroup class="mb-3" label="Тема проверки">
       <UInput
         v-model="investigationForm['theme']"
+        required
         placeholder="Тема проверки"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Информация" required>
+    <UFormGroup class="mb-3" label="Информация">
       <UTextarea
         v-model="investigationForm['info']"
+        required
         placeholder="Информация"
       />
     </UFormGroup>

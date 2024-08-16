@@ -26,16 +26,17 @@ function submitRelation() {
 
 <template>
   <UForm :state="relationForm" @submit.prevent="submitRelation">
-    <UFormGroup class="mb-3" label="Тип связи" required>
+    <UFormGroup class="mb-3" label="Тип связи">
       <USelect
         v-model="relationForm['relation']"
+        required
         :options="Object.values(classifyState.classes.value.relations)"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="ID связи" required>
+    <UFormGroup class="mb-3" label="ID связи">
       <UInput
         v-model="relationForm['relation_id']"
-        placeholder="ID связи"
+        required
         type="number"
       />
     </UFormGroup>
