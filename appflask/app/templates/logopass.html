@@ -21,6 +21,19 @@
   </div>
 </div>
 
+<script>
+function showPswd() {
+  const elements = [document.getElementById("password"), document.getElementById("new_pswd"), document.getElementById("conf_pswd")];
+  const eye = document.getElementById("eye");
+  eye.classList.toggle("bi-eye-slash");
+  elements.forEach(el => {
+    if (el) {
+      el.type = eye.classList.contains("bi-eye-slash") ? "text" : "password";
+    }
+  });
+}
+</script>
+
 <style type="text/css">
   .container {
     width: fit-content;

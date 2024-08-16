@@ -4,7 +4,15 @@ import os
 import re
 import shutil
 
-from flask import Blueprint, abort, current_app, jsonify, request, send_file
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    jsonify,
+    render_template,
+    request,
+    send_file,
+)
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -23,8 +31,6 @@ from ..depends.depend import (
     create_token,
     current_user,
     get_current_user,
-    jwt_required,
-    roles_required,
 )
 from ..classes.classes import Roles
 from ..model.models import Person, User, models_tables
@@ -43,7 +49,6 @@ bp = Blueprint("route", __name__, url_prefix="/api")
 
 
 @bp.get("/auth")
-@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
 def get_auth():
     """
     Retrieves the current user's information.
@@ -110,7 +115,6 @@ def post_login(action):
 
 
 @bp.get("/users")
-@roles_required(Roles.admin.value)
 def get_users():
     """
     Retrieves a list of users from the database based on the provided search criteria.
@@ -134,7 +138,6 @@ def get_users():
 
 
 @bp.post("/users")
-@roles_required(Roles.admin.value)
 def post_user():
     """
     Handles the POST request to create a user in the database.
@@ -174,7 +177,6 @@ def post_user():
 
 
 @bp.get("/users/<int:user_id>")
-@roles_required(Roles.admin.value)
 def get_user_actions(user_id):
     if current_user["id"] == user_id:
         return "", 205
@@ -212,7 +214,6 @@ def get_user_actions(user_id):
 
 
 @bp.get("/index/<int:page>")
-@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
 def get_index(page):
     """
     Retrieves a paginated list of persons from the database based on the search
@@ -260,11 +261,12 @@ def get_index(page):
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
-    return jsonify([result, has_next, page > 1]), 200
+    return render_template(
+        "persons.html", candidates=result, has_next=has_next, has_prev=page > 1, page=page
+    ), 200
 
 
 @bp.post("/file/<item>/<int:item_id>")
-@roles_required(Roles.user.value)
 def post_file(item, item_id):
     """
     Retrieves an image file associated with a person's ID.
@@ -354,7 +356,6 @@ def get_image():
 
 
 @bp.post("/resume")
-@roles_required(Roles.user.value)
 def post_resume():
     """
     Creates a new user, person or contact based on the provided JSON data.
@@ -375,7 +376,6 @@ def post_resume():
 
 
 @bp.get("/region/<int:person_id>")
-@roles_required(Roles.user.value)
 def change_region(person_id):
     """
     Change a person's region in the database based on their person ID.
@@ -403,7 +403,6 @@ def change_region(person_id):
 
 
 @bp.get("/profile/<int:person_id>")
-@jwt_required()
 def get_profile(person_id):
     """
     Retrieves all information related to a person in one request.
@@ -421,7 +420,6 @@ def get_profile(person_id):
 
 
 @bp.get("/<item>/<int:item_id>")
-@roles_required(Roles.user.value)
 def get_item_id(item, item_id):
     """
     Retrieves an item from the database based on the provided item name and item ID.
@@ -444,7 +442,6 @@ def get_item_id(item, item_id):
 
 
 @bp.post("/<item>/<int:item_id>")
-@roles_required(Roles.user.value)
 def post_item_id(item, item_id):
     """
     Inserts or replaces a record in the specified table with the given item ID.
@@ -465,7 +462,6 @@ def post_item_id(item, item_id):
 
 
 @bp.delete("/<item>/<int:item_id>")
-@roles_required(Roles.admin.value, Roles.user.value)
 def delete_item(item, item_id):
     """
     Deletes an item from the database based on the provided item name and item ID.
@@ -488,7 +484,6 @@ def delete_item(item, item_id):
 
 
 @bp.get("/information")
-@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
 def get_information():
     """
     Retrieves information based on the provided query parameters.

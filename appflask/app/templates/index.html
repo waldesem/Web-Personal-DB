@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+
+{% block body %}
 <div class="container-fluid row ps-3">
   <div class="col-2 d-print-none">
     <div class="navbar navbar-expand sticky-top fs-5 p-3">
@@ -9,7 +11,6 @@
           Кандидаты
         </a>
         <hr class="text-info" />
-        {% if g.user.role == roles['user'] %}
         <a
           href="/resume"
           class="nav-link active"
@@ -19,12 +20,10 @@
         <hr
           class="text-info"
         />
-        {% endif %}
         <a href="/info" class="nav-link active">
           Информация
         </a>
         <hr class="text-info" />
-        {% if g.user.role == roles['admin'] %}
         <a
           href="/users"
           class="nav-link active"
@@ -34,7 +33,6 @@
         <hr
           class="text-info"
         />
-        {% endif %}
         <a href="/login" class="nav-link active">Выход</a>
       </div>
     </div>
@@ -46,7 +44,7 @@
           {% block message %}{% endblock %}
         </div>
         <div class="col-2 text-end">
-          <i class="bi bi-person-circle">{{ g.user.username }}</i>
+          <i class="bi bi-person-circle"></i>
         </div>
       </div>
     </div>
@@ -54,6 +52,7 @@
   </div>
   <div class="col-1 d-print-none"></div>
 </div>
+{% endblock %}
 {% block footer %}
 <footer
   class="d-flex justify-content-center border-top bg-white d-print-none"

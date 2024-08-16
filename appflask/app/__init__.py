@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, redirect, render_template
+from flask import Flask, redirect
 
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
@@ -9,6 +9,7 @@ from config import Config
 from .classes.classes import Regions, Roles
 from .model.tables import db_session, Users
 from .routes.route import bp as route_bp
+from .routes.tmpls import tmpl as route_tmpls
 
 
 def create_app(config_class=Config):
@@ -24,6 +25,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
+    app.register_blueprint(route_tmpls)
 
     if not os.path.isdir(Config.BASE_PATH):
         os.mkdir(Config.BASE_PATH)
@@ -54,15 +56,7 @@ def create_app(config_class=Config):
 
     @app.get("/", defaults={"path": ""})
     def main(path=""):
-        return redirect("/login")
-    
-    @app.get("/login")
-    def login():
-        return render_template("/login/login.html")
-    
-    @app.get("/password")
-    def password():
-        return render_template("/login/password.html")
+        return redirect("/api/index/1")
 
     @app.get("/<path:path>")
     def static_file(path=""):
