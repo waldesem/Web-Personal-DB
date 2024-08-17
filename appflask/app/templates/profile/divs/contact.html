@@ -1,4 +1,4 @@
-{% macro contact_div_macro(contacts = [], id) %}
+{% macro contact_div_macro(contacts = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,7 +8,7 @@
 {{'Контакты'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="contact">
-  {{ address_form_macro() }}
+  {{ contact_form_macro() }}
 </div>
 {% if contacts %}
 {% for contact in contacts %}
@@ -26,8 +26,6 @@
   {{ action_group_macro(
     "contact" + contact['id'], 
     "/api/delete/contacts/" + contact['id'], 
-    "contact" + contact['id'], 
-    "/api/file/contacts/" + contact['id']
     )
   }}
   <div class="collapse card card-body mb-3" id={{"contact" + contact['id']}}>
@@ -38,7 +36,7 @@
 </div>
   {% endfor %}
   {% else %}
-  <div class="text-primary mb-3">Нет данных о работе</div>
+  <div class="text-primary mb-3">Информация не найдена</div>
   {% endif %}
 
 {% endmacro %}

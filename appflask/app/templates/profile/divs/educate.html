@@ -1,4 +1,4 @@
-{% macro education_div_macro(educations = [], id) %}
+{% macro education_div_macro(educations = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,7 +8,7 @@
 {{'Образование'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="education">
-  {{ address_form_macro() }}
+  {{ education_form_macro() }}
 </div>
 {% if educations %}
 {% for education in educations %}
@@ -34,8 +34,6 @@
   {{ action_group_macro(
     "education" + education['id'], 
     "/api/delete/educations/" + education['id'], 
-    "education" + education['id'], 
-    "/api/file/educations/" + education['id']
     )
   }}
   <div class="collapse card card-body mb-3" id={{"education" + education['id']}}>
@@ -46,7 +44,7 @@
 </div>
   {% endfor %}
   {% else %}
-  <div class="text-primary mb-3">Нет данных о работе</div>
+  <div class="text-primary mb-3">Информация не найдена</div>
   {% endif %}
 
 {% endmacro %}

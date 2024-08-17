@@ -1,4 +1,4 @@
-{% macro prev_div_macro(previous = [], id) %}
+{% macro prev_div_macro(previous = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,7 +8,7 @@
 {{'Предыдущее имя'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="prev">
-  {{ address_form_macro() }}
+  {{ previous_form_macro() }}
 </div>
 {% if previous %}
 {% for prev in previous %}
@@ -38,19 +38,17 @@
   {{ action_group_macro(
     "prev" + prev['id'], 
     "/api/delete/previous/" + prev['id'], 
-    "prev" + prev['id'], 
-    "/api/file/previous/" + prev['id']
     )
   }}
   <div class="collapse card card-body mb-3" id={{"prev" + prev['id']}}>
-    {{ prev_form_macro(prev) }}
+    {{ previous_form_macro(prev) }}
   </div>
   {% endif %}
 
 </div>
   {% endfor %}
   {% else %}
-  <div class="text-primary mb-3">Нет данных о работе</div>
+  <div class="text-primary mb-3">Информация не найдена</div>
   {% endif %}
 
 {% endmacro %}

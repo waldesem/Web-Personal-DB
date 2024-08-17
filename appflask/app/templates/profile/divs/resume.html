@@ -1,0 +1,85 @@
+{% macro resume_div_macro(resume = {}) %}
+
+{% from "macros.html" import label_macro, select_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/resume.html" import resume_form_macro %}
+
+<div  class="card card-body mb-3">
+  <form 
+    class="form form-check" 
+    method="post" 
+    name="address-form" 
+    action="{{ url_for('route.get_region') }}"
+  >
+    {{ select_macro("region", options, required=true, value=resume['region']) }}
+  </form>
+  {% call label_macro("Фамилия") %}
+  {{ ressume['surname'] }}
+  {% endcall %}
+
+  {% call label_macro("Имя") %}
+  {{ ressume['firstname'] }}
+  {% endcall %}
+
+  {% call label_macro("Отчество") %}
+  {{ ressume['patronymic'] }}
+  {% endcall %}
+
+  {% call label_macro("Дата рождения") %}
+  {{ ressume['birthday'] }}
+  {% endcall %}
+
+  {% call label_macro("Место рождения") %}
+  {{ ressume['birthplace'] }}
+  {% endcall %}
+
+  {% call label_macro("Гражданство") %}
+  {{ ressume['citizenship'] }}
+  {% endcall %}
+
+  {% call label_macro("Двойное гражданство") %}
+  {{ ressume['dual'] }}
+  {% endcall %}
+
+  {% call label_macro("ИНН") %}
+  {{ ressume['inn'] }}
+  {% endcall %}
+
+  {% call label_macro("СНИЛС") %}
+  {{ ressume['snils'] }}
+  {% endcall %}
+
+  {% call label_macro("Семейное положение") %}
+  {{ ressume['marital'] }}
+  {% endcall %}
+
+  {% call label_macro("Дата записи") %}
+  {{ ressume['created'] }}
+  {% endcall %}
+
+  {% call label_macro("Пользователь") %}
+  {{ ressume['username'] }}
+  {% endcall %}
+  
+  {% call label_macro("Материалы") %}
+  {{ ressume['destination'] }}
+  {% endcall %}
+
+  {% call label_macro("Дополнительная информация") %}
+  {{ ressume['addition'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "resume"], 
+    "/api/delete/persons/" + resume['id'], 
+    "resume", 
+    "/api/file/persons/" + resume['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"resume" + resume['id']}}>
+    {{ resume_form_macro(resume) }}
+  </div>
+  {% endif %}
+
+{% endmacro %}

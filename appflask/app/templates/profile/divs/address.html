@@ -1,4 +1,4 @@
-{% macro address_div_macro(addresses = [], id) %}
+{% macro address_div_macro(addresses = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -26,8 +26,6 @@
   {{ action_group_macro(
     "address" + workplace['id'], 
     "/api/delete/addresses/" + workplace['id'], 
-    "address" + workplace['id'], 
-    "/api/file/addresses/" + workplace['id']
     )
   }}
   <div class="collapse card card-body mb-3" id={{"address" + address['id']}}>
@@ -38,7 +36,7 @@
 </div>
   {% endfor %}
   {% else %}
-  <div class="text-primary mb-3">Нет данных о работе</div>
+  <div class="text-primary mb-3">Информация не найдена</div>
   {% endif %}
 
 {% endmacro %}

@@ -1,4 +1,4 @@
-{% macro relation_div_macro(relations = [], id) %}
+{% macro relation_div_macro(relations = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,7 +8,7 @@
 {{'Должности'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="relation">
-  {{ address_form_macro() }}
+  {{ relation_form_macro() }}
 </div>
 {% if relations %}
 {% for relation in relations %}
@@ -30,8 +30,6 @@
   {{ action_group_macro(
     "relation" + relation['id'], 
     "/api/delete/relations/" + relation['id'], 
-    "relation" + relation['id'], 
-    "/api/file/relations/" + relation['id']
     )
   }}
   <div class="collapse card card-body mb-3" id={{"relation" + relation['id']}}>
@@ -42,69 +40,7 @@
 </div>
   {% endfor %}
   {% else %}
-  <div class="text-primary mb-3">Нет данных о работе</div>
+  <div class="text-primary mb-3">Информация не найдена</div>
   {% endif %}
 
 {% endmacro %}
-
-
-<template>
-  <DropDownHead :id="'relationer'" :header="'Связи'" />
-  <div class="collapse card card-body mb-3" id="relationer">
-    <RelationForm @cancel="cancelAction" />
-  </div>
-  <div v-if="stateAnketa.anketa.relations.length">
-    <div
-      v-for="(item, idx) in stateAnketa.anketa.relations"
-      :key="idx"
-      class="card card-body mb-3"
-      @mouseover="actions = true"
-      @mouseout="actions = false"
-    >
-      <RelationForm
-        v-if="edit && itemId == item['id'].toString()" 
-        :relation="relation"
-        @cancel="edit = !edit"
-      />
-      <div v-else>
-        <LabelSlot>
-          <ActionIcons
-            v-show="
-                actions &&
-                stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-                stateAnketa.anketa.persons['standing']
-              "
-            @delete="stateAnketa.deleteItem(item['id'].toString(), 'relations')"
-            @update="
-              relation = item;
-              itemId = item['id'].toString()
-              edit = true;
-            "
-            :hide="true"
-          />
-        </LabelSlot>
-        <LabelSlot :label="'Тип'">{{ item["relation"] }}</LabelSlot>
-        <LabelSlot :label="'Связь'">
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { id: item['relation_id'] },
-            }"
-          >
-            ID #{{ item["relation_id"] }}
-          </router-link>
-        </LabelSlot>
-      </div>
-    </div>
-  </div>
-  <p v-else>Данные отсутствуют</p>
-</template>
-
-<style scoped>
-@media print {
-  .card {
-    margin: 1px !important;
-    padding: 1px !important;
-  }
-}
-</style>

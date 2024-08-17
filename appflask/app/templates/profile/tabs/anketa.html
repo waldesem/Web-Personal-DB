@@ -1,192 +1,44 @@
-<script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
-import { stateAnketa, stateClassify, stateUser } from "@/state";
-import type { Persons } from "@/interfaces";
+{% macro anketa_tab_macro(persons = []) %}
 
-const PrevDiv = defineAsyncComponent(
-  () => import("@components/content/divs/PrevDiv.vue")
-);
-const EducateDiv = defineAsyncComponent(
-  () => import("@components/content/divs/EducateDiv.vue")
-);
-const StaffDiv = defineAsyncComponent(
-  () => import("@components/content/divs/StaffDiv.vue")
-);
-const DocumDiv = defineAsyncComponent(
-  () => import("@components/content/divs/DocumDiv.vue")
-);
-const AddressDiv = defineAsyncComponent(
-  () => import("@components/content/divs/AddressDiv.vue")
-);
-const ContactDiv = defineAsyncComponent(
-  () => import("@components/content/divs/ContactDiv.vue")
-);
-const RelateDiv = defineAsyncComponent(
-  () => import("@components/content/divs/RelateDiv.vue")
-);
-const WorkDiv = defineAsyncComponent(
-  () => import("@components/content/divs/WorkDiv.vue")
-);
-const AffilDiv = defineAsyncComponent(
-  () => import("@components/content/divs/AffilDiv.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const SelectDiv = defineAsyncComponent(
-  () => import("@components/content/elements/SelectDiv.vue")
-);
-const FileForm = defineAsyncComponent(
-  () => import("@components/content/forms/FileForm.vue")
-);
-const ResumeForm = defineAsyncComponent(
-  () => import("@components/content/forms/ResumeForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+{% from "profile/divs/resume.html" import resume_div_macro %}
+{% from "profile/divs/staff.html" import staff_div_macro %}
+{% from "profile/divs/work.html" import work_div_macro %}
+{% from "profile/divs/educate.html" import educate_div_macro %}
+{% from "profile/divs/affil.html" import affil_div_macro %}
+{% from "profile/divs/prev.html" import prev_div_macro %}
+{% from "profile/divs/relate.html" import relate_div_macro %}
+{% from "profile/divs/address.html" import address_div_macro %}
+{% from "profile/divs/contact.html" import contact_div_macro %}
+{% from "profile/divs/docum.html" import docum_div_macro %}
 
-const dataResume = ref({
-  action: "",
-  form: <Persons>{},
-  showActions: false,
-});
-</script>
+{% set accordion = {
+  'resume': ['Резюме', resume_div_macro(persons['resume'])],
+  'staffs': ['Должности', staff_div_macro(persons['staffs'])],
+  'works': ['Работа', work_div_macro(persons['workplaces'])],
+  'educates': ['Образование', educate_div_macro(persons['educations'])],
+  'affils': ['Аффилированные организации', affil_div_macro(persons['affiliations'])],
+  'prevs': ['Предыдущие имена', prev_div_macro(persons['previous_names'])],
+  'relates': ['Связи', relate_div_macro(persons['relations'])],
+  'address': ['Адреса', address_div_macro(persons['addresses'])],
+  'contacts': ['Контакты', contact_div_macro(persons['contacts'])],
+  'docums': ['Документы', docum_div_macro(persons['documents'])],
+} %}
 
-<template>
-  <div v-if="dataResume.action" class="card card-body mb-3">
-    <ResumeForm
-      :action="dataResume.action"
-      :resume="stateAnketa.anketa.persons"
-      @cancel="
-        dataResume.action = '';
-        stateAnketa.getItem('persons');
-      "
-    />
+<div class="accordion accordion-flush" id="persons">
+  {% for key, value in accordion.items() %}
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="'#' + key">
+        {{ value[0] }}
+      </button>
+    </h2>
+    <div :id="key" class="accordion-collapse collapse {{ 'show' if key == 'resume' }}" data-bs-parent="#persons">
+      <div class="accordion-body">
+        {{ value[1] }}
+      </div>
+    </div>
   </div>
-  <div
-    v-else
-    class="card card-body mb-3"
-    @mouseover="dataResume.showActions = true"
-    @mouseout="dataResume.showActions = false"
-  >
-    <LabelSlot>
-      <ActionIcons
-        v-show="
-          dataResume.showActions &&
-          stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-          stateAnketa.anketa.persons['standing']
-        "
-        @delete="
-          stateAnketa.deleteItem(stateAnketa.anketa.persons['id'], 'persons')
-        "
-        @update="dataResume.action = 'update'"
-        :for-input="'persons-file'"
-      >
-        <FileForm
-          v-show="dataResume.showActions"
-          :name-id="'persons-file'"
-          :accept="'*'"
-          @submit="
-            stateAnketa.submitFile($event, 'anketa', stateAnketa.share.candId)
-          "
-        />
-      </ActionIcons>
-    </LabelSlot>
-    <LabelSlot
-      class="d-print-none"
-      :label="'Регион'"
-    >
-      <SelectDiv
-        :width="'20%'"
-        :name="'region'"
-        :disable="
-          stateUser.user.userId != stateAnketa.anketa.persons['user_id'] ||
-          !stateAnketa.anketa.persons['standing']
-        "
-        :select="stateClassify.classes.regions"
-        v-model="stateAnketa.anketa.persons['region']"
-        @submit-data="stateAnketa.changeRegion()"
-      />
-    </LabelSlot>
-    <LabelSlot :label="'Фамилия'">
-      {{ stateAnketa.anketa.persons["surname"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Имя'">
-      {{ stateAnketa.anketa.persons["firstname"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Отчество'">
-      {{ stateAnketa.anketa.persons["patronymic"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата рождения'">
-      {{
-        new Date(
-          String(stateAnketa.anketa.persons["birthday"])
-        ).toLocaleDateString("ru-RU")
-      }}
-    </LabelSlot>
-    <LabelSlot :label="'Место рождения'">
-      {{ stateAnketa.anketa.persons["birthplace"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Гражданство'">
-      {{ stateAnketa.anketa.persons["citizenship"] }}
-    </LabelSlot>
-    <LabelSlot
-      v-if="stateAnketa.anketa.persons['dual']"
-      :label="'Двойное гражданство'"
-    >
-      {{ stateAnketa.anketa.persons["dual"] }}
-    </LabelSlot>
-    <LabelSlot :label="'СНИЛС'">
-      {{ stateAnketa.anketa.persons["snils"] }}
-    </LabelSlot>
-    <LabelSlot :label="'ИНН'">
-      {{ stateAnketa.anketa.persons["inn"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Семейное положение'">
-      {{ stateAnketa.anketa.persons["marital"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Дата записи'">
-      {{
-        stateAnketa.anketa.persons["created"]
-          ? new Date(
-              stateAnketa.anketa.persons["created"] + " UTC"
-            ).toLocaleString("ru-RU")
-          : ""
-      }}
-    </LabelSlot>
-    <LabelSlot :label="'Пользователь'">
-      {{
-        stateAnketa.anketa.persons["username"]
-          ? stateAnketa.anketa.persons["username"]
-          : ""
-      }}
-    </LabelSlot>
-    <LabelSlot :label="'Материалы'">
-      {{ stateAnketa.anketa.persons["destination"] }}
-    </LabelSlot>
-    <LabelSlot :label="'Дополнительная информация'">
-      {{
-        stateAnketa.anketa.persons["addition"]
-          ? stateAnketa.anketa.persons["addition"]
-          : "-"
-      }}
-    </LabelSlot>
-  </div>
-  <div
-    v-for="(component, idx) in [
-      StaffDiv,
-      EducateDiv,
-      WorkDiv,
-      DocumDiv,
-      AddressDiv,
-      ContactDiv,
-      AffilDiv,
-      PrevDiv,
-      RelateDiv,
-    ]"
-    :key="idx"
-  >
-    <component :is="component" />
-  </div>
-</template>
+  {% endfor %}
+</div>
+
+{% endmacro %}

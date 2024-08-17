@@ -1,4 +1,4 @@
-{% macro document_div_macro(documents = [], id) %}
+{% macro document_div_macro(documents = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,7 +8,7 @@
 {{'Документы'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="document">
-  {{ address_form_macro() }}
+  {{ document_form_macro() }}
 </div>
 {% if documents %}
 {% for document in documents %}
@@ -38,8 +38,6 @@
   {{ action_group_macro(
     "document" + document['id'], 
     "/api/delete/documents/" + document['id'], 
-    "document" + document['id'], 
-    "/api/file/documents/" + document['id']
     )
   }}
   <div class="collapse card card-body mb-3" id={{"document" + document['id']}}>
@@ -50,7 +48,7 @@
 </div>
   {% endfor %}
   {% else %}
-  <div class="text-primary mb-3">Нет данных о работе</div>
+  <div class="text-primary mb-3">Информация не найдена</div>
   {% endif %}
 
 {% endmacro %}
