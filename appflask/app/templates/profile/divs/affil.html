@@ -1,0 +1,48 @@
+{% macro affilation_div_macro(affilations = [], id) %}
+
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/affilation.html" import affilation_form_macro %}
+
+{% call collapse_header_macro("affilation") %}
+{{'Аффилированое лицо'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="affilation">
+  {{ address_form_macro() }}
+</div>
+{% if affilations %}
+{% for affilation in affilations %}
+
+<div  class="card card-body mb-3">
+  {% call label_macro("Тип участия") %}
+  {{ affilation['view'] }}
+  {% endcall %}
+
+  {% call label_macro("Организация") %}
+  {{ affilation['organization'] }}
+  {% endcall %}
+
+  {% call label_macro("ИНН") %}
+  {{ affilation['inn'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "affilation" + affilation['id'], 
+    "/api/delete/affilations/" + affilation['id'], 
+    "affilation" + affilation['id'], 
+    "/api/file/affilations/" + affilation['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"affilation" + affilation['id']}}>
+    {{ affilation_form_macro(affilation) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}

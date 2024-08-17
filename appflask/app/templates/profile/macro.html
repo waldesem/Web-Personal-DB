@@ -1,0 +1,35 @@
+{% macro collapse_header_macro(href) %}
+<h6>
+  <button
+    type="button"
+    class="btn btn-link"
+    data-bs-toggle="collapse"
+    href="{{ href }}"
+  >
+    {{ caller() }}
+  </button>
+</h6>
+{% endmacro %}
+
+{% macro action_group_macro(href, url, file_name, path) %}
+<div class="py-3 border border-top">
+  <div class="btn-group" role="group">
+    {% call collapse_header_macro(href)}
+    <i class="bi bi-pencil-square"></i>
+    {% endcall %}
+    <a class="btn btn-primary" href="{{ url }}" role="button">
+      <i class="bi bi-trash"></i>
+    </a>
+    <label
+      for="{{file_name}}" 
+      class="text-primary"
+      style="cursor: pointer;"
+    >
+      <i class="bi bi-cloud-arrow-up"></i>
+    </label>
+    {{ file_macro(file_name, path, "*") }}
+  </div>
+</div>
+{% endmacro %} 
+
+

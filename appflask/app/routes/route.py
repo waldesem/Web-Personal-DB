@@ -465,7 +465,7 @@ def post_item_id(item, item_id):
     return "", 201
 
 
-@bp.delete("/<item>/<int:item_id>")
+@bp.get("/delete/<item>/<int:item_id>")
 def delete_item(item, item_id):
     """
     Deletes an item from the database based on the provided item name and item ID.

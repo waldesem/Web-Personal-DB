@@ -1,0 +1,23 @@
+{% macro contact_form_macro(contact = {}, id) %}
+
+{% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
+{% set options = ["Телефон", "Электронная почта", "Другое"] %}
+
+<form 
+  class="form form-check" 
+  method="post" 
+  name="contact-form" 
+  action="{{ url_for('route.get_item_id', item='contacts', item_id=id) }}"
+>
+  {{ csrf_token() }}
+  {% call label_macro("Вид контакта*") %}
+  {{ select_macro("view", options, required=true, value=workplace['view']) }}
+  {% endcall %}
+
+  {% call label_macro("Контакт*") %}
+  {{ input_macro("contact", "Контакт*", required=true, value=workplace['contact']) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

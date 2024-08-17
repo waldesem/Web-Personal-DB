@@ -1,0 +1,22 @@
+{% macro staff_form_macro(staff = {}, id) %}
+
+{% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
+  <form
+    class="form form-check" 
+    role="form" 
+    method="post" 
+    name="staff-form" 
+    action="{{ url_for('route.get_item_id', item='staffs', id=id) }}"
+  >
+    {{ csrf_token() }}
+    {% call label_macro("Должность*") %}
+    {{ input_macro("position", "Должность", required=true, value=staff['position']) }}
+    {% endcall %}
+
+    {% call label_macro("Подразделение") %}
+    {{ textarea_macro("department", "Подразделение", staff['department']) }}
+    {% endcall %}
+
+    {{ btn_group_macro() }}
+  </form>
+{% endmacro %}

@@ -1,0 +1,52 @@
+{% macro education_div_macro(educations = [], id) %}
+
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/education.html" import education_form_macro %}
+
+{% call collapse_header_macro("education") %}
+{{'Образование'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="education">
+  {{ address_form_macro() }}
+</div>
+{% if educations %}
+{% for education in educations %}
+
+<div  class="card card-body mb-3">
+  {% call label_macro("Тип образования") %}
+  {{ education['view'] }}
+  {% endcall %}
+
+  {% call label_macro("Учебное заведение") %}
+  {{ education['university'] }}
+  {% endcall %}
+
+  {% call label_macro("Год окончания") %}
+  {{ education['finished'] }}
+  {% endcall %}
+
+  {% call label_macro("Специальность") %}
+  {{ education['specialty'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "education" + education['id'], 
+    "/api/delete/educations/" + education['id'], 
+    "education" + education['id'], 
+    "/api/file/educations/" + education['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"education" + education['id']}}>
+    {{ education_form_macro(education) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}

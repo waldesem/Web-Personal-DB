@@ -1,0 +1,56 @@
+{% macro document_div_macro(documents = [], id) %}
+
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/document.html" import document_form_macro %}
+
+{% call collapse_header_macro("document") %}
+{{'Документы'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="document">
+  {{ address_form_macro() }}
+</div>
+{% if documents %}
+{% for document in documents %}
+
+<div  class="card card-body mb-3">
+  {% call label_macro("Тип документа") %}
+  {{ document['view'] }}
+  {% endcall %}
+
+  {% call label_macro("Серия документа") %}
+  {{ document['series'] }}
+  {% endcall %}
+
+  {% call label_macro("Номер документа") %}
+  {{ document['number'] }}
+  {% endcall %}
+
+  {% call label_macro("Кем выдан") %}
+  {{ document['agency'] }}
+  {% endcall %}
+
+  {% call label_macro("Дата выдачи") %}
+  {{ document['issue'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "document" + document['id'], 
+    "/api/delete/documents/" + document['id'], 
+    "document" + document['id'], 
+    "/api/file/documents/" + document['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"document" + document['id']}}>
+    {{ document_form_macro(document) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}

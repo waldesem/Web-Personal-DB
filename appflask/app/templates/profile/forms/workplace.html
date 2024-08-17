@@ -1,0 +1,42 @@
+{% macro work_form_macro(workplace = {}, id) %}
+
+{% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
+
+<form 
+  class="form form-check" 
+  method="post" 
+  name="workplace-form" 
+  action="{{ url_for('route.get_item_id', item='workplaces', item_id=id) }}"
+>
+  {{ csrf_token() }}
+  {% call label_macro("Текущая работа*") %}
+  {{ switch_macro("now_work") }}
+  {% endcall %}
+
+  {% call label_macro("Начало работы*") %}
+  {{ input_macro("starts", "Начало работы", type="date", value=workplace['starts']) }}
+  {% endcall %}
+
+  {% call label_macro("Окончание работы") %}
+  {{ input_macro("finished", "Окончание работы", type="date", value=workplace['finished']) }}
+  {% endcall %}
+
+  {% call label_macro("Место работы*") %}
+  {{ input_macro("workplace", "Место работы", value=workplace['workplace']) }}
+  {% endcall %}
+
+  {% call label_macro("Должность*") %}
+  {{ input_macro("position", "Должность", value=workplace['position']) }}
+  {% endcall %}
+
+  {% call label_macro("Адрес организации") %}
+  {{ textarea_macro("address", "Адрес организации", orkplace['address']) }}
+  {% endcall %}
+
+  {% call label_macro("Причина увольнения") %}
+  {{ textarea_macro("reason", "Причина увольнения", workplace['reason']) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+  </form>
+</template>

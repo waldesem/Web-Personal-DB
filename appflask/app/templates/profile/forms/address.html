@@ -1,0 +1,23 @@
+{% macro address_form_macro(address = {}, id) %}
+
+{% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
+{% set options = ["Адрес регистрации", "Адрес проживания", "Другое"] %}
+
+<form 
+  class="form form-check" 
+  method="post" 
+  name="address-form" 
+  action="{{ url_for('route.get_item_id', item='addresses', item_id=id) }}"
+>
+  {{ csrf_token() }}
+  {% call label_macro("Вид адреса*") %}
+  {{ select_macro("view", options, required=true, value=address['view']) }}
+  {% endcall %}
+
+  {% call label_macro("Адрес*") %}
+  {{ input_macro("address", "Адрес*", required=true, value=address['address']) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

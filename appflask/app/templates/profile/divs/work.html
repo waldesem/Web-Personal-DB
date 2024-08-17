@@ -1,0 +1,64 @@
+{% macro work_div_macro(workplaces = [], id) %}
+
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/workplace.html" import work_form_macro %}
+
+{% call collapse_header_macro("work") %}
+{{'Работа'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="work">
+  {{ work_form_macro() }}
+</div>
+{% if workplaces %}
+{% for workplace in workplaces %}
+
+<div  class="card card-body mb-3">
+  {% call label_macro("Текущая работа") %}
+  {{ workplace['now_work'] }}
+  {% endcall %}
+
+  {% call label_macro("Начало работы") %}
+  {{ workplace['starts'] }}
+  {% endcall %}
+
+  {% call label_macro("Окончание работы") %}
+  {{ workplace['finished'] }}
+  {% endcall %}
+
+  {% call label_macro("Место работы") %}
+  {{ workplace['workplace'] }}
+  {% endcall %}
+
+  {% call label_macro("Должность") %}
+  {{ workplace['position'] }}
+  {% endcall %}
+
+  {% call label_macro("Адрес организации") %}
+  {{ workplace['addresses'] }}
+  {% endcall %}
+
+  {% call label_macro("Причина увольнения") %}
+  {{ workplace['reason'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "work" + workplace['id'], 
+    "/api/delete/workplaces/" + workplace['id'], 
+    "workfile" + workplace['id'], 
+    "/api/file/workplaces/" + workplace['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"works" + workplace['id']}}>
+    {{ work_form_macro(workplace) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}

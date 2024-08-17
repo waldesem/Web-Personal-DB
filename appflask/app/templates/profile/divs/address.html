@@ -1,0 +1,44 @@
+{% macro address_div_macro(addresses = [], id) %}
+
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/address.html" import address_form_macro %}
+
+{% call collapse_header_macro("address") %}
+{{'Адреса'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="address">
+  {{ address_form_macro() }}
+</div>
+{% if addresses %}
+{% for address in addresses %}
+
+<div  class="card card-body mb-3">
+  {% call label_macro("Тип адреса") %}
+  {{ address['view'] }}
+  {% endcall %}
+
+  {% call label_macro("Адрес") %}
+  {{ address['addresses'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "address" + workplace['id'], 
+    "/api/delete/addresses/" + workplace['id'], 
+    "address" + workplace['id'], 
+    "/api/file/addresses/" + workplace['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"address" + address['id']}}>
+    {{ address_form_macro(address) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}

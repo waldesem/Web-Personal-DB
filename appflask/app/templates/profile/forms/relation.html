@@ -1,0 +1,23 @@
+{% macro relation_form_macro(workplace = {}, id) %}
+
+{% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
+{% set options = ["Одно лицо", "Родители-Дети", "Братья-Сестры", "Супруг-Супруга", "Родственники", "Близкая связь"] %}
+
+<form 
+  class="form form-check" 
+  method="post" 
+  name="relation-form" 
+  action="{{ url_for('route.get_item_id', item='relations', item_id=id) }}"
+>
+  {{ csrf_token() }}
+  {% call label_macro("Тип связи*") %}
+  {{ select_macro("relation", options, required=true, value=workplace['relation']) }}
+  {% endcall %}
+
+  {% call label_macro("ID связи*") %}
+  {{ input_macro("relation_id", "ID связи", type="number", required=true, value=workplace['relation_id']) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

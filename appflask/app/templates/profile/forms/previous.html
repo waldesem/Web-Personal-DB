@@ -1,0 +1,34 @@
+{% macro previous_form_macro(previous = {}, id) %}
+
+{% from "macros.html" import label_macro, input_macro, btn_group_macro %}
+
+<form 
+  class="form form-check" 
+  method="post" 
+  name="previous-form" 
+  action="{{ url_for('route.get_item_id', item='previous', item_id=id) }}"
+>
+  {{ csrf_token() }}
+  {% call label_macro("Фамилия*") %}
+  {{ input_macro("surname", "Фамилия*", required=true, value=previous['surname']) }}
+  {% endcall %}
+
+  {% call label_macro("Имя*") %}
+  {{ input_macro("firstname", "Имя*", required=true, value=previous['firstname']) }}
+  {% endcall %}
+
+  {% call label_macro("Отчество") %}
+  {{ input_macro("patronymic", "Отчество", value=previous['patronymic']) }}
+  {% endcall %}
+
+  {% call label_macro("Год изменения*") %}
+  {{ input_macro("changed", "Год изменения*", type="number", required=true) }}
+  {% endcall %}
+
+  {% call label_macro("Причина изменения*") %}
+  {{ input_macro("reason", "Причина изменения*", required=true) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

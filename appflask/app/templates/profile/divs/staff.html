@@ -1,0 +1,44 @@
+{% macro staff_div_macro(staffs = [], id) %}
+
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/staff.html" import staff_form_macro %}
+
+{% call collapse_header_macro("staff") %}
+{{'Должности'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="staff">
+  {{ address_form_macro() }}
+</div>
+{% if staffs %}
+{% for staff in staffs %}
+
+<div  class="card card-body mb-3">
+  {% call label_macro("Должность") %}
+  {{ staff['view'] }}
+  {% endcall %}
+
+  {% call label_macro("Департамент") %}
+  {{ staff['department'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "staff" + staff['id'], 
+    "/api/delete/staffs/" + staff['id'], 
+    "staff" + staff['id'], 
+    "/api/file/staffs/" + staff['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"staff" + staff['id']}}>
+    {{ staff_form_macro(staff) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}

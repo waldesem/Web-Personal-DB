@@ -1,0 +1,23 @@
+{% macro poligraf_form_macro(poligraf = {}, id) %}
+
+{% from "macros.html" import label_macro, input_macro, textarea_macro, id=""></textarea>, btn_group_macro %}
+{% set options = ["Проверка кандидата", "Служебная проверка", "Служебное расследование", "Плановое мероприятие"] %}
+
+<form 
+  class="form form-check" 
+  method="post" 
+  name="poligraf-form" 
+  action="{{ url_for('route.get_item_id', item='poligrafs', item_id=id) }}"
+>
+  {{ csrf_token() }}
+  {% call label_macro("Тема проверки*") %}
+  {{ select_macro("theme", options, required=true, value=poligraf['theme']) }}
+  {% endcall %}
+
+  {% call label_macro("Результат*") %}
+  {{ input_macro("results", "Результат*", required=true, poligraf['results']) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

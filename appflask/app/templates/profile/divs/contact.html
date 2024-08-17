@@ -1,0 +1,44 @@
+{% macro contact_div_macro(contacts = [], id) %}
+
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/contact.html" import contact_form_macro %}
+
+{% call collapse_header_macro("contact") %}
+{{'Контакты'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="contact">
+  {{ address_form_macro() }}
+</div>
+{% if contacts %}
+{% for contact in contacts %}
+
+<div  class="card card-body mb-3">
+  {% call label_macro("Тип контакта") %}
+  {{ contact['view'] }}
+  {% endcall %}
+
+  {% call label_macro("Контакт") %}
+  {{ contact['contact'] }}
+  {% endcall %}
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "contact" + contact['id'], 
+    "/api/delete/contacts/" + contact['id'], 
+    "contact" + contact['id'], 
+    "/api/file/contacts/" + contact['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"contact" + contact['id']}}>
+    {{ contact_form_macro(contact) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}

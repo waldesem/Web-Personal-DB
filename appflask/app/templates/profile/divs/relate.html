@@ -1,33 +1,52 @@
-<script setup lang="ts">
-import { defineAsyncComponent, ref } from "vue";
-import { stateAnketa, stateUser } from "@/state";
-import { Relation } from "@/interfaces";
+{% macro relation_div_macro(relations = [], id) %}
 
-const DropDownHead = defineAsyncComponent(
-  () => import("@components/content/elements/DropDownHead.vue")
-);
-const ActionIcons = defineAsyncComponent(
-  () => import("@components/content/elements/ActionIcons.vue")
-);
-const RelationForm = defineAsyncComponent(
-  () => import("@components/content/forms/RelationForm.vue")
-);
-const LabelSlot = defineAsyncComponent(
-  () => import("@components/content/elements/LabelSlot.vue")
-);
+{% from "macros.html" import label_macro %}
+{% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
+{% from "/profile/forms/relation.html" import relation_form_macro %}
 
-const actions = ref(false);
-const edit = ref(false);
-const itemId = ref('');
-const relation = ref(<Relation>{});
+{% call collapse_header_macro("relation") %}
+{{'Должности'}}
+{% endcall %}
+<div class="collapse card card-body mb-3" id="relation">
+  {{ address_form_macro() }}
+</div>
+{% if relations %}
+{% for relation in relations %}
 
-function cancelAction() {
-  edit.value = false;
-  itemId.value = "";
-  const collapseRelation = document.getElementById("relationer");
-  collapseRelation?.setAttribute("class", "collapse card card-body mb-3");
-}
-</script>
+<div  class="card card-body mb-3">
+  {% call label_macro("Тип связи") %}
+  {{ relation['relation'] }}
+  {% endcall %}
+
+  {% call label_macro("Связь") %}
+  <a class="link-primary" href="/api/profile/{{ relation['relation_id'] }}">
+    ID# {{ relation['relation_id'] }}
+  </a>
+  {% endcall %}
+
+
+
+  {% if session['user']['role'] == 'user' %}
+  {{ action_group_macro(
+    "relation" + relation['id'], 
+    "/api/delete/relations/" + relation['id'], 
+    "relation" + relation['id'], 
+    "/api/file/relations/" + relation['id']
+    )
+  }}
+  <div class="collapse card card-body mb-3" id={{"relation" + relation['id']}}>
+    {{ relation_form_macro(relation) }}
+  </div>
+  {% endif %}
+
+</div>
+  {% endfor %}
+  {% else %}
+  <div class="text-primary mb-3">Нет данных о работе</div>
+  {% endif %}
+
+{% endmacro %}
+
 
 <template>
   <DropDownHead :id="'relationer'" :header="'Связи'" />
