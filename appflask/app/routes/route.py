@@ -30,7 +30,7 @@ from ..classes.classes import (
     Regions,
     Relations,
 )
-from ..depends.depend import login_required
+from ..depends.depend import login_required, roles_required
 from ..classes.classes import Roles
 from ..model.models import Person, User, models_tables
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
@@ -99,6 +99,12 @@ def post_login(action):
         return redirect("/api/index/1")
     flash("Пароль устарел и должен быть сменен", "danger")
     return render_template("/login/password.html")
+
+
+@bp.get("/logout")
+def get_logout():
+    session.clear()
+    return redirect("/login/create")
 
 
 @bp.get("/users")
@@ -272,23 +278,26 @@ def post_file(item, item_id):
     """
     files = request.files.getlist("file")
     if not files or not files[0].filename:
-        return abort(400)
-
+        flash("Файл не выбран", "danger"), 400
+        return render_template("create.html")
+    
     if item == "persons":
         for file in files:
             json_dict = json.load(file)
             anketa = handle_json_to_dict(json_dict)
             if not anketa:
-                return abort(400)
+                flash("Некорректные данные", "danger")
+                return render_template("create.html")
             person_id = handle_post_resume(anketa["resume"])
             if not person_id:
-                return abort(400)
+                flash("Некорректные данные", "danger")
+                return render_template("create.html")
             for table, contents in anketa.items():
                 if contents and table != "resume":
                     for content in contents:
                         if content:
                             handle_post_item(content, table, person_id)
-        return "", 201
+        return redirect("/api/index/1"), 201
 
     person = db_session.get(Persons, item_id)
     if not person:
@@ -345,7 +354,13 @@ def get_image():
         )
 
 
+@bp.get("/create")
+def create_resume():
+    return render_template("create.html")
+
+
 @bp.post("/resume")
+@roles_required(Roles.user.value)
 def post_resume():
     """
     Creates a new user, person or contact based on the provided JSON data.
@@ -357,11 +372,10 @@ def post_resume():
         A JSON response containing the person ID and an HTTP status code of 201.
         The person ID is the ID of the newly created user, person, or contact.
     """
-    json_data = request.get_json()
-    resume = Person(**json_data).dict()
+    resume = Person(**request.form).dict()
     person_id = handle_post_resume(resume)
     if person_id:
-        return jsonify({"person_id": person_id}), 201
+        return redirect("/api/index/1")
     return abort(400)
 
 

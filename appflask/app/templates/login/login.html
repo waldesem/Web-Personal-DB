@@ -1,8 +1,7 @@
-{% from "macros.html" import btn_group_macro %}
-
-{% from "/login/macro.html" import logopass_macro %}
-
 {% extends "/logopass.html" %}
+
+{% from "macros.html" import btn_group_macro %}
+{% from "/login/macro.html" import logopass_macro %}
 
 {% block title %}
 Вход в систему
@@ -23,6 +22,6 @@
       Изменить пароль
   </a>
   </div>
-  {{ btn_group_macro("Войти", "submit_login", "Очистить", "reset_login", "Отмена", "cancel_login") }}
+  {{ btn_group_macro() }}
 </form>
 {% endblock %}

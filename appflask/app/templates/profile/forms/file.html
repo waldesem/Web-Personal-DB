@@ -1,0 +1,20 @@
+{% macro file_macro(name, route, accept) %}
+
+<form 
+  class="form form-check" 
+  role="form" 
+  method="post" 
+  enctype="multipart/form-data"
+  action="/{{ route }}"
+>
+  <input
+    class="form-control form-control-sm d-none"
+    name="{{ name }}" 
+    id="{{ name }}"
+    type="file"
+    accept="{{ accept }}"
+    ref="file"
+    multiple
+  />
+</form>
+{% endmacro %}

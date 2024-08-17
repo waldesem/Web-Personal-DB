@@ -1,0 +1,59 @@
+{% macro resume_macro(resume) %}
+
+{% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
+
+<form 
+  class="form form-check" 
+  role="form" 
+  method="post" 
+  id="login-form" 
+  name="login-form" 
+  action="{{ url_for('route.post_resume') }}"
+>
+  {% call label_macro("Фамилия*") %}
+  {{ input_macro("surname", "Фамилия", required=true) }}
+  {% endcall %}
+
+  {% call label_macro("Имя*") %}
+  {{ input_macro("firstname", "Имя", required=true) }}
+  {% endcall %}
+
+  {% call label_macro("Отчество") %}
+  {{ input_macro("patronymic", "Отчество") }}
+  {% endcall %}
+
+  {% call label_macro("Дата рождения*") %}
+  {{ input_macro("birthday", "Дата рождения", type="date", required=true) }}
+  {% endcall %}
+
+  {% call label_macro("Место рождения") %}
+  {{ textarea_macro("birthplace", "Место рождения") }}
+  {% endcall %}
+
+  {% call label_macro("Гражданство") %}
+  {{ input_macro("citizenship", "Гражданство") }}
+  {% endcall %}
+
+  {% call label_macro("Двойное гражданство") %}
+  {{ input_macro("dual", "Двойное гражданство") }}
+  {% endcall %}
+
+  {% call label_macro("ИНН") %}
+  {{ input_macro("inn", "ИНН") }}
+  {% endcall %}
+
+  {% call label_macro("СНИЛС") %}
+  {{ input_macro("snils", "СНИЛС") }}
+  {% endcall %}
+
+  {% call label_macro("Семейное положение") %}
+  {{ textarea_macro("marital", "Семейное положение") }}
+  {% endcall %}
+
+  {% call label_macro("Адрес проживания") %}
+  {{ textarea_macro("addition", "Дополнительно") }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

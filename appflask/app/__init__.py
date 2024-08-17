@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask, redirect
-
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 

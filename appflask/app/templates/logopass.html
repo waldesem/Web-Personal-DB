@@ -1,6 +1,6 @@
-{% from "macros.html" import input_macro, btn_group_macro %}
-
 {% extends "base.html" %}
+
+{% from "macros.html" import input_macro %}
 
 {% block title %}
 Вход в систему
@@ -11,8 +11,8 @@
   {% with messages = get_flashed_messages() %}
   {% if messages %}
     <div class="py-3">
-      {% for message in messages %}
-      <div class="alert alert-primary alert-dismissible fade show" role="alert">
+      {% for message, category in messages %}
+      <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
