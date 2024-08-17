@@ -1,0 +1,1 @@
+import{s as t}from"./CRlNADb7.js";import{f as r,g as s,o,c as n}from"./BLczYTEp.js";const u=r({__name:"index",setup(a){return s(async()=>{await t().getCurrentUser()}),(e,c)=>(o(),n("div"))}});export{u as default};
