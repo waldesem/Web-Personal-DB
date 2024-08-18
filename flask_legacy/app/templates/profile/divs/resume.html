@@ -54,7 +54,7 @@
   {% endcall %}
 
   {% call label_macro("Дата записи") %}
-  {{ ressume['created'] }}
+  {{ ressume['created'].strftime("%d.%m.%Y") }}
   {% endcall %}
 
   {% call label_macro("Пользователь") %}

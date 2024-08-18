@@ -78,7 +78,7 @@
   {% endcall %}
 
   {% call label_macro("Дата проверки'") %}
-  {{ check['created'] }}
+  {{ check['created'].strftime("%d.%m.%Y") }}
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}

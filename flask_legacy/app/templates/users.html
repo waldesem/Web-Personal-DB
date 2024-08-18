@@ -1,0 +1,144 @@
+{% extends "index.html" %}
+
+{% from "macros.html" import input_macro, select_macro, btn_group_macro %}
+
+{% block title %}
+Пользователи
+{% endblock %}
+
+{% block content %}
+<div class="text-secondary py-5 px-3">
+  <h3>Пользователи</h3>
+</div>
+<div class="row mb-3">
+  <form 
+    onsubmit="{{ url_for('route.get_users') }}"
+    class="form form-check" 
+    method="get" 
+  >
+    {{ input_macro("search", "Поиск по имени пользователя", required=true) }}
+  </form>
+</div>
+<div class="d-flex justify-content-between mb-3">
+  <div class="dropdown">
+    <button
+      class="btn btn-link text-secondary dropdown-toogle"
+      type="button"
+      data-bs-toggle="dropdown"
+    >
+      Добавить пользователя
+    </button>
+    <div class="dropdown-menu">
+      <form 
+        onsubmit="{{ url_for('route.post_user') }}"
+        class="form form-check" 
+        method="post" 
+      >
+        <div class="p-3">
+          <div class="mb-3">
+            {{ input_macro("fullname", "Имя пользователя", required=true) }}
+          </div>
+          <div class="mb-3">
+            {{ input_macro("username", "Учетная запись", required=true) }}
+          </div>
+          {{ btn_group_macro() }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="row py-3">  
+  <table class="table table-sm align-middle">
+    <thead>
+      <tr>
+        <th width="5%">#</th>
+        <th>Пользователь</th>
+        <th width="10%">Логин</th>
+        <th width="10%">Регион</th>
+        <th width="10%">Роль</th>
+        <th width="10%">Создан</th>
+        <th width="10%">Попытки</th>
+        <th width="5%">Блок</th>
+        <th width="5%">Удален</th>
+        <th width="10%">Изменение</th>
+        <th width="10%">Обновлено</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="10">
+          <table
+            class="table table-sm table-hover align-middle"
+            style="max-height: 50vh; overflow-y: auto; border-bottom: none;"
+          >
+            <tbody>
+              {% for user in users %}
+              <tr>
+                <td width="5%">{{ user.id }}</td>
+                <td>
+                  <div class="dropdown">
+                    <button
+                      class="btn btn-link text-secondary dropdown-toogle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                    >
+                    {{ user.fullname }}
+                    </button>
+                    <div class="dropdown-menu">
+                      <ul class="list-group">
+                        <li class="list-group-item">
+                          <a class="text-decoration-none" href="{{ url_for('route.get_user_actions', user_id=user.id, item="drop") }}"
+                          >
+                            Блокировка
+                          </a>
+                        </li>
+                        <li class="list-group-item">
+                          <a class="text-decoration-none" href="{{ url_for('route.get_user_actions', user_id=user.id, item="drop") }}"
+                          >
+                            Сброс пароля
+                          </a>
+                        </li>
+                        <li class="list-group-item">
+                          <a class="text-decoration-none" href="{{ url_for('route.get_user_actions', user_id=user.id, item="delete") }}"
+                          >
+                            Удаление
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </td>
+                <td width="10%">{{ user.username }}</td>
+                <td width="10%">
+                  <form 
+                    onchange="{{ url_for('route.get_user_actions', user_id=user.id) }}"
+                    class="form form-check" 
+                    method="get" 
+                  >
+                    {{ select_macro("region", ["Главный офис", "РЦ Юг", "РЦ Запад", "РЦ Урал", "РЦ Восток"], value=user.region) }}
+                  </form>
+                </td>
+                <td width="10%">
+                  <form 
+                    onchange="{{ url_for('route.get_user_actions', user_id=user.id) }}"
+                    class="form form-check" 
+                    method="get" 
+                  >
+                    {{ select_macro("role", ["admin", "user", "guest"], value=user.role) }}
+                  </form>
+                </td>
+                <td width="10%">{{ user.created.strftime("%d.%m.%Y") }}</td>
+                <td width="10%">{{ user.attempts }}</td>
+                <td width="5%">{{ "Да" if user.blocked else "Нет" }}</td>
+                <td width="5%">{{ "Да" if user.deleted else "Нет" }}</td>
+                <td width="10%">{{ "Да" if user.change_pswd else "Нет" }}</td>
+                <td width="10%">{{ user.pswd_create.strftime("%d.%m.%Y") }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</template>

@@ -30,7 +30,7 @@
   {% endcall %}
 
   {% call label_macro("Дата записи'") %}
-  {{ poligraf['created'] }}
+  {{ poligraf['created'].strftime("%d.%m.%Y") }}
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}

@@ -44,7 +44,9 @@ from ..handlers.handler import (
     make_destination,
 )
 
-bp = Blueprint("route", __name__, url_prefix="/api")
+bp = Blueprint(
+    "route", __name__, url_prefix="/api", static_folder=current_app.config["BASE_PATH"]
+)
 
 
 @bp.post("/login/<action>")
@@ -280,7 +282,7 @@ def post_file(item, item_id):
     if not files or not files[0].filename:
         flash("Файл не выбран", "danger"), 400
         return render_template("create.html")
-    
+
     if item == "persons":
         for file in files:
             json_dict = json.load(file)

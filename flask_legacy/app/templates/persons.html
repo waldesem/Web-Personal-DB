@@ -1,25 +1,22 @@
 {% extends "index.html" %}
 
+{% from "macros.html" import input_macro %}
+
 {% block title %}
 Кандидаты
 {% endblock %}
 
 {% block content %}
-<div class="text-opacity-85 text-primary py-5 px-3"><h3>Кандидаты</h3></div>
+<div class="text-opacity-85 text-danger py-5 px-3">
+  <h3>Кандидаты</h3>
+</div>
 <div class="row mb-3">
   <form 
-    @submit="{{ url_for('route.get_index', page=1) }}"
+    onsubmit="{{ url_for('route.get_index', page=1) }}"
     class="form form-check" 
-    role="form" 
     method="get" 
   >
-    <input
-      class="form-control"
-      name="search"
-      id="search"
-      type="text"
-      placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
-    />
+    {{ input_macro("search", "Поиск по фамилии, имени, отчеству, дате рождения, инн", required=true) }}
   </form>
 </div>
 <div class="row py-3">
@@ -29,7 +26,8 @@
         class="btn btn-link" 
         href="{{ url_for('route.get_index', page=page) }}" 
         style="text-decoration: none;"
-      >Обновить &#8635
+      >
+        <i class="bi bi-arrow-clockwise">Обновить</i>
       </a>
     </caption>
     <thead>
@@ -47,7 +45,7 @@
       <tr>
         <td>{{ row['id'] }}</td>
         <td>{{ row['region'] }}</td>
-        <td>{{ "%s %s %s" | format(row['surname'], row['firstname'], row['patronymic' if row['patronymic'] else '']) }}</td>
+        <td>{{ "%s %s %s" | format(row['surname'], row['firstname'], row['patronymic' if row['patronymic']]) }}</td>
         <td>{{ row['birthday'].strftime("%d.%m.%Y") }}</td>
         <td>{{ row['created'].strftime("%d.%m.%Y") }}</td>
         <td>{{ row['username'] }}</td>

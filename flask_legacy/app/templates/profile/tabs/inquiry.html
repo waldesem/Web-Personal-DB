@@ -30,7 +30,7 @@
   {% endcall %}
 
   {% call label_macro("Дата записи") %}
-  {{ inquiry['created'] }} 
+  {{ inquiry['created'].strftime("%d.%m.%Y") }} 
   {% endcall %}
   
   {% if session['user']['role'] == 'user' %}
