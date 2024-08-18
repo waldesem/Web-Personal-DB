@@ -1,4 +1,4 @@
-{% macro work_form_macro(workplace = {}) %}
+{% macro work_form_macro(workplace = {}, id) %}
 
 {% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
 
@@ -8,7 +8,7 @@
   name="workplace-form" 
   action="{{ url_for('route.get_item_id', item='workplaces', item_id=id) }}"
 >
-  {{ csrf_token() }}
+  
   {% call label_macro("Текущая работа*") %}
   {{ switch_macro("now_work") }}
   {% endcall %}

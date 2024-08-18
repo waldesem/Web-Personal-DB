@@ -1,4 +1,4 @@
-{% macro education_form_macro(education = {}) %}
+{% macro education_form_macro(education = {}, id) %}
 
 {% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
 {% set options = ["Основное общее", "Среднее общее", "Среднее профессиональное", "Высшее", "Неоконченное высшее образование", "Другое образование"] %}
@@ -9,7 +9,7 @@
   name="education-form" 
   action="{{ url_for('route.get_item_id', item='educations', item_id=id) }}"
 >
-  {{ csrf_token() }}
+  
 
   {% call label_macro("Уровень образования*") %}
   {{ select_macro("view", options, required=true, value=education['view']) }}

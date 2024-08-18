@@ -17,7 +17,7 @@
 {% macro action_group_macro(href, url, file_name="", path = "") %}
 <div class="py-3 border border-top">
   <div class="btn-group" role="group">
-    {% call collapse_header_macro(href)}
+    {% call collapse_header_macro(href) %}
     <i class="bi bi-pencil-square"></i>
     {% endcall %}
     <a class="btn btn-primary" href="{{ url }}" role="button">

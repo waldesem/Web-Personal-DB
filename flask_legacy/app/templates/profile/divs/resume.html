@@ -9,76 +9,76 @@
     class="form form-check" 
     method="post" 
     name="address-form" 
-    action="{{ url_for('route.get_region') }}"
+    action="{{ url_for('route.change_region', person_id=resume['id']) }}"
   >
     {{ select_macro("region", options, required=true, value=resume['region']) }}
   </form>
   {% call label_macro("Фамилия") %}
-  {{ ressume['surname'] }}
+  {{ resume['surname'] }}
   {% endcall %}
 
   {% call label_macro("Имя") %}
-  {{ ressume['firstname'] }}
+  {{ resume['firstname'] }}
   {% endcall %}
 
   {% call label_macro("Отчество") %}
-  {{ ressume['patronymic'] }}
+  {{ resume['patronymic'] }}
   {% endcall %}
 
   {% call label_macro("Дата рождения") %}
-  {{ ressume['birthday'] }}
+  {{ resume['birthday'] }}
   {% endcall %}
 
   {% call label_macro("Место рождения") %}
-  {{ ressume['birthplace'] }}
+  {{ resume['birthplace'] }}
   {% endcall %}
 
   {% call label_macro("Гражданство") %}
-  {{ ressume['citizenship'] }}
+  {{ resume['citizenship'] }}
   {% endcall %}
 
   {% call label_macro("Двойное гражданство") %}
-  {{ ressume['dual'] }}
+  {{ resume['dual'] }}
   {% endcall %}
 
   {% call label_macro("ИНН") %}
-  {{ ressume['inn'] }}
+  {{ resume['inn'] }}
   {% endcall %}
 
   {% call label_macro("СНИЛС") %}
-  {{ ressume['snils'] }}
+  {{ resume['snils'] }}
   {% endcall %}
 
   {% call label_macro("Семейное положение") %}
-  {{ ressume['marital'] }}
+  {{ resume['marital'] }}
   {% endcall %}
 
   {% call label_macro("Дата записи") %}
-  {{ ressume['created'].strftime("%d.%m.%Y") }}
+  {{ resume['created'].strftime("%d.%m.%Y") }}
   {% endcall %}
 
   {% call label_macro("Пользователь") %}
-  {{ ressume['username'] }}
+  {{ resume['username'] }}
   {% endcall %}
   
   {% call label_macro("Материалы") %}
-  {{ ressume['destination'] }}
+  {{ resume['destination'] }}
   {% endcall %}
 
   {% call label_macro("Дополнительная информация") %}
-  {{ ressume['addition'] }}
+  {{ resume['addition'] }}
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "resume"], 
+    "resume", 
     "/api/delete/persons/" + resume['id'], 
     "resume", 
     "/api/file/persons/" + resume['id']
     )
   }}
   <div class="collapse card card-body mb-3" id={{"resume" + resume['id']}}>
-    {{ resume_form_macro(resume) }}
+    {{ resume_form_macro(resume, resume['id']) }}
   </div>
   {% endif %}
 

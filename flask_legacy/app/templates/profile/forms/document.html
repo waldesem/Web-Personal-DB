@@ -1,4 +1,4 @@
-{% macro document_form_macro(document = {}) %}
+{% macro document_form_macro(document = {}, id) %}
 
 {% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
 {% set options = ["Паспорт", "Загранпаспорт", "Другое"] %}
@@ -9,7 +9,7 @@
   name="document-form" 
   action="{{ url_for('route.get_item_id', item='documents', item_id=id) }}"
 >
-  {{ csrf_token() }}
+  
   {% call label_macro("Вид документа*") %}
   {{ select_macro("view", options, required=true, value=document['view']) }}
   {% endcall %}

@@ -1,4 +1,4 @@
-{% macro check_form_macro(check = {}) %}
+{% macro check_form_macro(check = {}, id) %}
 
 {% from "macros.html" import label_macro, input_macro, textarea_macro, select_macro, btn_group_macro %}
 {% set options = ["СОГЛАСОВАНО", "СОГЛАСОВАНО С КОММЕНТАРИЕМ", "ОТКАЗАНО В СОГЛАСОВАНИИ"] %}
@@ -26,7 +26,7 @@
   name="check-form" 
   action="{{ url_for('route.get_item_id', item='checks', item_id=id) }}"
 >
-  {{ csrf_token() }}
+  
 
   {% call label_macro("Проверка по местам работы") %}
   {{ textarea_macro("workplace", "Проверка по местам работы", check['workplace'] if check['workplace'] else no_negative['workplace']) }}

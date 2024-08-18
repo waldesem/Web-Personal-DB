@@ -1,4 +1,4 @@
-{% macro investigation_macro_macro(investigation = {}) %}
+{% macro investigation_macro_macro(investigation = {}, id) %}
 
 {% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
 
@@ -8,7 +8,7 @@
   name="investigation-form" 
   action="{{ url_for('route.get_item_id', item='investigations', item_id=id) }}"
 >
-  {{ csrf_token() }}
+  
   {% call label_macro("Тема проверки*") %}
   {{ input_macro("theme", "Тема проверки*", required=true, value=investigation['theme']) }}
   {% endcall %}

@@ -19,6 +19,7 @@ from flask import (
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from config import Config
 from ..classes.classes import (
     Addresses,
     Affiliates,
@@ -45,7 +46,7 @@ from ..handlers.handler import (
 )
 
 bp = Blueprint(
-    "route", __name__, url_prefix="/api", static_folder=current_app.config["BASE_PATH"]
+    "route", __name__, url_prefix="/api", static_folder=getattr(Config, "BASE_PATH")
 )
 
 
@@ -422,7 +423,7 @@ def get_profile(person_id):
         information and an HTTP status code of 200.
     """
     result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
-    return jsonify(result), 200
+    return render_template("profile.html", person=result)
 
 
 @bp.get("/<item>/<int:item_id>")

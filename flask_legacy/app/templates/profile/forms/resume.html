@@ -1,14 +1,23 @@
-{% macro resume_macro(resume = {}) %}
+{% macro resume_macro(resume = {}, id = "") %}
 
 {% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
 
+{% if id %}
+<form 
+  class="form form-check" 
+  method="post" 
+  name="resume-form" 
+  action="{{ url_for('route.post_item_id', item='persons', item_id=id) }}"
+>
+{% else %}
 <form 
   class="form form-check" 
   method="post" 
   name="login-form" 
   action="{{ url_for('route.post_resume') }}"
 >
-  {{ csrf_token() }}
+{% endif %}
+
   {% call label_macro("Фамилия*") %}
   {{ input_macro("surname", "Фамилия", required=true, value=resume['surname']) }}
   {% endcall %}

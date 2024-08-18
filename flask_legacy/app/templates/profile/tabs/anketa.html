@@ -1,4 +1,4 @@
-{% macro anketa_tab_macro(persons = []) %}
+{% macro anketa_tab_macro(person = []) %}
 
 {% from "profile/divs/resume.html" import resume_div_macro %}
 {% from "profile/divs/staff.html" import staff_div_macro %}
@@ -12,19 +12,19 @@
 {% from "profile/divs/docum.html" import docum_div_macro %}
 
 {% set accordion = {
-  'resume': ['Резюме', resume_div_macro(persons['resume'])],
-  'staffs': ['Должности', staff_div_macro(persons['staffs'])],
-  'works': ['Работа', work_div_macro(persons['workplaces'])],
-  'educates': ['Образование', educate_div_macro(persons['educations'])],
-  'affils': ['Аффилированные организации', affil_div_macro(persons['affiliations'])],
-  'prevs': ['Предыдущие имена', prev_div_macro(persons['previous_names'])],
-  'relates': ['Связи', relate_div_macro(persons['relations'])],
-  'address': ['Адреса', address_div_macro(persons['addresses'])],
-  'contacts': ['Контакты', contact_div_macro(persons['contacts'])],
-  'docums': ['Документы', docum_div_macro(persons['documents'])],
+  'resume': ['Резюме', resume_div_macro(person['persons'])],
+  'staffs': ['Должности', staff_div_macro(person['staffs'])],
+  'works': ['Работа', work_div_macro(person['workplaces'])],
+  'educates': ['Образование', educate_div_macro(person['educations'])],
+  'affils': ['Аффилированные организации', affil_div_macro(person['affiliations'])],
+  'prevs': ['Предыдущие имена', prev_div_macro(person['previous_names'])],
+  'relates': ['Связи', relate_div_macro(person['relations'])],
+  'address': ['Адреса', address_div_macro(person['addresses'])],
+  'contacts': ['Контакты', contact_div_macro(person['contacts'])],
+  'docums': ['Документы', docum_div_macro(person['documents'])],
 } %}
 
-<div class="accordion accordion-flush" id="persons">
+<div class="accordion accordion-flush" id="person">
   {% for key, value in accordion.items() %}
   <div class="accordion-item">
     <h2 class="accordion-header">
@@ -32,7 +32,7 @@
         {{ value[0] }}
       </button>
     </h2>
-    <div :id="key" class="accordion-collapse collapse {{ 'show' if key == 'resume' }}" data-bs-parent="#persons">
+    <div :id="key" class="accordion-collapse collapse {{ 'show' if key == 'resume' }}" data-bs-parent="#person">
       <div class="accordion-body">
         {{ value[1] }}
       </div>

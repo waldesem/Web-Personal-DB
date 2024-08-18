@@ -8,7 +8,7 @@ setting.read(os.path.join(basedir, "settings.ini"))
 
 
 class Configuration:
-    SECRET_KEY = secrets.token_hex(16)
+    SECRET_KEY = "secrets.token_hex(16)"
     BASE_PATH = (
         setting["Destination"].get("path")
         if setting["Destination"].get("path")

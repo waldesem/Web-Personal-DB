@@ -45,7 +45,14 @@
       <tr>
         <td>{{ row['id'] }}</td>
         <td>{{ row['region'] }}</td>
-        <td>{{ "%s %s %s" | format(row['surname'], row['firstname'], row['patronymic' if row['patronymic']]) }}</td>
+        <td>
+          <a
+            class="link-primary" 
+            href="{{ url_for('route.get_profile', person_id=row['id']) }}"
+            >
+            {{ row['surname'] }} {{row['firstname']}} {{ row['patronymic' if row['patronymic']] }}
+          </a>
+        </td>
         <td>{{ row['birthday'].strftime("%d.%m.%Y") }}</td>
         <td>{{ row['created'].strftime("%d.%m.%Y") }}</td>
         <td>{{ row['username'] }}</td>
@@ -77,7 +84,7 @@
     {% if has_prev %}
     <li class="page-item">
       <a
-        :disabled="!state.statePersons.persons.prev"
+        :disabled="!has_prev"
         class="link-primary" 
         href="{{ url_for('route.get_index', page=page - 1) }}"
       >
@@ -89,7 +96,7 @@
     {% if has_next %}
     <li class="page-item">
       <a 
-        :disabled="!state.statePersons.persons.next"
+        :disabled="!has_next"
         class="link-primary" 
         href="{{ url_for('route.get_index', page=page + 1) }}"
       >

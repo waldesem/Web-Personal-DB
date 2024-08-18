@@ -1,23 +1,24 @@
-{% macro anketa_tab_macro(persons = []) %}
+{% extends "index.html" %}
 
 {% from "profile/tabs/anketa.html" import anketa_tab_macro %}
 {% from "profile/tabs/check.html" import check_tab_macro %}
 {% from "profile/tabs/poligraf.html" import poligraf_tab_macro %}
-{% from "profile/tabs/invesigation.html" import invesigation_tab_macro %}
+{% from "profile/tabs/investigate.html" import invesigation_tab_macro %}
 {% from "profile/tabs/inquiry.html" import inquiry_tab_macro %}
-{% from "profile/div/photo.html" import photo_card_macro %}
+{% from "profile/divs/photo.html" import photo_card_macro %}
 
 {% set tabs = {
-  'anketa_tab': ['Анкета', anketa_tab_macro(persons)],
-  'check_tab': ['Проверка', check_tab_macro(persons['checks'])],
-  'poligraf_tab': ['Полиграфия', poligraf_tab_macro(persons['poligrafs'])],
-  'invesigation_tab': ['Инвестирование', invesigation_tab_macro(persons['invesigations'])],
-  'inquiry_tab': ['Запрос', inquiry_tab_macro(persons['inquiries'])],
+  'anketa_tab': ['Анкета', anketa_tab_macro(person)],
+  'check_tab': ['Проверка', check_tab_macro(person['checks'])],
+  'poligraf_tab': ['Полиграфия', poligraf_tab_macro(person['poligrafs'])],
+  'invesigation_tab': ['Инвестирование', invesigation_tab_macro(person['invesigations'])],
+  'inquiry_tab': ['Запрос', inquiry_tab_macro(person['inquiries'])],
 } %}
 
+{% block content %}
 {{ photo_card_macro(person.anketa.resume.destination, person.anketa.resume.id) }}
 <div class="text-opacity-85 text-danger py-5 px-3">
-  <h3>{{ persons.anketa.surname }} {{ persons.anketa.firstname }} {{ persons.anketa.patronymic if persons.anketa.patronymic }}
+  <h3>{{ person.anketa.surname }} {{ person.anketa.firstname }} {{ person.anketa.patronymic if person.anketa.patronymic }}
   </h3>
 </div>
 
@@ -48,4 +49,4 @@
   {% endfor %}
 </div>
 
-{% endmacro %}
+{% endblock %}

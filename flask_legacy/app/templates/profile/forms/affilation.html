@@ -1,4 +1,4 @@
-{% macro affilation_form_macro(workplace = {}) %}
+{% macro affilation_form_macro(workplace = {}, id) %}
 
 {% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
 {% set options = ["Являлся государственным/муниципальным служащим", "Являлся государственным должностным лицом", "Связанные лица работают в государственных организациях", "Участвует в деятельности коммерческих организаций"] %}
@@ -9,7 +9,7 @@
   name="affilation-form" 
   action="{{ url_for('route.get_item_id', item='affilations', item_id=id) }}"
 >
-  {{ csrf_token() }}
+  
   {% call label_macro("Вид участия*") %}
   {{ select_macro("view", options, required=true, value=workplace['view']) }}
   {% endcall %}

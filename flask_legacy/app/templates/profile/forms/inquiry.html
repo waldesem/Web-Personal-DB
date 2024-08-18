@@ -1,4 +1,4 @@
-{% macro inquiry_macro_macro(inquiry = {}) %}
+{% macro inquiry_macro_macro(inquiry = {}, id) %}
 
 {% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
 
@@ -8,7 +8,7 @@
   name="inquiry-form" 
   action="{{ url_for('route.get_item_id', item='inquiries', item_id=id) }}"
 >
-  {{ csrf_token() }}
+  
   {% call label_macro("Вид участия*") %}
   {{ textarea_macro("view", "Вид участия*", required=true, inquiry['info']) }}
   {% endcall %}
