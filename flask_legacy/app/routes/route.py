@@ -465,7 +465,8 @@ def post_item_id(item, item_id):
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
     handle_post_item(json_dict, item, item_id)
-    return "", 201
+    result = handle_get_item(item, item_id)
+    return render_template(f"profile/divs/{item}.html", item=result)
 
 
 @bp.get("/delete/<item>/<int:item_id>")
@@ -482,12 +483,14 @@ def delete_item(item, item_id):
         code of 204 if the operation is successful or an HTTP status
         code of 400.
     """
-    item = db_session.get(tables_models[item], item_id)
-    if not item:
+    row = db_session.get(tables_models[item], item_id)
+    if not row:
         return abort(400)
-    db_session.delete(item)
+    person_id = row.person_id
+    db_session.delete(row)
     db_session.commit()
-    return "", 204
+    result = handle_get_item(item, person_id)
+    return render_template(f"profile/divs/{item}-api.html", addresses=result, id=person_id)
 
 
 @bp.get("/information")

@@ -1,6 +1,6 @@
 {% macro relation_form_macro(id, relation = {}) %}
 
-{% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
+{% from "elements.html" import label_macro, input_macro, select_macro, btn_group_macro %}
 {% set options = ["Одно лицо", "Родители-Дети", "Братья-Сестры", "Супруг-Супруга", "Родственники", "Близкая связь"] %}
 
 <form 
