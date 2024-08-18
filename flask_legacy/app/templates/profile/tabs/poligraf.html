@@ -1,4 +1,4 @@
-{% macro poligraf_tab_macro(poligrafs = []) %}
+{% macro poligraf_tab_macro(id, poligrafs = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,14 +8,14 @@
 {{'Добавить запись'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="work">
-  {{ poligraf_form_macro() }}
+  {{ poligraf_form_macro(id) }}
 </div>
 {% if poligrafs %}
 {% for poligraf in poligrafs %}
 
 <div  class="card card-body mb-3">
   <p class="fs-5 fw-medium text-primary p-1">
-    {{ "Проверка на полиграфе ID#" + (inquiry['id']) }}
+    {{ "Проверка на полиграфе ID#" + (inquiry['id']|string) }}
   </p>
   {% call label_macro("Тема проверки'") %}
   {{ poligraf['theme'] }}
@@ -35,14 +35,14 @@
 
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "poligraf" + poligraf['id'], 
-    "/api/delete/poligrafs/" + poligraf['id'], 
-    "poligraf" + poligraf['id'], 
-    "/api/file/poligrafs/" + poligraf['id']
+    "poligraf" + poligraf['id']|string, 
+    "/api/delete/poligrafs/" + poligraf['id']|string, 
+    "poligraf" + poligraf['id']|string, 
+    "/api/file/poligrafs/" + poligraf['id']|string
     )
   }}
-  <div class="collapse card card-body mb-3" id={{"poligraf" + poligraf['id']}}>
-    {{ poligraf_form_macro(poligraf) }}
+  <div class="collapse card card-body mb-3" id={{"poligraf" + poligraf['id']|string}}>
+    {{ poligraf_form_macro(id, poligraf) }}
   </div>
   {% endif %}
 

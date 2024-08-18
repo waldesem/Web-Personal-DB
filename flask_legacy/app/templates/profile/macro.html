@@ -1,39 +1,43 @@
 {% macro collapse_header_macro(href) %}
-
-{% from "profile/forms/file.html" import file_macro %}
-
-<h6>
-  <button
-    type="button"
-    class="btn btn-link"
+<p>
+  <a
+    class="link-primary"
     data-bs-toggle="collapse"
     href="{{ href }}"
   >
     {{ caller() }}
-  </button>
-</h6>
+  </a>
+</p>
 {% endmacro %}
 
 {% macro action_group_macro(href, url, file_name="", path = "") %}
-<div class="py-3 border border-top">
-  <div class="btn-group" role="group">
-    {% call collapse_header_macro(href) %}
-    <i class="bi bi-pencil-square"></i>
-    {% endcall %}
-    <a class="btn btn-primary" href="{{ url }}" role="button">
-      <i class="bi bi-trash"></i>
-    </a>
+{% from "profile/forms/file.html" import file_form_macro %}
+<div class="py-1 border-top">
+  <div class="position-relative d-flex">
+    <div class="position-absolute top-0 start-0">
+      {% call collapse_header_macro(href) %}
+      <i class="bi bi-pencil-square"> Изменить</i>
+      {% endcall %}
+    </div>
     {% if file_name %}
-    <label
-      for="{{file_name}}" 
-      class="text-primary"
-      style="cursor: pointer;"
-    >
-      <i class="bi bi-cloud-arrow-up"></i>
-    </label>
-    {{ file_macro(file_name, path, "*") }}
+    <div class="position-absolute top-0 start-50">
+      <label
+        for="{{file_name}}" 
+        class="text-primary"
+        style="cursor: pointer; text-decoration: underline;"
+      >
+        <i class="bi bi-cloud-arrow-up"> Загрузить</i>
+      </label>
+    </div>
     {% endif %}
+    <div class="position-absolute top-0 end-0">
+      <a class="link-primary" href="{{ url }}">
+        <i class="bi bi-trash"> Удалить</i>
+      </a>
+    </div>
+    
   </div>
+  {{ file_form_macro(file_name, path, "*") }}
 </div>
 {% endmacro %} 
 

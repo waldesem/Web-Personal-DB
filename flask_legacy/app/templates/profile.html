@@ -3,46 +3,47 @@
 {% from "profile/tabs/anketa.html" import anketa_tab_macro %}
 {% from "profile/tabs/check.html" import check_tab_macro %}
 {% from "profile/tabs/poligraf.html" import poligraf_tab_macro %}
-{% from "profile/tabs/investigate.html" import invesigation_tab_macro %}
+{% from "profile/tabs/investigate.html" import investigation_tab_macro %}
 {% from "profile/tabs/inquiry.html" import inquiry_tab_macro %}
 {% from "profile/divs/photo.html" import photo_card_macro %}
 
 {% set tabs = {
-  'anketa_tab': ['Анкета', anketa_tab_macro(person)],
-  'check_tab': ['Проверка', check_tab_macro(person['checks'])],
-  'poligraf_tab': ['Полиграфия', poligraf_tab_macro(person['poligrafs'])],
-  'invesigation_tab': ['Инвестирование', invesigation_tab_macro(person['invesigations'])],
-  'inquiry_tab': ['Запрос', inquiry_tab_macro(person['inquiries'])],
+  'anketa_tab': ['Анкета', anketa_tab_macro(person['persons']['id'], person)],
+  'check_tab': ['Проверка', check_tab_macro(person['persons']['id'], person['checks'])],
+  'poligraf_tab': ['Полиграф', poligraf_tab_macro(person['persons']['id'], person['poligrafs'])],
+  'invesigation_tab': ['Расследования', investigation_tab_macro(person['persons']['id'], person['invesigations'])],
+  'inquiry_tab': ['Запросы', inquiry_tab_macro(person['persons']['id'], person['inquiries'])],
 } %}
 
 {% block content %}
-{{ photo_card_macro(person.anketa.resume.destination, person.anketa.resume.id) }}
+{{ photo_card_macro(person.persons.destination, person.persons.id) }}
 <div class="text-opacity-85 text-danger py-5 px-3">
-  <h3>{{ person.anketa.surname }} {{ person.anketa.firstname }} {{ person.anketa.patronymic if person.anketa.patronymic }}
+  <h3>{{ person.persons.surname }} {{ person.persons.firstname }} {{ person.persons.patronymic if person.persons.patronymic }}
   </h3>
 </div>
 
-<nav class="nav nav-tabs nav-justified d-print-none" role="tablist">
-  {% for key, values in tabs.items() %}
-  <button
-    class="nav-link"
-    :class="{ active: key === 'anketaTab' }"
-    :data-bs-target="'#' + key"
-    data-bs-toggle="tab"
-    type="button"
-    role="tab"
-  >
-    {{ values[0] }}
-  </button>
-  {% endfor %}
+<nav>
+  <div class="nav nav-tabs nav-justified d-print-none" role="tablist">
+    {% for key, values in tabs.items() %}
+    <button
+      class="nav-link {{ 'active' if key == 'anketa_tab' }}"
+      data-bs-target={{'#' + key}}
+      data-bs-toggle="tab"
+      type="button"
+      role="tab"
+    >
+      {{ values[0] }}
+    </button>
+    {% endfor %}
+  </div>
 </nav>
 <div class="tab-content">
   {% for key, values in tabs.items() %}
   <div
-    :id="key"
-    class="tab-pane show fade pt-3"
-    :class="{ active: key == 'anketaTab' }"
+    id={{key}}
+    class="tab-pane fade {{ 'show active' if key   == 'anketa_tab' }} pt-3"
     role="tabpanel"
+    tabindex="0"
   >
     {{ values[1] }}
   </div>

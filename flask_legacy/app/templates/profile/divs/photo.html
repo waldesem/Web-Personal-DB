@@ -1,13 +1,13 @@
 {% macro photo_card_macro(destination, id) %}
 
-{% from "profile/forms/file.html" import file_macro %}
+{% from "profile/forms/file.html" import file_form_macro %}
 
 <div class="card mb-3" style="width: 16rem">
   <div
     class="card-img-container" style="position: relative; display: inline-block;"
   >
     <img
-      src={{'/'.join(destination, 'image', 'image.jpg') | safe}}
+      src={{'/'.join([destination, 'image', 'image.jpg']) | safe}}
       style="width: 100%; height: auto"
       class="card-img-top"
       alt="Фото отсутствует"
@@ -20,7 +20,7 @@
       "
       class="card-img-overlay"
     >
-      {{ file_macro('image-file', '/api/file/image/' + id, '*.jpg, *.jpeg') }}
+      {{ file_form_macro('image-file', '/api/file/image/' + id|string, '*.jpg, *.jpeg') }}
     </div>
   </div>
 </div>

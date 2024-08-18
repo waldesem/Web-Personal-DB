@@ -1,4 +1,4 @@
-{% macro affilation_div_macro(affilations = []) %}
+{% macro affilation_div_macro(id, affilations = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,7 +8,7 @@
 {{'Аффилированое лицо'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="affilation">
-  {{ affilation_form_macro() }}
+  {{ affilation_form_macro(id) }}
 </div>
 {% if affilations %}
 {% for affilation in affilations %}
@@ -28,19 +28,18 @@
 
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "affilation" + affilation['id'], 
-    "/api/delete/affilations/" + affilation['id'], 
+    "affilation" + affilation['id']|string, 
+    "/api/delete/affilations/" + affilation['id']|string, 
     )
   }}
-  <div class="collapse card card-body mb-3" id={{"affilation" + affilation['id']}}>
-    {{ affilation_form_macro(affilation) }}
+  <div class="collapse card card-body mb-3" id={{"affilation" + affilation['id']|string}}>
+    {{ affilation_form_macro(id, affilation) }}
   </div>
   {% endif %}
-
 </div>
-  {% endfor %}
-  {% else %}
-  <div class="text-primary mb-3">Информация не найдена</div>
-  {% endif %}
+{% endfor %}
+{% else %}
+<div class="text-primary mb-3">Информация не найдена</div>
+{% endif %}
 
 {% endmacro %}

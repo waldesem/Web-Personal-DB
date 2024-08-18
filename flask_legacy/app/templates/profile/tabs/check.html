@@ -1,4 +1,4 @@
-{% macro check_tab_macro(checks = []) %}
+{% macro check_tab_macro(id, checks = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,14 +8,14 @@
 {{'Добавить запись'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="work">
-  {{ check_form_macro() }}
+  {{ check_form_macro(id) }}
 </div>
 {% if checks %}
 {% for check in checks %}
 
 <div  class="card card-body mb-3">
   <p class="fs-5 fw-medium text-primary p-1">
-    {{ "Проверка кандидата ID#" + (inquiry['id']) }}
+    {{ "Проверка кандидата ID#" + (inquiry['id']|string) }}
   </p>
   {% call label_macro("Проверка по местам работы'") %}
   {{ check['workplace'] }}
@@ -83,14 +83,14 @@
 
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "check" + check['id'], 
-    "/api/delete/checks/" + check['id'], 
-    "check" + check['id'], 
-    "/api/file/checks/" + check['id']
+    "check" + check['id']|string, 
+    "/api/delete/checks/" + check['id']|string, 
+    "check" + check['id']|string, 
+    "/api/file/checks/" + check['id']|string
     )
   }}
-  <div class="collapse card card-body mb-3" id={{"check" + check['id']}}>
-    {{ check_form_macro(check) }}
+  <div class="collapse card card-body mb-3" id={{"check" + check['id']|string}}>
+    {{ check_form_macro(id, check) }}
   </div>
   {% endif %}
 
@@ -101,55 +101,3 @@
   {% endif %}
 
 {% endmacro %}
-
-
-function createElement(jsonList: Array<Object>) {
-  let divs = "";
-  for (let json of jsonList) {
-    let table = "";
-    for (const [key, value] of Object.entries(json)) {
-      table +=
-        `<tr>` +
-        `<td style="width:30%">${key}</td>` +
-        (typeof value === "string"
-          ? `<td>${value}</td>`
-          : `<td>${createElement(value)}</td>`) +
-        `</tr>`;
-    }
-    divs += `<table class="table table-sm table-striped text-break">${table}</table>`;
-  }
-  return divs;
-}
-
-const renderAdditional = (jsonString: string) => {
-  try {
-    const jsonList = JSON.parse(jsonString);
-    return createElement(jsonList);
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
-        
-
-        <LabelSlot
-          v-if="item['addition']"
-          class="d-print-none"
-          :label="'Дополнительно'"
-        >
-          <button
-            type="button"
-            class="btn btn-link"
-            data-bs-toggle="collapse"
-            href="#clps_additional"
-            role="button"
-          >
-            Информация
-          </button>
-        </LabelSlot>
-        <div
-          class="collapse card card-body"
-          id="clps_additional"
-          v-if="item['addition']"
-          v-html="renderAdditional(item['addition'])"
-        ></div>

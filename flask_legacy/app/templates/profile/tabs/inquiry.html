@@ -1,4 +1,4 @@
-{% macro inquiry_tab_macro(inquiries = []) %}
+{% macro inquiry_tab_macro(id, inquiries = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,14 +8,14 @@
 {{'Добавить запись'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="work">
-  {{ inquiry_form_macro() }}
+  {{ inquiry_form_macro(id) }}
 </div>
 {% if inquiries %}
 {% for inquiry in inquiries %}
 
 <div  class="card card-body mb-3">
   <p class="fs-5 fw-medium text-primary p-1">
-    {{ "Запрос о сотруднике ID#" + (inquiry['id']) }}
+    {{ "Запрос о сотруднике ID#" + (inquiry['id']|string) }}
   </p>
   {% call label_macro("Информация") %}
   {{ inquiry['info'] }}
@@ -35,14 +35,14 @@
   
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "inquiries" + inquiry['id'], 
-    "/api/delete/inquiries/" + inquiry['id'], 
-    "inquiries" + inquiry['id'], 
-    "/api/file/inquiries/" + inquiry['id']
+    "inquiries" + inquiry['id']|string, 
+    "/api/delete/inquiries/" + inquiry['id']|string, 
+    "inquiries" + inquiry['id']|string, 
+    "/api/file/inquiries/" + inquiry['id']|string
     )
   }}
-  <div class="collapse card card-body mb-3" id={{"inquiry" + inquiry['id']}}>
-    {{ inquiry_form_macro(inquiry) }}
+  <div class="collapse card card-body mb-3" id={{"inquiry" + inquiry['id']|string}}>
+    {{ inquiry_form_macro(id, inquiry) }}
   </div>
   {% endif %}
 

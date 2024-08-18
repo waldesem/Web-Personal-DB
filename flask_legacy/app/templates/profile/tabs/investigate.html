@@ -1,4 +1,4 @@
-{% macro investigation_tab_macro(investigations = []) %}
+{% macro investigation_tab_macro(id, investigations = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,14 +8,14 @@
 {{'Добавить запись'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="work">
-  {{ investigation_form_macro() }}
+  {{ investigation_form_macro(id) }}
 </div>
 {% if investigations %}
 {% for investigation in investigations %}
 
 <div  class="card card-body mb-3">
   <p class="fs-5 fw-medium text-primary p-1">
-    {{ "Расследование/проверка ID#" + (inquiry['id']) }}
+    {{ "Расследование/проверка ID#" + (inquiry['id']|string) }}
   </p>
   {% call label_macro("Тема проверки'") %}
   {{ investigation['theme'] }}
@@ -35,14 +35,14 @@
 
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "investigations" + investigation['id'], 
-    "/api/delete/investigations/" + investigation['id'], 
-    "investigations" + investigation['id'], 
-    "/api/file/investigations/" + investigation['id']
+    "investigations" + investigation['id']|string, 
+    "/api/delete/investigations/" + investigation['id']|string, 
+    "investigations" + investigation['id']|string, 
+    "/api/file/investigations/" + investigation['id']|string
     )
   }}
-  <div class="collapse card card-body mb-3" id={{"investigations" + investigation['id']}}>
-    {{ investigation_form_macro(investigation) }}
+  <div class="collapse card card-body mb-3" id={{"investigations" + investigation['id']|string|string}}>
+    {{ investigation_form_macro(id, investigation) }}
   </div>
   {% endif %}
 

@@ -1,18 +1,18 @@
-{% macro address_div_macro(addresses = []) %}
+{% macro address_div_macro(id, addresses = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/address.html" import address_form_macro %}
 
 {% call collapse_header_macro("address") %}
-{{'Адреса'}}
+{{'Добавить адрес'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="address">
-  {{ address_form_macro() }}
+  {{ address_form_macro(id) }}
 </div>
+
 {% if addresses %}
 {% for address in addresses %}
-
 <div  class="card card-body mb-3">
   {% call label_macro("Тип адреса") %}
   {{ address['view'] }}
@@ -24,19 +24,18 @@
 
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "address" + workplace['id'], 
-    "/api/delete/addresses/" + workplace['id'], 
+    "address" + address['id']|string, 
+    "/api/delete/addresses/" + address['id']|string, 
     )
   }}
-  <div class="collapse card card-body mb-3" id={{"address" + address['id']}}>
-    {{ address_form_macro(address) }}
+  <div class="collapse card card-body mb-3" id={{"address" + address['id']|string}}>
+    {{ address_form_macro(id, address) }}
   </div>
   {% endif %}
-
 </div>
-  {% endfor %}
-  {% else %}
-  <div class="text-primary mb-3">Информация не найдена</div>
-  {% endif %}
+{% endfor %}
+{% else %}
+<div class="text-primary mb-3">Информация не найдена</div>
+{% endif %}
 
 {% endmacro %}

@@ -1,4 +1,4 @@
-{% macro relation_form_macro(workplace = {}, id) %}
+{% macro relation_form_macro(id, relation = {}) %}
 
 {% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
 {% set options = ["Одно лицо", "Родители-Дети", "Братья-Сестры", "Супруг-Супруга", "Родственники", "Близкая связь"] %}
@@ -9,13 +9,15 @@
   name="relation-form" 
   action="{{ url_for('route.get_item_id', item='relations', item_id=id) }}"
 >
+
+  {{ input_macro("id", "id", type="hidden", value=relation['id']) }}
   
   {% call label_macro("Тип связи*") %}
-  {{ select_macro("relation", options, required=true, value=workplace['relation']) }}
+  {{ select_macro("relation", options, required=true, value=relation['relation']) }}
   {% endcall %}
 
   {% call label_macro("ID связи*") %}
-  {{ input_macro("relation_id", "ID связи", type="number", required=true, value=workplace['relation_id']) }}
+  {{ input_macro("relation_id", "ID связи", type="number", required=true, value=relation['relation_id']) }}
   {% endcall %}
 
   {{ btn_group_macro() }}

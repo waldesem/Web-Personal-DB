@@ -1,4 +1,4 @@
-{% macro inquiry_macro_macro(inquiry = {}, id) %}
+{% macro inquiry_form_macro(id, inquiry = {}) %}
 
 {% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
 
@@ -8,13 +8,15 @@
   name="inquiry-form" 
   action="{{ url_for('route.get_item_id', item='inquiries', item_id=id) }}"
 >
+
+  {{ input_macro("id", "id", type="hidden", value=inquiry['id']) }}
   
   {% call label_macro("Вид участия*") %}
-  {{ textarea_macro("view", "Вид участия*", required=true, inquiry['info']) }}
+  {{ textarea_macro("view", "Вид участия*", inquiry['info']) }}
   {% endcall %}
 
   {% call label_macro("Организация*") %}
-  {{ textarea_macro("origins", "Инициатор*", required=true, inquiry['origins']) }}
+  {{ textarea_macro("origins", "Инициатор*", inquiry['origins']) }}
   {% endcall %}
 
   {{ btn_group_macro() }}

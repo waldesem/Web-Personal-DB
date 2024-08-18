@@ -1,4 +1,4 @@
-{% macro affilation_form_macro(workplace = {}, id) %}
+{% macro affilation_form_macro(id, affilation = {}) %}
 
 {% from "macros.html" import label_macro, input_macro, select_macro, btn_group_macro %}
 {% set options = ["Являлся государственным/муниципальным служащим", "Являлся государственным должностным лицом", "Связанные лица работают в государственных организациях", "Участвует в деятельности коммерческих организаций"] %}
@@ -9,17 +9,18 @@
   name="affilation-form" 
   action="{{ url_for('route.get_item_id', item='affilations', item_id=id) }}"
 >
-  
+  {{ input_macro("id", "id", type="hidden", value=affilation['id']) }}
+
   {% call label_macro("Вид участия*") %}
-  {{ select_macro("view", options, required=true, value=workplace['view']) }}
+  {{ select_macro("view", options, required=true, value=affilation['view']) }}
   {% endcall %}
 
   {% call label_macro("Организация*") %}
-  {{ input_macro("organization", "Организация*", required=true), value=workplace['organization'] }}
+  {{ input_macro("organization", "Организация*", required=true, value=affilation['organization']) }}
   {% endcall %}
 
   {% call label_macro("ИНН*") %}
-  {{ input_macro("inn", "ИНН", value=workplace['inn']) }}
+  {{ input_macro("inn", "ИНН", value=affilation['inn']) }}
   {% endcall %}
 
   {{ btn_group_macro() }}

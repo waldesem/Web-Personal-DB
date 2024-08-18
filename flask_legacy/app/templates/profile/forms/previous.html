@@ -1,4 +1,4 @@
-{% macro previous_form_macro(previous = {}, id) %}
+{% macro prev_form_macro(id, previous = {}) %}
 
 {% from "macros.html" import label_macro, input_macro, btn_group_macro %}
 
@@ -8,6 +8,8 @@
   name="previous-form" 
   action="{{ url_for('route.get_item_id', item='previous', item_id=id) }}"
 >
+  
+  {{ input_macro("id", "id", type="hidden", value=previous['id']) }}
   
   {% call label_macro("Фамилия*") %}
   {{ input_macro("surname", "Фамилия*", required=true, value=previous['surname']) }}

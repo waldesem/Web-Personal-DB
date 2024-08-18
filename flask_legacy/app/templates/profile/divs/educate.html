@@ -1,4 +1,4 @@
-{% macro education_div_macro(educations = []) %}
+{% macro education_div_macro(id, educations = []) %}
 
 {% from "macros.html" import label_macro %}
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
@@ -8,7 +8,7 @@
 {{'Образование'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="education">
-  {{ education_form_macro() }}
+  {{ education_form_macro(id) }}
 </div>
 {% if educations %}
 {% for education in educations %}
@@ -32,12 +32,12 @@
 
   {% if session['user']['role'] == 'user' %}
   {{ action_group_macro(
-    "education" + education['id'], 
-    "/api/delete/educations/" + education['id'], 
+    "education" + education['id']|string, 
+    "/api/delete/educations/" + education['id']|string, 
     )
   }}
-  <div class="collapse card card-body mb-3" id={{"education" + education['id']}}>
-    {{ education_form_macro(education) }}
+  <div class="collapse card card-body mb-3" id={{"education" + education['id']|string}}>
+    {{ education_form_macro(id, education) }}
   </div>
   {% endif %}
 

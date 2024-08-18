@@ -1,6 +1,6 @@
-{% macro work_form_macro(workplace = {}, id) %}
+{% macro work_form_macro(id, workplace = {}) %}
 
-{% from "macros.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
+{% from "macros.html" import label_macro, input_macro, textarea_macro, switch_macro, btn_group_macro %}
 
 <form 
   class="form form-check" 
@@ -8,6 +8,8 @@
   name="workplace-form" 
   action="{{ url_for('route.get_item_id', item='workplaces', item_id=id) }}"
 >
+
+  {{ input_macro("id", "id", type="hidden", value=workplace['id']) }}
   
   {% call label_macro("Текущая работа*") %}
   {{ switch_macro("now_work") }}
@@ -30,7 +32,7 @@
   {% endcall %}
 
   {% call label_macro("Адрес организации") %}
-  {{ textarea_macro("address", "Адрес организации", orkplace['address']) }}
+  {{ textarea_macro("address", "Адрес организации", workplace['address']) }}
   {% endcall %}
 
   {% call label_macro("Причина увольнения") %}
@@ -38,5 +40,6 @@
   {% endcall %}
 
   {{ btn_group_macro() }}
-  </form>
-</template>
+</form>
+
+{% endmacro %}
