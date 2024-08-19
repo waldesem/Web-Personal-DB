@@ -4,15 +4,15 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/staff.html" import staff_form_macro %}
 
-{% call collapse_header_macro("staff") %}
+{% call collapse_header_macro("staffs-0") %}
 {{'Должности'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="staff">
+<div class="collapse card card-body mb-3" id="staffs-0">
   {{ staff_form_macro(id) }}
 </div>
+
 {% if staffs %}
 {% for staff in staffs %}
-
 <div class="card card-body mb-3">
   {% call label_macro("Должность") %}
   {{ staff['view'] }}
@@ -23,14 +23,10 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  <div class="collapse card card-body mb-3" id={{"staff" + staff['id']|string}}>
+  <div class="collapse card card-body mb-3" id={{"staffs-" + staff['id']|string}}>
     {{ staff_form_macro(id, staff) }}
   </div>
-  {{ action_group_macro(
-    "staff" + staff['id']|string, 
-    "/api/delete/staffs/" + staff['id']|string, 
-    )
-  }}
+  {{ action_group_macro("staffs", staff['id']|string)}}
   {% endif %}
 </div>
 {% endfor %}

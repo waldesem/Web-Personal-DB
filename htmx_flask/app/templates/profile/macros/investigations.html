@@ -4,10 +4,10 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/investigation.html" import investigation_form_macro %}
 
-{% call collapse_header_macro("work") %}
+{% call collapse_header_macro("investigation-0") %}
 {{'Добавить запись'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="work">
+<div class="collapse card card-body mb-3" id="investigation-0">
   {{ investigation_form_macro(id) }}
 </div>
 {% if investigations %}
@@ -34,14 +34,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "investigations" + investigation['id']|string, 
-    "/api/delete/investigations/" + investigation['id']|string, 
-    "investigations" + investigation['id']|string, 
-    "/api/file/investigations/" + investigation['id']|string
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"investigations" + investigation['id']|string|string}}>
+  {{ action_group_macro("investigations", investigation['id']|string, upload=True) }}
+  <div class="collapse card card-body mb-3" id={{"investigations-" + investigation['id']|string|string}}>
     {{ investigation_form_macro(id, investigation) }}
   </div>
   {% endif %}

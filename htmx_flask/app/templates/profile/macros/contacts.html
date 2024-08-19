@@ -4,15 +4,15 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/contact.html" import contact_form_macro %}
 
-{% call collapse_header_macro("contact") %}
+{% call collapse_header_macro("contacts-0") %}
 {{'Контакты'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="contact">
+<div class="collapse card card-body mb-3" id="contacts-0">
   {{ contact_form_macro(id) }}
 </div>
+
 {% if contacts %}
 {% for contact in contacts %}
-
 <div  class="card card-body mb-3">
   {% call label_macro("Тип контакта") %}
   {{ contact['view'] }}
@@ -23,12 +23,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "contact" + contact['id']|string, 
-    "/api/delete/contacts/" + contact['id']|string, 
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"contact" + contact['id']|string}}>
+  {{ action_group_macro("contacts", contact['id']|string) }}
+  <div class="collapse card card-body mb-3" id={{"contacts-" + contact['id']|string}}>
     {{ contact_form_macro(id, contact) }}
   </div>
   {% endif %}

@@ -4,10 +4,10 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/address.html" import address_form_macro %}
 
-{% call collapse_header_macro("address") %}
+{% call collapse_header_macro("addresses-0") %}
 {{'Добавить адрес'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="address">
+<div class="collapse card card-body mb-3" id="addresses-0">
   {{ address_form_macro(id) }}
 </div>
 
@@ -23,12 +23,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "address" + address['id']|string, 
-    "/api/delete/addresses/" + address['id']|string, 
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"address" + address['id']|string}}>
+  {{ action_group_macro("address" + address['id']|string) }}
+  <div class="collapse card card-body mb-3" id={{"addresses-" + address['id']|string}}>
     {{ address_form_macro(id, address) }}
   </div>
   {% endif %}

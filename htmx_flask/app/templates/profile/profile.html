@@ -8,11 +8,11 @@
 {% from "profile/divs/photo.html" import photo_card_macro %}
 
 {% set tabs = {
-  'anketa_tab': ['Анкета', anketa_tab_macro(person['persons']['id'], person)],
-  'check_tab': ['Проверка', check_tab_macro(person['persons']['id'], person['checks'])],
-  'poligraf_tab': ['Полиграф', poligraf_tab_macro(person['persons']['id'], person['poligrafs'])],
-  'invesigation_tab': ['Расследования', investigation_tab_macro(person['persons']['id'], person['invesigations'])],
-  'inquiry_tab': ['Запросы', inquiry_tab_macro(person['persons']['id'], person['inquiries'])],
+  'anketa': ['Анкета', anketa_tab_macro(person['persons']['id'], person)],
+  'checks': ['Проверка', check_tab_macro(person['persons']['id'], person['checks'])],
+  'poligrafs': ['Полиграф', poligraf_tab_macro(person['persons']['id'], person['poligrafs'])],
+  'invesigations': ['Расследования', investigation_tab_macro(person['persons']['id'], person['invesigations'])],
+  'inquiries': ['Запросы', inquiry_tab_macro(person['persons']['id'], person['inquiries'])],
 } %}
 
 {% block content %}
@@ -26,7 +26,7 @@
   <div class="nav nav-tabs nav-justified d-print-none" role="tablist">
     {% for key, values in tabs.items() %}
     <button
-      class="nav-link {{ 'active' if key == 'anketa_tab' }}"
+      class="nav-link {{ 'active' if key == 'anketa' }}"
       data-bs-target={{'#' + key}}
       data-bs-toggle="tab"
       type="button"
@@ -41,7 +41,7 @@
   {% for key, values in tabs.items() %}
   <div
     id={{key}}
-    class="tab-pane fade {{ 'show active' if key   == 'anketa_tab' }} pt-3"
+    class="tab-pane fade {{ 'show active' if key   == 'anketa' }} pt-3"
     role="tabpanel"
     tabindex="0"
   >

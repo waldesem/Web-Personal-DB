@@ -4,15 +4,15 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/relation.html" import relation_form_macro %}
 
-{% call collapse_header_macro("relation") %}
+{% call collapse_header_macro("relations-0") %}
 {{'Должности'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="relation">
+<div class="collapse card card-body mb-3" id="relations-0">
   {{ relation_form_macro(id) }}
 </div>
+
 {% if relations %}
 {% for relation in relations %}
-
 <div  class="card card-body mb-3">
   {% call label_macro("Тип связи") %}
   {{ relation['relation'] }}
@@ -25,12 +25,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "relation" + relation['id']|string, 
-    "/api/delete/relations/" + relation['id']|string, 
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"relation" + relation['id']|string}}>
+  {{ action_group_macro("relations" + relation['id']|string) }}
+  <div class="collapse card card-body mb-3" id={{"relations-" + relation['id']|string}}>
     {{ relation_form_macro(id, relation) }}
   </div>
   {% endif %}

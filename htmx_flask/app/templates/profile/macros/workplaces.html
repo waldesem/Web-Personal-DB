@@ -4,15 +4,15 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/workplace.html" import work_form_macro %}
 
-{% call collapse_header_macro("work") %}
+{% call collapse_header_macro("workplaces-0") %}
 {{'Работа'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="work">
+<div class="collapse card card-body mb-3" id="workplaces-0">
   {{ work_form_macro(id) }}
 </div>
+
 {% if workplaces %}
 {% for workplace in workplaces %}
-
 <div  class="card card-body mb-3">
   {% call label_macro("Текущая работа") %}
   {{ workplace['now_work'] }}
@@ -43,12 +43,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "work" + workplace['id']|string, 
-    "/api/delete/workplaces/" + workplace['id']|string, 
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"works" + workplace['id']|string}}>
+  {{ action_group_macro("workplaces", workplace['id']|string)}}
+  <div class="collapse card card-body mb-3" id={{"workplaces-" + workplace['id']|string}}>
     {{ work_form_macro(id, workplace) }}
   </div>
   {% endif %}

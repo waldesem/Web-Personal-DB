@@ -4,15 +4,15 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/document.html" import document_form_macro %}
 
-{% call collapse_header_macro("document") %}
+{% call collapse_header_macro("documents-0") %}
 {{'Документы'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="document">
+<div class="collapse card card-body mb-3" id="documents-0">
   {{ document_form_macro(id) }}
 </div>
+
 {% if documents %}
 {% for document in documents %}
-
 <div  class="card card-body mb-3">
   {% call label_macro("Тип документа") %}
   {{ document['view'] }}
@@ -35,12 +35,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "document" + document['id']|string, 
-    "/api/delete/documents/" + document['id']|string, 
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"document" + document['id']|string}}>
+  {{ action_group_macro("documents" + document['id']|string) }}
+  <div class="collapse card card-body mb-3" id={{"documents-" + document['id']|string}}>
     {{ document_form_macro(id, document) }}
   </div>
   {% endif %}

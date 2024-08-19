@@ -8,7 +8,6 @@ from config import Config
 from .classes.classes import Regions, Roles
 from .model.tables import db_session, Users
 from .routes.route import bp as route_bp
-from .routes.tmpls import tmpl as route_tmpls
 
 
 def create_app(config_class=Config):
@@ -24,7 +23,6 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
-    app.register_blueprint(route_tmpls)
 
     if not os.path.isdir(Config.BASE_PATH):
         os.mkdir(Config.BASE_PATH)

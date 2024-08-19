@@ -10,19 +10,19 @@
 </p>
 {% endmacro %}
 
-{% macro action_group_macro(href, url, file_name="", path = "") %}
+{% macro action_group_macro(item, id, upload=false) %}
 {% from "profile/forms/file.html" import file_form_macro %}
 <div class="py-1 border-top">
   <div class="position-relative d-flex">
     <div class="position-absolute top-0 start-0">
-      {% call collapse_header_macro(href) %}
+      {% call collapse_header_macro(item + '-' + id) %}
       <i class="bi bi-pencil-square"> Изменить</i>
       {% endcall %}
     </div>
-    {% if file_name %}
+    {% if upload %}
     <div class="position-absolute top-0 start-50">
       <label
-        for="{{file_name}}" 
+        for="{{ item + '-file-' + id }}" 
         class="text-primary"
         style="cursor: pointer; text-decoration: underline;"
       >
@@ -31,13 +31,20 @@
     </div>
     {% endif %}
     <div class="position-absolute top-0 end-0">
-      <button class="btn btn-link" hx-get={{ url }} hx-target="#profile-address">
+      <button 
+        class="btn btn-link" 
+        hx-get={{ "/api/delete/{{item}}/" + inquiry['id']|string }} 
+        hx-target="#{{ item }}"
+        hx-trigger="click"
+        hx-confirm="Вы уверены, что хотите удалить эту запись?"
+        hx-swap="innerHTML"
+      >
         <i class="bi bi-trash"> Удалить</i>
       </button>
     </div>
     
   </div>
-  {{ file_form_macro(file_name, path, "*") }}
+  {{ file_form_macro(item + '-file-' + id, "/api/file/" + item + "/" + id, "*") }}
 </div>
 {% endmacro %} 
 

@@ -4,15 +4,15 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/previous.html" import prev_form_macro %}
 
-{% call collapse_header_macro("prev") %}
+{% call collapse_header_macro("previous-0") %}
 {{'Предыдущее имя'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="prev">
+<div class="collapse card card-body mb-3" id="previous-0">
   {{ prev_form_macro(id) }}
 </div>
+
 {% if previous %}
 {% for prev in previous %}
-
 <div  class="card card-body mb-3">
   {% call label_macro("Фамилия") %}
   {{ prev['surname'] }}
@@ -35,12 +35,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "prev" + prev['id']|string, 
-    "/api/delete/previous/" + prev['id']|string, 
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"prev" + prev['id']|string}}>
+  {{ action_group_macro("previous" + prev['id']|string) }}
+  <div class="collapse card card-body mb-3" id={{"previous-" + prev['id']|string}}>
     {{ prev_form_macro(id, prev) }}
   </div>
   {% endif %}

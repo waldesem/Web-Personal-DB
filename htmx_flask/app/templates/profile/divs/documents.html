@@ -1,3 +1,5 @@
-{% from "profile/divs/documents.html" import document_div_macro %}
+{% from "/profile/macros/documents.html" import document_div_macro %}
 
-<div>{{ document_div_macro(id, documents) }}</div>
+{% set id = id | default(0) %}
+{% set documents = items | default([]) %}
+{{ document_div_macro(id, documents = documents) }}

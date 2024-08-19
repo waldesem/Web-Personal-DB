@@ -9,7 +9,6 @@ from flask import (
     abort,
     current_app,
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
@@ -258,6 +257,7 @@ def take_resume():
 
 
 @bp.get("/profile/<int:person_id>")
+@login_required()
 def get_profile(person_id):
     """
     Retrieves all information related to a person in one request.
@@ -274,7 +274,8 @@ def get_profile(person_id):
     return render_template("profile.html", person=result)
 
 
-@bp.get("/region/<int:person_id>")
+@bp.post("/region/<int:person_id>")
+@roles_required(Roles.user.value)
 def change_region(person_id):
     """
     Change a person's region in the database based on their person ID.
@@ -285,7 +286,7 @@ def change_region(person_id):
     Returns:
         The HTTP status code is 200.
     """
-    region = request.args.get("region")
+    region = request.form.get("region")
     if region:
         person = db_session.get(Persons, person_id)
         if person.destination:
@@ -297,33 +298,13 @@ def change_region(person_id):
         person.region = region
         person.standing = False
         db_session.commit()
-        return "", 201
+        result = handle_get_item('persons', person_id)
+        return render_template("profile/divs/persons.html", person=result)
     return abort(400)
 
 
-@bp.get("/<item>/<int:item_id>")
-def get_item_id(item, item_id):
-    """
-    Retrieves an item from the database based on the provided item name and item ID.
-
-    Parameters:
-        item (str): The name of the table to retrieve the item from.
-        item_id (int): The ID of the item to retrieve.
-
-    Returns:
-        Tuple[Response, int]: A tuple containing the JSON response containing
-        the retrieved item(s) and an HTTP status code of 200.
-    """
-    if item == "persons" and request.args.get("action") == "self":
-        person = db_session.get(Persons, item_id)
-        person.standing = not person.standing
-        person.user_id = session["user"]["id"]
-        db_session.commit()
-    result = handle_get_item(item, item_id)
-    return jsonify(result), 200
-
-
 @bp.post("/<item>/<int:item_id>")
+@roles_required(Roles.user.value)
 def post_item_id(item, item_id):
     """
     Inserts or replaces a record in the specified table with the given item ID.
@@ -340,11 +321,12 @@ def post_item_id(item, item_id):
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
     handle_post_item(json_dict, item, item_id)
-    result = handle_get_item(item, item_id)
-    return render_template(f"profile/divs/{item}.html", item=result)
+    results = handle_get_item(item, item_id)
+    return render_template(f"profile/divs/{item}.html", items=results)
 
 
 @bp.get("/delete/<item>/<int:item_id>")
+@roles_required(Roles.user.value)
 def delete_item(item, item_id):
     """
     Deletes an item from the database based on the provided item name and item ID.
@@ -364,14 +346,14 @@ def delete_item(item, item_id):
     person_id = row.person_id
     db_session.delete(row)
     db_session.commit()
-    result = handle_get_item(item, person_id)
+    results = handle_get_item(item, person_id)
     return render_template(
-        f"profile/divs/{item}-api.html", addresses=result, id=person_id
+        f"profile/divs/{item}.html", items=results, id=person_id
     )
 
 
-
 @bp.post("/file/<item>/<int:item_id>")
+@roles_required(Roles.user.value)
 def post_file(item, item_id):
     """
     Retrieves an image file associated with a person's ID.
@@ -410,6 +392,7 @@ def post_file(item, item_id):
 
     person = db_session.get(Persons, item_id)
     if not person:
+        flash("Некорректные данные", "danger")
         return abort(400)
     try:
         if not person.destination:
@@ -445,9 +428,10 @@ def post_file(item, item_id):
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
+        flash("Файлы загружены", "success")
         return "", 201
     except OSError as e:
-        print(e)
+        flash(str(e), "danger")
         return abort(400)
 
 
@@ -462,7 +446,9 @@ def get_image():
             "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
         )
 
+
 @bp.route("/information", methods=["GET", "POST"])
+@login_required()
 def take_info():
     if request.method == "GET":
         start, end, region = (

@@ -4,10 +4,10 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/check.html" import check_form_macro %}
 
-{% call collapse_header_macro("work") %}
+{% call collapse_header_macro("checks-0") %}
 {{'Добавить запись'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="work">
+<div class="collapse card card-body mb-3" id="checks-0">
   {{ check_form_macro(id) }}
 </div>
 {% if checks %}
@@ -82,14 +82,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "check" + check['id']|string, 
-    "/api/delete/checks/" + check['id']|string, 
-    "check" + check['id']|string, 
-    "/api/file/checks/" + check['id']|string
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"check" + check['id']|string}}>
+  {{ action_group_macro("checks", check['id']|string, upload=True) }}
+  <div class="collapse card card-body mb-3" id={{"checks-" + check['id']|string}}>
     {{ check_form_macro(id, check) }}
   </div>
   {% endif %}

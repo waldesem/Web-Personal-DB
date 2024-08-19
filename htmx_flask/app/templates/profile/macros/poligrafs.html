@@ -4,10 +4,10 @@
 {% from "/profile/macro.html" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/poligraf.html" import poligraf_form_macro %}
 
-{% call collapse_header_macro("work") %}
+{% call collapse_header_macro("poligraf-0") %}
 {{'Добавить запись'}}
 {% endcall %}
-<div class="collapse card card-body mb-3" id="work">
+<div class="collapse card card-body mb-3" id="poligraf-0">
   {{ poligraf_form_macro(id) }}
 </div>
 {% if poligrafs %}
@@ -34,14 +34,8 @@
   {% endcall %}
 
   {% if session['user']['role'] == 'user' %}
-  {{ action_group_macro(
-    "poligraf" + poligraf['id']|string, 
-    "/api/delete/poligrafs/" + poligraf['id']|string, 
-    "poligraf" + poligraf['id']|string, 
-    "/api/file/poligrafs/" + poligraf['id']|string
-    )
-  }}
-  <div class="collapse card card-body mb-3" id={{"poligraf" + poligraf['id']|string}}>
+  {{ action_group_macro("poligrafs", poligraf['id']|string, upload=true) }}
+  <div class="collapse card card-body mb-3" id={{"poligrafs-" + poligraf['id']|string}}>
     {{ poligraf_form_macro(id, poligraf) }}
   </div>
   {% endif %}

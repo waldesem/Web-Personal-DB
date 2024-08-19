@@ -8,7 +8,6 @@
 <form 
   class="form form-check" 
   method="post" 
-  name="address-form" 
   style="padding-left: 0; width: 20%;"
   action="{{ url_for('route.change_region', person_id=resume['id']) }}"
 >
@@ -73,15 +72,9 @@
 {% endcall %}
 
 {% if session['user']['role'] == 'user' %}
-{{ action_group_macro(
-  "resume", 
-  "/api/delete/persons/" + resume['id']|string, 
-  "resume", 
-  "/api/file/persons/" + resume['id']|string
-  )
-}}
-<div class="collapse card card-body mb-3" id={{"resume" + resume['id']|string }}>
-  {{ resume_form_macro(resume, resume['id']) }}
+{{ action_group_macro("persons", resume['id']|string) }}
+<div class="collapse card card-body mb-3" id={{"resume-" + resume['id']|string }}>
+  {{ resume_form_macro(resume, resume['id']|string) }}
 </div>
 {% endif %}
 
