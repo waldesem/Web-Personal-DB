@@ -30,7 +30,8 @@ from ..handlers.handler import (
     handle_json_to_dict,
     handle_get_item,
     handle_post_item,
-    handle_post_resume,
+    handle_take_resume,
+    handle_users,
     handle_xml,
     make_destination,
 )
@@ -119,25 +120,29 @@ def get_logout():
     return redirect("/api/auth")
 
 
-@bp.get("/users")
-def get_users():
-    search_data = request.args.get("search")
+@bp.route("/users", methods=["GET", "POST"])
+@roles_required(Roles.admin.value)
+def take_users():
     stmt = select(Users)
-    if search_data and len(search_data) > 2:
-        if re.match(r"^[a-zA-z_]+", search_data):
-            stmt = stmt.filter(Users.username.like("%" + search_data + "%"))
-        else:
-            stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
+    if request.method == "POST":
+        search_data = request.form.get("search")
+        if search_data and len(search_data) > 2:
+            if re.match(r"^[a-zA-z_]+", search_data):
+                stmt = stmt.filter(Users.username.like("%" + search_data + "%"))
+            else:
+                stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
     result = [user.to_dict() for user in users]
-    return jsonify(result), 200
+    if request.method == "POST":
+        return render_template("/users/info.html", users=result)
+    return render_template("/users/users.html", users=result)
 
 
 @bp.post("/user")
+@roles_required(Roles.admin.value)
 def post_user():
-    json_data = request.get_json()
     try:
-        json_dict = User(**json_data).dict()
+        json_dict = User(**request.form).dict()
         user = db_session.execute(
             select(Users).filter(Users.username == json_dict.get("username"))
         ).all()
@@ -149,20 +154,21 @@ def post_user():
             )
             db_session.add(Users(**json_dict))
             db_session.commit()
-            return "", 201
+            return render_template("/users/info.html", users=handle_users())
         return abort(400)
     except Exception as e:
         print(e)
-        return abort(400)
+        return render_template("/users/users.html", users=handle_users())
 
 
-@bp.get("/user/<int:user_id>")
-def get_user_actions(user_id):
+@bp.route("/user/<int:user_id>", methods=["GET", "POST"])
+@roles_required(Roles.admin.value)
+def take_user(user_id):
     if session["user"]["id"] == user_id:
         return "", 205
     user = db_session.get(Users, user_id)
-    item = request.args.get("item")
-    if user and item:
+    if request.method == "GET":
+        item = request.args.get("item")
         if item == "drop":
             user.passhash = generate_password_hash(
                 current_app.config["DEFAULT_PASSWORD"]
@@ -174,13 +180,14 @@ def get_user_actions(user_id):
             user.blocked = not user.blocked
         elif item == "delete":
             user.deleted = not user.deleted
-        elif item in [reg.value for reg in Roles]:
-            user.role = item
-        elif item in [reg.value for reg in Regions]:
-            user.region = item
-        db_session.commit()
-        return "", 201
-    return abort(400)
+    else:
+        item = request.form
+        if 'role' in item and item['role'] in [reg.value for reg in Roles]:
+            user.role = item["role"]
+        elif 'region' in item and item['region'] in [reg.value for reg in Regions]:
+            user.region = item["region"]
+    db_session.commit()
+    return render_template("/users/info.html", users=handle_users())
 
 
 @bp.route("/index/<int:page>", methods=["GET", "POST"])
@@ -236,121 +243,35 @@ def take_index(page):
     )
 
 
-@bp.post("/file/<item>/<int:item_id>")
-def post_file(item, item_id):
-    """
-    Retrieves an image file associated with a person's ID.
-
-    Args:
-        item_id (int): The ID of the person.
-
-    Returns:
-        Response: A Flask Response object containing the image file.
-
-    Raises:
-        None.
-    """
-    files = request.files.getlist("file")
-    if not files or not files[0].filename:
-        flash("Файл не выбран", "danger"), 400
-        return render_template("create.html")
-
-    if item == "persons":
-        for file in files:
-            json_dict = json.load(file)
-            anketa = handle_json_to_dict(json_dict)
-            if not anketa:
-                flash("Некорректные данные", "danger")
-                return render_template("create.html")
-            person_id = handle_post_resume(anketa["resume"])
-            if not person_id:
-                flash("Некорректные данные", "danger")
-                return render_template("create.html")
-            for table, contents in anketa.items():
-                if contents and table != "resume":
-                    for content in contents:
-                        if content:
-                            handle_post_item(content, table, person_id)
-        return redirect("/api/index/1"), 201
-
-    person = db_session.get(Persons, item_id)
-    if not person:
-        return abort(400)
-    try:
-        if not person.destination:
-            destination = make_destination(
-                session["user"]["id"],
-                person.surname,
-                person.firstname,
-                person.patronymic,
-                item_id,
-            )
-            person.destination = destination
-            db_session.commit()
-        if not os.path.isdir(person.destination):
-            os.mkdir(person.destination)
-
-        item_dir = os.path.join(person.destination, item)
-        if not os.path.isdir(item_dir):
-            os.mkdir(item_dir)
-
-        if item == "image":
-            handle_image(files[0], item_dir)
-            return "", 201
-
-        date_subfolder = os.path.join(
-            item_dir,
-            datetime.now().strftime("%Y-%m-%d"),
-        )
-        if not os.path.isdir(date_subfolder):
-            os.mkdir(date_subfolder)
-        for file in files:
-            if item == "checks" and file.filename == "showresult.xml":
-                handle_xml(file, item_id)
-            file_path = os.path.join(date_subfolder, file.filename)
-            if not os.path.isfile(file_path):
-                file.save(file_path)
-        return "", 201
-    except OSError as e:
-        print(e)
-        return abort(400)
-
-
-@bp.get("/image")
-def get_image():
-    image_path = request.args.get("image")
-    if image_path:
-        file_path = os.path.join(image_path, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-        return send_file(
-            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-        )
-
-
-@bp.get("/create")
-def create_resume():
-    return render_template("create.html")
-
-
-@bp.post("/resume")
+@bp.route("/resume", methods=["GET", "POST"])
 @roles_required(Roles.user.value)
-def post_resume():
+def take_resume():
+    if request.method == "GET":
+        return render_template("/profile/create.html")
+    resume = Person(**request.form).dict()
+    person_id = handle_take_resume(resume)
+    if person_id:
+        flash("Резюме успешно добавлено", "success")
+    else:
+        flash("Некорректные данные", "danger")
+    return redirect("/api/index/1")
+
+
+@bp.get("/profile/<int:person_id>")
+def get_profile(person_id):
     """
-    Creates a new user, person or contact based on the provided JSON data.
+    Retrieves all information related to a person in one request.
 
     Parameters:
-        None
+        person_id (int): The ID of the person for whom to retrieve all information.
 
     Returns:
-        A JSON response containing the person ID and an HTTP status code of 201.
-        The person ID is the ID of the newly created user, person, or contact.
+        List[Dict[str, Any]]:
+        A list of dictionaries representing the person's
+        information and an HTTP status code of 200.
     """
-    resume = Person(**request.form).dict()
-    person_id = handle_post_resume(resume)
-    if person_id:
-        return redirect("/api/index/1")
-    return abort(400)
+    result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
+    return render_template("profile.html", person=result)
 
 
 @bp.get("/region/<int:person_id>")
@@ -378,23 +299,6 @@ def change_region(person_id):
         db_session.commit()
         return "", 201
     return abort(400)
-
-
-@bp.get("/profile/<int:person_id>")
-def get_profile(person_id):
-    """
-    Retrieves all information related to a person in one request.
-
-    Parameters:
-        person_id (int): The ID of the person for whom to retrieve all information.
-
-    Returns:
-        List[Dict[str, Any]]:
-        A list of dictionaries representing the person's
-        information and an HTTP status code of 200.
-    """
-    result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
-    return render_template("profile.html", person=result)
 
 
 @bp.get("/<item>/<int:item_id>")
@@ -465,6 +369,98 @@ def delete_item(item, item_id):
         f"profile/divs/{item}-api.html", addresses=result, id=person_id
     )
 
+
+
+@bp.post("/file/<item>/<int:item_id>")
+def post_file(item, item_id):
+    """
+    Retrieves an image file associated with a person's ID.
+
+    Args:
+        item_id (int): The ID of the person.
+
+    Returns:
+        Response: A Flask Response object containing the image file.
+
+    Raises:
+        None.
+    """
+    files = request.files.getlist("file")
+    if not files or not files[0].filename:
+        flash("Файл не выбран", "danger"), 400
+        return render_template("create.html")
+
+    if item == "persons":
+        for file in files:
+            json_dict = json.load(file)
+            anketa = handle_json_to_dict(json_dict)
+            if not anketa:
+                flash("Некорректные данные", "danger")
+                return render_template("create.html")
+            person_id = handle_take_resume(anketa["resume"])
+            if not person_id:
+                flash("Некорректные данные", "danger")
+                return render_template("create.html")
+            for table, contents in anketa.items():
+                if contents and table != "resume":
+                    for content in contents:
+                        if content:
+                            handle_post_item(content, table, person_id)
+        return redirect("/api/index/1"), 201
+
+    person = db_session.get(Persons, item_id)
+    if not person:
+        return abort(400)
+    try:
+        if not person.destination:
+            destination = make_destination(
+                session["user"]["id"],
+                person.surname,
+                person.firstname,
+                person.patronymic,
+                item_id,
+            )
+            person.destination = destination
+            db_session.commit()
+        if not os.path.isdir(person.destination):
+            os.mkdir(person.destination)
+
+        item_dir = os.path.join(person.destination, item)
+        if not os.path.isdir(item_dir):
+            os.mkdir(item_dir)
+
+        if item == "image":
+            handle_image(files[0], item_dir)
+            return "", 201
+
+        date_subfolder = os.path.join(
+            item_dir,
+            datetime.now().strftime("%Y-%m-%d"),
+        )
+        if not os.path.isdir(date_subfolder):
+            os.mkdir(date_subfolder)
+        for file in files:
+            if item == "checks" and file.filename == "showresult.xml":
+                handle_xml(file, item_id)
+            file_path = os.path.join(date_subfolder, file.filename)
+            if not os.path.isfile(file_path):
+                file.save(file_path)
+        return "", 201
+    except OSError as e:
+        print(e)
+        return abort(400)
+
+
+@bp.get("/image")
+def get_image():
+    image_path = request.args.get("image")
+    if image_path:
+        file_path = os.path.join(image_path, "image", "image.jpg")
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+        return send_file(
+            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+        )
 
 @bp.route("/information", methods=["GET", "POST"])
 def take_info():

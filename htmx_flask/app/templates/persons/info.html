@@ -17,9 +17,11 @@
         <th width="5%">#</th>
         <th width="15%">Регион</th>
         <th>Фамилия Имя Отчество</th>
-        <th width="15%">Дата рождения</th>
-        <th width="15%">Обновлено</th>
-        <th width="15%">Сотрудник</th>
+        <th width="10%">Дата рождения</th>
+        <th width="10%">ИНН</th>
+        <th width="10%">СНИЛС</th>
+        <th width="10%">Обновлено</th>
+        <th width="10%">Сотрудник</th>
         <th width="5%" class="text-center">Статус</th>
       </tr>
     </thead>
@@ -36,6 +38,8 @@
           </a>
         </td>
         <td>{{ row['birthday'].strftime("%d.%m.%Y") }}</td>
+        <td>{{ row['inn'] }}</td>
+        <td>{{ row['snils'] }}</td>
         <td>{{ row['created'].strftime("%d.%m.%Y") }}</td>
         <td>{{ row['username'] }}</td>
         <td class="text-center">
@@ -43,7 +47,7 @@
           <div
             class="spinner-border spinner-grow-sm text-danger"
             role="status"
-            :title="'Проверка'"
+            title="Проверка"
           >
           </div>
           {% else %}

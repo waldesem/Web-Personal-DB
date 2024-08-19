@@ -38,8 +38,8 @@
   name="{{ name }}"
   {% if required %}required{% endif %}
   {% if disabled %}disabled{% endif %}
-  value="{{ value }}"
 >
+  <option selected>{{ value }}</option>
   {% for option in options %}
   <option value="{{ option }}">{{ option }}</option>
   {% endfor %}
@@ -57,9 +57,9 @@
 </div>
 {% endmacro %}
 
-{% macro btn_group_macro(offset='offset-2') %}
+{% macro btn_group_macro(offset='offset-2', size='md') %}
 <div class="{{ offset }} py-3">
-  <div class="btn-group" role="group">
+  <div class="btn-group btn-group-{{size}}" role="group">
     <button
       class="btn btn-md btn-outline-primary"
       name="submit"

@@ -11,6 +11,12 @@ from ..model.models import AnketaSchemaJson
 from ..model.tables import Checks, Users, db_session, Persons, tables_models
 
 
+def handle_users():
+    users = db_session.execute(select(Users).order_by(desc(Users.id))).scalars()
+    result = [user.to_dict() for user in users]
+    return result
+
+
 def handle_get_item(item, item_id):
     """
     Retrieves an item from the database based on the provided item and item_id.
@@ -41,7 +47,7 @@ def handle_get_item(item, item_id):
     return result[0] if item == "persons" else result
 
 
-def handle_post_resume(resume):
+def handle_take_resume(resume):
     """
     Updates a resume in the database with the provided data.
 

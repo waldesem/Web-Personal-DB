@@ -12,7 +12,7 @@
         </a>
         <hr class="text-info" />
         <a
-          href="{{ url_for('route.create_resume') }}"
+          href="{{ url_for('route.take_resume') }}"
           class="nav-link active"
         >
           Создать
@@ -26,7 +26,7 @@
         <hr class="text-info" />
         {% if session.user.role == 'admin' %}
         <a
-          href="{{ url_for('route.get_users') }}"
+          href="{{ url_for('route.take_users') }}"
           class="nav-link active"
         >
           Пользователи
@@ -43,10 +43,10 @@
     <div class="sticky-top bg-white d-print-none p-3">
       <div class="row">
         <div class="col-10 text-center">
-          {% with messages = get_flashed_messages() %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             <div class="py-3">
-              {% for message, category in messages %}
+              {% for category, message in messages %}
               <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
