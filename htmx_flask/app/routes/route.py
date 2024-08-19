@@ -115,6 +115,12 @@ def login(action):
 
 @bp.get("/logout")
 def get_logout():
+    """
+    Handles user logout by clearing the session and redirecting to the authentication page.
+
+    Returns:
+        A redirect response to the authentication page.
+    """
     session.clear()
     return redirect("/api/auth")
 
@@ -122,6 +128,20 @@ def get_logout():
 @bp.route("/users", methods=["GET", "POST"])
 @roles_required(Roles.admin.value)
 def take_users():
+    """
+    Handles user data retrieval and rendering of user information pages.
+
+    This function supports both GET and POST requests. If the request method is GET, 
+    it retrieves all users from the database and renders the users.html template. 
+    If the request method is POST, it filters users based on the provided search data 
+    and renders the info.html template.
+
+    Args:
+        None
+
+    Returns:
+        A rendered HTML template with user data.
+    """
     stmt = select(Users)
     if request.method == "POST":
         search_data = request.form.get("search")
@@ -140,6 +160,19 @@ def take_users():
 @bp.post("/user")
 @roles_required(Roles.admin.value)
 def post_user():
+    """
+    Handles the creation of a new user account.
+
+    This function accepts POST requests to the /user endpoint and attempts to create a new user account based on the provided form data.
+    It checks if a user with the same username already exists, and if not, it creates a new user with the default role and region.
+    The function returns a rendered HTML template with the user data if the creation is successful, or an error message if the creation fails.
+
+    Args:
+        None
+
+    Returns:
+        A rendered HTML template with user data or an error message.
+    """
     try:
         json_dict = User(**request.form).dict()
         user = db_session.execute(
@@ -163,6 +196,21 @@ def post_user():
 @bp.route("/user/<int:user_id>", methods=["GET", "POST"])
 @roles_required(Roles.admin.value)
 def take_user(user_id):
+    """
+    Handles user account management for administrators.
+
+    This function accepts GET and POST requests to the /user/<int:user_id> endpoint and allows administrators to manage user accounts.
+    It checks if the current user is an administrator and if the requested user ID matches the current user's ID.
+    If the request method is GET, it updates the user's account based on the provided query parameters.
+    If the request method is POST, it updates the user's role or region based on the provided form data.
+    The function returns a rendered HTML template with the updated user data.
+
+    Parameters:
+        user_id (int): The ID of the user account to be managed.
+
+    Returns:
+        A rendered HTML template with the updated user data or an empty response with a 205 status code.
+    """
     if session["user"]["id"] == user_id:
         return "", 205
     user = db_session.get(Users, user_id)
@@ -181,9 +229,9 @@ def take_user(user_id):
             user.deleted = not user.deleted
     else:
         item = request.form
-        if 'role' in item and item['role'] in [reg.value for reg in Roles]:
+        if "role" in item and item["role"] in [reg.value for reg in Roles]:
             user.role = item["role"]
-        elif 'region' in item and item['region'] in [reg.value for reg in Regions]:
+        elif "region" in item and item["region"] in [reg.value for reg in Regions]:
             user.region = item["region"]
     db_session.commit()
     return render_template("/users/info.html", users=handle_users())
@@ -192,7 +240,29 @@ def take_user(user_id):
 @bp.route("/index/<int:page>", methods=["GET", "POST"])
 @login_required()
 def take_index(page):
+    """
+    Handles GET and POST requests to the /index/<int:page> endpoint for person management.
+
+    This function accepts GET and POST requests and allows users to manage persons.
+    It checks if the current user is logged in and if the requested page number is valid.
+    If the request method is GET, it updates the person's standing based on the provided query parameters.
+    If the request method is POST, it searches for persons based on the provided form data.
+    The function returns a rendered HTML template with the person data.
+
+    Parameters:
+        page (int): The page number of the person list.
+
+    Returns:
+        A rendered HTML template with the person data.
+    """
     pagination = 12
+    if request.method == "GET":
+        item = request.args.get("item")
+        person_id = request.args.get("person")
+        if item:
+            person = db_session.get(Persons, person_id)
+            person.standing = not person.standing
+            db_session.commit()
     stmt = select(Persons, Users.fullname)
     if request.method == "POST":
         search_data = request.form.get("search")
@@ -225,26 +295,31 @@ def take_index(page):
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
 
+    context = {
+        "candidates": result,
+        "has_next": has_next,
+        "has_prev": page > 1,
+        "page": page,
+    }
     if request.method == "POST":
-        return render_template(
-            "/persons/info.html",
-            candidates=result,
-            has_next=has_next,
-            has_prev=page > 1,
-            page=page,
-        )
-    return render_template(
-        "/persons/persons.html",
-        candidates=result,
-        has_next=has_next,
-        has_prev=page > 1,
-        page=page,
-    )
+        return render_template("/persons/info.html", **context)
+    return render_template("/persons/persons.html", **context)
 
 
 @bp.route("/resume", methods=["GET", "POST"])
 @roles_required(Roles.user.value)
 def take_resume():
+    """
+    Handles the taking of a resume by a user.
+
+    This function is triggered by a GET or POST request to the "/resume" endpoint.
+    If the request is a GET, it renders the create.html template.
+    If the request is a POST, it creates a new Person object from the request form data,
+    attempts to handle the taking of the resume, and redirects the user to the index page.
+
+    Returns:
+        A rendered template or a redirect response.
+    """
     if request.method == "GET":
         return render_template("/profile/create.html")
     resume = Person(**request.form).dict()
@@ -260,16 +335,20 @@ def take_resume():
 @login_required()
 def get_profile(person_id):
     """
-    Retrieves all information related to a person in one request.
+    Retrieves a person's profile information.
 
     Parameters:
-        person_id (int): The ID of the person for whom to retrieve all information.
+        person_id (int): The ID of the person for whom to retrieve the profile information.
 
     Returns:
-        List[Dict[str, Any]]:
-        A list of dictionaries representing the person's
-        information and an HTTP status code of 200.
+        A rendered template with the person's profile information.
     """
+
+    item = request.args.get("item")
+    if item:
+        person = db_session.get(Persons, person_id)
+        person.standing = not person.standing
+        db_session.commit()
     result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
     return render_template("profile.html", person=result)
 
@@ -298,7 +377,7 @@ def change_region(person_id):
         person.region = region
         person.standing = False
         db_session.commit()
-        result = handle_get_item('persons', person_id)
+        result = handle_get_item("persons", person_id)
         return render_template("profile/divs/persons.html", person=result)
     return abort(400)
 
@@ -307,17 +386,16 @@ def change_region(person_id):
 @roles_required(Roles.user.value)
 def post_item_id(item, item_id):
     """
-    Inserts or replaces a record in the specified table with the given item ID.
+    Handles HTTP POST requests for a specific item by ID.
 
     Parameters:
-        item (str): The name of the table to insert or replace the record in.
-        item_id (int): The ID of the record to insert or replace.
+        item (str): The type of item being updated.
+        item_id (int): The ID of the item being updated.
 
     Returns:
-        Tuple[str, int]: A tuple containing an empty string and an HTTP status
-        code of 201 if the operation is successful,
-        otherwise a string containing the exception message and an HTTP status code of 400.
+        A rendered HTML template with the updated item information.
     """
+
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
     handle_post_item(json_dict, item, item_id)
@@ -329,17 +407,16 @@ def post_item_id(item, item_id):
 @roles_required(Roles.user.value)
 def delete_item(item, item_id):
     """
-    Deletes an item from the database based on the provided item name and item ID.
+    Handles HTTP GET requests to delete a specific item by ID.
 
     Parameters:
-        item (str): The name of the table to delete the item from.
-        item_id (int): The ID of the item to delete.
+        item (str): The type of item being deleted.
+        item_id (int): The ID of the item being deleted.
 
     Returns:
-        Tuple[str, int]: A tuple containing an empty string and an HTTP status
-        code of 204 if the operation is successful or an HTTP status
-        code of 400.
+        A rendered HTML template with the updated item information after deletion.
     """
+    
     row = db_session.get(tables_models[item], item_id)
     if not row:
         return abort(400)
@@ -347,26 +424,23 @@ def delete_item(item, item_id):
     db_session.delete(row)
     db_session.commit()
     results = handle_get_item(item, person_id)
-    return render_template(
-        f"profile/divs/{item}.html", items=results, id=person_id
-    )
+    return render_template(f"profile/divs/{item}.html", items=results, id=person_id)
 
 
 @bp.post("/file/<item>/<int:item_id>")
 @roles_required(Roles.user.value)
 def post_file(item, item_id):
     """
-    Retrieves an image file associated with a person's ID.
+    Handles HTTP POST requests to upload files for a specific item by ID.
 
-    Args:
-        item_id (int): The ID of the person.
+    Parameters:
+        item (str): The type of item being uploaded.
+        item_id (int): The ID of the item being uploaded.
 
     Returns:
-        Response: A Flask Response object containing the image file.
-
-    Raises:
-        None.
+        A rendered HTML template or a redirect with a status code.
     """
+
     files = request.files.getlist("file")
     if not files or not files[0].filename:
         flash("Файл не выбран", "danger"), 400
@@ -450,6 +524,20 @@ def get_image():
 @bp.route("/information", methods=["GET", "POST"])
 @login_required()
 def take_info():
+    """
+    Handles retrieval of information based on the provided date range and region.
+
+    This function supports both GET and POST requests. If the request method is GET, 
+    it retrieves information for the last 30 days in the user's region. If the request 
+    method is POST, it filters information based on the provided start date, end date, 
+    and region.
+
+    Args:
+        None
+
+    Returns:
+        A rendered HTML template with information data.
+    """
     if request.method == "GET":
         start, end, region = (
             datetime.now() - timedelta(days=30),

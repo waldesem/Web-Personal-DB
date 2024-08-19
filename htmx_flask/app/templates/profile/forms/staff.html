@@ -3,10 +3,10 @@
 {% from "elements.html" import label_macro, input_macro, textarea_macro, btn_group_macro %}
   <form
     class="form form-check" 
-    role="form" 
-    method="post" 
-    name="staff-form" 
-    action="{{ url_for('route.get_item_id', item='staffs', item_id=id) }}"
+    hx-post="{{ url_for('route.post_item_id', item='staffs', item_id=id) }}"
+    hx-target="#staffs"
+    hx-trigger="submit"
+    hx-swap="innerHTML"
   >
     
     {{ input_macro("id", "id", type="hidden", value=staff['id']) }}

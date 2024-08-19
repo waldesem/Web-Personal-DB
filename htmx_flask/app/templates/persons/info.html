@@ -32,7 +32,7 @@
         <td>
           <a
             class="link-primary" 
-            href="{{ url_for('route.get_profile', person_id=row['id']) }}"
+            href={{ url_for('route.get_profile', person_id=row['id']) }}
             >
             {{ row['surname'] }} {{row['firstname']}} {{ row['patronymic' if row['patronymic']] }}
           </a>
@@ -43,18 +43,22 @@
         <td>{{ row['created'].strftime("%d.%m.%Y") }}</td>
         <td>{{ row['username'] }}</td>
         <td class="text-center">
-          {% if row.standing %}
-          <div
-            class="spinner-border spinner-grow-sm text-danger"
-            role="status"
-            title="Проверка"
+          <a 
+            href={{ url_for('route.take_index', page=1, person_id=row['id'], item='self') }}
           >
-          </div>
-          {% else %}
-          <div class="text-success fs-5" title="Окончено">
-            <i class="bi bi-emoji-smile"></i>
-          </div>
-          {% endif %}
+            {% if row.standing %}
+            <div
+              class="spinner-grow-sm text-danger"
+              role="status"
+              title="Проверка"
+            >
+            </div>
+            {% else %}
+            <div class="text-success fs-5" title="Окончено">
+              <i class="bi bi-emoji-smile"></i>
+            </div>
+            {% endif %}
+          </a>
         </td>
       </tr>
       {% endfor %}

@@ -5,9 +5,10 @@
 
 <form 
   class="form form-check" 
-  method="post" 
-  name="relation-form" 
-  action="{{ url_for('route.get_item_id', item='relations', item_id=id) }}"
+  hx-post="{{ url_for('route.post_item_id', item='relations', item_id=id) }}"
+  hx-target="#relations"
+  hx-trigger="submit"
+  hx-swap="innerHTML"
 >
 
   {{ input_macro("id", "id", type="hidden", value=relation['id']) }}

@@ -5,9 +5,10 @@
 
 <form 
   class="form form-check" 
-  method="post" 
-  name="education-form" 
-  action="{{ url_for('route.get_item_id', item='educations', item_id=id) }}"
+  hx-post="{{ url_for('route.post_item_id', item='educations', item_id=id) }}"
+  hx-target="#educations"
+  hx-trigger="submit"
+  hx-swap="innerHTML"
 >
   
   {{ input_macro("id", "id", type="hidden", value=education['id']) }}
