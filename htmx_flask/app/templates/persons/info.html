@@ -1,34 +1,16 @@
-{% extends "index.html" %}
-
-{% from "elements.html" import input_macro %}
-
-{% block title %}
-Кандидаты
-{% endblock %}
-
-{% block content %}
-<div class="text-opacity-85 text-danger py-5 px-3">
-  <h3>Кандидаты</h3>
-</div>
-<div class="row mb-3">
-  <form 
-    onsubmit="{{ url_for('route.get_index', page=1) }}"
-    class="form form-check" 
-    method="get" 
-  >
-    {{ input_macro("search", "Поиск по фамилии, имени, отчеству, дате рождения, инн", required=true) }}
-  </form>
-</div>
 <div class="row py-3">
   <table class="table align-middle table-hover">
     <caption>
-      <a 
-        class="btn btn-link" 
-        href="{{ url_for('route.get_index', page=page) }}" 
+      <button 
+        class="btn btn-link"
+        hx-post="/api/index/1"
+        hx-trigger="click"
+        hx-target="#persons-table"
+        hx-swap="innerHTML"
         style="text-decoration: none;"
       >
         <i class="bi bi-arrow-clockwise">Обновить</i>
-      </a>
+      </button>
     </caption>
     <thead>
       <tr height="50px">
@@ -78,34 +60,31 @@
 <p class="fs-6 taxt-danger">Ничего не найдено</p>
 {% endif %}
 
-{% if has_next or has_prev %}
 <nav class="mb-4">
   <ul class="pagination justify-content-center">
-    {% if has_prev %}
-    <li class="page-item">
-      <a
-        :disabled="!has_prev"
-        class="link-primary" 
-        href="{{ url_for('route.get_index', page=page - 1) }}"
+    <li class="page-item {{ 'disabled' if not has_prev }}">
+      <button
+        class="page-link"
+        hx-post="/api/index/{{ page - 1 }}"
+        hx-trigger="click"
+        hx-target="#persons-table"
+        hx-swap="innerHTML"
       >
         <i class="bi bi-chevron-double-left"></i>
         Назад 
-      </a>
+    </button>
     </li>
-    {% endif %}
-    {% if has_next %}
-    <li class="page-item">
-      <a 
-        :disabled="!has_next"
-        class="link-primary" 
-        href="{{ url_for('route.get_index', page=page + 1) }}"
+    <li class="page-item {{ 'disabled' if not has_next }}">
+      <button 
+        class="page-link"
+        hx-post="/api/index/{{ page + 1 }}"
+        hx-trigger="click"
+        hx-target="#persons-table"
+        hx-swap="innerHTML"
       >
         Вперёд
         <i class="bi bi-chevron-double-right"></i>
-      </a>
+      </button>
     </li>
-    {% endif %}
   </ul>
 </nav>
-{% endif %}
-{% endblock %}

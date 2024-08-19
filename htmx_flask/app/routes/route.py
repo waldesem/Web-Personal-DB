@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import os
 import re
@@ -20,17 +20,7 @@ from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from config import Config
-from ..classes.classes import (
-    Addresses,
-    Affiliates,
-    Conclusions,
-    Contacts,
-    Documents,
-    Educations,
-    Poligrafs,
-    Regions,
-    Relations,
-)
+from ..classes.classes import Regions
 from ..depends.depend import login_required, roles_required
 from ..classes.classes import Roles
 from ..model.models import Person, User, models_tables
@@ -50,77 +40,87 @@ bp = Blueprint(
 )
 
 
-@bp.post("/login/<action>")
-def post_login(action):
+@bp.get("/auth")
+def get_auth():
     """
-    A function that handles the login process.
-
-    Parameters:
-        action (str): The action to be performed during the login process.
+    Handles GET requests to the /auth endpoint.
 
     Returns:
-        The function returns a tuple containing an empty string and a status code.
-        The status code is either 204, 201, or 205, depending on the outcome of the login process.
-
-    Raises:
-        None
+        A rendered HTML template for the auth page.
     """
-    user = db_session.execute(
-        select(Users).where(Users.username == request.form.get("login"))
-    ).scalar_one_or_none()
-    if not user or user.blocked or user.deleted:
-        flash("Неверные данные", "danger")
-        return render_template("/login/login.html")
+    return render_template("/login/auth.html")
 
-    if not check_password_hash(user.passhash, request.form["password"]):
-        if user.attempt < 5:
-            user.attempt += 1
+
+@bp.route("/auth/<action>", methods=["GET", "POST"])
+def login(action):
+    """
+    Handles user authentication and password changes.
+
+    Parameters:
+        action (str): The type of authentication action to perform (e.g. "login", "password").
+
+    Returns:
+        A rendered HTML template or a redirect response.
+    """
+    if request.method == "GET":
+        if action == "login":
+            return render_template("/login/login.html")
         else:
-            user.blocked = True
-        db_session.commit()
-        flash("Неверные данные", "danger")
-        return render_template("/login/login.html")
+            return render_template("/login/password.html")
+    else:
+        user = db_session.execute(
+            select(Users).where(Users.username == request.form.get("login"))
+        ).scalar_one_or_none()
+        if not user or user.blocked or user.deleted:
+            flash("Полььзователь не найден или заблокирован", "danger")
+            return redirect("/api/auth")
 
-    if action == "update":
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
-        if re.match(pattern, request.form["new_pswd"]):
-            user.passhash = generate_password_hash(request.form["new_pswd"])
-            user.change_pswd = False
+        if not check_password_hash(user.passhash, request.form["password"]):
+            if user.attempt < 5:
+                user.attempt += 1
+            else:
+                user.blocked = True
+            db_session.commit()
+            flash("Неверный логин или пароль", "danger")
+            return redirect("/api/auth")
+
+        if action == "password":
+            pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
+            if re.match(pattern, request.form["new_pswd"]):
+                passhash = generate_password_hash(request.form["new_pswd"])
+                if user.passhash == passhash:
+                    flash("Новый пароль совпадает с текущим", "danger")
+                    return redirect("/api/auth")
+                user.passhash = passhash
+                user.change_pswd = False
+                user.attempt = 0
+                db_session.commit()
+                flash(
+                    "Пароль успешно изменен. Вы можете войти с новым паролем", "success"
+                )
+                return redirect("/api/auth")
+
+            flash("Новый пароль не соответствует требованиям", "danger")
+            return redirect("/api/auth")
+
+        delta_change = datetime.now() - user.pswd_create
+        if not user.change_pswd and delta_change.days < 365:
+            session["user"] = user.to_dict()
             user.attempt = 0
             db_session.commit()
-            flash("Пароль успешно изменен", "success")
-            return render_template("/login/login.html")
-
-        flash("Новый пароль не соответствует требованиям", "danger")
-        return render_template("/login/login.html")
-
-    delta_change = datetime.now() - user.pswd_create
-    if not user.change_pswd and delta_change.days < 365:
-        session["user"] = user.to_dict()
-        user.attempt = 0
-        db_session.commit()
-        return redirect("/api/index/1")
-    flash("Пароль устарел и должен быть сменен", "danger")
-    return render_template("/login/password.html")
+            return redirect("/api/index/1")
+        flash("Пароль устарел и должен быть сменен", "danger")
+        return redirect("/api/auth")
 
 
 @bp.get("/logout")
 def get_logout():
     session.clear()
-    return redirect("/login/create")
+    return redirect("/api/auth")
 
 
 @bp.get("/users")
 def get_users():
-    """
-    Retrieves a list of users from the database based on the provided search criteria.
-
-    Parameters:
-        item (str): The table name from which to retrieve the users.
-
-    Returns:
-        tuple: A tuple containing the JSON-encoded list of users and the HTTP status code.
-    """
     search_data = request.args.get("search")
     stmt = select(Users)
     if search_data and len(search_data) > 2:
@@ -133,24 +133,8 @@ def get_users():
     return jsonify(result), 200
 
 
-@bp.post("/users")
+@bp.post("/user")
 def post_user():
-    """
-    Handles the POST request to create a user in the database.
-
-    This function is a route handler for the '/users' endpoint with the HTTP method POST.
-    It requires a valid token for authentication.
-
-    Parameters:
-        None
-
-    Returns:
-        - If the user already exists returns an empty response with status code 205.
-        - Else generates a hashed password using the default password.
-        Returns an empty response with status code 201.
-        - If an exception occurs during the execution of the function,
-        returns an empty response with status code 400.
-    """
     json_data = request.get_json()
     try:
         json_dict = User(**json_data).dict()
@@ -172,19 +156,10 @@ def post_user():
         return abort(400)
 
 
-@bp.get("/users/<int:user_id>")
+@bp.get("/user/<int:user_id>")
 def get_user_actions(user_id):
     if session["user"]["id"] == user_id:
         return "", 205
-    """
-    Change a user's information in the database based on their user ID.
-
-    Parameters:
-        user_id (int): The ID of the user.
-
-    Returns:
-        The HTTP status code is 201.
-    """
     user = db_session.get(Users, user_id)
     item = request.args.get("item")
     if user and item:
@@ -208,43 +183,30 @@ def get_user_actions(user_id):
     return abort(400)
 
 
-@bp.get("/index/<int:page>")
+@bp.route("/index/<int:page>", methods=["GET", "POST"])
 @login_required()
-def get_index(page):
-    """
-    Retrieves a paginated list of persons from the database based on the search
-    query and the user's region.
-
-    Parameters:
-        page (int): The page number of the results.
-
-    Returns:
-        tuple: A tuple containing the list of persons, a boolean indicating if
-        there are more results, and a boolean indicating if the page is greater
-        than 1.
-
-    Raises:
-        None
-    """
+def take_index(page):
     pagination = 12
-    search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
-    if search_data and len(search_data) > 2:
-        if search_data.isdigit():
-            stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
-        else:
-            pattern = r"^\d{2}\.\d{2}\.\d{4}$"
-            query = list(map(str.upper, search_data.split()))
-            if len(query):
-                stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
-            if len(query) > 1 and not re.match(pattern, query[1]):
-                stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
-            if len(query) > 2 and not re.match(pattern, query[2]):
-                stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
-            if len(query) > 1 and re.match(pattern, query[-1]):
-                stmt = stmt.filter(
-                    Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
-                )
+    if request.method == "POST":
+        search_data = request.form.get("search")
+        if search_data and len(search_data) > 2:
+            if search_data.isdigit():
+                stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
+            else:
+                pattern = r"^\d{2}\.\d{2}\.\d{4}$"
+                query = list(map(str.upper, search_data.split()))
+                if len(query):
+                    stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
+                if len(query) > 1 and not re.match(pattern, query[1]):
+                    stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
+                if len(query) > 2 and not re.match(pattern, query[2]):
+                    stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
+                if len(query) > 1 and re.match(pattern, query[-1]):
+                    stmt = stmt.filter(
+                        Persons.birthday
+                        == datetime.strptime(query[-1], "%d.%m.%Y").date()
+                    )
     if session["user"]["region"] != Regions.main.value:
         stmt = stmt.filter(Persons.region == session["user"]["region"])
     query = db_session.execute(
@@ -256,13 +218,22 @@ def get_index(page):
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
+
+    if request.method == "POST":
+        return render_template(
+            "/persons/info.html",
+            candidates=result,
+            has_next=has_next,
+            has_prev=page > 1,
+            page=page,
+        )
     return render_template(
-        "persons.html",
+        "/persons/persons.html",
         candidates=result,
         has_next=has_next,
         has_prev=page > 1,
         page=page,
-    ), 200
+    )
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -490,69 +461,41 @@ def delete_item(item, item_id):
     db_session.delete(row)
     db_session.commit()
     result = handle_get_item(item, person_id)
-    return render_template(f"profile/divs/{item}-api.html", addresses=result, id=person_id)
+    return render_template(
+        f"profile/divs/{item}-api.html", addresses=result, id=person_id
+    )
 
 
-@bp.get("/information")
-def get_information():
-    """
-    Retrieves information based on the provided query parameters.
+@bp.route("/information", methods=["GET", "POST"])
+def take_info():
+    if request.method == "GET":
+        start, end, region = (
+            datetime.now() - timedelta(days=30),
+            datetime.now(),
+            session["user"]["region"],
+        )
+    else:
+        data = request.form
+        start, end, region = data.get("start"), data.get("end"), data.get("region")
 
-    Returns:
-        A JSON response containing the count of checks for each conclusion within the specified date range and region.
-        The JSON response has the following structure:
-        The HTTP status code is 200 if the information is successfully retrieved.
-
-    Raises:
-        None
-
-    This function requires the user to be authenticated.
-
-    Parameters:
-        None
-
-    Query Parameters:
-        start (str): The start date of the date range in the format "YYYY-MM-DD".
-        end (str): The end date of the date range in the format "YYYY-MM-DD".
-        region (str): The region to filter the checks by.
-
-    """
-    data = request.args
     results = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
         .join(Persons, Checks.person_id == Persons.id)
         .filter(
-            Checks.created.between(data["start"], data["end"]),
-            Persons.region == data.get("region")
-            if data.get("region")
-            else session["user"]["region"],
+            Checks.created.between(start, end),
+            Persons.region == region,
         )
-        .group_by(Checks.conclusion)
+        .group_by(Checks.conclusion),
     ).all()
-    return jsonify([list(result) for result in results]), 200
-
-
-@bp.get("/classes")
-def get_classes():
-    """
-    Retrieves classes information and returns a JSON response.
-
-    Returns:
-        A JSON response containing information about Regions, Conclusions, Relations, Affiliates, Educations, Addresses, Contacts, Documents, and Poligrafs.
-    """
-    results = {
-        items.__name__.lower(): {item.name: item.value for item in items}
-        for items in [
-            Regions,
-            Conclusions,
-            Relations,
-            Affiliates,
-            Educations,
-            Addresses,
-            Contacts,
-            Documents,
-            Poligrafs,
-            Roles,
-        ]
-    }
-    return jsonify(results), 200
+    if request.method == "GET":
+        return render_template(
+            "/information/information.html",
+            results=[list(result) for result in results],
+            start=datetime.strftime(start, "%Y-%m-%d"),
+            end=datetime.strftime(end, "%Y-%m-%d"),
+            region=region,
+        )
+    else:
+        return render_template(
+            "/information/info.html", results=[list(result) for result in results]
+        )
