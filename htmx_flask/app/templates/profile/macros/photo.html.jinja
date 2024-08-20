@@ -1,0 +1,22 @@
+{% macro photo_card_macro(destination, id) %}
+
+{% from "profile/forms/file.html.jinja" import file_form_macro %}
+
+<div class="card mb-3" style="width: 16rem">
+  <img src="{{ url_for('route.get_image', image=destination) }}" class="card-img-top"
+  />
+  <div class="card-body">
+    {% if session['user']['role'] == 'user' %}
+    <label
+      for="image-file" 
+      class="text-primary"
+      style="cursor: pointer; text-decoration: underline;"
+    >
+      <i class="bi bi-cloud-arrow-up"> Загрузить</i>
+    </label>
+    {{ file_form_macro('image-file', '/api/file/image/' + id|string, '*.jpg, *.jpeg') }}
+    {% endif %}
+  </div>
+</div>
+
+{% endmacro %}

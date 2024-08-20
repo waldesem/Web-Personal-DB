@@ -18,7 +18,6 @@ from flask import (
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from config import Config
 from ..classes.classes import Regions
 from ..depends.depend import login_required, roles_required
 from ..classes.classes import Roles
@@ -36,8 +35,7 @@ from ..handlers.handler import (
 )
 
 bp = Blueprint(
-    "route", __name__, url_prefix="/api", static_folder=getattr(Config, "BASE_PATH")
-)
+    "route", __name__, url_prefix="/api")
 
 
 @bp.get("/auth")
@@ -48,7 +46,7 @@ def get_auth():
     Returns:
         A rendered HTML template for the auth page.
     """
-    return render_template("/login/auth.html")
+    return render_template("/login/auth.html.jinja")
 
 
 @bp.route("/auth/<action>", methods=["GET", "POST"])
@@ -64,9 +62,9 @@ def login(action):
     """
     if request.method == "GET":
         if action == "login":
-            return render_template("/login/login.html")
+            return render_template("/login/login.html.jinja")
         else:
-            return render_template("/login/password.html")
+            return render_template("/login/password.html.jinja")
     else:
         user = db_session.execute(
             select(Users).where(Users.username == request.form.get("login"))
@@ -132,9 +130,9 @@ def take_users():
     Handles user data retrieval and rendering of user information pages.
 
     This function supports both GET and POST requests. If the request method is GET, 
-    it retrieves all users from the database and renders the users.html template. 
+    it retrieves all users from the database and renders the users.html.jinja template. 
     If the request method is POST, it filters users based on the provided search data 
-    and renders the info.html template.
+    and renders the info.html.jinja template.
 
     Args:
         None
@@ -153,8 +151,8 @@ def take_users():
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
     result = [user.to_dict() for user in users]
     if request.method == "POST":
-        return render_template("/users/info.html", users=result)
-    return render_template("/users/users.html", users=result)
+        return render_template("/users/info.html.jinja", users=result)
+    return render_template("/users/users.html.jinja", users=result)
 
 
 @bp.post("/user")
@@ -186,11 +184,11 @@ def post_user():
             )
             db_session.add(Users(**json_dict))
             db_session.commit()
-            return render_template("/users/info.html", users=handle_users())
+            return render_template("/users/info.html.jinja", users=handle_users())
         return abort(400)
     except Exception as e:
         print(e)
-        return render_template("/users/users.html", users=handle_users())
+        return render_template("/users/users.html.jinja", users=handle_users())
 
 
 @bp.route("/user/<int:user_id>", methods=["GET", "POST"])
@@ -234,7 +232,7 @@ def take_user(user_id):
         elif "region" in item and item["region"] in [reg.value for reg in Regions]:
             user.region = item["region"]
     db_session.commit()
-    return render_template("/users/info.html", users=handle_users())
+    return render_template("/users/info.html.jinja", users=handle_users())
 
 
 @bp.route("/index/<int:page>", methods=["GET", "POST"])
@@ -256,13 +254,6 @@ def take_index(page):
         A rendered HTML template with the person data.
     """
     pagination = 12
-    if request.method == "GET":
-        item = request.args.get("item")
-        person_id = request.args.get("person")
-        if item:
-            person = db_session.get(Persons, person_id)
-            person.standing = not person.standing
-            db_session.commit()
     stmt = select(Persons, Users.fullname)
     if request.method == "POST":
         search_data = request.form.get("search")
@@ -302,8 +293,8 @@ def take_index(page):
         "page": page,
     }
     if request.method == "POST":
-        return render_template("/persons/info.html", **context)
-    return render_template("/persons/persons.html", **context)
+        return render_template("/persons/info.html.jinja", **context)
+    return render_template("/persons/persons.html.jinja", **context)
 
 
 @bp.route("/resume", methods=["GET", "POST"])
@@ -313,7 +304,7 @@ def take_resume():
     Handles the taking of a resume by a user.
 
     This function is triggered by a GET or POST request to the "/resume" endpoint.
-    If the request is a GET, it renders the create.html template.
+    If the request is a GET, it renders the create.html.jinja template.
     If the request is a POST, it creates a new Person object from the request form data,
     attempts to handle the taking of the resume, and redirects the user to the index page.
 
@@ -321,7 +312,7 @@ def take_resume():
         A rendered template or a redirect response.
     """
     if request.method == "GET":
-        return render_template("/profile/create.html")
+        return render_template("/profile/create.html.jinja")
     resume = Person(**request.form).dict()
     person_id = handle_take_resume(resume)
     if person_id:
@@ -350,7 +341,7 @@ def get_profile(person_id):
         person.standing = not person.standing
         db_session.commit()
     result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
-    return render_template("profile.html", person=result)
+    return render_template("profile/profile.html.jinja", person=result)
 
 
 @bp.post("/region/<int:person_id>")
@@ -378,7 +369,7 @@ def change_region(person_id):
         person.standing = False
         db_session.commit()
         result = handle_get_item("persons", person_id)
-        return render_template("profile/divs/persons.html", person=result)
+        return render_template("profile/divs/persons.html.jinja", person=result)
     return abort(400)
 
 
@@ -400,7 +391,7 @@ def post_item_id(item, item_id):
     json_dict = models_tables[item](**json_data).dict()
     handle_post_item(json_dict, item, item_id)
     results = handle_get_item(item, item_id)
-    return render_template(f"profile/divs/{item}.html", items=results)
+    return render_template(f"profile/divs/{item}.html.jinja", items=results)
 
 
 @bp.get("/delete/<item>/<int:item_id>")
@@ -424,7 +415,28 @@ def delete_item(item, item_id):
     db_session.delete(row)
     db_session.commit()
     results = handle_get_item(item, person_id)
-    return render_template(f"profile/divs/{item}.html", items=results, id=person_id)
+    return render_template(f"profile/divs/{item}.html.jinja", items=results, id=person_id)
+
+
+@bp.get("/image")
+def get_image():
+    """
+    Retrieves an image from the specified path and sends it as a response.
+
+    Args:
+        image (str): The path to the image.
+
+    Returns:
+        send_file: The image file as a response.
+    """
+    image_path = request.args.get("image")
+    if image_path:
+        file_path = os.path.join(image_path, "image", "image.jpg")
+        if os.path.isfile(file_path):
+            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+        return send_file(
+            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
+        )
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -444,7 +456,7 @@ def post_file(item, item_id):
     files = request.files.getlist("file")
     if not files or not files[0].filename:
         flash("Файл не выбран", "danger"), 400
-        return render_template("create.html")
+        return render_template("api/profile/create.html.jinja")
 
     if item == "persons":
         for file in files:
@@ -452,11 +464,11 @@ def post_file(item, item_id):
             anketa = handle_json_to_dict(json_dict)
             if not anketa:
                 flash("Некорректные данные", "danger")
-                return render_template("create.html")
+                return render_template("api/profile/create.html.jinja")
             person_id = handle_take_resume(anketa["resume"])
             if not person_id:
                 flash("Некорректные данные", "danger")
-                return render_template("create.html")
+                return render_template("api/profile/create.html.jinja")
             for table, contents in anketa.items():
                 if contents and table != "resume":
                     for content in contents:
@@ -509,18 +521,6 @@ def post_file(item, item_id):
         return abort(400)
 
 
-@bp.get("/image")
-def get_image():
-    image_path = request.args.get("image")
-    if image_path:
-        file_path = os.path.join(image_path, "image", "image.jpg")
-        if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-        return send_file(
-            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-        )
-
-
 @bp.route("/information", methods=["GET", "POST"])
 @login_required()
 def take_info():
@@ -559,7 +559,7 @@ def take_info():
     ).all()
     if request.method == "GET":
         return render_template(
-            "/information/information.html",
+            "/information/information.html.jinja",
             results=[list(result) for result in results],
             start=datetime.strftime(start, "%Y-%m-%d"),
             end=datetime.strftime(end, "%Y-%m-%d"),
@@ -567,5 +567,5 @@ def take_info():
         )
     else:
         return render_template(
-            "/information/info.html", results=[list(result) for result in results]
+            "/information/info.html.jinja", results=[list(result) for result in results]
         )

@@ -1,5 +1,0 @@
-{% from "/profile/macros/checks.html" import check_tab_macro %}
-
-{% set id = id | default(0) %}
-{% set checks = items | default([]) %}
-{{ check_tab_macro(id, checks = checks) }}

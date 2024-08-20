@@ -1,0 +1,67 @@
+{% macro resume_form_macro(resume = {}, id = "") %}
+
+{% from "elements.html.jinja" import label_macro, input_macro, textarea_macro, btn_group_macro %}
+
+{% if id %}
+<form 
+  class="form form-check" 
+  method="post" 
+  name="resume-form" 
+  action="{{ url_for('route.post_item_id', item='persons', item_id=id) }}"
+>
+{% else %}
+<form 
+  class="form form-check" 
+  method="post" 
+  name="login-form" 
+  action="{{ url_for('route.take_resume') }}"
+>
+{% endif %}
+
+  {% call label_macro("Фамилия*") %}
+  {{ input_macro("surname", "Фамилия", required=true, value=resume['surname']) }}
+  {% endcall %}
+
+  {% call label_macro("Имя*") %}
+  {{ input_macro("firstname", "Имя", required=true, value=resume['firstname']) }}
+  {% endcall %}
+
+  {% call label_macro("Отчество") %}
+  {{ input_macro("patronymic", "Отчество", value=resume['patronymic']) }}
+  {% endcall %}
+
+  {% call label_macro("Дата рождения*") %}
+  {{ input_macro("birthday", "Дата рождения", type="date", required=true, value=resume['birthday']) }}
+  {% endcall %}
+
+  {% call label_macro("Место рождения") %}
+  {{ textarea_macro("birthplace", "Место рождения", resume['birthplace']) }}
+  {% endcall %}
+
+  {% call label_macro("Гражданство") %}
+  {{ input_macro("citizenship", "Гражданство", value=resume['citizenship']) }}
+  {% endcall %}
+
+  {% call label_macro("Двойное гражданство") %}
+  {{ input_macro("dual", "Двойное гражданство", value=resume['dual']) }}
+  {% endcall %}
+
+  {% call label_macro("ИНН") %}
+  {{ input_macro("inn", "ИНН", value=resume['inn']) }}
+  {% endcall %}
+
+  {% call label_macro("СНИЛС") %}
+  {{ input_macro("snils", "СНИЛС", value=resume['snils']) }}
+  {% endcall %}
+
+  {% call label_macro("Семейное положение") %}
+  {{ textarea_macro("marital", "Семейное положение", resume['marital']) }}
+  {% endcall %}
+
+  {% call label_macro("Дополнительно") %}
+  {{ textarea_macro("addition", "Дополнительно", resume['addition']) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

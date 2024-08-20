@@ -1,0 +1,25 @@
+{% macro inquiry_form_macro(id, inquiry = {}) %}
+
+{% from "elements.html.jinja" import label_macro, input_macro, textarea_macro, btn_group_macro %}
+
+<form 
+  class="form form-check" 
+  hx-post="{{ url_for('route.post_item_id', item='inquiries', item_id=id) }}"
+  hx-target="#inquiries"
+  hx-trigger="submit"
+  hx-swap="innerHTML"
+>
+
+  {{ input_macro("id", "id", type="hidden", value=inquiry['id']) }}
+  
+  {% call label_macro("Вид участия*") %}
+  {{ textarea_macro("view", "Вид участия*", inquiry['info']) }}
+  {% endcall %}
+
+  {% call label_macro("Организация*") %}
+  {{ textarea_macro("origins", "Инициатор*", inquiry['origins']) }}
+  {% endcall %}
+
+  {{ btn_group_macro() }}
+</form>
+{% endmacro %}

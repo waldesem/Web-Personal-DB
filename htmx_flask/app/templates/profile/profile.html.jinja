@@ -1,0 +1,70 @@
+{% from "profile/macros/anketa.html.jinja" import anketa_tab_macro %}
+{% from "profile/macros/checks.html.jinja" import check_tab_macro %}
+{% from "profile/macros/poligrafs.html.jinja" import poligraf_tab_macro %}
+{% from "profile/macros/investigations.html.jinja" import investigation_tab_macro %}
+{% from "profile/macros/inquiries.html.jinja" import inquiry_tab_macro %}
+{% from "profile/macros/photo.html.jinja" import photo_card_macro %}
+
+{% set tabs = {
+  'anketa': ['Анкета', anketa_tab_macro(person['persons']['id'], person)],
+  'checks': ['Проверка', check_tab_macro(person['persons']['id'], person['checks'])],
+  'poligrafs': ['Полиграф', poligraf_tab_macro(person['persons']['id'], person['poligrafs'])],
+  'invesigations': ['Расследования', investigation_tab_macro(person['persons']['id'], person['invesigations'])],
+  'inquiries': ['Запросы', inquiry_tab_macro(person['persons']['id'], person['inquiries'])],
+} %}
+
+{% block content %}
+{{ photo_card_macro(person.persons.destination, person.persons.id) }}
+<div class="text-opacity-85 text-danger py-5 px-3">
+  <h3>{{ person.persons.surname }} {{ person.persons.firstname }} {{ person.persons.patronymic if person.persons.patronymic }}
+  </h3>
+</div>
+
+<div class="position-relative">
+  <div class="position-absolute bottom-0 end-0">
+    <button
+      class="{{ 'btn btn-link-danger' if person['persons']['standing'] else 'btn btn-link-success' }}"
+      title="{{ 'Отключить режим проверки' if person['persons']['standing'] else 'Включить режим проверки' }}"
+      hx-get="{{ url_for('route.get_profile', person_id=person['persons']['id'], item='self') }}"
+      hx-trigger="click"
+      hx-target="#staffsec"
+      hx-swap="innerHTML"
+    >
+      {% if person['persons']['standing'] %}
+      <div class="text-danger fs-4"><i class="bi bi-pencil-square"></i></div>
+      {% else %}
+      <div class="text-success fs-4"><i class="bi bi-pencil-square"></i></div>
+      {% endif %}
+    </button>
+  </div>
+</div>
+
+<nav>
+  <div class="nav nav-tabs nav-justified d-print-none" role="tablist">
+    {% for key, values in tabs.items() %}
+    <button
+      class="nav-link {{ 'active' if key == 'anketa' }}"
+      data-bs-target="{{'#' + key}}"
+      data-bs-toggle="tab"
+      type="button"
+      role="tab"
+    >
+      {{ values[0] }}
+    </button>
+    {% endfor %}
+  </div>
+</nav>
+<div class="tab-content">
+  {% for key, values in tabs.items() %}
+  <div
+    id={{key}}
+    class="tab-pane fade {{ 'show active' if key   == 'anketa' }} pt-3"
+    role="tabpanel"
+    tabindex="0"
+  >
+    {{ values[1] }}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

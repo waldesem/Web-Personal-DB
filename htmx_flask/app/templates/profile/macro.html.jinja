@@ -1,0 +1,51 @@
+{% macro collapse_header_macro(href) %}
+<p>
+  <a
+    class="link-primary"
+    data-bs-toggle="collapse"
+    href="{{ href }}"
+  >
+    {{ caller() }}
+  </a>
+</p>
+{% endmacro %}
+
+{% macro action_group_macro(item, id, upload=false) %}
+{% from "profile/forms/file.html.jinja" import file_form_macro %}
+<div class="py-1 border-top">
+  <div class="position-relative d-flex">
+    <div class="position-absolute top-0 start-0">
+      {% call collapse_header_macro(item + '-' + id) %}
+      <i class="bi bi-pencil-square"> Изменить</i>
+      {% endcall %}
+    </div>
+    {% if upload %}
+    <div class="position-absolute top-0 start-50">
+      <label
+        for="{{ item + '-file-' + id }}" 
+        class="text-primary"
+        style="cursor: pointer; text-decoration: underline;"
+      >
+        <i class="bi bi-cloud-arrow-up"> Загрузить</i>
+      </label>
+    </div>
+    {% endif %}
+    <div class="position-absolute top-0 end-0">
+      <button 
+        class="btn btn-link" 
+        hx-get="{{ '/api/delete/{{item}}/' + id|string }}" 
+        hx-target="#{{ item }}"
+        hx-trigger="click"
+        hx-confirm="Вы уверены, что хотите удалить эту запись?"
+        hx-swap="innerHTML"
+      >
+        <i class="bi bi-trash"> Удалить</i>
+      </button>
+    </div>
+    
+  </div>
+  {{ file_form_macro(item + '-file-' + id, "/api/file/" + item + "/" + id, "*") }}
+</div>
+{% endmacro %} 
+
+
