@@ -17,6 +17,8 @@
           Кандидаты
         </a>
         <hr class="text-info" />
+        
+        {% if session.user.role == 'user' %}
         <button
           class="btn btn-link nav-link active"
           hx-get="{{ url_for('route.take_resume') }}"
@@ -27,6 +29,8 @@
           Создать
         </button>
         <hr class="text-info" />
+        {% endif %}
+
         <button 
           class="btn btn-link nav-link active"
           hx-get="{{ url_for('route.take_info') }}"
@@ -36,6 +40,7 @@
           >Информация
         </button>          
         <hr class="text-info" />
+
         {% if session.user.role == 'admin' %}
         <button
           class="btn btn-link nav-link active"
@@ -45,10 +50,15 @@
           hx-swap="innerHTML"
         >
           Пользователи
-        </a>
+        </button>
         <hr class="text-info" />
         {% endif %}
-        <a href="{{ url_for('route.get_logout') }}" class="nav-link active">Выход</a>
+
+        <a 
+          class="btn btn-link nav-link active"
+          href="{{ url_for('route.get_logout') }}">
+          Выход
+        </a>
       </div>
     </div>
   </div>

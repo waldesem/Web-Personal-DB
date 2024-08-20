@@ -3,7 +3,7 @@
     <caption>
       <button 
         class="btn btn-link"
-        hx-post="/api/index/1"
+        hx-post="/index"
         hx-trigger="click"
         hx-target="#persons-table"
         hx-swap="innerHTML"
@@ -72,7 +72,7 @@
     <li class="page-item {{ 'disabled' if not has_prev }}">
       <button
         class="page-link"
-        hx-post="/api/index/{{ page - 1 }}"
+        hx-post="/index/{{ page - 1 }}"
         hx-trigger="click"
         hx-target="#persons-table"
         hx-swap="innerHTML"
@@ -84,7 +84,7 @@
     <li class="page-item {{ 'disabled' if not has_next }}">
       <button 
         class="page-link"
-        hx-post="/api/index/{{ page + 1 }}"
+        hx-post="/index/{{ page + 1 }}"
         hx-trigger="click"
         hx-target="#persons-table"
         hx-swap="innerHTML"

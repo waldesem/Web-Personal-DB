@@ -35,8 +35,7 @@ from ..handlers.handler import (
     make_destination,
 )
 
-bp = Blueprint(
-    "route", __name__, url_prefix="/api")
+bp = Blueprint("route", __name__)
 
 
 @bp.get("/auth")
@@ -72,7 +71,7 @@ def login(action):
         ).scalar_one_or_none()
         if not user or user.blocked or user.deleted:
             flash("Полььзователь не найден или заблокирован", "danger")
-            return redirect("/api/auth")
+            return redirect("/auth")
 
         if not check_password_hash(user.passhash, request.form["password"]):
             if user.attempt < 5:
@@ -81,7 +80,7 @@ def login(action):
                 user.blocked = True
             db_session.commit()
             flash("Неверный логин или пароль", "danger")
-            return redirect("/api/auth")
+            return redirect("/auth")
 
         if action == "password":
             pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
@@ -89,7 +88,7 @@ def login(action):
                 passhash = generate_password_hash(request.form["new_pswd"])
                 if user.passhash == passhash:
                     flash("Новый пароль совпадает с текущим", "danger")
-                    return redirect("/api/auth")
+                    return redirect("/auth")
                 user.passhash = passhash
                 user.change_pswd = False
                 user.attempt = 0
@@ -97,19 +96,19 @@ def login(action):
                 flash(
                     "Пароль успешно изменен. Вы можете войти с новым паролем", "success"
                 )
-                return redirect("/api/auth")
+                return redirect("/auth")
 
             flash("Новый пароль не соответствует требованиям", "danger")
-            return redirect("/api/auth")
+            return redirect("/auth")
 
         delta_change = datetime.now() - user.pswd_create
         if not user.change_pswd and delta_change.days < 365:
             session["user"] = user.to_dict()
             user.attempt = 0
             db_session.commit()
-            return redirect("/api/index/1")
+            return redirect("/index")
         flash("Пароль устарел и должен быть сменен", "danger")
-        return redirect("/api/auth")
+        return redirect("/auth")
 
 
 @bp.get("/logout")
@@ -121,7 +120,7 @@ def get_logout():
         A redirect response to the authentication page.
     """
     session.clear()
-    return redirect("/api/auth")
+    return redirect("/auth")
 
 
 @bp.route("/users", methods=["GET", "POST"])
@@ -236,9 +235,11 @@ def take_user(user_id):
     return render_template("/users/info.html.jinja", users=handle_users())
 
 
+@bp.get("/")
+@bp.get("/index")
 @bp.route("/index/<int:page>", methods=["GET", "POST"])
 @login_required()
-def take_index(page):
+def take_index(page=1):
     """
     Handles GET and POST requests to the /index/<int:page> endpoint for person management.
 
@@ -320,7 +321,7 @@ def take_resume():
         flash("Резюме успешно добавлено", "success")
     else:
         flash("Некорректные данные", "danger")
-    return redirect("/api/index/1")
+    return redirect("/index")
 
 
 @bp.get("/profile/<int:person_id>")
@@ -474,7 +475,7 @@ def post_file(item, item_id):
                     for content in contents:
                         if content:
                             handle_post_item(content, table, person_id)
-        return redirect("/api/index/1"), 201
+        return redirect("/index"), 201
 
     person = db_session.get(Persons, item_id)
     if not person:

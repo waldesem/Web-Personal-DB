@@ -33,7 +33,7 @@
     <div class="position-absolute top-0 end-0">
       <button 
         class="btn btn-link" 
-        hx-get="{{ '/api/delete/{{item}}/' + id|string }}" 
+        hx-get="{{ '/delete/{{item}}/' + id|string }}" 
         hx-target="#{{ item }}"
         hx-trigger="click"
         hx-confirm="Вы уверены, что хотите удалить эту запись?"
@@ -44,7 +44,7 @@
     </div>
     
   </div>
-  {{ file_form_macro(item + '-file-' + id, "/api/file/" + item + "/" + id, "*") }}
+  {{ file_form_macro(item + '-file-' + id, "/file/" + item + "/" + id, "*") }}
 </div>
 {% endmacro %} 
 

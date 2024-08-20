@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, redirect
+from flask import Flask
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
@@ -50,10 +50,6 @@ def create_app(config_class=Config):
     @app.teardown_appcontext
     def shutdown_session(exception=None):
         db_session.remove()
-
-    @app.get("/", defaults={"path": ""})
-    def main(path=""):
-        return redirect("/api/index/1")
 
     @app.get("/<path:path>")
     def static_file(path=""):
