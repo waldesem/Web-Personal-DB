@@ -2,19 +2,19 @@
 
 {% from "profile/forms/file.html.jinja" import file_form_macro %}
 
-<div class="card mb-3" style="width: 16rem">
+<div class="card" style="width: 16rem">
   <img src="{{ url_for('route.get_image', image=destination) }}" class="card-img-top"
   />
-  <div class="card-body">
+  <div class="card-body text-center d-flex justify-content-center">
     {% if session['user']['role'] == 'user' %}
     <label
-      for="image-file" 
+      for="image" 
       class="text-primary"
       style="cursor: pointer; text-decoration: underline;"
     >
       <i class="bi bi-cloud-arrow-up"> Загрузить</i>
     </label>
-    {{ file_form_macro('image-file', '/api/file/image/' + id|string, '*.jpg, *.jpeg') }}
+    {{ file_form_macro('image', '/api/file/image/' + id|string, '*.jpg, *.jpeg') }}
     {% endif %}
   </div>
 </div>

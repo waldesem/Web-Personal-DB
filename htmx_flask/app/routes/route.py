@@ -14,6 +14,7 @@ from flask import (
     request,
     send_file,
     session,
+    url_for,
 )
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -452,23 +453,22 @@ def post_file(item, item_id):
     Returns:
         A rendered HTML template or a redirect with a status code.
     """
-
-    files = request.files.getlist("file")
-    if not files or not files[0].filename:
-        flash("Файл не выбран", "danger"), 400
-        return render_template("api/profile/create.html.jinja")
+    files = request.files
+    print(files)
+    if not files:
+        return "", 400
 
     if item == "persons":
-        for file in files:
+        for file in files['persons']:
             json_dict = json.load(file)
             anketa = handle_json_to_dict(json_dict)
             if not anketa:
                 flash("Некорректные данные", "danger")
-                return render_template("api/profile/create.html.jinja")
+                return render_template("/profile/create.html.jinja")
             person_id = handle_take_resume(anketa["resume"])
             if not person_id:
                 flash("Некорректные данные", "danger")
-                return render_template("api/profile/create.html.jinja")
+                return render_template("/profile/create.html.jinja")
             for table, contents in anketa.items():
                 if contents and table != "resume":
                     for content in contents:
@@ -499,8 +499,9 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            handle_image(files[0], item_dir)
-            return "", 201
+            new_file = handle_image(files['image'], item_dir)
+            if new_file:
+                return redirect(url_for("get_image", image=new_file))
 
         date_subfolder = os.path.join(
             item_dir,
@@ -508,16 +509,15 @@ def post_file(item, item_id):
         )
         if not os.path.isdir(date_subfolder):
             os.mkdir(date_subfolder)
-        for file in files:
+        for file in files[item]:
             if item == "checks" and file.filename == "showresult.xml":
                 handle_xml(file, item_id)
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
-        flash("Файлы загружены", "success")
         return "", 201
     except OSError as e:
-        flash(str(e), "danger")
+        print(e)
         return abort(400)
 
 

@@ -245,6 +245,7 @@ def handle_image(file, item_dir):
     if os.path.isfile(new_file):
         os.remove(new_file)
     image.save(new_file)
+    return new_file
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):

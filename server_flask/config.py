@@ -18,7 +18,7 @@ class Configuration:
     DATABASE_URI = (
         os.path.join("sqlite:///", setting["SQLite"].get("uri"), "database.db")
         if setting["SQLite"].get("uri")
-        else os.path.join("sqlite:///database.db")
+        else os.path.join("sqlite:///", "..", "database.db")
     )
 
 
