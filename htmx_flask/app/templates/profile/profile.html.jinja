@@ -23,18 +23,19 @@
   </h3>
 </div>
 
+{% if session['user']['role'] == 'user' %}
 <div class="position-relative">
   <div class="position-absolute bottom-0 end-0">
     <button id="isbusy-btn" class="btn btn-link" onclick="switchEditable()">
-      <div 
+      <div
+        class="spinner-grow spinner-grow text-{{'danger' if person.persons.isbusy else 'success'}}"
+        role="status"
         title="{{'Отключить режим проверки' if person.persons.isbusy else 'Включить режим проверки'}}"
-        class="{{'text-danger fs-4' if person.persons.isbusy else 'text-success fs-4'}}"
       >
-        <i class="bi bi-pencil-square"></i>
-      </div>
     </button>
   </div>
 </div>
+{% endif %}
 
 <nav>
   <div class="nav nav-tabs nav-justified d-print-none" role="tablist">
@@ -65,11 +66,11 @@
 </div>
 
 <script>
-const isbusyBtn = document.getElementById('isbusy-btn');
-const actionsDivs = document.getElementsByClassName('border-divider');
-const cardBody = document.getElementById('card-body');
+let isbusyBtn = document.getElementById('isbusy-btn');
+let actionsDivs = document.getElementsByClassName('border-divider');
+let cardBody = document.getElementById('card-body');
 
-let isbusyStatus = isbusyBtn.children[0].classList.contains('text-success fs-4') ? false : true;
+let isbusyStatus = isbusyBtn.children[0].classList.contains('text-danger') ? true : false;
 
 function changeAttrs() {
   isbusyStatus 
@@ -84,24 +85,22 @@ function changeAttrs() {
 };
 
 async function switchEditable() {
-  if (confirm) {
-    let response = await fetch("/isbusy/" + {{person['persons']['id']|string}});
-    response = await response.status;
-    if (response === 200) {
-      isbusyStatus = !isbusyStatus;
+  let response = await fetch("/isbusy/" + {{person['persons']['id']|string}});
+  response = await response.status;
+  if (response === 200) {
+    isbusyStatus = !isbusyStatus;
 
-      isbusyStatus 
-      ? isbusyBtn.children[0].setAttribute('class', 'text-danger fs-4') 
-      : isbusyBtn.children[0].setAttribute('class','text-success fs-4');
+    isbusyStatus 
+    ? isbusyBtn.children[0].setAttribute('class', 'spinner-grow spinner-grow text-danger') 
+    : isbusyBtn.children[0].setAttribute('class','spinner-grow spinner-grow text-success');
 
-      isbusyBtn.children[0].setAttribute(
-        'title', isbusyStatus ? 'Отключить режим проверки' : 'Включить режим проверки'
-      );
+    isbusyBtn.children[0].setAttribute(
+      'title', isbusyStatus ? 'Отключить режим проверки' : 'Включить режим проверки'
+    );
 
-      changeAttrs();
-    } else {
-      console.log(response.status);
-    }
+    changeAttrs();
+  } else {
+    console.log(response.status);
   }
 };  
 

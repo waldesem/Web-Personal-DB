@@ -1,6 +1,18 @@
 {% from "/profile/macros/photo.html.jinja" import photo_card_macro %}
 
-{% set id = id | default(0) %}
-{% set destination = destination | default("") %}
-{% set isbusy = isbusy | default(False) %}
-{{ photo_card_macro(destination, id, isbusy) }}
+{% set destination = image | default("") %}
+
+<div class="card" style="width: 16rem">
+  <img 
+    src="{{destination}}" class="card-img-top"
+  />
+  <div class="card-body text-center d-flex justify-content-center" id="card-body">
+    <label
+      for="image" 
+      class="text-primary"
+      style="cursor: pointer; text-decoration: underline;"
+    >
+      <i class="bi bi-cloud-arrow-up"> Загрузить</i>
+    </label>
+  </div>
+</div>

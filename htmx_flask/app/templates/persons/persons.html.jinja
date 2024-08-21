@@ -11,14 +11,28 @@
 <div class="position-relative">
   <div class="position-absolute bottom-0 end-0 px-3">
     <label
-      for="file-json"  
+      for="json"  
       class="text-primary"
       style="cursor: pointer;"
     >
       Загрузить
       <i class="bi bi-filetype-json fs-5"></i>
     </label>
-    {{ file_form_macro("file-json", "/file/persons/0", ".json") }}
+    <form 
+      onchange="this.form.submit();"
+      class="form form-check"
+      action="{{ url_for('route.post_file', item='persons', item_id='0') }}"
+    >
+      <input
+        class="form-control form-control-sm d-none"
+        name="json" 
+        id="json"
+        type="file"
+        accept=".json"
+        ref="file"
+        multiple
+      />
+    </form>
   </div>
 </div><div class="row mb-3">
   <form 

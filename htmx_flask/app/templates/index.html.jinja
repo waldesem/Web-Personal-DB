@@ -12,15 +12,6 @@
           href="{{ url_for('route.take_index') }}">
           Кандидаты
         </a>
-        {# <button
-          class="btn btn-link nav-link active"
-          hx-get="{{ url_for('route.take_index') }}"
-          hx-trigger="click"
-          hx-target="#container"
-          hx-swap="outerHTML"
-          >
-          Кандидаты
-        </button> #}
         <hr class="text-info" />
         
         {% if session.user.role == 'user' %}

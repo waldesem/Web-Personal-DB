@@ -12,7 +12,6 @@ from flask import (
     redirect,
     render_template,
     request,
-    send_file,
     session,
 )
 from sqlalchemy import desc, func, select
@@ -372,7 +371,7 @@ def change_region(person_id):
         person.isbusy = False
         db_session.commit()
         result = handle_get_item("persons", person_id)
-        return render_template("profile/divs/persons.html.jinja", person=result)
+        return render_template("profile/divs/persons.html.jinja", resume=result)
     return abort(400)
 
 
@@ -390,8 +389,8 @@ def post_item_id(item, item_id):
         A rendered HTML template with the updated item information.
     """
 
-    json_data = request.get_json()
-    json_dict = models_tables[item](**json_data).dict()
+    data = request.form
+    json_dict = models_tables[item](**data).dict()
     handle_post_item(json_dict, item, item_id)
     results = handle_get_item(item, item_id)
     return render_template(f"profile/divs/{item}.html.jinja", items=results)
@@ -414,12 +413,13 @@ def delete_item(item, item_id):
     row = db_session.get(tables_models[item], item_id)
     if not row:
         return abort(400)
-    person_id = row.person_id
     db_session.delete(row)
     db_session.commit()
-    results = handle_get_item(item, person_id)
+    if item == "persons":
+        return redirect("/index")
+    results = handle_get_item(item, row.person_id)
     return render_template(
-        f"profile/divs/{item}.html.jinja", items=results, id=person_id
+        f"profile/divs/{item}.html.jinja", items=results, id=row.person_id
     )
 
 
@@ -438,10 +438,8 @@ def get_image():
     if image_path:
         file_path = os.path.join(image_path, "image", "image.jpg")
         if os.path.isfile(file_path):
-            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-        return send_file(
-            "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-        )
+            return render_template("profile/divs/photo.html.jinja", image=file_path)
+        return render_template("profile/divs/photo.html.jinja", image="static/no-photo.png")
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -462,8 +460,8 @@ def post_file(item, item_id):
         return abort(400)
 
     if item == "persons":
-        for file in files["persons"]:
-            json_dict = json.load(file)
+        for file in files["json"]:
+            json_dict = json.loads(file)
             anketa = handle_json_to_dict(json_dict)
             if not anketa:
                 flash("Некорректные данные", "danger")
@@ -503,12 +501,7 @@ def post_file(item, item_id):
     if item == "image":
         new_file = handle_image(files["image"], item_dir)
         if new_file:
-            return render_template(
-                "/profile/divs/photo.html.jinja",
-                destination=new_file,
-                id=item_id,
-                isbusy=person.isbusy,
-            )
+            return render_template("/profile/divs/photo.html.jinja", image=new_file)
         else:
             return abort(400)
 

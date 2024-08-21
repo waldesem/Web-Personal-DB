@@ -6,10 +6,12 @@
 
 {% call label_macro("Регион") %}
 <form 
-  class="form form-check" 
-  method="post" 
+  class="form form-check"
+  hx-post="{{ url_for('route.change_region', person_id=resume['id']) }}"
+  hx-trigger="change"
+  hx-target="#persons"
+  hx-swap="innerHTML"
   style="padding-left: 0; width: 20%;"
-  action="{{ url_for('route.change_region', person_id=resume['id']) }}"
 >
   {{ select_macro("region", ["Главный офис", "РЦ Юг", "РЦ Запад", "РЦ Урал", "РЦ Восток"], required=true, value=resume['region']) }}
 </form>
@@ -28,7 +30,7 @@
 {% endcall %}
 
 {% call label_macro("Дата рождения") %}
-{{ resume['birthday'] }}
+{{ resume['birthday'].strftime("%d.%m.%Y") }}
 {% endcall %}
 
 {% call label_macro("Место рождения") %}
@@ -72,7 +74,7 @@
 {% endcall %}
 
 {% if session['user']['role'] == 'user' %}
-{{ action_group_macro("persons", resume['id']|string) }}
+{{ action_group_macro("persons", resume['id']|string, upload=True, swap='none') }}
 <div class="collapse card card-body mb-3" id="{{'resume-' + resume['id']|string }}">
   {{ resume_form_macro(resume, resume['id']|string) }}
 </div>

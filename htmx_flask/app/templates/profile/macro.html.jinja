@@ -3,14 +3,14 @@
   <a
     class="link-primary"
     data-bs-toggle="collapse"
-    href="{{ href }}"
+    href="#{{ href }}"
   >
     {{ caller() }}
   </a>
 </p>
 {% endmacro %}
 
-{% macro action_group_macro(item, id, upload=false) %}
+{% macro action_group_macro(item, id, upload=false, swap="innerHTML") %}
 {% from "profile/forms/file.html.jinja" import file_form_macro %}
 <div class="py-1 border-top border-divider">
   <div class="position-relative d-flex">
@@ -33,11 +33,11 @@
     <div class="position-absolute top-0 end-0">
       <button 
         class="btn btn-link" 
-        hx-get="{{ '/delete/{{item}}/' + id|string }}" 
-        hx-target="#{{ item }}"
+        hx-get="{{ '/delete/' + item + '/' + id|string }}" 
         hx-trigger="click"
+        hx-target="#{{ item }}"
         hx-confirm="Вы уверены, что хотите удалить эту запись?"
-        hx-swap="innerHTML"
+        hx-swap="{{ swap }}"
       >
         <i class="bi bi-trash"> Удалить</i>
       </button>

@@ -9,7 +9,7 @@
     hx-swap="innerHTML"
   >
     
-    {{ input_macro("id", "id", type="hidden", value=staff['id']) }}
+    {{ input_macro("id", "ID", type="hidden", value=staff['id']) }}
     
     {% call label_macro("Должность*") %}
     {{ input_macro("position", "Должность", required=true, value=staff['position']) }}

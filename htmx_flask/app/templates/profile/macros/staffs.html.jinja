@@ -15,7 +15,7 @@
 {% for staff in staffs %}
 <div class="card card-body mb-3">
   {% call label_macro("Должность") %}
-  {{ staff['view'] }}
+  {{ staff['position'] }}
   {% endcall %}
 
   {% call label_macro("Департамент") %}
