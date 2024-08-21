@@ -19,7 +19,7 @@
       <i class="bi bi-filetype-json fs-5"></i>
     </label>
     <form 
-      onchange="this.form.submit();"
+      onchange="this.form.submit()";
       class="form form-check"
       action="{{ url_for('route.post_file', item='persons', item_id='0') }}"
     >
@@ -36,7 +36,7 @@
   </div>
 </div><div class="row mb-3">
   <form 
-    hx-post="{{ url_for('route.take_index', page=1) }}"
+    hx-post="{{ url_for('route.route_personal', page=1) }}"
     hx-trigger="keyup delay:500ms"
     hx-target="#persons-table"
     hx-swap="innerHTML"
@@ -45,7 +45,11 @@
     {{ input_macro("search", "Поиск по фамилии, имени, отчеству, дате рождения, инн") }}
   </form>
 </div>
-<div id="persons-table">
+<div
+  hx-get="{{ url_for('route.route_personal') }}"
+  hx-trigger="load"
+  hx-swap="innerHTML"
+  id="persons-table">
   {% include "persons/info.html.jinja" %}
 </div>
 {% endblock %}

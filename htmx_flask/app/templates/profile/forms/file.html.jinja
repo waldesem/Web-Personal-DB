@@ -1,11 +1,11 @@
-{% macro file_form_macro(name, route, accept = "*", target="no-target", swap="none") %}
+{% macro file_form_macro(name, route, accept = "*") %}
 
 <form 
   class="form form-check"
   hx-post="{{ route }}"
   hx-trigger="change"
-  hx-target="#{{ target }}"
-  hx-swap="{{ swap }}"
+  hx-target="#{{ name }}"
+  hx-swap="innerHTML"
   hx-encoding="multipart/form-data"
 >
   <input

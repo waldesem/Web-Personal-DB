@@ -13,69 +13,35 @@
 {% if checks %}
 {% for check in checks %}
 
+{% set check_items = {
+    'workplace': 'Проверка по местам работы',
+    'document': 'Проверка паспорта',
+    'inn': 'Проверка ИНН',
+    'debt': 'Проверка задолженностей',
+    'bankruptcy': 'Проверка банкротства',
+    'bki': 'Проверка Кредитной истории',
+    'courts': 'Проверка судебных дел',
+    'affilation': 'Проверка аффилированности',
+    'terrorist': 'Проверка террористов',
+    'mvd': 'Проверка в розыск',
+    'internet': 'Проверка в открытых источниках',
+    'cronos': 'Проверка в Кронос',
+    'additional': 'Дополнительная информация',
+    'comment': 'Комментарии',
+    'conclusion': 'Результат',
+    'username': 'Сотрудник',
+} %}
+
 <div  class="card card-body mb-3">
   <p class="fs-5 fw-medium text-primary p-1">
-    {{ "Проверка кандидата ID#" + (inquiry['id']|string) }}
+    {{ "Проверка кандидата ID#" + (check['id']|string) }}
   </p>
-  {% call label_macro("Проверка по местам работы'") %}
-  {{ check['workplace'] }}
-  {% endcall %}
 
-  {% call label_macro("Проверка паспорта'") %}
-  {{ check['document'] }}
+  {% for key, value in check_items.items()%}
+  {% call label_macro(value) %}
+  {{ check[key] }}
   {% endcall %}
-
-  {% call label_macro("Проверка ИНН'") %}
-  {{ check['inn'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка задолженностей'") %}
-  {{ check['debt'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка банкротства'") %}
-  {{ check['bankruptcy'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка Кредитной истории'") %}
-  {{ check['bki'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка судебных дел'") %}
-  {{ check['courts'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка аффилированности'") %}
-  {{ check['affilation'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка террористов'") %}
-  {{ check['terrorist'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка в розыск'") %}
-  {{ check['mvd'] }}
-  {% endcall %}
-
-  {% call label_macro("Проверка в открытых источниках'") %}
-  {{ check['internet'] }}
-  {% endcall %} 
-
-  {% call label_macro("Проверка в Кронос'") %}
-  {{ check['cronos'] }}
-  {% endcall %}
-
-  {% call label_macro("Комментарий'") %}
-  {{ check['comment'] }}
-  {% endcall %}
-  
-  {% call label_macro("Результат'") %}
-  {{ check['conclusion'] }}
-  {% endcall %}
-
-  {% call label_macro("Сотрудник'") %}
-  {{ check['username'] }}
-  {% endcall %}
+  {% endfor %}
 
   {% call label_macro("Дата проверки'") %}
   {{ check['created'].strftime("%d.%m.%Y") }}

@@ -29,7 +29,6 @@ from ..handlers.handler import (
     handle_post_item,
     handle_take_resume,
     handle_users,
-    handle_xml,
     make_destination,
 )
 
@@ -234,10 +233,20 @@ def take_user(user_id):
 
 
 @bp.get("/")
+def get_index():
+    """
+    Handles GET requests to the /index endpoint.
+
+    Returns:
+        A rendered HTML template with the person data.
+    """
+    return render_template("/index.html.jinja")
+
+
 @bp.get("/index")
 @bp.route("/index/<int:page>", methods=["GET", "POST"])
 @login_required()
-def take_index(page=1):
+def route_personal(page=1):
     """
     Handles GET and POST requests to the /index/<int:page> endpoint for person management.
 
@@ -294,7 +303,7 @@ def take_index(page=1):
     }
     if request.method == "POST":
         return render_template("/persons/info.html.jinja", **context)
-    return render_template("/persons/persons.html.jinja", **context)
+    return render_template("/persons/personal.html.jinja", **context)
 
 
 @bp.route("/resume", methods=["GET", "POST"])
@@ -371,7 +380,7 @@ def change_region(person_id):
         person.isbusy = False
         db_session.commit()
         result = handle_get_item("persons", person_id)
-        return render_template("profile/divs/persons.html.jinja", resume=result)
+        return render_template("profile/divs/personal.html.jinja", resume=result)
     return abort(400)
 
 
@@ -459,7 +468,7 @@ def post_file(item, item_id):
     if not files:
         return abort(400)
 
-    if item == "persons":
+    if item == "anketa":
         for file in files["json"]:
             json_dict = json.loads(file)
             anketa = handle_json_to_dict(json_dict)
@@ -511,12 +520,10 @@ def post_file(item, item_id):
     )
     if not os.path.isdir(date_subfolder):
         os.mkdir(date_subfolder)
-    for file in files[item]:
-        if item == "checks" and file.filename == "showresult.xml":
-            handle_xml(file, item_id)
-        file_path = os.path.join(date_subfolder, file.filename)
-        if not os.path.isfile(file_path):
-            file.save(file_path)
+
+    filelist = files.getlist(item + '-file-' + str(item_id))
+    for file in filelist:
+        file.save(os.path.join(date_subfolder, file.filename))
     return ""
 
 
