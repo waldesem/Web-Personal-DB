@@ -68,7 +68,7 @@ await personState.getCandidates();
         { key: 'inn', label: 'ИНН' },
         { key: 'created', label: 'Обновлено' },
         { key: 'username', label: 'Сотрудник' },
-        { key: 'standing', label: 'Статус' },
+        { key: 'editable', label: 'Статус' },
       ]"
       :rows="personState.persons.value.candidates"
     >
@@ -96,10 +96,10 @@ await personState.getCandidates();
       <template #username-data="{ row }">{{
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
-      <template #standing-data="{ row }">
+      <template #editable-data="{ row }">
         <UButton
           :title="
-            row.standing
+            row.editable
               ? 'Отключить режим проверки'
               : 'Включить режим проверки'
           "
@@ -109,7 +109,7 @@ await personState.getCandidates();
             personState.getCandidates();
           "
         >
-          <UChip size="2xl" :color="row.standing ? 'red' : 'green'" />
+          <UChip size="2xl" :color="row.editable ? 'red' : 'green'" />
         </UButton>
       </template>
       <template #caption>

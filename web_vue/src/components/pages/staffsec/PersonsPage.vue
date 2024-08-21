@@ -115,7 +115,7 @@ function openProfile (person_id: string) {
         </td>
         <td class="text-center">
           <div
-            v-if="candidate.standing"
+            v-if="candidate.editable"
             class="spinner-border spinner-grow-sm text-danger"
             role="status"
             :title="'Проверка'"

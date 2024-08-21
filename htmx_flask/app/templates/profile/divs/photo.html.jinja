@@ -1,0 +1,6 @@
+{% from "/profile/macros/photo.html.jinja" import photo_card_macro %}
+
+{% set id = id | default(0) %}
+{% set destination = destination | default("") %}
+{% set isbusy = isbusy | default(False) %}
+{{ photo_card_macro(destination, id, isbusy) }}

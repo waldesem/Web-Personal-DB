@@ -14,7 +14,6 @@ from flask import (
     request,
     send_file,
     session,
-    url_for,
 )
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -129,9 +128,9 @@ def take_users():
     """
     Handles user data retrieval and rendering of user information pages.
 
-    This function supports both GET and POST requests. If the request method is GET, 
-    it retrieves all users from the database and renders the users.html.jinja template. 
-    If the request method is POST, it filters users based on the provided search data 
+    This function supports both GET and POST requests. If the request method is GET,
+    it retrieves all users from the database and renders the users.html.jinja template.
+    If the request method is POST, it filters users based on the provided search data
     and renders the info.html.jinja template.
 
     Args:
@@ -245,7 +244,7 @@ def take_index(page=1):
 
     This function accepts GET and POST requests and allows users to manage persons.
     It checks if the current user is logged in and if the requested page number is valid.
-    If the request method is GET, it updates the person's standing based on the provided query parameters.
+    If the request method is GET, it updates the person's isbusy based on the provided query parameters.
     If the request method is POST, it searches for persons based on the provided form data.
     The function returns a rendered HTML template with the person data.
 
@@ -336,14 +335,16 @@ def get_profile(person_id):
     Returns:
         A rendered template with the person's profile information.
     """
-
-    item = request.args.get("item")
-    if item:
-        person = db_session.get(Persons, person_id)
-        person.standing = not person.standing
-        db_session.commit()
     result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
     return render_template("profile/profile.html.jinja", person=result)
+
+
+@bp.get("/isbusy/<int:person_id>")
+def set_isbusy(person_id):
+    person = db_session.get(Persons, person_id)
+    person.isbusy = not person.isbusy
+    db_session.commit()
+    return "", 200
 
 
 @bp.post("/region/<int:person_id>")
@@ -368,7 +369,7 @@ def change_region(person_id):
             shutil.move(person.destination, destination)
             person.destination = destination
         person.region = region
-        person.standing = False
+        person.isbusy = False
         db_session.commit()
         result = handle_get_item("persons", person_id)
         return render_template("profile/divs/persons.html.jinja", person=result)
@@ -409,7 +410,7 @@ def delete_item(item, item_id):
     Returns:
         A rendered HTML template with the updated item information after deletion.
     """
-    
+
     row = db_session.get(tables_models[item], item_id)
     if not row:
         return abort(400)
@@ -417,7 +418,9 @@ def delete_item(item, item_id):
     db_session.delete(row)
     db_session.commit()
     results = handle_get_item(item, person_id)
-    return render_template(f"profile/divs/{item}.html.jinja", items=results, id=person_id)
+    return render_template(
+        f"profile/divs/{item}.html.jinja", items=results, id=person_id
+    )
 
 
 @bp.get("/image")
@@ -455,71 +458,73 @@ def post_file(item, item_id):
         A rendered HTML template or a redirect with a status code.
     """
     files = request.files
-    print(files)
     if not files:
-        return "", 400
+        return abort(400)
 
     if item == "persons":
-        for file in files['persons']:
+        for file in files["persons"]:
             json_dict = json.load(file)
             anketa = handle_json_to_dict(json_dict)
             if not anketa:
                 flash("Некорректные данные", "danger")
-                return render_template("/profile/create.html.jinja")
+                return redirect("/index")
             person_id = handle_take_resume(anketa["resume"])
             if not person_id:
                 flash("Некорректные данные", "danger")
-                return render_template("/profile/create.html.jinja")
+                return redirect("/index")
             for table, contents in anketa.items():
                 if contents and table != "resume":
                     for content in contents:
                         if content:
                             handle_post_item(content, table, person_id)
-        return redirect("/index"), 201
+        flash("Резюме успешно добавлено", "success")
+        return redirect("/index")
 
     person = db_session.get(Persons, item_id)
     if not person:
-        flash("Некорректные данные", "danger")
         return abort(400)
-    try:
-        if not person.destination:
-            destination = make_destination(
-                session["user"]["id"],
-                person.surname,
-                person.firstname,
-                person.patronymic,
-                item_id,
-            )
-            person.destination = destination
-            db_session.commit()
-        if not os.path.isdir(person.destination):
-            os.mkdir(person.destination)
-
-        item_dir = os.path.join(person.destination, item)
-        if not os.path.isdir(item_dir):
-            os.mkdir(item_dir)
-
-        if item == "image":
-            new_file = handle_image(files['image'], item_dir)
-            if new_file:
-                return redirect(url_for("get_image", image=new_file))
-
-        date_subfolder = os.path.join(
-            item_dir,
-            datetime.now().strftime("%Y-%m-%d"),
+    if not person.destination:
+        destination = make_destination(
+            session["user"]["id"],
+            person.surname,
+            person.firstname,
+            person.patronymic,
+            item_id,
         )
-        if not os.path.isdir(date_subfolder):
-            os.mkdir(date_subfolder)
-        for file in files[item]:
-            if item == "checks" and file.filename == "showresult.xml":
-                handle_xml(file, item_id)
-            file_path = os.path.join(date_subfolder, file.filename)
-            if not os.path.isfile(file_path):
-                file.save(file_path)
-        return "", 201
-    except OSError as e:
-        print(e)
-        return abort(400)
+        person.destination = destination
+        db_session.commit()
+    if not os.path.isdir(person.destination):
+        os.mkdir(person.destination)
+
+    item_dir = os.path.join(person.destination, item)
+    if not os.path.isdir(item_dir):
+        os.mkdir(item_dir)
+
+    if item == "image":
+        new_file = handle_image(files["image"], item_dir)
+        if new_file:
+            return render_template(
+                "/profile/divs/photo.html.jinja",
+                destination=new_file,
+                id=item_id,
+                isbusy=person.isbusy,
+            )
+        else:
+            return abort(400)
+
+    date_subfolder = os.path.join(
+        item_dir,
+        datetime.now().strftime("%Y-%m-%d"),
+    )
+    if not os.path.isdir(date_subfolder):
+        os.mkdir(date_subfolder)
+    for file in files[item]:
+        if item == "checks" and file.filename == "showresult.xml":
+            handle_xml(file, item_id)
+        file_path = os.path.join(date_subfolder, file.filename)
+        if not os.path.isfile(file_path):
+            file.save(file_path)
+    return ""
 
 
 @bp.route("/information", methods=["GET", "POST"])
@@ -528,9 +533,9 @@ def take_info():
     """
     Handles retrieval of information based on the provided date range and region.
 
-    This function supports both GET and POST requests. If the request method is GET, 
-    it retrieves information for the last 30 days in the user's region. If the request 
-    method is POST, it filters information based on the provided start date, end date, 
+    This function supports both GET and POST requests. If the request method is GET,
+    it retrieves information for the last 30 days in the user's region. If the request
+    method is POST, it filters information based on the provided start date, end date,
     and region.
 
     Args:

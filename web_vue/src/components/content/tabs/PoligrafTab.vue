@@ -52,7 +52,7 @@ function cancelAction() {
             v-show="
               actions && idx &&
               stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-              stateAnketa.anketa.persons['standing']
+              stateAnketa.anketa.persons['editable']
             "
             @delete="stateAnketa.deleteItem(item['id'].toString(), 'poligrafs')"
             @update="

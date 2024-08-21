@@ -56,7 +56,7 @@ def handle_post_resume(resume):
         Exception: If there is an error updating the resume.
 
     """
-    resume["standing"] = True
+    resume["editable"] = True
     resume["user_id"] = current_user["id"]
     resume["region"] = current_user["region"]
     if not resume.get("id"):

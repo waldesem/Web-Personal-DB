@@ -12,7 +12,7 @@
 
 {% macro action_group_macro(item, id, upload=false) %}
 {% from "profile/forms/file.html.jinja" import file_form_macro %}
-<div class="py-1 border-top">
+<div class="py-1 border-top border-divider">
   <div class="position-relative d-flex">
     <div class="position-absolute top-0 start-0">
       {% call collapse_header_macro(item + '-' + id) %}

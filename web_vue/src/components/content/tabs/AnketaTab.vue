@@ -75,7 +75,7 @@ const dataResume = ref({
         v-show="
           dataResume.showActions &&
           stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-          stateAnketa.anketa.persons['standing']
+          stateAnketa.anketa.persons['editable']
         "
         @delete="
           stateAnketa.deleteItem(stateAnketa.anketa.persons['id'], 'persons')
@@ -102,7 +102,7 @@ const dataResume = ref({
         :name="'region'"
         :disable="
           stateUser.user.userId != stateAnketa.anketa.persons['user_id'] ||
-          !stateAnketa.anketa.persons['standing']
+          !stateAnketa.anketa.persons['editable']
         "
         :select="stateClassify.classes.regions"
         v-model="stateAnketa.anketa.persons['region']"

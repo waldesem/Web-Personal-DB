@@ -52,17 +52,17 @@ const tabs = [
       <div class="absolute top-0 right-0" title="Загрузить json">
         <UButton
           :title="
-            anketaState.anketa.value.persons['standing']
+            anketaState.anketa.value.persons['editable']
               ? 'Отключить режим проверки'
               : 'Включить режим проверки'
           "
           variant="link"
           size="xl"
           :color="
-            anketaState.anketa.value.persons['standing'] ? 'red' : 'green'
+            anketaState.anketa.value.persons['editable'] ? 'red' : 'green'
           "
           :icon="
-            anketaState.anketa.value.persons['standing']
+            anketaState.anketa.value.persons['editable']
               ? 'i-heroicons-bolt-slash'
               : 'i-heroicons-bolt'
           "

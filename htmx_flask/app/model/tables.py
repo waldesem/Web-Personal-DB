@@ -89,7 +89,7 @@ class Persons(Base):
         DateTime, default=func.now(), onupdate=func.now(), nullable=True
     )
     region: Mapped[str] = mapped_column(String(255), nullable=True)
-    standing: Mapped[bool] = mapped_column(Boolean(), default=False)
+    isbusy: Mapped[bool] = mapped_column(Boolean(), default=False)
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"), nullable=True
     )

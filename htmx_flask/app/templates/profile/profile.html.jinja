@@ -14,7 +14,10 @@
 } %}
 
 {% block content %}
-{{ photo_card_macro(person.persons.destination, person.persons.id) }}
+<div id ="photo-card" class="position-relative">
+  {{ photo_card_macro(person.persons.destination, person.persons.id, person.persons.isbusy) }}
+</div>
+
 <div class="text-opacity-85 text-danger py-5 px-3">
   <h3>{{ person.persons.surname }} {{ person.persons.firstname }} {{ person.persons.patronymic if person.persons.patronymic }}
   </h3>
@@ -22,19 +25,13 @@
 
 <div class="position-relative">
   <div class="position-absolute bottom-0 end-0">
-    <button
-      class="{{ 'btn btn-link-danger' if person['persons']['standing'] else 'btn btn-link-success' }}"
-      title="{{ 'Отключить режим проверки' if person['persons']['standing'] else 'Включить режим проверки' }}"
-      hx-get="{{ url_for('route.get_profile', person_id=person['persons']['id'], item='self') }}"
-      hx-trigger="click"
-      hx-target="#staffsec"
-      hx-swap="innerHTML"
-    >
-      {% if person['persons']['standing'] %}
-      <div class="text-danger fs-4"><i class="bi bi-pencil-square"></i></div>
-      {% else %}
-      <div class="text-success fs-4"><i class="bi bi-pencil-square"></i></div>
-      {% endif %}
+    <button id="isbusy-btn" class="btn btn-link" onclick="switchEditable()">
+      <div 
+        title="{{'Отключить режим проверки' if person.persons.isbusy else 'Включить режим проверки'}}"
+        class="{{'text-danger fs-4' if person.persons.isbusy else 'text-success fs-4'}}"
+      >
+        <i class="bi bi-pencil-square"></i>
+      </div>
     </button>
   </div>
 </div>
@@ -54,7 +51,7 @@
     {% endfor %}
   </div>
 </nav>
-<div class="tab-content">
+<div class="tab-content mb-3">
   {% for key, values in tabs.items() %}
   <div
     id={{key}}
@@ -66,5 +63,49 @@
   </div>
   {% endfor %}
 </div>
+
+<script>
+const isbusyBtn = document.getElementById('isbusy-btn');
+const actionsDivs = document.getElementsByClassName('border-divider');
+const cardBody = document.getElementById('card-body');
+
+let isbusyStatus = isbusyBtn.children[0].classList.contains('text-success fs-4') ? false : true;
+
+function changeAttrs() {
+  isbusyStatus 
+  ? cardBody.setAttribute('class', 'card-body text-center d-flex justify-content-center') 
+  : cardBody.setAttribute('class', 'card-body text-center d-flex justify-content-center d-none');
+
+  for (let i = 0; i < actionsDivs.length; i++) {
+    isbusyStatus 
+    ? actionsDivs[i].setAttribute('class', 'py-1 border-top border-divider') 
+    : actionsDivs[i].setAttribute('class', 'py-1 border-top border-divider d-none');
+  }
+};
+
+async function switchEditable() {
+  if (confirm) {
+    let response = await fetch("/isbusy/" + {{person['persons']['id']|string}});
+    response = await response.status;
+    if (response === 200) {
+      isbusyStatus = !isbusyStatus;
+
+      isbusyStatus 
+      ? isbusyBtn.children[0].setAttribute('class', 'text-danger fs-4') 
+      : isbusyBtn.children[0].setAttribute('class','text-success fs-4');
+
+      isbusyBtn.children[0].setAttribute(
+        'title', isbusyStatus ? 'Отключить режим проверки' : 'Включить режим проверки'
+      );
+
+      changeAttrs();
+    } else {
+      console.log(response.status);
+    }
+  }
+};  
+
+changeAttrs();
+</script>
 
 {% endblock %}

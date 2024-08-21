@@ -26,7 +26,7 @@ export interface Persons {
   marital: string;
   addition: string;
   destination: string;
-  standing: boolean;
+  editable: boolean;
   created: string;
   region: string;
   user_id: string;

@@ -104,7 +104,7 @@ async function switchTabs(tab: string) {
           v-if="
             currentTab == item &&
             stateAnketa.anketa.persons['user_id'] == stateUser.user.userId &&
-            stateAnketa.anketa.persons['standing']
+            stateAnketa.anketa.persons['editable']
           "
           :title="(tabsData[currentTab as keyof typeof tabsData][0] as string)"
           class="text-danger fs-1"
@@ -119,19 +119,19 @@ async function switchTabs(tab: string) {
         <button
           type="button"
           :class="
-            stateAnketa.anketa.persons['standing']
+            stateAnketa.anketa.persons['editable']
               ? 'btn btn-link'
               : 'btn btn-outline-danger'
           "
           :title="
-            stateAnketa.anketa.persons['standing']
+            stateAnketa.anketa.persons['editable']
               ? 'Отключить режим проверки'
               : 'Включить режим проверки'
           "
           @click="switchStandings"
         >
           <span
-            v-if="stateAnketa.anketa.persons['standing']"
+            v-if="stateAnketa.anketa.persons['editable']"
             class="spinner-grow text-danger"
             role="status"
           >

@@ -46,7 +46,7 @@
         <td>{{ row['created'].strftime("%d.%m.%Y") }}</td>
         <td>{{ row['username'] }}</td>
         <td class="text-center">
-          {% if row.standing %}
+          {% if row.isbusy %}
           <div
             class="spinner-grow spinner-grow-sm text-danger"
             role="status"

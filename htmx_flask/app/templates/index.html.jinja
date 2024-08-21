@@ -7,15 +7,20 @@
       <div class="nav flex-column">
         <a class="nav-link text-danger fs-3 fw-bold">STAFFSEC FINTECH</a>
         <hr class="text-info" />
-        <button
+        <a 
           class="btn btn-link nav-link active"
-          hx-get="{{ url_for('route.take_index', page=1) }}"
+          href="{{ url_for('route.take_index') }}">
+          Кандидаты
+        </a>
+        {# <button
+          class="btn btn-link nav-link active"
+          hx-get="{{ url_for('route.take_index') }}"
           hx-trigger="click"
           hx-target="#container"
           hx-swap="outerHTML"
           >
           Кандидаты
-        </a>
+        </button> #}
         <hr class="text-info" />
         
         {% if session.user.role == 'user' %}

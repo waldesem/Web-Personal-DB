@@ -1,12 +1,26 @@
 {% extends "index.html.jinja" %}
 
 {% from "elements.html.jinja" import input_macro %}
+{% from "/profile/forms/file.html.jinja" import file_form_macro %}
 
 {% block content %}
+
 <div class="text-opacity-85 text-danger py-5 px-3">
   <h3>Кандидаты</h3>
 </div>
-<div class="row mb-3">
+<div class="position-relative">
+  <div class="position-absolute bottom-0 end-0 px-3">
+    <label
+      for="file-json"  
+      class="text-primary"
+      style="cursor: pointer;"
+    >
+      Загрузить
+      <i class="bi bi-filetype-json fs-5"></i>
+    </label>
+    {{ file_form_macro("file-json", "/file/persons/0", ".json") }}
+  </div>
+</div><div class="row mb-3">
   <form 
     hx-post="{{ url_for('route.take_index', page=1) }}"
     hx-trigger="keyup delay:500ms"

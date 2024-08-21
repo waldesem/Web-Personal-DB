@@ -75,7 +75,7 @@ const items = computed(() =>
                 !index &&
                 anketaState.anketa.value.persons['user_id'] ==
                   userState.user.value.userId &&
-                anketaState.anketa.value.persons['standing']
+                anketaState.anketa.value.persons['editable']
               "
               @update="
                 poligraf = anketaState.anketa.value.poligrafs[index];

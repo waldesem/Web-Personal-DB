@@ -60,7 +60,7 @@ function onContextMenu() {
         v-if="
           anketaState.anketa.value.persons['user_id'] ==
             userState.user.value.userId &&
-          anketaState.anketa.value.persons['standing']
+          anketaState.anketa.value.persons['editable']
         "
         v-model="isOpen"
         :virtual-element="virtualElement"

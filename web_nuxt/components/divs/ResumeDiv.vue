@@ -38,7 +38,7 @@ const dataResume = ref({
         :disable="
           userState.user.value.userId !=
             anketaState.anketa.value.persons['user_id'] ||
-          !anketaState.anketa.value.persons['standing']
+          !anketaState.anketa.value.persons['editable']
         "
         @change="anketaState.changeRegion()"
       />
@@ -110,7 +110,7 @@ const dataResume = ref({
       v-show="
         anketaState.anketa.value.persons['user_id'] ==
           userState.user.value.userId &&
-        anketaState.anketa.value.persons['standing']
+        anketaState.anketa.value.persons['editable']
       "
       @delete="
         anketaState.deleteItem(

@@ -65,7 +65,7 @@ function cancelAction() {
             v-show="
               anketaState.anketa.value.persons['user_id'] ==
                 userState.user.value.userId &&
-              anketaState.anketa.value.persons['standing']
+              anketaState.anketa.value.persons['editable']
             "
             :last-index="2"
             @delete="anketaState.deleteItem(item['id'].toString(), 'documents')"

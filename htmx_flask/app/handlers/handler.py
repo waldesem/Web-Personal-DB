@@ -2,7 +2,7 @@ import json
 import os
 import xml.etree.ElementTree as ET
 
-from flask import current_app, session
+from flask import abort, current_app, session
 from PIL import Image
 from pydantic import ValidationError
 from sqlalchemy import desc, select
@@ -61,7 +61,7 @@ def handle_take_resume(resume):
         Exception: If there is an error updating the resume.
 
     """
-    resume["standing"] = True
+    resume["isbusy"] = True
     resume["user_id"] = session["user"]["id"]
     resume["region"] = session["user"]["region"]
     if not resume.get("id"):
@@ -87,8 +87,8 @@ def handle_take_resume(resume):
             db_session.commit()
             return person.id
         else:
-            if person.user_id != session["user"]["id"]:
-                return None
+            if person.user_id != session["user"]["id"] or person.isbusy:
+                return abort(400)
             resume["id"] = person.id
     handle_post_item(resume, "persons")
     return resume["id"]

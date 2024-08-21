@@ -1,20 +1,8 @@
-{% from "/profile/forms/file.html.jinja" import file_form_macro %}
 {% from "/profile/forms/resume.html.jinja" import resume_form_macro %}
 
 {% block content %}
 
 <div class="text-opacity-85 text-danger py-5 px-3"><h3>Создать</h3></div>
-<div class="position-relative">
-  <div class="position-absolute bottom-0 end-0 px-3">
-    <label
-      for="file" 
-      class="text-primary"
-      style="cursor: pointer;"
-    >Загрузить<i class="bi bi-filetype-json fs-5"></i>
-    </label>
-    {{ file_form_macro("file", "/persons/0", ".json") }}
-  </div>
-</div>
 <div>{{ resume_form_macro() }}</div>
 
 {% endblock %}

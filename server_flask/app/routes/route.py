@@ -396,7 +396,7 @@ def change_region(person_id):
             shutil.move(person.destination, destination)
             person.destination = destination
         person.region = region
-        person.standing = False
+        person.editable = False
         db_session.commit()
         return "", 201
     return abort(400)
@@ -436,7 +436,7 @@ def get_item_id(item, item_id):
     """
     if item == "persons" and request.args.get("action") == "self":
         person = db_session.get(Persons, item_id)
-        person.standing = not person.standing
+        person.editable = not person.editable
         person.user_id = current_user["id"]
         db_session.commit()
     result = handle_get_item(item, item_id)
