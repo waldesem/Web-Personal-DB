@@ -109,7 +109,7 @@ def handle_post_item(json_dict, item, item_id=""):
     if item != "persons":
         json_dict["person_id"] = item_id
         json_dict["user_id"] = session["user"]["id"]
-    if "id" in json_dict and not json_dict.get("id"):
+    if "id" in json_dict and json_dict["id"] == "":
         del json_dict["id"]
     db_session.merge(tables_models[item](**json_dict))
     db_session.commit()
@@ -251,6 +251,7 @@ def handle_image(file, item_dir):
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):
+    print(region, surname, firstname, patronymic, person_id)
     """
     Generate the destination directory path for a given set of parameters.
 

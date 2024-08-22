@@ -1,14 +1,19 @@
-{% macro photo_card_macro(destination, id, isbusy) %}
+{% macro photo_card_macro(person_id) %}
 
-{% from "profile/forms/file.html.jinja" import file_form_macro %}
-
-<div 
-  hx-get="{{ url_for('route.get_image', image=destination) }}" 
-  hx-trigger="load"
-  hx-target="#photo-card"
-  hx-swap="innerHTML"
->
-  {{ file_form_macro('image', '/file/image/' + id|string, 'image/jpg, image/jpeg') }}
+<div class="card" style="width: 16rem">
+  <img 
+    src="{{ url_for('route.get_image', person_id=person_id) }}" class="card-img-top"
+  />
+  {% if session['user']['role'] == 'user' %}
+  <div class="card-body text-center d-flex justify-content-center" id="card-body">
+    <label
+      for="image" 
+      class="text-primary"
+      style="cursor: pointer; text-decoration: underline;"
+    >
+      <i class="bi bi-cloud-arrow-up">Загрузить</i>
+    </label>
+  </div>
+  {% endif %}
 </div>
-
 {% endmacro %}

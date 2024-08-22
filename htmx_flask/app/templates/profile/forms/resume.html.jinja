@@ -5,7 +5,7 @@ re{% macro resume_form_macro(resume = {}, id = "") %}
 {% if id %}
 <form 
   class="form form-check"   
-  hx-put="{{ url_for('route.post_item_id', item='persons', item_id=id) }}"
+  hx-post="{{ url_for('route.post_item_id', item='persons', item_id=id) }}"
   hx-trigger="submit"
   hx-target="#persons"
   hx-swap="innerHTML"
@@ -19,6 +19,8 @@ re{% macro resume_form_macro(resume = {}, id = "") %}
   hx-swap="innerHTML"
 >
 {% endif %}
+
+  {{ input_macro("id", "id", type="hidden", value=resume['id']) }}
 
   {% call label_macro("Фамилия*") %}
   {{ input_macro("surname", "Фамилия", required=true, value=resume['surname']) }}

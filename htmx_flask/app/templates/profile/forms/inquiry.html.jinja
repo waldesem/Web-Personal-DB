@@ -12,12 +12,16 @@
 
   {{ input_macro("id", "id", type="hidden", value=inquiry['id']) }}
   
-  {% call label_macro("Вид участия*") %}
-  {{ textarea_macro("view", "Вид участия*", inquiry['info']) }}
+  {% call label_macro("Информация") %}
+  {{ textarea_macro("info", "Информация", inquiry['info']) }}
   {% endcall %}
 
-  {% call label_macro("Организация*") %}
-  {{ textarea_macro("origins", "Инициатор*", inquiry['origins']) }}
+  {% call label_macro("Инициатор") %}
+  {{ textarea_macro("initiator", "Инициатор", inquiry['origins']) }}
+  {% endcall %}
+
+  {% call label_macro("Источник") %}
+  {{ textarea_macro("origins", "Источник", inquiry['responsible']) }}
   {% endcall %}
 
   {{ btn_group_macro() }}

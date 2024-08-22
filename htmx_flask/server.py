@@ -2,6 +2,7 @@ import argparse
 
 from app import create_app
 from waitress import serve
+from webgui import FlaskUI
 
 
 def main():
@@ -27,16 +28,16 @@ def main():
         "--host", default="127.0.0.1", help="The host to bind the server to."
     )
     parser.add_argument(
-        "--port", default=5000, type=int, help="The port to run the server on."
+        "--port", default=5001, type=int, help="The port to run the server on."
     )
     parser.add_argument(
         "--threads", default=8, type=int, help="The number of threads to use."
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "develop", "prod"],
+        choices=["debug", "develop", "prod", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, develop, prod).",
+        help="The mode to run the server in (debug, develop, prod, desktop).",
     )
     args = parser.parse_args()
 
@@ -48,6 +49,10 @@ def main():
         app.run(host=args.host, port=args.port, debug=False)
     elif args.mode == "prod":
         serve(app, host=args.host, port=args.port, threads=args.threads)
+    elif args.mode == "desktop":
+        FlaskUI(
+            server_kwargs={"app": app, "port": args.port, "threads": args.threads},
+        ).run()
 
 
 if __name__ == "__main__":

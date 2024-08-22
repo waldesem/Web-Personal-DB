@@ -21,20 +21,20 @@
 %}
 
 {% set check_items = {
-    'workplace': ["Проверка по местам работы", check['workplace'] if check['workplace'] else no_negative['workplace']],
-    'document': ["Проверка документов", check['document'] if check['document'] else no_negative['document']],
-    'inn': ["Проверка ИНН", check['inn'] if check['inn'] else no_negative['inn']],
-    'debt': ["Проверка задолженностей", check['debt'] if check['debt'] else no_negative['debt']],
-    'bankruptcy': ["Проверка банкротства", check['bankruptcy'] if check['bankruptcy'] else no_negative['bankruptcy']],
-    'bki': ["Проверка БКИ", check['bki'] if check['bki'] else no_negative['bki']],
-    'courts': ["Проверка судебных дел", check['courts'] if check['courts'] else no_negative['courts']],
-    'affilation': ["Проверка аффилированности", check['affilation'] if check['affilation'] else no_negative['affilation']],
-    'terrorist': ["Проверка террористов", check['terrorist'] if check['terrorist'] else no_negative['terrorist']],
-    'mvd': ["Проверка в розыск", check['mvd'] if check['mvd'] else no_negative['mvd']],
-    'internet': ["Проверка в открытых источниках", check['internet'] if check['internet'] else no_negative['internet']],
-    'cronos': ["Проверка в Кронос", check['cronos'] if check['cronos'] else no_negative['cronos']],
-    'additional': ["Дополнительная информация", check['additional'] if check['additional'] else no_negative['additional']],
-    'comment': ["Комментарии", check['comment'] if check['comment'] else no_negative['comment']],
+    'workplace': ["Проверка по местам работы", check['workplace']],
+    'document': ["Проверка документов", check['document']],
+    'inn': ["Проверка ИНН", check['inn']],
+    'debt': ["Проверка задолженностей", check['debt']],
+    'bankruptcy': ["Проверка банкротства", check['bankruptcy']],
+    'bki': ["Проверка БКИ", check['bki']],
+    'courts': ["Проверка судебных дел", check['courts']],
+    'affilation': ["Проверка аффилированности", check['affilation']],
+    'terrorist': ["Проверка террористов", check['terrorist']],
+    'mvd': ["Проверка в розыск", check['mvd']],
+    'internet': ["Проверка в открытых источниках", check['internet']],
+    'cronos': ["Проверка в Кронос", check['cronos']],
+    'additional': ["Дополнительная информация", check['additional']],
+    'comment': ["Комментарии", check['comment']],
 } %}
 
 <form 
@@ -49,7 +49,7 @@
 
   {% for key, value in check_items.items() %}
   {% call label_macro(value[0]) %}
-  {{ textarea_macro(key, value[0], value[1]) }}
+  {{ textarea_macro(key, value[0], text=value[1]) }}
   {% endcall %}
   {% endfor %}
 

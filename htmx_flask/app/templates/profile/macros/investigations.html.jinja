@@ -1,10 +1,10 @@
-{% macro investigation_tab_macro(id, investigations = [], isbusy = False) %}
+{% macro investigation_tab_macro(id, investigations = []) %}
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/investigation.html.jinja" import investigation_form_macro %}
 
-{% if session['user']['role'] == 'user' and not isbusy %}
+{% if session['user']['role'] == 'user' %}
 {% call collapse_header_macro("investigation-0") %}
 {{'Добавить запись'}}
 {% endcall %}
@@ -36,7 +36,7 @@
   {{ investigation['created'].strftime("%d.%m.%Y") }}
   {% endcall %}
 
-  {% if session['user']['role'] == 'user' and not isbusy %}
+  {% if session['user']['role'] == 'user' %}
   {{ action_group_macro("investigations", investigation['id']|string, upload=True) }}
   <div class="collapse card card-body mb-3" id="{{'investigations-' + investigation['id']|string|string}}">
     {{ investigation_form_macro(id, investigation) }}

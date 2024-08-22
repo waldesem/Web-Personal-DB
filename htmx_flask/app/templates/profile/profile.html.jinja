@@ -6,18 +6,37 @@
 {% from "profile/macros/photo.html.jinja" import photo_card_macro %}
 
 {% set tabs = {
-  'anketa': ['Анкета', anketa_tab_macro(person['persons']['id'], person, person['persons']['isbusy'])],
-  'checks': ['Проверка', check_tab_macro(person['persons']['id'], person['checks'], person['persons']['isbusy'])],
-  'poligrafs': ['Полиграф', poligraf_tab_macro(person['persons']['id'], person['poligrafs'], person['persons']['isbusy'])],
-  'invesigations': ['Расследования', investigation_tab_macro(person['persons']['id'], person['invesigations'], person['persons']['isbusy'])],
-  'inquiries': ['Запросы', inquiry_tab_macro(person['persons']['id'], person['inquiries'], person['persons']['isbusy'])],
+  'anketa': ['Анкета', anketa_tab_macro(person)],
+  'checks': ['Проверка', check_tab_macro(person.persons.id, person.checks)],
+  'poligrafs': ['Полиграф', poligraf_tab_macro(person.persons.id, person.poligrafs)],
+  'invesigations': ['Расследования', investigation_tab_macro(person.persons.id, person.investigations)],
+  'inquiries': ['Запросы', inquiry_tab_macro(person.persons.id, person.inquiries)],
 } %}
 
 <div id ="photo-card" class="position-relative">
-  {{ photo_card_macro(person.persons.destination, person.persons.id, person.persons.isbusy) }}
+  {{ photo_card_macro(person.persons.id) }}
 </div>
 
-<div class="text-opacity-85 text-danger py-5 px-3">
+<form 
+  class="form form-check"
+  hx-post="{{ url_for('route.post_file', item='image', item_id=person.persons['id']) }}"
+  hx-trigger="change"
+  hx-target="#photo-card"
+  hx-swap="innerHTML"
+  hx-encoding="multipart/form-data"
+>
+  <input
+    class="form-control form-control-sm d-none"
+    name="image" 
+    id="image"
+    type="file"
+    accept="image/jpg, image/jpeg"
+    ref="file"
+    multiple
+  />
+</form>
+
+<div class="text-opacity-85 text-danger pb-5 pt-1 px-3">
   <h3>{{ person.persons.surname }} {{ person.persons.firstname }} {{ person.persons.patronymic if person.persons.patronymic }}
   </h3>
 </div>
@@ -27,16 +46,42 @@
   <div class="position-absolute bottom-0 end-0">
     <button 
       class="btn btn-link" 
-      hx-get="{{ url_for('route.get_profile', person_id=person['persons']['id'], standing = person['persons']['isbusy']  }}" 
+      hx-get="{{ url_for('route.route_profile', person_id=person.persons['id'], standing = person.persons['isbusy'])  }}" 
       hx-trigger="click"
       hx-target="#staffsec"
       hx-swap="innerHTML"
     >
-      <div
-        class="spinner-grow spinner-grow text-{{'danger' if person.persons.isbusy else 'success'}}"
+
+      {% if person.persons.isbusy and session['user']['id'] != person.persons['user_id'] %}
+      <div 
+        class="spinner-grow text-danger"
         role="status"
-        title="{{'Отключить режим проверки' if person.persons.isbusy else 'Включить режим проверки'}}"
       >
+        <div class="badge text-bg-danger text-wrap">
+          Анкета редактируется другим пользователем
+        </div>
+      </div>
+
+      {% elif person.persons.isbusy and session['user']['id'] == person.persons['user_id'] %}
+      <div 
+        class="spinner-grow text-success"
+        role="status"
+      >
+        <div class="badge text-bg-success text-wrap">
+          Анкета редактируется текущим пользователем
+        </div>
+      </div>
+
+      {% else %}
+      <div 
+        class="spinner-grow text-info"
+        role="status"
+      >
+        <div class="badge text-bg-info text-wrap">
+          Анкета никем не редактируется
+        </div>
+      </div>
+      {% endif %}
     </button>
   </div>
 </div>

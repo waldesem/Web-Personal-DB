@@ -1,4 +1,4 @@
-{% macro anketa_tab_macro(id, person = [], isbusy = False) %}
+{% macro anketa_tab_macro(person) %}
 
 {% from "profile/macros/persons.html.jinja" import resume_div_macro %}
 {% from "profile/macros/staffs.html.jinja" import staff_div_macro %}
@@ -12,16 +12,16 @@
 {% from "profile/macros/documents.html.jinja" import document_div_macro %}
 
 {% set accordion = {
-  'persons': ['Резюме', resume_div_macro(person['persons'], isbusy)],
-  'staffs': ['Должности', staff_div_macro(id, person['staffs'], isbusy)],
-  'workplaces': ['Работа', work_div_macro(id, person['workplaces'], isbusy)],
-  'educations': ['Образование', education_div_macro(id, person['educations'], isbusy)],
-  'affilations': ['Аффилированные организации', affilation_div_macro(id, person['affiliations'], isbusy)],
-  'previous': ['Предыдущие имена', prev_div_macro(id, person['previous_names'], isbusy)],
-  'relations': ['Связи', relation_div_macro(id, person['relations'], isbusy)],
-  'addresses': ['Адреса', address_div_macro(id, person['addresses'], isbusy)],
-  'contacts': ['Контакты', contact_div_macro(id, person['contacts'], isbusy)],
-  'documents': ['Документы', document_div_macro(id, person['documents'], isbusy)],
+  'persons': ['Резюме', resume_div_macro(person.persons)],
+  'staffs': ['Должности', staff_div_macro(person.persons.id, person.staffs)],
+  'workplaces': ['Работа', work_div_macro(person.persons.id, person.workplaces)],
+  'educations': ['Образование', education_div_macro(person.persons.id, person.educations)],
+  'affilations': ['Аффилированность', affilation_div_macro(person.persons.id, person.affilations)],
+  'previous': ['Предыдущие имена', prev_div_macro(person.persons.id, person.previous)],
+  'relations': ['Связи', relation_div_macro(person.persons.id, person.relations)],
+  'addresses': ['Адреса', address_div_macro(person.persons.id, person.addresses)],
+  'contacts': ['Контакты', contact_div_macro(person.persons.id, person.contacts)],
+  'documents': ['Документы', document_div_macro(person.persons.id, person.documents)],
 } %}
 
 <div class="accordion" id="profile">

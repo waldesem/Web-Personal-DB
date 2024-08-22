@@ -12,6 +12,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     session,
 )
 from sqlalchemy import desc, func, select
@@ -327,7 +328,7 @@ def take_resume():
 
 @bp.get("/profile/<int:person_id>")
 @login_required()
-def get_profile(person_id):
+def route_profile(person_id):
     """
     Retrieves a person's profile information.
 
@@ -344,14 +345,6 @@ def get_profile(person_id):
         db_session.commit()
     result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
     return render_template("profile/profile.html.jinja", person=result)
-
-
-@bp.get("/isbusy/<int:person_id>")
-def set_isbusy(person_id):
-    person = db_session.get(Persons, person_id)
-    person.isbusy = not person.isbusy
-    db_session.commit()
-    return "", 200
 
 
 @bp.post("/region/<int:person_id>")
@@ -376,10 +369,9 @@ def change_region(person_id):
             shutil.move(person.destination, destination)
             person.destination = destination
         person.region = region
-        person.isbusy = False
         db_session.commit()
         result = handle_get_item("persons", person_id)
-        return render_template("profile/divs/personal.html.jinja", resume=result)
+        return render_template("/profile/divs/persons.html.jinja", items=result)
     return abort(400)
 
 
@@ -431,8 +423,8 @@ def delete_item(item, item_id):
     )
 
 
-@bp.get("/image")
-def get_image():
+@bp.get("/image/<int:person_id>")
+def get_image(person_id):
     """
     Retrieves an image from the specified path and sends it as a response.
 
@@ -442,12 +434,12 @@ def get_image():
     Returns:
         send_file: The image file as a response.
     """
-    image_path = request.args.get("image")
-    if image_path:
-        file_path = os.path.join(image_path, "image", "image.jpg")
+    person = db_session.get(Persons, person_id)
+    if person.destination:
+        file_path = os.path.join(person.destination, "image", "image.jpg")
         if os.path.isfile(file_path):
-            return render_template("profile/divs/photo.html.jinja", image=file_path)
-    return render_template("profile/divs/photo.html.jinja", image="static/no-photo.png")
+            return send_file(file_path, as_attachment=True, mimetype="image/jpg")
+    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -490,7 +482,7 @@ def post_file(item, item_id):
         return abort(400)
     if not person.destination:
         destination = make_destination(
-            session["user"]["id"],
+            session["user"]["region"],
             person.surname,
             person.firstname,
             person.patronymic,
@@ -508,7 +500,9 @@ def post_file(item, item_id):
     if item == "image":
         new_file = handle_image(files["image"], item_dir)
         if new_file:
-            return render_template("/profile/divs/photo.html.jinja", image=new_file)
+            return render_template(
+                "/profile/divs/photo.html.jinja", person_id=person.id
+            )
         else:
             return abort(400)
 

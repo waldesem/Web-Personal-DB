@@ -1,4 +1,4 @@
-{% macro resume_div_macro(resume = {}, isbusy = False) %}
+{% macro resume_div_macro(resume = {}) %}
 
 {% from "elements.html.jinja" import label_macro, select_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
@@ -13,69 +13,39 @@
   hx-swap="innerHTML"
   style="padding-left: 0; width: 20%;"
 >
-  {{ select_macro("region", ["Главный офис", "РЦ Юг", "РЦ Запад", "РЦ Урал", "РЦ Восток"], required=true, value=resume['region']) }}
+  {{ select_macro(
+    "region", [
+      "Главный офис", "РЦ Юг", "РЦ Запад", "РЦ Урал", "РЦ Восток"
+      ], required=true, disabled=session["user"]["id"] != resume["user_id"], value=resume['region']
+    ) }}
 </form>
 {% endcall %}
 
-{% call label_macro("Фамилия") %}
-{{ resume['surname'] }}
-{% endcall %}
+{% set resume_list = [
+  ["Фамилия", resume['surname']],
+  ["Имя", resume['firstname']],
+  ["Отчество", resume['patronymic'] if resume['patronymic'] else ""],
+  ["Дата рождения", resume['birthday'].strftime("%d.%m.%Y")],
+  ["Место рождения", resume['birthplace']],
+  ["Гражданство", resume['citizenship']],
+  ["Двойное гражданство", resume['dual']],
+  ["ИНН", resume['inn']],
+  ["СНИЛС", resume['snils']],
+  ["Семейное положение", resume['marital']],
+  ["Дополнительная информация", resume['addition']],
+  ["Пользователь", resume['username']],
+  ["Материалы", resume['destination']],
+] %}
 
-{% call label_macro("Имя") %}
-{{ resume['firstname'] }}
+{% for items in resume_list %}
+{% call label_macro(items[0]) %}
+{{ items[1] }}
 {% endcall %}
+{% endfor %}
 
-{% call label_macro("Отчество") %}
-{{ resume['patronymic'] if resume['patronymic'] else "" }}
-{% endcall %}
-
-{% call label_macro("Дата рождения") %}
-{{ resume['birthday'].strftime("%d.%m.%Y") }}
-{% endcall %}
-
-{% call label_macro("Место рождения") %}
-{{ resume['birthplace'] }}
-{% endcall %}
-
-{% call label_macro("Гражданство") %}
-{{ resume['citizenship'] }}
-{% endcall %}
-
-{% call label_macro("Двойное гражданство") %}
-{{ resume['dual'] }}
-{% endcall %}
-
-{% call label_macro("ИНН") %}
-{{ resume['inn'] }}
-{% endcall %}
-
-{% call label_macro("СНИЛС") %}
-{{ resume['snils'] }}
-{% endcall %}
-
-{% call label_macro("Семейное положение") %}
-{{ resume['marital'] }}
-{% endcall %}
-
-{% call label_macro("Дата записи") %}
-{{ resume['created'].strftime("%d.%m.%Y") }}
-{% endcall %}
-
-{% call label_macro("Пользователь") %}
-{{ resume['username'] }}
-{% endcall %}
-
-{% call label_macro("Материалы") %}
-{{ resume['destination'] }}
-{% endcall %}
-
-{% call label_macro("Дополнительная информация") %}
-{{ resume['addition'] }}
-{% endcall %}
-
-{% if session['user']['role'] == 'user' and not isbusy %}
+{% if session['user']['id'] == resume['user_id'] and session['user']['role'] == 'user' %}
 {{ action_group_macro("persons", resume['id']|string, upload=True, target = "staffsec") }}
-<div class="collapse card card-body mb-3" id="{{'resume-' + resume['id']|string }}">
+<div class="collapse card card-body mb-3" id="{{'persons-' + resume['id']|string }}">
   {{ resume_form_macro(resume, resume['id']|string) }}
 </div>
 {% endif %}
