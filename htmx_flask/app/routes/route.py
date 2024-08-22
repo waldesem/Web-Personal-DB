@@ -103,7 +103,7 @@ def login(action):
             session["user"] = user.to_dict()
             user.attempt = 0
             db_session.commit()
-            return redirect("/index")
+            return redirect("/")
         flash("Пароль устарел и должен быть сменен", "danger")
         return redirect("/auth")
 
@@ -233,13 +233,8 @@ def take_user(user_id):
 
 
 @bp.get("/")
-def get_index():
-    """
-    Handles GET requests to the /index endpoint.
-
-    Returns:
-        A rendered HTML template with the person data.
-    """
+@login_required()
+def route_menu():
     return render_template("/index.html.jinja")
 
 
@@ -262,27 +257,28 @@ def route_personal(page=1):
     Returns:
         A rendered HTML template with the person data.
     """
+    if request.method == "GET":
+        return render_template("/persons/personal.html.jinja")
+
     pagination = 12
     stmt = select(Persons, Users.fullname)
-    if request.method == "POST":
-        search_data = request.form.get("search")
-        if search_data and len(search_data) > 2:
-            if search_data.isdigit():
-                stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
-            else:
-                pattern = r"^\d{2}\.\d{2}\.\d{4}$"
-                query = list(map(str.upper, search_data.split()))
-                if len(query):
-                    stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
-                if len(query) > 1 and not re.match(pattern, query[1]):
-                    stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
-                if len(query) > 2 and not re.match(pattern, query[2]):
-                    stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
-                if len(query) > 1 and re.match(pattern, query[-1]):
-                    stmt = stmt.filter(
-                        Persons.birthday
-                        == datetime.strptime(query[-1], "%d.%m.%Y").date()
-                    )
+    search_data = request.form.get("search")
+    if search_data and len(search_data) > 2:
+        if search_data.isdigit():
+            stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
+        else:
+            pattern = r"^\d{2}\.\d{2}\.\d{4}$"
+            query = list(map(str.upper, search_data.split()))
+            if len(query):
+                stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
+            if len(query) > 1 and not re.match(pattern, query[1]):
+                stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
+            if len(query) > 2 and not re.match(pattern, query[2]):
+                stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
+            if len(query) > 1 and re.match(pattern, query[-1]):
+                stmt = stmt.filter(
+                    Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
+                )
     if session["user"]["region"] != Regions.main.value:
         stmt = stmt.filter(Persons.region == session["user"]["region"])
     query = db_session.execute(
@@ -295,15 +291,13 @@ def route_personal(page=1):
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
 
-    context = {
-        "candidates": result,
-        "has_next": has_next,
-        "has_prev": page > 1,
-        "page": page,
-    }
-    if request.method == "POST":
-        return render_template("/persons/info.html.jinja", **context)
-    return render_template("/persons/personal.html.jinja", **context)
+    return render_template(
+        "/persons/info.html.jinja",
+        candidates=result,
+        has_next=has_next,
+        has_prev=page > 1,
+        page=page,
+    )
 
 
 @bp.route("/resume", methods=["GET", "POST"])
@@ -328,7 +322,7 @@ def take_resume():
         flash("Резюме успешно добавлено", "success")
     else:
         flash("Некорректные данные", "danger")
-    return redirect("/index")
+    return render_template("/persons/personal.html.jinja")
 
 
 @bp.get("/profile/<int:person_id>")
@@ -343,6 +337,11 @@ def get_profile(person_id):
     Returns:
         A rendered template with the person's profile information.
     """
+    standing = request.args.get("standing")
+    if standing:
+        person = db_session.get(Persons, person_id)
+        person.isbusy = not person.isbusy
+        db_session.commit()
     result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
     return render_template("profile/profile.html.jinja", person=result)
 
@@ -425,7 +424,7 @@ def delete_item(item, item_id):
     db_session.delete(row)
     db_session.commit()
     if item == "persons":
-        return redirect("/index")
+        return render_template("/persons/personal.html.jinja")
     results = handle_get_item(item, row.person_id)
     return render_template(
         f"profile/divs/{item}.html.jinja", items=results, id=row.person_id
@@ -448,7 +447,7 @@ def get_image():
         file_path = os.path.join(image_path, "image", "image.jpg")
         if os.path.isfile(file_path):
             return render_template("profile/divs/photo.html.jinja", image=file_path)
-        return render_template("profile/divs/photo.html.jinja", image="static/no-photo.png")
+    return render_template("profile/divs/photo.html.jinja", image="static/no-photo.png")
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -469,23 +468,22 @@ def post_file(item, item_id):
         return abort(400)
 
     if item == "anketa":
-        for file in files["json"]:
-            json_dict = json.loads(file)
-            anketa = handle_json_to_dict(json_dict)
-            if not anketa:
-                flash("Некорректные данные", "danger")
-                return redirect("/index")
-            person_id = handle_take_resume(anketa["resume"])
-            if not person_id:
-                flash("Некорректные данные", "danger")
-                return redirect("/index")
-            for table, contents in anketa.items():
-                if contents and table != "resume":
-                    for content in contents:
-                        if content:
-                            handle_post_item(content, table, person_id)
+        json_dict = json.load(files["json"])
+        anketa = handle_json_to_dict(json_dict)
+        if not anketa:
+            flash("Некорректные данные", "danger")
+            return render_template("/persons/personal.html.jinja")
+        person_id = handle_take_resume(anketa["resume"])
+        if not person_id:
+            flash("Некорректные данные", "danger")
+            return render_template("/persons/personal.html.jinja")
+        for table, contents in anketa.items():
+            if contents and table != "resume":
+                for content in contents:
+                    if content:
+                        handle_post_item(content, table, person_id)
         flash("Резюме успешно добавлено", "success")
-        return redirect("/index")
+        return render_template("/persons/personal.html.jinja")
 
     person = db_session.get(Persons, item_id)
     if not person:
@@ -521,7 +519,7 @@ def post_file(item, item_id):
     if not os.path.isdir(date_subfolder):
         os.mkdir(date_subfolder)
 
-    filelist = files.getlist(item + '-file-' + str(item_id))
+    filelist = files.getlist(item + "-file-" + str(item_id))
     for file in filelist:
         file.save(os.path.join(date_subfolder, file.filename))
     return ""

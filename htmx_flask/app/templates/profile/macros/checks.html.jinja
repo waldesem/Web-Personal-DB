@@ -1,15 +1,18 @@
-{% macro check_tab_macro(id, checks = []) %}
+{% macro check_tab_macro(id, checks = [], isbusy = false) %}
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/check.html.jinja" import check_form_macro %}
 
+{% if session['user']['role'] == 'user' and not isbusy %}
 {% call collapse_header_macro("checks-0") %}
 {{'Добавить запись'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="checks-0">
   {{ check_form_macro(id) }}
 </div>
+{% endif %}
+
 {% if checks %}
 {% for check in checks %}
 
@@ -47,7 +50,7 @@
   {{ check['created'].strftime("%d.%m.%Y") }}
   {% endcall %}
 
-  {% if session['user']['role'] == 'user' %}
+  {% if session['user']['role'] == 'user' and not isbusy %}
   {{ action_group_macro("checks", check['id']|string, upload=True) }}
   <div class="collapse card card-body mb-3" id="{{'checks-' + check['id']|string}}">
     {{ check_form_macro(id, check) }}

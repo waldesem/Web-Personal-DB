@@ -5,7 +5,8 @@
 <div 
   hx-get="{{ url_for('route.get_image', image=destination) }}" 
   hx-trigger="load"
-  hx-swap="afterend"
+  hx-target="#photo-card"
+  hx-swap="innerHTML"
 >
   {{ file_form_macro('image', '/file/image/' + id|string, 'image/jpg, image/jpeg') }}
 </div>

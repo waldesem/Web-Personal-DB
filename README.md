@@ -4,7 +4,7 @@ StaffSec is a web interface for managing a candidate database.
 
 ### The technology stack used in this project:
 
-- Flask;
+- Flask (optional with htmx);
 - Sqlite3 (or PostgreSQL);
 - Vue3 and Bootstrap5 or Nuxt3 and TailwindCSS;
 
@@ -14,7 +14,7 @@ To use this project, you will need to have Python 3.10 or higher.
 For installiing the required Python packages run commands:
 ```
 git clone https://github.com/waldesem/Web-Personal-DB.git
-cd Web-Personal-DB/backend # or `cd Web-Personal-DB/appflask` for pure flask application (in dev now)
+cd Web-Personal-DB/backend # or cd htmx_flask 
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt

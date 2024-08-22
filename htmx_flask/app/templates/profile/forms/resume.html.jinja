@@ -1,20 +1,22 @@
-{% macro resume_form_macro(resume = {}, id = "") %}
+re{% macro resume_form_macro(resume = {}, id = "") %}
 
 {% from "elements.html.jinja" import label_macro, input_macro, textarea_macro, btn_group_macro %}
 
 {% if id %}
 <form 
-  class="form form-check" 
-  method="post" 
-  name="resume-form" 
-  action="{{ url_for('route.post_item_id', item='persons', item_id=id) }}"
+  class="form form-check"   
+  hx-put="{{ url_for('route.post_item_id', item='persons', item_id=id) }}"
+  hx-trigger="submit"
+  hx-target="#persons"
+  hx-swap="innerHTML"
 >
 {% else %}
 <form 
   class="form form-check" 
-  method="post" 
-  name="login-form" 
-  action="{{ url_for('route.take_resume') }}"
+  hx-post="{{ url_for('route.take_resume') }}"
+  hx-trigger="submit"
+  hx-target="#staffsec"
+  hx-swap="innerHTML"
 >
 {% endif %}
 

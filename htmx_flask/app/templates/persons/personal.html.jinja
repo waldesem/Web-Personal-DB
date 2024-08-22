@@ -1,13 +1,10 @@
-{% extends "index.html.jinja" %}
-
 {% from "elements.html.jinja" import input_macro %}
 {% from "/profile/forms/file.html.jinja" import file_form_macro %}
-
-{% block content %}
 
 <div class="text-opacity-85 text-danger py-5 px-3">
   <h3>Кандидаты</h3>
 </div>
+{% if session['user']['role'] == 'user' %}
 <div class="position-relative">
   <div class="position-absolute bottom-0 end-0 px-3">
     <label
@@ -19,9 +16,12 @@
       <i class="bi bi-filetype-json fs-5"></i>
     </label>
     <form 
-      onchange="this.form.submit()";
       class="form form-check"
-      action="{{ url_for('route.post_file', item='persons', item_id='0') }}"
+      hx-post="{{ url_for('route.post_file', item='anketa', item_id='0') }}"
+      hx-trigger="change"
+      hx-target="#staffsec"
+      hx-swap="innerHTML"
+      hx-encoding="multipart/form-data"
     >
       <input
         class="form-control form-control-sm d-none"
@@ -30,11 +30,12 @@
         type="file"
         accept=".json"
         ref="file"
-        multiple
       />
     </form>
   </div>
-</div><div class="row mb-3">
+</div>
+{% endif %}
+<div class="row mb-3">
   <form 
     hx-post="{{ url_for('route.route_personal', page=1) }}"
     hx-trigger="keyup delay:500ms"
@@ -46,10 +47,9 @@
   </form>
 </div>
 <div
-  hx-get="{{ url_for('route.route_personal') }}"
+  hx-post="{{ url_for('route.route_personal', page=1) }}"
   hx-trigger="load"
   hx-swap="innerHTML"
+  hx-target="#persons-table"
   id="persons-table">
-  {% include "persons/info.html.jinja" %}
 </div>
-{% endblock %}

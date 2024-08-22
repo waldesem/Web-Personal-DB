@@ -1,15 +1,17 @@
-{% macro inquiry_tab_macro(id, inquiries = []) %}
+{% macro inquiry_tab_macro(id, inquiries = [], isbusy = False) %}
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/inquiry.html.jinja" import inquiry_form_macro %}
 
+{% if session['user']['role'] == 'user' and not isbusy %}
 {% call collapse_header_macro("inquiry-0") %}
 {{'Добавить запись'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="inquiry-0">
   {{ inquiry_form_macro(id) }}
 </div>
+{% endif %}
 
 {% if inquiries %}
 {% for inquiry in inquiries %}
@@ -33,7 +35,7 @@
   {{ inquiry['created'].strftime("%d.%m.%Y") }} 
   {% endcall %}
   
-  {% if session['user']['role'] == 'user' %}
+  {% if session['user']['role'] == 'user' and not isbusy %}
   {{ action_group_macro("inquiries", inquiry['id']|string)}}
   <div class="collapse card card-body mb-3" id="{{'inquiries-' + inquiry['id']|string}}">
     {{ inquiry_form_macro(id, inquiry) }}

@@ -6,6 +6,7 @@
   <img 
     src="{{destination}}" class="card-img-top"
   />
+  {% if session['user']['role'] == 'user' %}
   <div class="card-body text-center d-flex justify-content-center" id="card-body">
     <label
       for="image" 
@@ -15,4 +16,5 @@
       <i class="bi bi-cloud-arrow-up"> Загрузить</i>
     </label>
   </div>
+  {% endif %}
 </div>

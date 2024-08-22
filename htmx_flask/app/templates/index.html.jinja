@@ -7,11 +7,15 @@
       <div class="nav flex-column">
         <a class="nav-link text-danger fs-3 fw-bold">STAFFSEC FINTECH</a>
         <hr class="text-info" />
-        <a 
+        <button 
           class="btn btn-link nav-link active"
-          href="{{ url_for('route.route_personal') }}">
+          hx-get="{{ url_for('route.route_personal') }}"
+          hx-trigger="click"
+          hx-target="#staffsec"
+          hx-swap="innerHTML"
+        >
           Кандидаты
-        </a>
+        </button>
         <hr class="text-info" />
         
         {% if session.user.role == 'user' %}
@@ -80,7 +84,13 @@
         </div>
       </div>
     </div>
-    <div id="staffsec">{% block content %}{% endblock %}</div>
+    <div id="staffsec"
+      hx-get="{{ url_for('route.route_personal') }}"
+      hx-trigger="load"
+      hx-swap="innerHTML"
+      hx-target="#staffsec"
+    >
+    </div>
   </div>
   <div class="col-1 d-print-none"></div>
 </div>

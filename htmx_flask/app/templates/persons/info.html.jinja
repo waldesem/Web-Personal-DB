@@ -72,7 +72,7 @@
     <li class="page-item {{ 'disabled' if not has_prev }}">
       <button
         class="page-link"
-        hx-post="/index/{{ page - 1 }}"
+        hx-post="{{ url_for('route.route_personal', page=page - 1) }}"
         hx-trigger="click"
         hx-target="#persons-table"
         hx-swap="innerHTML"
@@ -84,7 +84,7 @@
     <li class="page-item {{ 'disabled' if not has_next }}">
       <button 
         class="page-link"
-        hx-post="/index/{{ page + 1 }}"
+        hx-post="{{ url_for('route.route_personal', page=page + 1) }}"
         hx-trigger="click"
         hx-target="#persons-table"
         hx-swap="innerHTML"

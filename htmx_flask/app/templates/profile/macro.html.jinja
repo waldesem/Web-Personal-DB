@@ -1,4 +1,5 @@
 {% macro collapse_header_macro(href) %}
+
 <p>
   <a
     class="link-primary"
@@ -10,9 +11,11 @@
 </p>
 {% endmacro %}
 
-{% macro action_group_macro(item, id, upload=false, swap="innerHTML") %}
+
+{% macro action_group_macro(item, id, upload=false, target="") %}
 {% from "profile/forms/file.html.jinja" import file_form_macro %}
-<div class="py-1 border-top border-divider">
+
+<div class="py-1 border-top">
   <div class="position-relative d-flex">
     <div class="position-absolute top-0 start-0">
       {% call collapse_header_macro(item + '-' + id) %}
@@ -35,9 +38,9 @@
         class="btn btn-link" 
         hx-get="{{ '/delete/' + item + '/' + id|string }}" 
         hx-trigger="click"
-        hx-target="#{{ item }}"
+        hx-target="#{{ target if target else item }}"
         hx-confirm="Вы уверены, что хотите удалить эту запись?"
-        hx-swap="{{ swap }}"
+        hx-swap="innerHTML"
       >
         <i class="bi bi-trash"> Удалить</i>
       </button>

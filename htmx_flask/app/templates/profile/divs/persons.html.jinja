@@ -1,4 +1,4 @@
-{% from "/profile/macros/personal.html.jinja" import resume_div_macro %}
+{% from "/profile/macros/persons.html.jinja" import resume_div_macro %}
 
 {% set resume = resume | default({}) %}
 {{ resume_div_macro(resume) }}

@@ -6,14 +6,13 @@
 {% from "profile/macros/photo.html.jinja" import photo_card_macro %}
 
 {% set tabs = {
-  'anketa': ['Анкета', anketa_tab_macro(person['persons']['id'], person)],
-  'checks': ['Проверка', check_tab_macro(person['persons']['id'], person['checks'])],
-  'poligrafs': ['Полиграф', poligraf_tab_macro(person['persons']['id'], person['poligrafs'])],
-  'invesigations': ['Расследования', investigation_tab_macro(person['persons']['id'], person['invesigations'])],
-  'inquiries': ['Запросы', inquiry_tab_macro(person['persons']['id'], person['inquiries'])],
+  'anketa': ['Анкета', anketa_tab_macro(person['persons']['id'], person, person['persons']['isbusy'])],
+  'checks': ['Проверка', check_tab_macro(person['persons']['id'], person['checks'], person['persons']['isbusy'])],
+  'poligrafs': ['Полиграф', poligraf_tab_macro(person['persons']['id'], person['poligrafs'], person['persons']['isbusy'])],
+  'invesigations': ['Расследования', investigation_tab_macro(person['persons']['id'], person['invesigations'], person['persons']['isbusy'])],
+  'inquiries': ['Запросы', inquiry_tab_macro(person['persons']['id'], person['inquiries'], person['persons']['isbusy'])],
 } %}
 
-{% block content %}
 <div id ="photo-card" class="position-relative">
   {{ photo_card_macro(person.persons.destination, person.persons.id, person.persons.isbusy) }}
 </div>
@@ -26,7 +25,13 @@
 {% if session['user']['role'] == 'user' %}
 <div class="position-relative">
   <div class="position-absolute bottom-0 end-0">
-    <button id="isbusy-btn" class="btn btn-link" onclick="switchEditable()">
+    <button 
+      class="btn btn-link" 
+      hx-get="{{ url_for('route.get_profile', person_id=person['persons']['id'], standing = person['persons']['isbusy']  }}" 
+      hx-trigger="click"
+      hx-target="#staffsec"
+      hx-swap="innerHTML"
+    >
       <div
         class="spinner-grow spinner-grow text-{{'danger' if person.persons.isbusy else 'success'}}"
         role="status"
@@ -64,47 +69,3 @@
   </div>
   {% endfor %}
 </div>
-
-<script>
-let isbusyBtn = document.getElementById('isbusy-btn');
-let actionsDivs = document.getElementsByClassName('border-divider');
-let cardBody = document.getElementById('card-body');
-
-let isbusyStatus = isbusyBtn.children[0].classList.contains('text-danger') ? true : false;
-
-function changeAttrs() {
-  isbusyStatus 
-  ? cardBody.setAttribute('class', 'card-body text-center d-flex justify-content-center') 
-  : cardBody.setAttribute('class', 'card-body text-center d-flex justify-content-center d-none');
-
-  for (let i = 0; i < actionsDivs.length; i++) {
-    isbusyStatus 
-    ? actionsDivs[i].setAttribute('class', 'py-1 border-top border-divider') 
-    : actionsDivs[i].setAttribute('class', 'py-1 border-top border-divider d-none');
-  }
-};
-
-async function switchEditable() {
-  let response = await fetch("/isbusy/" + {{person['persons']['id']|string}});
-  response = await response.status;
-  if (response === 200) {
-    isbusyStatus = !isbusyStatus;
-
-    isbusyStatus 
-    ? isbusyBtn.children[0].setAttribute('class', 'spinner-grow spinner-grow text-danger') 
-    : isbusyBtn.children[0].setAttribute('class','spinner-grow spinner-grow text-success');
-
-    isbusyBtn.children[0].setAttribute(
-      'title', isbusyStatus ? 'Отключить режим проверки' : 'Включить режим проверки'
-    );
-
-    changeAttrs();
-  } else {
-    console.log(response.status);
-  }
-};  
-
-changeAttrs();
-</script>
-
-{% endblock %}

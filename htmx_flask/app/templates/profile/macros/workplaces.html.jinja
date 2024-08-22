@@ -1,15 +1,17 @@
-{% macro work_div_macro(id, workplaces = []) %}
+{% macro work_div_macro(id, workplaces = [], isbusy = False) %}
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
 {% from "/profile/forms/workplace.html.jinja" import work_form_macro %}
 
+{% if session['user']['role'] == 'user' and not isbusy %}
 {% call collapse_header_macro("workplaces-0") %}
-{{'Работа'}}
+{{'Добавить работу'}}
 {% endcall %}
 <div class="collapse card card-body mb-3" id="workplaces-0">
   {{ work_form_macro(id) }}
 </div>
+{% endif %}
 
 {% if workplaces %}
 {% for workplace in workplaces %}
@@ -42,7 +44,7 @@
   {{ workplace['reason'] }}
   {% endcall %}
 
-  {% if session['user']['role'] == 'user' %}
+  {% if session['user']['role'] == 'user' and not isbusy %}
   {{ action_group_macro("workplaces", workplace['id']|string)}}
   <div class="collapse card card-body mb-3" id="{{'workplaces-' + workplace['id']|string}}">
     {{ work_form_macro(id, workplace) }}
