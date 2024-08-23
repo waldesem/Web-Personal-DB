@@ -2,7 +2,7 @@
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
-{% from "/profile/forms/checks.html.jinja" import check_form_macro %}
+{% from "/profile/macros/forms/checks.html.jinja" import check_form_macro %}
 
 {% set check_items = {
     'workplace': 'Проверка по местам работы',
@@ -34,7 +34,7 @@
 
 {% if checks %}
   {% for check in checks %}
-    <div  class="card card-body mb-3">
+    <div  class="card card-body mb-3" id="{{'checks-' + check['id']|string}}">
       <p class="fs-5 fw-medium text-primary p-1">
         {{ "Проверка кандидата ID#" + (check['id']|string) }}
       </p>

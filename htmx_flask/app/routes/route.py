@@ -389,10 +389,16 @@ def get_item_id(item, action, item_id):
         A rendered HTML template with the retrieved item information.
     """
     if action == "form":
-        result = db_session.get(tables_models[item], item_id)
+        stmt = select(tables_models[item], Users.fullname).filter(
+            tables_models[item].user_id == Users.id
+        )
+        stmt = stmt.filter(tables_models[item].id == item_id)
+        query = db_session.execute(stmt).one_or_none()
+        result = query[0].to_dict() | {"username": query[1]}
+        print(result)
         return render_template(
             f"profile/forms/{item}.html.jinja",
-            id=result.person_id if item != "persons" else None,
+            id=result['id'] if item != "persons" else None,
             item=result,
         )
     results = handle_get_item(item, item_id)

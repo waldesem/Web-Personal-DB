@@ -251,7 +251,6 @@ def handle_image(file, item_dir):
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):
-    print(region, surname, firstname, patronymic, person_id)
     """
     Generate the destination directory path for a given set of parameters.
 

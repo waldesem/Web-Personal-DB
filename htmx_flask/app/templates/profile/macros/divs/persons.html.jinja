@@ -43,7 +43,7 @@
 {% endfor %}
 
 {% if session['user']['id'] == resume['user_id'] and session['user']['role'] == 'user' %}
-  {{ action_group_macro("persons", resume['id']|string, upload=True, target = "staffsec") }}
+  {{ action_group_macro("persons", resume['id']|string, upload=True, target="persons") }}
 {% endif %}
 
 {% endmacro %}

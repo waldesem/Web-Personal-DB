@@ -1,5 +1,0 @@
-{% from "profile/macros/forms/education.html.jinja" import education_form_macro %}
-
-{% set id = id | default(0) %}
-{% set education = item | default([]) %}
-{{ education_form_macro(id, education = {}) }}

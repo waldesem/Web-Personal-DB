@@ -2,7 +2,7 @@
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
-{% from "/profile/forms/investigations.html.jinja" import investigation_form_macro %}
+{% from "/profile/macros/forms/investigations.html.jinja" import investigation_form_macro %}
 
 {% if session['user']['role'] == 'user' %}
   {% call collapse_header_macro("investigation-0") %}
@@ -15,7 +15,7 @@
 
 {% if investigations %}
   {% for investigation in investigations %}
-    <div  class="card card-body mb-3">
+    <div  class="card card-body mb-3" id="{{'investigation-' + investigation['id']|string}}">
       <p class="fs-5 fw-medium text-primary p-1">
         {{ "Расследование/проверка ID#" + (inquiry['id']|string) }}
       </p>

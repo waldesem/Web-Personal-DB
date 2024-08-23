@@ -2,20 +2,20 @@
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
-{% from "/profile/forms/previous.html.jinja" import prev_form_macro %}
+{% from "/profile/macros/forms/previous.html.jinja" import prev_form_macro %}
 
 {% if session['user']['role'] == 'user' %}
   {% call collapse_header_macro("previous-0") %}
     {{'Добавить имя'}}
   {% endcall %}
-    <div class="collapse card card-body mb-3" id="previous-0">
-      {{ prev_form_macro(id) }}
-    </div>
+  <div class="collapse card card-body mb-3" id="previous-0">
+    {{ prev_form_macro(id) }}
+  </div>
 {% endif %}
 
 {% if previous %}
   {% for prev in previous %}
-    <div  class="card card-body mb-3">
+    <div  class="card card-body mb-3" id="{{'previous-' + prev['id']|string}}">
 
       {% set prev = {
         "surname": prev['surname'],
@@ -29,6 +29,7 @@
         {% call label_macro(label) %}
           {{ value }}
         {% endcall %}
+      {% endfor %}
 
       {% if session['user']['role'] == 'user' %}
         {{ action_group_macro("previous", prev['id']|string) }}

@@ -3,25 +3,23 @@
 {% from "elements.html.jinja" import label_macro, input_macro, textarea_macro, btn_group_macro %}
 
 {% set res = {
-  "surname": {{ input_macro("surname", "Фамилия", required=true, value=resume['surname']) }},
-  "firstname": {{ input_macro("firstname", "Имя", required=true, value=resume['firstname']) }},
-  "patronymic": {{ input_macro("patronymic", "Отчество", value=resume['patronymic']) }},
-  "birthday": {{ input_macro("birthday", "Дата рождения", type="date", required=true, value=resume['birthday']) }},
-  "birthplace": {{ textarea_macro("birthplace", "Место рождения", resume['birthplace']) }},
-  "citizenship": {{ input_macro("citizenship", "Гражданство", value=resume['citizenship']) }},
-  "dual": {{ input_macro("dual", "Двойное гражданство", value=resume['dual']) }},
-  "inn": {{ input_macro("inn", "ИНН", value=resume['inn']) }},
-  "snils": {{ input_macro("snils", "СНИЛС", value=resume['snils']) }},
-  "marital": {{ input_macro("marital", "Семейное положение", value=resume['marital']) }},
-  "addition": {{ textarea_macro("addition", "Дополнительная информация", resume['addition']) }},
-  "destination": {{ textarea_macro("destination", "Материалы", resume['destination']) }},
-  "username": {{ input_macro("username", "Пользователь", value=resume['username']) }},
+  "surname": ["Фамилия", input_macro("surname", "Фамилия", required=true, value=resume['surname'])],
+  "firstname": ["Имя", input_macro("firstname", "Имя", required=true, value=resume['firstname'])],
+  "patronymic": ["Отчество", input_macro("patronymic", "Отчество", value=resume['patronymic'])],
+  "birthday": ["Дата рождения", input_macro("birthday", "Дата рождения", type="date", required=true, value=resume['birthday'])],
+  "birthplace": ["Место рождения", textarea_macro("birthplace", "Место рождения", text=resume['birthplace'])],
+  "citizenship": ["Гражданство", input_macro("citizenship", "Гражданство", value=resume['citizenship'])],
+  "dual": ["Двойное гражданство", input_macro("dual", "Двойное гражданство", value=resume['dual'])],
+  "inn": ["ИНН", input_macro("inn", "ИНН", value=resume['inn'])],
+  "snils": ["СНИЛС", input_macro("snils", "СНИЛС", value=resume['snils'])],
+  "marital": ["Семейное положение", input_macro("marital", "Семейное положение", value=resume['marital'])],
+  "addition": ["Дополнительная информация", textarea_macro("addition", "Дополнительная информация", text=resume['addition'])],
 } %}
 
 {% if neeed_id %}
 <form 
   class="form form-check"   
-  hx-post="{{ url_for('route.post_item_id', item='persons', item_id=id) }}"
+  hx-post="{{ url_for('route.post_item_id', item='persons', item_id=resume['id']) }}"
   hx-trigger="submit"
   hx-target="#persons"
   hx-swap="innerHTML"
@@ -41,11 +39,40 @@
   {% endif %}
 
   {% for label, values in res.items() %}
-    {% call label_macro(label) %}
-      {{ values }}
+    {% call label_macro(values[0]) %}
+      {{ values[1] }}
     {% endcall %}
   {% endfor %}
 
-  {{ btn_group_macro(cancel = true, item = 'persons') }}
+  <div class="offset-2 py-3">
+    <div class="btn-group" role="group">
+      <button
+        class="btn btn-md btn-outline-primary"
+        name="submit"
+        type="submit"
+      >Принять
+      </button>
+      <button
+        class="btn btn-md btn-outline-danger"
+        name="reset"
+        type="reset"
+      >
+        Очистить
+      </button>
+
+      {% if neeed_id %}
+        <button
+          class="btn btn-md btn-outline-secondary"
+          type="button"
+          hx-get="{{ url_for('route.get_item_id', item='persons', action='divs', item_id=resume['id']) }}"
+          hx-trigger="click"
+          hx-target="#persons"
+          hx-swap="innerHTML"
+        >
+          Отмена
+        </button>
+      {% endif %}
+    </div>
+  </div>
 </form>
 {% endmacro %}

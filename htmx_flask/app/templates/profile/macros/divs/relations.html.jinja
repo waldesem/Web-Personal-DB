@@ -2,7 +2,7 @@
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
-{% from "/profile/forms/relations.html.jinja" import relation_form_macro %}
+{% from "/profile/macros/forms/relations.html.jinja" import relation_form_macro %}
 
 {% if session['user']['role'] == 'user' %}
   {% call collapse_header_macro("relations-0") %}
@@ -15,7 +15,7 @@
 
 {% if relations %}
   {% for relation in relations %}
-    <div  class="card card-body mb-3">
+    <div  class="card card-body mb-3" id="{{'relations-' + relation['id']|string}}">
       {% call label_macro("Тип связи") %}
         {{ relation['relation'] }}
       {% endcall %}

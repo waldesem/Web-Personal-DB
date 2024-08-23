@@ -1,5 +1,0 @@
-{% from "profile/macros/forms/check.html.jinja" import check_form_macro %}
-
-{% set id = id | default(0) %}
-{% set check = item | default([]) %}
-{{ check_form_macro(id, check = {}) }}

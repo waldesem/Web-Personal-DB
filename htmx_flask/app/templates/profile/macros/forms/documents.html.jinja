@@ -28,7 +28,7 @@
 
   {% for label, values in doc.items() %}
     {% call label_macro(label) %}
-      {{ input_macro(label, value[0], type=values[2], value=document[label], required=values[1]) }}
+      {{ input_macro(label, values[0], type=values[2], value=document[label], required=values[1]) }}
     {% endcall %}
   {% endfor %}
 

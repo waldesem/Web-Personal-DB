@@ -2,7 +2,7 @@
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
-{% from "/profile/forms/educations.html.jinja" import education_form_macro %}
+{% from "/profile/macros/forms/educations.html.jinja" import education_form_macro %}
 
 {% if session['user']['role'] == 'user' %}
   {% call collapse_header_macro("education-0") %}
@@ -15,7 +15,7 @@
 
 {% if educations %}
   {% for education in educations %}
-    <div  class="card card-body mb-3">
+    <div  class="card card-body mb-3" id="{{'educations-' + education['id']|string}}">
       {% call label_macro("Тип образования") %}
         {{ education['view'] }}
       {% endcall %}

@@ -2,7 +2,7 @@
 
 {% from "elements.html.jinja" import label_macro %}
 {% from "/profile/macro.html.jinja" import collapse_header_macro, action_group_macro %}
-{% from "/profile/forms/affilations.html.jinja" import affilation_form_macro %}
+{% from "/profile/macros/forms/affilations.html.jinja" import affilation_form_macro %}
 
 {% if session['user']['role'] == 'user' %}
   {% call collapse_header_macro("affilations") %}
