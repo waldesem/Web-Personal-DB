@@ -1,7 +1,5 @@
 import type { NitroFetchOptions } from "nitropack";
-import { userToken, stateAlert} from "@/state/state";
-
-const alertState = stateAlert();
+import { userToken } from "@/state/state";
 
 type Method =
   | "get"
@@ -14,6 +12,11 @@ type Method =
   | "options"
   | "trace";
 
+  /**
+   * Returns a function that wraps `$fetch` and adds an Authorization header if a user token is present.
+   *
+   * @returns {(url: string, options?: NitroFetchOptions<ResponseType, Method>) => Promise<ResponseType>}
+   */
 export const useFetchAuth = () => {
   const fetchAuth = async (
     url: string,
@@ -32,7 +35,6 @@ export const useFetchAuth = () => {
       const response = await $fetch(url, options);
       return response;
     } catch (error) {
-      alertState.setAlert("rose", "Внимание", "Произошла ошибка");
       return Promise.reject(error);
     }
   };

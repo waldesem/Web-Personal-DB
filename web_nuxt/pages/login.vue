@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { server, stateAlert, stateUser, userToken } from "@/state/state";
-
-const alertState = stateAlert();
+import { server, stateUser, userToken } from "@/state/state";
 
 const userState = stateUser();
 
@@ -12,6 +10,20 @@ const loginAction = ref("create");
 
 const loginForm = ref({} as Record<string, unknown>);
 
+const alertMessage = {
+  alert: ref({
+    color: "green",
+    variant: "subtle",
+    title: "Информация",
+    description: "Введите логин и пароль",
+  }),
+  setAlert(color: string, title: string, description: string) {
+    this.alert.value.color = color;
+    this.alert.value.title = title;
+    this.alert.value.description = description;
+  },
+};
+
 /**
  * Submit login form to server and get a new token.
  * @returns {Promise<void>}
@@ -19,7 +31,7 @@ const loginForm = ref({} as Record<string, unknown>);
 async function submitLogin(): Promise<void> {
   if (loginAction.value === "update") {
     if (loginForm.value["passhash"] === loginForm.value["new_pswd"]) {
-      alertState.setAlert(
+      alertMessage.setAlert(
         "purple",
         "Предупреждение",
         "Старый и новый пароли совпадают"
@@ -27,8 +39,8 @@ async function submitLogin(): Promise<void> {
       return;
     }
     if (loginForm.value["conf_pswd"] !== loginForm.value["new_pswd"]) {
-      alertState.setAlert(
-        "purple",
+      alertMessage.setAlert(
+        "red",
         "Предупреждение",
         "Новый пароль и подтверждение не совпадают"
       );
@@ -49,12 +61,16 @@ async function submitLogin(): Promise<void> {
       userState.getCurrentUser();
     } else if (message === "Updated") {
       loginAction.value = "create";
-      alertState.setAlert("primary", "Продолжение", "Войдите с новым паролем");
+      alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");
     } else if (message === "Denied") {
       loginAction.value = "update";
-      alertState.setAlert("purple", "Предупреждение", "Пароль просрочен");
+      alertMessage.setAlert("red", "Предупреждение", "Пароль просрочен.");
     } else {
-      alertState.setAlert("rose", "Внимание", "Неправильный логин или пароль");
+      alertMessage.setAlert(
+        "red",
+        "Внимание",
+        "Неправильный логин или пароль."
+      );
     }
   } catch (error) {
     console.log(error);
@@ -64,9 +80,14 @@ async function submitLogin(): Promise<void> {
 </script>
 
 <template>
-  <UContainer class="flex justify-center py-5">
-    <div>
-      <ElementsAlertMessage />
+  <div class="flex justify-center">
+    <div class="py-8">
+      <UAlert
+        variant="subtle"
+        :color="alertMessage.alert.value.color"
+        :title="alertMessage.alert.value.title"
+        :description="alertMessage.alert.value.description"
+      />
       <div class="py-5">
         <h3 class="text-2xl text-primary font-bold">Кадровая безопасность</h3>
       </div>
@@ -142,5 +163,5 @@ async function submitLogin(): Promise<void> {
         </UForm>
       </div>
     </div>
-  </UContainer>
+  </div>
 </template>

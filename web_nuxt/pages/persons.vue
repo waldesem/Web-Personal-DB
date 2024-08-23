@@ -47,10 +47,10 @@ await personState.getCandidates();
         </UFormGroup>
       </div>
     </div>
-    <div class="py-8">
+    <div class="py-5">
       <h3 class="text-2xl text-red-800 font-bold">Кандидаты</h3>
     </div>
-    <div class="mb-16">
+    <div class="mb-8">
       <UInput
         v-model="personState.persons.value.search"
         placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
@@ -97,20 +97,7 @@ await personState.getCandidates();
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #editable-data="{ row }">
-        <UButton
-          :title="
-            row.editable
-              ? 'Отключить режим проверки'
-              : 'Включить режим проверки'
-          "
-          variant="link"
-          @click="
-            anketaState.getItem('persons', 'self', row.id);
-            personState.getCandidates();
-          "
-        >
-          <UChip size="2xl" :color="row.editable ? 'red' : 'green'" />
-        </UButton>
+        <UChip size="2xl" :color="row.editable ? 'green' : 'red'" />
       </template>
       <template #caption>
         <caption class="caption-bottom text-left">

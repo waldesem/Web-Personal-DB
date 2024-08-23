@@ -40,11 +40,13 @@ function openFileForm(elementId: string) {
     variant="link"
     @click="checkData.collapse = !checkData.collapse"
   />
-  <div v-if="checkData.collapse" class="p-1">
-    <div class="border rounded p-3">
-      <FormsCheckForm @cancel="cancelAction" />
+  <Transition name="slide-fade">
+    <div v-if="checkData.collapse" class="p-1">
+      <div class="border rounded p-3">
+        <FormsCheckForm @cancel="cancelAction" />
+      </div>
     </div>
-  </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.checks.length">
     <UAccordion :items="items" size="lg" multiple>
       <template #item="{ index }">
@@ -206,3 +208,13 @@ function openFileForm(elementId: string) {
     <p class="text-primary">Проверка кандидата отсутствует</p>
   </div>
 </template>
+
+<style scoped>
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-in;
+}
+</style>

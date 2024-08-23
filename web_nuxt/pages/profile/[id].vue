@@ -38,6 +38,32 @@ const tabs = [
     label: "Запросы",
   },
 ];
+
+const badgeItems = {
+  current: {
+    label: "Анкета редактируется текущим пользователем",
+    color: "green",
+  },
+  thirdparty: {
+    label: "Анкета редактируется другим пользователем",
+    color: "red",
+  },
+  others: {
+    label: "Анкета не редактируется пользователями",
+    color: "blue",
+  }
+}
+
+const badge = computed(() => {
+  if (!anketaState.anketa.value.persons['editable']) {
+    if (anketaState.anketa.value.persons['user_id'] == userState.user.value.userId) {
+      return badgeItems.current
+    } else if (anketaState.anketa.value.persons['user_id'] != userState.user.value.userId) {
+      return badgeItems.thirdparty
+    }
+  }
+  return badgeItems.others
+})
 </script>
 
 <template>
@@ -49,25 +75,19 @@ const tabs = [
       "
       class="relative"
     >
-      <div class="absolute top-0 right-0" title="Загрузить json">
+      <div class="absolute top-0 right-0">
         <UButton
-          :title="
-            anketaState.anketa.value.persons['editable']
-              ? 'Отключить режим проверки'
-              : 'Включить режим проверки'
-          "
           variant="link"
           size="xl"
           :color="
             anketaState.anketa.value.persons['editable'] ? 'red' : 'green'
           "
-          :icon="
-            anketaState.anketa.value.persons['editable']
-              ? 'i-heroicons-bolt-slash'
-              : 'i-heroicons-bolt'
-          "
           @click="anketaState.getItem('persons', 'self')"
-        />
+        >
+          <div class="animate-ping">
+            <UBadge :color="badge.color" variant="subtle">{{ badge.label }}</UBadge>
+          </div>
+        </UButton>
       </div>
     </div>
     <div class="py-8">

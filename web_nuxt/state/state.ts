@@ -1,6 +1,8 @@
 import { useFetchAuth } from "../utils/auth";
 import type { Classes, Persons, Profile } from "@/utils/interfaces";
 
+const toast = useToast();
+
 const authFetch = useFetchAuth();
 
 export const server = "/api";
@@ -46,30 +48,6 @@ export const stateClassify = () => {
   return { classes, getClassify };
 };
 
-export const stateAlert = () => {
-  const alertMessage = useState("alertMessage", () => ({
-    attr: "red",
-    title: "Внимание!",
-    text: "Обнаружена ошибка. Пожалуйста, обратитесь к разработчику.",
-    show: false,
-    timeOut: 0,
-  }));
-
-  function setAlert(attr: string, title: string, text: string) {
-    window.clearTimeout(alertMessage.value.timeOut);
-    Object.assign(alertMessage.value, {
-      show: true,
-      attr: attr,
-      title: title,
-      text: text,
-      timeOut: window.setTimeout(() => {
-        alertMessage.value.show = false;
-      }, 6000),
-    });
-  }
-  return { alertMessage, setAlert };
-};
-
 export const statePersons = () => {
   const persons = useState(`${server}/persons`, () => ({
     candidates: [] as Persons[],
@@ -112,8 +90,7 @@ export const statePersons = () => {
 };
 
 export const stateAnketa = () => {
-  const alertState = stateAlert();
-  const anketa = useState("anketa", () => ({}) as Profile);
+  const anketa = useState("anketa", () => ({} as Profile));
   const share = useState("share", () => ({
     candId: "" as string,
     imageUrl: "" as string,
@@ -130,14 +107,14 @@ export const stateAnketa = () => {
     ) {
       return;
     }
-    anketa.value[item as keyof typeof anketa.value] = await authFetch(
+    anketa.value[item as keyof typeof anketa.value] = (await authFetch(
       `${server}/${item}/${id}`,
       {
         params: {
           action: action,
         },
       }
-    ) as never;
+    )) as never;
   }
 
   async function getImage() {
@@ -181,24 +158,30 @@ export const stateAnketa = () => {
       getItem(param);
     } catch (error: unknown) {
       console.error(error);
-      alertState.setAlert("rose", "Внимание", "Произошла ошибка");
+      toast.add({
+        icon: "i-heroicons-exclamation-triangle",
+        title: "Ошибка",
+        description: error as string,
+        color: "red",
+      })
     }
   }
 
   async function deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-    try {
-      const response = await authFetch(`${server}/${param}/${id}`, {
-        method: "DELETE",
-      });
-      console.log(response);
-      if (param === "persons") {
-        navigateTo("/persons");
-      } else getItem(param);
-      alertState.setAlert("primary", "Информация", `Запись с ID ${id} удалена`);
-    } catch (error: unknown) {
-      console.error(error);
-    }
+    const response = await authFetch(`${server}/${param}/${id}`, {
+      method: "DELETE",
+    });
+    console.log(response);
+    if (param === "persons") {
+      navigateTo("/persons");
+    } else getItem(param);
+    toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Информация",
+      description: `Запись с ID ${id} удалена`,
+      color: "primary",
+    })
   }
 
   async function submitFile(
@@ -227,13 +210,19 @@ export const stateAnketa = () => {
         getItem("persons");
       } else getItem(param);
 
-      alertState.setAlert(
-        "green",
-        "Успешно",
-        "Файл или файлы успешно загружены"
-      );
+      toast.add({
+        icon: "i-heroicons-check-circle",
+        title: "Информация",
+        description: `Файлы успешно загружены`,
+        color: "green",
+      })
     } else {
-      alertState.setAlert("rose", "Внимание", "Ошибка при загрузке файла");
+      toast.add({
+        icon: "i-heroicons-exclamation-triangle",
+        title: "Внимание",
+        description: "Ошибка при загрузке файла",
+        color: "red",
+      })
     }
   }
 
@@ -246,9 +235,19 @@ export const stateAnketa = () => {
         });
         const person_id = response as string;
         navigateTo(`/profile/${person_id}`);
-        alertState.setAlert("green", "Успешно", "Данные успешно добавлены");
+        toast.add({
+          icon: "i-heroicons-check-circle",
+          title: "Информация",
+          description: `Данные успешно добавлены`,
+          color: "green",
+        })
       } catch (error) {
-        alertState.setAlert("rose", "Внимание", `Возникла ошибка ${error}`);
+        toast.add({
+          icon: "i-heroicons-exclamation-triangle",
+          title: "Внимание",
+          description: `Возникла ошибка ${error}`,
+          color: "red",
+        })
       }
     } else {
       updateItem("persons", form);

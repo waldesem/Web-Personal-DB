@@ -5,6 +5,8 @@ import { server, stateClassify } from "@/state/state";
 import type { User } from "@/utils/interfaces";
 import { useFetchAuth } from "@/utils/auth";
 
+const toast = useToast();
+
 const classifyState = stateClassify();
 
 const dataUsers = ref({
@@ -69,6 +71,12 @@ async function userAction(
     role: "",
   });
   await getUsers();
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Информация",
+    description: "Действие успешно выполнено",
+    color: "green",
+  });
 }
 
 /**
@@ -83,6 +91,12 @@ async function submitUser(): Promise<void> {
   });
   dataUsers.value.collapsed = false;
   await getUsers();
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Информация",
+    description: "Пользователь успешно добавлен",
+    color: "green",
+  });
 }
 
 /**

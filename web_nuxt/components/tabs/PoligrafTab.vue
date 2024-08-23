@@ -35,11 +35,14 @@ const items = computed(() =>
     variant="link"
     @click="collapse = !collapse"
   />
-  <div v-if="collapse" class="p-1">
-    <div class="border rounded p-3">
-      <FormsPoligrafForm @cancel="cancelAction" />
+
+  <Transition name="slide-fade">
+    <div v-if="collapse" class="p-1">
+      <div class="border rounded p-3">
+        <FormsPoligrafForm @cancel="cancelAction" />
+      </div>
     </div>
-  </div>
+  </Transition>
   <div v-if="anketaState.anketa.value.poligrafs.length">
     <UAccordion :items="items" size="lg" multiple>
       <template #item="{ index }">
@@ -115,3 +118,13 @@ const items = computed(() =>
     <p class="text-primary">Обследование на полиграфе не проводилось</p>
   </div>
 </template>
+
+<style scoped>
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-in;
+}
+</style>
