@@ -1,37 +1,5 @@
-{% macro prev_form_macro(id, previous = {}) %}
+{% from "profile/macros/forms/previous.html.jinja" import previous_form_macro %}
 
-{% from "elements.html.jinja" import label_macro, input_macro, btn_group_macro %}
-
-<form 
-  class="form form-check" 
-  hx-post="{{ url_for('route.post_item_id', item='previous', item_id=id) }}"
-  hx-target="#previous"
-  hx-trigger="submit"
-  hx-swap="innerHTML"
->
-  
-  {{ input_macro("id", "id", type="hidden", value=previous['id']) }}
-  
-  {% call label_macro("Фамилия*") %}
-  {{ input_macro("surname", "Фамилия*", required=true, value=previous['surname']) }}
-  {% endcall %}
-
-  {% call label_macro("Имя*") %}
-  {{ input_macro("firstname", "Имя*", required=true, value=previous['firstname']) }}
-  {% endcall %}
-
-  {% call label_macro("Отчество") %}
-  {{ input_macro("patronymic", "Отчество", value=previous['patronymic']) }}
-  {% endcall %}
-
-  {% call label_macro("Год изменения*") %}
-  {{ input_macro("changed", "Год изменения*", type="number", required=true) }}
-  {% endcall %}
-
-  {% call label_macro("Причина изменения*") %}
-  {{ input_macro("reason", "Причина изменения*", required=true) }}
-  {% endcall %}
-
-  {{ btn_group_macro() }}
-</form>
-{% endmacro %}
+{% set id = id | default(0) %}
+{% set previous = item | default([]) %}
+{{ previous_form_macro(id, previous = {}) }}

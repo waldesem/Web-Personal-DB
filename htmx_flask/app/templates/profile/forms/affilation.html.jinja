@@ -1,29 +1,5 @@
-{% macro affilation_form_macro(id, affilation = {}) %}
+{% from "profile/macros/forms/affilation.html.jinja" import affilation_form_macro %}
 
-{% from "elements.html.jinja" import label_macro, input_macro, select_macro, btn_group_macro %}
-{% set options = ["Являлся государственным/муниципальным служащим", "Являлся государственным должностным лицом", "Связанные лица работают в государственных организациях", "Участвует в деятельности коммерческих организаций"] %}
-
-<form 
-  class="form form-check" 
-  hx-post="{{ url_for('route.post_item_id', item='affilations', item_id=id) }}"
-  hx-target="#affilations"
-  hx-trigger="submit"
-  hx-swap="innerHTML"
->
-  {{ input_macro("id", "id", type="hidden", value=affilation['id']) }}
-
-  {% call label_macro("Вид участия*") %}
-  {{ select_macro("view", options, required=true, value=affilation['view']) }}
-  {% endcall %}
-
-  {% call label_macro("Организация*") %}
-  {{ input_macro("organization", "Организация*", required=true, value=affilation['organization']) }}
-  {% endcall %}
-
-  {% call label_macro("ИНН*") %}
-  {{ input_macro("inn", "ИНН", value=affilation['inn']) }}
-  {% endcall %}
-
-  {{ btn_group_macro() }}
-</form>
-{% endmacro %}
+{% set id = id | default(0) %}
+{% set affilation = item | default([]) %}
+{{ affilation_form_macro(id, affilation = {}) }}

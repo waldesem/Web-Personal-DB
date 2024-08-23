@@ -1,46 +1,5 @@
-{% macro work_form_macro(id, workplace = {}) %}
+{% from "profile/macros/forms/workplace.html.jinja" import workplace_form_macro %}
 
-{% from "elements.html.jinja" import label_macro, input_macro, textarea_macro, switch_macro, btn_group_macro %}
-
-<form 
-  class="form form-check" 
-  hx-post="{{ url_for('route.post_item_id', item='workplaces', item_id=id) }}"
-  hx-target="#workplaces"
-  hx-trigger="submit"
-  hx-swap="innerHTML"
->
-
-  {{ input_macro("id", "id", type="hidden", value=workplace['id']) }}
-  
-  {% call label_macro("Текущая работа*") %}
-  {{ switch_macro("now_work") }}
-  {% endcall %}
-
-  {% call label_macro("Начало работы*") %}
-  {{ input_macro("starts", "Начало работы", type="date", value=workplace['starts']) }}
-  {% endcall %}
-
-  {% call label_macro("Окончание работы") %}
-  {{ input_macro("finished", "Окончание работы", type="date", value=workplace['finished']) }}
-  {% endcall %}
-
-  {% call label_macro("Место работы*") %}
-  {{ input_macro("workplace", "Место работы", value=workplace['workplace']) }}
-  {% endcall %}
-
-  {% call label_macro("Должность*") %}
-  {{ input_macro("position", "Должность", value=workplace['position']) }}
-  {% endcall %}
-
-  {% call label_macro("Адрес организации") %}
-  {{ textarea_macro("address", "Адрес организации", workplace['address']) }}
-  {% endcall %}
-
-  {% call label_macro("Причина увольнения") %}
-  {{ textarea_macro("reason", "Причина увольнения", workplace['reason']) }}
-  {% endcall %}
-
-  {{ btn_group_macro() }}
-</form>
-
-{% endmacro %}
+{% set id = id | default(0) %}
+{% set workplace = item | default([]) %}
+{{ workplace_form_macro(id, workplace = {}) }}

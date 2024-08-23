@@ -1,26 +1,5 @@
-{% macro relation_form_macro(id, relation = {}) %}
+{% from "profile/macros/forms/relation.html.jinja" import relation_form_macro %}
 
-{% from "elements.html.jinja" import label_macro, input_macro, select_macro, btn_group_macro %}
-{% set options = ["Одно лицо", "Родители-Дети", "Братья-Сестры", "Супруг-Супруга", "Родственники", "Близкая связь"] %}
-
-<form 
-  class="form form-check" 
-  hx-post="{{ url_for('route.post_item_id', item='relations', item_id=id) }}"
-  hx-target="#relations"
-  hx-trigger="submit"
-  hx-swap="innerHTML"
->
-
-  {{ input_macro("id", "id", type="hidden", value=relation['id']) }}
-  
-  {% call label_macro("Тип связи*") %}
-  {{ select_macro("relation", options, required=true, value=relation['relation']) }}
-  {% endcall %}
-
-  {% call label_macro("ID связи*") %}
-  {{ input_macro("relation_id", "ID связи", type="number", required=true, value=relation['relation_id']) }}
-  {% endcall %}
-
-  {{ btn_group_macro() }}
-</form>
-{% endmacro %}
+{% set id = id | default(0) %}
+{% set relation = item | default([]) %}
+{{ relation_form_macro(id, relation = {}) }}

@@ -375,6 +375,30 @@ def change_region(person_id):
     return abort(400)
 
 
+@bp.get("/<item>/<action>/<int:item_id>")
+@roles_required(Roles.user.value)
+def get_item_id(item, action, item_id):
+    """
+    Handles HTTP GET requests for a specific item by ID.
+
+    Parameters:
+        item (str): The type of item being retrieved.
+        item_id (int): The ID of the item being retrieved.
+
+    Returns:
+        A rendered HTML template with the retrieved item information.
+    """
+    if action == "form":
+        result = db_session.get(tables_models[item], item_id)
+        return render_template(
+            f"profile/forms/{item}.html.jinja",
+            id=result.person_id if item != "persons" else None,
+            item=result,
+        )
+    results = handle_get_item(item, item_id)
+    return render_template(f"profile/divs/{item}.html.jinja", items=results)
+
+
 @bp.post("/<item>/<int:item_id>")
 @roles_required(Roles.user.value)
 def post_item_id(item, item_id):

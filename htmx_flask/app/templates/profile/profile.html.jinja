@@ -1,9 +1,9 @@
-{% from "profile/macros/anketa.html.jinja" import anketa_tab_macro %}
-{% from "profile/macros/checks.html.jinja" import check_tab_macro %}
-{% from "profile/macros/poligrafs.html.jinja" import poligraf_tab_macro %}
-{% from "profile/macros/investigations.html.jinja" import investigation_tab_macro %}
-{% from "profile/macros/inquiries.html.jinja" import inquiry_tab_macro %}
-{% from "profile/macros/photo.html.jinja" import photo_card_macro %}
+{% from "profile/macros/divs/anketa.html.jinja" import anketa_tab_macro %}
+{% from "profile/macros/divs/checks.html.jinja" import check_tab_macro %}
+{% from "profile/macros/divs/poligrafs.html.jinja" import poligraf_tab_macro %}
+{% from "profile/macros/divs/investigations.html.jinja" import investigation_tab_macro %}
+{% from "profile/macros/divs/inquiries.html.jinja" import inquiry_tab_macro %}
+{% from "profile/macros/divs/photo.html.jinja" import photo_card_macro %}
 
 {% set tabs = {
   'anketa': ['Анкета', anketa_tab_macro(person)],
