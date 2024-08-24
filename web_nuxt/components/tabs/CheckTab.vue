@@ -116,87 +116,44 @@ const editState = inject("editState") as boolean
                 ).toLocaleString("ru-RU")
               }}
             </ElementsLabelSlot>
-            <ElementsLabelSlot
-              v-if="anketaState.anketa.value.checks[index]['addition']"
-              :label="'Дополнительно'"
-            >
-              <UButton
-                label="Информация"
-                variant="link"
-                @click="checkData.collapseAdd = !checkData.collapseAdd"
-              />
-            </ElementsLabelSlot>
-            <div
-              v-if="
-                anketaState.anketa.value.checks[index]['addition'] &&
-                checkData.collapseAdd
+            <ElementsLabelSlot :label="'Дополнительная информация'">{{
+              anketaState.anketa.value.checks[index]["addition"]
+            }}</ElementsLabelSlot>
+
+            <ElementsNaviHorizont
+              v-show="!index && editState"
+              @update="
+                checkData.check = anketaState.anketa.value.checks[index];
+                checkData.itemId =
+                  anketaState.anketa.value.checks[index]['id'].toString();
+                checkData.edit = true;
               "
-            >
-              <div
-                v-for="(item, idx) in JSON.parse(
-                  anketaState.anketa.value.checks[index]['addition']
-                )"
-                :key="idx"
-              >
-                <div
-                  v-for="(value, key) in (item as Record<string, any>)"
-                  :key="key"
-                  class="border rounded p-3"
-                >
-                  <ElementsLabelSlot
-                    v-if="typeof value === 'string'"
-                    :label="key"
-                    >{{ value }}</ElementsLabelSlot
-                  >
-                  <ElementsLabelSlot v-else :label="key">
-                    <div v-for="(itm, i) in value" :key="i">
-                      <div
-                        v-for="(v, k) in (itm as Record<string, any>)"
-                        :key="k"
-                        class="border rounded p-3"
-                      >
-                        <ElementsLabelSlot :label="k">{{
-                          v
-                        }}</ElementsLabelSlot>
-                      </div>
-                    </div>
-                  </ElementsLabelSlot>
-                </div>
-              </div>
-              <ElementsNaviHorizont
-                v-show="!index && editState"
-                @update="
-                  checkData.check = anketaState.anketa.value.checks[index];
-                  checkData.itemId =
-                    anketaState.anketa.value.checks[index]['id'].toString();
-                  checkData.edit = true;
-                "
-                @delete="
-                  anketaState.deleteItem(
-                    anketaState.anketa.value.checks[index]['id'].toString(),
-                    'checks'
+              @delete="
+                anketaState.deleteItem(
+                  anketaState.anketa.value.checks[index]['id'].toString(),
+                  'checks'
+                )
+              "
+              @upload="openFileForm('check-file')"
+            />
+            <div v-show="false">
+              <UInput
+                id="check-file"
+                type="file"
+                accept="*"
+                multiple
+                @change="
+                  anketaState.submitFile(
+                    $event,
+                    'checks',
+                    anketaState.share.value.candId
                   )
                 "
-                @upload="openFileForm('check-file')"
               />
-              <div v-show="false">
-                <UInput
-                  id="check-file"
-                  type="file"
-                  accept="*"
-                  multiple
-                  @change="
-                    anketaState.submitFile(
-                      $event,
-                      'checks',
-                      anketaState.share.value.candId
-                    )
-                  "
-                />
-              </div>
             </div>
-          </div></div
-      ></template>
+          </div>
+        </div>
+      </template>
     </UAccordion>
   </div>
   <div v-else class="p-3">

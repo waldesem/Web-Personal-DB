@@ -35,7 +35,8 @@ export const useFetchAuth = () => {
       const response = await $fetch(url, options);
       return response;
     } catch (error) {
-      return Promise.reject(error);
+      console.error(error);
+      return navigateTo("/login");
     }
   };
   return fetchAuth;

@@ -35,7 +35,6 @@ from ..handlers.handler import (
     handle_get_item,
     handle_post_item,
     handle_post_resume,
-    handle_xml,
     make_destination,
 )
 
@@ -330,8 +329,6 @@ def post_file(item, item_id):
         if not os.path.isdir(date_subfolder):
             os.mkdir(date_subfolder)
         for file in files:
-            if item == "checks" and file.filename == "showresult.xml":
-                handle_xml(file, item_id)
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
@@ -342,7 +339,7 @@ def post_file(item, item_id):
 
 
 @bp.get("/image")
-def get_image():
+def get_image():   
     image_path = request.args.get("image")
     if image_path:
         file_path = os.path.join(image_path, "image", "image.jpg")

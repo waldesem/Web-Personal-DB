@@ -47,34 +47,30 @@ async function submitLogin(): Promise<void> {
       return;
     }
   }
-  try {
-    const { message, user_token } = (await $fetch(
-      `${server}/login/${loginAction.value}`,
-      {
-        method: "POST",
-        body: loginForm.value,
-      }
-    )) as { message: string; user_token: string };
-    console.log(message);
-    if (message === "Success") {
-      userToken.value = user_token;
-      userState.getCurrentUser();
-    } else if (message === "Updated") {
-      loginAction.value = "create";
-      alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");
-    } else if (message === "Denied") {
-      loginAction.value = "update";
-      alertMessage.setAlert("red", "Предупреждение", "Пароль просрочен.");
-    } else {
-      alertMessage.setAlert(
-        "red",
-        "Внимание",
-        "Неправильный логин или пароль."
-      );
+  const { message, user_token } = (await $fetch(
+    `${server}/login/${loginAction.value}`,
+    {
+      method: "POST",
+      body: loginForm.value,
     }
-  } catch (error) {
-    console.log(error);
-  }
+  )) as { message: string; user_token: string };
+  console.log(message);
+  if (message === "Success") {
+    userToken.value = user_token;
+    userState.getCurrentUser();
+  } else if (message === "Updated") {
+    loginAction.value = "create";
+    alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");
+  } else if (message === "Denied") {
+    loginAction.value = "update";
+    alertMessage.setAlert("red", "Предупреждение", "Пароль просрочен.");
+  } else {
+    alertMessage.setAlert(
+      "red",
+      "Внимание",
+      "Неправильный логин или пароль."
+    );
+    }
   showPswd.value = false;
 }
 </script>

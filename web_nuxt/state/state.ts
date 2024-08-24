@@ -16,23 +16,18 @@ export const stateUser = () => {
   }));
 
   async function getCurrentUser(): Promise<void> {
-    try {
-      const response = await authFetch(`${server}/auth`);
-      const data = response as Record<string, unknown>;
-      Object.assign(user.value, {
-        auth: true,
-        userId: data["id"],
-        username: data["username"],
-        role: data["role"],
-        region: data["region"],
-      });
-      const classifyState = stateClassify();
-      await classifyState.getClassify();
-      navigateTo("/persons");
-    } catch (error: unknown) {
-      console.error(error);
-      navigateTo("/login");
-    }
+    const response = await authFetch(`${server}/auth`);
+    const data = response as Record<string, unknown>;
+    Object.assign(user.value, {
+      auth: true,
+      userId: data["id"],
+      username: data["username"],
+      role: data["role"],
+      region: data["region"],
+    });
+    const classifyState = stateClassify();
+    await classifyState.getClassify();
+    navigateTo("/persons");
   }
   return { user, getCurrentUser };
 };
@@ -65,24 +60,20 @@ export const statePersons = () => {
     } else {
       persons.value.page = page;
     }
-    try {
-      const response = await authFetch(
-        `${server}/index/${persons.value.page}`,
-        {
-          params: {
-            search: persons.value.search,
-          },
-        }
-      );
-      [persons.value.candidates, persons.value.next, persons.value.prev] =
-        response as [Persons[], boolean, boolean];
+    const response = await authFetch(
+      `${server}/index/${persons.value.page}`,
+      {
+        params: {
+          search: persons.value.search,
+        },
+      }
+    );
+    [persons.value.candidates, persons.value.next, persons.value.prev] =
+      response as [Persons[], boolean, boolean];
 
-      persons.value.updated = `${new Date().toLocaleDateString(
-        "ru-RU"
-      )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-    } catch (error: unknown) {
-      console.error(error);
-    }
+    persons.value.updated = `${new Date().toLocaleDateString(
+      "ru-RU"
+    )} в ${new Date().toLocaleTimeString("ru-RU")}`;
   }
   return { persons, getCandidates };
 };
@@ -192,9 +183,16 @@ export const stateAnketa = () => {
     const formData = new FormData();
     if (fileList) {
       for (const file of fileList) {
-        if (file.size < 1024 * 1024 * 2) {
-          formData.append("file", file);
+        if (param === "image" && file.size > 1024 * 1024) {
+          toast.add({
+            icon: "i-heroicons-exclamation-triangle",
+            title: "Внимание",
+            description: "Файл слишком большой",
+            color: "red",
+          })
+          return;
         }
+        formData.append("file", file);
       }
       const response = await authFetch(`${server}/file/${param}/${itemId}`, {
         method: "POST",

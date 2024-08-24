@@ -135,117 +135,116 @@ await getUsers();
 
 <template>
   <LayoutsMenu>
-    <div class="py-8">
-      <h3 class="text-2xl text-gray-600 font-bold">Пользователи</h3>
-    </div>
-    <div class="mb-8">
-      <UInput
-        v-model="dataUsers.search"
-        size="lg"
-        placeholder="Поиск по имени пользователя"
-        @input.prevent="searchUser"
-      />
-    </div>
-    <div class="flex items-center justify-between mb-4">
-      <UToggle v-model="dataUsers.viewDeleted" :label="'Показать удаленные'" />
-      <UButton
-        variant="link"
-        label="Добавить пользователя"
-        @click="dataUsers.collapsed = !dataUsers.collapsed"
-      />
-    </div>
-    <Transition name="slide-fade">
-      <UForm
-        v-if="dataUsers.collapsed"
-        :state="dataUsers.form"
-        @submit.prevent="submitUser"
+    <div class="my-14">
+      <div class="mb-8">
+        <UInput
+          v-model="dataUsers.search"
+          size="lg"
+          placeholder="Поиск по имени пользователя"
+          @input.prevent="searchUser"
+        />
+      </div>
+      <div class="flex items-center justify-between mb-4">
+        <UToggle v-model="dataUsers.viewDeleted" :label="'Показать удаленные'" />
+        <UButton
+          variant="link"
+          label="Добавить пользователя"
+          @click="dataUsers.collapsed = !dataUsers.collapsed"
+        />
+      </div>
+      <Transition name="slide-fade">
+        <UForm
+          v-if="dataUsers.collapsed"
+          :state="dataUsers.form"
+          @submit.prevent="submitUser"
+        >
+          <div class="flex grid grid-cols-5 gap-3 border rounded p-3">
+            <div class="col-span-2">
+              <UFormGroup required class="mb-3">
+                <UInput
+                  v-model="dataUsers.form['fullname']"
+                  placeholder="Имя пользователя"
+                  size="lg"
+                />
+              </UFormGroup>
+            </div>
+            <div class="col-span-2">
+              <UFormGroup required class="mb-3">
+                <UInput
+                  v-model="dataUsers.form['username']"
+                  placeholder="Логин"
+                  size="lg"
+                />
+              </UFormGroup>
+            </div>
+            <div class="col-span-1">
+              <UButton
+                block
+                variant="outline"
+                color="gray"
+                label="Создать"
+                type="submit"
+                size="lg"
+              />
+            </div>
+          </div>
+        </UForm>
+      </Transition>
+      <UTable
+        :columns="[
+          { key: 'id', label: '#' },
+          { key: 'fullname', label: 'Пользователь' },
+          { key: 'username', label: 'Логин' },
+          { key: 'region', label: 'Регион' },
+          { key: 'role', label: 'Роль' },
+          { key: 'created', label: 'Создан' },
+          { key: 'attempt', label: 'Попытки' },
+          { key: 'blocked', label: 'Блокировка' },
+          { key: 'pswd_create', label: 'Обновлено' },
+          { key: 'change_pswd', label: 'Изменение' },
+        ]"
+        :rows="users"
       >
-        <div class="flex grid grid-cols-5 gap-3 border rounded p-3">
-          <div class="col-span-2">
-            <UFormGroup required class="mb-3">
-              <UInput
-                v-model="dataUsers.form['fullname']"
-                placeholder="Имя пользователя"
-                size="lg"
-              />
-            </UFormGroup>
-          </div>
-          <div class="col-span-2">
-            <UFormGroup required class="mb-3">
-              <UInput
-                v-model="dataUsers.form['username']"
-                placeholder="Логин"
-                size="lg"
-              />
-            </UFormGroup>
-          </div>
-          <div class="col-span-1">
+        <template #id-data="{ row }">{{ row.id }}</template>
+        <template #fullname-data="{ row }">{{ row.fullname }}</template>
+        <template #username-data="{ row }">
+          <UDropdown :items="items">
             <UButton
-              block
-              variant="outline"
-              color="gray"
-              label="Создать"
-              type="submit"
-              size="lg"
+              variant="link"
+              :label="row.username"
+              @click="dataUsers.userId = row.id"
             />
-          </div>
-        </div>
-      </UForm>
-    </Transition>
-    <UTable
-      :columns="[
-        { key: 'id', label: '#' },
-        { key: 'fullname', label: 'Пользователь' },
-        { key: 'username', label: 'Логин' },
-        { key: 'region', label: 'Регион' },
-        { key: 'role', label: 'Роль' },
-        { key: 'created', label: 'Создан' },
-        { key: 'attempt', label: 'Попытки' },
-        { key: 'blocked', label: 'Блокировка' },
-        { key: 'pswd_create', label: 'Обновлено' },
-        { key: 'change_pswd', label: 'Изменение' },
-      ]"
-      :rows="users"
-    >
-      <template #id-data="{ row }">{{ row.id }}</template>
-      <template #fullname-data="{ row }">{{ row.fullname }}</template>
-      <template #username-data="{ row }">
-        <UDropdown :items="items">
-          <UButton
-            variant="link"
-            :label="row.username"
-            @click="dataUsers.userId = row.id"
+          </UDropdown>
+        </template>
+        <template #region-data="{ row }">
+          <USelect
+            v-model="dataUsers.region"
+            :placeholder="row.region"
+            :options="Object.values(classifyState.classes.value.regions)"
+            @change="userAction(dataUsers.region, row.id)"
           />
-        </UDropdown>
-      </template>
-      <template #region-data="{ row }">
-        <USelect
-          v-model="dataUsers.region"
-          :placeholder="row.region"
-          :options="Object.values(classifyState.classes.value.regions)"
-          @change="userAction(dataUsers.region, row.id)"
-        />
-      </template>
-      <template #role-data="{ row }">
-        <USelect
-          v-model="dataUsers.role"
-          :placeholder="row.role"
-          :options="Object.values(classifyState.classes.value.roles)"
-          @change="userAction(dataUsers.role, row.id)"
-        />
-      </template>
-      <template #created-data="{ row }">{{
-        new Date(row.created).toLocaleDateString()
-      }}</template>
-      <template #blocked-data="{ row }">
-        <UChip size="2xl" :color="row.blocked ? 'red' : 'green'" />
-      </template>
-      <template #pswd_create-data="{ row }">{{
-        new Date(row.pswd_create).toLocaleDateString()
-      }}</template>
-      <template #change_pswd-data="{ row }">
-        <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'" />
-      </template>
-    </UTable>
+        </template>
+        <template #role-data="{ row }">
+          <USelect
+            v-model="dataUsers.role"
+            :placeholder="row.role"
+            :options="Object.values(classifyState.classes.value.roles)"
+            @change="userAction(dataUsers.role, row.id)"
+          />
+        </template>
+        <template #created-data="{ row }">{{
+          new Date(row.created).toLocaleDateString()
+        }}</template>
+        <template #blocked-data="{ row }">
+          <UChip size="2xl" :color="row.blocked ? 'red' : 'green'" />
+        </template>
+        <template #pswd_create-data="{ row }">{{
+          new Date(row.pswd_create).toLocaleDateString()
+        }}</template>
+        <template #change_pswd-data="{ row }">
+          <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'" />
+        </template>
+      </UTable>
+    </div>
   </LayoutsMenu>
 </template>

@@ -123,6 +123,12 @@ watch(noNegative, () => {
         placeholder="Проверка в Кронос/Крос"
       />
     </UFormGroup>
+    <UFormGroup class="mb-3" label="Дополнительная информация">
+      <UTextarea
+        v-model="checkForm['addition']"
+        placeholder="Дополнительная информация"
+      />
+    </UFormGroup>
     <UFormGroup class="mb-3" label="Комментарии">
       <UTextarea
         v-model="checkForm['comment']"

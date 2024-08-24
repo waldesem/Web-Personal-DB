@@ -73,7 +73,6 @@ const editState = inject("editState") as boolean
             </ElementsLabelSlot>
             <ElementsNaviHorizont
               v-show="!index && editState"
-              :last-index="2"
               @delete="
                 anketaState.deleteItem(
                   anketaState.anketa.value.inquiries[index]['id'].toString(),
