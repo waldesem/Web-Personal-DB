@@ -101,12 +101,3 @@ const items = computed(() =>
   </div>
 </template>
 
-<style scoped>
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.slide-fade-leave-active {
-  transition: all 0.3s ease-in;
-}
-</style>
