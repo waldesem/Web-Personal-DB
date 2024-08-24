@@ -1,8 +1,6 @@
 import { useFetchAuth } from "../utils/auth";
 import type { Classes, Persons, Profile } from "@/utils/interfaces";
 
-const toast = useToast();
-
 const authFetch = useFetchAuth();
 
 export const server = "/api";
@@ -129,43 +127,43 @@ export const stateAnketa = () => {
 
   async function changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
-    try {
-      const response = await authFetch(
-        `${server}/region/${share.value.candId}`,
-        {
-          params: {
-            region: anketa.value.persons["region"],
-          },
-        }
-      );
-      console.log(response);
-      getItem("persons");
-    } catch (error: unknown) {
-      console.error(error);
-    }
+    const response = await authFetch(
+      `${server}/region/${share.value.candId}`,
+      {
+        params: {
+          region: anketa.value.persons["region"],
+        },
+      }
+    );
+    console.log(response);
+    getItem("persons");
+    const toast = useToast();
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Информация",
+      description: "Изменение региона успешно",
+      color: "green",
+    })
   }
 
   async function updateItem(param: string, form: object): Promise<void> {
-    try {
-      const response = await authFetch(
-        `${server}/${param}/${share.value.candId}`,
-        {
-          method: "POST",
-          body: form,
-        }
-      );
-      console.log(response);
-      getItem(param);
-    } catch (error: unknown) {
-      console.error(error);
-      toast.add({
-        icon: "i-heroicons-exclamation-triangle",
-        title: "Ошибка",
-        description: error as string,
-        color: "red",
-      })
-    }
-  }
+    const response = await authFetch(
+      `${server}/${param}/${share.value.candId}`,
+      {
+        method: "POST",
+        body: form,
+      }
+    );
+    console.log(response);
+    getItem(param);
+    const toast = useToast();
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация обновлена",
+      color: "green",
+    })
+}
 
   async function deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -176,6 +174,7 @@ export const stateAnketa = () => {
     if (param === "persons") {
       navigateTo("/persons");
     } else getItem(param);
+    const toast = useToast();
     toast.add({
       icon: "i-heroicons-information-circle",
       title: "Информация",
@@ -189,6 +188,7 @@ export const stateAnketa = () => {
     param: string,
     itemId: string
   ): Promise<void> {
+    const toast = useToast();
     const formData = new FormData();
     if (fileList) {
       for (const file of fileList) {
@@ -209,7 +209,6 @@ export const stateAnketa = () => {
       } else if (param === "anketa") {
         getItem("persons");
       } else getItem(param);
-
       toast.add({
         icon: "i-heroicons-check-circle",
         title: "Информация",
@@ -228,27 +227,19 @@ export const stateAnketa = () => {
 
   async function submitResume(action: string, form: object): Promise<void> {
     if (action == "create") {
-      try {
-        const response = await authFetch(`${server}/resume`, {
-          method: "POST",
-          body: form,
-        });
-        const person_id = response as string;
-        navigateTo(`/profile/${person_id}`);
-        toast.add({
-          icon: "i-heroicons-check-circle",
-          title: "Информация",
-          description: `Данные успешно добавлены`,
-          color: "green",
-        })
-      } catch (error) {
-        toast.add({
-          icon: "i-heroicons-exclamation-triangle",
-          title: "Внимание",
-          description: `Возникла ошибка ${error}`,
-          color: "red",
-        })
-      }
+      const response = await authFetch(`${server}/resume`, {
+        method: "POST",
+        body: form,
+      });
+      const person_id = response as string;
+      navigateTo(`/profile/${person_id}`);
+      const toast = useToast();
+      toast.add({
+        icon: "i-heroicons-check-circle",
+        title: "Информация",
+        description: `Данные успешно добавлены`,
+        color: "green",
+      })
     } else {
       updateItem("persons", form);
     }

@@ -6,13 +6,10 @@ const switchToPersons = () => {
 
 <template>
   <LayoutsMenu>
-    <div class="py-8">
-      <h3 class="text-2xl text-opacity-75 text-red-800 font-bold">
-        Создать анкету
-      </h3>
-    </div>
+    <div class="my-14">
     <div class="border rounded p-5">
       <FormsResumeForm @cancel="switchToPersons"/>
+    </div>
     </div>
   </LayoutsMenu>
 </template>

@@ -52,7 +52,7 @@ def get_auth():
         A JSON response containing the current user's information. The JSON response has the following structure:
         The HTTP status code is 200 if the user information is successfully retrieved.
     """
-    return jsonify(User(**current_user).dict()), 200
+    return jsonify(User(**current_user).dict())
 
 
 @bp.post("/login/<action>")
@@ -65,7 +65,7 @@ def post_login(action):
 
     Returns:
         The function returns a tuple containing an empty string and a status code.
-        The status code is either 204, 201, or 205, depending on the outcome of the login process.
+        The status code is either 204, or 205, depending on the outcome of the login process.
 
     Raises:
         None
@@ -75,7 +75,7 @@ def post_login(action):
         select(Users).where(Users.username == json_data.get("username"))
     ).scalar_one_or_none()
     if not user or user.blocked or user.deleted:
-        return {"message": "Invalid"}, 200
+        return {"message": "Invalid"}
 
     if not check_password_hash(user.passhash, json_data["password"]):
         if user.attempt < 5:
@@ -83,7 +83,7 @@ def post_login(action):
         else:
             user.blocked = True
         db_session.commit()
-        return {"message": "Invalid"}, 200
+        return {"message": "Invalid"}
 
     if action == "update":
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
@@ -92,8 +92,8 @@ def post_login(action):
             user.change_pswd = False
             user.attempt = 0
             db_session.commit()
-            return {"message": "Updated"}, 201
-        return {"message": "Invalid"}, 200
+            return {"message": "Updated"}
+        return {"message": "Invalid"}
 
     delta_change = datetime.now() - user.pswd_create
     if not user.change_pswd and delta_change.days < 365:
@@ -105,8 +105,8 @@ def post_login(action):
                 "message": "Success",
                 "user_token": create_token(user),
             }
-        ), 200
-    return {"message": "Denied"}, 200
+        )
+    return {"message": "Denied"}
 
 
 @bp.get("/users")
@@ -130,7 +130,7 @@ def get_users():
             stmt = stmt.filter(Users.fullname.like("%" + search_data + "%"))
     users = db_session.execute(stmt.order_by(desc(Users.id))).scalars()
     result = [user.to_dict() for user in users]
-    return jsonify(result), 200
+    return jsonify(result)
 
 
 @bp.post("/users")
@@ -166,7 +166,7 @@ def post_user():
             )
             db_session.add(Users(**json_dict))
             db_session.commit()
-            return "", 201
+            return ""
         return abort(400)
     except Exception as e:
         print(e)
@@ -177,7 +177,7 @@ def post_user():
 @roles_required(Roles.admin.value)
 def get_user_actions(user_id):
     if current_user["id"] == user_id:
-        return "", 205
+        return ""
     """
     Change a user's information in the database based on their user ID.
 
@@ -207,7 +207,7 @@ def get_user_actions(user_id):
             user.region = item
         get_current_user.cache_clear()
         db_session.commit()
-        return "", 201
+        return ""
     return abort(400)
 
 
@@ -260,7 +260,7 @@ def get_index(page):
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
     result = result[:pagination] if has_next else result
-    return jsonify([result, has_next, page > 1]), 200
+    return jsonify([result, has_next, page > 1])
 
 
 @bp.post("/file/<item>/<int:item_id>")
@@ -296,7 +296,7 @@ def post_file(item, item_id):
                     for content in contents:
                         if content:
                             handle_post_item(content, table, person_id)
-        return "", 201
+        return ""
 
     person = db_session.get(Persons, item_id)
     if not person:
@@ -321,7 +321,7 @@ def post_file(item, item_id):
 
         if item == "image":
             handle_image(files[0], item_dir)
-            return "", 201
+            return ""
 
         date_subfolder = os.path.join(
             item_dir,
@@ -335,7 +335,7 @@ def post_file(item, item_id):
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
-        return "", 201
+        return ""
     except OSError as e:
         print(e)
         return abort(400)
@@ -370,7 +370,7 @@ def post_resume():
     resume = Person(**json_data).dict()
     person_id = handle_post_resume(resume)
     if person_id:
-        return jsonify({"person_id": person_id}), 201
+        return jsonify({"person_id": person_id})
     return abort(400)
 
 
@@ -398,7 +398,7 @@ def change_region(person_id):
         person.region = region
         person.editable = False
         db_session.commit()
-        return "", 201
+        return ""
     return abort(400)
 
 
@@ -417,7 +417,7 @@ def get_profile(person_id):
         information and an HTTP status code of 200.
     """
     result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
-    return jsonify(result), 200
+    return jsonify(result)
 
 
 @bp.get("/<item>/<int:item_id>")
@@ -440,7 +440,7 @@ def get_item_id(item, item_id):
         person.user_id = current_user["id"]
         db_session.commit()
     result = handle_get_item(item, item_id)
-    return jsonify(result), 200
+    return jsonify(result)
 
 
 @bp.post("/<item>/<int:item_id>")
@@ -461,7 +461,7 @@ def post_item_id(item, item_id):
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
     handle_post_item(json_dict, item, item_id)
-    return "", 201
+    return ""
 
 
 @bp.delete("/<item>/<int:item_id>")
@@ -524,7 +524,7 @@ def get_information():
         )
         .group_by(Checks.conclusion)
     ).all()
-    return jsonify([list(result) for result in results]), 200
+    return jsonify([list(result) for result in results])
 
 
 @bp.get("/classes")
@@ -550,4 +550,4 @@ def get_classes():
             Roles,
         ]
     }
-    return jsonify(results), 200
+    return jsonify(results)

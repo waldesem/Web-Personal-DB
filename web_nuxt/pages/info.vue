@@ -35,18 +35,14 @@ await getStatData();
 
 <template>
   <LayoutsMenu>
-    <div class="py-8">
-      <h3 class="text-2xl text-red-800 font-bold">
-        {{
-          `Информация по региону ${tableData.region} 
-            за период c ${tableData.start} по ${tableData.end} г.`
-        }}
-      </h3>
-    </div>
+    <div class="my-14">
     <UTable :rows="tableData.checks" :columns="['Решение', 'Количество']">
       <template #caption>
         <caption class="text-left">
-          Решения по кандидатам
+          {{
+          `Информация по региону ${tableData.region} 
+            за период c ${tableData.start} по ${tableData.end} г.`
+        }}
         </caption>
       </template>
     </UTable>
@@ -84,6 +80,7 @@ await getStatData();
           </UFormGroup>
         </div>
       </div>
+    </div>
     </div>
   </LayoutsMenu>
 </template>

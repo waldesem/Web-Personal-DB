@@ -20,22 +20,27 @@ const tabs = [
   {
     slot: "anketaTab",
     label: "Анкета",
+    icon: "i-heroicons-user",
   },
   {
     slot: "checkTab",
     label: "Проверки",
+    icon: "i-heroicons-check-circle",
   },
   {
     slot: "poligrafTab",
     label: "Полиграф",
+    icon: "i-heroicons-bolt",
   },
   {
     slot: "investigateTab",
     label: "Расследования",
+    icon: "i-heroicons-briefcase",
   },
   {
     slot: "inquiryTab",
     label: "Запросы",
+    icon: "i-heroicons-document-text",
   },
 ];
 
@@ -55,7 +60,7 @@ const badgeItems = {
 }
 
 const badge = computed(() => {
-  if (!anketaState.anketa.value.persons['editable']) {
+  if (anketaState.anketa.value.persons['editable']) {
     if (anketaState.anketa.value.persons['user_id'] == userState.user.value.userId) {
       return badgeItems.current
     } else if (anketaState.anketa.value.persons['user_id'] != userState.user.value.userId) {
@@ -84,8 +89,8 @@ const badge = computed(() => {
           "
           @click="anketaState.getItem('persons', 'self')"
         >
-          <div class="animate-ping">
-            <UBadge :color="badge.color" variant="subtle">{{ badge.label }}</UBadge>
+          <div class="animate-pulse">
+            <UBadge :color="badge.color" variant="solid">{{ badge.label }}</UBadge>
           </div>
         </UButton>
       </div>

@@ -35,7 +35,7 @@ await personState.getCandidates();
       <div class="absolute inset-y-0 right-0" title="Загрузить json">
         <UFormGroup class="mb-3" size="md">
           <template #label>
-            <UIcon name="i-heroicons-cloud-arrow-up" class="w-8 h-8" />
+            <UIcon name="i-heroicons-cloud-arrow-up" class="w-8 h-8" style="cursor: pointer; " />
           </template>
           <UInput
             v-show="false"
@@ -47,10 +47,8 @@ await personState.getCandidates();
         </UFormGroup>
       </div>
     </div>
-    <div class="py-5">
-      <h3 class="text-2xl text-red-800 font-bold">Кандидаты</h3>
-    </div>
-    <div class="mb-8">
+    
+    <div class="mt-14 mb-8">
       <UInput
         v-model="personState.persons.value.search"
         placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
@@ -59,6 +57,7 @@ await personState.getCandidates();
       />
     </div>
     <UTable
+      :empty-state="{ label: 'Ничего не найдено.' }"
       :columns="[
         { key: 'id', label: '#' },
         { key: 'region', label: 'Регион' },

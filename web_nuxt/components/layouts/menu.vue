@@ -39,7 +39,6 @@ const links = [
   [
     {
       label: "Выход",
-      labelClass: "text-primary mt-3",
       to: "/login",
       click: () => removeToken(),
     },
@@ -84,10 +83,14 @@ const filtredLinks = computed(() => {
       <div class="col-span-2 py-3">
         <UVerticalNavigation
           :links="filtredLinks"
-          :ui="{ active: '', size: 'text-xl text-primary mt-3' }"
+          :ui="{ 
+            active: 'text-red-900 dark:text-white before:bg-gray-0 dark:before:bg-gray-0', 
+            inactive: 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:before:bg-gray-0 dark:hover:before:bg-gray-800/50', 
+            size: 'text-xl text-primary mt-4' 
+          }"
         />
       </div>
-      <div class="col-span-10 py-3">
+      <div class="col-span-10 py-8">
         <slot />
       </div>
     </div>
