@@ -69,6 +69,12 @@ const badge = computed(() => {
   }
   return badgeItems.others
 })
+
+const editState = computed(() => {
+  return anketaState.anketa.value.persons['editable'] && userState.user.value.role == classifyState.classes.value.roles['user'] && userState.user.value.userId == anketaState.anketa.value.persons['user_id']
+})
+
+provide("editState", editState)
 </script>
 
 <template>
@@ -80,7 +86,7 @@ const badge = computed(() => {
       "
       class="relative"
     >
-      <div class="absolute top-0 right-0">
+      <div class="absolute top-0 right-20">
         <UButton
           variant="link"
           size="xl"
@@ -89,9 +95,24 @@ const badge = computed(() => {
           "
           @click="anketaState.getItem('persons', 'self')"
         >
-          <div class="animate-pulse">
-            <UBadge :color="badge.color" variant="solid">{{ badge.label }}</UBadge>
+          <div class="animate-pulse" style="width: 30px;">
+            <UBadge
+              :color="badge.color" 
+              variant="solid"
+
+            >
+              {{ badge.label }}
+            </UBadge>
           </div>
+        </UButton>
+      </div>
+      <div class="absolute bottom-10 right-10">
+        <UButton
+          variant="link"
+          size="xl"
+          to="/profile/print"
+        >
+          <UIcon name="i-heroicons-printer" class="w-8 h-8" />
         </UButton>
       </div>
     </div>

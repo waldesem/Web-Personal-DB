@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { stateAnketa, stateUser } from "@/state/state";
+import { stateAnketa } from "@/state/state";
 import type { Verification } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
-
-const userState = stateUser();
 
 const checkData = ref({
   collapse: false,
@@ -32,10 +29,13 @@ const items = computed(() =>
 function openFileForm(elementId: string) {
   document.getElementById(elementId)?.click();
 }
+
+const editState = inject("editState") as boolean
 </script>
 
 <template>
   <UButton
+    v-if="editState"
     :label="!checkData.collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="checkData.collapse = !checkData.collapse"
@@ -163,13 +163,8 @@ function openFileForm(elementId: string) {
                   </ElementsLabelSlot>
                 </div>
               </div>
-              <ElementsNaviHorizontal
-                v-show="
-                  !index &&
-                  anketaState.anketa.value.persons['user_id'] ==
-                    userState.user.value.userId &&
-                  anketaState.anketa.value.persons['editable']
-                "
+              <ElementsNaviHorizont
+                v-show="!index && editState"
                 @update="
                   checkData.check = anketaState.anketa.value.checks[index];
                   checkData.itemId =

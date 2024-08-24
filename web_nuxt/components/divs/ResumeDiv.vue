@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { stateAnketa, stateClassify, stateUser } from "@/state/state";
+import { stateAnketa, stateClassify } from "@/state/state";
 import type { Persons } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
-const userState = stateUser();
 
 const dataResume = ref({
   action: "",
@@ -15,6 +14,8 @@ const dataResume = ref({
     document.getElementById(elementId)?.click();
   },
 });
+
+const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -34,12 +35,9 @@ const dataResume = ref({
     <ElementsLabelSlot :label="'Регион'">
       <USelect
         v-model="anketaState.anketa.value.persons['region']"
+        style="width: 20%;"
         :options="Object.values(classifyState.classes.value.regions)"
-        :disable="
-          userState.user.value.userId !=
-            anketaState.anketa.value.persons['user_id'] ||
-          !anketaState.anketa.value.persons['editable']
-        "
+        :disabled="!editState"
         @change="anketaState.changeRegion()"
       />
     </ElementsLabelSlot>
@@ -106,12 +104,8 @@ const dataResume = ref({
           : "-"
       }}
     </ElementsLabelSlot>
-    <ElementsNaviHorizontal
-      v-show="
-        anketaState.anketa.value.persons['user_id'] ==
-          userState.user.value.userId &&
-        anketaState.anketa.value.persons['editable']
-      "
+    <ElementsNaviHorizont
+      v-show="editState"
       @delete="
         anketaState.deleteItem(
           anketaState.anketa.value.persons['id'],

@@ -4,9 +4,9 @@ StaffSec is a web interface for managing a candidate database.
 
 ### The technology stack used in this project:
 
-- Flask (optional with htmx);
+- Flask (as server or optionally as fullstack app with htmx2 and Bootstrap5);
 - Sqlite3 (or PostgreSQL);
-- Vue3 and Bootstrap5 or Nuxt3 and TailwindCSS;
+- Nuxt3 and TailwindCSS;
 
 ### Installation
 
@@ -40,13 +40,7 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 
 ### Build frontend
 
-To build Vue3 frontend run the command in terminal:
-```
-cd frontend
-npm i
-npm run build
-```
-To build Nuxt3 (in development) with Client-side Only Rendering run the command:
+To build Nuxt3 with Client-side Only Rendering run the command:
 ```
 cd webapp
 npm i

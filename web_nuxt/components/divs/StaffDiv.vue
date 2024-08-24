@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { stateAnketa, stateUser } from "@/state/state";
+import { stateAnketa } from "@/state/state";
 import type { Staff } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
-const userState = stateUser();
 
 const collapse = ref(false);
 const edit = ref(false);
@@ -16,10 +14,13 @@ function cancelAction() {
   itemId.value = "";
   collapse.value = false;
 }
+
+const editState = inject("editState") as boolean
 </script>
 
 <template>
   <UButton
+    v-if="editState"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
@@ -50,12 +51,8 @@ function cancelAction() {
           <ElementsLabelSlot :label="'Департамент'">{{
             item["department"]
           }}</ElementsLabelSlot>
-          <ElementsNaviHorizontal
-            v-show="
-              anketaState.anketa.value.persons['user_id'] ==
-                userState.user.value.userId &&
-              anketaState.anketa.value.persons['editable']
-            "
+          <ElementsNaviHorizont
+            v-show="editState"
             :last-index="2"
             @delete="anketaState.deleteItem(item['id'].toString(), 'staffs')"
             @update="

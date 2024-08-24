@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { stateAnketa, stateUser } from "@/state/state";
+import { stateAnketa } from "@/state/state";
 import type { Pfo } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
-const userState = stateUser();
 
 const collapse = ref(false);
 const edit = ref(false);
@@ -27,10 +25,13 @@ const items = computed(() =>
     };
   })
 );
+
+const editState = inject("editState") as boolean
 </script>
 
 <template>
   <UButton
+    v-if="editState"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
@@ -73,13 +74,8 @@ const items = computed(() =>
                 ).toLocaleString("ru-RU")
               }}
             </ElementsLabelSlot>
-            <ElementsNaviHorizontal
-              v-show="
-                !index &&
-                anketaState.anketa.value.persons['user_id'] ==
-                  userState.user.value.userId &&
-                anketaState.anketa.value.persons['editable']
-              "
+            <ElementsNaviHorizont
+              v-show="!index && editState"
               @update="
                 poligraf = anketaState.anketa.value.poligrafs[index];
                 itemId =

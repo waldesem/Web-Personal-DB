@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { stateAnketa, stateUser } from "@/state/state";
+import { stateAnketa } from "@/state/state";
 import { useMouse, useWindowScroll } from "@vueuse/core";
 
 const anketaState = stateAnketa();
-const userState = stateUser();
 
 const photoCard = ref({
   formData: new FormData(),
@@ -32,6 +30,8 @@ function onContextMenu() {
   });
   isOpen.value = true;
 }
+
+const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -57,11 +57,7 @@ function onContextMenu() {
         "
       />
       <UContextMenu
-        v-if="
-          anketaState.anketa.value.persons['user_id'] ==
-            userState.user.value.userId &&
-          anketaState.anketa.value.persons['editable']
-        "
+        v-if="editState"
         v-model="isOpen"
         :virtual-element="virtualElement"
       >
