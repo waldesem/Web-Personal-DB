@@ -51,7 +51,7 @@ def main():
         serve(app, host=args.host, port=args.port, threads=args.threads)
     elif args.mode == "desktop":
         FlaskUI(
-            server_kwargs={"app": app, "port": args.port, "threads": args.threads},
+            server_kwargs={"app": app, "host": args.host, "port": args.port, "threads": args.threads},
         ).run()
 
 

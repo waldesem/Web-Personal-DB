@@ -1,4 +1,4 @@
-""" Original code see here https://github.com/ClimenteA/flaskwebgui """
+"""Original code see here https://github.com/ClimenteA/flaskwebgui"""
 
 import os
 import shutil
@@ -14,7 +14,6 @@ from threading import Thread
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Union
 from contextlib import suppress
-from waitress import serve
 
 import psutil
 
@@ -104,7 +103,7 @@ class ServerFlask:
     def server(**server_kwargs):
         app = server_kwargs.pop("app", None)
         server_kwargs.pop("debug", None)
-        serve(app, **server_kwargs)
+        app.run(**server_kwargs)
 
 
 @dataclass
