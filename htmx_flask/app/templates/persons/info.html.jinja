@@ -1,3 +1,15 @@
+{% set thread = [
+  ['5%', '#'],
+  ['15%', 'Регион'],
+  ['25%', 'Фамилия Имя Отчество'],
+  ['10%', 'Дата рождения'],
+  ['10%', 'ИНН'],
+  ['10%', 'СНИЛС'],
+  ['10%', 'Обновлено'],
+  ['10%', 'Сотрудник'],
+  ['5%', 'Статус'],
+] %}
+
 <div class="row py-3">
   <table class="table align-middle table-hover">
     <caption>
@@ -14,15 +26,9 @@
     </caption>
     <thead>
       <tr height="50px">
-        <th width="5%">#</th>
-        <th width="15%">Регион</th>
-        <th>Фамилия Имя Отчество</th>
-        <th width="10%">Дата рождения</th>
-        <th width="10%">ИНН</th>
-        <th width="10%">СНИЛС</th>
-        <th width="10%">Обновлено</th>
-        <th width="10%">Сотрудник</th>
-        <th width="5%" class="text-center">Статус</th>
+        {% for th in thread %}
+        <th width="{{ th[0] }}">{{ th[1] }}</th>
+        {% endfor %}
       </tr>
     </thead>
       {% for row in candidates %}

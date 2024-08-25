@@ -16,21 +16,18 @@
 {% if educations %}
   {% for education in educations %}
     <div  class="card card-body mb-3" id="{{'educations-' + education['id']|string}}">
-      {% call label_macro("Тип образования") %}
-        {{ education['view'] }}
-      {% endcall %}
+      {% set edu = [
+        ["Тип образования", education['view']],
+        ["Учебное заведение", education['institution']],
+        ["Год окончания", education['finished']],
+        ["Специальность", education['specialty']],
+      ]%}
 
-      {% call label_macro("Учебное заведение") %}
-        {{ education['institution'] }}
-      {% endcall %}
-
-      {% call label_macro("Год окончания") %}
-        {{ education['finished'] }}
-      {% endcall %}
-
-      {% call label_macro("Специальность") %}
-        {{ education['specialty'] }}
-      {% endcall %}
+      {% for values in edu %%}
+        {% call label_macro(values[0]) %}
+          {{ values[1] }}
+        {% endcall %}
+      {% endfor %}
 
       {% if session['user']['role'] == 'user' %}
         {{ action_group_macro("educations", education['id']|string) }}

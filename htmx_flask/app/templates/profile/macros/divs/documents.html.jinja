@@ -16,25 +16,19 @@
 {% if documents %}
   {% for document in documents %}
     <div  class="card card-body mb-3" id="{{'documents-' + document['id']|string}}">
-      {% call label_macro("Тип документа") %}
-        {{ document['view'] }}
-      {% endcall %}
+      {% set doc = [
+        ["Тип документа", document['view']],
+        ["Серия документа", document['series']],
+        ["Номер документа", document['digits']],
+        ["Кем выдан", document['agency']],
+        ["Дата выдачи", document['issue']],
+      ] %}
 
-      {% call label_macro("Серия документа") %}
-        {{ document['series'] }}
-      {% endcall %}
-
-      {% call label_macro("Номер документа") %}
-        {{ document['digits'] }}
-      {% endcall %}
-
-      {% call label_macro("Кем выдан") %}
-        {{ document['agency'] }}
-      {% endcall %}
-
-      {% call label_macro("Дата выдачи") %}
-        {{ document['issue'] }}
-      {% endcall %}
+      {% for values in doc %%}
+        {% call label_macro(values[0]) %}
+          {{ values[1] }}
+        {% endcall %}
+      {% endfor %}
 
       {% if session['user']['role'] == 'user' %}
         {{ action_group_macro("documents", document['id']|string) }}

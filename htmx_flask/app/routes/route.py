@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
 import json
 import os
 import re
 import shutil
+from datetime import datetime, timedelta
 
 from flask import (
     Blueprint,
@@ -18,20 +18,19 @@ from flask import (
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..classes.classes import Regions
+from ..classes.classes import Regions, Roles
 from ..depends.depend import login_required, roles_required
-from ..classes.classes import Roles
-from ..model.models import Person, User, models_tables
-from ..model.tables import Checks, Persons, Users, db_session, tables_models
 from ..handlers.handler import (
+    handle_get_item,
     handle_image,
     handle_json_to_dict,
-    handle_get_item,
     handle_post_item,
     handle_take_resume,
     handle_users,
     make_destination,
 )
+from ..model.models import Person, User, models_tables
+from ..model.tables import Checks, Persons, Users, db_session, tables_models
 
 bp = Blueprint("route", __name__)
 
@@ -398,7 +397,7 @@ def get_item_id(item, action, item_id):
         print(result)
         return render_template(
             f"profile/forms/{item}.html.jinja",
-            id=result['id'] if item != "persons" else None,
+            id=result["id"] if item != "persons" else None,
             item=result,
         )
     results = handle_get_item(item, item_id)

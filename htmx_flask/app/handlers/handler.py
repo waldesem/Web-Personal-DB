@@ -1,6 +1,4 @@
-import json
 import os
-import xml.etree.ElementTree as ET
 
 from flask import abort, current_app, session
 from PIL import Image
@@ -8,7 +6,7 @@ from pydantic import ValidationError
 from sqlalchemy import desc, select
 
 from ..model.models import AnketaSchemaJson
-from ..model.tables import Checks, Users, db_session, Persons, tables_models
+from ..model.tables import Users, db_session, Persons, tables_models
 
 
 def handle_users():
@@ -176,59 +174,6 @@ def handle_json_to_dict(data):
     except ValidationError as e:
         print(e)
         return None
-
-
-def parse_xml(elem_tree):
-    """
-    Recursively parses an XML element tree and returns a list of dictionaries representing the parsed XML data.
-
-    Parameters:
-        elem_tree (xml.etree.ElementTree.Element): The root element of the XML element tree.
-
-    Returns:
-        list: A list of dictionaries, where each dictionary represents a parsed XML element and its child elements.
-            The keys of the dictionaries are the XML element tags, and the values are the corresponding text values.
-            If an XML element has child elements, the value of the key "Record" is a list of dictionaries representing
-            the child elements.
-    """
-    results = []
-    for sources in elem_tree:
-        if sources:
-            source_dict = {}
-            for source in sources:
-                source_dict.update({source.tag: source.text})
-                record = parse_xml(source)
-                if record:
-                    source_dict["Record"] = record
-            results.append(source_dict)
-    return results
-
-
-def handle_xml(file, item_id):
-    """
-    Parses an XML file and updates the 'addition' field of a Checks object in the database with the parsed data.
-
-    Args:
-        file (str): The path to the XML file to be parsed.
-        item_id (int): The ID of the Checks object to be updated.
-
-    Returns:
-        None
-
-    Raises:
-        None
-    """
-    check = db_session.execute(
-        select(Checks)
-        .filter(Checks.person_id == item_id)
-        .order_by(desc(Checks.id))
-    ).scalars().first()
-    with open(file, 'r') as xml_file:
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-        sources = root.findall("./Source")
-        check.addition = json.dumps(parse_xml(sources))
-        db_session.commit()
 
 
 def handle_image(file, item_dir):
