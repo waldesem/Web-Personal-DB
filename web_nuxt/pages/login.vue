@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { server, stateUser, userToken } from "@/state/state";
 
 const userState = stateUser();

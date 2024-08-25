@@ -60,14 +60,11 @@ export const statePersons = () => {
     } else {
       persons.value.page = page;
     }
-    const response = await authFetch(
-      `${server}/index/${persons.value.page}`,
-      {
-        params: {
-          search: persons.value.search,
-        },
-      }
-    );
+    const response = await authFetch(`${server}/index/${persons.value.page}`, {
+      params: {
+        search: persons.value.search,
+      },
+    });
     [persons.value.candidates, persons.value.next, persons.value.prev] =
       response as [Persons[], boolean, boolean];
 
@@ -118,14 +115,11 @@ export const stateAnketa = () => {
 
   async function changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
-    const response = await authFetch(
-      `${server}/region/${share.value.candId}`,
-      {
-        params: {
-          region: anketa.value.persons["region"],
-        },
-      }
-    );
+    const response = await authFetch(`${server}/region/${share.value.candId}`, {
+      params: {
+        region: anketa.value.persons["region"],
+      },
+    });
     console.log(response);
     getItem("persons");
     const toast = useToast();
@@ -134,7 +128,7 @@ export const stateAnketa = () => {
       title: "Информация",
       description: "Изменение региона успешно",
       color: "green",
-    })
+    });
   }
 
   async function updateItem(param: string, form: object): Promise<void> {
@@ -153,8 +147,8 @@ export const stateAnketa = () => {
       title: "Успешно",
       description: "Информация обновлена",
       color: "green",
-    })
-}
+    });
+  }
 
   async function deleteItem(id: string, param: string): Promise<void> {
     if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -171,7 +165,7 @@ export const stateAnketa = () => {
       title: "Информация",
       description: `Запись с ID ${id} удалена`,
       color: "primary",
-    })
+    });
   }
 
   async function submitFile(
@@ -189,7 +183,7 @@ export const stateAnketa = () => {
             title: "Внимание",
             description: "Файл слишком большой",
             color: "red",
-          })
+          });
           return;
         }
         formData.append("file", file);
@@ -212,14 +206,14 @@ export const stateAnketa = () => {
         title: "Информация",
         description: `Файлы успешно загружены`,
         color: "green",
-      })
+      });
     } else {
       toast.add({
         icon: "i-heroicons-exclamation-triangle",
         title: "Внимание",
         description: "Ошибка при загрузке файла",
         color: "red",
-      })
+      });
     }
   }
 
@@ -237,7 +231,7 @@ export const stateAnketa = () => {
         title: "Информация",
         description: `Данные успешно добавлены`,
         color: "green",
-      })
+      });
     } else {
       updateItem("persons", form);
     }

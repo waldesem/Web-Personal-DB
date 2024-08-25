@@ -37,7 +37,9 @@ function submitWorkplace() {
         type="date"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Окончание работы">
+    <UFormGroup
+      v-if="!workForm['now_work']"
+      class="mb-3" label="Окончание работы">
       <UInput
         v-model="workForm['finished']"
         placeholder="Окончание работы"

@@ -181,7 +181,7 @@ export interface Classes {
   regions: Record<string, unknown>;
   conclusions: Record<string, unknown>;
   relations: Record<string, unknown>;
-  affilates: Record<string, unknown>;
+  affiliates: Record<string, unknown>;
   educations: Record<string, unknown>;
   addresses: Record<string, unknown>;
   contacts: Record<string, unknown>;

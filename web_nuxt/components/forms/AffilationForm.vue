@@ -30,7 +30,7 @@ function submitAffilation() {
       <USelect
         v-model="affilationForm['view']"
         required
-        :options="Object.values(classifyState.classes.value.affilates)"
+        :options="Object.values(classifyState.classes.value.affiliates)"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Организация">

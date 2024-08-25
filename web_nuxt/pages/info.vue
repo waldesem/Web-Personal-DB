@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { server, stateClassify, stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 

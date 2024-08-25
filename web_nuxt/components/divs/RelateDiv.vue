@@ -15,7 +15,7 @@ function cancelAction() {
   collapse.value = false;
 }
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 </script>
 
 <template>
@@ -49,14 +49,9 @@ const editState = inject("editState") as boolean
             item["relation"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Связь'">
-            <router-link
-              :to="{
-                name: 'profile',
-                params: { id: item['relation_id'] },
-              }"
-            >
+            <NuxtLink :to="`/profile/${item['relation_id']}`">
               ID #{{ item["relation_id"] }}
-            </router-link>
+            </NuxtLink>
           </ElementsLabelSlot>
           <ElementsNaviHorizont
             v-show="editState"
@@ -76,4 +71,3 @@ const editState = inject("editState") as boolean
     <p class="text-primary">Данные отсутствуют</p>
   </div>
 </template>
-

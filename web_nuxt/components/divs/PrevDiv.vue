@@ -20,7 +20,7 @@ const editState = inject("editState") as boolean
 
 <template>
   <UButton
-    v-if="edit"
+    v-if="editState"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
