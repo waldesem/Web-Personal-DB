@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
+  ssr: false,
   app: {
     head: {
       htmlAttrs: { lang: "ru" },
@@ -33,11 +34,11 @@ export default defineNuxtConfig({
   routeRules: {
     '/api/**': { proxy: 'http://127.0.0.1:5000/api/**' }
   },
-
+  
   nitro: {
     compressPublicAssets: true,
     output: {
-      publicDir: "../backend/app/static",
+      publicDir: "../server_flask/app/static",
     }
   },
 

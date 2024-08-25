@@ -106,7 +106,7 @@ provide("editState", editState)
           </div>
         </UButton>
       </div>
-      <div class="absolute bottom-10 right-10">
+      <!-- <div class="absolute bottom-10 right-10">
         <UButton
           variant="link"
           size="xl"
@@ -114,7 +114,7 @@ provide("editState", editState)
         >
           <UIcon name="i-heroicons-printer" class="w-8 h-8" />
         </UButton>
-      </div>
+      </div> -->
     </div>
     <div class="py-8">
       <h3 class="text-2xl text-red-800 font-bold">

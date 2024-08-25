@@ -46,7 +46,7 @@ const links = [
 ];
 
 const filtredLinks = computed(() => {
-  if (userState.user.value.role !== classify.classes.value.roles["user"]) {
+  if (userState.user.value.role !== classify.classes.value.roles.user) {
     return links.filter((item) => item[0].to !== "/resume");
   } else if (userState.user.value.role !== classify.classes.value.roles["admin"]) {
     return links.filter((item) => item[0].to !== "/users");

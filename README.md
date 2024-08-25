@@ -40,23 +40,35 @@ GRANT ALL PRIVILEGES ON DATABASE personal TO flask;
 
 ### Build frontend
 
-To build Nuxt3 with Client-side Only Rendering run the command:
+Change directory to web_nuxt and run the command to install packages:
 ```
-cd webapp
 npm i
+```
+To build Nuxt3 with Client-side Only Rendering:
+In nuxt.config.ts add `ssr: false` and then run the command:
+```
 npx nuxi generate
 ```
-Builded files can be found in `backend/app/static`.
+To build Nuxt3 with Server-side Rendering:
+In nuxt.config.ts add `ssr: true` and then run the command:
+```
+npx nuxi build
+```
+Builded files can be found in `server_flask/app/static`.
 
 ### Settings
 
 Change DATABASE_URI and base_path in config.py and settings.ini
 
-### Start application
+### Start backend
 
 To start a server run the command in terminal:
 ```
 python server.py # for desktop mode; more options see in the server.py
+```
+To start a frontend app run the command in terminal:
+```
+node .output/server/index.mjs
 ```
 Default admin user for application has name `superadmin`.
 DEFAULT_PASSWORD for created user - `88888888`.
