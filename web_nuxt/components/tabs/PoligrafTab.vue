@@ -19,9 +19,10 @@ function cancelAction() {
   collapse.value = false;
 }
 const items = computed(() =>
-  anketaState.anketa.value.inquiries.map((item) => {
+  anketaState.anketa.value.poligrafs.map((item, index) => {
     return {
       label: "Результат обследования ID #" + item["id"],
+      defaultOpen: index === 0,
     };
   })
 );

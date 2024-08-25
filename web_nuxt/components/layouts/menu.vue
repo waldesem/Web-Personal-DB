@@ -79,7 +79,7 @@ const filtredLinks = computed(() => {
         </div>
       </div>
     </header>
-    <div class="flex flex-col grid grid-cols-12 gap-3">
+    <div class="flex flex-col grid grid-cols-12 gap-3" style="padding-bottom: 5vh;">
       <div class="col-span-2 py-3">
         <UVerticalNavigation
           :links="filtredLinks"
@@ -94,5 +94,11 @@ const filtredLinks = computed(() => {
         <slot />
       </div>
     </div>
+    <footer 
+      class="text-center py-3 bg-white" 
+      style="position: fixed; bottom: 0; width: 100%; height: 5vh;"
+    >
+      <p class="text-gray-500">2024 STAFFSEC FINTECH</p>
+    </footer>
   </UContainer>
 </template>

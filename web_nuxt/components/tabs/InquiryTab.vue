@@ -15,6 +15,10 @@ function cancelAction() {
   collapse.value = false;
 }
 
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
+
 const items = computed(() =>
   anketaState.anketa.value.inquiries.map((item, index) => {
     return {
@@ -84,6 +88,22 @@ const editState = inject("editState") as boolean
                 itemId =
                   anketaState.anketa.value.inquiries[index]['id'].toString();
                 edit = true;
+              "
+              @upload="openFileForm('inquiry-file')"
+            />
+          </div>
+          <div v-show="false">
+            <UInput
+              id="inquiry-file"
+              type="file"
+              accept="*"
+              multiple
+              @change="
+                anketaState.submitFile(
+                  $event,
+                  'inquiries',
+                  anketaState.share.value.candId
+                )
               "
             />
           </div>

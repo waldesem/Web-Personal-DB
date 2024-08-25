@@ -20,9 +20,10 @@ function cancelAction() {
 }
 
 const items = computed(() => 
-  anketaState.anketa.value.inquiries.map((item) => {
+  anketaState.anketa.value.investigations.map((item, index) => {
     return {
-      label: "Запрос о сотруднике ID #" + item["id"],
+      label: "Расследование ID #" + item["id"],
+      defaultOpen: index === 0,
     };
   })
 );
