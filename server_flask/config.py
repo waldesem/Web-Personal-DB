@@ -4,7 +4,7 @@ import secrets
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 setting = ConfigParser()
-setting.read(os.path.join(basedir, "settings.ini"))
+setting.read(os.path.join(basedir, "settings.ini"), encoding='utf-8')
 
 
 class Configuration:
@@ -16,7 +16,7 @@ class Configuration:
     )
     DEFAULT_PASSWORD = "8" * 8
     DATABASE_URI = (
-        os.path.join("sqlite:///", setting["SQLite"].get("uri"), "database.db")
+        "sqlite:///" + os.path.join(setting["SQLite"].get("uri"), "database.db")
         if setting["SQLite"].get("uri")
         else os.path.join("sqlite:///", "..", "database.db")
     )

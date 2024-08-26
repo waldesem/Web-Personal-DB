@@ -1,1 +1,0 @@
-import{_ as s}from"./7ab4JJky.js";import{s as r}from"./C7PE2IGf.js";import{g as _,h as a,i as c,o as m}from"./BPBLQG6i.js";const l=_({__name:"index",async setup(i){let t,e;const o=r();return[t,e]=a(()=>o.getCurrentUser()),await t,e(),(p,u)=>{const n=s;return m(),c(n,{animation:"swing"})}}});export{l as default};
