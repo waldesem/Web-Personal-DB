@@ -319,8 +319,10 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            handle_image(files[0], item_dir)
-            return ""
+            filename = files[0].filename
+            if filename.endswith(".jpg") or filename.endswith(".jpeg"):
+                handle_image(files[0], item_dir)
+                return ""
 
         date_subfolder = os.path.join(
             item_dir,

@@ -2,7 +2,7 @@
 	const props = defineProps({
 		div: {
 			type: String,
-			default: 'py-8'
+			default: 'py-3'
 		},
 		cls: {
 			type: String,
@@ -12,7 +12,7 @@
 			type: String,
 			default: ""
 		}
-	}
+	})
 	</script>
 	
 	<template>

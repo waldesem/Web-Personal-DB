@@ -26,6 +26,10 @@ await personState.getCandidates();
 
 <template>
   <LayoutsMenu>
+    <ElementsHeaderDiv 
+      :div="'py-1'" 
+      :header="'КАНДИДАТЫ'"
+    />
     <div
       v-if="
         userState.user.value.role == classifyState.classes.value.roles['user']
@@ -47,8 +51,7 @@ await personState.getCandidates();
         </UFormGroup>
       </div>
     </div>
-    
-    <div class="mt-14 mb-8">
+    <div class="my-6">
       <UInput
         v-model="personState.persons.value.search"
         placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
@@ -96,7 +99,7 @@ await personState.getCandidates();
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #editable-data="{ row }">
-        <UChip size="2xl" :color="row.editable ? 'green' : 'red'" />
+        <UChip size="2xl" :color="row.editable ? 'red' : 'green'" />
       </template>
       <template #caption>
         <caption class="caption-bottom text-left">

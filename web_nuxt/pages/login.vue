@@ -64,12 +64,8 @@ async function submitLogin(): Promise<void> {
     loginAction.value = "update";
     alertMessage.setAlert("red", "Предупреждение", "Пароль просрочен.");
   } else {
-    alertMessage.setAlert(
-      "red",
-      "Внимание",
-      "Неправильный логин или пароль."
-    );
-    }
+    alertMessage.setAlert("red", "Внимание", "Неправильный логин или пароль.");
+  }
   showPswd.value = false;
 }
 </script>
@@ -83,13 +79,13 @@ async function submitLogin(): Promise<void> {
         :title="alertMessage.alert.value.title"
         :description="alertMessage.alert.value.description"
       />
-      <div class="py-5">
-        <h3 class="text-2xl text-primary font-bold">Кадровая безопасность</h3>
-      </div>
+      <ElementsHeaderDiv
+        :div="'py-5'"
+        :cls="'text-2xl text-blue-800'"
+        :header="'Кадровая безопасность'"
+      />
       <div class="border border-red-600 rounded-md p-5">
-        <h3 class="text-xl text-opacity-75 text-red-800 font-bold">
-          {{ loginAction === "create" ? "Вход в систему" : "Изменить пароль" }}
-        </h3>
+        
         <UForm :state="loginForm" class="mt-4" @submit.prevent="submitLogin">
           <UFormGroup class="mb-3" size="md" label="Логин">
             <UInput
@@ -110,7 +106,7 @@ async function submitLogin(): Promise<void> {
               />
               <UButton
                 :title="!showPswd ? 'Показать' : 'Скрыть'"
-                :icon="showPswd ? 'i-bi-eye-slash' : 'i-bi-eye'"
+                :icon="showPswd ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
                 color="gray"
                 @click="showPswd = !showPswd"
               />
@@ -122,6 +118,7 @@ async function submitLogin(): Promise<void> {
                 v-model="loginForm['new_pswd']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
+                icon="i-heroicons-lock-closed"
                 required
               />
             </UFormGroup>
@@ -130,6 +127,7 @@ async function submitLogin(): Promise<void> {
                 v-model="loginForm['conf_pswd']"
                 :type="!showPswd ? 'password' : 'text'"
                 placeholder="password"
+                icon="i-heroicons-lock-closed"
                 required
               />
             </UFormGroup>

@@ -50,7 +50,8 @@ In nuxt.config.ts add `ssr: false` and then run the command:
 npx nuxi generate
 ```
 To build Nuxt3 with Server-side Rendering:
-In nuxt.config.ts add `ssr: true` and then run the command:
+In nuxt.config.ts comment or delete `ssr: false` and `output - publicDir`
+Then run the command:
 ```
 npx nuxi build
 ```

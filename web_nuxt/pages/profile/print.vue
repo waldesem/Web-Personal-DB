@@ -4,22 +4,16 @@ const anketaState = stateAnketa();
 </script>
 
 <template>
-  
   <div class="p-3">
     <DivsPhotoCard />
-    <div class="py-3">
-      <h3 class="text-2xl text-red-800 font-bold">
-        {{
-          `${anketaState.anketa.value.persons.surname} ${
-            anketaState.anketa.value.persons.firstname
-          } ${
-            anketaState.anketa.value.persons.patronymic
-              ? " " + anketaState.anketa.value.persons.patronymic
-              : ""
-          }`
-        }}
-      </h3>
-    </div>
+    <ElementsHeaderDiv 
+      :header="
+        anketaState.anketa.value.persons.surname + ' ' +
+        anketaState.anketa.value.persons.firstname + ' ' +
+        anketaState.anketa.value.persons.patronymic
+          ? anketaState.anketa.value.persons.patronymic : ''
+        "
+    />
     <DivsResumeDiv />
     <div class="my-3">
       <p class="text-red-800 font-bold p-3">Должности</p>
