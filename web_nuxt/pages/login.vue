@@ -85,7 +85,11 @@ async function submitLogin(): Promise<void> {
         :header="'Кадровая безопасность'"
       />
       <div class="border border-red-600 rounded-md p-5">
-        
+        <ElementsHeaderDiv
+          :div="'mb-1'"
+          :cls="'text-xl text-red-800'"
+          :header="loginAction === 'create' ? 'Вход в систему' : 'Обновление пароля'"
+        />
         <UForm :state="loginForm" class="mt-4" @submit.prevent="submitLogin">
           <UFormGroup class="mb-3" size="md" label="Логин">
             <UInput

@@ -35,7 +35,7 @@ await getStatData();
 <template>
   <LayoutsMenu>
     <ElementsHeaderDiv 
-      :div="'py-1'" :header="`${tableData.region} c ${tableData.start} по ${tableData.end} г.`"/>
+      :div="'py-1'" :header="`Информация по региону ${tableData.region.toLocaleUpperCase()} за период с ${ new Date(tableData.start).toLocaleDateString()} г. по ${new Date(tableData.end).toLocaleDateString()} г.`"/>
     <div class="my-8">
       <UTable :rows="tableData.checks" :columns="['Решение', 'Количество']" />
       <div class="flex grid grid-cols-12 gap-3 mt-8">

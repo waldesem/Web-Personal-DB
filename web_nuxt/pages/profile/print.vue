@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import { stateAnketa } from "@/state/state";
 const anketaState = stateAnketa();
-
-const fullname = computed(() => {
-  if (!anketaState.anketa.value.persons.patronymic) {
-    return `${anketaState.anketa.value.persons.surname} ${anketaState.anketa.value.persons.firstname}`;
-  } else {
-      return `${anketaState.anketa.value.persons.surname} ${anketaState.anketa.value.persons.firstname} ${anketaState.anketa.value.persons.patronymic}`;
-  }
-})
 </script>
 
 <template>
   <div class="p-3">
     <DivsPhotoCard />
-    <ElementsHeaderDiv :header="fullname />
+    <ElementsHeaderDiv :header="`${anketaState.anketa.value.persons.surname} ${anketaState.anketa.value.persons.firstname}`" />
     <DivsResumeDiv />
     <div class="my-3">
       <p class="text-red-800 font-bold p-3">Должности</p>

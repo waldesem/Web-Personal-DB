@@ -56,25 +56,33 @@ const badgeItems = {
   others: {
     label: "Анкета не редактируется пользователями",
     color: "blue",
-  }
-}
+  },
+};
 
 const badge = computed(() => {
-  if (anketaState.anketa.value.persons['editable']) {
-    if (anketaState.anketa.value.persons['user_id'] == userState.user.value.userId) {
-      return badgeItems.current
-    } else if (anketaState.anketa.value.persons['user_id'] != userState.user.value.userId) {
-      return badgeItems.thirdparty
+  if (anketaState.anketa.value.persons["editable"]) {
+    if (
+      anketaState.anketa.value.persons["user_id"] == userState.user.value.userId
+    ) {
+      return badgeItems.current;
+    } else if (
+      anketaState.anketa.value.persons["user_id"] != userState.user.value.userId
+    ) {
+      return badgeItems.thirdparty;
     }
   }
-  return badgeItems.others
-})
+  return badgeItems.others;
+});
 
 const editState = computed(() => {
-  return anketaState.anketa.value.persons['editable'] && userState.user.value.role == classifyState.classes.value.roles['user'] && userState.user.value.userId == anketaState.anketa.value.persons['user_id']
-})
+  return (
+    anketaState.anketa.value.persons["editable"] &&
+    userState.user.value.role == classifyState.classes.value.roles["user"] &&
+    userState.user.value.userId == anketaState.anketa.value.persons["user_id"]
+  );
+});
 
-provide("editState", editState)
+provide("editState", editState);
 </script>
 
 <template>
@@ -86,43 +94,28 @@ provide("editState", editState)
       "
       class="relative"
     >
-      <div class="absolute top-0 right-20">
+      <div class="absolute bottom-0 right-20">
         <UButton
           variant="link"
           size="xl"
-          :color="
-            anketaState.anketa.value.persons['editable'] ? 'red' : 'green'
-          "
           @click="anketaState.getItem('persons', 'self')"
         >
-          <div class="animate-pulse" style="width: 30px;">
-            <UBadge
-              :color="badge.color" 
-              variant="solid"
-
-            >
+          <div class="animate-pulse" style="width: 30px">
+            <UBadge :color="badge.color" variant="solid">
               {{ badge.label }}
             </UBadge>
           </div>
         </UButton>
       </div>
-      <div class="absolute bottom-10 right-10">
-        <UButton
-          variant="link"
-          size="xl"
-          to="/profile/print"
-        >
+      <div class="absolute top-0 right-10">
+        <UButton variant="link" size="xl" to="/profile/print">
           <UIcon name="i-heroicons-printer" class="w-8 h-8" />
         </UButton>
       </div>
     </div>
-    <ElementsHeaderDiv 
-      :header="
-        anketaState.anketa.value.persons.surname + ' ' +
-        anketaState.anketa.value.persons.firstname + ' ' +
-        anketaState.anketa.value.persons.patronymic
-          ? anketaState.anketa.value.persons.patronymic : ''
-        "
+    <ElementsHeaderDiv
+      :div="'py-6'"
+      :header="`${anketaState.anketa.value.persons.surname} ${anketaState.anketa.value.persons.firstname}`"
     />
     <UTabs :items="tabs" class="w-full">
       <template #anketaTab><TabsAnketaTab /></template>

@@ -25,11 +25,7 @@ await personState.getCandidates();
 </script>
 
 <template>
-  <LayoutsMenu>
-    <ElementsHeaderDiv 
-      :div="'py-1'" 
-      :header="'КАНДИДАТЫ'"
-    />
+  <LayoutsMenu> 
     <div
       v-if="
         userState.user.value.role == classifyState.classes.value.roles['user']
@@ -51,6 +47,11 @@ await personState.getCandidates();
         </UFormGroup>
       </div>
     </div>
+    <ElementsHeaderDiv 
+      :div="'py-1'" 
+      :header="'КАНДИДАТЫ'"
+    />
+   
     <div class="my-6">
       <UInput
         v-model="personState.persons.value.search"

@@ -6,7 +6,7 @@ const switchToPersons = () => {
 
 <template>
   <LayoutsMenu>
-    <ElementsHeaderDiv :div="'py-1'" :header="'НОВАЯ АНКЕТА'"/>
+    <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'"/>
     <div class="border rounded p-5">
       <FormsResumeForm @cancel="switchToPersons"/>
     </div>
