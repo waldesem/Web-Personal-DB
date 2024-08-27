@@ -18,17 +18,50 @@ const classifyState = stateClassify();
 const checkForm = toRef(props.check as Verification);
 const noNegative = ref(false);
 
+// const additionFields = ref({
+//   workplace: "",
+//     document: "",
+//     inn: "",
+//     debt: "",
+//     bankruptcy: "",
+//     bki: "",
+//     courts: "",
+//     affilation: "",
+//     terrorist: "",
+//     mvd: "",
+//     internet: "",
+//     cronos: "",
+//     cros: "",
+// })
+
 function submitCheck() {
   anketaState.updateItem("checks", checkForm.value)
   noNegative.value = false;
   emit('cancel');
-  checkForm.value = {} as Verification
+  Object.assign(checkForm.value, {
+    workplace: "",
+    document: "",
+    inn: "",
+    debt: "",
+    bankruptcy: "",
+    bki: "",
+    courts: "",
+    affilation: "",
+    terrorist: "",
+    mvd: "",
+    internet: "",
+    cronos: "",
+    cros: "",
+    addition: "",
+    comment: "",
+    conclusion: "",
+  } as Verification);
 }
 
 watch(noNegative, () => {
   if (noNegative.value) {
     Object.assign(checkForm.value, {
-      workplace: "Негатива по местам работы не обнаружено",
+      workplace: "Негатив не выявлен",
       document: "Среди недействительных документов не обнаружен",
       inn: "ИНН соответствует паспорту",
       debt: "Задолженности не обнаружены",
@@ -56,6 +89,16 @@ watch(noNegative, () => {
         v-model="checkForm['workplace']"
         placeholder="Проверка по местам работы"
       />
+      <!-- <USelect
+        v-if="!checkForm['workplace']"
+        v-model="additionFields['workplace']"
+        :options="['Негатив не выявлен', 'Получена информация']"
+      />
+      <UTextarea
+        v-if="additionFields['workplace'] !== 'Получена информация'"
+        v-model="checkForm['workplace']"
+        placeholder="Проверка по местам работы"
+      /> -->
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка документов">
       <UTextarea

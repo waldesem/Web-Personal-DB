@@ -15,9 +15,12 @@ export const stateUser = () => {
     region: "",
   }));
 
-  async function getCurrentUser(): Promise<void> {
+  async function getCurrentUser() {
     const response = await authFetch(`${server}/auth`);
     const data = response as Record<string, unknown>;
+    if (!data) {
+      return navigateTo("/login")
+    };
     Object.assign(user.value, {
       auth: true,
       userId: data["id"],

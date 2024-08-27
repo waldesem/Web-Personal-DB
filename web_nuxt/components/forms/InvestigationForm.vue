@@ -19,7 +19,10 @@ const investigationForm = toRef(props.investigation as Inquisition);
 function submitInvestigations() {
   anketaState.updateItem("investigations", investigationForm.value)
   emit('cancel');
-  investigationForm.value = {} as Inquisition
+  Object.assign(investigationForm.value, {
+    theme: "",
+    info: "",
+  } as Inquisition);
 }
 </script>
 

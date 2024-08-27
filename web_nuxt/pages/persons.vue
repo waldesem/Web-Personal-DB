@@ -15,11 +15,9 @@ const personState = statePersons();
 
 const userState = stateUser();
 
-function searchPerson() {
-  debounce(() => {
-    personState.getCandidates();
-  }, 500);
-}
+const searchPerson = debounce(async () => {
+  await personState.getCandidates();
+}, 500);
 
 await personState.getCandidates();
 </script>
@@ -51,13 +49,12 @@ await personState.getCandidates();
       :div="'py-1'" 
       :header="'КАНДИДАТЫ'"
     />
-   
     <div class="my-6">
       <UInput
         v-model="personState.persons.value.search"
         placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
         size="lg"
-        @input="searchPerson"
+        @input.prevent="searchPerson"
       />
     </div>
     <UTable

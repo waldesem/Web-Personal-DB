@@ -20,7 +20,10 @@ const poligrafForm = toRef(props.poligraf as Pfo);
 function submitPoligraf() {
   anketaState.updateItem("poligrafs", poligrafForm.value)
   emit('cancel');
-  poligrafForm.value = {} as Pfo
+  Object.assign(poligrafForm.value, {
+    theme: "",
+    results: "",
+  } as Pfo);
 }
 </script>
 

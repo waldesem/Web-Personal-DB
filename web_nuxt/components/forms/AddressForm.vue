@@ -20,7 +20,10 @@ const addressForm = toRef(props.addrs as Address);
 function submitAddress() {
   anketaState.updateItem("addresses", addressForm.value)
   emit('cancel');
-  addressForm.value = {} as Address;
+  Object.assign(addressForm.value, {
+    view: "",
+    addresses: "",
+  } as Address);
 }
 </script>
 

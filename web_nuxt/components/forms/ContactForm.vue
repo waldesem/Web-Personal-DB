@@ -20,7 +20,10 @@ const contactForm = toRef(props.contact as Contact);
 function submitContact() {
   anketaState.updateItem("contacts", contactForm.value)
   emit('cancel');
- contactForm.value = {} as Contact
+  Object.assign(contactForm.value, {
+    view: "",
+    contact: "",
+  } as Contact);
 }
 </script>
 

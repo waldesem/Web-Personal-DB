@@ -20,7 +20,13 @@ const docForm = toRef(props.docs as Document);
 function submitDocument() {
   anketaState.updateItem("documents", docForm.value)
   emit('cancel');
-  docForm.value = {} as Document
+  Object.assign(docForm.value, {
+    view: "",
+    series: "",
+    digits: "",
+    agency: "",
+    issue: "",
+  } as Document);
 }
 </script>
 

@@ -19,7 +19,13 @@ const previousForm = toRef(props.previous as Previous);
 function submitPrevious() {
   anketaState.updateItem("previous", previousForm.value)
   emit('cancel');
-  previousForm.value = {} as Previous
+  Object.assign(previousForm.value, {
+    surname: "",
+    firstname: "",
+    patronymic: "",
+    changed: "",
+    reason: "",
+  } as Previous);
 }
 </script>
 

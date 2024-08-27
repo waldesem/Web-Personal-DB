@@ -20,7 +20,10 @@ const relationForm = toRef(props.relation as Relation);
 function submitRelation() {
   anketaState.updateItem("relations", relationForm.value)
   emit('cancel');
-  relationForm.value = {} as Relation
+  Object.assign(relationForm.value, {
+    relation: "",
+    relation_id: "",
+  } as Relation);
 }
 </script>
 

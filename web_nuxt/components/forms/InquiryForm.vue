@@ -19,7 +19,10 @@ const inquiryForm = toRef(props.inquiry as Needs);
 function submitIquiry() {
   anketaState.updateItem("inquiries", inquiryForm.value)
   emit('cancel');
-  inquiryForm.value = {} as Needs
+  Object.assign(inquiryForm.value, {
+    info: "",
+    origins: "",
+  } as Needs);
 }
 </script>
 
@@ -33,7 +36,7 @@ function submitIquiry() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Инициатор">
-      <UInput
+      <UTextarea
         v-model="inquiryForm['origins']"
         required
         placeholder="Инициатор"

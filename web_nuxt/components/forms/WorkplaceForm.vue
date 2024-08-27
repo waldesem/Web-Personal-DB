@@ -19,7 +19,15 @@ const workForm = toRef(props.work as Work);
 function submitWorkplace() {
   anketaState.updateItem("workplaces", workForm.value)
   emit('cancel');
-  workForm.value = {} as Work
+  Object.assign(workForm.value, {
+    now_work: false,
+    starts: "",
+    finished: "",
+    workplace: "",
+    position: "",
+    addresses: "",
+    reason: "",
+  } as Work);  
 }
 </script>
 

@@ -20,7 +20,12 @@ const educationForm = toRef(props.education as Education);
 function submitEducation() {
   anketaState.updateItem("educations", educationForm.value)
   emit('cancel');
-  educationForm.value = {} as Education
+  Object.assign(educationForm.value, {
+    view: "",
+    institution: "",
+    finished: "",
+    specialty: "",
+  } as Education);
 }
 </script>
 

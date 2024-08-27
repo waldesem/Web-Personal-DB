@@ -21,7 +21,19 @@ const anketaState = stateAnketa();
 const resumeForm = toRef(props.resume);
 
 function cancelEdit() {
-  resumeForm.value = {} as Persons;
+  Object.assign(resumeForm.value, {
+    surname: "",
+    firstname: "",
+    patronymic: "",
+    birthday: "",
+    birthplace: "",
+    citizenship: "",
+    dual: "",
+    inn: "",
+    snils: "",
+    marital: "",
+    addition: "",
+  } as Persons);
   emit('cancel')
 }
 

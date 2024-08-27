@@ -20,7 +20,11 @@ const affilationForm = toRef(props.affils as Affilation);
 function submitAffilation() {
   anketaState.updateItem("affilations", affilationForm.value)
   emit('cancel');
-  affilationForm.value = {} as Affilation;
+  Object.assign(affilationForm.value, {
+    view: "",
+    organization: "",
+    inn: "",
+  } as Affilation);
 }
 </script>
 

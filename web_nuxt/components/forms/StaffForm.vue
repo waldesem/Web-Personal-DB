@@ -19,7 +19,10 @@ const staffForm = toRef(props.staff as Staff);
 function submitStaff() {
   anketaState.updateItem("staffs", staffForm.value)
   emit('cancel');
-  staffForm.value = {} as Staff
+  Object.assign(staffForm.value, {
+    position: "",
+    department: "",
+  } as Staff);
 }
 </script>
 
