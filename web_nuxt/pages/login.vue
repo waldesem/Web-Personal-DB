@@ -53,7 +53,6 @@ async function submitLogin(): Promise<void> {
       body: loginForm.value,
     }
   )) as { message: string; user_token: string };
-  console.log(message);
   if (message === "Success") {
     userToken.value = user_token;
     userState.getCurrentUser();

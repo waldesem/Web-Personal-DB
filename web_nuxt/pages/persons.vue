@@ -67,7 +67,7 @@ await personState.getCandidates();
         { key: 'region', label: 'Регион' },
         { key: 'surname', label: 'Фамилия Имя Отчество' },
         { key: 'birthday', label: 'Дата рождения' },
-        { key: 'snils, label: 'СНИЛС' },
+        { key: 'snils', label: 'СНИЛС' },
         { key: 'inn', label: 'ИНН' },
         { key: 'created', label: 'Обновлено' },
         { key: 'username', label: 'Сотрудник' },

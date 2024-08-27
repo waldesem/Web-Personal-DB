@@ -7,6 +7,7 @@ import { useFetchAuth } from "@/utils/auth";
 const toast = useToast();
 
 const classifyState = stateClassify();
+const fetchAuth = useFetchAuth();
 
 const dataUsers = ref({
   search: "",
@@ -58,7 +59,6 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  const fetchAuth = useFetchAuth();
   await fetchAuth(`${server}/users/${id}`, {
     params: {
       item: item,
@@ -83,12 +83,15 @@ async function userAction(
  * @returns {Promise<void>}
  */
 async function submitUser(): Promise<void> {
-  const fetchAuth = useFetchAuth();
   await fetchAuth(`${server}/users`, {
     method: "POST",
     body: dataUsers.value.form,
   });
   dataUsers.value.collapsed = false;
+  Object.assign(dataUsers.value.form, {
+    fullname: "",
+    username: "",
+  })
   await getUsers();
   toast.add({
     icon: "i-heroicons-check-circle",
