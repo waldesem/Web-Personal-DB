@@ -30,7 +30,7 @@ export interface Persons {
   created: string;
   region: string;
   user_id: string;
-  username: User;
+  username: string;
 }
 
 export interface Previous {

@@ -16,10 +16,13 @@ const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
 const docForm = toRef(props.docs as Document);
+docForm.value.issue = docForm.value.issue
+  ? new Date(docForm.value.issue).toISOString().slice(0, 10)
+  : "";
 
 function submitDocument() {
-  anketaState.updateItem("documents", docForm.value)
-  emit('cancel');
+  anketaState.updateItem("documents", docForm.value);
+  emit("cancel");
   Object.assign(docForm.value, {
     view: "",
     series: "",
@@ -40,10 +43,7 @@ function submitDocument() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Серия документа">
-      <UInput
-        v-model="docForm['series']"
-        placeholder="Серия документа"
-      />
+      <UInput v-model="docForm['series']" placeholder="Серия документа" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Номер документа">
       <UInput
@@ -53,16 +53,10 @@ function submitDocument() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Кем выдан">
-      <UInput
-        v-model="docForm['agency']"
-        placeholder="Кем выдан"
-      />
+      <UInput v-model="docForm['agency']" placeholder="Кем выдан" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата выдачи">
-      <UInput
-        v-model="docForm['issue']"
-        type="date"
-      />
+      <UInput v-model="docForm['issue']" type="date" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, toRef, watch } from "vue";
 import { stateAnketa, stateClassify } from "@/state/state";
 import type { Verification } from "@/utils/interfaces";
 
@@ -17,96 +18,49 @@ const classifyState = stateClassify();
 const checkForm = toRef(props.check as Verification);
 const noNegative = ref(false);
 
-const selectValues = [
-  "Негативной информации не имеется", 
-  "Получена значимая информация"
-];
-
-// const additionFields = ref({
-//   workplace: "",
-//     document: "",
-//     inn: "",
-//     debt: "",
-//     bankruptcy: "",
-//     bki: "",
-//     courts: "",
-//     affilation: "",
-//     terrorist: "",
-//     mvd: "",
-//     internet: "",
-//     cronos: "",
-//     cros: "",
-// })
-
 function submitCheck() {
-  anketaState.updateItem("checks", checkForm.value)
+  anketaState.updateItem("checks", checkForm.value);
+  cancelAction();
+};
+
+function cancelAction(){
   noNegative.value = false;
+  Object.keys(checkForm.value).forEach((key) => {
+    checkForm.value[key as keyof typeof checkForm.value] = ''
+  })
   emit('cancel');
-  Object.assign(checkForm.value, {
-    workplace: "",
-    document: "",
-    inn: "",
-    debt: "",
-    bankruptcy: "",
-    bki: "",
-    courts: "",
-    affilation: "",
-    terrorist: "",
-    mvd: "",
-    internet: "",
-    cronos: "",
-    cros: "",
-    addition: "",
-    comment: "",
-    conclusion: "",
-  } as Verification);
 }
 
-const computedWorkplace = computed (() =>  {
-  if (additionFields['workplace'] ==  selectValues[0]) {
-    return selectValues[0]
-  } else {
-    return  checkForm['workplace']
-  }
-});
-
-      document: "Среди недействительных документов не обнаружен",
-      inn: "ИНН соответствует паспорту",
+watch(noNegative, () => {
+  if (noNegative.value) {
+    Object.assign(checkForm.value, {
+      workplace: "Негатив по местам работы не выявлен",
+      document: "Среди недействительных документов не значится",
+      inn: "ИНН соответствует",
       debt: "Задолженности не обнаружены",
       bankruptcy: "Решений о признании банкротом не имеется",
-      bki: "Кредитная история не положительная",
+      bki: "Кредитная история положительная",
       courts: "Судебные дела не обнаружены",
       affilation: "Аффилированность не выявлена",
       terrorist: "В списке террористов не обнаружен",
       mvd: "В розыск не объявлен",
       internet: "В открытых источниках негатив не обнаружен",
       cronos: "В Кронос негатив не выявлен",
-      cros: "В Крос негатив не выявлен",
+    });
+  }
+});
 </script>
 
 <template>
+  <UFormGroup :state="noNegative" class="mb-3" label="Негатива нет">
+    <UToggle v-model="noNegative"/>
+  </UFormGroup>
   <UForm :state="checkForm" @submit.prevent="submitCheck">
     <UFormGroup class="mb-3" label="Проверка по местам работы">
-      <USelectMenu
-        v-model="additionField['workplace']"
-        :selected="checkForm['workplace'] ? selectValue[1] : selectValue[0]"
-        :options="selectValue"
-      />
       <UTextarea
-v-show="selectValue !== 
-        v-model="computedWorkplace"
-        placeholder="Проверка по местам работы"
-      />
-      <!-- <USelect
-        v-if="!checkForm['workplace']"
-        v-model="additionFields['workplace']"
-        :options="['Негатив не выявлен', 'Получена информация']"
-      />
-      <UTextarea
-        v-if="additionFields['workplace'] !== 'Получена информация'"
         v-model="checkForm['workplace']"
         placeholder="Проверка по местам работы"
-      /> -->
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка документов">
       <UTextarea
@@ -193,6 +147,6 @@ v-show="selectValue !==
         :options="Object.values(classifyState.classes.value.conclusions)"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')"/>
+    <ElementsBtnGroup @cancel="cancelAction"/>
   </UForm>
 </template>

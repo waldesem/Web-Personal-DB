@@ -8,11 +8,8 @@ import {
 } from "@/state/state";
 
 const anketaState = stateAnketa();
-
 const classifyState = stateClassify();
-
 const personState = statePersons();
-
 const userState = stateUser();
 
 const searchPerson = debounce(async () => {
@@ -23,7 +20,7 @@ await personState.getCandidates();
 </script>
 
 <template>
-  <LayoutsMenu> 
+  <LayoutsMenu>
     <div
       v-if="
         userState.user.value.role == classifyState.classes.value.roles['user']
@@ -33,7 +30,11 @@ await personState.getCandidates();
       <div class="absolute inset-y-0 right-0" title="Загрузить json">
         <UFormGroup class="mb-3" size="md">
           <template #label>
-            <UIcon name="i-heroicons-cloud-arrow-up" class="w-8 h-8" style="cursor: pointer; " />
+            <UIcon
+              name="i-heroicons-cloud-arrow-up"
+              class="w-8 h-8"
+              style="cursor:pointer; color:dodgerblue"
+            />
           </template>
           <UInput
             v-show="false"
@@ -45,10 +46,7 @@ await personState.getCandidates();
         </UFormGroup>
       </div>
     </div>
-    <ElementsHeaderDiv 
-      :div="'py-1'" 
-      :header="'КАНДИДАТЫ'"
-    />
+    <ElementsHeaderDiv :div="'py-1'" :header="'КАНДИДАТЫ'" />
     <div class="my-6">
       <UInput
         v-model="personState.persons.value.search"

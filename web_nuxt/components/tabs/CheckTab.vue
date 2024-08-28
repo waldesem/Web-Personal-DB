@@ -98,8 +98,8 @@ const editState = inject("editState") as boolean
             <ElementsLabelSlot :label="'Проверка в Кронос'">
               {{ anketaState.anketa.value.checks[index]["cronos"] }}
             </ElementsLabelSlot>
-            <ElementsLabelSlot :label="'Проверка в Крос'">
-              {{ anketaState.anketa.value.checks[index]["cros"] }}
+            <ElementsLabelSlot :label="'Дополнительная информация'">
+              {{ anketaState.anketa.value.checks[index]["addition"] }}
             </ElementsLabelSlot>
             <ElementsLabelSlot :label="'Комментарии'"
               >{{ anketaState.anketa.value.checks[index]["comment"] }}
@@ -117,9 +117,6 @@ const editState = inject("editState") as boolean
                 ).toLocaleString("ru-RU")
               }}
             </ElementsLabelSlot>
-            <ElementsLabelSlot :label="'Дополнительная информация'">{{
-              anketaState.anketa.value.checks[index]["addition"]
-            }}</ElementsLabelSlot>
 
             <ElementsNaviHorizont
               v-show="!index && editState"

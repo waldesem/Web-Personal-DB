@@ -19,6 +19,9 @@ const props = defineProps({
 const anketaState = stateAnketa();
 
 const resumeForm = toRef(props.resume);
+resumeForm.value.birthday = resumeForm.value.birthday
+  ? new Date(resumeForm.value.birthday).toISOString().slice(0, 10)
+  : "";
 
 function cancelEdit() {
   Object.assign(resumeForm.value, {
@@ -34,11 +37,11 @@ function cancelEdit() {
     marital: "",
     addition: "",
   } as Persons);
-  emit('cancel')
+  emit("cancel");
 }
 
 async function submitForm(): Promise<void> {
-  anketaState.submitResume(props.action, resumeForm.value)
+  anketaState.submitResume(props.action, resumeForm.value);
   cancelEdit();
 }
 </script>
@@ -46,31 +49,16 @@ async function submitForm(): Promise<void> {
 <template>
   <UForm :state="resumeForm" @submit.prevent="submitForm">
     <UFormGroup class="mb-3" label="Фамилия">
-      <UInput
-        v-model="resumeForm['surname']"
-        required
-        placeholder="Фамилия"
-      />
+      <UInput v-model="resumeForm['surname']" required placeholder="Фамилия" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Имя">
-      <UInput
-        v-model="resumeForm['firstname']"
-        required
-        placeholder="Имя"
-      />  
+      <UInput v-model="resumeForm['firstname']" required placeholder="Имя" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Отчество">
-      <UInput
-        v-model="resumeForm['patronymic']"
-        placeholder="Отчество"
-      />
+      <UInput v-model="resumeForm['patronymic']" placeholder="Отчество" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата рождения">
-      <UInput
-        v-model="resumeForm['birthday']"
-        required
-        type="date"
-      />
+      <UInput v-model="resumeForm['birthday']" required type="date" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место рождения">
       <UTextarea
@@ -79,28 +67,16 @@ async function submitForm(): Promise<void> {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Гражданство">
-      <UInput
-        v-model="resumeForm['citizenship']"
-        placeholder="Гражданство"
-      />
+      <UInput v-model="resumeForm['citizenship']" placeholder="Гражданство" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Двойное гражданство">
-      <UInput
-        v-model="resumeForm['dual']"
-        placeholder="Двойное гражданство"
-      />
+      <UInput v-model="resumeForm['dual']" placeholder="Двойное гражданство" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="СНИЛС">
-      <UInput
-        v-model="resumeForm['snils']"
-        placeholder="СНИЛС"
-      />
+      <UInput v-model="resumeForm['snils']" placeholder="СНИЛС" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ИНН">
-      <UInput
-        v-model="resumeForm['inn']"
-        placeholder="ИНН"
-      />
+      <UInput v-model="resumeForm['inn']" placeholder="ИНН" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Семейное положение">
       <UTextarea
@@ -109,10 +85,7 @@ async function submitForm(): Promise<void> {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дополнительно">
-      <UTextarea
-        v-model="resumeForm['addition']"
-        placeholder="Дополнительно"
-      />
+      <UTextarea v-model="resumeForm['addition']" placeholder="Дополнительно" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelEdit" />
   </UForm>

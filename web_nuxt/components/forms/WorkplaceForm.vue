@@ -15,10 +15,16 @@ const props = defineProps({
 const anketaState = stateAnketa();
 
 const workForm = toRef(props.work as Work);
+workForm.value.starts = workForm.value.starts
+  ? new Date(workForm.value.starts).toISOString().slice(0, 10)
+  : "";
+workForm.value.finished = workForm.value.finished
+  ? new Date(workForm.value.finished).toISOString().slice(0, 10)
+  : "";
 
 function submitWorkplace() {
-  anketaState.updateItem("workplaces", workForm.value)
-  emit('cancel');
+  anketaState.updateItem("workplaces", workForm.value);
+  emit("cancel");
   Object.assign(workForm.value, {
     now_work: false,
     starts: "",
@@ -27,16 +33,14 @@ function submitWorkplace() {
     position: "",
     addresses: "",
     reason: "",
-  } as Work);  
+  } as Work);
 }
 </script>
 
 <template>
-  <UForm :state="workForm" @submit.prevent="submitWorkplace"> 
+  <UForm :state="workForm" @submit.prevent="submitWorkplace">
     <UFormGroup class="mb-3" label="Текущая работа">
-      <UCheckbox
-        v-model="workForm['now_work']"
-      />
+      <UCheckbox v-model="workForm['now_work']" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Начало работы">
       <UInput
@@ -47,7 +51,9 @@ function submitWorkplace() {
     </UFormGroup>
     <UFormGroup
       v-if="!workForm['now_work']"
-      class="mb-3" label="Окончание работы">
+      class="mb-3"
+      label="Окончание работы"
+    >
       <UInput
         v-model="workForm['finished']"
         placeholder="Окончание работы"
@@ -62,23 +68,13 @@ function submitWorkplace() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Должность">
-      <UInput
-        v-model="workForm['position']"
-        required
-        placeholder="Должность"
-      />
+      <UInput v-model="workForm['position']" required placeholder="Должность" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес организации">
-      <UInput
-        v-model="workForm['addresses']"
-        placeholder="Адрес организации"
-      />
+      <UInput v-model="workForm['addresses']" placeholder="Адрес организации" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Причина увольнения">
-      <UInput
-        v-model="workForm['reason']"
-        placeholder="Причина увольнения"
-      />
+      <UInput v-model="workForm['reason']" placeholder="Причина увольнения" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>
