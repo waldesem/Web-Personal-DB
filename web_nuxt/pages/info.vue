@@ -37,7 +37,10 @@ await getStatData();
     <ElementsHeaderDiv 
       :div="'py-1'" :header="`Информация по региону ${tableData.region.toLocaleUpperCase()} за период с ${ new Date(tableData.start).toLocaleDateString()} г. по ${new Date(tableData.end).toLocaleDateString()} г.`"/>
     <div class="my-8">
-      <UTable :rows="tableData.checks" :columns="['Решение', 'Количество']" />
+      <UTable 
+        :rows="tableData.checks" 
+        :columns="[{'key': 'conclusion', label: 'Решение'}, {'key': 'count', 'label': 'Количество'}]" 
+      />
       <div class="flex grid grid-cols-12 gap-3 mt-8">
         <div class="col-span-2">
           <UFormGroup class="mb-3" size="md" label="Регион">
@@ -48,7 +51,7 @@ await getStatData();
                 classifyState.classes.value.regions['main']
               "
               :options="Object.values(classifyState.classes.value.regions)"
-              @submit-data="getStatData"
+              @change="getStatData"
             />
           </UFormGroup>
         </div>
@@ -58,7 +61,7 @@ await getStatData();
               <UInput
                 v-model="tableData.start"
                 type="date"
-                @submit-data="getStatData"
+                @change="getStatData"
               />
             </UFormGroup>
           </div>
@@ -67,7 +70,7 @@ await getStatData();
               <UInput
                 v-model="tableData.end"
                 type="date"
-                @submit-data="getStatData"
+                @change="getStatData"
               />
             </UFormGroup>
           </div>

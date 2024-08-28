@@ -523,7 +523,7 @@ def get_information():
         )
         .group_by(Checks.conclusion)
     ).all()
-    return jsonify([list(result) for result in results])
+    return jsonify([{"conclusion": result[0], "count": result[1]} for result in results])
 
 
 @bp.get("/classes")
