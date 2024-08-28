@@ -50,7 +50,7 @@ await personState.getCandidates();
     <div class="my-6">
       <UInput
         v-model="personState.persons.value.search"
-        placeholder="поиск по фамилии, имени, отчеству, дате рождения, инн"
+        placeholder="поиск по фамилии, имени, отчеству, дате рождения, или снилс, или инн"
         size="lg"
         @input.prevent="searchPerson"
       />
