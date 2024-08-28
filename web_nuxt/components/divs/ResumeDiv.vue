@@ -93,8 +93,7 @@ const editState = inject("editState") as boolean
             : ""
         }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Материалы'">
-        {{ anketaState.anketa.value.persons["destination"] }}
+      <ElementsLabelSlot :label="'Материалы'"><a :href="anketaState.anketa.value.persons["destination"]">Открыть</a>
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">
         {{
