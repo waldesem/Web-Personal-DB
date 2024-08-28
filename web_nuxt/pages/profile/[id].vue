@@ -114,7 +114,6 @@ provide("editState", editState);
       </div>
     </div>
     <ElementsHeaderDiv
-      :div="'py-6'"
       :header="`${anketaState.anketa.value.persons.surname} ${anketaState.anketa.value.persons.firstname}`"
     />
     <UTabs :items="tabs" class="w-full">

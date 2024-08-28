@@ -26,10 +26,10 @@ const editState = inject("editState") as boolean
     @click="collapse = !collapse"
   />
   <Transition name="slide-fade">
-    <div v-if="collapse" class="p-1">
-      <div class="border rounded p-3">
+    <div v-if="collapse" class="py-3">
+      <UCard>
         <FormsEducationForm @cancel="cancelAction" />
-      </div>
+      </UCard>
     </div>
   </Transition>
   <div v-if="anketaState.anketa.value.educations.length">
@@ -38,7 +38,7 @@ const editState = inject("editState") as boolean
       :key="idx"
       class="p-1"
     >
-      <div class="border rounded pt-3 pb-1 px-3">
+      <UCard>
         <FormsEducationForm
           v-if="edit && itemId == item['id'].toString()"
           :education="education"
@@ -68,7 +68,7 @@ const editState = inject("editState") as boolean
             "
           />
         </div>
-      </div>
+      </UCard>
     </div>
   </div>
   <div v-else class="p-3">

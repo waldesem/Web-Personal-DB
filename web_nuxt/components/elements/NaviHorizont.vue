@@ -25,5 +25,5 @@ const links = [{
 </script>
 
 <template>
-  <UHorizontalNavigation :links="links.slice(0, props.lastIndex)" class="border-t "/>
+  <UHorizontalNavigation :links="links.slice(0, props.lastIndex)" class="pt-3 border-t "/>
 </template>

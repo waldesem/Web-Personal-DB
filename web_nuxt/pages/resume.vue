@@ -7,8 +7,8 @@ const switchToPersons = () => {
 <template>
   <LayoutsMenu>
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'"/>
-    <div class="border rounded p-5">
+    <UCard>
       <FormsResumeForm @cancel="switchToPersons"/>
-    </div>
+    </UCard>
   </LayoutsMenu>
 </template>

@@ -36,7 +36,9 @@ const editState = inject("editState") as boolean
 
 <template>
   <div class="flex justify-left">
-    <div class="border rounded p-3" @contextmenu.prevent="onContextMenu">
+    <UCard 
+      @contextmenu.prevent="onContextMenu"
+    >
       <NuxtImg
         :src="anketaState.share.value.imageUrl"
         width="240"
@@ -69,6 +71,6 @@ const editState = inject("editState") as boolean
           />
         </div>
       </UContextMenu>
-    </div>
+    </UCard>
   </div>
 </template>
