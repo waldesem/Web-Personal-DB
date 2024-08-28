@@ -234,7 +234,9 @@ def get_index(page):
     stmt = select(Persons, Users.fullname)
     if search_data and len(search_data) > 2:
         if search_data.isdigit():
-            stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
+            if len(search_data) < 12:
+                stmt.filter(Persons.snils.ilike("%" + search_data + "%"))
+            else: stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
         else:
             pattern = r"^\d{2}\.\d{2}\.\d{4}$"
             query = list(map(str.upper, search_data.split()))
