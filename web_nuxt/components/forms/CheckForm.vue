@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, toRef, watch } from "vue";
 import { stateAnketa, stateClassify } from "@/state/state";
 import type { Verification } from "@/utils/interfaces";
 
@@ -17,6 +16,11 @@ const classifyState = stateClassify();
 
 const checkForm = toRef(props.check as Verification);
 const noNegative = ref(false);
+
+const selectValues = [
+  "Негативной информации не имеется", 
+  "Получена значимая информация"
+];
 
 // const additionFields = ref({
 //   workplace: "",
@@ -58,10 +62,14 @@ function submitCheck() {
   } as Verification);
 }
 
-watch(noNegative, () => {
-  if (noNegative.value) {
-    Object.assign(checkForm.value, {
-      workplace: "Негатив не выявлен",
+const computedWorkplace = computed (() =>  {
+  if (additionFields['workplace'] ==  selectValues[0]) {
+    return selectValues[0]
+  } else {
+    return  checkForm['workplace']
+  }
+});
+
       document: "Среди недействительных документов не обнаружен",
       inn: "ИНН соответствует паспорту",
       debt: "Задолженности не обнаружены",
@@ -74,19 +82,19 @@ watch(noNegative, () => {
       internet: "В открытых источниках негатив не обнаружен",
       cronos: "В Кронос негатив не выявлен",
       cros: "В Крос негатив не выявлен",
-    });
-  }
-});
 </script>
 
 <template>
-  <UFormGroup :state="noNegative" class="mb-3" label="Негатива нет">
-    <UToggle v-model="noNegative"/>
-  </UFormGroup>
   <UForm :state="checkForm" @submit.prevent="submitCheck">
     <UFormGroup class="mb-3" label="Проверка по местам работы">
+      <USelectMenu
+        v-model="additionField['workplace']"
+        :selected="checkForm['workplace'] ? selectValue[1] : selectValue[0]"
+        :options="selectValue"
+      />
       <UTextarea
-        v-model="checkForm['workplace']"
+v-show="selectValue !== 
+        v-model="computedWorkplace"
         placeholder="Проверка по местам работы"
       />
       <!-- <USelect
