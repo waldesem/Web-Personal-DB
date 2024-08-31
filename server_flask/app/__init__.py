@@ -44,6 +44,7 @@ def create_app(config_class=Config):
         admin = Users(
             fullname="Администратор",
             username="superadmin",
+            email="admin@localhost.ru",
             role=Roles.admin.value,
             passhash=generate_password_hash(Config.DEFAULT_PASSWORD),
             region=Regions.main.value,

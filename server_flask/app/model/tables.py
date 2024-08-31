@@ -34,9 +34,10 @@ class Users(Base):
     id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True, nullable=False, unique=True
     )
-    fullname: Mapped[str] = mapped_column(String(255), nullable=True)
+    fullname: Mapped[str] = mapped_column(String(255))
     username: Mapped[str] = mapped_column(String(255), unique=True)
-    passhash: Mapped[str] = mapped_column(String(255), nullable=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True)
+    passhash: Mapped[str] = mapped_column(String(255))
     pswd_create: Mapped[datetime] = mapped_column(
         DateTime, nullable=True, default=func.now()
     )

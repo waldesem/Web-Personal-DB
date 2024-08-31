@@ -114,6 +114,7 @@ provide("editState", editState);
       </div>
     </div>
     <ElementsHeaderDiv
+      :div="'py-3'"
       :header="`${anketaState.anketa.value.persons.surname} ${
         anketaState.anketa.value.persons.firstname
       } ${

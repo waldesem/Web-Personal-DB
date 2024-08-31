@@ -5,7 +5,6 @@ from email.utils import formatdate
 import os
 from os.path import basename
 import smtplib
-import subprocess
 
 from flask import abort, current_app
 from PIL import Image
@@ -29,7 +28,6 @@ def handle_get_item(item, item_id):
         dict or list: If item is "persons", a dictionary containing the item's data and the associated user's fullname.
                       Otherwise, a list of dictionaries containing the item's data and the associated user's fullname,
                       ordered by descending item ID.
-
     Raises:
         None
     """
@@ -84,17 +82,15 @@ def handle_post_resume(resume):
                 resume.get("patronymic", ""),
                 person.id,
             )
-            db_session.commit()
-            if os.path.isdir(person.destination):
-                # subprocess.Popen(f'explorer "{person.destination}"')
-                subprocess.Popen(f'xdg-open "{person.destination}"')
+            db_session.commit()                
             return [person.id, person.destination]
         else:
             if person.user_id != current_user["id"]:
                 return abort(400)
             resume["id"] = person.id
+        handle_post_item(resume, "persons")
+        return [resume["id"], person.destination]
     handle_post_item(resume, "persons")
-    return resume["id"]
 
 
 def handle_post_item(json_dict, item, item_id=""):

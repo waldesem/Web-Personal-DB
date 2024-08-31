@@ -23,6 +23,7 @@ class QueryModel(BaseModel):
 class User(QueryModel):
     fullname: str
     username: str
+    email: Optional[str] = None
     region: Optional[Regions] = None
     role: Optional[Roles] = None
 

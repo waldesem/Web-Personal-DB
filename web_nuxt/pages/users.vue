@@ -164,13 +164,12 @@ await getUsers();
         :state="dataUsers.form"
         @submit.prevent="submitUser"
       >
-        <div class="flex grid grid-cols-5 gap-3 border rounded p-3">
+        <div class="flex grid grid-cols-7 gap-3 border rounded p-3">
           <div class="col-span-2">
             <UFormGroup required class="mb-3">
               <UInput
                 v-model="dataUsers.form['fullname']"
                 placeholder="Имя пользователя"
-                size="lg"
               />
             </UFormGroup>
           </div>
@@ -179,7 +178,14 @@ await getUsers();
               <UInput
                 v-model="dataUsers.form['username']"
                 placeholder="Логин"
-                size="lg"
+              />
+            </UFormGroup>
+          </div>
+          <div class="col-span-2">
+            <UFormGroup required class="mb-3">
+              <UInput
+                v-model="dataUsers.form['email']"
+                placeholder="Email"
               />
             </UFormGroup>
           </div>
@@ -190,7 +196,6 @@ await getUsers();
               color="gray"
               label="Создать"
               type="submit"
-              size="lg"
             />
           </div>
         </div>
@@ -201,6 +206,7 @@ await getUsers();
         { key: 'id', label: '#' },
         { key: 'fullname', label: 'Пользователь' },
         { key: 'username', label: 'Логин' },
+        { key: 'email', label: 'Email' },
         { key: 'region', label: 'Регион' },
         { key: 'role', label: 'Роль' },
         { key: 'created', label: 'Создан' },

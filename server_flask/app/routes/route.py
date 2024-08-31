@@ -3,6 +3,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 
 from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from sqlalchemy import desc, func, select
@@ -165,7 +166,7 @@ def post_user():
             )
             db_session.add(Users(**json_dict))
             db_session.commit()
-            return ""
+            return "", 201
         return abort(400)
     except Exception as e:
         print(e)
@@ -293,14 +294,17 @@ def post_file(item, item_id):
             person_id, destination = handle_post_resume(anketa["resume"])
             if not person_id:
                 return abort(400)
-            if destination:
-                file.save(os.path.join(destination, file.filename))
+            if destination and os.path.isdir(destination):
+                with open(os.path.join(destination, file.filename), 'wb') as f:
+                    f.write(json.dumps(json_dict, ensure_ascii=False).encode('utf8'))
+                    # subprocess.run(f'explorer "{person.destination}"')
+                    subprocess.run(['xdg-open', destination])
             for table, contents in anketa.items():
                 if contents and table != "resume":
                     for content in contents:
                         if content:
                             handle_post_item(content, table, person_id)
-        return ""
+        return "", 201
 
     person = db_session.get(Persons, item_id)
     if not person:
@@ -339,7 +343,7 @@ def post_file(item, item_id):
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
-        return ""
+        return "", 201
     except OSError as e:
         print(e)
         return abort(400)
@@ -402,7 +406,7 @@ def change_region(person_id):
         person.region = region
         person.editable = False
         db_session.commit()
-        return ""
+        return "", 200
     return abort(400)
 
 
@@ -465,7 +469,7 @@ def post_item_id(item, item_id):
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
     handle_post_item(json_dict, item, item_id)
-    return ""
+    return "", 201
 
 
 @bp.delete("/<item>/<int:item_id>")
@@ -520,9 +524,8 @@ def get_information():
     results = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
         .join(Persons, Checks.person_id == Persons.id)
-        .filter(
-            Checks.created.between(data["start"], data["end"]),
-            Persons.region == data.get("region")
+        .filter(Checks.created.between(data["start"], data["end"]))
+        .filter_by(region=data.get("region")
             if data.get("region")
             else current_user["region"],
         )

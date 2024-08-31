@@ -2,6 +2,7 @@ export interface User {
   id: string;
   fullname: string;
   username: string;
+  email: string;
   pswd_create: string;
   change_pswd: boolean;
   blocked: boolean;

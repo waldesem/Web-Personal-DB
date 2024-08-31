@@ -7,7 +7,7 @@ const anketaState = stateAnketa();
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const address = ref({} as Address); 
+const address = ref({} as Address);
 
 function cancelAction() {
   edit.value = false;
@@ -15,7 +15,7 @@ function cancelAction() {
   itemId.value = "";
 }
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 </script>
 
 <template>
@@ -45,12 +45,18 @@ const editState = inject("editState") as boolean
           @cancel="cancelAction"
         />
         <div v-else>
-          <ElementsLabelSlot :label="'Тип'">{{ item["view"] }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Тип'">{{
+            item["view"]
+          }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Адрес'">{{
             item["addresses"]
           }}</ElementsLabelSlot>
+        </div>
+        <template
+          v-if="editState && (!edit || itemId != item['id'].toString())"
+          #footer
+        >
           <ElementsNaviHorizont
-            v-show="editState"
             :last-index="2"
             @delete="anketaState.deleteItem(item['id'].toString(), 'addresses')"
             @update="
@@ -59,7 +65,7 @@ const editState = inject("editState") as boolean
               edit = true;
             "
           />
-        </div>
+        </template>
       </UCard>
     </div>
   </div>
@@ -67,4 +73,3 @@ const editState = inject("editState") as boolean
     <p class="text-primary">Адреса отсутствуют</p>
   </div>
 </template>
-
