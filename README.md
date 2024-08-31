@@ -4,7 +4,7 @@ StaffSec is a web interface for managing a candidate database.
 
 ### The technology stack used in this project:
 
-- Flask (as server or optionally as desktop app with htmx2 and Bootstrap5);
+- Flask;
 - Sqlite3 (or PostgreSQL);
 - Nuxt3 and TailwindCSS;
 
@@ -14,7 +14,7 @@ To use this project, you will need to have Python 3.10 or higher.
 For installiing the required Python packages run commands:
 ```
 git clone https://github.com/waldesem/Web-Personal-DB.git
-cd Web-Personal-DB/backend # or cd htmx_flask 
+cd Web-Personal-DB/server_flask
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -45,12 +45,12 @@ Change directory to web_nuxt and run the command to install packages:
 npm i
 ```
 To build Nuxt3 with Client-side Only Rendering:
-In nuxt.config.ts add `ssr: false` and then run the command:
+In nuxt.config.ts toggle `ssr: false` and then run the command:
 ```
 npx nuxi generate
 ```
 To build Nuxt3 with Server-side Rendering:
-In nuxt.config.ts comment or delete `ssr: false` and `output - publicDir`
+In nuxt.config.ts toggle `ssr: false` and comment `output - publicDir`
 Then run the command:
 ```
 npx nuxi build
