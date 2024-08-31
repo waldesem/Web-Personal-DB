@@ -38,7 +38,7 @@ function submitPoligraf() {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Результат">
       <UTextarea
-        v-model="poligrafForm['results']"
+        v-model.trim.lazy="poligrafForm['results']"
         required
         placeholder="Результат"
       />

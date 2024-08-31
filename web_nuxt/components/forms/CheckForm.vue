@@ -58,91 +58,91 @@ watch(noNegative, () => {
   <UForm :state="checkForm" @submit.prevent="submitCheck">
     <UFormGroup class="mb-3" label="Проверка по местам работы">
       <UTextarea
-        v-model="checkForm['workplace']"
+        v-model.trim.lazy="checkForm['workplace']"
         placeholder="Проверка по местам работы"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка документов">
       <UTextarea
-        v-model="checkForm['document']"
+        v-model.trim.lazy="checkForm['document']"
         placeholder="Проверка документов"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка ИНН">
       <UTextarea
-        v-model="checkForm['inn']"
+        v-model.trim.lazy="checkForm['inn']"
         placeholder="Проверка ИНН"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка задолженностей">
       <UTextarea
-        v-model="checkForm['debt']"
+        v-model.trim.lazy="checkForm['debt']"
         placeholder="Проверка задолженностей"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка банкротства">
       <UTextarea
-        v-model="checkForm['bankruptcy']"
+        v-model.trim.lazy="checkForm['bankruptcy']"
         placeholder="Проверка банкротства"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка Кредитной истории">
       <UTextarea
-        v-model="checkForm['bki']"
+        v-model.trim.lazy="checkForm['bki']"
         placeholder="Проверка Кредитной истории"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка судебных дел">
       <UTextarea
-        v-model="checkForm['courts']"
+        v-model.trim.lazy="checkForm['courts']"
         placeholder="Проверка судебных дел"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка аффилированности">
       <UTextarea
-        v-model="checkForm['affilation']"
+        v-model.trim.lazy="checkForm['affilation']"
         placeholder="Проверка аффилированности"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в списке террористов">
       <UTextarea
-        v-model="checkForm['terrorist']"
+        v-model.trim.lazy="checkForm['terrorist']"
         placeholder="Проверка в списке террористов"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в розыск">
       <UTextarea
-        v-model="checkForm['mvd']"
+        v-model.trim.lazy="checkForm['mvd']"
         placeholder="Проверка в розыск"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в открытых источниках">
       <UTextarea
-        v-model="checkForm['internet']"
+        v-model.trim.lazy="checkForm['internet']"
         placeholder="Проверка в открытых источниках"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Проверка в Кронос">
       <UTextarea
-        v-model="checkForm['cronos']"
+        v-model.trim.lazy="checkForm['cronos']"
         placeholder="Проверка в Кронос/Крос"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дополнительная информация">
       <UTextarea
-        v-model="checkForm['addition']"
+        v-model.trim.lazy="checkForm['addition']"
         placeholder="Дополнительная информация"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Комментарии">
       <UTextarea
-        v-model="checkForm['comment']"
+        v-model.trim.lazy="checkForm['comment']"
         placeholder="Комментарии"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Результат">
       <USelect
-        v-model="checkForm['conclusion']"
+        v-model.trim.lazy="checkForm['conclusion']"
         required
         :options="Object.values(classifyState.classes.value.conclusions)"
       />

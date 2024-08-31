@@ -49,43 +49,43 @@ async function submitForm(): Promise<void> {
 <template>
   <UForm :state="resumeForm" @submit.prevent="submitForm">
     <UFormGroup class="mb-3" label="Фамилия">
-      <UInput v-model="resumeForm['surname']" required placeholder="Фамилия" />
+      <UInput v-model.trim.lazy="resumeForm['surname']" required placeholder="Фамилия" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Имя">
-      <UInput v-model="resumeForm['firstname']" required placeholder="Имя" />
+      <UInput v-model.trim.lazy="resumeForm['firstname']" required placeholder="Имя" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Отчество">
-      <UInput v-model="resumeForm['patronymic']" placeholder="Отчество" />
+      <UInput v-model.trim.lazy="resumeForm['patronymic']" placeholder="Отчество" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата рождения">
       <UInput v-model="resumeForm['birthday']" required type="date" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место рождения">
       <UTextarea
-        v-model="resumeForm['birthplace']"
+        v-model.trim.lazy="resumeForm['birthplace']"
         placeholder="Место рождения"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Гражданство">
-      <UInput v-model="resumeForm['citizenship']" placeholder="Гражданство" />
+      <UInput v-model.trim.lazy="resumeForm['citizenship']" placeholder="Гражданство" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Двойное гражданство">
-      <UInput v-model="resumeForm['dual']" placeholder="Двойное гражданство" />
+      <UInput v-model.trim.lazy="resumeForm['dual']" placeholder="Двойное гражданство" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="СНИЛС">
-      <UInput v-model="resumeForm['snils']" placeholder="СНИЛС" />
+      <UInput v-model.trim.lazy="resumeForm['snils']" placeholder="СНИЛС" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ИНН">
-      <UInput v-model="resumeForm['inn']" placeholder="ИНН" />
+      <UInput v-model.trim.lazy="resumeForm['inn']" placeholder="ИНН" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Семейное положение">
       <UTextarea
-        v-model="resumeForm['marital']"
+        v-model.trim.lazy="resumeForm['marital']"
         placeholder="Семейное положение"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дополнительно">
-      <UTextarea v-model="resumeForm['addition']" placeholder="Дополнительно" />
+      <UTextarea v-model.trim.lazy="resumeForm['addition']" placeholder="Дополнительно" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelEdit" />
   </UForm>

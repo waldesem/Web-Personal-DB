@@ -43,20 +43,20 @@ function submitDocument() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Серия документа">
-      <UInput v-model="docForm['series']" placeholder="Серия документа" />
+      <UInput v-model.trim.lazy="docForm['series']" placeholder="Серия документа" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Номер документа">
       <UInput
-        v-model="docForm['digits']"
+        v-model.trim.lazy="docForm['digits']"
         required
         placeholder="Номер документа"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Кем выдан">
-      <UInput v-model="docForm['agency']" placeholder="Кем выдан" />
+      <UInput v-model.trim.lazy="docForm['agency']" placeholder="Кем выдан" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата выдачи">
-      <UInput v-model="docForm['issue']" type="date" />
+      <UInput v-model.trim.lazy="docForm['issue']" type="date" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>

@@ -46,7 +46,7 @@ await personState.getCandidates();
         </UFormGroup>
       </div>
     </div>
-    <ElementsHeaderDiv :div="'py-1'" :header="'КАНДИДАТЫ'" />
+    <ElementsHeaderDiv :header="'КАНДИДАТЫ'" />
     <div class="my-6">
       <UInput
         v-model="personState.persons.value.search"
@@ -95,7 +95,11 @@ await personState.getCandidates();
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #editable-data="{ row }">
-        <UChip size="2xl" :color="row.editable ? 'red' : 'green'" />
+        <div 
+          :class="row.editable ? 'animate-pulse' : ''"
+        >
+          <UChip size="2xl" :color="row.editable ? 'red' : 'green'" />
+        </div>
       </template>
       <template #caption>
         <caption class="caption-bottom text-left">

@@ -235,8 +235,9 @@ def get_index(page):
     if search_data and len(search_data) > 2:
         if search_data.isdigit():
             if len(search_data) < 12:
-                stmt.filter(Persons.snils.ilike("%" + search_data + "%"))
-            else: stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
+                stmt = stmt.filter(Persons.snils.ilike("%" + search_data + "%"))
+            else: 
+                stmt = stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
         else:
             pattern = r"^\d{2}\.\d{2}\.\d{4}$"
             query = list(map(str.upper, search_data.split()))
@@ -289,9 +290,11 @@ def post_file(item, item_id):
             anketa = handle_json_to_dict(json_dict)
             if not anketa:
                 return abort(400)
-            person_id = handle_post_resume(anketa["resume"])
+            person_id, destination = handle_post_resume(anketa["resume"])
             if not person_id:
                 return abort(400)
+            if destination:
+                file.save(os.path.join(destination, file.filename))
             for table, contents in anketa.items():
                 if contents and table != "resume":
                     for content in contents:
@@ -369,11 +372,11 @@ def post_resume():
     """
     json_data = request.get_json()
     resume = Person(**json_data).dict()
-    person_id = handle_post_resume(resume)
-    if person_id:
-        return jsonify({"person_id": person_id})
-    return abort(400)
-
+    perrson_id = handle_post_resume(resume)
+    if not perrson_id:
+        return abort(400)
+    return "", 201
+    
 
 @bp.get("/region/<int:person_id>")
 @roles_required(Roles.user.value)

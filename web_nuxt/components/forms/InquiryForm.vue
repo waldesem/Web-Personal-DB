@@ -30,14 +30,14 @@ function submitIquiry() {
   <UForm :state="inquiryForm" @submit.prevent="submitIquiry">
     <UFormGroup class="mb-3" label="Информация">
       <UInput
-        v-model="inquiryForm['info']"
+        v-model.trim.lazy="inquiryForm['info']"
         required
         placeholder="Информация"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Инициатор">
       <UTextarea
-        v-model="inquiryForm['origins']"
+        v-model.trim.lazy="inquiryForm['origins']"
         required
         placeholder="Инициатор"
       />

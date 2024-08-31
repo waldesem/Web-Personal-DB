@@ -32,21 +32,21 @@ function submitAffilation() {
   <UForm :state="affilationForm" @submit.prevent="submitAffilation">
     <UFormGroup class="mb-3" label="Тип участия">
       <USelect
-        v-model="affilationForm['view']"
+        v-model.trim.lazy="affilationForm['view']"
         required
         :options="Object.values(classifyState.classes.value.affiliates)"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Организация">
       <UInput
-        v-model="affilationForm['organization']"
+        v-model.trim.lazy="affilationForm['organization']"
         required
         placeholder="Организация"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ИНН">
       <UInput
-        v-model="affilationForm['inn']"
+        v-model.trim.lazy="affilationForm['inn']"
         placeholder="ИНН"
       />
     </UFormGroup>

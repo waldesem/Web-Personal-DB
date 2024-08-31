@@ -114,7 +114,13 @@ provide("editState", editState);
       </div>
     </div>
     <ElementsHeaderDiv
-      :header="`${anketaState.anketa.value.persons.surname} ${anketaState.anketa.value.persons.firstname}`"
+      :header="`${anketaState.anketa.value.persons.surname} ${
+        anketaState.anketa.value.persons.firstname
+      } ${
+        anketaState.anketa.value.persons.patronymic
+          ? anketaState.anketa.value.persons.patronymic
+          : ''
+      }`"
     />
     <UTabs :items="tabs" class="w-full">
       <template #anketaTab><TabsAnketaTab /></template>

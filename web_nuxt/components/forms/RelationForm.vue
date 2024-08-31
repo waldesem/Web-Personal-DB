@@ -31,14 +31,14 @@ function submitRelation() {
   <UForm :state="relationForm" @submit.prevent="submitRelation">
     <UFormGroup class="mb-3" label="Тип связи">
       <USelect
-        v-model="relationForm['relation']"
+        v-model.trim.lazy="relationForm['relation']"
         required
         :options="Object.values(classifyState.classes.value.relations)"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ID связи">
       <UInput
-        v-model="relationForm['relation_id']"
+        v-model.trim.lazy="relationForm['relation_id']"
         required
         type="number"
       />

@@ -30,14 +30,14 @@ function submitStaff() {
   <UForm :state="staffForm" @submit.prevent="submitStaff">
     <UFormGroup class="mb-3" label="Должность">
       <UInput
-        v-model="staffForm['position']"
+        v-model.trim.lazy="staffForm['position']"
         required
         placeholder="Должность"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Подразделение">
       <UInput
-        v-model="staffForm['department']"
+        v-model.trim.lazy="staffForm['department']"
         placeholder="Подразделение"
       />
     </UFormGroup>

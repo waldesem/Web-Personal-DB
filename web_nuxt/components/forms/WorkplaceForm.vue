@@ -62,19 +62,19 @@ function submitWorkplace() {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место работы">
       <UInput
-        v-model="workForm['workplace']"
+        v-model.trim.lazy="workForm['workplace']"
         required
         placeholder="Место работы"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Должность">
-      <UInput v-model="workForm['position']" required placeholder="Должность" />
+      <UInput v-model.trim.lazy="workForm['position']" required placeholder="Должность" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес организации">
-      <UInput v-model="workForm['addresses']" placeholder="Адрес организации" />
+      <UInput v-model.trim.lazy="workForm['addresses']" placeholder="Адрес организации" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Причина увольнения">
-      <UInput v-model="workForm['reason']" placeholder="Причина увольнения" />
+      <UInput v-model.trim.lazy="workForm['reason']" placeholder="Причина увольнения" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="emit('cancel')" />
   </UForm>

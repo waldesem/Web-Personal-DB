@@ -6,7 +6,15 @@ const anketaState = stateAnketa();
 <template>
   <div class="p-3">
     <DivsPhotoCard />
-    <ElementsHeaderDiv :header="`${anketaState.anketa.value.persons.surname} ${anketaState.anketa.value.persons.firstname}`" />
+    <ElementsHeaderDiv
+      :header="`${anketaState.anketa.value.persons.surname} ${
+        anketaState.anketa.value.persons.firstname
+      } ${
+        anketaState.anketa.value.persons.patronymic
+          ? anketaState.anketa.value.persons.patronymic
+          : ''
+      }`"
+    />
     <DivsResumeDiv />
     <div class="my-3">
       <p class="text-red-800 font-bold p-3">Должности</p>
@@ -56,7 +64,7 @@ const anketaState = stateAnketa();
       <p class="text-red-800 font-bold p-3">Расследования</p>
       <TabsInvestigateTab />
     </div>
-    <div class="-3">
+    <div class="mt-3">
       <p class="text-red-800 font-bold p-3">Запросы</p>
       <TabsInquiryTab />
     </div>

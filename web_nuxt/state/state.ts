@@ -226,8 +226,7 @@ export const stateAnketa = () => {
         method: "POST",
         body: form,
       });
-      const person_id = response as string;
-      navigateTo(`/profile/${person_id}`);
+      console.log(response);
       const toast = useToast();
       toast.add({
         icon: "i-heroicons-check-circle",

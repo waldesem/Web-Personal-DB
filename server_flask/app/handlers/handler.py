@@ -1,6 +1,13 @@
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formatdate
 import os
+from os.path import basename
+import smtplib
+import subprocess
 
-from flask import current_app
+from flask import abort, current_app
 from PIL import Image
 from pydantic import ValidationError
 from sqlalchemy import desc, select
@@ -78,10 +85,13 @@ def handle_post_resume(resume):
                 person.id,
             )
             db_session.commit()
-            return person.id
+            if os.path.isdir(person.destination):
+                # subprocess.Popen(f'explorer "{person.destination}"')
+                subprocess.Popen(f'xdg-open "{person.destination}"')
+            return [person.id, person.destination]
         else:
             if person.user_id != current_user["id"]:
-                return None
+                return abort(400)
             resume["id"] = person.id
     handle_post_item(resume, "persons")
     return resume["id"]
@@ -111,11 +121,11 @@ def handle_json_to_dict(data):
         anketa = AnketaSchemaJson(**data).dict()
         anketa["resume"] = {
             "region": current_user["region"],
-            "surname": anketa.pop("surname", "").upper(),
-            "firstname": anketa.pop("firstname", "").upper(),
-            "patronymic": anketa.pop("patronymic", "").upper()
+            "surname": anketa.pop("surname", "").upper().strip(),
+            "firstname": anketa.pop("firstname", "").upper().strip(),
+            "patronymic": anketa.pop("patronymic", "").upper().strip()
             if anketa.get("patronymic")
-            else anketa.pop("patronymic", ""),
+            else "",
             "birthday": anketa.pop("birthday", ""),
             "birthplace": anketa.pop("birthplace", ""),
             "citizenship": anketa.pop("citizenship", ""),
@@ -214,3 +224,27 @@ def make_destination(region, surname, firstname, patronymic, person_id):
     if not os.path.isdir(destination):
         os.mkdir(destination)
     return destination
+
+
+def mail_handler(
+    send_from: str, send_to: list, subject: str, body: str, server: str, file=None
+):
+    msg = MIMEMultipart()
+    msg["From"] = send_from
+    msg["To"] = ",".join(send_to)
+    msg["Date"] = formatdate(localtime=True)
+    msg["Subject"] = subject
+
+    msg.attach(MIMEText(body, "plain"))
+
+    if file:
+        with open(file, "rb") as f:
+            part = MIMEApplication(f.read(), Name=basename(f))
+
+            part["Content-Disposition"] = 'attachment; filename="%s"' % basename(f)
+
+            msg.attach(part)
+
+    smtp = smtplib.SMTP(server)
+    smtp.sendmail(send_from, send_to, msg.as_string())
+    smtp.close()

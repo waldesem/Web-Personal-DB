@@ -30,14 +30,14 @@ function submitInvestigations() {
   <UForm :state="investigationForm" @submit.prevent="submitInvestigations">
     <UFormGroup class="mb-3" label="Тема проверки">
       <UInput
-        v-model="investigationForm['theme']"
+        v-model.trim.lazy="investigationForm['theme']"
         required
         placeholder="Тема проверки"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Информация">
       <UTextarea
-        v-model="investigationForm['info']"
+        v-model.trim.lazy="investigationForm['info']"
         required
         placeholder="Информация"
       />

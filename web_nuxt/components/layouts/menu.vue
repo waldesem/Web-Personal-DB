@@ -78,6 +78,13 @@ const filtredLinks = computed(() => {
             :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
             @click="$colorMode.preference = 'light'"
           />
+          <UButton
+          v-if="userState.user.value.username" 
+            class="absolute top-0 right-24"
+            icon="i-heroicons-user"
+            variant="ghost"
+            :title="userState.user.value.username" 
+          />
         </div>
       </div>
     </header>
@@ -100,7 +107,7 @@ const filtredLinks = computed(() => {
       class="text-center py-3 bg-white" 
       style="position: fixed; bottom: 0; width: 100%; height: 5vh;"
     >
-      <p class="text-gray-500">2024 STAFFSEC FINTECH</p>
+      <a class="text-gray-500" href="https://github.com/waldesem/Web-Personal-DB" target="_blank">GitHub</a>
     </footer>
   </UContainer>
 </template>

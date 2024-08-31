@@ -40,20 +40,20 @@ function submitEducation() {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Название учебного заведения">
       <UInput
-        v-model="educationForm['institution']"
+        v-model.trim.lazy="educationForm['institution']"
         required
         placeholder="Название учебного заведения"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Год окончания">
       <UInput
-        v-model="educationForm['finished']"
+        v-model.trim.lazy="educationForm['finished']"
         placeholder="Год окончания"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Специальность">
       <UInput
-        v-model="educationForm['specialty']"
+        v-model.trim.lazy="educationForm['specialty']"
         placeholder="Специальность"
       />
     </UFormGroup>

@@ -31,14 +31,14 @@ function submitAddress() {
   <UForm :state="addressForm" @submit.prevent="submitAddress">
     <UFormGroup class="mb-3" label="Вид адреса">
       <USelect
-        v-model="addressForm['view']"
+        v-model.trim.lazy="addressForm['view']"
         required
         :options="Object.values(classifyState.classes.value.addresses)"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес">
       <UInput
-        v-model="addressForm['addresses']"
+        v-model.trim.lazy="addressForm['addresses']"
         required
         placeholder="Адрес"
       />

@@ -2,7 +2,7 @@
 	const props = defineProps({
 		div: {
 			type: String,
-			default: 'py-3'
+			default: 'py-1'
 		},
 		cls: {
 			type: String,

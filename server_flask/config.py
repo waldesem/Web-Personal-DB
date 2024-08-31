@@ -12,13 +12,13 @@ class Configuration:
     BASE_PATH = (
         setting["Destination"].get("path")
         if setting["Destination"].get("path")
-        else os.path.join(basedir, "..", "PersonalDB")
+        else os.path.join(basedir, "PersonalDB")
     )
     DEFAULT_PASSWORD = "8" * 8
     DATABASE_URI = (
         "sqlite:///" + os.path.join(setting["SQLite"].get("uri"), "database.db")
         if setting["SQLite"].get("uri")
-        else os.path.join("sqlite:///", "..", "database.db")
+        else os.path.join("sqlite:///", "database.db")
     )
 
 
