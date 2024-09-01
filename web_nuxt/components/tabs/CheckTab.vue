@@ -22,7 +22,7 @@ function openFileForm(elementId: string) {
   document.getElementById(elementId)?.click();
 }
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 </script>
 
 <template>
@@ -41,9 +41,12 @@ const editState = inject("editState") as boolean
     </div>
   </Transition>
   <div v-if="anketaState.anketa.value.checks.length">
-    <UCard v-for="(item, index) in anketaState.anketa.value.checks" :key="index">
+    <UCard
+      v-for="(item, index) in anketaState.anketa.value.checks"
+      :key="index"
+    >
       <template #header>
-        <div class="tex-base text-red-800 font-medium" >
+        <div class="tex-base text-red-800 font-medium">
           {{ "Проверка кандидата ID #" + item["id"] }}
         </div>
       </template>
@@ -113,6 +116,15 @@ const editState = inject("editState") as boolean
           }}
         </ElementsLabelSlot>
       </div>
+      <template
+        v-if="
+          editState &&
+          (!checkData.edit &&
+          checkData.itemId !=
+            anketaState.anketa.value.checks[index]['id'].toString())
+        "
+        #footer
+      >
         <ElementsNaviHorizont
           v-show="!index && editState"
           @update="
@@ -144,10 +156,10 @@ const editState = inject("editState") as boolean
             "
           />
         </div>
+      </template>
     </UCard>
   </div>
   <div v-else class="p-3">
     <p class="text-primary">Проверка кандидата отсутствует</p>
   </div>
 </template>
-

@@ -70,6 +70,15 @@ const editState = inject("editState") as boolean
             ).toLocaleString("ru-RU")
           }}
         </ElementsLabelSlot>
+      </div>
+      <template
+        v-if="
+          editState &&
+          !edit &&
+          itemId !=
+            anketaState.anketa.value.inquiries[index]['id'].toString()
+        "
+      >
         <ElementsNaviHorizont
           v-show="!index && editState"
           @delete="
@@ -86,22 +95,22 @@ const editState = inject("editState") as boolean
           "
           @upload="openFileForm('inquiry-file')"
         />
-      </div>
-      <div v-show="false">
-        <UInput
-          id="inquiry-file"
-          type="file"
-          accept="*"
-          multiple
-          @change="
-            anketaState.submitFile(
-              $event,
-              'inquiries',
-              anketaState.share.value.candId
-            )
-          "
-        />
-      </div>
+        <div v-show="false">
+          <UInput
+            id="inquiry-file"
+            type="file"
+            accept="*"
+            multiple
+            @change="
+              anketaState.submitFile(
+                $event,
+                'inquiries',
+                anketaState.share.value.candId
+              )
+            "
+          />
+        </div>
+      </template>
     </UCard>
   </div>
   <div v-else class="p-3">

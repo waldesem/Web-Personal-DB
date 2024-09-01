@@ -57,6 +57,11 @@ const editState = inject("editState") as boolean
           <ElementsLabelSlot :label="'Специальность'">{{
             item["specialty"]
           }}</ElementsLabelSlot>
+        </div>
+        <template
+          v-if="editState && (!edit || itemId != item['id'].toString())"
+          #footer
+        >
           <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
@@ -67,7 +72,7 @@ const editState = inject("editState") as boolean
               edit = true;
             "
           />
-        </div>
+        </template>
       </UCard>
     </div>
   </div>

@@ -108,6 +108,11 @@ const editState = inject("editState") as boolean
             : "-"
         }}
       </ElementsLabelSlot>
+    </div>
+    <template
+      v-if="editState && !dataResume.action"
+      #footer
+    >
       <ElementsNaviHorizont
         v-show="editState"
         @delete="
@@ -134,6 +139,6 @@ const editState = inject("editState") as boolean
           "
         />
       </div>
-    </div>
+    </template>
   </UCard>
 </template>

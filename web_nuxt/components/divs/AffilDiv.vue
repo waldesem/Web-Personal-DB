@@ -52,7 +52,12 @@ const editState = inject("editState") as boolean
             item["organization"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
-          <ElementsNaviHorizont
+        </div>
+        <template
+          v-if="editState && (!edit || itemId != item['id'].toString())"
+          #footer
+        >
+        <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
             @delete="anketaState.deleteItem(item['id'].toString(), 'affilations')"
@@ -62,7 +67,7 @@ const editState = inject("editState") as boolean
               edit = true;
             "
           />
-        </div>
+        </template>
       </UCard>
     </div>
   </div>

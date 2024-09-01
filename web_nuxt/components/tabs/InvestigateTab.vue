@@ -71,6 +71,14 @@ const editState = inject("editState") as boolean
             ).toLocaleString("ru-RU")
           }}
         </ElementsLabelSlot>
+      </div>
+      <template
+        v-if="
+          editState &&
+          (!edit && itemId !=
+          anketaState.anketa.value.investigations[index]['id'].toString())
+        "
+      >
         <ElementsNaviHorizont
           v-show="!index && editState"
           @update="
@@ -106,7 +114,7 @@ const editState = inject("editState") as boolean
             "
           />
         </div>
-      </div>
+      </template>
     </UCard>
   </div>
   <div v-else class="p-3">

@@ -19,7 +19,7 @@ function cancelAction() {
   collapse.value = false;
 }
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 </script>
 
 <template>
@@ -38,17 +38,19 @@ const editState = inject("editState") as boolean
     </div>
   </Transition>
   <div v-if="anketaState.anketa.value.poligrafs.length">
-    <UCard v-for="(item, index) in anketaState.anketa.value.poligrafs" :key="index">
+    <UCard
+      v-for="(item, index) in anketaState.anketa.value.poligrafs"
+      :key="index"
+    >
       <template #header>
-        <div class="tex-base text-red-800 font-medium" >
+        <div class="tex-base text-red-800 font-medium">
           {{ "Обследование на полиграфе ID #" + item["id"] }}
         </div>
       </template>
       <FormsPoligrafForm
         v-if="
           edit &&
-          itemId ==
-            anketaState.anketa.value.poligrafs[index]['id'].toString()
+          itemId == anketaState.anketa.value.poligrafs[index]['id'].toString()
         "
         :poligraf="poligraf"
         @cancel="cancelAction"
@@ -70,12 +72,20 @@ const editState = inject("editState") as boolean
             ).toLocaleString("ru-RU")
           }}
         </ElementsLabelSlot>
+      </div>
+      <template
+        v-if="
+          editState &&
+          (!edit &&
+          itemId != anketaState.anketa.value.poligrafs[index]['id'].toString())
+        "
+        #footer
+      >
         <ElementsNaviHorizont
           v-show="!index && editState"
           @update="
             poligraf = anketaState.anketa.value.poligrafs[index];
-            itemId =
-              anketaState.anketa.value.poligrafs[index]['id'].toString();
+            itemId = anketaState.anketa.value.poligrafs[index]['id'].toString();
             edit = true;
           "
           @delete="
@@ -101,11 +111,10 @@ const editState = inject("editState") as boolean
             "
           />
         </div>
-      </div>
+      </template>
     </UCard>
   </div>
   <div v-else class="p-3">
     <p class="text-primary">Обследование на полиграфе не проводилось</p>
   </div>
 </template>
-
