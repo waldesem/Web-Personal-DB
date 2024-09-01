@@ -50,7 +50,7 @@ await personState.getCandidates();
     <div class="my-6">
       <UInput
         v-model="personState.persons.value.search"
-        placeholder="поиск по фамилии, имени, отчеству, дате рождения, или снилс, или инн"
+        placeholder="поиск по фамилии, имени, отчеству, дате рождения или инн"
         size="lg"
         @input.prevent="searchPerson"
       />
@@ -62,8 +62,8 @@ await personState.getCandidates();
         { key: 'region', label: 'Регион' },
         { key: 'surname', label: 'Фамилия Имя Отчество' },
         { key: 'birthday', label: 'Дата рождения' },
-        { key: 'snils', label: 'СНИЛС' },
         { key: 'inn', label: 'ИНН' },
+        { key: 'snils', label: 'СНИЛС' },
         { key: 'created', label: 'Обновлено' },
         { key: 'username', label: 'Сотрудник' },
         { key: 'editable', label: 'Статус' },
@@ -87,7 +87,6 @@ await personState.getCandidates();
       <template #birthplace-data="{ row }">{{
         row.birthplace ? row.birthplace : ""
       }}</template>
-      <template #inn-data="{ row }">{{ row.inn }}</template>
       <template #created-data="{ row }">{{
         new Date(row.created).toLocaleDateString()
       }}</template>
@@ -96,6 +95,7 @@ await personState.getCandidates();
       }}</template>
       <template #editable-data="{ row }">
         <div 
+          class="text-center me-12"
           :class="row.editable ? 'animate-pulse' : ''"
         >
           <UChip size="2xl" :color="row.editable ? 'red' : 'green'" />

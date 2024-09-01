@@ -49,7 +49,7 @@ const editState = inject("editState") as boolean
         id="image-file"
         multiple
         type="file"
-        accept=".jpg, .jpeg"
+        accept="image/*"
         @change="
           anketaState.submitFile(
             $event,

@@ -55,7 +55,7 @@ await getStatData();
             />
           </UFormGroup>
         </div>
-        <div class="flex col-span-2">
+        <div class="col-span-2">
           <div class="px-3">
             <UFormGroup size="md" label="Начало периода">
               <UInput
@@ -65,17 +65,19 @@ await getStatData();
               />
             </UFormGroup>
           </div>
-          <div class="px-3">
-            <UFormGroup size="md" label="Конец периода">
-              <UInput
-                v-model="tableData.end"
-                type="date"
-                @change="getStatData"
-              />
-            </UFormGroup>
-          </div>
+        </div>
+        <div class="col-span-2">
+        <div class="px-3">
+          <UFormGroup size="md" label="Конец периода">
+            <UInput
+              v-model="tableData.end"
+              type="date"
+              @change="getStatData"
+            />
+          </UFormGroup>
+        </div>
         </div>
       </div>
-      </div>
+    </div>
   </LayoutsMenu>
 </template>

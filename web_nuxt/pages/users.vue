@@ -210,10 +210,10 @@ await getUsers();
         { key: 'region', label: 'Регион' },
         { key: 'role', label: 'Роль' },
         { key: 'created', label: 'Создан' },
-        { key: 'attempt', label: 'Попытки' },
-        { key: 'blocked', label: 'Блокировка' },
-        { key: 'pswd_create', label: 'Обновлено' },
-        { key: 'change_pswd', label: 'Изменение' },
+        { key: 'attempt', label: 'Попытка' },
+        { key: 'blocked', label: 'Блок' },
+        { key: 'pswd_create', label: 'Обновлен' },
+        { key: 'change_pswd', label: 'Изм.пароля' },
       ]"
       :rows="users"
     >
@@ -247,14 +247,23 @@ await getUsers();
       <template #created-data="{ row }">{{
         new Date(row.created).toLocaleDateString()
       }}</template>
+      <template #attempt-data="{ row }">
+        <div class="text-center">
+          {{ row.attempt }}
+        </div>
+        </template>
       <template #blocked-data="{ row }">
-        <UChip size="2xl" :color="row.blocked ? 'red' : 'green'" />
+        <div class="text-center">
+          <UChip size="2xl" :color="row.blocked ? 'red' : 'green'" />
+        </div>
       </template>
       <template #pswd_create-data="{ row }">{{
         new Date(row.pswd_create).toLocaleDateString()
       }}</template>
       <template #change_pswd-data="{ row }">
-        <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'" />
+        <div class="text-center">
+          <UChip size="2xl" :color="row.change_pswd ? 'red' : 'green'" />
+        </div>
       </template>
     </UTable>
   </LayoutsMenu>

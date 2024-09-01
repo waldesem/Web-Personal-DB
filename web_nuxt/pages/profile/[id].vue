@@ -123,7 +123,7 @@ provide("editState", editState);
           : ''
       }`"
     />
-    <UTabs :items="tabs" class="w-full">
+    <UTabs :items="tabs">
       <template #anketaTab><TabsAnketaTab /></template>
       <template #checkTab><TabsCheckTab /></template>
       <template #poligrafTab><TabsPoligrafTab /></template>

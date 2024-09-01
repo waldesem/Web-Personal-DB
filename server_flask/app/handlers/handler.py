@@ -187,10 +187,11 @@ def handle_image(file, item_dir):
         None
     """
     image = Image.open(file)
+    image = image.convert("RGB")
     new_file = os.path.join(item_dir, "image.jpg")
     if os.path.isfile(new_file):
         os.remove(new_file)
-    image.save(new_file)
+    image.save(new_file, format="JPEG", quality=90)
 
 
 def make_destination(region, surname, firstname, patronymic, person_id):

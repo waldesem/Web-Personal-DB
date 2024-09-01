@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 
-from flask_cors import CORS
+# from flask_cors import CORS
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
@@ -25,7 +25,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    # CORS(app, resources={r"/*": {"origins": "*"}})
 
     if not os.path.isdir(Config.BASE_PATH):
         os.mkdir(Config.BASE_PATH)

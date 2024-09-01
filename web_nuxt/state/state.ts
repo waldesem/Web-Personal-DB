@@ -180,15 +180,6 @@ export const stateAnketa = () => {
     const formData = new FormData();
     if (fileList) {
       for (const file of fileList) {
-        if (param === "image" && file.size > 1024 * 1024) {
-          toast.add({
-            icon: "i-heroicons-exclamation-triangle",
-            title: "Внимание",
-            description: "Файл слишком большой",
-            color: "red",
-          });
-          return;
-        }
         formData.append("file", file);
       }
       const response = await authFetch(`${server}/file/${param}/${itemId}`, {

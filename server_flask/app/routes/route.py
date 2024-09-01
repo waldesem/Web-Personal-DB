@@ -1,4 +1,5 @@
 from datetime import datetime
+import imghdr
 import json
 import os
 import re
@@ -235,10 +236,7 @@ def get_index(page):
     stmt = select(Persons, Users.fullname)
     if search_data and len(search_data) > 2:
         if search_data.isdigit():
-            if len(search_data) < 12:
-                stmt = stmt.filter(Persons.snils.ilike("%" + search_data + "%"))
-            else: 
-                stmt = stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
+            stmt = stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
         else:
             pattern = r"^\d{2}\.\d{2}\.\d{4}$"
             query = list(map(str.upper, search_data.split()))
@@ -286,24 +284,26 @@ def post_file(item, item_id):
         return abort(400)
 
     if item == "persons":
-        for file in files:
-            json_dict = json.load(file)
-            anketa = handle_json_to_dict(json_dict)
-            if not anketa:
-                return abort(400)
-            person_id, destination = handle_post_resume(anketa["resume"])
-            if not person_id:
-                return abort(400)
-            if destination and os.path.isdir(destination):
-                with open(os.path.join(destination, file.filename), 'wb') as f:
-                    f.write(json.dumps(json_dict, ensure_ascii=False).encode('utf8'))
-                    # subprocess.run(f'explorer "{person.destination}"')
-                    subprocess.run(['xdg-open', destination])
-            for table, contents in anketa.items():
-                if contents and table != "resume":
-                    for content in contents:
-                        if content:
-                            handle_post_item(content, table, person_id)
+        file = files[0]
+        if not file.filename.endswith(".json"):
+            return abort(400)
+        json_dict = json.load(file)
+        anketa = handle_json_to_dict(json_dict)
+        if not anketa:
+            return abort(400)
+        person_id, destination = handle_post_resume(anketa["resume"])
+        if not person_id:
+            return abort(400)
+        if destination and os.path.isdir(destination):
+            with open(os.path.join(destination, file.filename), 'wb') as f:
+                f.write(json.dumps(json_dict, ensure_ascii=False).encode('utf8'))
+                subprocess.run(f'explorer "{destination}"')
+                # subprocess.run(['xdg-open', destination])
+        for table, contents in anketa.items():
+            if contents and table != "resume":
+                for content in contents:
+                    if content:
+                        handle_post_item(content, table, person_id)
         return "", 201
 
     person = db_session.get(Persons, item_id)
@@ -328,10 +328,10 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            filename = files[0].filename
-            if filename.endswith(".jpg") or filename.endswith(".jpeg"):
+            if imghdr.what( files[0]) is not None:
                 handle_image(files[0], item_dir)
-                return ""
+                return "", 201
+            return abort(400)
 
         date_subfolder = os.path.join(
             item_dir,
