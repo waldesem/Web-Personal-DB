@@ -138,6 +138,7 @@ class Investigation(QueryModel):
 
 class Inquiry(QueryModel):
     info: str
+    initiator: str
     origins: str
 
 
