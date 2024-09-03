@@ -254,7 +254,7 @@ def get_index(page):
         stmt = stmt.filter(Persons.region == cur_user["region"])
     query = db_session.execute(
         stmt.join(Users)
-        .order_by(desc(Persons.id))
+        .order_by(desc(Persons.created))
         .limit(pagination + 1)
         .offset((page - 1) * pagination)
     ).all()
