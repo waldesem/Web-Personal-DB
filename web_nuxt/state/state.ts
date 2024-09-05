@@ -47,6 +47,7 @@ export const stateClassify = () => {
 export const statePersons = () => {
   const persons = useState(`${server}/persons`, () => ({
     candidates: [] as Persons[],
+    pending: false,
     page: 1,
     prev: false,
     next: true,
