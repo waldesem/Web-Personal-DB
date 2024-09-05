@@ -64,11 +64,13 @@ export const statePersons = () => {
     } else {
       persons.value.page = page;
     }
+    persons.value.pending = true;
     const response = await authFetch(`${server}/index/${persons.value.page}`, {
       params: {
         search: persons.value.search,
       },
     });
+    persons.value.pending = false;
     [persons.value.candidates, persons.value.next, persons.value.prev] =
       response as [Persons[], boolean, boolean];
 
