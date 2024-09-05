@@ -57,6 +57,9 @@ await personState.getCandidates();
     </div>
     <UTable
       :loading="personState.persons.value.pending"
+      :loading-state="{ icon: 'i-heroicons-arrow-path-20-solid', label: 'Загрузка...' }"
+    :progress="{ color: 'blue', animation: 'carousel' }"
+    class="w-full"
       :empty-state="{ label: 'Ничего не найдено.' }"
       :columns="[
         { key: 'id', label: '#' },
