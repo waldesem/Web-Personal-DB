@@ -56,6 +56,7 @@ await personState.getCandidates();
       />
     </div>
     <UTable
+      :loading="pending"
       :empty-state="{ label: 'Ничего не найдено.' }"
       :columns="[
         { key: 'id', label: '#' },
