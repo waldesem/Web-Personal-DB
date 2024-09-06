@@ -4,7 +4,7 @@ import type { Address } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('addresses);
+await anketaState.getItem('addresses');
 
 const collapse = ref(false);
 const edit = ref(false);
