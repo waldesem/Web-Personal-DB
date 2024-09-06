@@ -10,12 +10,6 @@ const route = useRoute();
 
 anketaState.share.value.candId = route.params.id as string;
 
-const authFetch = useFetchAuth();
-anketaState.anketa.value = (await authFetch(
-  `${server}/profile/${anketaState.share.value.candId}`
-)) as Profile;
-await anketaState.getImage();
-
 const tabs = [
   {
     slot: "anketaTab",
