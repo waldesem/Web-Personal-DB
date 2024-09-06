@@ -4,6 +4,8 @@ import type { Inquisition } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
+await anketaState.getItem('investigations);
+
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
