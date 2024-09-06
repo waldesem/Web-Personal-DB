@@ -4,6 +4,8 @@ import type { Needs } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
+await anketaState.getItem('inquiries);
+
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
