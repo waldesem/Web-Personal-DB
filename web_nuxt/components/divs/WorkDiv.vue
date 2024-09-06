@@ -4,6 +4,8 @@ import type { Work } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
+await anketaState.getItem('workplaces');
+
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
