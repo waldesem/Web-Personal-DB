@@ -4,6 +4,8 @@ import type { Pfo } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
+await anketaState.getItem('poligrafs);
+
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
