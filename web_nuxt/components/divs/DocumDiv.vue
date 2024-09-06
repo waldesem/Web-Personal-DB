@@ -4,6 +4,8 @@ import type { Document } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
+await anketaState.getItem('documents');
+
 const collapse = ref(false);
 const itemId = ref("");
 const edit = ref(false);
