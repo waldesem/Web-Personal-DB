@@ -4,6 +4,8 @@ import { useMouse, useWindowScroll } from "@vueuse/core";
 
 const anketaState = stateAnketa();
 
+await anketaState.getImage();
+
 const photoCard = ref({
   formData: new FormData(),
 
