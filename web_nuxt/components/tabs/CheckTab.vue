@@ -4,6 +4,8 @@ import type { Verification } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
+await anketaState.getItem('checks', anketaState.anketa.value.candId);
+
 const checkData = ref({
   collapse: false,
   collapseAdd: false,
