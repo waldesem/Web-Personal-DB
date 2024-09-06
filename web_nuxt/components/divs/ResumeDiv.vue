@@ -6,6 +6,8 @@ import type { Persons } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
+await anketaState.getItem('persons');
+
 const dataResume = ref({
   action: "",
   form: {} as Persons,
