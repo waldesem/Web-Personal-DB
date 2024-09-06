@@ -4,6 +4,8 @@ import type { Contact } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
+await anketaState.getItem('contacts');
+
 const collapse = ref(false);
 const itemId = ref("");
 const edit = ref(false);
