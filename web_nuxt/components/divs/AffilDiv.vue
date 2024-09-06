@@ -4,7 +4,7 @@ import type { Affilation } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('affilations);
+await anketaState.getItem('affilations');
 
 const collapse = ref(false);
 const edit = ref(false);
