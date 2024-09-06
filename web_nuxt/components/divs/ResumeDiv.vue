@@ -100,7 +100,7 @@ const editState = inject("editState") as boolean
           class="text-red-500"
           target="_blank" 
           :href="anketaState.anketa.value.persons['destination']">
-          Открыть
+          {{ "anketaState.anketa.value.persons['destination']" }}
         </a>
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">
