@@ -1,6 +1,11 @@
 <script setup lang="ts">
-const switchToPersons = () => {
+const personState = statePersons();
+
+
+
+const switchToPersons = async() => {
   navigateTo('/persons');
+  await personState.getCandidates();
 }
 </script>
 
