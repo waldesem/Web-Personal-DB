@@ -40,81 +40,84 @@ const editState = inject("editState") as boolean;
     </div>
   </Transition>
   <div v-if="anketaState.anketa.value.poligrafs.length">
-    <UCard
+    <div
       v-for="(item, index) in anketaState.anketa.value.poligrafs"
       :key="index"
+      class="py-1"
     >
-      <template #header>
-        <div class="tex-base text-red-800 font-medium">
-          {{ "Обследование на полиграфе ID #" + item["id"] }}
-        </div>
-      </template>
-      <FormsPoligrafForm
-        v-if="
-          edit &&
-          itemId == anketaState.anketa.value.poligrafs[index]['id'].toString()
-        "
-        :poligraf="poligraf"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <ElementsLabelSlot :label="'Тема проверки'">{{
-          anketaState.anketa.value.poligrafs[index]["theme"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Результат'">{{
-          anketaState.anketa.value.poligrafs[index]["results"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{
-          anketaState.anketa.value.poligrafs[index]["username"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{
-            new Date(
-              anketaState.anketa.value.poligrafs[index]["created"] + " UTC"
-            ).toLocaleString("ru-RU")
-          }}
-        </ElementsLabelSlot>
-      </div>
-      <template
-        v-if="
-          editState &&
-          (!edit &&
-          itemId != anketaState.anketa.value.poligrafs[index]['id'].toString())
-        "
-        #footer
-      >
-        <ElementsNaviHorizont
-          v-show="!index && editState"
-          @update="
-            poligraf = anketaState.anketa.value.poligrafs[index];
-            itemId = anketaState.anketa.value.poligrafs[index]['id'].toString();
-            edit = true;
+      <UCard>
+        <template #header>
+          <div class="tex-base text-red-800 font-medium">
+            {{ "Обследование на полиграфе ID #" + item["id"] }}
+          </div>
+        </template>
+        <FormsPoligrafForm
+          v-if="
+            edit &&
+            itemId == anketaState.anketa.value.poligrafs[index]['id'].toString()
           "
-          @delete="
-            anketaState.deleteItem(
-              anketaState.anketa.value.poligrafs[index]['id'].toString(),
-              'poligrafs'
-            )
-          "
-          @upload="openFileForm('poligraf-file')"
+          :poligraf="poligraf"
+          @cancel="cancelAction"
         />
-        <div v-show="false">
-          <UInput
-            id="poligraf-file"
-            type="file"
-            accept="*"
-            multiple
-            @change="
-              anketaState.submitFile(
-                $event,
-                'poligrafs',
-                anketaState.share.value.candId
+        <div v-else>
+          <ElementsLabelSlot :label="'Тема проверки'">{{
+            anketaState.anketa.value.poligrafs[index]["theme"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Результат'">{{
+            anketaState.anketa.value.poligrafs[index]["results"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Сотрудник'">{{
+            anketaState.anketa.value.poligrafs[index]["username"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Дата записи'">
+            {{
+              new Date(
+                anketaState.anketa.value.poligrafs[index]["created"] + " UTC"
+              ).toLocaleString("ru-RU")
+            }}
+          </ElementsLabelSlot>
+        </div>
+        <template
+          v-if="
+            editState &&
+            (!edit &&
+            itemId != anketaState.anketa.value.poligrafs[index]['id'].toString())
+          "
+          #footer
+        >
+          <ElementsNaviHorizont
+            v-show="!index && editState"
+            @update="
+              poligraf = anketaState.anketa.value.poligrafs[index];
+              itemId = anketaState.anketa.value.poligrafs[index]['id'].toString();
+              edit = true;
+            "
+            @delete="
+              anketaState.deleteItem(
+                anketaState.anketa.value.poligrafs[index]['id'].toString(),
+                'poligrafs'
               )
             "
+            @upload="openFileForm('poligraf-file')"
           />
-        </div>
-      </template>
-    </UCard>
+          <div v-show="false">
+            <UInput
+              id="poligraf-file"
+              type="file"
+              accept="*"
+              multiple
+              @change="
+                anketaState.submitFile(
+                  $event,
+                  'poligrafs',
+                  anketaState.share.value.candId
+                )
+              "
+            />
+          </div>
+        </template>
+      </UCard>
+    </div>
   </div>
   <div v-else class="p-3">
     <p class="text-primary">Обследование на полиграфе не проводилось</p>

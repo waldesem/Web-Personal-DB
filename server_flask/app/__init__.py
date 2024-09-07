@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask
 
 # from flask_cors import CORS
@@ -26,17 +24,6 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
     # CORS(app, resources={r"/*": {"origins": "*"}})
-
-    if not os.path.isdir(Config.BASE_PATH):
-        os.mkdir(Config.BASE_PATH)
-    for region in Regions:
-        region_path = os.path.join(Config.BASE_PATH, region.value)
-        if not os.path.isdir(region_path):
-            os.mkdir(region_path)
-        for letter in "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ":
-            letter_path = os.path.join(region_path, letter)
-            if not os.path.isdir(letter_path):
-                os.mkdir(letter_path)
 
     if not db_session.execute(
         select(Users).filter(Users.role == Roles.admin.value)

@@ -40,84 +40,89 @@ const editState = inject("editState") as boolean
     </div>
   </Transition>
   <div v-if="anketaState.anketa.value.investigations.length">
-    <UCard v-for="(item, index) in anketaState.anketa.value.investigations" :key="index">
-      <template #header>
-        <div class="tex-base text-red-800 font-medium" >
-          {{ "Расследование/проверка ID #" + item["id"] }}
-        </div>
-      </template>
-      <FormsInvestigationForm
-        v-if="
-          edit &&
-          itemId ==
-            anketaState.anketa.value.investigations[index]['id'].toString()
-        "
-        :investigation="inquisition"
-        @cancel="cancelAction"
-      />
-      <div v-else>
-        <ElementsLabelSlot :label="'Тема проверки'">{{
-          anketaState.anketa.value.investigations[index]["theme"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Информация'">{{
-          anketaState.anketa.value.investigations[index]["info"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Сотрудник'">{{
-          anketaState.anketa.value.investigations[index]["username"]
-        }}</ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дата записи'">
-          {{
-            new Date(
-              anketaState.anketa.value.investigations[index]["created"] +
-                " UTC"
-            ).toLocaleString("ru-RU")
-          }}
-        </ElementsLabelSlot>
-      </div>
-      <template
-        v-if="
-          editState &&
-          (!edit && itemId !=
-          anketaState.anketa.value.investigations[index]['id'].toString())
-        "
+    <div 
+      v-for="(item, index) in anketaState.anketa.value.investigations" :key="index"
+      class="py-1"
       >
-        <ElementsNaviHorizont
-          v-show="!index && editState"
-          @update="
-            inquisition = anketaState.anketa.value.investigations[index];
-            itemId =
-              anketaState.anketa.value.investigations[index][
-                'id'
-              ].toString();
-            edit = true;
+      <UCard>
+        <template #header>
+          <div class="tex-base text-red-800 font-medium" >
+            {{ "Расследование/проверка ID #" + item["id"] }}
+          </div>
+        </template>
+        <FormsInvestigationForm
+          v-if="
+            edit &&
+            itemId ==
+              anketaState.anketa.value.investigations[index]['id'].toString()
           "
-          @delete="
-            anketaState.deleteItem(
-              anketaState.anketa.value.investigations[index][
-                'id'
-              ].toString(),
-              'investigations'
-            )
-          "
-          @upload="openFileForm('investigation-file')"
+          :investigation="inquisition"
+          @cancel="cancelAction"
         />
-        <div v-show="false">
-          <UInput
-            id="investigation-file"
-            type="file"
-            accept="*"
-            multiple
-            @change="
-              anketaState.submitFile(
-                $event,
-                'investigations',
-                anketaState.share.value.candId
+        <div v-else>
+          <ElementsLabelSlot :label="'Тема проверки'">{{
+            anketaState.anketa.value.investigations[index]["theme"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Информация'">{{
+            anketaState.anketa.value.investigations[index]["info"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Сотрудник'">{{
+            anketaState.anketa.value.investigations[index]["username"]
+          }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Дата записи'">
+            {{
+              new Date(
+                anketaState.anketa.value.investigations[index]["created"] +
+                  " UTC"
+              ).toLocaleString("ru-RU")
+            }}
+          </ElementsLabelSlot>
+        </div>
+        <template
+          v-if="
+            editState &&
+            (!edit && itemId !=
+            anketaState.anketa.value.investigations[index]['id'].toString())
+          "
+        >
+          <ElementsNaviHorizont
+            v-show="!index && editState"
+            @update="
+              inquisition = anketaState.anketa.value.investigations[index];
+              itemId =
+                anketaState.anketa.value.investigations[index][
+                  'id'
+                ].toString();
+              edit = true;
+            "
+            @delete="
+              anketaState.deleteItem(
+                anketaState.anketa.value.investigations[index][
+                  'id'
+                ].toString(),
+                'investigations'
               )
             "
+            @upload="openFileForm('investigation-file')"
           />
-        </div>
-      </template>
-    </UCard>
+          <div v-show="false">
+            <UInput
+              id="investigation-file"
+              type="file"
+              accept="*"
+              multiple
+              @change="
+                anketaState.submitFile(
+                  $event,
+                  'investigations',
+                  anketaState.share.value.candId
+                )
+              "
+            />
+          </div>
+        </template>
+      </UCard>
+    </div>
   </div>
   <div v-else class="p-3">
     <p class="text-primary">Расследования/Проверки не проводились</p>

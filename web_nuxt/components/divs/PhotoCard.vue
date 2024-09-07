@@ -1,10 +1,28 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
+import { server, stateAnketa } from "@/state/state";
 import { useMouse, useWindowScroll } from "@vueuse/core";
+
+const editState = inject("editState") as boolean;
 
 const anketaState = stateAnketa();
 
-await anketaState.getImage();
+const { data, refresh } = await useAsyncData("image", async () => {
+  await $fetch(`${server}/image`, {
+    params: {
+      image: anketaState.anketa.value.persons.destination,
+    },
+    responseType: "blob",
+  });
+});
+
+const imageUrl = ref(window.URL.createObjectURL(new Blob([data.value] as never)));
+
+await refresh();
+
+function submitImage(event: FileList) {
+  anketaState.submitFile(event, "image", anketaState.share.value.candId);
+  refresh();
+}
 
 const photoCard = ref({
   formData: new FormData(),
@@ -32,17 +50,16 @@ function onContextMenu() {
   });
   isOpen.value = true;
 }
-
-const editState = inject("editState") as boolean
 </script>
 
 <template>
   <div class="flex justify-left">
     <UCard 
+      :ui = "{body: {padding: 'p-1 sm:p-6'}}"
       @contextmenu.prevent="onContextMenu"
-    >
+      >
       <NuxtImg
-        :src="anketaState.share.value.imageUrl"
+        :src="imageUrl"
         width="240"
         height="240"
       />
@@ -52,13 +69,7 @@ const editState = inject("editState") as boolean
         multiple
         type="file"
         accept="image/*"
-        @change="
-          anketaState.submitFile(
-            $event,
-            'image',
-            anketaState.share.value.candId
-          )
-        "
+        @change="submitImage($event)"
       />
       <UContextMenu
         v-if="editState"

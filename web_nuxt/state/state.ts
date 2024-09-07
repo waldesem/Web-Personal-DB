@@ -1,5 +1,5 @@
 import { useFetchAuth } from "../utils/auth";
-import type { Classes, Persons, Profile } from "@/utils/interfaces";
+import type { Classes, Profile } from "@/utils/interfaces";
 
 const authFetch = useFetchAuth();
 
@@ -44,42 +44,42 @@ export const stateClassify = () => {
   return { classes, getClassify };
 };
 
-export const statePersons = () => {
-  const persons = useState(`${server}/persons`, () => ({
-    candidates: [] as Persons[],
-    pending: false,
-    page: 1,
-    prev: false,
-    next: true,
-    search: "",
-    updated: `${new Date().toLocaleDateString(
-      "ru-RU"
-    )} в ${new Date().toLocaleTimeString("ru-RU")}`,
-  }));
+// export const statePersons = () => {
+//   const persons = useState(`${server}/persons`, () => ({
+//     candidates: [] as Persons[],
+//     pending: false,
+//     page: 1,
+//     prev: false,
+//     next: true,
+//     search: "",
+//     updated: `${new Date().toLocaleDateString(
+//       "ru-RU"
+//     )} в ${new Date().toLocaleTimeString("ru-RU")}`,
+//   }));
 
-  async function getCandidates(page = 1): Promise<void> {
-    if (persons.value.page < 1) {
-      persons.value.page = 1;
-      return;
-    } else {
-      persons.value.page = page;
-    }
-    persons.value.pending = true;
-    const response = await authFetch(`${server}/index/${persons.value.page}`, {
-      params: {
-        search: persons.value.search,
-      },
-    });
-    persons.value.pending = false;
-    [persons.value.candidates, persons.value.next, persons.value.prev] =
-      response as [Persons[], boolean, boolean];
+//   async function getCandidates(page = 1): Promise<void> {
+//     if (persons.value.page < 1) {
+//       persons.value.page = 1;
+//       return;
+//     } else {
+//       persons.value.page = page;
+//     }
+//     persons.value.pending = true;
+//     const response = await authFetch(`${server}/index/${persons.value.page}`, {
+//       params: {
+//         search: persons.value.search,
+//       },
+//     });
+//     persons.value.pending = false;
+//     [persons.value.candidates, persons.value.next, persons.value.prev] =
+//       response as [Persons[], boolean, boolean];
 
-    persons.value.updated = `${new Date().toLocaleDateString(
-      "ru-RU"
-    )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-  }
-  return { persons, getCandidates };
-};
+//     persons.value.updated = `${new Date().toLocaleDateString(
+//       "ru-RU"
+//     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
+//   }
+//   return { persons, getCandidates };
+// };
 
 export const stateAnketa = () => {
   const anketa = useState("anketa", () => ({} as Profile));
@@ -109,15 +109,15 @@ export const stateAnketa = () => {
     )) as never;
   }
 
-  async function getImage() {
-    const image: Blob = await $fetch(`${server}/image`, {
-      params: {
-        image: anketa.value.persons.destination,
-      },
-      responseType: "blob",
-    });
-    share.value.imageUrl = window.URL.createObjectURL(new Blob([image]));
-  }
+  // async function getImage() {
+  //   const image: Blob = await $fetch(`${server}/image`, {
+  //     params: {
+  //       image: anketa.value.persons.destination,
+  //     },
+  //     responseType: "blob",
+  //   });
+  //   share.value.imageUrl = window.URL.createObjectURL(new Blob([image]));
+  // }
 
   async function changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
@@ -190,12 +190,12 @@ export const stateAnketa = () => {
         body: formData,
       });
       console.log(response);
-      if (param === "persons") {
-        const personsState = statePersons();
-        personsState.getCandidates(1);
-      } else if (param === "image") {
-        getImage();
-      } else if (param === "anketa") {
+      // if (param === "persons") {
+      //   const personsState = statePersons();
+      //   personsState.getCandidates(1);
+      // } else if (param === "image") {
+      //   getImage();
+      if (param === "anketa") {
         getItem("persons");
       } else getItem(param);
       toast.add({
@@ -212,6 +212,7 @@ export const stateAnketa = () => {
         color: "red",
       });
     }
+    formData.delete("file");
   }
 
   async function submitResume(action: string, form: object): Promise<void> {
@@ -242,6 +243,6 @@ export const stateAnketa = () => {
     deleteItem,
     submitFile,
     submitResume,
-    getImage,
+    // getImage,
   };
 };

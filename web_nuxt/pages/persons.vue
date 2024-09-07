@@ -1,22 +1,67 @@
 <script setup lang="ts">
 import { debounce } from "@/utils/utilities";
-import {
-  stateAnketa,
-  stateClassify,
-  statePersons,
-  stateUser,
-} from "@/state/state";
+import { useFetchAuth } from "../utils/auth";
+import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
+
+const ModalDiv = defineAsyncComponent(() => import("@/components/divs/ModalDiv.vue"));
+
+const authFetch = useFetchAuth();
 
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
-const personState = statePersons();
 const userState = stateUser();
 
+const persons = ref({
+  candidates: [] as Persons[],
+  pending: false,
+  page: 1,
+  prev: false,
+  next: true,
+  search: "",
+  updated: `${new Date().toLocaleDateString(
+    "ru-RU"
+  )} в ${new Date().toLocaleTimeString("ru-RU")}`,
+});
+
+const { refresh } = await useAsyncData("candidates", async () => {
+  if (persons.value.page < 1) {
+    persons.value.page = 1;
+    return;
+  }
+  persons.value.pending = true;
+  const response = await authFetch(`${server}/index/${persons.value.page}`, {
+    params: {
+      search: persons.value.search,
+    },
+  });
+  persons.value.pending = false;
+  [persons.value.candidates, persons.value.next, persons.value.prev] =
+    response as [Persons[], boolean, boolean];
+
+  persons.value.updated = `${new Date().toLocaleDateString(
+    "ru-RU"
+  )} в ${new Date().toLocaleTimeString("ru-RU")}`;
+});
+
 const searchPerson = debounce(async () => {
-  await personState.getCandidates();
+  await refresh();
 }, 500);
 
-await personState.getCandidates();
+const switchPage = async (page: number) => {
+  persons.value.page = page;
+  await refresh();
+};
+
+const uploadJson = async (event: FileList) => {
+  if (!event.length) return;
+  const modal = useModal()
+  modal.open(ModalDiv)
+  anketaState.submitFile(event, "persons", "0");
+  modal.close();
+  await refresh();
+};
+
+await refresh();
 </script>
 
 <template>
@@ -33,7 +78,7 @@ await personState.getCandidates();
             <UIcon
               name="i-heroicons-cloud-arrow-up"
               class="w-8 h-8"
-              style="cursor:pointer; color:dodgerblue"
+              style="cursor: pointer; color: dodgerblue"
             />
           </template>
           <UInput
@@ -41,7 +86,7 @@ await personState.getCandidates();
             type="file"
             accept=".json"
             multiple
-            @change="anketaState.submitFile($event, 'persons', '0')"
+            @change="uploadJson($event)"
           />
         </UFormGroup>
       </div>
@@ -49,17 +94,20 @@ await personState.getCandidates();
     <ElementsHeaderDiv :header="'КАНДИДАТЫ'" />
     <div class="my-6">
       <UInput
-        v-model="personState.persons.value.search"
+        v-model="persons.search"
         placeholder="поиск по фамилии, имени, отчеству, дате рождения или инн"
         size="lg"
         @input.prevent="searchPerson"
       />
     </div>
     <UTable
-      :loading="personState.persons.value.pending"
-      :loading-state="{ icon: 'i-heroicons-arrow-path-20-solid', label: 'Загрузка...' }"
-    :progress="{ color: 'blue', animation: 'carousel' }"
-    class="w-full"
+      :loading="persons.pending"
+      :loading-state="{
+        icon: 'i-heroicons-arrow-path-20-solid',
+        label: 'Загрузка...',
+      }"
+      :progress="{ color: 'blue', animation: 'carousel' }"
+      class="w-full"
       :empty-state="{ label: 'Ничего не найдено.' }"
       :columns="[
         { key: 'id', label: '#' },
@@ -72,7 +120,7 @@ await personState.getCandidates();
         { key: 'username', label: 'Сотрудник' },
         { key: 'editable', label: 'Статус' },
       ]"
-      :rows="personState.persons.value.candidates"
+      :rows="persons.candidates"
     >
       <template #id-data="{ row }">{{ row.id }}</template>
       <template #region-data="{ row }">{{ row.region }}</template>
@@ -98,7 +146,7 @@ await personState.getCandidates();
         row.username ? row.username.toString().split(" ")[0] : ""
       }}</template>
       <template #editable-data="{ row }">
-        <div 
+        <div
           class="text-center me-12"
           :class="row.editable ? 'animate-pulse' : ''"
         >
@@ -110,28 +158,28 @@ await personState.getCandidates();
           <UButton
             variant="link"
             icon="i-heroicons-arrow-path"
-            :label="`Обновлено: ${personState.persons.value.updated}`"
-            @click="personState.getCandidates()"
+            :label="`Обновлено: ${persons.updated}`"
+            @click="refresh()"
           />
         </caption>
       </template>
     </UTable>
     <div
-      v-if="personState.persons.value.prev || personState.persons.value.next"
+      v-if="persons.prev || persons.next"
       class="grid place-items-center py-8"
     >
       <UButtonGroup orientation="horizontal">
         <UButton
-          :disabled="!personState.persons.value.prev"
+          :disabled="!persons.prev"
           variant="link"
           icon="i-heroicons-chevron-double-left"
-          @click="personState.getCandidates(personState.persons.value.page - 1)"
+          @click="switchPage(persons.page - 1)"
         />
         <UButton
-          :disabled="!personState.persons.value.next"
+          :disabled="!persons.next"
           variant="link"
           icon="i-heroicons-chevron-double-right"
-          @click="personState.getCandidates(personState.persons.value.page + 1)"
+          @click="switchPage(persons.page + 1)"
         />
       </UButtonGroup>
     </div>
