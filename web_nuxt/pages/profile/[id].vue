@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
-import { useFetchAuth } from "@/utils/auth";
-import type { Profile } from "@/utils/interfaces";
+import { stateAnketa, stateClassify, stateUser } from "@/state/state";
 
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
@@ -9,6 +7,10 @@ const userState = stateUser();
 const route = useRoute();
 
 anketaState.share.value.candId = route.params.id as string;
+
+await useAsyncData("anketa", async () => {
+  await anketaState.getItem('persons');
+});
 
 const tabs = [
   {
@@ -95,7 +97,7 @@ provide("editState", editState);
           @click="anketaState.getItem('persons', 'self')"
         >
           <div class="animate-pulse" style="width: 30px">
-            <UBadge :color="badge.color" variant="solid">
+            <UBadge :color="(badge.color as any)" variant="solid">
               {{ badge.label }}
             </UBadge>
           </div>

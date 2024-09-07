@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import { debounce } from "@/utils/utilities";
 import { useFetchAuth } from "../utils/auth";
-import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
-
-const ModalDiv = defineAsyncComponent(() => import("@/components/divs/ModalDiv.vue"));
+import { server, stateClassify, stateUser } from "@/state/state";
 
 const authFetch = useFetchAuth();
 
-const anketaState = stateAnketa();
 const classifyState = stateClassify();
 const userState = stateUser();
 
 const persons = ref({
   candidates: [] as Persons[],
-  pending: false,
+  spinner: false,
   page: 1,
   prev: false,
   next: true,
@@ -28,40 +25,62 @@ const { refresh } = await useAsyncData("candidates", async () => {
     persons.value.page = 1;
     return;
   }
-  persons.value.pending = true;
+  persons.value.spinner = true;
   const response = await authFetch(`${server}/index/${persons.value.page}`, {
     params: {
       search: persons.value.search,
     },
   });
-  persons.value.pending = false;
+  
   [persons.value.candidates, persons.value.next, persons.value.prev] =
     response as [Persons[], boolean, boolean];
 
   persons.value.updated = `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`;
+  
+  persons.value.spinner = false;
 });
 
 const searchPerson = debounce(async () => {
   await refresh();
 }, 500);
 
-const switchPage = async (page: number) => {
+const switchPage = async (page: number = 1) => {
   persons.value.page = page;
   await refresh();
 };
 
-const uploadJson = async (event: FileList) => {
-  if (!event.length) return;
-  const modal = useModal()
-  modal.open(ModalDiv)
-  anketaState.submitFile(event, "persons", "0");
-  modal.close();
+async function uploadJson (fileList: FileList) {
+  const toast = useToast();
+  if (!fileList.length) {
+    toast.add({
+      icon: "i-heroicons-exclamation-triangle",
+        title: "Внимание",
+      description: `Файлы не выбраны`,
+      color: "red",
+    })
+    return;
+  };
+  const formData = new FormData();
+  persons.value.spinner = true;
+  for (const file of fileList) {
+    formData.append("file", file);
+  }
+  const response = await authFetch(`${server}/file/persons/0`, {
+    method: "POST",
+    body: formData,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Информация",
+    description: `Файлы успешно загружены`,
+    color: "green",
+  });
+  persons.value.spinner = false;
   await refresh();
 };
-
-await refresh();
 </script>
 
 <template>
@@ -72,7 +91,11 @@ await refresh();
       "
       class="relative"
     >
-      <div class="absolute inset-y-0 right-0" title="Загрузить json">
+      <div 
+        class="absolute inset-y-0 right-0" 
+        :class="{ 'animate-pulse': persons.spinner }"
+        title="Загрузить json"
+        >
         <UFormGroup class="mb-3" size="md">
           <template #label>
             <UIcon
@@ -101,14 +124,12 @@ await refresh();
       />
     </div>
     <UTable
-      :loading="persons.pending"
-      :loading-state="{
-        icon: 'i-heroicons-arrow-path-20-solid',
-        label: 'Загрузка...',
+      :loading="persons.spinner"
+      :progress="{ color: 'red', animation: 'swing' }"
+      :empty-state="{
+        icon: 'i-heroicons-circle-stack-20-solid',
+        label: 'Ничего не найдено.',
       }"
-      :progress="{ color: 'blue', animation: 'carousel' }"
-      class="w-full"
-      :empty-state="{ label: 'Ничего не найдено.' }"
       :columns="[
         { key: 'id', label: '#' },
         { key: 'region', label: 'Регион' },

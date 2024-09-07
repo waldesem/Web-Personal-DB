@@ -6,8 +6,6 @@ import type { Persons } from "@/utils/interfaces";
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
-await anketaState.getItem('persons');
-
 const dataResume = ref({
   action: "",
   form: {} as Persons,
@@ -100,7 +98,7 @@ const editState = inject("editState") as boolean
           class="text-red-500"
           target="_blank" 
           :href="anketaState.anketa.value.persons['destination']">
-          {{ "anketaState.anketa.value.persons['destination']" }}
+          {{ anketaState.anketa.value.persons['destination'] }}
         </a>
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">

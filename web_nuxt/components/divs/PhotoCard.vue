@@ -1,27 +1,55 @@
 <script setup lang="ts">
 import { server, stateAnketa } from "@/state/state";
+import { useFetchAuth } from "@/utils/auth";
 import { useMouse, useWindowScroll } from "@vueuse/core";
+
+const authFetch = useFetchAuth();
 
 const editState = inject("editState") as boolean;
 
 const anketaState = stateAnketa();
 
-const { data, refresh } = await useAsyncData("image", async () => {
-  await $fetch(`${server}/image`, {
+const imageUrl = ref("");
+
+const { refresh } = await useAsyncData("image", async () => {
+  const response = await $fetch(`${server}/image`, {
     params: {
       image: anketaState.anketa.value.persons.destination,
     },
     responseType: "blob",
   });
+  imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
 });
 
-const imageUrl = ref(window.URL.createObjectURL(new Blob([data.value] as never)));
-
-await refresh();
-
-function submitImage(event: FileList) {
-  anketaState.submitFile(event, "image", anketaState.share.value.candId);
-  refresh();
+async function submitImage(fileList: FileList) {
+  const toast = useToast();
+  if (!fileList.length) {
+    toast.add({
+      icon: "i-heroicons-exclamation-triangle",
+      title: "Информация",
+      description: `Не выбраны файлы`,
+      color: "red",
+    });
+    return;
+  };
+  const formData = new FormData();
+  for (const file of fileList) {
+    formData.append("file", file);
+  }
+  await authFetch(
+    `${server}/file/image/${anketaState.share.value.candId}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Информация",
+    description: `Файлы успешно загружены`,
+    color: "green",
+  });
+  await refresh();
 }
 
 const photoCard = ref({
@@ -54,15 +82,11 @@ function onContextMenu() {
 
 <template>
   <div class="flex justify-left">
-    <UCard 
-      :ui = "{body: {padding: 'p-1 sm:p-6'}}"
+    <UCard
+      :ui="{ body: { padding: 'p-1 sm:p-1' } }"
       @contextmenu.prevent="onContextMenu"
-      >
-      <NuxtImg
-        :src="imageUrl"
-        width="240"
-        height="240"
-      />
+    >
+      <NuxtImg :src="imageUrl" width="240" height="240" />
       <UInput
         v-show="false"
         id="image-file"

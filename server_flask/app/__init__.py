@@ -1,6 +1,6 @@
 from flask import Flask
 
-# from flask_cors import CORS
+from flask_cors import CORS
 from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
@@ -8,7 +8,6 @@ from config import Config
 from .classes.classes import Regions, Roles
 from .model.tables import db_session, Users
 from .routes.route import bp as route_bp
-
 
 def create_app(config_class=Config):
     """
@@ -23,7 +22,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
-    # CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     if not db_session.execute(
         select(Users).filter(Users.role == Roles.admin.value)

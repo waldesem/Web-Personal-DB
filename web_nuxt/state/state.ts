@@ -44,43 +44,6 @@ export const stateClassify = () => {
   return { classes, getClassify };
 };
 
-// export const statePersons = () => {
-//   const persons = useState(`${server}/persons`, () => ({
-//     candidates: [] as Persons[],
-//     pending: false,
-//     page: 1,
-//     prev: false,
-//     next: true,
-//     search: "",
-//     updated: `${new Date().toLocaleDateString(
-//       "ru-RU"
-//     )} в ${new Date().toLocaleTimeString("ru-RU")}`,
-//   }));
-
-//   async function getCandidates(page = 1): Promise<void> {
-//     if (persons.value.page < 1) {
-//       persons.value.page = 1;
-//       return;
-//     } else {
-//       persons.value.page = page;
-//     }
-//     persons.value.pending = true;
-//     const response = await authFetch(`${server}/index/${persons.value.page}`, {
-//       params: {
-//         search: persons.value.search,
-//       },
-//     });
-//     persons.value.pending = false;
-//     [persons.value.candidates, persons.value.next, persons.value.prev] =
-//       response as [Persons[], boolean, boolean];
-
-//     persons.value.updated = `${new Date().toLocaleDateString(
-//       "ru-RU"
-//     )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-//   }
-//   return { persons, getCandidates };
-// };
-
 export const stateAnketa = () => {
   const anketa = useState("anketa", () => ({} as Profile));
   const share = useState("share", () => ({
@@ -108,16 +71,6 @@ export const stateAnketa = () => {
       }
     )) as never;
   }
-
-  // async function getImage() {
-  //   const image: Blob = await $fetch(`${server}/image`, {
-  //     params: {
-  //       image: anketa.value.persons.destination,
-  //     },
-  //     responseType: "blob",
-  //   });
-  //   share.value.imageUrl = window.URL.createObjectURL(new Blob([image]));
-  // }
 
   async function changeRegion(): Promise<void> {
     if (!confirm("Вы действительно хотите изменить регион?")) return;
@@ -190,11 +143,6 @@ export const stateAnketa = () => {
         body: formData,
       });
       console.log(response);
-      // if (param === "persons") {
-      //   const personsState = statePersons();
-      //   personsState.getCandidates(1);
-      // } else if (param === "image") {
-      //   getImage();
       if (param === "anketa") {
         getItem("persons");
       } else getItem(param);

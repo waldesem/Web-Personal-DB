@@ -410,26 +410,8 @@ def change_region(person_id):
     return abort(400)
 
 
-@bp.get("/profile/<int:person_id>")
-@jwt_required()
-def get_profile(person_id):
-    """
-    Retrieves all information related to a person in one request.
-
-    Parameters:
-        person_id (int): The ID of the person for whom to retrieve all information.
-
-    Returns:
-        List[Dict[str, Any]]:
-        A list of dictionaries representing the person's
-        information and an HTTP status code of 200.
-    """
-    result = {item: handle_get_item(item, person_id) for item in tables_models.keys()}
-    return jsonify(result)
-
-
 @bp.get("/<item>/<int:item_id>")
-@roles_required(Roles.user.value)
+@jwt_required()
 def get_item_id(item, item_id):
     """
     Retrieves an item from the database based on the provided item name and item ID.
@@ -473,7 +455,7 @@ def post_item_id(item, item_id):
 
 
 @bp.delete("/<item>/<int:item_id>")
-@roles_required(Roles.admin.value, Roles.user.value)
+@roles_required(Roles.user.value)
 def delete_item(item, item_id):
     """
     Deletes an item from the database based on the provided item name and item ID.
@@ -496,7 +478,7 @@ def delete_item(item, item_id):
 
 
 @bp.get("/information")
-@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
+@jwt_required()
 def get_information():
     """
     Retrieves information based on the provided query parameters.
