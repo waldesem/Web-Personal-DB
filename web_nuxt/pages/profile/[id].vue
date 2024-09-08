@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { stateAnketa, stateClassify, stateUser } from "@/state/state";
+import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
+import { useFetchAuth } from "@/utils/auth";
 
+const authFetch = useFetchAuth();
 const anketaState = stateAnketa();
 const classifyState = stateClassify();
 const userState = stateUser();
@@ -9,7 +11,7 @@ const route = useRoute();
 anketaState.share.value.candId = route.params.id as string;
 
 await useAsyncData("anketa", async () => {
-  await anketaState.getItem('persons');
+  await anketaState.getItem("persons");
 });
 
 const tabs = [
@@ -79,6 +81,20 @@ const editState = computed(() => {
 });
 
 provide("editState", editState);
+
+async function switchSelf(): Promise<void> {
+  if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
+    return;
+  }
+  anketaState.anketa.value["persons"] = (await authFetch(
+    `${server}/persons/${anketaState.share.value.candId}`,
+    {
+      params: {
+        action: "self",
+      },
+    }
+  )) as never;
+}
 </script>
 
 <template>
@@ -91,11 +107,7 @@ provide("editState", editState);
       class="relative"
     >
       <div class="absolute bottom-0 right-20">
-        <UButton
-          variant="link"
-          size="xl"
-          @click="anketaState.getItem('persons', 'self')"
-        >
+        <UButton variant="link" size="xl" @click="switchSelf">
           <div class="animate-pulse" style="width: 30px">
             <UBadge :color="(badge.color as any)" variant="solid">
               {{ badge.label }}

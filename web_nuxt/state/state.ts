@@ -19,8 +19,8 @@ export const stateUser = () => {
     const response = await authFetch(`${server}/auth`);
     const data = response as Record<string, unknown>;
     if (!data) {
-      return navigateTo("/login")
-    };
+      return navigateTo("/login");
+    }
     Object.assign(user.value, {
       auth: true,
       userId: data["id"],
@@ -48,27 +48,14 @@ export const stateAnketa = () => {
   const anketa = useState("anketa", () => ({} as Profile));
   const share = useState("share", () => ({
     candId: "" as string,
-    imageUrl: "" as string,
   }));
 
   async function getItem(
     item: string,
-    action = "view",
     id: string = share.value.candId
   ): Promise<void> {
-    if (
-      action === "self" &&
-      !confirm("Вы действительно хотите включить/выключить режим правки")
-    ) {
-      return;
-    }
     anketa.value[item as keyof typeof anketa.value] = (await authFetch(
-      `${server}/${item}/${id}`,
-      {
-        params: {
-          action: action,
-        },
-      }
+      `${server}/${item}/${id}`
     )) as never;
   }
 
