@@ -22,11 +22,15 @@ workForm.value.finished = workForm.value.finished
 
 function submitWorkplace() {
   emit("submit", workForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
-  emit("cancel");
+  emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(workForm.value, {
     now_work: false,
     starts: "",
@@ -47,17 +51,18 @@ function cancelAction() {
     <UFormGroup class="mb-3" label="Начало работы">
       <UInput
         v-model="workForm['starts']"
+        required
         placeholder="Начало работы"
         type="date"
       />
     </UFormGroup>
     <UFormGroup
-      v-if="!workForm['now_work']"
       class="mb-3"
       label="Окончание работы"
     >
       <UInput
         v-model="workForm['finished']"
+        required
         placeholder="Окончание работы"
         type="date"
       />

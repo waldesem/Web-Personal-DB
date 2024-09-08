@@ -19,16 +19,26 @@ const { refresh } = await useAsyncData("checks", async () => {
 });
 
 async function updateCheck(checkForm: Verification) {
-  await anketaState.updateItem("checks", checkForm);
-  await refresh();
+  Promise.all([
+    await anketaState.updateItem('checks', checkForm),
+    await refresh(),
+  ])
+  closeAction();
 }
 
 async function deleteCheck(index: string) {
-  await anketaState.deleteItem(index, 'checks');
-  await refresh();
+  Promise.all([
+    await anketaState.deleteItem(index, 'checks'),
+    await refresh(),
+  ])
 }
 
-function cancelAction() {
+async function cancelOperation() {
+  await refresh();
+  closeAction();
+}
+
+function closeAction() {
   checkData.value.edit = false;
   checkData.value.itemId = "";
   checkData.value.collapse = false;
@@ -52,7 +62,7 @@ function openFileForm(elementId: string) {
       <UCard>
         <FormsCheckForm 
           @submit="updateCheck"
-          @cancel="cancelAction" 
+          @cancel="cancelOperation" 
         />
       </UCard>
     </div>
@@ -76,7 +86,7 @@ function openFileForm(elementId: string) {
               anketaState.anketa.value.checks[index]['id'].toString()
           "
           :check="checkData.check"
-          @cancel="cancelAction"
+          @cancel="cancelOperation"
           @submit="updateCheck"
         />
         <div v-else>

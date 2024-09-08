@@ -12,20 +12,30 @@ const itemId = ref("");
 const need = ref({} as Needs);
 
 const { refresh } = await useAsyncData("inquiries", async () => {
-  await anketaState.getItem('inquiries');
+  await anketaState.getItem('inquiries')
 })
 
 async function updateNeed(needForm: Needs) {
-  await anketaState.updateItem("inquiries", needForm);
-  await refresh();
+  Promise.all([
+    await anketaState.updateItem("inquiries", needForm),
+    await refresh()
+  ])
+  closeAction();
 }
 
 async function deleteNeed(index: string) {
-  await anketaState.deleteItem(index, 'inquiries');
-  await refresh();
+  Promise.all([
+    await anketaState.deleteItem(index, 'inquiries'),
+    await refresh()
+  ])
 }
 
-function cancelAction() {
+async function cancelOperation() {
+  await refresh();
+  closeAction();
+}
+
+function closeAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
@@ -48,7 +58,7 @@ function openFileForm(elementId: string) {
     <div v-if="collapse" class="py-3">
       <UCard>
         <FormsInquiryForm 
-          @cancel="cancelAction" 
+          @cancel="cancelOperation" 
           @submit="updateNeed"
         />
       </UCard>
@@ -72,7 +82,7 @@ function openFileForm(elementId: string) {
               anketaState.anketa.value.inquiries[index]['id'].toString()
           "
           :inquiry="need"
-          @cancel="cancelAction"
+          @cancel="cancelOperation"
           @submit="updateNeed"
         />
         <div v-else>
@@ -80,8 +90,12 @@ function openFileForm(elementId: string) {
             anketaState.anketa.value.inquiries[index]["info"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Иннициатор'">{{
-            anketaState.anketa.value.inquiries[index]["origins"]
+            anketaState.anketa.value.inquiries[index]["initiator"]
           }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Источники'">{{
+            anketaState.anketa.value.inquiries[index]["origins"]
+          }}
+          </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Сотрудник'">{{
             anketaState.anketa.value.inquiries[index]["username"]
           }}</ElementsLabelSlot>

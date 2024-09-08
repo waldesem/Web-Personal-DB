@@ -18,11 +18,15 @@ const educationForm = toRef(props.education as Education);
 
 function submitEducation() {
   emit("submit", educationForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(educationForm.value, {
     view: "",
     institution: "",

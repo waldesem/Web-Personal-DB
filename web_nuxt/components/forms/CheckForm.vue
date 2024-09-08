@@ -20,11 +20,15 @@ const noNegative = ref(false);
 
 function submitCheck() {
   emit("submit", checkForm.value);
-  cancelAction();
-};
+  clearForm();
+}
 
-function cancelAction(){
+function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   noNegative.value = false;
   Object.keys(checkForm.value).forEach((key) => {
     checkForm.value[key as keyof typeof checkForm.value] = ''

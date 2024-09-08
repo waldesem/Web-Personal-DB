@@ -18,11 +18,15 @@ const addressForm = toRef(props.addrs as Address);
 
 function submitAddress() {
   emit("submit", addressForm.value)
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(addressForm.value, {
     view: "",
     addresses: "",

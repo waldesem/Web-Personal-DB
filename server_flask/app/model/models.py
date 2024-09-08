@@ -92,7 +92,7 @@ class Workplace(QueryModel):
     finished: Optional[date] = None
     workplace: str
     addresses: Optional[str] = None
-    position: str
+    position: Optional[str] = None
     reason: Optional[str] = None
 
 
@@ -139,7 +139,7 @@ class Investigation(QueryModel):
 class Inquiry(QueryModel):
     info: str
     initiator: str
-    origins: str
+    origins: Optional[str] = None
 
 
 models_tables = {

@@ -38,6 +38,11 @@ async function changeRegion(): Promise<void> {
     color: "green",
   });
 }
+
+function deleteItem() {
+  anketaState.deleteItem(anketaState.anketa.value.persons['id'], 'persons');
+  navigateTo('/persons');
+}
 </script>
 
 <template>
@@ -137,12 +142,7 @@ async function changeRegion(): Promise<void> {
     >
       <ElementsNaviHorizont
         v-show="editState"
-        @delete="
-          anketaState.deleteItem(
-            anketaState.anketa.value.persons['id'],
-            'persons'
-          )
-        "
+        @delete="deleteItem"
         @update="dataResume.action = 'update'"
         @upload="openFileForm('resume-file')"
       />

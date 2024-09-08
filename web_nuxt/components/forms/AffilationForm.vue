@@ -18,11 +18,15 @@ const affilationForm = toRef(props.affils as Affilation);
 
 function submitAffilation() {
   emit("submit", affilationForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(affilationForm.value, {
     view: "",
     organization: "",

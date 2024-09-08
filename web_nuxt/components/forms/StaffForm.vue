@@ -15,11 +15,15 @@ const staffForm = toRef(props.staff as Staff);
 
 function submitStaff() {
   emit("submit", staffForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(staffForm.value, {
     position: "",
     department: "",

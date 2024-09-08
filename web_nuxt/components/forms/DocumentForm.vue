@@ -21,11 +21,15 @@ docForm.value.issue = docForm.value.issue
 
 function submitDocument() {
   emit("submit", docForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
-  emit("cancel");
+  emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(docForm.value, {
     view: "",
     series: "",

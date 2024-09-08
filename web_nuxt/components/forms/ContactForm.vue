@@ -18,11 +18,15 @@ const contactForm = toRef(props.contact as Contact);
 
 function submitContact() {
   emit("submit", contactForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(contactForm.value, {
     view: "",
     contact: "",

@@ -16,17 +16,26 @@ const { refresh } = await useAsyncData("relations", async () => {
 })
 
 async function updateRelation(relationForm: Relation) {
-  await anketaState.updateItem("relations", relationForm);
-  await refresh();
+  Promise.all([
+    await anketaState.updateItem("relations", relationForm),
+    await refresh()
+  ])
+  closeAction();
 }
 
 async function deleteRelation(index: string) {
-  await anketaState.deleteItem(index, 'relations');
-  await refresh();
+  Promise.all([
+    await anketaState.deleteItem(index, 'relations'),
+    await refresh()
+  ])
 }
 
-async function cancelAction() {
+async function cancelOperation() {
   await refresh();
+  closeAction();
+}
+
+function closeAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
@@ -44,7 +53,7 @@ async function cancelAction() {
     <div v-if="collapse" class="py-3">
       <UCard>
         <FormsRelationForm 
-          @cancel="cancelAction" 
+          @cancel="cancelOperation" 
           @submit="updateRelation"
         />
       </UCard>
@@ -60,7 +69,7 @@ async function cancelAction() {
         <FormsRelationForm
           v-if="edit && itemId == item['id'].toString()"
           :relation="relation"
-          @cancel="cancelAction"
+          @cancel="cancelOperation"
           @submit="updateRelation"
         />
         <div v-else>

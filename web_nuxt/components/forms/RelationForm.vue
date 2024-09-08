@@ -18,11 +18,15 @@ const relationForm = toRef(props.relation as Relation);
 
 function submitRelation() {
   emit("submit", relationForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(relationForm.value, {
     relation: "",
     relation_id: "",

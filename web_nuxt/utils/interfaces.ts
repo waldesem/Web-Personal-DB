@@ -155,6 +155,7 @@ export interface Inquisition {
 export interface Needs {
   id: string;
   info: string;
+  initiator: string;
   origins: string;
   user_id: string;
   username: string;

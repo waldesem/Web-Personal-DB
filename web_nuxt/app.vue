@@ -25,11 +25,11 @@ useSeoMeta({
 
 <style>
 .slide-fade-enter-active {
-  transition: all 0.3s ease-out;
+  transition: all 0.1s ease-out;
 }
 
 .slide-fade-leave-active {
-  transition: all 0.3s ease-in;
+  transition: all 0.1s ease-in;
 }
 
 .slide-fade-enter-from,

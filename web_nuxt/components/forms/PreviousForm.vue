@@ -15,11 +15,15 @@ const previousForm = toRef(props.previous as Previous);
 
 function submitPrevious() {
   emit("submit", previousForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(previousForm.value, {
     surname: "",
     firstname: "",

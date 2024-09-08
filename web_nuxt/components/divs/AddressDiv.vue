@@ -16,20 +16,29 @@ const { refresh } = await useAsyncData("addresses", async () => {
 })
 
 async function updateAddress(addressForm: Address) {
-  await anketaState.updateItem("addresses", addressForm);
-  await refresh();
+  Promise.all([
+    await anketaState.updateItem("addresses", addressForm),
+    await refresh()
+  ]);
+  closeAction();
 }
 
 async function deleteAddress(index: string) {
-  await anketaState.deleteItem(index, 'addresses');
-  await refresh();
+  Promise.all([
+    await anketaState.deleteItem(index, 'addresses'),
+    await refresh()
+  ])
 }
 
-async function cancelAction() {
+async function cancelOperation() {
   await refresh();
+  closeAction();
+}
+
+function closeAction() {
   edit.value = false;
   collapse.value = false;
-  itemId.value = "";
+  itemId.value = "";  
 }
 </script>
 
@@ -44,7 +53,7 @@ async function cancelAction() {
     <div v-if="collapse" class="p-1">
       <UCard>
         <FormsAddressForm 
-          @cancel="cancelAction" 
+          @cancel="cancelOperation" 
           @submit="updateAddress"
         />
       </UCard>
@@ -60,7 +69,7 @@ async function cancelAction() {
         <FormsAddressForm
           v-if="edit && itemId == item['id'].toString()"
           :addrs="address"
-          @cancel="cancelAction"
+          @cancel="cancelOperation"
           @submit="updateAddress"
         />
         <div v-else>

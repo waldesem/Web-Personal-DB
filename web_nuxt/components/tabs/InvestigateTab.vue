@@ -16,16 +16,26 @@ const { refresh } = await useAsyncData("investigations", async () => {
 })
 
 async function updateInquisition(inquisitionForm: Inquisition) {
-  await anketaState.updateItem("investigations", inquisitionForm);
-  await refresh();
+  Promise.all([
+    await anketaState.updateItem("investigations", inquisitionForm),
+    await refresh()
+  ])
+  closeAction();
 }
 
 async function deleteInquisition(index: string) {
-  await anketaState.deleteItem(index, 'investigations');
-  await refresh();
+  Promise.all([
+    await anketaState.deleteItem(index, 'investigations'),
+    await refresh()
+  ])
 }
 
-function cancelAction() {
+async function cancelOperation() {
+  await refresh();
+  closeAction();
+}
+
+function closeAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
@@ -48,7 +58,7 @@ function openFileForm(elementId: string) {
     <div v-if="collapse" class="py-3">
       <UCard>
         <FormsInvestigationForm 
-        @cancel="cancelAction" 
+        @cancel="cancelOperation" 
         @submit="updateInquisition"
       />
       </UCard>
@@ -72,7 +82,7 @@ function openFileForm(elementId: string) {
               anketaState.anketa.value.investigations[index]['id'].toString()
           "
           :investigation="inquisition"
-          @cancel="cancelAction"
+          @cancel="cancelOperation"
           @submit="updateInquisition"
         />
         <div v-else>

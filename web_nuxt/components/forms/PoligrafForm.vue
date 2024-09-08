@@ -18,11 +18,15 @@ const poligrafForm = toRef(props.poligraf as Pfo);
 
 function submitPoligraf() {
   emit('submit', poligrafForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(poligrafForm.value, {
     theme: "",
     results: "",

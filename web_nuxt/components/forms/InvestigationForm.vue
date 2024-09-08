@@ -15,11 +15,15 @@ const investigationForm = toRef(props.investigation as Inquisition);
 
 function submitInvestigations() {
   emit('submit', investigationForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(investigationForm.value, {
     theme: "",
     info: "",

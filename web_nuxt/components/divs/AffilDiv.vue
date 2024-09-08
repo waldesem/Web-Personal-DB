@@ -16,17 +16,26 @@ const { refresh } = await useAsyncData("affilations", async () => {
 })
 
 async function updateAffilation(affilForm: Affilation) {
-  await anketaState.updateItem("affilations", affilForm);
-  await refresh();
+  Promise.all([
+    await anketaState.updateItem("affilations", affilForm),
+    await refresh()
+  ])
+  closeAction();
 }
 
 async function deleteAffilation(index: string) {
-  await anketaState.deleteItem(index, 'affilations');
-  await refresh();
+  Promise.all([
+    await anketaState.deleteItem(index, 'affilations'),
+    await refresh()
+  ])
 }
 
-async function cancelAction() {
+async function cancelOperation() {
   await refresh();
+  closeAction();
+}
+
+function closeAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
@@ -44,7 +53,7 @@ async function cancelAction() {
     <div v-if="collapse" class="py-3">
       <UCard>
         <FormsAffilationForm 
-          @cancel="cancelAction" 
+          @cancel="cancelOperation" 
           @submit="updateAffilation"
         />
       </UCard>
@@ -60,7 +69,7 @@ async function cancelAction() {
         <FormsAffilationForm
           v-if="edit && itemId == item['id'].toString()"
           :affils="affilation"
-          @cancel="cancelAction"
+          @cancel="cancelOperation"
           @submit="updateAffilation"
         />
         <div v-else>

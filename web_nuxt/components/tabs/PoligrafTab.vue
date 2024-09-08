@@ -16,16 +16,26 @@ const { refresh } = await useAsyncData("poligrafs", async () => {
 });
 
 async function updatePoligraf(poligrafForm: Pfo) {
-  await anketaState.updateItem("poligrafs", poligrafForm);
-  await refresh();
+  Promise.all([
+    await anketaState.updateItem("poligrafs", poligrafForm),
+    await refresh(),
+  ])
+  closeAction();
 }
 
 async function deletePoligraf(index: string) {
-  await anketaState.deleteItem(index, 'poligrafs');
-  await refresh();
+  Promise.all([
+    await anketaState.deleteItem(index, 'poligrafs'),
+    await refresh(),
+  ])
 }
 
-function cancelAction() {
+async function cancelOperation() {
+  await refresh();
+  closeAction();
+}
+
+function closeAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
@@ -48,7 +58,7 @@ function openFileForm(elementId: string) {
     <div v-if="collapse" class="py-3">
       <UCard>
         <FormsPoligrafForm 
-          @cancel="cancelAction" 
+          @cancel="cancelOperation" 
           @submit="updatePoligraf"
         />
       </UCard>
@@ -72,7 +82,7 @@ function openFileForm(elementId: string) {
             itemId == anketaState.anketa.value.poligrafs[index]['id'].toString()
           "
           :poligraf="poligraf"
-          @cancel="cancelAction"
+          @cancel="cancelOperation"
           @submit="updatePoligraf"
         />
         <div v-else>

@@ -15,14 +15,19 @@ const inquiryForm = toRef(props.inquiry as Needs);
 
 function submitIquiry() {
   emit('submit', inquiryForm.value);
-  cancelAction();
+  clearForm();
 }
 
 function cancelAction() {
   emit('cancel');
+  clearForm();
+}
+
+function clearForm() {
   Object.assign(inquiryForm.value, {
     info: "",
     origins: "",
+    initiator: "",
   } as Needs);
 }
 </script>
@@ -38,9 +43,15 @@ function cancelAction() {
     </UFormGroup>
     <UFormGroup class="mb-3" label="Инициатор">
       <UInput
-        v-model.trim.lazy="inquiryForm['origins']"
+        v-model.trim.lazy="inquiryForm['initiator']"
         required
         placeholder="Инициатор"
+      />
+    </UFormGroup>
+    <UFormGroup class="mb-3" label="Источники">
+      <UInput
+        v-model.trim.lazy="inquiryForm['origins']"
+        placeholder="Источники"
       />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelAction"/>
