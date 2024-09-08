@@ -4,7 +4,7 @@ import type { Verification } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('checks');
+const editState = inject("editState") as boolean;
 
 const checkData = ref({
   collapse: false,
@@ -13,6 +13,20 @@ const checkData = ref({
   itemId: "",
   check: {} as Verification,
 });
+
+const { refresh } = await useAsyncData("checks", async () => {
+  await anketaState.getItem('checks');
+});
+
+async function updateCheck(checkForm: Verification) {
+  await anketaState.updateItem("checks", checkForm);
+  await refresh();
+}
+
+async function deleteCheck(index: string) {
+  await anketaState.deleteItem(index, 'checks');
+  await refresh();
+}
 
 function cancelAction() {
   checkData.value.edit = false;
@@ -23,8 +37,6 @@ function cancelAction() {
 function openFileForm(elementId: string) {
   document.getElementById(elementId)?.click();
 }
-
-const editState = inject("editState") as boolean;
 </script>
 
 <template>
@@ -38,7 +50,10 @@ const editState = inject("editState") as boolean;
   <Transition name="slide-fade">
     <div v-if="checkData.collapse" class="py-3">
       <UCard>
-        <FormsCheckForm @cancel="cancelAction" />
+        <FormsCheckForm 
+          @submit="updateCheck"
+          @cancel="cancelAction" 
+        />
       </UCard>
     </div>
   </Transition>
@@ -62,6 +77,7 @@ const editState = inject("editState") as boolean;
           "
           :check="checkData.check"
           @cancel="cancelAction"
+          @submit="updateCheck"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Проверка по местам работы'">
@@ -137,12 +153,7 @@ const editState = inject("editState") as boolean;
                 anketaState.anketa.value.checks[index]['id'].toString();
               checkData.edit = true;
             "
-            @delete="
-              anketaState.deleteItem(
-                anketaState.anketa.value.checks[index]['id'].toString(),
-                'checks'
-              )
-            "
+            @delete="deleteCheck(anketaState.anketa.value.checks[index]['id'])"
             @upload="openFileForm('check-file')"
           />
           <div v-show="false">

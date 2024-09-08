@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa, stateClassify } from "@/state/state";
+import { stateClassify } from "@/state/state";
 import type { Affilation } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   affils: {
@@ -12,13 +12,16 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
 const affilationForm = toRef(props.affils as Affilation);
 
 function submitAffilation() {
-  anketaState.updateItem("affilations", affilationForm.value)
+  emit("submit", affilationForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit('cancel');
   Object.assign(affilationForm.value, {
     view: "",
@@ -50,6 +53,6 @@ function submitAffilation() {
         placeholder="ИНН"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

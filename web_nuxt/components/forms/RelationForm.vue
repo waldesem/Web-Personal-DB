@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa, stateClassify } from "@/state/state";
+import { stateClassify } from "@/state/state";
 import type { Relation } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   relation: {
@@ -12,13 +12,16 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
 const relationForm = toRef(props.relation as Relation);
 
 function submitRelation() {
-  anketaState.updateItem("relations", relationForm.value)
+  emit("submit", relationForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit('cancel');
   Object.assign(relationForm.value, {
     relation: "",
@@ -43,6 +46,6 @@ function submitRelation() {
         type="number"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')"/>
+    <ElementsBtnGroup @cancel="cancelAction"/>
   </UForm>
 </template>

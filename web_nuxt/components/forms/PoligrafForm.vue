@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa, stateClassify } from "@/state/state";
+import { stateClassify } from "@/state/state";
 import type { Pfo } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   poligraf: {
@@ -12,13 +12,16 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
 const poligrafForm = toRef(props.poligraf as Pfo);
 
 function submitPoligraf() {
-  anketaState.updateItem("poligrafs", poligrafForm.value)
+  emit('submit', poligrafForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit('cancel');
   Object.assign(poligrafForm.value, {
     theme: "",
@@ -43,6 +46,6 @@ function submitPoligraf() {
         placeholder="Результат"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')"/>
+    <ElementsBtnGroup @cancel="cancelAction"/>
   </UForm>
 </template>

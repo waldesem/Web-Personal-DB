@@ -4,20 +4,32 @@ import type { Contact } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('contacts');
+const editState = inject("editState") as boolean
 
 const collapse = ref(false);
 const itemId = ref("");
 const edit = ref(false);
 const contact = ref({} as Contact);
 
+const { refresh } = await useAsyncData("contacts", async () => {
+  await anketaState.getItem('contacts');
+})
+
+async function updateContact(contactForm: Contact) {
+  await anketaState.updateItem("contacts", contactForm);
+  await refresh();
+}
+
+async function deleteContact(index: string) {
+  await anketaState.deleteItem(index, 'contacts');
+  await refresh();
+}
+
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
 }
-
-const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const editState = inject("editState") as boolean
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsContactForm @cancel="cancelAction" />
+        <FormsContactForm 
+          @cancel="cancelAction" 
+          @submit="updateContact"
+        />
       </UCard>
     </div>
   </Transition>
@@ -45,6 +60,7 @@ const editState = inject("editState") as boolean
           v-if="edit && itemId == item['id'].toString()"
           :contact="contact"
           @cancel="cancelAction"
+          @submit="updateContact"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Вид'">{{ item["view"] }}</ElementsLabelSlot>
@@ -59,7 +75,7 @@ const editState = inject("editState") as boolean
           <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
-            @delete="anketaState.deleteItem(item['id'].toString(), 'contacts')"
+            @delete="deleteContact(item['id'])"
             @update="
               contact = item;
               itemId = item['id'].toString();

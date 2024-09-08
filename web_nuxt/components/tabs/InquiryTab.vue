@@ -4,12 +4,26 @@ import type { Needs } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('inquiries');
+const editState = inject("editState") as boolean
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const need = ref({} as Needs);
+
+const { refresh } = await useAsyncData("inquiries", async () => {
+  await anketaState.getItem('inquiries');
+})
+
+async function updateNeed(needForm: Needs) {
+  await anketaState.updateItem("inquiries", needForm);
+  await refresh();
+}
+
+async function deleteNeed(index: string) {
+  await anketaState.deleteItem(index, 'inquiries');
+  await refresh();
+}
 
 function cancelAction() {
   edit.value = false;
@@ -20,8 +34,6 @@ function cancelAction() {
 function openFileForm(elementId: string) {
   document.getElementById(elementId)?.click();
 }
-
-const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -35,7 +47,10 @@ const editState = inject("editState") as boolean
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsInquiryForm @cancel="cancelAction" />
+        <FormsInquiryForm 
+          @cancel="cancelAction" 
+          @submit="updateNeed"
+        />
       </UCard>
     </div>
   </Transition>
@@ -58,6 +73,7 @@ const editState = inject("editState") as boolean
           "
           :inquiry="need"
           @cancel="cancelAction"
+          @submit="updateNeed"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Информация'">{{
@@ -88,9 +104,8 @@ const editState = inject("editState") as boolean
           <ElementsNaviHorizont
             v-show="!index && editState"
             @delete="
-              anketaState.deleteItem(
-                anketaState.anketa.value.inquiries[index]['id'].toString(),
-                'inquiries'
+              deleteNeed(
+                anketaState.anketa.value.inquiries[index]['id']
               )
             "
             @update="

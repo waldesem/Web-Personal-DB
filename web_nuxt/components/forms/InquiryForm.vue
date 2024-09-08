@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa } from "@/state/state";
 import type { Needs } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   inquiry: {
@@ -12,12 +11,14 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
-
 const inquiryForm = toRef(props.inquiry as Needs);
 
 function submitIquiry() {
-  anketaState.updateItem("inquiries", inquiryForm.value)
+  emit('submit', inquiryForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit('cancel');
   Object.assign(inquiryForm.value, {
     info: "",
@@ -42,6 +43,6 @@ function submitIquiry() {
         placeholder="Инициатор"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')"/>
+    <ElementsBtnGroup @cancel="cancelAction"/>
   </UForm>
 </template>

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa } from "@/state/state";
 import type { Previous } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   previous: {
@@ -12,12 +11,14 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
-
 const previousForm = toRef(props.previous as Previous);
 
 function submitPrevious() {
-  anketaState.updateItem("previous", previousForm.value)
+  emit("submit", previousForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit('cancel');
   Object.assign(previousForm.value, {
     surname: "",
@@ -63,6 +64,6 @@ function submitPrevious() {
         placeholder="Причина изменения"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')"/>
+    <ElementsBtnGroup @cancel="cancelAction"/>
   </UForm>
 </template>

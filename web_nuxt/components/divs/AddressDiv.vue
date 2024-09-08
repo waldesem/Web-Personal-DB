@@ -4,20 +4,32 @@ import type { Address } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('addresses');
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const address = ref({} as Address);
 
+const { refresh } = await useAsyncData("addresses", async () => {
+  await anketaState.getItem('addresses');
+})
+
+async function updateAddress(addressForm: Address) {
+  await anketaState.updateItem("addresses", addressForm);
+  await refresh();
+}
+
+async function deleteAddress(index: string) {
+  await anketaState.deleteItem(index, 'addresses');
+  await refresh();
+}
+
 function cancelAction() {
   edit.value = false;
   collapse.value = false;
   itemId.value = "";
 }
-
-const editState = inject("editState") as boolean;
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const editState = inject("editState") as boolean;
   <Transition name="slide-fade">
     <div v-if="collapse" class="p-1">
       <UCard>
-        <FormsAddressForm @cancel="cancelAction" />
+        <FormsAddressForm 
+          @cancel="cancelAction" 
+          @submit="updateAddress"
+        />
       </UCard>
     </div>
   </Transition>
@@ -45,6 +60,7 @@ const editState = inject("editState") as boolean;
           v-if="edit && itemId == item['id'].toString()"
           :addrs="address"
           @cancel="cancelAction"
+          @submit="updateAddress"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тип'">{{
@@ -60,7 +76,7 @@ const editState = inject("editState") as boolean;
         >
           <ElementsNaviHorizont
             :last-index="2"
-            @delete="anketaState.deleteItem(item['id'].toString(), 'addresses')"
+            @delete="deleteAddress(item['id'])"
             @update="
               address = item;
               itemId = item['id'].toString();

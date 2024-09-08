@@ -4,15 +4,25 @@ import type { Inquisition } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('investigations');
+const editState = inject("editState") as boolean
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const inquisition = ref({} as Inquisition);
 
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
+const { refresh } = await useAsyncData("investigations", async () => {
+  await anketaState.getItem('investigations');
+})
+
+async function updateInquisition(inquisitionForm: Inquisition) {
+  await anketaState.updateItem("investigations", inquisitionForm);
+  await refresh();
+}
+
+async function deleteInquisition(index: string) {
+  await anketaState.deleteItem(index, 'investigations');
+  await refresh();
 }
 
 function cancelAction() {
@@ -21,7 +31,9 @@ function cancelAction() {
   collapse.value = false;
 }
 
-const editState = inject("editState") as boolean
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
 </script>
 
 <template>
@@ -35,7 +47,10 @@ const editState = inject("editState") as boolean
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsInvestigationForm @cancel="cancelAction" />
+        <FormsInvestigationForm 
+        @cancel="cancelAction" 
+        @submit="updateInquisition"
+      />
       </UCard>
     </div>
   </Transition>
@@ -58,6 +73,7 @@ const editState = inject("editState") as boolean
           "
           :investigation="inquisition"
           @cancel="cancelAction"
+          @submit="updateInquisition"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{
@@ -96,11 +112,9 @@ const editState = inject("editState") as boolean
               edit = true;
             "
             @delete="
-              anketaState.deleteItem(
+              deleteInquisition(
                 anketaState.anketa.value.investigations[index][
-                  'id'
-                ].toString(),
-                'investigations'
+                  'id'],
               )
             "
             @upload="openFileForm('investigation-file')"

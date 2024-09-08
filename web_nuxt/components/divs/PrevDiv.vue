@@ -4,20 +4,32 @@ import type { Previous } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('previous');
+const editState = inject("editState") as boolean
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const previous = ref({} as Previous);
 
+const { refresh } = await useAsyncData("previous", async () => {
+  await anketaState.getItem('previous');
+})
+
+async function updatePrevious(previousForm: Previous) {
+  await anketaState.updateItem("previous", previousForm);
+  await refresh();
+}
+
+async function deletePrevious(index: string) {
+  await anketaState.deleteItem(index, 'previous');
+  await refresh();
+}
+
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
 }
-
-const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const editState = inject("editState") as boolean
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsPreviousForm @cancel="cancelAction" />
+        <FormsPreviousForm 
+          @cancel="cancelAction" 
+          @submit="updatePrevious"
+        />
       </UCard>
     </div>
   </Transition>
@@ -45,6 +60,7 @@ const editState = inject("editState") as boolean
           v-if="edit && itemId == item['id'].toString()"
           :previous="previous"
           @cancel="cancelAction"
+          @submit="updatePrevious"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Фамилия'">
@@ -70,7 +86,7 @@ const editState = inject("editState") as boolean
           <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
-            @delete="anketaState.deleteItem(item['id'].toString(), 'previous')"
+            @delete="deletePrevious(item['id'].toString())"
             @update="
               previous = item;
               itemId = item['id'].toString();

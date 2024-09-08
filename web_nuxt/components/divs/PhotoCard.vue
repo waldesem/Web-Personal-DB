@@ -11,15 +11,23 @@ const anketaState = stateAnketa();
 
 const imageUrl = ref("");
 
-const { refresh } = await useAsyncData("image", async () => {
-  const response = await $fetch(`${server}/image`, {
-    params: {
-      image: anketaState.anketa.value.persons.destination,
-    },
-    responseType: "blob",
-  });
-  imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
+// const { refresh } = await useAsyncData("image", async () => {
+//   const response = await $fetch(`${server}/image`, {
+//     params: {
+//       image: anketaState.anketa.value.persons.destination,
+//     },
+//     responseType: "blob",
+//   });
+//   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
+// });
+
+const { data, refresh } = await useFetch(`${server}/image`, {
+  params: {
+    image: anketaState.anketa.value.persons.destination,
+  },
+  responseType: "blob",
 });
+imageUrl.value = window.URL.createObjectURL(new Blob([data] as never));
 
 async function submitImage(fileList: FileList) {
   const toast = useToast();
@@ -31,18 +39,15 @@ async function submitImage(fileList: FileList) {
       color: "red",
     });
     return;
-  };
+  }
   const formData = new FormData();
   for (const file of fileList) {
     formData.append("file", file);
   }
-  await authFetch(
-    `${server}/file/image/${anketaState.share.value.candId}`,
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
+  await authFetch(`${server}/file/image/${anketaState.share.value.candId}`, {
+    method: "POST",
+    body: formData,
+  });
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa, stateClassify } from "@/state/state";
+import { stateClassify } from "@/state/state";
 import type { Document } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   docs: {
@@ -12,7 +12,6 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
 const classifyState = stateClassify();
 
 const docForm = toRef(props.docs as Document);
@@ -21,7 +20,11 @@ docForm.value.issue = docForm.value.issue
   : "";
 
 function submitDocument() {
-  anketaState.updateItem("documents", docForm.value);
+  emit("submit", docForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit("cancel");
   Object.assign(docForm.value, {
     view: "",
@@ -58,6 +61,6 @@ function submitDocument() {
     <UFormGroup class="mb-3" label="Дата выдачи">
       <UInput v-model.trim.lazy="docForm['issue']" type="date" />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

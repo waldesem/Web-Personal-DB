@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa } from "@/state/state";
 import type { Work } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   work: {
@@ -12,9 +11,8 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
-
 const workForm = toRef(props.work as Work);
+
 workForm.value.starts = workForm.value.starts
   ? new Date(workForm.value.starts).toISOString().slice(0, 10)
   : "";
@@ -23,7 +21,11 @@ workForm.value.finished = workForm.value.finished
   : "";
 
 function submitWorkplace() {
-  anketaState.updateItem("workplaces", workForm.value);
+  emit("submit", workForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit("cancel");
   Object.assign(workForm.value, {
     now_work: false,
@@ -68,14 +70,24 @@ function submitWorkplace() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Должность">
-      <UInput v-model.trim.lazy="workForm['position']" required placeholder="Должность" />
+      <UInput
+        v-model.trim.lazy="workForm['position']"
+        required
+        placeholder="Должность"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес организации">
-      <UInput v-model.trim.lazy="workForm['addresses']" placeholder="Адрес организации" />
+      <UInput
+        v-model.trim.lazy="workForm['addresses']"
+        placeholder="Адрес организации"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Причина увольнения">
-      <UInput v-model.trim.lazy="workForm['reason']" placeholder="Причина увольнения" />
+      <UInput
+        v-model.trim.lazy="workForm['reason']"
+        placeholder="Причина увольнения"
+      />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')" />
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

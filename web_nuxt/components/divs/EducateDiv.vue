@@ -4,20 +4,32 @@ import type { Education } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('educations');
+const editState = inject("editState") as boolean
 
 const collapse = ref(false);
 const itemId = ref("");
 const edit = ref(false);
 const education = ref({} as Education);
 
+const { refresh } = await useAsyncData("educations", async () => {
+  await anketaState.getItem('educations');
+})
+
+async function updateEducation(educationForm: Education) {
+  await anketaState.updateItem("educations", educationForm);
+  await refresh();
+}
+
+async function deleteEducation(index: string) {
+  await anketaState.deleteItem(index, 'educations');
+  await refresh();
+}
+
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
 }
-
-const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const editState = inject("editState") as boolean
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsEducationForm @cancel="cancelAction" />
+        <FormsEducationForm 
+        @cancel="cancelAction" 
+        @submit="updateEducation"
+      />
       </UCard>
     </div>
   </Transition>
@@ -45,6 +60,7 @@ const editState = inject("editState") as boolean
           v-if="edit && itemId == item['id'].toString()"
           :education="education"
           @cancel="cancelAction"
+          @submit="updateEducation"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Уровень образования'">{{
@@ -67,7 +83,7 @@ const editState = inject("editState") as boolean
           <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
-            @delete="anketaState.deleteItem(item['id'].toString(), 'educations')"
+            @delete="deleteEducation(item['id'])"
             @update="
               education = item;
               itemId = item['id'].toString();

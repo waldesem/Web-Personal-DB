@@ -1,21 +1,43 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { stateAnketa, stateClassify } from "@/state/state";
+import { useFetchAuth } from "@/utils/auth";
+import { server, stateAnketa, stateClassify } from "@/state/state";
 import type { Persons } from "@/utils/interfaces";
 
+const authFetch = useFetchAuth();
+
+const toast = useToast();
+
 const anketaState = stateAnketa();
+
 const classifyState = stateClassify();
+
+const editState = inject("editState") as boolean
 
 const dataResume = ref({
   action: "",
   form: {} as Persons,
-
-  openFileForm(elementId: string) {
-    document.getElementById(elementId)?.click();
-  },
 });
 
-const editState = inject("editState") as boolean
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
+
+async function changeRegion(): Promise<void> {
+  if (!confirm("Вы действительно хотите изменить регион?")) return;
+  const response = await authFetch(`${server}/region/${anketaState.share.value.candId}`, {
+    params: {
+      region: anketaState.anketa.value.persons["region"],
+    },
+  });
+  console.log(response);
+  anketaState.getItem("persons");
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Информация",
+    description: "Изменение региона успешно",
+    color: "green",
+  });
+}
 </script>
 
 <template>
@@ -37,7 +59,7 @@ const editState = inject("editState") as boolean
           style="width: 20%;"
           :options="Object.values(classifyState.classes.value.regions)"
           :disabled="!editState"
-          @change="anketaState.changeRegion()"
+          @change="changeRegion()"
         />
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Фамилия'">
@@ -122,7 +144,7 @@ const editState = inject("editState") as boolean
           )
         "
         @update="dataResume.action = 'update'"
-        @upload="dataResume.openFileForm('resume-file')"
+        @upload="openFileForm('resume-file')"
       />
       <div v-show="false">
         <UInput

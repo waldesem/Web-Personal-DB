@@ -4,15 +4,25 @@ import type { Pfo } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('poligrafs');
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const poligraf = ref({} as Pfo);
 
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
+const { refresh } = await useAsyncData("poligrafs", async () => {
+  await anketaState.getItem('poligrafs');
+});
+
+async function updatePoligraf(poligrafForm: Pfo) {
+  await anketaState.updateItem("poligrafs", poligrafForm);
+  await refresh();
+}
+
+async function deletePoligraf(index: string) {
+  await anketaState.deleteItem(index, 'poligrafs');
+  await refresh();
 }
 
 function cancelAction() {
@@ -21,7 +31,9 @@ function cancelAction() {
   collapse.value = false;
 }
 
-const editState = inject("editState") as boolean;
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
 </script>
 
 <template>
@@ -35,7 +47,10 @@ const editState = inject("editState") as boolean;
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsPoligrafForm @cancel="cancelAction" />
+        <FormsPoligrafForm 
+          @cancel="cancelAction" 
+          @submit="updatePoligraf"
+        />
       </UCard>
     </div>
   </Transition>
@@ -58,6 +73,7 @@ const editState = inject("editState") as boolean;
           "
           :poligraf="poligraf"
           @cancel="cancelAction"
+          @submit="updatePoligraf"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{
@@ -92,10 +108,8 @@ const editState = inject("editState") as boolean;
               itemId = anketaState.anketa.value.poligrafs[index]['id'].toString();
               edit = true;
             "
-            @delete="
-              anketaState.deleteItem(
-                anketaState.anketa.value.poligrafs[index]['id'].toString(),
-                'poligrafs'
+            @delete="deletePoligraf(
+                anketaState.anketa.value.poligrafs[index]['id'],
               )
             "
             @upload="openFileForm('poligraf-file')"

@@ -4,20 +4,32 @@ import type { Document } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('documents');
+const editState = inject("editState") as boolean
 
 const collapse = ref(false);
 const itemId = ref("");
 const edit = ref(false);
 const doc = ref({} as Document);
 
+const { refresh } = await useAsyncData("documents", async () => {
+  await anketaState.getItem('documents');
+})
+
+async function updateDocument(documentForm: Document) {
+  await anketaState.updateItem("documents", documentForm);
+  await refresh();
+}
+
+async function deleteDocument(index: string) {
+  await anketaState.deleteItem(index, 'documents');
+  await refresh();
+}
+
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
 }
-
-const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const editState = inject("editState") as boolean
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsDocumentForm @cancel="cancelAction" />
+        <FormsDocumentForm 
+          @cancel="cancelAction" 
+          @submit="updateDocument"
+        />
       </UCard>
     </div>
   </Transition>
@@ -45,6 +60,7 @@ const editState = inject("editState") as boolean
           v-if="edit && itemId == item['id'].toString()"
           :docs="doc"
           @cancel="cancelAction"
+          @submit="updateDocument"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Вид документа'">{{
@@ -74,7 +90,7 @@ const editState = inject("editState") as boolean
           <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
-            @delete="anketaState.deleteItem(item['id'].toString(), 'documents')"
+            @delete="deleteDocument(item['id'])"
             @update="
               doc = item;
               itemId = item['id'].toString();

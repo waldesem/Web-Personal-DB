@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import { stateAnketa } from "@/state/state";
 import type { Inquisition } from "@/utils/interfaces";
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "submit"]);
 
 const props = defineProps({
   investigation: {
@@ -12,12 +11,14 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
-
 const investigationForm = toRef(props.investigation as Inquisition);
 
 function submitInvestigations() {
-  anketaState.updateItem("investigations", investigationForm.value)
+  emit('submit', investigationForm.value);
+  cancelAction();
+}
+
+function cancelAction() {
   emit('cancel');
   Object.assign(investigationForm.value, {
     theme: "",
@@ -42,6 +43,6 @@ function submitInvestigations() {
         placeholder="Информация"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="emit('cancel')"/>
+    <ElementsBtnGroup @cancel="cancelAction"/>
   </UForm>
 </template>

@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateAnketa } from "@/state/state";
+import { useFetchAuth } from "@/utils/auth";
+import { server, stateAnketa } from "@/state/state";
 import type { Persons } from "@/utils/interfaces";
+
+const authFetch = useFetchAuth();
+
+const toast = useToast();
 
 const emit = defineEmits(["cancel"]);
 
@@ -40,22 +44,47 @@ function cancelEdit() {
   emit("cancel");
 }
 
-async function submitForm(): Promise<void> {
-  anketaState.submitResume(props.action, resumeForm.value);
+async function submitResume(action: string, form: object): Promise<void> {
+  if (action == "create") {
+    const response = await authFetch(`${server}/resume`, {
+      method: "POST",
+      body: form,
+    });
+    console.log(response);
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Информация",
+      description: `Данные успешно добавлены`,
+      color: "green",
+    });
+  } else {
+    anketaState.updateItem("persons", form);
+  }
   cancelEdit();
 }
 </script>
 
 <template>
-  <UForm :state="resumeForm" @submit.prevent="submitForm">
+  <UForm :state="resumeForm" @submit.prevent="submitResume">
     <UFormGroup class="mb-3" label="Фамилия">
-      <UInput v-model.trim.lazy="resumeForm['surname']" required placeholder="Фамилия" />
+      <UInput
+        v-model.trim.lazy="resumeForm['surname']"
+        required
+        placeholder="Фамилия"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Имя">
-      <UInput v-model.trim.lazy="resumeForm['firstname']" required placeholder="Имя" />
+      <UInput
+        v-model.trim.lazy="resumeForm['firstname']"
+        required
+        placeholder="Имя"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Отчество">
-      <UInput v-model.trim.lazy="resumeForm['patronymic']" placeholder="Отчество" />
+      <UInput
+        v-model.trim.lazy="resumeForm['patronymic']"
+        placeholder="Отчество"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата рождения">
       <UInput v-model="resumeForm['birthday']" required type="date" />
@@ -67,10 +96,16 @@ async function submitForm(): Promise<void> {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Гражданство">
-      <UInput v-model.trim.lazy="resumeForm['citizenship']" placeholder="Гражданство" />
+      <UInput
+        v-model.trim.lazy="resumeForm['citizenship']"
+        placeholder="Гражданство"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Двойное гражданство">
-      <UInput v-model.trim.lazy="resumeForm['dual']" placeholder="Двойное гражданство" />
+      <UInput
+        v-model.trim.lazy="resumeForm['dual']"
+        placeholder="Двойное гражданство"
+      />
     </UFormGroup>
     <UFormGroup class="mb-3" label="СНИЛС">
       <UInput v-model.trim.lazy="resumeForm['snils']" placeholder="СНИЛС" />
@@ -85,7 +120,10 @@ async function submitForm(): Promise<void> {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дополнительно">
-      <UTextarea v-model.trim.lazy="resumeForm['addition']" placeholder="Дополнительно" />
+      <UTextarea
+        v-model.trim.lazy="resumeForm['addition']"
+        placeholder="Дополнительно"
+      />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelEdit" />
   </UForm>

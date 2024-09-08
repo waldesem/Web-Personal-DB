@@ -72,24 +72,6 @@ export const stateAnketa = () => {
     )) as never;
   }
 
-  async function changeRegion(): Promise<void> {
-    if (!confirm("Вы действительно хотите изменить регион?")) return;
-    const response = await authFetch(`${server}/region/${share.value.candId}`, {
-      params: {
-        region: anketa.value.persons["region"],
-      },
-    });
-    console.log(response);
-    getItem("persons");
-    const toast = useToast();
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Информация",
-      description: "Изменение региона успешно",
-      color: "green",
-    });
-  }
-
   async function updateItem(param: string, form: object): Promise<void> {
     const response = await authFetch(
       `${server}/${param}/${share.value.candId}`,
@@ -99,7 +81,6 @@ export const stateAnketa = () => {
       }
     );
     console.log(response);
-    getItem(param);
     const toast = useToast();
     toast.add({
       icon: "i-heroicons-check-circle",
@@ -115,9 +96,6 @@ export const stateAnketa = () => {
       method: "DELETE",
     });
     console.log(response);
-    if (param === "persons") {
-      navigateTo("/persons");
-    } else getItem(param);
     const toast = useToast();
     toast.add({
       icon: "i-heroicons-information-circle",
@@ -143,9 +121,6 @@ export const stateAnketa = () => {
         body: formData,
       });
       console.log(response);
-      if (param === "anketa") {
-        getItem("persons");
-      } else getItem(param);
       toast.add({
         icon: "i-heroicons-check-circle",
         title: "Информация",
@@ -163,34 +138,12 @@ export const stateAnketa = () => {
     formData.delete("file");
   }
 
-  async function submitResume(action: string, form: object): Promise<void> {
-    if (action == "create") {
-      const response = await authFetch(`${server}/resume`, {
-        method: "POST",
-        body: form,
-      });
-      console.log(response);
-      const toast = useToast();
-      toast.add({
-        icon: "i-heroicons-check-circle",
-        title: "Информация",
-        description: `Данные успешно добавлены`,
-        color: "green",
-      });
-    } else {
-      updateItem("persons", form);
-    }
-  }
-
   return {
     anketa,
     share,
     getItem,
-    changeRegion,
     updateItem,
     deleteItem,
     submitFile,
-    submitResume,
-    // getImage,
   };
 };

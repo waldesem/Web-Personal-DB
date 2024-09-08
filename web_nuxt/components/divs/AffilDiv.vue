@@ -4,20 +4,32 @@ import type { Affilation } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('affilations');
+const editState = inject("editState") as boolean
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const affilation = ref({} as Affilation);
 
+const { refresh } = await useAsyncData("affilations", async () => {
+  await anketaState.getItem('affilations');
+})
+
+async function updateAffilation(affilForm: Affilation) {
+  await anketaState.updateItem("affilations", affilForm);
+  await refresh();
+}
+
+async function deleteAffilation(index: string) {
+  await anketaState.deleteItem(index, 'affilations');
+  await refresh();
+}
+
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
 }
-
-const editState = inject("editState") as boolean
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const editState = inject("editState") as boolean
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsAffilationForm @cancel="cancelAction" />
+        <FormsAffilationForm 
+          @cancel="cancelAction" 
+          @submit="updateAffilation"
+        />
       </UCard>
     </div>
   </Transition>
@@ -45,6 +60,7 @@ const editState = inject("editState") as boolean
           v-if="edit && itemId == item['id'].toString()"
           :affils="affilation"
           @cancel="cancelAction"
+          @submit="updateAffilation"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тип участия'">{{
@@ -62,7 +78,7 @@ const editState = inject("editState") as boolean
         <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
-            @delete="anketaState.deleteItem(item['id'].toString(), 'affilations')"
+            @delete="deleteAffilation(item['id'])"
             @update="
               affilation = item;
               itemId = item['id'].toString();

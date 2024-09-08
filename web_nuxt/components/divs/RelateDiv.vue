@@ -4,20 +4,32 @@ import type { Relation } from "@/utils/interfaces";
 
 const anketaState = stateAnketa();
 
-await anketaState.getItem('relations');
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const relation = ref({} as Relation);
 
+const { refresh } = await useAsyncData("relations", async () => {
+  await anketaState.getItem('relations');
+})
+
+async function updateRelation(relationForm: Relation) {
+  await anketaState.updateItem("relations", relationForm);
+  await refresh();
+}
+
+async function deleteRelation(index: string) {
+  await anketaState.deleteItem(index, 'relations');
+  await refresh();
+}
+
 function cancelAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
 }
-
-const editState = inject("editState") as boolean;
 </script>
 
 <template>
@@ -30,7 +42,10 @@ const editState = inject("editState") as boolean;
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsRelationForm @cancel="cancelAction" />
+        <FormsRelationForm 
+          @cancel="cancelAction" 
+          @submit="updateRelation"
+        />
       </UCard>
     </div>
   </Transition>
@@ -44,7 +59,8 @@ const editState = inject("editState") as boolean;
         <FormsRelationForm
           v-if="edit && itemId == item['id'].toString()"
           :relation="relation"
-          @cancel="edit = !edit"
+          @cancel="cancelAction"
+          @submit="updateRelation"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тип'">{{
@@ -63,7 +79,7 @@ const editState = inject("editState") as boolean;
         <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
-            @delete="anketaState.deleteItem(item['id'].toString(), 'relations')"
+            @delete="deleteRelation(item['id'].toString())"
             @update="
               relation = item;
               itemId = item['id'].toString();
