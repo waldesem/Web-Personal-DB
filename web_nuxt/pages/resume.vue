@@ -9,7 +9,7 @@ const switchToPersons = async() => {
   <LayoutsMenu>
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'"/>
     <UCard>
-      <FormsResumeForm @cancel="switchToPersons"/>
+      <FormsResumeForm :action="'create'" @cancel="switchToPersons"/>
     </UCard>
   </LayoutsMenu>
 </template>

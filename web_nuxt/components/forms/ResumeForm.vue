@@ -5,6 +5,8 @@ import type { Persons } from "@/utils/interfaces";
 
 const authFetch = useFetchAuth();
 
+const anketaState = stateAnketa();
+
 const toast = useToast();
 
 const emit = defineEmits(["cancel"]);
@@ -20,9 +22,9 @@ const props = defineProps({
   },
 });
 
-const anketaState = stateAnketa();
 
 const resumeForm = toRef(props.resume);
+
 resumeForm.value.birthday = resumeForm.value.birthday
   ? new Date(resumeForm.value.birthday).toISOString().slice(0, 10)
   : "";
@@ -44,11 +46,11 @@ function cancelEdit() {
   emit("cancel");
 }
 
-async function submitResume(action: string, form: object): Promise<void> {
-  if (action == "create") {
+async function submitResume(): Promise<void> {
+  if (props.action == "create") {
     const response = await authFetch(`${server}/resume`, {
       method: "POST",
-      body: form,
+      body: resumeForm.value,
     });
     console.log(response);
     toast.add({
@@ -58,7 +60,7 @@ async function submitResume(action: string, form: object): Promise<void> {
       color: "green",
     });
   } else {
-    anketaState.updateItem("persons", form);
+    anketaState.updateItem("persons", resumeForm.value);
   }
   cancelEdit();
 }

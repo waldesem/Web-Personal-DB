@@ -43,8 +43,8 @@ class Person(Name):
     birthplace: Optional[str] = None
     citizenship: str = None
     dual: Optional[str] = None
-    snils: Optional[int] = None
-    inn: Optional[int] = None
+    snils: Optional[str] = None
+    inn: Optional[str] = None
     marital: Optional[str] = None
     addition: Optional[str] = None
     destination: Optional[str] = None

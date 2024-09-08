@@ -25,7 +25,8 @@ async function deleteAddress(index: string) {
   await refresh();
 }
 
-function cancelAction() {
+async function cancelAction() {
+  await refresh();
   edit.value = false;
   collapse.value = false;
   itemId.value = "";

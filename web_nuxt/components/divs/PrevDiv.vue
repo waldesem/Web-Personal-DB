@@ -25,7 +25,8 @@ async function deletePrevious(index: string) {
   await refresh();
 }
 
-function cancelAction() {
+async function cancelAction() {
+  await refresh();
   edit.value = false;
   itemId.value = "";
   collapse.value = false;

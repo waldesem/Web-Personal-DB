@@ -11,23 +11,15 @@ const anketaState = stateAnketa();
 
 const imageUrl = ref("");
 
-// const { refresh } = await useAsyncData("image", async () => {
-//   const response = await $fetch(`${server}/image`, {
-//     params: {
-//       image: anketaState.anketa.value.persons.destination,
-//     },
-//     responseType: "blob",
-//   });
-//   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
-// });
-
-const { data, refresh } = await useFetch(`${server}/image`, {
-  params: {
-    image: anketaState.anketa.value.persons.destination,
-  },
-  responseType: "blob",
+const { refresh } = await useAsyncData("image", async () => {
+  const response = await $fetch(`${server}/image`, {
+    params: {
+      image: anketaState.anketa.value.persons.destination,
+    },
+    responseType: "blob",
+  });
+  imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
 });
-imageUrl.value = window.URL.createObjectURL(new Blob([data] as never));
 
 async function submitImage(fileList: FileList) {
   const toast = useToast();

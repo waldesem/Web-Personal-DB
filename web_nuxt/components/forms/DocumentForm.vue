@@ -56,10 +56,14 @@ function cancelAction() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Кем выдан">
-      <UInput v-model.trim.lazy="docForm['agency']" placeholder="Кем выдан" />
+      <UInput v-model.trim="docForm['agency']" placeholder="Кем выдан" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата выдачи">
-      <UInput v-model.trim.lazy="docForm['issue']" type="date" />
+      <UInput 
+        v-model.trim.lazy="docForm['issue']" 
+        required
+        type="date" 
+      />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
