@@ -16,11 +16,11 @@ const { refresh } = await useAsyncData("contacts", async () => {
 })
 
 async function updateContact(contactForm: Contact) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem("contacts", contactForm),
     await refresh()
   ])
-  closeAction();
 }
 
 async function deleteContact(index: string) {
