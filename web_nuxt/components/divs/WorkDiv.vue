@@ -16,11 +16,11 @@ const { refresh } = await useAsyncData("workplaces", async () => {
 })
 
 async function updateWork(workForm: Work) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem("workplaces", workForm),
     await refresh()
   ])
-  closeAction();
 }
 
 async function deleteWork(index: string) {
