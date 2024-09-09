@@ -97,7 +97,6 @@ const filtredLinks = computed(() => {
       </header>
       <div
         class="flex flex-grow flex-col grid grid-cols-12 gap-3"
-        style="padding-bottom: 5vh"
       >
         <div class="col-span-2 py-3">
           <UVerticalNavigation
