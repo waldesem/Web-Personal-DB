@@ -24,6 +24,7 @@ async function updatePoligraf(poligrafForm: Pfo) {
 }
 
 async function deletePoligraf(index: string) {
+  closeAction();
   Promise.all([
     await anketaState.deleteItem(index, 'poligrafs'),
     await refresh(),
