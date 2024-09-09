@@ -16,11 +16,11 @@ const { refresh } = await useAsyncData("investigations", async () => {
 })
 
 async function updateInquisition(inquisitionForm: Inquisition) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem("investigations", inquisitionForm),
     await refresh()
   ])
-  closeAction();
 }
 
 async function deleteInquisition(index: string) {
