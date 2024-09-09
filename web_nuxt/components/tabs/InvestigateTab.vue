@@ -110,6 +110,7 @@ function openFileForm(elementId: string) {
             (!edit && itemId !=
             anketaState.anketa.value.investigations[index]['id'].toString())
           "
+          #footer
         >
           <ElementsNaviHorizont
             v-show="!index && editState"
