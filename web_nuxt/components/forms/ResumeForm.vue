@@ -60,7 +60,10 @@ async function submitResume(): Promise<void> {
       color: "green",
     });
   } else {
-    anketaState.updateItem("persons", resumeForm.value);
+    Promise.all([
+      anketaState.updateItem("persons", resumeForm.value),
+      anketaState.getItem('persons')
+])
   }
   cancelEdit();
 }
