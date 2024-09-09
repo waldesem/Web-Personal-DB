@@ -16,11 +16,11 @@ const { refresh } = await useAsyncData("relations", async () => {
 })
 
 async function updateRelation(relationForm: Relation) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem("relations", relationForm),
     await refresh()
   ])
-  closeAction();
 }
 
 async function deleteRelation(index: string) {
