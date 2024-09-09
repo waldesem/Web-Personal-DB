@@ -16,11 +16,11 @@ const { refresh } = await useAsyncData("affilations", async () => {
 })
 
 async function updateAffilation(affilForm: Affilation) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem("affilations", affilForm),
     await refresh()
   ])
-  closeAction();
 }
 
 async function deleteAffilation(index: string) {
