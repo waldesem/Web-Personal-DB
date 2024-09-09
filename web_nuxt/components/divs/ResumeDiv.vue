@@ -51,10 +51,7 @@ function deleteItem() {
       <FormsResumeForm
         :action="dataResume.action"
         :resume="anketaState.anketa.value.persons"
-        @cancel="
-          dataResume.action = '';
-          anketaState.getItem('persons');
-        "
+        @cancel="dataResume.action = ''"
       />
      </div>
     <div v-else>
