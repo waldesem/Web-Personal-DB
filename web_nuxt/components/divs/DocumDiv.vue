@@ -16,11 +16,11 @@ const { refresh } = await useAsyncData("documents", async () => {
 })
 
 async function updateDocument(documentForm: Document) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem("documents", documentForm),
     await refresh()
   ])
-  closeAction();
 }
 
 async function deleteDocument(index: string) {
