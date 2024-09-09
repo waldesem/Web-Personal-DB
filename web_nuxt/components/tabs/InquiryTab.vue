@@ -24,6 +24,7 @@ async function updateNeed(needForm: Needs) {
 }
 
 async function deleteNeed(index: string) {
+  closeAction();
   Promise.all([
     await anketaState.deleteItem(index, 'inquiries'),
     await refresh()
