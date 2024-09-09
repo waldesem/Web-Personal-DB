@@ -120,13 +120,7 @@ function deleteItem() {
             : ""
         }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Материалы'">
-        <a 
-          class="text-red-500"
-          target="_blank" 
-          :href="anketaState.anketa.value.persons['destination']">
-          {{ anketaState.anketa.value.persons['destination'] }}
-        </a>
+      <ElementsLabelSlot :label="'Материалы'"> {{ anketaState.anketa.value.persons['destination'] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">
         {{
