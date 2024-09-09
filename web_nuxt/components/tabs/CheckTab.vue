@@ -19,11 +19,11 @@ const { refresh } = await useAsyncData("checks", async () => {
 });
 
 async function updateCheck(checkForm: Verification) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem('checks', checkForm),
     await refresh(),
   ])
-  closeAction();
 }
 
 async function deleteCheck(index: string) {
