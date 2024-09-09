@@ -16,11 +16,11 @@ const { refresh } = await useAsyncData("previous", async () => {
 })
 
 async function updatePrevious(previousForm: Previous) {
+  closeAction();
   Promise.all([
     await anketaState.updateItem("previous", previousForm),
     await refresh()
   ])
-  closeAction();
 }
 
 async function deletePrevious(index: string) {
