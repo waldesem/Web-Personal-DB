@@ -19,6 +19,7 @@ const checkForm = toRef(props.check as Verification);
 const noNegative = ref(false);
 
 function submitCheck() {
+  emit('cancel')
   emit("submit", checkForm.value);
   clearForm();
 }
