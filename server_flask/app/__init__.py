@@ -37,7 +37,7 @@ def create_app(config_class=Config):
         )
         db_session.add(admin)
         db_session.commit()
-        db_session.remove()
+    db_session.remove()
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
