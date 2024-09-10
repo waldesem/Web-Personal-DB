@@ -15,6 +15,7 @@ const editState = inject("editState") as boolean
 
 const dataResume = ref({
   action: "",
+  skeleton: false,
   form: {} as Persons,
 });
 
