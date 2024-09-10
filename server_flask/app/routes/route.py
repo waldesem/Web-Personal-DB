@@ -505,9 +505,9 @@ def get_information():
     data = request.args
     results = db_session.execute(
         select(Checks.conclusion, func.count(Checks.id))
-        .join(Persons, Checks.person_id == Persons.id)
+        .filter(Checks.person_id == Persons.id)
         .filter(Checks.created.between(data["start"], data["end"]))
-        .filter_by(region=data.get("region")
+        .filter(Persons.region == data.get("region")
             if data.get("region")
             else current_user["region"],
         )
