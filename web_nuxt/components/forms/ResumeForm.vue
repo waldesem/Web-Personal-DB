@@ -9,7 +9,7 @@ const anketaState = stateAnketa();
 
 const toast = useToast();
 
-const emit = defineEmits(["cancel"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   action: {
@@ -21,7 +21,6 @@ const props = defineProps({
     default: {} as Persons,
   },
 });
-
 
 const resumeForm = toRef(props.resume);
 
@@ -50,26 +49,8 @@ function cancelEdit() {
   } as Persons);
 }
 
-async function submitResume(): Promise<void> {
-  emit('cancel')
-  if (props.action == "create") {
-    const response = await authFetch(`${server}/resume`, {
-      method: "POST",
-      body: resumeForm.value,
-    });
-    console.log(response);
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Информация",
-      description: `Данные успешно добавлены`,
-      color: "green",
-    });
-  } else {
-    Promise.all([
-      anketaState.updateItem("persons", resumeForm.value),
-      anketaState.getItem('persons')
-])
-  }
+function submitResume() {
+  emit('update');
   cancelEdit();
 }
 </script>
