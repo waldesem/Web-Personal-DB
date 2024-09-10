@@ -29,6 +29,11 @@ resumeForm.value.birthday = resumeForm.value.birthday
   ? new Date(resumeForm.value.birthday).toISOString().slice(0, 10)
   : "";
 
+function cancelOperation() {
+  emit('cancel')
+  cancelEdit();
+}
+
 function cancelEdit() {
   Object.assign(resumeForm.value, {
     surname: "",
@@ -43,10 +48,10 @@ function cancelEdit() {
     marital: "",
     addition: "",
   } as Persons);
-  emit("cancel");
 }
 
 async function submitResume(): Promise<void> {
+  emit('cancel')
   if (props.action == "create") {
     const response = await authFetch(`${server}/resume`, {
       method: "POST",
@@ -130,6 +135,6 @@ async function submitResume(): Promise<void> {
         placeholder="Дополнительно"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelEdit" />
+    <ElementsBtnGroup @cancel="cancelOperation" />
   </UForm>
 </template>
