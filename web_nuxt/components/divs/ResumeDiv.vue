@@ -51,7 +51,7 @@ function updateItem(form: Persons) {
 }
 
 function cancelAction(){
-  dataResume.action = ''";
+  dataResume.action = '';
   anketaState.getItem('persons');
 }
 </script>
