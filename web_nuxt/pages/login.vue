@@ -3,8 +3,6 @@ import { server, stateUser, userToken } from "@/state/state";
 
 const userState = stateUser();
 
-const showPswd = ref(false);
-
 const loginAction = ref("create");
 
 const loginForm = ref({} as Record<string, unknown>);
@@ -65,7 +63,6 @@ async function submitLogin(): Promise<void> {
   } else {
     alertMessage.setAlert("red", "Внимание", "Неправильный логин или пароль.");
   }
-  showPswd.value = false;
 }
 </script>
 
@@ -99,27 +96,19 @@ async function submitLogin(): Promise<void> {
             />
           </UFormGroup>
           <UFormGroup class="mb-3" size="md" label="Пароль">
-            <UButtonGroup size="md" orientation="horizontal">
               <UInput
                 v-model="loginForm['password']"
-                :type="!showPswd ? 'password' : 'text'"
+                type="password"
                 placeholder="password"
                 icon="i-heroicons-lock-closed"
                 required
               />
-              <UButton
-                :title="!showPswd ? 'Показать' : 'Скрыть'"
-                :icon="showPswd ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                color="gray"
-                @click="showPswd = !showPswd"
-              />
-            </UButtonGroup>
           </UFormGroup>
           <div v-if="loginAction === 'update'">
             <UFormGroup class="mb-3" size="md" label="Новый пароль">
               <UInput
                 v-model="loginForm['new_pswd']"
-                :type="!showPswd ? 'password' : 'text'"
+                type="password"
                 placeholder="password"
                 icon="i-heroicons-lock-closed"
                 required
@@ -128,7 +117,7 @@ async function submitLogin(): Promise<void> {
             <UFormGroup class="mb-3" size="md" label="Повтор пароля">
               <UInput
                 v-model="loginForm['conf_pswd']"
-                :type="!showPswd ? 'password' : 'text'"
+                type="password"
                 placeholder="password"
                 icon="i-heroicons-lock-closed"
                 required
