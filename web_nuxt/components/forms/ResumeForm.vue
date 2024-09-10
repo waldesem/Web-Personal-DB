@@ -1,14 +1,4 @@
 <script setup lang="ts">
-import { useFetchAuth } from "@/utils/auth";
-import { server, stateAnketa } from "@/state/state";
-import type { Persons } from "@/utils/interfaces";
-
-const authFetch = useFetchAuth();
-
-const anketaState = stateAnketa();
-
-const toast = useToast();
-
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
