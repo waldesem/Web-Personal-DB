@@ -40,7 +40,7 @@ function cancelEdit() {
 }
 
 function submitResume() {
-  emit('update');
+  emit('update', resumeForm.value);
   cancelEdit();
 }
 </script>
