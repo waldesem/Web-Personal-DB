@@ -44,6 +44,16 @@ function deleteItem() {
   anketaState.deleteItem(anketaState.anketa.value.persons['id'], 'persons');
   navigateTo('/persons');
 }
+
+function updateItem(form: Persons) {
+  dataResume.action = "";
+  anketaState.updateItem("persons", form)
+}
+
+function cancelAction(){
+  dataResume.action = ''";
+  anketaState.getItem('persons');
+}
 </script>
 
 <template>
@@ -52,7 +62,8 @@ function deleteItem() {
       <FormsResumeForm
         :action="dataResume.action"
         :resume="anketaState.anketa.value.persons"
-        @cancel="dataResume.action = ''"
+        @cancel="cancelAction"
+        @update="updateItem"
       />
      </div>
     <div v-else>
