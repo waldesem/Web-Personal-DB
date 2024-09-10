@@ -253,10 +253,10 @@ def get_index(page):
     if cur_user["region"] != Regions.main.value:
         stmt = stmt.filter(Persons.region == cur_user["region"])
     query = db_session.execute(
-        stmt.join(Users)
+        stmt.filter(Persons.user_id == Users.id)
         .order_by(desc(Persons.id))
-        .limit(pagination + 1)
         .offset((page - 1) * pagination)
+        .limit(pagination + 1)
     ).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     has_next = len(result) > pagination
