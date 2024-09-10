@@ -31,15 +31,16 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    stmt = select(tables_models[item], Users.fullname).filter(
-        tables_models[item].user_id == Users.id
-    )
+    stmt = select(tables_models[item], Users.fullname)
     if item == "persons":
         stmt = stmt.filter(Persons.id == item_id)
     else:
         stmt = stmt.filter(tables_models[item].person_id == item_id).order_by(
             desc(tables_models[item].id)
         )
+    stmt = stmt.filter(
+        tables_models[item].user_id == Users.id
+    )
     query = db_session.execute(stmt).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     return result[0] if item == "persons" else result
