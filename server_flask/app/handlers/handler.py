@@ -31,19 +31,25 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    stmt = select(tables_models[item], Users.fullname)
-    if item == "persons":
+    if item in ['persons', 'checks', 'poligrafs', 'inquiries', 'investigations']:
+        stmt = select(tables_models[item], Users.fullname)
+        if item == "persons":
         stmt = stmt.filter(Persons.id == item_id)
-    else:
+        else:
         stmt = stmt.filter(tables_models[item].person_id == item_id)
     stmt = stmt.filter(
         tables_models[item].user_id == Users.id
     )
-    query = db_session.execute(stmt).order_by(
+        query = db_session.execute(stmt).order_by(
     desc(tables_models[item].id)
     ).all()
-    result = [row[0].to_dict() | {"username": row[1]} for row in query]
-    return result[0] if item == "persons" else result
+        result = [row[0].to_dict() | {"username": row[1]} for row in query]
+        return result[0] if item == "persons" else result
+    else:
+        query = select(tables_models[item]).filter(tables_models[item].person_id == item_id).order_by(
+    desc(tables_models[item].id)
+    ).all()
+        return[row[0].to_dict() for row in query]
 
 
 def handle_post_resume(resume):
