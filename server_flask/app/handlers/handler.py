@@ -95,8 +95,8 @@ def handle_post_resume(resume):
             if person.user_id != current_user["id"]:
                 return abort(400)
             resume["id"] = person.id
-        handle_post_item(resume, "persons")
-        return [resume["id"], person.destination]
+            handle_post_item(resume, "persons")
+            return [resume["id"], person.destination]
     handle_post_item(resume, "persons")
 
 
