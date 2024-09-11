@@ -16,7 +16,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="flex grid grid-cols-6 gap-3 mb-3 text-sm text-gray-500 dark:text-gray-400">
+  <div class="flex grid grid-cols-6 gap-3 mb-3">
     <div :class="props.labelClass">
       {{ props.label }}
     </div>
