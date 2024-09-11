@@ -2,10 +2,6 @@
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
-  action: {
-    type: String,
-    default: "create",
-  },
   resume: {
     type: Object as () => Persons,
     default: {} as Persons,
