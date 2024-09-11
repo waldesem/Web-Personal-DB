@@ -68,7 +68,7 @@ function openFileForm(elementId: string) {
   <div v-if="anketaState.anketa.value.inquiries.length">
     <div 
       v-for="(item, index) in anketaState.anketa.value.inquiries" :key="index"
-      class="py-1"
+      class="text-sm text-gray-500 dark:text-gray-400 py-1"
       >
       <UCard>
         <template #header>
