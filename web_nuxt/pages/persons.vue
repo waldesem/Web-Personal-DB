@@ -10,7 +10,6 @@ const userState = stateUser();
 
 const persons = ref({
   candidates: [] as Persons[],
-  spinner: false,
   page: 1,
   prev: false,
   next: true,
@@ -20,12 +19,11 @@ const persons = ref({
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
 });
 
-const { refresh } = await useAsyncData("candidates", async () => {
+const { refresh, status } = await useLazyAsyncData("candidates", async () => {
   if (persons.value.page < 1) {
     persons.value.page = 1;
     return;
   }
-  persons.value.spinner = true;
   const response = await authFetch(`${server}/index/${persons.value.page}`, {
     params: {
       search: persons.value.search,
@@ -38,8 +36,6 @@ const { refresh } = await useAsyncData("candidates", async () => {
   persons.value.updated = `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`;
-  
-  persons.value.spinner = false;
 });
 
 const searchPerson = debounce(async () => {
@@ -63,7 +59,6 @@ async function uploadJson (fileList: FileList) {
     return;
   };
   const formData = new FormData();
-  persons.value.spinner = true;
   for (const file of fileList) {
     formData.append("file", file);
   }
@@ -78,7 +73,6 @@ async function uploadJson (fileList: FileList) {
     description: `Файлы успешно загружены`,
     color: "green",
   });
-  persons.value.spinner = false;
   await refresh();
 };
 </script>
@@ -93,7 +87,7 @@ async function uploadJson (fileList: FileList) {
     >
       <div 
         class="absolute inset-y-0 right-0" 
-        :class="{ 'animate-pulse': persons.spinner }"
+        :class="{ 'animate-pulse': status == 'pending' }"
         title="Загрузить json"
         >
         <UFormGroup class="mb-3" size="md">
@@ -124,7 +118,7 @@ async function uploadJson (fileList: FileList) {
       />
     </div>
     <UTable
-      :loading="persons.spinner"
+      :loading="status == 'pending'"
       :progress="{ color: 'red', animation: 'swing' }"
       :empty-state="{
         icon: 'i-heroicons-circle-stack-20-solid',
