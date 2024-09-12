@@ -11,7 +11,7 @@ const edit = ref(false);
 const itemId = ref("");
 const previous = ref({} as Previous);
 
-const { refresh } = await useAsyncData("previous", async () => {
+const { refresh } = await useLazyAsyncData("previous", async () => {
   await anketaState.getItem('previous');
 })
 
