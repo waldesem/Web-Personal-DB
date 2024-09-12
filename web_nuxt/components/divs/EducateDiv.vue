@@ -11,7 +11,7 @@ const itemId = ref("");
 const edit = ref(false);
 const education = ref({} as Education);
 
-const { refresh } = await useAsyncData("educations", async () => {
+const { refresh } = await useLazyAsyncData("educations", async () => {
   await anketaState.getItem('educations');
 })
 
