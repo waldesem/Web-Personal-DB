@@ -92,7 +92,7 @@ def handle_post_resume(resume):
             db_session.commit()                
             return [person.id, person.destination]
         else:
-            if person.user_id != current_user["id"]:
+            if person.user_id != current_user["id"] and person['editable']:
                 return abort(400)
             resume["id"] = person.id
             handle_post_item(resume, "persons")
