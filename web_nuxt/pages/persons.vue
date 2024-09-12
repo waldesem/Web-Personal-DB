@@ -19,7 +19,7 @@ const persons = ref({
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
 });
 
-const { refresh, status } = await useLazyAsyncData("candidates", async () => {
+const { refresh, status } = await useAsyncData("candidates", async () => {
   if (persons.value.page < 1) {
     persons.value.page = 1;
     return;
