@@ -11,7 +11,7 @@ const edit = ref(false);
 const itemId = ref("");
 const poligraf = ref({} as Pfo);
 
-const { refresh } = await useAsyncData("poligrafs", async () => {
+const { refresh } = await useLazyAsyncData("poligrafs", async () => {
   await anketaState.getItem('poligrafs');
 });
 
