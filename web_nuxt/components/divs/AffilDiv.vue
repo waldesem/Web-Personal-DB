@@ -11,7 +11,7 @@ const edit = ref(false);
 const itemId = ref("");
 const affilation = ref({} as Affilation);
 
-const { refresh } = await useAsyncData("affilations", async () => {
+const { refresh } = await useLazyAsyncData("affilations", async () => {
   await anketaState.getItem('affilations');
 })
 
