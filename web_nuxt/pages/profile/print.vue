@@ -15,42 +15,60 @@ const anketaState = stateAnketa();
           : ''
       }`"
     />
-    <DivsResumeDiv />
+    <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <DivsResumeDiv />
+    </div>
     <div class="my-3">
       <p class="text-red-800 font-bold p-3">Должности</p>
       <DivsStaffDiv />
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Образование</p>
-      <DivsEducateDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsEducateDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Места работы</p>
-      <DivsWorkDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsWorkDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Документы</p>
-      <DivsDocumDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsDocumDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Адреса</p>
-      <DivsAddressDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsAddressDiv />
+      </div>
     </div>
     <div class="mb-3">
     <p class="text-red-800 font-bold p-3">Контакты</p>
-      <DivsContactDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsContactDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Аффилированность</p>
-      <DivsAffilDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsAffilDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Изменения имени</p>
-      <DivsPrevDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsPrevDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Связи</p>
-      <DivsRelateDiv />
+      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+        <DivsRelateDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Проверки кандидата</p>
