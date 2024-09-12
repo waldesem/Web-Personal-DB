@@ -14,7 +14,7 @@ const checkData = ref({
   check: {} as Verification,
 });
 
-const { refresh } = await useAsyncData("checks", async () => {
+const { refresh } = await useLazyAsyncData("checks", async () => {
   await anketaState.getItem('checks');
 });
 
