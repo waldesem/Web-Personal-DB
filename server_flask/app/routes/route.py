@@ -44,7 +44,7 @@ bp = Blueprint("route", __name__, url_prefix="/api")
 
 
 @bp.get("/auth")
-@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
+@jwt_required()
 def get_auth():
     """
     Retrieves the current user's information.
@@ -213,7 +213,7 @@ def get_user_actions(user_id):
 
 
 @bp.get("/index/<int:page>")
-@roles_required(Roles.admin.value, Roles.user.value, Roles.guest.value)
+@jwt_required()
 def get_index(page):
     """
     Retrieves a paginated list of persons from the database based on the search
