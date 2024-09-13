@@ -55,4 +55,8 @@ def create_app(config_class=Config):
     def not_found(error):
         return app.redirect("/")
 
+    @app.errorhandler(400)
+    def abort_route(error):
+        return app.redirect("/")
+
     return app
