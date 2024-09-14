@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { stateAnketa } from "@/state/state";
-import type { Affilation } from "@/utils/interfaces";
+import type { Affilation } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 

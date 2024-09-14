@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRef } from "vue";
 import { stateClassify } from "@/state/state";
-import type { Affilation } from "@/utils/interfaces";
+import type { Affilation } from "@/types/interfaces";
 
 const emit = defineEmits(["cancel", "submit"]);
 

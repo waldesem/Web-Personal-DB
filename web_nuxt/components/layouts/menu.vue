@@ -85,11 +85,8 @@ const filtredLinks = computed(() => {
               :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
               @click="$colorMode.preference = 'light'"
             />
-            <UButton
-              v-if="userState.user.value.username"
-              class="absolute top-0 right-24"
-              icon="i-heroicons-user"
-              variant="ghost"
+            <UAvatar
+              :alt="userState.user.value.username"
               :title="userState.user.value.username"
             />
           </div>
@@ -98,7 +95,7 @@ const filtredLinks = computed(() => {
       <div
         class="flex flex-grow flex-col grid grid-cols-12 gap-3"
       >
-        <div class="col-span-2 py-3">
+        <div class="col-span-2 py-3 border-r border-gray-300">
           <UVerticalNavigation
             :links="filtredLinks"
             :ui="{
@@ -109,21 +106,21 @@ const filtredLinks = computed(() => {
               size: 'text-xl text-primary mt-4',
             }"
           />
+          <footer
+            class="flex justify-center py-3 bg-gray-100 border-t dark:bg-gray-800 dark:border-gray-700"
+          >
+            <a
+              class="text-gray-500"
+              href="https://github.com/waldesem/Web-Personal-DB"
+              target="_blank"
+              >GitHub</a
+            >
+          </footer>
         </div>
         <div class="col-span-10 py-8">
           <slot />
         </div>
       </div>
-      <footer
-        class="flex justify-center py-3 bg-white border-t dark:bg-gray-800 dark:border-gray-700"
-      >
-        <a
-          class="text-gray-500"
-          href="https://github.com/waldesem/Web-Personal-DB"
-          target="_blank"
-          >GitHub</a
-        >
-      </footer>
     </div>
   </UContainer>
 </template>

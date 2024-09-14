@@ -68,7 +68,10 @@ if os.path.isfile(os.path.join(setting["SQLite"].get("uri"), "database.db")):
         ).day
         != date.today().day
     ):
+        backup_path = os.path.join(setting["SQLite"].get("uri"), "backup")
+        if not os.path.isdir(backup_path):
+            os.mkdir(backup_path)
         shutil.copy(
             os.path.join(setting["SQLite"].get("uri"), "database.db"),
-            os.path.join(setting["SQLite"].get("uri"), f"{date.today()}.db"),
+            os.path.join(backup_path, f"{date.today()}.db"),
         )

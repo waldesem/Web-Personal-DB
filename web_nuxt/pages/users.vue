@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { debounce } from "@/utils/utilities";
 import { server, stateClassify } from "@/state/state";
-import type { User } from "@/utils/interfaces";
+import type { User } from "@/types/interfaces";
 import { useFetchAuth } from "@/utils/auth";
 
 const toast = useToast();

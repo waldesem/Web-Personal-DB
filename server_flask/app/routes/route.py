@@ -167,7 +167,7 @@ def post_user():
             )
             db_session.add(Users(**json_dict))
             db_session.commit()
-            return "", 201
+            return jsonify({"message": "Success"}), 201
         return abort(400)
     except Exception as e:
         print(e)
@@ -208,7 +208,7 @@ def get_user_actions(user_id):
             user.region = item
         get_current_user.cache_clear()
         db_session.commit()
-        return ""
+        return jsonify({"message": "Success"}), 201
     return abort(400)
 
 
@@ -304,7 +304,7 @@ def post_file(item, item_id):
                 for content in contents:
                     if content:
                         handle_post_item(content, table, person_id)
-        return "", 201
+        return jsonify({"message": "Success"}), 201
 
     person = db_session.get(Persons, item_id)
     if not person:
@@ -330,7 +330,7 @@ def post_file(item, item_id):
         if item == "image":
             if imghdr.what( files[0]) is not None:
                 handle_image(files[0], item_dir)
-                return "", 201
+                return jsonify({"message": "Success"}), 201
             return abort(400)
 
         date_subfolder = os.path.join(
@@ -343,7 +343,7 @@ def post_file(item, item_id):
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
-        return "", 201
+        return jsonify({"message": "Success"}), 201
     except OSError as e:
         print(e)
         return abort(400)
@@ -379,7 +379,7 @@ def post_resume():
     perrson_id = handle_post_resume(resume)
     if not perrson_id:
         return abort(400)
-    return "", 201
+    return jsonify({"message": "Success"}), 201
     
 
 @bp.get("/region/<int:person_id>")
@@ -406,8 +406,18 @@ def change_region(person_id):
         person.region = region
         person.editable = False
         db_session.commit()
-        return "", 200
+        return jsonify({"message": "Success"}), 200
     return abort(400)
+
+
+@bp.get("/self/<int:item_id>")
+@roles_required(Roles.user.value)
+def change_self_id(item_id):
+    person = db_session.get(Persons, item_id)
+    person.editable = not person.editable
+    person.user_id = current_user["id"]
+    db_session.commit()
+    return jsonify({"message": "Success"}), 200
 
 
 @bp.get("/<item>/<int:item_id>")
@@ -451,7 +461,7 @@ def post_item_id(item, item_id):
     json_data = request.get_json()
     json_dict = models_tables[item](**json_data).dict()
     handle_post_item(json_dict, item, item_id)
-    return "", 201
+    return jsonify({"message": "Success"}), 201
 
 
 @bp.delete("/<item>/<int:item_id>")
@@ -474,7 +484,7 @@ def delete_item(item, item_id):
         return abort(400)
     db_session.delete(item)
     db_session.commit()
-    return "", 204
+    return jsonify({"message": "Success"}), 204
 
 
 @bp.get("/information")

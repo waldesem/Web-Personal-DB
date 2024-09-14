@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import type { Previous } from "@/utils/interfaces";
+import type { Previous } from "@/types/interfaces";
 
 const emit = defineEmits(["cancel", "submit"]);
 

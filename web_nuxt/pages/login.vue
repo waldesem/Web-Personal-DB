@@ -2,6 +2,7 @@
 import { server, stateUser, userToken } from "@/state/state";
 
 const userState = stateUser();
+const classifyState = stateClassify();
 
 const loginAction = ref("create");
 
@@ -53,7 +54,7 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; user_token: string };
   if (message === "Success") {
     userToken.value = user_token;
-    userState.getCurrentUser();
+    Promise.all([userState.getCurrentUser(), classifyState.getClassify()]);
   } else if (message === "Updated") {
     loginAction.value = "create";
     alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");
@@ -84,7 +85,9 @@ async function submitLogin(): Promise<void> {
         <ElementsHeaderDiv
           :div="'mb-1'"
           :cls="'text-xl text-red-800'"
-          :header="loginAction === 'create' ? 'Вход в систему' : 'Обновление пароля'"
+          :header="
+            loginAction === 'create' ? 'Вход в систему' : 'Обновление пароля'
+          "
         />
         <UForm :state="loginForm" class="mt-4" @submit.prevent="submitLogin">
           <UFormGroup class="mb-3" size="md" label="Логин">
@@ -96,13 +99,13 @@ async function submitLogin(): Promise<void> {
             />
           </UFormGroup>
           <UFormGroup class="mb-3" size="md" label="Пароль">
-              <UInput
-                v-model="loginForm['password']"
-                type="password"
-                placeholder="password"
-                icon="i-heroicons-lock-closed"
-                required
-              />
+            <UInput
+              v-model="loginForm['password']"
+              type="password"
+              placeholder="password"
+              icon="i-heroicons-lock-closed"
+              required
+            />
           </UFormGroup>
           <div v-if="loginAction === 'update'">
             <UFormGroup class="mb-3" size="md" label="Новый пароль">

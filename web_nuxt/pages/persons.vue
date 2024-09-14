@@ -186,13 +186,16 @@ async function uploadJson (fileList: FileList) {
       <UButtonGroup orientation="horizontal">
         <UButton
           :disabled="!persons.prev"
+          label="Назад"
           variant="link"
           icon="i-heroicons-chevron-double-left"
           @click="switchPage(persons.page - 1)"
         />
         <UButton
           :disabled="!persons.next"
+          label="Вперед"
           variant="link"
+          trailing
           icon="i-heroicons-chevron-double-right"
           @click="switchPage(persons.page + 1)"
         />

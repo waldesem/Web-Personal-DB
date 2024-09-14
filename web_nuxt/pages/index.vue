@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import  { stateUser } from "@/state/state";
+import { stateUser, stateClassify } from "@/state/state";
 
-const user = stateUser();
-await user.getCurrentUser();
+const userState = stateUser();
+const classifyState = stateClassify();
+
+Promise.all([userState.getCurrentUser(), classifyState.getClassify()]);
 </script>
 
 <template>

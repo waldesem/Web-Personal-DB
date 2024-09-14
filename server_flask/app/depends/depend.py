@@ -1,8 +1,9 @@
-from base64 import b64decode, b64encode
+# from base64 import b64decode, b64encode
 from datetime import datetime
 from functools import lru_cache, wraps
 
 from flask import abort, current_app, g, request
+import jwt
 from werkzeug.local import LocalProxy
 
 from ..model.tables import Users, db_session
@@ -21,11 +22,17 @@ def get_auth(token):
         bool: True if the decoded token matches the secret key, False otherwise.
     """
     try:
-        decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 1)
-        secret_key, g.user_id = decoded
-        return secret_key == current_app.config["SECRET_KEY"]
-    except (IndexError, UnicodeDecodeError):
+        decoded = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+        g.user_id = decoded["id"]
+        return True
+    except jwt.exceptions.InvalidTokenError:
         return False
+    # try:
+    #     decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 1)
+    #     secret_key, g.user_id = decoded
+    #     return secret_key == current_app.config["SECRET_KEY"]
+    # except (IndexError, UnicodeDecodeError):
+    #     return False
 
 
 @lru_cache(maxsize=4)
@@ -68,12 +75,14 @@ def create_token(user):
     and generates a token using the secret key and the user's id.
     The token is then encoded in base64 and returned as a string.
     """
-    token_parts = [
-        current_app.config["SECRET_KEY"],
-        str(user.id),
-    ]
-    token = ":".join(token_parts)
-    return b64encode(token.encode()).decode()
+    # encoded = jwt.encode(str(user.id), current_app.config["SECRET_KEY"], algorithm="HS256")
+    # token_parts = [
+    #     current_app.config["SECRET_KEY"],
+    #     str(user.id),
+    # ]
+    # token = ":".join(token_parts)
+    # return b64encode(token.encode()).decode()
+    return jwt.encode(user, current_app.config["SECRET_KEY"], algorithm="HS256")
 
 
 def jwt_required():
@@ -105,14 +114,13 @@ def jwt_required():
 
 
 def roles_required(*roles):
-
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             header = request.headers.get("Authorization")
             if header and get_auth(header):
                 cur_user = current_user
-                if cur_user and cur_user['role'] in roles:
+                if cur_user and cur_user["role"] in roles:
                     return func(*args, **kwargs)
                 abort(403)
             abort(401)

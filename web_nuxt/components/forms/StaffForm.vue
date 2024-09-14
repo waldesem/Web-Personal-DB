@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef } from "vue";
-import type { Staff } from "@/utils/interfaces";
+import type { Staff } from "@/types/interfaces";
 
 const emit = defineEmits(["cancel", "submit"]);
 

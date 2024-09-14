@@ -1,16 +1,25 @@
 import { useFetchAuth } from "../utils/auth";
-import type { Classes, Profile } from "@/utils/interfaces";
+import type { Classes, Profile } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
 
 export const server = "/api";
 export const userToken = ref("");
 
+export const currentUser = () => {
+  const user = JSON.parse(
+    Buffer.from(userToken.value.split(".")[1], "base64").toString()
+  );
+  console.log(user);
+  return user;
+};
+
 export const stateUser = () => {
   const user = useState("user", () => ({
     auth: false,
     userId: "",
     username: "",
+    fullname: "",
     role: "",
     region: "",
   }));
@@ -25,11 +34,10 @@ export const stateUser = () => {
       auth: true,
       userId: data["id"],
       username: data["username"],
+      fullname: data["fullname"],
       role: data["role"],
       region: data["region"],
     });
-    const classifyState = stateClassify();
-    await classifyState.getClassify();
     navigateTo("/persons");
   }
   return { user, getCurrentUser };

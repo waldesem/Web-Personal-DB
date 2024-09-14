@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { stateAnketa } from "@/state/state";
-import type { Work } from "@/utils/interfaces";
+import type { Work } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 

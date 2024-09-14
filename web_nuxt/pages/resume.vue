@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useFetchAuth } from "@/utils/auth";
-import { server, stateAnketa } from "@/state/state";
-import type { Persons } from "@/utils/interfaces";
+import { server } from "@/state/state";
+import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
-
-const anketaState = stateAnketa();
 
 const toast = useToast();
 
@@ -13,10 +11,10 @@ const switchToPersons = async() => {
   navigateTo('/persons');
 };
 
-async function submitResume(): Promise<void> {
+async function submitResume(form: Persons): Promise<void> {
     const response = await authFetch(`${server}/resume`, {
       method: "POST",
-      body: resumeForm.value,
+      body: form,
     });
     console.log(response);
     toast.add({
@@ -35,7 +33,7 @@ async function submitResume(): Promise<void> {
     <UCard>
       <FormsResumeForm 
         @cancel="switchToPersons"
-        @update="/>
+        @update="submitResume" />
     </UCard>
   </LayoutsMenu>
 </template>

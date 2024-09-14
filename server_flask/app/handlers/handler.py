@@ -31,25 +31,16 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    if item in ['persons', 'checks', 'poligrafs', 'inquiries', 'investigations']:
-        stmt = select(tables_models[item], Users.fullname)
-        if item == "persons":
-        stmt = stmt.filter(Persons.id == item_id)
-        else:
-        stmt = stmt.filter(tables_models[item].person_id == item_id)
-    stmt = stmt.filter(
-        tables_models[item].user_id == Users.id
+    stmt = select(tables_models[item], Users.fullname)
+    stmt = (
+        stmt.filter(Persons.id == item_id)
+        if item == "persons"
+        else stmt.filter(tables_models[item].person_id == item_id)
     )
-        query = db_session.execute(stmt).order_by(
-    desc(tables_models[item].id)
-    ).all()
-        result = [row[0].to_dict() | {"username": row[1]} for row in query]
-        return result[0] if item == "persons" else result
-    else:
-        query = select(tables_models[item]).filter(tables_models[item].person_id == item_id).order_by(
-    desc(tables_models[item].id)
-    ).all()
-        return[row[0].to_dict() for row in query]
+    stmt = stmt.filter(tables_models[item].user_id == Users.id)
+    query = db_session.execute(stmt).order_by(desc(tables_models[item].id)).all()
+    result = [row[0].to_dict() | {"username": row[1]} for row in query]
+    return result[0] if item == "persons" else result
 
 
 def handle_post_resume(resume):
@@ -89,10 +80,10 @@ def handle_post_resume(resume):
                 resume.get("patronymic", ""),
                 person.id,
             )
-            db_session.commit()                
+            db_session.commit()
             return [person.id, person.destination]
         else:
-            if person.user_id != current_user["id"] and person['editable']:
+            if person.user_id != current_user["id"] and person["editable"]:
                 return abort(400)
             resume["id"] = person.id
             handle_post_item(resume, "persons")

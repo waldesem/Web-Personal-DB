@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFetchAuth } from "@/utils/auth";
 import { server, stateAnketa, stateClassify } from "@/state/state";
-import type { Persons } from "@/utils/interfaces";
+import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
 

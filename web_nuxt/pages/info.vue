@@ -2,13 +2,13 @@
 import { server, stateClassify, stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 
+const authFetch = useFetchAuth();
 const classifyState = stateClassify();
 const userState = stateUser();
 const todayDate = new Date();
 
 const tableData = ref({
   region: userState.user.value.region,
-  checks: [] as Array<unknown>,
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
     .toISOString()
     .slice(0, 10),
@@ -18,28 +18,39 @@ const tableData = ref({
 /**
  * Get statistics from server
  */
-async function getStatData(): Promise<void> {
-  const authFetch = useFetchAuth();
-  tableData.value.checks = (await authFetch(`${server}/information`, {
+const { refresh, data, status } = await useAsyncData("statistics", async () => {
+  await authFetch(`${server}/information`, {
     params: {
       start: tableData.value.start,
       end: tableData.value.end,
       region: tableData.value.region,
     },
-  })) as Array<unknown>;
-}
-
-await getStatData();
+  });
+});
 </script>
 
 <template>
   <LayoutsMenu>
-    <ElementsHeaderDiv 
-      :div="'py-1'" :header="`Информация по региону ${tableData.region.toLocaleUpperCase()} за период с ${ new Date(tableData.start).toLocaleDateString()} г. по ${new Date(tableData.end).toLocaleDateString()} г.`"/>
+    <ElementsHeaderDiv
+      :div="'py-1'"
+      :header="`Информация по региону ${tableData.region.toLocaleUpperCase()} за период с ${new Date(
+        tableData.start
+      ).toLocaleDateString()} г. по ${new Date(
+        tableData.end
+      ).toLocaleDateString()} г.`"
+    />
     <div class="my-8">
+      <ElementsSkeleton 
+        v-if="status === 'pending'" 
+        :rows="4"
+      />
       <UTable 
-        :rows="tableData.checks" 
-        :columns="[{'key': 'conclusion', label: 'Решение'}, {'key': 'count', 'label': 'Количество'}]" 
+        v-else
+        :rows="data"
+        :columns="[
+          { key: 'conclusion', label: 'Решение' },
+          { key: 'count', label: 'Количество' },
+        ]"
       />
       <div class="flex grid grid-cols-12 gap-3 mt-8">
         <div class="col-span-2">
@@ -51,7 +62,7 @@ await getStatData();
                 classifyState.classes.value.regions['main']
               "
               :options="Object.values(classifyState.classes.value.regions)"
-              @change="getStatData"
+              @change="refresh()"
             />
           </UFormGroup>
         </div>
@@ -61,21 +72,21 @@ await getStatData();
               <UInput
                 v-model="tableData.start"
                 type="date"
-                @change="getStatData"
+                @change="refresh()"
               />
             </UFormGroup>
           </div>
         </div>
         <div class="col-span-2">
-        <div class="px-3">
-          <UFormGroup size="md" label="Конец периода">
-            <UInput
-              v-model="tableData.end"
-              type="date"
-              @change="getStatData"
-            />
-          </UFormGroup>
-        </div>
+          <div class="px-3">
+            <UFormGroup size="md" label="Конец периода">
+              <UInput
+                v-model="tableData.end"
+                type="date"
+                @change="refresh()"
+              />
+            </UFormGroup>
+          </div>
         </div>
       </div>
     </div>

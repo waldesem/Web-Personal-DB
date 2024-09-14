@@ -8,9 +8,9 @@ const classifyState = stateClassify();
 const userState = stateUser();
 const route = useRoute();
 
-anketaState.share.value.candId = (() => route.params.id as string);
+anketaState.share.value.candId = computed(() => route.params.id) as string;
 
-await useAsyncData("anketa", async () => {
+const { refresh } = await useAsyncData("anketa", async () => {
   await anketaState.getItem("persons");
 });
 
@@ -86,14 +86,11 @@ async function switchSelf(): Promise<void> {
   if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
     return;
   }
-  anketaState.anketa.value["persons"] = (await authFetch(
-    `${server}/persons/${anketaState.share.value.candId}`,
-    {
-      params: {
-        action: "self",
-      },
-    }
-  )) as never;
+  const response = await authFetch(
+    `${server}/self/${anketaState.share.value.candId}`
+  );
+  console.log(response);
+  refresh();
 }
 </script>
 
