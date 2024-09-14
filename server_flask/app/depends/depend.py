@@ -1,4 +1,3 @@
-# from base64 import b64decode, b64encode
 from datetime import datetime
 from functools import lru_cache, wraps
 
@@ -13,26 +12,22 @@ current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 def get_auth(token):
     """
-    Decode the given token and check if it matches the secret key.
+    Validates a JWT token and stores the user ID in the g object.
 
-    Args:
-        token (str): The token to be decoded.
+    Parameters:
+        token (str): The JWT token to validate.
 
     Returns:
-        bool: True if the decoded token matches the secret key, False otherwise.
+        bool: True if the token is valid, False if not.
     """
     try:
-        decoded = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+        decoded = jwt.decode(
+            token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+        )
         g.user_id = decoded["id"]
         return True
     except jwt.exceptions.InvalidTokenError:
         return False
-    # try:
-    #     decoded = b64decode(token.split(" ", 1)[1]).decode().split(":", 1)
-    #     secret_key, g.user_id = decoded
-    #     return secret_key == current_app.config["SECRET_KEY"]
-    # except (IndexError, UnicodeDecodeError):
-    #     return False
 
 
 @lru_cache(maxsize=4)
@@ -63,25 +58,15 @@ def get_current_user(user_id):
 
 def create_token(user):
     """
-    Generate a token for the given user.
+    Creates a JWT token containing the user's information.
 
     Args:
         user (dict): A dictionary containing the user's information.
 
     Returns:
-        str: The generated token, encoded in base64.
-
-    This function takes a dictionary containing the user's information
-    and generates a token using the secret key and the user's id.
-    The token is then encoded in base64 and returned as a string.
+        str: The JWT token.
     """
-    # encoded = jwt.encode(str(user.id), current_app.config["SECRET_KEY"], algorithm="HS256")
-    # token_parts = [
-    #     current_app.config["SECRET_KEY"],
-    #     str(user.id),
-    # ]
-    # token = ":".join(token_parts)
-    # return b64encode(token.encode()).decode()
+
     return jwt.encode(user, current_app.config["SECRET_KEY"], algorithm="HS256")
 
 

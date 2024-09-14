@@ -25,7 +25,7 @@ export const useFetchAuth = () => {
     if (userToken.value) {
       options.headers = {
         ...options.headers,
-        Authorization: `Basic ${userToken.value}`,
+        Authorization: `${userToken.value}`,
       };
     } else {
       return navigateTo("/login");

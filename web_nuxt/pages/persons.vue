@@ -81,7 +81,7 @@ async function uploadJson (fileList: FileList) {
   <LayoutsMenu>
     <div
       v-if="
-        userState.user.value.role == classifyState.classes.value.roles['user']
+        userState.role == classifyState.classes.value.roles['user']
       "
       class="relative"
     >
@@ -174,7 +174,7 @@ async function uploadJson (fileList: FileList) {
             variant="link"
             icon="i-heroicons-arrow-path"
             :label="`Обновлено: ${persons.updated}`"
-            @click="refresh()"
+            @click="refresh"
           />
         </caption>
       </template>

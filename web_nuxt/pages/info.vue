@@ -8,7 +8,7 @@ const userState = stateUser();
 const todayDate = new Date();
 
 const tableData = ref({
-  region: userState.user.value.region,
+  region: userState.value.region,
   start: new Date(todayDate.getFullYear(), todayDate.getMonth(), 1)
     .toISOString()
     .slice(0, 10),
@@ -40,7 +40,7 @@ const { refresh, data, status } = await useAsyncData("statistics", async () => {
       ).toLocaleDateString()} г.`"
     />
     <div class="my-8">
-      <ElementsSkeleton 
+      <ElementsSkeletonDiv 
         v-if="status === 'pending'" 
         :rows="4"
       />
@@ -58,7 +58,7 @@ const { refresh, data, status } = await useAsyncData("statistics", async () => {
             <USelect
               v-model="tableData.region"
               :disable="
-                userState.user.value.region !=
+                userState.region !=
                 classifyState.classes.value.regions['main']
               "
               :options="Object.values(classifyState.classes.value.regions)"

@@ -65,7 +65,7 @@ function openFileForm(elementId: string) {
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.inquiries.length">
+  <div v-if="anketaState.anketa.value.inquiries && anketaState.anketa.value.inquiries.length">
     <div 
       v-for="(item, index) in anketaState.anketa.value.inquiries" :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
@@ -108,17 +108,9 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template
-          v-if="
-            editState &&
-            !edit &&
-            itemId !=
-              anketaState.anketa.value.inquiries[index]['id'].toString()
-          "
-          #footer 
-        >
+        <template #footer>
           <ElementsNaviHorizont
-            v-show="!index && editState"
+            v-show="editState"
             @delete="
               deleteNeed(
                 anketaState.anketa.value.inquiries[index]['id']
@@ -152,7 +144,7 @@ function openFileForm(elementId: string) {
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-primary">Запросы о сотруднике не поступали</p>
+    <p class="text-red-800">Запросы о сотруднике не поступали</p>
   </div>
 </template>
 

@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { server, stateUser, userToken } from "@/state/state";
+import { server, stateClassify, userToken } from "@/state/state";
 
-const userState = stateUser();
 const classifyState = stateClassify();
 
 const loginAction = ref("create");
@@ -54,7 +53,8 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; user_token: string };
   if (message === "Success") {
     userToken.value = user_token;
-    Promise.all([userState.getCurrentUser(), classifyState.getClassify()]);
+    await classifyState.getClassify();
+    await navigateTo("/persons");
   } else if (message === "Updated") {
     loginAction.value = "create";
     alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");

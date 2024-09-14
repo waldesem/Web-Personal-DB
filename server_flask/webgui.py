@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Union
 from contextlib import suppress
 from waitress import serve
+# from wsgi import wsgi_server
 
 import psutil
 
@@ -105,7 +106,7 @@ class ServerFlask:
         app = server_kwargs.pop("app", None)
         server_kwargs.pop("debug", None)
         serve(app, **server_kwargs)
-
+        # wsgi_server(app, **server_kwargs)
 
 @dataclass
 class FlaskUI:

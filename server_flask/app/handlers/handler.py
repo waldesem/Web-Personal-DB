@@ -38,7 +38,7 @@ def handle_get_item(item, item_id):
         else stmt.filter(tables_models[item].person_id == item_id)
     )
     stmt = stmt.filter(tables_models[item].user_id == Users.id)
-    query = db_session.execute(stmt).order_by(desc(tables_models[item].id)).all()
+    query = db_session.execute(stmt.order_by(desc(tables_models[item].id))).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     return result[0] if item == "persons" else result
 

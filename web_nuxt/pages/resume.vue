@@ -7,24 +7,20 @@ const authFetch = useFetchAuth();
 
 const toast = useToast();
 
-const switchToPersons = async() => {
-  navigateTo('/persons');
-};
-
 async function submitResume(form: Persons): Promise<void> {
-    const response = await authFetch(`${server}/resume`, {
-      method: "POST",
-      body: form,
-    });
-    console.log(response);
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Информация",
-      description: `Данные успешно добавлены`,
-      color: "green",
-    });
-  }
-  switchToPersons();
+  const response = await authFetch(`${server}/resume`, {
+    method: "POST",
+    body: form,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Информация",
+    description: `Данные успешно добавлены`,
+    color: "green",
+  });
+  navigateTo('/persons');
+}
 </script>
 
 <template>
@@ -32,7 +28,7 @@ async function submitResume(form: Persons): Promise<void> {
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'"/>
     <UCard>
       <FormsResumeForm 
-        @cancel="switchToPersons"
+        @cancel="navigateTo('/persons')"
         @update="submitResume" />
     </UCard>
   </LayoutsMenu>

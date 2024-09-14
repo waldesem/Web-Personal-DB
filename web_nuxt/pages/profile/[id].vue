@@ -60,11 +60,11 @@ const badgeItems = {
 const badge = computed(() => {
   if (anketaState.anketa.value.persons["editable"]) {
     if (
-      anketaState.anketa.value.persons["user_id"] == userState.user.value.userId
+      anketaState.anketa.value.persons["user_id"] == userState.value.id
     ) {
       return badgeItems.current;
     } else if (
-      anketaState.anketa.value.persons["user_id"] != userState.user.value.userId
+      anketaState.anketa.value.persons["user_id"] != userState.value.id
     ) {
       return badgeItems.thirdparty;
     }
@@ -75,8 +75,8 @@ const badge = computed(() => {
 const editState = computed(() => {
   return (
     anketaState.anketa.value.persons["editable"] &&
-    userState.user.value.role == classifyState.classes.value.roles["user"] &&
-    userState.user.value.userId == anketaState.anketa.value.persons["user_id"]
+    userState.value.role == classifyState.classes.value.roles["user"] &&
+    userState.value.id == anketaState.anketa.value.persons["user_id"]
   );
 });
 
@@ -99,7 +99,7 @@ async function switchSelf(): Promise<void> {
     <DivsPhotoCard />
     <div
       v-if="
-        userState.user.value.role == classifyState.classes.value.roles['user']
+        userState.role == classifyState.classes.value.roles['user']
       "
       class="relative"
     >

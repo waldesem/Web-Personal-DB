@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { stateUser, stateClassify } from "@/state/state";
+import { stateClassify } from "@/state/state";
 
-const userState = stateUser();
 const classifyState = stateClassify();
 
-Promise.all([userState.getCurrentUser(), classifyState.getClassify()]);
+await useAsyncData("candidates", async () => {
+  await classifyState.getClassify();
+  await navigateTo("/persons");
+})
 </script>
 
 <template>

@@ -15,58 +15,60 @@ const anketaState = stateAnketa();
           : ''
       }`"
     />
-    <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+    <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
       <DivsResumeDiv />
     </div>
     <div class="my-3">
       <p class="text-red-800 font-bold p-3">Должности</p>
-      <DivsStaffDiv />
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
+        <DivsStaffDiv />
+      </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Образование</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsEducateDiv />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Места работы</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsWorkDiv />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Документы</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsDocumDiv />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Адреса</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsAddressDiv />
       </div>
     </div>
     <div class="mb-3">
     <p class="text-red-800 font-bold p-3">Контакты</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsContactDiv />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Аффилированность</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsAffilDiv />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Изменения имени</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsPrevDiv />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Связи</p>
-      <div class="text-sm text-gray-800 dark:text-gray-400 py-1">
+      <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
         <DivsRelateDiv />
       </div>
     </div>

@@ -59,7 +59,7 @@ function closeAction() {
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.contacts.length">
+  <div v-if="anketaState.anketa.value.contacts && anketaState.anketa.value.contacts.length">
     <div
       v-for="(item, idx) in anketaState.anketa.value.contacts"
       :key="idx"

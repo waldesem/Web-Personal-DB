@@ -15,22 +15,19 @@ const checkData = ref({
 });
 
 const { refresh } = await useLazyAsyncData("checks", async () => {
-  await anketaState.getItem('checks');
+  await anketaState.getItem("checks");
 });
 
 async function updateCheck(checkForm: Verification) {
   closeAction();
   Promise.all([
-    await anketaState.updateItem('checks', checkForm),
+    await anketaState.updateItem("checks", checkForm),
     await refresh(),
-  ])
+  ]);
 }
 
 async function deleteCheck(index: string) {
-  Promise.all([
-    await anketaState.deleteItem(index, 'checks'),
-    await refresh(),
-  ])
+  Promise.all([await anketaState.deleteItem(index, "checks"), await refresh()]);
 }
 
 async function cancelOperation() {
@@ -60,22 +57,21 @@ function openFileForm(elementId: string) {
   <Transition name="slide-fade">
     <div v-if="checkData.collapse" class="py-3">
       <UCard>
-        <FormsCheckForm 
-          @submit="updateCheck"
-          @cancel="cancelOperation" 
-        />
+        <FormsCheckForm @submit="updateCheck" @cancel="cancelOperation" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.checks.length">
+  <div v-if="anketaState.anketa.value.checks && anketaState.anketa.value.checks.length">
     <div
       v-for="(item, index) in anketaState.anketa.value.checks"
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <UCard>
+      <UCard
+        
+      >
         <template #header>
-          <div class="tex-base text-red-800 font-medium">
+          <div class="tex-base text-red-800 dark:text-gray-400 font-medium">
             {{ "Проверка кандидата ID #" + item["id"] }}
           </div>
         </template>
@@ -146,17 +142,9 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template
-          v-if="
-            editState &&
-            (!checkData.edit &&
-            checkData.itemId !=
-              anketaState.anketa.value.checks[index]['id'].toString())
-          "
-          #footer
-        >
+        <template #footer>
           <ElementsNaviHorizont
-            v-show="!index && editState"
+            v-show="editState"
             @update="
               checkData.check = anketaState.anketa.value.checks[index];
               checkData.itemId =
@@ -186,6 +174,6 @@ function openFileForm(elementId: string) {
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-primary">Проверка кандидата отсутствует</p>
+    <p class="text-red-800">Проверка кандидата отсутствует</p>
   </div>
 </template>

@@ -46,12 +46,10 @@ function deleteItem() {
 }
 
 function updateItem(form: Persons) {
-  dataResume.action = "";
   anketaState.updateItem("persons", form)
 }
 
 function cancelAction(){
-  dataResume.action = '';
   anketaState.getItem('persons');
 }
 </script>

@@ -46,14 +46,14 @@ const links = [
 ];
 
 const filtredLinks = computed(() => {
-  if (userState.user.value.role !== classify.classes.value.roles["user"]) {
+  if (userState.value.role !== classify.classes.value.roles["user"]) {
     return links.filter((item) => item[0].to !== "/resume");
   } else if (
-    userState.user.value.role !== classify.classes.value.roles["admin"]
+    userState.value.role !== classify.classes.value.roles["admin"]
   ) {
     return links.filter((item) => item[0].to !== "/users");
   } else if (
-    userState.user.value.role !== classify.classes.value.roles["guest"]
+    userState.value.role !== classify.classes.value.roles["guest"]
   ) {
     return links.filter(
       (item) => item[0].to !== "/users" && item[0].to !== "/resume"
@@ -86,16 +86,16 @@ const filtredLinks = computed(() => {
               @click="$colorMode.preference = 'light'"
             />
             <UAvatar
-              :alt="userState.user.value.username"
-              :title="userState.user.value.username"
+              class="absolute top-0 right-24"
+              :alt="userState.fullname"
             />
           </div>
         </div>
       </header>
       <div
-        class="flex flex-grow flex-col grid grid-cols-12 gap-3"
+        class="flex flex-grow flex-col grid grid-cols-12 gap-6"
       >
-        <div class="col-span-2 py-3 border-r border-gray-300">
+        <div class="col-span-2 py-3 border-r border-gray-200">
           <UVerticalNavigation
             :links="filtredLinks"
             :ui="{
@@ -107,7 +107,7 @@ const filtredLinks = computed(() => {
             }"
           />
           <footer
-            class="flex justify-center py-3 bg-gray-100 border-t dark:bg-gray-800 dark:border-gray-700"
+            class="flex justify-center pb-3 text-center text-sm text-gray-500 dark:text-gray-400 fixed bottom-0"
           >
             <a
               class="text-gray-500"

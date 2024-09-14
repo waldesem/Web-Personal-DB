@@ -3,7 +3,7 @@ import argparse
 from app import create_app
 from waitress import serve
 from webgui import FlaskUI
-
+from wsgi import wsgi_server
 
 def main():
     """
@@ -17,7 +17,7 @@ def main():
             python server.py --host 127.0.0.1 --port 5000 --mode develop
 
         For production:
-            python server.py --host 127.0.0.1 --port 5000 --mode prod
+            python server.py --host 127.0.0.1 --port 5000 --mode waitress
 
         For desktop:
             python server.py
@@ -35,9 +35,9 @@ def main():
     )
     parser.add_argument(
         "--mode",
-        choices=["debug", "develop", "prod", "desktop"],
+        choices=["debug", "develop", "waitress", "tornado", "desktop"],
         default="desktop",
-        help="The mode to run the server in (debug, develop, prod, desktop).",
+        help="The mode to run the server in (debug, develop, waitress, tornado, desktop).",
     )
     args = parser.parse_args()
 
@@ -47,11 +47,14 @@ def main():
         app.run(host=args.host, port=args.port, debug=True)
     elif args.mode == "develop":
         app.run(host=args.host, port=args.port, debug=False)
-    elif args.mode == "prod":
+    elif args.mode == "waitress":
         serve(app, host=args.host, port=args.port, threads=args.threads)
+    elif args.mode == "tornado":
+        wsgi_server(app, address=args.host, port=args.port)
     elif args.mode == "desktop":
         FlaskUI(
             server_kwargs={"app": app, "host": args.host, "port": args.port, "threads": args.threads},
+            # server_kwargs={"app": app, "address": args.host, "port": args.port},
         ).run()
 
 
