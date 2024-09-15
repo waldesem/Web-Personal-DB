@@ -8,7 +8,7 @@ const classifyState = stateClassify();
 const userState = stateUser();
 const route = useRoute();
 
-anketaState.share.value.candId = computed(() => route.params.id) as string;
+anketaState.share.value.candId = computed(() => route.params.id) as unknown as string;
 
 const { refresh } = await useAsyncData("anketa", async () => {
   await anketaState.getItem("persons");

@@ -83,7 +83,7 @@ function onContextMenu() {
       :ui="{ body: { padding: 'p-1 sm:p-1' } }"
       @contextmenu.prevent="onContextMenu"
     >
-      <NuxtImg :src="imageUrl" width="240" height="240" />
+      <NuxtImg :src="imageUrl" width="200" height="200" />
       <UInput
         v-show="false"
         id="image-file"

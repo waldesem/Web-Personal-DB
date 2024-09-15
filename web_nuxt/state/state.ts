@@ -10,14 +10,14 @@ export const userToken = ref("");
 
 export const stateUser = () => {
   if (!userToken.value) {
-    return navigateTo("/login");
+    return {} as Ref<User>;
   }
   const user = useState("user", () => (
     JSON.parse(
       Buffer.from(userToken.value.split(".")[1], "base64").toString()
     ) as User
   ));
-  return user;
+  return user as Ref<User>;
 };
 
 export const stateClassify = () => {
