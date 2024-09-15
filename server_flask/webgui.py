@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Union
 from contextlib import suppress
 from waitress import serve
-# from wsgi import wsgi_server
+from wsgi import wsgi_server
 
 import psutil
 

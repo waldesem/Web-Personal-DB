@@ -1,4 +1,3 @@
-import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 import tornado.httpserver
@@ -7,15 +6,22 @@ import tornado.web
 import tornado.wsgi
 
 
-async def tornado_server(app, address, port):
+def wsgi_server(app, address="127.0.0.1", port=5000):
+    """
+    Runs a WSGI application using the Tornado webserver.
+
+    :param app: The WSGI application to run.
+    :param address: The address to listen on. Defaults to 127.0.0.1.
+    :param port: The port to listen on. Defaults to 5000.
+    """
     container = tornado.wsgi.WSGIContainer(app)
     http_server = tornado.httpserver.HTTPServer(container)
     http_server.listen(port, address)
     executor = ThreadPoolExecutor(max_workers=8)
     loop = tornado.ioloop.IOLoop.current()
     loop.set_default_executor(executor)
-    await asyncio.Event().wait()
-
-
-def wsgi_server(app, address="127.0.0.1", port=5000):
-    asyncio.run(tornado_server(app, address, port))
+    try:
+        loop.start()
+    except KeyboardInterrupt:
+        loop.stop()
+        loop.close()
