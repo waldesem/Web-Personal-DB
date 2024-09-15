@@ -46,10 +46,13 @@ function deleteItem() {
 }
 
 function updateItem(form: Persons) {
+  dataResume.value.action = '';
   anketaState.updateItem("persons", form)
+  anketaState.getItem('persons');
 }
 
 function cancelAction(){
+  dataResume.value.action = '';
   anketaState.getItem('persons');
 }
 </script>
@@ -127,7 +130,10 @@ function cancelAction(){
             : ""
         }}
       </ElementsLabelSlot>
-      <ElementsLabelSlot :label="'Материалы'"> {{ anketaState.anketa.value.persons['destination'] }}
+      <ElementsLabelSlot :label="'Материалы'">
+        <a class="text-primary" target="_blank" :href="anketaState.anketa.value.persons['destination']">
+          {{ anketaState.anketa.value.persons['destination'] }}
+        </a>
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">
         {{

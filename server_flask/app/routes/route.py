@@ -43,19 +43,6 @@ from ..handlers.handler import (
 bp = Blueprint("route", __name__, url_prefix="/api")
 
 
-@bp.get("/auth")
-@jwt_required()
-def get_auth():
-    """
-    Retrieves the current user's information.
-
-    Returns:
-        A JSON response containing the current user's information. The JSON response has the following structure:
-        The HTTP status code is 200 if the user information is successfully retrieved.
-    """
-    return jsonify(User(**current_user).dict())
-
-
 @bp.post("/login/<action>")
 def post_login(action):
     """
@@ -295,8 +282,8 @@ def post_file(item, item_id):
         if not person_id:
             return abort(400)
         if destination and os.path.isdir(destination):
-            with open(os.path.join(destination, file.filename), 'wb') as f:
-                f.write(json.dumps(json_dict, ensure_ascii=False).encode('utf8'))
+            with open(os.path.join(destination, file.filename), "wb") as f:
+                f.write(json.dumps(json_dict, ensure_ascii=False).encode("utf8"))
                 subprocess.run(f'explorer "{destination}"')
                 # subprocess.run(['xdg-open', destination])
         for table, contents in anketa.items():
@@ -328,7 +315,7 @@ def post_file(item, item_id):
             os.mkdir(item_dir)
 
         if item == "image":
-            if imghdr.what( files[0]) is not None:
+            if imghdr.what(files[0]) is not None:
                 handle_image(files[0], item_dir)
                 return jsonify({"message": "Success"}), 201
             return abort(400)
@@ -350,15 +337,13 @@ def post_file(item, item_id):
 
 
 @bp.get("/image")
-def get_image():   
+def get_image():
     image_path = request.args.get("image")
     if image_path:
         file_path = os.path.join(image_path, "image", "image.jpg")
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
-    return send_file(
-        "static/no-photo.png", as_attachment=True, mimetype="image/jpg"
-    )
+    return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
 
 
 @bp.post("/resume")
@@ -380,7 +365,7 @@ def post_resume():
     if not perrson_id:
         return abort(400)
     return jsonify({"message": "Success"}), 201
-    
+
 
 @bp.get("/region/<int:person_id>")
 @roles_required(Roles.user.value)
@@ -517,13 +502,16 @@ def get_information():
         select(Checks.conclusion, func.count(Checks.id))
         .filter(Checks.person_id == Persons.id)
         .filter(Checks.created.between(data["start"], data["end"]))
-        .filter(Persons.region == data.get("region")
+        .filter(
+            Persons.region == data.get("region")
             if data.get("region")
             else current_user["region"],
         )
         .group_by(Checks.conclusion)
     ).all()
-    return jsonify([{"conclusion": result[0], "count": result[1]} for result in results])
+    return jsonify(
+        [{"conclusion": result[0], "count": result[1]} for result in results]
+    )
 
 
 @bp.get("/classes")

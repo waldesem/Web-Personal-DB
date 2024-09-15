@@ -4,9 +4,8 @@ import { stateClassify } from "@/state/state";
 const classifyState = stateClassify();
 
 await useAsyncData("candidates", async () => {
-  await classifyState.getClassify();
-  await navigateTo("/persons");
-})
+  Promise.all([classifyState.getClassify(), navigateTo("/persons")]);
+});
 </script>
 
 <template>

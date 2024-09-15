@@ -66,60 +66,46 @@ const filtredLinks = computed(() => {
 
 <template>
   <UContainer :ui="{ constrained: 'max-w-none', padding: 'px-4 sm:px-6 lg:px-12' }">
-    <div class="flex flex-col h-screen">
-      <header class="sticky py-8">
-        <div class="flex justify-between grid grid-cols-12 gap-3">
-          <div class="col-span-2">
-            <h3 class="text-2xl text-red-800 font-bold">STAFFSEC FINTECH</h3>
-          </div>
-          <div class="col-span-10 relative">
-            <UButton
-              class="absolute top-0 right-0"
-              icon="i-heroicons-moon"
-              :variant="$colorMode.preference == 'dark' ? 'soft' : 'ghost'"
-              @click="$colorMode.preference = 'dark'"
-            />
-            <UButton
-              class="absolute top-0 right-12"
-              icon="i-heroicons-sun"
-              :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
-              @click="$colorMode.preference = 'light'"
-            />
-            <UAvatar
-              class="absolute top-0 right-24"
-              :alt="userState.fullname"
-            />
-          </div>
+    <header class="sticky py-8">
+      <div class="flex justify-between grid grid-cols-12 gap-3">
+        <div class="col-span-2">
+          <h3 class="text-2xl text-red-800 font-bold">STAFFSEC FINTECH</h3>
         </div>
-      </header>
-      <div
-        class="flex flex-grow flex-col grid grid-cols-12 gap-6"
-      >
-        <div class="col-span-2 py-3 border-r border-gray-200">
-          <UVerticalNavigation
-            :links="filtredLinks"
-            :ui="{
-              active:
-                'text-red-900 dark:text-white before:bg-gray-0 dark:before:bg-gray-0',
-              inactive:
-                'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:before:bg-gray-0 dark:hover:before:bg-gray-800/50',
-              size: 'text-xl text-primary mt-4',
-            }"
+        <div class="col-span-10 relative">
+          <UButton
+            class="absolute top-0 right-0"
+            icon="i-heroicons-moon"
+            :variant="$colorMode.preference == 'dark' ? 'soft' : 'ghost'"
+            @click="$colorMode.preference = 'dark'"
           />
-          <footer
-            class="flex justify-center pb-3 text-center text-sm text-gray-500 dark:text-gray-400 fixed bottom-0"
-          >
-            <a
-              class="text-gray-500"
-              href="https://github.com/waldesem/Web-Personal-DB"
-              target="_blank"
-              >GitHub</a
-            >
-          </footer>
+          <UButton
+            class="absolute top-0 right-12"
+            icon="i-heroicons-sun"
+            :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
+            @click="$colorMode.preference = 'light'"
+          />
+          <UAvatar
+            class="absolute top-0 right-24"
+            :alt="userState.fullname"
+          />
         </div>
-        <div class="col-span-10 py-8">
-          <slot />
-        </div>
+      </div>
+    </header>
+    <div class="grid grid-cols-12 gap-6">
+      <div class="flex flex-col h-full col-span-2 pt-3 border-r border-gray-200">
+        <UVerticalNavigation
+          :links="filtredLinks"
+          :ui="{
+            active:
+              'text-red-900 dark:text-white before:bg-gray-0 dark:before:bg-gray-0',
+            inactive:
+              'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:before:bg-gray-0 dark:hover:before:bg-gray-800/50',
+            size: 'text-xl text-primary mt-4',
+          }"
+        />
+      </div>
+      <div class="flex flex-col col-span-10 py-8">
+        <slot />
       </div>
     </div>
   </UContainer>

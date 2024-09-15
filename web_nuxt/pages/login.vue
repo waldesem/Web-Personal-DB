@@ -53,8 +53,7 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; user_token: string };
   if (message === "Success") {
     userToken.value = user_token;
-    await classifyState.getClassify();
-    await navigateTo("/persons");
+    Promise.all([classifyState.getClassify(), navigateTo("/persons")]);
   } else if (message === "Updated") {
     loginAction.value = "create";
     alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");

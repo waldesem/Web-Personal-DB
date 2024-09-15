@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// import { stateClassify, stateUser, userToken } from "@/state/state";
 
 useHead({
   title: "StaffSec - кадровая безопасность",
@@ -13,6 +14,25 @@ useSeoMeta({
   description: 'Кадровая безопасность, проверка персонала',
   ogDescription: 'Кадровая безопасность, проверка персонала',
 })
+
+// const classifyState = stateClassify();
+
+// const { data } = await useAsyncData("classify", async () => {
+//   const response = await $fetch(`${server}/classes`);
+//   return response;
+// });
+// classifyState.classes.value = data.value;
+
+// const userState = stateUser();
+
+// userState.user.value = computed(() => {
+//   if (!userToken.value) {
+//     return navigateTo("/login");
+//   }
+//   return JSON.parse(
+//       Buffer.from(userToken.value.split(".")[1], "base64").toString()
+//     ) as User
+// });
 </script>
 
 <template>
