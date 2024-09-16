@@ -16,23 +16,18 @@ const { refresh } = await useLazyAsyncData("previous", async () => {
 })
 
 async function updatePrevious(previousForm: Previous) {
-  closeAction();
-  Promise.all([
-    await anketaState.updateItem("previous", previousForm),
-    await refresh()
-  ])
+  closeAction();  anketaState.updateItem("previous", previousForm);
+  refresh()
 }
 
 async function deletePrevious(index: string) {
-  Promise.all([
-    await anketaState.deleteItem(index, 'previous'),
-    await refresh()
-  ])
+  anketaState.deleteItem(index, 'previous');
+  refresh()
 }
 
 async function cancelOperation() {
-  await refresh();
   closeAction();
+  refresh()
 }
 
 function closeAction() {
