@@ -90,7 +90,7 @@ async function uploadJson (fileList: FileList) {
     >
       <div 
         class="absolute inset-y-0 right-0" 
-        :class="{ 'animate-pulse': status == 'pending' }"
+        :class="{ 'animate-pulse': status == 'pending'|| persons.upload }"
         title="Загрузить json"
         >
         <UFormGroup class="mb-3" size="md">
