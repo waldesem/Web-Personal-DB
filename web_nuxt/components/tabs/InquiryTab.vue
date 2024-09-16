@@ -104,7 +104,7 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template v-show="editState" #footer>
+        <template v-show="editState && (!edit || itemId != item['id'].toString())" #footer>
           <ElementsNaviHorizont
             @delete="
               deleteNeed(
