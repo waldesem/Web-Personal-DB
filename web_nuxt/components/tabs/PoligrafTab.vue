@@ -100,8 +100,7 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template #footer 
-          v-show="editState">
+        <template v-show="editState" #footer>
           <ElementsNaviHorizont
             @update="
               poligraf = anketaState.anketa.value.poligrafs[index];
