@@ -18,7 +18,7 @@ const tableData = ref({
 /**
  * Get statistics from server
  */
-const { refresh, data, status } = await useAsyncData("statistics", async () => {
+const { refresh, data, status } = await useLazyAsyncData("statistics", async () => {
   const stat = await authFetch(`${server}/information`, {
     params: {
       start: tableData.value.start,
