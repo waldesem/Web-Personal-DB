@@ -47,8 +47,10 @@ function deleteItem() {
 
 function updateItem(form: Persons) {
   dataResume.value.action = '';
-  anketaState.updateItem("persons", form)
-  anketaState.getItem('persons');
+  Promise.all([
+    await anketaState.updateItem("persons", form),
+    await anketaState.getItem('persons');
+  ])
 }
 
 function cancelAction(){
