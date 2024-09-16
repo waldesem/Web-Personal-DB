@@ -104,10 +104,8 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template #footer 
-          v-show="editState">
+        <template v-show="editState" #footer>
           <ElementsNaviHorizont
-            v-show="editState"
             @delete="
               deleteNeed(
                 anketaState.anketa.value.inquiries[index]['id']
