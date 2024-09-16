@@ -16,24 +16,20 @@ const { refresh } = await useLazyAsyncData("poligrafs", async () => {
 });
 
 async function updatePoligraf(poligrafForm: Pfo) {
-  Promise.all([
-    await anketaState.updateItem("poligrafs", poligrafForm),
-    await refresh(),
-  ])
   closeAction();
+  anketaState.updateItem("poligrafs", poligrafForm);
+  refresh()
 }
 
 async function deletePoligraf(index: string) {
   closeAction();
-  Promise.all([
-    await anketaState.deleteItem(index, 'poligrafs'),
-    await refresh(),
-  ])
+  anketaState.deleteItem(index, 'poligrafs');
+  refresh()
 }
 
 async function cancelOperation() {
-  await refresh();
   closeAction();
+  refresh()
 }
 
 function closeAction() {
