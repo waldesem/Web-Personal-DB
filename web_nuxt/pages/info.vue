@@ -19,13 +19,14 @@ const tableData = ref({
  * Get statistics from server
  */
 const { refresh, data, status } = await useAsyncData("statistics", async () => {
-  await authFetch(`${server}/information`, {
+  const stat = await authFetch(`${server}/information`, {
     params: {
       start: tableData.value.start,
       end: tableData.value.end,
       region: tableData.value.region,
     },
   });
+  return stat
 });
 </script>
 
