@@ -16,23 +16,18 @@ const { refresh } = await useLazyAsyncData("documents", async () => {
 })
 
 async function updateDocument(documentForm: Document) {
-  closeAction();
-  Promise.all([
-    await anketaState.updateItem("documents", documentForm),
-    await refresh()
-  ])
+  closeAction();  anketaState.updateItem("documents", documentForm);
+  refresh()
 }
 
 async function deleteDocument(index: string) {
-  Promise.all([
-    await anketaState.deleteItem(index, 'documents'),
-    await refresh()
-  ])
+  anketaState.deleteItem(index, 'documents');
+  refresh()
 }
 
 async function cancelOperation() {
-  await refresh();
   closeAction();
+  refresh()
 }
 
 function closeAction() {
