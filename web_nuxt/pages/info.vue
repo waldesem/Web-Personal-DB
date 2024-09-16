@@ -40,12 +40,9 @@ const { refresh, data, status } = await useAsyncData("statistics", async () => {
       ).toLocaleDateString()} г.`"
     />
     <div class="my-8">
-      <ElementsSkeletonDiv 
-        v-if="status === 'pending'" 
-        :rows="4"
-      />
       <UTable 
-        v-else
+        :loading="status == 'pending'"
+        :progress="{ color: 'red', animation: 'swing' }"
         :rows="data"
         :columns="[
           { key: 'conclusion', label: 'Решение' },
