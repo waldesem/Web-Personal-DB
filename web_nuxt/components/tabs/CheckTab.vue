@@ -20,19 +20,19 @@ const { refresh } = await useLazyAsyncData("checks", async () => {
 
 async function updateCheck(checkForm: Verification) {
   closeAction();
-  Promise.all([
-    await anketaState.updateItem("checks", checkForm),
-    await refresh(),
-  ]);
+  anketaState.updateItem("checks", checkForm);
+  refresh()
 }
 
 async function deleteCheck(index: string) {
-  Promise.all([await anketaState.deleteItem(index, "checks"), await refresh()]);
+  closeAction();
+  anketaState.deleteItem(index, "checks");
+  refresh()
 }
 
 async function cancelOperation() {
-  await refresh();
   closeAction();
+  refresh();
 }
 
 function closeAction() {
