@@ -100,8 +100,7 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template #footer 
-          v-show="editState">
+        <template v-show="editState" #footer>
           <ElementsNaviHorizont
             @update="
               inquisition = anketaState.anketa.value.investigations[index];
