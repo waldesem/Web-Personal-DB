@@ -142,9 +142,9 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template #footer>
+        <template #footer 
+          v-show="editState">
           <ElementsNaviHorizont
-            v-show="editState"
             @update="
               checkData.check = anketaState.anketa.value.checks[index];
               checkData.itemId =
