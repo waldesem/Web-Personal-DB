@@ -14,6 +14,7 @@ const persons = ref({
   prev: false,
   next: true,
   search: "",
+  upload: false,
   updated: `${new Date().toLocaleDateString(
     "ru-RU"
   )} в ${new Date().toLocaleTimeString("ru-RU")}`,
@@ -58,6 +59,7 @@ async function uploadJson (fileList: FileList) {
     })
     return;
   };
+  persons.value.upload = true;
   const formData = new FormData();
   for (const file of fileList) {
     formData.append("file", file);
@@ -73,6 +75,7 @@ async function uploadJson (fileList: FileList) {
     description: `Файлы успешно загружены`,
     color: "green",
   });
+  persons.value.upload = false;
   await refresh();
 };
 </script>
@@ -118,7 +121,7 @@ async function uploadJson (fileList: FileList) {
       />
     </div>
     <UTable
-      :loading="status == 'pending'"
+      :loading="status == 'pending' || persons.upload"
       :progress="{ color: 'red', animation: 'swing' }"
       :empty-state="{
         icon: 'i-heroicons-circle-stack-20-solid',
