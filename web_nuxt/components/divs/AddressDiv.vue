@@ -77,7 +77,7 @@ function closeAction() {
           }}</ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-show="editState && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont
