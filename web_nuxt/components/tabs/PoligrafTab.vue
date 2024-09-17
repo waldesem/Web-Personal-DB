@@ -39,9 +39,20 @@ async function updatePoligraf(form: Pfo) {
   refresh();
 }
 
-async function deletePoligraf(index: string) {
+async function deletePoligraf(id: string) {
   closeAction();
-  anketaState.deleteItem(index, "poligrafs");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch(`${server}/poligrafs/${id}`, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Информация",
+      description: `Запись с ID ${id} удалена`,
+      color: "primary",
+    });
+  }
   refresh();
 }
 
