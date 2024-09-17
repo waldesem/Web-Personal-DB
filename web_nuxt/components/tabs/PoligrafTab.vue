@@ -5,13 +5,16 @@ import type { Pfo } from "@/types/interfaces";
 const editState = inject("editState") as boolean;
 const candId = inject("candId");
 
-const collapse = ref(false);
 const edit = ref(false);
+cons collapse = ref(false);
 const itemId = ref("");
 const poligraf = ref({} as Pfo);
 
-const { data, refresh, status } = await useLazyAsyncData("poligrafs", async () => {
-  await anketaState.getItem("poligrafs");
+const { data: poligrafs, refresh } = await useLazyAsyncData("poligrafs", async () => {
+  const response = await authFetch(
+    `${server}/poligrafs/${candId}`
+    );
+  return response
 });
 
 async function updatePoligraf(poligrafForm: Pfo) {
@@ -32,9 +35,9 @@ async function cancelOperation() {
 }
 
 function closeAction() {
+  collapse = false;
   edit.value = false;
   itemId.value = "";
-  collapse.value = false;
 }
 
 function openFileForm(elementId: string) {
@@ -46,7 +49,7 @@ function openFileForm(elementId: string) {
   <UButton
     v-if="editState"
     class="py-3"
-    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :label="collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
   />
@@ -59,12 +62,12 @@ function openFileForm(elementId: string) {
   </Transition>
   <div
     v-if="
-      anketaState.anketa.value.poligrafs &&
-      anketaState.anketa.value.poligrafs.length
+      poligrafs &&
+      poligrafs.length
     "
   >
     <div
-      v-for="(item, index) in anketaState.anketa.value.poligrafs"
+      v-for="(item, index) in poligrafs"
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
