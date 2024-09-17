@@ -66,29 +66,28 @@ const filtredLinks = computed(() => {
 
 <template>
   <UContainer :ui="{ constrained: 'max-w-none', padding: 'px-4 sm:px-6 lg:px-12' }">
-    <header class="sticky py-8">
-      <div class="flex justify-between grid grid-cols-12 gap-3">
-        <div class="col-span-2">
-          <h3 class="text-2xl text-red-800 font-bold">STAFFSEC FINTECH</h3>
+    <header class="sticky border-b border-gray-200 py-8">
+      <div class="flex justify-between relative">
+        <div class="absolute top-0 left-0 inline-block text-2xl font-bold">
+          <h3 class="text-blue-800">STAFFSEC</h3>
+          <h3 class="text-red-800">ФИНТЕХ</h3>
         </div>
-        <div class="col-span-10 relative">
-          <UButton
-            class="absolute top-0 right-0"
-            icon="i-heroicons-moon"
-            :variant="$colorMode.preference == 'dark' ? 'soft' : 'ghost'"
-            @click="$colorMode.preference = 'dark'"
-          />
-          <UButton
-            class="absolute top-0 right-12"
-            icon="i-heroicons-sun"
-            :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
-            @click="$colorMode.preference = 'light'"
-          />
-          <UAvatar
-            class="absolute top-0 right-24"
-            :alt="userState.fullname"
-          />
-        </div>
+        <UButton
+          class="absolute top-0 right-0"
+          icon="i-heroicons-moon"
+          :variant="$colorMode.preference == 'dark' ? 'soft' : 'ghost'"
+          @click="$colorMode.preference = 'dark'"
+        />
+        <UButton
+          class="absolute top-0 right-12"
+          icon="i-heroicons-sun"
+          :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
+          @click="$colorMode.preference = 'light'"
+        />
+        <UAvatar
+          class="absolute top-0 right-24"
+          :alt="userState.fullname"
+        />
       </div>
     </header>
     <div class="grid grid-cols-12 gap-6">
