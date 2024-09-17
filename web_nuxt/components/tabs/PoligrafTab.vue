@@ -56,6 +56,27 @@ async function deletePoligraf(id: string) {
   refresh();
 }
 
+async function submitFile(fileList: FileList): Promise<void> {
+  const formData = new FormData();
+  if (fileList) {
+    for (const file of fileList) {
+      formData.append("file", file);
+      }
+    const response = await authFetch(`${server}/file/$poligrafs/${candId}`, {
+        method: "POST",
+        body: formData,
+      });
+      console.log(response);
+      toast.add({
+        icon: "i-heroicons-check-circle",
+        title: response["message"] == "success" ? "Информация" : "Внимание",
+        description: `Файлы успешно загружены`,
+        color: "green",
+      });
+    }
+  formData.delete("file");
+}
+
 async function cancelOperation() {
   closeAction();
   refresh();
