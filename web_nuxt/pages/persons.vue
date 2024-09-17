@@ -68,7 +68,6 @@ async function uploadJson (fileList: FileList) {
     method: "POST",
     body: formData,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -76,7 +75,7 @@ async function uploadJson (fileList: FileList) {
     color: "green",
   });
   persons.value.upload = false;
-  refresh();
+  return navigateTo(`/profile/${response['person_id']}`)
 };
 </script>
 

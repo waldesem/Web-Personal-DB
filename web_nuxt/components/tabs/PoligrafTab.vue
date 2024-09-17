@@ -76,30 +76,23 @@ function openFileForm(elementId: string) {
           </div>
         </template>
         <FormsPoligrafForm
-          v-if="
-            edit &&
-            itemId == anketaState.anketa.value.poligrafs[index]['id'].toString()
-          "
+          v-if="edit && itemId == item['id'].toString()"
           :poligraf="poligraf"
           @cancel="cancelOperation"
           @submit="updatePoligraf"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{
-            anketaState.anketa.value.poligrafs[index]["theme"]
+            item["theme"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Результат'">{{
-            anketaState.anketa.value.poligrafs[index]["results"]
+            item["results"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Сотрудник'">{{
-            anketaState.anketa.value.poligrafs[index]["username"]
+            item["username"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Дата записи'">
-            {{
-              new Date(
-                anketaState.anketa.value.poligrafs[index]["created"] + " UTC"
-              ).toLocaleString("ru-RU")
-            }}
+            {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
           </ElementsLabelSlot>
         </div>
         <template
@@ -108,14 +101,11 @@ function openFileForm(elementId: string) {
         >
           <ElementsNaviHorizont
             @update="
-              poligraf = anketaState.anketa.value.poligrafs[index];
-              itemId =
-                anketaState.anketa.value.poligrafs[index]['id'].toString();
+              poligraf = item;
+              itemId = item['id'].toString();
               edit = true;
             "
-            @delete="
-              deletePoligraf(anketaState.anketa.value.poligrafs[index]['id'])
-            "
+            @delete="deletePoligraf(item['id'])"
             @upload="openFileForm('poligraf-file')"
           />
           <div v-show="false">

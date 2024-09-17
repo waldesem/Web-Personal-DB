@@ -76,33 +76,26 @@ function openFileForm(elementId: string) {
           </div>
         </template>
         <FormsInquiryForm
-          v-if="
-            edit &&
-            itemId == anketaState.anketa.value.inquiries[index]['id'].toString()
-          "
+          v-if="edit && itemId == item['id'].toString()"
           :inquiry="need"
           @cancel="cancelOperation"
           @submit="updateNeed"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Информация'">{{
-            anketaState.anketa.value.inquiries[index]["info"]
+            item["info"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Иннициатор'">{{
-            anketaState.anketa.value.inquiries[index]["initiator"]
+            item["initiator"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Источники'"
-            >{{ anketaState.anketa.value.inquiries[index]["origins"] }}
+            >{{ item["origins"] }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Сотрудник'">{{
-            anketaState.anketa.value.inquiries[index]["username"]
+            item["username"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Дата записи'">
-            {{
-              new Date(
-                anketaState.anketa.value.inquiries[index]["created"] + " UTC"
-              ).toLocaleString("ru-RU")
-            }}
+            {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
           </ElementsLabelSlot>
         </div>
         <template
@@ -110,13 +103,10 @@ function openFileForm(elementId: string) {
           #footer
         >
           <ElementsNaviHorizont
-            @delete="
-              deleteNeed(anketaState.anketa.value.inquiries[index]['id'])
-            "
+            @delete="deleteNeed(item['id'])"
             @update="
-              need = anketaState.anketa.value.inquiries[index];
-              itemId =
-                anketaState.anketa.value.inquiries[index]['id'].toString();
+              need = item;
+              itemId = item['id'].toString();
               edit = true;
             "
             @upload="openFileForm('inquiry-file')"

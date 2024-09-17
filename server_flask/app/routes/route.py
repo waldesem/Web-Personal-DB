@@ -291,7 +291,7 @@ def post_file(item, item_id):
                 for content in contents:
                     if content:
                         handle_post_item(content, table, person_id)
-        return jsonify({"message": "Success"}), 201
+        return jsonify({"person_id": person_id}), 201
 
     person = db_session.get(Persons, item_id)
     if not person:
@@ -361,10 +361,10 @@ def post_resume():
     """
     json_data = request.get_json()
     resume = Person(**json_data).dict()
-    perrson_id = handle_post_resume(resume)
-    if not perrson_id:
+    person_id = handle_post_resume(resume)
+    if not person_id:
         return abort(400)
-    return jsonify({"message": "Success"}), 201
+    return jsonify({"person_id": person_id}), 201
 
 
 @bp.get("/region/<int:person_id>")

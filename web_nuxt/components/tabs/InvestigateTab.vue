@@ -78,32 +78,23 @@ function openFileForm(elementId: string) {
           </div>
         </template>
         <FormsInvestigationForm
-          v-if="
-            edit &&
-            itemId ==
-              anketaState.anketa.value.investigations[index]['id'].toString()
-          "
+          v-if="edit && itemId == item['id'].toString()"
           :investigation="inquisition"
           @cancel="cancelOperation"
           @submit="updateInquisition"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{
-            anketaState.anketa.value.investigations[index]["theme"]
+            item["theme"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Информация'">{{
-            anketaState.anketa.value.investigations[index]["info"]
+            item["info"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Сотрудник'">{{
-            anketaState.anketa.value.investigations[index]["username"]
+            item["username"]
           }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Дата записи'">
-            {{
-              new Date(
-                anketaState.anketa.value.investigations[index]["created"] +
-                  " UTC"
-              ).toLocaleString("ru-RU")
-            }}
+            {{ new Date(item["created"] + " UTC").toLocaleString("ru-RU") }}
           </ElementsLabelSlot>
         </div>
         <template
@@ -112,16 +103,11 @@ function openFileForm(elementId: string) {
         >
           <ElementsNaviHorizont
             @update="
-              inquisition = anketaState.anketa.value.investigations[index];
-              itemId =
-                anketaState.anketa.value.investigations[index]['id'].toString();
+              inquisition = item;
+              itemId = item['id'].toString();
               edit = true;
             "
-            @delete="
-              deleteInquisition(
-                anketaState.anketa.value.investigations[index]['id']
-              )
-            "
+            @delete="deleteInquisition(item['id'])"
             @upload="openFileForm('investigation-file')"
           />
           <div v-show="false">

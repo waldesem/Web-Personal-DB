@@ -6,7 +6,7 @@ import os
 from os.path import basename
 import smtplib
 
-from flask import abort, current_app
+from flask import current_app
 from PIL import Image
 from pydantic import ValidationError
 from sqlalchemy import desc, select
@@ -83,8 +83,8 @@ def handle_post_resume(resume):
             db_session.commit()
             return [person.id, person.destination]
         else:
-            if person.user_id != current_user["id"] and person["editable"]:
-                return abort(400)
+            if person["editable"]:
+                return [person.id, person.destination]
             resume["id"] = person.id
             handle_post_item(resume, "persons")
             return [resume["id"], person.destination]

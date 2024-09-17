@@ -12,14 +12,13 @@ async function submitResume(form: Persons): Promise<void> {
     method: "POST",
     body: form,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
     description: `Данные успешно добавлены`,
     color: "green",
   });
-  navigateTo('/persons');
+  return navigateTo(`/profile/${response['person_id']}`);
 }
 </script>
 
