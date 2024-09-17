@@ -12,22 +12,23 @@ const itemId = ref("");
 const relation = ref({} as Relation);
 
 const { refresh } = await useLazyAsyncData("relations", async () => {
-  await anketaState.getItem('relations');
-})
+  await anketaState.getItem("relations");
+});
 
 async function updateRelation(relationForm: Relation) {
-  closeAction();  anketaState.updateItem("relations", relationForm);
-  refresh()
+  closeAction();
+  anketaState.updateItem("relations", relationForm);
+  refresh();
 }
 
 async function deleteRelation(index: string) {
-  anketaState.deleteItem(index, 'relations');
-  refresh()
+  anketaState.deleteItem(index, "relations");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
@@ -47,14 +48,16 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsRelationForm 
-          @cancel="cancelOperation" 
-          @submit="updateRelation"
-        />
+        <FormsRelationForm @cancel="cancelOperation" @submit="updateRelation" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.relations && anketaState.anketa.value.relations.length">
+  <div
+    v-if="
+      anketaState.anketa.value.relations &&
+      anketaState.anketa.value.relations.length
+    "
+  >
     <div
       v-for="(item, idx) in anketaState.anketa.value.relations"
       :key="idx"
@@ -81,7 +84,7 @@ function closeAction() {
           v-if="editState && (!edit || itemId != item['id'].toString())"
           #footer
         >
-        <ElementsNaviHorizont
+          <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
             @delete="deleteRelation(item['id'].toString())"

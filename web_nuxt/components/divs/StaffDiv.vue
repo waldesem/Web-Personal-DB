@@ -4,7 +4,7 @@ import type { Staff } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
@@ -12,18 +12,18 @@ const itemId = ref("");
 const staff = ref({} as Staff);
 
 const { refresh } = await useLazyAsyncData("staffs", async () => {
-  await anketaState.getItem('staffs');
-})
+  await anketaState.getItem("staffs");
+});
 
 async function updateStaff(staffForm: Staff) {
   closeAction();
   anketaState.updateItem("staffs", staffForm);
-  refresh()
+  refresh();
 }
 
 async function deleteStaff(index: string) {
-  anketaState.deleteItem(index, 'staffs');
-  refresh()
+  anketaState.deleteItem(index, "staffs");
+  refresh();
 }
 
 async function cancelOperation() {
@@ -48,14 +48,15 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsStaffForm 
-          @cancel="cancelOperation" 
-          @submit="updateStaff"
-        />
+        <FormsStaffForm @cancel="cancelOperation" @submit="updateStaff" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.staffs && anketaState.anketa.value.staffs.length">
+  <div
+    v-if="
+      anketaState.anketa.value.staffs && anketaState.anketa.value.staffs.length
+    "
+  >
     <div
       v-for="(item, idx) in anketaState.anketa.value.staffs"
       :key="idx"
@@ -80,7 +81,7 @@ function closeAction() {
           v-if="editState && (!edit || itemId != item['id'].toString())"
           #footer
         >
-        <ElementsNaviHorizont
+          <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
             @delete="deleteStaff(item['id'])"
@@ -98,4 +99,3 @@ function closeAction() {
     <p class="text-primary">Данные о должностях отсутствуют</p>
   </div>
 </template>
-

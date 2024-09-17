@@ -76,7 +76,7 @@ async function uploadJson (fileList: FileList) {
     color: "green",
   });
   persons.value.upload = false;
-  await refresh();
+  refresh();
 };
 </script>
 

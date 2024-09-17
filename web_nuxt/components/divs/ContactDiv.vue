@@ -4,7 +4,7 @@ import type { Contact } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const itemId = ref("");
@@ -12,22 +12,23 @@ const edit = ref(false);
 const contact = ref({} as Contact);
 
 const { refresh } = await useLazyAsyncData("contacts", async () => {
-  await anketaState.getItem('contacts');
-})
+  await anketaState.getItem("contacts");
+});
 
 async function updateContact(contactForm: Contact) {
-  closeAction();  anketaState.updateItem("contacts", contactForm);
-  refresh()
+  closeAction();
+  anketaState.updateItem("contacts", contactForm);
+  refresh();
 }
 
 async function deleteContact(index: string) {
-  anketaState.deleteItem(index, 'contacts');
-  refresh()
+  anketaState.deleteItem(index, "contacts");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
@@ -47,14 +48,16 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsContactForm 
-          @cancel="cancelOperation" 
-          @submit="updateContact"
-        />
+        <FormsContactForm @cancel="cancelOperation" @submit="updateContact" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.contacts && anketaState.anketa.value.contacts.length">
+  <div
+    v-if="
+      anketaState.anketa.value.contacts &&
+      anketaState.anketa.value.contacts.length
+    "
+  >
     <div
       v-for="(item, idx) in anketaState.anketa.value.contacts"
       :key="idx"
@@ -68,7 +71,9 @@ function closeAction() {
           @submit="updateContact"
         />
         <div v-else>
-          <ElementsLabelSlot :label="'Вид'">{{ item["view"] }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'Вид'">{{
+            item["view"]
+          }}</ElementsLabelSlot>
           <ElementsLabelSlot :label="'Контакт'">{{
             item["contact"]
           }}</ElementsLabelSlot>
@@ -95,4 +100,3 @@ function closeAction() {
     <p class="text-primary">Данные отсутствуют</p>
   </div>
 </template>
-

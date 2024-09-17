@@ -7,7 +7,8 @@ await useAsyncData("candidates", async () => {
   if (!userToken.value) {
     return navigateTo("/login");
   }
-  Promise.all([classifyState.getClassify(), navigateTo("/persons")]);
+  classifyState.getClassify();
+  return navigateTo("/persons");
 });
 </script>
 

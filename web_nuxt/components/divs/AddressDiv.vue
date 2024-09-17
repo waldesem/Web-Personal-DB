@@ -12,29 +12,29 @@ const itemId = ref("");
 const address = ref({} as Address);
 
 const { refresh } = await useLazyAsyncData("addresses", async () => {
-  await anketaState.getItem('addresses');
-})
+  await anketaState.getItem("addresses");
+});
 
 async function updateAddress(addressForm: Address) {
   closeAction();
   anketaState.updateItem("addresses", addressForm);
-  refresh()
+  refresh();
 }
 
 async function deleteAddress(index: string) {
-  anketaState.deleteItem(index, 'addresses');
-  refresh()
+  anketaState.deleteItem(index, "addresses");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
   edit.value = false;
   collapse.value = false;
-  itemId.value = "";  
+  itemId.value = "";
 }
 </script>
 
@@ -48,14 +48,16 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="p-1">
       <UCard>
-        <FormsAddressForm 
-          @cancel="cancelOperation" 
-          @submit="updateAddress"
-        />
+        <FormsAddressForm @cancel="cancelOperation" @submit="updateAddress" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.addresses && anketaState.anketa.value.addresses.length">
+  <div
+    v-if="
+      anketaState.anketa.value.addresses &&
+      anketaState.anketa.value.addresses.length
+    "
+  >
     <div
       v-for="(item, idx) in anketaState.anketa.value.addresses"
       :key="idx"
@@ -77,7 +79,7 @@ function closeAction() {
           }}</ElementsLabelSlot>
         </div>
         <template
-          v-show="editState && (!edit || itemId != item['id'].toString())"
+          v-if="editState && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont

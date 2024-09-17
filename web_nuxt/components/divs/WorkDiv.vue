@@ -4,7 +4,7 @@ import type { Work } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
@@ -12,23 +12,23 @@ const itemId = ref("");
 const workplace = ref({} as Work);
 
 const { refresh } = await useLazyAsyncData("workplaces", async () => {
-  await anketaState.getItem('workplaces');
-})
+  await anketaState.getItem("workplaces");
+});
 
 async function updateWork(workForm: Work) {
   closeAction();
   anketaState.updateItem("workplaces", workForm);
-  refresh()
+  refresh();
 }
 
 async function deleteWork(index: string) {
-  anketaState.deleteItem(index, 'workplaces');
-  refresh()
+  anketaState.deleteItem(index, "workplaces");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
@@ -48,14 +48,16 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsWorkplaceForm 
-        @cancel="cancelOperation" 
-        @submit="updateWork"
-      />
+        <FormsWorkplaceForm @cancel="cancelOperation" @submit="updateWork" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.workplaces && anketaState.anketa.value.workplaces.length">
+  <div
+    v-if="
+      anketaState.anketa.value.workplaces &&
+      anketaState.anketa.value.workplaces.length
+    "
+  >
     <div
       v-for="(item, idx) in anketaState.anketa.value.workplaces"
       :key="idx"
@@ -75,7 +77,10 @@ function closeAction() {
           <ElementsLabelSlot :label="'Начало работы'">
             {{ new Date(item["starts"]).toLocaleDateString("ru-RU") }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot v-if="!item['now_work']" :label="'Окончание работы'">
+          <ElementsLabelSlot
+            v-if="!item['now_work']"
+            :label="'Окончание работы'"
+          >
             {{ new Date(item["finished"]).toLocaleDateString("ru-RU") }}
           </ElementsLabelSlot>
           <ElementsLabelSlot :label="'Место работы'">
@@ -87,7 +92,10 @@ function closeAction() {
           <ElementsLabelSlot :label="'Должность'">
             {{ item["position"] }}
           </ElementsLabelSlot>
-          <ElementsLabelSlot v-if="item['reason']" :label="'Причина увольнения'">
+          <ElementsLabelSlot
+            v-if="item['reason']"
+            :label="'Причина увольнения'"
+          >
             {{ item["reason"] }}
           </ElementsLabelSlot>
         </div>
@@ -113,4 +121,3 @@ function closeAction() {
     <p class="text-primary">Данные о работе отсутствуют</p>
   </div>
 </template>
-

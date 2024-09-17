@@ -4,7 +4,7 @@ import type { Previous } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
@@ -12,22 +12,23 @@ const itemId = ref("");
 const previous = ref({} as Previous);
 
 const { refresh } = await useLazyAsyncData("previous", async () => {
-  await anketaState.getItem('previous');
-})
+  await anketaState.getItem("previous");
+});
 
 async function updatePrevious(previousForm: Previous) {
-  closeAction();  anketaState.updateItem("previous", previousForm);
-  refresh()
+  closeAction();
+  anketaState.updateItem("previous", previousForm);
+  refresh();
 }
 
 async function deletePrevious(index: string) {
-  anketaState.deleteItem(index, 'previous');
-  refresh()
+  anketaState.deleteItem(index, "previous");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
@@ -47,14 +48,16 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsPreviousForm 
-          @cancel="cancelOperation" 
-          @submit="updatePrevious"
-        />
+        <FormsPreviousForm @cancel="cancelOperation" @submit="updatePrevious" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.previous && anketaState.anketa.value.previous.length">
+  <div
+    v-if="
+      anketaState.anketa.value.previous &&
+      anketaState.anketa.value.previous.length
+    "
+  >
     <div
       v-for="(item, idx) in anketaState.anketa.value.previous"
       :key="idx"
@@ -106,4 +109,3 @@ function closeAction() {
     <p class="text-primary">Данные отсутствуют</p>
   </div>
 </template>
-

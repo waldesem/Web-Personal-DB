@@ -4,7 +4,7 @@ import type { Affilation } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
@@ -12,23 +12,23 @@ const itemId = ref("");
 const affilation = ref({} as Affilation);
 
 const { refresh } = await useLazyAsyncData("affilations", async () => {
-  await anketaState.getItem('affilations');
-})
+  await anketaState.getItem("affilations");
+});
 
 async function updateAffilation(affilForm: Affilation) {
   closeAction();
   anketaState.updateItem("affilations", affilForm);
-  refresh()
+  refresh();
 }
 
 async function deleteAffilation(index: string) {
-  anketaState.deleteItem(index, 'affilations');
-  refresh()
+  anketaState.deleteItem(index, "affilations");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
@@ -48,14 +48,19 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsAffilationForm 
-          @cancel="cancelOperation" 
+        <FormsAffilationForm
+          @cancel="cancelOperation"
           @submit="updateAffilation"
         />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.affilations && anketaState.anketa.value.affilations.length">
+  <div
+    v-if="
+      anketaState.anketa.value.affilations &&
+      anketaState.anketa.value.affilations.length
+    "
+  >
     <div
       v-for="(item, idx) in anketaState.anketa.value.affilations"
       :key="idx"
@@ -75,13 +80,15 @@ function closeAction() {
           <ElementsLabelSlot :label="'Организация'">{{
             item["organization"]
           }}</ElementsLabelSlot>
-          <ElementsLabelSlot :label="'ИНН'">{{ item["inn"] }}</ElementsLabelSlot>
+          <ElementsLabelSlot :label="'ИНН'">{{
+            item["inn"]
+          }}</ElementsLabelSlot>
         </div>
         <template
           v-if="editState && (!edit || itemId != item['id'].toString())"
           #footer
         >
-        <ElementsNaviHorizont
+          <ElementsNaviHorizont
             v-show="editState"
             :last-index="2"
             @delete="deleteAffilation(item['id'])"
@@ -99,4 +106,3 @@ function closeAction() {
     <p class="text-primary">Данные отсутствуют</p>
   </div>
 </template>
-

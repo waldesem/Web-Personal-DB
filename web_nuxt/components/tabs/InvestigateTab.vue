@@ -4,7 +4,7 @@ import type { Inquisition } from "@/types/interfaces";
 
 const anketaState = stateAnketa();
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 
 const collapse = ref(false);
 const edit = ref(false);
@@ -12,23 +12,23 @@ const itemId = ref("");
 const inquisition = ref({} as Inquisition);
 
 const { refresh } = await useLazyAsyncData("investigations", async () => {
-  await anketaState.getItem('investigations');
-})
+  await anketaState.getItem("investigations");
+});
 
 async function updateInquisition(inquisitionForm: Inquisition) {
   closeAction();
   anketaState.updateItem("investigations", inquisitionForm);
-  refresh()
+  refresh();
 }
 
 async function deleteInquisition(index: string) {
-  anketaState.deleteItem(index, 'investigations');
-  refresh()
+  anketaState.deleteItem(index, "investigations");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
@@ -53,21 +53,27 @@ function openFileForm(elementId: string) {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsInvestigationForm 
-        @cancel="cancelOperation" 
-        @submit="updateInquisition"
-      />
+        <FormsInvestigationForm
+          @cancel="cancelOperation"
+          @submit="updateInquisition"
+        />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.investigations && anketaState.anketa.value.investigations.length">
-    <div 
-      v-for="(item, index) in anketaState.anketa.value.investigations" :key="index"
+  <div
+    v-if="
+      anketaState.anketa.value.investigations &&
+      anketaState.anketa.value.investigations.length
+    "
+  >
+    <div
+      v-for="(item, index) in anketaState.anketa.value.investigations"
+      :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
-      >
+    >
       <UCard>
         <template #header>
-          <div class="tex-base text-red-800 font-medium" >
+          <div class="tex-base text-red-800 font-medium">
             {{ "Расследование/проверка ID #" + item["id"] }}
           </div>
         </template>
@@ -100,20 +106,20 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template v-show="editState && (!edit || itemId != item['id'].toString())" #footer>
+        <template
+          v-if="editState && (!edit || itemId != item['id'].toString())"
+          #footer
+        >
           <ElementsNaviHorizont
             @update="
               inquisition = anketaState.anketa.value.investigations[index];
               itemId =
-                anketaState.anketa.value.investigations[index][
-                  'id'
-                ].toString();
+                anketaState.anketa.value.investigations[index]['id'].toString();
               edit = true;
             "
             @delete="
               deleteInquisition(
-                anketaState.anketa.value.investigations[index][
-                  'id'],
+                anketaState.anketa.value.investigations[index]['id']
               )
             "
             @upload="openFileForm('investigation-file')"
@@ -141,4 +147,3 @@ function openFileForm(elementId: string) {
     <p class="text-red-800">Расследования/Проверки не проводились</p>
   </div>
 </template>
-

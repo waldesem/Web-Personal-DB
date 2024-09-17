@@ -14,20 +14,20 @@ const checkData = ref({
   check: {} as Verification,
 });
 
-const { refresh } = await useLazyAsyncData("checks", async () => {
+const { refresh, status } = await useLazyAsyncData("checks", async () => {
   await anketaState.getItem("checks");
 });
 
 async function updateCheck(checkForm: Verification) {
   closeAction();
   anketaState.updateItem("checks", checkForm);
-  refresh()
+  refresh();
 }
 
 async function deleteCheck(index: string) {
   closeAction();
   anketaState.deleteItem(index, "checks");
-  refresh()
+  refresh();
 }
 
 async function cancelOperation() {
@@ -61,15 +61,18 @@ function openFileForm(elementId: string) {
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.checks && anketaState.anketa.value.checks.length">
+  <div
+    v-if="
+      anketaState.anketa.value.checks && anketaState.anketa.value.checks.length
+    "
+  >
     <div
       v-for="(item, index) in anketaState.anketa.value.checks"
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <UCard
-        
-      >
+      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="18"/>
+      <UCard v-else>
         <template #header>
           <div class="tex-base text-red-800 dark:text-gray-400 font-medium">
             {{ "Проверка кандидата ID #" + item["id"] }}
@@ -142,7 +145,10 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template v-show="editState && (!edit || itemId != item['id'].toString())" #footer>
+        <template
+          v-if="editState && (!edit || itemId != item['id'].toString())"
+          #footer
+        >
           <ElementsNaviHorizont
             @update="
               checkData.check = anketaState.anketa.value.checks[index];
@@ -173,6 +179,7 @@ function openFileForm(elementId: string) {
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-red-800">Проверка кандидата отсутствует</p>
+    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="18"/>
+    <p v-else class="text-red-800">Проверка кандидата отсутствует</p>
   </div>
 </template>

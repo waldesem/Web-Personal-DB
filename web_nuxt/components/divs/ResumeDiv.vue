@@ -11,7 +11,7 @@ const anketaState = stateAnketa();
 
 const classifyState = stateClassify();
 
-const editState = inject("editState") as boolean
+const editState = inject("editState") as boolean;
 
 const dataResume = ref({
   action: "",
@@ -25,11 +25,14 @@ function openFileForm(elementId: string) {
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
-  const response = await authFetch(`${server}/region/${anketaState.share.value.candId}`, {
-    params: {
-      region: anketaState.anketa.value.persons["region"],
-    },
-  });
+  const response = await authFetch(
+    `${server}/region/${anketaState.share.value.candId}`,
+    {
+      params: {
+        region: anketaState.anketa.value.persons["region"],
+      },
+    }
+  );
   console.log(response);
   anketaState.getItem("persons");
   toast.add({
@@ -41,19 +44,19 @@ async function changeRegion(): Promise<void> {
 }
 
 function deleteItem() {
-  anketaState.deleteItem(anketaState.anketa.value.persons['id'], 'persons');
-  navigateTo('/persons');
+  anketaState.deleteItem(anketaState.anketa.value.persons["id"], "persons");
+  navigateTo("/persons");
 }
 
 function updateItem(form: Persons) {
-  dataResume.value.action = '';
-  anketaState.updateItem("persons", form),
-  anketaState.getItem('persons');
+  dataResume.value.action = "";
+  anketaState.updateItem("persons", form);
+  anketaState.getItem("persons");
 }
 
-function cancelAction(){
-  dataResume.value.action = '';
-  anketaState.getItem('persons');
+function cancelAction() {
+  dataResume.value.action = "";
+  anketaState.getItem("persons");
 }
 </script>
 
@@ -66,12 +69,12 @@ function cancelAction(){
         @cancel="cancelAction"
         @update="updateItem"
       />
-     </div>
+    </div>
     <div v-else>
       <ElementsLabelSlot :label="'Регион'">
         <USelect
           v-model="anketaState.anketa.value.persons['region']"
-          style="width: 20%;"
+          style="width: 20%"
           :options="Object.values(classifyState.classes.value.regions)"
           :disabled="!editState"
           @change="changeRegion()"
@@ -131,8 +134,12 @@ function cancelAction(){
         }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Материалы'">
-        <a class="text-primary" target="_blank" :href="anketaState.anketa.value.persons['destination']">
-          {{ anketaState.anketa.value.persons['destination'] }}
+        <a
+          class="text-primary"
+          target="_blank"
+          :href="anketaState.anketa.value.persons['destination']"
+        >
+          {{ anketaState.anketa.value.persons["destination"] }}
         </a>
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">
@@ -143,10 +150,7 @@ function cancelAction(){
         }}
       </ElementsLabelSlot>
     </div>
-    <template
-      v-if="editState && !dataResume.action"
-      #footer
-    >
+    <template v-if="editState && !dataResume.action" #footer>
       <ElementsNaviHorizont
         v-show="editState"
         @delete="deleteItem"

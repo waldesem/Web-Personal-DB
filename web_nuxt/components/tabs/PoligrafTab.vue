@@ -12,24 +12,24 @@ const itemId = ref("");
 const poligraf = ref({} as Pfo);
 
 const { refresh } = await useLazyAsyncData("poligrafs", async () => {
-  await anketaState.getItem('poligrafs');
+  await anketaState.getItem("poligrafs");
 });
 
 async function updatePoligraf(poligrafForm: Pfo) {
   closeAction();
   anketaState.updateItem("poligrafs", poligrafForm);
-  refresh()
+  refresh();
 }
 
 async function deletePoligraf(index: string) {
   closeAction();
-  anketaState.deleteItem(index, 'poligrafs');
-  refresh()
+  anketaState.deleteItem(index, "poligrafs");
+  refresh();
 }
 
 async function cancelOperation() {
   closeAction();
-  refresh()
+  refresh();
 }
 
 function closeAction() {
@@ -54,14 +54,16 @@ function openFileForm(elementId: string) {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsPoligrafForm 
-          @cancel="cancelOperation" 
-          @submit="updatePoligraf"
-        />
+        <FormsPoligrafForm @cancel="cancelOperation" @submit="updatePoligraf" />
       </UCard>
     </div>
   </Transition>
-  <div v-if="anketaState.anketa.value.poligrafs && anketaState.anketa.value.poligrafs.length">
+  <div
+    v-if="
+      anketaState.anketa.value.poligrafs &&
+      anketaState.anketa.value.poligrafs.length
+    "
+  >
     <div
       v-for="(item, index) in anketaState.anketa.value.poligrafs"
       :key="index"
@@ -100,16 +102,19 @@ function openFileForm(elementId: string) {
             }}
           </ElementsLabelSlot>
         </div>
-        <template v-show="editState && (!edit || itemId != item['id'].toString())" #footer>
+        <template
+          v-if="editState && (!edit || itemId != item['id'].toString())"
+          #footer
+        >
           <ElementsNaviHorizont
             @update="
               poligraf = anketaState.anketa.value.poligrafs[index];
-              itemId = anketaState.anketa.value.poligrafs[index]['id'].toString();
+              itemId =
+                anketaState.anketa.value.poligrafs[index]['id'].toString();
               edit = true;
             "
-            @delete="deletePoligraf(
-                anketaState.anketa.value.poligrafs[index]['id'],
-              )
+            @delete="
+              deletePoligraf(anketaState.anketa.value.poligrafs[index]['id'])
             "
             @upload="openFileForm('poligraf-file')"
           />
