@@ -2,8 +2,10 @@
 import { server } from "@/state/state";
 import type { Pfo } from "@/types/interfaces";
 
+const toast = useToast();
+
 const editState = inject("editState") as boolean;
-const candId = inject("candId");
+const candId = inject("candId") as string;
 
 const edit = ref(false);
 cons collapse = ref(false);
@@ -17,9 +19,23 @@ const { data: poligrafs, refresh } = await useLazyAsyncData("poligrafs", async (
   return response
 });
 
-async function updatePoligraf(poligrafForm: Pfo) {
+async function updatePoligraf(form: Pfo) {
   closeAction();
-  anketaState.updateItem("poligrafs", poligrafForm);
+  const response = await authFetch(
+    `${server}/poligrafs/${candId}`,
+      {
+        method: "POST",
+        body: form,
+      }
+    );
+    console.log(response);
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация обновлена",
+      color: "green",
+    });
+  }
   refresh();
 }
 
