@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
+import { server } from "@/state/state";
 import type { Pfo } from "@/types/interfaces";
 
-const anketaState = stateAnketa();
-
 const editState = inject("editState") as boolean;
+const candId = inject("candId");
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const poligraf = ref({} as Pfo);
 
-const { refresh } = await useLazyAsyncData("poligrafs", async () => {
+const { data, refresh, status } = await useLazyAsyncData("poligrafs", async () => {
   await anketaState.getItem("poligrafs");
 });
 
