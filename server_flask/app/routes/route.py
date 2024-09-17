@@ -91,7 +91,7 @@ def post_login(action):
         return jsonify(
             {
                 "message": "Success",
-                "user_token": create_token(User(**user.to_dict()).dict()),
+                "user_token": 'Bearer ' + create_token(User(**user.to_dict()).dict()),
             }
         )
     return {"message": "Denied"}

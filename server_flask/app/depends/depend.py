@@ -10,7 +10,7 @@ from ..model.tables import Users, db_session
 current_user = LocalProxy(lambda: get_current_user(g.user_id))
 
 
-def get_auth(token):
+def get_auth(token: str):
     """
     Validates a JWT token and stores the user ID in the g object.
 
@@ -20,9 +20,10 @@ def get_auth(token):
     Returns:
         bool: True if the token is valid, False if not.
     """
+    payload = token.split(' ')[1]
     try:
         decoded = jwt.decode(
-            token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            payload, current_app.config["SECRET_KEY"], algorithms=["HS256"]
         )
         g.user_id = decoded["id"]
         return True
