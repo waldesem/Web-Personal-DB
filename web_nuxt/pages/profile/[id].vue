@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { stateUser } from "@/state/state";
-import { useFetchAuth } from "@/utils/auth";
+import { stateUser, useFetchAuth } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
 const userState = stateUser();

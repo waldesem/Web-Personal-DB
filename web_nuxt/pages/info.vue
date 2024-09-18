@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { stateUser } from "@/state/state";
-import { useFetchAuth } from "@/utils/auth";
+import { useFetchAuth, stateUser } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
 const userState = stateUser();
@@ -20,7 +19,7 @@ const tableData = ref({
 const { refresh, data, status } = await useLazyAsyncData(
   "statistics",
   async () => {
-    const stat = await authFetch('/api/information', {
+    const stat = await authFetch("/api/information", {
       params: {
         start: tableData.value.start,
         end: tableData.value.end,
@@ -57,9 +56,7 @@ const { refresh, data, status } = await useLazyAsyncData(
           <UFormGroup class="mb-3" size="md" label="Регион">
             <USelect
               v-model="tableData.region"
-              :disable="
-                userState.region != classifyState.classes.value.regions['main']
-              "
+              :disable="userState.region != 'main'"
               :options="[
                 'Главный офис',
                 'РЦ Юг',

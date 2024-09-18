@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { userToken } from "@/state/state";
+import { userToken } from "@/utils/auth";
 
 await useAsyncData("candidates", async () => {
   if (!userToken.value) {

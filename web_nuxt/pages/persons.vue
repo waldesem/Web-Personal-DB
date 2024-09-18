@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { debounce } from "@/utils/utilities";
-import { useFetchAuth } from "../utils/auth";
-import { stateUser } from "@/state/state";
+import { useFetchAuth, stateUser } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
 const userState = stateUser();

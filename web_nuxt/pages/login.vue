@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { userToken } from "@/state/state";
+import { userToken } from "@/utils/auth";
 
 const loginAction = ref("create");
 const loginForm = ref({} as Record<string, unknown>);

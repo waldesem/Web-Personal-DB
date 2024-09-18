@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { stateUser, userToken } from "@/state/state";
+import { stateUser, userToken } from "@/utils/auth";
 
 const userState = stateUser();
 
