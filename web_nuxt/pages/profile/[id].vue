@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { server, stateAnketa, stateClassify, stateUser } from "@/state/state";
+import { server, stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
-const anketaState = stateAnketa();
-const classifyState = stateClassify();
 const userState = stateUser();
 const route = useRoute();
 
-anketaState.share.value.candId = computed(() => route.params.id) as unknown as string;
+const candId = computed(() => route.params.id) as unknown as string;
 
-const { refresh } = await useAsyncData("anketa", async () => {
-  await anketaState.getItem("persons");
+const { data, refresh } = await useAsyncData("anketa", async () => {
+  await getItem("persons");
 });
 
 const tabs = [
@@ -129,11 +127,11 @@ async function switchSelf(): Promise<void> {
       }`"
     />
     <UTabs :items="tabs">
-      <template #anketaTab><TabsAnketaTab /></template>
-      <template #checkTab><TabsCheckTab /></template>
-      <template #poligrafTab><TabsPoligrafTab /></template>
-      <template #investigateTab><TabsInvestigateTab /></template>
-      <template #inquiryTab><TabsInquiryTab /></template>
+      <template #anketaTab><TabsAnketaTab :candId="candId" :person="person" /></template>
+      <template #checkTab><TabsCheckTab :candId="candId" /></template>
+      <template #poligrafTab><TabsPoligrafTab :candId="candId" /></template>
+      <template #investigateTab><TabsInvestigateTab :candId="candId" /></template>
+      <template #inquiryTab><TabsInquiryTab :candId="candId" /></template>
     </UTabs>
   </LayoutsMenu>
 </template>
