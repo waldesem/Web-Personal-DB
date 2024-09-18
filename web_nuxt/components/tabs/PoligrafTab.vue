@@ -4,8 +4,16 @@ import type { Pfo } from "@/types/interfaces";
 
 const toast = useToast();
 
-const editState = inject("editState") as boolean;
-const candId = inject("candId") as string;
+const props = defineProps({
+  candId: {
+    type: String, 
+    default: "",
+  },
+  editable: {
+    type: Boolean, 
+    default: false 
+  }
+}
 
 const edit = ref(false);
 cons collapse = ref(false);
@@ -75,7 +83,7 @@ function openFileForm(elementId: string) {
 
 <template>
   <UButton
-    v-if="editState"
+    v-if="editable"
     class="py-3"
     :label="collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
