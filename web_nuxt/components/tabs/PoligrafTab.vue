@@ -19,26 +19,6 @@ const { data: poligrafs, refresh } = await useLazyAsyncData("poligrafs", async (
   return response
 });
 
-async function updatePoligraf(form: Pfo) {
-  closeAction();
-  const response = await authFetch(
-    `${server}/poligrafs/${candId}`,
-      {
-        method: "POST",
-        body: form,
-      }
-    );
-    console.log(response);
-    toast.add({
-      icon: "i-heroicons-check-circle",
-      title: "Успешно",
-      description: "Информация обновлена",
-      color: "green",
-    });
-  }
-  refresh();
-}
-
 async function deletePoligraf(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -104,7 +84,7 @@ function openFileForm(elementId: string) {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsPoligrafForm @cancel="cancelOperation" @submit="updatePoligraf" />
+        <FormsPoligrafForm @cancel="cancelOperation" @update="refresh" />
       </UCard>
     </div>
   </Transition>
@@ -129,7 +109,7 @@ function openFileForm(elementId: string) {
           v-if="edit && itemId == item['id'].toString()"
           :poligraf="poligraf"
           @cancel="cancelOperation"
-          @submit="updatePoligraf"
+          @update="refresh"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{
