@@ -1,18 +1,22 @@
 <script setup lang="ts">
-cost props = defineProps({
-  edit: {
-    type: Boolean, 
-    default: false 
-    }, 
+import type { Persons } from "@/types/interfaces";
+
+const props = defineProps({
+  editable: {
+    type: Boolean,
+    default: false,
+  },
   candId: {
-    type: String, 
-    default: ""
-    },
+    type: String,
+    default: "",
+  },
   person: {
-    type: Object as Persons, 
-    default: {} as Persons{}
-  }
-}
+    type: Object as Persons,
+    default: {} as Persons,
+  },
+});
+
+const emit = defineEmits(["update"]);
 
 const items = [
   {
@@ -71,15 +75,39 @@ const items = [
 
 <template>
   <UAccordion :items="items" size="lg" multiple>
-    <template #resume=""><DivsResumeDiv :candId: "props.candId" :edit"props.edit" :person="props.person" /></template>
-    <template #staff=""><DivsStaffDiv :candId: "props.candId" :edit"props.edit"/></template>
-    <template #education=""><DivsEducateDiv :candId: "props.candId" :edit"props.edit"/></template>
-    <template #work=""><DivsWorkDiv :candId: "props.candId" :edit"props.edit"/></template>
-    <template #document=""><DivsDocumDiv :candId: "props.candId" :edit"props.edit" /></template>
-    <template #address=""><DivsAddressDiv /></template>
-    <template #contact=""><DivsContactDiv :candId: "props.candId" :edit"props.edit" /></template>
-    <template #affiliation=""><DivsAffilDiv :candId: "props.candId" :edit"props.edit" /></template>
-    <template #prev=""><DivsPrevDiv :candId: "props.candId" :edit"props.edit" /></template>
-    <template #relate=""><DivsRelateDiv :candId: "props.candId" :edit"props.edit" /></template>
+    <template #resume=""
+      ><DivsResumeDiv
+        :cand-id="props.candId"
+        :editable="props.editable"
+        :person="props.person"
+        @update="emit('update')"
+    /></template>
+    <template #staff=""
+      ><DivsStaffDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #education=""
+      ><DivsEducateDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #work=""
+      ><DivsWorkDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #document=""
+      ><DivsDocumDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #address=""
+      ><DivsAddressDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #contact=""
+      ><DivsContactDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #affiliation=""
+      ><DivsAffilDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #prev=""
+      ><DivsPrevDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
+    <template #relate=""
+      ><DivsRelateDiv :cand-id="props.candId" :editable="props.editable"
+    /></template>
   </UAccordion>
 </template>

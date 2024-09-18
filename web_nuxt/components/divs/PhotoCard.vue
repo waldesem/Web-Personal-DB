@@ -1,61 +1,49 @@
 <script setup lang="ts">
-import { server, stateAnketa } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 import { useMouse, useWindowScroll } from "@vueuse/core";
 
 const authFetch = useFetchAuth();
 
-const editState = inject("editState") as boolean;
-
-const anketaState = stateAnketa();
+const props = defineProps({
+  candId: {
+    type: String,
+    default: "",
+  },
+  destination: {
+    type: String,
+    default: "",
+  },
+  editable: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const imageUrl = ref("");
 
 const { refresh } = await useAsyncData("image", async () => {
-  const response = await $fetch(`${server}/image`, {
+  const response = await $fetch("/api/image", {
     params: {
-      image: anketaState.anketa.value.persons.destination,
+      image: props.destination,
     },
     responseType: "blob",
   });
   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
 });
 
-async function submitImage(fileList: FileList) {
-  const toast = useToast();
-  if (!fileList.length) {
-    toast.add({
-      icon: "i-heroicons-exclamation-triangle",
-      title: "Информация",
-      description: `Не выбраны файлы`,
-      color: "red",
-    });
-    return;
-  }
+async function submitImage(file: File) {
+  if (!file) return;
   const formData = new FormData();
-  for (const file of fileList) {
-    formData.append("file", file);
-  }
-  await authFetch(`${server}/file/image/${anketaState.share.value.candId}`, {
+  await authFetch("/api/file/image/", props.candId, {
     method: "POST",
-    body: formData,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Информация",
-    description: `Файлы успешно загружены`,
-    color: "green",
+    body: formData.append("file", file),
   });
   await refresh();
 }
 
-const photoCard = ref({
-  formData: new FormData(),
-
-  openFileForm(elementId: string) {
-    document.getElementById(elementId)?.click();
-  },
-});
+function openFileForm(elementId: string) {
+  document.getElementById(elementId)?.click();
+}
 
 const { x, y } = useMouse();
 const { y: windowY } = useWindowScroll();
@@ -87,7 +75,6 @@ function onContextMenu() {
       <UInput
         v-show="false"
         id="image-file"
-        multiple
         type="file"
         accept="image/*"
         @change="submitImage($event)"
@@ -101,7 +88,7 @@ function onContextMenu() {
           <UButton
             label="Загрузить"
             variant="link"
-            @click="photoCard.openFileForm('image-file')"
+            @click="openFileForm('image-file')"
           />
         </div>
       </UContextMenu>

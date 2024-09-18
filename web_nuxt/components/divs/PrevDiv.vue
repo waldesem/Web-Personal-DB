@@ -1,28 +1,46 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
 import type { Previous } from "@/types/interfaces";
 
-const anketaState = stateAnketa();
+const toast = useToast();
 
-const editState = inject("editState") as boolean;
+const props = defineProps({
+  candId: {
+    type: String,
+    default: "",
+  },
+  editable: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const previous = ref({} as Previous);
 
-const { refresh } = await useLazyAsyncData("previous", async () => {
-  await anketaState.getItem("previous");
+const {
+  data: previous,
+  refresh,
+  status,
+} = await useLazyAsyncData("previous", async () => {
+  const response = await authFetch("/api/previous/" + props.candId);
+  return response;
 });
 
-async function updatePrevious(previousForm: Previous) {
+async function deletePrevious(id: string) {
   closeAction();
-  anketaState.updateItem("previous", previousForm);
-  refresh();
-}
-
-async function deletePrevious(index: string) {
-  anketaState.deleteItem(index, "previous");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch("/api/previous/" + id, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   refresh();
 }
 
@@ -40,7 +58,7 @@ function closeAction() {
 
 <template>
   <UButton
-    v-if="editState"
+    v-if="props.editable"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
@@ -48,27 +66,19 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsPreviousForm @cancel="cancelOperation" @submit="updatePrevious" />
+        <FormsPreviousForm @cancel="cancelOperation" @update="refresh" />
       </UCard>
     </div>
   </Transition>
-  <div
-    v-if="
-      anketaState.anketa.value.previous &&
-      anketaState.anketa.value.previous.length
-    "
-  >
-    <div
-      v-for="(item, idx) in anketaState.anketa.value.previous"
-      :key="idx"
-      class="p-1"
-    >
-      <UCard>
+  <div v-if="previous && previous.length">
+    <div v-for="(item, idx) in previous" :key="idx" class="p-1">
+      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+      <UCard v-else>
         <FormsPreviousForm
           v-if="edit && itemId == item['id'].toString()"
           :previous="previous"
           @cancel="cancelOperation"
-          @submit="updatePrevious"
+          @update="refresh"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Фамилия'">
@@ -88,12 +98,11 @@ function closeAction() {
           </ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont
-            v-show="editState"
-            :last-index="2"
+            :navlen="2"
             @delete="deletePrevious(item['id'].toString())"
             @update="
               previous = item;
@@ -106,6 +115,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-primary">Данные отсутствуют</p>
+    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+    <p v-else class="text-primary">Данные отсутствуют</p>
   </div>
 </template>

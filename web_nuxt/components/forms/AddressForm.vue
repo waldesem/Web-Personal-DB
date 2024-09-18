@@ -1,28 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Address } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   addrs: {
     type: Object as () => Address,
     default: {} as Address,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
-
-const classifyState = stateClassify();
 
 const addressForm = toRef(props.addrs as Address);
 
 function submitAddress() {
-  emit("submit", addressForm.value)
+  emit("cancel");
+  const response = await authFetch("/api/addresses/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -40,7 +52,7 @@ function clearForm() {
       <USelect
         v-model.trim.lazy="addressForm['view']"
         required
-        :options="Object.values(classifyState.classes.value.addresses)"
+        :options="['Адрес регистрации', 'Адрес проживания', 'Другое']"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Адрес">

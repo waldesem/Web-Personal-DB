@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { debounce } from "@/utils/utilities";
-import { server, stateClassify } from "@/state/state";
 import type { User } from "@/types/interfaces";
 import { useFetchAuth } from "@/utils/auth";
 
 const toast = useToast();
 
-const classifyState = stateClassify();
 const fetchAuth = useFetchAuth();
 
 const dataUsers = ref({
@@ -47,7 +45,7 @@ async function getUsers() {
 
 /**
  * Performs an action on a user, such as blocking or deleting them.
- * 
+ *
  * @param {string} item The action to perform
  * @param {string} id The ID of the user to perform the action on
  * @returns {Promise<void>}
@@ -91,7 +89,7 @@ async function submitUser(): Promise<void> {
   Object.assign(dataUsers.value.form, {
     fullname: "",
     username: "",
-  })
+  });
   await getUsers();
   toast.add({
     icon: "i-heroicons-check-circle",
@@ -137,8 +135,8 @@ await getUsers();
 
 <template>
   <LayoutsMenu>
-    <ElementsHeaderDiv 
-      :div="'py-1'" 
+    <ElementsHeaderDiv
+      :div="'py-1'"
       :cls="'text-2xl text-gray-500'"
       :header="'ПОЛЬЗОВАТЕЛИ'"
     />
@@ -183,10 +181,7 @@ await getUsers();
           </div>
           <div class="col-span-2">
             <UFormGroup required class="mb-3">
-              <UInput
-                v-model="dataUsers.form['email']"
-                placeholder="Email"
-              />
+              <UInput v-model="dataUsers.form['email']" placeholder="Email" />
             </UFormGroup>
           </div>
           <div class="col-span-1">
@@ -232,7 +227,13 @@ await getUsers();
         <USelect
           v-model="dataUsers.region"
           :placeholder="row.region"
-          :options="Object.values(classifyState.classes.value.regions)"
+          :options="[
+            'Главный офис',
+            'РЦ Юг',
+            'РЦ Запад',
+            'РЦ Урал',
+            'РЦ Восток',
+          ]"
           @change="userAction(dataUsers.region, row.id)"
         />
       </template>
@@ -240,7 +241,7 @@ await getUsers();
         <USelect
           v-model="dataUsers.role"
           :placeholder="row.role"
-          :options="Object.values(classifyState.classes.value.roles)"
+          :options="['admin', 'user', 'guest']"
           @change="userAction(dataUsers.role, row.id)"
         />
       </template>
@@ -251,7 +252,7 @@ await getUsers();
         <div class="text-center">
           {{ row.attempt }}
         </div>
-        </template>
+      </template>
       <template #blocked-data="{ row }">
         <div class="text-center">
           <UChip size="2xl" :color="row.blocked ? 'red' : 'green'" />

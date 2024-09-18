@@ -1,25 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
 import type { Needs } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   inquiry: {
     type: Object as () => Needs,
     default: {} as Needs,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
 
 const inquiryForm = toRef(props.inquiry as Needs);
 
 function submitIquiry() {
-  emit('submit', inquiryForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/inquiries/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -54,6 +69,6 @@ function clearForm() {
         placeholder="Источники"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction"/>
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

@@ -1,28 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Education } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   education: {
     type: Object as () => Education,
     default: {} as Education,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
-
-const classifyState = stateClassify();
 
 const educationForm = toRef(props.education as Education);
 
 function submitEducation() {
-  emit("submit", educationForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/educations/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -42,7 +54,14 @@ function clearForm() {
       <USelect
         v-model="educationForm['view']"
         required
-        :options="Object.values(classifyState.classes.value.educations)"
+        :options="[
+          'Основное общее',
+          'Среднее общее',
+          'Среднее профессиональное',
+          'Высшее',
+          'Неоконченное высшее образование',
+          'Другое образование',
+        ]"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Название учебного заведения">
@@ -64,6 +83,6 @@ function clearForm() {
         placeholder="Специальность"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction"/>
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

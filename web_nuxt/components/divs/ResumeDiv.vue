@@ -1,40 +1,43 @@
 <script setup lang="ts">
 import { useFetchAuth } from "@/utils/auth";
-import { server, stateAnketa, stateClassify } from "@/state/state";
 import type { Persons } from "@/types/interfaces";
-
-const authFetch = useFetchAuth();
 
 const toast = useToast();
 
-const anketaState = stateAnketa();
+const authFetch = useFetchAuth();
 
-const classifyState = stateClassify();
+const emit = defineEmits(["update"]);
 
-const editState = inject("editState") as boolean;
+const props = defineProps({
+  editable: {
+    type: Boolean,
+    default: false,
+  },
+  candId: {
+    type: String,
+    default: "",
+  },
+  person: {
+    type: Object as Persons,
+    default: {} as Persons,
+  },
+});
 
 const dataResume = ref({
   action: "",
-  skeleton: false,
+  region: "",
   form: {} as Persons,
 });
 
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
-}
-
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
-  const response = await authFetch(
-    `${server}/region/${anketaState.share.value.candId}`,
-    {
-      params: {
-        region: anketaState.anketa.value.persons["region"],
-      },
-    }
-  );
+  const response = await authFetch(`/api/region/${props.candId}`, {
+    params: {
+      region: dataResume.value.region,
+    },
+  });
   console.log(response);
-  anketaState.getItem("persons");
+  emit("update");
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -44,19 +47,23 @@ async function changeRegion(): Promise<void> {
 }
 
 function deleteItem() {
-  anketaState.deleteItem(anketaState.anketa.value.persons["id"], "persons");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch(`/api/persons/${props.candId}`, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   navigateTo("/persons");
-}
-
-function updateItem(form: Persons) {
-  dataResume.value.action = "";
-  anketaState.updateItem("persons", form);
-  anketaState.getItem("persons");
 }
 
 function cancelAction() {
   dataResume.value.action = "";
-  anketaState.getItem("persons");
+  emit("update");
 }
 </script>
 
@@ -65,113 +72,93 @@ function cancelAction() {
     <div v-if="dataResume.action">
       <FormsResumeForm
         :action="dataResume.action"
-        :resume="anketaState.anketa.value.persons"
+        :resume="props.person"
         @cancel="cancelAction"
-        @update="updateItem"
+        @update="emit('update')"
       />
     </div>
     <div v-else>
       <ElementsLabelSlot :label="'Регион'">
         <USelect
-          v-model="anketaState.anketa.value.persons['region']"
+          v-model="dataResume.region"
           style="width: 20%"
-          :options="Object.values(classifyState.classes.value.regions)"
-          :disabled="!editState"
+          :options="[
+            'Главный офис',
+            'РЦ Юг',
+            'РЦ Запад',
+            'РЦ Урал',
+            'РЦ Восток',
+          ]"
+          :disabled="!props.editable"
           @change="changeRegion()"
         />
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Фамилия'">
-        {{ anketaState.anketa.value.persons["surname"] }}
+        {{ props.person["surname"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Имя'">
-        {{ anketaState.anketa.value.persons["firstname"] }}
+        {{ props.person["firstname"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Отчество'">
-        {{ anketaState.anketa.value.persons["patronymic"] }}
+        {{ props.person["patronymic"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дата рождения'">
         {{
-          new Date(
-            String(anketaState.anketa.value.persons["birthday"])
-          ).toLocaleDateString("ru-RU")
+          new Date(String(props.person["birthday"])).toLocaleDateString("ru-RU")
         }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Место рождения'">
-        {{ anketaState.anketa.value.persons["birthplace"] }}
+        {{ props.person["birthplace"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Гражданство'">
-        {{ anketaState.anketa.value.persons["citizenship"] }}
+        {{ props.person["citizenship"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot
-        v-if="anketaState.anketa.value.persons['dual']"
+        v-if="props.person['dual']"
         :label="'Двойное гражданство'"
       >
-        {{ anketaState.anketa.value.persons["dual"] }}
+        {{ props.person["dual"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'СНИЛС'">
-        {{ anketaState.anketa.value.persons["snils"] }}
+        {{ props.person["snils"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'ИНН'">
-        {{ anketaState.anketa.value.persons["inn"] }}
+        {{ props.person["inn"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Семейное положение'">
-        {{ anketaState.anketa.value.persons["marital"] }}
+        {{ props.person["marital"] }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дата записи'">
         {{
-          anketaState.anketa.value.persons["created"]
-            ? new Date(
-                anketaState.anketa.value.persons["created"] + " UTC"
-              ).toLocaleString("ru-RU")
+          props.person["created"]
+            ? new Date(props.person["created"] + " UTC").toLocaleString("ru-RU")
             : ""
         }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Пользователь'">
-        {{
-          anketaState.anketa.value.persons["username"]
-            ? anketaState.anketa.value.persons["username"]
-            : ""
-        }}
+        {{ props.person["username"] ? props.person["username"] : "" }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Материалы'">
         <a
           class="text-primary"
           target="_blank"
-          :href="anketaState.anketa.value.persons['destination']"
+          :href="props.person['destination']"
         >
-          {{ anketaState.anketa.value.persons["destination"] }}
+          {{ props.person["destination"] }}
         </a>
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">
-        {{
-          anketaState.anketa.value.persons["addition"]
-            ? anketaState.anketa.value.persons["addition"]
-            : "-"
-        }}
+        {{ props.person["addition"] ? props.person["addition"] : "-" }}
       </ElementsLabelSlot>
     </div>
-    <template v-if="editState && !dataResume.action" #footer>
+    <template v-if="props.editable && !dataResume.action" #footer>
       <ElementsNaviHorizont
-        v-show="editState"
+        :cand-id="props.candId"
+        :input-id="'resume-file'"
+        :item="'persons'"
         @delete="deleteItem"
         @update="dataResume.action = 'update'"
-        @upload="openFileForm('resume-file')"
       />
-      <div v-show="false">
-        <UInput
-          id="resume-file"
-          type="file"
-          accept="*"
-          multiple
-          @change="
-            anketaState.submitFile(
-              $event,
-              'anketa',
-              anketaState.share.value.candId
-            )
-          "
-        />
-      </div>
     </template>
   </UCard>
 </template>

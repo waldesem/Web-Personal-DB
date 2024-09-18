@@ -1,92 +1,103 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
-const anketaState = stateAnketa();
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
+const route = useRoute();
+
+const candId = computed(() => route.params.id) as unknown as string;
+
+const { data: person } = await useAsyncData("anketa", async () => {
+  const response = await authFetch('/api/persons/' + candId);
+  return response;
+});
 </script>
 
 <template>
   <div class="p-3">
-    <DivsPhotoCard />
+    <DivsPhotoCard
+      :cand-id="candId"
+      :destination="person.destination"
+    />
     <ElementsHeaderDiv
-      :header="`${anketaState.anketa.value.persons.surname} ${
-        anketaState.anketa.value.persons.firstname
-      } ${
-        anketaState.anketa.value.persons.patronymic
-          ? anketaState.anketa.value.persons.patronymic
-          : ''
+      :div="'py-3'"
+      :header="`${person.surname} ${person.firstname} ${
+        person.patronymic ? person.patronymic : ''
       }`"
     />
     <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-      <DivsResumeDiv />
+      <DivsResumeDiv 
+        :cand-id="candId"
+        :person="person"/>
     </div>
     <div class="my-3">
       <p class="text-red-800 font-bold p-3">Должности</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsStaffDiv />
+        <DivsStaffDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Образование</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsEducateDiv />
+        <DivsEducateDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Места работы</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsWorkDiv />
+        <DivsWorkDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Документы</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsDocumDiv />
+        <DivsDocumDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Адреса</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsAddressDiv />
+        <DivsAddressDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
     <p class="text-red-800 font-bold p-3">Контакты</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsContactDiv />
+        <DivsContactDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Аффилированность</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsAffilDiv />
+        <DivsAffilDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Изменения имени</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsPrevDiv />
+        <DivsPrevDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Связи</p>
       <div class="text-sm text-gray-500 dark:text-gray-400 py-1">
-        <DivsRelateDiv />
+        <DivsRelateDiv :cand-id="candId" />
       </div>
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Проверки кандидата</p>
-      <TabsCheckTab />
+      <TabsCheckTab :cand-id="candId" />
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Проверки на полиграфе</p>
-      <TabsPoligrafTab />
+      <TabsPoligrafTab :cand-id="candId" />
     </div>
     <div class="mb-3">
       <p class="text-red-800 font-bold p-3">Расследования</p>
-      <TabsInvestigateTab />
+      <TabsInvestigateTab :cand-id="candId" />
     </div>
     <div class="mt-3">
       <p class="text-red-800 font-bold p-3">Запросы</p>
-      <TabsInquiryTab />
+      <TabsInquiryTab :cand-id="candId" />
     </div>
   </div>
 </template>

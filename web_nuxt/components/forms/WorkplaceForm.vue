@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { toRef } from "vue";
 import type { Work } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   work: {
     type: Object as () => Work,
     default: {} as Work,
+  },
+  candId: {
+    type: String,
+    default: "",
   },
 });
 
@@ -21,12 +24,24 @@ workForm.value.finished = workForm.value.finished
   : "";
 
 function submitWorkplace() {
-  emit("submit", workForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/workplaces/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -56,10 +71,7 @@ function clearForm() {
         type="date"
       />
     </UFormGroup>
-    <UFormGroup
-      class="mb-3"
-      label="Окончание работы"
-    >
+    <UFormGroup class="mb-3" label="Окончание работы">
       <UInput
         v-model="workForm['finished']"
         required

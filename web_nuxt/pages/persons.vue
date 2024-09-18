@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { debounce } from "@/utils/utilities";
 import { useFetchAuth } from "../utils/auth";
-import { server, stateClassify, stateUser } from "@/state/state";
+import { stateUser } from "@/state/state";
 
 const authFetch = useFetchAuth();
-
-const classifyState = stateClassify();
 const userState = stateUser();
 
 const persons = ref({
@@ -30,7 +28,7 @@ const { refresh, status } = await useAsyncData("candidates", async () => {
       search: persons.value.search,
     },
   });
-  
+
   [persons.value.candidates, persons.value.next, persons.value.prev] =
     response as [Persons[], boolean, boolean];
 
@@ -48,50 +46,34 @@ const switchPage = async (page: number = 1) => {
   await refresh();
 };
 
-async function uploadJson (fileList: FileList) {
+async function uploadJson(file: File) {
   const toast = useToast();
-  if (!fileList.length) {
-    toast.add({
-      icon: "i-heroicons-exclamation-triangle",
-        title: "Внимание",
-      description: `Файлы не выбраны`,
-      color: "red",
-    })
-    return;
-  };
+  if (!file) return;
   persons.value.upload = true;
   const formData = new FormData();
-  for (const file of fileList) {
-    formData.append("file", file);
-  }
   const response = await authFetch(`${server}/file/persons/0`, {
     method: "POST",
-    body: formData,
+    body: formData.append("file", file),
   });
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
-    description: `Файлы успешно загружены`,
+    description: "Файл успешно загружен",
     color: "green",
   });
   persons.value.upload = false;
-  return navigateTo(`/profile/${response['person_id']}`)
-};
+  return navigateTo(`/profile/${response["person_id"]}`);
+}
 </script>
 
 <template>
   <LayoutsMenu>
-    <div
-      v-if="
-        userState.role == classifyState.classes.value.roles['user']
-      "
-      class="relative"
-    >
-      <div 
-        class="absolute inset-y-0 right-0" 
-        :class="{ 'animate-pulse': status == 'pending'|| persons.upload }"
+    <div v-if="userState.role == 'user'" class="relative">
+      <div
+        class="absolute inset-y-0 right-0"
+        :class="{ 'animate-pulse': status == 'pending' || persons.upload }"
         title="Загрузить json"
-        >
+      >
         <UFormGroup class="mb-3" size="md">
           <template #label>
             <UIcon
@@ -104,7 +86,6 @@ async function uploadJson (fileList: FileList) {
             v-show="false"
             type="file"
             accept=".json"
-            multiple
             @change="uploadJson($event)"
           />
         </UFormGroup>

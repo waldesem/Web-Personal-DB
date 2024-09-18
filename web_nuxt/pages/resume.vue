@@ -1,24 +1,6 @@
 <script setup lang="ts">
-import { useFetchAuth } from "@/utils/auth";
-import { server } from "@/state/state";
-import type { Persons } from "@/types/interfaces";
-
-const authFetch = useFetchAuth();
-
-const toast = useToast();
-
-async function submitResume(form: Persons): Promise<void> {
-  const response = await authFetch(`${server}/resume`, {
-    method: "POST",
-    body: form,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Информация",
-    description: `Данные успешно добавлены`,
-    color: "green",
-  });
-  return navigateTo(`/profile/${response['person_id']}`);
+function openProfile(candId: string) {
+  return navigateTo('/profile/' + candId)
 }
 </script>
 
@@ -28,7 +10,7 @@ async function submitResume(form: Persons): Promise<void> {
     <UCard>
       <FormsResumeForm 
         @cancel="navigateTo('/persons')"
-        @update="submitResume" />
+        @update="openProfile" />
     </UCard>
   </LayoutsMenu>
 </template>

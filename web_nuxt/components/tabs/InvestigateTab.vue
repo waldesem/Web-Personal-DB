@@ -1,28 +1,46 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
 import type { Inquisition } from "@/types/interfaces";
 
-const anketaState = stateAnketa();
+const toast = useToast();
 
-const editState = inject("editState") as boolean;
+const props = defineProps({
+  candId: {
+    type: String,
+    default: "",
+  },
+  editable: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const inquisition = ref({} as Inquisition);
 
-const { refresh } = await useLazyAsyncData("investigations", async () => {
-  await anketaState.getItem("investigations");
+const {
+  data: investigations,
+  refresh,
+  status,
+} = await useLazyAsyncData("investigations", async () => {
+  const response = await authFetch("/api/investigations/" + props.candId);
+  return response;
 });
 
-async function updateInquisition(inquisitionForm: Inquisition) {
+async function deleteInquisition(id: string) {
   closeAction();
-  anketaState.updateItem("investigations", inquisitionForm);
-  refresh();
-}
-
-async function deleteInquisition(index: string) {
-  anketaState.deleteItem(index, "investigations");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch(`/api/investigations/${id}`, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   refresh();
 }
 
@@ -36,15 +54,11 @@ function closeAction() {
   itemId.value = "";
   collapse.value = false;
 }
-
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
-}
 </script>
 
 <template>
   <UButton
-    v-if="editState"
+    v-if="props.editable"
     class="py-3"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
@@ -53,25 +67,18 @@ function openFileForm(elementId: string) {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsInvestigationForm
-          @cancel="cancelOperation"
-          @submit="updateInquisition"
-        />
+        <FormsInvestigationForm @cancel="cancelOperation" @update="refresh" />
       </UCard>
     </div>
   </Transition>
-  <div
-    v-if="
-      anketaState.anketa.value.investigations &&
-      anketaState.anketa.value.investigations.length
-    "
-  >
+  <div v-if="investigations && investigations.length">
     <div
-      v-for="(item, index) in anketaState.anketa.value.investigations"
+      v-for="(item, index) in investigations"
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <UCard>
+      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+      <UCard v-else>
         <template #header>
           <div class="tex-base text-red-800 font-medium">
             {{ "Расследование/проверка ID #" + item["id"] }}
@@ -81,7 +88,7 @@ function openFileForm(elementId: string) {
           v-if="edit && itemId == item['id'].toString()"
           :investigation="inquisition"
           @cancel="cancelOperation"
-          @submit="updateInquisition"
+          @update="refresh"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{
@@ -98,38 +105,26 @@ function openFileForm(elementId: string) {
           </ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont
+            :cand-id="props.candId"
+            :input-id="'investigations-file'"
+            :item="'investigations'"
             @update="
               inquisition = item;
               itemId = item['id'].toString();
               edit = true;
             "
             @delete="deleteInquisition(item['id'])"
-            @upload="openFileForm('investigation-file')"
           />
-          <div v-show="false">
-            <UInput
-              id="investigation-file"
-              type="file"
-              accept="*"
-              multiple
-              @change="
-                anketaState.submitFile(
-                  $event,
-                  'investigations',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </div>
         </template>
       </UCard>
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-red-800">Расследования/Проверки не проводились</p>
+    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+    <p v-else class="text-red-800">Расследования/Проверки не проводились</p>
   </div>
 </template>

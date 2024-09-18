@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { server, stateUser } from "@/state/state";
+import { stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
@@ -9,10 +9,8 @@ const route = useRoute();
 const candId = computed(() => route.params.id) as unknown as string;
 
 const { data: person, refresh } = await useAsyncData("anketa", async () => {
-  const response = await authFetch(
-    `${server}/persons/${candId}`
-    );
-  return response
+  const response = await authFetch('/api/persons/' + candId);
+  return response;
 });
 
 const tabs = [
@@ -60,13 +58,9 @@ const badgeItems = {
 
 const badge = computed(() => {
   if (person.value["editable"]) {
-    if (
-      person.value["user_id"] == userState.value.id
-    ) {
+    if (person.value["user_id"] == userState.value.id) {
       return badgeItems.current;
-    } else if (
-      person.value["user_id"] != userState.value.id
-    ) {
+    } else if (person.value["user_id"] != userState.value.id) {
       return badgeItems.thirdparty;
     }
   }
@@ -85,9 +79,7 @@ async function switchSelf(): Promise<void> {
   if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
     return;
   }
-  const response = await authFetch(
-    `${server}/self/${anketaState.share.value.candId}`
-  );
+  const response = await authFetch(`${server}/self/${candId}`);
   console.log(response);
   refresh();
 }
@@ -95,13 +87,12 @@ async function switchSelf(): Promise<void> {
 
 <template>
   <LayoutsMenu>
-    <DivsPhotoCard />
-    <div
-      v-if="
-        userState.role == classifyState.classes.value.roles['user']
-      "
-      class="relative"
-    >
+    <DivsPhotoCard
+      :cand-id="candId"
+      :destination="person.destination"
+      :editable="editState"
+    />
+    <div v-if="userState.role == 'user'" class="relative">
       <div class="absolute bottom-0 right-20">
         <UButton variant="link" size="xl" @click="switchSelf">
           <div class="animate-pulse" style="width: 30px">
@@ -111,28 +102,38 @@ async function switchSelf(): Promise<void> {
           </div>
         </UButton>
       </div>
-      <div class="absolute top-0 right-10">
-        <UButton variant="link" size="xl" to="/profile/print">
+      <div v-if="!props.editable" class="absolute top-0 right-10">
+        <UButton variant="link" size="xl" :to="`/profile/print/${candId}`">
           <UIcon name="i-heroicons-printer" class="w-8 h-8" />
         </UButton>
       </div>
     </div>
     <ElementsHeaderDiv
       :div="'py-3'"
-      :header="`${person.surname} ${
-        person.firstname
-      } ${
-        person.patronymic
-          ? person.patronymic
-          : ''
+      :header="`${person.surname} ${person.firstname} ${
+        person.patronymic ? person.patronymic : ''
       }`"
     />
     <UTabs :items="tabs">
-      <template #anketaTab><TabsAnketaTab :candId="candId" :person="person" :edit="editState" /></template>
-      <template #checkTab><TabsCheckTab :candId="candId" :edit="editState" /></template>
-      <template #poligrafTab><TabsPoligrafTab :candId="candId" :edit="editState" /></template>
-      <template #investigateTab><TabsInvestigateTab :candId="candId" :edit="editState" /></template>
-      <template #inquiryTab><TabsInquiryTab :candId="candId" :edit="editState" /></template>
+      <template #anketaTab
+        ><TabsAnketaTab
+          :cand-id="candId"
+          :editable="editState"
+          :person="person"
+          @update="refresh"
+      /></template>
+      <template #checkTab
+        ><TabsCheckTab :cand-id="candId" :editable="editState"
+      /></template>
+      <template #poligrafTab
+        ><TabsPoligrafTab :cand-id="candId" :editable="editState"
+      /></template>
+      <template #investigateTab
+        ><TabsInvestigateTab :cand-id="candId" :editable="editState"
+      /></template>
+      <template #inquiryTab
+        ><TabsInquiryTab :cand-id="candId" :editable="editState"
+      /></template>
     </UTabs>
   </LayoutsMenu>
 </template>

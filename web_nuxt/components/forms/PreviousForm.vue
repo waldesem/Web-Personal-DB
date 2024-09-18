@@ -1,25 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
 import type { Previous } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   previous: {
     type: Object as () => Previous,
     default: {} as Previous,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
 
 const previousForm = toRef(props.previous as Previous);
 
 function submitPrevious() {
-  emit("submit", previousForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/previous/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -68,6 +83,6 @@ function clearForm() {
         placeholder="Причина изменения"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction"/>
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

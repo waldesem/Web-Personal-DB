@@ -1,28 +1,46 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
 import type { Contact } from "@/types/interfaces";
 
-const anketaState = stateAnketa();
+const toast = useToast();
 
-const editState = inject("editState") as boolean;
+const props = defineProps({
+  candId: {
+    type: String,
+    default: "",
+  },
+  editable: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const collapse = ref(false);
 const itemId = ref("");
 const edit = ref(false);
 const contact = ref({} as Contact);
 
-const { refresh } = await useLazyAsyncData("contacts", async () => {
-  await anketaState.getItem("contacts");
+const {
+  data: contacts,
+  refresh,
+  status,
+} = await useLazyAsyncData("contacts", async () => {
+  const response = await authFetch("/api/contacts/" + props.candId);
+  return response;
 });
 
-async function updateContact(contactForm: Contact) {
+async function deleteContact(id: string) {
   closeAction();
-  anketaState.updateItem("contacts", contactForm);
-  refresh();
-}
-
-async function deleteContact(index: string) {
-  anketaState.deleteItem(index, "contacts");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch("/api/contacts/" + id, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   refresh();
 }
 
@@ -40,7 +58,7 @@ function closeAction() {
 
 <template>
   <UButton
-    v-if="editState"
+    v-if="props.editable"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
@@ -48,27 +66,19 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsContactForm @cancel="cancelOperation" @submit="updateContact" />
+        <FormsContactForm @cancel="cancelOperation" @update="refresh" />
       </UCard>
     </div>
   </Transition>
-  <div
-    v-if="
-      anketaState.anketa.value.contacts &&
-      anketaState.anketa.value.contacts.length
-    "
-  >
-    <div
-      v-for="(item, idx) in anketaState.anketa.value.contacts"
-      :key="idx"
-      class="p-1"
-    >
-      <UCard>
+  <div v-if="contacts && contacts.length">
+    <div v-for="(item, idx) in contacts" :key="idx" class="p-1">
+      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="8" />
+      <UCard v-else>
         <FormsContactForm
           v-if="edit && itemId == item['id'].toString()"
           :contact="contact"
           @cancel="cancelOperation"
-          @submit="updateContact"
+          @update="refresh"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Вид'">{{
@@ -79,12 +89,11 @@ function closeAction() {
           }}</ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont
-            v-show="editState"
-            :last-index="2"
+            :navlen="2"
             @delete="deleteContact(item['id'])"
             @update="
               contact = item;
@@ -97,6 +106,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-primary">Данные отсутствуют</p>
+    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="2" />
+    <p v-else class="text-primary">Данные отсутствуют</p>
   </div>
 </template>

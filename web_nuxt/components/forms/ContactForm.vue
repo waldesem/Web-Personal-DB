@@ -1,28 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Contact } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   contact: {
     type: Object as () => Contact,
     default: {} as Contact,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
-
-const classifyState = stateClassify();
 
 const contactForm = toRef(props.contact as Contact);
 
 function submitContact() {
-  emit("submit", contactForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/contacts/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -40,7 +52,7 @@ function clearForm() {
       <USelect
         v-model.trim.lazy="contactForm['view']"
         required
-        :options="Object.values(classifyState.classes.value.contacts)"
+        :options="['Телефон', 'Электронная почта', 'Другое']"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Контакт">
@@ -50,6 +62,6 @@ function clearForm() {
         placeholder="Контакт"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction"/>
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

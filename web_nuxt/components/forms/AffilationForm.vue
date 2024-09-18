@@ -1,28 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Affilation } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   affils: {
     type: Object as () => Affilation,
     default: {} as Affilation,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
-
-const classifyState = stateClassify();
 
 const affilationForm = toRef(props.affils as Affilation);
 
 function submitAffilation() {
-  emit("submit", affilationForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/affilations/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -41,7 +53,12 @@ function clearForm() {
       <USelect
         v-model.trim.lazy="affilationForm['view']"
         required
-        :options="Object.values(classifyState.classes.value.affiliates)"
+        :options="[
+          'Являлся государственным/муниципальным служащим',
+          'Являлся государственным должностным лицом',
+          'Связанные лица работают в государственных организациях',
+          'Участвует в деятельности коммерческих организаций',
+        ]"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Организация">
@@ -52,10 +69,7 @@ function clearForm() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ИНН">
-      <UInput
-        v-model.trim.lazy="affilationForm['inn']"
-        placeholder="ИНН"
-      />
+      <UInput v-model.trim.lazy="affilationForm['inn']" placeholder="ИНН" />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>

@@ -36,7 +36,21 @@ function cancelEdit() {
 }
 
 function submitResume() {
-  emit('update', resumeForm.value);
+  emit("cancel");
+  const response = await authFetch(
+    '/api/resume/',
+      {
+        method: "POST",
+        body: resumeForm.value,
+      }
+    );
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация добавлена",
+      color: "green",
+    });
+  emit("update", response['message']);
   cancelEdit();
 }
 </script>

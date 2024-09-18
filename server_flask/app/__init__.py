@@ -5,7 +5,7 @@ from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
 from config import Config
-from .classes.classes import Regions, Roles
+from .model.classes import Regions, Roles
 from .model.tables import db_session, Users
 from .routes.route import bp as route_bp
 

@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { server, stateClassify, userToken } from "@/state/state";
-
-const classifyState = stateClassify();
+import { userToken } from "@/state/state";
 
 const loginAction = ref("create");
-
 const loginForm = ref({} as Record<string, unknown>);
 
 const alertMessage = {
@@ -45,7 +42,7 @@ async function submitLogin(): Promise<void> {
     }
   }
   const { message, user_token } = (await $fetch(
-    `${server}/login/${loginAction.value}`,
+    "/api/login/" + loginAction.value,
     {
       method: "POST",
       body: loginForm.value,
@@ -53,7 +50,7 @@ async function submitLogin(): Promise<void> {
   )) as { message: string; user_token: string };
   if (message === "Success") {
     userToken.value = user_token;
-    Promise.all([classifyState.getClassify(), navigateTo("/persons")]);
+    navigateTo("/persons");
   } else if (message === "Updated") {
     loginAction.value = "create";
     alertMessage.setAlert("blue", "Информация", "Войдите с новым паролем.");

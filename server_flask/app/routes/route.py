@@ -10,17 +10,6 @@ from flask import Blueprint, abort, current_app, jsonify, request, send_file
 from sqlalchemy import desc, func, select
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..classes.classes import (
-    Addresses,
-    Affiliates,
-    Conclusions,
-    Contacts,
-    Documents,
-    Educations,
-    Poligrafs,
-    Regions,
-    Relations,
-)
 from ..depends.depend import (
     create_token,
     current_user,
@@ -28,7 +17,7 @@ from ..depends.depend import (
     jwt_required,
     roles_required,
 )
-from ..classes.classes import Roles
+from ..model.classes import Regions, Roles
 from ..model.models import Person, User, models_tables
 from ..model.tables import Checks, Persons, Users, db_session, tables_models
 from ..handlers.handler import (
@@ -512,29 +501,3 @@ def get_information():
     return jsonify(
         [{"conclusion": result[0], "count": result[1]} for result in results]
     )
-
-
-@bp.get("/classes")
-def get_classes():
-    """
-    Retrieves classes information and returns a JSON response.
-
-    Returns:
-        A JSON response containing information about Regions, Conclusions, Relations, Affiliates, Educations, Addresses, Contacts, Documents, and Poligrafs.
-    """
-    results = {
-        items.__name__.lower(): {item.name: item.value for item in items}
-        for items in [
-            Regions,
-            Conclusions,
-            Relations,
-            Affiliates,
-            Educations,
-            Addresses,
-            Contacts,
-            Documents,
-            Poligrafs,
-            Roles,
-        ]
-    }
-    return jsonify(results)

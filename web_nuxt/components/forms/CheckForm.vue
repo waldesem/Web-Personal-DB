@@ -1,38 +1,50 @@
 <script setup lang="ts">
-import { ref, toRef, watch } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Verification } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   check: {
     type: Object as () => Verification,
     default: {} as Verification,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
-
-const classifyState = stateClassify();
 
 const checkForm = toRef(props.check as Verification);
 
 const noNegative = ref(false);
 
 function submitCheck() {
-  emit("submit", checkForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/checks/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
 function clearForm() {
   noNegative.value = false;
   Object.keys(checkForm.value).forEach((key) => {
-    checkForm.value[key as keyof typeof checkForm.value] = ''
-  })
+    checkForm.value[key as keyof typeof checkForm.value] = "";
+  });
 }
 
 watch(noNegative, () => {
@@ -57,7 +69,7 @@ watch(noNegative, () => {
 
 <template>
   <UFormGroup :state="noNegative" class="mb-3" label="Негатива нет">
-    <UToggle v-model="noNegative"/>
+    <UToggle v-model="noNegative" />
   </UFormGroup>
   <UForm :state="checkForm" @submit.prevent="submitCheck">
     <UFormGroup class="mb-3" label="Проверка по местам работы">
@@ -148,9 +160,13 @@ watch(noNegative, () => {
       <USelect
         v-model.trim.lazy="checkForm['conclusion']"
         required
-        :options="Object.values(classifyState.classes.value.conclusions)"
+        :options="[
+          'СОГЛАСОВАНО',
+          'СОГЛАСОВАНО С КОММЕНТАРИЕМ',
+          'ОТКАЗАНО В СОГЛАСОВАНИИ',
+        ]"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction"/>
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

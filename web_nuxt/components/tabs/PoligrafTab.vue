@@ -1,68 +1,47 @@
 <script setup lang="ts">
-import { server } from "@/state/state";
 import type { Pfo } from "@/types/interfaces";
 
 const toast = useToast();
 
 const props = defineProps({
   candId: {
-    type: String, 
+    type: String,
     default: "",
   },
   editable: {
-    type: Boolean, 
-    default: false 
-  }
-}
+    type: Boolean,
+    default: false,
+  },
+});
 
 const edit = ref(false);
-cons collapse = ref(false);
+const collapse = ref(false);
 const itemId = ref("");
 const poligraf = ref({} as Pfo);
 
-const { data: poligrafs, refresh } = await useLazyAsyncData("poligrafs", async () => {
-  const response = await authFetch(
-    `${server}/poligrafs/${candId}`
-    );
-  return response
+const {
+  data: poligrafs,
+  refresh,
+  status,
+} = await useLazyAsyncData("poligrafs", async () => {
+  const response = await authFetch('/api/poligrafs/' + props.candId);
+  return response;
 });
 
 async function deletePoligraf(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch(`${server}/poligrafs/${id}`, {
+  const response = await authFetch('/api/poligrafs/' + id, {
     method: "DELETE",
   });
   console.log(response);
   toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Информация",
-      description: `Запись с ID ${id} удалена`,
-      color: "primary",
-    });
-  }
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   refresh();
-}
-
-async function submitFile(fileList: FileList): Promise<void> {
-  const formData = new FormData();
-  if (fileList) {
-    for (const file of fileList) {
-      formData.append("file", file);
-      }
-    const response = await authFetch(`${server}/file/$poligrafs/${candId}`, {
-        method: "POST",
-        body: formData,
-      });
-      console.log(response);
-      toast.add({
-        icon: "i-heroicons-check-circle",
-        title: response["message"] == "success" ? "Информация" : "Внимание",
-        description: `Файлы успешно загружены`,
-        color: "green",
-      });
-    }
-  formData.delete("file");
 }
 
 async function cancelOperation() {
@@ -71,13 +50,9 @@ async function cancelOperation() {
 }
 
 function closeAction() {
-  collapse = false;
+  collapse.value = false;
   edit.value = false;
   itemId.value = "";
-}
-
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
 }
 </script>
 
@@ -96,18 +71,14 @@ function openFileForm(elementId: string) {
       </UCard>
     </div>
   </Transition>
-  <div
-    v-if="
-      poligrafs &&
-      poligrafs.length
-    "
-  >
+  <div v-if="poligrafs && poligrafs.length">
     <div
       v-for="(item, index) in poligrafs"
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <UCard>
+      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+      <UCard v-else>
         <template #header>
           <div class="tex-base text-red-800 font-medium">
             {{ "Обследование на полиграфе ID #" + item["id"] }}
@@ -138,34 +109,22 @@ function openFileForm(elementId: string) {
           #footer
         >
           <ElementsNaviHorizont
+            :cand-id="props.candId"
+            :input-id="'poligrafs-file'"
+            :item="'poligrafs'"
             @update="
               poligraf = item;
               itemId = item['id'].toString();
               edit = true;
             "
             @delete="deletePoligraf(item['id'])"
-            @upload="openFileForm('poligraf-file')"
           />
-          <div v-show="false">
-            <UInput
-              id="poligraf-file"
-              type="file"
-              accept="*"
-              multiple
-              @change="
-                anketaState.submitFile(
-                  $event,
-                  'poligrafs',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </div>
         </template>
       </UCard>
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-red-800">Обследование на полиграфе не проводилось</p>
+    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+    <p v-else class="text-red-800">Обследование на полиграфе не проводилось</p>
   </div>
 </template>

@@ -1,29 +1,44 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
 import type { Needs } from "@/types/interfaces";
 
-const anketaState = stateAnketa();
+const toast = useToast();
 
-const editState = inject("editState") as boolean;
+const props = defineProps({
+  candId: {
+    type: String,
+    default: "",
+  },
+  editable: {
+    type: Boolean,
+    default: false
+  }
+});
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const need = ref({} as Needs);
 
-const { refresh } = await useLazyAsyncData("inquiries", async () => {
-  await anketaState.getItem("inquiries");
+const { data: inquiries, refresh, status } = await useLazyAsyncData("inquiries", async () => {
+  const response = await authFetch(
+    `/api/inquiries/${props.candId}`
+    );
+  return response
 });
 
-async function updateNeed(needForm: Needs) {
+async function deleteNeed(id: string) {
   closeAction();
-  anketaState.updateItem("inquiries", needForm);
-  refresh();
-}
-
-async function deleteNeed(index: string) {
-  closeAction();
-  anketaState.deleteItem(index, "inquiries");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch(`/api/inquiries/${id}`, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+      icon: "i-heroicons-information-circle",
+      title: "Информация",
+      description: `Запись с ID ${id} удалена`,
+      color: "primary",
+    });
   refresh();
 }
 
@@ -37,15 +52,11 @@ function closeAction() {
   itemId.value = "";
   collapse.value = false;
 }
-
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
-}
 </script>
 
 <template>
   <UButton
-    v-if="editState"
+    v-if="edit"
     class="py-3"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
@@ -60,16 +71,17 @@ function openFileForm(elementId: string) {
   </Transition>
   <div
     v-if="
-      anketaState.anketa.value.inquiries &&
-      anketaState.anketa.value.inquiries.length
+      inquiries &&
+      inquiries.length
     "
   >
     <div
-      v-for="(item, index) in anketaState.anketa.value.inquiries"
+      v-for="(item, index) in inquiries"
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <UCard>
+      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="6" />
+      <UCard v-else>
         <template #header>
           <div class="tex-base text-red-800 font-medium">
             {{ "Запрос о сотруднике ID #" + item["id"] }}
@@ -79,7 +91,7 @@ function openFileForm(elementId: string) {
           v-if="edit && itemId == item['id'].toString()"
           :inquiry="need"
           @cancel="cancelOperation"
-          @submit="updateNeed"
+          @update="refresh"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Информация'">{{
@@ -103,34 +115,22 @@ function openFileForm(elementId: string) {
           #footer
         >
           <ElementsNaviHorizont
+            :cand-id="props.candId"
+            :input-id="'inquiries-file'"
+            :item="'inquiries'"
             @delete="deleteNeed(item['id'])"
             @update="
               need = item;
               itemId = item['id'].toString();
               edit = true;
             "
-            @upload="openFileForm('inquiry-file')"
           />
-          <div v-show="false">
-            <UInput
-              id="inquiry-file"
-              type="file"
-              accept="*"
-              multiple
-              @change="
-                anketaState.submitFile(
-                  $event,
-                  'inquiries',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </div>
         </template>
       </UCard>
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-red-800">Запросы о сотруднике не поступали</p>
+    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="6" />
+    <p v-else class="text-red-800">Запросы о сотруднике не поступали</p>
   </div>
 </template>

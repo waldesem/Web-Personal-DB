@@ -1,28 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Relation } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   relation: {
     type: Object as () => Relation,
     default: {} as Relation,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
-
-const classifyState = stateClassify();
 
 const relationForm = toRef(props.relation as Relation);
 
 function submitRelation() {
-  emit("submit", relationForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/relations/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -40,7 +52,14 @@ function clearForm() {
       <USelect
         v-model.trim.lazy="relationForm['relation']"
         required
-        :options="Object.values(classifyState.classes.value.relations)"
+        :options="[
+          'Одно лицо',
+          'Родители-Дети',
+          'Братья-Сестры',
+          'Супруг-Супруга',
+          'Родственники',
+          'Близкая связь',
+        ]"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="ID связи">
@@ -50,6 +69,6 @@ function clearForm() {
         type="number"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction"/>
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

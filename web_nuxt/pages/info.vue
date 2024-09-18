@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { server, stateClassify, stateUser } from "@/state/state";
+import { stateUser } from "@/state/state";
 import { useFetchAuth } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
-const classifyState = stateClassify();
 const userState = stateUser();
 const todayDate = new Date();
 
@@ -18,16 +17,19 @@ const tableData = ref({
 /**
  * Get statistics from server
  */
-const { refresh, data, status } = await useLazyAsyncData("statistics", async () => {
-  const stat = await authFetch(`${server}/information`, {
-    params: {
-      start: tableData.value.start,
-      end: tableData.value.end,
-      region: tableData.value.region,
-    },
-  });
-  return stat
-});
+const { refresh, data, status } = await useLazyAsyncData(
+  "statistics",
+  async () => {
+    const stat = await authFetch('/api/information', {
+      params: {
+        start: tableData.value.start,
+        end: tableData.value.end,
+        region: tableData.value.region,
+      },
+    });
+    return stat;
+  }
+);
 </script>
 
 <template>
@@ -41,7 +43,7 @@ const { refresh, data, status } = await useLazyAsyncData("statistics", async () 
       ).toLocaleDateString()} г.`"
     />
     <div class="my-8">
-      <UTable 
+      <UTable
         :loading="status == 'pending'"
         :progress="{ color: 'red', animation: 'swing' }"
         :rows="data"
@@ -56,33 +58,30 @@ const { refresh, data, status } = await useLazyAsyncData("statistics", async () 
             <USelect
               v-model="tableData.region"
               :disable="
-                userState.region !=
-                classifyState.classes.value.regions['main']
+                userState.region != classifyState.classes.value.regions['main']
               "
-              :options="Object.values(classifyState.classes.value.regions)"
-              @change="refresh()"
+              :options="[
+                'Главный офис',
+                'РЦ Юг',
+                'РЦ Запад',
+                'РЦ Урал',
+                'РЦ Восток',
+              ]"
+              @change="refresh"
             />
           </UFormGroup>
         </div>
         <div class="col-span-2">
           <div class="px-3">
             <UFormGroup size="md" label="Начало периода">
-              <UInput
-                v-model="tableData.start"
-                type="date"
-                @change="refresh()"
-              />
+              <UInput v-model="tableData.start" type="date" @change="refresh" />
             </UFormGroup>
           </div>
         </div>
         <div class="col-span-2">
           <div class="px-3">
             <UFormGroup size="md" label="Конец периода">
-              <UInput
-                v-model="tableData.end"
-                type="date"
-                @change="refresh()"
-              />
+              <UInput v-model="tableData.end" type="date" @change="refresh" />
             </UFormGroup>
           </div>
         </div>

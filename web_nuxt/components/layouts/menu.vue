@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { stateUser, stateClassify, userToken } from "@/state/state";
+import { stateUser, userToken } from "@/state/state";
 
-const classify = stateClassify();
 const userState = stateUser();
 
 async function removeToken(): Promise<void> {
@@ -46,14 +45,14 @@ const links = [
 ];
 
 const filtredLinks = computed(() => {
-  if (userState.value.role !== classify.classes.value.roles["user"]) {
+  if (userState.value.role !== "user") {
     return links.filter((item) => item[0].to !== "/resume");
   } else if (
-    userState.value.role !== classify.classes.value.roles["admin"]
+    userState.value.role !== "admin"
   ) {
     return links.filter((item) => item[0].to !== "/users");
   } else if (
-    userState.value.role !== classify.classes.value.roles["guest"]
+    userState.value.role !== "guest"
   ) {
     return links.filter(
       (item) => item[0].to !== "/users" && item[0].to !== "/resume"

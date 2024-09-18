@@ -1,25 +1,40 @@
 <script setup lang="ts">
-import { toRef } from "vue";
 import type { Inquisition } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   investigation: {
     type: Object as () => Inquisition,
     default: {} as Inquisition,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
 
 const investigationForm = toRef(props.investigation as Inquisition);
 
 function submitInvestigations() {
-  emit('submit', investigationForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/investigation/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
 function cancelAction() {
-  emit('cancel');
+  emit("cancel");
   clearForm();
 }
 
@@ -47,6 +62,6 @@ function clearForm() {
         placeholder="Информация"
       />
     </UFormGroup>
-    <ElementsBtnGroup @cancel="cancelAction"/>
+    <ElementsBtnGroup @cancel="cancelAction" />
   </UForm>
 </template>

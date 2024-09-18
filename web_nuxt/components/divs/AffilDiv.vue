@@ -1,28 +1,46 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
 import type { Affilation } from "@/types/interfaces";
 
-const anketaState = stateAnketa();
+const toast = useToast();
 
-const editState = inject("editState") as boolean;
+const props = defineProps({
+  candId: {
+    type: String,
+    default: "",
+  },
+  editable: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const affilation = ref({} as Affilation);
 
-const { refresh } = await useLazyAsyncData("affilations", async () => {
-  await anketaState.getItem("affilations");
+const {
+  data: affilations,
+  refresh,
+  status,
+} = await useLazyAsyncData("affilations", async () => {
+  const response = await authFetch("/api/affilations/" + props.candId);
+  return response;
 });
 
-async function updateAffilation(affilForm: Affilation) {
+async function deleteAffilation(id: string) {
   closeAction();
-  anketaState.updateItem("affilations", affilForm);
-  refresh();
-}
-
-async function deleteAffilation(index: string) {
-  anketaState.deleteItem(index, "affilations");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch("/api/affilations/" + id, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   refresh();
 }
 
@@ -40,7 +58,7 @@ function closeAction() {
 
 <template>
   <UButton
-    v-if="editState"
+    v-if="props.editable"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
@@ -48,30 +66,19 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsAffilationForm
-          @cancel="cancelOperation"
-          @submit="updateAffilation"
-        />
+        <FormsAffilationForm @cancel="cancelOperation" @update="refresh" />
       </UCard>
     </div>
   </Transition>
-  <div
-    v-if="
-      anketaState.anketa.value.affilations &&
-      anketaState.anketa.value.affilations.length
-    "
-  >
-    <div
-      v-for="(item, idx) in anketaState.anketa.value.affilations"
-      :key="idx"
-      class="p-1"
-    >
-      <UCard>
+  <div v-if="affilations && affilations.length">
+    <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
+      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="8" />
+      <UCard v-else>
         <FormsAffilationForm
           v-if="edit && itemId == item['id'].toString()"
           :affils="affilation"
           @cancel="cancelOperation"
-          @submit="updateAffilation"
+          @update="refresh"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тип участия'">{{
@@ -85,12 +92,11 @@ function closeAction() {
           }}</ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont
-            v-show="editState"
-            :last-index="2"
+            :navlen="2"
             @delete="deleteAffilation(item['id'])"
             @update="
               affilation = item;
@@ -103,6 +109,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <p class="text-primary">Данные отсутствуют</p>
+    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="8" />
+    <p v-else class="text-primary">Данные отсутствуют</p>
   </div>
 </template>

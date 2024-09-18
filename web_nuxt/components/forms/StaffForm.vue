@@ -1,20 +1,35 @@
 <script setup lang="ts">
-import { toRef } from "vue";
 import type { Staff } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   staff: {
     type: Object as () => Staff,
     default: {} as Staff,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
 
 const staffForm = toRef(props.staff as Staff);
 
 function submitStaff() {
-  emit("submit", staffForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/staffs/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 

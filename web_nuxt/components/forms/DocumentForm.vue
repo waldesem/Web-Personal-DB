@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Document } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   docs: {
     type: Object as () => Document,
     default: {} as Document,
   },
+  candId: {
+    type: String,
+    default: "",
+  },
 });
-
-const classifyState = stateClassify();
 
 const docForm = toRef(props.docs as Document);
 docForm.value.issue = docForm.value.issue
@@ -20,7 +20,19 @@ docForm.value.issue = docForm.value.issue
   : "";
 
 function submitDocument() {
-  emit("submit", docForm.value);
+  emit("cancel");
+  const response = await authFetch("/api/documents/" + props.candId, {
+    method: "POST",
+    body: poligrafForm.value,
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
   clearForm();
 }
 
@@ -46,7 +58,7 @@ function clearForm() {
       <USelect
         v-model="docForm['view']"
         required
-        :options="Object.values(classifyState.classes.value.documents)"
+        :options="['Паспорт', 'Иностарнный паспорт', 'Другое']"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Серия документа">

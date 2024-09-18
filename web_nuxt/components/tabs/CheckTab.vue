@@ -1,32 +1,46 @@
 <script setup lang="ts">
-import { stateAnketa } from "@/state/state";
 import type { Verification } from "@/types/interfaces";
 
-const anketaState = stateAnketa();
+const toast = useToast();
 
-const editState = inject("editState") as boolean;
-
-const checkData = ref({
-  collapse: false,
-  collapseAdd: false,
-  edit: false,
-  itemId: "",
-  check: {} as Verification,
+const props = defineProps({
+  candId: {
+    type: String,
+    default: "",
+  },
+  editable: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const { refresh, status } = await useLazyAsyncData("checks", async () => {
-  await anketaState.getItem("checks");
+const edit = ref(false);
+const collapse = ref(false);
+const itemId = ref("");
+const check = ref({} as Verification);
+
+const {
+  data: checks,
+  refresh,
+  status,
+} = await useLazyAsyncData("checks", async () => {
+  const response = await authFetch(`/api/checks/${props.candId}`);
+  return response;
 });
 
-async function updateCheck(checkForm: Verification) {
+async function deleteCheck(id: string) {
   closeAction();
-  anketaState.updateItem("checks", checkForm);
-  refresh();
-}
-
-async function deleteCheck(index: string) {
-  closeAction();
-  anketaState.deleteItem(index, "checks");
+  if (!confirm(`Вы действительно хотите удалить запись?`)) return;
+  const response = await authFetch(`/api/checks/${id}`, {
+    method: "DELETE",
+  });
+  console.log(response);
+  toast.add({
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   refresh();
 }
 
@@ -40,34 +54,26 @@ function closeAction() {
   checkData.value.itemId = "";
   checkData.value.collapse = false;
 }
-
-function openFileForm(elementId: string) {
-  document.getElementById(elementId)?.click();
-}
 </script>
 
 <template>
   <UButton
-    v-if="editState"
+    v-if="editable"
     class="py-3"
-    :label="!checkData.collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
-    @click="checkData.collapse = !checkData.collapse"
+    @click="collapse = !collapse"
   />
   <Transition name="slide-fade">
-    <div v-if="checkData.collapse" class="py-3">
+    <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsCheckForm @submit="updateCheck" @cancel="cancelOperation" />
+        <FormsCheckForm @submit="refresh" @cancel="cancelOperation" />
       </UCard>
     </div>
   </Transition>
-  <div
-    v-if="
-      anketaState.anketa.value.checks && anketaState.anketa.value.checks.length
-    "
-  >
+  <div v-if="checks && checks.length">
     <div
-      v-for="(item, index) in anketaState.anketa.value.checks"
+      v-for="(item, index) in checks"
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
@@ -79,10 +85,10 @@ function openFileForm(elementId: string) {
           </div>
         </template>
         <FormsCheckForm
-          v-if="checkData.edit && checkData.itemId == item['id'].toString()"
-          :check="checkData.check"
+          v-if="edit && itemId == item['id'].toString()"
+          :check="check"
           @cancel="cancelOperation"
-          @submit="updateCheck"
+          @update="refresh"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Проверка по местам работы'">
@@ -142,29 +148,16 @@ function openFileForm(elementId: string) {
           #footer
         >
           <ElementsNaviHorizont
+            :cand-id="props.candId"
+            :input-id="'checks-file'"
+            :item="'checks'"
             @update="
-              checkData.check = item;
-              checkData.itemId = item['id'].toString();
-              checkData.edit = true;
+              check = item;
+              itemId = item['id'].toString();
+              edit = true;
             "
             @delete="deleteCheck(item['id'])"
-            @upload="openFileForm('check-file')"
           />
-          <div v-show="false">
-            <UInput
-              id="check-file"
-              type="file"
-              accept="*"
-              multiple
-              @change="
-                anketaState.submitFile(
-                  $event,
-                  'checks',
-                  anketaState.share.value.candId
-                )
-              "
-            />
-          </div>
         </template>
       </UCard>
     </div>

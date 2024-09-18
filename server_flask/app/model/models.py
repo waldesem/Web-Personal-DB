@@ -3,12 +3,9 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, Field, validator
 
-from ..classes.classes import (
-    Affiliates,
-    Poligrafs,
+from .classes import (
     Regions,
     Conclusions,
-    Relations,
     Roles
 )
 
@@ -97,13 +94,13 @@ class Workplace(QueryModel):
 
 
 class Affilation(QueryModel):
-    view: Affiliates
+    view: str
     organization: str
     inn: Optional[str] = None
 
 
 class Relation(QueryModel):
-    relation: Relations
+    relation: str
     relation_id: Union[int, str]
 
 
@@ -127,7 +124,7 @@ class Check(QueryModel):
 
 
 class Poligraf(QueryModel):
-    theme: Poligrafs
+    theme: str
     results: str
 
 
