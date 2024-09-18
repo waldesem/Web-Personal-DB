@@ -1,4 +1,19 @@
 <script setup lang="ts">
+cost props = defineProps({
+  edit: {
+    type: Boolean, 
+    default: false 
+    }, 
+  candId: {
+    type: String, 
+    default: ""
+    },
+  person: {
+    type: Object as Persons, 
+    default: {} as Persons{}
+  }
+}
+
 const items = [
   {
     label: "Резюме",
@@ -56,15 +71,15 @@ const items = [
 
 <template>
   <UAccordion :items="items" size="lg" multiple>
-    <template #resume=""><DivsResumeDiv /></template>
-    <template #staff=""><DivsStaffDiv /></template>
-    <template #education=""><DivsEducateDiv /></template>
-    <template #work=""><DivsWorkDiv /></template>
-    <template #document=""><DivsDocumDiv /></template>
+    <template #resume=""><DivsResumeDiv :candId: "props.candId" :edit"props.edit" :person="props.person" /></template>
+    <template #staff=""><DivsStaffDiv :candId: "props.candId" :edit"props.edit"/></template>
+    <template #education=""><DivsEducateDiv :candId: "props.candId" :edit"props.edit"/></template>
+    <template #work=""><DivsWorkDiv :candId: "props.candId" :edit"props.edit"/></template>
+    <template #document=""><DivsDocumDiv :candId: "props.candId" :edit"props.edit" /></template>
     <template #address=""><DivsAddressDiv /></template>
-    <template #contact=""><DivsContactDiv /></template>
-    <template #affiliation=""><DivsAffilDiv /></template>
-    <template #prev=""><DivsPrevDiv /></template>
-    <template #relate=""><DivsRelateDiv /></template>
+    <template #contact=""><DivsContactDiv :candId: "props.candId" :edit"props.edit" /></template>
+    <template #affiliation=""><DivsAffilDiv :candId: "props.candId" :edit"props.edit" /></template>
+    <template #prev=""><DivsPrevDiv :candId: "props.candId" :edit"props.edit" /></template>
+    <template #relate=""><DivsRelateDiv :candId: "props.candId" :edit"props.edit" /></template>
   </UAccordion>
 </template>
