@@ -1,23 +1,39 @@
 <script setup lang="ts">
-import { toRef } from "vue";
-import { stateClassify } from "@/state/state";
 import type { Pfo } from "@/types/interfaces";
 
-const emit = defineEmits(["cancel", "submit"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   poligraf: {
     type: Object as () => Pfo,
     default: {} as Pfo,
   },
+  candId: {
+    type: String,
+    default: ""
+  }
 });
-
-const classifyState = stateClassify();
 
 const poligrafForm = toRef(props.poligraf as Pfo);
 
 function submitPoligraf() {
-  emit('submit', poligrafForm.value);
+  emit("cancel');
+  const response = await authFetch(
+    `${server}/poligrafs/${props.candId}`,
+      {
+        method: "POST",
+        body: poligrafForm,
+      }
+    );
+    console.log(response);
+    toast.add({
+      icon: "i-heroicons-check-circle",
+      title: "Успешно",
+      description: "Информация обновлена",
+      color: "green",
+    });
+  }
+  emit("update");
   clearForm();
 }
 
