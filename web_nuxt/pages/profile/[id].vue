@@ -8,8 +8,11 @@ const route = useRoute();
 
 const candId = computed(() => route.params.id) as unknown as string;
 
-const { data, refresh } = await useAsyncData("anketa", async () => {
-  await getItem("persons");
+const { data: person, refresh } = await useAsyncData("anketa", async () => {
+  const response = await authFetch(
+    `${server}/persons/${candId}`
+    );
+  return response
 });
 
 const tabs = [
@@ -56,13 +59,13 @@ const badgeItems = {
 };
 
 const badge = computed(() => {
-  if (anketaState.anketa.value.persons["editable"]) {
+  if (person.value["editable"]) {
     if (
-      anketaState.anketa.value.persons["user_id"] == userState.value.id
+      person.value["user_id"] == userState.value.id
     ) {
       return badgeItems.current;
     } else if (
-      anketaState.anketa.value.persons["user_id"] != userState.value.id
+      person.value["user_id"] != userState.value.id
     ) {
       return badgeItems.thirdparty;
     }
@@ -72,13 +75,11 @@ const badge = computed(() => {
 
 const editState = computed(() => {
   return (
-    anketaState.anketa.value.persons["editable"] &&
-    userState.value.role == classifyState.classes.value.roles["user"] &&
-    userState.value.id == anketaState.anketa.value.persons["user_id"]
+    person.value["editable"] &&
+    userState.value.role == "user" &&
+    userState.value.id == person.value["user_id"]
   );
 });
-
-provide("editState", editState);
 
 async function switchSelf(): Promise<void> {
   if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
@@ -118,20 +119,20 @@ async function switchSelf(): Promise<void> {
     </div>
     <ElementsHeaderDiv
       :div="'py-3'"
-      :header="`${anketaState.anketa.value.persons.surname} ${
-        anketaState.anketa.value.persons.firstname
+      :header="`${person.surname} ${
+        person.firstname
       } ${
-        anketaState.anketa.value.persons.patronymic
-          ? anketaState.anketa.value.persons.patronymic
+        person.patronymic
+          ? person.patronymic
           : ''
       }`"
     />
     <UTabs :items="tabs">
-      <template #anketaTab><TabsAnketaTab :candId="candId" :person="person" /></template>
-      <template #checkTab><TabsCheckTab :candId="candId" /></template>
-      <template #poligrafTab><TabsPoligrafTab :candId="candId" /></template>
-      <template #investigateTab><TabsInvestigateTab :candId="candId" /></template>
-      <template #inquiryTab><TabsInquiryTab :candId="candId" /></template>
+      <template #anketaTab><TabsAnketaTab :candId="candId" :person="person" :edit="editState" /></template>
+      <template #checkTab><TabsCheckTab :candId="candId" :edit="editState" /></template>
+      <template #poligrafTab><TabsPoligrafTab :candId="candId" :edit="editState" /></template>
+      <template #investigateTab><TabsInvestigateTab :candId="candId" :edit="editState" /></template>
+      <template #inquiryTab><TabsInquiryTab :candId="candId" :edit="editState" /></template>
     </UTabs>
   </LayoutsMenu>
 </template>
