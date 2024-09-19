@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("affilations", async () => {
   const response = await authFetch("/api/affilations/" + props.candId);
-  return response;
+  return response as Affilation[];
 });
 
 async function deleteAffilation(id: string) {

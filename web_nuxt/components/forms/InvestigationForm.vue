@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -16,11 +21,11 @@ const props = defineProps({
 
 const investigationForm = toRef(props.investigation as Inquisition);
 
-function submitInvestigations() {
+async function submitInvestigations() {
   emit("cancel");
   const response = await authFetch("/api/investigation/" + props.candId, {
     method: "POST",
-    body: poligrafForm.value,
+    body: investigationForm.value,
   });
   console.log(response);
   toast.add({

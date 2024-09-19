@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Work } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -23,11 +28,11 @@ workForm.value.finished = workForm.value.finished
   ? new Date(workForm.value.finished).toISOString().slice(0, 10)
   : "";
 
-function submitWorkplace() {
+async function submitWorkplace() {
   emit("cancel");
   const response = await authFetch("/api/workplaces/" + props.candId, {
     method: "POST",
-    body: poligrafForm.value,
+    body: workForm.value,
   });
   console.log(response);
   toast.add({

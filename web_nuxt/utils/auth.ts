@@ -1,7 +1,7 @@
 import type { NitroFetchOptions } from "nitropack";
 import { Buffer } from "buffer";
 
-const userToken = ref("");
+export const userToken = ref("");
 
 type Method =
   | "get"

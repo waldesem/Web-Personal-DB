@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
+
 const emit = defineEmits(["delete", "update", "upload"]);
 
 const props = defineProps({
@@ -45,13 +51,13 @@ async function submitFile(fileList: FileList): Promise<void> {
     for (const file of fileList) {
       formData.append("file", file);
     }
-    const response = await authFetch(
+    const response = (await authFetch(
       `/api/file/${props.item}/${props.candId}`,
       {
         method: "POST",
         body: formData,
       }
-    );
+    )) as Record<string, string>;
     console.log(response);
     toast.add({
       icon:
@@ -71,7 +77,7 @@ async function submitFile(fileList: FileList): Promise<void> {
 </script>
 
 <template>
-  <UHorizontalNavigation :links="links.slice(0, props.lastIndex)" />
+  <UHorizontalNavigation :links="links.slice(0, props.navlen)" />
   <div v-if="navlen == 3">
     <UInput
       v-show="false"

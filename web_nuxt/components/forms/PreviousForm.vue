@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Previous } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -16,11 +21,11 @@ const props = defineProps({
 
 const previousForm = toRef(props.previous as Previous);
 
-function submitPrevious() {
+async function submitPrevious() {
   emit("cancel");
   const response = await authFetch("/api/previous/" + props.candId, {
     method: "POST",
-    body: poligrafForm.value,
+    body: previousForm.value,
   });
   console.log(response);
   toast.add({

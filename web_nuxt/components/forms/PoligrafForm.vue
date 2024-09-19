@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -16,7 +21,7 @@ const props = defineProps({
 
 const poligrafForm = toRef(props.poligraf as Pfo);
 
-function submitPoligraf() {
+async function submitPoligraf() {
   emit("cancel");
   const response = await authFetch('/api/poligrafs/' + props.candId, {
     method: "POST",

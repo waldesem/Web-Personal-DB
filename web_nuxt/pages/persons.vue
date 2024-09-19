@@ -3,7 +3,9 @@ import { debounce } from "@/utils/utilities";
 import { useFetchAuth, stateUser } from "@/utils/auth";
 
 const authFetch = useFetchAuth();
+
 const userState = stateUser();
+const toast = useToast();
 
 const persons = ref({
   candidates: [] as Persons[],
@@ -22,7 +24,7 @@ const { refresh, status } = await useAsyncData("candidates", async () => {
     persons.value.page = 1;
     return;
   }
-  const response = await authFetch(`${server}/index/${persons.value.page}`, {
+  const response = await authFetch('/api/index/' + persons.value.page, {
     params: {
       search: persons.value.search,
     },
@@ -46,14 +48,14 @@ const switchPage = async (page: number = 1) => {
 };
 
 async function uploadJson(file: File) {
-  const toast = useToast();
   if (!file) return;
   persons.value.upload = true;
   const formData = new FormData();
-  const response = await authFetch(`${server}/file/persons/0`, {
+  formData.append("file", file)
+  const response = await authFetch('/json', {
     method: "POST",
-    body: formData.append("file", file),
-  });
+    body: formData,
+  }) as Record<string, string>;
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -61,7 +63,7 @@ async function uploadJson(file: File) {
     color: "green",
   });
   persons.value.upload = false;
-  return navigateTo(`/profile/${response["person_id"]}`);
+  return navigateTo('/profile/' + response["person_id"]);
 }
 </script>
 

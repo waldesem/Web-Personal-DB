@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -16,11 +21,11 @@ const props = defineProps({
 
 const affilationForm = toRef(props.affils as Affilation);
 
-function submitAffilation() {
+async function submitAffilation() {
   emit("cancel");
   const response = await authFetch("/api/affilations/" + props.candId, {
     method: "POST",
-    body: poligrafForm.value,
+    body: affilationForm.value,
   });
   console.log(response);
   toast.add({

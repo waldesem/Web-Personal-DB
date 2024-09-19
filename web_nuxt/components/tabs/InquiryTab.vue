@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Needs } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -10,8 +13,8 @@ const props = defineProps({
   },
   editable: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 const collapse = ref(false);
@@ -19,11 +22,13 @@ const edit = ref(false);
 const itemId = ref("");
 const need = ref({} as Needs);
 
-const { data: inquiries, refresh, status } = await useLazyAsyncData("inquiries", async () => {
-  const response = await authFetch(
-    `/api/inquiries/${props.candId}`
-    );
-  return response
+const {
+  data: inquiries,
+  refresh,
+  status,
+} = await useLazyAsyncData("inquiries", async () => {
+  const response = await authFetch(`/api/inquiries/${props.candId}`);
+  return response as Needs[];
 });
 
 async function deleteNeed(id: string) {
@@ -34,11 +39,11 @@ async function deleteNeed(id: string) {
   });
   console.log(response);
   toast.add({
-      icon: "i-heroicons-information-circle",
-      title: "Информация",
-      description: `Запись с ID ${id} удалена`,
-      color: "primary",
-    });
+    icon: "i-heroicons-information-circle",
+    title: "Информация",
+    description: `Запись с ID ${id} удалена`,
+    color: "primary",
+  });
   refresh();
 }
 
@@ -65,16 +70,11 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsInquiryForm @cancel="cancelOperation" @submit="updateNeed" />
+        <FormsInquiryForm @cancel="cancelOperation" @update="refresh" />
       </UCard>
     </div>
   </Transition>
-  <div
-    v-if="
-      inquiries &&
-      inquiries.length
-    "
-  >
+  <div v-if="inquiries && inquiries.length">
     <div
       v-for="(item, index) in inquiries"
       :key="index"
@@ -111,7 +111,7 @@ function closeAction() {
           </ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont

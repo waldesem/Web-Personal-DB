@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Contact } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("contacts", async () => {
   const response = await authFetch("/api/contacts/" + props.candId);
-  return response;
+  return response as Contact[];
 });
 
 async function deleteContact(id: string) {

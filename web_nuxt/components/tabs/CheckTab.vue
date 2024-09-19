@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Verification } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("checks", async () => {
   const response = await authFetch(`/api/checks/${props.candId}`);
-  return response;
+  return response as Verification[];
 });
 
 async function deleteCheck(id: string) {
@@ -50,9 +53,9 @@ async function cancelOperation() {
 }
 
 function closeAction() {
-  checkData.value.edit = false;
-  checkData.value.itemId = "";
-  checkData.value.collapse = false;
+  edit.value = false;
+  itemId.value = "";
+  collapse.value = false;
 }
 </script>
 
@@ -144,7 +147,7 @@ function closeAction() {
           </ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont

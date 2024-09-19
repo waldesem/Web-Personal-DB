@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Document } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -19,11 +24,11 @@ docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().slice(0, 10)
   : "";
 
-function submitDocument() {
+async function submitDocument() {
   emit("cancel");
   const response = await authFetch("/api/documents/" + props.candId, {
     method: "POST",
-    body: poligrafForm.value,
+    body: docForm.value,
   });
   console.log(response);
   toast.add({

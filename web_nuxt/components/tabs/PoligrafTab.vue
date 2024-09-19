@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("poligrafs", async () => {
   const response = await authFetch('/api/poligrafs/' + props.candId);
-  return response;
+  return response  as Pfo[];
 });
 
 async function deletePoligraf(id: string) {
@@ -105,7 +108,7 @@ function closeAction() {
           </ElementsLabelSlot>
         </div>
         <template
-          v-if="editState && (!edit || itemId != item['id'].toString())"
+          v-if="props.editable && (!edit || itemId != item['id'].toString())"
           #footer
         >
           <ElementsNaviHorizont

@@ -36,7 +36,7 @@ const users = computed(() => {
  */
 async function getUsers() {
   const fetchAuth = useFetchAuth();
-  dataUsers.value.users = (await fetchAuth(`${server}/users`, {
+  dataUsers.value.users = (await fetchAuth('/api/users', {
     params: {
       search: dataUsers.value.search,
     },
@@ -57,7 +57,7 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  await fetchAuth(`${server}/users/${id}`, {
+  await fetchAuth('/api/users/' + id, {
     params: {
       item: item,
     },
@@ -76,12 +76,23 @@ async function userAction(
   });
 }
 
+const validate = (state: User) => {
+  const errors = [];
+  if (!state.username) {
+    errors.push({ path: "username", message: "Обязательное поле" });
+  }
+  if (state.username.length < 3) {
+    errors.push({ path: "username", message: "Слишком короткое имя" });
+  }
+  return errors;
+};
+
 /**
  * Submits a new user to the server.
  * @returns {Promise<void>}
  */
 async function submitUser(): Promise<void> {
-  await fetchAuth(`${server}/users`, {
+  await fetchAuth('/api/users', {
     method: "POST",
     body: dataUsers.value.form,
   });
@@ -159,6 +170,7 @@ await getUsers();
     <Transition name="slide-fade">
       <UForm
         v-if="dataUsers.collapsed"
+        :validate="validate"
         :state="dataUsers.form"
         @submit.prevent="submitUser"
       >

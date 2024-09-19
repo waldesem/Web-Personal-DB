@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Inquisition } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("investigations", async () => {
   const response = await authFetch("/api/investigations/" + props.candId);
-  return response;
+  return response as Inquisition[];
 });
 
 async function deleteInquisition(id: string) {

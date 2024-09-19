@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
+
 const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
@@ -35,7 +41,7 @@ function cancelEdit() {
   } as Persons);
 }
 
-function submitResume() {
+async function submitResume() {
   emit("cancel");
   const response = await authFetch(
     '/api/resume/',
@@ -43,7 +49,7 @@ function submitResume() {
         method: "POST",
         body: resumeForm.value,
       }
-    );
+  ) as Record<string, string>;
     toast.add({
       icon: "i-heroicons-check-circle",
       title: "Успешно",

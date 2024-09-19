@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Address } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -16,11 +21,11 @@ const props = defineProps({
 
 const addressForm = toRef(props.addrs as Address);
 
-function submitAddress() {
+async function submitAddress() {
   emit("cancel");
   const response = await authFetch("/api/addresses/" + props.candId, {
     method: "POST",
-    body: poligrafForm.value,
+    body: addressForm.value,
   });
   console.log(response);
   toast.add({

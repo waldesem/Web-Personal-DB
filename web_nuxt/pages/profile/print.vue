@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { useFetchAuth } from "@/utils/auth";
+import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
+
 const route = useRoute();
 
 const candId = computed(() => route.params.id) as unknown as string;
 
-const { data: person } = await useAsyncData("anketa", async () => {
+const person = ref({} as Persons)
+
+await useAsyncData("anketa", async () => {
   const response = await authFetch('/api/persons/' + candId);
-  return response;
+  person.value = response as Persons;
 });
+
 </script>
 
 <template>

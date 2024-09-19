@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Previous } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -17,7 +20,7 @@ const props = defineProps({
 const collapse = ref(false);
 const edit = ref(false);
 const itemId = ref("");
-const previous = ref({} as Previous);
+const prev = ref({} as Previous);
 
 const {
   data: previous,
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("previous", async () => {
   const response = await authFetch("/api/previous/" + props.candId);
-  return response;
+  return response as Previous[];
 });
 
 async function deletePrevious(id: string) {
@@ -76,7 +79,7 @@ function closeAction() {
       <UCard v-else>
         <FormsPreviousForm
           v-if="edit && itemId == item['id'].toString()"
-          :previous="previous"
+          :previous="prev"
           @cancel="cancelOperation"
           @update="refresh"
         />
@@ -105,7 +108,7 @@ function closeAction() {
             :navlen="2"
             @delete="deletePrevious(item['id'].toString())"
             @update="
-              previous = item;
+              prev = item;
               itemId = item['id'].toString();
               edit = true;
             "

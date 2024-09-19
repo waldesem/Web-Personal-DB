@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Document } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("documents", async () => {
   const response = await authFetch("/api/documents/" + props.candId);
-  return response;
+  return response as Document[];
 });
 
 async function deleteDocument(id: string) {

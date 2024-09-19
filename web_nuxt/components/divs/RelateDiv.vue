@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Relation } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("relations", async () => {
   const response = await authFetch("/api/relations/" + props.candId);
-  return response;
+  return response as Relation[];
 });
 
 async function deleteRelation(id: string) {

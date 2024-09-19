@@ -11,7 +11,7 @@ const props = defineProps({
   inputClass: {
     type: String,
     default: "col-span-5 break-words",
-  }
+  },
 });
 </script>
 
@@ -21,7 +21,7 @@ const props = defineProps({
       {{ props.label }}
     </div>
     <div :class="props.inputClass">
-      <slot/>
+      <slot />
     </div>
   </div>
 </template>

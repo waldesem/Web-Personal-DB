@@ -80,7 +80,7 @@ def post_login(action):
         return jsonify(
             {
                 "message": "Success",
-                "user_token": 'Bearer ' + create_token(User(**user.to_dict()).dict()),
+                "user_token": "Bearer " + create_token(User(**user.to_dict()).dict()),
             }
         )
     return {"message": "Denied"}
@@ -259,29 +259,6 @@ def post_file(item, item_id):
     if not files or not files[0].filename:
         return abort(400)
 
-    if item == "persons":
-        file = files[0]
-        if not file.filename.endswith(".json"):
-            return abort(400)
-        json_dict = json.load(file)
-        anketa = handle_json_to_dict(json_dict)
-        if not anketa:
-            return abort(400)
-        person_id, destination = handle_post_resume(anketa["resume"])
-        if not person_id:
-            return abort(400)
-        if destination and os.path.isdir(destination):
-            with open(os.path.join(destination, file.filename), "wb") as f:
-                f.write(json.dumps(json_dict, ensure_ascii=False).encode("utf8"))
-                subprocess.run(f'explorer "{destination}"')
-                # subprocess.run(['xdg-open', destination])
-        for table, contents in anketa.items():
-            if contents and table != "resume":
-                for content in contents:
-                    if content:
-                        handle_post_item(content, table, person_id)
-        return jsonify({"person_id": person_id}), 201
-
     person = db_session.get(Persons, item_id)
     if not person:
         return abort(400)
@@ -333,6 +310,36 @@ def get_image():
         if os.path.isfile(file_path):
             return send_file(file_path, as_attachment=True, mimetype="image/jpg")
     return send_file("static/no-photo.png", as_attachment=True, mimetype="image/jpg")
+
+
+@bp.post("/json")
+@roles_required(Roles.user.value)
+def post_json():
+    files = request.files.getlist("file")
+    if not files or not files[0].filename:
+        return abort(400)
+
+    file = files[0]
+    if not file.filename.endswith(".json"):
+        return abort(400)
+    json_dict = json.load(file)
+    anketa = handle_json_to_dict(json_dict)
+    if not anketa:
+        return abort(400)
+    person_id, destination = handle_post_resume(anketa["resume"])
+    if not person_id:
+        return abort(400)
+    if destination and os.path.isdir(destination):
+        with open(os.path.join(destination, file.filename), "wb") as f:
+            f.write(json.dumps(json_dict, ensure_ascii=False).encode("utf8"))
+            subprocess.run(f'explorer "{destination}"')
+            # subprocess.run(['xdg-open', destination])
+    for table, contents in anketa.items():
+        if contents and table != "resume":
+            for content in contents:
+                if content:
+                    handle_post_item(content, table, person_id)
+    return jsonify({"person_id": person_id}), 201
 
 
 @bp.post("/resume")

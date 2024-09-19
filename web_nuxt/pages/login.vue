@@ -2,7 +2,7 @@
 import { userToken } from "@/utils/auth";
 
 const loginAction = ref("create");
-const loginForm = ref({} as Record<string, unknown>);
+const loginForm = ref({} as Record<string, string>);
 
 const alertMessage = {
   alert: ref({

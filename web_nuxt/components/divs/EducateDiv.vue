@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { Education } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const authFetch = useFetchAuth();
 
 const toast = useToast();
 
@@ -25,7 +28,7 @@ const {
   status,
 } = await useLazyAsyncData("educations", async () => {
   const response = await authFetch("/api/educations/" + props.candId);
-  return response;
+  return response as Education[];
 });
 
 async function deleteEducation(id: string) {

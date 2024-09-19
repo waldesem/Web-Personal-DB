@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { stateUser, useFetchAuth } from "@/utils/auth";
+import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
 const userState = stateUser();
@@ -7,9 +8,11 @@ const route = useRoute();
 
 const candId = computed(() => route.params.id) as unknown as string;
 
-const { data: person, refresh } = await useAsyncData("anketa", async () => {
+const person = ref({} as Persons)
+
+const { refresh } = await useAsyncData("anketa", async () => {
   const response = await authFetch('/api/persons/' + candId);
-  return response;
+  person.value = response as Persons;
 });
 
 const tabs = [
@@ -78,7 +81,7 @@ async function switchSelf(): Promise<void> {
   if (!confirm("Вы действительно хотите включить/выключить режим правки")) {
     return;
   }
-  const response = await authFetch(`${server}/self/${candId}`);
+  const response = await authFetch('/api/self/' + candId);
   console.log(response);
   refresh();
 }
@@ -88,7 +91,7 @@ async function switchSelf(): Promise<void> {
   <LayoutsMenu>
     <DivsPhotoCard
       :cand-id="candId"
-      :destination="person.destination"
+      :destination="person['destination']"
       :editable="editState"
     />
     <div v-if="userState.role == 'user'" class="relative">
@@ -101,7 +104,7 @@ async function switchSelf(): Promise<void> {
           </div>
         </UButton>
       </div>
-      <div v-if="!props.editable" class="absolute top-0 right-10">
+      <div v-if="!person['editable']" class="absolute top-0 right-10">
         <UButton variant="link" size="xl" :to="`/profile/print/${candId}`">
           <UIcon name="i-heroicons-printer" class="w-8 h-8" />
         </UButton>
@@ -109,8 +112,8 @@ async function switchSelf(): Promise<void> {
     </div>
     <ElementsHeaderDiv
       :div="'py-3'"
-      :header="`${person.surname} ${person.firstname} ${
-        person.patronymic ? person.patronymic : ''
+      :header="`${person['surname']} ${person['firstname']} ${
+        person['patronymic'] ? person['patronymic'] : ''
       }`"
     />
     <UTabs :items="tabs">

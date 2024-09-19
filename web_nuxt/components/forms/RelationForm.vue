@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import type { Relation } from "@/types/interfaces";
+import { useFetchAuth } from "@/utils/auth";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -16,11 +21,11 @@ const props = defineProps({
 
 const relationForm = toRef(props.relation as Relation);
 
-function submitRelation() {
+async function submitRelation() {
   emit("cancel");
   const response = await authFetch("/api/relations/" + props.candId, {
     method: "POST",
-    body: poligrafForm.value,
+    body: relationForm.value,
   });
   console.log(response);
   toast.add({

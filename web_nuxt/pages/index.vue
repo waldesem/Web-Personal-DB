@@ -9,6 +9,4 @@ await useAsyncData("candidates", async () => {
 });
 </script>
 
-<template>
-  <UProgress animation="swing" />
-</template>
+<template><div>Index</div></template>

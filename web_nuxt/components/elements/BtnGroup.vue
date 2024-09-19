@@ -4,12 +4,7 @@ const emit = defineEmits(["cancel"]);
 
 <template>
   <UButtonGroup class="mt-3" size="md" orientation="horizontal">
-    <UButton
-      label="Принять"
-      color="green"
-      variant="outline"
-      type="submit"
-    />
+    <UButton label="Принять" color="green" variant="outline" type="submit" />
     <UButton
       label="Отмена"
       color="red"

@@ -18,7 +18,7 @@ const props = defineProps({
     default: "",
   },
   person: {
-    type: Object as Persons,
+    type: Object,
     default: {} as Persons,
   },
 });
@@ -46,7 +46,7 @@ async function changeRegion(): Promise<void> {
   });
 }
 
-function deleteItem() {
+async function deleteItem() {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
   const response = await authFetch(`/api/persons/${props.candId}`, {
     method: "DELETE",
@@ -55,7 +55,7 @@ function deleteItem() {
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",
-    description: `Запись с ID ${id} удалена`,
+    description: `Запись с ID ${props.candId} удалена`,
     color: "primary",
   });
   navigateTo("/persons");
