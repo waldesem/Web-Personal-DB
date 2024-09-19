@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { userToken } from "@/utils/auth";
+// import type AlertColor from '#ui-colors'
+
+interface Login {
+  username: string;
+  password: string;
+  new_pswd: string;
+  conf_pswd: string;
+}
 
 const loginAction = ref("create");
-const loginForm = ref({} as Record<string, string>);
+const loginForm = ref({} as Login);
 
 const alertMessage = {
   alert: ref({
@@ -18,29 +26,38 @@ const alertMessage = {
   },
 };
 
+const validate = (state: Login) => {
+  const errors = [];
+  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,16}$/;
+  if (loginAction.value === "update") {
+    if (state.password === state.new_pswd) {
+      errors.push({
+        path: "new_pswd",
+        message: "Старый и новый пароли совпадают",
+      });
+    }
+    if (!state.new_pswd.match(pattern)) {
+      errors.push({
+        path: "new_pswd",
+        message:
+          "Пароль должен быть от 8 до 16 цифр и букв в нижнем регистре латинской раскладки",
+      });
+    }
+    if (state.conf_pswd !== state.new_pswd) {
+      errors.push({
+        path: "conf_pswd",
+        message: "Новый пароль и подтверждение не совпадают",
+      });
+    }
+  }
+  return errors;
+};
+
 /**
  * Submit login form to server and get a new token.
  * @returns {Promise<void>}
  */
 async function submitLogin(): Promise<void> {
-  if (loginAction.value === "update") {
-    if (loginForm.value["passhash"] === loginForm.value["new_pswd"]) {
-      alertMessage.setAlert(
-        "purple",
-        "Предупреждение",
-        "Старый и новый пароли совпадают"
-      );
-      return;
-    }
-    if (loginForm.value["conf_pswd"] !== loginForm.value["new_pswd"]) {
-      alertMessage.setAlert(
-        "red",
-        "Предупреждение",
-        "Новый пароль и подтверждение не совпадают"
-      );
-      return;
-    }
-  }
   const { message, user_token } = (await $fetch(
     "/api/login/" + loginAction.value,
     {
@@ -85,7 +102,12 @@ async function submitLogin(): Promise<void> {
             loginAction === 'create' ? 'Вход в систему' : 'Обновление пароля'
           "
         />
-        <UForm :state="loginForm" class="mt-4" @submit.prevent="submitLogin">
+        <UForm
+          :state="loginForm"
+          :validate="validate"
+          class="mt-4"
+          @submit.prevent="submitLogin"
+        >
           <UFormGroup class="mb-3" size="md" label="Логин">
             <UInput
               v-model="loginForm['username']"

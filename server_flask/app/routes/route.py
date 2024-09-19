@@ -63,14 +63,11 @@ def post_login(action):
         return {"message": "Invalid"}
 
     if action == "update":
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$"
-        if re.match(pattern, json_data["new_pswd"]):
-            user.passhash = generate_password_hash(json_data["new_pswd"])
-            user.change_pswd = False
-            user.attempt = 0
-            db_session.commit()
-            return {"message": "Updated"}
-        return {"message": "Invalid"}
+        user.passhash = generate_password_hash(json_data["new_pswd"])
+        user.change_pswd = False
+        user.attempt = 0
+        db_session.commit()
+        return {"message": "Updated"}
 
     delta_change = datetime.now() - user.pswd_create
     if not user.change_pswd and delta_change.days < 365:
@@ -211,21 +208,13 @@ def get_index(page):
     search_data = request.args.get("search")
     stmt = select(Persons, Users.fullname)
     if search_data and len(search_data) > 2:
-        if search_data.isdigit():
-            stmt = stmt.filter(Persons.inn.ilike("%" + search_data + "%"))
+        query = list(map(str.upper, search_data.split(maxsplit=2)))
+        if len(query):
+            stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
+        if len(query) > 1:
+            stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
         else:
-            pattern = r"^\d{2}\.\d{2}\.\d{4}$"
-            query = list(map(str.upper, search_data.split()))
-            if len(query):
-                stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
-            if len(query) > 1 and not re.match(pattern, query[1]):
-                stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
-            if len(query) > 2 and not re.match(pattern, query[2]):
-                stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
-            if len(query) > 1 and re.match(pattern, query[-1]):
-                stmt = stmt.filter(
-                    Persons.birthday == datetime.strptime(query[-1], "%d.%m.%Y").date()
-                )
+            stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
     if cur_user["region"] != Regions.main.value:
         stmt = stmt.filter(Persons.region == cur_user["region"])
     query = db_session.execute(
@@ -315,12 +304,8 @@ def get_image():
 @bp.post("/json")
 @roles_required(Roles.user.value)
 def post_json():
-    files = request.files.getlist("file")
-    if not files or not files[0].filename:
-        return abort(400)
-
-    file = files[0]
-    if not file.filename.endswith(".json"):
+    file = request.files.get("file")
+    if not file or not file.filename.endswith(".json"):
         return abort(400)
     json_dict = json.load(file)
     anketa = handle_json_to_dict(json_dict)

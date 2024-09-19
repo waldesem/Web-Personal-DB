@@ -76,17 +76,6 @@ async function userAction(
   });
 }
 
-const validate = (state: User) => {
-  const errors = [];
-  if (!state.username) {
-    errors.push({ path: "username", message: "Обязательное поле" });
-  }
-  if (state.username.length < 3) {
-    errors.push({ path: "username", message: "Слишком короткое имя" });
-  }
-  return errors;
-};
-
 /**
  * Submits a new user to the server.
  * @returns {Promise<void>}
@@ -170,7 +159,6 @@ await getUsers();
     <Transition name="slide-fade">
       <UForm
         v-if="dataUsers.collapsed"
-        :validate="validate"
         :state="dataUsers.form"
         @submit.prevent="submitUser"
       >

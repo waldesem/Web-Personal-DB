@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { debounce } from "@/utils/utilities";
 import { useFetchAuth, stateUser } from "@/utils/auth";
+import type { Persons } from "@/types/interfaces";
 
 const authFetch = useFetchAuth();
 
@@ -96,7 +97,7 @@ async function uploadJson(file: File) {
     <div class="my-6">
       <UInput
         v-model="persons.search"
-        placeholder="поиск по фамилии, имени, отчеству, дате рождения или инн"
+        placeholder="поиск по фамилии, имени, отчеству"
         size="lg"
         @input.prevent="searchPerson"
       />

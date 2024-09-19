@@ -34,10 +34,12 @@ const { refresh } = await useAsyncData("image", async () => {
 async function submitImage(file: File) {
   if (!file) return;
   const formData = new FormData();
-  await authFetch("/api/file/image/", props.candId, {
+  formData.append("file", file);
+  const response = await authFetch("/api/file/image/" + props.candId, {
     method: "POST",
-    body: formData.append("file", file),
+    body: formData,
   });
+  console.log(response);
   await refresh();
 }
 
@@ -77,10 +79,11 @@ function onContextMenu() {
         id="image-file"
         type="file"
         accept="image/*"
+        multiple
         @change="submitImage($event)"
       />
       <UContextMenu
-        v-if="editState"
+        v-if="props.editable"
         v-model="isOpen"
         :virtual-element="virtualElement"
       >
