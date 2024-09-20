@@ -80,7 +80,7 @@ const validate = (state: Persons) => {
 
 async function submitResume() {
   emit("cancel");
-  const response = (await authFetch("/api/resume/", {
+  const { person_id } = (await authFetch("/api/resume/", {
     method: "POST",
     body: resumeForm.value,
   })) as Record<string, string>;
@@ -90,7 +90,7 @@ async function submitResume() {
     description: "Информация добавлена",
     color: "green",
   });
-  emit("update", response["message"]);
+  emit("update", person_id);
   cancelEdit();
 }
 </script>
@@ -103,21 +103,21 @@ async function submitResume() {
   >
     <UFormGroup class="mb-3" label="Фамилия">
       <UInput
-        v-model.trim.lazy="resumeForm['surname']"
+        v-model.trim="resumeForm['surname']"
         required
         placeholder="Фамилия"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Имя">
       <UInput
-        v-model.trim.lazy="resumeForm['firstname']"
+        v-model.trim="resumeForm['firstname']"
         required
         placeholder="Имя"
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Отчество">
       <UInput
-        v-model.trim.lazy="resumeForm['patronymic']"
+        v-model.trim="resumeForm['patronymic']"
         placeholder="Отчество"
       />
     </UFormGroup>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { userToken } from "@/utils/auth";
-// import type AlertColor from '#ui-colors'
 
 interface Login {
   username: string;
@@ -85,7 +84,7 @@ async function submitLogin(): Promise<void> {
     <div class="py-8">
       <UAlert
         variant="subtle"
-        :color="alertMessage.alert.value.color"
+        :color="(alertMessage.alert.value.color as any)"
         :title="alertMessage.alert.value.title"
         :description="alertMessage.alert.value.description"
       />

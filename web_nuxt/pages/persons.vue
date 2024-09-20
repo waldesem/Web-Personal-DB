@@ -53,7 +53,7 @@ async function uploadJson(file: File) {
   persons.value.upload = true;
   const formData = new FormData();
   formData.append("file", file)
-  const response = await authFetch('/json', {
+  const { person_id } = await authFetch('/json', {
     method: "POST",
     body: formData,
   }) as Record<string, string>;
@@ -64,7 +64,7 @@ async function uploadJson(file: File) {
     color: "green",
   });
   persons.value.upload = false;
-  return navigateTo('/profile/' + response["person_id"]);
+  return navigateTo('/profile/' + person_id);
 }
 </script>
 
