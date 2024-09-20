@@ -47,13 +47,9 @@ const links = [
 const filtredLinks = computed(() => {
   if (userState.value.role !== "user") {
     return links.filter((item) => item[0].to !== "/resume");
-  } else if (
-    userState.value.role !== "admin"
-  ) {
+  } else if (userState.value.role !== "admin") {
     return links.filter((item) => item[0].to !== "/users");
-  } else if (
-    userState.value.role !== "guest"
-  ) {
+  } else if (userState.value.role !== "guest") {
     return links.filter(
       (item) => item[0].to !== "/users" && item[0].to !== "/resume"
     );
@@ -64,7 +60,9 @@ const filtredLinks = computed(() => {
 </script>
 
 <template>
-  <UContainer :ui="{ constrained: 'max-w-none', padding: 'px-4 sm:px-6 lg:px-12' }">
+  <UContainer
+    :ui="{ constrained: 'max-w-none', padding: 'px-4 sm:px-6 lg:px-12' }"
+  >
     <header class="sticky border-b border-gray-200 py-8">
       <div class="flex justify-between relative">
         <div class="absolute top-0 left-0 inline-block text-2xl font-bold">
@@ -83,14 +81,31 @@ const filtredLinks = computed(() => {
           :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
           @click="$colorMode.preference = 'light'"
         />
-        <UAvatar
-          class="absolute top-0 right-24"
-          :alt="userState.fullname"
-        />
+        <UPopover mode="hover">
+          <UAvatar class="absolute top-0 right-24" :alt="userState.fullname" />
+          <template #panel>
+            <UCard>
+              <p class="text-center text-sm text-gray-500">
+                {{ userState.fullname }}
+              </p>
+              <p class="text-center text-sm text-gray-500">
+                Логин: {{ userState.username }}
+              </p>
+              <p class="text-center text-sm text-gray-500">
+                Регион: {{ userState.region }}
+              </p>
+              <p class="text-center text-sm text-gray-500">
+                Роль: {{ userState.role }}
+              </p>
+            </UCard>
+          </template>
+        </UPopover>
       </div>
     </header>
     <div class="grid grid-cols-12 gap-6">
-      <div class="flex flex-col h-full col-span-2 pt-3 border-r border-gray-200">
+      <div
+        class="flex flex-col h-full col-span-2 pt-3 border-r border-gray-200"
+      >
         <UVerticalNavigation
           :links="filtredLinks"
           :ui="{
