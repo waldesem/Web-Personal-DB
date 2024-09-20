@@ -14,6 +14,7 @@ setting.read(os.path.join(basedir, "settings.ini"), encoding="utf-8")
 
 class Configuration:
     SECRET_KEY = secrets.token_hex(16)
+    JWT_SECRET_KEY = secrets.token_hex(16)
     BASE_PATH = (
         setting["Destination"].get("path")
         if setting["Destination"].get("path")
@@ -31,11 +32,11 @@ class DesktopConfig(Configuration):
     SECRET_KEY = "SUPERSECRETKEY"
 
 
-class SqliteServerConfig(Configuration):
+class SqliteConfig(Configuration):
     pass
 
 
-class PostgreServerConfig(Configuration):
+class PostgreConfig(Configuration):
     DATABASE_URI = "postgresql://{}:{}@{}:{}/{}".format(
         setting["Postgre"]["user"],
         setting["Postgre"]["password"],
@@ -45,7 +46,7 @@ class PostgreServerConfig(Configuration):
     )
 
 
-class Config(SqliteServerConfig):
+class Config(SqliteConfig):
     pass
 
 
@@ -61,17 +62,18 @@ if not os.path.isdir(Config.BASE_PATH):
                 os.mkdir(letter_path)
 
 
-if os.path.isfile(os.path.join(setting["SQLite"].get("uri"), "database.db")):
-    if (
-        date.fromtimestamp(
-            os.path.getmtime(os.path.join(setting["SQLite"].get("uri"), "database.db"))
-        ).day
-        != date.today().day
-    ):
-        backup_path = os.path.join(setting["SQLite"].get("uri"), "backup")
-        if not os.path.isdir(backup_path):
-            os.mkdir(backup_path)
-        shutil.copy(
-            os.path.join(setting["SQLite"].get("uri"), "database.db"),
-            os.path.join(backup_path, f"{date.today()}.db"),
+if issubclass(Config, SqliteConfig):
+    if os.path.isfile(os.path.join(setting["SQLite"].get("uri"), "database.db")):
+        if (
+            date.fromtimestamp(
+                os.path.getmtime(os.path.join(setting["SQLite"].get("uri"), "database.db"))
+            ).day
+            != date.today().day
+        ):
+            backup_path = os.path.join(setting["SQLite"].get("uri"), "backup")
+            if not os.path.isdir(backup_path):
+                os.mkdir(backup_path)
+            shutil.copy(
+                os.path.join(setting["SQLite"].get("uri"), "database.db"),
+                os.path.join(backup_path, f"{date.today()}.db"),
         )

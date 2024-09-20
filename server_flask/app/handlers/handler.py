@@ -4,9 +4,10 @@ from email.mime.text import MIMEText
 from email.utils import formatdate
 import os
 from os.path import basename
+import re
 import smtplib
 
-from flask import current_app
+from flask import abort, current_app
 from PIL import Image
 from pydantic import ValidationError
 from sqlalchemy import desc, select
@@ -57,6 +58,8 @@ def handle_post_resume(resume):
         Exception: If there is an error updating the resume.
 
     """
+    if not re.match(r"[А-ЯЁЙа-яё]", resume["surname"][0]):
+        return abort(400)
     resume["editable"] = True
     resume["user_id"] = current_user["id"]
     resume["region"] = current_user["region"]
@@ -83,6 +86,15 @@ def handle_post_resume(resume):
             db_session.commit()
             return [person.id, person.destination]
         else:
+            if not person.destination:
+                person.destination = make_destination(
+                    resume["region"],
+                    resume["surname"],
+                    resume["firstname"],
+                    resume.get("patronymic", ""),
+                    person.id,
+                )
+                db_session.commit()
             if person.editable:
                 return [person.id, person.destination]
             resume["id"] = person.id

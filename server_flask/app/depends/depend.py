@@ -23,7 +23,7 @@ def get_auth(token: str):
     payload = token.split(' ')[1]
     try:
         decoded = jwt.decode(
-            payload, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            payload, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
         )
         g.user_id = decoded["id"]
         return True
@@ -68,7 +68,7 @@ def create_token(user):
         str: The JWT token.
     """
 
-    return jwt.encode(user, current_app.config["SECRET_KEY"], algorithm="HS256")
+    return jwt.encode(user, current_app.config["JWT_SECRET_KEY"], algorithm="HS256")
 
 
 def jwt_required():
