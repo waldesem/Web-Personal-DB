@@ -21,9 +21,9 @@ const props = defineProps({
 
 const relationForm = toRef(props.relation as Relation);
 
-function submitRelation() {
+async function submitRelation() {
   emit("close");
-  authFetch("/api/relations/" + props.candId, {
+  await authFetch("/api/relations/" + props.candId, {
     method: "POST",
     body: relationForm.value,
   });

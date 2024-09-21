@@ -21,9 +21,9 @@ const props = defineProps({
 
 const inquiryForm = toRef(props.inquiry as Needs);
 
-function submitIquiry() {
+async function submitIquiry() {
   emit("close");
-  authFetch("/api/inquiries/" + props.candId, {
+  await authFetch("/api/inquiries/" + props.candId, {
     method: "POST",
     body: inquiryForm.value,
   });

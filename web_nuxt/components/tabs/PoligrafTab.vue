@@ -94,7 +94,7 @@ function closeAction() {
         <FormsPoligrafForm
           v-if="edit && itemId == item['id'].toString()"
           :cand-id="props.candId"
-          :poligraf="poligraf"
+          :poligraf="item"
           @cancel="cancelOperation"
           @close="closeAction"
           @update="refresh"

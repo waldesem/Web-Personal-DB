@@ -21,9 +21,9 @@ const props = defineProps({
 
 const contactForm = toRef(props.contact as Contact);
 
-function submitContact() {
+async function submitContact() {
   emit("close");
-  authFetch("/api/contacts/" + props.candId, {
+  await authFetch("/api/contacts/" + props.candId, {
     method: "POST",
     body: contactForm.value,
   });

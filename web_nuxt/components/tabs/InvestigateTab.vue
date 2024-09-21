@@ -94,7 +94,7 @@ function closeAction() {
         <FormsInvestigationForm
           v-if="edit && itemId == item['id'].toString()"
           :cand-id="props.candId"
-          :investigation="inquisition"
+          :investigation="item"
           @close="closeAction"
           @cancel="cancelOperation"
           @update="refresh"

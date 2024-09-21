@@ -51,25 +51,18 @@ async function submitFile(fileList: FileList): Promise<void> {
     for (const file of fileList) {
       formData.append("file", file);
     }
-    const response = (await authFetch(
+    await authFetch(
       `/api/file/${props.item}/${props.candId}`,
       {
         method: "POST",
         body: formData,
       }
-    )) as Record<string, string>;
-    console.log(response);
+    );
     toast.add({
-      icon:
-        response["message"] == "success"
-          ? "i-heroicons-check-circle"
-          : "i-heroicons-exclamation-triangle",
-      title: response["message"] == "success" ? "Информация" : "Внимание",
-      description:
-        response["message"] == "success"
-          ? "Файлы успешно загружены"
-          : "Ошибка при загрузке файлов",
-      color: response["message"] == "success" ? "green" : "red",
+      icon: "i-heroicons-check-circle",
+      title: "Информация",
+      description: "Файлы успешно загружены",
+      color: "green",
     });
   }
   formData.delete("file");

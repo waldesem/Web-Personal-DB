@@ -21,9 +21,9 @@ const props = defineProps({
 
 const affilationForm = toRef(props.affils as Affilation);
 
-function submitAffilation() {
+async function submitAffilation() {
   emit("close");
-  authFetch("/api/affilations/" + props.candId, {
+  await authFetch("/api/affilations/" + props.candId, {
     method: "POST",
     body: affilationForm.value,
   });

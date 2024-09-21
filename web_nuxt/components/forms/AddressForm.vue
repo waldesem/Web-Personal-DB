@@ -21,9 +21,9 @@ const props = defineProps({
 
 const addressForm = toRef(props.addrs as Address);
 
-function submitAddress() {
+async function submitAddress() {
   emit("close");
-  authFetch("/api/addresses/" + props.candId, {
+  await authFetch("/api/addresses/" + props.candId, {
     method: "POST",
     body: addressForm.value,
   });

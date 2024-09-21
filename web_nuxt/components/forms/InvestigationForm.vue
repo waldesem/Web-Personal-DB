@@ -21,9 +21,9 @@ const props = defineProps({
 
 const investigationForm = toRef(props.investigation as Inquisition);
 
-function submitInvestigations() {
+async function submitInvestigations() {
   emit("close");
-  authFetch("/api/investigations/" + props.candId, {
+  await authFetch("/api/investigations/" + props.candId, {
     method: "POST",
     body: investigationForm.value,
   });

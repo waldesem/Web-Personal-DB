@@ -21,9 +21,9 @@ const props = defineProps({
 
 const staffForm = toRef(props.staff as Staff);
 
-function submitStaff() {
+async function submitStaff() {
   emit("close");
-  authFetch("/api/staffs/" + props.candId, {
+  await authFetch("/api/staffs/" + props.candId, {
     method: "POST",
     body: staffForm.value,
   });

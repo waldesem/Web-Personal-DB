@@ -21,9 +21,9 @@ const props = defineProps({
 
 const previousForm = toRef(props.previous as Previous);
 
-function submitPrevious() {
+async function submitPrevious() {
   emit("close");
-  authFetch("/api/previous/" + props.candId, {
+  await authFetch("/api/previous/" + props.candId, {
     method: "POST",
     body: previousForm.value,
   });

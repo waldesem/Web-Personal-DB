@@ -272,7 +272,7 @@ def post_file(item, item_id):
         if item == "image":
             if imghdr.what(files[0]) is not None:
                 handle_image(files[0], item_dir)
-                return jsonify({"message": "Success"}), 201
+                return "", 201
             return abort(400)
 
         date_subfolder = os.path.join(
@@ -285,7 +285,7 @@ def post_file(item, item_id):
             file_path = os.path.join(date_subfolder, file.filename)
             if not os.path.isfile(file_path):
                 file.save(file_path)
-        return jsonify({"message": "Success"}), 201
+        return "", 201
     except OSError as e:
         print(e)
         return abort(400)

@@ -46,7 +46,7 @@ async function deleteNeed(id: string) {
   refresh();
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }
@@ -60,7 +60,7 @@ function closeAction() {
 
 <template>
   <UButton
-    v-if="edit"
+    v-if="props.editable"
     class="py-3"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
@@ -94,7 +94,7 @@ function closeAction() {
         <FormsInquiryForm
           v-if="edit && itemId == item['id'].toString()"
           :cand-id="props.candId"
-          :inquiry="need"
+          :inquiry="item"
           @cancel="cancelOperation"
           @close="closeAction"
           @update="refresh"

@@ -23,9 +23,9 @@ const checkForm = toRef(props.check as Verification);
 
 const noNegative = ref(false);
 
-function submitCheck() {
+async function submitCheck() {
   emit("close");
-  authFetch("/api/checks/" + props.candId, {
+  await authFetch("/api/checks/" + props.candId, {
     method: "POST",
     body: checkForm.value,
   });

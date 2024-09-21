@@ -28,9 +28,9 @@ workForm.value.finished = workForm.value.finished
   ? new Date(workForm.value.finished).toISOString().slice(0, 10)
   : "";
 
-function submitWorkplace() {
+async function submitWorkplace() {
   emit("close");
-  authFetch("/api/workplaces/" + props.candId, {
+  await authFetch("/api/workplaces/" + props.candId, {
     method: "POST",
     body: workForm.value,
   });

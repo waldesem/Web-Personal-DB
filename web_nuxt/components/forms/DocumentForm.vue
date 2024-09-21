@@ -24,9 +24,9 @@ docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().slice(0, 10)
   : "";
 
-function submitDocument() {
+async function submitDocument() {
   emit("close");
-  authFetch("/api/documents/" + props.candId, {
+  await authFetch("/api/documents/" + props.candId, {
     method: "POST",
     body: docForm.value,
   });

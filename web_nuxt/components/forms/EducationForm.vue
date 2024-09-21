@@ -21,9 +21,9 @@ const props = defineProps({
 
 const educationForm = toRef(props.education as Education);
 
-function submitEducation() {
+async function submitEducation() {
   emit("close");
-  authFetch("/api/educations/" + props.candId, {
+  await authFetch("/api/educations/" + props.candId, {
     method: "POST",
     body: educationForm.value,
   });

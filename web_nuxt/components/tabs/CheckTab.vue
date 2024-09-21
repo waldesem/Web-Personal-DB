@@ -60,7 +60,7 @@ function closeAction() {
 
 <template>
   <UButton
-    v-if="editable"
+    v-if="props.editable"
     class="py-3"
     :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
@@ -71,7 +71,7 @@ function closeAction() {
       <UCard>
         <FormsCheckForm
           :cand-id="props.candId"
-          @submit="refresh"
+          @update="refresh"
           @cancel="cancelOperation"
           @close="closeAction"
         />
@@ -94,7 +94,7 @@ function closeAction() {
         <FormsCheckForm
           v-if="edit && itemId == item['id'].toString()"
           :cand-id="props.candId"
-          :check="check"
+          :check="item"
           @cancel="cancelOperation"
           @close="closeAction"
           @update="refresh"
