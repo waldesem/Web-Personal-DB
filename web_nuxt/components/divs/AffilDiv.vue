@@ -34,10 +34,9 @@ const {
 async function deleteAffilation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch("/api/affilations/" + id, {
+ await authFetch("/api/affilations/" + id, {
     method: "DELETE",
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",

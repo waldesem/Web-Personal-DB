@@ -23,11 +23,10 @@ const previousForm = toRef(props.previous as Previous);
 
 async function submitPrevious() {
   emit("cancel");
-  const response = await authFetch("/api/previous/" + props.candId, {
+  await authFetch("/api/previous/" + props.candId, {
     method: "POST",
     body: previousForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

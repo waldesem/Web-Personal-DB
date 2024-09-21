@@ -23,11 +23,10 @@ const addressForm = toRef(props.addrs as Address);
 
 async function submitAddress() {
   emit("cancel");
-  const response = await authFetch("/api/addresses/" + props.candId, {
+  await authFetch("/api/addresses/" + props.candId, {
     method: "POST",
     body: addressForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

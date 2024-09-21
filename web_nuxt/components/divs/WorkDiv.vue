@@ -34,10 +34,9 @@ const {
 async function deleteWork(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch("/api/workplaces/" + id, {
+  authFetch("/api/workplaces/" + id, {
     method: "DELETE",
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",

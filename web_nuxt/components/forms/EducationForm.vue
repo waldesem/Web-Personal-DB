@@ -23,11 +23,10 @@ const educationForm = toRef(props.education as Education);
 
 async function submitEducation() {
   emit("cancel");
-  const response = await authFetch("/api/educations/" + props.candId, {
+  await authFetch("/api/educations/" + props.candId, {
     method: "POST",
     body: educationForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

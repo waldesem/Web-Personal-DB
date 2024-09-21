@@ -23,11 +23,10 @@ const inquiryForm = toRef(props.inquiry as Needs);
 
 async function submitIquiry() {
   emit("cancel");
-  const response = await authFetch("/api/inquiries/" + props.candId, {
+  await authFetch("/api/inquiries/" + props.candId, {
     method: "POST",
     body: inquiryForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

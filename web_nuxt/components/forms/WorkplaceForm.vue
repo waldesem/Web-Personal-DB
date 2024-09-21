@@ -30,11 +30,10 @@ workForm.value.finished = workForm.value.finished
 
 async function submitWorkplace() {
   emit("cancel");
-  const response = await authFetch("/api/workplaces/" + props.candId, {
+  await authFetch("/api/workplaces/" + props.candId, {
     method: "POST",
     body: workForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

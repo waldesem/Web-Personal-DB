@@ -23,11 +23,10 @@ const relationForm = toRef(props.relation as Relation);
 
 async function submitRelation() {
   emit("cancel");
-  const response = await authFetch("/api/relations/" + props.candId, {
+  await authFetch("/api/relations/" + props.candId, {
     method: "POST",
     body: relationForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

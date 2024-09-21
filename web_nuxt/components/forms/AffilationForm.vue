@@ -23,11 +23,10 @@ const affilationForm = toRef(props.affils as Affilation);
 
 async function submitAffilation() {
   emit("cancel");
-  const response = await authFetch("/api/affilations/" + props.candId, {
+  await authFetch("/api/affilations/" + props.candId, {
     method: "POST",
     body: affilationForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { userToken } from "@/utils/auth";
 
-await useAsyncData("candidates", async () => {
+await useAsyncData("index", async () => {
   if (!userToken.value) {
     return navigateTo("/login");
   }

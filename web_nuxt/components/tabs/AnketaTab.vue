@@ -11,7 +11,7 @@ const props = defineProps({
     default: "",
   },
   person: {
-    type: Object,
+    type: Object as () => Persons,
     default: {} as Persons,
   },
 });

@@ -63,10 +63,11 @@ const filtredLinks = computed(() => {
   <UContainer
     :ui="{ constrained: 'max-w-none', padding: 'px-4 sm:px-6 lg:px-12' }"
   >
-    <header class="sticky border-b border-gray-200 py-8">
+    <header class="sticky pt-8 pb-16">
       <div class="flex justify-between relative">
-        <div class="absolute top-0 left-0 inline-block text-2xl font-bold">
-          <h3 class="text-blue-800">STAFFSEC</h3>
+        <div class="absolute top-0 left-0 inline-flex text-2xl font-bold">
+          <h3 class="text-primary">STAFFSEC</h3>
+            &nbsp;
           <h3 class="text-red-800">ФИНТЕХ</h3>
         </div>
         <UButton
@@ -81,10 +82,15 @@ const filtredLinks = computed(() => {
           :variant="$colorMode.preference == 'light' ? 'soft' : 'ghost'"
           @click="$colorMode.preference = 'light'"
         />
-        <UPopover mode="hover">
-          <UAvatar class="absolute top-0 right-24" :alt="userState.fullname" />
+        <UPopover class="absolute top-0 right-24" mode="hover" :popper="{ placement: 'top-start' }">
+          <UAvatar :alt="userState.fullname" />
           <template #panel>
-            <UCard>
+            <UCard
+              :ui="{body: {
+                  base: '',
+                  background: '',
+                  padding: 'p-6 sm:p-2',
+                }}">
               <p class="text-center text-sm text-gray-500">
                 {{ userState.fullname }}
               </p>

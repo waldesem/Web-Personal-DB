@@ -1,5 +1,6 @@
 import type { NitroFetchOptions } from "nitropack";
 import { Buffer } from "buffer";
+import type { User } from "@/types/interfaces";
 
 export const userToken = ref("");
 

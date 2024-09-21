@@ -34,10 +34,9 @@ const {
 async function deleteAddress(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch("/api/addresses/" + id, {
+  await authFetch("/api/addresses/" + id, {
     method: "DELETE",
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",

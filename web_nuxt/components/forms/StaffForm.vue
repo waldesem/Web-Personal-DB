@@ -23,11 +23,10 @@ const staffForm = toRef(props.staff as Staff);
 
 async function submitStaff() {
   emit("cancel");
-  const response = await authFetch("/api/staffs/" + props.candId, {
+  authFetch("/api/staffs/" + props.candId, {
     method: "POST",
     body: staffForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

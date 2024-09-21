@@ -26,11 +26,10 @@ docForm.value.issue = docForm.value.issue
 
 async function submitDocument() {
   emit("cancel");
-  const response = await authFetch("/api/documents/" + props.candId, {
+  await authFetch("/api/documents/" + props.candId, {
     method: "POST",
     body: docForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

@@ -34,10 +34,9 @@ const {
 async function deleteRelation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch("/api/relations/" + id, {
+  await authFetch("/api/relations/" + id, {
     method: "DELETE",
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",

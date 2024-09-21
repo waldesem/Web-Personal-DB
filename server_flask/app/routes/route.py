@@ -450,7 +450,7 @@ def delete_item(item, item_id):
         return abort(400)
     db_session.delete(item)
     db_session.commit()
-    return jsonify({"message": "Success"}), 204
+    return "", 204
 
 
 @bp.get("/information")

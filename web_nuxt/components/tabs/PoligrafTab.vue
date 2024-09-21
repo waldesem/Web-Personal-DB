@@ -34,10 +34,9 @@ const {
 async function deletePoligraf(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch('/api/poligrafs/' + id, {
+  await authFetch('/api/poligrafs/' + id, {
     method: "DELETE",
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",

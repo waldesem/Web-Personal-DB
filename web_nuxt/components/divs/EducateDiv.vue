@@ -34,10 +34,9 @@ const {
 async function deleteEducation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch("/api/educations/" + id, {
+  await authFetch("/api/educations/" + id, {
     method: "DELETE",
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",

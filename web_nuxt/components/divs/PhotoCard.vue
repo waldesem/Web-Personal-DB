@@ -35,11 +35,10 @@ async function submitImage(file: File) {
   if (!file) return;
   const formData = new FormData();
   formData.append("file", file);
-  const response = await authFetch("/api/file/image/" + props.candId, {
+  await authFetch("/api/file/image/" + props.candId, {
     method: "POST",
     body: formData,
   });
-  console.log(response);
   await refresh();
 }
 

@@ -25,11 +25,10 @@ const noNegative = ref(false);
 
 async function submitCheck() {
   emit("cancel");
-  const response = await authFetch("/api/checks/" + props.candId, {
+  await authFetch("/api/checks/" + props.candId, {
     method: "POST",
     body: checkForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

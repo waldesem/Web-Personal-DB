@@ -23,11 +23,10 @@ const poligrafForm = toRef(props.poligraf as Pfo);
 
 async function submitPoligraf() {
   emit("cancel");
-  const response = await authFetch('/api/poligrafs/' + props.candId, {
+  await authFetch('/api/poligrafs/' + props.candId, {
     method: "POST",
     body: poligrafForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

@@ -4,7 +4,7 @@ import os
 import secrets
 import shutil
 
-from server_flask.app.model.classes import Regions
+from app.model.classes import Regions
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))

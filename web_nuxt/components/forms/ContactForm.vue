@@ -23,11 +23,10 @@ const contactForm = toRef(props.contact as Contact);
 
 async function submitContact() {
   emit("cancel");
-  const response = await authFetch("/api/contacts/" + props.candId, {
+  await authFetch("/api/contacts/" + props.candId, {
     method: "POST",
     body: contactForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

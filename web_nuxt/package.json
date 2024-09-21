@@ -19,6 +19,7 @@
     "@nuxt/eslint": "^0.5.0",
     "@types/node": "^22.1.0",
     "globals": "^15.9.0",
+    "nuxt-purgecss": "^2.0.0",
     "vue-tsc": "^2.0.29"
   }
 }

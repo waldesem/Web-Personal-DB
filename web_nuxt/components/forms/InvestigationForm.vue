@@ -23,11 +23,10 @@ const investigationForm = toRef(props.investigation as Inquisition);
 
 async function submitInvestigations() {
   emit("cancel");
-  const response = await authFetch("/api/investigation/" + props.candId, {
+ await authFetch("/api/investigation/" + props.candId, {
     method: "POST",
     body: investigationForm.value,
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Успешно",

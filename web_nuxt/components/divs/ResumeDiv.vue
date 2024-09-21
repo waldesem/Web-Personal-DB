@@ -18,7 +18,7 @@ const props = defineProps({
     default: "",
   },
   person: {
-    type: Object,
+    type: Object as () => Persons,
     default: {} as Persons,
   },
 });
@@ -31,12 +31,11 @@ const dataResume = ref({
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
-  const response = await authFetch(`/api/region/${props.candId}`, {
+  await authFetch(`/api/region/${props.candId}`, {
     params: {
       region: dataResume.value.region,
     },
   });
-  console.log(response);
   emit("update");
   toast.add({
     icon: "i-heroicons-check-circle",
@@ -48,10 +47,9 @@ async function changeRegion(): Promise<void> {
 
 async function deleteItem() {
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  const response = await authFetch(`/api/persons/${props.candId}`, {
+  await authFetch(`/api/persons/${props.candId}`, {
     method: "DELETE",
   });
-  console.log(response);
   toast.add({
     icon: "i-heroicons-information-circle",
     title: "Информация",
@@ -151,7 +149,13 @@ function cancelAction() {
         {{ props.person["addition"] ? props.person["addition"] : "-" }}
       </ElementsLabelSlot>
     </div>
-    <template v-if="props.editable && !dataResume.action" #footer>
+    <template
+      v-if="
+        props.editable &&
+        !dataResume.action
+      "
+      #footer
+    >
       <ElementsNaviHorizont
         :cand-id="props.candId"
         :input-id="'resume-file'"
