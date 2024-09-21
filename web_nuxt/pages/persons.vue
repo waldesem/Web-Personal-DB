@@ -25,7 +25,7 @@ const { refresh, status } = await useAsyncData("candidates", async () => {
     persons.value.page = 1;
     return;
   }
-  const response = await authFetch('/api/index/' + persons.value.page, {
+  const response = await authFetch("/api/index/" + persons.value.page, {
     params: {
       search: persons.value.search,
     },
@@ -48,15 +48,15 @@ const switchPage = async (page: number = 1) => {
   await refresh();
 };
 
-async function uploadJson(file: File) {
-  if (!file) return;
+async function uploadJson(filelist: FileList) {
+  if (!filelist) return;
   persons.value.upload = true;
   const formData = new FormData();
-  formData.append("file", file)
-  const { person_id } = await authFetch('/json', {
+  formData.append("file", filelist[0]);
+  const { person_id } = (await authFetch("/api/json", {
     method: "POST",
     body: formData,
-  }) as Record<string, string>;
+  })) as Record<string, string>;
   toast.add({
     icon: "i-heroicons-check-circle",
     title: "Информация",
@@ -64,7 +64,7 @@ async function uploadJson(file: File) {
     color: "green",
   });
   persons.value.upload = false;
-  return navigateTo('/profile/' + person_id);
+  return navigateTo("/profile/" + person_id);
 }
 </script>
 

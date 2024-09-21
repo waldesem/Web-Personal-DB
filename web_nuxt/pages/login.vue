@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { userToken } from "@/utils/auth";
-
-interface Login {
-  username: string;
-  password: string;
-  new_pswd: string;
-  conf_pswd: string;
-}
+import type { Login } from "@/types/interfaces";
 
 const loginAction = ref("create");
 const loginForm = ref({} as Login);

@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   poligraf: {
@@ -21,9 +21,9 @@ const props = defineProps({
 
 const poligrafForm = toRef(props.poligraf as Pfo);
 
-async function submitPoligraf() {
-  emit("cancel");
-  await authFetch('/api/poligrafs/' + props.candId, {
+function submitPoligraf() {
+  emit("close");
+  authFetch('/api/poligrafs/' + props.candId, {
     method: "POST",
     body: poligrafForm.value,
   });

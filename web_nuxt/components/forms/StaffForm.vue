@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   staff: {
@@ -21,8 +21,8 @@ const props = defineProps({
 
 const staffForm = toRef(props.staff as Staff);
 
-async function submitStaff() {
-  emit("cancel");
+function submitStaff() {
+  emit("close");
   authFetch("/api/staffs/" + props.candId, {
     method: "POST",
     body: staffForm.value,

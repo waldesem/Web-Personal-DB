@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   affils: {
@@ -21,9 +21,9 @@ const props = defineProps({
 
 const affilationForm = toRef(props.affils as Affilation);
 
-async function submitAffilation() {
-  emit("cancel");
-  await authFetch("/api/affilations/" + props.candId, {
+function submitAffilation() {
+  emit("close");
+  authFetch("/api/affilations/" + props.candId, {
     method: "POST",
     body: affilationForm.value,
   });

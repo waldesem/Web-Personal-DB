@@ -1,10 +1,27 @@
 <script setup lang="ts">
-function openProfile(candId: string) {
-  return navigateTo("/profile/" + candId);
-}
+import { useFetchAuth } from "@/utils/auth";
+import type { Persons } from "@/types/interfaces";
+
+const toast = useToast();
+
+const authFetch = useFetchAuth();
 
 function openPersons() {
   return navigateTo("/persons");
+}
+
+async function submitResume(form: Persons) {
+  const { person_id } = (await authFetch("/api/resume", {
+    method: "POST",
+    body: form,
+  })) as Record<string, string>;
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация добавлена",
+    color: "green",
+  });
+  return navigateTo("/profile/" + person_id);
 }
 </script>
 
@@ -12,7 +29,7 @@ function openPersons() {
   <LayoutsMenu>
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'" />
     <UCard>
-      <FormsResumeForm @cancel="openPersons" @update="openProfile" />
+      <FormsResumeForm @cancel="openPersons" @update="submitResume" />
     </UCard>
   </LayoutsMenu>
 </template>

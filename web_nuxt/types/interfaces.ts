@@ -1,3 +1,10 @@
+export interface Login {
+  username: string;
+  password: string;
+  new_pswd: string;
+  conf_pswd: string;
+}
+
 export interface User {
   id: string;
   fullname: string;

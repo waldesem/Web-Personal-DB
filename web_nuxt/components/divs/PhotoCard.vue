@@ -31,9 +31,10 @@ const { refresh } = await useAsyncData("image", async () => {
   imageUrl.value = window.URL.createObjectURL(new Blob([response] as never));
 });
 
-async function submitImage(file: File) {
-  if (!file) return;
+async function submitImage(filelist: FileList) {
+  if (!filelist) return;
   const formData = new FormData();
+  const file = filelist[0];
   formData.append("file", file);
   await authFetch("/api/file/image/" + props.candId, {
     method: "POST",

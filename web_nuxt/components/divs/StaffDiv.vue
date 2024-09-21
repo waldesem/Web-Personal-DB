@@ -31,10 +31,10 @@ const {
   return response as Staff[];
 });
 
-async function deleteStaff(id: string) {
+function deleteStaff(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  await authFetch("/api/staffs/" + id, {
+  authFetch("/api/staffs/" + id, {
     method: "DELETE",
   });
   toast.add({
@@ -46,7 +46,7 @@ async function deleteStaff(id: string) {
   refresh();
 }
 
-async function cancelOperation() {
+function cancelOperation() {
   closeAction();
   refresh();
 }
@@ -68,7 +68,12 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsStaffForm @cancel="cancelOperation" @update="refresh" />
+        <FormsStaffForm
+          :cand-id="props.candId"
+          @cancel="cancelOperation"
+          @close="closeAction"
+          @update="refresh"
+        />
       </UCard>
     </div>
   </Transition>
@@ -78,8 +83,10 @@ function closeAction() {
       <UCard v-else>
         <FormsStaffForm
           v-if="edit && itemId == item['id'].toString()"
+          :cand-id="props.candId"
           :staff="staff"
           @cancel="cancelOperation"
+          @close="closeAction"
           @update="refresh"
         />
         <div v-else>

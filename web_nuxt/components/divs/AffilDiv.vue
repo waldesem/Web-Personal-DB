@@ -34,7 +34,7 @@ const {
 async function deleteAffilation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
- await authFetch("/api/affilations/" + id, {
+  await authFetch("/api/affilations/" + id, {
     method: "DELETE",
   });
   toast.add({
@@ -68,7 +68,12 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsAffilationForm @cancel="cancelOperation" @update="refresh" />
+        <FormsAffilationForm
+          :cand-id="props.candId"
+          @cancel="cancelOperation"
+          @close="closeAction"
+          @update="refresh"
+        />
       </UCard>
     </div>
   </Transition>
@@ -78,8 +83,10 @@ function closeAction() {
       <UCard v-else>
         <FormsAffilationForm
           v-if="edit && itemId == item['id'].toString()"
+          :cand-id="props.candId"
           :affils="affilation"
           @cancel="cancelOperation"
+          @close="closeAction"
           @update="refresh"
         />
         <div v-else>

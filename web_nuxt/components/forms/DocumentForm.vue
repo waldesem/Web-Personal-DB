@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   docs: {
@@ -24,9 +24,9 @@ docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().slice(0, 10)
   : "";
 
-async function submitDocument() {
-  emit("cancel");
-  await authFetch("/api/documents/" + props.candId, {
+function submitDocument() {
+  emit("close");
+  authFetch("/api/documents/" + props.candId, {
     method: "POST",
     body: docForm.value,
   });

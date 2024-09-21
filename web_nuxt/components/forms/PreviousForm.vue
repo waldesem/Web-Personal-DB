@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   previous: {
@@ -21,9 +21,9 @@ const props = defineProps({
 
 const previousForm = toRef(props.previous as Previous);
 
-async function submitPrevious() {
-  emit("cancel");
-  await authFetch("/api/previous/" + props.candId, {
+function submitPrevious() {
+  emit("close");
+  authFetch("/api/previous/" + props.candId, {
     method: "POST",
     body: previousForm.value,
   });

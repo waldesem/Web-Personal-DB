@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   relation: {
@@ -21,9 +21,9 @@ const props = defineProps({
 
 const relationForm = toRef(props.relation as Relation);
 
-async function submitRelation() {
-  emit("cancel");
-  await authFetch("/api/relations/" + props.candId, {
+function submitRelation() {
+  emit("close");
+  authFetch("/api/relations/" + props.candId, {
     method: "POST",
     body: relationForm.value,
   });

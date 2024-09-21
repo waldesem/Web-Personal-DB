@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { useFetchAuth } from "@/utils/auth";
 import type { Persons } from "@/types/interfaces";
-
-const toast = useToast();
-
-const authFetch = useFetchAuth();
 
 const emit = defineEmits(["cancel", "update"]);
 
@@ -42,34 +37,39 @@ function cancelEdit() {
   } as Persons);
 }
 
-const validate = (state: Persons) => {
+const validate = (state: Persons): FormError[] => {
   const errors = [];
   const pattern = /^[а-яА-Я-\s]+$/;
-  if (!state.surname.match(pattern)) {
+  if (state.surname && !state.surname.match(pattern)) {
+    console.log(state.surname);
     errors.push({
       path: "surname",
-      message: "Поле должнос содержать только русские буквы",
+      message: "Поле должно содержать только русские буквы",
     });
   }
-  if (!state.firstname.match(pattern)) {
+  if (state.firstname && !state.firstname.match(pattern)) {
+    console.log(state.firstname);
     errors.push({
       path: "firstname",
       message: "Поле должно содержать только русские буквы",
     });
   }
   if (state.patronymic && !state.patronymic.match(pattern)) {
+    console.log(state.patronymic);
     errors.push({
       path: "patronymic",
       message: "Поле должно содержать только русские буквы",
     });
   }
   if (!Object.prototype.toString.call(state.birthday)) {
+    console.log(state.birthday);
     errors.push({
       path: "birthday",
       message: "Поле должно содержать дату",
     });
   }
   if (new Date(state.birthday) > new Date()) {
+    console.log(state.birthday);
     errors.push({
       path: "birthday",
       message: "Поле должно содержать корректную дату",
@@ -79,18 +79,7 @@ const validate = (state: Persons) => {
 };
 
 async function submitResume() {
-  emit("cancel");
-  const { person_id } = (await authFetch("/api/resume/", {
-    method: "POST",
-    body: resumeForm.value,
-  })) as Record<string, string>;
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация добавлена",
-    color: "green",
-  });
-  emit("update", person_id);
+  emit("update", resumeForm.value);
   cancelEdit();
 }
 </script>

@@ -68,7 +68,12 @@ function closeAction() {
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsEducationForm @cancel="cancelOperation" @update="refresh" />
+        <FormsEducationForm
+          :cand-id="props.candId"
+          @cancel="cancelOperation"
+          @close="closeAction"
+          @update="refresh"
+        />
       </UCard>
     </div>
   </Transition>
@@ -78,8 +83,10 @@ function closeAction() {
       <UCard v-else>
         <FormsEducationForm
           v-if="edit && itemId == item['id'].toString()"
+          :cand-id="props.candId"
           :education="education"
           @cancel="cancelOperation"
+          @close="closeAction"
           @update="refresh"
         />
         <div v-else>

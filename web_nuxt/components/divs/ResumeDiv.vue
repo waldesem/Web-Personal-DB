@@ -2,11 +2,11 @@
 import { useFetchAuth } from "@/utils/auth";
 import type { Persons } from "@/types/interfaces";
 
+const emit = defineEmits(["update"]);
+
 const toast = useToast();
 
 const authFetch = useFetchAuth();
-
-const emit = defineEmits(["update"]);
 
 const props = defineProps({
   editable: {
@@ -23,17 +23,14 @@ const props = defineProps({
   },
 });
 
-const dataResume = ref({
-  action: "",
-  region: "",
-  form: {} as Persons,
-});
+const action = ref(false);
+const region = ref("");
 
 async function changeRegion(): Promise<void> {
   if (!confirm("Вы действительно хотите изменить регион?")) return;
   await authFetch(`/api/region/${props.candId}`, {
     params: {
-      region: dataResume.value.region,
+      region: region.value,
     },
   });
   emit("update");
@@ -43,6 +40,21 @@ async function changeRegion(): Promise<void> {
     description: "Изменение региона успешно",
     color: "green",
   });
+}
+
+function submitResume(form: Persons) {
+  action.value = false;
+  authFetch("/api/persons/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  emit("update");
 }
 
 async function deleteItem() {
@@ -60,25 +72,24 @@ async function deleteItem() {
 }
 
 function cancelAction() {
-  dataResume.value.action = "";
+  action.value = false;
   emit("update");
 }
 </script>
 
 <template>
   <UCard>
-    <div v-if="dataResume.action">
+    <div v-if="action">
       <FormsResumeForm
-        :action="dataResume.action"
         :resume="props.person"
         @cancel="cancelAction"
-        @update="emit('update')"
+        @update="submitResume"
       />
     </div>
     <div v-else>
       <ElementsLabelSlot :label="'Регион'">
         <USelect
-          v-model="dataResume.region"
+          v-model="region"
           style="width: 20%"
           :options="[
             'Главный офис',
@@ -88,6 +99,7 @@ function cancelAction() {
             'РЦ Восток',
           ]"
           :disabled="!props.editable"
+          :placeholder="props.person['region']"
           @change="changeRegion()"
         />
       </ElementsLabelSlot>
@@ -149,19 +161,13 @@ function cancelAction() {
         {{ props.person["addition"] ? props.person["addition"] : "-" }}
       </ElementsLabelSlot>
     </div>
-    <template
-      v-if="
-        props.editable &&
-        !dataResume.action
-      "
-      #footer
-    >
+    <template v-if="props.editable && !action" #footer>
       <ElementsNaviHorizont
         :cand-id="props.candId"
         :input-id="'resume-file'"
         :item="'persons'"
         @delete="deleteItem"
-        @update="dataResume.action = 'update'"
+        @update="action = true"
       />
     </template>
   </UCard>

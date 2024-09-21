@@ -27,14 +27,14 @@ const {
   refresh,
   status,
 } = await useLazyAsyncData("poligrafs", async () => {
-  const response = await authFetch('/api/poligrafs/' + props.candId);
-  return response  as Pfo[];
+  const response = await authFetch("/api/poligrafs/" + props.candId);
+  return response as Pfo[];
 });
 
 async function deletePoligraf(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  await authFetch('/api/poligrafs/' + id, {
+  await authFetch("/api/poligrafs/" + id, {
     method: "DELETE",
   });
   toast.add({
@@ -62,14 +62,19 @@ function closeAction() {
   <UButton
     v-if="editable"
     class="py-3"
-    :label="collapse ? 'Добавить запись' : 'Скрыть форму'"
+    :label="!collapse ? 'Добавить запись' : 'Скрыть форму'"
     variant="link"
     @click="collapse = !collapse"
   />
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
       <UCard>
-        <FormsPoligrafForm @cancel="cancelOperation" @update="refresh" />
+        <FormsPoligrafForm
+          :cand-id="props.candId"
+          @cancel="cancelOperation"
+          @close="closeAction"
+          @update="refresh"
+        />
       </UCard>
     </div>
   </Transition>
@@ -88,8 +93,10 @@ function closeAction() {
         </template>
         <FormsPoligrafForm
           v-if="edit && itemId == item['id'].toString()"
+          :cand-id="props.candId"
           :poligraf="poligraf"
           @cancel="cancelOperation"
+          @close="closeAction"
           @update="refresh"
         />
         <div v-else>

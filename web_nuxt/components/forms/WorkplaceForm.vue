@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   work: {
@@ -28,9 +28,9 @@ workForm.value.finished = workForm.value.finished
   ? new Date(workForm.value.finished).toISOString().slice(0, 10)
   : "";
 
-async function submitWorkplace() {
-  emit("cancel");
-  await authFetch("/api/workplaces/" + props.candId, {
+function submitWorkplace() {
+  emit("close");
+  authFetch("/api/workplaces/" + props.candId, {
     method: "POST",
     body: workForm.value,
   });

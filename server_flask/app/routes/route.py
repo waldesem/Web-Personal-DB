@@ -245,7 +245,7 @@ def post_file(item, item_id):
         None.
     """
     files = request.files.getlist("file")
-    if not files or not files[0].filename:
+    if not files:
         return abort(400)
 
     person = db_session.get(Persons, item_id)
@@ -254,11 +254,11 @@ def post_file(item, item_id):
     try:
         if not person.destination:
             destination = make_destination(
-                current_user["id"],
+                current_user["region"],
                 person.surname,
                 person.firstname,
                 person.patronymic,
-                item_id,
+                person.id,
             )
             person.destination = destination
             db_session.commit()
@@ -317,7 +317,7 @@ def post_json():
     if destination and os.path.isdir(destination):
         with open(os.path.join(destination, file.filename), "wb") as f:
             f.write(json.dumps(json_dict, ensure_ascii=False).encode("utf8"))
-            subprocess.run(f'explorer "{destination}"')
+            # subprocess.run(f'explorer "{destination}"')
             # subprocess.run(['xdg-open', destination])
     for table, contents in anketa.items():
         if contents and table != "resume":
@@ -342,7 +342,7 @@ def post_resume():
     """
     json_data = request.get_json()
     resume = Person(**json_data).dict()
-    person_id = handle_post_resume(resume)
+    person_id, _ = handle_post_resume(resume)
     if not person_id:
         return abort(400)
     return jsonify({"person_id": person_id}), 201
@@ -425,9 +425,12 @@ def post_item_id(item, item_id):
         otherwise a string containing the exception message and an HTTP status code of 400.
     """
     json_data = request.get_json()
-    json_dict = models_tables[item](**json_data).dict()
+    model = models_tables.get(item)
+    if not model:
+        return abort(400)
+    json_dict = model(**json_data).dict()
     handle_post_item(json_dict, item, item_id)
-    return jsonify({"message": "Success"}), 201
+    return "", 201
 
 
 @bp.delete("/<item>/<int:item_id>")

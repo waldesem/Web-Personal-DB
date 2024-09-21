@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   investigation: {
@@ -21,9 +21,9 @@ const props = defineProps({
 
 const investigationForm = toRef(props.investigation as Inquisition);
 
-async function submitInvestigations() {
-  emit("cancel");
- await authFetch("/api/investigation/" + props.candId, {
+function submitInvestigations() {
+  emit("close");
+  authFetch("/api/investigations/" + props.candId, {
     method: "POST",
     body: investigationForm.value,
   });

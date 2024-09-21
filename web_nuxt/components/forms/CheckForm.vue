@@ -6,7 +6,7 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
-const emit = defineEmits(["cancel", "update"]);
+const emit = defineEmits(["cancel", "close", "update"]);
 
 const props = defineProps({
   check: {
@@ -23,9 +23,9 @@ const checkForm = toRef(props.check as Verification);
 
 const noNegative = ref(false);
 
-async function submitCheck() {
-  emit("cancel");
-  await authFetch("/api/checks/" + props.candId, {
+function submitCheck() {
+  emit("close");
+  authFetch("/api/checks/" + props.candId, {
     method: "POST",
     body: checkForm.value,
   });
