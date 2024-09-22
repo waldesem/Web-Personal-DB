@@ -31,6 +31,21 @@ const {
   return response as Inquisition[];
 });
 
+async function submitInvestigations(form: Inquisition) {
+  closeAction();
+  await authFetch("/api/investigations/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteInquisition(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -72,8 +87,7 @@ function closeAction() {
         <FormsInvestigationForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitInvestigations"
         />
       </UCard>
     </div>
@@ -95,9 +109,8 @@ function closeAction() {
           v-if="edit && itemId == item['id'].toString()"
           :cand-id="props.candId"
           :investigation="item"
-          @close="closeAction"
           @cancel="cancelOperation"
-          @update="refresh"
+          @update="submitInvestigations"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{

@@ -31,6 +31,21 @@ const {
   return response as Pfo[];
 });
 
+async function submitPoligraf(form: Pfo) {
+  closeAction();
+  await authFetch('/api/poligrafs/' + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deletePoligraf(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -72,8 +87,7 @@ function closeAction() {
         <FormsPoligrafForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitPoligraf"
         />
       </UCard>
     </div>
@@ -96,8 +110,7 @@ function closeAction() {
           :cand-id="props.candId"
           :poligraf="item"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitPoligraf"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тема проверки'">{{

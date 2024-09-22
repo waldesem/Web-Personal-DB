@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Affilation } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   affils: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const affilationForm = toRef(props.affils as Affilation);
 
-async function submitAffilation() {
-  emit("close");
-  await authFetch("/api/affilations/" + props.candId, {
-    method: "POST",
-    body: affilationForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitAffilation() {
+  emit("update", affilationForm.value);
   clearForm();
 }
 

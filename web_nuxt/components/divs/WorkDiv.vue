@@ -31,6 +31,21 @@ const {
   return response as Work[];
 });
 
+async function submitWorkplace(form: Work) {
+  closeAction();
+  await authFetch("/api/workplaces/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteWork(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,8 +86,7 @@ function closeAction() {
         <FormsWorkplaceForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitWorkplace"
         />
       </UCard>
     </div>
@@ -86,8 +100,7 @@ function closeAction() {
           :cand-id="props.candId"
           :work="workplace"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitWorkplace"
         />
         <div v-else>
           <ElementsLabelSlot v-if="item['now_work']" :label="'Текущая работа'">

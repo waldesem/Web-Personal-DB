@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Verification } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   check: {
@@ -23,19 +18,8 @@ const checkForm = toRef(props.check as Verification);
 
 const noNegative = ref(false);
 
-async function submitCheck() {
-  emit("close");
-  await authFetch("/api/checks/" + props.candId, {
-    method: "POST",
-    body: checkForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitCheck() {
+  emit("update", checkForm.value);
   clearForm();
 }
 

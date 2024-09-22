@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Needs } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   inquiry: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const inquiryForm = toRef(props.inquiry as Needs);
 
-async function submitIquiry() {
-  emit("close");
-  await authFetch("/api/inquiries/" + props.candId, {
-    method: "POST",
-    body: inquiryForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitIquiry() {
+  emit("update", inquiryForm.value);
   clearForm();
 }
 

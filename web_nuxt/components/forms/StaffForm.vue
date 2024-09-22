@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Staff } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   staff: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const staffForm = toRef(props.staff as Staff);
 
-async function submitStaff() {
-  emit("close");
-  await authFetch("/api/staffs/" + props.candId, {
-    method: "POST",
-    body: staffForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitStaff() {
+  emit("update", staffForm.value);
   clearForm();
 }
 

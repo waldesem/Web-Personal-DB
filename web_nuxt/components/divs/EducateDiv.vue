@@ -31,6 +31,21 @@ const {
   return response as Education[];
 });
 
+async function submitEducation(form: Education) {
+  closeAction();
+  await authFetch("/api/educations/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteEducation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,8 +86,7 @@ function closeAction() {
         <FormsEducationForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitEducation"
         />
       </UCard>
     </div>
@@ -86,8 +100,7 @@ function closeAction() {
           :cand-id="props.candId"
           :education="education"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitEducation"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Уровень образования'">{{

@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Pfo } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   poligraf: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const poligrafForm = toRef(props.poligraf as Pfo);
 
-async function submitPoligraf() {
-  emit("close");
-  await authFetch('/api/poligrafs/' + props.candId, {
-    method: "POST",
-    body: poligrafForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitPoligraf() {
+  emit("update", poligrafForm.value);
   poligrafForm.value.theme = "";
   poligrafForm.value.results = "";
 }

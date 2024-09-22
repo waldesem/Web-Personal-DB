@@ -31,6 +31,21 @@ const {
   return response as Staff[];
 });
 
+async function submitStaff(form: Staff) {
+  closeAction();
+  await authFetch("/api/staffs/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 function deleteStaff(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,8 +86,7 @@ function closeAction() {
         <FormsStaffForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitStaff"
         />
       </UCard>
     </div>
@@ -86,8 +100,7 @@ function closeAction() {
           :cand-id="props.candId"
           :staff="staff"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitStaff"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Должность'">{{

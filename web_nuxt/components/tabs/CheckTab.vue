@@ -31,6 +31,21 @@ const {
   return response as Verification[];
 });
 
+async function submitCheck(form: Verification) {
+  closeAction();
+  await authFetch("/api/checks/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteCheck(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,9 +86,8 @@ function closeAction() {
       <UCard>
         <FormsCheckForm
           :cand-id="props.candId"
-          @update="refresh"
+          @update="submitCheck"
           @cancel="cancelOperation"
-          @close="closeAction"
         />
       </UCard>
     </div>
@@ -96,8 +110,7 @@ function closeAction() {
           :cand-id="props.candId"
           :check="item"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitCheck"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Проверка по местам работы'">

@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Education } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   education: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const educationForm = toRef(props.education as Education);
 
-async function submitEducation() {
-  emit("close");
-  await authFetch("/api/educations/" + props.candId, {
-    method: "POST",
-    body: educationForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitEducation() {
+  emit("update", educationForm.value);
   clearForm();
 }
 

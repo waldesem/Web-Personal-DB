@@ -31,6 +31,21 @@ const {
   return response as Address[];
 });
 
+async function submitAddress(form: Address) {
+  closeAction();
+  await authFetch("/api/addresses/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteAddress(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,8 +86,7 @@ function closeAction() {
         <FormsAddressForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitAddress"
         />
       </UCard>
     </div>
@@ -86,8 +100,7 @@ function closeAction() {
           :cand-id="props.candId"
           :addrs="address"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitAddress"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тип'">{{

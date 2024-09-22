@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Contact } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   contact: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const contactForm = toRef(props.contact as Contact);
 
-async function submitContact() {
-  emit("close");
-  await authFetch("/api/contacts/" + props.candId, {
-    method: "POST",
-    body: contactForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitContact() {
+  emit("update", contactForm.value);
   clearForm();
 }
 

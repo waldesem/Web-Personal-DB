@@ -31,6 +31,21 @@ const {
   return response as Previous[];
 });
 
+async function submitPrevious(form: Previous) {
+  closeAction();
+  await authFetch("/api/previous/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deletePrevious(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,8 +86,7 @@ function closeAction() {
         <FormsPreviousForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitPrevious"
         />
       </UCard>
     </div>
@@ -86,8 +100,7 @@ function closeAction() {
           :cand-id="props.candId"
           :previous="prev"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitPrevious"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Фамилия'">

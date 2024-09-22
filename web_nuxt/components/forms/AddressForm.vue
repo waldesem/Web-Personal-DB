@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Address } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   addrs: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const addressForm = toRef(props.addrs as Address);
 
-async function submitAddress() {
-  emit("close");
-  await authFetch("/api/addresses/" + props.candId, {
-    method: "POST",
-    body: addressForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitAddress() {
+  emit("update", addressForm.value);
   clearForm();
 }
 

@@ -31,6 +31,21 @@ const {
   return response as Relation[];
 });
 
+async function submitRelation(form: Relation) {
+  closeAction();
+  await authFetch("/api/relations/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteRelation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,8 +86,7 @@ function closeAction() {
         <FormsRelationForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitRelation"
         />
       </UCard>
     </div>
@@ -86,8 +100,7 @@ function closeAction() {
           :cand-id="props.candId"
           :relation="relation"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitRelation"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тип'">{{

@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Work } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   work: {
@@ -28,19 +23,8 @@ workForm.value.finished = workForm.value.finished
   ? new Date(workForm.value.finished).toISOString().slice(0, 10)
   : "";
 
-async function submitWorkplace() {
-  emit("close");
-  await authFetch("/api/workplaces/" + props.candId, {
-    method: "POST",
-    body: workForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitWorkplace() {
+  emit("update", workForm.value);
   clearForm();
 }
 

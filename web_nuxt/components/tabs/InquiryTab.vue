@@ -31,6 +31,21 @@ const {
   return response as Needs[];
 });
 
+async function submitIquiry(form: Needs) {
+  closeAction();
+  await authFetch("/api/inquiries/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteNeed(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -46,15 +61,15 @@ async function deleteNeed(id: string) {
   refresh();
 }
 
-function cancelOperation() {
-  closeAction();
-  refresh();
-}
-
 function closeAction() {
   edit.value = false;
   itemId.value = "";
   collapse.value = false;
+}
+
+function cancelOperation() {
+  closeAction();
+  refresh();
 }
 </script>
 
@@ -72,8 +87,7 @@ function closeAction() {
         <FormsInquiryForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitIquiry"
         />
       </UCard>
     </div>
@@ -96,8 +110,7 @@ function closeAction() {
           :cand-id="props.candId"
           :inquiry="item"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitIquiry"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Информация'">{{

@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Previous } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   previous: {
@@ -21,19 +16,8 @@ const props = defineProps({
 
 const previousForm = toRef(props.previous as Previous);
 
-async function submitPrevious() {
-  emit("close");
-  await authFetch("/api/previous/" + props.candId, {
-    method: "POST",
-    body: previousForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitPrevious() {
+  emit("update", previousForm.value);
   clearForm();
 }
 

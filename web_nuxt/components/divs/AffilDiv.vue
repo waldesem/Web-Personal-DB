@@ -31,6 +31,21 @@ const {
   return response as Affilation[];
 });
 
+async function submitAffilation(form: Affilation) {
+  closeAction();
+  await authFetch("/api/affilations/" + props.candId, {
+    method: "POST",
+    body: form,
+  });
+  toast.add({
+    icon: "i-heroicons-check-circle",
+    title: "Успешно",
+    description: "Информация обновлена",
+    color: "green",
+  });
+  refresh();
+}
+
 async function deleteAffilation(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
@@ -71,8 +86,7 @@ function closeAction() {
         <FormsAffilationForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitAffilation"
         />
       </UCard>
     </div>
@@ -86,8 +100,7 @@ function closeAction() {
           :cand-id="props.candId"
           :affils="affilation"
           @cancel="cancelOperation"
-          @close="closeAction"
-          @update="refresh"
+          @update="submitAffilation"
         />
         <div v-else>
           <ElementsLabelSlot :label="'Тип участия'">{{

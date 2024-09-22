@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import type { Document } from "@/types/interfaces";
-import { useFetchAuth } from "@/utils/auth";
 
-const toast = useToast();
-
-const authFetch = useFetchAuth();
-
-const emit = defineEmits(["cancel", "close", "update"]);
+const emit = defineEmits(["cancel", "update"]);
 
 const props = defineProps({
   docs: {
@@ -24,19 +19,8 @@ docForm.value.issue = docForm.value.issue
   ? new Date(docForm.value.issue).toISOString().slice(0, 10)
   : "";
 
-async function submitDocument() {
-  emit("close");
-  await authFetch("/api/documents/" + props.candId, {
-    method: "POST",
-    body: docForm.value,
-  });
-  toast.add({
-    icon: "i-heroicons-check-circle",
-    title: "Успешно",
-    description: "Информация обновлена",
-    color: "green",
-  });
-  emit("update");
+function submitDocument() {
+  emit("update", docForm.value);
   clearForm();
 }
 
