@@ -23,7 +23,7 @@ const props = defineProps({
   },
 });
 
-const action = ref(false);
+const edit = ref(false);
 const region = ref("");
 
 async function changeRegion(): Promise<void> {
@@ -42,8 +42,12 @@ async function changeRegion(): Promise<void> {
   });
 }
 
+async function openFolder() {
+  await authFetch('/api/folder/' + props.candId);
+}
+
 function submitResume(form: Persons) {
-  action.value = false;
+  edit.value = false;
   authFetch("/api/persons/" + props.candId, {
     method: "POST",
     body: form,
@@ -72,14 +76,14 @@ async function deleteItem() {
 }
 
 function cancelAction() {
-  action.value = false;
+  edit.value = false;
   emit("update");
 }
 </script>
 
 <template>
   <UCard>
-    <div v-if="action">
+    <div v-if="edit">
       <FormsResumeForm
         :resume="props.person"
         @cancel="cancelAction"
@@ -149,25 +153,23 @@ function cancelAction() {
         {{ props.person["username"] ? props.person["username"] : "" }}
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Материалы'">
-        <a
-          class="text-primary"
-          target="_blank"
-          :href="props.person['destination']"
-        >
-          {{ props.person["destination"] }}
-        </a>
+        <UButton
+          :label="props.person['destination']"
+          variant="link"
+          @click="openFolder"
+        />
       </ElementsLabelSlot>
       <ElementsLabelSlot :label="'Дополнительная информация'">
         {{ props.person["addition"] ? props.person["addition"] : "-" }}
       </ElementsLabelSlot>
     </div>
-    <template v-if="props.editable && !action" #footer>
+    <template v-if="props.editable && !edit" #footer>
       <ElementsNaviHorizont
         :cand-id="props.candId"
         :input-id="'resume-file'"
         :item="'persons'"
         @delete="deleteItem"
-        @update="action = true"
+        @update="edit = true"
       />
     </template>
   </UCard>

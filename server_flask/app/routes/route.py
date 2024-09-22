@@ -140,7 +140,7 @@ def post_user():
             )
             db_session.add(Users(**json_dict))
             db_session.commit()
-            return jsonify({"message": "Success"}), 201
+            return "", 201
         return abort(400)
     except Exception as e:
         print(e)
@@ -181,7 +181,7 @@ def get_user_actions(user_id):
             user.region = item
         get_current_user.cache_clear()
         db_session.commit()
-        return jsonify({"message": "Success"}), 201
+        return "", 201
     return abort(400)
 
 
@@ -291,8 +291,48 @@ def post_file(item, item_id):
         return abort(400)
 
 
+@bp.get("/folder/<int:item_id>")
+@roles_required(Roles.user.value)
+def get_folder(item_id):
+    """
+    Opens the folder associated with a person in the file explorer.
+
+    Parameters:
+        item_id (int): The ID of the person.
+
+    Returns:
+        An empty string and a status code of 200 if the folder is opened
+        successfully.
+
+    Raises:
+        None
+    """
+    person = db_session.get(Persons, item_id)
+    if not person.destination:
+        person.destination = make_destination(
+            current_user["region"],
+            person.surname,
+            person.firstname,
+            person.patronymic,
+            person.id,
+        )
+        db_session.commit()
+    subprocess.run(f'explorer "{person.destination}"')
+    # subprocess.run(["xdg-open", person.destination])
+    return "", 200
+
+
 @bp.get("/image")
 def get_image():
+    """
+    Get a photo of the person.
+
+    Args:
+        image: path to the folder of the person
+
+    Returns:
+        photo of the person or a default no-photo image
+    """
     image_path = request.args.get("image")
     if image_path:
         file_path = os.path.join(image_path, "image", "image.jpg")
@@ -317,8 +357,8 @@ def post_json():
     if destination and os.path.isdir(destination):
         with open(os.path.join(destination, file.filename), "wb") as f:
             f.write(json.dumps(json_dict, ensure_ascii=False).encode("utf8"))
-            # subprocess.run(f'explorer "{destination}"')
-            # subprocess.run(['xdg-open', destination])
+            subprocess.run(f'explorer "{destination}"')
+            # subprocess.run(["xdg-open", destination])
     for table, contents in anketa.items():
         if contents and table != "resume":
             for content in contents:
@@ -372,7 +412,7 @@ def change_region(person_id):
         person.region = region
         person.editable = False
         db_session.commit()
-        return jsonify({"message": "Success"}), 200
+        return "", 200
     return abort(400)
 
 
@@ -383,7 +423,7 @@ def change_self_id(item_id):
     person.editable = not person.editable
     person.user_id = current_user["id"]
     db_session.commit()
-    return jsonify({"message": "Success"}), 200
+    return "", 200
 
 
 @bp.get("/<item>/<int:item_id>")

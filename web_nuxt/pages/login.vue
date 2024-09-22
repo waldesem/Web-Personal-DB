@@ -101,7 +101,7 @@ async function submitLogin(): Promise<void> {
           class="mt-4"
           @submit.prevent="submitLogin"
         >
-          <UFormGroup class="mb-3" size="md" label="Логин">
+          <UFormGroup class="mb-3" size="md" label="Логин" name="username">
             <UInput
               v-model="loginForm['username']"
               placeholder="username"
@@ -109,7 +109,7 @@ async function submitLogin(): Promise<void> {
               required
             />
           </UFormGroup>
-          <UFormGroup class="mb-3" size="md" label="Пароль">
+          <UFormGroup class="mb-3" size="md" label="Пароль" name="password">
             <UInput
               v-model="loginForm['password']"
               type="password"
@@ -119,7 +119,7 @@ async function submitLogin(): Promise<void> {
             />
           </UFormGroup>
           <div v-if="loginAction === 'update'">
-            <UFormGroup class="mb-3" size="md" label="Новый пароль">
+            <UFormGroup class="mb-3" size="md" label="Новый пароль" name="new_pswd">
               <UInput
                 v-model="loginForm['new_pswd']"
                 type="password"
@@ -128,7 +128,7 @@ async function submitLogin(): Promise<void> {
                 required
               />
             </UFormGroup>
-            <UFormGroup class="mb-3" size="md" label="Повтор пароля">
+            <UFormGroup class="mb-3" size="md" label="Повтор пароля" name="conf_pswd">
               <UInput
                 v-model="loginForm['conf_pswd']"
                 type="password"

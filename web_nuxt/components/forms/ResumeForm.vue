@@ -39,23 +39,19 @@ function cancelEdit() {
 
 const validate = (state: Persons): FormError[] => {
   const errors = [];
-  const pattern = /^[а-яА-Я-\s]+$/;
-  if (state.surname && !state.surname.match(pattern)) {
-    console.log(state.surname);
+  if (state.surname && !state.surname.match(/^[а-яА-Я-\s]+$/)) {
     errors.push({
       path: "surname",
       message: "Поле должно содержать только русские буквы",
     });
   }
-  if (state.firstname && !state.firstname.match(pattern)) {
-    console.log(state.firstname);
+  if (state.firstname && !state.firstname.match(/^[а-яА-Я-\s]+$/)) {
     errors.push({
       path: "firstname",
       message: "Поле должно содержать только русские буквы",
     });
   }
-  if (state.patronymic && !state.patronymic.match(pattern)) {
-    console.log(state.patronymic);
+  if (state.patronymic && !state.patronymic.match(/^[а-яА-Я-\s]+$/)) {
     errors.push({
       path: "patronymic",
       message: "Поле должно содержать только русские буквы",
@@ -75,6 +71,18 @@ const validate = (state: Persons): FormError[] => {
       message: "Поле должно содержать корректную дату",
     });
   }
+  if (state.snils && !state.snils.match(/^[0-9]{11}$/)) {
+    errors.push({
+      path: "snils",
+      message: "Поле должно содержать 11 цифр",
+    });
+  }
+  if (state.inn && !state.inn.match(/^[0-9]{12}$/)) {
+    errors.push({
+      path: "inn",
+      message: "Поле должно содержать 12 цифр",
+    });
+  }
   return errors;
 };
 
@@ -90,27 +98,27 @@ async function submitResume() {
     :validate="validate"
     @submit.prevent="submitResume"
   >
-    <UFormGroup class="mb-3" label="Фамилия">
+    <UFormGroup class="mb-3" label="Фамилия" name="surname">
       <UInput
         v-model.trim="resumeForm['surname']"
         required
         placeholder="Фамилия"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Имя">
+    <UFormGroup class="mb-3" label="Имя" name="firstname">
       <UInput
         v-model.trim="resumeForm['firstname']"
         required
         placeholder="Имя"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Отчество">
+    <UFormGroup class="mb-3" label="Отчество" name="patronymic">
       <UInput
         v-model.trim="resumeForm['patronymic']"
         placeholder="Отчество"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Дата рождения">
+    <UFormGroup class="mb-3" label="Дата рождения" name="birthday">
       <UInput v-model="resumeForm['birthday']" required type="date" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Место рождения">
@@ -131,10 +139,10 @@ async function submitResume() {
         placeholder="Двойное гражданство"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="СНИЛС">
+    <UFormGroup class="mb-3" label="СНИЛС" name="snils">
       <UInput v-model.trim.lazy="resumeForm['snils']" placeholder="СНИЛС" />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="ИНН">
+    <UFormGroup class="mb-3" label="ИНН" name="inn">
       <UInput v-model.trim.lazy="resumeForm['inn']" placeholder="ИНН" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Семейное положение">
