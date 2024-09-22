@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const edit = ref(false);
+const pending = ref(false);
 const collapse = ref(false);
 const itemId = ref("");
 const check = ref({} as Verification);
@@ -32,6 +33,7 @@ const {
 });
 
 async function submitCheck(form: Verification) {
+  pending.value = true;
   closeAction();
   await authFetch("/api/checks/" + props.candId, {
     method: "POST",
@@ -43,6 +45,7 @@ async function submitCheck(form: Verification) {
     description: "Информация обновлена",
     color: "green",
   });
+  pending.value = false;
   refresh();
 }
 
@@ -98,7 +101,7 @@ function closeAction() {
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="18" />
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="18" />
       <UCard v-else>
         <template #header>
           <div class="tex-base text-red-800 dark:text-gray-400 font-medium">
@@ -185,7 +188,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="18" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="18" />
     <p v-else class="text-red-800">Проверка кандидата отсутствует</p>
   </div>
 </template>

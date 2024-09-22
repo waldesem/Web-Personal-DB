@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const edit = ref(false);
+const pending = ref(false);
 const collapse = ref(false);
 const itemId = ref("");
 const poligraf = ref({} as Pfo);
@@ -32,8 +33,9 @@ const {
 });
 
 async function submitPoligraf(form: Pfo) {
+  pending.value = true;
   closeAction();
-  await authFetch('/api/poligrafs/' + props.candId, {
+  await authFetch("/api/poligrafs/" + props.candId, {
     method: "POST",
     body: form,
   });
@@ -43,6 +45,7 @@ async function submitPoligraf(form: Pfo) {
     description: "Информация обновлена",
     color: "green",
   });
+  pending.value = false;
   refresh();
 }
 
@@ -98,7 +101,7 @@ function closeAction() {
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="4" />
       <UCard v-else>
         <template #header>
           <div class="tex-base text-red-800 font-medium">
@@ -146,7 +149,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="4" />
     <p v-else class="text-red-800">Обследование на полиграфе не проводилось</p>
   </div>
 </template>

@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const collapse = ref(false);
+const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const relation = ref({} as Relation);
@@ -32,6 +33,7 @@ const {
 });
 
 async function submitRelation(form: Relation) {
+  pending.value = true;
   closeAction();
   await authFetch("/api/relations/" + props.candId, {
     method: "POST",
@@ -43,6 +45,7 @@ async function submitRelation(form: Relation) {
     description: "Информация обновлена",
     color: "green",
   });
+  pending.value = false;
   refresh();
 }
 
@@ -93,7 +96,7 @@ function closeAction() {
   </Transition>
   <div v-if="relations && relations.length">
     <div v-for="(item, idx) in relations" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="2" />
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
       <UCard v-else>
         <FormsRelationForm
           v-if="edit && itemId == item['id'].toString()"
@@ -130,7 +133,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="2" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
     <p v-else class="text-primary">Данные отсутствуют</p>
   </div>
 </template>

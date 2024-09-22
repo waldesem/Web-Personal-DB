@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const collapse = ref(false);
+const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const affilation = ref({} as Affilation);
@@ -32,6 +33,7 @@ const {
 });
 
 async function submitAffilation(form: Affilation) {
+  pending.value = true;
   closeAction();
   await authFetch("/api/affilations/" + props.candId, {
     method: "POST",
@@ -43,6 +45,7 @@ async function submitAffilation(form: Affilation) {
     description: "Информация обновлена",
     color: "green",
   });
+  pending.value = false;
   refresh();
 }
 
@@ -93,7 +96,7 @@ function closeAction() {
   </Transition>
   <div v-if="affilations && affilations.length">
     <div v-for="(item, idx) in affilations" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="8" />
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
       <UCard v-else>
         <FormsAffilationForm
           v-if="edit && itemId == item['id'].toString()"
@@ -131,7 +134,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="8" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
     <p v-else class="text-primary">Данные отсутствуют</p>
   </div>
 </template>

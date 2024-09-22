@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const collapse = ref(false);
+const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const prev = ref({} as Previous);
@@ -32,6 +33,7 @@ const {
 });
 
 async function submitPrevious(form: Previous) {
+  pending.value = true;
   closeAction();
   await authFetch("/api/previous/" + props.candId, {
     method: "POST",
@@ -43,6 +45,7 @@ async function submitPrevious(form: Previous) {
     description: "Информация обновлена",
     color: "green",
   });
+  pending.value = false;
   refresh();
 }
 
@@ -93,7 +96,7 @@ function closeAction() {
   </Transition>
   <div v-if="previous && previous.length">
     <div v-for="(item, idx) in previous" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="4" />
       <UCard v-else>
         <FormsPreviousForm
           v-if="edit && itemId == item['id'].toString()"
@@ -137,7 +140,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="4" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="4" />
     <p v-else class="text-primary">Данные отсутствуют</p>
   </div>
 </template>

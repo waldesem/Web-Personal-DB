@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const collapse = ref(false);
+const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const need = ref({} as Needs);
@@ -32,6 +33,7 @@ const {
 });
 
 async function submitIquiry(form: Needs) {
+  pending.value = true;
   closeAction();
   await authFetch("/api/inquiries/" + props.candId, {
     method: "POST",
@@ -43,6 +45,7 @@ async function submitIquiry(form: Needs) {
     description: "Информация обновлена",
     color: "green",
   });
+  pending.value = false;
   refresh();
 }
 
@@ -98,7 +101,7 @@ function cancelOperation() {
       :key="index"
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
-      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="6" />
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="6" />
       <UCard v-else>
         <template #header>
           <div class="tex-base text-red-800 font-medium">
@@ -149,7 +152,7 @@ function cancelOperation() {
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="6" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="6" />
     <p v-else class="text-red-800">Запросы о сотруднике не поступали</p>
   </div>
 </template>

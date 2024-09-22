@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const collapse = ref(false);
+const pending = ref(false);
 const edit = ref(false);
 const itemId = ref("");
 const staff = ref({} as Staff);
@@ -32,6 +33,7 @@ const {
 });
 
 async function submitStaff(form: Staff) {
+  pending.value = true;
   closeAction();
   await authFetch("/api/staffs/" + props.candId, {
     method: "POST",
@@ -43,6 +45,7 @@ async function submitStaff(form: Staff) {
     description: "Информация обновлена",
     color: "green",
   });
+  pending.value = false;
   refresh();
 }
 
@@ -93,7 +96,7 @@ function closeAction() {
   </Transition>
   <div v-if="staffs && staffs.length">
     <div v-for="(item, idx) in staffs" :key="idx" class="p-1">
-      <ElementsSkeletonDiv v-if="status == 'pending'" :rows="2" />
+      <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
       <UCard v-else>
         <FormsStaffForm
           v-if="edit && itemId == item['id'].toString()"
@@ -128,7 +131,7 @@ function closeAction() {
     </div>
   </div>
   <div v-else class="p-3">
-    <ElementsSkeletonDiv v-if="status == 'pending'" :rows="2" />
+    <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="2" />
     <p v-else class="text-primary">Данные о должностях отсутствуют</p>
   </div>
 </template>
