@@ -53,7 +53,6 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@nuxt/eslint",
     "@nuxtjs/color-mode",
-    'nuxt-purgecss',
     "@nuxt/icon",
   ],
 });
