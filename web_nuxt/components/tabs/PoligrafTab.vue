@@ -86,13 +86,13 @@ function closeAction() {
   />
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
-      <UCard>
+      <ElementsCardDiv>
         <FormsPoligrafForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitPoligraf"
         />
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </Transition>
   <div v-if="poligrafs && poligrafs.length">
@@ -102,7 +102,7 @@ function closeAction() {
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
       <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="4" />
-      <UCard v-else>
+      <ElementsCardDiv v-else>
         <template #header>
           <div class="tex-base text-red-800 font-medium">
             {{ "Обследование на полиграфе ID #" + item["id"] }}
@@ -145,7 +145,7 @@ function closeAction() {
             @delete="deletePoligraf(item['id'])"
           />
         </template>
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </div>
   <div v-else class="p-3">

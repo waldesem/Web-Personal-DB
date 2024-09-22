@@ -85,19 +85,19 @@ function closeAction() {
   />
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
-      <UCard>
+      <ElementsCardDiv>
         <FormsEducationForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitEducation"
         />
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </Transition>
   <div v-if="educations && educations.length">
     <div v-for="(item, idx) in educations" :key="idx" class="p-1">
       <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="8" />
-      <UCard v-else>
+      <ElementsCardDiv v-else>
         <FormsEducationForm
           v-if="edit && itemId == item['id'].toString()"
           :cand-id="props.candId"
@@ -133,7 +133,7 @@ function closeAction() {
             "
           />
         </template>
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </div>
   <div v-else class="p-3">

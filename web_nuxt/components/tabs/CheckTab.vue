@@ -86,13 +86,13 @@ function closeAction() {
   />
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
-      <UCard>
+      <ElementsCardDiv>
         <FormsCheckForm
           :cand-id="props.candId"
           @update="submitCheck"
           @cancel="cancelOperation"
         />
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </Transition>
   <div v-if="checks && checks.length">
@@ -102,7 +102,7 @@ function closeAction() {
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
       <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="18" />
-      <UCard v-else>
+      <ElementsCardDiv>
         <template #header>
           <div class="tex-base text-red-800 dark:text-gray-400 font-medium">
             {{ "Проверка кандидата ID #" + item["id"] }}
@@ -184,7 +184,7 @@ function closeAction() {
             @delete="deleteCheck(item['id'])"
           />
         </template>
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </div>
   <div v-else class="p-3">

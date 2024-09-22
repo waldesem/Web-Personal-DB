@@ -85,12 +85,7 @@ const filtredLinks = computed(() => {
         <UPopover class="absolute top-0 right-24" mode="hover" :popper="{ placement: 'top-start' }">
           <UAvatar :alt="userState.fullname" />
           <template #panel>
-            <UCard
-              :ui="{body: {
-                  base: '',
-                  background: '',
-                  padding: 'p-6 sm:p-2',
-                }}">
+            <ElementsCardDiv>
               <p class="text-center text-sm text-gray-500">
                 {{ userState.fullname }}
               </p>
@@ -103,7 +98,7 @@ const filtredLinks = computed(() => {
               <p class="text-center text-sm text-gray-500">
                 Роль: {{ userState.role }}
               </p>
-            </UCard>
+            </ElementsCardDiv>
           </template>
         </UPopover>
       </div>

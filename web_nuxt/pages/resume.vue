@@ -28,8 +28,8 @@ async function submitResume(form: Persons) {
 <template>
   <LayoutsMenu>
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'" />
-    <UCard>
+    <ElementsCardDiv>
       <FormsResumeForm @cancel="openPersons" @update="submitResume" />
-    </UCard>
+    </ElementsCardDiv>
   </LayoutsMenu>
 </template>

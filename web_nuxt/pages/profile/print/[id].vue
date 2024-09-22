@@ -8,11 +8,9 @@ const route = useRoute();
 
 const candId = computed(() => route.params.id) as unknown as string;
 
-const person = ref({} as Persons)
-
-await useAsyncData("anketa", async () => {
-  const response = await authFetch('/api/persons/' + candId);
-  person.value = response as Persons;
+const { data: person } = await useAsyncData("anketa", async () => {
+  const response = await authFetch('/api/persons/' + candId.value);
+  return response as Persons;
 });
 
 </script>

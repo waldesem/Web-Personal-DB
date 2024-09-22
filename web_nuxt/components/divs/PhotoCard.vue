@@ -69,7 +69,7 @@ function onContextMenu() {
 
 <template>
   <div class="flex justify-left">
-    <UCard
+    <ElementsCardDiv
       :ui="{ body: { padding: 'p-1 sm:p-1' } }"
       @contextmenu.prevent="onContextMenu"
     >
@@ -95,6 +95,6 @@ function onContextMenu() {
           />
         </div>
       </UContextMenu>
-    </UCard>
+    </ElementsCardDiv>
   </div>
 </template>

@@ -86,13 +86,13 @@ function cancelOperation() {
   />
   <Transition name="slide-fade">
     <div v-if="collapse" class="py-3">
-      <UCard>
+      <ElementsCardDiv>
         <FormsInquiryForm
           :cand-id="props.candId"
           @cancel="cancelOperation"
           @update="submitIquiry"
         />
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </Transition>
   <div v-if="inquiries && inquiries.length">
@@ -102,7 +102,7 @@ function cancelOperation() {
       class="text-sm text-gray-500 dark:text-gray-400 py-1"
     >
       <ElementsSkeletonDiv v-if="status == 'pending' || pending" :rows="6" />
-      <UCard v-else>
+      <ElementsCardDiv v-else>
         <template #header>
           <div class="tex-base text-red-800 font-medium">
             {{ "Запрос о сотруднике ID #" + item["id"] }}
@@ -148,7 +148,7 @@ function cancelOperation() {
             "
           />
         </template>
-      </UCard>
+      </ElementsCardDiv>
     </div>
   </div>
   <div v-else class="p-3">

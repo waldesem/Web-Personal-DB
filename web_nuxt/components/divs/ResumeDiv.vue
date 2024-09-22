@@ -85,7 +85,7 @@ function cancelAction() {
 </script>
 
 <template>
-  <UCard>
+  <ElementsCardDiv>
     <div v-if="edit">
       <FormsResumeForm
         :resume="props.person"
@@ -180,5 +180,5 @@ function cancelAction() {
         @update="edit = true"
       />
     </template>
-  </UCard>
+  </ElementsCardDiv>
 </template>

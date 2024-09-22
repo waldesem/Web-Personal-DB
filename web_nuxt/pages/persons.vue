@@ -104,6 +104,10 @@ async function uploadJson(filelist: FileList) {
     </div>
     <UTable
       :loading="status == 'pending' || persons.upload"
+      :loading-state="{
+        icon: 'i-heroicons-arrow-path-20-solid',
+        label: 'Загрузка...',
+      }"
       :progress="{ color: 'red', animation: 'swing' }"
       :empty-state="{
         icon: 'i-heroicons-circle-stack-20-solid',
@@ -121,17 +125,16 @@ async function uploadJson(filelist: FileList) {
         { key: 'editable', label: 'Статус' },
       ]"
       :rows="persons.candidates"
+      @select="navigateTo(`/profile/${$event.id}`)"
     >
       <template #id-data="{ row }">{{ row.id }}</template>
       <template #region-data="{ row }">{{ row.region }}</template>
       <template #surname-data="{ row }">
-        <NuxtLink :to="`/profile/${row.id}`">
-          {{
-            `${row.surname} ${row.firstname} ${
-              row.patronymic ? row.patronymic : ""
-            }`
-          }}
-        </NuxtLink>
+        {{
+          `${row.surname} ${row.firstname} ${
+            row.patronymic ? row.patronymic : ""
+          }`
+        }}
       </template>
       <template #birthday-data="{ row }">{{
         new Date(row.birthday).toLocaleDateString()
@@ -147,10 +150,18 @@ async function uploadJson(filelist: FileList) {
       }}</template>
       <template #editable-data="{ row }">
         <div
-          class="text-center me-12"
-          :class="row.editable ? 'animate-pulse' : ''"
+          class="text-start"
+          :class="row.editable ? 'text-red-600' : 'text-primary'"
         >
-          <UChip size="2xl" :color="row.editable ? 'red' : 'green'" />
+          <UIcon
+            :name="
+              row.editable
+                ? 'i-heroicons-arrow-path'
+                : 'i-heroicons-check-circle'
+            "
+            class="w-6 h-6"
+            :class="{ ' animate-spin': row.editable }"
+          />
         </div>
       </template>
       <template #caption>
