@@ -52,7 +52,7 @@ async function submitWorkplace(form: Work) {
 async function deleteWork(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  authFetch("/api/workplaces/" + id, {
+  await authFetch("/api/workplaces/" + id, {
     method: "DELETE",
   });
   toast.add({

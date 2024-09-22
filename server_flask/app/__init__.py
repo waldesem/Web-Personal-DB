@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask
 
 # from flask_cors import CORS
@@ -8,6 +10,13 @@ from config import Config
 from .model.classes import Regions, Roles
 from .model.tables import db_session, Users
 from .routes.route import bp as route_bp
+
+file_handler = logging.FileHandler("error.log")
+file_handler.setLevel(logging.ERROR)
+
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+
 
 def create_app(config_class=Config):
     """
@@ -22,6 +31,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     app.register_blueprint(route_bp)
+    app.logger.addHandler(file_handler)
     # CORS(app, resources={r"/*": {"origins": "*"}})
 
     if not db_session.execute(
@@ -51,12 +61,9 @@ def create_app(config_class=Config):
     def static_file(path=""):
         return app.send_static_file(path)
 
-    @app.errorhandler(404)
-    def not_found(error):
-        return app.redirect("/")
-
-    @app.errorhandler(400)
-    def abort_route(error):
+    @app.errorhandler(Exception)
+    def handle_error(error):
+        app.logger.error(error)
         return app.redirect("/")
 
     return app

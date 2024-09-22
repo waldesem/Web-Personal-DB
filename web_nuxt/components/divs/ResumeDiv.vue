@@ -47,10 +47,10 @@ async function openFolder() {
   await authFetch('/api/folder/' + props.candId);
 }
 
-function submitResume(form: Persons) {
+async function submitResume(form: Persons) {
   pending.value = true;
   edit.value = false;
-  authFetch("/api/persons/" + props.candId, {
+  await authFetch("/api/persons/" + props.candId, {
     method: "POST",
     body: form,
   });
@@ -109,7 +109,7 @@ function cancelAction() {
             ]"
             :disabled="!props.editable"
             :placeholder="props.person['region']"
-            @change="changeRegion()"
+            @change="changeRegion"
           />
         </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Фамилия'">
@@ -157,15 +157,17 @@ function cancelAction() {
         <ElementsLabelSlot :label="'Пользователь'">
           {{ props.person["username"] ? props.person["username"] : "" }}
         </ElementsLabelSlot>
+        <ElementsLabelSlot
+            v-if="props.person['addition']"
+           :label="'Дополнительная информация'">
+          {{ props.person["addition"] }}
+        </ElementsLabelSlot>
         <ElementsLabelSlot :label="'Материалы'">
           <UButton
             :label="props.person['destination']"
             variant="link"
             @click="openFolder"
           />
-        </ElementsLabelSlot>
-        <ElementsLabelSlot :label="'Дополнительная информация'">
-          {{ props.person["addition"] ? props.person["addition"] : "-" }}
         </ElementsLabelSlot>
       </div>
     </div>

@@ -21,7 +21,6 @@ const alertMessage = {
 
 const validate = (state: Login) => {
   const errors = [];
-  const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,16}$/;
   if (loginAction.value === "update") {
     if (state.password === state.new_pswd) {
       errors.push({
@@ -29,11 +28,11 @@ const validate = (state: Login) => {
         message: "Старый и новый пароли совпадают",
       });
     }
-    if (!state.new_pswd.match(pattern)) {
+    if (!state.new_pswd.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*d).{8,16}$/)) {
       errors.push({
         path: "new_pswd",
         message:
-          "Пароль должен быть от 8 до 16 цифр и букв в нижнем регистре латинской раскладки",
+          "Пароль должен быть от 8 до 16 цифр и латинских букв в нижнем и верхнем регистре",
       });
     }
     if (state.conf_pswd !== state.new_pswd) {

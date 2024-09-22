@@ -49,10 +49,10 @@ async function submitStaff(form: Staff) {
   refresh();
 }
 
-function deleteStaff(id: string) {
+async function deleteStaff(id: string) {
   closeAction();
   if (!confirm(`Вы действительно хотите удалить запись?`)) return;
-  authFetch("/api/staffs/" + id, {
+  await authFetch("/api/staffs/" + id, {
     method: "DELETE",
   });
   toast.add({

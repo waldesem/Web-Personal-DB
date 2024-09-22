@@ -39,19 +39,19 @@ function cancelEdit() {
 
 const validate = (state: Persons): FormError[] => {
   const errors = [];
-  if (state.surname && !state.surname.match(/^[а-яА-Я-\s]+$/)) {
+  if (state.surname && !state.surname.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({
       path: "surname",
       message: "Поле должно содержать только русские буквы",
     });
   }
-  if (state.firstname && !state.firstname.match(/^[а-яА-Я-\s]+$/)) {
+  if (state.firstname && !state.firstname.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({
       path: "firstname",
       message: "Поле должно содержать только русские буквы",
     });
   }
-  if (state.patronymic && !state.patronymic.match(/^[а-яА-Я-\s]+$/)) {
+  if (state.patronymic && !state.patronymic.match(/^[а-яёЁА-Я-\s]+$/)) {
     errors.push({
       path: "patronymic",
       message: "Поле должно содержать только русские буквы",
@@ -81,6 +81,15 @@ const validate = (state: Persons): FormError[] => {
     errors.push({
       path: "inn",
       message: "Поле должно содержать 12 цифр",
+    });
+  }
+  if (
+    state.designation &&
+    !state.designation.match(/^([a-zA-Z]:)?[/\\][\w.-]+(\/|\\)[\w.-]+$/)
+  ) {
+    errors.push({
+      path: "designation",
+      message: "Поле должно содержать корректный путь",
     });
   }
   return errors;
@@ -113,10 +122,7 @@ async function submitResume() {
       />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Отчество" name="patronymic">
-      <UInput
-        v-model.trim="resumeForm['patronymic']"
-        placeholder="Отчество"
-      />
+      <UInput v-model.trim="resumeForm['patronymic']" placeholder="Отчество" />
     </UFormGroup>
     <UFormGroup class="mb-3" label="Дата рождения" name="birthday">
       <UInput v-model="resumeForm['birthday']" required type="date" />
@@ -127,15 +133,15 @@ async function submitResume() {
         placeholder="Место рождения"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Гражданство">
+    <UFormGroup class="mb-3" label="Гражданство" name="citizenship">
       <UInput
-        v-model.trim.lazy="resumeForm['citizenship']"
+        v-model.trim="resumeForm['citizenship']"
         placeholder="Гражданство"
       />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Двойное гражданство">
+    <UFormGroup class="mb-3" label="Двойное гражданство" name="dual">
       <UInput
-        v-model.trim.lazy="resumeForm['dual']"
+        v-model.trim="resumeForm['dual']"
         placeholder="Двойное гражданство"
       />
     </UFormGroup>
@@ -145,7 +151,7 @@ async function submitResume() {
     <UFormGroup class="mb-3" label="ИНН" name="inn">
       <UInput v-model.trim.lazy="resumeForm['inn']" placeholder="ИНН" />
     </UFormGroup>
-    <UFormGroup class="mb-3" label="Семейное положение">
+    <UFormGroup class="mb-3" label="Семейное положение" name="marital">
       <UTextarea
         v-model.trim.lazy="resumeForm['marital']"
         placeholder="Семейное положение"
@@ -155,6 +161,17 @@ async function submitResume() {
       <UTextarea
         v-model.trim.lazy="resumeForm['addition']"
         placeholder="Дополнительно"
+      />
+    </UFormGroup>
+    <UFormGroup
+      help="Следует использовать только в режиме редактирования иначе данные будут перезаписаны"
+      class="mb-3"
+      label="Материалы"
+      name="destination"
+    >
+      <UInput
+        v-model.trim.lazy="resumeForm['destination']"
+        placeholder="Материалы"
       />
     </UFormGroup>
     <ElementsBtnGroup @cancel="cancelOperation" />

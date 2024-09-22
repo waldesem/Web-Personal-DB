@@ -45,7 +45,7 @@ const { refresh, data, status } = await useLazyAsyncData(
       <UTable
         :loading="status == 'pending'"
         :progress="{ color: 'red', animation: 'swing' }"
-        :rows="data as Record<string, string>[]"
+        :rows="(data as Record<string, string>[])"
         :columns="[
           { key: 'conclusion', label: 'Решение' },
           { key: 'count', label: 'Количество' },

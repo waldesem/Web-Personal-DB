@@ -36,7 +36,7 @@ const users = computed(() => {
  */
 async function getUsers() {
   const fetchAuth = useFetchAuth();
-  dataUsers.value.users = (await fetchAuth('/api/users', {
+  dataUsers.value.users = (await fetchAuth("/api/users", {
     params: {
       search: dataUsers.value.search,
     },
@@ -57,7 +57,7 @@ async function userAction(
   if (!confirm("Подтвердите действие!")) {
     return;
   }
-  await fetchAuth('/api/users/' + id, {
+  await fetchAuth("/api/users/" + id, {
     params: {
       item: item,
     },
@@ -81,7 +81,7 @@ async function userAction(
  * @returns {Promise<void>}
  */
 async function submitUser(): Promise<void> {
-  await fetchAuth('/api/users', {
+  await fetchAuth("/api/users", {
     method: "POST",
     body: dataUsers.value.form,
   });
@@ -99,6 +99,32 @@ async function submitUser(): Promise<void> {
   });
 }
 
+const validate = (state: User): FormError[] => {
+  const errors = [];
+  if (state.fullname && !state.fullname.match(/^[а-яёЁА-Я-\s]+$/)) {
+    errors.push({
+      path: "surname",
+      message: "Поле должно содержать только русские буквы",
+    });
+  }
+  if (state.username && !state.username.match(/^[a-zA-Z_\s]+$/)) {
+    errors.push({
+      path: "username",
+      message:
+        "Поле должно содержать только латинские буквы и знаки подчеркивания",
+    });
+  }
+  if (
+    state.email &&
+    !state.email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)
+  ) {
+    errors.push({
+      path: "email",
+      message: "Поле должно содержать корректную почту",
+    });
+  }
+  return errors;
+};
 /**
  * Searches for users based on the current search query.
  */
@@ -160,11 +186,12 @@ await getUsers();
       <UForm
         v-if="dataUsers.collapsed"
         :state="dataUsers.form"
+        :validate="validate"
         @submit.prevent="submitUser"
       >
         <div class="flex grid grid-cols-7 gap-3 border rounded p-3">
           <div class="col-span-2">
-            <UFormGroup required class="mb-3">
+            <UFormGroup required class="mb-3" name="fullname">
               <UInput
                 v-model="dataUsers.form['fullname']"
                 placeholder="Имя пользователя"
@@ -172,7 +199,7 @@ await getUsers();
             </UFormGroup>
           </div>
           <div class="col-span-2">
-            <UFormGroup required class="mb-3">
+            <UFormGroup required class="mb-3" name="username">
               <UInput
                 v-model="dataUsers.form['username']"
                 placeholder="Логин"
@@ -180,7 +207,7 @@ await getUsers();
             </UFormGroup>
           </div>
           <div class="col-span-2">
-            <UFormGroup required class="mb-3">
+            <UFormGroup required class="mb-3" name="email">
               <UInput v-model="dataUsers.form['email']" placeholder="Email" />
             </UFormGroup>
           </div>
