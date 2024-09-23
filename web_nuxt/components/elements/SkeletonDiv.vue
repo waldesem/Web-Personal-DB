@@ -8,6 +8,7 @@ const props = defineProps({
 </script>
 
 <template>
+  <UCard>
   <div
     v-for="i in props.rows"
     :key="i"
@@ -20,4 +21,5 @@ const props = defineProps({
       <USkeleton class="h-4 w-[300px]" />
     </div>
   </div>
+  </Card>
 </template>
