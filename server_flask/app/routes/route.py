@@ -213,7 +213,7 @@ def get_index(page):
             stmt = stmt.filter(Persons.surname.ilike(f"%{query[0]}%"))
         if len(query) > 1:
             stmt = stmt.filter(Persons.firstname.ilike(f"%{query[1]}%"))
-        else:
+        if len(query) > 2:
             stmt = stmt.filter(Persons.patronymic.ilike(f"%{query[2]}%"))
     if cur_user["region"] != Regions.main.value:
         stmt = stmt.filter(Persons.region == cur_user["region"])
