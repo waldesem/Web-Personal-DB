@@ -3,6 +3,8 @@ import { stateUser, userToken } from "@/utils/auth";
 
 const userState = stateUser();
 
+const showNav = ref(true);
+
 async function removeToken(): Promise<void> {
   if (confirm("Вы действительно хотите выйти?")) {
     navigateTo("/login");
@@ -65,7 +67,10 @@ const filtredLinks = computed(() => {
   >
     <header class="sticky pt-8 pb-16">
       <div class="flex justify-between relative">
-        <div class="absolute top-0 left-0 inline-flex text-2xl font-bold">
+        <div class="absolute top-0 left-0 inline-flex">
+          <UButton icon="i-heroicons-bars-4" @click="swowMenu = !showMenu"
+        </div>
+        <div class="absolute top-0 left-12 inline-flex text-2xl font-bold">
           <h3 class="text-primary">STAFFSEC</h3>
             &nbsp;
           <h3 class="text-red-800">ФИНТЕХ</h3>
@@ -105,6 +110,7 @@ const filtredLinks = computed(() => {
     </header>
     <div class="grid grid-cols-12 gap-6">
       <div
+        v-show="showNav"
         class="flex flex-col h-full col-span-2 pt-3 border-r border-gray-200"
       >
         <UVerticalNavigation
