@@ -109,8 +109,9 @@ const filtredLinks = computed(() => {
       </div>
     </header>
     <div class="grid grid-cols-12 gap-6">
+      <Transition name="slide-fade">
       <div
-        v-show="showNav"
+        v-if="showNav"
         class="flex flex-col h-full col-span-2 pt-3 border-r border-gray-200"
       >
         <UVerticalNavigation
@@ -124,6 +125,7 @@ const filtredLinks = computed(() => {
           }"
         />
       </div>
+      </Transition>
       <div class="flex flex-col col-span-10 py-8">
         <slot />
       </div>
