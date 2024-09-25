@@ -248,8 +248,3 @@ class AnketaSchemaJson(BaseModel):
     relatedPersonsOrganizations: Optional[list[RelatedPersonsOrganizationsJson]] = []
     stateOrganizations: Optional[list[StateOrganizationsJson]] = []
     publicOfficeOrganizations: Optional[list[PublicOfficeOrganizationsJson]] = []
-    staffs: list = []
-    addresses: list = []
-    contacts: list = []
-    affilations: list = []
-    documents: list = []
