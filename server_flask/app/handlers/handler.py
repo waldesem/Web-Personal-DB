@@ -140,13 +140,13 @@ def handle_json_to_dict(data):
             "inn": anketa.pop("inn", ""),
             "snils": anketa.pop("snils", ""),
         }
-        anketa["staffs"].append(
+        anketa["staffs"] = [
             {
                 "position": anketa.pop("positionName", ""),
                 "department": anketa.pop("department", ""),
             }
-        )
-        anketa["documents"].append(
+        ]
+        anketa["documents"] = [
             {
                 "view": "Паспорт",
                 "digits": anketa.pop("passportNumber", ""),
@@ -154,9 +154,8 @@ def handle_json_to_dict(data):
                 "issue": anketa.pop("passportIssueDate", ""),
                 "agency": anketa.pop("passportIssuedBy", ""),
             }
-        )
-        anketa["addresses"].extend(
-            [
+        ]
+        anketa["addresses"] = [
                 {
                     "view": "Адрес проживания",
                     "addresses": anketa.pop("validAddress", ""),
@@ -166,14 +165,11 @@ def handle_json_to_dict(data):
                     "addresses": anketa.pop("regAddress", ""),
                 },
             ]
-        )
-        anketa["contacts"].extend(
-            [
+        anketa["contacts"] = [
                 {"view": "Телефон", "contact": anketa.pop("contactPhone", "")},
                 {"view": "Электронная почта", "contact": anketa.pop("email", "")},
             ]
-        )
-        anketa["affilations"].extend(
+        anketa["affilations"] = (
             anketa.pop("organizations")
             + anketa.pop("stateOrganizations")
             + anketa.pop("publicOfficeOrganizations")
