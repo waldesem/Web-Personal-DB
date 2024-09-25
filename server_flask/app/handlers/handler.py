@@ -26,14 +26,17 @@ def handle_get_item(item, item_id):
     Raises:
         None
     """
-    stmt = select(tables_models[item], Users.fullname)
+    model = tables_models.get(item)
+    if not model:
+        return abort(400)
+    stmt = select(model, Users.fullname)
     stmt = (
         stmt.filter(Persons.id == item_id)
         if item == "persons"
-        else stmt.filter(tables_models[item].person_id == item_id)
+        else stmt.filter(model.person_id == item_id)
     )
-    stmt = stmt.filter(tables_models[item].user_id == Users.id)
-    query = db_session.execute(stmt.order_by(desc(tables_models[item].id))).all()
+    stmt = stmt.filter(model.user_id == Users.id)
+    query = db_session.execute(stmt.order_by(desc(model.id))).all()
     result = [row[0].to_dict() | {"username": row[1]} for row in query]
     return result[0] if item == "persons" else result
 
