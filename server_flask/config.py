@@ -28,9 +28,6 @@ class Configuration:
     )
 
 
-class DesktopConfig(Configuration):
-    SECRET_KEY = "SUPERSECRETKEY"
-
 
 class SqliteConfig(Configuration):
     pass
