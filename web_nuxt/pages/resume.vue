@@ -6,11 +6,14 @@ const toast = useToast();
 
 const authFetch = useFetchAuth();
 
+const upload = ref(false);
+
 function openPersons() {
   return navigateTo("/persons");
 }
 
 async function submitResume(form: Persons) {
+  upload.value = true;
   const { person_id } = (await authFetch("/api/resume", {
     method: "POST",
     body: form,
@@ -21,6 +24,7 @@ async function submitResume(form: Persons) {
     description: "Информация добавлена",
     color: "green",
   });
+  upload.value = false;
   return navigateTo("/profile/" + person_id);
 }
 </script>
@@ -28,7 +32,11 @@ async function submitResume(form: Persons) {
 <template>
   <LayoutsMenu>
     <ElementsHeaderDiv :div="'mb-6'" :header="'НОВАЯ АНКЕТА'" />
-    <ElementsCardDiv>
+    <ElementsSkeletonDiv
+      v-if="upload"
+      :rows="16"
+    />
+    <ElementsCardDiv v-else>
       <FormsResumeForm @cancel="openPersons" @update="submitResume" />
     </ElementsCardDiv>
   </LayoutsMenu>
